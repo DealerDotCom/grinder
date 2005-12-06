@@ -49,6 +49,7 @@ import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.util.FileContents;
+import net.grinder.util.thread.InterruptibleCondition;
 
 
 /**
@@ -79,10 +80,7 @@ public final class ConsoleCommunicationImplementation
   private ServerReceiver m_receiver = null;
   private FanOutServerSender m_sender = null;
 
-  /**
-   * Synchronise on this before accessing.
-   */
-  private boolean m_deaf = true;
+  private InterruptibleCondition m_processing = new InterruptibleCondition();
 
   /**
    * Constructor.
@@ -170,7 +168,7 @@ public final class ConsoleCommunicationImplementation
   private void reset() {
     try {
       if (m_acceptor != null) {
-         m_acceptor.shutdown();
+        m_acceptor.shutdown();
       }
     }
     catch (CommunicationException e) {
@@ -186,16 +184,16 @@ public final class ConsoleCommunicationImplementation
       m_receiver.shutdown();
     }
 
-    synchronized (this) {
-      while (!m_deaf) {
-        try {
-          wait();
-        }
-        catch (InterruptedException e) {
-          m_errorQueue.handleException(e);
-          return;
-        }
-      }
+    // Wait until we're deaf. This requires that some other thread executes
+    // processOneMessage(). We can't suck on m_receiver ourself as there may be
+    // valid pending messages queued up.
+
+    try {
+      m_processing.await(false);
+    }
+    catch (InterruptedException e) {
+      m_errorQueue.handleException(e);
+      return;
     }
 
     try {
@@ -208,25 +206,34 @@ public final class ConsoleCommunicationImplementation
         new DisplayMessageConsoleException(
           m_resources, "localBindError.text", e));
 
+      // Interrupt any threads waiting in processOneMessage().
+      try {
+        m_processing.interruptAllWaiters();
+      }
+      catch (InterruptedException e2) {
+        m_errorQueue.handleException(e2);
+        return;
+      }
+
       return;
     }
 
-    final Thread acceptorProblemListener =
-      new Thread("Acceptor problem listener") {
+    final Thread acceptorProblemListener = new Thread(
+      "Acceptor problem listener") {
 
-        public void run() {
-          while (true) {
-            final Exception exception = m_acceptor.getPendingException(true);
+      public void run() {
+        while (true) {
+          final Exception exception = m_acceptor.getPendingException(true);
 
-            if (exception == null) {
-              // Acceptor is shutting down.
-              break;
-            }
-
-            m_errorQueue.handleException(exception);
+          if (exception == null) {
+            // Acceptor is shutting down.
+            break;
           }
+
+          m_errorQueue.handleException(exception);
         }
-      };
+      }
+    };
 
     acceptorProblemListener.setDaemon(true);
     acceptorProblemListener.start();
@@ -243,10 +250,7 @@ public final class ConsoleCommunicationImplementation
 
     m_sender = new FanOutServerSender(m_acceptor, ConnectionType.AGENT, 3);
 
-    synchronized (this) {
-      m_deaf = false;
-      notifyAll();
-    }
+    m_processing.set(true);
   }
 
   /**
@@ -283,26 +287,24 @@ public final class ConsoleCommunicationImplementation
    */
   public void processOneMessage() throws ConsoleException  {
     while (true) {
-      synchronized (this) {
-        while (m_deaf) {
-          try {
-            wait();
-          }
-          catch (InterruptedException e) {
-            // Ignore because its a pain to propagate.
-          }
+      try {
+        if (!m_processing.await(true)) {
+          // await() interrupted before we were listening.
+          return;
         }
+      }
+      catch (InterruptedException e) {
+        throw new ConsoleException("Thread interrupted", e);
       }
 
       try {
         final Message message = m_receiver.waitForMessage();
 
         if (message == null) {
-          // Current receiver has been shutdown.
-          synchronized (this) {
-            m_deaf = true;
-            notifyAll();
-          }
+          // Current receiver has been shut down.
+          m_processing.set(false);
+
+          // We return, to give our caller a chance to handle any shut down.
         }
         else {
           m_messageHandlers.send(message);
@@ -311,6 +313,7 @@ public final class ConsoleCommunicationImplementation
         break;
       }
       catch (CommunicationException e) {
+        // TODO should set m_listening to false?
         m_errorQueue.handleException(new ConsoleException(e.getMessage(), e));
       }
     }
