@@ -961,6 +961,8 @@ public class TestHTTPRequest extends TestCase {
     }
 
     m_statisticsStubFactory.assertNoMoreCalls();
+
+    handler.shutdown();
   }
 
   public final void testSubclassProcessResponse() throws Exception {
@@ -978,5 +980,7 @@ public class TestHTTPRequest extends TestCase {
     final HTTPResponse response = request.GET(handler.getURL());
 
     assertSame(response, resultHolder[0]);
+
+    handler.shutdown();
   }
 }
