@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import net.grinder.util.thread.Monitor;
+
 import junit.framework.Assert;
 
 
@@ -36,6 +38,7 @@ import junit.framework.Assert;
  */
 public class CallRecorder extends Assert {
 
+  private final Monitor m_callDataListMonitor = new Monitor();
   private final LinkedList m_callDataList = new LinkedList();
   private boolean m_ignoreObjectMethods = false;
 
@@ -43,21 +46,30 @@ public class CallRecorder extends Assert {
    *  Reset the call data.
    */
   public final void resetCallHistory() {
-    m_callDataList.clear();
+    synchronized (m_callDataListMonitor) {
+      m_callDataList.clear();
+      m_callDataListMonitor.notifyAll();
+    }
   }
 
-  public boolean hasBeenCalled() {
-    return m_callDataList.size() > 0;
+  public void waitUntilCalled(int timeout) {
+    synchronized (m_callDataListMonitor) {
+      while (m_callDataList.size() == 0) {
+        m_callDataListMonitor.waitNoInterrruptException(timeout);
+      }
+    }
   }
 
   public String getCallHistory() {
     final StringBuffer result = new StringBuffer();
 
-    final Iterator iterator = m_callDataList.iterator();
+    synchronized (m_callDataListMonitor) {
+      final Iterator iterator = m_callDataList.iterator();
 
-    while(iterator.hasNext()) {
-      result.append(iterator.next());
-      result.append("\n");
+      while(iterator.hasNext()) {
+        result.append(iterator.next());
+        result.append("\n");
+      }
     }
 
     return result.toString();
@@ -77,7 +89,10 @@ public class CallRecorder extends Assert {
           Object result) {
 
     if (shouldRecord(method)) {
-      m_callDataList.add(new CallData(method, parameters, result));
+      synchronized (m_callDataListMonitor) {
+        m_callDataList.add(new CallData(method, parameters, result));
+        m_callDataListMonitor.notifyAll();
+      }
     }
   }
 
@@ -85,7 +100,10 @@ public class CallRecorder extends Assert {
     Method method, Object[] parameters, Throwable throwable) {
 
     if (shouldRecord(method)) {
-      m_callDataList.add(new CallData(method, parameters, throwable));
+      synchronized (m_callDataListMonitor) {
+        m_callDataList.add(new CallData(method, parameters, throwable));
+        m_callDataListMonitor.notifyAll();
+      }
     }
   }
 
@@ -93,8 +111,10 @@ public class CallRecorder extends Assert {
    *  Check that no methods have been called.
    */
   public final void assertNoMoreCalls() {
-    assertEquals("Call history:\n" + getCallHistory(),
-                 0, m_callDataList.size());
+    synchronized (m_callDataListMonitor) {
+      assertEquals("Call history:\n" + getCallHistory(),
+                   0, m_callDataList.size());
+    }
   }
 
   /**
@@ -200,7 +220,14 @@ public class CallRecorder extends Assert {
 
   public final CallData getCallData() {
     // Check the earliest call first.
-    return (CallData) m_callDataList.removeFirst();
+    synchronized (m_callDataListMonitor) {
+      try {
+        return (CallData) m_callDataList.removeFirst();
+      }
+      finally {
+        m_callDataListMonitor.notifyAll();
+      }
+    }
   }
 
   private final CallData assertCalledInternal(String methodName,

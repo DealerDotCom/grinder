@@ -123,13 +123,11 @@ public class TestAcceptor extends TestCase {
 
     // Sleep until we've accepted both control connections and our
     // listener has been notified. Give up after a few seconds.
-    for (int i = 0;
-         !(controlSocketSet.countActive() == 2 &&
-           listenerStubFactory.hasBeenCalled()) &&
-           i < 10;
-         ++i) {
+    for (int i = 0; controlSocketSet.countActive() != 2 && i < 10; ++i) {
       Thread.sleep(i * i * 10);
     }
+
+    listenerStubFactory.waitUntilCalled(1000);
 
     final CallData callData =
       listenerStubFactory.assertSuccess("connectionAccepted",
