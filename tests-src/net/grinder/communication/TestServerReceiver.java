@@ -47,7 +47,7 @@ public class TestServerReceiver extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
-    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3, 10);
 
     serverReceiver.shutdown();
     acceptor.shutdown();
@@ -57,7 +57,7 @@ public class TestServerReceiver extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
-    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3, 10);
 
     final Socket[] socket = new Socket[5];
 
@@ -133,7 +133,7 @@ public class TestServerReceiver extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
-    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3, 10);
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
@@ -172,7 +172,7 @@ public class TestServerReceiver extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
-    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3, 10);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
     assertEquals(3, serverReceiver.getActveThreadCount());
@@ -204,7 +204,7 @@ public class TestServerReceiver extends TestCase {
     serverReceiver.shutdown();
 
     try {
-      serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
+      serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3, 10);
       fail("Expected a CommunicationException");
     }
     catch (CommunicationException e) {
@@ -220,7 +220,7 @@ public class TestServerReceiver extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
-    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 5);
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 5, 10);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
     assertEquals(5, serverReceiver.getActveThreadCount());

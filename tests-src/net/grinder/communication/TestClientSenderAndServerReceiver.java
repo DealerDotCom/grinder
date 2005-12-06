@@ -42,7 +42,7 @@ public class TestClientSenderAndServerReceiver
 
   private Receiver createReceiver() throws Exception {
     final ServerReceiver receiver = new ServerReceiver();
-    receiver.receiveFrom(getAcceptor(), getConnectionType(), 3);
+    receiver.receiveFrom(getAcceptor(), getConnectionType(), 3, 10);
     return receiver;
   }
 

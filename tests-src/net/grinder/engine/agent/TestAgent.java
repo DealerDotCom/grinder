@@ -142,7 +142,7 @@ public class TestAgent extends AbstractFileTestCase {
 
     final Acceptor acceptor = new Acceptor("", port, 1);
     final ServerReceiver receiver = new ServerReceiver();
-    receiver.receiveFrom(acceptor, ConnectionType.AGENT, 1);
+    receiver.receiveFrom(acceptor, ConnectionType.AGENT, 1, 10);
     final Sender sender =
       new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
 
