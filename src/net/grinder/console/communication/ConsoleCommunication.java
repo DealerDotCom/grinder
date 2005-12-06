@@ -22,7 +22,6 @@
 package net.grinder.console.communication;
 
 import net.grinder.communication.HandlerChainSender.MessageHandler;
-import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 
 
@@ -43,10 +42,8 @@ public interface ConsoleCommunication {
 
   /**
    * Wait to receive a message, then process it.
-   *
-   * @exception ConsoleException If an error occurred in message processing.
    */
-  void processOneMessage() throws ConsoleException;
+  void processOneMessage();
 
   /**
    * Get a ProcessControl implementation.

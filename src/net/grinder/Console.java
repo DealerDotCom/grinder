@@ -38,9 +38,8 @@ public final class Console {
    * Entry point for console.
    *
    * @param args Command line arguments.
-   * @exception Exception If an error occurs.
    */
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args)  {
     if (args.length > 0) {
       System.err.println("Usage: java " + Console.class.getName());
       System.exit(1);

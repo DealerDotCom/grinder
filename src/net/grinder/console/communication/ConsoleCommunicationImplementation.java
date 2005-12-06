@@ -49,7 +49,7 @@ import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.util.FileContents;
-import net.grinder.util.thread.InterruptibleCondition;
+import net.grinder.util.thread.WakeableCondition;
 
 
 /**
@@ -80,7 +80,7 @@ public final class ConsoleCommunicationImplementation
   private ServerReceiver m_receiver = null;
   private FanOutServerSender m_sender = null;
 
-  private InterruptibleCondition m_processing = new InterruptibleCondition();
+  private WakeableCondition m_processing = new WakeableCondition();
 
   /**
    * Constructor.
@@ -188,13 +188,7 @@ public final class ConsoleCommunicationImplementation
     // processOneMessage(). We can't suck on m_receiver ourself as there may be
     // valid pending messages queued up.
 
-    try {
-      m_processing.await(false);
-    }
-    catch (InterruptedException e) {
-      m_errorQueue.handleException(e);
-      return;
-    }
+    m_processing.await(false);
 
     try {
       m_acceptor = new Acceptor(m_properties.getConsoleHost(),
@@ -206,14 +200,8 @@ public final class ConsoleCommunicationImplementation
         new DisplayMessageConsoleException(
           m_resources, "localBindError.text", e));
 
-      // Interrupt any threads waiting in processOneMessage().
-      try {
-        m_processing.interruptAllWaiters();
-      }
-      catch (InterruptedException e2) {
-        m_errorQueue.handleException(e2);
-        return;
-      }
+      // Wake up any threads waiting in processOneMessage().
+      m_processing.wakeUpAllWaiters();
 
       return;
     }
@@ -282,19 +270,12 @@ public final class ConsoleCommunicationImplementation
 
   /**
    * Wait to receive a message, then process it.
-   *
-   * @exception ConsoleException If an error occurred in message processing.
    */
-  public void processOneMessage() throws ConsoleException  {
+  public void processOneMessage() {
     while (true) {
-      try {
-        if (!m_processing.await(true)) {
-          // await() interrupted before we were listening.
-          return;
-        }
-      }
-      catch (InterruptedException e) {
-        throw new ConsoleException("Thread interrupted", e);
+      if (!m_processing.await(true)) {
+        // await() interrupted before we were listening.
+        return;
       }
 
       try {

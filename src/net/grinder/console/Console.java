@@ -31,7 +31,6 @@ import java.util.TimerTask;
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
 import net.grinder.communication.HandlerChainSender.MessageHandler;
-import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.communication.ConsoleCommunication;
@@ -168,10 +167,8 @@ public class Console {
   /**
    * Console message event loop. Dispatches communication messages
    * appropriately.
-   *
-   * @exception ConsoleException If an error occurs.
    */
-  public void run() throws ConsoleException {
+  public void run() {
     while (true) {
       m_communication.processOneMessage();
     }

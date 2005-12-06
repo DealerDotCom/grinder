@@ -28,18 +28,11 @@ package net.grinder.util.thread;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class InterruptibleCondition {
-  private final Object m_monitor;
+public final class WakeableCondition {
+  private final Monitor m_monitor = new Monitor();
   private boolean m_state = false;
   private int m_waiters = 0;
-  private boolean m_interrupt;
-
-  /**
-   * Constructor.
-   */
-  public InterruptibleCondition() {
-    m_monitor = this;
-  }
+  private boolean m_wakeUp;
 
   /**
    * Wait for our state to match the passed value.
@@ -47,17 +40,15 @@ public final class InterruptibleCondition {
    * @param state
    *          State to wait for.
    * @return The new state value. Can differ from the parameter if we have been
-   *         woken by another thread calling {@link #interruptAllWaiters()}.
-   * @throws InterruptedException
-   *           If the thread is interrupted whilst waiting.
+   *         woken by another thread calling {@link #wakeUpAllWaiters()}.
    */
-  public boolean await(boolean state) throws InterruptedException {
+  public boolean await(boolean state) {
     synchronized (m_monitor) {
       ++m_waiters;
 
       try {
-        while (m_state != state && !m_interrupt) {
-          m_monitor.wait();
+        while (m_state != state && !m_wakeUp) {
+          m_monitor.waitNoInterrruptException();
         }
       }
       finally {
@@ -82,28 +73,24 @@ public final class InterruptibleCondition {
   }
 
   /**
-   * Interrupt other threads that are waiting in {@link #await(boolean)}.
-   *
-   * @throws InterruptedException
-   *           If we are interrupted waiting for other threads to exit
-   *           {@link #await(boolean)}.
+   * Wake up other threads that are waiting in {@link #await(boolean)}.
    */
-  public void interruptAllWaiters() throws InterruptedException {
+  public void wakeUpAllWaiters() {
     synchronized (m_monitor) {
       if (m_waiters == 0) {
         return;
       }
 
-      m_interrupt = true;
+      m_wakeUp = true;
       m_monitor.notifyAll();
 
       try {
         while (m_waiters > 0) {
-          m_monitor.wait();
+          m_monitor.waitNoInterrruptException();
         }
       }
       finally {
-        m_interrupt = false;
+        m_wakeUp = false;
         m_monitor.notifyAll();
       }
     }
