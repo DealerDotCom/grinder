@@ -132,6 +132,9 @@ public final class GrinderProcess {
         e.printStackTrace(logger.getErrorLogWriter());
         return -3;
       }
+      finally {
+        grinderProcess.shutdown();
+      }
     }
 
     /**
@@ -150,6 +153,7 @@ public final class GrinderProcess {
   private final ConsoleListener m_consoleListener;
   private final TestStatisticsMap m_accumulatedStatistics;
   private final Object m_eventSynchronisation = new Object();
+  private final MessagePump m_messagePump;
 
   private boolean m_shutdownTriggered;
   private boolean m_communicationShutdown;
@@ -229,7 +233,11 @@ public final class GrinderProcess {
 
     final HandlerChainSender handlerChainSender = new HandlerChainSender();
     handlerChainSender.add(m_consoleListener.getMessageHandler());
-    new MessagePump(agentReceiver, handlerChainSender, 1);
+    m_messagePump = new MessagePump(agentReceiver, handlerChainSender, 1);
+  }
+
+  private void shutdown() {
+    m_messagePump.shutdown();
   }
 
   /**
