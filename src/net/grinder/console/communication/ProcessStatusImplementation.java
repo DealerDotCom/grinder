@@ -272,10 +272,6 @@ final class ProcessStatusImplementation implements ProcessStatus {
       return m_identity;
     }
 
-    public String getName() {
-      return "Unknown";
-    }
-
     public short getState() {
       return STATE_UNKNOWN;
     }
@@ -283,8 +279,10 @@ final class ProcessStatusImplementation implements ProcessStatus {
 
   /**
    * Implementation of {@link ProcessStatus.ProcessReports}.
+   *
+   * Package scope for unit tests.
    */
-  public final class AgentAndWorkers
+  final class AgentAndWorkers
     implements ProcessStatus.ProcessReports, Purgable {
 
     // Unsynchronised - changing the reference is atomic.
