@@ -69,10 +69,8 @@ public final class MessagePump {
   /**
    * Shut down the MessagePump.
    *
-   * @throws InterruptedException If the calling thread is interrupted
-   * whilst waiting for this thread to shut down.
    */
-  public void shutdown() throws InterruptedException {
+  public void shutdown() {
 
     if (!m_shutdownTriggered) {
       // Guard against repeat invocations due to a shutdown action
@@ -83,16 +81,12 @@ public final class MessagePump {
       m_sender.shutdown();
 
       // Now wait for the thread pool to finish.
-      m_threadPool.stopAndWait();
-    }
-  }
-
-  private void shutdownInternal() {
-    try {
-      shutdown();
-    }
-    catch (InterruptedException e) {
-      // Ignore.
+      try {
+        m_threadPool.stopAndWait();
+      }
+      catch (InterruptedException e) {
+        // Swallow.
+      }
     }
   }
 
@@ -102,7 +96,7 @@ public final class MessagePump {
         final Message message = m_receiver.waitForMessage();
 
         if (message == null) {
-          shutdownInternal();
+          shutdown();
         }
         else {
           m_sender.send(message);
@@ -110,7 +104,7 @@ public final class MessagePump {
       }
     }
     catch (CommunicationException e) {
-      shutdownInternal();
+      shutdown();
     }
   }
 }
