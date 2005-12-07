@@ -52,10 +52,23 @@ public class CallRecorder extends Assert {
     }
   }
 
+  /**
+   * Wait until we're called. Fail if we take more than <code>timeout</code>
+   * milliseconds.
+   *
+   * @param timeout
+   *          Maximum time in milliseconds to wait for.
+   */
   public void waitUntilCalled(int timeout) {
+    final long expires = System.currentTimeMillis() + timeout;
+
     synchronized (m_callDataListMonitor) {
       while (m_callDataList.size() == 0) {
         m_callDataListMonitor.waitNoInterrruptException(timeout);
+
+        if (System.currentTimeMillis() > expires) {
+          fail("Timed out waiting to be called after " + timeout + " ms");
+        }
       }
     }
   }
