@@ -24,6 +24,7 @@ package net.grinder.engine.agent;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
 import junit.framework.TestCase;
 
@@ -40,6 +41,8 @@ public class TestDebugThreadWorkerFactory extends TestCase {
 
     final AgentIdentityImplementation agentIdentity =
       new AgentIdentityImplementation(getClass().getName());
+    
+    final GrinderProperties properties = new GrinderProperties();
 
     final DebugThreadWorkerFactory factory =
       new DebugThreadWorkerFactory(agentIdentity,
@@ -47,7 +50,7 @@ public class TestDebugThreadWorkerFactory extends TestCase {
                                    false,
                                    null,
                                    null,
-                                   null);
+                                   properties);
 
     final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     final PrintStream redirectedStderr = new PrintStream(byteStream);
