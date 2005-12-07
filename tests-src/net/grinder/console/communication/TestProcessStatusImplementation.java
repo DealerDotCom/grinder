@@ -35,6 +35,7 @@ import net.grinder.common.AgentProcessReport;
 import net.grinder.common.ProcessReport;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.common.WorkerProcessReport;
+import net.grinder.console.communication.ProcessStatusImplementation.AgentAndWorkers;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
@@ -54,12 +55,16 @@ public class TestProcessStatusImplementation extends TestCase {
   private final Comparator m_processReportsComparator =
     new ProcessReportsComparator();
 
+  private final MyTimer m_timer = new MyTimer();
+  
+  protected void tearDown() {
+    m_timer.cancel();
+  }
+
   public void testConstruction() throws Exception {
-    final MyTimer myTimer = new MyTimer();
+    new ProcessStatusImplementation(m_timer);
 
-    new ProcessStatusImplementation(myTimer);
-
-    assertEquals(2, myTimer.getNumberOfScheduledTasks());
+    assertEquals(2, m_timer.getNumberOfScheduledTasks());
   }
 
   public void testUpdate() throws Exception {
@@ -69,12 +74,10 @@ public class TestProcessStatusImplementation extends TestCase {
     final ProcessStatus.Listener listener =
       (ProcessStatus.Listener)listenerStubFactory.getStub();
 
-    final MyTimer myTimer = new MyTimer();
-
     final ProcessStatusImplementation processStatusSet =
-      new ProcessStatusImplementation(myTimer);
+      new ProcessStatusImplementation(m_timer);
 
-    final TimerTask updateTask = myTimer.getTaskByPeriod(500L);
+    final TimerTask updateTask = m_timer.getTaskByPeriod(500L);
 
     processStatusSet.addListener(listener);
 
@@ -121,13 +124,11 @@ public class TestProcessStatusImplementation extends TestCase {
     final ProcessStatus.Listener listener =
       (ProcessStatus.Listener)listenerStubFactory.getStub();
 
-    final MyTimer myTimer = new MyTimer();
-
     final ProcessStatusImplementation processStatus =
-      new ProcessStatusImplementation(myTimer);
+      new ProcessStatusImplementation(m_timer);
 
-    final TimerTask updateTask = myTimer.getTaskByPeriod(500L);
-    final TimerTask flushTask = myTimer.getTaskByPeriod(2000L);
+    final TimerTask updateTask = m_timer.getTaskByPeriod(500L);
+    final TimerTask flushTask = m_timer.getTaskByPeriod(2000L);
 
     processStatus.addListener(listener);
 
@@ -295,6 +296,22 @@ public class TestProcessStatusImplementation extends TestCase {
 
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
+  }
+  
+  public void testAgentAndWorkers() throws Exception {
+    final ProcessStatusImplementation processStatusSet =
+      new ProcessStatusImplementation(m_timer);
+    
+    final PublicAgentIdentityImplementation agentIdentity =
+      new PublicAgentIdentityImplementation("agent");
+    
+    final AgentAndWorkers agentAndWorkers =
+      processStatusSet.new AgentAndWorkers(agentIdentity);
+    
+    final AgentProcessReport initialReport =
+      agentAndWorkers.getAgentProcessReport();
+    
+    assertEquals(agentIdentity, initialReport.getAgentIdentity());
   }
 
   private static final class AgentProcessReportImplementation
