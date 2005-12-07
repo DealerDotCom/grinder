@@ -31,11 +31,8 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
-import net.grinder.communication.Connector;
-import net.grinder.communication.Sender;
 import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.communication.Message;
 import net.grinder.console.common.DisplayMessageConsoleException;
