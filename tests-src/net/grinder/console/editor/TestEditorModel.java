@@ -483,4 +483,60 @@ public class TestEditorModel extends AbstractFileTestCase {
     editorModel.setMarkedScript(null);
     assertNull(editorModel.getMarkedScript());
   }
+
+  public void testAbstractListener() throws Exception {
+    final EditorModel.Listener listener = new EditorModel.AbstractListener() {};
+
+    listener.bufferAdded(null);
+    listener.bufferNotUpToDate(null);
+    listener.bufferRemoved(null);
+    listener.bufferStateChanged(null);
+  }
+
+  public void testChangedFilesMonitoring() throws Exception {
+    final EditorModel editorModel =
+      new EditorModel(s_resources,
+                      new StringTextSource.Factory(),
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
+
+    final CallData addFileChangedListenerCallData =
+      m_fileChangeWatcherStubFactory.assertSuccess(
+        "addFileChangedListener",
+        FileChangeWatcher.FileChangedListener.class);
+
+    final FileChangeWatcher.FileChangedListener fileChangedListener =
+      (FileChangeWatcher.FileChangedListener)
+      addFileChangedListenerCallData.getParameters()[0];
+
+    final RandomStubFactory editorModelListenerStubFactory =
+      new RandomStubFactory(EditorModel.Listener.class);
+    final EditorModel.Listener editorModelListener =
+      (EditorModel.Listener)editorModelListenerStubFactory.getStub();
+
+    editorModel.addListener(editorModelListener);
+    final File f1 = new File(getDirectory(), "test file");
+    f1.createNewFile();
+    final Buffer buffer = editorModel.selectBufferForFile(f1);
+    assertTrue(buffer.isUpToDate());
+    editorModelListenerStubFactory.assertSuccess("bufferAdded", buffer);
+    editorModelListenerStubFactory.assertSuccess("bufferStateChanged", buffer);
+    editorModelListenerStubFactory.assertNoMoreCalls();
+
+    f1.setLastModified(System.currentTimeMillis() + 1);
+    assertFalse(buffer.isUpToDate());
+
+    editorModelListenerStubFactory.assertNoMoreCalls();
+
+    fileChangedListener.filesChanged(new File[] { getDirectory(), f1, });
+
+    editorModelListenerStubFactory.assertSuccess("bufferNotUpToDate", buffer);
+    editorModelListenerStubFactory.assertNoMoreCalls();
+
+    // Selecting a modified buffer should also fire bufferNotUpToDate.
+    f1.setLastModified(System.currentTimeMillis() + 2);
+    editorModel.selectBufferForFile(f1);
+    editorModelListenerStubFactory.assertSuccess("bufferNotUpToDate", buffer);
+    editorModelListenerStubFactory.assertNoMoreCalls();
+  }
 }
