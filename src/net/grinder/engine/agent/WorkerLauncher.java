@@ -176,12 +176,20 @@ final class WorkerLauncher {
   }
 
   public void destroyAllWorkers() {
+
+    final boolean noneStarted = m_nextWorkerIndex == 0;
+
     dontStartAnyMore();
 
-    synchronized (m_workers) {
-      for (int i = 0; i < m_workers.length; i++) {
-        if (m_workers[i] != null) {
-          m_workers[i].destroy();
+    if (noneStarted) {
+      allFinished();
+    }
+    else {
+      synchronized (m_workers) {
+        for (int i = 0; i < m_workers.length; i++) {
+          if (m_workers[i] != null) {
+            m_workers[i].destroy();
+          }
         }
       }
     }
