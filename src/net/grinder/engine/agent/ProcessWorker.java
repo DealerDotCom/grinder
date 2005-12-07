@@ -129,6 +129,20 @@ final class ProcessWorker implements Worker {
    */
   public void destroy() {
     m_process.destroy();
+
+    try {
+      m_stdoutRedirectorThread.join();
+    }
+    catch (InterruptedException e) {
+      // Swallow.
+    }
+
+    try {
+      m_stderrRedirectorThread.join();
+    }
+    catch (InterruptedException e) {
+      // Swallow.
+    }
   }
 
   private Thread createRedirectorThread(InputStream inputStream,
@@ -136,8 +150,8 @@ final class ProcessWorker implements Worker {
 
     final Thread thread =
       new Thread(
-        new StreamCopier(4096, false).getRunnable(inputStream, outputStream),
-        "Stream redirector");
+        new StreamCopier(4096, true).getRunnable(inputStream, outputStream),
+        "Stream redirector for process " + m_process);
 
     thread.setDaemon(true);
     thread.start();
