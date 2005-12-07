@@ -153,8 +153,9 @@ public final class EditorModel {
       }
     }
     else {
-      buffer = new BufferImplementation(m_resources, m_textSourceFactory
-          .create(), file);
+      buffer = new BufferImplementation(m_resources,
+                                        m_textSourceFactory.create(),
+                                        file);
       buffer.load();
       addBuffer(buffer);
 
