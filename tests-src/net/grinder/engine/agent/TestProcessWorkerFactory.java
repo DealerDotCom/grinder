@@ -121,6 +121,8 @@ public class TestProcessWorkerFactory extends TestCase {
     final int n = output.read(remainingBytes);
 
     assertEquals(-1, n); // No arguments.
+    
+    fanOutStreamSender.shutdown();
   }
 
   public void testBadWorker() throws Exception {

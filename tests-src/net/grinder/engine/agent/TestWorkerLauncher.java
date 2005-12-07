@@ -54,6 +54,8 @@ public class TestWorkerLauncher extends TestCase {
       new WorkerLauncher(10, null, null, null);
 
     assertFalse(workerLauncher2.allFinished());
+
+    workerLauncher2.destroyAllWorkers();
   }
 
   public void testStartSomeProcesses() throws Exception {

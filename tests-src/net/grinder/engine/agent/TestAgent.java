@@ -183,5 +183,8 @@ public class TestAgent extends AbstractFileTestCase {
     agent.shutdown();
     m_loggerStubFactory.assertSuccess("output", String.class);
     m_loggerStubFactory.assertNoMoreCalls();
+
+    sender.shutdown();
+    receiver.shutdown();
   }
 }
