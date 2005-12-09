@@ -234,7 +234,7 @@ public final class Agent {
         final String jvmArguments =
           properties.getProperty("grinder.jvm.arguments");
 
-        final WorkerFactory workerProcessFactory;
+        final WorkerFactory workerFactory;
 
         if (!singleProcess) {
           final WorkerProcessCommandLine workerCommandLine =
@@ -244,7 +244,7 @@ public final class Agent {
 
           m_logger.output("Worker process command line: " + workerCommandLine);
 
-          workerProcessFactory =
+          workerFactory =
             new ProcessWorkerFactory(
               workerCommandLine, m_agentIdentity, m_fanOutStreamSender,
               m_consoleCommunication != null, scriptFile, scriptDirectory,
@@ -258,7 +258,7 @@ public final class Agent {
                             ") ignored in single process mode");
           }
 
-          workerProcessFactory =
+          workerFactory =
             new DebugThreadWorkerFactory(
               m_agentIdentity, m_fanOutStreamSender,
               m_consoleCommunication != null, scriptFile, scriptDirectory,
@@ -267,8 +267,7 @@ public final class Agent {
 
         final WorkerLauncher workerLauncher =
           new WorkerLauncher(properties.getInt("grinder.processes", 1),
-                             workerProcessFactory, m_eventSynchronisation,
-                             m_logger);
+                             workerFactory, m_eventSynchronisation, m_logger);
 
         final int processIncrement =
           properties.getInt("grinder.processIncrement", 0);
