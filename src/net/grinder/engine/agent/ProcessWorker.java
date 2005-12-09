@@ -136,10 +136,16 @@ final class ProcessWorker implements Worker {
     // Calling destroy sometimes stoves W2K in such a way that some types
     // of new process can't be launched. (Including Java, Cygwin processes).
     // Replicated with: JRockit 1.4.2_05, and SUN JRE's 1.4.2_05 and 1.5.0_03.
+    // A brief sleep appears to be a workaround.
 
-    // m_process.destroy();
+    try {
+      Thread.sleep(100);
+    }
+    catch (InterruptedException e) {
+      // Swallow, destroy() is only called when we're exiting a thread.
+    }
 
-    throw new AssertionError("NOT SUPPORTED");
+    m_process.destroy();
   }
 
   private class Redirector {
