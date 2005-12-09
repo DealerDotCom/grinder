@@ -34,8 +34,8 @@ public class TestKernel extends TestCase {
 
   private int m_counter = 0;
 
-  private class IncrementCounter implements Runnable {
-    
+  private class IncrementCounter implements InterruptibleRunnable {
+
     private final int m_sleep;
 
     public IncrementCounter(int sleep) {
@@ -64,7 +64,7 @@ public class TestKernel extends TestCase {
 
     kernel.gracefulShutdown();
 
-    assertEquals(50, m_counter);    
+    assertEquals(50, m_counter);
   }
 
 

@@ -19,7 +19,6 @@ package net.grinder.engine.agent;
 import java.io.OutputStream;
 
 import net.grinder.common.WorkerIdentity;
-import net.grinder.engine.common.EngineException;
 
 
 /**
@@ -49,11 +48,10 @@ interface Worker {
    *
    * @return See {@link net.grinder.engine.process.GrinderProcess} for
    * valid values.
-   * @throws EngineException If an error occurs.
    * @throws InterruptedException If this thread is interrupted whilst
    * waiting.
    */
-  int waitFor() throws InterruptedException, EngineException;
+  int waitFor() throws InterruptedException;
 
   /**
    * Destroy the worker.

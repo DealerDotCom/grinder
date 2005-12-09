@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 
+import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.Kernel;
 
 
@@ -122,7 +123,9 @@ abstract class AbstractFanOutSender extends AbstractSender {
     }
   }
 
-  private static final class WriteMessageToStream implements Runnable {
+  private static final class WriteMessageToStream
+    implements InterruptibleRunnable {
+
     private final Message m_message;
     private final OutputStream m_outputStream;
     private final ResourcePool.Reservation m_reservation;

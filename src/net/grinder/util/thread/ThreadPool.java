@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -52,7 +52,8 @@ public final class ThreadPool {
     m_threads = new Thread[numberOfThreads];
 
     for (int i = 0; i < m_threads.length; ++i) {
-      m_threads[i] = new Thread(m_threadGroup, runnableFactory.create(),
+      m_threads[i] = new Thread(m_threadGroup,
+                                runnableFactory.create(),
                                 name + " thread " + i);
       m_threads[i].setDaemon(true);
     }
@@ -96,16 +97,21 @@ public final class ThreadPool {
   /**
    * Shut down the thread pool and wait until all the threads have
    * stopped.
-   *
-   * @throws InterruptedException If the calling thread is interrupted
-   * whilst waiting for this thread pool to stop.
    */
-  public void stopAndWait() throws InterruptedException {
+  public void stopAndWait() {
 
     stop();
 
     for (int i = 0; i < m_threads.length; ++i) {
-      m_threads[i].join();
+      while (m_threads[i] != Thread.currentThread() &&
+             m_threads[i].isAlive()) {
+        try {
+          m_threads[i].join();
+        }
+        catch (InterruptedException e) {
+          // Ignore.
+        }
+      }
     }
   }
 
@@ -130,14 +136,14 @@ public final class ThreadPool {
   }
 
   /**
-   * Factory that is called to create a <code>Runnable</code> for each
+   * Factory that is called to create an {@link InterruptibleRunnable} for each
    * thread.
    */
   public interface RunnableFactory {
 
     /**
-     * @return The <code>Runnable</code>.
+     * @return The <code>InterruptibleRunnable</code>.
      */
-    Runnable create();
+    InterruptibleRunnable create();
   }
 }

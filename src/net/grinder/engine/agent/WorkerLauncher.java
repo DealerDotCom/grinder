@@ -23,6 +23,7 @@ package net.grinder.engine.agent;
 
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
+import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.Kernel;
 
 
@@ -62,11 +63,6 @@ final class WorkerLauncher {
     m_logger = logger;
 
     m_workers = new Worker[numberOfWorkers];
-
-    Runtime.getRuntime().addShutdownHook(
-      new Thread("The Grim Reaper") {
-        public void run() { destroyAllWorkers(); }
-      });
   }
 
   public void startAllWorkers() throws EngineException {
@@ -105,7 +101,7 @@ final class WorkerLauncher {
     return m_workers.length > m_nextWorkerIndex;
   }
 
-  private final class WaitForWorkerTask implements Runnable {
+  private final class WaitForWorkerTask implements InterruptibleRunnable {
 
     private final int m_workerIndex;
 
@@ -114,30 +110,24 @@ final class WorkerLauncher {
     }
 
     public void run() {
-      try {
-        final Worker worker;
+      final Worker worker;
+
+      synchronized (m_workers) {
+        worker = m_workers[m_workerIndex];
+      }
+
+      if (worker != null) {
+        try {
+          worker.waitFor();
+        }
+        catch (InterruptedException e) {
+          // We're taking our worker down with us.
+          worker.destroy();
+        }
 
         synchronized (m_workers) {
-          worker = m_workers[m_workerIndex];
+          m_workers[m_workerIndex] = null;
         }
-
-        if (worker != null) {
-          worker.waitFor();
-
-          synchronized (m_workers) {
-            m_workers[m_workerIndex] = null;
-          }
-        }
-      }
-      catch (InterruptedException e) {
-        // Really an assertion failure. Can't use m_logger here
-        // because its not thread safe.
-        e.printStackTrace();
-      }
-      catch (EngineException e) {
-        // Really an assertion failure. Can't use m_logger here
-        // because its not thread safe.
-        e.printStackTrace();
       }
 
       if (allFinished()) {
@@ -166,6 +156,7 @@ final class WorkerLauncher {
     }
     catch (InterruptedException e) {
       // Oh well.
+      // TODO.
     }
 
     return true;

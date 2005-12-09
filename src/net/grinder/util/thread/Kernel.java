@@ -58,8 +58,8 @@ public final class Kernel {
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
-        public Runnable create() {
-          return new Runnable() {
+        public InterruptibleRunnable create() {
+          return new InterruptibleRunnable() {
               public void run() { process(); }
             };
         }
@@ -72,10 +72,12 @@ public final class Kernel {
   /**
    * Queue some work.
    *
-   * @param work The work.
-   * @throws ShutdownException If the Kernel has been stopped.
+   * @param work
+   *          The work
+   * @throws ShutdownException
+   *           If the Kernel has been stopped.
    */
-  public void execute(Runnable work) throws ShutdownException {
+  public void execute(InterruptibleRunnable work) throws ShutdownException {
     if (m_threadPool.isStopped()) {
       throw new ShutdownException("Kernel is stopped");
     }

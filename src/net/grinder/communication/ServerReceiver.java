@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.grinder.communication.ResourcePool.Reservation;
+import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
 import net.grinder.util.thread.ThreadSafeQueue;
 import net.grinder.util.thread.ThreadSafeQueue.ShutdownException;
@@ -82,8 +83,8 @@ public final class ServerReceiver implements Receiver {
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
-        public Runnable create() {
-          return new Runnable() {
+        public InterruptibleRunnable create() {
+          return new InterruptibleRunnable() {
               public void run() {
                 process(acceptedSocketSet, idleThreadPollDelay);
               }

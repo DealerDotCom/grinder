@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import net.grinder.util.ListenerSupport;
+import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
 import net.grinder.util.thread.ThreadSafeQueue;
 
@@ -92,10 +93,10 @@ public final class Acceptor {
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
-        public Runnable create() {
-          return new Runnable() {
-              public void run() { process(); }
-            };
+        public InterruptibleRunnable create() {
+          return new InterruptibleRunnable() {
+            public void run() { process(); }
+          };
         }
       };
 

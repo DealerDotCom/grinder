@@ -26,8 +26,8 @@ import java.io.PrintStream;
 
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.StreamSender;
-import net.grinder.engine.common.EngineException;
 import junit.framework.TestCase;
+
 
 /**
  * Unit tests for <code>DebugThreadWorker</code>.
@@ -54,8 +54,6 @@ public class TestDebugThreadWorker extends TestCase {
       public void run() {
         try {
           resultHolder[0] = worker.waitFor();
-        }
-        catch (EngineException e) {
         }
         catch (InterruptedException e) {
         }

@@ -44,8 +44,8 @@ final class ProcessWorker implements Worker {
 
   private final WorkerIdentity m_workerIdentity;
   private final Process m_process;
-  private final Thread m_stdoutRedirectorThread;
-  private final Thread m_stderrRedirectorThread;
+  private final Redirector m_stdoutRedirector;
+  private final Redirector m_stderrRedirector;
 
   /**
    * Constructor.
@@ -73,11 +73,11 @@ final class ProcessWorker implements Worker {
       throw new EngineException("Could not start process", e);
     }
 
-    m_stdoutRedirectorThread =
-      createRedirectorThread(m_process.getInputStream(), outputStream);
+    m_stdoutRedirector = new Redirector(m_process.getInputStream(),
+                                        outputStream);
 
-    m_stderrRedirectorThread =
-      createRedirectorThread(m_process.getErrorStream(), errorStream);
+    m_stderrRedirector = new Redirector(m_process.getErrorStream(),
+                                        errorStream);
   }
 
   /**
@@ -104,23 +104,23 @@ final class ProcessWorker implements Worker {
    *
    * @return See {@link net.grinder.engine.process.GrinderProcess} for
    * valid values.
-   * @throws EngineException If an error occurs.
    * @throws InterruptedException If this thread is interrupted whilst
    * waiting.
    */
-  public int waitFor() throws InterruptedException, EngineException {
-
-    m_process.waitFor();
-
-    m_stdoutRedirectorThread.join();
-    m_stderrRedirectorThread.join();
+  public int waitFor() throws InterruptedException {
+    try {
+      m_process.waitFor();
+    }
+    finally {
+      m_stdoutRedirector.stop();
+      m_stderrRedirector.stop();
+    }
 
     try {
       return m_process.exitValue();
     }
     catch (IllegalThreadStateException e) {
-      // Can't happen.
-      throw new EngineException("Unexpected exception", e);
+      throw new AssertionError(e);
     }
   }
 
@@ -128,34 +128,43 @@ final class ProcessWorker implements Worker {
    * Destroy the worker.
    */
   public void destroy() {
-    m_process.destroy();
+    // Experimentation shows we can't interrupt threads blocked waiting
+    // on a live process stream, nor can we close that stream.
+    //m_stdoutRedirector.stop();
+    //m_stderrRedirector.stop();
 
-    try {
-      m_stdoutRedirectorThread.join();
-    }
-    catch (InterruptedException e) {
-      // Swallow.
-    }
+    // Calling destroy sometimes stoves W2K in such a way that some types
+    // of new process can't be launched. (Including Java, Cygwin processes).
+    // Replicated with: JRockit 1.4.2_05, and SUN JRE's 1.4.2_05 and 1.5.0_03.
 
-    try {
-      m_stderrRedirectorThread.join();
-    }
-    catch (InterruptedException e) {
-      // Swallow.
-    }
+    // m_process.destroy();
+
+    throw new AssertionError("NOT SUPPORTED");
   }
 
-  private Thread createRedirectorThread(InputStream inputStream,
-                                        OutputStream outputStream) {
+  private class Redirector {
+    private final Thread m_thread;
 
-    final Thread thread =
-      new Thread(
-        new StreamCopier(4096, true).getRunnable(inputStream, outputStream),
-        "Stream redirector for process " + m_process);
+    public Redirector(InputStream inputStream, OutputStream outputStream) {
+      m_thread =
+        new Thread(new StreamCopier(4096, true).getRunnable(inputStream,
+                                                            outputStream),
+                  "Stream redirector for process " + m_process);
+      m_thread.setDaemon(true);
+      m_thread.start();
+    }
 
-    thread.setDaemon(true);
-    thread.start();
+    public void stop() {
+      m_thread.interrupt();
 
-    return thread;
+      while (m_thread.isAlive()) {
+        try {
+          m_thread.join();
+        }
+        catch (InterruptedException e) {
+          // Swallow. We're doing our best to exit here.
+        }
+      }
+    }
   }
 }

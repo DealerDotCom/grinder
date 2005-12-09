@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import net.grinder.util.thread.InterruptibleRunnable;
+
 /**
  * Class that copies from <code>InputStream</code>s to
  * <code>OutputStream</code>s. Can be used in conjunction with an
@@ -106,8 +108,9 @@ public class StreamCopier {
    * @param out Output stream.
    * @return The <code>Runnable</code>.
    */
-  public Runnable getRunnable(final InputStream in, final OutputStream out) {
-    return new Runnable() {
+  public InterruptibleRunnable getRunnable(final InputStream in,
+                                           final OutputStream out) {
+    return new InterruptibleRunnable() {
         public void run() {
           try {
             copy(in, out);

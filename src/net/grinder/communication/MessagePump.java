@@ -21,6 +21,7 @@
 
 package net.grinder.communication;
 
+import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
 
 
@@ -53,10 +54,10 @@ public final class MessagePump {
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
-        public Runnable create() {
-          return new Runnable() {
-              public void run() { process(); }
-            };
+        public InterruptibleRunnable create() {
+          return new InterruptibleRunnable() {
+            public void run() { process(); }
+          };
         }
       };
 
@@ -81,12 +82,7 @@ public final class MessagePump {
       m_sender.shutdown();
 
       // Now wait for the thread pool to finish.
-      try {
-        m_threadPool.stopAndWait();
-      }
-      catch (InterruptedException e) {
-        // Swallow.
-      }
+      m_threadPool.stopAndWait();
     }
   }
 

@@ -103,7 +103,8 @@ final class DebugThreadWorker implements Worker {
     return m_communicationStream;
   }
 
-  public int waitFor() throws InterruptedException, EngineException {
+  public int waitFor() throws InterruptedException {
+    // TODO.
     m_thread.join();
     return m_result;
   }
