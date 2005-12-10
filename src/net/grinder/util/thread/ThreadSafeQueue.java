@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,6 +35,7 @@ import net.grinder.common.GrinderException;
 public final class ThreadSafeQueue {
 
   private LinkedList m_messages = new LinkedList();
+  private Monitor m_monitor = new Monitor();
   private boolean m_shutdown = false;
 
   /**
@@ -52,10 +53,10 @@ public final class ThreadSafeQueue {
    * @see #shutdown
    */
   public void queue(Object item) throws ShutdownException {
-    synchronized (getMutex()) {
+    synchronized (getMonitor()) {
       checkIfShutdown();
       m_messages.add(item);
-      getMutex().notifyAll();
+      getMonitor().notifyAll();
     }
   }
 
@@ -70,13 +71,15 @@ public final class ThreadSafeQueue {
    * @see #shutdown
    */
   public Object dequeue(boolean block) throws ShutdownException {
-    synchronized (getMutex()) {
+    synchronized (getMonitor()) {
       while (!m_shutdown && block && m_messages.size() == 0) {
         try {
-          getMutex().wait();
+          getMonitor().wait();
         }
         catch (InterruptedException e) {
+          // Don't leave other threads dangling.
           shutdown();
+          throw new UncheckedInterruptedException(e);
         }
       }
 
@@ -86,7 +89,7 @@ public final class ThreadSafeQueue {
         return null;
       }
       else {
-        getMutex().notifyAll();
+        getMonitor().notifyAll();
         return m_messages.removeFirst();
       }
     }
@@ -97,10 +100,10 @@ public final class ThreadSafeQueue {
    * in the queue are discarded.
    */
   public void shutdown() {
-    synchronized (getMutex()) {
+    synchronized (getMonitor()) {
       m_shutdown = true;
       m_messages.clear();
-      getMutex().notifyAll();
+      getMonitor().notifyAll();
     }
   }
 
@@ -110,8 +113,8 @@ public final class ThreadSafeQueue {
    *
    * @return The lock object.
    */
-  public Object getMutex() {
-    return m_messages;
+  public Monitor getMonitor() {
+    return m_monitor;
   }
 
   /**

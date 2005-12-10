@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,43 +19,52 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.testutility;
+
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 
-/**
- * Thread for testing that an action blocks.
- */
-abstract class BlockingActionThread extends Thread {
+public final class CountingInputStream extends FilterInputStream {
+  private int m_calls;
+  private long m_bytes;
 
-  private Exception m_exception = null;
-
-  public BlockingActionThread() throws Exception {
-    super("BlockingActionThread");
+  public CountingInputStream(InputStream in) {
+    super(in);
   }
 
-  public void run() {
+  private int add(int i) {
+    if (i > 0) {
+      m_bytes += i;
+    }
 
-    try {
-      blockingAction();
-    }
-    catch (Exception e) {
-      m_exception = e;
-    }
+    ++m_calls;
+
+    return i;
   }
 
-  public Exception getException() throws Exception {
-
-    start();
-
-    if (!isAlive()) {
-      throw new Exception("Didn't block");
-    }
-
-    interrupt();
-    join();
-
-    return m_exception;
+  public int read() throws IOException {
+    return add(super.read());
   }
 
-  protected abstract void blockingAction() throws Exception;
+  public int read(byte[] b) throws IOException {
+    return add(super.read(b, 0, b.length));
+  }
+
+  public int read(byte[] b, int off, int len) throws IOException {
+    return add(super.read(b, off, len));
+  }
+
+  public long getCount() {
+    return m_bytes;
+  }
+
+  public int getCalls() {
+    return m_calls;
+  }
+
+  public String toString() {
+    return "CountingInputStream: " + m_calls + " calls, " + m_bytes + " bytes";
+  }
 }

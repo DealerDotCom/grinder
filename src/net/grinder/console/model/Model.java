@@ -48,6 +48,7 @@ import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.statistics.TestStatisticsQueries;
 import net.grinder.util.SignificantFigureFormat;
 import net.grinder.util.ListenerSupport;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -521,7 +522,7 @@ public final class Model {
             m_currentTime = wakeUpTime;
           }
           catch (InterruptedException e) {
-            m_currentTime = System.currentTimeMillis();
+            throw new UncheckedInterruptedException(e);
           }
         }
 

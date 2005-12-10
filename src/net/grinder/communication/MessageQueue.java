@@ -130,7 +130,7 @@ final class MessageQueue {
    *
    * @return The object.
    */
-  public Object getMutex() {
-    return m_queue.getMutex();
+  public Object getMonitor() {
+    return m_queue.getMonitor();
   }
 }

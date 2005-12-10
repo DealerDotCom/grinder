@@ -26,6 +26,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -193,7 +194,7 @@ public class TestResourcePool extends TestCase {
     ((ResourcePool.Reservation)reservations2.get(0)).free();
 
     assertEquals(
-      InterruptedException.class,
+      UncheckedInterruptedException.class,
       new BlockingActionThread() {
         protected void blockingAction() throws InterruptedException {
           resourcePool.reserveAll();
@@ -276,6 +277,6 @@ public class TestResourcePool extends TestCase {
 
     public boolean isClosed() {
       return m_closed;
-    }    
+    }
   }
 }

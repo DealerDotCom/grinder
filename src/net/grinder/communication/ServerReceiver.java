@@ -23,6 +23,7 @@ package net.grinder.communication;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,6 +33,7 @@ import net.grinder.communication.ResourcePool.Reservation;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
 import net.grinder.util.thread.ThreadSafeQueue;
+import net.grinder.util.thread.UncheckedInterruptedException;
 import net.grinder.util.thread.ThreadSafeQueue.ShutdownException;
 
 
@@ -84,11 +86,8 @@ public final class ServerReceiver implements Receiver {
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
         public InterruptibleRunnable create() {
-          return new InterruptibleRunnable() {
-              public void run() {
-                process(acceptedSocketSet, idleThreadPollDelay);
-              }
-            };
+          return new ServerReceiverRunnable(acceptedSocketSet,
+                                            idleThreadPollDelay);
         }
       };
 
@@ -163,69 +162,86 @@ public final class ServerReceiver implements Receiver {
     return result;
   }
 
-  private void process(ResourcePool acceptedSocketSet,
-                       int idleThreadPollDelay) {
+  private final class ServerReceiverRunnable implements InterruptibleRunnable {
+    private final ResourcePool m_set;
+    private final int m_delay;
 
-    try {
-      // Did we do some work on the last pass?
-      boolean idle = false;
+    private ServerReceiverRunnable(ResourcePool set, int delay) {
+      m_set = set;
+      m_delay = delay;
+    }
 
-      while (true) {
-        final Reservation reservation = acceptedSocketSet.reserveNext();
+    public void run() {
+      try {
+        // Did we do some work on the last pass?
+        boolean idle = false;
 
-        try {
-          if (reservation.isSentinel()) {
-            if (idle) {
-              Thread.sleep(idleThreadPollDelay);
-            }
+        while (true) {
+          final Reservation reservation = m_set.reserveNext();
 
-            idle = true;
-          }
-          else {
-            final SocketWrapper socketWrapper =
-              (SocketWrapper)reservation.getResource();
-
-            // We don't need to synchronise access to the SocketWrapper;
-            // access is protected through the socket set and only we hold
-            // the reservation.
-            final InputStream inputStream = socketWrapper.getInputStream();
-
-            if (inputStream.available() > 0) {
-
-              idle = false;
-
-              final ObjectInputStream objectStream =
-                new ObjectInputStream(inputStream);
-
-              final Message message = (Message)objectStream.readObject();
-
-              if (message instanceof CloseCommunicationMessage) {
-                reservation.close();
-                continue;
+          try {
+            if (reservation.isSentinel()) {
+              if (idle) {
+                Thread.sleep(m_delay);
               }
 
-              m_messageQueue.queue(message);
+              idle = true;
+            }
+            else {
+              final SocketWrapper socketWrapper =
+                (SocketWrapper)reservation.getResource();
+
+              // We don't need to synchronise access to the SocketWrapper;
+              // access is protected through the socket set and only we hold
+              // the reservation.
+              final InputStream inputStream = socketWrapper.getInputStream();
+
+              if (inputStream.available() > 0) {
+
+                idle = false;
+
+                final ObjectInputStream objectStream =
+                  new ObjectInputStream(inputStream);
+
+                final Message message = (Message)objectStream.readObject();
+
+                if (message instanceof CloseCommunicationMessage) {
+                  reservation.close();
+                  continue;
+                }
+
+                m_messageQueue.queue(message);
+              }
             }
           }
-        }
-        catch (IOException e) {
-          reservation.close();
-          m_messageQueue.queue(e);
-        }
-        catch (ClassNotFoundException e) {
-          reservation.close();
-          m_messageQueue.queue(e);
-        }
-        finally {
-          reservation.free();
+          catch (InterruptedIOException e) {
+            reservation.close();
+            throw new UncheckedInterruptedException(e);
+          }
+          catch (IOException e) {
+            reservation.close();
+            m_messageQueue.queue(e);
+          }
+          catch (ClassNotFoundException e) {
+            reservation.close();
+            m_messageQueue.queue(e);
+          }
+          catch (InterruptedException e) {
+            reservation.close();
+            throw new UncheckedInterruptedException(e);
+          }
+          finally {
+            reservation.free();
+          }
         }
       }
-    }
-    catch (ThreadSafeQueue.ShutdownException e) {
-      // We've been shutdown, exit this thread.
-    }
-    catch (InterruptedException e) {
-      // We've been shutdown, exit this thread.
+      catch (ThreadSafeQueue.ShutdownException e) {
+        // We've been shutdown, exit this thread.
+      }
+      catch (UncheckedInterruptedException e) {
+        // We've been interrupted, ensure we're shutdown, and exit this thread.
+        shutdown();
+      }
     }
   }
 }

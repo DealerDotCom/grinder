@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import net.grinder.util.ListenerSupport;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -117,10 +118,8 @@ final class ResourcePool {
    *
    * @return The resources. It is up to the caller to free or close
    * each resource.
-   * @throws InterruptedException If the caller's thread is
-   * interrupted.
    */
-  public List reserveAll() throws InterruptedException {
+  public List reserveAll() {
 
     final List result;
     final List reserveList;
@@ -155,7 +154,12 @@ final class ResourcePool {
       if (reserveList.size() > 0) {
         // Block until more resources are freed.
         synchronized (m_reservableMutex) {
-          m_reservableMutex.wait();
+          try {
+            m_reservableMutex.wait();
+          }
+          catch (InterruptedException e) {
+            throw new UncheckedInterruptedException(e);
+          }
         }
       }
     }

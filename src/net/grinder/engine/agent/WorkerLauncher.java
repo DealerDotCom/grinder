@@ -25,6 +25,7 @@ import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.Kernel;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -120,7 +121,7 @@ final class WorkerLauncher {
         try {
           worker.waitFor();
         }
-        catch (InterruptedException e) {
+        catch (UncheckedInterruptedException e) {
           // We're taking our worker down with us.
           worker.destroy();
         }
@@ -151,13 +152,7 @@ final class WorkerLauncher {
       }
     }
 
-    try {
-      m_kernel.gracefulShutdown();
-    }
-    catch (InterruptedException e) {
-      // Oh well.
-      // TODO.
-    }
+    m_kernel.gracefulShutdown();
 
     return true;
   }

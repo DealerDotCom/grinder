@@ -90,14 +90,7 @@ public final class FanOutServerSender
     boolean result = false;
 
     // Reserve the lot.
-    final Iterator iterator;
-
-    try {
-      iterator = getResourcePool().reserveAll().iterator();
-    }
-    catch (InterruptedException e) {
-      throw new AssertionError(e);
-    }
+    final Iterator iterator = getResourcePool().reserveAll().iterator();
 
     try {
       while (iterator.hasNext()) {

@@ -52,11 +52,7 @@ public class TestDebugThreadWorker extends TestCase {
 
     final Thread waitThread = new Thread() {
       public void run() {
-        try {
-          resultHolder[0] = worker.waitFor();
-        }
-        catch (InterruptedException e) {
-        }
+        resultHolder[0] = worker.waitFor();
       }
     };
 

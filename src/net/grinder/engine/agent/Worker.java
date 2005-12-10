@@ -48,10 +48,8 @@ interface Worker {
    *
    * @return See {@link net.grinder.engine.process.GrinderProcess} for
    * valid values.
-   * @throws InterruptedException If this thread is interrupted whilst
-   * waiting.
    */
-  int waitFor() throws InterruptedException;
+  int waitFor();
 
   /**
    * Destroy the worker.

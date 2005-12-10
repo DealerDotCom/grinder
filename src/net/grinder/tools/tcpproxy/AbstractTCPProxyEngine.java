@@ -37,6 +37,7 @@ import java.util.List;
 
 import net.grinder.common.Logger;
 import net.grinder.util.TerminalColour;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -281,7 +282,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         m_thread.join();
       }
       catch (InterruptedException e) {
-        // Oh well.
+        throw new UncheckedInterruptedException(e);
       }
     }
   }

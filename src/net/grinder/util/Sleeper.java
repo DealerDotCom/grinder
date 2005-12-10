@@ -29,6 +29,7 @@ import java.util.Random;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -172,13 +173,12 @@ public final class Sleeper {
             checkShutdown();
             wait(wakeUpTime - currentTime);
           }
-          break;
         }
         catch (InterruptedException e) {
-          checkShutdown();
-
-          currentTime = System.currentTimeMillis();
+          throw new UncheckedInterruptedException(e);
         }
+
+        currentTime = System.currentTimeMillis();
       }
     }
   }

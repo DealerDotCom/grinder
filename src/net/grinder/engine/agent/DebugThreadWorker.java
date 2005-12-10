@@ -31,6 +31,7 @@ import java.net.URLClassLoader;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.IsolatingClassLoader;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -103,9 +104,14 @@ final class DebugThreadWorker implements Worker {
     return m_communicationStream;
   }
 
-  public int waitFor() throws InterruptedException {
-    // TODO.
-    m_thread.join();
+  public int waitFor() {
+    try {
+      m_thread.join();
+    }
+    catch (InterruptedException e) {
+      throw new UncheckedInterruptedException(e);
+    }
+
     return m_result;
   }
 

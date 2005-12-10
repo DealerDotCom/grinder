@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.StreamCopier;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -104,12 +105,13 @@ final class ProcessWorker implements Worker {
    *
    * @return See {@link net.grinder.engine.process.GrinderProcess} for
    * valid values.
-   * @throws InterruptedException If this thread is interrupted whilst
-   * waiting.
    */
-  public int waitFor() throws InterruptedException {
+  public int waitFor() {
     try {
       m_process.waitFor();
+    }
+    catch (InterruptedException e) {
+      throw new UncheckedInterruptedException(e);
     }
     finally {
       m_stdoutRedirector.stop();
@@ -142,7 +144,7 @@ final class ProcessWorker implements Worker {
       Thread.sleep(100);
     }
     catch (InterruptedException e) {
-      // Swallow, destroy() is only called when we're exiting a thread.
+      throw new UncheckedInterruptedException(e);
     }
 
     m_process.destroy();
@@ -168,7 +170,7 @@ final class ProcessWorker implements Worker {
           m_thread.join();
         }
         catch (InterruptedException e) {
-          // Swallow. We're doing our best to exit here.
+          throw new UncheckedInterruptedException(e);
         }
       }
     }

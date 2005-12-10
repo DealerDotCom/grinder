@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import net.grinder.testutility.IsolatedObjectFactory;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 import junit.framework.TestCase;
 
@@ -99,12 +100,13 @@ public class TestServerReceiver extends TestCase {
     Message receivedMessage2 = serverReceiver.waitForMessage();
     Message receivedMessage3 = serverReceiver.waitForMessage();
 
-    assertNull(
+    assertEquals(
+      UncheckedInterruptedException.class,
       new BlockingActionThread() {
         protected void blockingAction() throws CommunicationException {
           serverReceiver.waitForMessage();
         }
-      }.getException());
+      }.getException().getClass());
 
     if (receivedMessage1.equals(message2)) {
       final Message temp = receivedMessage2;
@@ -258,12 +260,13 @@ public class TestServerReceiver extends TestCase {
 
     // For a ServerReceiver, a CloseCommunicationMessage only closes
     // the individual connection.
-    assertNull(
+    assertEquals(
+      UncheckedInterruptedException.class,
       new BlockingActionThread() {
         protected void blockingAction() throws CommunicationException {
           serverReceiver.waitForMessage();
         }
-      }.getException());
+      }.getException().getClass());
 
     serverReceiver.shutdown();
 

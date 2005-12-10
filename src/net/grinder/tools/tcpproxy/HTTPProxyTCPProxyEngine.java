@@ -28,7 +28,6 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -44,6 +43,7 @@ import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
 import net.grinder.util.StreamCopier;
 import net.grinder.util.html.HTMLElement;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -323,7 +323,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       m_proxySSLEngineThread.join();
     }
     catch (InterruptedException e) {
-      // Ignore.
+      throw new UncheckedInterruptedException(e);
     }
   }
 
@@ -602,7 +602,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               wait();
             }
             catch (InterruptedException e) {
-              throw new InterruptedIOException("Thread interrupted");
+              throw new UncheckedInterruptedException(e);
             }
           }
 
@@ -646,7 +646,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           Thread.sleep(10);
         }
         catch (InterruptedException e) {
-          throw new InterruptedIOException("Thread interrupted");
+          throw new UncheckedInterruptedException(e);
         }
       }
 

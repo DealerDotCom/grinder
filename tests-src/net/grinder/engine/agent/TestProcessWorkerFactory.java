@@ -153,7 +153,7 @@ public class TestProcessWorkerFactory extends TestCase {
               };
             }
 
-            public int waitFor() throws InterruptedException {
+            public int waitFor() {
               return 0;
             }
 

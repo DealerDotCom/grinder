@@ -52,7 +52,7 @@ public final class QueuedSenderDecorator implements QueuedSender {
    * @exception CommunicationException If an error occurs.
    **/
   public void send(Message message) throws CommunicationException {
-    synchronized (m_messageQueue.getMutex()) {
+    synchronized (m_messageQueue.getMonitor()) {
       queue(message);
       flush();
     }
@@ -84,7 +84,7 @@ public final class QueuedSenderDecorator implements QueuedSender {
   public void flush() throws CommunicationException {
 
     try {
-      synchronized (m_messageQueue.getMutex()) {
+      synchronized (m_messageQueue.getMonitor()) {
         while (true) {
           final Message message = m_messageQueue.dequeue(false);
 

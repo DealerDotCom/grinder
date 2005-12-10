@@ -23,6 +23,7 @@ package net.grinder.communication;
 
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -55,9 +56,7 @@ public final class MessagePump {
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
         public InterruptibleRunnable create() {
-          return new InterruptibleRunnable() {
-            public void run() { process(); }
-          };
+          return new MessagePumpRunnable();
         }
       };
 
@@ -86,21 +85,26 @@ public final class MessagePump {
     }
   }
 
-  private void process() {
-    try {
-      while (!m_threadPool.isStopped()) {
-        final Message message = m_receiver.waitForMessage();
+  private class MessagePumpRunnable implements InterruptibleRunnable {
+    public void run() {
+      try {
+        while (!m_threadPool.isStopped()) {
+          final Message message = m_receiver.waitForMessage();
 
-        if (message == null) {
-          shutdown();
-        }
-        else {
-          m_sender.send(message);
+          if (message == null) {
+            shutdown();
+          }
+          else {
+            m_sender.send(message);
+          }
         }
       }
-    }
-    catch (CommunicationException e) {
-      shutdown();
+      catch (CommunicationException e) {
+        shutdown();
+      }
+      catch (UncheckedInterruptedException e) {
+        // Exit cleanly.
+      }
     }
   }
 }

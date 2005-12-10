@@ -59,9 +59,7 @@ public final class Kernel {
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
         public InterruptibleRunnable create() {
-          return new InterruptibleRunnable() {
-              public void run() { process(); }
-            };
+          return new KernelRunnable();
         }
       };
 
@@ -93,19 +91,20 @@ public final class Kernel {
   /**
    * Shut down this kernel, waiting for work to complete.
    *
-   * @throws InterruptedException If our thread is interrupted whilst
-   * we are waiting for work to complete.
    */
-  public void gracefulShutdown() throws InterruptedException {
+  public void gracefulShutdown() {
 
-    // Wait until the queue is empty.
-    synchronized (m_workQueue.getMutex()) {
-      while (m_workQueue.getSize() > 0) {
-        m_workQueue.getMutex().wait();
+    try {
+      // Wait until the queue is empty.
+      synchronized (m_workQueue.getMonitor()) {
+        while (m_workQueue.getSize() > 0) {
+          m_workQueue.getMonitor().waitNoInterrruptException();
+        }
       }
     }
-
-    m_threadPool.stopAndWait();
+    finally {
+      m_threadPool.stopAndWait();
+    }
   }
 
   /**
@@ -116,11 +115,24 @@ public final class Kernel {
     m_threadPool.stop();
   }
 
-  private void process() {
-    try {
+  private class KernelRunnable implements InterruptibleRunnable {
+
+    public void run() {
       while (true) {
-        final Runnable runnable =
-          (Runnable) m_workQueue.dequeue(!m_threadPool.isStopped());
+        final Runnable runnable;
+
+        try {
+          runnable = (Runnable) m_workQueue.dequeue(!m_threadPool.isStopped());
+        }
+        catch (ThreadSafeQueue.ShutdownException e) {
+          // We've been shut down, exit the thread cleanly.
+          break;
+        }
+        catch (UncheckedInterruptedException e) {
+          // We've been interrupted, exit the thread cleanly.
+          forceShutdown();
+          break;
+        }
 
         if (runnable == null) {
           // We're shutting down and the queue is empty.
@@ -129,9 +141,6 @@ public final class Kernel {
 
         runnable.run();
       }
-    }
-    catch (ThreadSafeQueue.ShutdownException e) {
-      // We've been shutdown, exit this thread.
     }
   }
 

@@ -19,52 +19,33 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.util.thread;
+package net.grinder.common;
 
 
 /**
- * Object used for synchronisation.
+ * Base unchecked exception class for The Grinder.
  *
  * @author Philip Aston
  * @version $Revision$
- * @see UncheckedInterruptedException
  */
-public class Monitor {
+public abstract class UncheckedGrinderException extends RuntimeException {
 
   /**
-   * Wait until we are notified, or receive an {@link InterruptedException}.
+   * Constructor.
    *
-   * @see Object#wait
-   * @throws UncheckedInterruptedException
-   *           If we receive an {@link InterruptedException}.
+   * @param message Helpful message.
    */
-  public void waitNoInterrruptException()
-    throws UncheckedInterruptedException {
-    try {
-      super.wait();
-    }
-    catch (InterruptedException e) {
-      throw new UncheckedInterruptedException(e);
-    }
+  public UncheckedGrinderException(String message) {
+    super(message);
   }
 
   /**
-   * Wait until we are notified, time out, or receive an
-   * {@link InterruptedException}.
+   * Constructor.
    *
-   * @param timeout
-   *          the maximum time to wait in milliseconds.
-   * @see Object#wait(long)
-   * @throws UncheckedInterruptedException
-   *           If we receive an {@link InterruptedException}.
+   * @param message Helpful message.
+   * @param cause A nested <code>Throwable</code>
    */
-  public void waitNoInterrruptException(long timeout)
-    throws UncheckedInterruptedException {
-    try {
-      super.wait(timeout);
-    }
-    catch (InterruptedException e) {
-      throw new UncheckedInterruptedException(e);
-    }
+  public UncheckedGrinderException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

@@ -86,6 +86,9 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
     catch (CommunicationException e) {
       throw new EngineException("Failed to send initialisation message", e);
     }
+    finally {
+      worker.destroy();
+    }
 
     m_fanOutStreamSender.add(processStdin);
 

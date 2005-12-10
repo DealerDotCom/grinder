@@ -94,9 +94,7 @@ public final class Acceptor {
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
         public InterruptibleRunnable create() {
-          return new InterruptibleRunnable() {
-            public void run() { process(); }
-          };
+          return new AcceptorRunnable();
         }
       };
 
@@ -314,24 +312,26 @@ public final class Acceptor {
     }
   }
 
-  private void process() {
-    try {
-      while (true) {
-        final Socket localSocket = m_serverSocket.accept();
-        discriminateConnection(localSocket);
-      }
-    }
-    catch (IOException e) {
-      // Treat accept socket errors as fatal - we've probably been
-      // shutdown.
-    }
-    finally {
-      // Best effort to ensure our server socket is closed.
+  private class AcceptorRunnable implements InterruptibleRunnable {
+    public void run() {
       try {
-        shutdown();
+        while (true) {
+          final Socket localSocket = m_serverSocket.accept();
+          discriminateConnection(localSocket);
+        }
       }
-      catch (CommunicationException e) {
-        // Ignore.
+      catch (IOException e) {
+        // Treat accept socket errors as fatal - we've probably been
+        // shutdown. This includes InterruptedIOExceptions.
+      }
+      finally {
+        // Best effort to ensure our server socket is closed.
+        try {
+          shutdown();
+        }
+        catch (CommunicationException e) {
+          // Ignore.
+        }
       }
     }
   }

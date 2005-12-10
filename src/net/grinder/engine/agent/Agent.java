@@ -49,6 +49,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.JVM;
+import net.grinder.util.thread.Monitor;
 
 
 /**
@@ -64,7 +65,7 @@ public final class Agent {
   private final File m_alternateFile;
   private final Logger m_logger;
   private final Timer m_timer;
-  private final Object m_eventSynchronisation = new Object();
+  private final Monitor m_eventSynchronisation = new Monitor();
   private final AgentIdentityImplementation m_agentIdentity;
   private final ConsoleListener m_consoleListener;
   private final FanOutStreamSender m_fanOutStreamSender =
@@ -102,10 +103,8 @@ public final class Agent {
    * Run the Grinder agent process.
    *
    * @throws GrinderException If an error occurs.
-   * @throws InterruptedException If the calling thread is
-   * interrupted whilst waiting.
    */
-  public void run() throws GrinderException, InterruptedException {
+  public void run() throws GrinderException {
 
     StartGrinderMessage nextStartMessage = null;
     Connector lastConnector = null;
@@ -313,7 +312,8 @@ public final class Agent {
               workerLauncher.destroyAllWorkers();
             }
 
-            m_eventSynchronisation.wait(maximumShutdownTime);
+            m_eventSynchronisation.waitNoInterrruptException(
+              maximumShutdownTime);
           }
         }
       }
@@ -463,9 +463,10 @@ public final class Agent {
       catch (CommunicationException e) {
         // Ignore - peer has probably shut down.
       }
-
-      m_receiver.shutdown();
-      m_sender.shutdown();
+      finally {
+        m_receiver.shutdown();
+        m_sender.shutdown();
+      }
     }
   }
 }

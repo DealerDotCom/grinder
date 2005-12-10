@@ -34,6 +34,7 @@ import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
+import net.grinder.util.thread.Monitor;
 
 
 /**
@@ -52,7 +53,7 @@ public class TestConsoleListener extends TestCase {
   }
 
   public void testConstruction() throws Exception {
-    final Object myMonitor = new Object();
+    final Monitor myMonitor = new Monitor();
 
     final ConsoleListener listener0 =
       new ConsoleListener(myMonitor, m_logger);
@@ -64,7 +65,7 @@ public class TestConsoleListener extends TestCase {
   }
 
   public void testSendNotification() throws Exception {
-    final Object myMonitor = new Object();
+    final Monitor myMonitor = new Monitor();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
 
     final MessageHandler messageHandler = listener.getMessageHandler();
@@ -78,7 +79,7 @@ public class TestConsoleListener extends TestCase {
 
   public void testCheckForMessageAndReceive() throws Exception {
 
-    final Object myMonitor = new Object();
+    final Monitor myMonitor = new Monitor();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY));
@@ -152,7 +153,7 @@ public class TestConsoleListener extends TestCase {
   }
 
   public void testDiscardMessages() throws Exception {
-    final Object myMonitor = new Object();
+    final Monitor myMonitor = new Monitor();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY));
@@ -199,7 +200,7 @@ public class TestConsoleListener extends TestCase {
   }
 
   public void testWaitForMessage() throws Exception {
-    final Object myMonitor = new Object();
+    final Monitor myMonitor = new Monitor();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
     final MessageHandler messageHandler = listener.getMessageHandler();
 
@@ -228,7 +229,7 @@ public class TestConsoleListener extends TestCase {
 
   public void testShutdown() throws Exception {
 
-    final Object myMonitor = new Object();
+    final Monitor myMonitor = new Monitor();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
     final MessageHandler messageHandler = listener.getMessageHandler();
 
@@ -296,7 +297,7 @@ public class TestConsoleListener extends TestCase {
   public void testGetLastStartGrinderMessage() throws Exception {
 
     final ConsoleListener listener =
-      new ConsoleListener(new Object(), m_logger);
+      new ConsoleListener(new Monitor(), m_logger);
 
     final Message m1 = new StartGrinderMessage(new File("a"));
     final Message m2 = new StartGrinderMessage(new File("a"));

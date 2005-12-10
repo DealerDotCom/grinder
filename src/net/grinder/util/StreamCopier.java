@@ -117,6 +117,7 @@ public class StreamCopier {
           }
           catch (IOException e) {
             // Be silent about IOExceptions.
+            // InterruptedIOException's take this path.
           }
         }
       };

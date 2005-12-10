@@ -82,9 +82,6 @@ abstract class AbstractFanOutSender extends AbstractSender {
     catch (Kernel.ShutdownException e) {
       throw new AssertionError(e);
     }
-    catch (InterruptedException e) {
-      throw new AssertionError(e);
-    }
   }
 
   /**
@@ -115,12 +112,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
   public void shutdown() {
     super.shutdown();
 
-    try {
-      m_kernel.gracefulShutdown();
-    }
-    catch (InterruptedException e) {
-      // Oh well.
-    }
+    m_kernel.gracefulShutdown();
   }
 
   private static final class WriteMessageToStream
@@ -143,6 +135,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
         writeMessageToStream(m_message, m_outputStream);
       }
       catch (IOException e) {
+        // InterruptedIOExceptions take this path.
         m_reservation.close();
       }
       finally {

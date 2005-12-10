@@ -21,6 +21,7 @@
 
 package net.grinder.util.thread;
 
+
 /**
  * Lock object that has two states. A caller can wait for the state to change
  * to a particular value, but can also be woken by another thread.

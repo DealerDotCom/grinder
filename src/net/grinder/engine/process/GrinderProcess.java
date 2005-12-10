@@ -56,6 +56,7 @@ import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.JVM;
+import net.grinder.util.thread.Monitor;
 
 
 /**
@@ -93,6 +94,8 @@ public final class GrinderProcess {
 
   /**
    * A template for the error handling for creating and running a process.
+   *
+   * TODO should implement InterruptibleRunnable
    */
   public abstract static class Runner {
 
@@ -152,7 +155,7 @@ public final class GrinderProcess {
   private final InitialiseGrinderMessage m_initialisationMessage;
   private final ConsoleListener m_consoleListener;
   private final TestStatisticsMap m_accumulatedStatistics;
-  private final Object m_eventSynchronisation = new Object();
+  private final Monitor m_eventSynchronisation = new Monitor();
   private final MessagePump m_messagePump;
 
   private boolean m_shutdownTriggered;
@@ -248,7 +251,7 @@ public final class GrinderProcess {
    *
    * @return Exit status to be indicated to parent process.
    */
-  private void run() throws GrinderException, InterruptedException {
+  private void run() throws GrinderException {
     final Logger logger = m_context.getProcessLogger();
 
     logger.output("The Grinder version " + GrinderBuild.getVersionString());
@@ -348,7 +351,7 @@ public final class GrinderProcess {
             break;
           }
 
-          m_eventSynchronisation.wait();
+          m_eventSynchronisation.waitNoInterrruptException();
         }
       }
 
@@ -370,7 +373,8 @@ public final class GrinderProcess {
               break;
             }
 
-            m_eventSynchronisation.wait(maximumShutdownTime);
+            m_eventSynchronisation.waitNoInterrruptException(
+              maximumShutdownTime);
           }
         }
       }

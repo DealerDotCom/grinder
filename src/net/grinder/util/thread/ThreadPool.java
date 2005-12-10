@@ -102,6 +102,8 @@ public final class ThreadPool {
 
     stop();
 
+    InterruptedException interrupted = null;
+
     for (int i = 0; i < m_threads.length; ++i) {
       while (m_threads[i] != Thread.currentThread() &&
              m_threads[i].isAlive()) {
@@ -109,9 +111,14 @@ public final class ThreadPool {
           m_threads[i].join();
         }
         catch (InterruptedException e) {
-          // Ignore.
+          interrupted = e;
+          --i; // Try again.
         }
       }
+    }
+
+    if (interrupted != null) {
+      throw new UncheckedInterruptedException(interrupted);
     }
   }
 

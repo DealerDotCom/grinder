@@ -41,8 +41,8 @@ public class TestThreadSafeQueue extends TestCase {
 
   public void testConstructionAndBasicAccessors() throws Exception {
     final ThreadSafeQueue threadSafeQueue = new ThreadSafeQueue();
-    assertNotNull(threadSafeQueue.getMutex());
-    assertSame(threadSafeQueue.getMutex(), threadSafeQueue.getMutex());
+    assertNotNull(threadSafeQueue.getMonitor());
+    assertSame(threadSafeQueue.getMonitor(), threadSafeQueue.getMonitor());
     assertEquals(0, threadSafeQueue.getSize());
   }
 
@@ -143,7 +143,7 @@ public class TestThreadSafeQueue extends TestCase {
     for (int i=0; i<queuers.length; ++i) {
       queuers[i] = new Queuer(i, 10, threadSafeQueue) {
           public void run() {
-            synchronized(threadSafeQueue.getMutex()) {
+            synchronized(threadSafeQueue.getMonitor()) {
               super.run();
             }
           }
@@ -292,7 +292,7 @@ public class TestThreadSafeQueue extends TestCase {
   public void testShutdownMultiThreaded() throws Exception {
     final ThreadSafeQueue threadSafeQueue = new ThreadSafeQueue();
 
-    synchronized(threadSafeQueue.getMutex()) {
+    synchronized(threadSafeQueue.getMonitor()) {
       new Thread() {
         public void run() {
           // shutdown won't do anything until dequeue blocks and
