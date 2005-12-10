@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,10 +32,19 @@ import junit.framework.TestCase;
  */
 public class TestGrinderBuild extends TestCase {
   public void testGrinderBuildStrings() throws Exception {
-    assertEquals(System.getProperty("grinder.version"),
-                 GrinderBuild.getVersionString());
+    final String expectedVersion = System.getProperty("grinder.version");
+
+    if (expectedVersion != null) {
+      // Our build has told us what to expect.
+      assertEquals(expectedVersion, GrinderBuild.getVersionString());
+      assertEquals(System.getProperty("grinder.date"),
+                   GrinderBuild.getDateString());
+    }
+    else {
+      assertNotNull(GrinderBuild.getVersionString());
+      assertNotNull(GrinderBuild.getDateString());
+    }
+
     assertTrue(GrinderBuild.getName().indexOf("The Grinder") >= 0);
-    assertEquals(System.getProperty("grinder.date"),
-                 GrinderBuild.getDateString());
   }
 }
