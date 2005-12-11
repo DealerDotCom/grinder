@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,14 +35,14 @@ import java.io.StringWriter;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestGrinderException extends TestCase {
+public class TestGrinderExceptions extends TestCase {
 
   public void testPrintStackTrace() throws Exception {
     final StringWriter stringWriter = new StringWriter();
     final PrintWriter printWriter = new PrintWriter(stringWriter);
 
     final GrinderException e1 = createDeeperException();
-    final GrinderException e2 = new GrinderException("Exception 2", e1);
+    final GrinderException e2 = new MyGrinderException("Exception 2", e1);
 
     e2.printStackTrace(printWriter);
     final String s = stringWriter.toString();
@@ -60,7 +60,7 @@ public class TestGrinderException extends TestCase {
     final PrintWriter printWriter = new PrintWriter(stringWriter);
 
     final Exception e1 = new RuntimeException();
-    final GrinderException e2 = new GrinderException("Exception 2", e1);
+    final GrinderException e2 = new MyGrinderException("Exception 2", e1);
 
     e2.printStackTrace(printWriter);
     final String s = stringWriter.toString();
@@ -85,7 +85,7 @@ public class TestGrinderException extends TestCase {
     final PrintWriter printWriter = new PrintWriter(stringWriter);
 
     final Exception e1 = new WeirdException();
-    final GrinderException e2 = new GrinderException("Exception 2", e1);
+    final GrinderException e2 = new MyGrinderException("Exception 2", e1);
 
     e2.printStackTrace(printWriter);
     final String s = stringWriter.toString();
@@ -102,7 +102,7 @@ public class TestGrinderException extends TestCase {
     final PrintStream printStream = new PrintStream(byteArrayOutputStream);
 
     final GrinderException e1 = createDeeperException();
-    final GrinderException e2 = new GrinderException("Exception 2", e1);
+    final GrinderException e2 = new MyGrinderException("Exception 2", e1);
 
     e2.printStackTrace(printStream);
     final String s = new String(byteArrayOutputStream.toByteArray());
@@ -120,7 +120,7 @@ public class TestGrinderException extends TestCase {
     final PrintStream printStream = new PrintStream(byteArrayOutputStream);
 
     final GrinderException e1 = createDeeperException();
-    final GrinderException e2 = new GrinderException("Exception 2", e1);
+    final GrinderException e2 = new MyGrinderException("Exception 2", e1);
 
     final PrintStream oldStderr = System.err;
     System.setErr(printStream);
@@ -141,7 +141,7 @@ public class TestGrinderException extends TestCase {
   }
 
   private GrinderException createException() {
-    return new GrinderException("an exception");
+    return new MyGrinderException("an exception");
   }
 
   private GrinderException createDeeperException() {
@@ -157,5 +157,33 @@ public class TestGrinderException extends TestCase {
     }
 
     return result;
+  }
+
+  private static final class MyGrinderException extends GrinderException {
+
+    public MyGrinderException(String message) {
+      super(message);
+    }
+
+    public MyGrinderException(String string, Throwable e1) {
+      super(string, e1);
+    }
+  }
+
+  public void testUncheckedGrinderException() throws Exception {
+    final RuntimeException e1 = new UncheckedGrinderException("test") {};
+    assertEquals("test", e1.getMessage());
+
+    final UncheckedGrinderException e2 =
+      new UncheckedGrinderException("test2", e1) {};
+    assertEquals("test2", e2.getMessage());
+    assertEquals(e1, e2.getCause());
+
+    try {
+      UncheckedGrinderException.class.newInstance();
+      fail("UncheckedGrinderException is not abstract");
+    }
+    catch (InstantiationException e) {
+    }
   }
 }
