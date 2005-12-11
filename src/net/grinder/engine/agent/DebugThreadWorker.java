@@ -36,7 +36,7 @@ import net.grinder.util.thread.UncheckedInterruptedException;
 
 /**
  * Class that starts a worker in a separate thread and an
- * {@link IsolatingCassloader}. Used for debugging.
+ * {@link IsolatingClassLoader}. Used for debugging.
  *
  * @author Philip Aston
  * @version $Revision$

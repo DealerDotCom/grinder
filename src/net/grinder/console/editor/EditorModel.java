@@ -441,30 +441,30 @@ public final class EditorModel {
   }
 
   /**
-   * Base {@link Listener} implementation that does nothing.
+   * Base {@link EditorModel.Listener} implementation that does nothing.
    */
   public abstract static class AbstractListener implements Listener {
 
     /**
-     * @see Listener#bufferAdded
+     * @see EditorModel.Listener#bufferAdded
      * @param buffer The buffer.
      */
     public void bufferAdded(Buffer buffer) { }
 
     /**
-     * @see Listener#bufferStateChanged
+     * @see EditorModel.Listener#bufferStateChanged
      * @param buffer The buffer.
      */
     public void bufferStateChanged(Buffer buffer) { }
 
     /**
-     * @see Listener#bufferNotUpToDate
+     * @see EditorModel.Listener#bufferNotUpToDate
      * @param buffer The buffer.
      */
     public void bufferNotUpToDate(Buffer buffer) { }
 
     /**
-     * @see Listener#bufferRemoved
+     * @see EditorModel.Listener#bufferRemoved
      * @param buffer The buffer.
      */
     public void bufferRemoved(Buffer buffer) { }

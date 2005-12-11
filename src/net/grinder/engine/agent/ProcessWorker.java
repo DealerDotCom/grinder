@@ -52,7 +52,7 @@ final class ProcessWorker implements Worker {
   /**
    * Constructor.
    *
-   * @param workerName The process name.
+   * @param workerIdentity The process identity.
    * @param commandArray Command line arguments.
    * @param outputStream Output stream to which child process stdout
    * should be redirected.

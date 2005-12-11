@@ -178,7 +178,7 @@ public final class FileDistributionImplementation implements FileDistribution {
 
   /**
    * Add a listener that will be sent events about files that have changed when
-   * {@link scanDistributionFiles} is called.
+   * {@link #scanDistributionFiles} is called.
    *
    * @param listener
    *          The listener.

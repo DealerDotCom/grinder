@@ -53,7 +53,7 @@ abstract class AbstractProcessIdentityImplementation implements Serializable {
   /**
    * Allows the public process name to be changed.
    *
-   * @param The new process name.
+   * @param name The new process name.
    */
   public void setName(String name) {
     m_name = name;

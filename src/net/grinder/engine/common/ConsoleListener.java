@@ -22,7 +22,7 @@
 package net.grinder.engine.common;
 
 import net.grinder.common.Logger;
-import net.grinder.communication.HandlerChainSender.MessageHandler;
+import net.grinder.communication.HandlerChainSender;
 import net.grinder.communication.Message;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
@@ -31,14 +31,12 @@ import net.grinder.util.thread.Monitor;
 
 
 /**
- * Process console messages and allows them to be asynchronously
- * queried.
+ * Process console messages and allows them to be asynchronously queried.
  *
- * <p><code>ConsoleListener</code> is passive; the message is
- * "received" through a {@link Sender} implementation obtained from
- * {@link #getSender}. Use this class in conjunction with an
- * appropriate {@link net.grinder.communication.Receiver} and a {@link
- * net.grinder.communication.MessagePump}.
+ * <p>
+ * <code>ConsoleListener</code> is passive; the message is "received" through
+ * a {HandlerChainSender.MessageHandler} obtained from
+ * {@link #getMessageHandler}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -171,14 +169,14 @@ public final class ConsoleListener {
   }
 
   /**
-   * Returns a {@link MessageHandler} that can be used to pass {@link
-   * Message}s to the <code>ConsoleListener</code>.
+   * Returns a {@link HandlerChainSender.MessageHandler} that can be used to
+   * pass {@link Message}s to the <code>ConsoleListener</code>.
    *
    * @return The <code>MessageHandler</code>.
    */
-  public MessageHandler getMessageHandler() {
+  public HandlerChainSender.MessageHandler getMessageHandler() {
 
-    return new MessageHandler() {
+    return new HandlerChainSender.MessageHandler() {
         public boolean process(Message message) {
           if (message instanceof StartGrinderMessage) {
             m_logger.output("received a start message");

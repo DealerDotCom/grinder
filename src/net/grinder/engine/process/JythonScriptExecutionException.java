@@ -88,7 +88,7 @@ public final class JythonScriptExecutionException extends EngineException {
 
   /**
    * A short message, without the Jython stack trace. We override
-   * {@link getMessage} to include the Jython stack trace; sometimes we don't
+   * {@link #getMessage} to include the Jython stack trace; sometimes we don't
    * want the stack trace.
    *
    * @return A short message, without the Jython stack trace.

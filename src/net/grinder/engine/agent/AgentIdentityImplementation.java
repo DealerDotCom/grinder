@@ -47,7 +47,7 @@ class AgentIdentityImplementation
   /**
    * Constructor.
    *
-   * @param hostIdentity The public name of the agent.
+   * @param name The public name of the agent.
    */
   AgentIdentityImplementation(String name) {
     super(s_identityGenerator.createUniqueString(name), name);

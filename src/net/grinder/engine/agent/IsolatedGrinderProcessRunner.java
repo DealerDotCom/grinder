@@ -30,8 +30,8 @@ import net.grinder.engine.process.GrinderProcess;
 
 
 /**
- * Implementation of {@link IsolateGrinderProcessRunner} that is loaded in
- * separate {@link net.grinder.util.IsolatingClassLoader}s by
+ * Implementation of {@link DebugThreadWorker.IsolateGrinderProcessRunner} that
+ * is loaded in separate {@link net.grinder.util.IsolatingClassLoader}s by
  * {@link DebugThreadWorker}.
  *
  * @author Philip Aston

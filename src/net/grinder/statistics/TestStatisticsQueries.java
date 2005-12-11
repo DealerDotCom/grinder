@@ -37,7 +37,7 @@ public final class TestStatisticsQueries {
   /**
    * Constructor.
    *
-   * @statisticsIndexMap The index map to use.
+   * @param statisticsIndexMap The index map to use.
    */
   TestStatisticsQueries(StatisticsIndexMap statisticsIndexMap) {
     m_errorsIndex = statisticsIndexMap.getLongIndex("errors");
