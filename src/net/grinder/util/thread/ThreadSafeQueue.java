@@ -139,6 +139,17 @@ public final class ThreadSafeQueue {
   }
 
   /**
+   * Wait until the queue is empty.
+   */
+  public void waitUntilEmpty() {
+    synchronized (getMonitor()) {
+      while (getSize() > 0) {
+        getMonitor().waitNoInterrruptException();
+      }
+    }
+  }
+
+  /**
    * Exception that indicates <code>ThreadSafeQueue</code> has been
    * shutdown.
    */

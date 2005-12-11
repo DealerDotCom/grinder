@@ -93,14 +93,8 @@ public final class Kernel {
    *
    */
   public void gracefulShutdown() {
-
     try {
-      // Wait until the queue is empty.
-      synchronized (m_workQueue.getMonitor()) {
-        while (m_workQueue.getSize() > 0) {
-          m_workQueue.getMonitor().waitNoInterrruptException();
-        }
-      }
+      m_workQueue.waitUntilEmpty();
     }
     finally {
       m_threadPool.stopAndWait();
