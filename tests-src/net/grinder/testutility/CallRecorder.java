@@ -22,7 +22,6 @@
 package net.grinder.testutility;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -36,7 +35,7 @@ import junit.framework.Assert;
  *
  * @author    Philip Aston
  */
-public class CallRecorder extends Assert {
+public class CallRecorder extends Assert implements CallAssertions {
 
   private final Monitor m_callDataListMonitor = new Monitor();
   private final LinkedList m_callDataList = new LinkedList();
@@ -88,6 +87,28 @@ public class CallRecorder extends Assert {
     return result.toString();
   }
 
+  /**
+   *  Check that no methods have been called.
+   */
+  public final void assertNoMoreCalls() {
+    synchronized (m_callDataListMonitor) {
+      assertEquals("Call history:\n" + getCallHistory(),
+                   0, m_callDataList.size());
+    }
+  }
+
+  public final CallData getCallData() {
+    // Check the earliest call first.
+    synchronized (m_callDataListMonitor) {
+      try {
+        return (CallData) m_callDataList.removeFirst();
+      }
+      finally {
+        m_callDataListMonitor.notifyAll();
+      }
+    }
+  }
+
   public void setIgnoreObjectMethods(boolean b) {
     m_ignoreObjectMethods = b;
   }
@@ -120,209 +141,80 @@ public class CallRecorder extends Assert {
     }
   }
 
-  /**
-   *  Check that no methods have been called.
-   */
-  public final void assertNoMoreCalls() {
-    synchronized (m_callDataListMonitor) {
-      assertEquals("Call history:\n" + getCallHistory(),
-                   0, m_callDataList.size());
-    }
-  }
-
-  /**
-   *  Check the given method was called.
-   */
   public final CallData assertSuccess(String methodName, Object[] parameters) {
-    final CallData result = assertCalledInternal(methodName, parameters);
-    assertNull(result.getThrowable());
-    return result;
+    return getCallData().assertSuccess(methodName, parameters);
   }
 
   public final CallData assertSuccess(String methodName,
                                       Class[] parameterTypes) {
-    final CallData result = assertCalledInternal(methodName, parameterTypes);
-    assertNull(result.getThrowable());
-    return result;
+    return getCallData().assertSuccess(methodName, parameterTypes);
   }
 
-
   public final CallData assertSuccess(String methodName) {
-    final CallData result = assertCalledInternal(methodName, new Class[0]);
-    assertNull(result.getThrowable());
-    return result;
+    return getCallData().assertSuccess(methodName);
   }
 
   public final CallData assertSuccess(String methodName, Object object1) {
-    return assertSuccess(methodName, new Object[] { object1 });
+    return getCallData().assertSuccess(methodName, object1);
   }
 
   public final CallData assertSuccess(String methodName,
                                       Object object1,
                                       Object object2) {
-    return assertSuccess(methodName, new Object[] { object1, object2 });
+    return getCallData().assertSuccess(methodName, object1, object2);
   }
 
   public final CallData assertSuccess(String methodName,
                                       Object object1,
                                       Object object2,
                                       Object object3) {
-    return assertSuccess(methodName,
-                         new Object[] { object1, object2, object3 });
+    return getCallData().assertSuccess(methodName, object1, object2, object3);
   }
 
   public final CallData assertSuccess(String methodName, Class class1) {
-    return assertSuccess(methodName, new Class[] { class1 });
+    return getCallData().assertSuccess(methodName, class1);
   }
 
   public final CallData assertSuccess(String methodName,
                                       Class class1,
                                       Class class2) {
-    return assertSuccess(methodName, new Class[] { class1, class2 });
+    return getCallData().assertSuccess(methodName, class1, class2);
   }
 
   public final CallData assertSuccess(String methodName,
                                       Class class1,
                                       Class class2,
                                       Class class3) {
-    return assertSuccess(methodName, new Class[] { class1, class2, class3 });
+    return getCallData().assertSuccess(methodName, class1, class2, class3);
   }
 
-  /**
-   *  Check the given method was called, and that it threw the given
-   *  exception.
-   */
-  public final CallData assertFailed(String methodName, Object[] parameters,
+  public final CallData assertFailed(String methodName,
+                                     Object[] parameters,
                                      Throwable throwable) {
-
-    final CallData callData = assertCalledInternal(methodName, parameters);
-    assertEquals(throwable, callData.getThrowable());
-    return callData;
+    return getCallData().assertFailed(methodName, parameters, throwable);
   }
 
-  public final CallData assertFailed(String methodName, Class[] parameterTypes,
+  public final CallData assertFailed(String methodName,
+                                     Class[] parameterTypes,
                                      Throwable throwable) {
-
-    final CallData callData = assertCalledInternal(methodName, parameterTypes);
-    assertEquals(throwable, callData.getThrowable());
-    return callData;
+    return getCallData().assertFailed(methodName, parameterTypes, throwable);
   }
 
   /**
    *  Check the given method was called, and that it threw an
    *  exception of the given type.
    */
-  public final CallData assertFailed(String methodName, Object[] parameters,
+  public final CallData assertFailed(String methodName,
+                                     Object[] parameters,
                                      Class throwableType) {
-
-    final CallData callData = assertCalledInternal(methodName, parameters);
-    assertTrue(
-      throwableType.isAssignableFrom(callData.getThrowable().getClass()));
-    return callData;
+    return getCallData().assertFailed(methodName, parameters, throwableType);
   }
 
-  public final CallData assertFailed(String methodName, Class[] parameterTypes,
+  public final CallData assertFailed(String methodName,
+                                     Class[] parameterTypes,
                                      Class throwableType) {
-
-    final CallData callData = assertCalledInternal(methodName, parameterTypes);
-    assertNotNull(callData.getThrowable());
-    assertTrue(
-      throwableType.isAssignableFrom(callData.getThrowable().getClass()));
-    return callData;
-  }
-
-  public final CallData getCallData() {
-    // Check the earliest call first.
-    synchronized (m_callDataListMonitor) {
-      try {
-        return (CallData) m_callDataList.removeFirst();
-      }
-      finally {
-        m_callDataListMonitor.notifyAll();
-      }
-    }
-  }
-
-  private final CallData assertCalledInternal(String methodName,
-                Object[] parameters) {
-
-    final CallData callData = getCallData();
-
-    if (parameters.length == 0) {
-      parameters = null;
-    }
-
-    // Just check method names match. Don't worry about modifiers
-    // etc., or even which class the method belongs to.
-    assertEquals(methodName, callData.getMethodName());
-    AssertUtilities. assertArraysEqual(
-      "Expected " + parametersToString(parameters) +
-      " but was " + parametersToString(callData.getParameters()),
-      parameters, callData.getParameters());
-
-    return callData;
-  }
-
-  private final CallData assertCalledInternal(String methodName,
-                Class[] parameterTypes) {
-
-    final CallData callData = getCallData();
-
-    // Just check method names match. Don't worry about modifiers
-    // etc., or even which class the method belongs to.
-    assertEquals(methodName, callData.getMethodName());
-
-    final Class[] actualParameterTypes = callData.getParameterTypes();
-
-    if (parameterTypes != null || actualParameterTypes != null) {
-      assertNotNull(parameterTypes);
-      assertNotNull(actualParameterTypes);
-
-      assertEquals("Called with the correct number of parameters",
-                   parameterTypes.length,
-                   actualParameterTypes.length);
-
-      for (int i = 0; i < parameterTypes.length; ++i) {
-        assertTrue("Parameter  " + i + " is instance of  " +
-                   actualParameterTypes[i].getName() +
-                   " which supports the interfaces " +
-                   Arrays.asList(actualParameterTypes[i].getInterfaces()) +
-                   " and is not assignable from " +
-                   parameterTypes[i].getName(),
-                   parameterTypes[i].isAssignableFrom(
-                     actualParameterTypes[i]));
-      }
-    }
-
-
-    return callData;
-  }
-
-  final static String parametersToString(Object[] parameters) {
-
-    final StringBuffer result = new StringBuffer();
-
-    result.append('(');
-
-    if (parameters != null) {
-      for (int i = 0; i < parameters.length; ++i) {
-        if (i != 0) {
-          result.append(", ");
-        }
-
-        if (parameters[i] != null && !parameters[i].getClass().isPrimitive()) {
-          result.append("\"");
-          result.append(parameters[i]);
-          result.append("\"");
-        }
-        else {
-          result.append(parameters[i]);
-        }
-      }
-    }
-
-    result.append(')');
-
-    return result.toString();
+    return getCallData().assertFailed(methodName,
+                                      parameterTypes,
+                                      throwableType);
   }
 }

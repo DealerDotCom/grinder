@@ -22,6 +22,7 @@
 package net.grinder.testutility;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import junit.framework.Assert;
 
@@ -31,7 +32,7 @@ import junit.framework.Assert;
  *
  * @author    Philip Aston
  */
-public final class CallData extends Assert {
+public final class CallData extends Assert implements CallAssertions {
   private final Method m_method;
   private final Object[] m_parameters;
   private final Object m_result;
@@ -86,11 +87,143 @@ public final class CallData extends Assert {
     return m_throwable;
   }
 
+  /**
+   *  Check the given method was called.
+   */
+  public final CallData assertSuccess(String methodName, Object[] parameters) {
+    assertCalled(methodName, parameters);
+    assertNull(getThrowable());
+    return this;
+  }
+
+  public final CallData assertSuccess(String methodName,
+                                      Class[] parameterTypes) {
+    assertCalled(methodName, parameterTypes);
+    assertNull(getThrowable());
+    return this;
+  }
+
+  public final CallData assertSuccess(String methodName) {
+    return assertSuccess(methodName, new Class[0]);
+  }
+
+  public final CallData assertSuccess(String methodName, Object object1) {
+    return assertSuccess(methodName, new Object[] { object1 });
+  }
+
+  public final CallData assertSuccess(String methodName,
+                                      Object object1,
+                                      Object object2) {
+    return assertSuccess(methodName, new Object[] { object1, object2 });
+  }
+
+  public final CallData assertSuccess(String methodName,
+                                      Object object1,
+                                      Object object2,
+                                      Object object3) {
+    return assertSuccess(methodName,
+                         new Object[] { object1, object2, object3 });
+  }
+
+  public final CallData assertSuccess(String methodName, Class class1) {
+    return assertSuccess(methodName, new Class[] { class1 });
+  }
+
+  public final CallData assertSuccess(String methodName,
+                                      Class class1,
+                                      Class class2) {
+    return assertSuccess(methodName, new Class[] { class1, class2 });
+  }
+
+  public final CallData assertSuccess(String methodName,
+                                      Class class1,
+                                      Class class2,
+                                      Class class3) {
+    return assertSuccess(methodName, new Class[] { class1, class2, class3 });
+  }
+
+  public final CallData assertFailed(String methodName,
+                                     Object[] parameters,
+                                     Throwable throwable) {
+    assertCalled(methodName, parameters);
+    assertEquals(throwable, getThrowable());
+    return this;
+  }
+
+  public final CallData assertFailed(String methodName,
+                                     Class[] parameterTypes,
+                                     Throwable throwable) {
+    assertCalled(methodName, parameterTypes);
+    assertEquals(throwable, getThrowable());
+    return this;
+  }
+
+  public final CallData assertFailed(String methodName,
+                                     Object[] parameters,
+                                     Class throwableType) {
+    assertCalled(methodName, parameters);
+    assertTrue(throwableType.isAssignableFrom(getThrowable().getClass()));
+    return this;
+  }
+
+  public final CallData assertFailed(String methodName,
+                                     Class[] parameterTypes,
+                                     Class throwableType) {
+    assertCalled(methodName, parameterTypes);
+    assertNotNull(getThrowable());
+    assertTrue(throwableType.isAssignableFrom(getThrowable().getClass()));
+    return this;
+  }
+
+  private void assertCalled(String methodName, Object[] parameters) {
+    if (parameters.length == 0) {
+      parameters = null;
+    }
+
+    // Just check method names match. Don't worry about modifiers
+    // etc., or even which class the method belongs to.
+    assertEquals(methodName, getMethodName());
+
+    AssertUtilities. assertArraysEqual(
+      "Expected " + parametersToString(parameters) +
+      " but was " + parametersToString(getParameters()),
+      parameters, getParameters());
+  }
+
+  private void assertCalled(String methodName, Class[] parameterTypes) {
+
+    // Just check method names match. Don't worry about modifiers
+    // etc., or even which class the method belongs to.
+    assertEquals(methodName, getMethodName());
+
+    final Class[] actualParameterTypes = getParameterTypes();
+
+    if (parameterTypes != null || actualParameterTypes != null) {
+      assertNotNull(parameterTypes);
+      assertNotNull(actualParameterTypes);
+
+      assertEquals("Called with the correct number of parameters",
+                   parameterTypes.length,
+                   actualParameterTypes.length);
+
+      for (int i = 0; i < parameterTypes.length; ++i) {
+        assertTrue("Parameter  " + i + " is instance of  " +
+                   actualParameterTypes[i].getName() +
+                   " which supports the interfaces " +
+                   Arrays.asList(actualParameterTypes[i].getInterfaces()) +
+                   " and is not assignable from " +
+                   parameterTypes[i].getName(),
+                   parameterTypes[i].isAssignableFrom(
+                     actualParameterTypes[i]));
+      }
+    }
+  }
+
   public String toString() {
     final StringBuffer result = new StringBuffer();
 
     result.append(getMethodName());
-    result.append(CallRecorder.parametersToString(getParameters()));
+    result.append(parametersToString(getParameters()));
 
     final Throwable throwable = getThrowable();
 
@@ -100,6 +233,34 @@ public final class CallData extends Assert {
     else {
       result.append(" returned " + getResult());
     }
+
+    return result.toString();
+  }
+
+  private static final String parametersToString(Object[] parameters) {
+
+    final StringBuffer result = new StringBuffer();
+
+    result.append('(');
+
+    if (parameters != null) {
+      for (int i = 0; i < parameters.length; ++i) {
+        if (i != 0) {
+          result.append(", ");
+        }
+
+        if (parameters[i] != null && !parameters[i].getClass().isPrimitive()) {
+          result.append("\"");
+          result.append(parameters[i]);
+          result.append("\"");
+        }
+        else {
+          result.append(parameters[i]);
+        }
+      }
+    }
+
+    result.append(')');
 
     return result.toString();
   }
