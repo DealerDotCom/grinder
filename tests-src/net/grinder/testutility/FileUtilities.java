@@ -84,7 +84,7 @@ public class FileUtilities extends Assert {
       throw new GrinderException(
         "Couldn't chmod: perhaps you should patch this" +
         "test for your platform?",
-        e);
+        e) {};
     }
 
     process.waitFor();
