@@ -38,7 +38,7 @@ public interface FileChangeWatcher {
   /**
    * Listener interface.
    *
-   * @see FileChangeWatcher#addFileChangedListener(FileChangedListener)
+   * @see FileChangeWatcher#addFileChangedListener
    */
   interface FileChangedListener extends EventListener {
 
