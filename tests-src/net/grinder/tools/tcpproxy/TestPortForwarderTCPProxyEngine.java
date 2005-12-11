@@ -188,9 +188,19 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
                                              ConnectionDetails.class,
                                              new byte[0].getClass(),
                                              Integer.class);
-    m_responseFilterStubFactory.assertSuccess("connectionClosed",
-                                             ConnectionDetails.class);
-    m_responseFilterStubFactory.assertSuccess("stop");
+
+    final CallData firstCall = m_responseFilterStubFactory.getCallData();
+
+    if ("connectionClosed".equals(firstCall.getMethodName())) {
+      firstCall.assertSuccess("connectionClosed", ConnectionDetails.class);
+      m_responseFilterStubFactory.assertSuccess("stop");
+    }
+    else {
+      firstCall.assertSuccess("stop");
+      m_responseFilterStubFactory.assertSuccess("connectionClosed",
+                                                ConnectionDetails.class);
+    }
+
     m_responseFilterStubFactory.assertNoMoreCalls();
 
     m_loggerStubFactory.assertNoMoreCalls();
