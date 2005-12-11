@@ -121,7 +121,7 @@ final class LoggerImplementation {
     m_outputWriter = new PrintWriter(fileManager.getOutWriter(), true);
     m_errorWriter = new PrintWriter(fileManager.getErrorWriter(), true);
 
-    // Don't autoflush, we explictly control flushing of this writer.
+    // Don't auto flush, we explictly control flushing of this writer.
     m_dataWriter = new PrintWriter(fileManager.getDataWriter(), false);
 
     m_processLogger = createThreadLogger(-1);
@@ -136,12 +136,7 @@ final class LoggerImplementation {
 
     public FileManager(int numberOfOldLogs) throws EngineException {
 
-      try {
-        m_logDirectory.mkdirs();
-      }
-      catch (Exception e) {
-        throw new EngineException(e.getMessage(), e);
-      }
+      m_logDirectory.mkdirs();
 
       if (!m_logDirectory.canWrite()) {
         throw new EngineException("Cannot write to log directory '" +

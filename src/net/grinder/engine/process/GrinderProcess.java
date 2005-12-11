@@ -25,6 +25,7 @@
 package net.grinder.engine.process;
 
 import java.io.PrintWriter;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -227,7 +228,7 @@ public final class GrinderProcess {
     // J2SE 1.4.1_03-b02 on W2K. Do not ask me why, I've stopped
     // caring.
     try { java.net.InetAddress.getLocalHost(); }
-    catch (Exception e) { /* Ignore */ }
+    catch (UnknownHostException e) { /* Ignore */ }
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, logger);
     m_accumulatedStatistics =

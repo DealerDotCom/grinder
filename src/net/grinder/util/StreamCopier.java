@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,9 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.grinder.util.thread.InterruptibleRunnable;
+import net.grinder.util.thread.AbstractInterruptibleRunnable;
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Class that copies from <code>InputStream</code>s to
@@ -85,6 +87,7 @@ public class StreamCopier {
         }
         catch (IOException e) {
           // Ignore.
+          UncheckedInterruptedException.ioException(e);
         }
 
         try {
@@ -92,6 +95,7 @@ public class StreamCopier {
         }
         catch (IOException e) {
           // Ignore.
+          UncheckedInterruptedException.ioException(e);
         }
       }
     }
@@ -108,19 +112,17 @@ public class StreamCopier {
    * @param out Output stream.
    * @return The <code>Runnable</code>.
    */
-  public InterruptibleRunnable getRunnable(final InputStream in,
-                                           final OutputStream out) {
-    return new InterruptibleRunnable() {
-        public void run() {
+  public Runnable getRunnable(final InputStream in, final OutputStream out) {
+    return new AbstractInterruptibleRunnable() {
+        public void interruptibleRun() {
           try {
             copy(in, out);
           }
           catch (IOException e) {
             // Be silent about IOExceptions.
-            // InterruptedIOException's take this path.
+            UncheckedInterruptedException.ioException(e);
           }
         }
       };
   }
 }
-

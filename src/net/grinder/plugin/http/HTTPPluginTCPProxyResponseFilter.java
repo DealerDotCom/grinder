@@ -22,8 +22,8 @@
 
 package net.grinder.plugin.http;
 
-import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -75,25 +75,30 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter {
    * @return Filters can optionally return a <code>byte[]</code>
    * which will be transmitted to the server instead of
    * <code>buffer</code>.
-   * @exception IOException if an error occurs
+   * @exception FilterException if an error occurs.
    */
   public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
                        int bytesRead)
-    throws IOException {
+    throws FilterException {
 
     HTTPPluginTCPProxyFilter.markLastResponseTime();
 
-    // String used to parse headers - header names are
-    // US-ASCII encoded and anchored to start of line.
-    final String asciiString =
-      new String(buffer, 0, bytesRead, "US-ASCII");
+    try {
+      // String used to parse headers - header names are
+      // US-ASCII encoded and anchored to start of line.
+      final String asciiString = new String(buffer, 0, bytesRead, "US-ASCII");
 
-    final Matcher matcher = m_wwwAuthenticateHeaderPattern.matcher(asciiString);
+      final Matcher matcher = m_wwwAuthenticateHeaderPattern
+          .matcher(asciiString);
 
-    if (matcher.find()) {
-      // Packet is start of new request message.
+      if (matcher.find()) {
+        // Packet is start of new request message.
 
-      s_lastAuthenticationRealm = matcher.group(1).trim();
+        s_lastAuthenticationRealm = matcher.group(1).trim();
+      }
+    }
+    catch (UnsupportedEncodingException e) {
+      throw new FilterException("US-ASCII encoding unavailable", e);
     }
 
     return null;
@@ -111,10 +116,8 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter {
    * A connection has been closed.
    *
    * @param connectionDetails a <code>ConnectionDetails</code> value
-   * @exception IOException if an error occurs
    */
-  public void connectionClosed(ConnectionDetails connectionDetails)
-    throws IOException {
+  public void connectionClosed(ConnectionDetails connectionDetails) {
   }
 
   /**

@@ -45,10 +45,11 @@ public final class CompositeFilter implements TCPProxyFilter {
    * @return Filters can optionally return a <code>byte[]</code>
    * which will be transmitted to the server instead of
    * <code>buffer</code>.
-   * @exception Exception If an error occurs.
+   * @throws FilterException If an error occurs.
    */
   public byte[] handle(ConnectionDetails connectionDetails,
-                       byte[] originalBuffer, int bytesRead) throws Exception {
+                       byte[] originalBuffer, int bytesRead)
+    throws FilterException {
 
     final Iterator iterator = m_filters.iterator();
 
@@ -74,10 +75,10 @@ public final class CompositeFilter implements TCPProxyFilter {
    * A new connection has been opened.
    *
    * @param connectionDetails Describes the connection.
-   * @exception Exception If an error occurs.
+   * @throws FilterException If an error occurs.
    */
   public void connectionOpened(final ConnectionDetails connectionDetails)
-    throws Exception {
+    throws FilterException {
 
     final Iterator iterator = m_filters.iterator();
 
@@ -91,10 +92,10 @@ public final class CompositeFilter implements TCPProxyFilter {
    * A connection has been closed.
    *
    * @param connectionDetails Describes the connection.
-   * @exception Exception If an error occurs.
+   * @throws FilterException If an error occurs.x
    */
   public void connectionClosed(final ConnectionDetails connectionDetails)
-    throws Exception {
+    throws FilterException {
 
     final Iterator iterator = m_filters.iterator();
 

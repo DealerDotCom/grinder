@@ -36,6 +36,7 @@ import java.util.Map;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.util.ListenerSupport;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -146,6 +147,8 @@ final class BufferImplementation implements Buffer {
       }
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
+
       throw new DisplayMessageConsoleException(
         m_resources,
         "fileReadError.text",
@@ -161,6 +164,7 @@ final class BufferImplementation implements Buffer {
         }
         catch (IOException e) {
           // Oh well.
+          UncheckedInterruptedException.ioException(e);
         }
       }
     }
@@ -221,6 +225,8 @@ final class BufferImplementation implements Buffer {
         });
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
+
       throw new DisplayMessageConsoleException(
         m_resources,
         "fileWriteError.text",
@@ -236,6 +242,7 @@ final class BufferImplementation implements Buffer {
         }
         catch (IOException e) {
           // Oh well.
+          UncheckedInterruptedException.ioException(e);
         }
       }
     }

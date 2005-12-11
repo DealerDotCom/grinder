@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -23,7 +23,6 @@
 
 package net.grinder.tools.tcpproxy;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
 
@@ -56,11 +55,11 @@ public class EchoFilter implements TCPProxyFilter {
    * @return Filters can optionally return a <code>byte[]</code>
    * which will be transmitted to the server instead of
    * <code>buffer</code>.
-   * @exception IOException If an error occurs.
+   * @throws FilterException If an error occurs.
    */
   public byte[] handle(ConnectionDetails connectionDetails,
                        byte[] buffer, int bytesRead)
-    throws IOException {
+    throws FilterException {
 
     final StringBuffer stringBuffer = new StringBuffer();
 

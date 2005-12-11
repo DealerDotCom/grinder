@@ -50,6 +50,7 @@ import HTTPClient.ParseException;
 import net.grinder.common.GrinderBuild;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -258,11 +259,18 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
    * @param bytesRead The number of bytes of buffer to process.
    * @return Filters can optionally return a <code>byte[]</code> which
    * will be transmitted to the server instead of <code>buffer</code>.
-   * @exception IOException if an error occurs
+   * @exception FilterException if an error occurs
    */
   public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-                       int bytesRead) throws IOException {
-    getHandler(connectionDetails).handle(buffer, bytesRead);
+                       int bytesRead) throws FilterException {
+    try {
+      getHandler(connectionDetails).handle(buffer, bytesRead);
+    }
+    catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
+      throw new FilterException("handle() failed", e);
+    }
+
     return null;
   }
 
@@ -279,11 +287,17 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
    * A connection has been closed.
    *
    * @param connectionDetails a <code>ConnectionDetails</code> value
-   * @exception IOException if an error occurs
+   * @exception FilterException if an error occurs
    */
   public void connectionClosed(ConnectionDetails connectionDetails)
-    throws IOException {
-    removeHandler(connectionDetails).endMessage();
+    throws FilterException {
+    try {
+      removeHandler(connectionDetails).endMessage();
+    }
+    catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
+      throw new FilterException("endMessage() failed", e);
+    }
   }
 
   /**

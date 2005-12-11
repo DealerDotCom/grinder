@@ -23,14 +23,13 @@ package net.grinder.communication;
 
 import java.io.InputStream;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import net.grinder.communication.ResourcePool.Reservation;
-import net.grinder.util.thread.InterruptibleRunnable;
+import net.grinder.util.thread.AbstractInterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
 import net.grinder.util.thread.ThreadSafeQueue;
 import net.grinder.util.thread.UncheckedInterruptedException;
@@ -85,7 +84,7 @@ public final class ServerReceiver implements Receiver {
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
-        public InterruptibleRunnable create() {
+        public Runnable create() {
           return new ServerReceiverRunnable(acceptedSocketSet,
                                             idleThreadPollDelay);
         }
@@ -162,7 +161,9 @@ public final class ServerReceiver implements Receiver {
     return result;
   }
 
-  private final class ServerReceiverRunnable implements InterruptibleRunnable {
+  private final class ServerReceiverRunnable
+    extends AbstractInterruptibleRunnable {
+
     private final ResourcePool m_set;
     private final int m_delay;
 
@@ -171,7 +172,7 @@ public final class ServerReceiver implements Receiver {
       m_delay = delay;
     }
 
-    public void run() {
+    public void interruptibleRun() {
       try {
         // Did we do some work on the last pass?
         boolean idle = false;
@@ -214,12 +215,9 @@ public final class ServerReceiver implements Receiver {
               }
             }
           }
-          catch (InterruptedIOException e) {
-            reservation.close();
-            throw new UncheckedInterruptedException(e);
-          }
           catch (IOException e) {
             reservation.close();
+            UncheckedInterruptedException.ioException(e);
             m_messageQueue.queue(e);
           }
           catch (ClassNotFoundException e) {
@@ -238,8 +236,8 @@ public final class ServerReceiver implements Receiver {
       catch (ThreadSafeQueue.ShutdownException e) {
         // We've been shutdown, exit this thread.
       }
-      catch (UncheckedInterruptedException e) {
-        // We've been interrupted, ensure we're shutdown, and exit this thread.
+      finally {
+        // Ensure we're shutdown.
         shutdown();
       }
     }

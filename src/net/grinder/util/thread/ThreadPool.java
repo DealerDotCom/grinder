@@ -151,6 +151,6 @@ public final class ThreadPool {
     /**
      * @return The <code>InterruptibleRunnable</code>.
      */
-    InterruptibleRunnable create();
+    Runnable create();
   }
 }

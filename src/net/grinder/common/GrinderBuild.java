@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Accessor for build version information.
@@ -54,6 +56,7 @@ public final class GrinderBuild {
       s_dateString = properties.getProperty("date");
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new ExceptionInInitializerError(e);
     }
   }

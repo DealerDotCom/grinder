@@ -58,7 +58,7 @@ public final class Kernel {
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
-        public InterruptibleRunnable create() {
+        public Runnable create() {
           return new KernelRunnable();
         }
       };
@@ -109,14 +109,16 @@ public final class Kernel {
     m_threadPool.stop();
   }
 
-  private class KernelRunnable implements InterruptibleRunnable {
+  private class KernelRunnable extends AbstractInterruptibleRunnable {
 
-    public void run() {
+    public void interruptibleRun() {
       while (true) {
-        final Runnable runnable;
+        final InterruptibleRunnable runnable;
 
         try {
-          runnable = (Runnable) m_workQueue.dequeue(!m_threadPool.isStopped());
+          runnable =
+            (InterruptibleRunnable)
+            m_workQueue.dequeue(!m_threadPool.isStopped());
         }
         catch (ThreadSafeQueue.ShutdownException e) {
           // We've been shut down, exit the thread cleanly.
@@ -133,7 +135,7 @@ public final class Kernel {
           break;
         }
 
-        runnable.run();
+        runnable.interruptibleRun();
       }
     }
   }

@@ -22,6 +22,7 @@
 
 package net.grinder.engine.agent;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -70,7 +71,8 @@ final class ProcessWorker implements Worker {
     try {
       m_process = Runtime.getRuntime().exec(commandArray);
     }
-    catch (Exception e) {
+    catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new EngineException("Could not start process", e);
     }
 

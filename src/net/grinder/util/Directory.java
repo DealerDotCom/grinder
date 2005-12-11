@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Wrapper around a directory path that behaves in a similar manner to
@@ -350,6 +352,7 @@ public final class Directory  {
             }
             catch (IOException closeException) {
               // Ignore.
+              UncheckedInterruptedException.ioException(e);
             }
 
             throw e;

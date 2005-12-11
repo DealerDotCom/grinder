@@ -307,6 +307,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         }
       }
       catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
         logIOException(e);
       }
     }
@@ -465,7 +466,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         // Perhaps we should decorate the OutputStreamFilterTee's so
         // that we can return exceptions as some simple HTTP error
         // page?
-
+        UncheckedInterruptedException.ioException(e);
         logIOException(e);
       }
       finally {
@@ -487,6 +488,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         }
         catch (IOException e) {
           // Ignore.
+          UncheckedInterruptedException.ioException(e);
         }
       }
     }
@@ -517,6 +519,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
             localSocket, m_remoteEndPoint, m_clientEndPoint, true);
         }
         catch (IOException e) {
+          UncheckedInterruptedException.ioException(e);
+
           if (isStopped()) {
             break;
           }

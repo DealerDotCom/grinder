@@ -26,6 +26,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Connection factory.
@@ -82,6 +84,7 @@ public final class Connector {
       return socket;
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new CommunicationException(
         "Failed to connect to '" + inetAddress + ':' + m_port + '\'', e);
     }

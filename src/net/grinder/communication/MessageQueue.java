@@ -63,7 +63,7 @@ final class MessageQueue {
    * Queue the given exception.
    *
    * @param exception An exception.
-   * @exception RuntimeException If the queue does not allow
+   * @exception AssertionError If the queue does not allow
    * exceptions to be propagated..
    * @exception ThreadSafeQueue.ShutdownException If the queue has
    * been shutdown.

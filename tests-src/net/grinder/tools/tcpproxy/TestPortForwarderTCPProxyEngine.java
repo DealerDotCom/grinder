@@ -332,18 +332,18 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     public byte[] handle(ConnectionDetails connectionDetails,
                          byte[] buffer,
                          int bytesRead)
-      throws Exception {
-      throw new RuntimeException("Problem");
+      throws FilterException {
+      throw new FilterException("Problem", null);
     }
 
     public void connectionOpened(ConnectionDetails connectionDetails)
-      throws Exception {
-      throw new RuntimeException("Problem");
+      throws FilterException {
+      throw new FilterException("Problem", null);
     }
 
     public void connectionClosed(ConnectionDetails connectionDetails)
-      throws Exception {
-      throw new RuntimeException("Problem");
+      throws FilterException {
+      throw new FilterException("Problem", null);
     }
 
     public void stop() {

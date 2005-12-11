@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import net.grinder.util.thread.Kernel;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -101,6 +102,7 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
       }
       catch (IOException e) {
         // Ignore.
+        UncheckedInterruptedException.ioException(e);
       }
     }
   }

@@ -23,6 +23,8 @@
 
 package net.grinder.tools.tcpproxy;
 
+import net.grinder.common.GrinderException;
+
 
 /**
  * Interface that TCP Proxy filters implement. In addition, they must
@@ -43,35 +45,42 @@ public interface TCPProxyFilter {
    * @return Filters can optionally return a <code>byte[]</code>
    * which will be transmitted to the server instead of
    * <code>buffer</code>.
-   * @exception Exception If an error occurs.
+   * @throws FilterException If an error occurs.
    */
   byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
                 int bytesRead)
-    throws Exception;
+    throws FilterException;
 
   /**
    * A new connection has been opened.
    *
    * @param connectionDetails Describes the connection.
-   * @exception Exception If an error occurs.
+   * @throws FilterException If an error occurs.
    */
   void connectionOpened(ConnectionDetails connectionDetails)
-    throws Exception;
+    throws FilterException;
 
   /**
    * A connection has been closed.
    *
    * @param connectionDetails Describes the connection.
-   * @exception Exception If an error occurs.
+   * @throws FilterException If an error occurs.
    */
   void connectionClosed(ConnectionDetails connectionDetails)
-    throws Exception;
+    throws FilterException;
 
   /**
    * Called just before stop.
    */
   void stop();
+
+  /**
+   * Exception type for filter problems.
+   */
+  class FilterException extends GrinderException {
+    public FilterException(String message, Throwable cause) {
+      super(message, cause);
+    }
+  }
 }
-
-
 

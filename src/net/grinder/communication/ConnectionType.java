@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Constants that are used to discriminate between different types of
@@ -59,6 +61,7 @@ public final class ConnectionType {
       i = in.read();
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new CommunicationException("Failed to read connection type", e);
     }
 
@@ -95,6 +98,7 @@ public final class ConnectionType {
       out.flush();
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new CommunicationException("Write failed", e);
     }
   }

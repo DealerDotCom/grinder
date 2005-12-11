@@ -21,7 +21,9 @@
 
 package net.grinder.util.thread;
 
+import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.net.SocketTimeoutException;
 
 import net.grinder.common.UncheckedGrinderException;
 
@@ -38,16 +40,20 @@ import net.grinder.common.UncheckedGrinderException;
  * in shut down code. We can't simply swallow {@link InterruptedException}s.
  * </li>
  *
- * <li>Whenever core code receives an {@link InterruptedException} which it
- * doesn't know how to handle, it should rethrow it in an
+ * <li>Whenever core code catches an {@link InterruptedException} which it
+ * doesn't know how to handle, it rethrows it in an
  * {@link UncheckedInterruptedException}.</li>
  *
- * <li>{@link InterruptibleRunnable#run()} implementations are carefully
- * reviewed to ensure that they do not ignore the interrupt condition and will
- * exit whenever {@link InterruptedException} and
+ * <li>{@link InterruptibleRunnable#interruptibleRun()} implementations are
+ * carefully reviewed to ensure that they do not ignore the interrupt condition
+ * and will exit whenever {@link InterruptedException} and
  * {@link InterruptedIOException}s are received. They exit cleanly, handling
  * {@link UncheckedInterruptedException}s. We only interrupt code that
- * implements {@link InterruptibleRunnable#run()}.</li>
+ * implements {@link InterruptibleRunnable#interruptibleRun()}.</li>
+ *
+ * <li>Whenever core code outside an {@link InterruptibleRunnable} catches an
+ * {@link IOException}, it calls {@link #ioException(IOException)}, which will
+ * throw an {@link UncheckedInterruptedException} if necessary.</li>
  *
  * <li>Other code may exit cleanly or may ignore the interrupt condition due to
  * third-party libraries swallowing {@link InterruptedException}s. This doesn't
@@ -69,12 +75,27 @@ public class UncheckedInterruptedException extends UncheckedGrinderException {
     super("Thread interrupted", e);
   }
 
-  /**
-   * Constructor.
-   *
-   * @param e The original InterruptedIOException.
-   */
-  public UncheckedInterruptedException(InterruptedIOException e) {
+
+  private UncheckedInterruptedException(InterruptedIOException e) {
     super("Thread interrupted", e);
+  }
+
+  /**
+   * {@link InterruptedIOException}s are a pain to handle as they extend
+   * {@link IOException}. {@link IOException} handlers should call this, unless
+   * they are part of an {@link InterruptibleRunnable} and know what there
+   * doing.
+   *
+   * @param e
+   *          An {@link IOException}.
+   */
+  public static void ioException(IOException e) {
+    // SocketTimeoutException extends InterruptedIOException. One gets the
+    // impression that JavaSoft was never serious about applications doing
+    // anything other than ignoring interrupts.
+    if (e instanceof InterruptedIOException &&
+        !(e instanceof SocketTimeoutException)) {
+      throw new UncheckedInterruptedException((InterruptedIOException)e);
+    }
   }
 }

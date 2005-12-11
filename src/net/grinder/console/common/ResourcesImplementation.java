@@ -31,6 +31,8 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
 
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Type safe interface to resource bundle.
@@ -169,6 +171,7 @@ public final class ResourcesImplementation implements Resources {
         return out.toString();
       }
       catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
         m_errorWriter.println("Warning - could not read " + resource);
       }
     }

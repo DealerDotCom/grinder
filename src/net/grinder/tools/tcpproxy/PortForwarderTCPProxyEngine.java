@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import net.grinder.common.Logger;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -104,6 +105,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
         localSocket = accept();
       }
       catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
         logIOException(e);
         return;
       }
@@ -114,6 +116,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
                          m_connectionDetails.isSecure());
       }
       catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
         logIOException(e);
       }
     }

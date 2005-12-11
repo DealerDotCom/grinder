@@ -27,6 +27,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 import net.grinder.testutility.IsolatedObjectFactory;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 import junit.framework.TestCase;
 
@@ -88,7 +89,7 @@ public class TestStreamReceiver extends TestCase {
     assertEquals(message3, receivedMessage2);
 
     assertEquals(
-      CommunicationException.class,
+      UncheckedInterruptedException.class,
       new BlockingActionThread() {
         protected void blockingAction() throws CommunicationException {
           streamReceiver.waitForMessage();

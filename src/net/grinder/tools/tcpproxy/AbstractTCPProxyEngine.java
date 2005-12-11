@@ -24,17 +24,18 @@
 package net.grinder.tools.tcpproxy;
 
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.util.TerminalColour;
 import net.grinder.util.thread.UncheckedInterruptedException;
@@ -132,6 +133,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     }
     catch (IOException ioe) {
       // Be silent.
+      UncheckedInterruptedException.ioException(ioe);
     }
 
     // Ensure all our threads are shut down.
@@ -153,6 +155,12 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
   /**
    * Main event loop.
+   *
+   * <p>
+   * We do not implement {@link net.grinder.util.thread.InterruptibleRunnable}
+   * as we are not designed to be interrupted. If we are, code will throw an
+   * {@link UncheckedInterruptedException} - effectively an assertion.
+   * </p>
    */
   public abstract void run();
 
@@ -178,7 +186,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       try {
         return m_serverSocket.accept();
       }
-      catch (InterruptedIOException e) {
+      catch (SocketTimeoutException e) {
         if (getStreamThreadGroup().activeCount() == 0) {
           stop();
           throw new NoActivityTimeOutException();
@@ -276,6 +284,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       }
       catch (IOException e) {
         // Ignore.
+        UncheckedInterruptedException.ioException(e);
       }
 
       try {
@@ -385,6 +394,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         // Ignore, assume closed.
       }
       catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
         logIOException(e);
       }
       finally {
@@ -397,6 +407,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       }
       catch (IOException e) {
         // Ignore.
+        UncheckedInterruptedException.ioException(e);
       }
     }
   }
@@ -476,7 +487,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       try {
         m_filter.connectionOpened(m_connectionDetails);
       }
-      catch (Exception e) {
+      catch (GrinderException e) {
         e.printStackTrace(getLogger().getErrorLogWriter());
       }
       finally {
@@ -501,7 +512,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       try {
         newBytes = m_filter.handle(m_connectionDetails, buffer, bytesRead);
       }
-      catch (Exception e) {
+      catch (GrinderException e) {
         e.printStackTrace(getLogger().getErrorLogWriter());
       }
       finally {
@@ -526,7 +537,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       try {
         m_filter.connectionClosed(m_connectionDetails);
       }
-      catch (Exception e) {
+      catch (GrinderException e) {
         e.printStackTrace(getLogger().getErrorLogWriter());
       }
       finally {
@@ -540,6 +551,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       }
       catch (IOException e) {
         // Ignore.
+        UncheckedInterruptedException.ioException(e);
       }
     }
 

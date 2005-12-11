@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 
 import net.grinder.common.GrinderException;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -71,6 +72,7 @@ public final class FileContents implements Serializable {
                                         byteOutputStream);
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new FileContentsException(
         "Failed to read file: " + e.getMessage(), e);
     }
@@ -116,6 +118,7 @@ public final class FileContents implements Serializable {
       outputStream.close();
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new FileContentsException(
         "Failed to create file: " + e.getMessage(), e);
     }

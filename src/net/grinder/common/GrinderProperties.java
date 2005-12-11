@@ -32,6 +32,8 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Extend {@link java.util.Properties} to add type safe accessors.
@@ -78,6 +80,7 @@ public class GrinderProperties extends Properties {
         propertiesInputStream.close();
       }
       catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
         throw new PersistenceException(
           "Error loading properties file '" + m_file.getPath() + '\'', e);
       }
@@ -120,6 +123,7 @@ public class GrinderProperties extends Properties {
       outputStream.close();
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new PersistenceException(
         "Error writing properties file '" + m_file.getPath() + '\'', e);
     }
@@ -149,6 +153,7 @@ public class GrinderProperties extends Properties {
       }
       catch (IOException e) {
         // Can't read the file, maybe its not there. Ignore.
+        UncheckedInterruptedException.ioException(e);
       }
 
       final OutputStream outputStream = new FileOutputStream(m_file);
@@ -157,6 +162,7 @@ public class GrinderProperties extends Properties {
       outputStream.close();
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new PersistenceException(
         "Error writing properties file '" + m_file.getPath() + '\'', e);
     }

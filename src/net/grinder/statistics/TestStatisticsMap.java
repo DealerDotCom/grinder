@@ -82,7 +82,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
    */
   public final void put(Test test, StatisticsSet statistics) {
     if (!(statistics instanceof StatisticsSetImplementation)) {
-      throw new RuntimeException(
+      throw new AssertionError(
         "StatisticsSet implementation not supported");
     }
 

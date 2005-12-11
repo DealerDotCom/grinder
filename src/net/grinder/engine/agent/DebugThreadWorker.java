@@ -63,6 +63,7 @@ final class DebugThreadWorker implements Worker {
       inputStream = new PipedInputStream(m_communicationStream);
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new EngineException("Assertion failure", e);
     }
 
@@ -81,10 +82,16 @@ final class DebugThreadWorker implements Worker {
 
       runner = (IsolateGrinderProcessRunner)isolatedRunnerClass.newInstance();
     }
-    catch (Exception e) {
+    catch (ClassNotFoundException e) {
       throw new EngineException(
-        "Failed to create IsolateGrinderProcessRunner in IsolatedClassLoader",
-        e);
+        "Failed to create IsolateGrinderProcessRunner", e);
+    }
+    catch (InstantiationException e) {
+      throw new EngineException(
+        "Failed to create IsolateGrinderProcessRunner", e);    }
+    catch (IllegalAccessException e) {
+      throw new EngineException(
+        "Failed to create IsolateGrinderProcessRunner", e);
     }
 
     m_thread = new Thread(workerIdentity.getName()) {

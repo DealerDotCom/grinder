@@ -21,6 +21,8 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.common.UncheckedGrinderException;
+
 import org.python.core.ClonePyInstance;
 import org.python.core.Py;
 import org.python.core.PyInstance;
@@ -48,6 +50,10 @@ class InstrumentedPyInstance extends ClonePyInstance {
   private PyObject dispatch(TestData.Invokeable invokeable) {
     try {
       return (PyObject)m_testData.dispatch(invokeable);
+    }
+    catch (UncheckedGrinderException e) {
+      // Don't translate our unchecked exceptions.
+      throw e;
     }
     catch (Exception e) {
       throw Py.JavaError(e);

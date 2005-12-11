@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import net.grinder.util.ListenerSupport;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -91,6 +92,7 @@ final class SocketWrapper
       }
       catch (IOException ignore) {
         // Ignore.
+        UncheckedInterruptedException.ioException(e);
       }
 
       throw new CommunicationException("Could not establish communication", e);
@@ -121,6 +123,7 @@ final class SocketWrapper
       return true;
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       close();
       return true;
     }
@@ -152,6 +155,7 @@ final class SocketWrapper
       }
       catch (IOException e) {
         // Ignore errors, connection has probably been reset by peer.
+        UncheckedInterruptedException.ioException(e);
       }
 
       // Close before informing listeners to prevent recursion.
@@ -187,6 +191,7 @@ final class SocketWrapper
         return m_socket.getOutputStream();
       }
       catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
         throw new CommunicationException("Communication failed", e);
       }
     }

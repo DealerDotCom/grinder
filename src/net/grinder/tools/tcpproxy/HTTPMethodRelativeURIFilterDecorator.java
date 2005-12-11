@@ -21,6 +21,7 @@
 
 package net.grinder.tools.tcpproxy;
 
+import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,10 +75,10 @@ class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
    * A new connection has been opened.
    *
    * @param connectionDetails Describes the connection.
-   * @exception Exception If an error occurs.
+   * @throws FilterException If an error occurs.
    */
   public void connectionOpened(ConnectionDetails connectionDetails)
-    throws Exception {
+    throws FilterException {
     m_delegate.connectionOpened(connectionDetails);
   }
 
@@ -85,10 +86,10 @@ class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
    * A connection has been closed.
    *
    * @param connectionDetails Describes the connection.
-   * @exception Exception If an error occurs.
+   * @throws FilterException If an error occurs.
    */
   public void connectionClosed(ConnectionDetails connectionDetails)
-    throws Exception {
+    throws FilterException {
     m_delegate.connectionClosed(connectionDetails);
   }
 
@@ -108,32 +109,37 @@ class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
    * @return Filters can optionally return a <code>byte[]</code>
    * which will be transmitted to the server instead of
    * <code>buffer</code>.
-   * @exception Exception If an error occurs.
+   * @exception FilterException If an error occurs.
    */
   public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
                        int bytesRead)
-    throws Exception {
+    throws FilterException {
 
-    // We use ISO 8859_1 instead of US ASCII. The correct charset to
-    // use for URL's is not well defined by RFC 2616. This way we are
-    // at least non-lossy (US-ASCII maps characters above 0xFF to
-    // '?').
-    final String original = new String(buffer, 0, bytesRead, "ISO8859_1");
+    try {
+      // We use ISO 8859_1 instead of US ASCII. The correct char set to
+      // use for URL's is not well defined by RFC 2616. This way we are
+      // at least non-lossy (US-ASCII maps characters above 0xFF to
+      // '?').
+      final String original = new String(buffer, 0, bytesRead, "ISO8859_1");
 
-    final Matcher matcher = s_httpMethodLine.matcher(original);
+      final Matcher matcher = s_httpMethodLine.matcher(original);
 
-    if (matcher.find()) {
-      final String result = matcher.group(1) + " " + matcher.group(2);
+      if (matcher.find()) {
+        final String result = matcher.group(1) + " " + matcher.group(2);
 
-      final byte[] resultBytes = result.getBytes("ISO8859_1");
+        final byte[] resultBytes = result.getBytes("ISO8859_1");
 
-      final byte[] delegateResult =
-        m_delegate.handle(connectionDetails, resultBytes, resultBytes.length);
+        final byte[] delegateResult = m_delegate.handle(connectionDetails,
+          resultBytes, resultBytes.length);
 
-      return delegateResult != null ? delegateResult : resultBytes;
+        return delegateResult != null ? delegateResult : resultBytes;
+      }
+      else {
+        return m_delegate.handle(connectionDetails, buffer, bytesRead);
+      }
     }
-    else {
-      return m_delegate.handle(connectionDetails, buffer, bytesRead);
+    catch (UnsupportedEncodingException e) {
+      throw new FilterException("ISO8859_1 encoding unsupported", e);
     }
   }
 }

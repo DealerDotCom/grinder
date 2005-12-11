@@ -21,6 +21,8 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.common.UncheckedGrinderException;
+
 import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.core.PyReflectedFunction;
@@ -59,6 +61,10 @@ class InstrumentedPyReflectedFunction extends PyReflectedFunction {
               self, args, keywords);
           }
         });
+    }
+    catch (UncheckedGrinderException e) {
+      // Don't translate our unchecked exceptions.
+      throw e;
     }
     catch (Exception e) {
       throw Py.JavaError(e);

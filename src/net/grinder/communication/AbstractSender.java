@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Abstract class that manages the sending of messages.
@@ -52,6 +54,7 @@ abstract class AbstractSender implements Sender {
       writeMessage(message);
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new CommunicationException("Exception whilst sending message", e);
     }
   }

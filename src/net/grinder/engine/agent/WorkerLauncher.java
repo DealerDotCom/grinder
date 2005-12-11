@@ -23,7 +23,7 @@ package net.grinder.engine.agent;
 
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
-import net.grinder.util.thread.InterruptibleRunnable;
+import net.grinder.util.thread.AbstractInterruptibleRunnable;
 import net.grinder.util.thread.Kernel;
 import net.grinder.util.thread.UncheckedInterruptedException;
 
@@ -102,7 +102,7 @@ final class WorkerLauncher {
     return m_workers.length > m_nextWorkerIndex;
   }
 
-  private final class WaitForWorkerTask implements InterruptibleRunnable {
+  private final class WaitForWorkerTask extends AbstractInterruptibleRunnable {
 
     private final int m_workerIndex;
 
@@ -110,7 +110,7 @@ final class WorkerLauncher {
       m_workerIndex = workerIndex;
     }
 
-    public void run() {
+    public void interruptibleRun() {
       final Worker worker;
 
       synchronized (m_workers) {

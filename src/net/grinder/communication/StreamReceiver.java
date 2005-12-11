@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Manages receipt of messages from a server over a stream.
@@ -92,6 +94,7 @@ public class StreamReceiver implements Receiver {
       return message;
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new CommunicationException("Failed to read message", e);
     }
     catch (ClassNotFoundException e) {
@@ -112,6 +115,7 @@ public class StreamReceiver implements Receiver {
     }
     catch (IOException e) {
       // Ignore.
+      UncheckedInterruptedException.ioException(e);
     }
   }
 }

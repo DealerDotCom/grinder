@@ -42,7 +42,7 @@ public class TestKernel extends TestCase {
       m_sleep = sleep;
     }
 
-    public void run() {
+    public void interruptibleRun() {
       synchronized (TestKernel.this) {
         ++m_counter;
         try {

@@ -35,14 +35,14 @@ public class TestThreadPool extends TestCase {
     super(name);
   }
 
-  private static final class NullRunnable implements InterruptibleRunnable {
+  private static final class NullRunnable implements Runnable {
     public void run() {
     }
   }
 
   private int m_count;
 
-  private final class CountingRunnable implements InterruptibleRunnable {
+  private final class CountingRunnable implements Runnable {
 
     public void run() {
       for (int i=0; i<20; ++i) {
@@ -66,7 +66,7 @@ public class TestThreadPool extends TestCase {
 
     private int m_callCount = 0;
 
-    public InterruptibleRunnable create() {
+    public Runnable create() {
       ++m_callCount;
       try {
         return doCreate();
@@ -77,7 +77,7 @@ public class TestThreadPool extends TestCase {
       }
     }
 
-    public abstract InterruptibleRunnable doCreate();
+    public abstract Runnable doCreate();
 
     public int getCallCount() {
       return m_callCount;
@@ -88,7 +88,7 @@ public class TestThreadPool extends TestCase {
 
     final TestRunnableFactory runnableFactory =
       new TestRunnableFactory() {
-        public InterruptibleRunnable doCreate() { return new NullRunnable(); }
+        public Runnable doCreate() { return new NullRunnable(); }
       };
 
     final ThreadPool threadPool = new ThreadPool("Test", 5, runnableFactory);
@@ -129,7 +129,7 @@ public class TestThreadPool extends TestCase {
 
     final TestRunnableFactory runnableFactory =
       new TestRunnableFactory() {
-        public InterruptibleRunnable doCreate() {
+        public Runnable doCreate() {
           return new CountingRunnable();
         }
       };

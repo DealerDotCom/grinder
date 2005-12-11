@@ -30,9 +30,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 import net.grinder.util.ListenerSupport;
-import net.grinder.util.thread.InterruptibleRunnable;
+import net.grinder.util.thread.AbstractInterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
 import net.grinder.util.thread.ThreadSafeQueue;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -77,6 +78,7 @@ public final class Acceptor {
           new ServerSocket(port, 50, InetAddress.getByName(addressString));
       }
       catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
         throw new CommunicationException(
           "Could not bind to address '" + addressString + ':' + port + '\'', e);
       }
@@ -86,6 +88,7 @@ public final class Acceptor {
         m_serverSocket = new ServerSocket(port, 50);
       }
       catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
         throw new CommunicationException(
           "Could not bind to port '" + port + "' on local interfaces", e);
       }
@@ -93,7 +96,7 @@ public final class Acceptor {
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
-        public InterruptibleRunnable create() {
+        public Runnable create() {
           return new AcceptorRunnable();
         }
       };
@@ -115,6 +118,7 @@ public final class Acceptor {
       m_serverSocket.close();
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new CommunicationException("Error closing socket", e);
     }
     finally {
@@ -128,9 +132,8 @@ public final class Acceptor {
       }
 
       m_threadPool.stop();
+      m_exceptionQueue.shutdown();
     }
-
-    m_exceptionQueue.shutdown();
   }
 
   /**
@@ -307,13 +310,14 @@ public final class Acceptor {
         localSocket.close();
       }
       catch (IOException ioException) {
+        UncheckedInterruptedException.ioException(ioException);
         // Ignore.
       }
     }
   }
 
-  private class AcceptorRunnable implements InterruptibleRunnable {
-    public void run() {
+  private class AcceptorRunnable extends AbstractInterruptibleRunnable {
+    public void interruptibleRun() {
       try {
         while (true) {
           final Socket localSocket = m_serverSocket.accept();

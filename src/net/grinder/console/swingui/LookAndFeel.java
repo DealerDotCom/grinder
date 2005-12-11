@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import net.grinder.console.model.ConsoleProperties;
 
@@ -82,7 +83,16 @@ final class LookAndFeel {
           UIManager.getCrossPlatformLookAndFeelClassName());
       }
     }
-    catch (Exception e) {
+    catch (ClassNotFoundException e) {
+      throw new AssertionError(e);
+    }
+    catch (IllegalAccessException e) {
+      throw new AssertionError(e);
+    }
+    catch (InstantiationException e) {
+      throw new AssertionError(e);
+    }
+    catch (UnsupportedLookAndFeelException e) {
       throw new AssertionError(e);
     }
 

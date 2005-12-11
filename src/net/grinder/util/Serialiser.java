@@ -69,8 +69,7 @@ public class Serialiser {
    * @return The value.
    * @exception IOException If the stream raises an error.
    */
-  public final long readUnsignedLong(DataInput input)
-    throws IOException {
+  public final long readUnsignedLong(DataInput input) throws IOException {
 
     m_byteBuffer[0] = input.readByte();
 

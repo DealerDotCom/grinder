@@ -93,6 +93,7 @@ import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -698,36 +699,32 @@ public final class ConsoleUI implements ModelListener {
     }
 
     public void actionPerformed(ActionEvent event) {
-      try {
-        if (m_fileChooser.showSaveDialog(m_frame) ==
-            JFileChooser.APPROVE_OPTION) {
+      if (m_fileChooser.showSaveDialog(m_frame) ==
+        JFileChooser.APPROVE_OPTION) {
 
-          final File file = m_fileChooser.getSelectedFile();
+        final File file = m_fileChooser.getSelectedFile();
 
-          if (file.exists() &&
-              JOptionPane.showConfirmDialog(
-                m_frame,
-                m_model.getResources().getString("overwriteConfirmation.text"),
-                file.toString(),
-                JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
-            return;
-          }
-
-          try {
-            final FileWriter writer = new FileWriter(file);
-            m_cumulativeTableModel.write(writer, "\t",
-                                         System.getProperty("line.separator"));
-            writer.close();
-          }
-          catch (IOException e) {
-            getErrorHandler().handleErrorMessage(
-              e.getMessage(),
-              m_model.getResources().getString("fileError.title"));
-          }
+        if (file.exists() &&
+            JOptionPane.showConfirmDialog(
+              m_frame,
+              m_model.getResources().getString("overwriteConfirmation.text"),
+              file.toString(),
+              JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+          return;
         }
-      }
-      catch (Exception e) {
-        getErrorHandler().handleException(e);
+
+        try {
+          final FileWriter writer = new FileWriter(file);
+          m_cumulativeTableModel.write(writer, "\t",
+                                       System.getProperty("line.separator"));
+          writer.close();
+        }
+        catch (IOException e) {
+          UncheckedInterruptedException.ioException(e);
+          getErrorHandler().handleErrorMessage(
+            e.getMessage(),
+            m_model.getResources().getString("fileError.title"));
+        }
       }
     }
   }
@@ -896,7 +893,7 @@ public final class ConsoleUI implements ModelListener {
           m_saveFileAsAction.saveBufferAs(buffer);
         }
       }
-      catch (Exception e) {
+      catch (ConsoleException e) {
         getErrorHandler().handleException(e);
       }
     }
@@ -940,7 +937,7 @@ public final class ConsoleUI implements ModelListener {
       try {
         saveBufferAs(m_editorModel.getSelectedBuffer());
       }
-      catch (Exception e) {
+      catch (ConsoleException e) {
         getErrorHandler().handleException(e);
       }
     }
@@ -1333,7 +1330,11 @@ public final class ConsoleUI implements ModelListener {
           properties.saveDistributionDirectory();
         }
       }
-      catch (Exception e) {
+      catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
+        getErrorHandler().handleException(e);
+      }
+      catch (GrinderException e) {
         getErrorHandler().handleException(e);
       }
     }

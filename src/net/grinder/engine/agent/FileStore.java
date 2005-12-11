@@ -35,6 +35,7 @@ import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 import net.grinder.util.StreamCopier;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -97,6 +98,7 @@ final class FileStore {
       return m_currentDirectory;
     }
     catch (IOException e) {
+      UncheckedInterruptedException.ioException(e);
       throw new FileStoreException("Could not create file store directory", e);
     }
   }
@@ -155,16 +157,19 @@ final class FileStore {
       };
   }
 
-  private void createReadmeFile() {
+  private void createReadmeFile() throws CommunicationException {
     if (!m_readmeFile.exists()) {
       try {
         new StreamCopier(4096, true).
           copy(
-            getClass().getResourceAsStream("resources/FileStoreReadme.txt"),
+            getClass().getResourceAsStream(
+              "resources/FileStoreReadme.txt"),
             new FileOutputStream(m_readmeFile));
       }
       catch (IOException e) {
-        // Ignore.
+        UncheckedInterruptedException.ioException(e);
+        m_logger.error(e.getMessage());
+        throw new CommunicationException(e.getMessage(), e);
       }
     }
   }

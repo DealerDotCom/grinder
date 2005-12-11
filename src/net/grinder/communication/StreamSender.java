@@ -25,6 +25,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import net.grinder.util.thread.UncheckedInterruptedException;
+
 
 /**
  * Class that manages the sending of messages to a server.
@@ -84,6 +86,7 @@ public class StreamSender extends AbstractSender {
     }
     catch (IOException e) {
       // Ignore.
+      UncheckedInterruptedException.ioException(e);
     }
   }
 }
