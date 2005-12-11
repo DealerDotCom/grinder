@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,6 @@ package net.grinder.console.swingui;
 
 import java.awt.Component;
 import java.awt.Font;
-import java.lang.reflect.Method;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -60,17 +59,7 @@ final class Table extends JTable {
 
     setRowSelectionAllowed(true);
     setColumnSelectionAllowed(true);
-
-    // setDragEnabled() is available with J2SE 1.4 and later.
-    try {
-      final Method setDragEnabledMethod =
-        getClass().getMethod("setDragEnabled", new Class[] { Boolean.TYPE, });
-
-      setDragEnabledMethod.invoke(this, new Object[] { Boolean.TRUE, });
-    }
-    catch (Exception e) {
-      // Oh well.
-    }
+    setDragEnabled(true);
 
     m_defaultFont = m_cellRenderer.getFont();
     m_boldFont = m_defaultFont.deriveFont(Font.BOLD);
@@ -80,7 +69,7 @@ final class Table extends JTable {
 
   /**
    * Set the header renderer for every column to work around Swing's
-   * dumb optimization where it assumes the default header renderer is
+   * dumb optimisation where it assumes the default header renderer is
    * always the same height. This nearly gives reasonably resize
    * behaviour with J2SE 1.3 (but only on the second resize event),
    * and doesn't work at all for J2SE 1.4; I'm still investigating.
