@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.OutputStream;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.UncheckedGrinderException;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
@@ -84,10 +85,12 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
       new StreamSender(processStdin).send(initialisationMessage);
     }
     catch (CommunicationException e) {
+      worker.destroy();
       throw new EngineException("Failed to send initialisation message", e);
     }
-    finally {
+    catch (UncheckedGrinderException e) {
       worker.destroy();
+      throw e;
     }
 
     m_fanOutStreamSender.add(processStdin);
