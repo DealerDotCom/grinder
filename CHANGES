@@ -24,6 +24,9 @@ Grinder 3.0-beta28 (Not yet released)
   to be easily run in a debugger. This is primarily a tool for
   debugging The Grinder engine, but it might also be useful to
   advanced users.
+  
+  More relaxed handling of invalid dates in Cookies. Requested by Martin
+  Wagner.
 
 
 Grinder 3.0-beta27

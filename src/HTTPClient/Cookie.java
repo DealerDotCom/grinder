@@ -28,6 +28,9 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
  */
 
 package HTTPClient;
@@ -269,6 +272,22 @@ public class Cookie implements Serializable
 		    pos = Util.skipSpace(buf, pos);
 		    if (pos < len  &&  buf[pos] == ','  &&  pos > beg)
 			beg = pos+1;
+            
+            /** ++GRINDER MODIFICATION **/
+               // Some other twits put a comma after the date.
+               // Replace it with a space.
+               pos = Util.skipSpace(buf, beg);
+            
+               // Skip past the date.
+               while (pos < len &&
+                      (Character.isDigit(buf[pos]) || buf[pos] == '-')) {
+                 ++pos;
+               }
+            
+               if (pos < len && buf[pos] == ',') {
+                 buf[pos] = ' ';
+               }
+            /** --GRINDER MODIFICATION **/
 		}
 
 		comma = set_cookie.indexOf(',', beg);
