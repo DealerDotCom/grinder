@@ -25,14 +25,7 @@ import junit.framework.TestCase;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import HTTPClient.HTTPResponse;
 import HTTPClient.NVPair;
@@ -58,21 +51,6 @@ import net.grinder.testutility.RandomStubFactory;
  * @version $Revision$
  */
 public class TestHTTPRequest extends TestCase {
-
-  private static final Pattern s_contentLengthPattern;
-
-  static {
-    try {
-      s_contentLengthPattern =
-        Pattern.compile("^Content-Length:[ \\t]*(.*)\\r?$",
-                        Pattern.MULTILINE |
-                        Pattern.CASE_INSENSITIVE);
-    }
-    catch (Exception e) {
-      throw new ExceptionInInitializerError(e);
-    }
-  }
-
   private final RandomStubFactory m_scriptContextStubFactory =
     new RandomStubFactory(ScriptContext.class);
 
@@ -209,176 +187,6 @@ public class TestHTTPRequest extends TestCase {
         new NVPair("another name", "another value"),
       },
       httpRequest.getHeaders());
-  }
-
-  /**
-   * Active class that accepts a connection on a socket, reads an HTTP
-   * request, and returns a response who's body is the text of the
-   * request.
-   */
-  private final class HTTPRequestHandler implements Runnable {
-
-    private final ServerSocket m_serverSocket;
-    private String m_lastRequestHeaders;
-    private byte[] m_lastRequestBody;
-    private String m_statusString = "200 OK";
-
-    public HTTPRequestHandler() throws Exception {
-      m_serverSocket = new ServerSocket(0);
-      new Thread(this, getClass().getName()).start();
-    }
-
-    public void shutdown() throws Exception {
-      m_serverSocket.close();
-    }
-
-    public void setStatusString(String statusString) {
-      m_statusString = statusString;
-    }
-
-    public String getURL() {
-      return "http://localhost:" + m_serverSocket.getLocalPort();
-    }
-
-    public String getLastRequestHeaders() {
-      return m_lastRequestHeaders;
-    }
-
-    public byte[] getLastRequestBody() {
-      return m_lastRequestBody;
-    }
-
-    public String getRequestFirstHeader() {
-      final String text = getLastRequestHeaders();
-
-      final int i = text.indexOf("\r\n");
-      assertTrue("Has at least one line", i>=0);
-      return text.substring(0, i);
-    }
-
-    public void assertRequestContainsHeader(String line) {
-      final String text = getLastRequestHeaders();
-
-      int start = 0;
-      int i;
-
-      while((i = text.indexOf("\r\n", start)) != -1) {
-        if (text.substring(start, i).equals(line)) {
-          return;
-        }
-
-        start = i + 2;
-      }
-
-      if (text.substring(start).equals(line)) {
-        return;
-      }
-
-      fail(text + " does not contain " + line);
-    }
-
-
-    public void run() {
-      try {
-        while (true) {
-          final Socket localSocket;
-
-          try {
-            localSocket = m_serverSocket.accept();
-          }
-          catch (SocketException e) {
-            // Socket's been closed, lets quit.
-            break;
-          }
-
-          final InputStream in = localSocket.getInputStream();
-
-          final StringBuffer headerBuffer = new StringBuffer();
-          final byte[] buffer = new byte[1000];
-          int n;
-          int bodyStart = -1;
-
-          READ_HEADERS:
-          while ((n = in.read(buffer, 0, buffer.length)) != -1) {
-
-            for (int i=0; i<n-3; ++i) {
-              if (buffer[i] == '\r' &&
-                  buffer[i+1] == '\n' &&
-                  buffer[i+2] == '\r' &&
-                  buffer[i+3] == '\n') {
-
-                headerBuffer.append(new String(buffer, 0, i));
-                bodyStart = i + 4;
-                break READ_HEADERS;
-              }
-            }
-
-            headerBuffer.append(new String(buffer, 0, n));
-          }
-
-          if (bodyStart == -1) {
-            throw new IOException("No header boundary");
-          }
-
-          m_lastRequestHeaders = headerBuffer.toString();
-
-          final Matcher matcher =
-            s_contentLengthPattern.matcher(m_lastRequestHeaders);
-
-          if (matcher.find()) {
-            final int contentLength =
-              Integer.parseInt(matcher.group(1).trim());
-
-            m_lastRequestBody = new byte[contentLength];
-
-            int bodyBytes = n - bodyStart;
-
-            System.arraycopy(buffer, bodyStart, m_lastRequestBody, 0,
-                             bodyBytes);
-
-            while (bodyBytes < m_lastRequestBody.length) {
-              final int bytesRead =
-                in.read(m_lastRequestBody, bodyBytes,
-                        m_lastRequestBody.length - bodyBytes);
-
-              if (bytesRead == -1) {
-                throw new IOException("Content-length too large");
-              }
-
-              bodyBytes += bytesRead;
-            }
-
-            if (in.available() > 0) {
-              throw new IOException("Content-length too small");
-            }
-          }
-          else {
-            m_lastRequestBody = null;
-          }
-
-          final OutputStream out = localSocket.getOutputStream();
-
-          final StringBuffer response = new StringBuffer();
-          response.append("HTTP/1.0 " + m_statusString + "\r\n");
-          response.append("\r\n");
-          out.write(response.toString().getBytes());
-          out.flush();
-
-          localSocket.close();
-        }
-      }
-      catch (Exception e) {
-        e.printStackTrace();
-      }
-      finally {
-        try {
-          m_serverSocket.close();
-        }
-        catch (IOException e) {
-          // Whatever.
-        }
-      }
-    }
   }
 
   public void testDELETE() throws Exception {
@@ -860,45 +668,55 @@ public class TestHTTPRequest extends TestCase {
 
   public final void testResponseProcessing() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler();
-    final HTTPRequest request = new HTTPRequest();
-
     final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
-
     m_scriptContextStubFactory.setResult("getLogger",
                                          loggerStubFactory.getLogger());
 
+    final HTTPRequest request = new HTTPRequest();
     request.GET(handler.getURL());
 
-    final CallData loggerCall = loggerStubFactory.getCallData();
-    assertEquals("output", loggerCall.getMethodName());
+    final CallData loggerCall =
+      loggerStubFactory.assertSuccess("output", String.class);
     final String message = (String)loggerCall.getParameters()[0];
     assertTrue(message.indexOf("200") >= 0);
     assertEquals(-1, message.indexOf("Redirect"));
     loggerStubFactory.assertNoMoreCalls();
 
-    final CallData callData1 =
-      m_statisticsStubFactory.assertSuccess("availableForUpdate");
-    assertEquals(Boolean.FALSE, callData1.getResult());
+    assertEquals(Boolean.FALSE,
+      m_statisticsStubFactory.assertSuccess("availableForUpdate").getResult());
     m_statisticsStubFactory.assertNoMoreCalls();
 
-    handler.setStatusString("302 Moved Temporarily");
+    handler.shutdown();
+  }
+
+  public final void testRedirectResponseProcessing() throws Exception {
+    final HTTPRequestHandler handler = new HTTPRequestHandler() {
+      protected void writeHeaders(StringBuffer response) {
+        response.append("HTTP/1.0 302 Moved Temporarily\r\n");
+      }
+    };
+
+    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
+    m_scriptContextStubFactory.setResult("getLogger",
+                                         loggerStubFactory.getLogger());
+
     m_statisticsStubFactory.setResult("availableForUpdate", Boolean.TRUE);
 
-    final HTTPResponse response2 = request.GET(handler.getURL());
-    assertNotNull(response2);
+    final HTTPRequest request = new HTTPRequest();
+    final HTTPResponse response = request.GET(handler.getURL());
+    assertNotNull(response);
 
-    final CallData loggerCall2 = loggerStubFactory.getCallData();
-    assertEquals("output", loggerCall2.getMethodName());
-    final String message2 = (String)loggerCall2.getParameters()[0];
-    assertTrue(message2.indexOf("302") >= 0);
-    assertTrue(message2.indexOf("Redirect") >= 0);
+    final CallData loggerCall =
+      loggerStubFactory.assertSuccess("output", String.class);
+    final String message = (String)loggerCall.getParameters()[0];
+    assertTrue(message.indexOf("302") >= 0);
+    assertTrue(message.indexOf("Redirect") >= 0);
     loggerStubFactory.assertNoMoreCalls();
 
-    final HTTPPlugin httpPlugin = HTTPPlugin.getPlugin();
+    assertEquals(Boolean.TRUE,
+      m_statisticsStubFactory.assertSuccess("availableForUpdate").getResult());
 
-    final CallData callData2 =
-      m_statisticsStubFactory.assertSuccess("availableForUpdate");
-    assertEquals(Boolean.TRUE, callData2.getResult());
+    final HTTPPlugin httpPlugin = HTTPPlugin.getPlugin();
 
     m_statisticsStubFactory.assertSuccess(
       "addValue", httpPlugin.getResponseLengthIndex(), new Long(0));
@@ -921,21 +739,35 @@ public class TestHTTPRequest extends TestCase {
     }
 
     m_statisticsStubFactory.assertNoMoreCalls();
+  }
 
-    handler.setStatusString("400 Bad Request");
+  public final void testBadRequestResponseProcessing() throws Exception {
+    final HTTPRequestHandler handler = new HTTPRequestHandler() {
+      protected void writeHeaders(StringBuffer response) {
+        response.append("HTTP/1.0 400 Bad Request\r\n");
+      }
+    };
 
-    final HTTPResponse response3 = request.GET(handler.getURL());
-    assertNotNull(response3);
+    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
+    m_scriptContextStubFactory.setResult("getLogger",
+                                         loggerStubFactory.getLogger());
 
-    final CallData loggerCall3 = loggerStubFactory.getCallData();
-    assertEquals("output", loggerCall3.getMethodName());
-    final String message3 = (String)loggerCall3.getParameters()[0];
+    m_statisticsStubFactory.setResult("availableForUpdate", Boolean.TRUE);
+
+    final HTTPRequest request = new HTTPRequest();
+    final HTTPResponse response = request.GET(handler.getURL());
+    assertNotNull(response);
+
+    final CallData loggerCall =
+      loggerStubFactory.assertSuccess("output", String.class);
+    final String message3 = (String)loggerCall.getParameters()[0];
     assertTrue(message3.indexOf("400") >= 0);
     loggerStubFactory.assertNoMoreCalls();
 
-    final CallData callData3 =
-      m_statisticsStubFactory.assertSuccess("availableForUpdate");
-    assertEquals(Boolean.TRUE, callData3.getResult());
+    assertEquals(Boolean.TRUE,
+      m_statisticsStubFactory.assertSuccess("availableForUpdate").getResult());
+
+    final HTTPPlugin httpPlugin = HTTPPlugin.getPlugin();
 
     m_statisticsStubFactory.assertSuccess(
       "addValue", httpPlugin.getResponseLengthIndex(), new Long(0));
@@ -966,7 +798,6 @@ public class TestHTTPRequest extends TestCase {
   }
 
   public final void testSubclassProcessResponse() throws Exception {
-
     final HTTPRequestHandler handler = new HTTPRequestHandler();
 
     final Object[] resultHolder = new Object[1];
