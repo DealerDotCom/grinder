@@ -85,9 +85,9 @@ public class TestTestStatisticsMap extends TestCase {
 
     try {
       map.put(m_test1, bogusStatisticsSetImplementation);
-      fail("Expected RuntimeException");
+      fail("Expected AssertionError");
     }
-    catch (RuntimeException e) {
+    catch (AssertionError e) {
     }
   }
 
