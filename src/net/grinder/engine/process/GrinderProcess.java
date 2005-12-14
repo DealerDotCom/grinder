@@ -64,8 +64,6 @@ import net.grinder.util.thread.Monitor;
  *
  * <p>Package scope.</p>
  *
- * TODO Should implement InterruptibleRunnable
- *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
@@ -163,12 +161,17 @@ final class GrinderProcess {
   }
 
   /**
-   * The application's main loop. This is split from the constructor
-   * as theoretically it might be called multiple times. The
-   * constructor sets up the static configuration, this does a
-   * single execution.
+   * The application's main loop. This is split from the constructor as
+   * theoretically it might be called multiple times. The constructor sets up
+   * the static configuration, this does a single execution.
+   *
+   * <p>
+   * This method is interruptible, in the same sense as
+   * {@link InterruptibleRunnable#interruptibleRun()}. We don't implement
+   * that method because we want to be able to throw exceptions.</p>
    *
    * @return Exit status to be indicated to parent process.
+   * @throws GrinderException If something went wrong.
    */
   public void run() throws GrinderException {
     final Logger logger = m_context.getProcessLogger();
