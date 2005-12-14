@@ -39,7 +39,7 @@ import net.grinder.util.thread.UncheckedInterruptedException;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.engine.process.GrinderProcess
+ * @see net.grinder.engine.process.WorkerProcessEntryPoint
  *
  */
 final class ProcessWorker implements Worker {
@@ -105,7 +105,7 @@ final class ProcessWorker implements Worker {
   /**
    * Wait until the worker has completed. Return the exit status.
    *
-   * @return See {@link net.grinder.engine.process.GrinderProcess} for
+   * @return See {@link net.grinder.engine.process.WorkerProcessEntryPoint} for
    * valid values.
    */
   public int waitFor() {

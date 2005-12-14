@@ -45,7 +45,7 @@ public class TestWorkerProcessCommandLine extends TestCase {
                                    null);
 
     assertEquals(
-      "java net.grinder.engine.process.GrinderProcess",
+      "java net.grinder.engine.process.WorkerProcessEntryPoint",
       workerProcessCommandLine.toString());
   }
 
@@ -63,11 +63,11 @@ public class TestWorkerProcessCommandLine extends TestCase {
                                    overrideProperties,
                                    grinderProperties.getProperty("grinder.jvm.arguments"));
 
-    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess",
+    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.WorkerProcessEntryPoint",
                  workerProcessCommandLine.toString());
 
     // Should work twice.
-    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess",
+    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.WorkerProcessEntryPoint",
                  workerProcessCommandLine.toString());
   }
 
@@ -97,7 +97,7 @@ public class TestWorkerProcessCommandLine extends TestCase {
 
     final String expectedSuffix =
       "-classpath 'abc;def" + File.pathSeparatorChar + "jvd;vg;nc' " +
-      "net.grinder.engine.process.GrinderProcess";
+      "net.grinder.engine.process.WorkerProcessEntryPoint";
 
     assertEquals(expectedSuffix, commandLine);
   }

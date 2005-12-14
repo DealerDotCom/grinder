@@ -41,7 +41,7 @@ public class TestDebugThreadWorkerFactory extends TestCase {
 
     final AgentIdentityImplementation agentIdentity =
       new AgentIdentityImplementation(getClass().getName());
-    
+
     final GrinderProperties properties = new GrinderProperties();
 
     final DebugThreadWorkerFactory factory =
@@ -65,5 +65,7 @@ public class TestDebugThreadWorkerFactory extends TestCase {
     finally {
       System.setErr(oldStderr);
     }
+
+    // TODO Assert and tidy up files.
   }
 }

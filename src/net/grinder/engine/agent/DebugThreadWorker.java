@@ -134,7 +134,8 @@ final class DebugThreadWorker implements Worker {
   public interface IsolateGrinderProcessRunner  {
 
     /**
-     * Create and run a {@link net.grinder.engine.process.GrinderProcess}.
+     * Create and run a
+     * {@link net.grinder.engine.process.WorkerProcessEntryPoint}.
      *
      * @param agentInputStream
      *          {@link InputStream} used to listen to the agent.

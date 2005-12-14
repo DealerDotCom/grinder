@@ -46,7 +46,6 @@ import net.grinder.communication.MessagePump;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.QueuedSenderDecorator;
 import net.grinder.communication.Receiver;
-import net.grinder.communication.StreamReceiver;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.engine.common.ConsoleListener;
@@ -61,95 +60,18 @@ import net.grinder.util.thread.Monitor;
 
 
 /**
- * The class executed by the main thread of each JVM.
- * The total number of JVM is specified in the property "grinder.jvms".
- * This class is responsible for creating as many threads as configured in the
- * property "grinder.threads".
+ * The controller for a worker process.
+ *
+ * <p>Package scope.</p>
+ *
+ * TODO Should implement InterruptibleRunnable
  *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  * @see net.grinder.engine.process.GrinderThread
  */
-public final class GrinderProcess {
-
-  /**
-   * The application's entry point.
-   *
-   * @param args Command line arguments.
-   */
-  public static void main(final String[] args) {
-    if (args.length > 1) {
-      System.err.println("Usage: java " + GrinderProcess.class.getName());
-      System.exit(-1);
-    }
-
-    final Runner runner = new Runner() {
-      protected GrinderProcess createGrinderProcess() throws GrinderException {
-        return new GrinderProcess(new StreamReceiver(System.in));
-      }
-    };
-
-    System.exit(runner.run());
-  }
-
-  /**
-   * A template for the error handling for creating and running a process.
-   *
-   * TODO should implement InterruptibleRunnable
-   */
-  public abstract static class Runner {
-
-    /**
-     * Create and run a process.
-     *
-     * @return Process exit code.
-     */
-    public int run() {
-      final GrinderProcess grinderProcess;
-
-      try {
-        grinderProcess = createGrinderProcess();
-      }
-      catch (ExitProcessException e) {
-        return -4;
-      }
-      catch (GrinderException e) {
-        System.err.println("Error initialising worker process (" +
-                           e.getMessage() + ")");
-        e.printStackTrace();
-        return -2;
-      }
-
-      final Logger logger = grinderProcess.m_context.getProcessLogger();
-
-      try {
-        grinderProcess.run();
-        return 0;
-      }
-      catch (ExitProcessException e) {
-        return -5;
-      }
-      catch (Exception e) {
-        logger.error("Error running worker process (" + e.getMessage() + ")",
-                     Logger.LOG | Logger.TERMINAL);
-        e.printStackTrace(logger.getErrorLogWriter());
-        return -3;
-      }
-      finally {
-        grinderProcess.shutdown();
-      }
-    }
-
-    /**
-     * Template factory method.
-     *
-     * @return The process.
-     * @throws GrinderException If a process could not be created.
-     */
-    protected abstract GrinderProcess createGrinderProcess()
-      throws GrinderException;
-  }
+final class GrinderProcess {
 
   private final ProcessContext m_context;
   private final LoggerImplementation m_loggerImplementation;
@@ -240,10 +162,6 @@ public final class GrinderProcess {
     m_messagePump = new MessagePump(agentReceiver, handlerChainSender, 1);
   }
 
-  private void shutdown() {
-    m_messagePump.shutdown();
-  }
-
   /**
    * The application's main loop. This is split from the constructor
    * as theoretically it might be called multiple times. The
@@ -252,7 +170,7 @@ public final class GrinderProcess {
    *
    * @return Exit status to be indicated to parent process.
    */
-  private void run() throws GrinderException {
+  public void run() throws GrinderException {
     final Logger logger = m_context.getProcessLogger();
 
     logger.output("The Grinder version " + GrinderBuild.getVersionString());
@@ -418,6 +336,14 @@ public final class GrinderProcess {
     logger.output("finished", Logger.LOG | Logger.TERMINAL);
   }
 
+  public void shutdown() {
+    m_messagePump.shutdown();
+  }
+
+  public Logger getLogger() {
+    return m_context.getProcessLogger();
+  }
+
   private class ReportToConsoleTimerTask extends TimerTask {
     private final short m_totalThreads;
 
@@ -476,16 +402,6 @@ public final class GrinderProcess {
   private class TickLoggerTimerTask extends TimerTask {
     public void run() {
       LoggerImplementation.tick();
-    }
-  }
-
-  /**
-   * <code>EngineException</code> that indicates that the process should
-   * exit with no additional logging.
-   */
-  private static final class ExitProcessException extends EngineException {
-    public ExitProcessException() {
-      super("Fatal error, see logs for messages");
     }
   }
 }

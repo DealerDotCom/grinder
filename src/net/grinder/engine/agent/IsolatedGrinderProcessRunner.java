@@ -23,10 +23,8 @@ package net.grinder.engine.agent;
 
 import java.io.InputStream;
 
-import net.grinder.common.GrinderException;
-import net.grinder.communication.StreamReceiver;
 import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
-import net.grinder.engine.process.GrinderProcess;
+import net.grinder.engine.process.WorkerProcessEntryPoint;
 
 
 /**
@@ -41,20 +39,14 @@ public class IsolatedGrinderProcessRunner
   implements IsolateGrinderProcessRunner {
 
   /**
-   * Create and run a {@link net.grinder.engine.process.GrinderProcess}.
+   * Create and run a
+   * {@link net.grinder.engine.process.WorkerProcessEntryPoint}.
    *
    * @param agentInputStream
    *          {@link InputStream} used to listen to the agent.
    * @return Process exit code.
    */
   public int run(final InputStream agentInputStream) {
-
-    final GrinderProcess.Runner runner = new GrinderProcess.Runner() {
-      protected GrinderProcess createGrinderProcess() throws GrinderException {
-        return new GrinderProcess(new StreamReceiver(agentInputStream));
-      }
-    };
-
-    return runner.run();
+    return new WorkerProcessEntryPoint().run(agentInputStream);
   }
 }

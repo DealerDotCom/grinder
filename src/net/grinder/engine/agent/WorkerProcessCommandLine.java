@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.engine.process.GrinderProcess;
+import net.grinder.engine.process.WorkerProcessEntryPoint;
 
 
 /**
@@ -86,7 +86,7 @@ final class WorkerProcessCommandLine {
     }
 
     m_commandClassIndex = m_command.size();
-    m_command.add(GrinderProcess.class.getName());
+    m_command.add(WorkerProcessEntryPoint.class.getName());
   }
 
   public String[] getCommandArray() {

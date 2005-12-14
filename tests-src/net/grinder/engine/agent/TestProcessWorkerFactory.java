@@ -38,7 +38,7 @@ import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
-import net.grinder.engine.process.GrinderProcess;
+import net.grinder.engine.process.WorkerProcessEntryPoint;
 
 
 /**
@@ -69,8 +69,9 @@ public class TestProcessWorkerFactory extends TestCase {
 
     final List commandList = commandLine.getCommandList();
 
-    commandList.set(commandList.indexOf(GrinderProcess.class.getName()),
-                    ReadMessageEchoClass.class.getName());
+    commandList.set(
+      commandList.indexOf(WorkerProcessEntryPoint.class.getName()),
+      ReadMessageEchoClass.class.getName());
 
     final File scriptFile = new File("a");
     final File scriptDirectory = new File("b");

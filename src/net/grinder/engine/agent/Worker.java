@@ -46,7 +46,7 @@ interface Worker {
   /**
    * Wait until the worker has completed. Return the exit status.
    *
-   * @return See {@link net.grinder.engine.process.GrinderProcess} for
+   * @return See {@link net.grinder.engine.process.WorkerProcessEntryPoint} for
    * valid values.
    */
   int waitFor();
