@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,7 +54,7 @@ public class TestThreadPool extends TestCase {
           Thread.sleep(1);
         }
         catch (InterruptedException e) {
-          // TODO
+          // Deliberately deaf.
         }
       }
     }
@@ -152,6 +152,8 @@ public class TestThreadPool extends TestCase {
     threadPool.stopAndWait();
 
     assertTrue(threadPool.isStopped());
+
+    // Our runnable ignores interruptions, so count should be 200.
     assertEquals(200, m_count);
   }
 }
