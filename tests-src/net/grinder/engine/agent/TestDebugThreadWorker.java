@@ -21,11 +21,9 @@
 
 package net.grinder.engine.agent;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.StreamSender;
+import net.grinder.testutility.RedirectStandardStreams;
 import junit.framework.TestCase;
 
 
@@ -61,21 +59,17 @@ public class TestDebugThreadWorker extends TestCase {
     assertEquals(-1, resultHolder[0]);
     assertTrue(waitThread.isAlive());
 
-    final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-    final PrintStream redirectedStderr = new PrintStream(byteStream);
-    final PrintStream oldStderr = System.err;
+    final RedirectStandardStreams streams = new RedirectStandardStreams() {
+      protected void runWithRedirectedStreams() throws Exception {
+        new StreamSender(worker.getCommunicationStream()).shutdown();
+        waitThread.join();
+      }
+    };
 
-    try {
-      System.setErr(redirectedStderr);
-      new StreamSender(worker.getCommunicationStream()).shutdown();
-      waitThread.join();
-    }
-    finally {
-      System.setErr(oldStderr);
-    }
+    streams.run();
 
     assertEquals(-2, resultHolder[0]);
-    final String output = new String(byteStream.toByteArray());
+    final String output = new String(streams.getStderrBytes());
     assertTrue(output.indexOf("No control stream from agent") > 0);
   }
 }

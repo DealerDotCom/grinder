@@ -28,6 +28,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import net.grinder.testutility.RedirectStandardStreams;
+
 
 /**
  * Unit test for {@link GrinderException}.
@@ -115,24 +117,18 @@ public class TestGrinderExceptions extends TestCase {
 
   public void testPrintStackTraceWithDefaultStream() throws Exception {
 
-    final ByteArrayOutputStream byteArrayOutputStream =
-      new ByteArrayOutputStream();
-    final PrintStream printStream = new PrintStream(byteArrayOutputStream);
-
     final GrinderException e1 = createDeeperException();
     final GrinderException e2 = new MyGrinderException("Exception 2", e1);
 
-    final PrintStream oldStderr = System.err;
-    System.setErr(printStream);
+    final RedirectStandardStreams streams = new RedirectStandardStreams() {
+      protected void runWithRedirectedStreams() throws Exception {
+        e2.printStackTrace();
+      }
+    };
 
-    try {
-      e2.printStackTrace();
-    }
-    finally {
-      System.setErr(oldStderr);
-    }
+    streams.run();
 
-    final String s = new String(byteArrayOutputStream.toByteArray());
+    final String s = new String(streams.getStderrBytes());
 
     assertEquals(1, countOccurrences("createException", s));
     assertEquals(1, countOccurrences("createDeeperException", s));
