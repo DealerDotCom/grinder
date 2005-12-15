@@ -21,12 +21,10 @@
 
 package net.grinder.engine.agent;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
-import junit.framework.TestCase;
+import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.RedirectStandardStreams;
 
 
 /**
@@ -35,7 +33,7 @@ import junit.framework.TestCase;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestDebugThreadWorkerFactory extends TestCase {
+public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
 
   public void testFactory() throws Exception {
 
@@ -43,6 +41,8 @@ public class TestDebugThreadWorkerFactory extends TestCase {
       new AgentIdentityImplementation(getClass().getName());
 
     final GrinderProperties properties = new GrinderProperties();
+    properties.setProperty("grinder.logDirectory",
+                           getDirectory().getAbsolutePath());
 
     final DebugThreadWorkerFactory factory =
       new DebugThreadWorkerFactory(agentIdentity,
@@ -52,20 +52,14 @@ public class TestDebugThreadWorkerFactory extends TestCase {
                                    null,
                                    properties);
 
-    final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-    final PrintStream redirectedStderr = new PrintStream(byteStream);
-    final PrintStream oldStderr = System.err;
+    new RedirectStandardStreams() {
+      protected void runWithRedirectedStreams() throws Exception {
+        final Worker worker = factory.create(null, null);
+        worker.waitFor();
+      }
+    }.run();
 
-    System.setErr(redirectedStderr);
-
-    try {
-      final Worker worker = factory.create(null, null);
-      worker.waitFor();
-    }
-    finally {
-      System.setErr(oldStderr);
-    }
-
-    // TODO Assert and tidy up files.
+    // Should have output and error files.
+    assertEquals(2, getDirectory().list().length);
   }
 }
