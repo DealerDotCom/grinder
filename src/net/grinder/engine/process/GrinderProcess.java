@@ -341,6 +341,7 @@ final class GrinderProcess {
 
   public void shutdown() {
     m_messagePump.shutdown();
+    m_loggerImplementation.close();
   }
 
   public Logger getLogger() {

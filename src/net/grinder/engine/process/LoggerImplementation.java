@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,6 +43,8 @@ import net.grinder.util.DelayedCreationFileWriter;
  * <p>Each thread should call {@link #getProcessLogger} or {@link
  * #createThreadLogger} to get a {@link net.grinder.common.Logger}.
  * </p>
+ *
+ * <p>Relies on underlying streams for synchronisation.</p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -125,6 +127,19 @@ final class LoggerImplementation {
     m_dataWriter = new PrintWriter(fileManager.getDataWriter(), false);
 
     m_processLogger = createThreadLogger(-1);
+  }
+
+  /**
+   * Close our streams.
+   *
+   * <p>
+   * Once this has been done, all our loggers become ineffectual.
+   * </p>
+   */
+  public void close() {
+    m_outputWriter.close();
+    m_errorWriter.close();
+    m_dataWriter.close();
   }
 
   private final class FileManager {
@@ -359,7 +374,7 @@ final class LoggerImplementation {
    * as well as {@link ThreadLogger} because <code>ThreadLogger</code>
    * is package scope and this prevents Jython from seeing
    * <code>Logger</code> (<code>IllegalAccessException</code>s
-   * abound.</p>
+   * abound).</p>
    */
   private final class ThreadState implements Logger, ThreadLogger {
 
