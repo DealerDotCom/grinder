@@ -187,6 +187,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         return m_serverSocket.accept();
       }
       catch (SocketTimeoutException e) {
+        // activeCount() is dubious as the result is not guaranteed to be
+        // correct. Seems to be OK here though.
         if (getStreamThreadGroup().activeCount() == 0) {
           stop();
           throw new NoActivityTimeOutException();
