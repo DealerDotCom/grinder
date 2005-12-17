@@ -27,10 +27,12 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -424,11 +426,17 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     final Class c = e.getClass();
     final String message = e.getMessage();
 
-    if (NoActivityTimeOutException.class.equals(c)) {
+    if (e instanceof NoActivityTimeOutException) {
       getLogger().error("Listen time out");
     }
+    else if (e instanceof ConnectException) {
+      getLogger().error(message);
+    }
+    else if (e instanceof UnknownHostException) {
+      getLogger().error("Failed to connect to unknown host '" + message + "'");
+    }
     else if (IOException.class.equals(c) && "Stream closed".equals(message) ||
-             SocketException.class.equals(c)) {
+             e instanceof SocketException) {
       // Ignore common exceptions that are due to connections being
       // closed.
     }

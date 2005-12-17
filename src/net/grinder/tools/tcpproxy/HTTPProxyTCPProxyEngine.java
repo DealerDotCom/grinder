@@ -29,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -163,9 +164,18 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     final byte[] buffer = new byte[4096];
 
     while (!isStopped()) {
-      try {
-        final Socket localSocket = accept();
+      final Socket localSocket;
 
+      try {
+        localSocket = accept();
+      }
+      catch (IOException e) {
+        UncheckedInterruptedException.ioException(e);
+        logIOException(e);
+        continue;
+      }
+
+      try {
         // Grab the first upstream packet and grep it for the
         // remote server and port in the method line.
         final BufferedInputStream in =
@@ -309,6 +319,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       catch (IOException e) {
         UncheckedInterruptedException.ioException(e);
         logIOException(e);
+
+        try {
+          localSocket.close();
+        }
+        catch (IOException closeException) {
+          throw new AssertionError(closeException);
+        }
       }
     }
   }
@@ -512,9 +529,24 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     public void run() {
 
       while (true) {
-        try {
-          final Socket localSocket = accept();
+        final Socket localSocket;
 
+        try {
+          localSocket = accept();
+        }
+        catch (IOException e) {
+          UncheckedInterruptedException.ioException(e);
+
+          if (isStopped()) {
+            break;
+          }
+
+          logIOException(e);
+
+          continue;
+        }
+
+        try {
           launchThreadPair(
             localSocket, m_remoteEndPoint, m_clientEndPoint, true);
         }
@@ -526,6 +558,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           }
 
           logIOException(e);
+
+          try {
+            localSocket.close();
+          }
+          catch (IOException closeException) {
+            throw new AssertionError(closeException);
+          }
         }
       }
     }
@@ -629,8 +668,19 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     public Socket createClientSocket(EndPoint remoteEndPoint)
       throws IOException {
 
-      final Socket socket =
-        new Socket(m_httpsProxy.getHost(), m_httpsProxy.getPort());
+      final Socket socket;
+
+      try {
+        socket = new Socket(m_httpsProxy.getHost(), m_httpsProxy.getPort());
+      }
+      catch (ConnectException e) {
+        synchronized (this) {
+          m_responseBytes = new byte[0];
+          notifyAll();
+        }
+
+        throw new VerboseConnectException(e, "HTTPS proxy " + m_httpsProxy);
+      }
 
       final OutputStream outputStream = socket.getOutputStream();
       final InputStream inputStream = socket.getInputStream();

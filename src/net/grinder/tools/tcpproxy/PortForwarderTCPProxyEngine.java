@@ -118,6 +118,13 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
       catch (IOException e) {
         UncheckedInterruptedException.ioException(e);
         logIOException(e);
+
+        try {
+          localSocket.close();
+        }
+        catch (IOException closeException) {
+          throw new AssertionError(closeException);
+        }
       }
     }
   }

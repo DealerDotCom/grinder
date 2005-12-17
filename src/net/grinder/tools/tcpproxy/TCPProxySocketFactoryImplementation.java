@@ -23,6 +23,7 @@
 package net.grinder.tools.tcpproxy;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -68,7 +69,12 @@ final class TCPProxySocketFactoryImplementation
   public Socket createClientSocket(EndPoint remoteEndPoint)
     throws IOException {
 
-    return new Socket(remoteEndPoint.getHost(), remoteEndPoint.getPort());
+    try {
+      return new Socket(remoteEndPoint.getHost(), remoteEndPoint.getPort());
+    }
+    catch (ConnectException e) {
+      throw new VerboseConnectException(e, remoteEndPoint.toString());
+    }
   }
 }
 

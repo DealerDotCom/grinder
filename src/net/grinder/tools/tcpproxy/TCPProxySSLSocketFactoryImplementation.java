@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -158,9 +159,15 @@ public final class TCPProxySSLSocketFactoryImplementation
   public Socket createClientSocket(EndPoint remoteEndPoint)
     throws IOException {
 
-    final SSLSocket socket =
-      (SSLSocket)m_clientSocketFactory.createSocket(
+    final SSLSocket socket;
+
+    try {
+      socket = (SSLSocket)m_clientSocketFactory.createSocket(
         remoteEndPoint.getHost(), remoteEndPoint.getPort());
+    }
+    catch (ConnectException e) {
+      throw new VerboseConnectException(e, "SSL end point " + remoteEndPoint);
+    }
 
     socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
     return socket;

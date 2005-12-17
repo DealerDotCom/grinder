@@ -9,7 +9,7 @@ Grinder 3.0-beta28 (Not yet released)
   New Russion translation from Konstantin Ignatyev.
 
   Fix the TCPProxy port forwarding mode to correctly generate https
-  URLs (bug 1324640).
+  URLs. (Bug 1324640).
 
   Fix the exception logging to include Jython stack traces. Simplify
   the exception log formatting.
@@ -24,9 +24,11 @@ Grinder 3.0-beta28 (Not yet released)
   to be easily run in a debugger. This is primarily a tool for
   debugging The Grinder engine, but it might also be useful to
   advanced users.
-  
+
   More relaxed handling of invalid dates in Cookies. Requested by Martin
   Wagner.
+
+  Nicer output for ConnectExceptions and UnknownHost exceptions. (Bug 927828).
 
 
 Grinder 3.0-beta27
