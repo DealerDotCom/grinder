@@ -477,7 +477,32 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
   </dl>
       </answer>
     </faq>
-  </faqsection>
+
+    <faq>
+      <question>
+	  How do I specify the ephemeral port range?
+      </question>
+      <answer>
+      <p>When a client connects to a TCP server, the client side port uses
+      a temporary <em>emphemeral</em> port.
+      Occasionally users want to set the ephemeral ports that are
+      used for:</p>
+      <ul>
+      <li>Connections from the agent and worker processes to the console.</li>
+      <li>Connections created by the TCPProxy.</li>
+      <li>Connections created by the HTTP Plugin.</li>
+      </ul>
+
+      <p>The Grinder does not specify the ephemeral port numbers, and
+      instead uses values assigned by the operating system's TCP/IP
+      stack. If you wish to control the ephemeral port numbers, please
+      see <a href="site:ncftp/ephemeral-ports">NCFTP</a> for a good
+      HOWTO.</p>.
+
+      </answer>
+     </faq>
+   </faqsection>
+
   </faqsection>
 
   <faqsection id="g2">
