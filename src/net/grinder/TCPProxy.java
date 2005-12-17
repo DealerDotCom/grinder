@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003, 2004, 2005 Bertrand Ave
 // All rights reserved.
@@ -99,7 +99,8 @@ public final class TCPProxy {
       System.exit(2);
     }
 
-    logger.output("Engine exited");
+    // Write to stderr - only filter output should go to stdout.
+    logger.error("Engine exited");
     System.exit(0);
   }
 
