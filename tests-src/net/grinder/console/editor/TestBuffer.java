@@ -1,4 +1,5 @@
 // Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -190,7 +191,9 @@ public class TestBuffer extends AbstractFileTestCase {
     assertEquals(s0, textSource.getText());
     assertNotSame(s0, textSource.getText());
 
-    file.setLastModified(System.currentTimeMillis() + 1);
+    // Add an error margin, as Linux does not support setting the modification
+    // date with millisecond precision.
+    file.setLastModified(System.currentTimeMillis() + 1000);
 
     assertTrue(!buffer.isUpToDate());
 

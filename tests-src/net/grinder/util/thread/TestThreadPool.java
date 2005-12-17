@@ -1,4 +1,5 @@
 // Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -96,7 +97,12 @@ public class TestThreadPool extends TestCase {
     assertEquals(5, runnableFactory.getCallCount());
     assertNotNull(threadPool.getThreadGroup());
     assertTrue(!threadPool.isStopped());
-    assertEquals(5, threadPool.getThreadGroup().activeCount());
+
+    // Quote from JDK documentation on ThreadGroup.activeCount:
+    // "Due to the inherently imprecise nature of the result, it is
+    // recommended that this method only be used for informational purposes."
+    // Assertion fails on Linux and under JRockit.
+    // assertEquals(5, threadPool.getThreadGroup().activeCount());
 
     threadPool.start();
 
@@ -137,7 +143,12 @@ public class TestThreadPool extends TestCase {
     final ThreadPool threadPool = new ThreadPool("Test", 10, runnableFactory);
 
     assertEquals(10, runnableFactory.getCallCount());
-    assertEquals(10, threadPool.getThreadGroup().activeCount());
+
+    // Quote from JDK documentation on ThreadGroup.activeCount:
+    // "Due to the inherently imprecise nature of the result, it is
+    // recommended that this method only be used for informational purposes."
+    // Assertion fails on Linux and under JRockit.
+    //assertEquals(10, threadPool.getThreadGroup().activeCount());
 
     threadPool.start();
 

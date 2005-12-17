@@ -1,4 +1,5 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,38 +40,31 @@ public class FileUtilities extends Assert {
 
   public static void setCanAccess(File file, boolean canAccess)
     throws Exception {
-    //    exec(new String[] {
-    //           "chmod",
-    //           canRead ? "ugo+r" : "ugo-r",
-    //           file.getAbsolutePath(),
-    //         });
 
-    // Strewth: getCanonicalPath doesn't quote spaces correctly for cacls.
-    String path = file.getCanonicalPath();
-    path = path.replaceAll("%20", " ");
+    if(System.getProperty("os.name").startsWith("Windows")) {
+      // Strewth: getCanonicalPath doesn't quote spaces correctly for cacls.
+      String path = file.getCanonicalPath();
+      path = path.replaceAll("%20", " ");
 
-    // Sadly cygwin ntsec support doesn't allow us to ignore inherited
-    // attributes. Do this instead:
-    exec(new String[] {
-           "cacls",
-           path,
-           "/E",
-           "/P",
-           System.getProperty("user.name") + ":" + (canAccess ? "F" : "N"),
-         });
+      // Sadly cygwin ntsec support doesn't allow us to ignore inherited
+      // attributes. Do this instead:
+      exec(new String[] {
+            "cacls",
+            path,
+            "/E",
+            "/P",
+            System.getProperty("user.name") + ":" + (canAccess ? "F" : "N"),
+           });
+    }
+    else {
+      // Assume UNIX.
+      exec(new String[] {
+            "chmod",
+            canAccess ? "ugo+rwx" : "ugo-rwx",
+            file.getCanonicalPath(),
+           });
+    }
   }
-
-  /*
-  public static void setCanWrite(File file, boolean canWrite)
-    throws Exception {
-
-    exec(new String[] {
-           "chmod",
-           canWrite ? "ugo+w" : "ugo-w",
-           file.getAbsolutePath(),
-         });
-  }
-  */
 
   private static void exec(String[] command)
     throws GrinderException, InterruptedException {

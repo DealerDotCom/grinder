@@ -1,5 +1,5 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2005 Martin Wagner.
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Locale;
 
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
@@ -47,7 +48,11 @@ public class TestStatisticsTable extends TestCase {
   private final StatisticsServices m_statisticsServices =
     StatisticsServicesImplementation.getInstance();
 
+  private final Locale m_originalDefaultLocale = Locale.getDefault();
+
   protected void setUp() throws Exception {
+    Locale.setDefault(Locale.US);
+
     m_testStatisticsMap = new TestStatisticsMap(m_statisticsServices
         .getStatisticsSetFactory());
 
@@ -91,6 +96,10 @@ public class TestStatisticsTable extends TestCase {
 
       m_testStatisticsMap.put(tests[i], statistics2);
     }
+  }
+
+  protected void tearDown() throws Exception {
+    Locale.setDefault(m_originalDefaultLocale);
   }
 
   public void testStatisticsTable() throws Exception {

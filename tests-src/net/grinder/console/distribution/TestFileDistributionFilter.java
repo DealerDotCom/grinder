@@ -1,4 +1,5 @@
 // Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -72,7 +73,10 @@ public class TestFileDistributionFilter extends AbstractFileTestCase {
     timeFile.setLastModified(123L);
     assertTrue(timeFile.getPath() + " is unacceptable",
                !filter.accept(timeFile));
-    timeFile.setLastModified(100001L);
+
+    // Add an error margin, as Linux does not support setting the modification
+    // date with millisecond precision.
+    timeFile.setLastModified(101001L);
     assertTrue(timeFile.getPath() + " is acceptable", filter.accept(timeFile));
 
     final String[] acceptableDirectoryNames = new String[] {
