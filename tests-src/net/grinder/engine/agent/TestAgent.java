@@ -35,6 +35,7 @@ import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -174,10 +175,21 @@ public class TestAgent extends AbstractFileTestCase {
     acceptor.shutdown();
 
     m_loggerStubFactory.assertSuccess("output", String.class);
-    // waiting for console signal.
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    // communication shutdown.
-    m_loggerStubFactory.assertSuccess("output", String.class, Integer.class);
+
+    final CallData firstCall = m_loggerStubFactory.getCallData();
+
+    if (firstCall.getParameters().length == 1) {
+      // waiting for console signal.
+      firstCall.assertSuccess("output", String.class);
+      // communication shutdown.
+      m_loggerStubFactory.assertSuccess("output", String.class, Integer.class);
+    }
+    else {
+      // Called in reverse order.
+      firstCall.assertSuccess("output", String.class, Integer.class);
+      m_loggerStubFactory.assertSuccess("output", String.class);
+    }
+
     m_loggerStubFactory.assertNoMoreCalls();
 
     agent.shutdown();
