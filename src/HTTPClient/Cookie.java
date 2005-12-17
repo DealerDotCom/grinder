@@ -250,9 +250,17 @@ public class Cookie implements Serializable
 
     String name = set_cookie.substring(beg, end).trim();
     beg = Util.skipSpace(buf, end+1);
-
+    
     if (name.equalsIgnoreCase("expires"))
     {
+        /** ++GRINDER MODIFICATION **/
+        if (beg >= len)
+        {
+            // Empty expires attribute at end of Cookie. We're done.
+            break;
+        }
+        /** --GRINDER MODIFICATION **/
+
         /* Netscape ignores quotes around the date, and some twits
          * actually send that...
          */

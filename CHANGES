@@ -30,6 +30,8 @@ Grinder 3.0-beta28 (Not yet released)
 
   Nicer output for ConnectExceptions and UnknownHost exceptions. (Bug 927828).
 
+  Handle Cookies with empty expires attribute. (Bug 982834).
+
 
 Grinder 3.0-beta27
 ------------------
