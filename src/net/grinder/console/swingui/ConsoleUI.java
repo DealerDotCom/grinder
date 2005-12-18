@@ -39,9 +39,9 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -112,7 +112,7 @@ public final class ConsoleUI implements ModelListener {
   // unnecessarily.
   private final LookAndFeel m_lookAndFeel;
 
-  private final Map m_actionTable = new HashMap();
+  private final ActionTable m_actionTable = new ActionTable();
   private final CloseFileAction m_closeFileAction;
   private final CustomAction m_startAction;
   private final ExitAction m_exitAction;
@@ -200,22 +200,22 @@ public final class ConsoleUI implements ModelListener {
     m_stopAction = new StopAction();
     m_saveFileAsAction = new SaveFileAsAction();
 
-    addAction(m_closeFileAction);
-    addAction(m_exitAction);
-    addAction(m_startAction);
-    addAction(m_stopAction);
-    addAction(m_saveFileAsAction);
+    m_actionTable.add(m_closeFileAction);
+    m_actionTable.add(m_exitAction);
+    m_actionTable.add(m_startAction);
+    m_actionTable.add(m_stopAction);
+    m_actionTable.add(m_saveFileAsAction);
 
-    addAction(new AboutAction(resources.getImageIcon("logo.image")));
-    addAction(new ChooseDirectoryAction());
-    addAction(new StartProcessesAction());
-    addAction(new DistributeFilesAction());
-    addAction(new NewFileAction());
-    addAction(new OptionsAction());
-    addAction(new ResetProcessesAction());
-    addAction(new SaveFileAction());
-    addAction(new SaveResultsAction());
-    addAction(new StopProcessesAction());
+    m_actionTable.add(new AboutAction(resources.getImageIcon("logo.image")));
+    m_actionTable.add(new ChooseDirectoryAction());
+    m_actionTable.add(new StartProcessesAction());
+    m_actionTable.add(new DistributeFilesAction());
+    m_actionTable.add(new NewFileAction());
+    m_actionTable.add(new OptionsAction());
+    m_actionTable.add(new ResetProcessesAction());
+    m_actionTable.add(new SaveFileAction());
+    m_actionTable.add(new SaveResultsAction());
+    m_actionTable.add(new StopProcessesAction());
 
     m_stateLabel = new JLabel();
     m_samplingControlPanel = new SamplingControlPanel(resources);
@@ -348,14 +348,14 @@ public final class ConsoleUI implements ModelListener {
                               new BufferTreeModel(m_editorModel),
                               fileTreeModel);
 
-    addAction(m_fileTree.getOpenFileAction());
-    addAction(m_fileTree.getSetScriptAction());
+    m_actionTable.add(m_fileTree.getOpenFileAction());
+    m_actionTable.add(m_fileTree.getSetScriptAction());
 
     // Place JEditTextArea in JPanel so border background is correct.
     final JPanel editorPanel = new JPanel();
     editorPanel.add(editor.getComponent());
 
-    final JToolBar editorToolBar = createToolBar("editor.toolbar");
+    final JToolBar editorToolBar = new ToolBarFactory("editor.toolbar").get();
     editorToolBar.setFloatable(false);
     editorToolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -389,14 +389,15 @@ public final class ConsoleUI implements ModelListener {
 
     // Create a panel to hold the tool bar and the test pane.
     final JPanel toolBarPanel = new JPanel(new BorderLayout());
-    toolBarPanel.add(createToolBar("main.toolbar"), BorderLayout.NORTH);
+    toolBarPanel.add(new ToolBarFactory("main.toolbar").get(),
+                     BorderLayout.NORTH);
     toolBarPanel.add(contentPanel, BorderLayout.CENTER);
 
     m_frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     m_frame.addWindowListener(new WindowCloseAdapter());
 
     final Container topLevelPane = m_frame.getContentPane();
-    topLevelPane.add(createMenuBar(), BorderLayout.NORTH);
+    topLevelPane.add(new MenuBarFactory("menubar").get(), BorderLayout.NORTH);
     topLevelPane.add(toolBarPanel, BorderLayout.CENTER);
 
     final ImageIcon logoIcon = resources.getImageIcon("logo.image");
@@ -510,87 +511,112 @@ public final class ConsoleUI implements ModelListener {
     return controlAndTotalPanel;
   }
 
-  private JMenuBar createMenuBar() {
+  private abstract class ListTokeniserTemplate {
 
-    final JMenuBar menuBar = new JMenuBar();
+    protected void iterate(String key) {
+      final String tokens = m_model.getResources().getString(key);
+      final Iterator iterator =
+        Collections.list(new StringTokenizer(tokens)).iterator();
 
-    final Iterator menuBarIterator =
-      tokenise(m_model.getResources().getString("menubar"));
+      while (iterator.hasNext()) {
+        final String itemKey = (String)iterator.next();
 
-    while (menuBarIterator.hasNext()) {
-      final String menuKey = (String)menuBarIterator.next();
-
-      if (">".equals(menuKey)) {
-        menuBar.add(Box.createHorizontalGlue());
+        if ("-".equals(itemKey)) {
+          dash();
+        }
+        else if (">".equals(itemKey)) {
+          greaterThan();
+        }
+        else {
+          token(itemKey);
+        }
       }
-      else {
-        final JMenu menu =
-          new JMenu(m_model.getResources().getString(menuKey + ".menu.label"));
+    }
 
-        final Iterator menuIterator =
-          tokenise(m_model.getResources().getString(menuKey + ".menu"));
+    protected void dash() { }
+    protected void greaterThan() { }
+    protected abstract void token(String key);
+  }
 
-        while (menuIterator.hasNext()) {
-          final String menuItemKey = (String)menuIterator.next();
+  private final class MenuBarFactory extends ListTokeniserTemplate {
+    private final JMenuBar m_menuBar = new JMenuBar();
 
-          if ("-".equals(menuItemKey)) {
+    public MenuBarFactory(String resourceName) {
+      iterate(resourceName);
+    }
+
+    public JMenuBar get() {
+      return m_menuBar;
+    }
+
+    protected void greaterThan() {
+      m_menuBar.add(Box.createHorizontalGlue());
+    }
+
+    protected void token(String key) {
+      final JMenu menu =
+        new JMenu(m_model.getResources().getString(key + ".menu.label"));
+
+        new ListTokeniserTemplate() {
+          protected void dash() {
             menu.addSeparator();
           }
-          else {
+
+          protected void token(String menuItemKey) {
             final JMenuItem menuItem = new JMenuItem();
-            setAction(menuItem, menuItemKey);
+            m_actionTable.setAction(menuItem, menuItemKey);
             menu.add(menuItem);
           }
         }
+        .iterate(key + ".menu");
 
-        menuBar.add(menu);
-      }
+      m_menuBar.add(menu);
     }
-
-    return menuBar;
   }
 
-  private JToolBar createToolBar(String resourceName) {
+  private final class ToolBarFactory extends ListTokeniserTemplate {
+    private final JToolBar m_toolBar = new JToolBar();
 
-    final JToolBar toolBar = new JToolBar();
+    public ToolBarFactory(String resourceName) {
+      iterate(resourceName);
+    }
 
-    final Iterator toolBarIterator =
-      tokenise(m_model.getResources().getString(resourceName));
+    public JToolBar get() {
+      return m_toolBar;
+    }
 
-    while (toolBarIterator.hasNext()) {
-      final String toolKey = (String)toolBarIterator.next();
+    protected void dash() {
+      m_toolBar.addSeparator();
+    }
 
-      if ("-".equals(toolKey)) {
-        toolBar.addSeparator();
+    protected void token(String key) {
+      final JButton button = new CustomJButton();
+      m_toolBar.add(button);
+
+      // Must set the action _after_ adding to the tool bar or the
+      // rollover image isn't set correctly.
+      m_actionTable.setAction(button, key);
+    }
+  }
+
+  private static class ActionTable {
+    private final Map m_map = new HashMap();
+
+    public void add(CustomAction action) {
+      m_map.put(action.getKey(), action);
+    }
+
+    public void setAction(AbstractButton button, String actionKey) {
+      final CustomAction action = (CustomAction)m_map.get(actionKey);
+
+      if (action != null) {
+        button.setAction(action);
+        action.registerButton(button);
       }
       else {
-        final JButton button = new CustomJButton();
-        toolBar.add(button);
-
-        // Must set the action _after_ adding to the tool bar or the
-        // rollover image isn't set correctly.
-        setAction(button, toolKey);
+        System.err.println("Action '" + actionKey + "' not found");
+        button.setEnabled(false);
       }
-    }
-
-    return toolBar;
-  }
-
-  private void addAction(CustomAction action) {
-    m_actionTable.put(action.getKey(), action);
-  }
-
-  private void setAction(AbstractButton button, String actionKey) {
-
-    final CustomAction action = (CustomAction)m_actionTable.get(actionKey);
-
-    if (action != null) {
-      button.setAction(action);
-      action.registerButton(button);
-    }
-    else {
-      System.err.println("Action '" + actionKey + "' not found");
-      button.setEnabled(false);
     }
   }
 
@@ -1411,22 +1437,6 @@ public final class ConsoleUI implements ModelListener {
 
       new Thread(distributionRunnable).start();
     }
-  }
-
-  /**
-   * In J2SE 1.4, this is <code>return java.util.Collections.list(new
-   * StringTokenizer(string));</code>.
-   */
-  private static Iterator tokenise(String string) {
-    final LinkedList list = new LinkedList();
-
-    final StringTokenizer t = new StringTokenizer(string);
-
-    while (t.hasMoreTokens()) {
-      list.add(t.nextToken());
-    }
-
-    return list.iterator();
   }
 
   /**
