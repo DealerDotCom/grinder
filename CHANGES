@@ -32,6 +32,8 @@ Grinder 3.0-beta28 (Not yet released)
 
   Handle Cookies with empty expires attribute. (Bug 982834).
 
+  Added a popup menu to the editor file tree.
+
 
 Grinder 3.0-beta27
 ------------------

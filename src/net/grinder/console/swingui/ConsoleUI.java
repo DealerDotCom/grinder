@@ -29,6 +29,8 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -62,6 +64,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -355,7 +358,27 @@ public final class ConsoleUI implements ModelListener {
     final JPanel editorPanel = new JPanel();
     editorPanel.add(editor.getComponent());
 
-    final JToolBar editorToolBar = new ToolBarFactory("editor.toolbar").get();
+    final JPopupMenu fileTreePopupMenu = new JPopupMenu();
+    new PopupMenuAssembler().populate(fileTreePopupMenu,
+                                      "editor.filetree.popupmenu");
+
+    m_fileTree.addTreeMouseListener(new MouseAdapter() {
+      public void mousePressed(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+          fileTreePopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        }
+      }
+
+      public void mouseReleased(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+          fileTreePopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        }
+      }
+    });
+
+    final ToolBarAssembler toolBarAssembler = new ToolBarAssembler();
+    final JToolBar editorToolBar = new JToolBar();
+    toolBarAssembler.populate(editorToolBar, "editor.toolbar");
     editorToolBar.setFloatable(false);
     editorToolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -389,15 +412,18 @@ public final class ConsoleUI implements ModelListener {
 
     // Create a panel to hold the tool bar and the test pane.
     final JPanel toolBarPanel = new JPanel(new BorderLayout());
-    toolBarPanel.add(new ToolBarFactory("main.toolbar").get(),
-                     BorderLayout.NORTH);
+    final JToolBar mainToolBar = new JToolBar();
+    toolBarAssembler.populate(mainToolBar, "main.toolbar");
+    toolBarPanel.add(mainToolBar, BorderLayout.NORTH);
     toolBarPanel.add(contentPanel, BorderLayout.CENTER);
 
     m_frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     m_frame.addWindowListener(new WindowCloseAdapter());
 
     final Container topLevelPane = m_frame.getContentPane();
-    topLevelPane.add(new MenuBarFactory("menubar").get(), BorderLayout.NORTH);
+    final JMenuBar menuBar = new JMenuBar();
+    new MenuBarAssembler().populate(menuBar, "menubar");
+    topLevelPane.add(menuBar, BorderLayout.NORTH);
     topLevelPane.add(toolBarPanel, BorderLayout.CENTER);
 
     final ImageIcon logoIcon = resources.getImageIcon("logo.image");
@@ -413,17 +439,12 @@ public final class ConsoleUI implements ModelListener {
     m_model.addModelListener(new SwingDispatchedModelListener(this));
     update();
 
-    m_lookAndFeel.addListener(
-      new LookAndFeel.ComponentListener(m_frame) {
-        public void lookAndFeelChanged() {
-          m_frame.setVisible(false);
-          super.lookAndFeelChanged();
-          packAndSize(m_frame);
-          m_frame.setVisible(true);
-        }
-      });
+    final LookAndFeelListener lookAndFeelListener = new LookAndFeelListener();
+    m_lookAndFeel.addListener(lookAndFeelListener);
 
-    packAndSize(m_frame);
+    // Fire the listener to set the frame size.
+    lookAndFeelListener.lookAndFeelChanged();
+
     resultsPane.setDividerLocation(resultsPane.getMaximumDividerLocation());
 
     final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -432,13 +453,6 @@ public final class ConsoleUI implements ModelListener {
                         screenSize.height / 2 - m_frame.getSize().height / 2);
 
     m_frame.setVisible(true);
-  }
-
-  private void packAndSize(JFrame frame) {
-    frame.pack();
-
-    // Arbitrary size that looks good for Phil.
-    frame.setSize(new Dimension(900, 600));
   }
 
   private JPanel createControlAndTotalPanel() {
@@ -511,9 +525,26 @@ public final class ConsoleUI implements ModelListener {
     return controlAndTotalPanel;
   }
 
-  private abstract class ListTokeniserTemplate {
+  private final class LookAndFeelListener
+    extends LookAndFeel.ComponentListener {
 
-    protected void iterate(String key) {
+    private LookAndFeelListener() {
+      super(m_frame);
+    }
+
+    public void lookAndFeelChanged() {
+      m_frame.setVisible(false);
+      super.lookAndFeelChanged();
+      m_frame.pack();
+
+      // Arbitrary size that looks good for Phil.
+      m_frame.setSize(new Dimension(900, 600));
+      m_frame.setVisible(true);
+    }
+  }
+
+  private abstract class ListTokeniserTemplate {
+    protected void iterate(JComponent component, String key) {
       final String tokens = m_model.getResources().getString(key);
       final Iterator iterator =
         Collections.list(new StringTokenizer(tokens)).iterator();
@@ -522,76 +553,82 @@ public final class ConsoleUI implements ModelListener {
         final String itemKey = (String)iterator.next();
 
         if ("-".equals(itemKey)) {
-          dash();
+          dash(component);
         }
         else if (">".equals(itemKey)) {
-          greaterThan();
+          greaterThan(component);
         }
         else {
-          token(itemKey);
+          token(component, itemKey);
         }
       }
     }
 
-    protected void dash() { }
-    protected void greaterThan() { }
-    protected abstract void token(String key);
+    protected void dash(JComponent component) { }
+    protected void greaterThan(JComponent component) { }
+    protected abstract void token(JComponent component, String key);
   }
 
-  private final class MenuBarFactory extends ListTokeniserTemplate {
-    private final JMenuBar m_menuBar = new JMenuBar();
+  /** Work around polymorphic interface that's missing from Swing. */
+  private abstract class AbstractMenuAssembler extends ListTokeniserTemplate {
+    protected void token(JComponent component, String menuItemKey) {
+      final JMenuItem menuItem = new JMenuItem();
+      m_actionTable.setAction(menuItem, menuItemKey);
+      component.add(menuItem);
+    }
+  }
 
-    public MenuBarFactory(String resourceName) {
-      iterate(resourceName);
+  private final class MenuAssembler extends AbstractMenuAssembler {
+    public void populate(JMenu menu, String resourceName) {
+      iterate(menu, resourceName);
     }
 
-    public JMenuBar get() {
-      return m_menuBar;
+    protected void dash(JComponent component) {
+      ((JMenu)component).addSeparator();
+    }
+  }
+
+  private final class PopupMenuAssembler extends AbstractMenuAssembler {
+    public void populate(JPopupMenu menu, String resourceName) {
+      iterate(menu, resourceName);
     }
 
-    protected void greaterThan() {
-      m_menuBar.add(Box.createHorizontalGlue());
+    protected void dash(JComponent component) {
+      ((JPopupMenu)component).addSeparator();
+    }
+  }
+
+  private final class MenuBarAssembler extends ListTokeniserTemplate {
+    public void populate(JMenuBar menu, String resourceName) {
+      iterate(menu, resourceName);
     }
 
-    protected void token(String key) {
+    protected void greaterThan(JComponent component) {
+      component.add(Box.createHorizontalGlue());
+    }
+
+    protected void token(JComponent component, String key) {
       final JMenu menu =
         new JMenu(m_model.getResources().getString(key + ".menu.label"));
 
-        new ListTokeniserTemplate() {
-          protected void dash() {
-            menu.addSeparator();
-          }
+      new MenuAssembler().populate(menu, key + ".menu");
 
-          protected void token(String menuItemKey) {
-            final JMenuItem menuItem = new JMenuItem();
-            m_actionTable.setAction(menuItem, menuItemKey);
-            menu.add(menuItem);
-          }
-        }
-        .iterate(key + ".menu");
-
-      m_menuBar.add(menu);
+      component.add(menu);
     }
   }
 
-  private final class ToolBarFactory extends ListTokeniserTemplate {
-    private final JToolBar m_toolBar = new JToolBar();
-
-    public ToolBarFactory(String resourceName) {
-      iterate(resourceName);
+  private final class ToolBarAssembler extends ListTokeniserTemplate {
+    public void populate(JToolBar menu, String resourceName) {
+      iterate(menu, resourceName);
     }
 
-    public JToolBar get() {
-      return m_toolBar;
+    protected void dash(JComponent component) {
+      ((JToolBar)component).addSeparator();
     }
 
-    protected void dash() {
-      m_toolBar.addSeparator();
-    }
-
-    protected void token(String key) {
+    protected void token(JComponent component, String key) {
       final JButton button = new CustomJButton();
-      m_toolBar.add(button);
+      component.add(button);
 
       // Must set the action _after_ adding to the tool bar or the
       // rollover image isn't set correctly.
