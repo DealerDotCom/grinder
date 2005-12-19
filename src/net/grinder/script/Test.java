@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,7 +38,7 @@ import net.grinder.engine.process.TestRegistry;
  * report many different types of thing against the same test, The
  * Grinder will aggregate the results.</p>
  *
- * <p>Creating a <code>Test</code> will automaticaly update The
+ * <p>Creating a <code>Test</code> will automatically update The
  * Grinder console.</p>
  *
  * @author Philip Aston
@@ -91,7 +91,8 @@ public class Test extends AbstractTestSemantics implements Serializable {
    *
    * @param target Object to wrap.
    * @return The proxy.
-   * @exception NotWrappableTypeException If the target object is not wrappable.
+   * @exception NotWrappableTypeException If the target object could not be
+   * wrapped.
    */
   public final Object wrap(Object target) throws NotWrappableTypeException {
     return m_registeredTest.createProxy(target);
