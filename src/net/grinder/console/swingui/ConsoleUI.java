@@ -984,7 +984,7 @@ public final class ConsoleUI implements ModelListener {
       m_fileChooser.addChoosableFileFilter(
         new FileFilter() {
           public boolean accept(File file) {
-            return m_editorModel.isPythonFile(file) | file.isDirectory();
+            return m_editorModel.isPythonFile(file) || file.isDirectory();
           }
 
           public String getDescription() {
