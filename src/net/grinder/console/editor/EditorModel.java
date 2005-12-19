@@ -374,7 +374,10 @@ public final class EditorModel {
    * @return <code>true</code> => its a Python file.
    */
   public boolean isPythonFile(File f) {
-    return f != null && f.isFile() && f.getName().toLowerCase().endsWith(".py");
+    return
+      f != null &&
+      (!f.exists() || f.isFile()) &&
+      f.getName().toLowerCase().endsWith(".py");
   }
 
   /**
