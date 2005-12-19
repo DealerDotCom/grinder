@@ -21,6 +21,8 @@
 
 package net.grinder.console.swingui;
 
+import java.io.File;
+
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -180,7 +182,7 @@ final class BufferTreeModel implements TreeModel {
   /**
    * Node for buffers.
    */
-  public final class BufferNode {
+  public final class BufferNode implements FileTree.Node {
 
     private final Buffer m_buffer;
     private TreePath m_path;
@@ -200,6 +202,14 @@ final class BufferTreeModel implements TreeModel {
 
     public TreePath getPath() {
       return m_path;
+    }
+
+    public File getFile() {
+      return getBuffer().getFile();
+    }
+
+    public boolean canOpen() {
+      return true;
     }
 
     boolean belongsToModel(BufferTreeModel model) {

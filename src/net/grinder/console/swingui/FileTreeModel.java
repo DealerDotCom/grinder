@@ -274,7 +274,7 @@ final class FileTreeModel implements TreeModel {
   /**
    * Node in the tree.
    */
-  public abstract class Node {
+  public abstract class Node implements FileTree.Node {
 
     private final File m_file;
     private final TreePath m_path;
@@ -296,12 +296,20 @@ final class FileTreeModel implements TreeModel {
       return m_file.getName();
     }
 
+    public Buffer getBuffer() {
+      return null;
+    }
+
     public final File getFile() {
       return m_file;
     }
 
     public final TreePath getPath() {
       return m_path;
+    }
+
+    public boolean canOpen() {
+      return false;
     }
 
     boolean belongsToModel(FileTreeModel model) {
@@ -336,6 +344,10 @@ final class FileTreeModel implements TreeModel {
 
     public Buffer getBuffer() {
       return m_buffer;
+    }
+
+    public boolean canOpen() {
+      return true;
     }
   }
 

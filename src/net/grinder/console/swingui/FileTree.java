@@ -29,6 +29,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import javax.swing.ActionMap;
 import javax.swing.Icon;
@@ -52,6 +53,7 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
+import net.grinder.console.swingui.FileTreeModel.FileNode;
 
 
 /**
@@ -74,8 +76,8 @@ final class FileTree {
   private final FileTreeModel m_fileTreeModel;
 
   private final JTree m_tree;
-  private final CustomAction m_openFileAction;
-  private final CustomAction m_setScriptAction;
+  private final OpenAction m_openAction;
+  private final SetScriptAction m_setScriptAction;
   private final JScrollPane m_scrollPane;
 
   public FileTree(Resources resources,
@@ -99,7 +101,7 @@ final class FileTree {
     m_tree = new JTree(compositeTreeModel) {
         /**
          * A new CustomTreeCellRenderer needs to be set whenever the
-         * *L&F changes because its superclass constructor reads the
+         * L&F changes because its superclass constructor reads the
          * resources.
          */
         public void updateUI() {
@@ -123,46 +125,52 @@ final class FileTree {
     m_tree.getSelectionModel().setSelectionMode(
       TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-    m_tree.addMouseListener(new MouseAdapter() {
-        public void mousePressed(MouseEvent e) {
-          if (SwingUtilities.isLeftMouseButton(e)) {
-            final TreePath path =
-              m_tree.getPathForLocation(e.getX(), e.getY());
+    addTreeMouseListener(new MouseAdapter() {
+      private boolean m_handledOnPress;
 
-            if (path == null) {
-              return;
-            }
+      public void mousePressed(MouseEvent e) {
+        m_handledOnPress = false;
 
-            final Object node = path.getLastPathComponent();
+        if (!e.isConsumed() && SwingUtilities.isLeftMouseButton(e)) {
+          final TreePath path =
+            m_tree.getPathForLocation(e.getX(), e.getY());
+
+          if (path == null) {
+            return;
+          }
+
+          final Object selectedNode = path.getLastPathComponent();
+
+          if (selectedNode instanceof Node) {
+            final Node node = (Node)selectedNode;
             final int clickCount = e.getClickCount();
 
-            if (node instanceof BufferTreeModel.BufferNode) {
-              final BufferTreeModel.BufferNode bufferNode =
-                (BufferTreeModel.BufferNode)node;
+            final boolean hasBuffer = node.getBuffer() != null;
 
-              if (clickCount == 2) {
-                setMarkedScript(bufferNode);
-              }
-
-              select(bufferNode);
+            if (clickCount == 2 ||
+                clickCount == 1 && hasBuffer) {
+              m_openAction.invoke(node);
+              m_handledOnPress = true;
+              e.consume();
             }
-            else if (node instanceof FileTreeModel.FileNode) {
-              final FileTreeModel.FileNode fileNode =
-                (FileTreeModel.FileNode)node;
 
-              final boolean fileOpen = fileNode.getBuffer() != null;
-
-              if (clickCount == 2 && fileOpen) {
-                setMarkedScript(fileNode);
-              }
-
-              if (clickCount == 2 || clickCount == 1 && fileOpen) {
-                select(fileNode);
-              }
+            if (clickCount == 2 && hasBuffer &&
+                m_setScriptAction.isEnabled()) {
+              m_setScriptAction.invoke();
+              m_handledOnPress = true;
+              e.consume();
             }
           }
         }
-      });
+      }
+
+      public void mouseReleased(MouseEvent e) {
+        if (m_handledOnPress) {
+          // Prevent downstream event handlers from overriding our good work.
+          e.consume();
+        }
+      }
+    });
 
     m_tree.addTreeSelectionListener(new TreeSelectionListener() {
         public void valueChanged(TreeSelectionEvent e) {
@@ -170,7 +178,7 @@ final class FileTree {
         }
       });
 
-    m_openFileAction = new OpenFileAction();
+    m_openAction = new OpenAction();
     m_setScriptAction = new SetScriptAction();
 
     // J2SE 1.4 drops the mapping from "ENTER" -> "toggle"
@@ -184,13 +192,17 @@ final class FileTree {
 
     final ActionMap actionMap = m_tree.getActionMap();
     actionMap.put("activateNode",
-                  new TeeAction(actionMap.get("toggle"), m_openFileAction));
+                  new TeeAction(actionMap.get("toggle"), m_openAction));
 
     m_scrollPane = new JScrollPane(m_tree);
 
     m_editorModel.addListener(new EditorModelListener());
 
     updateActionState();
+  }
+
+  public void addTreeMouseListener(MouseListener adapter) {
+    m_tree.addMouseListener(adapter);
   }
 
   private class EditorModelListener extends EditorModel.AbstractListener {
@@ -258,7 +270,7 @@ final class FileTree {
   }
 
   public CustomAction getOpenFileAction() {
-    return m_openFileAction;
+    return m_openAction;
   }
 
   public CustomAction getSetScriptAction() {
@@ -268,19 +280,38 @@ final class FileTree {
   /**
    * Action for opening the currently selected file in the tree.
    */
-  private final class OpenFileAction extends CustomAction {
-    public OpenFileAction() {
+  private final class OpenAction extends CustomAction {
+    public OpenAction() {
       super(m_resources, "open-file");
     }
 
-    public void actionPerformed(ActionEvent e) {
-      final Object selectedNode = m_tree.getLastSelectedPathComponent();
+    public void actionPerformed(ActionEvent event) {
+      invoke(m_tree.getLastSelectedPathComponent());
+    }
 
+    public void invoke(Object selectedNode) {
       if (selectedNode instanceof BufferTreeModel.BufferNode) {
-        select((BufferTreeModel.BufferNode)selectedNode);
+        m_editorModel.selectBuffer(
+          ((BufferTreeModel.BufferNode)selectedNode).getBuffer());
       }
       else if (selectedNode instanceof FileTreeModel.FileNode) {
-        select((FileTreeModel.FileNode)selectedNode);
+        final FileNode fileNode = (FileTreeModel.FileNode)selectedNode;
+
+        try {
+          fileNode.setBuffer(
+            m_editorModel.selectBufferForFile(fileNode.getFile()));
+
+          // The above line can add the buffer to the editor model which
+          // causes the BufferTreeModel to fire a top level structure
+          // change, which in turn causes the selection to clear. We
+          // reselect the original node so our actions are enabled
+          // correctly.
+          m_tree.setSelectionPath(treePathForFileNode(fileNode));
+        }
+        catch (ConsoleException e) {
+          m_errorHandler.handleException(
+            e, m_resources.getString("fileError.title"));
+        }
       }
     }
   }
@@ -291,42 +322,47 @@ final class FileTree {
     }
 
     public void actionPerformed(ActionEvent event) {
+      invoke();
+    }
+
+    public void invoke() {
       final Object selectedNode = m_tree.getLastSelectedPathComponent();
 
-      if (selectedNode instanceof BufferTreeModel.BufferNode) {
-        setMarkedScript((BufferTreeModel.BufferNode)selectedNode);
-      }
-      else if (selectedNode instanceof FileTreeModel.FileNode) {
-        setMarkedScript((FileTreeModel.FileNode)selectedNode);
+      if (selectedNode instanceof Node) {
+        final Node node = (Node)selectedNode;
+
+        if (node.getFile().isFile()) {
+          m_editorModel.setMarkedScript(node.getFile());
+          m_bufferTreeModel.valueForPathChanged(node.getPath(), node);
+          updateActionState();
+        }
       }
     }
   }
 
   private void updateActionState() {
     if (m_tree.isEnabled()) {
-      final Object node = m_tree.getLastSelectedPathComponent();
+      final Object selectedNode = m_tree.getLastSelectedPathComponent();
+      if (selectedNode instanceof Node) {
+        final Node node = (Node)selectedNode;
 
-      if (node instanceof FileTreeModel.FileNode) {
-        final FileTreeModel.FileNode fileNode  = (FileTreeModel.FileNode)node;
+        final Buffer buffer = node.getBuffer();
+        final File file = node.getFile();
 
-        m_openFileAction.setEnabled(canOpenBuffer(fileNode.getBuffer()));
-        m_setScriptAction.setEnabled(canMarkFileAsScript(fileNode.getFile()));
+        m_openAction.setEnabled(
+          node.canOpen() &&
+          (buffer == null ||
+           !buffer.equals(m_editorModel.getSelectedBuffer())));
 
-        return;
-      }
-      else if (node instanceof BufferTreeModel.BufferNode) {
-        final BufferTreeModel.BufferNode bufferNode =
-          (BufferTreeModel.BufferNode)node;
-
-        m_openFileAction.setEnabled(canOpenBuffer(bufferNode.getBuffer()));
         m_setScriptAction.setEnabled(
-          canMarkFileAsScript(bufferNode.getBuffer().getFile()));
+          m_editorModel.isPythonFile(file) &&
+          !file.equals(m_editorModel.getMarkedScript()));
 
         return;
       }
     }
 
-    m_openFileAction.setEnabled(false);
+    m_openAction.setEnabled(false);
     m_setScriptAction.setEnabled(false);
   }
 
@@ -355,21 +391,45 @@ final class FileTree {
       JTree tree, Object value, boolean selected, boolean expanded,
       boolean leaf, int row, boolean hasFocus) {
 
-      if (value instanceof BufferTreeModel.BufferNode) {
-        final BufferTreeModel.BufferNode bufferNode =
-          (BufferTreeModel.BufferNode)value;
+      if (value instanceof Node) {
+        final Node node = (Node)value;
 
-        final Buffer buffer = bufferNode.getBuffer();
+        final File file = node.getFile();
 
-        setForFileAndBuffer(buffer.getFile(), buffer);
+        if (file != null && !file.isFile()) {
+          return m_defaultRenderer.getTreeCellRendererComponent(
+            tree, value, selected, expanded, leaf, row, hasFocus);
+        }
 
-        return super.getTreeCellRendererComponent(
-          tree, value, selected, expanded, leaf, row, hasFocus);
-      }
-      else if (value instanceof FileTreeModel.FileNode) {
-        final FileTreeModel.FileNode fileNode = (FileTreeModel.FileNode)value;
+        final Icon icon;
 
-        setForFileAndBuffer(fileNode.getFile(), fileNode.getBuffer());
+        if (file != null && file.equals(m_editorModel.getMarkedScript())) {
+          icon = m_markedScriptIcon;
+        }
+        else if (m_editorModel.isPythonFile(file)) {
+          icon = m_pythonIcon;
+        }
+        else {
+          icon = m_defaultRenderer.getLeafIcon();
+        }
+
+        setLeafIcon(icon);
+
+        final Buffer buffer = node.getBuffer();
+
+        setTextNonSelectionColor(
+          buffer == null && m_editorModel.isBoringFile(file) ?
+          Colours.INACTIVE_TEXT : m_defaultRenderer.getTextNonSelectionColor());
+
+        if (buffer != null) {
+          // File has an open buffer.
+          setFont(buffer.isDirty() ? m_boldItalicFont : m_boldFont);
+          m_active = buffer.equals(m_editorModel.getSelectedBuffer());
+        }
+        else {
+          setFont(m_defaultRenderer.getFont());
+          m_active = false;
+        }
 
         return super.getTreeCellRendererComponent(
           tree, value, selected, expanded, leaf, row, hasFocus);
@@ -378,37 +438,6 @@ final class FileTree {
         return m_defaultRenderer.getTreeCellRendererComponent(
           tree, value, selected, expanded, leaf, row, hasFocus);
       }
-    }
-
-    private void setForFileAndBuffer(File file, Buffer buffer) {
-
-      final Icon icon;
-
-      if (file != null && file.equals(m_editorModel.getMarkedScript())) {
-        icon = m_markedScriptIcon;
-      }
-      else if (m_editorModel.isPythonFile(file)) {
-        icon = m_pythonIcon;
-      }
-      else {
-        icon = m_defaultRenderer.getLeafIcon();
-      }
-
-      setLeafIcon(icon);
-
-      setTextNonSelectionColor(
-        buffer == null && m_editorModel.isBoringFile(file) ?
-        Colours.INACTIVE_TEXT : m_defaultRenderer.getTextNonSelectionColor());
-
-      if (buffer != null) {
-        // File is open.
-        setFont(buffer.isDirty() ? m_boldItalicFont : m_boldFont);
-      }
-      else {
-        setFont(m_defaultRenderer.getFont());
-      }
-
-      m_active = buffer != null && m_editorModel.getSelectedBuffer() == buffer;
     }
 
     /**
@@ -504,58 +533,23 @@ final class FileTree {
     return new TreePath(result);
   }
 
-  private void select(BufferTreeModel.BufferNode bufferNode) {
-    m_editorModel.selectBuffer(bufferNode.getBuffer());
-  }
+  /**
+   * Allows us to treat FileNodes and BufferNodes polymorphically.
+   */
+  interface Node {
 
-  private void select(FileTreeModel.FileNode fileNode) {
-    try {
-      fileNode.setBuffer(
-        m_editorModel.selectBufferForFile(fileNode.getFile()));
+    /**
+     * @return <code>null</code> if the node has no associated buffer.
+     */
+    Buffer getBuffer();
 
-      // The above line can add the buffer to the editor model which
-      // causes the BufferTreeModel to fire a top level structure
-      // change, which in turn causes the selection to clear. We
-      // reselect the original node so our actions are enabled
-      // correctly.
-      m_tree.setSelectionPath(treePathForFileNode(fileNode));
-    }
-    catch (ConsoleException e) {
-      m_errorHandler.handleException(
-        e, m_resources.getString("fileError.title"));
-    }
-  }
+    /**
+     * @return <code>null</code> if the node has no associated file.
+     */
+    File getFile();
 
-  private void setMarkedScript(BufferTreeModel.BufferNode bufferNode) {
-    final File file = bufferNode.getBuffer().getFile();
+    TreePath getPath();
 
-    if (canMarkFileAsScript(file)) {
-      m_editorModel.setMarkedScript(file);
-      m_bufferTreeModel.valueForPathChanged(bufferNode.getPath(), bufferNode);
-      updateActionState();
-    }
-  }
-
-  private void setMarkedScript(FileTreeModel.FileNode fileNode) {
-    final File file = fileNode.getFile();
-
-    if (canMarkFileAsScript(file)) {
-      m_editorModel.setMarkedScript(file);
-      m_fileTreeModel.valueForPathChanged(fileNode.getPath(), fileNode);
-      updateActionState();
-    }
-  }
-
-  private boolean canOpenBuffer(Buffer buffer) {
-    return
-      buffer != null &&
-      !buffer.equals(m_editorModel.getSelectedBuffer());
-  }
-
-  private boolean canMarkFileAsScript(File file) {
-    return
-      file != null &&
-      m_editorModel.isPythonFile(file) &&
-      !file.equals(m_editorModel.getMarkedScript());
+    boolean canOpen();
   }
 }
