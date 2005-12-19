@@ -89,6 +89,7 @@ public class TestBufferTreeModel extends TestCase {
     assertEquals(2, path.length);
     assertSame(rootNode, path[0]);
     assertSame(bufferNode, path[1]);
+    assertTrue(bufferNode.canOpen());
 
     final BufferTreeModel.BufferNode anotherBufferNode =
       new BufferTreeModel(editorModel).new BufferNode(null);
@@ -107,6 +108,7 @@ public class TestBufferTreeModel extends TestCase {
 
     assertTrue(bufferTreeModel.isLeaf(bufferNode));
     assertFalse(bufferTreeModel.isLeaf(rootNode));
+    assertFalse(bufferTreeModel.isLeaf(anotherBufferNode));
   }
 
   public void testSettersAndListeners() throws Exception {
