@@ -33,6 +33,7 @@ import org.python.core.PyClass;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
+import org.python.core.PyJavaClass;
 import org.python.core.PyMethod;
 import org.python.core.PyObject;
 import org.python.core.PyProxy;
@@ -76,12 +77,10 @@ public final class JythonScriptEngine implements ScriptEngine {
   public JythonScriptEngine(ScriptContext scriptContext)
     throws EngineException {
 
-    m_versionAdapter = new JythonVersionAdapter();
-
     PySystemState.initialize();
-
     m_systemState = new PySystemState();
     m_interpreter = new PythonInterpreter(null, m_systemState);
+    m_versionAdapter = new JythonVersionAdapter();
 
     m_interpreter.set(
       "grinder",
@@ -351,11 +350,12 @@ public final class JythonScriptEngine implements ScriptEngine {
           throw new JythonScriptExecutionException(
             "deleting test runner object", e);
         }
+        finally {
+          // To avoid the (pretty small) chance of the test runner being
+          // finalised and __del__ being run twice, we disable it.
+          m_versionAdapter.disableDel(m_testRunner);
+        }
       }
-
-      // To avoid the (pretty small) chance of the test runner being
-      // finalised and __del__ being run twice, we disable it.
-      m_versionAdapter.disableDel(m_testRunner);
     }
   }
 
@@ -407,6 +407,9 @@ public final class JythonScriptEngine implements ScriptEngine {
   private class JythonVersionAdapter {
     private final Field m_instanceClassField;
 
+    // The softly spoken Welshman.
+    private final PyClass m_dieQuietly = PyJavaClass.lookup(Object.class);
+
     public JythonVersionAdapter() throws EngineException {
       Field f;
 
@@ -428,11 +431,11 @@ public final class JythonScriptEngine implements ScriptEngine {
     }
 
     public void disableDel(PyObject pyObject) {
-      //  Unfortunately, Jython caches the __del__ attribute and makes
+      // Unfortunately, Jython caches the __del__ attribute and makes
       // it impossible to turn it off at a class level. Instead we do
       // this:
       try {
-        m_instanceClassField.set(pyObject, null);
+        m_instanceClassField.set(pyObject, m_dieQuietly);
       }
       catch (IllegalArgumentException e) {
         throw new AssertionError(e);
