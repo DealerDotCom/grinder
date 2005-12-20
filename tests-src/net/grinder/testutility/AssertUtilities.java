@@ -121,13 +121,14 @@ public class AssertUtilities extends Assert {
 
   public static void assertStartsWith(String text, String value) {
     assertTrue("'" + text + "' starts with '" + value + "'",
-                 text.indexOf(value) == 0);
+               text != null && text.indexOf(value) == 0);
   }
 
   public static void assertContains(String text, String value) {
-    assertTrue("Contains '" + value + "'", text.indexOf(value) >= 0);
+    assertTrue("'" + text + "' contains '" + value + "'",
+               text != null && text.indexOf(value) >= 0);
   }
-  
+
   public static void assertEndsWith(String text, String value) {
     assertEquals("'" + text + "' ends with '" + value + "'",
                  text.length() - value.length(),
