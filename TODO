@@ -77,7 +77,7 @@ Task: If dirty buffers on play, optionally warn.
 Task: Merge worker and agent process status models. Update process tab
 to show both.
 
-***** Release 5
+***** Release 5 (done)
 
 Task: Add warning if saving outside of distribution.
 Task: Console to watch local file system for edits, trigger need to distribute.
@@ -85,13 +85,15 @@ Task: Regularly update the tree to match file system.
 Task: Write some tests for FileTree.
 Task: Warnings for buffers whose file is modified outside of editor.
 
+***** Release 6
+
 Task: External editor integration.
 Task: The agent should pick up secondary grinder.properties from file
 cache.
 Task: Console to optionally auto broadcast on play. Need some way of
 synchronising before starting run.
 
-***** Release 6
+***** Release 7
 
 Task: Addressed messaging. Every Acceptor.SocketResource to know its
 remote EndPoint. Add FilteredFanOutServerSender (Extend
