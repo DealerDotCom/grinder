@@ -1,3 +1,86 @@
+2005-12-20  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta28 is released.
+
+	* examples/grinder.properties: Revert erroneous change.
+
+	* TODO: Done enough console stuff for the next release.
+
+	* tests-src/net/grinder/engine/process/TestJythonScriptEngine.java, tests-src/net/grinder/engine/process/TestJythonScriptExecutionException.java, tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java, tests-src/net/grinder/engine/process/jython/TestJythonScriptExecutionException.java:
+	Test JythonScriptEngine.
+
+	* src/net/grinder/engine/process/jython/JythonScriptEngine.java:
+	Fix disabling of __del__ so that the finalizer doesn't log messages.
+
+	* tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java:
+	Fix for change to CallRecorder.getCallData().
+
+	* src/net/grinder/engine/process/jython/JythonScriptExecutionException.java:
+	Make package scope.
+
+	* src/net/grinder/engine/process/jython/JythonScriptEngine.java:
+	Fix invocation of del().
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	Better message if we run out of calls.
+
+	* tests-src/net/grinder/testutility/AssertUtilities.java:
+	Cope more gracefully with some null imports.
+
+	* examples/grinder.properties, src/org/python/core/ClonePyInstance.java, tests-src/net/grinder/engine/process/TestJythonScriptEngine.java, tests-src/net/grinder/engine/process/TestJythonScriptExecutionException.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java, tests-src/net/grinder/engine/process/TestTestRegistry.java, CHANGES, etc/checkstyle-suppressions.xml, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/InstrumentedPyInstance.java, src/net/grinder/engine/process/InstrumentedPyJavaInstance.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/ScriptEngine.java, tests-src/net/grinder/engine/process/StubTestRegistry.java, tests-src/net/grinder/engine/process/TestTestData.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/InstrumentedPyReflectedFunction.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/engine/process/jython/InstrumentedPyInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java, src/net/grinder/engine/process/jython/JythonScriptEngine.java, src/net/grinder/engine/process/jython/JythonScriptExecutionException.java, src/net/grinder/engine/process/jython/package.html:
+	Abstract out ScriptEngine interface.
+	Move jython script engine to separate package.
+	Support Jython 2.2a1.
+	Add __test__ fields by overriding __findattr__() rather than ifindlocal().
+	Add  __test__ field to instrumented PyReflectedFunctions.
+
+	* tests-src/net/grinder/testutility/SimpleEqualityDecoration.java:
+	Correct comment spelling.
+
+2005-12-19  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/script/Test.java: Correct comment spelling.
+
+	* tests-src/net/grinder/console/swingui/TestBufferTreeModel.java:
+	Coverage.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Logical OR, not bit-wise.
+
+	* src/net/grinder/console/editor/EditorModel.java:
+	isPythonFile() does match .py files that don't exist.
+
+	* CHANGES, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties:
+	Right mouse menu for file tree.
+
+	* src/net/grinder/console/editor/EditorModel.java:
+	isPythonFile() doesn't match directories.
+
+	* src/net/grinder/console/swingui/BufferTreeModel.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/FileTreeModel.java:
+	Refactoring.
+
+2005-12-18  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Refactor to remove some private methods.
+
+	* src/net/grinder/console/swingui/resources/Console_pl.properties, src/net/grinder/console/swingui/resources/Console_ru.properties:
+	Don't specify the menu structure in translations.
+
+	* src/net/grinder/console/swingui/resources/Console.properties:
+	Removed menu structure from wrong file - undo.
+	Make directions clearer.
+
+	* src/net/grinder/console/swingui/resources/Console.properties:
+	Don't specify the menu structure in translations.
+
+	* etc/checkstyle.properties:
+	Eclipse project location has changed again.
+	Annoying that we need to specify absolute paths here.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java:
+	Remove unused import.
+
 2005-12-17  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/HTTPClient/Cookie.java, tests-src/HTTPClient/TestCookie.java:
