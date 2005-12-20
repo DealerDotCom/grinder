@@ -36,8 +36,7 @@ import net.grinder.engine.process.ScriptEngine.ScriptExecutionException;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class JythonScriptExecutionException
-  extends ScriptExecutionException {
+final class JythonScriptExecutionException extends ScriptExecutionException {
 
   private final String m_message;
   private final String m_shortMessage;
