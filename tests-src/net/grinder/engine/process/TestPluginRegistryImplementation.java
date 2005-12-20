@@ -21,6 +21,7 @@
 
 package net.grinder.engine.process;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import java.util.List;
@@ -123,7 +124,8 @@ public class TestPluginRegistryImplementation extends TestCase {
         }
       }
     }
-    catch (NoSuchElementException e) {
+    catch (AssertionFailedError e) {
+      // No more calls.
       return null;
     }
   }
