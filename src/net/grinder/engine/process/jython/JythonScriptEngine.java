@@ -131,7 +131,7 @@ public final class JythonScriptEngine implements ScriptEngine {
    */
   public WorkerRunnable createWorkerRunnable()
     throws EngineException {
-    return new JythonThreadRunnable();
+    return new JythonWorkerRunnable();
   }
 
   /**
@@ -282,12 +282,12 @@ public final class JythonScriptEngine implements ScriptEngine {
   /**
    * Wrapper for script's TestRunner.
    */
-  private final class JythonThreadRunnable
+  private final class JythonWorkerRunnable
     implements ScriptEngine.WorkerRunnable {
 
     private final PyObject m_testRunner;
 
-    private JythonThreadRunnable() throws EngineException {
+    private JythonWorkerRunnable() throws EngineException {
       try {
         // Script does per-thread initialisation here and
         // returns a callable object.
@@ -345,7 +345,7 @@ public final class JythonScriptEngine implements ScriptEngine {
 
       if (del != null) {
         try {
-          del.__call__(m_testRunner);
+          del.__call__();
         }
         catch (PyException e) {
           throw new JythonScriptExecutionException(
