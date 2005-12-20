@@ -23,17 +23,10 @@ package net.grinder.engine.process;
 
 import junit.framework.TestCase;
 
-import java.util.Random;
-
-import org.python.core.Py;
-import org.python.core.PyObject;
-import org.python.core.PySystemState;
-import org.python.util.PythonInterpreter;
-
 import net.grinder.common.Test;
 import net.grinder.common.StubTest;
 import net.grinder.engine.common.EngineException;
-import net.grinder.script.NotWrappableTypeException;
+import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.CallData;
@@ -58,14 +51,14 @@ public class TestTestData extends TestCase {
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
     final TestData testData1 =
-      new TestData(threadContextLocator, test1, statisticsSetFactory);
+      new TestData(null, threadContextLocator, statisticsSetFactory, test1);
     assertEquals(test1, testData1.getTest());
     assertNotNull(testData1.getStatistics());
 
     final Test test2 = new StubTest(-33, "");
 
     final TestData testData2 =
-      new TestData(threadContextLocator, test2, statisticsSetFactory);
+      new TestData(null, threadContextLocator, statisticsSetFactory, test2);
     assertEquals(test2, testData2.getTest());
     assertNotNull(testData2.getStatistics());
   }
@@ -80,11 +73,11 @@ public class TestTestData extends TestCase {
 
     final Test test = new StubTest(2, "A description");
     final TestData testData =
-      new TestData(threadContextLocator, test, statisticsSetFactory);
+      new TestData(null, threadContextLocator, statisticsSetFactory, test);
 
-    final TestData.Invokeable invokeable =
-      (TestData.Invokeable)
-      (new RandomStubFactory(TestData.Invokeable.class)).getStub();
+    final Dispatcher.Invokeable invokeable =
+      (Dispatcher.Invokeable)
+      (new RandomStubFactory(Dispatcher.Invokeable.class)).getStub();
 
     try {
       testData.dispatch(invokeable);
@@ -124,7 +117,7 @@ public class TestTestData extends TestCase {
 
     public Object override_invokeTest(Object proxy,
                                       TestData testData,
-                                      TestData.Invokeable invokeable) {
+                                      Dispatcher.Invokeable invokeable) {
       assertSame(m_expectedTestData, testData);
       return invokeable.call();
     }
@@ -135,138 +128,23 @@ public class TestTestData extends TestCase {
   }
 
   public void testCreateProxy() throws Exception {
-
-    System.setProperty("python.verbose", "warning");
-
-    PySystemState.initialize();
-
-    final PySystemState systemState = new PySystemState();
-    final PythonInterpreter interpreter =
-      new PythonInterpreter(null, systemState);
-
-    final ThreadContextLocator threadContextLocator =
-      new StubThreadContextLocator();
-
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
-    final Test test = new StubTest(0, "");
-    final TestData testData =
-      new TestData(threadContextLocator, test, statisticsSetFactory);
-
-    final ThreadContextStubFactory threadContextStubFactory =
-      new ThreadContextStubFactory(testData);
-
-    threadContextLocator.set(threadContextStubFactory.getThreadContext());
-
-    // PyFunction.
-    interpreter.exec("def blah(): return 1");
-    final PyObject pyFunction = interpreter.get("blah");
-    final PyObject pyFunctionProxy =
-      (PyObject)testData.createProxy(pyFunction);
-    final PyObject result1 = pyFunctionProxy.invoke("__call__");
-    assertEquals(new Integer(1), result1.__tojava__(Integer.class));
-
-    // PyInstance.
-    interpreter.exec("class Foo:\n def bah(self): return 2\nx=Foo()");
-    final PyObject pyInstance = interpreter.get("x");
-    final PyObject pyInstanceProxy =
-      (PyObject)testData.createProxy(pyInstance);
-    final PyObject result2 = pyInstanceProxy.invoke("bah");
-    assertEquals(new Integer(2), result2.__tojava__(Integer.class));
-
-    // PyMethod.
-    interpreter.exec("x=Foo.bah");
-    final PyObject pyMethod = interpreter.get("x");
-    final PyObject pyMethodProxy = (PyObject)testData.createProxy(pyMethod);
-    final PyObject result3 = pyMethodProxy.invoke("__call__", pyInstanceProxy);
-    assertEquals(new Integer(2), result3.__tojava__(Integer.class));
-
-    // PyJavaInstance.
-    interpreter.exec("from java.util import Random\nx=Random()");
-    final PyObject pyJava = interpreter.get("x");
-    final PyObject pyJavaProxy = (PyObject)testData.createProxy(pyJava);
-    final PyObject result4 = pyJavaProxy.invoke("getClass");
-    assertEquals(Random.class, result4.__tojava__(Class.class));
-
-    // PyReflectedFunction
-    interpreter.exec("y=Random.nextInt");
-    final PyObject pyJavaMethod = interpreter.get("y");
-    final PyObject pyJavaMethodProxy =
-      (PyObject)testData.createProxy(pyJavaMethod);
-    final PyObject result5 = pyJavaMethodProxy.__call__(pyJava);
-    assertTrue(result5.__tojava__(Object.class) instanceof Integer);
-
-    // PyProxy. PyProxy's come paired with PyInstances - need to call
-    // __tojava__ to get the PyProxy.
-    interpreter.exec("class PyRandom(Random):\n def one(self): return 1\n" +
-                     "x=PyRandom()");
-    final Object pyProxy = interpreter.get("x").__tojava__(Object.class);
-    final PyObject pyProxyProxy = (PyObject)testData.createProxy(pyProxy);
-    final PyObject result7 = pyProxyProxy.invoke("one");
-    assertEquals(new Integer(1), result7.__tojava__(Integer.class));
-
-
-    // Java object.
-    final Object java = new MyClass();
-    final PyObject javaProxy = (PyObject)testData.createProxy(java);
-    final PyObject result8 = javaProxy.invoke("addOne",
-                                              Py.java2py(new Integer(10)));
-    assertEquals(new Integer(11), result8.__tojava__(Integer.class));
-  }
-
-  public static class MyClass {
-    public int addOne(int i) {
-      return i + 1;
-    }
-  }
-
-  public void testCreateProxyWithNonWrappableParameters() throws Exception {
-
-    // Can't wrap arrays.
-    assertNotWrappable(new int[] { 1, 2, 3 });
-    assertNotWrappable(new Object[] { "foo", new Object() });
-
-    // Can't wrap strings.
-    assertNotWrappable("foo bah");
-    assertNotWrappable(new String());
-
-    // Can't wrap numbers.
-    assertNotWrappable(new Long(56));
-    assertNotWrappable(new Integer(56));
-    assertNotWrappable(new Short((short)56));
-    assertNotWrappable(new Byte((byte)56));
-
-    PySystemState.initialize();
-
-    final PySystemState systemState = new PySystemState();
-    final PythonInterpreter interpreter =
-      new PythonInterpreter(null, systemState);
-
-    // Can't wrap PyInteger.
-    interpreter.exec("x=1");
-    assertNotWrappable(interpreter.get("x"));
-
-    // Can't wrap PyClass.
-    interpreter.exec("class Foo: pass");
-    assertNotWrappable(interpreter.get("Foo"));
-  }
-
-  private void assertNotWrappable(Object o) throws Exception {
-
-    final Test test = new StubTest(0, "");
-
-    final StatisticsSetFactory statisticsSetFactory =
-      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+    final RandomStubFactory scriptEngineStubFactory =
+      new RandomStubFactory(ScriptEngine.class);
+    final ScriptEngine scriptEngine =
+      (ScriptEngine)scriptEngineStubFactory.getStub();
 
     final TestData testData =
-      new TestData(new StubThreadContextLocator(), test, statisticsSetFactory);
+      new TestData(scriptEngine, null, statisticsSetFactory, null);
 
-    try {
-      testData.createProxy(o);
-      fail("Expected NotWrappableTypeException");
-    }
-    catch (NotWrappableTypeException e) {
-    }
+    final Object original = new Object();
+
+    testData.createProxy(original);
+
+    scriptEngineStubFactory.assertSuccess(
+      "createInstrumentedProxy", null, testData, original);
+    scriptEngineStubFactory.assertNoMoreCalls();
   }
 }

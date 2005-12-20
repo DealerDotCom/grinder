@@ -19,11 +19,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.engine.process.jython;
 
-import net.grinder.common.UncheckedGrinderException;
+import net.grinder.common.Test;
+import net.grinder.engine.process.ScriptEngine.Dispatcher;
+import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
-import org.python.core.Py;
 import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
 
@@ -34,41 +35,30 @@ import org.python.core.PyObject;
  * @author Philip Aston
  * @version $Revision$
  */
-class InstrumentedPyJavaInstance extends PyJavaInstance {
-  private final TestData m_testData;
+final class InstrumentedPyJavaInstance extends PyJavaInstance {
+  private final PyDispatcher m_dispatcher;
   private final PyObject m_pyTest;
 
-  public InstrumentedPyJavaInstance(TestData testData, Object target) {
+  public InstrumentedPyJavaInstance(Test test,
+                                    PyDispatcher dispatcher,
+                                    Object target) {
     super(target);
 
-    m_testData = testData;
-    m_pyTest = new PyJavaInstance(testData.getTest());
+    m_dispatcher = dispatcher;
+    m_pyTest = new PyJavaInstance(test);
   }
 
-  private PyObject dispatch(TestData.Invokeable invokeable) {
-    try {
-      return (PyObject)m_testData.dispatch(invokeable);
-    }
-    catch (UncheckedGrinderException e) {
-      // Don't translate our unchecked exceptions.
-      throw e;
-    }
-    catch (Exception e) {
-      throw Py.JavaError(e);
-    }
-  }
-
-  protected PyObject ifindlocal(String name) {
+  public PyObject __findattr__(String name) {
     if (name == "__test__") { // Valid because name is interned.
       return m_pyTest;
     }
 
-    return super.ifindlocal(name);
+    return super.__findattr__(name);
   }
 
   public PyObject invoke(final String name) {
-    return dispatch(
-      new TestData.Invokeable() {
+    return m_dispatcher.dispatch(
+      new Dispatcher.Invokeable() {
         public Object call() {
           return InstrumentedPyJavaInstance.super.invoke(name);
         }
@@ -77,8 +67,8 @@ class InstrumentedPyJavaInstance extends PyJavaInstance {
   }
 
   public PyObject invoke(final String name, final PyObject arg1) {
-    return dispatch(
-      new TestData.Invokeable() {
+    return m_dispatcher.dispatch(
+      new Dispatcher.Invokeable() {
         public Object call() {
           return InstrumentedPyJavaInstance.super.invoke(name, arg1);
         }
@@ -88,8 +78,8 @@ class InstrumentedPyJavaInstance extends PyJavaInstance {
 
   public PyObject invoke(final String name, final PyObject arg1,
                          final PyObject arg2) {
-    return dispatch(
-      new TestData.Invokeable() {
+    return m_dispatcher.dispatch(
+      new Dispatcher.Invokeable() {
         public Object call() {
           return InstrumentedPyJavaInstance.super.invoke(name, arg1, arg2);
         }
@@ -98,8 +88,8 @@ class InstrumentedPyJavaInstance extends PyJavaInstance {
   }
 
   public PyObject invoke(final String name, final PyObject[] args) {
-    return dispatch(
-      new TestData.Invokeable() {
+    return m_dispatcher.dispatch(
+      new Dispatcher.Invokeable() {
         public Object call() {
           return InstrumentedPyJavaInstance.super.invoke(name, args);
         }
@@ -109,8 +99,8 @@ class InstrumentedPyJavaInstance extends PyJavaInstance {
 
   public PyObject invoke(final String name, final PyObject[] args,
                          final String[] keywords) {
-    return dispatch(
-      new TestData.Invokeable() {
+    return m_dispatcher.dispatch(
+      new Dispatcher.Invokeable() {
         public Object call() {
           return InstrumentedPyJavaInstance.super.invoke(name, args, keywords);
         }

@@ -129,7 +129,7 @@ final class ThreadContextImplementation
    * interface.
    */
   public Object invokeTest(TestData testData, TestData.Invokeable invokeable)
-    throws JythonScriptExecutionException, ShutdownException {
+    throws ShutdownException {
 
     if (m_processContext.getShutdown()) {
       throw new ShutdownException("Process has been shutdown");

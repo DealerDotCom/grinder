@@ -29,6 +29,7 @@ import java.util.List;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.process.ScriptEngine.ScriptExecutionException;
 import net.grinder.util.Sleeper;
 
 
@@ -51,7 +52,7 @@ class GrinderThread implements java.lang.Runnable {
 
   private final Object m_notifyOnCompletion;
   private final ProcessContext m_processContext;
-  private final JythonScript m_jythonScript;
+  private final ScriptEngine m_scriptEngine;
   private final ThreadContext m_context;
 
   private final long m_initialSleepTime;
@@ -63,13 +64,13 @@ class GrinderThread implements java.lang.Runnable {
   public GrinderThread(Object notifyOnCompletion,
                        ProcessContext processContext,
                        LoggerImplementation loggerImplementation,
-                       JythonScript jythonScript,
+                       ScriptEngine scriptEngine,
                        int threadID)
     throws EngineException {
 
     m_notifyOnCompletion = notifyOnCompletion;
     m_processContext = processContext;
-    m_jythonScript = jythonScript;
+    m_scriptEngine = scriptEngine;
 
     m_context =
       new ThreadContextImplementation(
@@ -101,8 +102,8 @@ class GrinderThread implements java.lang.Runnable {
     logger.setCurrentRunNumber(-1);
 
     try {
-      final JythonScript.JythonRunnable jythonRunnable =
-        m_jythonScript.new JythonRunnable();
+      final ScriptEngine.WorkerRunnable scriptThreadRunnable =
+        m_scriptEngine.createWorkerRunnable();
 
       m_processContext.getSleeper().sleepFlat(m_initialSleepTime);
 
@@ -125,9 +126,9 @@ class GrinderThread implements java.lang.Runnable {
         m_beginRunCaller.run();
 
         try {
-          jythonRunnable.run();
+          scriptThreadRunnable.run();
         }
-        catch (JythonScriptExecutionException e) {
+        catch (ScriptExecutionException e) {
           final Throwable cause = e.getCause();
 
           if (cause instanceof ShutdownException ||
@@ -152,9 +153,9 @@ class GrinderThread implements java.lang.Runnable {
                     (currentRun == 1 ? " run" : " runs"));
 
       try {
-        jythonRunnable.shutdown();
+        scriptThreadRunnable.shutdown();
       }
-      catch (JythonScriptExecutionException e) {
+      catch (ScriptExecutionException e) {
         // Sadly PrintWriter only exposes its lock object to subclasses.
         synchronized (errorWriter) {
           logger.error(
@@ -163,7 +164,7 @@ class GrinderThread implements java.lang.Runnable {
         }
       }
     }
-    catch (JythonScriptExecutionException e) {
+    catch (ScriptExecutionException e) {
       synchronized (errorWriter) {
         logger.error("Aborting thread due to " + e.getShortMessage());
         e.printStackTrace(errorWriter);

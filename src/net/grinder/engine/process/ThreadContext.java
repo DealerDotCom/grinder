@@ -47,7 +47,7 @@ interface ThreadContext {
   PluginThreadContext getPluginThreadContext();
 
   Object invokeTest(TestData testData, TestData.Invokeable invokeable)
-    throws JythonScriptExecutionException, ShutdownException;
+    throws ShutdownException;
 
   SSLContextFactory getThreadSSLContextFactory();
 

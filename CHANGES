@@ -34,6 +34,9 @@ Grinder 3.0-beta28 (Not yet released)
 
   Added a popup menu to the editor file tree.
 
+  Add support for Jython 2.2a1. Just add the new jython.jar to your CLASSPATH.
+  Thanks to Martin Wagner for prompting me to do this.
+
 
 Grinder 3.0-beta27
 ------------------

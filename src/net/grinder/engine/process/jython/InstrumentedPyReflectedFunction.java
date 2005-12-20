@@ -19,26 +19,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.engine.process.jython;
 
-import net.grinder.common.UncheckedGrinderException;
+import net.grinder.common.Test;
+import net.grinder.engine.process.ScriptEngine.Dispatcher;
+import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
-import org.python.core.Py;
+import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
 import org.python.core.PyReflectedFunction;
 
 
 /**
- * An instrumented <code>PyJavaInstance</code>.
+ * An instrumented <code>PyReflectedFunction</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 class InstrumentedPyReflectedFunction extends PyReflectedFunction {
-  private final TestData m_testData;
+  private final PyDispatcher m_dispatcher;
+  private final PyObject m_pyTest;
 
-  public InstrumentedPyReflectedFunction(TestData testData,
-                                 PyReflectedFunction target) {
+  public InstrumentedPyReflectedFunction(Test test,
+                                         PyDispatcher dispatcher,
+                                         PyReflectedFunction target) {
     super(target.__name__);
 
     // We follow the same logic as PyReflectedFunction.copy(), except we
@@ -47,28 +51,28 @@ class InstrumentedPyReflectedFunction extends PyReflectedFunction {
     nargs = target.nargs;
     argslist = target.argslist;
 
-    m_testData = testData;
+    m_dispatcher = dispatcher;
+    m_pyTest = new PyJavaInstance(test);
+  }
+
+  public PyObject __findattr__(String name) {
+    if (name == "__test__") { // Valid because name is interned.
+      return m_pyTest;
+    }
+
+    return super.__findattr__(name);
   }
 
   public PyObject __call__(final PyObject self, final PyObject[] args,
                            final String[] keywords) {
 
-    try {
-      return (PyObject)m_testData.dispatch(
-        new TestData.Invokeable() {
-          public Object call() {
-            return InstrumentedPyReflectedFunction.super.__call__(
-              self, args, keywords);
-          }
-        });
-    }
-    catch (UncheckedGrinderException e) {
-      // Don't translate our unchecked exceptions.
-      throw e;
-    }
-    catch (Exception e) {
-      throw Py.JavaError(e);
-    }
+    return m_dispatcher.dispatch(
+      new Dispatcher.Invokeable() {
+        public Object call() {
+          return InstrumentedPyReflectedFunction.super.__call__(
+            self, args, keywords);
+        }
+      });
   }
 }
 

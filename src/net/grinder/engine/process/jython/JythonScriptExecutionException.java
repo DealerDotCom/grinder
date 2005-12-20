@@ -19,14 +19,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.engine.process.jython;
 
 import org.python.core.Py;
 import org.python.core.PyClass;
 import org.python.core.PyException;
 import org.python.core.PyTraceback;
 
-import net.grinder.engine.common.EngineException;
+import net.grinder.engine.process.ScriptEngine.ScriptExecutionException;
 
 
 /**
@@ -36,7 +36,8 @@ import net.grinder.engine.common.EngineException;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class JythonScriptExecutionException extends EngineException {
+public final class JythonScriptExecutionException
+  extends ScriptExecutionException {
 
   private final String m_message;
   private final String m_shortMessage;

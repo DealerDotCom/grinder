@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,6 +28,7 @@ import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
+import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.statistics.TestStatisticsMap;
@@ -67,8 +68,13 @@ public final class TestRegistry {
   private final StatisticsSetFactory m_statisticsSetFactory;
 
   /**
+   * A map of Tests to Statistics for passing elsewhere.
+   */
+  private final TestStatisticsMap m_testStatisticsMap;
+
+  /**
    * A map of Test to TestData's. (TestData is the class this
-   * package uses to store information about Tests). Synchronize on
+   * package uses to store information about Tests). Synchronise on
    * instance when accessing.
    */
   private final Map m_testMap = new TreeMap();
@@ -79,10 +85,7 @@ public final class TestRegistry {
    */
   private Collection m_newTests = null;
 
-  /**
-   * A map of Tests to Statistics for passing elsewhere.
-   */
-  private final TestStatisticsMap m_testStatisticsMap;
+  private ScriptEngine m_scriptEngine;
 
   /**
    * Constructor.
@@ -97,9 +100,12 @@ public final class TestRegistry {
   /**
    * Register a new test.
    *
-   * @param test The test.
-   * @return A handle to the test.
-   * @exception GrinderException if an error occurs
+   * @param test
+   *          The test.
+   * @return A ProxyFactory that can be used to create proxies instrumented for
+   *         the test.
+   * @exception GrinderException
+   *              if an error occurs
    */
   public RegisteredTest register(Test test) throws GrinderException {
 
@@ -112,8 +118,15 @@ public final class TestRegistry {
         return existing;
       }
 
-      newTestData =
-        new TestData(m_threadContextLocator, test, m_statisticsSetFactory);
+      if (m_scriptEngine == null) {
+        throw new EngineException("Script Engine not set");
+      }
+
+      newTestData = new TestData(m_scriptEngine,
+                                 m_threadContextLocator,
+                                 m_statisticsSetFactory,
+                                 test);
+
       m_testMap.put(test, newTestData);
       m_testStatisticsMap.put(test, newTestData.getStatistics());
 
@@ -128,6 +141,10 @@ public final class TestRegistry {
     }
 
     return newTestData;
+  }
+
+  void setScriptEngine(ScriptEngine scriptEngine) {
+    m_scriptEngine = scriptEngine;
   }
 
   TestStatisticsMap getTestStatisticsMap() {
@@ -157,7 +174,7 @@ public final class TestRegistry {
      *
      * @param o Object to wrap.
      * @return The proxy.
-     * @exception NotWrappableTypeException If the target is not wrappable.
+     * @throws NotWrappableTypeException If the target could not be wrapped.
      */
     Object createProxy(Object o) throws NotWrappableTypeException;
   }

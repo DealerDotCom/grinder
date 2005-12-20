@@ -1,4 +1,5 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,13 +24,13 @@ package org.python.core;
 
 
 /**
- * A <code>PyInstance</code> that shares the same class, dictionary,
- * and (optional) Java Proxy as another. <code>ClonePyInstance</code>
- * is subclassed by {@link net.grinder.engine.process.InstrumentedPyInstance}
- * which customises the invocation behaviour and becomes the "wrapped"
- * object for Python classes. It is in the
- * <code>org.python.core</code> package so that it can access the
- * <code>javaProxy</code> field.
+ * A <code>PyInstance</code> that shares the same class, dictionary, and
+ * (optional) Java Proxy as another. <code>ClonePyInstance</code> is
+ * sub-classed by
+ * {@link net.grinder.engine.process.jython.InstrumentedPyInstance} which
+ * customises the invocation behaviour and becomes the "wrapped" object for
+ * Python classes. It is in the <code>org.python.core</code> package so that
+ * it can access the <code>javaProxy</code> field.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -38,8 +39,9 @@ public class ClonePyInstance extends PyInstance {
 
   private final PyInstance m_target;
 
-  public ClonePyInstance(PyInstance target) {
-    super(target.__class__, target.__dict__);
+  public ClonePyInstance(PyClass targetClass, PyInstance target) {
+    super(targetClass, target.__dict__);
+
     javaProxy = target.javaProxy;
 
     // Keep a reference to the target so it doesn't get gc'd until we

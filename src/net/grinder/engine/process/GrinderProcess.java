@@ -24,6 +24,7 @@
 
 package net.grinder.engine.process;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.net.UnknownHostException;
 import java.util.Collection;
@@ -51,6 +52,7 @@ import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
+import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
@@ -182,10 +184,17 @@ final class GrinderProcess {
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
 
-    final JythonScript jythonScript =
-      new JythonScript(m_context,
-                       m_initialisationMessage.getScriptFile(),
-                       m_initialisationMessage.getScriptDirectory());
+    final JythonScriptEngine scriptEngine =
+      new JythonScriptEngine(m_context.getScriptContext());
+
+    m_context.getTestRegistry().setScriptEngine(scriptEngine);
+
+    final File scriptFile = m_initialisationMessage.getScriptFile();
+    logger.output("executing \"" + scriptFile.getPath() + "\" using " +
+                  scriptEngine.getDescription());
+
+    scriptEngine.initialise(scriptFile,
+                            m_initialisationMessage.getScriptDirectory());
 
     final GrinderProperties properties = m_context.getProperties();
     final short numberOfThreads =
@@ -221,7 +230,7 @@ final class GrinderProcess {
     for (int i = 0; i < numberOfThreads; i++) {
       runnable[i] =
         new GrinderThread(m_eventSynchronisation, m_context,
-                          m_loggerImplementation, jythonScript, i);
+                          m_loggerImplementation, scriptEngine, i);
     }
 
     logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
@@ -306,7 +315,7 @@ final class GrinderProcess {
       shutdownTimerTask.cancel();
     }
 
-    jythonScript.shutdown();
+    scriptEngine.shutdown();
 
     // Final report to the console.
     reportTimerTask.run();

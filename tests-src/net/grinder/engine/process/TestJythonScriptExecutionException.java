@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Properties;
 
+import net.grinder.engine.process.jython.JythonScriptExecutionException;
 import net.grinder.testutility.AbstractFileTestCase;
 
 import org.python.core.Py;

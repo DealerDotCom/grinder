@@ -73,6 +73,13 @@ public class TestTestRegistry extends TestCase {
       new RandomStubFactory(Test.class);
     final Test test = (Test)testStubFactory.getStub();
 
+    final RandomStubFactory scriptEngineStubFactory =
+      new RandomStubFactory(ScriptEngine.class);
+    final ScriptEngine scriptEngine =
+      (ScriptEngine)scriptEngineStubFactory.getStub();
+
+    testRegistry.setScriptEngine(scriptEngine);
+
     final TestRegistry.RegisteredTest registeredTest1 =
       testRegistry.register(test);
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,7 @@ package net.grinder.engine.process;
 
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
+import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -37,6 +38,17 @@ public class StubTestRegistry {
   public static void stubTestRegistry() {
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
-    TestRegistry.setInstance(new TestRegistry(null, statisticsSetFactory));
+
+    final TestRegistry testRegistry =
+      new TestRegistry(null, statisticsSetFactory);
+
+    final RandomStubFactory scriptEngineStubFactory =
+      new RandomStubFactory(ScriptEngine.class);
+    final ScriptEngine scriptEngine =
+      (ScriptEngine)scriptEngineStubFactory.getStub();
+
+    testRegistry.setScriptEngine(scriptEngine);
+
+    TestRegistry.setInstance(testRegistry);
   }
 }
