@@ -24,6 +24,7 @@ package net.grinder.testutility;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 import net.grinder.util.thread.Monitor;
 
@@ -102,6 +103,10 @@ public class CallRecorder extends Assert implements CallAssertions {
     synchronized (m_callDataListMonitor) {
       try {
         return (CallData) m_callDataList.removeFirst();
+      }
+      catch (NoSuchElementException e) {
+        fail("No more calls");
+        return null; // Not reached.
       }
       finally {
         m_callDataListMonitor.notifyAll();
