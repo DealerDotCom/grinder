@@ -25,17 +25,20 @@ Grinder 3.0-beta28
   debugging The Grinder engine, but it might also be useful to
   advanced users.
 
-  More relaxed handling of invalid dates in Cookies. Requested by Martin
-  Wagner.
+  More relaxed handling of invalid dates in Cookies. Requested by
+  Martin Wagner.
 
-  Nicer output for ConnectExceptions and UnknownHost exceptions. (Bug 927828).
+  Nicer output for ConnectExceptions and UnknownHost exceptions. (Bug
+  927828).
 
   Handle Cookies with empty expires attribute. (Bug 982834).
 
   Added a pop-up menu to the editor file tree.
 
-  Add support for Jython 2.2a1. Just add the new jython.jar to your CLASSPATH.
-  Thanks to Martin Wagner for prompting me to do this.
+  Add support for Jython 2.2a1. Just add the new jython.jar to your
+  CLASSPATH. Thanks to Martin Wagner for prompting me to do this.
+
+  The documentation is now distributed in a separate zip file.
 
 
 Grinder 3.0-beta27

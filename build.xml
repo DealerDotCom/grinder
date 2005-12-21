@@ -139,21 +139,20 @@ what you want. Currently the conditionally built modules are:
   <patternset id="examples.patternset">
     <include name="${examples.dir}/**"/>
     <exclude name="**/log/**"/>
+    <exclude name="**/*.class"/>
   </patternset>
 
   <patternset id="contrib.patternset">
     <include name="${contrib.dir}/**"/>
   </patternset>
 
-  <patternset id="docs.patternset">
-    <include name="${doc.dir}/**"/>
-    <exclude name="${javadoc.dir}/**"/> <!-- shipped with source -->
-    <include name="CHANGES"/>
+  <patternset id="development-notes.patternset">
     <include name="TODO"/>
   </patternset>
 
-  <patternset id="license.patternset">
+  <patternset id="release-notes.patternset">
     <include name="AUTHORS"/>
+    <include name="CHANGES"/>
     <include name="LICENSE*"/>
     <include name="README"/>
   </patternset>
@@ -591,15 +590,11 @@ what you want. Currently the conditionally built modules are:
     </javadoc>
   </target>
 
-  <target name="documentation"
+  <target name="release-documentation"
           depends="init,assert-have-grinder-doc-build,project-xml,script-javadoc"
-          description="Update separate documentation build, run it, and copy the results back to our doc directory.">
+          description="Update separate documentation build, run it.">
 
     <ant dir="${grinder-doc.dir}" target="all" inheritAll="false"/>
-
-    <copy todir="${doc.dir}">
-      <fileset dir="${grinder-doc.dir}/docs"/>
-    </copy>
 
   </target>
 
@@ -613,20 +608,20 @@ what you want. Currently the conditionally built modules are:
         <patternset refid="lib.patternset"/>
         <patternset refid="examples.patternset"/>
         <patternset refid="contrib.patternset"/>
-        <patternset refid="docs.patternset"/>
-        <patternset refid="license.patternset"/>
+        <patternset refid="release-notes.patternset"/>
       </zipfileset>
     </zip>
 
     <zip zipfile="${zip.prefix}-src.zip">
       <zipfileset dir="." prefix="${name}-${version}/">
         <patternset refid="sources.patternset"/>
-        <patternset refid="license.patternset"/>
+        <patternset refid="release-notes.patternset"/>
+        <patternset refid="development-notes.patternset"/>
       </zipfileset>
     </zip>
   </target>
 
-  <target name="all" depends="assert-have-everything,jar,documentation"/>
+  <target name="all" depends="assert-have-everything,jar"/>
 
   <target name="dist" depends="all" description="Generates distribution.">
     <antcall target="do-dist">
@@ -634,7 +629,7 @@ what you want. Currently the conditionally built modules are:
     </antcall>
   </target>
 
-  <target name="release" depends="realclean,all,checkstyle,test"
+  <target name="release" depends="realclean,all,checkstyle,test,release-documentation"
           description="Generates a release.">
 
     <echo message="Running cvs diff"/>
