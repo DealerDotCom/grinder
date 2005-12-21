@@ -108,6 +108,19 @@ public final class ThreadSafeQueue {
   }
 
   /**
+   * Wait until the queue is empty.
+   */
+  public void gracefulShutdown() {
+    synchronized (getMonitor()) {
+      while (getSize() > 0) {
+        getMonitor().waitNoInterrruptException();
+      }
+
+      shutdown();
+    }
+  }
+
+  /**
    * Get the lock object which is used to control and notify changes
    * to the queue.
    *
@@ -135,17 +148,6 @@ public final class ThreadSafeQueue {
   public void checkIfShutdown() throws ShutdownException {
     if (m_shutdown) {
       throw new ShutdownException("ThreadSafeQueue shutdown");
-    }
-  }
-
-  /**
-   * Wait until the queue is empty.
-   */
-  public void waitUntilEmpty() {
-    synchronized (getMonitor()) {
-      while (getSize() > 0) {
-        getMonitor().waitNoInterrruptException();
-      }
     }
   }
 

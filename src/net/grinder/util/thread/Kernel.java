@@ -94,7 +94,7 @@ public final class Kernel {
    */
   public void gracefulShutdown() {
     try {
-      m_workQueue.waitUntilEmpty();
+      m_workQueue.gracefulShutdown();
     }
     finally {
       m_threadPool.stopAndWait();
