@@ -341,15 +341,18 @@ final class GrinderProcess {
 
     timer.cancel();
 
-    // Sadly it appears its impossible to interrupt a read() on stdin,
-    // so we can't shut down the console listener cleanly. It runs in
-    // a daemon thread, so this isn't a big deal.
-
     logger.output("finished", Logger.LOG | Logger.TERMINAL);
   }
 
-  public void shutdown() {
-    m_messagePump.shutdown();
+  public void shutdown(boolean inputStreamIsStdin) {
+    if (!inputStreamIsStdin) {
+      // Sadly it appears its impossible to interrupt a read() on a process
+      // input stream (at least under W2K), so we can't shut down the message
+      // pump cleanly. It runs in a daemon thread, so this isn't a big
+      // deal.
+      m_messagePump.shutdown();
+    }
+
     m_loggerImplementation.close();
   }
 

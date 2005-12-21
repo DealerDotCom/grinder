@@ -57,6 +57,7 @@ public class WorkerProcessEntryPoint {
     }
 
     final int exitCode = new WorkerProcessEntryPoint().run(System.in);
+
     System.exit(exitCode);
   }
 
@@ -93,7 +94,7 @@ public class WorkerProcessEntryPoint {
       return -3;
     }
     finally {
-      grinderProcess.shutdown();
+      grinderProcess.shutdown(agentCommunicationStream == System.in);
     }
   }
 }
