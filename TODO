@@ -162,13 +162,20 @@ its license terms are acceptable. Apparently now available.
 
 There should be an ExternalFilenameFactory, cf ExternalLogger.
 
+*** Jython 2.2.a1
+
+Instrumentation is broken for at least Java types. Jython code calls
+__find_attr__ on the proxy, which now returns an uninstrumented PyMethod.
+
+If Jython remains this way, its probably time to introduce CGLIB.
+
 *** Interactive mode
 
 Possible to have an interactive mode for debugging? E.g. a simple UI
 that can be launched from a thread which drops the user into a
 console? Would need to launch with grinder.debug.singleprocess=true.
 
-*** Instrumentation
+*** Instrumentation API
 
 Could we support a procedural "startTest()", "stopTest()" API?
 
@@ -179,7 +186,7 @@ code.
 
 Currently the engine only supports the concept of a single active
 test (transaction) per worker thread. It would be interesting to
-support multiple. nested tests. This would allow the recording of
+support multiple, nested tests. This would allow the recording of
 group statistics as well as individual statistics. The implementation
 would be correspondingly more complex.
 

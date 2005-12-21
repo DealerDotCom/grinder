@@ -35,8 +35,10 @@ Grinder 3.0-beta28
 
   Added a pop-up menu to the editor file tree.
 
-  Add support for Jython 2.2a1. Just add the new jython.jar to your
-  CLASSPATH. Thanks to Martin Wagner for prompting me to do this.
+  Allow running against Jython 2.2a1. The instrumentation ("wrapping")
+  is not fully compatible with 2.2a1, so consider this support to be
+  alpha. I'm waiting for Jython 2.2 to mature before doing further
+  work. Thanks to Martin Wagner for prompting me to do this.
 
   The documentation is now distributed in a separate zip file.
 
