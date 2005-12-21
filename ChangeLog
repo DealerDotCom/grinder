@@ -1,6 +1,10 @@
-2005-12-20  Philip Aston  <philipa@mail.com>
+2005-12-21  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta28 is released.
+
+	* CHANGES: Correct spelling.
+
+2005-12-20  Philip Aston  <philipa@mail.com>
 
 	* examples/grinder.properties: Revert erroneous change.
 
