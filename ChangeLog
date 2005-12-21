@@ -2,6 +2,11 @@
 
 	* The Grinder 3.0-beta28 is released.
 
+	* CHANGES, TODO:
+	Note that instrumentation does not work under Jython 2.2a1.
+
+	* src/manifest.mf: Dead.
+
 	* tests-src/net/grinder/engine/agent/TestAgent.java:
 	Fix race condition.
 
