@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -102,8 +102,8 @@ public final class ConsoleListener {
    */
   public void waitForMessage() {
 
-    synchronized (m_notifyOnMessage) {
-      while (!checkForMessage(ConsoleListener.ANY)) {
+    while (!checkForMessage(ConsoleListener.ANY)) {
+      synchronized (m_notifyOnMessage) {
         m_notifyOnMessage.waitNoInterrruptException();
       }
     }

@@ -31,6 +31,7 @@ import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.CallData;
+import net.grinder.util.thread.Monitor;
 
 
 /**
@@ -49,6 +50,7 @@ public class TestWorkerLauncher extends TestCase {
       new WorkerLauncher(0, null, null, null);
 
     assertTrue(workerLauncher1.allFinished());
+    workerLauncher1.shutdown();
 
     final WorkerLauncher workerLauncher2 =
       new WorkerLauncher(10, null, null, null);
@@ -56,6 +58,7 @@ public class TestWorkerLauncher extends TestCase {
     assertFalse(workerLauncher2.allFinished());
 
     workerLauncher2.destroyAllWorkers();
+    workerLauncher2.shutdown();
   }
 
   public void testStartSomeProcesses() throws Exception {
@@ -127,6 +130,7 @@ public class TestWorkerLauncher extends TestCase {
     }
 
     assertTrue(workerLauncher.allFinished());
+    workerLauncher.shutdown();
   }
 
   private void sendTerminationMessage(Worker process) {
@@ -187,6 +191,7 @@ public class TestWorkerLauncher extends TestCase {
     }
 
     assertTrue(workerLauncher.allFinished());
+    workerLauncher.shutdown();
   }
 
   public void testDestroyAllProcesses() throws Exception {
@@ -230,9 +235,10 @@ public class TestWorkerLauncher extends TestCase {
     }
 
     assertTrue(workerLauncher.allFinished());
+    workerLauncher.shutdown();
   }
 
-  private static class MyMonitor {
+  private static class MyMonitor extends Monitor {
     private boolean m_finished;
 
     public synchronized void waitFor(final WorkerLauncher workerLauncher) {

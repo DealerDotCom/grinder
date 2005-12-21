@@ -297,8 +297,8 @@ public final class Agent {
           long consoleSignalTime = -1;
 
           while (!workerLauncher.allFinished()) {
-
-            if (m_consoleListener.checkForMessage(ConsoleListener.ANY ^
+            if (consoleSignalTime == -1 &&
+                m_consoleListener.checkForMessage(ConsoleListener.ANY ^
                                                   ConsoleListener.START)) {
               workerLauncher.dontStartAnyMore();
               consoleSignalTime = System.currentTimeMillis();
@@ -316,6 +316,8 @@ public final class Agent {
               maximumShutdownTime);
           }
         }
+
+        workerLauncher.shutdown();
       }
 
       if (m_consoleCommunication == null) {

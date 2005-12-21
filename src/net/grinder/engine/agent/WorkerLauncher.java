@@ -25,6 +25,7 @@ import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.thread.AbstractInterruptibleRunnable;
 import net.grinder.util.thread.Kernel;
+import net.grinder.util.thread.Monitor;
 import net.grinder.util.thread.UncheckedInterruptedException;
 
 
@@ -38,7 +39,7 @@ final class WorkerLauncher {
 
   private final Kernel m_kernel = new Kernel(1);
   private final WorkerFactory m_workerFactory;
-  private final Object m_notifyOnFinish;
+  private final Monitor m_notifyOnFinish;
   private final Logger m_logger;
 
   /**
@@ -55,9 +56,9 @@ final class WorkerLauncher {
   private int m_nextWorkerIndex = 0;
 
   public WorkerLauncher(int numberOfWorkers,
-                         WorkerFactory workerFactory,
-                         Object notifyOnFinish,
-                         Logger logger) {
+                        WorkerFactory workerFactory,
+                        Monitor notifyOnFinish,
+                        Logger logger) {
 
     m_workerFactory = workerFactory;
     m_notifyOnFinish = notifyOnFinish;
@@ -152,9 +153,27 @@ final class WorkerLauncher {
       }
     }
 
-    m_kernel.gracefulShutdown();
-
     return true;
+  }
+
+  /**
+   * Used to be done in {@link #allFinished()} if our workers hand completed.
+   * Moved to a separate method since:
+   *
+   * <ol>
+   * <li>We need to shutdown the kernel even if we never started a worker.</li>
+   * <li>Shutting down the kernel joins our {@link WaitForWorkerTask} threads,
+   * and the last thread didn't complete as the caller of {@link #allFinished()}
+   * was holding the <em>notifyOnFinish</em> {@link Monitor}.</li>
+   * </ol>
+   *
+   * <p>
+   * Do not call this whilst holding the <em>notifyOnFinish</em>
+   * {@link Monitor}.
+   * </p>
+   */
+  public void shutdown() {
+    m_kernel.gracefulShutdown();
   }
 
   public void dontStartAnyMore() {
@@ -162,20 +181,12 @@ final class WorkerLauncher {
   }
 
   public void destroyAllWorkers() {
-
-    final boolean noneStarted = m_nextWorkerIndex == 0;
-
     dontStartAnyMore();
 
-    if (noneStarted) {
-      allFinished();
-    }
-    else {
-      synchronized (m_workers) {
-        for (int i = 0; i < m_workers.length; i++) {
-          if (m_workers[i] != null) {
-            m_workers[i].destroy();
-          }
+    synchronized (m_workers) {
+      for (int i = 0; i < m_workers.length; i++) {
+        if (m_workers[i] != null) {
+          m_workers[i].destroy();
         }
       }
     }
