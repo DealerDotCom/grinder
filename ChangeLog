@@ -2,6 +2,29 @@
 
 	* The Grinder 3.0-beta28 is released.
 
+	* CHANGES, build.xml: Documentation now distributed separately.
+
+	* forrest.properties: Dead.
+
+	* tests-src/net/grinder/engine/agent/TestWorkerLauncher.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/WorkerLauncher.java, src/net/grinder/engine/common/ConsoleListener.java:
+	Fix dead lock.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/WorkerProcessEntryPoint.java:
+	Dont shutdown MessagePump if its listening on stdin as its
+	impossible to interrupt a read() on a process input stream (at
+	least under W2K).
+	
+	* src/net/grinder/util/thread/Kernel.java, src/net/grinder/util/thread/ThreadSafeQueue.java:
+	ThreadSafeQueue.waitUntilEmpty() becomes gracefulShutdown().
+
+	* tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java:
+	Unused import.
+
+	* src/net/grinder/engine/agent/ProcessWorker.java:
+	Do not close the output streams - they're probably stdout and stderr.
+
+	* AUTHORS: Remove tabs.
+
 	* CHANGES: Remove "not yet released" tag".
 
 	* CHANGES: Correct spelling.
