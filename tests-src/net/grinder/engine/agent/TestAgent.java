@@ -34,8 +34,9 @@ import net.grinder.communication.FanOutServerSender;
 import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.CallData;
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -152,11 +153,36 @@ public class TestAgent extends AbstractFileTestCase {
       public void connectionAccepted(ConnectionType connectionType,
                                      ConnectionIdentity connection) {
         try {
-          // After we accept an agent connection, send a start message...
+          // After we accept an agent connection...
+          m_loggerStubFactory.assertSuccess("output", String.class);
+
+          m_loggerStubFactory.waitUntilCalled(5000);
+          AssertUtilities.assertContains(
+            m_loggerStubFactory.assertSuccess("output", String.class)
+            .getParameters()[0].toString(),
+            "waiting");
+
+          // ...send a start message...
           sender.send(new StartGrinderMessage(null));
 
-          // ..then shut communication down.
-          acceptor.shutdown();
+          m_loggerStubFactory.waitUntilCalled(5000);
+          m_loggerStubFactory.assertSuccess("output",
+                                            "received a start message");
+
+          m_loggerStubFactory.waitUntilCalled(5000);
+          AssertUtilities.assertContains(
+            m_loggerStubFactory.assertSuccess("error", String.class)
+            .getParameters()[0].toString(),
+            "grinder.py");
+
+          m_loggerStubFactory.waitUntilCalled(5000);
+          AssertUtilities.assertContains(
+            m_loggerStubFactory.assertSuccess("output", String.class)
+            .getParameters()[0].toString(),
+            "waiting");
+
+          // ..then a stop message.
+          sender.send(new StopGrinderMessage());
         }
         catch (CommunicationException e) {
           e.printStackTrace();
@@ -174,21 +200,10 @@ public class TestAgent extends AbstractFileTestCase {
 
     acceptor.shutdown();
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertSuccess("output", "received a stop message");
 
-    final CallData firstCall = m_loggerStubFactory.getCallData();
-
-    if (firstCall.getParameters().length == 1) {
-      // waiting for console signal.
-      firstCall.assertSuccess("output", String.class);
-      // communication shutdown.
-      m_loggerStubFactory.assertSuccess("output", String.class, Integer.class);
-    }
-    else {
-      // Called in reverse order.
-      firstCall.assertSuccess("output", String.class, Integer.class);
-      m_loggerStubFactory.assertSuccess("output", String.class);
-    }
+    // communication shutdown.
+    m_loggerStubFactory.assertSuccess("output", String.class, Integer.class);
 
     m_loggerStubFactory.assertNoMoreCalls();
 
