@@ -1,12 +1,12 @@
 Grinder 3.0-beta28 (Not yet released)
 -------------------------------------
 
-  Updates to the Italian translaton from Meo Bogliolo.
+  Updates to the Italian translation from Meo Bogliolo.
 
   Refactoring of statistics package API. This may affect existing
   custom plugins. See PluginProcessContext.getStatistics.
 
-  New Russion translation from Konstantin Ignatyev.
+  New Russian translation from Konstantin Ignatyev.
 
   Fix the TCPProxy port forwarding mode to correctly generate https
   URLs. (Bug 1324640).
@@ -32,7 +32,7 @@ Grinder 3.0-beta28 (Not yet released)
 
   Handle Cookies with empty expires attribute. (Bug 982834).
 
-  Added a popup menu to the editor file tree.
+  Added a pop-up menu to the editor file tree.
 
   Add support for Jython 2.2a1. Just add the new jython.jar to your CLASSPATH.
   Thanks to Martin Wagner for prompting me to do this.
