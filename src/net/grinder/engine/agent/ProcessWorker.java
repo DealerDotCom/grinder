@@ -55,9 +55,9 @@ final class ProcessWorker implements Worker {
    * @param workerIdentity The process identity.
    * @param commandArray Command line arguments.
    * @param outputStream Output stream to which child process stdout
-   * should be redirected.
+   * should be redirected. Will not be closed by this class.
    * @param errorStream Output stream to which child process stderr
-   * should be redirected.
+   * should be redirected. Will not be closed by this class.
    * @throws EngineException If an error occurs.
    */
   public ProcessWorker(WorkerIdentity workerIdentity,
@@ -76,11 +76,11 @@ final class ProcessWorker implements Worker {
       throw new EngineException("Could not start process", e);
     }
 
-    m_stdoutRedirector = new Redirector(m_process.getInputStream(),
-                                        outputStream);
+    m_stdoutRedirector =
+      new Redirector(m_process.getInputStream(), outputStream);
 
-    m_stderrRedirector = new Redirector(m_process.getErrorStream(),
-                                        errorStream);
+    m_stderrRedirector =
+      new Redirector(m_process.getErrorStream(), errorStream);
   }
 
   /**
@@ -157,8 +157,8 @@ final class ProcessWorker implements Worker {
 
     public Redirector(InputStream inputStream, OutputStream outputStream) {
       m_thread =
-        new Thread(new StreamCopier(4096, true).getRunnable(inputStream,
-                                                            outputStream),
+        new Thread(new StreamCopier(4096, false).getRunnable(inputStream,
+                                                             outputStream),
                   "Stream redirector for process " + m_process);
       m_thread.setDaemon(true);
       m_thread.start();
