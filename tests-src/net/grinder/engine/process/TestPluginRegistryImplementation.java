@@ -25,7 +25,6 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import net.grinder.common.Logger;
 import net.grinder.plugininterface.GrinderPlugin;
