@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,52 +25,76 @@ import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
-import org.python.core.PyJavaInstance;
+import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
 
 /**
- * An instrumented <code>PyJavaInstance</code>.
+ * An instrumented <code>PyJavaInstance</code> that is used to wrap Java
+ * instances.
+ *
+ * <p>
+ * Plain InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions's work for Jython
+ * 2.1. However, in Jython 2.2 the invoke methods use {@link #__findattr__} to
+ * determine which method to call, which bypassed our instrumentation. This
+ * special version ensures that the methods we hand back are also instrumented
+ * correctly.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class InstrumentedPyJavaInstance extends PyJavaInstance {
-  private final PyDispatcher m_dispatcher;
-  private final PyObject m_pyTest;
+final class InstrumentedPyJavaInstanceForJavaInstances
+  extends AbstractInstrumentedPyJavaInstance {
 
-  public InstrumentedPyJavaInstance(Test test,
-                                    PyDispatcher dispatcher,
-                                    Object target) {
-    super(target);
+  private final Test m_test;
+  private final PyObjectCache m_resultCache;
 
-    m_dispatcher = dispatcher;
-    m_pyTest = new PyJavaInstance(test);
+  public InstrumentedPyJavaInstanceForJavaInstances(
+    final JythonScriptEngine.PyInstrumentedProxyFactory proxyFactory,
+    Test test,
+    final PyDispatcher dispatcher,
+    Object target) {
+
+    super(test, dispatcher, target);
+
+    m_test = test;
+
+    m_resultCache = new PyObjectCache() {
+      protected PyObject createNewInstance(String name) {
+        final PyObject unadorned =
+          InstrumentedPyJavaInstanceForJavaInstances.super.__findattr__(name);
+
+        if (!(unadorned instanceof PyMethod)) {
+          return unadorned;
+        }
+
+        return proxyFactory.instrumentPyMethod(
+          m_test, dispatcher, (PyMethod)unadorned);
+      }
+    };
   }
 
   public PyObject __findattr__(String name) {
-    if (name == "__test__") { // Valid because name is interned.
-      return m_pyTest;
-    }
-
-    return super.__findattr__(name);
+    return m_resultCache.get(name);
   }
 
   public PyObject invoke(final String name) {
-    return m_dispatcher.dispatch(
+    return getDispatcher().dispatch(
       new Dispatcher.Invokeable() {
         public Object call() {
-          return InstrumentedPyJavaInstance.super.invoke(name);
+          return InstrumentedPyJavaInstanceForJavaInstances.super.invoke(name);
         }
       }
       );
   }
 
   public PyObject invoke(final String name, final PyObject arg1) {
-    return m_dispatcher.dispatch(
+    return getDispatcher().dispatch(
       new Dispatcher.Invokeable() {
         public Object call() {
-          return InstrumentedPyJavaInstance.super.invoke(name, arg1);
+          return InstrumentedPyJavaInstanceForJavaInstances.super.invoke(
+            name, arg1);
         }
       }
       );
@@ -78,31 +102,11 @@ final class InstrumentedPyJavaInstance extends PyJavaInstance {
 
   public PyObject invoke(final String name, final PyObject arg1,
                          final PyObject arg2) {
-    return m_dispatcher.dispatch(
+    return getDispatcher().dispatch(
       new Dispatcher.Invokeable() {
         public Object call() {
-          return InstrumentedPyJavaInstance.super.invoke(name, arg1, arg2);
-        }
-      }
-      );
-  }
-
-  public PyObject invoke(final String name, final PyObject[] args) {
-    return m_dispatcher.dispatch(
-      new Dispatcher.Invokeable() {
-        public Object call() {
-          return InstrumentedPyJavaInstance.super.invoke(name, args);
-        }
-      }
-      );
-  }
-
-  public PyObject invoke(final String name, final PyObject[] args,
-                         final String[] keywords) {
-    return m_dispatcher.dispatch(
-      new Dispatcher.Invokeable() {
-        public Object call() {
-          return InstrumentedPyJavaInstance.super.invoke(name, args, keywords);
+          return InstrumentedPyJavaInstanceForJavaInstances.super.invoke(
+            name, arg1, arg2);
         }
       }
       );

@@ -162,13 +162,6 @@ its license terms are acceptable. Apparently now available.
 
 There should be an ExternalFilenameFactory, cf ExternalLogger.
 
-*** Jython 2.2.a1
-
-Instrumentation is broken for at least Java types. Jython code calls
-__find_attr__ on the proxy, which now returns an uninstrumented PyMethod.
-
-If Jython remains this way, its probably time to introduce CGLIB.
-
 *** Interactive mode
 
 Possible to have an interactive mode for debugging? E.g. a simple UI

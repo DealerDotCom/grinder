@@ -66,7 +66,9 @@ public final class JythonScriptEngine implements ScriptEngine {
   private final PySystemState m_systemState;
   private final PythonInterpreter m_interpreter;
   private final JythonVersionAdapter m_versionAdapter;
+  private final PyInstrumentedProxyFactory m_instrumentedProxyFactory;
   private PyObject m_testRunnerFactory;
+
 
   /**
    * Constructor for JythonScriptEngine.
@@ -81,6 +83,7 @@ public final class JythonScriptEngine implements ScriptEngine {
     m_systemState = new PySystemState();
     m_interpreter = new PythonInterpreter(null, m_systemState);
     m_versionAdapter = new JythonVersionAdapter();
+    m_instrumentedProxyFactory = new PyInstrumentedProxyFactory();
 
     m_interpreter.set(
       "grinder",
@@ -136,25 +139,31 @@ public final class JythonScriptEngine implements ScriptEngine {
   /**
    * Create a proxy object that wraps an target object for a test.
    *
-   * <p>We could have defined overloaded createProxy methods that take a
+   * @param test The test.
+   * @param dispatcher The proxy should use this to dispatch the work.
+   * @param o Object to wrap.
+   * @return The instrumented proxy.
+   * @throws NotWrappableTypeException If the target cannot be wrapped.
+   */
+  public Object createInstrumentedProxy(Test test,
+                                        Dispatcher dispatcher,
+                                        Object o)
+    throws NotWrappableTypeException {
+
+    return m_instrumentedProxyFactory.instrumentObject(
+      test, new PyDispatcher(dispatcher), o);
+  }
+
+  /**
+   * Create a proxy PyObject that wraps an target object for a test.
+   *
+   * <p>
+   * We could have defined overloaded createProxy methods that take a
    * PyInstance, PyFunction etc., and return decorator PyObjects. There's no
    * obvious way of doing this in a polymorphic way, so we would be forced to
    * have n factories, n types of decorator, and probably run into identity
    * issues. Instead we lean on Jython and force it to give us Java proxy which
-   * we then dynamically subclass with our own type of PyJavaInstance.</p>
-   *
-   * <p>
-   * Later.... <br>
-   * This works fine for wrapping the following:
-   * <ul>
-   * <li>Java instances and classes</li>
-   * <li>PyClass</li>
-   * <li>PyFunction</li>
-   * <li>PyMethod</li>
-   * <li>PyReflectedFunction</li>
-   * <li>Python primitives (integers, strings, floats, complexes, ...)</li>
-   * <li>Python tuples, lists, dictionaries</li>
-   * </ul>
+   * we then dynamically subclass with our own wrappers.
    * </p>
    *
    * <p>
@@ -172,74 +181,90 @@ public final class JythonScriptEngine implements ScriptEngine {
    * </p>
    *
    * <p>
-   * There's a subtle difference in the equality semantics of TestPyInstances
-   * and TestPyJavaInstances. TestPyInstances compare do not equal to the
-   * wrapped objects, where as due to <code>PyJavaInstance._is()</code>
-   * semantics, TestPyJavaInstances <em>do</em> compare equal to the wrapped
+   * Jython 2.2 requires special handling for Java instances, as method
+   * invocations are now dispatched by first looking up the method using
+   * __findattr__. See {@link InstrumentedPyJavaInstanceForJavaInstances}.
+   * </p>
+   *
+   * <p>
+   * There's a subtle difference in the equality semantics of
+   * InstrumentedPyInstances and InstrumentedPyJavaInstances.
+   * InstrumentedPyInstances compare do not equal to the wrapped objects, where
+   * as due to <code>PyJavaInstance._is()</code> semantics,
+   * InstrumentedPyJavaInstances <em>do</em> compare equal to the wrapped
    * objects. We can only influence one side of the comparison (we can't easily
    * alter the <code>_is</code> implementation of wrapped objects) so we can't
    * do anything nice about this.
    * </p>
    *
-   * @param test The test.
-   * @param dispatcher The proxy should use this to dispatch the work.
-   * @param o Object to wrap.
+   * @param test
+   *          The test.
+   * @param pyDispatcher
+   *          The proxy should use this to dispatch the work.
+   * @param o
+   *          Object to wrap.
    * @return The instrumented proxy.
-   * @throws NotWrappableTypeException If the target cannot be wrapped.
+   * @throws NotWrappableTypeException
+   *           If the target cannot be wrapped.
    */
-  public Object createInstrumentedProxy(Test test,
-                                        Dispatcher dispatcher,
-                                        Object o)
-    throws NotWrappableTypeException {
+  class PyInstrumentedProxyFactory {
+    public PyObject instrumentObject(Test test,
+                                     PyDispatcher pyDispatcher,
+                                     Object o)
+      throws NotWrappableTypeException {
 
-    final PyDispatcher pyDispatcher =  new PyDispatcher(dispatcher);
-
-    if (o instanceof PyObject) {
-      // Jython object.
-      if (o instanceof PyInstance) {
-        final PyInstance pyInstance = (PyInstance)o;
+      if (o instanceof PyObject) {
+        // Jython object.
+        if (o instanceof PyInstance) {
+          final PyInstance pyInstance = (PyInstance)o;
+          final PyClass pyClass =
+            m_versionAdapter.getClassForInstance(pyInstance);
+          return new InstrumentedPyInstance(
+            this, test, pyDispatcher, pyClass, pyInstance);
+        }
+        else if (o instanceof PyFunction) {
+          return new InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions(
+            test, pyDispatcher, o);
+        }
+        else if (o instanceof PyMethod) {
+          return instrumentPyMethod(test, pyDispatcher, (PyMethod)o);
+        }
+        else if (o instanceof PyReflectedFunction) {
+          return new InstrumentedPyReflectedFunction(
+            test, pyDispatcher, (PyReflectedFunction)o);
+        }
+      }
+      else if (o instanceof PyProxy) {
+        // Jython object that extends a Java class.
+        final PyInstance pyInstance = ((PyProxy)o)._getPyInstance();
         final PyClass pyClass =
           m_versionAdapter.getClassForInstance(pyInstance);
-        return new InstrumentedPyInstance(test,
-                                          pyDispatcher,
-                                          pyClass,
-                                          pyInstance);
+        return new InstrumentedPyInstance(
+          this, test, pyDispatcher, pyClass, pyInstance);
       }
-      else if (o instanceof PyFunction) {
-        return new InstrumentedPyJavaInstance(test, pyDispatcher, o);
-      }
-      else if (o instanceof PyMethod) {
-        return new InstrumentedPyJavaInstance(test, pyDispatcher, o);
-      }
-      else if (o instanceof PyReflectedFunction) {
-        return new InstrumentedPyReflectedFunction(test,
-                                                   pyDispatcher,
-                                                   (PyReflectedFunction)o);
-      }
-    }
-    else if (o instanceof PyProxy) {
-      // Jython object that extends a Java class.
-      final PyInstance pyInstance = ((PyProxy)o)._getPyInstance();
-      final PyClass pyClass = m_versionAdapter.getClassForInstance(pyInstance);
-      return new InstrumentedPyInstance(test,
-                                        pyDispatcher,
-                                        pyClass,
-                                        pyInstance);
-    }
-    else {
-      // Java object.
+      else {
+        // Java object.
 
-      final Class c = o.getClass();
+        final Class c = o.getClass();
 
-      // NB Jython uses Java types for some primitives and strings.
-      if (!c.isArray() &&
-          !(o instanceof Number) &&
-          !(o instanceof String)) {
-        return new InstrumentedPyJavaInstance(test, pyDispatcher, o);
+        // NB Jython uses Java types for some primitives and strings.
+        if (!c.isArray() &&
+            !(o instanceof Number) &&
+            !(o instanceof String)) {
+          return new InstrumentedPyJavaInstanceForJavaInstances(
+            this, test, pyDispatcher, o);
+        }
       }
+
+      throw new NotWrappableTypeException(o.getClass().getName());
     }
 
-    throw new NotWrappableTypeException(o.getClass().getName());
+    public PyObject instrumentPyMethod(Test test,
+                                       PyDispatcher pyDispatcher,
+                                       PyMethod o) {
+      return new InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions(
+        test, pyDispatcher, o);
+    }
   }
 
   /**
@@ -460,9 +485,20 @@ public final class JythonScriptEngine implements ScriptEngine {
 
   /**
    * A dispatcher that translates return types and exceptions from the script.
+   *
+   * <p>
+   * This dispatcher also protects against nested dispatches by the same thread.
+   * This is to work around a problem with our PyInstance instrumentation and
+   * Jython 1.1, where Jython can make multiple calls through our instrumented
+   * invoke methods.
+   * </p>
    */
   static final class PyDispatcher {
     private final Dispatcher m_delegate;
+
+    private final ThreadLocal m_dispatchProtection = new ThreadLocal() {
+      public Object initialValue() { return new DispatchProtection(); }
+    };
 
     private PyDispatcher(Dispatcher delegate) {
       m_delegate = delegate;
@@ -470,7 +506,21 @@ public final class JythonScriptEngine implements ScriptEngine {
 
     public PyObject dispatch(Dispatcher.Invokeable invokeable) {
       try {
-        return (PyObject)m_delegate.dispatch(invokeable);
+        final DispatchProtection dispatchProtection =
+          (DispatchProtection)m_dispatchProtection.get();
+
+        try {
+          if (!dispatchProtection.checkAndSet()) {
+            return (PyObject)m_delegate.dispatch(invokeable);
+          }
+          else {
+            // Already in a dispatch.
+            return (PyObject)invokeable.call();
+          }
+        }
+        finally {
+          dispatchProtection.reset();
+        }
       }
       catch (UncheckedGrinderException e) {
         // Don't translate our unchecked exceptions.
@@ -478,6 +528,20 @@ public final class JythonScriptEngine implements ScriptEngine {
       }
       catch (Exception e) {
         throw Py.JavaError(e);
+      }
+    }
+
+    private class DispatchProtection {
+      private boolean m_inDispatch;
+
+      public boolean checkAndSet() {
+        final boolean result = m_inDispatch;
+        m_inDispatch = true;
+        return result;
+      }
+
+      public void reset() {
+        m_inDispatch = false;
       }
     }
   }

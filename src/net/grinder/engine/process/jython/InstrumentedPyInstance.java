@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +29,7 @@ import org.python.core.ClonePyInstance;
 import org.python.core.PyClass;
 import org.python.core.PyInstance;
 import org.python.core.PyJavaInstance;
+import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
 
@@ -40,16 +41,46 @@ import org.python.core.PyObject;
  */
 final class InstrumentedPyInstance extends ClonePyInstance {
   private final PyDispatcher m_dispatcher;
+  private final Test m_test;
   private final PyObject m_pyTest;
+  private final PyObjectCache m_resultCache;
 
-  public InstrumentedPyInstance(Test test,
-                                PyDispatcher dispatcher,
-                                PyClass targetClass,
-                                PyInstance target) {
+  public InstrumentedPyInstance(
+    final JythonScriptEngine.PyInstrumentedProxyFactory proxyFactory,
+    Test test,
+    PyDispatcher dispatcher,
+    PyClass targetClass,
+    PyInstance target) {
+
     super(targetClass, target);
 
     m_dispatcher = dispatcher;
+    m_test = test;
     m_pyTest = new PyJavaInstance(test);
+
+    m_resultCache = new PyObjectCache() {
+      protected PyObject createNewInstance(String name) {
+        final PyObject unadorned =
+          InstrumentedPyInstance.super.__findattr__(name);
+
+        if (!(unadorned instanceof PyMethod)) {
+          return unadorned;
+        }
+
+        return proxyFactory.instrumentPyMethod(
+          m_test, m_dispatcher, (PyMethod)unadorned);
+      }
+
+      protected void cacheInstance(String name, PyObject instance) {
+        try {
+          __setattr__(name, instance);
+        }
+        catch (NullPointerException e) {
+          // Unassignable field. Put in our fixed cache.
+          super.cacheInstance(name, instance);
+        }
+      }
+    };
   }
 
   public PyObject __findattr__(String name) {
@@ -57,7 +88,7 @@ final class InstrumentedPyInstance extends ClonePyInstance {
       return m_pyTest;
     }
 
-    return super.__findattr__(name);
+    return m_resultCache.get(name);
   }
 
   public PyObject invoke(final String name) {
@@ -86,27 +117,6 @@ final class InstrumentedPyInstance extends ClonePyInstance {
       new Dispatcher.Invokeable() {
         public Object call() {
           return InstrumentedPyInstance.super.invoke(name, arg1, arg2);
-        }
-      }
-      );
-  }
-
-  public PyObject invoke(final String name, final PyObject[] args) {
-    return m_dispatcher.dispatch(
-      new Dispatcher.Invokeable() {
-        public Object call() {
-          return InstrumentedPyInstance.super.invoke(name, args);
-        }
-      }
-      );
-  }
-
-  public PyObject invoke(final String name, final PyObject[] args,
-                         final String[] keywords) {
-    return m_dispatcher.dispatch(
-      new Dispatcher.Invokeable() {
-        public Object call() {
-          return InstrumentedPyInstance.super.invoke(name, args, keywords);
         }
       }
       );
