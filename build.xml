@@ -594,7 +594,7 @@ what you want. Currently the conditionally built modules are:
           depends="init,assert-have-grinder-doc-build,project-xml,script-javadoc"
           description="Update separate documentation build, run it.">
 
-    <ant dir="${grinder-doc.dir}" target="all" inheritAll="false"/>
+    <ant dir="${grinder-doc.dir}" target="release" inheritAll="false"/>
 
   </target>
 
