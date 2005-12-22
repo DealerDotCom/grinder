@@ -59,7 +59,7 @@ public class IsolatingClassLoader extends URLClassLoader {
    *          Parent classloader. We use its class path to load our classes.
    * @param shared
    *          Array of fully qualified class names, or fully qualified prefixes
-   *          ending in "*", that identify the packages or classes to isolate.
+   *          ending in "*", that identify the packages or classes to share.
    * @param isolateParentOnly
    *          If <code>true</code>, automatically share classes from
    *          <code>parent</code>'s parent classloaders.
