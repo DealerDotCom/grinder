@@ -203,6 +203,7 @@ public class TestAgent extends AbstractFileTestCase {
     m_loggerStubFactory.assertSuccess("output", "received a stop message");
 
     // communication shutdown.
+    m_loggerStubFactory.waitUntilCalled(5000);
     m_loggerStubFactory.assertSuccess("output", String.class, Integer.class);
 
     m_loggerStubFactory.assertNoMoreCalls();
