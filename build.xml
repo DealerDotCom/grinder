@@ -629,7 +629,7 @@ what you want. Currently the conditionally built modules are:
     </antcall>
   </target>
 
-  <target name="release" depends="realclean,all,checkstyle,test,release-documentation"
+  <target name="release" depends="realclean,all,checkstyle,test,javadoc,release-documentation"
           description="Generates a release.">
 
     <echo message="Running cvs diff"/>
