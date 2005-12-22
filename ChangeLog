@@ -2,6 +2,8 @@
 
 	* The Grinder 3.0-beta28 is released.
 
+	* etc/checkstyle-suppressions.xml: Really support Jython 2.2a1.
+
 	* CHANGES, TODO, src/net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java, src/net/grinder/engine/process/jython/JythonScriptEngine.java, src/net/grinder/engine/process/jython/PyObjectCache.java, tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
 	Really support Jython 2.2a1.
 
