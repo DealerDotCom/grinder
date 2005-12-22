@@ -1,6 +1,16 @@
-2005-12-21  Philip Aston  <philipa@mail.com>
+2005-12-22  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta28 is released.
+
+	* CHANGES, TODO, src/net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java, src/net/grinder/engine/process/jython/JythonScriptEngine.java, src/net/grinder/engine/process/jython/PyObjectCache.java, tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	Really support Jython 2.2a1.
+
+	* tests-src/net/grinder/engine/agent/TestAgent.java:
+	Wait for asynchronous log event.
+
+	* src/net/grinder/util/IsolatingClassLoader.java: Fix javadoc.
+
+2005-12-21  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, TODO:
 	Note that instrumentation does not work under Jython 2.2a1.
