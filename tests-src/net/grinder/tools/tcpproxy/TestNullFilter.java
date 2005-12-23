@@ -21,8 +21,7 @@
 
 package net.grinder.tools.tcpproxy;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
+import net.grinder.common.LoggerStubFactory;
 
 import junit.framework.TestCase;
 
@@ -40,37 +39,32 @@ public class TestNullFilter extends TestCase {
                             new EndPoint("host2", 99),
                             false);
 
-  private ByteArrayOutputStream m_output = new ByteArrayOutputStream();
+  private LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
 
   public void testHandle() throws Exception {
     final NullFilter nullFilter =
-      new NullFilter(new PrintWriter(m_output,  true));
+      new NullFilter(m_loggerStubFactory.getLogger());
 
     nullFilter.handle(m_connectionDetails, "This is a campaign.".getBytes(), 5);
-    assertNoOutput();
 
     final String lines = "Some\nlines\rblah";
     nullFilter.handle(m_connectionDetails, lines.getBytes(), lines.length());
-    assertNoOutput();
 
     final byte[] binary = { 0x01, (byte)0xE7, 'a', 'b', 'c', (byte)0x89,
                             'd', 'a', 'h', '\n', 'b', 'a', 'h' };
     nullFilter.handle(m_connectionDetails, binary, binary.length);
-    assertNoOutput();
+
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 
   public void testOtherMethods() throws Exception {
     final NullFilter nullFilter =
-      new NullFilter(new PrintWriter(m_output,  true));
+      new NullFilter(m_loggerStubFactory.getLogger());
 
     nullFilter.connectionOpened(m_connectionDetails);
     nullFilter.connectionClosed(m_connectionDetails);
     nullFilter.stop();
 
-    assertNoOutput();
-  }
-
-  private void assertNoOutput() {
-    assertEquals("'" + m_output.toString() + "' is empty.", 0, m_output.size());
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 }

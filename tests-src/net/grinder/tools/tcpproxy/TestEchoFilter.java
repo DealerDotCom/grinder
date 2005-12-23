@@ -21,8 +21,8 @@
 
 package net.grinder.tools.tcpproxy;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
+import net.grinder.common.LoggerStubFactory;
+import net.grinder.testutility.AssertUtilities;
 
 import junit.framework.TestCase;
 
@@ -44,91 +44,65 @@ public class TestEchoFilter extends TestCase {
   private final ConnectionDetails m_connectionDetails =
       new ConnectionDetails(m_endPoint1, m_endPoint2, false);
 
-
-  private ByteArrayOutputStream m_output = new ByteArrayOutputStream();
+  private LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
 
   public void testHandle() throws Exception {
     final EchoFilter echoFilter =
-      new EchoFilter(new PrintWriter(m_output,  true));
+      new EchoFilter(m_loggerStubFactory.getLogger());
+
+    m_loggerStubFactory.assertSuccess("getOutputLogWriter");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     echoFilter.handle(m_connectionDetails, "This is a campaign.".getBytes(), 5);
 
-    assertOutput(m_connectionDetails.toString());
-    assertOutput("This " + LINE_SEPARATOR);
-    assertNoOutput();
+    final String output =
+      m_loggerStubFactory.getOutputLogWriter().getOutputAndReset();
+    AssertUtilities.assertContains(output, m_connectionDetails.toString());
+    AssertUtilities.assertContains(output, "This " + LINE_SEPARATOR);
+    m_loggerStubFactory.assertNoMoreCalls();
 
     final String lines = "Some\nlines\rblah";
     echoFilter.handle(m_connectionDetails, lines.getBytes(), lines.length());
 
-    assertOutput(m_connectionDetails.toString());
-    assertOutput("Some\nlines\rblah" + LINE_SEPARATOR);
-    assertNoOutput();
+    final String output2 =
+      m_loggerStubFactory.getOutputLogWriter().getOutputAndReset();
+    AssertUtilities.assertContains(output2, m_connectionDetails.toString());
+    AssertUtilities.assertContains(
+      output2, "Some\nlines\rblah" + LINE_SEPARATOR);
+    m_loggerStubFactory.assertNoMoreCalls();
 
     final byte[] binary = { 0x01, (byte)0xE7, 'a', 'b', 'c', (byte)0x89,
                             'd', 'a', 'h', '\n', 'b', 'a', 'h' };
     echoFilter.handle(m_connectionDetails, binary, binary.length);
-    assertOutput(m_connectionDetails.toString());
-    assertOutput("[01E7]abc[89]dah\nbah" + LINE_SEPARATOR);
-    assertNoOutput();
+    final String output3 =
+      m_loggerStubFactory.getOutputLogWriter().getOutputAndReset();
+    AssertUtilities.assertContains(output3, m_connectionDetails.toString());
+    AssertUtilities.assertContains(
+      output3, "[01E7]abc[89]dah\nbah" + LINE_SEPARATOR);
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 
   public void testOtherMethods() throws Exception {
     final EchoFilter echoFilter =
-      new EchoFilter(new PrintWriter(m_output,  true));
+      new EchoFilter(m_loggerStubFactory.getLogger());
 
-    assertNoOutput();
+    m_loggerStubFactory.assertSuccess("getOutputLogWriter");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     echoFilter.connectionOpened(m_connectionDetails);
-    assertOutput(m_connectionDetails.toString());
-    assertOutput("opened");
-    assertEquals(1, getNumberOfOutputLines());
+    assertEquals(1, m_loggerStubFactory.getOutputLogWriter().getLineCount());
+    final String output =
+      m_loggerStubFactory.getOutputLogWriter().getOutputAndReset();
+    AssertUtilities.assertContains(output, m_connectionDetails.toString());
+    AssertUtilities.assertContains(output, "opened");
 
-    m_output.reset();
     echoFilter.connectionClosed(m_connectionDetails);
-    assertOutput(m_connectionDetails.toString());
-    assertOutput("closed");
-    assertEquals(1, getNumberOfOutputLines());
+    final String output2 =
+      m_loggerStubFactory.getOutputLogWriter().getOutputAndReset();
+    AssertUtilities.assertContains(output2, m_connectionDetails.toString());
+    AssertUtilities.assertContains(output2, "closed");
 
-    m_output.reset();
     echoFilter.stop();
-    assertNoOutput();
-  }
-
-  private void assertNoOutput() {
-    assertEquals("'" + m_output.toString() + "' is empty.", 0, m_output.size());
-  }
-
-  private void assertOutput(String substring) throws Exception {
-    final String outputAsString = m_output.toString();
-    final int index = outputAsString.indexOf(substring);
-
-    assertTrue("'" + outputAsString + "' contains '" + substring + "'",
-               index >= 0);
-
-    final int remainderStart = index + substring.length();
-    final byte[] bytes = m_output.toByteArray();
-    final byte[] remainder = new byte[bytes.length - remainderStart];
-    System.arraycopy(bytes, remainderStart, remainder, 0, remainder.length);
-    m_output.reset();
-    m_output.write(remainder);
-  }
-
-  private int getNumberOfOutputLines() {
-    final String outputAsString = m_output.toString();
-
-    int result = 0;
-    int index = -1;
-
-    while (true) {
-      index = outputAsString.indexOf(LINE_SEPARATOR, index + 1);
-
-      if (index < 0) {
-        break;
-      }
-
-      ++result;
-    }
-
-    return result;
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 }

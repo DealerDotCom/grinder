@@ -27,8 +27,8 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * Interface that TCP Proxy filters implement. In addition, they must
- * have a constructor that takes a <code>PrintWriter</code>.
+ * Interface that TCP Proxy filters implement. In addition, a filter must have a
+ * constructor that takes a {net.grinder.common.Logger}.
  *
  * @author Philip Aston
  * @author Bertrand Ave

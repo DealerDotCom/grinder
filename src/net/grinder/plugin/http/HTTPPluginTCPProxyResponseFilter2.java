@@ -22,12 +22,12 @@
 
 package net.grinder.plugin.http;
 
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import net.grinder.common.Logger;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 
@@ -50,10 +50,10 @@ public class HTTPPluginTCPProxyResponseFilter2 implements TCPProxyFilter {
   /**
    * Constructor.
    *
-   * @param outputWriter PrintWriter to terminal.
+   * @param logger A logger.
    * @throws PatternSyntaxException If a regular expression error occurs.
    */
-  public HTTPPluginTCPProxyResponseFilter2(PrintWriter outputWriter)
+  public HTTPPluginTCPProxyResponseFilter2(Logger logger)
     throws PatternSyntaxException {
 
     m_wwwAuthenticateHeaderPattern =

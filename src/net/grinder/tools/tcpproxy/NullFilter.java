@@ -23,7 +23,7 @@
 
 package net.grinder.tools.tcpproxy;
 
-import java.io.PrintWriter;
+import net.grinder.common.Logger;
 
 
 /**
@@ -38,10 +38,9 @@ public class NullFilter implements TCPProxyFilter {
   /**
    * Constructor.
    *
-   * @param outputPrintWriter Print writer to use to write to the
-   * terminal. (Not used).
+   * @param logger A logger (not used).
    */
-  public NullFilter(PrintWriter outputPrintWriter) {
+  public NullFilter(Logger logger) {
   }
 
   /**

@@ -173,11 +173,10 @@ public final class TCPProxy {
 
   private TCPProxy(String[] args, Logger logger) throws Exception {
     m_logger = logger;
-    final PrintWriter outputWriter = m_logger.getOutputLogWriter();
 
     // Default values.
-    TCPProxyFilter requestFilter = new EchoFilter(outputWriter);
-    TCPProxyFilter responseFilter = new EchoFilter(outputWriter);
+    TCPProxyFilter requestFilter = new EchoFilter(logger);
+    TCPProxyFilter responseFilter = new EchoFilter(logger);
     int localPort = 8001;
     String remoteHost = "localhost";
     String localHost = "localhost";
@@ -216,31 +215,29 @@ public final class TCPProxy {
       for (int i = 0; i < args.length; i++) {
         if (args[i].equalsIgnoreCase("-requestfilter")) {
           requestFilter =
-            addFilter(requestFilter,
-                      instantiateFilter(args[++i], outputWriter));
+            addFilter(requestFilter, instantiateFilter(args[++i], logger));
         }
         else if (args[i].equalsIgnoreCase("-responsefilter")) {
           responseFilter =
-            addFilter(responseFilter,
-                      instantiateFilter(args[++i], outputWriter));
+            addFilter(responseFilter, instantiateFilter(args[++i], logger));
         }
         else if (args[i].equalsIgnoreCase("-httpplugin")) {
           requestFilter =
             addFilter(requestFilter,
-                      new HTTPPluginTCPProxyFilter(outputWriter));
+                      new HTTPPluginTCPProxyFilter(logger));
 
           responseFilter =
             addFilter(responseFilter,
-                      new HTTPPluginTCPProxyResponseFilter(outputWriter));
+                      new HTTPPluginTCPProxyResponseFilter(logger));
         }
         else if (args[i].equalsIgnoreCase("-newhttpplugin")) {
           requestFilter =
             addFilter(requestFilter,
-                      new HTTPPluginTCPProxyFilter2(outputWriter));
+                      new HTTPPluginTCPProxyFilter2(logger));
 
           responseFilter =
             addFilter(responseFilter,
-                      new HTTPPluginTCPProxyResponseFilter2(outputWriter));
+                      new HTTPPluginTCPProxyResponseFilter2(logger));
         }
         else if (args[i].equalsIgnoreCase("-localhost")) {
           localHost = args[++i];
@@ -438,13 +435,14 @@ public final class TCPProxy {
   }
 
   private TCPProxyFilter instantiateFilter(
-    String filterClassName, PrintWriter outputWriter) throws Exception {
+    String filterClassName,
+    Logger logger) throws Exception {
 
     if (filterClassName.equals("NONE")) {
-      return new NullFilter(outputWriter);
+      return new NullFilter(logger);
     }
     else if (filterClassName.equals("ECHO")) {
-      return new EchoFilter(outputWriter);
+      return new EchoFilter(logger);
     }
 
     final Class filterClass;
@@ -465,14 +463,13 @@ public final class TCPProxy {
     // Instantiate a filter.
     try {
       final Constructor constructor =
-        filterClass.getConstructor(new Class[] {PrintWriter.class});
+        filterClass.getConstructor(new Class[] {Logger.class});
 
-      return (TCPProxyFilter)constructor.newInstance(
-        new Object[] {outputWriter});
+      return (TCPProxyFilter)constructor.newInstance(new Object[] {logger});
     }
     catch (NoSuchMethodException e) {
       throw barfError("the class '" + filterClass.getName() + "' does not " +
-                      "have a constructor that takes a PrintWriter.");
+                      "have a constructor that takes a " + Logger.class + ".");
     }
     catch (IllegalAccessException e) {
       throw barfError("the constructor of class '" + filterClass.getName() +

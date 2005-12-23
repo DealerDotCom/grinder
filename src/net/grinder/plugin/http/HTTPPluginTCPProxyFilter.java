@@ -48,6 +48,7 @@ import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
 import net.grinder.common.GrinderBuild;
+import net.grinder.common.Logger;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 import net.grinder.util.thread.UncheckedInterruptedException;
@@ -125,15 +126,15 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
   /**
    * Constructor.
    *
-   * @param outputPrintWriter a <code>PrintWriter</code> value
+   * @param logger A logger.
    * @exception IOException If an I/O error occurs.
    * @exception PatternSyntaxException If a regular expression
    * could not be compiled.
    */
-  public HTTPPluginTCPProxyFilter(PrintWriter outputPrintWriter)
+  public HTTPPluginTCPProxyFilter(Logger logger)
     throws IOException, PatternSyntaxException {
 
-    m_out = outputPrintWriter;
+    m_out = logger.getOutputLogWriter();
 
     m_currentRequestNumber =
       Integer.getInteger(INITIAL_TEST_PROPERTY, 0).intValue() - 1;
