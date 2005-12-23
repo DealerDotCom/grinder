@@ -201,7 +201,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
 
     assertEquals(m_brokenIntSet.size(),
-                 m_loggerFactory.getNumberOfErrorLines());
+                 m_loggerFactory.getErrorLogWriter().getLineCount());
   }
 
   public void testGetLong() throws Exception {
@@ -225,7 +225,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
 
     assertEquals(m_brokenLongSet.size(),
-                 m_loggerFactory.getNumberOfErrorLines());
+                 m_loggerFactory.getErrorLogWriter().getLineCount());
   }
 
   public void testGetShort() throws Exception {
@@ -251,7 +251,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
 
     assertEquals(m_brokenShortSet.size(),
-                 m_loggerFactory.getNumberOfErrorLines());
+                 m_loggerFactory.getErrorLogWriter().getLineCount());
   }
 
   public void testGetDouble() throws Exception {
@@ -277,7 +277,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
 
     assertEquals(m_brokenDoubleSet.size(),
-                 m_loggerFactory.getNumberOfErrorLines());
+                 m_loggerFactory.getErrorLogWriter().getLineCount());
   }
 
   public void testGetBoolean() throws Exception {

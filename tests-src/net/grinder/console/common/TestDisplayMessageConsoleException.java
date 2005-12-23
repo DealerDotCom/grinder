@@ -23,7 +23,7 @@ package net.grinder.console.common;
 
 import junit.framework.TestCase;
 
-import net.grinder.testutility.CountingPrintWriter;
+import net.grinder.testutility.StubPrintWriter;
 
 
 /**
@@ -36,7 +36,7 @@ public class TestDisplayMessageConsoleException extends TestCase {
 
   public void testDisplayMessageConsoleException() throws Exception {
     final ResourcesImplementation resources = new ResourcesImplementation(getClass().getName());
-    resources.setErrorWriter(new CountingPrintWriter());
+    resources.setErrorWriter(new StubPrintWriter());
 
     final DisplayMessageConsoleException e1 =
       new DisplayMessageConsoleException(resources, "notthere");

@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 
 import java.io.File;
 
-import net.grinder.testutility.CountingPrintWriter;
+import net.grinder.testutility.StubPrintWriter;
 import net.grinder.testutility.FileUtilities;
 
 
@@ -37,8 +37,8 @@ import net.grinder.testutility.FileUtilities;
  */
 public class TestResources extends TestCase {
 
-  private final CountingPrintWriter m_errorWriter =
-    new CountingPrintWriter();
+  private final StubPrintWriter m_errorWriter =
+    new StubPrintWriter();
 
   public void testResources() throws Exception {
     final ResourcesImplementation resources = new ResourcesImplementation(getClass().getName());
@@ -50,7 +50,7 @@ public class TestResources extends TestCase {
     assertEquals("file1", resources.getString("resourceFile"));
     assertEquals("file2", resources2.getString("resourceFile"));
 
-    assertTrue(!m_errorWriter.called());
+    assertTrue(!(m_errorWriter.getOutputAndReset().length() > 0));
   }
 
   public void testGetString() throws Exception {
@@ -58,16 +58,16 @@ public class TestResources extends TestCase {
     resources.setErrorWriter(m_errorWriter);
 
     assertEquals("", resources.getString("notthere"));
-    assertTrue(m_errorWriter.called());
+    assertTrue((m_errorWriter.getOutputAndReset().length() > 0));
 
     assertNull(resources.getString("notthere", false));
-    assertTrue(!m_errorWriter.called());
+    assertTrue(!(m_errorWriter.getOutputAndReset().length() > 0));
 
     assertEquals("", resources.getString("notthere", true));
-    assertTrue(m_errorWriter.called());
+    assertTrue((m_errorWriter.getOutputAndReset().length() > 0));
 
     assertEquals("A property value", resources.getString("key"));
-    assertTrue(!m_errorWriter.called());
+    assertTrue(!(m_errorWriter.getOutputAndReset().length() > 0));
   }
 
 
@@ -76,19 +76,19 @@ public class TestResources extends TestCase {
     resources.setErrorWriter(m_errorWriter);
 
     assertNull(resources.getImageIcon("notthere"));
-    assertTrue(!m_errorWriter.called());
+    assertTrue(!(m_errorWriter.getOutputAndReset().length() > 0));
 
     assertNull(resources.getImageIcon("notthere", true));
-    assertTrue(m_errorWriter.called());
+    assertTrue((m_errorWriter.getOutputAndReset().length() > 0));
 
     assertNull(resources.getImageIcon("notthere", false));
-    assertTrue(!m_errorWriter.called());
+    assertTrue(!(m_errorWriter.getOutputAndReset().length() > 0));
 
     assertNull(resources.getImageIcon("resourceFile", false));
-    assertTrue(m_errorWriter.called());
+    assertTrue((m_errorWriter.getOutputAndReset().length() > 0));
 
     assertNotNull(resources.getImageIcon("image", false));
-    assertTrue(!m_errorWriter.called());
+    assertTrue(!(m_errorWriter.getOutputAndReset().length() > 0));
   }
 
   public void testGetStringFromFile() throws Exception {
@@ -96,16 +96,16 @@ public class TestResources extends TestCase {
     resources.setErrorWriter(m_errorWriter);
 
     assertNull(resources.getStringFromFile("notthere", false));
-    assertTrue(!m_errorWriter.called());
+    assertTrue(!(m_errorWriter.getOutputAndReset().length() > 0));
 
     assertNull(resources.getStringFromFile("notthere", true));
-    assertTrue(m_errorWriter.called());
+    assertTrue((m_errorWriter.getOutputAndReset().length() > 0));
 
     assertNull(resources.getStringFromFile("resourceFile", false));
-    assertTrue(m_errorWriter.called());
+    assertTrue((m_errorWriter.getOutputAndReset().length() > 0));
 
     final String helloWorld = resources.getStringFromFile("aFile", true);
-    assertTrue(!m_errorWriter.called());
+    assertTrue(!(m_errorWriter.getOutputAndReset().length() > 0));
     assertEquals("Hello world\n", helloWorld);
 
     final File file =
@@ -116,7 +116,7 @@ public class TestResources extends TestCase {
 
     final String noResource = resources.getStringFromFile("aFile", false);
     assertNull(noResource);
-    assertTrue(m_errorWriter.called());
+    assertTrue((m_errorWriter.getOutputAndReset().length() > 0));
 
     FileUtilities.setCanAccess(file, true);
   }

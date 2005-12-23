@@ -23,14 +23,14 @@ package net.grinder.common;
 
 import java.io.PrintWriter;
 
-import net.grinder.testutility.CountingPrintWriter;
+import net.grinder.testutility.StubPrintWriter;
 import net.grinder.testutility.RandomStubFactory;
 
 
 public class LoggerStubFactory extends RandomStubFactory {
 
-  private CountingPrintWriter m_errorLineCounter = new CountingPrintWriter();
-  private CountingPrintWriter m_outputLineCounter = new CountingPrintWriter();
+  private StubPrintWriter m_outputLogWriter = new StubPrintWriter();
+  private StubPrintWriter m_errorLogWriter = new StubPrintWriter();
 
   public LoggerStubFactory() {
     super(Logger.class);
@@ -44,20 +44,20 @@ public class LoggerStubFactory extends RandomStubFactory {
     return (Logger) getStub();
   }
 
-  public PrintWriter override_getErrorLogWriter(Object proxy) {
-    return m_errorLineCounter;
+  public StubPrintWriter getOutputLogWriter() {
+    return m_outputLogWriter;
+  }
+
+  public StubPrintWriter getErrorLogWriter() {
+    return m_errorLogWriter;
   }
 
   public PrintWriter override_getOutputLogWriter(Object proxy) {
-    return m_outputLineCounter;
+    return getOutputLogWriter();
   }
 
-  public int getNumberOfErrorLines() {
-    return m_errorLineCounter.getCount();
-  }
-
-  public int getNumberOfOutputLines() {
-    return m_outputLineCounter.getCount();
+  public PrintWriter override_getErrorLogWriter(Object proxy) {
+    return getErrorLogWriter();
   }
 }
 

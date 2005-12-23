@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,45 +22,31 @@
 package net.grinder.testutility;
 
 import java.io.PrintWriter;
-import java.io.Writer;
+import java.io.StringWriter;
 
 
-public class CountingPrintWriter extends PrintWriter {
-  private int m_count = 0;
+public final class StubPrintWriter extends PrintWriter {
+  private int m_lineCount = 0;
 
-  public CountingPrintWriter() {
-    this(new NullWriter());
+  public StubPrintWriter() {
+    super(new StringWriter(), true);
   }
 
-  public CountingPrintWriter(Writer delegate) {
-    super(delegate, true);
-  }
-
-  public int getCount() {
-    return m_count;
-  }
-
-  public void reset() {
-    m_count = 0;
-  }
-
-  public boolean called() {
+  public String getOutputAndReset() {
     try {
-      return m_count > 0;
+      return ((StringWriter)out).toString();
     }
     finally {
-      reset();
+      this.out = new StringWriter();
     }
+  }
+
+  public int getLineCount() {
+    return m_lineCount;
   }
 
   public void println() {
-    ++m_count;
-  }
-
-
-  private static class NullWriter extends Writer {
-    public void close() {}
-    public void flush() {}
-    public void write(char[] buffer, int offset, int length) {}
+    super.println();
+    ++m_lineCount;
   }
 }
