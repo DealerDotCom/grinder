@@ -26,8 +26,8 @@ As well as Ant, to build and run The Grinder you need:
 
   - J2SE 1.4.1 or later
 
-The following addtional packages are necessary to rebuild some parts of
-The Grinder:
+The following addtional packages are necessary to build and run The Grinder.
+They are bundled in the lib directory:
 
   - Jython 2.1
   - Apache XMLBeans 2.1.0
