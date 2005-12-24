@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
  * @author Philip Aston
  * @version $Revision$
  */
-class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
+class HTTPMethodRelativeURIFilterDecorator extends AbstractFilterDecorator {
 
   private static final Pattern s_httpMethodLine;
 
@@ -60,44 +60,13 @@ class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
                       Pattern.DOTALL);
   }
 
-  private final TCPProxyFilter m_delegate;
-
   /**
    * Constructor.
    *
    * @param delegate Filter to decorate.
    */
   public HTTPMethodRelativeURIFilterDecorator(TCPProxyFilter delegate) {
-    m_delegate = delegate;
-  }
-
-  /**
-   * A new connection has been opened.
-   *
-   * @param connectionDetails Describes the connection.
-   * @throws FilterException If an error occurs.
-   */
-  public void connectionOpened(ConnectionDetails connectionDetails)
-    throws FilterException {
-    m_delegate.connectionOpened(connectionDetails);
-  }
-
-  /**
-   * A connection has been closed.
-   *
-   * @param connectionDetails Describes the connection.
-   * @throws FilterException If an error occurs.
-   */
-  public void connectionClosed(ConnectionDetails connectionDetails)
-    throws FilterException {
-    m_delegate.connectionClosed(connectionDetails);
-  }
-
-  /**
-   * Called just before stop.
-   */
-  public void stop() {
-    m_delegate.stop();
+    super(delegate);
   }
 
   /**
@@ -129,13 +98,13 @@ class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
 
         final byte[] resultBytes = result.getBytes("ISO8859_1");
 
-        final byte[] delegateResult = m_delegate.handle(connectionDetails,
-          resultBytes, resultBytes.length);
+        final byte[] delegateResult =
+          super.handle(connectionDetails, resultBytes, resultBytes.length);
 
         return delegateResult != null ? delegateResult : resultBytes;
       }
       else {
-        return m_delegate.handle(connectionDetails, buffer, bytesRead);
+        return super.handle(connectionDetails, buffer, bytesRead);
       }
     }
     catch (UnsupportedEncodingException e) {

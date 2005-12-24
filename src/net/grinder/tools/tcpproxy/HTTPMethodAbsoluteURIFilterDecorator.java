@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * from the delegate filter to an absolute URI before returning the
  * transformed result.</p>
  *
- * <p>When the sucessor server is an HTTP proxy, we always want to
+ * <p>When the successor server is an HTTP proxy, we always want to
  * pass absolute URI's so the proxy knows how to route the
  * request.</p>
  *
@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
  * @author Philip Aston
  * @version $Revision$
  */
-class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
+class HTTPMethodAbsoluteURIFilterDecorator extends AbstractFilterDecorator {
 
   private static final Pattern s_httpMethodLine;
 
@@ -54,7 +54,6 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
                                        Pattern.DOTALL);
   }
 
-  private final TCPProxyFilter m_delegate;
   private final String m_absoluteURIPrefix;
 
   /**
@@ -66,35 +65,9 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
    */
   public HTTPMethodAbsoluteURIFilterDecorator(TCPProxyFilter delegate,
                                               EndPoint remoteEndPoint) {
-    m_delegate = delegate;
+    super(delegate);
+
     m_absoluteURIPrefix = "http://" + remoteEndPoint;
-  }
-
-  /**
-   * A new connection has been opened.
-   *
-   * @param connectionDetails Describes the connection.
-   */
-  public void connectionOpened(ConnectionDetails connectionDetails)
-    throws FilterException {
-    m_delegate.connectionOpened(connectionDetails);
-  }
-
-  /**
-   * A connection has been closed.
-   *
-   * @param connectionDetails Describes the connection.
-   */
-  public void connectionClosed(ConnectionDetails connectionDetails)
-    throws FilterException {
-    m_delegate.connectionClosed(connectionDetails);
-  }
-
-  /**
-   * Called just before stop.
-   */
-  public void stop() {
-    m_delegate.stop();
   }
 
   /**
@@ -112,7 +85,7 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
     throws FilterException {
 
     final byte[] delegateResult =
-      m_delegate.handle(connectionDetails, buffer, bytesRead);
+      super.handle(connectionDetails, buffer, bytesRead);
 
     try {
       final String original;
