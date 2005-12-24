@@ -35,7 +35,7 @@ public interface TCPProxyEngine extends Runnable {
   // void run();
 
   /**
-   *Stop the engine.
+   * Stop the engine.
    */
   void stop();
 }
