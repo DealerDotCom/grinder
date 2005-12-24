@@ -105,8 +105,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     m_outputWriter = logger.getOutputLogWriter();
 
     m_socketFactory = socketFactory;
-    m_requestFilter = requestFilter;
-    m_responseFilter = responseFilter;
+    m_requestFilter = new StopFilterAtMostOnce(requestFilter);
+    m_responseFilter = new StopFilterAtMostOnce(responseFilter);
 
     if (useColour) {
       m_requestColour = TerminalColour.RED;
@@ -126,23 +126,27 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    */
   public void stop() {
 
-    m_requestFilter.stop();
-    m_responseFilter.stop();
+    synchronized (m_serverSocket) {
+      if (!isStopped()) {
+        m_requestFilter.stop();
+        m_responseFilter.stop();
 
-    // Close socket to stop engine.
-    try {
-      m_serverSocket.close();
-    }
-    catch (IOException ioe) {
-      // Be silent.
-      UncheckedInterruptedException.ioException(ioe);
-    }
+        // Close socket to stop engine.
+        try {
+          m_serverSocket.close();
+        }
+        catch (IOException ioe) {
+          // Be silent.
+          UncheckedInterruptedException.ioException(ioe);
+        }
 
-    // Ensure all our threads are shut down.
-    final Iterator iterator = m_streamThreads.iterator();
+        // Ensure all our threads are shut down.
+        final Iterator iterator = m_streamThreads.iterator();
 
-    while (iterator.hasNext()) {
-      ((StreamThread)iterator.next()).stop();
+        while (iterator.hasNext()) {
+          ((StreamThread)iterator.next()).stop();
+        }
+      }
     }
   }
 
@@ -152,7 +156,9 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    * @return <code>true</code> => the engine is stopped.
    */
   public boolean isStopped() {
-    return m_serverSocket.isClosed();
+    synchronized (m_serverSocket) {
+      return m_serverSocket.isClosed();
+    }
   }
 
   /**
@@ -581,6 +587,26 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     private void postOutput() {
       m_outputWriter.print(m_resetColour);
       m_outputWriter.flush();
+    }
+  }
+
+  private static final class StopFilterAtMostOnce
+    extends AbstractFilterDecorator {
+
+    private boolean m_stopped;
+
+    public StopFilterAtMostOnce(TCPProxyFilter delegate) {
+      super(delegate);
+    }
+
+    public void stop() {
+      synchronized (this) {
+        if (!m_stopped) {
+          super.stop();
+        }
+
+        m_stopped = true;
+      }
     }
   }
 }

@@ -139,15 +139,15 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         new HTTPSProxySocketFactory(sslSocketFactory, chainedHTTPSProxy);
 
       m_proxySSLEngine =
-        new ProxySSLEngine(m_httpsProxySocketFactory, requestFilter,
-                           responseFilter, logger, useColour);
+        new ProxySSLEngine(m_httpsProxySocketFactory, getRequestFilter(),
+                           getResponseFilter(), logger, useColour);
     }
     else {
       m_httpsProxySocketFactory = null;
 
       m_proxySSLEngine =
-        new ProxySSLEngine(sslSocketFactory, requestFilter, responseFilter,
-                           logger, useColour);
+        new ProxySSLEngine(sslSocketFactory, getRequestFilter(),
+                           getResponseFilter(), logger, useColour);
     }
 
     m_proxySSLEngineThread =
