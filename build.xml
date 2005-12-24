@@ -26,6 +26,12 @@ As well as Ant, to build and run The Grinder you need:
 
   - J2SE 1.4.1 or later
 
+The following addtional packages are necessary to rebuild some parts of
+The Grinder:
+
+  - Jython 2.1
+  - Apache XMLBeans 2.1.0
+
 The following additional packages are necesary to run The Grinder unit
 tests, reports.
 
@@ -48,7 +54,7 @@ Do the following:
   2. Set/export ANT_HOME, JAVA_HOME and PATH as described
      in the Ant user guide.
 
-         3. Type ant (or ant.bat on Windows platforms)
+  3. Type ant (or ant.bat on Windows platforms)
 
 Say
   ant -projecthelp
@@ -62,7 +68,8 @@ classes the module depends on. You may have to modify
 etc/localpaths.properties or unset your CLASSPATH if this doesn't do
 what you want. Currently the conditionally built modules are:
 
-   JUnit test cases (Needs JUnit 3.7)
+   JUnit test cases (Needs JUnit)
+   XMLBeans compilation (Needs XMLBeans)
 -->
 
 <project name="The Grinder" default="jar" basedir=".">
@@ -83,36 +90,31 @@ what you want. Currently the conditionally built modules are:
   <property name="deprecation" value="on"/>
 
   <!-- source of all evil -->
-  <property name="src.dir" value="src"/>
-  <property name="native-src.dir" value="native"/>
-  <property name="test-src.dir" value="tests-src"/>
-  <property name="etc.dir" value="etc"/>
-  <property name="changes2xml.py" value="etc/changes2xml.py"/>
-  <property name="outline2xml.py" value="etc/outline2xml.py"/>
-  <property name="examples.dir" value="examples"/>
-  <property name="contrib.dir" value="contrib"/>
+  <property name="src.dir" location="src"/>
+  <property name="native-src.dir" location="native"/>
+  <property name="test-src.dir" location="tests-src"/>
+  <property name="etc.dir" location="etc"/>
+  <property name="examples.dir" location="examples"/>
+  <property name="contrib.dir" location="contrib"/>
   <property name="export-to-doc-build.dir"
-            value="${grinder-doc.dir}/imported"/>
+            location="${grinder-doc.dir}/imported"/>
 
   <!-- output -->
   <!-- classes.dir is calcuated in init. -->
-  <property name="build.dir" value="${basedir}/build"/>
-  <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
-  <property name="lib.dir" value="lib"/>
-  <property name="lib.jar" value="${name}.jar"/>
-  <property name="dist.root" value="${build.dir}/distribution"/>
-  <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
-  <property name="clover.dir" value="clover"/>
+  <property name="build.dir" location="${basedir}/build"/>
+  <property name="test-classes.dir" location="${build.dir}/tests-classes"/>
+  <property name="lib.dir" location="lib"/>
+  <property name="dist.root" location="${build.dir}/distribution"/>
+  <property name="dist.dir" location="${dist.root}/${name}-${version}"/>
+  <property name="clover.dir" location="clover"/>
   <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
-  <property name="build.log" value="${build.dir}/build.log"/>
-  <property name="python.cachedir" value="${build.dir}/python.cache"/>
-  <property name="release.dir" value="releases"/>
-  <property name="doc.dir" value="docs"/>
+  <property name="release.dir" location="releases"/>
+  <property name="doc.dir" location="docs"/>
 
   <!-- javadoc -->
-  <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
-  <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
-  <property name="package-lists.dir" value="${etc.dir}/packagelists"/>
+  <property name="javadoc.dir" location="${doc.dir}/javadoc"/>
+  <property name="javadoc.css" location="${etc.dir}/javadoc.css"/>
+  <property name="package-lists.dir" location="${etc.dir}/packagelists"/>
 
   <!-- distribution patternsets -->
   <patternset id="sources.patternset">
@@ -160,11 +162,11 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Initialization target                                               -->
   <!-- =================================================================== -->
-  <target name="init">
+  <target name="init" depends="bundle-libraries">
     <tstamp/>
 
     <mkdir dir="${build.dir}"/>
-    <record name="${build.log}" loglevel="verbose" append="false"/>
+    <record name="${build.dir}/build.log" loglevel="verbose" append="false"/>
 
     <!-- Separate clover instrumented classes. -->
     <condition property="classes.dir" value="${build.dir}/classes">
@@ -177,9 +179,19 @@ what you want. Currently the conditionally built modules are:
 
     <echo message="** Building ${Name} ${version} on ${TODAY} **"/>
 
+    <path id="jython.classpath">
+      <pathelement path="${lib.dir}/jython.jar"/>
+    </path>
+
+    <path id="xmlbeans.classpath">
+      <pathelement path="${lib.dir}/xbean.jar"/>
+      <pathelement path="${lib.dir}/jsr173_1.0_api.jar"/>
+    </path>
+
     <path id="build.classpath">
-      <pathelement path="${jython.dir}/${jython.jar}"/>
       <pathelement path="${classes.dir}"/>
+      <path refid="jython.classpath"/>
+      <path refid="xmlbeans.classpath"/>
     </path>
 
     <!-- options -->
@@ -195,10 +207,6 @@ what you want. Currently the conditionally built modules are:
                classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
                property="have.optional.tasks" />
 
-    <available classpathref="build.classpath"
-               classname="org.python.core.PyObject"
-               property="have.jython"/>
-
     <available file="${grinder-doc.dir}/build.xml"
                property="have.grinder-doc-build"/>
 
@@ -213,10 +221,6 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Useful assertions                                                   -->
   <!-- =================================================================== -->
-  <target name="assert-have-jsse" depends="init" unless="have.jsse">
-    <fail message="Install JSSE 1.0.2 to build this target"/>
-  </target>
-
   <target name="assert-have-junit" depends="init" unless="have.junit">
     <fail message="Add JUnit 3.8.1 to your CLASSPATH to build this target"/>
   </target>
@@ -226,23 +230,31 @@ what you want. Currently the conditionally built modules are:
     <fail message="Install the Ant optional.jar to build this target"/>
   </target>
 
-  <target name="assert-have-jython" depends="init" unless="have.jython">
-    <fail message="Define jython.dir and jython.jar in etc/localpaths.properties to build this target"/>
-  </target>
-
   <target name="assert-have-grinder-doc-build" unless="have.grinder-doc-build">
     <fail message="To build this target, edit etc/localpaths.properties and set grinder-doc.dir to a valid grinder documentation build"/>
   </target>
 
   <target name="assert-have-everything"
-    depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks">
+    depends="assert-have-junit,assert-have-optional-tasks">
+  </target>
+
+  <target name="bundle-libraries">
+    <copy todir="${lib.dir}" failonerror="false" verbose="true">
+      <fileset dir="${jython.dir}" includes="${jython.jar}"/>
+
+      <fileset dir="${xmlbeans.dir}/lib">
+        <include name="xbean.jar"/>
+        <include name="jsr173_1.0_api.jar"/>
+      </fileset>
+    </copy>
   </target>
 
   <!-- =================================================================== -->
   <!-- Copy resources into the classes hierarchy, and bundled libraries.    -->
   <!-- =================================================================== -->
+
   <target name="copy-resources"
-    depends="init,assert-have-jython"
+    depends="init"
     description="Copies the resource files into build output">
 
     <copy todir="${classes.dir}">
@@ -268,16 +280,46 @@ what you want. Currently the conditionally built modules are:
       <fileset dir="${test-src.dir}" includes="**/*.properties"/>
     </copy>
 
-    <copy todir="${lib.dir}">
-      <fileset dir="${jython.dir}" includes="${jython.jar}"/>
-    </copy>
-
   </target>
 
   <!-- =================================================================== -->
   <!-- Compilation rules                                    -->
   <!-- =================================================================== -->
-  <target name="compile" depends="init,assert-have-jsse"
+
+  <property name="xmlbeans.jar" location="${lib.dir}/grinder-xmlbeans.jar"/>
+
+  <fileset id="xmlbeans.src.fileset" dir="${etc.dir}">
+    <include name="**/*.xsd"/>
+    <include name="**/*.xsdconfig"/>
+  </fileset>
+
+  <target name="check.xmlbeans.uptodate" depends="init">
+    <uptodate property="xmlbeans.uptodate" targetfile="${xmlbeans.jar}">
+      <srcfiles refid="xmlbeans.src.fileset"/>
+    </uptodate>
+  </target>
+
+  <target name="compile-xmlbeans"
+    depends="init,check.xmlbeans.uptodate"
+    description="Compiles our XML schemas to XMLBeans"
+    unless="xmlbeans.uptodate">
+
+    <taskdef name="xmlbean"
+             classname="org.apache.xmlbeans.impl.tool.XMLBean"
+             classpathref="xmlbeans.classpath"/>
+
+    <property name="xmlbeans-build.dir" location="${build.dir}/xmlbeans"/>
+    <delete dir="${xmlbeans-build.dir}"/>
+
+    <xmlbean
+      classgendir="${xmlbeans-build.dir}"
+      classpathref="xmlbeans.classpath"
+      destfile="${xmlbeans.jar}">
+      <fileset refid="xmlbeans.src.fileset"/>
+    </xmlbean>
+  </target>
+
+  <target name="compile" depends="init"
     description="Compiles the source.">
     <mkdir dir="${classes.dir}"/>
 
@@ -343,7 +385,7 @@ what you want. Currently the conditionally built modules are:
   <target name="jar" depends="compile, copy-resources, checkstyle"
     description="Default target, creates lib/grinder.jar.">
 
-    <jar jarfile="${lib.dir}/${lib.jar}"
+    <jar jarfile="${lib.dir}/${name}.jar"
          basedir="${classes.dir}"
          manifest="etc/grinder-manifest.mf">
     </jar>
@@ -397,7 +439,7 @@ what you want. Currently the conditionally built modules are:
       </classpath>
 
       <!-- Put Jython droppings in one place. -->
-      <sysproperty key="python.cachedir" path="${python.cachedir}"/>
+      <sysproperty key="python.cachedir" path="${build.dir}/python.cache"/>
 
       <!-- Things the tests find useful. -->
       <sysproperty key="classes.dir" path="${classes.dir}"/>
@@ -479,7 +521,7 @@ what you want. Currently the conditionally built modules are:
       <classpath>
         <pathelement path="${jython.dir}/${jython.jar}"/>
       </classpath>
-      <arg path="${changes2xml.py}"/>
+      <arg path="${etc.dir}/changes2xml.py"/>
       <arg value="CHANGES"/>
     </java>
 
@@ -491,7 +533,7 @@ what you want. Currently the conditionally built modules are:
       <classpath>
         <pathelement path="${jython.dir}/${jython.jar}"/>
       </classpath>
-      <arg path="${outline2xml.py}"/>
+      <arg path="${etc.dir}/outline2xml.py"/>
       <arg value="TODO"/>
     </java>
 
