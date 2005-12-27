@@ -103,7 +103,7 @@ public class TestHandlerChainSender extends TestCase {
 
     senderStubFactory.assertSuccess("send", m1);
     senderStubFactory.assertNoMoreCalls();
-    messageHandlerStubFactory.assertFailed("process",
+    messageHandlerStubFactory.assertException("process",
                                            new Object[] { m1 },
                                            CommunicationException.class);
     messageHandlerStubFactory.assertNoMoreCalls();

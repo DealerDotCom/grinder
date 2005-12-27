@@ -142,7 +142,7 @@ public final class CallData extends Assert implements CallAssertions {
     return assertSuccess(methodName, new Class[] { class1, class2, class3 });
   }
 
-  public final CallData assertFailed(String methodName,
+  public final CallData assertException(String methodName,
                                      Object[] parameters,
                                      Throwable throwable) {
     assertCalled(methodName, parameters);
@@ -150,7 +150,7 @@ public final class CallData extends Assert implements CallAssertions {
     return this;
   }
 
-  public final CallData assertFailed(String methodName,
+  public final CallData assertException(String methodName,
                                      Class[] parameterTypes,
                                      Throwable throwable) {
     assertCalled(methodName, parameterTypes);
@@ -158,7 +158,7 @@ public final class CallData extends Assert implements CallAssertions {
     return this;
   }
 
-  public final CallData assertFailed(String methodName,
+  public final CallData assertException(String methodName,
                                      Object[] parameters,
                                      Class throwableType) {
     assertCalled(methodName, parameters);
@@ -166,7 +166,7 @@ public final class CallData extends Assert implements CallAssertions {
     return this;
   }
 
-  public final CallData assertFailed(String methodName,
+  public final CallData assertException(String methodName,
                                      Class[] parameterTypes,
                                      Class throwableType) {
     assertCalled(methodName, parameterTypes);

@@ -213,32 +213,32 @@ public class CallRecorder extends Assert implements CallAssertions {
     return getCallData().assertSuccess(methodName, class1, class2, class3);
   }
 
-  public final CallData assertFailed(String methodName,
+  public final CallData assertException(String methodName,
                                      Object[] parameters,
                                      Throwable throwable) {
-    return getCallData().assertFailed(methodName, parameters, throwable);
+    return getCallData().assertException(methodName, parameters, throwable);
   }
 
-  public final CallData assertFailed(String methodName,
+  public final CallData assertException(String methodName,
                                      Class[] parameterTypes,
                                      Throwable throwable) {
-    return getCallData().assertFailed(methodName, parameterTypes, throwable);
+    return getCallData().assertException(methodName, parameterTypes, throwable);
   }
 
   /**
    *  Check the given method was called, and that it threw an
    *  exception of the given type.
    */
-  public final CallData assertFailed(String methodName,
+  public final CallData assertException(String methodName,
                                      Object[] parameters,
                                      Class throwableType) {
-    return getCallData().assertFailed(methodName, parameters, throwableType);
+    return getCallData().assertException(methodName, parameters, throwableType);
   }
 
-  public final CallData assertFailed(String methodName,
+  public final CallData assertException(String methodName,
                                      Class[] parameterTypes,
                                      Class throwableType) {
-    return getCallData().assertFailed(methodName,
+    return getCallData().assertException(methodName,
                                       parameterTypes,
                                       throwableType);
   }

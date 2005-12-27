@@ -51,23 +51,23 @@ public interface CallAssertions {
    *  Check the given method was called, and that it threw the given
    *  exception.
    */
-  CallData assertFailed(String methodName,
-                        Object[] parameters,
-                        Throwable throwable);
+  CallData assertException(String methodName,
+                           Object[] parameters,
+                           Throwable throwable);
 
-  CallData assertFailed(String methodName,
-                        Class[] parameterTypes,
-                        Throwable throwable);
+  CallData assertException(String methodName,
+                           Class[] parameterTypes,
+                           Throwable throwable);
 
   /**
    *  Check the given method was called, and that it threw an
    *  exception of the given type.
    */
-  CallData assertFailed(String methodName,
-                        Object[] parameters,
-                        Class throwableType);
+  CallData assertException(String methodName,
+                           Object[] parameters,
+                           Class throwableType);
 
-  CallData assertFailed(String methodName,
-                        Class[] parameterTypes,
-                        Class throwableType);
+  CallData assertException(String methodName,
+                           Class[] parameterTypes,
+                           Class throwableType);
 }

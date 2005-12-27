@@ -659,7 +659,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       AssertUtilities.assertContains(e.toString(), "a problem");
     }
 
-    dispatcherStubFactory.assertFailed("dispatch",
+    dispatcherStubFactory.assertException("dispatch",
       new Class[] { Invokeable.class }, PyException.class);
 
     dispatcherStubFactory.assertNoMoreCalls();
