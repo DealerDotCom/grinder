@@ -29,6 +29,7 @@ import java.util.NoSuchElementException;
 import net.grinder.util.thread.Monitor;
 
 import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
 
 
 /**
@@ -159,6 +160,15 @@ public class CallRecorder extends Assert implements CallAssertions {
     return getCallData().assertSuccess(methodName);
   }
 
+  public final CallData assertSomeSuccess(final String methodName) {
+    return new AssertSomeMatchingCallTemplate() {
+      public void doTest(CallData callData) {
+        callData.assertSuccess(methodName);
+      }
+    }
+    .run();
+  }
+
   public final CallData assertSuccess(String methodName, Object object1) {
     return getCallData().assertSuccess(methodName, object1);
   }
@@ -178,6 +188,16 @@ public class CallRecorder extends Assert implements CallAssertions {
 
   public final CallData assertSuccess(String methodName, Class class1) {
     return getCallData().assertSuccess(methodName, class1);
+  }
+
+  public final CallData assertSomeSuccess(final String methodName,
+                                          final Class class1) {
+    return new AssertSomeMatchingCallTemplate() {
+      public void doTest(CallData callData) {
+        callData.assertSuccess(methodName, class1);
+      }
+    }
+    .run();
   }
 
   public final CallData assertSuccess(String methodName,
@@ -221,5 +241,32 @@ public class CallRecorder extends Assert implements CallAssertions {
     return getCallData().assertFailed(methodName,
                                       parameterTypes,
                                       throwableType);
+  }
+
+  private abstract class AssertSomeMatchingCallTemplate {
+    public final CallData run() {
+      synchronized (m_callDataListMonitor) {
+        final Iterator iterator = m_callDataList.iterator();
+
+        while (iterator.hasNext()) {
+          try {
+            final CallData callData = (CallData)iterator.next();
+
+            doTest(callData);
+
+            iterator.remove();
+
+            return callData;
+          }
+          catch (AssertionFailedError e) {
+          }
+        }
+      }
+
+      fail("No matching call");
+      return null; // Not reached.
+    }
+
+    public abstract void doTest(CallData callData);
   }
 }
