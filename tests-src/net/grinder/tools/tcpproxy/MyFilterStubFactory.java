@@ -47,4 +47,32 @@ public class MyFilterStubFactory extends RandomStubFactory {
     m_resultSet = true;
     m_result = result;
   }
+
+  public void assertIsWrappedBy(TCPProxyFilter filter)
+    throws Exception {
+
+    assertNoMoreCalls();
+
+    final ConnectionDetails connectionDetails =
+      new ConnectionDetails(new EndPoint("A", 55),
+                            new EndPoint("B", 80), false);
+
+    filter.connectionOpened(connectionDetails);
+    assertSuccess("connectionOpened", connectionDetails);
+
+    filter.connectionClosed(connectionDetails);
+    assertSuccess("connectionClosed", connectionDetails);
+
+    filter.connectionOpened(connectionDetails);
+    assertSuccess("connectionOpened", connectionDetails);
+
+    filter.connectionClosed(connectionDetails);
+    assertSuccess("connectionClosed", connectionDetails);
+
+    // We don't test stop() here because our wrapper prevents it from being
+    // called more than once, so we would break future tests.
+
+    assertNoMoreCalls();
+  }
+
 }

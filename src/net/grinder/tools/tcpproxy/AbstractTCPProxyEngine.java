@@ -128,9 +128,6 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
     synchronized (m_serverSocket) {
       if (!isStopped()) {
-        m_requestFilter.stop();
-        m_responseFilter.stop();
-
         // Close socket to stop engine.
         try {
           m_serverSocket.close();
@@ -140,12 +137,16 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
           UncheckedInterruptedException.ioException(ioe);
         }
 
-        // Ensure all our threads are shut down.
+        // Ensure all our threads are shut down. This may send
+        // connection closed events to the filters.
         final Iterator iterator = m_streamThreads.iterator();
 
         while (iterator.hasNext()) {
           ((StreamThread)iterator.next()).stop();
         }
+
+        m_requestFilter.stop();
+        m_responseFilter.stop();
       }
     }
   }

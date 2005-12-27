@@ -501,8 +501,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     assertEquals(m_localEndPoint, engine.getListenEndPoint());
     assertNotNull(engine.getSocketFactory());
-    assertEquals(m_requestFilter, engine.getRequestFilter());
-    assertEquals(m_responseFilter, engine.getResponseFilter());
+    m_requestFilterStubFactory.assertIsWrappedBy(engine.getRequestFilter());
+    m_responseFilterStubFactory.assertIsWrappedBy(engine.getResponseFilter());
     assertEquals("", engine.getRequestColour());
     assertEquals("", engine.getResponseColour());
 
@@ -519,6 +519,14 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     m_requestFilterStubFactory.assertSuccess("stop");
     m_responseFilterStubFactory.assertSuccess("stop");
+
+    // Stopping engine or filter again doesn't do anything.
+    engine.stop();
+    engine.getRequestFilter().stop();
+    engine.getResponseFilter().stop();
+
+    m_requestFilterStubFactory.assertNoMoreCalls();
+    m_responseFilterStubFactory.assertNoMoreCalls();
   }
 
   public void testColourHTTPProxyEngine() throws Exception {
@@ -542,8 +550,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     assertEquals(m_localEndPoint, engine.getListenEndPoint());
     assertNotNull(engine.getSocketFactory());
-    assertEquals(m_requestFilter, engine.getRequestFilter());
-    assertEquals(m_responseFilter, engine.getResponseFilter());
+    m_requestFilterStubFactory.assertIsWrappedBy(engine.getRequestFilter());
+    m_responseFilterStubFactory.assertIsWrappedBy(engine.getResponseFilter());
     assertEquals(TerminalColour.RED, engine.getRequestColour());
     assertEquals(TerminalColour.BLUE, engine.getResponseColour());
 
@@ -559,6 +567,14 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     m_requestFilterStubFactory.assertSuccess("stop");
     m_responseFilterStubFactory.assertSuccess("stop");
+
+    // Stopping engine or filter again doesn't do anything.
+    engine.stop();
+    engine.getRequestFilter().stop();
+    engine.getResponseFilter().stop();
+
+    m_requestFilterStubFactory.assertNoMoreCalls();
+    m_responseFilterStubFactory.assertNoMoreCalls();
   }
 
   public void testWithChainedHTTPProxy() throws Exception {
@@ -643,10 +659,23 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     waitUntilAllStreamThreadsStopped();
 
+    m_requestFilterStubFactory.assertSuccess(
+      "connectionClosed", ConnectionDetails.class);
+    m_responseFilterStubFactory.assertSuccess(
+      "connectionClosed", ConnectionDetails.class);
+
     m_requestFilterStubFactory.assertSuccess("stop");
     m_responseFilterStubFactory.assertSuccess("stop");
 
     m_loggerStubFactory.assertNoMoreCalls();
+
+    // Stopping engine or filter again doesn't do anything.
+    engine.stop();
+    engine.getRequestFilter().stop();
+    engine.getResponseFilter().stop();
+
+    m_requestFilterStubFactory.assertNoMoreCalls();
+    m_responseFilterStubFactory.assertNoMoreCalls();
   }
 
   public void testWithChainedHTTPSProxy() throws Exception {
@@ -745,18 +774,31 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
                                               Integer.class);
     m_responseFilterStubFactory.assertNoMoreCalls();
 
-    chainedProxy.stop();
-    chainedProxyThread.join();
-
     engine.stop();
     engineThread.join();
 
+    chainedProxy.stop();
+    chainedProxyThread.join();
+
     waitUntilAllStreamThreadsStopped();
+
+    m_requestFilterStubFactory.assertSomeSuccess(
+      "connectionClosed", ConnectionDetails.class);
+    m_responseFilterStubFactory.assertSomeSuccess(
+      "connectionClosed", ConnectionDetails.class);
 
     m_requestFilterStubFactory.assertSuccess("stop");
     m_responseFilterStubFactory.assertSuccess("stop");
 
     m_loggerStubFactory.assertNoMoreCalls();
+
+    // Stopping engine or filter again doesn't do anything.
+    engine.stop();
+    engine.getRequestFilter().stop();
+    engine.getResponseFilter().stop();
+
+    m_requestFilterStubFactory.assertNoMoreCalls();
+    m_responseFilterStubFactory.assertNoMoreCalls();
   }
 
   private class AcceptAndEcho implements Runnable {

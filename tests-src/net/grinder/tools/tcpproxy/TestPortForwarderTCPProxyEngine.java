@@ -205,6 +205,13 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
 
     m_loggerStubFactory.assertNoMoreCalls();
 
+    // Stopping engine or filter again doesn't do anything.
+    engine.stop();
+    engine.getRequestFilter().stop();
+    engine.getResponseFilter().stop();
+
+    m_requestFilterStubFactory.assertNoMoreCalls();
+    m_responseFilterStubFactory.assertNoMoreCalls();
   }
 
   public void testEngine() throws Exception {
@@ -236,8 +243,8 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
 
     assertEquals(localEndPoint, engine.getListenEndPoint());
     assertNotNull(engine.getSocketFactory());
-    assertEquals(m_requestFilter, engine.getRequestFilter());
-    assertEquals(m_responseFilter, engine.getResponseFilter());
+    m_requestFilterStubFactory.assertIsWrappedBy(engine.getRequestFilter());
+    m_responseFilterStubFactory.assertIsWrappedBy(engine.getResponseFilter());
     assertEquals("", engine.getRequestColour());
     assertEquals("", engine.getResponseColour());
 
@@ -277,8 +284,8 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
 
     assertEquals(localEndPoint, engine.getListenEndPoint());
     assertNotNull(engine.getSocketFactory());
-    assertEquals(m_requestFilter, engine.getRequestFilter());
-    assertEquals(m_responseFilter, engine.getResponseFilter());
+    m_requestFilterStubFactory.assertIsWrappedBy(engine.getRequestFilter());
+    m_responseFilterStubFactory.assertIsWrappedBy(engine.getResponseFilter());
     assertEquals(TerminalColour.RED, engine.getRequestColour());
     assertEquals(TerminalColour.BLUE, engine.getResponseColour());
 
