@@ -168,9 +168,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
     assertEquals(file1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
-    final CallData filesChangedCall = fileListenerStubFactory.getCallData();
-    assertEquals("filesChanged", filesChangedCall.getMethodName());
-    assertEquals(1, filesChangedCall.getParameters().length);
+    final CallData filesChangedCall =
+      fileListenerStubFactory.assertSuccess("filesChanged", File[].class);
     final File[] changedFiles = (File[])(filesChangedCall.getParameters()[0]);
     assertEquals(2, changedFiles.length);
     assertTrue(changedFiles[0].equals(file1) && changedFiles[1].equals(file2) ||
@@ -211,9 +210,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
     final CallData directoriesChangedCall =
-      fileListenerStubFactory.getCallData();
-    assertEquals("filesChanged", directoriesChangedCall.getMethodName());
-    assertEquals(1, directoriesChangedCall.getParameters().length);
+      fileListenerStubFactory.assertSuccess("filesChanged", File[].class);
     final File[] changedDirectories =
       (File[])(directoriesChangedCall.getParameters()[0]);
     assertEquals(2, changedDirectories.length);

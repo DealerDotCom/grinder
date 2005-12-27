@@ -180,13 +180,11 @@ public class TestScriptContextImplementation extends TestCase {
     statisticsView.add(expressionView);
     scriptContext.registerSummaryStatisticsView(statisticsView);
 
-    final CallData callData = queuedSenderStubFactory.getCallData();
-    assertEquals("queue", callData.getMethodName());
-    assertEquals(null, callData.getResult());
-    final Object[] parameters = callData.getParameters();
-    assertEquals(1, parameters.length);
+    final CallData callData =
+      queuedSenderStubFactory.assertSuccess(
+        "queue", RegisterStatisticsViewMessage.class);
     final RegisterStatisticsViewMessage message =
-      (RegisterStatisticsViewMessage)parameters[0];
+      (RegisterStatisticsViewMessage)callData.getParameters()[0];
     assertEquals(statisticsView, message.getStatisticsView());
     queuedSenderStubFactory.assertNoMoreCalls();
 

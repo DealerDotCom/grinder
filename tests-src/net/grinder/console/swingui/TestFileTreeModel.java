@@ -117,8 +117,9 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     fileTreeModel.setRootDirectory(getDirectory());
     final Node rootNode = (Node)fileTreeModel.getRoot();
 
-    final CallData callData = listenerStubFactory1.getCallData();
-    assertEquals("treeStructureChanged", callData.getMethodName());
+    final CallData callData =
+      listenerStubFactory1.assertSuccess("treeStructureChanged",
+                                         TreeModelEvent.class);
     final TreeModelEvent event = (TreeModelEvent)callData.getParameters()[0];
     assertEquals(fileTreeModel, event.getSource());
     AssertUtilities.assertArraysEqual(rootNode.getPath().getPath(),
@@ -151,10 +152,9 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     listenerStubFactory2.assertNoMoreCalls();
 
     fileTreeModel.valueForPathChanged(rootNode.getPath(), rootNode);
-    final CallData callData2 = listenerStubFactory2.getCallData();
-    assertEquals("treeNodesChanged", callData2.getMethodName());
-    AssertUtilities.assertArraysEqual(new Class[] { TreeModelEvent.class, },
-                                      callData2.getParameterTypes());
+    final CallData callData2 =
+      listenerStubFactory2.assertSuccess("treeNodesChanged",
+                                         TreeModelEvent.class);
     final TreeModelEvent event2 = (TreeModelEvent)callData2.getParameters()[0];
     assertEquals(fileTreeModel, event2.getSource());
     AssertUtilities.assertArraysEqual(rootNode.getPath().getPath(),
@@ -251,7 +251,9 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     file4.createNewFile();
     final FileNode file4Node = (FileNode)fileTreeModel.findNode(file4);
 
-    final CallData callData = listenerStubFactory.getCallData();
+    final CallData callData =
+      listenerStubFactory.assertSuccess("treeStructureChanged",
+                                        TreeModelEvent.class);
     assertEquals("treeStructureChanged", callData.getMethodName());
     AssertUtilities.assertArraysEqual(new Class[] { TreeModelEvent.class, },
       callData.getParameterTypes());

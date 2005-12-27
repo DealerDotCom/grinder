@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.engine.common.EngineException;
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.util.thread.Monitor;
 
@@ -88,12 +89,10 @@ public class TestWorkerLauncher extends TestCase {
     final Worker childProcess =
       (Worker)myProcessFactory.getChildProcesses().get(0);
 
-    final CallData call = loggerStubFactory.getCallData();
-    assertEquals("output", call.getMethodName());
-    final Object[] parameters = call.getParameters();
-    assertEquals(1, parameters.length);
-    final String s = (String)parameters[0];
-    assertTrue(s.indexOf(childProcess.getIdentity().getName()) >= 0);
+    final CallData call =
+      loggerStubFactory.assertSuccess("output", String.class);
+    final String s = (String)call.getParameters()[0];
+    AssertUtilities.assertContains(s, childProcess.getIdentity().getName());
     loggerStubFactory.assertNoMoreCalls();
 
     workerLauncher.startSomeWorkers(10);

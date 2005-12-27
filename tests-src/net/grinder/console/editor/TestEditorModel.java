@@ -113,7 +113,7 @@ public class TestEditorModel extends AbstractFileTestCase {
                                        BufferImplementation.class);
     listener2StubFactory.assertNoMoreCalls();
 
-    // Select same buffer is a noop.
+    // Select same buffer is a no-op.
     editorModel.selectDefaultBuffer();
 
     listener1StubFactory.assertNoMoreCalls();
@@ -137,7 +137,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     textSourceFactoryStubFactory.resetCallHistory();
 
     final File file1 = createFile("myfile.txt", "blah");
-    final File file2 = createFile("anotherFile.py", "Some stuffb");
+    final File file2 = createFile("anotherFile.py", "Some stuff");
 
     final RandomStubFactory listener1StubFactory =
       new RandomStubFactory(EditorModel.Listener.class);
@@ -159,11 +159,9 @@ public class TestEditorModel extends AbstractFileTestCase {
     textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
 
-    final CallData callData = listener1StubFactory.getCallData();
-    assertEquals("bufferAdded", callData.getMethodName());
-    final Object[] parameters = callData.getParameters();
-    assertEquals(1, parameters.length);
-    final Buffer bufferForFile1 = (Buffer)parameters[0];
+    final CallData callData =
+      listener1StubFactory.assertSuccess("bufferAdded", Buffer.class);
+    final Buffer bufferForFile1 = (Buffer)callData.getParameters()[0];
     assertSame(bufferForFile1, editorModel.getSelectedBuffer());
     listener1StubFactory.assertSuccess("bufferStateChanged", bufferForFile1);
     listener1StubFactory.assertNoMoreCalls();
@@ -172,7 +170,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     listener2StubFactory.assertSuccess("bufferStateChanged", bufferForFile1);
     listener2StubFactory.assertNoMoreCalls();
 
-    // Select same buffer is a noop.
+    // Select same buffer is a no-op.
     editorModel.selectBufferForFile(file1);
 
     assertSame(bufferForFile1, editorModel.getSelectedBuffer());

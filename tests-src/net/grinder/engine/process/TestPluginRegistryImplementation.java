@@ -85,21 +85,20 @@ public class TestPluginRegistryImplementation extends TestCase {
 
     final RandomStubFactory grinderPluginStubFactory =
       new RandomStubFactory(GrinderPlugin.class);
+    grinderPluginStubFactory.setIgnoreObjectMethods(true);
     final GrinderPlugin grinderPlugin =
       (GrinderPlugin)grinderPluginStubFactory.getStub();
 
     pluginRegistry.register(grinderPlugin);
 
-    final CallData callData = skipHashCodeCalls(grinderPluginStubFactory);
-    assertEquals("initialize", callData.getMethodName());
+    final CallData callData =
+      grinderPluginStubFactory.assertSuccess("initialize",
+                                             RegisteredPlugin.class);
 
-    final Object[] parameters = callData.getParameters();
-    assertEquals(1, parameters.length);
-
-    final RegisteredPlugin registeredPlugin = (RegisteredPlugin)parameters[0];
+    final RegisteredPlugin registeredPlugin =
+      (RegisteredPlugin)callData.getParameters()[0];
     assertEquals(scriptContext, registeredPlugin.getScriptContext());
 
-    skipHashCodeCalls(grinderPluginStubFactory);
     grinderPluginStubFactory.assertNoMoreCalls();
 
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
@@ -107,26 +106,8 @@ public class TestPluginRegistryImplementation extends TestCase {
 
     pluginRegistry.register(grinderPlugin);
 
-    skipHashCodeCalls(grinderPluginStubFactory);
     grinderPluginStubFactory.assertNoMoreCalls();
     loggerStubFactory.assertNoMoreCalls();
-  }
-
-  private static final CallData skipHashCodeCalls(CallRecorder callRecorder) {
-
-    try {
-      while (true) {
-        final CallData callData = callRecorder.getCallData();
-
-        if (!"hashCode".equals(callData.getMethodName())) {
-          return callData;
-        }
-      }
-    }
-    catch (AssertionFailedError e) {
-      // No more calls.
-      return null;
-    }
   }
 
   public void testGetPluginThreadListenerList() throws Exception {
