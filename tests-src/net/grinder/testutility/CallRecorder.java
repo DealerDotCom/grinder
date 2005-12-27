@@ -99,21 +99,6 @@ public class CallRecorder extends Assert implements CallAssertions {
     }
   }
 
-  private final CallData getCallData() {
-    // Check the earliest call first.
-    synchronized (m_callDataListMonitor) {
-      try {
-        return (CallData) m_callDataList.removeFirst();
-      }
-      catch (NoSuchElementException e) {
-        fail("No more calls");
-        return null; // Not reached.
-      }
-      finally {
-        m_callDataListMonitor.notifyAll();
-      }
-    }
-  }
 
   public void setIgnoreObjectMethods(boolean b) {
     m_ignoreObjectMethods = b;
@@ -278,6 +263,7 @@ public class CallRecorder extends Assert implements CallAssertions {
     public final CallData run() {
       if (m_ignoreCallOrder) {
         synchronized (m_callDataListMonitor) {
+          // Check the earliest call first.
           final Iterator iterator = m_callDataList.iterator();
 
           while (iterator.hasNext()) {
@@ -286,6 +272,7 @@ public class CallRecorder extends Assert implements CallAssertions {
 
               test(callData);
               iterator.remove();
+              m_callDataListMonitor.notifyAll();
 
               return callData;
             }
@@ -298,9 +285,19 @@ public class CallRecorder extends Assert implements CallAssertions {
         return null; // Not reached.
       }
       else {
-        final CallData callData = getCallData();
-        test(callData);
-        return callData;
+        // Check the earliest call.
+        synchronized (m_callDataListMonitor) {
+          try {
+            final CallData callData = (CallData)m_callDataList.removeFirst();
+            m_callDataListMonitor.notifyAll();
+            test(callData);
+            return callData;
+          }
+          catch (NoSuchElementException e) {
+            fail("No more calls");
+            return null; // Not reached.
+          }
+        }
       }
     }
 
