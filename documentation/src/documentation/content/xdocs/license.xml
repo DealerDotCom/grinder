@@ -100,13 +100,21 @@
   </section>
 
   <section>
+    <title>Apache XMLBeans</title>
+
+    <p>The Grinder includes Apache XMLBeans, under the terms of the Apache
+    Software License Version 2.0. See the <a href="#XMLBeans-NOTICE">
+    XMLBeans NOTICE</a>.</p>
+  </section>
+
+  <section>
     <title>License text</title>
 
     <section id="LGPL">
       <title>The GNU Lesser General Public License</title>
 <source>
  GNU LESSER GENERAL PUBLIC LICENSE
-		       Version 2.1, February 1999
+           Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
      59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -117,7 +125,7 @@
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
 
-			    Preamble
+          Preamble
 
   The licenses for most software are designed to take away your
 freedom to share and change it.  By contrast, the GNU General Public
@@ -219,7 +227,7 @@ modification follow.  Pay close attention to the difference between a
 former contains code derived from the library, whereas the latter must
 be combined with the library in order to run.
 
-		  GNU LESSER GENERAL PUBLIC LICENSE
+      GNU LESSER GENERAL PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
   0. This License Agreement applies to any software library or other
@@ -253,7 +261,7 @@ such a program is covered only if its contents constitute a work based
 on the Library (independent of the use of the Library in a tool for
 writing it).  Whether that is true depends on what the Library does
 and what the program that uses the Library does.
-  
+
   1. You may copy and distribute verbatim copies of the Library's
 complete source code as you receive it, in any medium, provided that
 you conspicuously and appropriately publish on each copy an
@@ -539,7 +547,7 @@ decision will be guided by the two goals of preserving the free status
 of all derivatives of our free software and of promoting the sharing
 and reuse of software generally.
 
-			    NO WARRANTY
+          NO WARRANTY
 
   15. BECAUSE THE LIBRARY IS LICENSED FREE OF CHARGE, THERE IS NO
 WARRANTY FOR THE LIBRARY, TO THE EXTENT PERMITTED BY APPLICABLE LAW.
@@ -562,7 +570,7 @@ FAILURE OF THE LIBRARY TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+         END OF TERMS AND CONDITIONS
 
            How to Apply These Terms to Your New Libraries
 
@@ -752,7 +760,6 @@ JPython version 1.1.x
 </source>
     </section>
 
-
     <section id="JakartaOROLicense">
       <title>The Apache Software License (Jakarta ORO)</title>
 <source>
@@ -781,13 +788,13 @@ JPython version 1.1.x
  *    Alternately, this acknowledgment may appear in the software itself,
  *    if and wherever such third-party acknowledgments normally appear.
  *
- * 4. The names "Apache" and "Apache Software Foundation", "Jakarta-Oro" 
+ * 4. The names "Apache" and "Apache Software Foundation", "Jakarta-Oro"
  *    must not be used to endorse or promote products derived from this
  *    software without prior written permission. For written
  *    permission, please contact apache@apache.org.
  *
- * 5. Products derived from this software may not be called "Apache" 
- *    or "Jakarta-Oro", nor may "Apache" or "Jakarta-Oro" appear in their 
+ * 5. Products derived from this software may not be called "Apache"
+ *    or "Jakarta-Oro", nor may "Apache" or "Jakarta-Oro" appear in their
  *    name, without prior written permission of the Apache Software Foundation.
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
@@ -809,7 +816,7 @@ JPython version 1.1.x
  * information on the Apache Software Foundation, please see
  * &lt;http://www.apache.org/&gt;.
  *
- * Portions of this software are based upon software originally written 
+ * Portions of this software are based upon software originally written
  * by Daniel F. Savarese. We appreciate his contributions.
  */
 </source>
@@ -832,6 +839,44 @@ remains intact in all source distributions of this package.
 &lt;sp@gjt.org&gt;
 </source>
     </section>
+
+    <section id="XMLBeans-NOTICE">
+      <title>XMLBeans NOTICE</title>
+<source>
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Apache XmlBeans distribution.    ==
+=========================================================================
+
+This product includes software developed by The Apache Software
+Foundation (http://www.apache.org/).
+
+Portions of this software were originally based on the following:
+ - software copyright (c) 2000-2003, BEA Systems,
+   &lt;http://www.bea.com/&gt;.
+
+Aside from contributions to the Apache XMLBeans project, this software
+also includes:
+
+ - one or more source files from the Apache Xerces-J and Apache Axis
+   products, Copyright (c) 1999-2003 Apache Software Foundation
+
+ - W3C XML Schema documents Copyright 2001-2003 (c) World Wide Web
+   Consortium (Massachusetts Institute of Technology, European
+   Research Consortium for Informatics and Mathematics, Keio
+   University)
+
+ - Piccolo XML Parser for Java from http://piccolo.sourceforge.net/,
+   Copyright 2002 Yuval Oren under the terms of the Apache Software
+   License 2.0
+
+ - JSR-173 Streaming API for XML from
+   http://sourceforge.net/projects/xmlpullparser/,
+   Copyright 2005 BEA under the terms of the Apache Software
+   License 2.0
+</source>
+    </section>
+
   </section>
 
 </body>
