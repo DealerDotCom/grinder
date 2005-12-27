@@ -21,7 +21,6 @@
 
 package net.grinder.testutility;
 
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -42,6 +41,7 @@ public class CallRecorder extends Assert implements CallAssertions {
   private final Monitor m_callDataListMonitor = new Monitor();
   private final LinkedList m_callDataList = new LinkedList();
   private boolean m_ignoreObjectMethods = false;
+  private boolean m_ignoreCallOrder = false;
 
   /**
    *  Reset the call data.
@@ -99,7 +99,7 @@ public class CallRecorder extends Assert implements CallAssertions {
     }
   }
 
-  public final CallData getCallData() {
+  private final CallData getCallData() {
     // Check the earliest call first.
     synchronized (m_callDataListMonitor) {
       try {
@@ -119,154 +119,191 @@ public class CallRecorder extends Assert implements CallAssertions {
     m_ignoreObjectMethods = b;
   }
 
-  private boolean shouldRecord(Method method) {
-    return
-      !m_ignoreObjectMethods ||
-      method.getDeclaringClass() != Object.class;
+  public void setIgnoreCallOrder(boolean b) {
+    m_ignoreCallOrder = b;
   }
 
-  public final void recordSuccess(Method method, Object[] parameters,
-          Object result) {
-
-    if (shouldRecord(method)) {
+  public final void record(CallData callData) {
+    if (!m_ignoreObjectMethods ||
+    callData.getMethod().getDeclaringClass() != Object.class) {
       synchronized (m_callDataListMonitor) {
-        m_callDataList.add(new CallData(method, parameters, result));
+        m_callDataList.add(callData);
         m_callDataListMonitor.notifyAll();
       }
     }
   }
 
-  public final void recordFailure(
-    Method method, Object[] parameters, Throwable throwable) {
-
-    if (shouldRecord(method)) {
-      synchronized (m_callDataListMonitor) {
-        m_callDataList.add(new CallData(method, parameters, throwable));
-        m_callDataListMonitor.notifyAll();
+  public final CallData assertSuccess(final String methodName,
+                                      final Object[] parameters) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertSuccess(methodName, parameters);
       }
     }
+    .run();
   }
 
-  public final CallData assertSuccess(String methodName, Object[] parameters) {
-    return getCallData().assertSuccess(methodName, parameters);
+  public final CallData assertSuccess(final String methodName,
+                                      final Class[] parameterTypes) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertSuccess(methodName, parameterTypes);
+      }
+    }
+    .run();
   }
 
-  public final CallData assertSuccess(String methodName,
-                                      Class[] parameterTypes) {
-    return getCallData().assertSuccess(methodName, parameterTypes);
-  }
-
-  public final CallData assertSuccess(String methodName) {
-    return getCallData().assertSuccess(methodName);
-  }
-
-  public final CallData assertSomeSuccess(final String methodName) {
-    return new AssertSomeMatchingCallTemplate() {
-      public void doTest(CallData callData) {
+  public final CallData assertSuccess(final String methodName) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
         callData.assertSuccess(methodName);
       }
     }
     .run();
   }
 
-  public final CallData assertSuccess(String methodName, Object object1) {
-    return getCallData().assertSuccess(methodName, object1);
+  public final CallData assertSuccess(final String methodName,
+                                      final Object object1) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertSuccess(methodName, object1);
+      }
+    }
+    .run();
   }
 
-  public final CallData assertSuccess(String methodName,
-                                      Object object1,
-                                      Object object2) {
-    return getCallData().assertSuccess(methodName, object1, object2);
+  public final CallData assertSuccess(final String methodName,
+                                      final Object object1,
+                                      final Object object2) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertSuccess(methodName, object1, object2);
+      }
+    }
+    .run();
   }
 
-  public final CallData assertSuccess(String methodName,
-                                      Object object1,
-                                      Object object2,
-                                      Object object3) {
-    return getCallData().assertSuccess(methodName, object1, object2, object3);
+  public final CallData assertSuccess(final String methodName,
+                                      final Object object1,
+                                      final Object object2,
+                                      final Object object3) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertSuccess(methodName, object1, object2, object3);
+      }
+    }
+    .run();
   }
 
-  public final CallData assertSuccess(String methodName, Class class1) {
-    return getCallData().assertSuccess(methodName, class1);
-  }
-
-  public final CallData assertSomeSuccess(final String methodName,
-                                          final Class class1) {
-    return new AssertSomeMatchingCallTemplate() {
-      public void doTest(CallData callData) {
+  public final CallData assertSuccess(final String methodName,
+                                      final Class class1) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
         callData.assertSuccess(methodName, class1);
       }
     }
     .run();
   }
 
-  public final CallData assertSuccess(String methodName,
-                                      Class class1,
-                                      Class class2) {
-    return getCallData().assertSuccess(methodName, class1, class2);
+  public final CallData assertSuccess(final String methodName,
+                                      final Class class1,
+                                      final Class class2) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertSuccess(methodName, class1, class2);
+      }
+    }
+    .run();
   }
 
-  public final CallData assertSuccess(String methodName,
-                                      Class class1,
-                                      Class class2,
-                                      Class class3) {
-    return getCallData().assertSuccess(methodName, class1, class2, class3);
+  public final CallData assertSuccess(final String methodName,
+                                      final Class class1,
+                                      final Class class2,
+                                      final Class class3) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertSuccess(methodName, class1, class2, class3);
+      }
+    }
+    .run();
   }
 
-  public final CallData assertException(String methodName,
-                                     Object[] parameters,
-                                     Throwable throwable) {
-    return getCallData().assertException(methodName, parameters, throwable);
+  public final CallData assertException(final String methodName,
+                                        final Object[] parameters,
+                                        final Throwable throwable) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertException(methodName, parameters, throwable);
+      }
+    }
+    .run();
   }
 
-  public final CallData assertException(String methodName,
-                                     Class[] parameterTypes,
-                                     Throwable throwable) {
-    return getCallData().assertException(methodName, parameterTypes, throwable);
+  public final CallData assertException(final String methodName,
+                                        final Class[] parameterTypes,
+                                        final Throwable throwable) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertException(methodName, parameterTypes, throwable);
+      }
+    }
+    .run();
   }
 
-  /**
-   *  Check the given method was called, and that it threw an
-   *  exception of the given type.
-   */
-  public final CallData assertException(String methodName,
-                                     Object[] parameters,
-                                     Class throwableType) {
-    return getCallData().assertException(methodName, parameters, throwableType);
+  public final CallData assertException(final String methodName,
+                                        final Object[] parameters,
+                                        final Class throwableType) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertException(methodName, parameters, throwableType);
+      }
+    }
+    .run();
   }
 
-  public final CallData assertException(String methodName,
-                                     Class[] parameterTypes,
-                                     Class throwableType) {
-    return getCallData().assertException(methodName,
-                                      parameterTypes,
-                                      throwableType);
+  public final CallData assertException(final String methodName,
+                                        final Class[] parameterTypes,
+                                        final Class throwableType) {
+    return new AssertMatchingCallTemplate() {
+      public void test(CallData callData) {
+        callData.assertException(methodName,
+                                 parameterTypes,
+                                 throwableType);
+      }
+    }
+    .run();
   }
 
-  private abstract class AssertSomeMatchingCallTemplate {
+  private abstract class AssertMatchingCallTemplate {
     public final CallData run() {
-      synchronized (m_callDataListMonitor) {
-        final Iterator iterator = m_callDataList.iterator();
+      if (m_ignoreCallOrder) {
+        synchronized (m_callDataListMonitor) {
+          final Iterator iterator = m_callDataList.iterator();
 
-        while (iterator.hasNext()) {
-          try {
-            final CallData callData = (CallData)iterator.next();
+          while (iterator.hasNext()) {
+            try {
+              final CallData callData = (CallData)iterator.next();
 
-            doTest(callData);
+              test(callData);
+              iterator.remove();
 
-            iterator.remove();
-
-            return callData;
-          }
-          catch (AssertionFailedError e) {
+              return callData;
+            }
+            catch (AssertionFailedError e) {
+            }
           }
         }
-      }
 
-      fail("No matching call");
-      return null; // Not reached.
+        fail("No matching call");
+        return null; // Not reached.
+      }
+      else {
+        final CallData callData = getCallData();
+        test(callData);
+        return callData;
+      }
     }
 
-    public abstract void doTest(CallData callData);
+    public abstract void test(CallData callData);
   }
 }
