@@ -107,11 +107,7 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     // threads correctly.
     engine.run();
 
-    final CallData callData = m_loggerStubFactory.getCallData();
-    assertEquals("error", callData.getMethodName());
-    final Object[] parameters = callData.getParameters();
-    assertEquals(1, parameters.length);
-    assertEquals("Listen time out", parameters[0]);
+    m_loggerStubFactory.assertSuccess("error", "Listen time out");
 
     m_loggerStubFactory.assertNoMoreCalls();
   }
@@ -189,17 +185,11 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
                                              new byte[0].getClass(),
                                              Integer.class);
 
-    final CallData firstCall = m_responseFilterStubFactory.getCallData();
+    m_responseFilterStubFactory.setIgnoreCallOrder(true);
 
-    if ("connectionClosed".equals(firstCall.getMethodName())) {
-      firstCall.assertSuccess("connectionClosed", ConnectionDetails.class);
-      m_responseFilterStubFactory.assertSuccess("stop");
-    }
-    else {
-      firstCall.assertSuccess("stop");
-      m_responseFilterStubFactory.assertSuccess("connectionClosed",
-                                                ConnectionDetails.class);
-    }
+    m_responseFilterStubFactory.assertSuccess(
+      "connectionClosed", ConnectionDetails.class);
+    m_responseFilterStubFactory.assertSuccess("stop");
 
     m_responseFilterStubFactory.assertNoMoreCalls();
 

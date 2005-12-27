@@ -136,12 +136,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     // threads correctly.
     engine.run();
 
-    final CallData callData = m_loggerStubFactory.getCallData();
-    assertEquals("error", callData.getMethodName());
-    final Object[] parameters = callData.getParameters();
-    assertEquals(1, parameters.length);
-    assertEquals("Listen time out", parameters[0]);
-
+    m_loggerStubFactory.assertSuccess("error", "Listen time out");
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
@@ -164,7 +159,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     if (clientSocket instanceof SSLSocket) {
       // Another reason to hate JSSE: available() returns 0 until the
-      // first read after the server has sent someting; reading nothing
+      // first read after the server has sent something; reading nothing
       // works around this.
       clientSocket.getInputStream().read(new byte[0]);
     }
@@ -782,9 +777,12 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     waitUntilAllStreamThreadsStopped();
 
-    m_requestFilterStubFactory.assertSomeSuccess(
+    m_requestFilterStubFactory.setIgnoreCallOrder(true);
+    m_responseFilterStubFactory.setIgnoreCallOrder(true);
+
+    m_requestFilterStubFactory.assertSuccess(
       "connectionClosed", ConnectionDetails.class);
-    m_responseFilterStubFactory.assertSomeSuccess(
+    m_responseFilterStubFactory.assertSuccess(
       "connectionClosed", ConnectionDetails.class);
 
     m_requestFilterStubFactory.assertSuccess("stop");
