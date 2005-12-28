@@ -139,6 +139,8 @@ public final class TCPProxy {
       "\n   [-httpsproxy <host> <port>]  Override -httpproxy settings for" +
       "\n                                HTTPS." +
       "\n   [-ssl]                       Use SSL when port forwarding." +
+      "\n   [-component <class>]         Register the a component class with" +
+      "\n                                the filter PicoContainer." +
       "\n" +
       "\n <filter> can be the name of a class that implements " +
       TCPProxyFilter.class.getName() + " or one of NONE, ECHO. The default " +
@@ -223,6 +225,17 @@ public final class TCPProxy {
         }
         else if (args[i].equalsIgnoreCase("-responsefilter")) {
           responseFilterChain.add(args[++i]);
+        }
+        else if (args[i].equalsIgnoreCase("-component")) {
+          final Class componentClass;
+
+          try {
+            componentClass = Class.forName(args[++i]);
+          }
+          catch (ClassNotFoundException e) {
+            throw barfError("class '" + args[i] + "' not found.");
+          }
+          m_filterContainer.registerComponentImplementation(componentClass);
         }
         else if (args[i].equalsIgnoreCase("-httpplugin")) {
           requestFilterChain.add(HTTPPluginTCPProxyFilter.class);
