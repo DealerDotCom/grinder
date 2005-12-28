@@ -102,7 +102,6 @@ public class TestEchoFilter extends TestCase {
     AssertUtilities.assertContains(output2, m_connectionDetails.toString());
     AssertUtilities.assertContains(output2, "closed");
 
-    echoFilter.stop();
     m_loggerStubFactory.assertNoMoreCalls();
   }
 }

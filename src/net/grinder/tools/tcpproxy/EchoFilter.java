@@ -120,12 +120,6 @@ public class EchoFilter implements TCPProxyFilter {
 
     m_out.println("--- " +  connectionDetails + " closed --");
   }
-
-  /**
-   * Called just before stop.
-   */
-  public void stop() {
-  }
 }
 
 

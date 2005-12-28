@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,7 @@ package net.grinder.tools.tcpproxy;
 /**
  * Class that represents a TCP connection.
  *
- * @author <a href="mailto:paston@bea.com">Philip Aston</a>
+ * @author Philip Aston
  * @version $Revision$
  */
 public final class ConnectionDetails {
@@ -85,6 +85,7 @@ public final class ConnectionDetails {
 
   /**
    * Describe <code>getURLBase</code> method here.
+   * TODO
    *
    * @param protocol a <code>String</code> value
    * @return a <code>String</code> value

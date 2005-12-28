@@ -175,7 +175,6 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
                                              Integer.class);
     m_requestFilterStubFactory.assertSuccess("connectionClosed",
                                              ConnectionDetails.class);
-    m_requestFilterStubFactory.assertSuccess("stop");
     m_requestFilterStubFactory.assertNoMoreCalls();
 
     m_responseFilterStubFactory.assertSuccess("connectionOpened",
@@ -189,16 +188,12 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
 
     m_responseFilterStubFactory.assertSuccess(
       "connectionClosed", ConnectionDetails.class);
-    m_responseFilterStubFactory.assertSuccess("stop");
-
     m_responseFilterStubFactory.assertNoMoreCalls();
 
     m_loggerStubFactory.assertNoMoreCalls();
 
     // Stopping engine or filter again doesn't do anything.
     engine.stop();
-    engine.getRequestFilter().stop();
-    engine.getResponseFilter().stop();
 
     m_requestFilterStubFactory.assertNoMoreCalls();
     m_responseFilterStubFactory.assertNoMoreCalls();
@@ -341,9 +336,6 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     public void connectionClosed(ConnectionDetails connectionDetails)
       throws FilterException {
       throw new FilterException("Problem", null);
-    }
-
-    public void stop() {
     }
   }
 

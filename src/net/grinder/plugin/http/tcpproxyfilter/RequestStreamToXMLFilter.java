@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.picocontainer.Disposable;
+
 import HTTPClient.Codecs;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
@@ -78,7 +80,7 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * @version $Revision$
  */
 public final class RequestStreamToXMLFilter
-  implements TCPProxyFilter, ResponseEventListener {
+  implements TCPProxyFilter, ResponseEventListener, Disposable {
 
   /**
    * A list of headers which we record.
@@ -260,9 +262,9 @@ public final class RequestStreamToXMLFilter
   }
 
   /**
-   * Called just before stop.
+   * Called after the filter has been stopped.
    */
-  public void stop() {
+  public void dispose() {
     m_handlers.closeAllHandlers();
 
     final String result;

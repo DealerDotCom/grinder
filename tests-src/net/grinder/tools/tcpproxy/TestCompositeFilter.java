@@ -52,19 +52,17 @@ public class TestCompositeFilter extends TestCase {
   public void testGetFilters() throws Exception {
     final CompositeFilter composite = new CompositeFilter();
 
-    assertEquals(0, composite.getFilters().size());
+    assertEquals(0, composite.getFilters().length);
 
     composite.add(m_filter1);
 
     AssertUtilities.assertArraysEqual(
-        new Object[] { m_filter1 },
-        composite.getFilters().toArray(new Object[0]));
+      new Object[] { m_filter1 }, composite.getFilters());
 
     composite.add(m_filter2);
 
     AssertUtilities.assertArraysEqual(
-        new Object[] { m_filter1, m_filter2 },
-        composite.getFilters().toArray(new Object[0]));
+      new Object[] { m_filter1, m_filter2 }, composite.getFilters());
   }
 
   public void testHandle() throws Exception {
@@ -147,21 +145,6 @@ public class TestCompositeFilter extends TestCase {
     m_filter1StubFactory.assertSuccess("connectionClosed", m_connectionDetails);
     m_filter2StubFactory.assertSuccess("connectionClosed", m_connectionDetails);
     m_filter1StubFactory.assertSuccess("connectionClosed", m_connectionDetails);
-    m_filter1StubFactory.assertNoMoreCalls();
-    m_filter2StubFactory.assertNoMoreCalls();
-  }
-
-  public void testStop() throws Exception {
-    final CompositeFilter composite = new CompositeFilter();
-    composite.add(m_filter1);
-    composite.add(m_filter2);
-    composite.add(m_filter1);
-
-    composite.stop();
-
-    m_filter1StubFactory.assertSuccess("stop");
-    m_filter2StubFactory.assertSuccess("stop");
-    m_filter1StubFactory.assertSuccess("stop");
     m_filter1StubFactory.assertNoMoreCalls();
     m_filter2StubFactory.assertNoMoreCalls();
   }

@@ -118,8 +118,6 @@ public class TestHTTPMethodRelativeURIFilterDecorator extends TestCase {
                                               connectionDetails);
     m_delegateFilterStubFactory.assertNoMoreCalls();
 
-    filter.stop();
-    m_delegateFilterStubFactory.assertSuccess("stop");
     m_delegateFilterStubFactory.assertNoMoreCalls();
   }
 }

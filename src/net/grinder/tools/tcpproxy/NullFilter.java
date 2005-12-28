@@ -23,8 +23,6 @@
 
 package net.grinder.tools.tcpproxy;
 
-import net.grinder.common.Logger;
-
 
 /**
  * Filter that does nothing.
@@ -37,10 +35,8 @@ public class NullFilter implements TCPProxyFilter {
 
   /**
    * Constructor.
-   *
-   * @param logger A logger (not used).
    */
-  public NullFilter(Logger logger) {
+  public NullFilter() {
   }
 
   /**
@@ -73,13 +69,4 @@ public class NullFilter implements TCPProxyFilter {
    */
   public void connectionClosed(ConnectionDetails connectionDetails) {
   }
-
-  /**
-   * Called just before stop.
-   */
-  public void stop() {
-  }
 }
-
-
-

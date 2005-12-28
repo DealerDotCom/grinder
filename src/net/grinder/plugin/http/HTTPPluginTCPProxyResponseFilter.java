@@ -121,12 +121,6 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter {
   }
 
   /**
-   * Called just before stop.
-   */
-  public final void stop() {
-  }
-
-  /**
    * Return the realm used in the last recorded authentication
    * challenge, or null if none exists.
    *

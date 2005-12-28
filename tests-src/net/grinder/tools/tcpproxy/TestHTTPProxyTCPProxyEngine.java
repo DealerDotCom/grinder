@@ -40,7 +40,6 @@ import junit.framework.TestCase;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.CallData;
 import net.grinder.util.StreamCopier;
 import net.grinder.util.TerminalColour;
 
@@ -512,13 +511,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     engine.stop();
     engineThread.join();
 
-    m_requestFilterStubFactory.assertSuccess("stop");
-    m_responseFilterStubFactory.assertSuccess("stop");
-
-    // Stopping engine or filter again doesn't do anything.
+    // Stopping engine again doesn't do anything.
     engine.stop();
-    engine.getRequestFilter().stop();
-    engine.getResponseFilter().stop();
 
     m_requestFilterStubFactory.assertNoMoreCalls();
     m_responseFilterStubFactory.assertNoMoreCalls();
@@ -560,13 +554,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     engine.stop();
     engineThread.join();
 
-    m_requestFilterStubFactory.assertSuccess("stop");
-    m_responseFilterStubFactory.assertSuccess("stop");
-
-    // Stopping engine or filter again doesn't do anything.
+    // Stopping engine again doesn't do anything.
     engine.stop();
-    engine.getRequestFilter().stop();
-    engine.getResponseFilter().stop();
 
     m_requestFilterStubFactory.assertNoMoreCalls();
     m_responseFilterStubFactory.assertNoMoreCalls();
@@ -594,8 +583,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     final AbstractTCPProxyEngine engine =
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
-                                  new NullFilter(null),
-                                  new NullFilter(null),
+                                  new NullFilter(),
+                                  new NullFilter(),
                                   m_logger,
                                   m_localEndPoint,
                                   true,
@@ -659,15 +648,10 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     m_responseFilterStubFactory.assertSuccess(
       "connectionClosed", ConnectionDetails.class);
 
-    m_requestFilterStubFactory.assertSuccess("stop");
-    m_responseFilterStubFactory.assertSuccess("stop");
-
     m_loggerStubFactory.assertNoMoreCalls();
 
-    // Stopping engine or filter again doesn't do anything.
+    // Stopping engine again doesn't do anything.
     engine.stop();
-    engine.getRequestFilter().stop();
-    engine.getResponseFilter().stop();
 
     m_requestFilterStubFactory.assertNoMoreCalls();
     m_responseFilterStubFactory.assertNoMoreCalls();
@@ -695,8 +679,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     final AbstractTCPProxyEngine engine =
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
-                                  new NullFilter(null),
-                                  new NullFilter(null),
+                                  new NullFilter(),
+                                  new NullFilter(),
                                   m_logger,
                                   m_localEndPoint,
                                   true,
@@ -785,15 +769,10 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     m_responseFilterStubFactory.assertSuccess(
       "connectionClosed", ConnectionDetails.class);
 
-    m_requestFilterStubFactory.assertSuccess("stop");
-    m_responseFilterStubFactory.assertSuccess("stop");
-
     m_loggerStubFactory.assertNoMoreCalls();
 
     // Stopping engine or filter again doesn't do anything.
     engine.stop();
-    engine.getRequestFilter().stop();
-    engine.getResponseFilter().stop();
 
     m_requestFilterStubFactory.assertNoMoreCalls();
     m_responseFilterStubFactory.assertNoMoreCalls();

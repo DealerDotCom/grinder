@@ -49,8 +49,8 @@ The Grinder includes the jEdit Syntax highlighting package
 (http://syntax.jedit.org/). See the file LICENSE-jEditSyntax for
 license and copyright details.
 
-The Grinder includes Apache XMLBeans, under the terms of the Apache
-Software License Version 2.0.
+The Grinder includes Apache XMLBeans (http://xmlbeans.apache.org),
+under the terms of the Apache Software License Version 2.0.
 
    =========================================================================
    ==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
@@ -84,3 +84,7 @@ Software License Version 2.0.
       http://sourceforge.net/projects/xmlpullparser/,
       Copyright 2005 BEA under the terms of the Apache Software
       License 2.0
+
+The Grinder includes PicoContainer
+(http://picocontainer.codehaus.org/). See the file
+LICENSE-PicoContainer for license and copyright details.

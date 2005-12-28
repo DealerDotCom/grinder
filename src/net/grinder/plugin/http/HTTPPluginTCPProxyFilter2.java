@@ -45,6 +45,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.picocontainer.Disposable;
+
 import HTTPClient.Codecs;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
@@ -66,7 +68,7 @@ import net.grinder.util.thread.UncheckedInterruptedException;
  * every packet that starts with such a line is the start of a request.
  * <li>Should filter chunked transfer coding from POST data.
  * <li>Doesn't handle line continuations.
- * <li>Doesn't parse correctly if lines are broken accross message
+ * <li>Doesn't parse correctly if lines are broken across message
  * fragments.
  * </ul>
  *
@@ -74,7 +76,7 @@ import net.grinder.util.thread.UncheckedInterruptedException;
  * @author Bertrand Ave
  * @version $Revision$
  */
-public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
+public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
 
   private static final String INITIAL_TEST_PROPERTY = "initialTest";
   private static final String FILENAME_V1_PROPERTY = "scriptFileV1";
@@ -430,9 +432,9 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
   }
 
   /**
-   * Called just before stop.
+   * Called after the filter has been stopped.
    */
-  public final void stop() {
+  public final void dispose() {
     final StringBuffer recordedScenarioOutput = new StringBuffer();
 
     if (getPageNumber(true) >= 0) {

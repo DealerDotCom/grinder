@@ -27,8 +27,16 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * Interface that TCP Proxy filters implement. In addition, a filter must have a
- * constructor that takes a {net.grinder.common.Logger}.
+ * Interface that TCP Proxy filters must implement.
+ *
+ * <p>
+ * In addition, filters are registered with a PicoContainer. They can learn
+ * about a {@link net.grinder.common.Logger}, other filters, and custom
+ * components (see the TCPProxy <code>-component</code> option) through
+ * constructor injection. Filters can also implement the PicoContainer life
+ * cycle methods {@link org.picocontainer.Startable} and
+ * {@link org.picocontainer.Disposable}.
+ * </p>
  *
  * @author Philip Aston
  * @author Bertrand Ave
@@ -68,11 +76,6 @@ public interface TCPProxyFilter {
    */
   void connectionClosed(ConnectionDetails connectionDetails)
     throws FilterException;
-
-  /**
-   * Called just before stop.
-   */
-  void stop();
 
   /**
    * Exception type for filter problems.

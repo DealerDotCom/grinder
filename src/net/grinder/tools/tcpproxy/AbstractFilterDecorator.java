@@ -74,11 +74,4 @@ abstract class AbstractFilterDecorator implements TCPProxyFilter {
     throws FilterException {
     m_delegate.connectionClosed(connectionDetails);
   }
-
-  /**
-   * Called just before stop.
-   */
-  public void stop() {
-    m_delegate.stop();
-  }
 }

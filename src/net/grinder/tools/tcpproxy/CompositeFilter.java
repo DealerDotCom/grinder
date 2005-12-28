@@ -106,19 +106,6 @@ public final class CompositeFilter implements TCPProxyFilter {
   }
 
   /**
-   * Called just before stop.
-   */
-  public void stop() {
-
-    final Iterator iterator = m_filters.iterator();
-
-    while (iterator.hasNext()) {
-      final TCPProxyFilter filter = (TCPProxyFilter) iterator.next();
-      filter.stop();
-    }
-  }
-
-  /**
    * Add a filter to the composite.
    *
    * @param filter The filter.
@@ -132,7 +119,37 @@ public final class CompositeFilter implements TCPProxyFilter {
    *
    * @return The filters.
    */
-  public List getFilters() {
-    return m_filters;
+  TCPProxyFilter[] getFilters() {
+    return (TCPProxyFilter[])
+      m_filters.toArray(new TCPProxyFilter[m_filters.size()]);
+  }
+
+  /**
+   * Describe the filter.
+   *
+   * @return The description.
+   */
+  public String toString() {
+    final StringBuffer result = new StringBuffer();
+
+    final Iterator iterator = m_filters.iterator();
+
+    while (iterator.hasNext()) {
+      if (result.length() > 0) {
+        result.append(", ");
+      }
+
+      final TCPProxyFilter filter = (TCPProxyFilter)iterator.next();
+
+      final String fullName = filter.getClass().getName();
+      final int lastDot = fullName.lastIndexOf(".");
+      final String shortName =
+        lastDot > 0 ? fullName.substring(lastDot + 1) : fullName;
+
+      result.append(shortName);
+    }
+
+    return result.toString();
   }
 }
+

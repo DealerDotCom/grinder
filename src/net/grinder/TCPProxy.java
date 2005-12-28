@@ -30,12 +30,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+
+import org.picocontainer.ComponentAdapter;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.defaults.DefaultPicoContainer;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
@@ -168,15 +170,17 @@ public final class TCPProxy {
       );
   }
 
+  private final MutablePicoContainer m_filterContainer =
+    new DefaultPicoContainer();
+
   private final TCPProxyEngine m_proxyEngine;
   private final Logger m_logger;
 
   private TCPProxy(String[] args, Logger logger) throws Exception {
     m_logger = logger;
+    m_filterContainer.registerComponentInstance(m_logger);
 
     // Default values.
-    TCPProxyFilter requestFilter = new EchoFilter(logger);
-    TCPProxyFilter responseFilter = new EchoFilter(logger);
     int localPort = 8001;
     String remoteHost = "localhost";
     String localHost = "localhost";
@@ -189,10 +193,11 @@ public final class TCPProxy {
     boolean console = false;
     EndPoint chainedHTTPProxy = null;
     EndPoint chainedHTTPSProxy = null;
-
     int timeout = 0;
-
     boolean useColour = false;
+
+    final FilterChain requestFilterChain = new FilterChain("request");
+    final FilterChain responseFilterChain = new FilterChain("response");
 
     try {
       // Parse 1.
@@ -214,30 +219,18 @@ public final class TCPProxy {
       // Parse 2.
       for (int i = 0; i < args.length; i++) {
         if (args[i].equalsIgnoreCase("-requestfilter")) {
-          requestFilter =
-            addFilter(requestFilter, instantiateFilter(args[++i], logger));
+          requestFilterChain.add(args[++i]);
         }
         else if (args[i].equalsIgnoreCase("-responsefilter")) {
-          responseFilter =
-            addFilter(responseFilter, instantiateFilter(args[++i], logger));
+          responseFilterChain.add(args[++i]);
         }
         else if (args[i].equalsIgnoreCase("-httpplugin")) {
-          requestFilter =
-            addFilter(requestFilter,
-                      new HTTPPluginTCPProxyFilter(logger));
-
-          responseFilter =
-            addFilter(responseFilter,
-                      new HTTPPluginTCPProxyResponseFilter(logger));
+          requestFilterChain.add(HTTPPluginTCPProxyFilter.class);
+          responseFilterChain.add(HTTPPluginTCPProxyResponseFilter.class);
         }
         else if (args[i].equalsIgnoreCase("-newhttpplugin")) {
-          requestFilter =
-            addFilter(requestFilter,
-                      new HTTPPluginTCPProxyFilter2(logger));
-
-          responseFilter =
-            addFilter(responseFilter,
-                      new HTTPPluginTCPProxyResponseFilter2(logger));
+          requestFilterChain.add(HTTPPluginTCPProxyFilter2.class);
+          responseFilterChain.add(HTTPPluginTCPProxyResponseFilter2.class);
         }
         else if (args[i].equalsIgnoreCase("-localhost")) {
           localHost = args[++i];
@@ -330,6 +323,9 @@ public final class TCPProxy {
                       "in port forwarding mode.");
     }
 
+    final TCPProxyFilter requestFilter = requestFilterChain.resolveFilter();
+    final TCPProxyFilter responseFilter = responseFilterChain.resolveFilter();
+
     final StringBuffer startMessage = new StringBuffer();
 
     startMessage.append("Initialising as ");
@@ -348,9 +344,9 @@ public final class TCPProxy {
 
     startMessage.append(" with the parameters:");
     startMessage.append("\n   Request filters:    ");
-    appendFilterList(startMessage, requestFilter);
+    startMessage.append(requestFilter);
     startMessage.append("\n   Response filters:   ");
-    appendFilterList(startMessage, responseFilter);
+    startMessage.append(responseFilter);
     startMessage.append("\n   Local address:      " + localEndPoint);
 
     if (!isHTTPProxy) {
@@ -394,6 +390,8 @@ public final class TCPProxy {
                                                  keyStoreType) :
       new TCPProxySSLSocketFactoryImplementation();
 
+    m_filterContainer.start();
+
     if (isHTTPProxy) {
       m_proxyEngine =
         new HTTPProxyTCPProxyEngine(
@@ -434,107 +432,6 @@ public final class TCPProxy {
     m_logger.error("Engine initialised, listening on port " + localPort);
   }
 
-  private TCPProxyFilter instantiateFilter(
-    String filterClassName,
-    Logger logger) throws Exception {
-
-    if (filterClassName.equals("NONE")) {
-      return new NullFilter(logger);
-    }
-    else if (filterClassName.equals("ECHO")) {
-      return new EchoFilter(logger);
-    }
-
-    final Class filterClass;
-
-    try {
-      filterClass = Class.forName(filterClassName);
-    }
-    catch (ClassNotFoundException e) {
-      throw barfError("class '" + filterClassName + "' not found.");
-    }
-
-    if (!TCPProxyFilter.class.isAssignableFrom(filterClass)) {
-      throw barfError("the class '" + filterClass.getName() +
-                      "' does not implement the interface: '" +
-                      TCPProxyFilter.class.getName() + "'.");
-    }
-
-    // Instantiate a filter.
-    try {
-      final Constructor constructor =
-        filterClass.getConstructor(new Class[] {Logger.class});
-
-      return (TCPProxyFilter)constructor.newInstance(new Object[] {logger});
-    }
-    catch (NoSuchMethodException e) {
-      throw barfError("the class '" + filterClass.getName() + "' does not " +
-                      "have a constructor that takes a " + Logger.class + ".");
-    }
-    catch (IllegalAccessException e) {
-      throw barfError("the constructor of class '" + filterClass.getName() +
-                      "' is not public.");
-    }
-    catch (InstantiationException e) {
-      throw barfError("the class '" + filterClass.getName() +
-                      "' is abstract.");
-    }
-  }
-
-  private TCPProxyFilter addFilter(TCPProxyFilter existingFilter,
-                                   TCPProxyFilter newFilter) {
-
-    if (existingFilter instanceof CompositeFilter) {
-      ((CompositeFilter) existingFilter).add(newFilter);
-      return existingFilter;
-    }
-    else {
-      // Discard the default filter.
-      final CompositeFilter result = new CompositeFilter();
-      result.add(newFilter);
-      return result;
-    }
-  }
-
-  private void appendFilterList(StringBuffer buffer, TCPProxyFilter filter) {
-
-    final TCPProxyFilter[] filters =
-      (TCPProxyFilter[]) getFilterList(filter).toArray(new TCPProxyFilter[0]);
-
-    for (int i = 0; i < filters.length; ++i) {
-      if (i != 0) {
-        buffer.append(", ");
-      }
-
-      final String fullName = filters[i].getClass().getName();
-      final int lastDot = fullName.lastIndexOf(".");
-      final String shortName =
-        lastDot > 0 ? fullName.substring(lastDot + 1) : fullName;
-
-      buffer.append(shortName);
-    }
-  }
-
-  private List getFilterList(TCPProxyFilter filter) {
-
-    if (filter instanceof CompositeFilter) {
-
-      final List result = new ArrayList();
-
-      final Iterator iterator  =
-        ((CompositeFilter)filter).getFilters().iterator();
-
-      while (iterator.hasNext()) {
-        result.addAll(getFilterList((TCPProxyFilter) iterator.next()));
-      }
-
-      return result;
-    }
-    else {
-      return Collections.singletonList(filter);
-    }
-  }
-
   private void run() {
     Runtime.getRuntime().addShutdownHook(
       new Thread() {
@@ -542,11 +439,78 @@ public final class TCPProxy {
       });
 
     m_proxyEngine.run();
+
+    m_filterContainer.stop();
+    m_filterContainer.dispose();
   }
 
   private class LoggedInitialisationException extends GrinderException {
     public LoggedInitialisationException(String message) {
       super(message);
+    }
+  }
+
+  private final class FilterChain {
+    private final String m_type;
+    private final List m_adapterList = new ArrayList();
+    private int m_value;
+
+    public FilterChain(String type) {
+      m_type = type;
+    }
+
+    public void add(Class theClass) {
+      m_adapterList.add(
+        m_filterContainer.registerComponentImplementation(
+          m_type + ++m_value, theClass));
+    }
+
+    public void add(String filterClassName)
+      throws LoggedInitialisationException {
+
+      if (filterClassName.equals("NONE")) {
+        add(NullFilter.class);
+      }
+      else if (filterClassName.equals("ECHO")) {
+        add(EchoFilter.class);
+      }
+      else {
+        final Class filterClass;
+
+        try {
+          filterClass = Class.forName(filterClassName);
+        }
+        catch (ClassNotFoundException e) {
+          throw barfError("class '" + filterClassName + "' not found.");
+        }
+
+        if (!TCPProxyFilter.class.isAssignableFrom(filterClass)) {
+          throw barfError("the class '" + filterClass.getName() +
+                          "' does not implement the interface: '" +
+                          TCPProxyFilter.class.getName() + "'.");
+        }
+
+        add(filterClass);
+      }
+    }
+
+    public TCPProxyFilter resolveFilter() {
+      if (m_adapterList.size() == 0) {
+        add(EchoFilter.class);
+      }
+
+      final CompositeFilter result = new CompositeFilter();
+
+      final Iterator iterator = m_adapterList.iterator();
+
+      while (iterator.hasNext()) {
+        final ComponentAdapter adapter = (ComponentAdapter)iterator.next();
+
+        result.add(
+          (TCPProxyFilter)adapter.getComponentInstance(m_filterContainer));
+      }
+
+      return result;
     }
   }
 }

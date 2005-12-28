@@ -21,8 +21,6 @@
 
 package net.grinder.tools.tcpproxy;
 
-import net.grinder.common.LoggerStubFactory;
-
 import junit.framework.TestCase;
 
 
@@ -39,11 +37,8 @@ public class TestNullFilter extends TestCase {
                             new EndPoint("host2", 99),
                             false);
 
-  private LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
-
-  public void testHandle() throws Exception {
-    final NullFilter nullFilter =
-      new NullFilter(m_loggerStubFactory.getLogger());
+  public void testNullFilter() throws Exception {
+    final NullFilter nullFilter = new NullFilter();
 
     nullFilter.handle(m_connectionDetails, "This is a campaign.".getBytes(), 5);
 
@@ -53,18 +48,7 @@ public class TestNullFilter extends TestCase {
     final byte[] binary = { 0x01, (byte)0xE7, 'a', 'b', 'c', (byte)0x89,
                             'd', 'a', 'h', '\n', 'b', 'a', 'h' };
     nullFilter.handle(m_connectionDetails, binary, binary.length);
-
-    m_loggerStubFactory.assertNoMoreCalls();
-  }
-
-  public void testOtherMethods() throws Exception {
-    final NullFilter nullFilter =
-      new NullFilter(m_loggerStubFactory.getLogger());
-
     nullFilter.connectionOpened(m_connectionDetails);
     nullFilter.connectionClosed(m_connectionDetails);
-    nullFilter.stop();
-
-    m_loggerStubFactory.assertNoMoreCalls();
   }
 }

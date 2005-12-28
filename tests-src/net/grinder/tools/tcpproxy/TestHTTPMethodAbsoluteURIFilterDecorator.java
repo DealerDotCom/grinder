@@ -119,9 +119,5 @@ public class TestHTTPMethodAbsoluteURIFilterDecorator extends TestCase {
     m_delegateFilterStubFactory.assertSuccess("connectionClosed",
                                               connectionDetails);
     m_delegateFilterStubFactory.assertNoMoreCalls();
-
-    filter.stop();
-    m_delegateFilterStubFactory.assertSuccess("stop");
-    m_delegateFilterStubFactory.assertNoMoreCalls();
   }
 }

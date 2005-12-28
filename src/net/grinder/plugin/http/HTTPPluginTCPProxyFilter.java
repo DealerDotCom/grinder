@@ -301,12 +301,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     }
   }
 
-  /**
-   * Called just before stop.
-   */
-  public final void stop() {
-  }
-
   private Handler getHandler(ConnectionDetails connectionDetails) {
     synchronized (m_handlers) {
       final Handler oldHandler =
