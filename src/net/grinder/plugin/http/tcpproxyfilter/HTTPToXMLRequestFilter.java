@@ -39,15 +39,12 @@ import HTTPClient.Codecs;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
-import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.BodyType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.FormDataType;
 import net.grinder.plugin.http.xml.FormFieldType;
-import net.grinder.plugin.http.xml.HTTPRecordingType;
 import net.grinder.plugin.http.xml.HeaderType;
-import net.grinder.plugin.http.xml.HttpRecordingDocument;
 import net.grinder.plugin.http.xml.ParameterType;
 import net.grinder.plugin.http.xml.ParsedQueryStringType;
 import net.grinder.plugin.http.xml.QueryStringType;
@@ -72,15 +69,14 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * fragments.
  * </ul>
  *
- * TODO losing requests - on shut down?
  * TODO make URLs a top level type?
  *
  * @author Philip Aston
  * @author Bertrand Ave
  * @version $Revision$
  */
-public final class RequestStreamToXMLFilter
-  implements TCPProxyFilter, ResponseEventListener, Disposable {
+public final class HTTPToXMLRequestFilter
+  implements TCPProxyFilter, Disposable {
 
   /**
    * A list of headers which we record.
@@ -111,6 +107,7 @@ public final class RequestStreamToXMLFilter
     }
   ));
 
+  private final HTTPRecording m_httpRecording;
   private final Logger m_logger;
 
   private final Pattern m_basicAuthorizationHeaderPattern;
@@ -125,30 +122,22 @@ public final class RequestStreamToXMLFilter
 
   private final IntGenerator m_requestIDGenerator = new IntGenerator();
 
-  private long m_lastResponseTime = 0;
-
   private final HandlerMap m_handlers = new HandlerMap();
 
   private final CommonHeadersMap m_commonHeadersMap = new CommonHeadersMap();
 
-  private final HttpRecordingDocument m_recordingDocument;
-
   /**
    * Constructor.
    *
+   * @param httpRecording
+   *          Common HTTP recording state.
    * @param logger
    *          Logger to direct output to.
    */
-  public RequestStreamToXMLFilter(Logger logger) {
+  public HTTPToXMLRequestFilter(HTTPRecording httpRecording, Logger logger) {
 
+    m_httpRecording = httpRecording;
     m_logger = logger;
-
-    m_recordingDocument = HttpRecordingDocument.Factory.newInstance();
-    final HTTPRecordingType.Metadata httpRecording =
-      m_recordingDocument.addNewHttpRecording().addNewMetadata();
-
-    httpRecording.setVersion("The Grinder " + GrinderBuild.getVersionString());
-    httpRecording.setTime(Calendar.getInstance());
 
     m_messageBodyPattern = Pattern.compile("\\r\\n\\r\\n(.*)", Pattern.DOTALL);
 
@@ -209,17 +198,6 @@ public final class RequestStreamToXMLFilter
   }
 
   /**
-   * Called when any response activity is detected. Because the test script
-   * represents a single thread of control we need to calculate the sleep deltas
-   * using the last time any activity occurred on any connection.
-   */
-  public void markLastResponseTime() {
-    synchronized (this) {
-      m_lastResponseTime = System.currentTimeMillis();
-    }
-  }
-
-  /**
    * The main handler method called by the sniffer engine.
    *
    * <p>
@@ -267,13 +245,7 @@ public final class RequestStreamToXMLFilter
   public void dispose() {
     m_handlers.closeAllHandlers();
 
-    final String result;
-
-    synchronized (m_recordingDocument) {
-      result = m_recordingDocument.toString();
-    }
-
-    m_logger.getOutputLogWriter().println(result);
+    m_logger.getOutputLogWriter().println(m_httpRecording.getResult());
     m_logger.getOutputLogWriter().flush();
   }
 
@@ -489,11 +461,7 @@ public final class RequestStreamToXMLFilter
           }
         }
 
-        final long lastResponseTime;
-
-        synchronized (RequestStreamToXMLFilter.this) {
-          lastResponseTime = m_lastResponseTime;
-        }
+        final long lastResponseTime = m_httpRecording.getLastResponseTime();
 
         if (lastResponseTime > 0) {
           final long time = System.currentTimeMillis() - lastResponseTime;
@@ -594,9 +562,7 @@ public final class RequestStreamToXMLFilter
           }
         }
 
-        synchronized (m_recordingDocument) {
-          m_recordingDocument.getHttpRecording().addNewRequest().set(m_request);
-        }
+        m_httpRecording.addRequest(m_request);
       }
 
       private NameValue[] parseNameValueString(String input)
@@ -755,15 +721,11 @@ public final class RequestStreamToXMLFilter
         }
         else {
           commonHeaders.setHeadersID(m_idGenerator.next(idPrefix));
-
-          synchronized (m_recordingDocument) {
-            m_recordingDocument.getHttpRecording().addNewCommonHeaders()
-            .set(commonHeaders);
-          }
-
-          m_map.put(key, commonHeaders);
-          newRequestHeaders.setExtends(commonHeaders.getHeadersID());
+          m_httpRecording.addNewCommonHeaders(commonHeaders);
         }
+
+        m_map.put(key, commonHeaders);
+        newRequestHeaders.setExtends(commonHeaders.getHeadersID());
       }
 
       return newRequestHeaders;
