@@ -31,6 +31,7 @@ They are bundled in the lib directory:
 
   - Jython 2.1
   - Apache XMLBeans 2.1.0
+  - PicoContainer 1.2-RC-1
 
 The following additional packages are necesary to run The Grinder unit
 tests, reports.
@@ -183,6 +184,10 @@ what you want. Currently the conditionally built modules are:
       <pathelement path="${lib.dir}/jython.jar"/>
     </path>
 
+    <path id="picocontainer.classpath">
+      <pathelement path="${lib.dir}/picocontainer-*.jar"/>
+    </path>
+
     <path id="xmlbeans.classpath">
       <pathelement path="${lib.dir}/xbean.jar"/>
       <pathelement path="${lib.dir}/jsr173_1.0_api.jar"/>
@@ -191,6 +196,7 @@ what you want. Currently the conditionally built modules are:
     <path id="build.classpath">
       <pathelement path="${classes.dir}"/>
       <path refid="jython.classpath"/>
+      <path refid="picocontainer.classpath"/>
       <path refid="xmlbeans.classpath"/>
     </path>
 
@@ -241,6 +247,10 @@ what you want. Currently the conditionally built modules are:
   <target name="bundle-libraries">
     <copy todir="${lib.dir}" failonerror="false" verbose="true">
       <fileset dir="${jython.dir}" includes="${jython.jar}"/>
+
+      <fileset dir="${picocontainer.dir}">
+        <include name="piccontainer-*.jar"/>
+      </fileset>
 
       <fileset dir="${xmlbeans.dir}/lib">
         <include name="xbean.jar"/>
