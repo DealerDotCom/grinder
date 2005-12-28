@@ -221,6 +221,8 @@ See http://forrest.apache.org/docs/linking.html for more info
       <jython-essentials-c1 href="catalog/jythoness/chapter/ch01.html"/>
     </oreilly>
 
+    <picocontainer href="http://picocontainer.codehaus.org/"/>
+
     <python href="http://www.python.org/"/>
 
     <sourceforge href="http://www.sourceforge.net/">
@@ -241,6 +243,8 @@ See http://forrest.apache.org/docs/linking.html for more info
     <winzip href="http://www.winzip.com/"/>
 
     <xemacs href="http://www.xemacs.org/"/>
+
+    <xmlbeans href="http://xmlbeans.apache.org/"/>
 
   </external-refs>
 </site>
