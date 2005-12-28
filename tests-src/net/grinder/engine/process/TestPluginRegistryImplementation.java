@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,6 @@
 
 package net.grinder.engine.process;
 
-import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import java.util.List;
@@ -31,7 +30,6 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.statistics.StatisticsServicesImplementation;
-import net.grinder.testutility.CallRecorder;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
