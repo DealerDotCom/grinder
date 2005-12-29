@@ -249,7 +249,7 @@ what you want. Currently the conditionally built modules are:
       <fileset dir="${jython.dir}" includes="${jython.jar}"/>
 
       <fileset dir="${picocontainer.dir}">
-        <include name="piccontainer-*.jar"/>
+        <include name="picocontainer-*.jar"/>
       </fileset>
 
       <fileset dir="${xmlbeans.dir}/lib">
