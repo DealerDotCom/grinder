@@ -60,10 +60,6 @@ import net.grinder.script.Statistics;
  * method (GET, POST, ...) that allow specific values to override the
  * defaults.</p>
  *
- * TODO Default headers should be overridden individually, same for
- * default form data
- * TODO NVPairs should be optional.
- *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -882,7 +878,7 @@ public class HTTPRequest {
       // Read the entire response.
       final byte[] data = httpResponse.getData();
 
-      // Data will be null iff Content-Length is 0.
+      // Data will be null if and only if Content-Length is 0.
       final int responseLength = data != null ? data.length : 0;
       httpResponse.getInputStream().close();
 
