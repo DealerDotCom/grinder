@@ -134,61 +134,6 @@ public class TestHTTPRequest extends TestCase {
     AssertUtilities.assertArraysEqual(newHeaders, httpRequest.getHeaders());
   }
 
-  public void testAddHeader() {
-
-    final HTTPRequest httpRequest = new HTTPRequest();
-
-    final NVPair[] newHeaders = new NVPair[] {
-      new NVPair("name", "value"),
-      new NVPair("another name", "another value"),
-    };
-
-    httpRequest.setHeaders(newHeaders);
-
-    httpRequest.addHeader("name", "value");
-    httpRequest.addHeader("foo", "bah");
-
-    AssertUtilities.assertArraysEqual(
-      new NVPair[] {
-        new NVPair("name", "value"),
-        new NVPair("another name", "another value"),
-        new NVPair("name", "value"),
-        new NVPair("foo", "bah"),
-      },
-      httpRequest.getHeaders());
-  }
-
-  public void testDeleteHeader() {
-
-    final HTTPRequest httpRequest = new HTTPRequest();
-
-    final NVPair[] newHeaders = new NVPair[] {
-      new NVPair("name", "value"),
-      new NVPair("another name", "another value"),
-      new NVPair("name", "value"),
-      new NVPair("some more stuff", "value"),
-    };
-
-    httpRequest.setHeaders(newHeaders);
-
-    httpRequest.deleteHeader("name");
-
-    AssertUtilities.assertArraysEqual(
-      new NVPair[] {
-        new NVPair("another name", "another value"),
-        new NVPair("some more stuff", "value"),
-      },
-      httpRequest.getHeaders());
-
-    httpRequest.deleteHeader("some more stuff");
-
-    AssertUtilities.assertArraysEqual(
-      new NVPair[] {
-        new NVPair("another name", "another value"),
-      },
-      httpRequest.getHeaders());
-  }
-
   public void testDELETE() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler();
     final HTTPRequest request = new HTTPRequest();
@@ -220,16 +165,30 @@ public class TestHTTPRequest extends TestCase {
     assertEquals(200, response3.getStatusCode());
     assertEquals("DELETE / HTTP/1.1", handler.getRequestFirstHeader());
 
-    final NVPair[] headers4 = {
+    final NVPair[] headers = {
       new NVPair("x", "212"),
       new NVPair("y", "321"),
     };
 
-    final HTTPResponse response4 = request.DELETE("/", headers4);
+    final HTTPResponse response4 = request.DELETE("/", headers);
     assertEquals(200, response4.getStatusCode());
     assertEquals("DELETE / HTTP/1.1", handler.getRequestFirstHeader());
     handler.assertRequestContainsHeader("x: 212");
     handler.assertRequestContainsHeader("y: 321");
+
+    final NVPair[] headers2 = {
+      new NVPair("x", "1"),
+      new NVPair("y", "2"),
+      new NVPair("z", "3"),
+    };
+
+    request.setHeaders(headers2);
+
+    request.DELETE("/", headers);
+    handler.assertRequestContainsHeader("x: 212");
+    handler.assertRequestContainsHeader("y: 321");
+    handler.assertRequestContainsHeader("z: 3");
+    handler.assertRequestDoesNotContainHeader("y: 2");
 
     handler.shutdown();
   }
@@ -286,15 +245,27 @@ public class TestHTTPRequest extends TestCase {
     assertEquals("GET /lah/?another=header&y=331 HTTP/1.1",
                  handler.getRequestFirstHeader());
 
-    final NVPair[] headers6 = {
+    final NVPair[] headers = {
       new NVPair("key", "value"),
     };
 
-    request.setHeaders(headers6);
+    request.setHeaders(headers);
     final HTTPResponse response6 = request.GET();
     assertEquals(200, response6.getStatusCode());
     assertEquals("GET /lah/ HTTP/1.1", handler.getRequestFirstHeader());
     handler.assertRequestContainsHeader("key: value");
+
+    final NVPair[] headers2 = {
+      new NVPair("key", "anotherValue"),
+      new NVPair("x", "1"),
+      new NVPair("y", "2"),
+    };
+
+    request.GET("/", null, headers2);
+    handler.assertRequestContainsHeader("x: 1");
+    handler.assertRequestContainsHeader("y: 2");
+    handler.assertRequestContainsHeader("key: anotherValue");
+    handler.assertRequestDoesNotContainHeader("key: value");
 
     handler.shutdown();
   }

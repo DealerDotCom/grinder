@@ -29,10 +29,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.HashSet;
+import java.util.Set;
 
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
@@ -59,6 +57,10 @@ import net.grinder.script.Statistics;
  * There are several overloaded methods corresponding to each HTTP
  * method (GET, POST, ...) that allow specific values to override the
  * defaults.</p>
+ *
+ * TODO Default headers should be overridden individually, same for
+ * default form data
+ * TODO NVPairs should be optional.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -117,51 +119,56 @@ public class HTTPRequest {
   }
 
   /**
+   * Merges two NVPair arrays.
+   *
+   * @param defaultPairs
+   *          Default array.
+   * @param overridePairs
+   *          Array to merge. Entries take precedence over
+   *          <code>defaultPairs</code> entries with the same name.
+   * @return The merged arrays. For efficiency's sake, we do not filter out
+   *         <code>null</code> entries.
+   */
+  private final NVPair[] mergeArrays(
+    NVPair[] defaultPairs, NVPair[] overridePairs) {
+
+    if (defaultPairs.length == 0) {
+      return overridePairs;
+    }
+
+    if (overridePairs.length == 0) {
+      return defaultPairs;
+    }
+
+    final NVPair[] result =
+      new NVPair[defaultPairs.length + overridePairs.length];
+    final Set seen = new HashSet();
+
+    for (int i = 0; i < overridePairs.length; ++i) {
+      result[i] = overridePairs[i];
+      seen.add(overridePairs[i].getName());
+    }
+
+    for (int i = 0; i < defaultPairs.length; ++i) {
+      if (!seen.contains(defaultPairs[i].getName())) {
+        result[overridePairs.length + i] = defaultPairs[i];
+      }
+    }
+
+    return result;
+  }
+
+  private NVPair[] mergeHeaders(NVPair[] headers) {
+    return mergeArrays(getHeaders(), headers);
+  }
+
+  /**
    * Sets the default headers.
    *
    * @param headers The default headers to be used for this request.
    */
   public final void setHeaders(NVPair[] headers) {
     m_defaultHeaders = headers;
-  }
-
-  /**
-   * Adds a header's field and its value to the default headers.
-   *
-   * @param name The name of the header's Field to add.
-   * @param value The new value.
-   */
-  public final void addHeader(String name, String value) {
-
-    final NVPair[] newHeaders = new NVPair[m_defaultHeaders.length + 1];
-
-    System.arraycopy(m_defaultHeaders, 0, newHeaders, 0,
-                     m_defaultHeaders.length);
-
-    newHeaders[m_defaultHeaders.length] = new NVPair(name, value);
-
-    m_defaultHeaders = newHeaders;
-  }
-
-  /**
-   * Deletes all default headers that match the name.
-   *
-   * @param name The name of the header's Field to delete.
-   */
-  public final void deleteHeader(String name) {
-
-    final List list = new ArrayList(Arrays.asList(m_defaultHeaders));
-    final ListIterator iterator = list.listIterator();
-
-    while (iterator.hasNext()) {
-      final NVPair pair = (NVPair)iterator.next();
-
-      if (pair.getName().equals(name)) {
-        iterator.remove();
-      }
-    }
-
-    m_defaultHeaders = (NVPair[]) list.toArray(new NVPair[0]);
   }
 
   /**
@@ -268,14 +275,17 @@ public class HTTPRequest {
   /**
    * Makes an HTTP <code>DELETE</code> request.
    *
-   * @param uri The URI. If a default URL has been specified with
-   * {@link #setUrl}, this value need not be absolute and, if
-   * relative, it will be resolved relative to the default URL.
-   * Otherwise this value must be an absolute URL.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
+   * @param uri
+   *          The URI. If a default URL has been specified with {@link #setUrl},
+   *          this value need not be absolute and, if relative, it will be
+   *          resolved relative to the default URL. Otherwise this value must be
+   *          an absolute URL.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @exception Exception
+   *              If an error occurs.
    */
   public final HTTPResponse DELETE(final String uri, final NVPair[] headers)
     throws Exception {
@@ -283,7 +293,7 @@ public class HTTPRequest {
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
-          return connection.Delete(path, headers);
+          return connection.Delete(path, mergeHeaders(headers));
         }
       }
       .getHTTPResponse();
@@ -345,16 +355,20 @@ public class HTTPRequest {
   /**
    * Makes an HTTP <code>GET</code> request.
    *
-   * @param uri The URI. If a default URL has been specified with
-   * {@link #setUrl}, this value need not be absolute and, if
-   * relative, it will be resolved relative to the default URL.
-   * Otherwise this value must be an absolute URL.
-   * @param queryData Request headers. Replaces all the
-   * values set by {@link #setFormData}.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
+   * @param uri
+   *          The URI. If a default URL has been specified with {@link #setUrl},
+   *          this value need not be absolute and, if relative, it will be
+   *          resolved relative to the default URL. Otherwise this value must be
+   *          an absolute URL.
+   * @param queryData
+   *          Request headers. Replaces all the values set by
+   *          {@link #setFormData}.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @exception Exception
+   *              If an error occurs.
    */
   public final HTTPResponse GET(final String uri,
                                 final NVPair[] queryData,
@@ -363,7 +377,7 @@ public class HTTPRequest {
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
-          return connection.Get(path, queryData, headers);
+          return connection.Get(path, queryData, mergeHeaders(headers));
         }
       }
       .getHTTPResponse();
@@ -425,16 +439,20 @@ public class HTTPRequest {
   /**
    * Makes an HTTP <code>HEAD</code> request.
    *
-   * @param uri The URI. If a default URL has been specified with
-   * {@link #setUrl}, this value need not be absolute and, if
-   * relative, it will be resolved relative to the default URL.
-   * Otherwise this value must be an absolute URL.
-   * @param queryData Request headers. Replaces all the values set
-   * by {@link #setFormData}.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
+   * @param uri
+   *          The URI. If a default URL has been specified with {@link #setUrl},
+   *          this value need not be absolute and, if relative, it will be
+   *          resolved relative to the default URL. Otherwise this value must be
+   *          an absolute URL.
+   * @param queryData
+   *          Request headers. Replaces all the values set by
+   *          {@link #setFormData}.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @exception Exception
+   *              If an error occurs.
    */
   public final HTTPResponse HEAD(final String uri,
                                  final NVPair[] queryData,
@@ -443,7 +461,7 @@ public class HTTPRequest {
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
-          return connection.Head(path, queryData, headers);
+          return connection.Head(path, queryData, mergeHeaders(headers));
         }
       }
       .getHTTPResponse();
@@ -493,16 +511,20 @@ public class HTTPRequest {
   /**
    * Makes an HTTP <code>OPTIONS</code> request.
    *
-   * @param uri The URI. If a default URL has been specified with
-   * {@link #setUrl}, this value need not be absolute and, if
-   * relative, it will be resolved relative to the default URL.
-   * Otherwise this value must be an absolute URL.
-   * @param data Data to be submitted in the body of the request.
-   * Overrides the value set with {@link #setData}.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
+   * @param uri
+   *          The URI. If a default URL has been specified with {@link #setUrl},
+   *          this value need not be absolute and, if relative, it will be
+   *          resolved relative to the default URL. Otherwise this value must be
+   *          an absolute URL.
+   * @param data
+   *          Data to be submitted in the body of the request. Overrides the
+   *          value set with {@link #setData}.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @exception Exception
+   *              If an error occurs.
    */
   public final HTTPResponse OPTIONS(final String uri,
                                     final byte[] data,
@@ -511,7 +533,7 @@ public class HTTPRequest {
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
-          return connection.Options(path, headers, data);
+          return connection.Options(path, mergeHeaders(headers), data);
         }
       }
       .getHTTPResponse();
@@ -589,8 +611,9 @@ public class HTTPRequest {
    * @param formData Data to be submitted as an
    * <code>application/x-www-form-urlencoded</code> encoded request
    * body.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
    * @return Contains details of the server's response.
    * @exception Exception If an error occurs.
    */
@@ -601,7 +624,7 @@ public class HTTPRequest {
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
-          return connection.Post(path, formData, headers);
+          return connection.Post(path, formData, mergeHeaders(headers));
         }
       }
       .getHTTPResponse();
@@ -632,8 +655,9 @@ public class HTTPRequest {
    * Otherwise this value must be an absolute URL.
    * @param data Data to be submitted in the body of the request.
    * Overrides the value set with {@link #setData}.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
    * @return Contains details of the server's response.
    * @exception Exception If an error occurs.
    */
@@ -644,7 +668,7 @@ public class HTTPRequest {
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
-          return connection.Post(path, data, headers);
+          return connection.Post(path, data, mergeHeaders(headers));
         }
       }
       .getHTTPResponse();
@@ -693,16 +717,20 @@ public class HTTPRequest {
   /**
    * Makes an HTTP <code>PUT</code> request.
    *
-   * @param uri The URI. If a default URL has been specified with
-   * {@link #setUrl}, this value need not be absolute and, if
-   * relative, it will be resolved relative to the default URL.
-   * Otherwise this value must be an absolute URL.
-   * @param data Data to be submitted in the body of the request.
-   * Overrides the value set with {@link #setData}.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
+   * @param uri
+   *          The URI. If a default URL has been specified with {@link #setUrl},
+   *          this value need not be absolute and, if relative, it will be
+   *          resolved relative to the default URL. Otherwise this value must be
+   *          an absolute URL.
+   * @param data
+   *          Data to be submitted in the body of the request. Overrides the
+   *          value set with {@link #setData}.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @exception Exception
+   *              If an error occurs.
    */
   public final HTTPResponse PUT(final String uri,
                                 final byte[] data,
@@ -711,7 +739,7 @@ public class HTTPRequest {
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
-          return connection.Put(path, data, headers);
+          return connection.Put(path, data, mergeHeaders(headers));
         }
       }
       .getHTTPResponse();
@@ -744,14 +772,17 @@ public class HTTPRequest {
   /**
    * Makes an HTTP <code>TRACE</code> request.
    *
-   * @param uri The URI. If a default URL has been specified with
-   * {@link #setUrl}, this value need not be absolute and, if
-   * relative, it will be resolved relative to the default URL.
-   * Otherwise this value must be an absolute URL.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
+   * @param uri
+   *          The URI. If a default URL has been specified with {@link #setUrl},
+   *          this value need not be absolute and, if relative, it will be
+   *          resolved relative to the default URL. Otherwise this value must be
+   *          an absolute URL.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @exception Exception
+   *              If an error occurs.
    */
   public final HTTPResponse TRACE(final String uri, final NVPair[] headers)
     throws Exception {
@@ -759,7 +790,7 @@ public class HTTPRequest {
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
-          return connection.Trace(path, headers);
+          return connection.Trace(path, mergeHeaders(headers));
         }
       }
       .getHTTPResponse();

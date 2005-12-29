@@ -1,6 +1,12 @@
 The Grinder 3.0-beta28 (Not yet released)
 -----------------------------------------
 
+  Changes to net.grinder.plugin.http.HTTPRequest:
+    - Removed addHeader(), deleteHeader()
+    - NVPair[] arrays passed to GET, POST, etc. are now merged with
+      the default values held by the HTTPRequest. Previously they
+      overrode the default values.
+
 
 Grinder 3.0-beta28
 ------------------

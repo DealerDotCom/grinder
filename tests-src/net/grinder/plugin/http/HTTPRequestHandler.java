@@ -68,7 +68,7 @@ class HTTPRequestHandler implements Runnable {
     int start = 0;
     int i;
 
-    while((i = text.indexOf("\r\n", start)) != -1) {
+    while ((i = text.indexOf("\r\n", start)) != -1) {
       if (text.substring(start, i).equals(line)) {
         return;
       }
@@ -81,6 +81,20 @@ class HTTPRequestHandler implements Runnable {
     }
 
     TestHTTPRequest.fail(text + " does not contain " + line);
+  }
+
+  public final void assertRequestDoesNotContainHeader(String line) {
+    final String text = getLastRequestHeaders();
+
+    int start = 0;
+    int i;
+
+    while((i = text.indexOf("\r\n", start)) != -1) {
+      TestHTTPRequest.assertTrue(!text.substring(start, i).equals(line));
+      start = i + 2;
+    }
+
+    TestHTTPRequest.assertTrue(!text.substring(start).equals(line));
   }
 
   public final void run() {
