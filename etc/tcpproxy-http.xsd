@@ -7,12 +7,27 @@
   attributeFormDefault="unqualified" elementFormDefault="qualified">
 
   <xs:element name="http-recording" type="tns:HTTPRecordingType">
-    <xs:key name="HeadersID">
-      <xs:selector xpath="commonHeaders" />
-      <xs:field xpath="headersID" />
+    <xs:key name="RequestID">
+      <xs:selector xpath="request" />
+      <xs:field xpath="request-id" />
     </xs:key>
 
-    <xs:keyref name="HeadersIDRef" refer="tns:HeadersID">
+    <xs:key name="BaseURLID">
+      <xs:selector xpath="base-url" />
+      <xs:field xpath="url-id" />
+    </xs:key>
+
+    <xs:keyref name="BaseURLIDRef" refer="tns:BaseURLID">
+      <xs:selector xpath="request/url" />
+      <xs:field xpath="extends" />
+    </xs:keyref>
+
+    <xs:key name="CommonHeadersID">
+      <xs:selector xpath="common-headers" />
+      <xs:field xpath="headers-id" />
+    </xs:key>
+
+    <xs:keyref name="CommonHeadersIDRef" refer="tns:CommonHeadersID">
       <xs:selector xpath="request/headers" />
       <xs:field xpath="extends" />
     </xs:keyref>
@@ -31,7 +46,8 @@
 
       <xs:choice maxOccurs="unbounded" minOccurs="0">
         <xs:element name="request" type="tns:RequestType" />
-        <xs:element name="commonHeaders" type="tns:CommonHeadersType" />
+        <xs:element name="base-url" type="tns:BaseURLType" />
+        <xs:element name="common-headers" type="tns:CommonHeadersType" />
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
@@ -52,45 +68,16 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="url" type="tns:URLType" />
+      <xs:element name="url" type="tns:RelativeURLType" />
       <xs:element name="headers" type="tns:RequestHeadersType" />
-      <xs:element name="shortDescription" type="xs:string"/>
-      <xs:element name="sleeptime" type="xs:unsignedInt" minOccurs="0" />
+      <xs:element name="short-description" type="xs:string"/>
+      <xs:element name="sleep-time" type="xs:unsignedInt" minOccurs="0" />
       <xs:element name="body" type="tns:BodyType" minOccurs="0" />
     </xs:sequence>
-    <xs:attribute name="requestID" type="xs:unsignedInt" />
+    <xs:attribute name="request-id" type="xs:unsignedInt" />
   </xs:complexType>
 
-  <xs:complexType name="AbstractHeadersType" abstract="true">
-    <xs:sequence>
-      <xs:element name="header" type="tns:HeaderType" minOccurs="0"
-        maxOccurs="unbounded" />
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="CommonHeadersType">
-    <xs:complexContent>
-      <xs:extension base="tns:AbstractHeadersType">
-        <xs:attribute name="headersID" type="xs:string" />
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-
-  <xs:complexType name="RequestHeadersType">
-    <xs:complexContent>
-      <xs:extension base="tns:AbstractHeadersType">
-        <xs:attribute name="extends" type="xs:string"/>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-
-  <xs:complexType name="HeaderType">
-    <xs:complexContent>
-      <xs:extension base="tns:NameValueType" />
-    </xs:complexContent>
-  </xs:complexType>
-
-  <xs:complexType name="URLType">
+  <xs:complexType name="BaseURLType">
     <xs:sequence>
       <xs:element name="scheme">
         <xs:simpleType>
@@ -100,17 +87,21 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="host-and-port">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:pattern value="" /><!-- TODO  -->
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
+      <xs:element name="host" type="xs:string"/>
+      <xs:element name="port" type="xs:unsignedShort"/>
+    </xs:sequence>
+
+    <xs:attribute name="url-id" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="RelativeURLType">
+    <xs:sequence>
       <xs:element name="path" type="xs:normalizedString" />
       <xs:element name="query-string" type="tns:QueryStringType"
         minOccurs="0" />
     </xs:sequence>
+
+    <xs:attribute name="extends" type="xs:string"/>
   </xs:complexType>
 
   <xs:complexType name="QueryStringType">
@@ -133,9 +124,38 @@
     </xs:complexContent>
   </xs:complexType>
 
+    <xs:complexType name="AbstractHeadersType" abstract="true">
+    <xs:sequence>
+      <xs:element name="header" type="tns:HeaderType" minOccurs="0"
+        maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CommonHeadersType">
+    <xs:complexContent>
+      <xs:extension base="tns:AbstractHeadersType">
+        <xs:attribute name="headers-id" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="RequestHeadersType">
+    <xs:complexContent>
+      <xs:extension base="tns:AbstractHeadersType">
+        <xs:attribute name="extends" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="HeaderType">
+    <xs:complexContent>
+      <xs:extension base="tns:NameValueType" />
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:complexType name="BodyType">
     <xs:sequence>
-      <xs:element name="contentType" type="xs:normalizedString" />
+      <xs:element name="content-type" type="xs:normalizedString" />
       <xs:choice>
         <xs:element name="form" type="tns:FormDataType" />
         <xs:element name="binary" type="xs:base64Binary" />

@@ -40,6 +40,7 @@ import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
 import net.grinder.common.Logger;
+import net.grinder.plugin.http.xml.BaseURLType;
 import net.grinder.plugin.http.xml.BodyType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.FormDataType;
@@ -48,10 +49,11 @@ import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.ParameterType;
 import net.grinder.plugin.http.xml.ParsedQueryStringType;
 import net.grinder.plugin.http.xml.QueryStringType;
+import net.grinder.plugin.http.xml.RelativeURLType;
 import net.grinder.plugin.http.xml.RequestHeadersType;
 import net.grinder.plugin.http.xml.RequestType;
-import net.grinder.plugin.http.xml.URLType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
+import net.grinder.tools.tcpproxy.EndPoint;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 
 
@@ -69,13 +71,11 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * fragments.
  * </ul>
  *
- * TODO make URLs a top level type?
- *
  * @author Philip Aston
  * @author Bertrand Ave
  * @version $Revision$
  */
-public final class HTTPToXMLRequestFilter
+public final class HTTPRequestFilter
   implements TCPProxyFilter, Disposable {
 
   /**
@@ -103,6 +103,7 @@ public final class HTTPToXMLRequestFilter
       "Accept-Encoding",
       "Accept-Language",
       "Cache-Control",
+      "Referer",
       "User-Agent",
     }
   ));
@@ -124,6 +125,7 @@ public final class HTTPToXMLRequestFilter
 
   private final HandlerMap m_handlers = new HandlerMap();
 
+  private final BaseURLMap m_baseURLMap = new BaseURLMap();
   private final CommonHeadersMap m_commonHeadersMap = new CommonHeadersMap();
 
   /**
@@ -134,7 +136,7 @@ public final class HTTPToXMLRequestFilter
    * @param logger
    *          Logger to direct output to.
    */
-  public HTTPToXMLRequestFilter(HTTPRecording httpRecording, Logger logger) {
+  public HTTPRequestFilter(HTTPRecording httpRecording, Logger logger) {
 
     m_httpRecording = httpRecording;
     m_logger = logger;
@@ -152,7 +154,7 @@ public final class HTTPToXMLRequestFilter
     m_requestLinePattern =
       Pattern.compile(
         "^([A-Z]+)[ \\t]+" +          // Method.
-        "(?:(https?)://([^/]))?"  +   // Optional scheme, host, port.
+        "(?:https?://[^/]+)?"  +      // Ignore scheme, host, port.
         "([^\\?]+)" +                 // Path.
         "(?:\\?(.*))?" +              // Optional query string.
         "[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?\\n",
@@ -244,9 +246,6 @@ public final class HTTPToXMLRequestFilter
    */
   public void dispose() {
     m_handlers.closeAllHandlers();
-
-    m_logger.getOutputLogWriter().println(m_httpRecording.getResult());
-    m_logger.getOutputLogWriter().flush();
   }
 
   /**
@@ -256,13 +255,17 @@ public final class HTTPToXMLRequestFilter
    * serialised.</p>
    **/
   private final class Handler {
-    private final ConnectionDetails m_connectionDetails;
+    private final BaseURLType m_baseURL;
 
     // Parse data.
     private Request m_request;
 
     public Handler(ConnectionDetails connectionDetails) {
-      m_connectionDetails = connectionDetails;
+      m_baseURL =
+        m_baseURLMap.getBaseURL(
+          connectionDetails.isSecure() ?
+              BaseURLType.Scheme.HTTPS : BaseURLType.Scheme.HTTP,
+          connectionDetails.getRemoteEndPoint());
     }
 
     public synchronized void handle(byte[] buffer, int length) {
@@ -286,11 +289,11 @@ public final class HTTPToXMLRequestFilter
 
         endMessage();
 
-        m_request = new Request(matcher.group(1),
-                                matcher.group(2),
-                                matcher.group(3),
-                                matcher.group(4),
-                                matcher.group(5));
+        final String method = matcher.group(1);
+        final String path = matcher.group(2);
+        final String queryString = matcher.group(3);
+
+        m_request = new Request(method, path, queryString);
       }
 
       // Stuff we do whatever.
@@ -398,13 +401,11 @@ public final class HTTPToXMLRequestFilter
       private final ByteArrayOutputStream m_entityBodyByteStream =
         new ByteArrayOutputStream();
 
-      public Request(String method, String scheme, String hostAndPort,
-                     String path, String queryString) {
-
+      public Request(String method, String path, String queryString) {
         final Matcher lastURLPathElementMatcher =
           m_lastURLPathElementPattern.matcher(path);
 
-        m_request.setRequestID(m_requestIDGenerator.next());
+        m_request.setRequestId(m_requestIDGenerator.next());
 
         if (lastURLPathElementMatcher.find()) {
           m_request.setShortDescription(
@@ -412,30 +413,14 @@ public final class HTTPToXMLRequestFilter
         }
         else {
           m_request.setShortDescription(
-            method + " " + m_request.getRequestID());
+            method + " " + m_request.getRequestId());
         }
 
         m_request.setMethod(RequestType.Method.Enum.forString(method));
         m_request.setTime(Calendar.getInstance());
 
-        final URLType url = m_request.addNewUrl();
-        if (scheme != null) {
-          url.setScheme(URLType.Scheme.Enum.forString(scheme));
-        }
-        else {
-          url.setScheme(m_connectionDetails.isSecure() ?
-                        URLType.Scheme.HTTPS : URLType.Scheme.HTTP);
-        }
-
-        if (hostAndPort != null) {
-          url.setHostAndPort(hostAndPort);
-        }
-        else {
-          // Relative URL given, calculate absolute URL.
-          url.setHostAndPort(
-            m_connectionDetails.getRemoteEndPoint().toString());
-        }
-
+        final RelativeURLType url = m_request.addNewUrl();
+        url.setExtends(m_baseURL.getUrlId());
         url.setPath(path);
 
         if (queryString != null) {
@@ -467,7 +452,7 @@ public final class HTTPToXMLRequestFilter
           final long time = System.currentTimeMillis() - lastResponseTime;
 
           if (time > 10) {
-            m_request.setSleeptime(time);
+            m_request.setSleepTime(time);
           }
         }
       }
@@ -673,12 +658,43 @@ public final class HTTPToXMLRequestFilter
     }
   }
 
+  private final class BaseURLMap {
+    private Map m_map = new HashMap();
+    private IntGenerator m_idGenerator = new IntGenerator();
+
+    public BaseURLType getBaseURL(
+      BaseURLType.Scheme.Enum scheme, EndPoint endPoint) {
+
+      final Object key = scheme.toString() + "://" + endPoint;
+
+      synchronized (m_map) {
+        final BaseURLType existing = (BaseURLType)m_map.get(key);
+
+        if (existing != null) {
+          return existing;
+        }
+
+        final BaseURLType result = BaseURLType.Factory.newInstance();
+        result.setUrlId("url" + m_idGenerator.next());
+        result.setScheme(scheme);
+        result.setHost(endPoint.getHost());
+        result.setPort(endPoint.getPort());
+
+        m_httpRecording.addBaseURL(result);
+        m_map.put(key, result);
+
+        return result;
+      }
+    }
+  }
+
   private final class CommonHeadersMap {
     private Map m_map = new HashMap();
-    private UniqueIDGenerator m_idGenerator = new UniqueIDGenerator();
+    private IntGenerator m_idGenerator = new IntGenerator();
 
     public RequestHeadersType extractCommonHeaders(
       RequestHeadersType requestHeaders) {
+
       final CommonHeadersType commonHeaders =
         CommonHeadersType.Factory.newInstance();
       final RequestHeadersType newRequestHeaders =
@@ -686,26 +702,12 @@ public final class HTTPToXMLRequestFilter
 
       final HeaderType[] headers = requestHeaders.getHeaderArray();
 
-      String idPrefix = "headers-";
-
       for (int i = 0; i < headers.length; ++i) {
         if (COMMON_HEADERS.contains(headers[i].getName())) {
           commonHeaders.addNewHeader().set(headers[i]);
         }
         else {
           newRequestHeaders.addNewHeader().set(headers[i]);
-        }
-
-        if ("Accept".equals(headers[i].getName())) {
-          final String acceptValue = headers[i].getValue();
-          final int comma = acceptValue.indexOf(',');
-
-          if (comma > 0) {
-            idPrefix = "headers-" + acceptValue.substring(0, comma) + "-";
-          }
-          else {
-            idPrefix = "headers-" + acceptValue + "-";
-          }
         }
       }
 
@@ -717,39 +719,18 @@ public final class HTTPToXMLRequestFilter
         final CommonHeadersType existing = (CommonHeadersType)m_map.get(key);
 
         if (existing != null) {
-          newRequestHeaders.setExtends(existing.getHeadersID());
+          newRequestHeaders.setExtends(existing.getHeadersId());
         }
         else {
-          commonHeaders.setHeadersID(m_idGenerator.next(idPrefix));
-          m_httpRecording.addNewCommonHeaders(commonHeaders);
-        }
+          commonHeaders.setHeadersId("headers" + m_idGenerator.next());
+          m_httpRecording.addCommonHeaders(commonHeaders);
+          m_map.put(key, commonHeaders);
 
-        m_map.put(key, commonHeaders);
-        newRequestHeaders.setExtends(commonHeaders.getHeadersID());
+          newRequestHeaders.setExtends(commonHeaders.getHeadersId());
+        }
       }
 
       return newRequestHeaders;
-    }
-  }
-
-  private static final class UniqueIDGenerator {
-    private final Map m_nextValues = new HashMap();
-
-    private String next(String key) {
-      final IntGenerator intGenerator;
-      synchronized (m_nextValues) {
-        final IntGenerator existing = (IntGenerator)m_nextValues.get(key);
-
-        if (existing != null) {
-          intGenerator = existing;
-        }
-        else {
-          intGenerator = new IntGenerator();
-          m_nextValues.put(key, intGenerator);
-        }
-      }
-
-      return key + intGenerator.next();
     }
   }
 

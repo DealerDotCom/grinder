@@ -1,11 +1,6 @@
 // Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
-// This file is part of The Grinder software distribution. Refer to
-// the file LICENSE which is part of The Grinder distribution for
-// licensing details. The Grinder distribution is available on the
-// Internet at http://grinder.sourceforge.net/
-//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -21,97 +16,58 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
-import java.util.Calendar;
-
-import net.grinder.common.GrinderBuild;
+import net.grinder.plugin.http.xml.BaseURLType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
-import net.grinder.plugin.http.xml.HTTPRecordingType;
-import net.grinder.plugin.http.xml.HttpRecordingDocument;
 import net.grinder.plugin.http.xml.RequestType;
 
 
 /**
- * Contains common state for HTTP recording.
+ * Interface for recording HTTP stream information.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class HTTPRecording {
-
-  private final HttpRecordingDocument m_recordingDocument =
-    HttpRecordingDocument.Factory.newInstance();
-
-  private long m_lastResponseTime = 0;
-  private String m_lastAuthenticationRealm;
-
-  /**
-   * Constructor.
-   */
-  public HTTPRecording() {
-    final HTTPRecordingType.Metadata httpRecording =
-      m_recordingDocument.addNewHttpRecording().addNewMetadata();
-
-    httpRecording.setVersion("The Grinder " + GrinderBuild.getVersionString());
-    httpRecording.setTime(Calendar.getInstance());
-  }
-
-  /**
-   * Get a copy of the XML document for this HTTPRecording.
-   *
-   * @return The recording.
-   */
-  public HttpRecordingDocument getResult() {
-    synchronized (m_recordingDocument) {
-      return (HttpRecordingDocument)m_recordingDocument.copy();
-    }
-  }
+public interface HTTPRecording {
 
   /**
    * Add a new request to the recording.
    *
    * @param request The request.
    */
-  public void addRequest(RequestType request) {
-    synchronized (m_recordingDocument) {
-      m_recordingDocument.getHttpRecording().addNewRequest().set(request);
-    }
-  }
+  void addRequest(RequestType request);
 
   /**
-   * Add new common headers to he recording.
+   * Add a new base URL to the recording.
+   *
+   * @param baseURL The URL.
+   */
+  void addBaseURL(BaseURLType baseURL);
+
+  /**
+   * Add new common headers to the recording.
    *
    * @param commonHeaders The headers.
    */
-  public void addNewCommonHeaders(CommonHeadersType commonHeaders) {
-    synchronized (m_recordingDocument) {
-      m_recordingDocument.getHttpRecording().addNewCommonHeaders()
-      .set(commonHeaders);
-    }
-  }
+  void addCommonHeaders(CommonHeadersType commonHeaders);
 
   /**
    * Called when any response activity is detected. Because the test script
    * represents a single thread of control we need to calculate the sleep deltas
    * using the last time any activity occurred on any connection.
    */
-  public void markLastResponseTime() {
-    synchronized (this) {
-      m_lastResponseTime = System.currentTimeMillis();
-    }
-  }
+  void markLastResponseTime();
 
   /**
    * Get the last response time.
    *
    * @return The last response time.
    */
-  public long getLastResponseTime() {
-    synchronized (this) {
-      return m_lastResponseTime;
-    }
-  }
+  long getLastResponseTime();
 
-  public void setLastAuthenticationRealm(String realm) {
-    m_lastAuthenticationRealm = realm;
-  }
+  /**
+   * Set the last recording authentication realm.
+   *
+   * @param realm The realm.
+   */
+  void setLastAuthenticationRealm(String realm);
 }

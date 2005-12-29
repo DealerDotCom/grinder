@@ -40,7 +40,7 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * @author Bertrand Ave
  * @version $Revision$
  */
-public class HTTPToXMLResponseFilter implements TCPProxyFilter {
+public class HTTPResponseFilter implements TCPProxyFilter {
 
   private final HTTPRecording m_httpRecording;
   private final Pattern m_wwwAuthenticateHeaderPattern;
@@ -51,7 +51,7 @@ public class HTTPToXMLResponseFilter implements TCPProxyFilter {
    * @param httpRecording
    *          Common HTTP recording state.
    */
-  public HTTPToXMLResponseFilter(HTTPRecording httpRecording) {
+  public HTTPResponseFilter(HTTPRecording httpRecording) {
     m_httpRecording = httpRecording;
 
     m_wwwAuthenticateHeaderPattern =
