@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
@@ -71,6 +73,9 @@ public class HTTPRequest {
     // Ensure that the HTTPPlugin is registered.
     HTTPPlugin.getPlugin();
   }
+
+  private static Pattern s_pathParser =
+    Pattern.compile("([^?#]*)(\\?([^#]*))?(#(.*))?");
 
   private URI m_defaultURL;
   private NVPair[] m_defaultHeaders = new NVPair[0];
@@ -129,8 +134,7 @@ public class HTTPRequest {
    * @return The merged arrays. For efficiency's sake, we do not filter out
    *         <code>null</code> entries.
    */
-  private final NVPair[] mergeArrays(
-    NVPair[] defaultPairs, NVPair[] overridePairs) {
+  private NVPair[] mergeArrays(NVPair[] defaultPairs, NVPair[] overridePairs) {
 
     if (defaultPairs.length == 0) {
       return overridePairs;
@@ -825,7 +829,25 @@ public class HTTPRequest {
           throw new URLException("URL must be absolute");
         }
 
-        m_url = new URI(m_defaultURL, uri);
+        if (uri.startsWith("//")) {
+          // HTTPClient.URI(URI, String) treats paths that start with two
+          // slashes as absolute. We don't want this, so handle as a special
+          // case.
+          final Matcher matcher = s_pathParser.matcher(uri);
+          matcher.matches();
+          final String path = matcher.group(1);
+          final String query = matcher.group(2);
+          final String fragment = matcher.group(3);
+
+          m_url = new URI(m_defaultURL.getScheme(),
+                          m_defaultURL.getUserinfo(),
+                          m_defaultURL.getHost(),
+                          m_defaultURL.getPort(),
+                          path, query, fragment);
+        }
+        else {
+          m_url = new URI(m_defaultURL, uri);
+        }
       }
     }
 

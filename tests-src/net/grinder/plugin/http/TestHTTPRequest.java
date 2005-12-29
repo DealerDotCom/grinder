@@ -267,6 +267,11 @@ public class TestHTTPRequest extends TestCase {
     handler.assertRequestContainsHeader("key: anotherValue");
     handler.assertRequestDoesNotContainHeader("key: value");
 
+    final HTTPResponse response7 = request.GET("//multipleSlashes");
+    assertEquals(200, response7.getStatusCode());
+    assertEquals("GET //multipleSlashes HTTP/1.1",
+                 handler.getRequestFirstHeader());
+
     handler.shutdown();
   }
 
