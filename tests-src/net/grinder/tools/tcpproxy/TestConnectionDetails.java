@@ -79,22 +79,6 @@ public class TestConnectionDetails extends TestCase {
     assertEquals("one:55->two:121", connectionDetails.toString());
   }
 
-  public void testGetURLBase() throws Exception {
-
-    final ConnectionDetails connectionDetails =
-      new ConnectionDetails(new EndPoint("one", 55),
-                            new EndPoint("two", 121), true);
-
-    assertEquals("https://two:121", connectionDetails.getURLBase("http"));
-
-    final ConnectionDetails cd2 =
-      new ConnectionDetails(new EndPoint("here", 65535),
-                            new EndPoint("there", 32233),
-                            false);
-
-    assertEquals("xx://there:32233", cd2.getURLBase("xx"));
-  }
-
   public void testEquality() throws Exception {
     final ConnectionDetails[] connectionDetails = {
       new ConnectionDetails(new EndPoint("A", 55),

@@ -714,7 +714,8 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
 
         if (!m_url.startsWith("http")) {
           // Relative URL given, calculate absolute URL.
-          m_url = m_connectionDetails.getURLBase("http") + m_url;
+          m_url = ("http" + (m_connectionDetails.isSecure() ? "s://" : "://") +
+              m_connectionDetails.getRemoteEndPoint()) + m_url;
         }
 
         // Stuff we do at start of request only.

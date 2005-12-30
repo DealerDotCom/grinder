@@ -84,19 +84,6 @@ public final class ConnectionDetails {
   }
 
   /**
-   * Describe <code>getURLBase</code> method here.
-   * TODO
-   *
-   * @param protocol a <code>String</code> value
-   * @return a <code>String</code> value
-   */
-  public String getURLBase(String protocol) {
-
-    // Hackety do dah..
-    return protocol + (m_isSecure ? "s://" : "://") + m_remoteEndPoint;
-  }
-
-  /**
    * Accessor.
    *
    * @return a <code>boolean</code> value
