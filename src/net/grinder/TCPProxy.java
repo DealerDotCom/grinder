@@ -27,8 +27,6 @@ package net.grinder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,8 +34,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.picocontainer.ComponentAdapter;
-import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.defaults.DefaultPicoContainer;
+import org.picocontainer.monitors.WriterComponentMonitor;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
@@ -141,6 +139,7 @@ public final class TCPProxy {
       "\n   [-ssl]                       Use SSL when port forwarding." +
       "\n   [-component <class>]         Register the a component class with" +
       "\n                                the filter PicoContainer." +
+      "\n   [-debug]                     Make filter PicoContainer chatty." +
       "\n" +
       "\n <filter> can be the name of a class that implements " +
       TCPProxyFilter.class.getName() + " or one of NONE, ECHO. The default " +
@@ -172,7 +171,7 @@ public final class TCPProxy {
       );
   }
 
-  private final MutablePicoContainer m_filterContainer =
+  private final DefaultPicoContainer m_filterContainer =
     new DefaultPicoContainer();
 
   private final TCPProxyEngine m_proxyEngine;
@@ -180,6 +179,7 @@ public final class TCPProxy {
 
   private TCPProxy(String[] args, Logger logger) throws Exception {
     m_logger = logger;
+
     m_filterContainer.registerComponentInstance(m_logger);
 
     // Default values.
@@ -276,16 +276,6 @@ public final class TCPProxy {
         else if (args[i].equalsIgnoreCase("-timeout")) {
           timeout = Integer.parseInt(args[++i]) * 1000;
         }
-        else if (args[i].equalsIgnoreCase("-output")) {
-          // -output is used by the TCPProxy web app only
-          // and is not publicised, users are expected to
-          // use shell redirection.
-          final String outputFile = args[++i];
-          System.setOut(new PrintStream(
-                          new FileOutputStream(outputFile + ".out"), true));
-          System.setErr(new PrintStream(
-                          new FileOutputStream(outputFile + ".err"), true));
-        }
         else if (args[i].equalsIgnoreCase("-console")) {
           console = true;
         }
@@ -304,6 +294,10 @@ public final class TCPProxy {
         else if (args[i].equalsIgnoreCase("-httpsproxy")) {
           chainedHTTPSProxy =
             new EndPoint(args[++i], Integer.parseInt(args[++i]));
+        }
+        else if (args[i].equalsIgnoreCase("-debug")) {
+          m_filterContainer.changeMonitor(
+            new WriterComponentMonitor(logger.getErrorLogWriter()));
         }
         else {
           throw barfUsage();
