@@ -21,12 +21,26 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import java.io.IOException;
+
+import org.apache.xmlbeans.XmlOptions;
+
 import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
 
 
 /**
- * Output an {@link HTTPRecordingImplementation} result as XML text.
+ * Output an {@link HTTPRecordingImplementation} result as pretty printed XML
+ * text.
+ *
+ * <p>
+ * The XMLBeans pretty printing makes the output human readable, but
+ * unfortunately does not respect
+ * <code>&lt;xs:whiteSpace value="preserve"/&gt;</code> facets in the schema
+ * and so meaningful white space might be stripped from the output. If you care
+ * about the white space, you probably are doing some sort of transform; see
+ * {@link ProcessHTTPRecordingWithXSLT}.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -48,9 +62,16 @@ public class OutputRecordingAsXML implements HTTPRecordingResultProcessor {
    * Produce output.
    *
    * @param result The result to process.
+   * @throws IOException If an output error occurred.
    */
-  public void process(HttpRecordingDocument result) {
-    m_logger.getOutputLogWriter().println(result);
+  public void process(HttpRecordingDocument result) throws IOException {
+    final XmlOptions xmlOptions = new XmlOptions();
+
+    // See notes in class javadoc about white space.
+    xmlOptions.setSavePrettyPrint();
+
+    result.save(m_logger.getOutputLogWriter(), xmlOptions);
+    m_logger.getOutputLogWriter().println();
     m_logger.getOutputLogWriter().flush();
   }
 }

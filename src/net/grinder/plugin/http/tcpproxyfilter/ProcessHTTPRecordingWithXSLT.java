@@ -21,6 +21,7 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
@@ -38,15 +39,26 @@ import net.grinder.util.SimpleLogger;
 
 
 /**
- * Output an {@link HTTPRecordingImplementation} result as XML text.
+ * Output an {@link HTTPRecordingImplementation} result as a script using an
+ * XSLT transformation.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class OutputRecordingAsScript implements HTTPRecordingResultProcessor {
+public class ProcessHTTPRecordingWithXSLT
+  implements HTTPRecordingResultProcessor {
+
+  /**
+   * Name of System property that specifies the style sheet resource to be
+   * loaded from classpath. If the property is set to the empty string, the
+   * raw XML will be output.
+   */
+  public static final String STYLESHEET_NAME_PROPERTY =
+    "transformHTTPRecordingToScript";
 
   private final TransformerFactory m_transformerFactory =
     TransformerFactory.newInstance();
+
   private final Logger m_logger;
 
   /**
@@ -54,7 +66,7 @@ public class OutputRecordingAsScript implements HTTPRecordingResultProcessor {
    *
    * @param logger Where to direct the output.
    */
-  public OutputRecordingAsScript(Logger logger) {
+  public ProcessHTTPRecordingWithXSLT(Logger logger) {
     m_logger = logger;
   }
 
@@ -62,19 +74,29 @@ public class OutputRecordingAsScript implements HTTPRecordingResultProcessor {
    * Produce output.
    *
    * @param result The result to process.
+   * @throws IOException If an output error occurred.
    */
-  public void process(HttpRecordingDocument result) {
+  public void process(HttpRecordingDocument result) throws IOException {
 
     final String styleSheet = System.getProperty(
-      "transformHTTPRecordingToScript",
-      "resources/httpRecordingToScript.xsl");
+      STYLESHEET_NAME_PROPERTY,
+      "resources/httpRecordingToJythonScript.xsl");
+
+    if ("".equals(styleSheet)) {
+      result.save(m_logger.getOutputLogWriter());
+      m_logger.getOutputLogWriter().println();
+      m_logger.getOutputLogWriter().flush();
+      return;
+    }
 
     final InputStream styleSheetInputStream =
       getClass().getResourceAsStream(styleSheet);
 
     if (styleSheetInputStream == null) {
       m_logger.error(
-        "Could not locate XSLT transform '" + styleSheet + "' in classpath");
+        "Could not locate XSLT style sheet '" + styleSheet + "'.\n" +
+        "(Check the classpath and the '" + STYLESHEET_NAME_PROPERTY +
+        "' system property).");
       return;
     }
 
@@ -115,14 +137,16 @@ public class OutputRecordingAsScript implements HTTPRecordingResultProcessor {
   public static void main(String[] arguments) throws Exception {
     final HttpRecordingDocument recording =
       HttpRecordingDocument.Factory.parse(
-        OutputRecordingAsScript.class.getResourceAsStream(
+        ProcessHTTPRecordingWithXSLT.class.getResourceAsStream(
           "resources/recording.xml"));
 
-    final OutputRecordingAsScript processor =
-      new OutputRecordingAsScript(
+    final ProcessHTTPRecordingWithXSLT processor =
+      new ProcessHTTPRecordingWithXSLT(
         new SimpleLogger("test",
                          new PrintWriter(System.out),
                          new PrintWriter(System.err)));
+
+    //System.setProperty("transformHTTPRecordingToScript", "");
 
     processor.process(recording);
   }

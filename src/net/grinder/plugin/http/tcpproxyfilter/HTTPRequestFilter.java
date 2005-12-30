@@ -22,6 +22,8 @@
 package net.grinder.plugin.http.tcpproxyfilter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -43,7 +45,7 @@ import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.BaseURLType;
 import net.grinder.plugin.http.xml.BodyType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
-import net.grinder.plugin.http.xml.FormDataType;
+import net.grinder.plugin.http.xml.FormBodyType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.ParameterType;
@@ -70,6 +72,12 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * <li>Doesn't parse correctly if lines are broken across message
  * fragments.
  * </ul>
+ *
+ * TODO Record and use HTML page information.
+ * TODO Avoid Jython 64K limit (does it still affect 2.2?)
+ * TODO Session key processing.
+ * TODO HTTPPluginControl
+ * TODO Basic Authentication
  *
  * @author Philip Aston
  * @author Bertrand Ave
@@ -176,9 +184,9 @@ public final class HTTPRequestFilter
         "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?\\n",
         Pattern.MULTILINE | Pattern.UNIX_LINES);
 
-    // Ignore maximum amount of stuff that's not a '?' followed by
-    // a '/', then grab the next until the first '?'.
-    m_lastURLPathElementPattern = Pattern.compile("^[^\\?]*/([^\\?]*)");
+    // Ignore maximum amount of stuff that's not a '?' or ';' followed by
+    // a '/', then grab the next until the first '?' or ';'.
+    m_lastURLPathElementPattern = Pattern.compile("^[^\\?;]*/([^\\?;]*)");
   }
 
   /**
@@ -301,15 +309,11 @@ public final class HTTPRequestFilter
       if (m_request == null) {
         m_logger.error("UNEXPECTED - No current request");
       }
-      else if (m_request.getParsingBody()) {
-        if (m_request.hasBody()) {
-          m_request.addToEntityBody(buffer, 0, length);
-        }
-        else {
-          m_logger.error("UNEXPECTED - Not parsing headers or handling POST");
-        }
+      else if (m_request.getBody() != null) {
+        m_request.getBody().write(buffer, 0, length);
       }
       else {
+        // Still parsing headers.
         for (int i = 0; i < MIRRORED_HEADERS.length; i++) {
           final Matcher headerMatcher =
             m_mirroredHeaderPatterns[i].matcher(asciiString);
@@ -349,7 +353,7 @@ public final class HTTPRequestFilter
           }
         */
 
-        if (m_request.hasBody()) {
+        if (m_request.expectingBody()) {
           final Matcher contentLengthMatcher =
             m_contentLengthPattern.matcher(asciiString);
 
@@ -372,7 +376,7 @@ public final class HTTPRequestFilter
           if (messageBodyMatcher.find()) {
             final int beginOffset = messageBodyMatcher.start(1);
             final int endOffset = messageBodyMatcher.end(1);
-            m_request.addToEntityBody(
+            m_request.new Body().write(
               buffer, beginOffset, endOffset - beginOffset);
           }
         }
@@ -395,11 +399,9 @@ public final class HTTPRequestFilter
       private final RequestHeadersType m_headers =
         RequestHeadersType.Factory.newInstance();
 
-      private boolean m_parsingBody = false;
       private int m_contentLength = -1;
       private String m_contentType = null;
-      private final ByteArrayOutputStream m_entityBodyByteStream =
-        new ByteArrayOutputStream();
+      private Body m_body;
 
       public Request(String method, String path, String queryString) {
         final Matcher lastURLPathElementMatcher =
@@ -457,11 +459,11 @@ public final class HTTPRequestFilter
         }
       }
 
-      public boolean getParsingBody() {
-        return m_parsingBody;
+      public Body getBody() {
+        return m_body;
       }
 
-      public boolean hasBody() {
+      public boolean expectingBody() {
         return HTTP_METHODS_WITH_BODY.contains(
           m_request.getMethod().toString());
       }
@@ -481,70 +483,12 @@ public final class HTTPRequestFilter
         header.setValue(value);
       }
 
-      public void addToEntityBody(byte[] bytes, int start, int length) {
-        m_parsingBody = true;
-
-        final int lengthToWrite;
-
-        if (m_contentLength != -1 &&
-            length > m_contentLength - m_entityBodyByteStream.size()) {
-
-          m_logger.error("Expected content length exceeded, truncating");
-          lengthToWrite = m_contentLength - m_entityBodyByteStream.size();
-        }
-        else {
-          lengthToWrite = length;
-        }
-
-        m_entityBodyByteStream.write(bytes, start, lengthToWrite);
-
-        // We flush our entity data output now if we've reached the
-        // specified Content-Length. If no contentLength was specified
-        // we rely on next message or connection close event to flush
-        // the data.
-        if (m_contentLength != -1 &&
-            m_entityBodyByteStream.size() >= m_contentLength) {
-
-          endMessage();
-        }
-      }
-
       public void record() {
         m_request.setHeaders(
           m_commonHeadersMap.extractCommonHeaders(m_headers));
 
-        if (hasBody()) {
-          final BodyType body = m_request.addNewBody();
-          body.setContentType(m_contentType);
-
-          if ("application/x-www-form-urlencoded".equals(m_contentType)) {
-            try {
-              final NameValue[] formNameValuePairs;
-
-              try {
-                formNameValuePairs = parseNameValueString(
-                  m_entityBodyByteStream.toString("ISO8859_1"));
-              }
-              catch (UnsupportedEncodingException e) {
-                throw new AssertionError(e);
-              }
-
-              final FormDataType formData = FormDataType.Factory.newInstance();
-
-              for (int i = 0; i < formNameValuePairs.length; ++i) {
-                final FormFieldType formField = formData.addNewFormField();
-                formField.setName(formNameValuePairs[i].getName());
-                formField.setValue(formNameValuePairs[i].getValue());
-              }
-
-              body.setForm(formData);
-            }
-            catch (ParseException e) {
-              // Failed to parse form data as name-value pairs, we'll
-              // treat it as raw data instead.
-              body.setBinary(m_entityBodyByteStream.toByteArray());
-            }
-          }
+        if (getBody() != null) {
+          getBody().record();
         }
 
         m_httpRecording.addRequest(m_request);
@@ -562,6 +506,121 @@ public final class HTTPRequestFilter
         }
 
         return result;
+      }
+
+      private class Body {
+        private final ByteArrayOutputStream m_entityBodyByteStream =
+          new ByteArrayOutputStream();
+
+        public Body() {
+          assert m_body == null;
+          m_body = this;
+        }
+
+        public void write(byte[] bytes, int start, int length) {
+          final int lengthToWrite;
+
+          if (m_contentLength != -1 &&
+              length > m_contentLength - m_entityBodyByteStream.size()) {
+
+            m_logger.error("Expected content length exceeded, truncating");
+            lengthToWrite = m_contentLength - m_entityBodyByteStream.size();
+          }
+          else {
+            lengthToWrite = length;
+          }
+
+          m_entityBodyByteStream.write(bytes, start, lengthToWrite);
+
+          // We flush our entity data output now if we've reached the
+          // specified Content-Length. If no contentLength was specified
+          // we rely on next message or connection close event to flush
+          // the data.
+          if (m_contentLength != -1 &&
+              m_entityBodyByteStream.size() >= m_contentLength) {
+
+            endMessage();
+          }
+        }
+
+        public void record() {
+          final BodyType body = m_request.addNewBody();
+          body.setContentType(m_contentType);
+
+          final byte[] bytes = m_entityBodyByteStream.toByteArray();
+
+          if (bytes.length > 0x4000) {
+            // Large amount of data, use a file.
+            final String fileName =
+              "http-data-" + m_request.getRequestId() + ".dat";
+
+            try {
+              final FileOutputStream dataStream =
+                new FileOutputStream(fileName);
+              dataStream.write(bytes, 0, bytes.length);
+              dataStream.close();
+            }
+            catch (IOException e) {
+              m_logger.error("Failed to write body data to '" + fileName + "'");
+              e.printStackTrace(m_logger.getErrorLogWriter());
+            }
+
+            body.setFile(fileName);
+          }
+          else {
+            final String iso88591String;
+
+            try {
+              iso88591String = new String(bytes, "ISO8859_1");
+            }
+            catch (UnsupportedEncodingException e) {
+              throw new AssertionError(e);
+            }
+
+            if ("application/x-www-form-urlencoded".equals(m_contentType)) {
+              try {
+                final NameValue[] formNameValuePairs =
+                  parseNameValueString(iso88591String);
+
+                final FormBodyType formData =
+                  FormBodyType.Factory.newInstance();
+
+                for (int i = 0; i < formNameValuePairs.length; ++i) {
+                  final FormFieldType formField = formData.addNewFormField();
+                  formField.setName(formNameValuePairs[i].getName());
+                  formField.setValue(formNameValuePairs[i].getValue());
+                }
+
+                body.setForm(formData);
+              }
+              catch (ParseException e) {
+                // Failed to parse form data as name-value pairs, we'll
+                // treat it as raw data instead.
+              }
+            }
+
+            if (body.getForm() == null) {
+              // Basic handling of strings; should use content type headers.
+              boolean looksLikeAnExtendedASCIIString = true;
+
+              for (int i = 0; i < bytes.length; ++i) {
+                final char c = iso88591String.charAt(i);
+
+                if (Character.isISOControl(c) && !Character.isWhitespace(c)) {
+                  looksLikeAnExtendedASCIIString = false;
+                  break;
+                }
+              }
+
+              if (looksLikeAnExtendedASCIIString) {
+                body.setString(iso88591String);
+              }
+              else {
+                body.setBinary(bytes);
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -613,48 +672,6 @@ public final class HTTPRequestFilter
           handler.endMessage();
         }
       }
-    }
-  }
-
-  private static final class NameValue {
-    private final String m_name;
-    private final String m_value;
-
-    public NameValue(String s1, String s2) {
-      m_name = s1;
-      m_value = s2;
-    }
-
-    public String getName() {
-      return m_name;
-    }
-
-    public String getValue() {
-      return m_value;
-    }
-
-    public String toString() {
-      return getName() + "='" + getValue() + "'";
-    }
-
-    public int hashCode() {
-      return m_name.hashCode() ^ m_value.hashCode();
-    }
-
-    public boolean equals(Object o) {
-      if (o == this) {
-        return true;
-      }
-
-      if (!(o instanceof NameValue)) {
-        return false;
-      }
-
-      final NameValue other = (NameValue)o;
-
-      return
-        getName().equals(other.getName()) &&
-        getValue().equals(other.getValue());
     }
   }
 
@@ -739,6 +756,48 @@ public final class HTTPRequestFilter
 
     public synchronized int next() {
       return ++m_value;
+    }
+  }
+
+  private static final class NameValue {
+    private final String m_name;
+    private final String m_value;
+
+    public NameValue(String s1, String s2) {
+      m_name = s1;
+      m_value = s2;
+    }
+
+    public String getName() {
+      return m_name;
+    }
+
+    public String getValue() {
+      return m_value;
+    }
+
+    public String toString() {
+      return getName() + "='" + getValue() + "'";
+    }
+
+    public int hashCode() {
+      return m_name.hashCode() ^ m_value.hashCode();
+    }
+
+    public boolean equals(Object o) {
+      if (o == this) {
+        return true;
+      }
+
+      if (!(o instanceof NameValue)) {
+        return false;
+      }
+
+      final NameValue other = (NameValue)o;
+
+      return
+        getName().equals(other.getName()) &&
+        getValue().equals(other.getValue());
     }
   }
 }

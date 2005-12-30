@@ -29,9 +29,16 @@ import java.util.Date;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
+import HTTPClient.Codecs;
+
 
 /**
  * Helper functions for style sheets.
+ *
+ * <p>
+ * When calling methods that don't have parameters from a style sheet, don't
+ * forget the call braces or you'll end up with a no-op.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -39,6 +46,8 @@ import org.w3c.dom.NodeList;
 public final class XSLTHelper {
   private static DateFormat s_iso8601DateFormat =
     new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+  private int m_indentLevel;
 
   /**
    * Convert an ISO 8601 date/time string to a more friendly, locale specific
@@ -61,16 +70,16 @@ public final class XSLTHelper {
    * of NVPair scriptlet.
    *
    * @param nodes The nodes.
-   * @param level Indentation level.
    * @return The scriptlet.
    */
-  public String formatNVPairList(NodeList nodes, int level) {
+  public String formatNVPairList(NodeList nodes) {
 
     final StringBuffer result = new StringBuffer();
 
     final int n = nodes.getLength();
 
     result.append("(");
+    changeIndent(1);
 
     for (int i = 0; i < n; ++i) {
       final NamedNodeMap attributes = nodes.item(i).getAttributes();
@@ -79,7 +88,7 @@ public final class XSLTHelper {
         result.append(" ");
       }
       else {
-        result.append(newLineAndIndent(level + 1));
+        result.append(newLineAndIndent());
       }
 
       result.append("NVPair(");
@@ -92,6 +101,7 @@ public final class XSLTHelper {
     }
 
     result.append(" )");
+    changeIndent(-1);
 
     return result.toString();
   }
@@ -134,22 +144,18 @@ public final class XSLTHelper {
   }
 
   /**
-   * Return an appropriately sized indent string.
+   * Return an appropriately indent string.
    *
-   * @param level Indent level.
    * @return The string.
+   * @see #incrementIndent()
+   * @see #decrementIndent()
    */
-  public String indent(int level) {
-    return "                ".substring(0, level * 2);
+  public String indent() {
+    return "                ".substring(0, m_indentLevel * 2);
   }
 
   /**
    * Return a new line string.
-   *
-   * <p>
-   * When calling this from a style sheet, don't forget the call braces or
-   * you'll end up with a no-op.
-   * </p>
    *
    * @return The string.
    */
@@ -158,12 +164,59 @@ public final class XSLTHelper {
   }
 
   /**
-   * Equivalent to {@link #newLine()} followed by {@link #indent(int)).
+   * Equivalent to {@link #newLine()} followed by {@link #indent()).
    *
-   * @param level Indent level.
    * @return The string.
    */
-  public String newLineAndIndent(int level) {
-    return newLine() + indent(level);
+  public String newLineAndIndent() {
+    return newLine() + indent();
+  }
+
+  /**
+   * Change the indent level.
+   *
+   * @param indentChange Offset to indent level, positive or negative.
+   * @return The string.
+   */
+  public String changeIndent(int indentChange) {
+    m_indentLevel += indentChange;
+    return "";
+  }
+
+  public String base64ToPython(String base64String) {
+
+    final byte[] base64 = base64String.getBytes();
+
+    final StringBuffer result = new StringBuffer(base64.length * 2);
+
+    result.append("( ");
+    changeIndent(1);
+
+    if (base64.length > 0) {
+      final byte[] bytes = Codecs.base64Decode(base64);
+
+      for (int i = 0; i < bytes.length; ++i) {
+        if (i > 0 && i % 8 == 0) {
+          result.append(newLineAndIndent());
+        }
+
+        final int b = bytes[i] < 0 ? 0x100 + bytes[i] : bytes[i];
+
+        if (b <= 0xF) {
+          result.append("0x0");
+        }
+        else {
+          result.append("0x");
+        }
+
+        result.append(Integer.toHexString(b).toUpperCase());
+        result.append(", ");
+      }
+    }
+
+    changeIndent(-1);
+    result.append(")");
+
+    return result.toString();
   }
 }

@@ -21,11 +21,13 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import java.io.IOException;
 import java.util.Calendar;
 
 import org.picocontainer.Disposable;
 
 import net.grinder.common.GrinderBuild;
+import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.BaseURLType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.HTTPRecordingType;
@@ -43,6 +45,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
   private final HttpRecordingDocument m_recordingDocument =
     HttpRecordingDocument.Factory.newInstance();
+  private final Logger m_logger;
   private final HTTPRecordingResultProcessor m_resultProcessor;
 
   private long m_lastResponseTime = 0;
@@ -53,11 +56,14 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
    *
    * @param resultProcessor
    *          Component which handles result.
+   * @param logger
+   *          A logger.
    */
   public HTTPRecordingImplementation(
-    HTTPRecordingResultProcessor resultProcessor) {
+    HTTPRecordingResultProcessor resultProcessor, Logger logger) {
 
     m_resultProcessor = resultProcessor;
+    m_logger = logger;
 
     final HTTPRecordingType.Metadata httpRecording =
       m_recordingDocument.addNewHttpRecording().addNewMetadata();
@@ -141,6 +147,12 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       result = (HttpRecordingDocument)m_recordingDocument.copy();
     }
 
-    m_resultProcessor.process(result);
+    try {
+      m_resultProcessor.process(result);
+    }
+    catch (IOException e) {
+      m_logger.error(e.getMessage());
+      e.printStackTrace(m_logger.getErrorLogWriter());
+    }
   }
 }

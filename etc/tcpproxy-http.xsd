@@ -70,7 +70,7 @@
       </xs:element>
       <xs:element name="url" type="tns:RelativeURLType" />
       <xs:element name="headers" type="tns:RequestHeadersType" />
-      <xs:element name="short-description" type="xs:string"/>
+      <xs:element name="short-description" type="xs:normalizedString"/>
       <xs:element name="sleep-time" type="xs:unsignedInt" minOccurs="0" />
       <xs:element name="body" type="tns:BodyType" minOccurs="0" />
     </xs:sequence>
@@ -87,11 +87,11 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="host" type="xs:string"/>
+      <xs:element name="host" type="xs:NMTOKEN"/>
       <xs:element name="port" type="xs:unsignedShort"/>
     </xs:sequence>
 
-    <xs:attribute name="url-id" type="xs:string" />
+    <xs:attribute name="url-id" type="xs:NMTOKEN" />
   </xs:complexType>
 
   <xs:complexType name="RelativeURLType">
@@ -101,7 +101,7 @@
         minOccurs="0" />
     </xs:sequence>
 
-    <xs:attribute name="extends" type="xs:string"/>
+    <xs:attribute name="extends" type="xs:NMTOKEN"/>
   </xs:complexType>
 
   <xs:complexType name="QueryStringType">
@@ -134,7 +134,7 @@
   <xs:complexType name="CommonHeadersType">
     <xs:complexContent>
       <xs:extension base="tns:AbstractHeadersType">
-        <xs:attribute name="headers-id" type="xs:string" />
+        <xs:attribute name="headers-id" type="xs:NMTOKEN" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -142,7 +142,7 @@
   <xs:complexType name="RequestHeadersType">
     <xs:complexContent>
       <xs:extension base="tns:AbstractHeadersType">
-        <xs:attribute name="extends" type="xs:string"/>
+        <xs:attribute name="extends" type="xs:NMTOKEN"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -157,13 +157,23 @@
     <xs:sequence>
       <xs:element name="content-type" type="xs:normalizedString" />
       <xs:choice>
-        <xs:element name="form" type="tns:FormDataType" />
-        <xs:element name="binary" type="xs:base64Binary" />
+        <xs:element name="binary" type="tns:BinaryBodyType" />
+        <xs:element name="file" type="tns:FileNameBodyType" />
+        <xs:element name="form" type="tns:FormBodyType" />
+        <xs:element name="string" type="tns:StringBodyType" />
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="FormDataType">
+  <xs:simpleType name="BinaryBodyType">
+    <xs:restriction base="xs:base64Binary"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="FileNameBodyType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:complexType name="FormBodyType">
     <xs:sequence>
       <xs:element name="form-field" type="tns:FormFieldType"
         minOccurs="0" maxOccurs="unbounded" />
@@ -176,8 +186,15 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:simpleType name="StringBodyType">
+    <xs:restriction base="xs:string">
+      <xs:whiteSpace value="preserve"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
   <xs:complexType name="NameValueType" abstract="true">
-    <xs:attribute name="name" type="xs:token"/>
+    <xs:attribute name="name" type="xs:NMTOKEN"/>
     <xs:attribute name="value" type="xs:string"/>
   </xs:complexType>
 </xs:schema>

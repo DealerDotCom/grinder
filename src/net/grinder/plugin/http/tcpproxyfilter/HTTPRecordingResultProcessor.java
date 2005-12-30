@@ -21,6 +21,8 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import java.io.IOException;
+
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
 
 
@@ -37,6 +39,7 @@ public interface HTTPRecordingResultProcessor {
    * Produce output.
    *
    * @param result The result to process.
+   * @throws IOException If an output error occurred.
    */
-  void process(HttpRecordingDocument result);
+  void process(HttpRecordingDocument result) throws IOException;
 }
