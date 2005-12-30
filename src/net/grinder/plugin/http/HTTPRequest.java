@@ -99,8 +99,8 @@ public class HTTPRequest {
    * including protocol and the server information.
    *
    * @param url The URL to be used for this request.
-   * @exception ParseException If the URL cannot be parsed.
-   * @exception URLException If the URL is not absolute.
+   * @throws ParseException If the URL cannot be parsed.
+   * @throws URLException If the URL is not absolute.
    */
   public final void setUrl(String url) throws ParseException, URLException {
     if (!isAbsolute(url)) {
@@ -216,9 +216,10 @@ public class HTTPRequest {
    * Sets the default data from a file.
    *
    * @param filename Path name of data file.
-   * @exception IOException If the file could not be read.
+   * @return The data read from the file.
+   * @throws IOException If the file could not be read.
    */
-  public final void setDataFromFile(String filename) throws IOException {
+  public final byte[] setDataFromFile(String filename) throws IOException {
 
     final File file = new File(filename);
     m_defaultData = new byte[(int)file.length()];
@@ -226,6 +227,8 @@ public class HTTPRequest {
     final FileInputStream fileInputStream = new FileInputStream(file);
     fileInputStream.read(m_defaultData);
     fileInputStream.close();
+
+    return m_defaultData;
   }
 
   /**
@@ -252,7 +255,7 @@ public class HTTPRequest {
    * Makes an HTTP <code>DELETE</code> request.
    *
    * @return Contains details of the servers response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse DELETE() throws Exception {
     return DELETE(null, getHeaders());
@@ -266,7 +269,7 @@ public class HTTPRequest {
    * relative, it will be resolved relative to the default URL.
    * Otherwise this value must be an absolute URL.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse DELETE(String uri) throws Exception {
     return DELETE(uri, getHeaders());
@@ -284,7 +287,7 @@ public class HTTPRequest {
    *          Request headers. Overrides headers with matching names set by
    *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception
+   * @throws Exception
    *              If an error occurs.
    */
   public final HTTPResponse DELETE(final String uri, final NVPair[] headers)
@@ -303,7 +306,7 @@ public class HTTPRequest {
    * Makes an HTTP <code>GET</code> request.
    *
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse GET() throws Exception {
     return GET((String)null);
@@ -317,7 +320,7 @@ public class HTTPRequest {
    * relative, it will be resolved relative to the default URL.
    * Otherwise this value must be an absolute URL.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse GET(String uri) throws Exception {
     return GET(uri, getFormData(), getHeaders());
@@ -329,7 +332,7 @@ public class HTTPRequest {
    * @param queryData Request headers. Replaces all the values set
    * by {@link #setFormData}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse GET(NVPair[] queryData) throws Exception {
     return GET(null, queryData, getHeaders());
@@ -345,7 +348,7 @@ public class HTTPRequest {
    * @param queryData Request headers. Replaces all the values set
    * by {@link #setFormData}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse GET(final String uri, final NVPair[] queryData)
     throws Exception {
@@ -367,7 +370,7 @@ public class HTTPRequest {
    *          Request headers. Overrides headers with matching names set by
    *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception
+   * @throws Exception
    *              If an error occurs.
    */
   public final HTTPResponse GET(final String uri,
@@ -387,7 +390,7 @@ public class HTTPRequest {
    * Makes an HTTP <code>HEAD</code> request.
    *
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse HEAD() throws Exception {
     return HEAD(null, getFormData(), getHeaders());
@@ -401,7 +404,7 @@ public class HTTPRequest {
    * relative, it will be resolved relative to the default URL.
    * Otherwise this value must be an absolute URL.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse HEAD(String uri) throws Exception {
     return HEAD(uri, getHeaders());
@@ -413,7 +416,7 @@ public class HTTPRequest {
    * @param queryData Request headers. Replaces all the values set
    * by {@link #setFormData}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse HEAD(NVPair[] queryData) throws Exception {
     return HEAD(null, queryData, getHeaders());
@@ -429,7 +432,7 @@ public class HTTPRequest {
    * @param queryData Request headers. Replaces all the values set
    * by {@link #setFormData}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse HEAD(final String uri, final NVPair[] queryData)
     throws Exception {
@@ -451,7 +454,7 @@ public class HTTPRequest {
    *          Request headers. Overrides headers with matching names set by
    *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception
+   * @throws Exception
    *              If an error occurs.
    */
   public final HTTPResponse HEAD(final String uri,
@@ -471,7 +474,7 @@ public class HTTPRequest {
    * Makes an HTTP <code>OPTIONS</code> request.
    *
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse OPTIONS() throws Exception {
     return OPTIONS(null, getData(), getHeaders());
@@ -485,7 +488,7 @@ public class HTTPRequest {
    * relative, it will be resolved relative to the default URL.
    * Otherwise this value must be an absolute URL.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse OPTIONS(String uri) throws Exception {
     return OPTIONS(uri, getData(), getHeaders());
@@ -501,7 +504,7 @@ public class HTTPRequest {
    * @param data Data to be submitted in the body of the request.
    * Overrides the value set with {@link #setData}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse OPTIONS(final String uri, final byte[] data)
     throws Exception {
@@ -523,7 +526,7 @@ public class HTTPRequest {
    *          Request headers. Overrides headers with matching names set by
    *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception
+   * @throws Exception
    *              If an error occurs.
    */
   public final HTTPResponse OPTIONS(final String uri,
@@ -543,7 +546,7 @@ public class HTTPRequest {
    * Makes an HTTP <code>POST</code> request.
    *
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse POST() throws Exception {
     return POST((String)null);
@@ -557,7 +560,7 @@ public class HTTPRequest {
    * relative, it will be resolved relative to the default URL.
    * Otherwise this value must be an absolute URL.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse POST(String uri) throws Exception {
     final byte[] data = getData();
@@ -577,7 +580,7 @@ public class HTTPRequest {
    * <code>application/x-www-form-urlencoded</code> encoded request
    * body.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse POST(NVPair[] formData) throws Exception {
     return POST(null, formData, getHeaders());
@@ -594,7 +597,7 @@ public class HTTPRequest {
    * <code>application/x-www-form-urlencoded</code> encoded request
    * body.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse POST(String uri, NVPair[] formData)
     throws Exception {
@@ -615,7 +618,7 @@ public class HTTPRequest {
    *          Request headers. Overrides headers with matching names set by
    *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse POST(final String uri,
                                  final NVPair[] formData,
@@ -640,7 +643,7 @@ public class HTTPRequest {
    * @param data Data to be submitted in the body of the request.
    * Overrides the value set with {@link #setData}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse POST(String uri, byte[] data) throws Exception {
     return POST(uri, data, getHeaders());
@@ -659,7 +662,7 @@ public class HTTPRequest {
    *          Request headers. Overrides headers with matching names set by
    *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse POST(final String uri,
                                  final byte[] data,
@@ -678,7 +681,7 @@ public class HTTPRequest {
    * Makes an HTTP <code>PUT</code> request.
    *
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse PUT() throws Exception {
     return PUT(null, getData(), getHeaders());
@@ -692,7 +695,7 @@ public class HTTPRequest {
    * relative, it will be resolved relative to the default URL.
    * Otherwise this value must be an absolute URL.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse PUT(String uri) throws Exception {
     return PUT(uri, getData(), getHeaders());
@@ -708,7 +711,7 @@ public class HTTPRequest {
    * @param data Data to be submitted in the body of the request.
    * Overrides the value set with {@link #setData}.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse PUT(String uri, byte[] data) throws Exception {
     return PUT(uri, data, getHeaders());
@@ -729,7 +732,7 @@ public class HTTPRequest {
    *          Request headers. Overrides headers with matching names set by
    *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception
+   * @throws Exception
    *              If an error occurs.
    */
   public final HTTPResponse PUT(final String uri,
@@ -749,7 +752,7 @@ public class HTTPRequest {
    * Makes an HTTP <code>TRACE</code> request.
    *
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse TRACE() throws Exception {
     return TRACE(null, getHeaders());
@@ -763,7 +766,7 @@ public class HTTPRequest {
    * relative, it will be resolved relative to the default URL.
    * Otherwise this value must be an absolute URL.
    * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
+   * @throws Exception If an error occurs.
    */
   public final HTTPResponse TRACE(String uri) throws Exception {
     return TRACE(uri, getHeaders());
@@ -781,7 +784,7 @@ public class HTTPRequest {
    *          Request headers. Overrides headers with matching names set by
    *          {@link #setHeaders}.
    * @return Contains details of the server's response.
-   * @exception Exception
+   * @throws Exception
    *              If an error occurs.
    */
   public final HTTPResponse TRACE(final String uri, final NVPair[] headers)
