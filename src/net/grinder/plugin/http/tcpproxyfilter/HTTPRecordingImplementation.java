@@ -49,7 +49,6 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   private final HTTPRecordingResultProcessor m_resultProcessor;
 
   private long m_lastResponseTime = 0;
-  private String m_lastAuthenticationRealm;
 
   /**
    * Constructor.
@@ -126,15 +125,6 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     synchronized (this) {
       return m_lastResponseTime;
     }
-  }
-
-  /**
-   * Set the last recording authentication realm.
-   *
-   * @param realm The realm.
-   */
-  public void setLastAuthenticationRealm(String realm) {
-    m_lastAuthenticationRealm = realm;
   }
 
   /**

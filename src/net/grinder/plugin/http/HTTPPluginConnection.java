@@ -43,12 +43,20 @@ public interface HTTPPluginConnection {
   /**
    * Set whether redirects should be automatically followed.
    *
+   * <p>This enables the HTTPClient Redirection module.</p>
+   *
+   * <p>Default: <code>false</code></p>
+   *
    * @param followRedirects <code>true</code> => follow redirects.
    */
   void setFollowRedirects(boolean followRedirects);
 
   /**
    * Set whether cookies will be used.
+   *
+   * <p>This enables the HTTPClient Cookie module.</p>
+   *
+   * <p>Default: <code>true</code></p>
    *
    * @param useCookies <code>true</code> => use cookies.
    */
@@ -57,6 +65,10 @@ public interface HTTPPluginConnection {
   /**
    * Set whether content encoding will be used.
    *
+   * <p>This enables the HTTPClient Content Encoding module.</p>
+   *
+   * <p>Default: <code>false</code></p>
+   *
    * @param useContentEncoding <code>true</code> => use content encoding.
    */
   void setUseContentEncoding(boolean useContentEncoding);
@@ -64,12 +76,29 @@ public interface HTTPPluginConnection {
   /**
    * Set whether transfer encoding will be used.
    *
+   * <p>This enables the HTTPClient Transfer Encoding module.</p>
+   *
+   * <p>Default: <code>false</code></p>
+   *
    * @param useTransferEncoding <code>true</code> => use transfer encoding.
    */
   void setUseTransferEncoding(boolean useTransferEncoding);
 
+
   /**
-   * Sets the default http headers to be sent with each request.
+   * Set whether the HTTPClient Authorization Module is enabled.
+   *
+   * <p>
+   * Default: <code>false</code>
+   * </p>
+   *
+   * @param useAuthorizationModule
+   *          <code>true</code> => use the HTTPClient Authorization module.
+   */
+  void setUseAuthorizationModule(boolean useAuthorizationModule);
+
+  /**
+   * Sets the default HTTP headers to be sent with each request.
    *
    * <p> The actual headers sent are determined as follows: for each
    * header specified in multiple places a value given as part of
@@ -157,44 +186,6 @@ public interface HTTPPluginConnection {
    * @param  port    The port the proxy server is listening on.
    */
   void setProxyServer(String host, int port);
-
-  /**
-   * Adds an authorization entry for the "basic" authorization
-   * scheme to the list. If an entry already exists for the "basic"
-   * scheme and the specified realm then it is overwritten.
-   *
-   * @param realm The realm.
-   * @param user  The user name.
-   * @param password The password.
-   */
-  void addBasicAuthorization(String realm, String user, String password);
-
-  /**
-   * Remove an authorization entry for the "basic" authorization
-   * scheme.
-   *
-   * @param realm The realm.
-   */
-  void removeBasicAuthorization(String realm);
-
-  /**
-   * Adds an authorization entry for the "digest" authorization scheme
-   * to the list. If an entry already exists for the "digest" scheme
-   * and the specified realm then it is overwritten.
-   *
-   * @param realm The realm.
-   * @param user  The user name.
-   * @param password The password.
-   */
-  void addDigestAuthorization(String realm, String user, String password);
-
-  /**
-   * Remove an authorization entry for the "digest" authorization
-   * scheme.
-   *
-   * @param realm The realm.
-   */
-  void removeDigestAuthorization(String realm);
 
   /**
    * Set the client IP address to use for outbound connections.

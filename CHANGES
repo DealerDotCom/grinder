@@ -1,11 +1,30 @@
-The Grinder 3.0-beta28 (Not yet released)
+The Grinder 3.0-beta29 (Not yet released)
 -----------------------------------------
 
+  New implementation of the HTTPPlugin TCPProxy filter. Key new
+  features over the previous filter:
+   - Records to a single script.
+   - Basic Authorization is recorded.
+   - Modular implementation based on an XSLT style sheet.
+
   Changes to net.grinder.plugin.http.HTTPRequest:
-    - Removed addHeader(), deleteHeader()
-    - NVPair[] arrays passed to GET, POST, etc. are now merged with
-      the default values held by the HTTPRequest. Previously they
-      overrode the default values.
+   - Removed addHeader(), deleteHeader()
+   - Header arrays passed to GET, POST, etc. are now merged with the
+     default values held by the HTTPRequest. Previously they setting
+     an array on the request overrode all the default values.
+
+  The HTTPClient Authorization module is no longer enabled by default
+  because it prevents raw Authorization headers being sent through.
+  The module also slows things down as HTTPClient must parse responses
+  for challenges. Advanced users who still wish to use the HTTPClient
+  Authorization module can enable it with the new
+  HTTPPluginConnection.setUseAuthorizationModule() method. The
+  following convenience wrappers around the HTTPClient API were also
+  removed: addBasicAuthorization(), removeBasicAuthorization(),
+  addDigestAuthorization(), removeDigiestAuthorization().
+
+  A new HTTPUtilties class has been added. This has methods that HTTP
+  scripts might find useful.
 
 
 Grinder 3.0-beta28

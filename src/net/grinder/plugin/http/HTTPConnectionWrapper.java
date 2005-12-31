@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
@@ -25,9 +25,7 @@ package net.grinder.plugin.http;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Iterator;
 
-import HTTPClient.AuthorizationInfo;
 import HTTPClient.CookieModule;
 import HTTPClient.HTTPConnection;
 import HTTPClient.NVPair;
@@ -44,8 +42,9 @@ import HTTPClient.NVPair;
  */
 final class HTTPConnectionWrapper implements HTTPPluginConnection {
 
-  private static final Class s_redirectionModule;
+  private static final Class s_authorizationModule;
   private static final Class s_contentEncodingModule;
+  private static final Class s_redirectionModule;
   private static final Class s_transferEncodingModule;
 
   private final HTTPConnection m_httpConnection;
@@ -54,9 +53,10 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     // Load HTTPClient modules dynamically as we don't have public
     // access.
     try {
-      s_redirectionModule = Class.forName("HTTPClient.RedirectionModule");
+      s_authorizationModule = Class.forName("HTTPClient.AuthorizationModule");
       s_contentEncodingModule = Class.forName(
         "HTTPClient.ContentEncodingModule");
+      s_redirectionModule = Class.forName("HTTPClient.RedirectionModule");
       s_transferEncodingModule = Class.forName(
         "HTTPClient.TransferEncodingModule");
     }
@@ -76,40 +76,13 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
       setUseCookies(defaults.getUseCookies());
       setUseContentEncoding(defaults.getUseContentEncoding());
       setUseTransferEncoding(defaults.getUseTransferEncoding());
+      setUseAuthorizationModule(defaults.getUseAuthorizationModule());
       setDefaultHeaders(defaults.getDefaultHeaders());
       setTimeout(defaults.getTimeout());
       setVerifyServerDistinguishedName(
         defaults.getVerifyServerDistinguishedName());
       setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
       setLocalAddress(defaults.getLocalAddress());
-
-      final Iterator basicAuthenticationIterator =
-        defaults.getBasicAuthorizations().iterator();
-
-      while (basicAuthenticationIterator.hasNext()) {
-        final HTTPPluginConnectionDefaults.AuthorizationDetails
-          authorizationDetails =
-          (HTTPPluginConnectionDefaults.AuthorizationDetails)
-          basicAuthenticationIterator.next();
-
-        addBasicAuthorization(authorizationDetails.getRealm(),
-                              authorizationDetails.getUser(),
-                              authorizationDetails.getPassword());
-      }
-
-      final Iterator digestAuthenticationIterator =
-        defaults.getBasicAuthorizations().iterator();
-
-      while (digestAuthenticationIterator.hasNext()) {
-        final HTTPPluginConnectionDefaults.AuthorizationDetails
-          authorizationDetails =
-          (HTTPPluginConnectionDefaults.AuthorizationDetails)
-          digestAuthenticationIterator.next();
-
-        addDigestAuthorization(authorizationDetails.getRealm(),
-                               authorizationDetails.getUser(),
-                               authorizationDetails.getPassword());
-      }
     }
   }
 
@@ -155,6 +128,15 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     }
   }
 
+  public void setUseAuthorizationModule(boolean useAuthorizationModule) {
+    if (useAuthorizationModule) {
+      m_httpConnection.addModule(s_authorizationModule, 0);
+    }
+    else {
+      m_httpConnection.removeModule(s_authorizationModule);
+    }
+  }
+
   public void setDefaultHeaders(NVPair[] defaultHeaders) {
     m_httpConnection.setDefaultHeaders(defaultHeaders);
   }
@@ -169,30 +151,6 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
 
   public void setProxyServer(String host, int port) {
     m_httpConnection.setCurrentProxy(host, port);
-  }
-
-  public void addBasicAuthorization(String realm, String user,
-                                    String password) {
-    m_httpConnection.addBasicAuthorization(realm, user, password);
-  }
-
-  public void removeBasicAuthorization(String realm) {
-    AuthorizationInfo.removeAuthorization(m_httpConnection.getHost(),
-                                          m_httpConnection.getPort(),
-                                          "Basic", realm,
-                                          m_httpConnection.getContext());
-  }
-
-  public void addDigestAuthorization(String realm, String user,
-                                     String password) {
-    m_httpConnection.addDigestAuthorization(realm, user, password);
-  }
-
-  public void removeDigestAuthorization(String realm) {
-    AuthorizationInfo.removeAuthorization(m_httpConnection.getHost(),
-                                          m_httpConnection.getPort(),
-                                          "Digest", realm,
-                                          m_httpConnection.getContext());
   }
 
   public void setLocalAddress(String localAddress) throws URLException {

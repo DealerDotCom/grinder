@@ -20,9 +20,9 @@
 
 from net.grinder.script import Test
 from net.grinder.script.Grinder import grinder
-from net.grinder.plugin.http import HTTPRequest
-from net.grinder.plugin.http import HTTPPluginControl
+from net.grinder.plugin.http import HTTPPluginControl, HTTPRequest
 from HTTPClient import NVPair
+httpUtilities = HTTPPluginControl.getHTTPUtilities()
 </xsl:text>
 
     <xsl:apply-templates select="g:base-url"/>
@@ -61,7 +61,7 @@ class TestRunner:
     <xsl:value-of select="helper:newLine()"/>
     <xsl:value-of select="concat(@headers-id, '= \')"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="helper:formatNVPairList(g:header)"/>
+    <xsl:call-template name="tuple-list"/>
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
@@ -130,7 +130,7 @@ class TestRunner:
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="helper:formatNVPairList(g:parameter)"/>
+    <xsl:call-template name="tuple-list"/>
     <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 
@@ -171,7 +171,7 @@ class TestRunner:
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="helper:formatNVPairList(g:form-field)"/>
+    <xsl:call-template name="tuple-list"/>
     <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 
@@ -185,21 +185,61 @@ class TestRunner:
   </xsl:template>
 
 
-  <xsl:template match="g:headers[g:header]" mode="__call__">
-    <xsl:value-of select="helper:changeIndent(1)"/>
-
+  <xsl:template match="g:headers[node()]" mode="__call__">
     <xsl:if test="not(../g:url/g:query-string/g:parsed|../g:body)">
       <!-- No keyword arguments for methods, insert dummy parameter. -->
       <xsl:text>, ()</xsl:text>
     </xsl:if>
 
     <xsl:text>,</xsl:text>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="helper:formatNVPairList(g:header)"/>
 
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:call-template name="tuple-list"/>
     <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 
+  <xsl:template match="g:header|g:parameter|g:form-field" mode="tuple">
+    <xsl:call-template name="indent-tuple-entry"/>
+
+    <xsl:text>NVPair(</xsl:text>
+    <xsl:value-of select="helper:quoteForPython(@name)"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="helper:quoteForPython(@value)"/>
+    <xsl:text>),</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="g:authorization/g:basic" mode="tuple">
+    <xsl:call-template name="indent-tuple-entry">
+      <xsl:with-param name="first-entry" select="not(../preceding-sibling::*)"/>
+    </xsl:call-template>
+
+    <xsl:text>httpUtilities.basicAuthorization(</xsl:text>
+    <xsl:value-of select="helper:quoteForPython(@userid)"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="helper:quoteForPython(@password)"/>
+    <xsl:text>),</xsl:text>
+  </xsl:template>
+
+  <xsl:template name="tuple-list" mode="__call__">
+    <xsl:text>(</xsl:text>
+    <xsl:value-of select="helper:changeIndent(1)"/>
+
+    <xsl:apply-templates mode="tuple"/>
+
+    <xsl:text> )</xsl:text>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
+  </xsl:template>
+
+  <xsl:template name="indent-tuple-entry">
+    <xsl:param name="first-entry" select="not(preceding-sibling::*)"/>
+
+    <xsl:choose>
+      <xsl:when test="$first-entry"><xsl:text> </xsl:text></xsl:when>
+      <xsl:otherwise><xsl:value-of select="helper:newLineAndIndent()"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
   <!-- Ignore these nodes -->
   <xsl:template match="g:body/g:content-type" mode="__call__"/>

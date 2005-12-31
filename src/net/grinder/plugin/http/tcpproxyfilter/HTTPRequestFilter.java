@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.xmlbeans.XmlObject;
 import org.picocontainer.Disposable;
 
 import HTTPClient.Codecs;
@@ -42,7 +43,9 @@ import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
 import net.grinder.common.Logger;
+import net.grinder.plugin.http.xml.AuthorizationHeaderType;
 import net.grinder.plugin.http.xml.BaseURLType;
+import net.grinder.plugin.http.xml.BasicAuthorizationHeaderType;
 import net.grinder.plugin.http.xml.BodyType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.FormBodyType;
@@ -74,10 +77,9 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * </ul>
  *
  * TODO Record and use HTML page information.
- * TODO Avoid Jython 64K limit (does it still affect 2.2?)
  * TODO Session key processing.
- * TODO HTTPPluginControl
- * TODO Basic Authentication
+ * TODO Avoid Jython 64K limit (does it still affect 2.2?)
+ * TODO Use setDefaultHeaders for user agent
  *
  * @author Philip Aston
  * @author Bertrand Ave
@@ -314,6 +316,7 @@ public final class HTTPRequestFilter
       }
       else {
         // Still parsing headers.
+        // TODO add in order.
         for (int i = 0; i < MIRRORED_HEADERS.length; i++) {
           final Matcher headerMatcher =
             m_mirroredHeaderPatterns[i].matcher(asciiString);
@@ -323,35 +326,14 @@ public final class HTTPRequestFilter
               MIRRORED_HEADERS[i], headerMatcher.group(1).trim());
           }
         }
-        /*
-          if (m_matcher.contains(asciiString,
-          m_basicAuthorizationHeaderPattern)) {
 
-          final String decoded =
-          Codecs.base64Decode(
-          m_matcher.getMatch().group(1).trim());
+        final Matcher authorizationMatcher =
+          m_basicAuthorizationHeaderPattern.matcher(asciiString);
 
-          final int colon = decoded.indexOf(":");
-
-          if (colon < 0) {
-          warn("Could not decode Authorization header");
-          }
-          else {
-          outputProperty(
-          "parameter.basicAuthenticationUser",
-          decoded.substring(0, colon));
-
-          outputProperty(
-          "parameter.basicAuthenticationPassword",
-          decoded.substring(colon+1));
-
-          outputProperty(
-          "parameter.basicAuthenticationRealm",
-          HTTPPluginTCPProxyResponseFilter.
-          getLastAuthenticationRealm());
-          }
-          }
-        */
+        if (authorizationMatcher.find()) {
+          m_request.addBasicAuthorization(
+            authorizationMatcher.group(1).trim());
+        }
 
         if (m_request.expectingBody()) {
           final Matcher contentLengthMatcher =
@@ -395,7 +377,8 @@ public final class HTTPRequestFilter
     }
 
     private final class Request {
-      private final RequestType m_request = RequestType.Factory.newInstance();
+      private final RequestType m_requestXML =
+        RequestType.Factory.newInstance();
       private final RequestHeadersType m_headers =
         RequestHeadersType.Factory.newInstance();
 
@@ -407,21 +390,21 @@ public final class HTTPRequestFilter
         final Matcher lastURLPathElementMatcher =
           m_lastURLPathElementPattern.matcher(path);
 
-        m_request.setRequestId(m_requestIDGenerator.next());
+        m_requestXML.setRequestId(m_requestIDGenerator.next());
 
         if (lastURLPathElementMatcher.find()) {
-          m_request.setShortDescription(
+          m_requestXML.setShortDescription(
             method + " " + lastURLPathElementMatcher.group(1));
         }
         else {
-          m_request.setShortDescription(
-            method + " " + m_request.getRequestId());
+          m_requestXML.setShortDescription(
+            method + " " + m_requestXML.getRequestId());
         }
 
-        m_request.setMethod(RequestType.Method.Enum.forString(method));
-        m_request.setTime(Calendar.getInstance());
+        m_requestXML.setMethod(RequestType.Method.Enum.forString(method));
+        m_requestXML.setTime(Calendar.getInstance());
 
-        final RelativeURLType url = m_request.addNewUrl();
+        final RelativeURLType url = m_requestXML.addNewUrl();
         url.setExtends(m_baseURL.getUrlId());
         url.setPath(path);
 
@@ -454,8 +437,25 @@ public final class HTTPRequestFilter
           final long time = System.currentTimeMillis() - lastResponseTime;
 
           if (time > 10) {
-            m_request.setSleepTime(time);
+            m_requestXML.setSleepTime(time);
           }
+        }
+      }
+
+      public void addBasicAuthorization(String base64) {
+        final String decoded = Codecs.base64Decode(base64);
+
+        final int colon = decoded.indexOf(":");
+
+        if (colon < 0) {
+          m_logger.error("Could not decode Authorization header");
+        }
+        else {
+          final BasicAuthorizationHeaderType basicAuthorization =
+            m_headers.addNewAuthorization().addNewBasic();
+
+          basicAuthorization.setUserid(decoded.substring(0, colon));
+          basicAuthorization.setPassword(decoded.substring(colon + 1));
         }
       }
 
@@ -465,7 +465,7 @@ public final class HTTPRequestFilter
 
       public boolean expectingBody() {
         return HTTP_METHODS_WITH_BODY.contains(
-          m_request.getMethod().toString());
+          m_requestXML.getMethod().toString());
       }
 
       public void setContentType(String contentType) {
@@ -484,14 +484,14 @@ public final class HTTPRequestFilter
       }
 
       public void record() {
-        m_request.setHeaders(
+        m_requestXML.setHeaders(
           m_commonHeadersMap.extractCommonHeaders(m_headers));
 
         if (getBody() != null) {
           getBody().record();
         }
 
-        m_httpRecording.addRequest(m_request);
+        m_httpRecording.addRequest(m_requestXML);
       }
 
       private NameValue[] parseNameValueString(String input)
@@ -544,7 +544,7 @@ public final class HTTPRequestFilter
         }
 
         public void record() {
-          final BodyType body = m_request.addNewBody();
+          final BodyType body = m_requestXML.addNewBody();
           body.setContentType(m_contentType);
 
           final byte[] bytes = m_entityBodyByteStream.toByteArray();
@@ -552,7 +552,7 @@ public final class HTTPRequestFilter
           if (bytes.length > 0x4000) {
             // Large amount of data, use a file.
             final String fileName =
-              "http-data-" + m_request.getRequestId() + ".dat";
+              "http-data-" + m_requestXML.getRequestId() + ".dat";
 
             try {
               final FileOutputStream dataStream =
@@ -717,14 +717,24 @@ public final class HTTPRequestFilter
       final RequestHeadersType newRequestHeaders =
         RequestHeadersType.Factory.newInstance();
 
-      final HeaderType[] headers = requestHeaders.getHeaderArray();
+      final XmlObject[] children = requestHeaders.selectPath("./*");
 
-      for (int i = 0; i < headers.length; ++i) {
-        if (COMMON_HEADERS.contains(headers[i].getName())) {
-          commonHeaders.addNewHeader().set(headers[i]);
+      for (int i = 0; i < children.length; ++i) {
+        if (children[i] instanceof HeaderType) {
+          final HeaderType header = (HeaderType)children[i];
+
+          if (COMMON_HEADERS.contains(header.getName())) {
+            commonHeaders.addNewHeader().set(header);
+          }
+          else {
+            newRequestHeaders.addNewHeader().set(header);
+          }
+        }
+        else if (children[i] instanceof AuthorizationHeaderType) {
+          newRequestHeaders.addNewAuthorization().set(children[i]);
         }
         else {
-          newRequestHeaders.addNewHeader().set(headers[i]);
+          assert false;
         }
       }
 

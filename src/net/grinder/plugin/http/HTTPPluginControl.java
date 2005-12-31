@@ -45,6 +45,9 @@ public final class HTTPPluginControl {
     s_pluginProcessContext = HTTPPlugin.getPlugin().getPluginProcessContext();
   }
 
+  private static final HTTPUtilities s_utilties =
+    new HTTPUtilitiesImplementation();
+
   private HTTPPluginControl() {
   }
 
@@ -100,5 +103,14 @@ public final class HTTPPluginControl {
   public static Object getThreadHTTPClientContext() throws GrinderException {
 
     return s_pluginProcessContext.getPluginThreadListener();
+  }
+
+  /**
+   * Provides access to an {@link HTTPUtilities} instance.
+   *
+   * @return The utilities instance.
+   */
+  public static HTTPUtilities getHTTPUtilities() {
+    return s_utilties;
   }
 }

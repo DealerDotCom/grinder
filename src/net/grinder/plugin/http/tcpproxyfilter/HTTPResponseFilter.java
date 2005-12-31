@@ -22,10 +22,6 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
-import java.io.UnsupportedEncodingException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 
@@ -43,7 +39,6 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
 public class HTTPResponseFilter implements TCPProxyFilter {
 
   private final HTTPRecording m_httpRecording;
-  private final Pattern m_wwwAuthenticateHeaderPattern;
 
   /**
    * Constructor.
@@ -54,11 +49,13 @@ public class HTTPResponseFilter implements TCPProxyFilter {
   public HTTPResponseFilter(HTTPRecording httpRecording) {
     m_httpRecording = httpRecording;
 
+    /* TODO - maybe add annotations based on responses.
     m_wwwAuthenticateHeaderPattern =
       Pattern.compile(
         "^WWW-Authenticate:[ \\t]*Basic realm[  \\t]*=" +
         "[ \\t]*\"([^\"]*)\".*\\r?\\n",
         Pattern.MULTILINE | Pattern.UNIX_LINES);
+        */
   }
 
   /**
@@ -81,6 +78,7 @@ public class HTTPResponseFilter implements TCPProxyFilter {
 
     m_httpRecording.markLastResponseTime();
 
+    /*
     // String used to parse headers - header names are
     // US-ASCII encoded and anchored to start of line.
     final String asciiString;
@@ -98,6 +96,7 @@ public class HTTPResponseFilter implements TCPProxyFilter {
       // Packet is start of new request message.
       m_httpRecording.setLastAuthenticationRealm(matcher.group(1).trim());
     }
+    */
 
     return null;
   }

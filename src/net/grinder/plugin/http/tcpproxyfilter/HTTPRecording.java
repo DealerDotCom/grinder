@@ -63,11 +63,4 @@ public interface HTTPRecording {
    * @return The last response time.
    */
   long getLastResponseTime();
-
-  /**
-   * Set the last recording authentication realm.
-   *
-   * @param realm The realm.
-   */
-  void setLastAuthenticationRealm(String realm);
 }

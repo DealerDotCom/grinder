@@ -26,9 +26,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
-
 import HTTPClient.Codecs;
 
 
@@ -63,47 +60,6 @@ public final class XSLTHelper {
   public String formatTime(String iso8601) throws ParseException {
     final Date date = s_iso8601DateFormat.parse(iso8601);
     return DateFormat.getDateTimeInstance().format(date);
-  }
-
-  /**
-   * Turn a list of nodes with 'name' and 'value' attributes into a list
-   * of NVPair scriptlet.
-   *
-   * @param nodes The nodes.
-   * @return The scriptlet.
-   */
-  public String formatNVPairList(NodeList nodes) {
-
-    final StringBuffer result = new StringBuffer();
-
-    final int n = nodes.getLength();
-
-    result.append("(");
-    changeIndent(1);
-
-    for (int i = 0; i < n; ++i) {
-      final NamedNodeMap attributes = nodes.item(i).getAttributes();
-
-      if (i == 0) {
-        result.append(" ");
-      }
-      else {
-        result.append(newLineAndIndent());
-      }
-
-      result.append("NVPair(");
-      result.append(
-        quoteForPython(attributes.getNamedItem("name").getNodeValue()));
-      result.append(", ");
-      result.append(
-        quoteForPython(attributes.getNamedItem("value").getNodeValue()));
-      result.append("),");
-    }
-
-    result.append(" )");
-    changeIndent(-1);
-
-    return result.toString();
   }
 
   /**
@@ -183,6 +139,13 @@ public final class XSLTHelper {
     return "";
   }
 
+  /**
+   * Convert a base64 string of binary data to an array of bytes scriptlet.
+   *
+   *
+   * @param base64String The binary data.
+   * @return The scriptlet.
+   */
   public String base64ToPython(String base64String) {
 
     final byte[] base64 = base64String.getBytes();
