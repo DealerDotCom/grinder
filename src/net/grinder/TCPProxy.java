@@ -43,6 +43,10 @@ import net.grinder.plugin.http.HTTPPluginTCPProxyFilter;
 import net.grinder.plugin.http.HTTPPluginTCPProxyFilter2;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter2;
+import net.grinder.plugin.http.tcpproxyfilter.HTTPRecordingImplementation;
+import net.grinder.plugin.http.tcpproxyfilter.HTTPRequestFilter;
+import net.grinder.plugin.http.tcpproxyfilter.HTTPResponseFilter;
+import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT;
 import net.grinder.tools.tcpproxy.CompositeFilter;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EchoFilter;
@@ -119,7 +123,7 @@ public final class TCPProxy {
       "\n Commonly used options:" +
       "\n   [-requestfilter <filter>]    Add a request filter." +
       "\n   [-responsefilter <filter>]   Add a response filter." +
-      "\n   [-httpplugin]                See below." +
+      "\n   [-http [<stylesheet>]]       See below." +
       "\n   [-properties <file>]         Properties to pass to the filters." +
       "\n   [-localhost <host name/ip>]  Default is localhost." +
       "\n   [-localport <port>]          Default is 8001." +
@@ -152,10 +156,9 @@ public final class TCPProxy {
       "acts a simple port forwarder between <localhost:localport> and " +
       "<remotehost:remoteport>. Specify -ssl for SSL support." +
       "\n\n" +
-      "-httpplugin sets the request and response filters to produce a " +
-      "test script suitable for use with the HTTP plugin. New versions " +
-      "of these filters are currently under development; use " +
-      "-newhttpplugin to try these out." +
+      "-http sets the request and response filters to produce a test script " +
+      "suitable for use with the HTTP plugin. The output can be customised " +
+      "by specifying the file name of an alternative XSLT style sheet." +
       "\n\n" +
       "-timeout is how long the TCPProxy will wait for a request " +
       "before timing out and freeing the local port. The TCPProxy will " +
@@ -238,12 +241,30 @@ public final class TCPProxy {
           m_filterContainer.registerComponentImplementation(componentClass);
         }
         else if (args[i].equalsIgnoreCase("-httpplugin")) {
+          m_logger.error(
+            "The -httpplugin switch is deprecated, please use -http instead.");
           requestFilterChain.add(HTTPPluginTCPProxyFilter.class);
           responseFilterChain.add(HTTPPluginTCPProxyResponseFilter.class);
         }
         else if (args[i].equalsIgnoreCase("-newhttpplugin")) {
+          m_logger.error(
+          "The -newhttpplugin switch is deprecated, please use -http instead.");
           requestFilterChain.add(HTTPPluginTCPProxyFilter2.class);
           responseFilterChain.add(HTTPPluginTCPProxyResponseFilter2.class);
+        }
+        else if (args[i].equalsIgnoreCase("-http")) {
+          requestFilterChain.add(HTTPRequestFilter.class);
+          responseFilterChain.add(HTTPResponseFilter.class);
+          m_filterContainer.registerComponentImplementation(
+            HTTPRecordingImplementation.class);
+          m_filterContainer.registerComponentImplementation(
+            ProcessHTTPRecordingWithXSLT.class);
+
+          if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
+            m_filterContainer.registerComponentInstance(
+              new ProcessHTTPRecordingWithXSLT.StyleSheetInputStream(
+                new File(args[++i])));
+          }
         }
         else if (args[i].equalsIgnoreCase("-localhost")) {
           localHost = args[++i];
@@ -305,7 +326,7 @@ public final class TCPProxy {
       }
     }
     catch (FileNotFoundException fnfe) {
-        throw barfError(fnfe.getMessage());
+      throw barfError(fnfe.getMessage());
     }
     catch (IndexOutOfBoundsException e) {
       throw barfUsage();

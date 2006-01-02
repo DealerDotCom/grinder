@@ -21,6 +21,9 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -59,7 +62,14 @@ public class ProcessHTTPRecordingWithXSLT
   private final TransformerFactory m_transformerFactory =
     TransformerFactory.newInstance();
 
+  private final InputStream m_styleSheetInputStream;
   private final Logger m_logger;
+
+  private ProcessHTTPRecordingWithXSLT(InputStream styleSheetInputStream,
+                                       Logger logger) {
+    m_styleSheetInputStream = styleSheetInputStream;
+    m_logger = logger;
+  }
 
   /**
    * Constructor.
@@ -67,7 +77,23 @@ public class ProcessHTTPRecordingWithXSLT
    * @param logger Where to direct the output.
    */
   public ProcessHTTPRecordingWithXSLT(Logger logger) {
-    m_logger = logger;
+    this(
+      ProcessHTTPRecordingWithXSLT.class.getResourceAsStream(
+        "resources/httpToJythonScript.xsl"),
+      logger);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param styleSheetFile
+   *          File name of an alternative style sheet.
+   * @param logger
+   *          Where to direct the output.
+   */
+  public ProcessHTTPRecordingWithXSLT(StyleSheetInputStream styleSheetFile,
+                                      Logger logger) {
+    this(styleSheetFile.getInputStream(), logger);
   }
 
   /**
@@ -78,32 +104,10 @@ public class ProcessHTTPRecordingWithXSLT
    */
   public void process(HttpRecordingDocument result) throws IOException {
 
-    final String styleSheet = System.getProperty(
-      STYLESHEET_NAME_PROPERTY,
-      "resources/httpRecordingToJythonScript.xsl");
-
-    if ("".equals(styleSheet)) {
-      result.save(m_logger.getOutputLogWriter());
-      m_logger.getOutputLogWriter().println();
-      m_logger.getOutputLogWriter().flush();
-      return;
-    }
-
-    final InputStream styleSheetInputStream =
-      getClass().getResourceAsStream(styleSheet);
-
-    if (styleSheetInputStream == null) {
-      m_logger.error(
-        "Could not locate XSLT style sheet '" + styleSheet + "'.\n" +
-        "(Check the classpath and the '" + STYLESHEET_NAME_PROPERTY +
-        "' system property).");
-      return;
-    }
-
     try {
       final Transformer transformer =
         m_transformerFactory.newTransformer(
-          new StreamSource(styleSheetInputStream));
+          new StreamSource(m_styleSheetInputStream));
 
       final PrintWriter outputWriter = m_logger.getOutputLogWriter();
 
@@ -119,6 +123,9 @@ public class ProcessHTTPRecordingWithXSLT
     catch (TransformerException e) {
       m_logger.error("XSLT transformation failed");
       e.printStackTrace(m_logger.getErrorLogWriter());
+    }
+    finally {
+      m_styleSheetInputStream.close();
     }
 
     /*
@@ -146,8 +153,33 @@ public class ProcessHTTPRecordingWithXSLT
                          new PrintWriter(System.out),
                          new PrintWriter(System.err)));
 
-    //System.setProperty("transformHTTPRecordingToScript", "");
-
     processor.process(recording);
+    processor.process(recording);
+  }
+
+  /**
+   * Wrapper for an {@link InputStream} to a style sheet.
+   *
+   * @author Philip Aston
+   * @version $Revision$
+   */
+  public static final class StyleSheetInputStream {
+    private final InputStream m_inputStream;
+
+    /**
+     * Constructor for StyleSheetFile.
+     *
+     * @param file
+     *          The file.
+     * @throws FileNotFoundException
+     *           If <code>file</code> cannot be read.
+     */
+    public StyleSheetInputStream(File file) throws FileNotFoundException {
+      m_inputStream = new FileInputStream(file);
+    }
+
+    InputStream getInputStream() {
+      return m_inputStream;
+    }
   }
 }

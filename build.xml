@@ -290,6 +290,10 @@ what you want. Currently the conditionally built modules are:
       <fileset dir="${test-src.dir}" includes="**/*.properties"/>
     </copy>
 
+    <copy todir="${etc.dir}" flatten="true">
+      <fileset dir="${src.dir}"  includes="**/resources/*.xsl"/>
+    </copy>
+
   </target>
 
   <!-- =================================================================== -->
