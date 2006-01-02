@@ -23,6 +23,12 @@ package net.grinder.plugin.http.tcpproxyfilter;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import org.picocontainer.Disposable;
 
@@ -31,6 +37,7 @@ import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.BaseURLType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.HTTPRecordingType;
+import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
 import net.grinder.plugin.http.xml.RequestType;
 
@@ -135,6 +142,66 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
     synchronized (m_recordingDocument) {
       result = (HttpRecordingDocument)m_recordingDocument.copy();
+    }
+
+    // Extract default headers that are present in all common headers.
+    final CommonHeadersType[] commonHeaders =
+      result.getHttpRecording().getCommonHeadersArray();
+
+    final Map defaultHeaders = new HashMap();
+    final Set notDefaultHeaders = new HashSet();
+
+    for (int i = 0; i < commonHeaders.length; ++i) {
+      final HeaderType[] headers = commonHeaders[i].getHeaderArray();
+
+      for (int j = 0; j < headers.length; ++j) {
+        final String name = headers[j].getName();
+        final String value = headers[j].getValue();
+
+        if (notDefaultHeaders.contains(name)) {
+          continue;
+        }
+
+        final String existing = (String)defaultHeaders.put(name, value);
+
+        if (existing != null && !value.equals(existing)) {
+          defaultHeaders.remove(name);
+          notDefaultHeaders.add(name);
+        }
+      }
+    }
+
+    if (defaultHeaders.size() > 0) {
+      final CommonHeadersType[] newCommonHeaders =
+        new CommonHeadersType[commonHeaders.length + 1];
+
+      System.arraycopy(
+        commonHeaders, 0, newCommonHeaders, 1, commonHeaders.length);
+
+      final String defaultHeadersID = "defaultHeaders";
+      newCommonHeaders[0] = CommonHeadersType.Factory.newInstance();
+      newCommonHeaders[0].setHeadersId(defaultHeadersID);
+
+      final Iterator iterator = defaultHeaders.entrySet().iterator();
+      while (iterator.hasNext()) {
+        final Entry entry = (Entry)iterator.next();
+        final HeaderType header = newCommonHeaders[0].addNewHeader();
+        header.setName((String)entry.getKey());
+        header.setValue((String)entry.getValue());
+      }
+
+      for (int i = 0; i < commonHeaders.length; ++i) {
+        final HeaderType[] headers = commonHeaders[i].getHeaderArray();
+        for (int j = headers.length - 1; j >= 0; --j) {
+          if (defaultHeaders.containsKey(headers[j].getName())) {
+            commonHeaders[i].removeHeader(j);
+          }
+        }
+
+        commonHeaders[i].setExtends(defaultHeadersID);
+      }
+
+      result.getHttpRecording().setCommonHeadersArray(newCommonHeaders);
     }
 
     try {

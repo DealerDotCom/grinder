@@ -44,11 +44,12 @@
         </xs:complexType>
       </xs:element>
 
-      <xs:choice maxOccurs="unbounded" minOccurs="0">
-        <xs:element name="request" type="tns:RequestType" />
-        <xs:element name="base-url" type="tns:BaseURLType" />
-        <xs:element name="common-headers" type="tns:CommonHeadersType" />
-      </xs:choice>
+      <xs:element name="common-headers" type="tns:CommonHeadersType"
+        minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="base-url" type="tns:BaseURLType"
+        minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="request" type="tns:RequestType"
+        minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -69,7 +70,7 @@
         </xs:simpleType>
       </xs:element>
       <xs:element name="url" type="tns:RelativeURLType" />
-      <xs:element name="headers" type="tns:RequestHeadersType" />
+      <xs:element name="headers" type="tns:HeadersType" />
       <xs:element name="short-description" type="xs:normalizedString"/>
       <xs:element name="sleep-time" type="xs:unsignedInt" minOccurs="0" />
       <xs:element name="body" type="tns:BodyType" minOccurs="0" />
@@ -124,25 +125,20 @@
     </xs:complexContent>
   </xs:complexType>
 
-    <xs:complexType name="AbstractHeadersType" abstract="true">
+    <xs:complexType name="HeadersType">
     <xs:sequence>
-      <xs:element name="header" type="tns:HeaderType" minOccurs="0"
-        maxOccurs="unbounded" />
+      <xs:choice maxOccurs="unbounded" minOccurs="0">
+        <xs:element name="header" type="tns:HeaderType"/>
+        <xs:element name="authorization" type="tns:AuthorizationHeaderType" />
+      </xs:choice>
     </xs:sequence>
+    <xs:attribute name="extends" type="xs:NMTOKEN" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="CommonHeadersType">
     <xs:complexContent>
-      <xs:extension base="tns:AbstractHeadersType">
+      <xs:extension base="tns:HeadersType">
         <xs:attribute name="headers-id" type="xs:NMTOKEN" />
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-
-  <xs:complexType name="RequestHeadersType">
-    <xs:complexContent>
-      <xs:extension base="tns:AbstractHeadersType">
-        <xs:attribute name="extends" type="xs:NMTOKEN"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -151,6 +147,23 @@
     <xs:complexContent>
       <xs:extension base="tns:NameValueType" />
     </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="AuthorizationHeaderType">
+    <xs:sequence>
+      <xs:element name="basic" type="tns:BasicAuthorizationHeaderType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BasicAuthorizationHeaderType">
+    <xs:attribute name="userid">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[^:]*"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="password" type="xs:string"/>
   </xs:complexType>
 
   <xs:complexType name="BodyType">
@@ -191,7 +204,6 @@
       <xs:whiteSpace value="preserve"/>
     </xs:restriction>
   </xs:simpleType>
-
 
   <xs:complexType name="NameValueType" abstract="true">
     <xs:attribute name="name" type="xs:NMTOKEN"/>

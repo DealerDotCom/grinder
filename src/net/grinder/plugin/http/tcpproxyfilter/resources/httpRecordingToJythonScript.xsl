@@ -22,6 +22,7 @@ from net.grinder.script import Test
 from net.grinder.script.Grinder import grinder
 from net.grinder.plugin.http import HTTPPluginControl, HTTPRequest
 from HTTPClient import NVPair
+connectionDefaults = HTTPPluginControl.getConnectionDefaults()
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
 </xsl:text>
 
@@ -54,6 +55,15 @@ class TestRunner:
     <xsl:text>'</xsl:text>
     <xsl:value-of select="concat(g:scheme, '://', g:host, ':', g:port)"/>
     <xsl:text>'</xsl:text>
+  </xsl:template>
+
+
+  <xsl:template match="g:common-headers[@headers-id='defaultHeaders']">
+    <xsl:value-of select="helper:newLine()"/>
+    <xsl:text>connectionDefaults.defaultHeaders = \</xsl:text>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:call-template name="tuple-list"/>
+    <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
 

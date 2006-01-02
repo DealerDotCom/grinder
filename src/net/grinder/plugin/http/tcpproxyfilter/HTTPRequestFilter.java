@@ -51,11 +51,11 @@ import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.FormBodyType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.HeaderType;
+import net.grinder.plugin.http.xml.HeadersType;
 import net.grinder.plugin.http.xml.ParameterType;
 import net.grinder.plugin.http.xml.ParsedQueryStringType;
 import net.grinder.plugin.http.xml.QueryStringType;
 import net.grinder.plugin.http.xml.RelativeURLType;
-import net.grinder.plugin.http.xml.RequestHeadersType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
@@ -79,7 +79,6 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * TODO Record and use HTML page information.
  * TODO Session key processing.
  * TODO Avoid Jython 64K limit (does it still affect 2.2?)
- * TODO Use setDefaultHeaders for user agent
  *
  * @author Philip Aston
  * @author Bertrand Ave
@@ -89,23 +88,30 @@ public final class HTTPRequestFilter
   implements TCPProxyFilter, Disposable {
 
   /**
-   * A list of headers which we record.
+   * Headers which we record.
    */
-  private static final String[] MIRRORED_HEADERS = {
-    "Accept",
-    "Accept-Charset",
-    "Accept-Encoding",
-    "Accept-Language",
-    "Cache-Control",
-    "If-Modified-Since",
-    "Referer", // Deliberate misspelling to match specification.
-    "User-Agent",
-  };
+  private static final Set MIRRORED_HEADERS = new HashSet(Arrays.asList(
+    new String[] {
+      "Accept",
+      "Accept-Charset",
+      "Accept-Encoding",
+      "Accept-Language",
+      "Cache-Control",
+      "Content-Type",
+      "Content-type", // Common misspelling.
+      "If-Modified-Since",
+      "Referer", // Deliberate misspelling to match specification.
+      "User-Agent",
+    }
+  ));
 
   private static final Set HTTP_METHODS_WITH_BODY = new HashSet(Arrays.asList(
     new String[] { "OPTIONS", "POST", "POST" }
   ));
 
+  /**
+   * Headers which are likely to have common values.
+   */
   private static final Set COMMON_HEADERS = new HashSet(Arrays.asList(
     new String[] {
       "Accept",
@@ -122,14 +128,10 @@ public final class HTTPRequestFilter
   private final Logger m_logger;
 
   private final Pattern m_basicAuthorizationHeaderPattern;
-  private final Pattern m_contentTypePattern;
-  private final Pattern m_contentLengthPattern;
+  private final Pattern m_headerPattern;
   private final Pattern m_lastURLPathElementPattern;
   private final Pattern m_messageBodyPattern;
   private final Pattern m_requestLinePattern;
-
-  /** Entries correspond to MIRRORED_HEADERS. */
-  private final Pattern[] m_mirroredHeaderPatterns;
 
   private final IntGenerator m_requestIDGenerator = new IntGenerator();
 
@@ -161,52 +163,25 @@ public final class HTTPRequestFilter
     //
     // We're flexible about SP and CRLF, see RFC 2616, 19.3.
 
-    m_requestLinePattern =
-      Pattern.compile(
-        "^([A-Z]+)[ \\t]+" +          // Method.
-        "(?:https?://[^/]+)?"  +      // Ignore scheme, host, port.
-        "([^\\?]+)" +                 // Path.
-        "(?:\\?(.*))?" +              // Optional query string.
-        "[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?\\n",
-        Pattern.MULTILINE | Pattern.UNIX_LINES);
+    m_requestLinePattern = Pattern.compile(
+      "^([A-Z]+)[ \\t]+" +          // Method.
+      "(?:https?://[^/]+)?"  +      // Ignore scheme, host, port.
+      "([^\\?]+)" +                 // Path.
+      "(?:\\?(.*))?" +              // Optional query string.
+      "[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?\\n",
+      Pattern.MULTILINE | Pattern.UNIX_LINES);
 
-    m_contentLengthPattern = getHeaderPattern("Content-Length", true);
+    m_headerPattern = Pattern.compile(
+      "^([^:]*)[ \\t]*:[ \\t]*(.*?)\\r?\\n",
+      Pattern.MULTILINE | Pattern.UNIX_LINES);
 
-    m_contentTypePattern = getHeaderPattern("Content-Type", true);
-
-    m_mirroredHeaderPatterns = new Pattern[MIRRORED_HEADERS.length];
-
-    for (int i = 0; i < MIRRORED_HEADERS.length; i++) {
-      m_mirroredHeaderPatterns[i] =
-        getHeaderPattern(MIRRORED_HEADERS[i], false);
-    }
-
-    m_basicAuthorizationHeaderPattern =
-      Pattern.compile(
-        "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?\\n",
-        Pattern.MULTILINE | Pattern.UNIX_LINES);
+    m_basicAuthorizationHeaderPattern = Pattern.compile(
+      "^Authorization[ \\t]*:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?\\n",
+      Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     // Ignore maximum amount of stuff that's not a '?' or ';' followed by
     // a '/', then grab the next until the first '?' or ';'.
     m_lastURLPathElementPattern = Pattern.compile("^[^\\?;]*/([^\\?;]*)");
-  }
-
-  /**
-   * Factory for regular expression patterns that match HTTP headers.
-   *
-   * @param headerName
-   *          The header name.
-   * @param caseInsensitive
-   *          Some headers are commonly used in the wrong case.
-   * @return The expression.
-   */
-  private static Pattern getHeaderPattern(String headerName,
-                                          boolean caseInsensitive) {
-    return Pattern.compile(
-      "^" + headerName + ":[ \\t]*(.*)\\r?\\n",
-      Pattern.MULTILINE |
-      Pattern.UNIX_LINES |
-      (caseInsensitive ? Pattern.CASE_INSENSITIVE : 0));
   }
 
   /**
@@ -316,51 +291,53 @@ public final class HTTPRequestFilter
       }
       else {
         // Still parsing headers.
-        // TODO add in order.
-        for (int i = 0; i < MIRRORED_HEADERS.length; i++) {
-          final Matcher headerMatcher =
-            m_mirroredHeaderPatterns[i].matcher(asciiString);
 
-          if (headerMatcher.find()) {
-            m_request.addHeader(
-              MIRRORED_HEADERS[i], headerMatcher.group(1).trim());
-          }
-        }
-
-        final Matcher authorizationMatcher =
-          m_basicAuthorizationHeaderPattern.matcher(asciiString);
-
-        if (authorizationMatcher.find()) {
-          m_request.addBasicAuthorization(
-            authorizationMatcher.group(1).trim());
-        }
+        String headers = asciiString;
+        int bodyStart = -1;
 
         if (m_request.expectingBody()) {
-          final Matcher contentLengthMatcher =
-            m_contentLengthPattern.matcher(asciiString);
-
-          // Look for the content length and type in the header.
-          if (contentLengthMatcher.find()) {
-            m_request.setContentLength(
-              Integer.parseInt(contentLengthMatcher.group(1).trim()));
-          }
-
-          final Matcher contentTypeMatcher =
-            m_contentTypePattern.matcher(asciiString);
-
-          if (contentTypeMatcher.find()) {
-            m_request.setContentType(contentTypeMatcher.group(1).trim());
-          }
-
           final Matcher messageBodyMatcher =
             m_messageBodyPattern.matcher(asciiString);
 
           if (messageBodyMatcher.find()) {
-            final int beginOffset = messageBodyMatcher.start(1);
-            final int endOffset = messageBodyMatcher.end(1);
-            m_request.new Body().write(
-              buffer, beginOffset, endOffset - beginOffset);
+            bodyStart = messageBodyMatcher.start(1);
+            headers = asciiString.substring(0, bodyStart);
           }
+        }
+
+        final Matcher headerMatcher = m_headerPattern.matcher(headers);
+
+        while (headerMatcher.find()) {
+          final String name = headerMatcher.group(1);
+          final String value = headerMatcher.group(2);
+
+          if (MIRRORED_HEADERS.contains(name)) {
+            m_request.addHeader(name, value);
+          }
+
+          if ("Content-Type".equalsIgnoreCase(name)) {
+            m_request.setContentType(value);
+          }
+
+          if ("Content-Length".equalsIgnoreCase(name)) {
+            m_request.setContentLength(Integer.parseInt(value));
+          }
+        }
+
+        final Matcher authorizationMatcher =
+          m_basicAuthorizationHeaderPattern.matcher(headers);
+
+        if (authorizationMatcher.find()) {
+          m_request.addBasicAuthorization(
+            authorizationMatcher.group(1));
+        }
+
+        // Write out the body after parsing the headers as we need to
+        // know the content length, and writing the body can end the
+        // processing of the current request.
+        if (bodyStart > -1) {
+          m_request.new Body().write(
+            buffer, bodyStart, buffer.length - bodyStart);
         }
       }
     }
@@ -379,8 +356,7 @@ public final class HTTPRequestFilter
     private final class Request {
       private final RequestType m_requestXML =
         RequestType.Factory.newInstance();
-      private final RequestHeadersType m_headers =
-        RequestHeadersType.Factory.newInstance();
+      private final HeadersType m_headers = HeadersType.Factory.newInstance();
 
       private int m_contentLength = -1;
       private String m_contentType = null;
@@ -411,23 +387,29 @@ public final class HTTPRequestFilter
         if (queryString != null) {
           final QueryStringType urlQueryString = url.addNewQueryString();
 
-          try {
-            final NameValue[] queryStringAsNameValuePairs =
-              parseNameValueString(queryString);
-
-            final ParsedQueryStringType parsedQuery =
-              ParsedQueryStringType.Factory.newInstance();
-
-            for (int i = 0; i < queryStringAsNameValuePairs.length; ++i) {
-              final ParameterType parameter = parsedQuery.addNewParameter();
-              parameter.setName(queryStringAsNameValuePairs[i].getName());
-              parameter.setValue(queryStringAsNameValuePairs[i].getValue());
-            }
-
-           urlQueryString.setParsed(parsedQuery);
-          }
-          catch (ParseException e) {
+          if (expectingBody()) {
+            // Requests with bodies don't have parsed query strings.
             urlQueryString.setUnparsed(queryString);
+          }
+          else {
+            try {
+              final NameValue[] queryStringAsNameValuePairs =
+                parseNameValueString(queryString);
+
+              final ParsedQueryStringType parsedQuery =
+                ParsedQueryStringType.Factory.newInstance();
+
+              for (int i = 0; i < queryStringAsNameValuePairs.length; ++i) {
+                final ParameterType parameter = parsedQuery.addNewParameter();
+                parameter.setName(queryStringAsNameValuePairs[i].getName());
+                parameter.setValue(queryStringAsNameValuePairs[i].getValue());
+              }
+
+             urlQueryString.setParsed(parsedQuery);
+            }
+            catch (ParseException e) {
+              urlQueryString.setUnparsed(queryString);
+            }
           }
         }
 
@@ -470,7 +452,6 @@ public final class HTTPRequestFilter
 
       public void setContentType(String contentType) {
         m_contentType = contentType;
-        addHeader("Content-Type", m_contentType);
       }
 
       public void setContentLength(int contentLength) {
@@ -709,13 +690,11 @@ public final class HTTPRequestFilter
     private Map m_map = new HashMap();
     private IntGenerator m_idGenerator = new IntGenerator();
 
-    public RequestHeadersType extractCommonHeaders(
-      RequestHeadersType requestHeaders) {
+    public HeadersType extractCommonHeaders(HeadersType requestHeaders) {
 
       final CommonHeadersType commonHeaders =
         CommonHeadersType.Factory.newInstance();
-      final RequestHeadersType newRequestHeaders =
-        RequestHeadersType.Factory.newInstance();
+      final HeadersType newRequestHeaders = HeadersType.Factory.newInstance();
 
       final XmlObject[] children = requestHeaders.selectPath("./*");
 
