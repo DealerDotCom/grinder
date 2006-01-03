@@ -1,11 +1,49 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
-<section name='Grinder 3.0-beta27 (Not yet released)' id='Grinder 3.0-beta27 (Not yet released)'>
+<section name='Grinder 3.0-beta28' id='Grinder 3.0-beta28'>
+<p>
+Updates to the Italian translation from Meo Bogliolo. </p>
+<p>
+Refactoring of statistics package API. This may affect existing custom plugins. See PluginProcessContext.getStatistics. </p>
+<p>
+New Russian translation from Konstantin Ignatyev. </p>
+<p>
+Fix the TCPProxy port forwarding mode to correctly generate https URLs. (<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1324640&amp;group_id=18598&amp;atid=118598">Bug 1324640</a>). </p>
+<p>
+Fix the exception logging to include Jython stack traces. Simplify the exception log formatting. </p>
+<p>
+Java methods can now be wrapped. The resulting object should be invoked Python style, i.e. non-static methods must be supplied with a 'self' instance as the first argument. </p>
+<p>
+New grinder.debug.singleprocess property. If set to true, the agent process spawns engines in threads rather than processes, using special classloaders to isolate the engines. This allows the engine to be easily run in a debugger. This is primarily a tool for debugging The Grinder engine, but it might also be useful to advanced users. </p>
+<p>
+More relaxed handling of invalid dates in Cookies. Requested by Martin Wagner. </p>
+<p>
+Nicer output for ConnectExceptions and UnknownHost exceptions. (Bug 927828). </p>
+<p>
+Handle Cookies with empty expires attribute. (<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=982834&amp;group_id=18598&amp;atid=118598">Bug 982834</a>). </p>
+<p>
+Added a pop-up menu to the editor file tree. </p>
+<p>
+Support Jython 2.2a1. Simply add the Jython 2.2a1 jython.jar to the start of your class path. Thanks to Martin Wagner for prompting me to do this. </p>
+<p>
+The documentation is now distributed in a separate zip file. </p>
+</section>
+<section name='Grinder 3.0-beta27' id='Grinder 3.0-beta27'>
 <p>
 The TCPProxy is now relaxed about empty query strings. Thanks to John Sinclair for the suggestion. </p>
 <p>
 Updates to the Spanish translation from Jose Antonio Zapata. </p>
+<p>
+New Polish translation from KArol Muszynski. </p>
+<p>
+New Italian translation from Meo Bogliolo. </p>
+<p>
+The documentation sources are now hosted on SourceForge CVS, and are no longer part of the source distribution. See http://sourceforge.net/cvs/?group_id=18598. </p>
+<p>
+Modify HTTPClient code so that HTTPResponse.getText() works with more content types. (<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1297821&amp;group_id=18598&amp;atid=118598">Bug 1297821</a>). </p>
+<p>
+Fix out of date documentation references to getIndexForLong (it has been renamed to getLongIndex). Thanks to Dietrich Bollmann for the report. </p>
 </section>
 <section name='Grinder 3.0-beta26' id='Grinder 3.0-beta26'>
 <p>

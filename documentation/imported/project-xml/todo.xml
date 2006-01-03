@@ -13,10 +13,6 @@ The TODO list is part of the binary distribution. I'll accept patches against it
 <li>
  Philip Aston </li>
 </ul>
-<p>
-Requested by Jose Antonio Zapata: </p>
-<p>
-Add an additional "milliseconds since the Epoch" entry to the data files. </p>
 <section name='Enhancements' depth='1' id='Enhancements'>
 <section name='Script Distribution' depth='2' id='Script Distribution'>
 <section name='Model' depth='3' id='Model'>
@@ -41,15 +37,19 @@ Task: Mature FileDistributionHandler model. Extract from comms package, leaving 
 <p>
 Task: Merge worker and agent process status models. Update process tab to show both. </p>
 </section>
-<section name='Release 5' depth='5' id='Release 5'>
+<section name='Release 5 (done)' depth='5' id='Release 5 (done)'>
 <p>
-Task: Console to watch local file system for edits. Task: Add warning if saving outside of distribution. Task: The agent should pick up secondary grinder.properties from file cache. Task: Console to optionally auto broadcast on play. Need some way of synchronising before starting run. </p>
+Task: Add warning if saving outside of distribution. Task: Console to watch local file system for edits, trigger need to distribute. Task: Regularly update the tree to match file system. Task: Write some tests for FileTree. Task: Warnings for buffers whose file is modified outside of editor. </p>
 </section>
 <section name='Release 6' depth='5' id='Release 6'>
 <p>
+Task: External editor integration. Task: The agent should pick up secondary grinder.properties from file cache. Task: Console to optionally auto broadcast on play. Need some way of synchronising before starting run. </p>
+</section>
+<section name='Release 7' depth='5' id='Release 7'>
+<p>
 Task: Addressed messaging. Every Acceptor.SocketResource to know its remote EndPoint. Add FilteredFanOutServerSender (Extend FanOutServerSender, allow resourceToOutputStream to return null indicating the resource shouldn't be sent anything. Supplied Filter method is given a SocketResource and the Message and can then veto.) </p>
 <p>
-Task: Add agent initiation channel so agent can send a checksum across file names/sizes. Console compares with its cache and generates a good last update time for the agent. Thus agents starting with a good cache skip sync. </p>
+Task: Add agent initiation channel so agent can send a checksum across file names/sizes. Console compares with its cache and generates a good last update time for the agent. Thus agents starting with a good cache skip sync. Can't rely on remote timestamps as clocks are not sync'd. </p>
 <p>
 Task: Distribution file filter should be dynamically settable. </p>
 </section>
@@ -91,22 +91,30 @@ b) You must cause any work that you distribute or publish, that in whole or in p
 <section name='Engine' depth='2' id='Engine'>
 <p>
 There should be an ExternalFilenameFactory, cf ExternalLogger. </p>
-<p>
-The agent should pass system properties, grinder properties, and alternate file via InitialiseGrinderMessage. </p>
 <section name='Interactive mode' depth='3' id='Interactive mode'>
 <p>
-Possible to have an interactive mode for debugging? E.g. a simple UI that can be launched from a thread which drops the user into a console? Can't just run the interpretter as the worker processes don't have access to the controlling terminals stdin. </p>
+Possible to have an interactive mode for debugging? E.g. a simple UI that can be launched from a thread which drops the user into a console? Would need to launch with grinder.debug.singleprocess=true. </p>
 </section>
-<section name='Instrumentation' depth='3' id='Instrumentation'>
+<section name='Instrumentation API' depth='3' id='Instrumentation API'>
 <p>
 Could we support a procedural "startTest()", "stopTest()" API? </p>
 <p>
 Perhaps. This procedural style would certainly be more obvious to the average user than "wrapping". OTOH, wrapping is powerful and I'm not sure we want to support two mechanisms to instrument code. </p>
 <p>
-Currently the engine only supports the concept of a single active test (transaction) per worker thread. It would be interesting to support multiple. nested tests. This would allow the recording of group statistics as well as individual statistics. The implementation would be correspondingly more complex. </p>
+Currently the engine only supports the concept of a single active test (transaction) per worker thread. It would be interesting to support multiple, nested tests. This would allow the recording of group statistics as well as individual statistics. The implementation would be correspondingly more complex. </p>
 </section>
 </section>
 <section name='Statistics' depth='2' id='Statistics'>
+<p>
+Split out serializeable kernel of TestStatisticsMap? Look hard at where the message is deserialised. </p>
+<p>
+public ExpressionView ctor should probably be deprecated. </p>
+<section name='Aligning data files' depth='3' id='Aligning data files'>
+<p>
+Requested by Jose Antonio Zapata: </p>
+<p>
+Add an additional "milliseconds since the Epoch" entry to the data files. </p>
+</section>
 <section name='Separate out console statistics views from summary statistics views' depth='3' id='Separate out console statistics views from summary statistics views'>
 <p>
 Needed for custom statistics that use 'period' so are valid in the console but not in the process logs. </p>
@@ -127,6 +135,8 @@ Change TCPProxy filters to a stream oriented model. This should cure another one
 Internationalise messages. </p>
 <p>
 Support different client certificates for proxied connection. </p>
+<p>
+Meo Bogliolo writes: <br/>&gt; What do You think about adding the possibility to insert remarks <br/>&gt; with the TCPProxy Console? Maybe it's usefull in complex <br/>&gt; navigation... I currently look at think time in the scripts to <br/>&gt; understand when the user "changes" page. </p>
 </section>
 <section name='HTTP Plugin' depth='2' id='HTTP Plugin'>
 <p>
@@ -147,6 +157,10 @@ Wrapped code should be able to use the ScriptStatistics interface and not have t
 Add per-run statistics. This would also allow number of aborted runs to be recorded. </p>
 <p>
 Script access to global statistics. </p>
+<section name='Alternate test languages' depth='3' id='Alternate test languages'>
+<p>
+Should use AOP proxies (probably with CGLIB) to do test instrumentation. Should support Java, Groovy scripts. </p>
+</section>
 <section name='Events' depth='3' id='Events'>
 <p>
 Idea from Nurul Choudhury: <br/>&gt; Event counting - The Jython code can create a named event and fire <br/>&gt; the event when some condition was met. When the console polls for <br/>&gt; statistics the events and their count would be sent to the console. </p>
@@ -167,12 +181,6 @@ Perhaps JasperReports? </p>
 Review use of Kernel. Probably want to share them. </p>
 <p>
 Remove ThreadLocal from RegisteredPlugin. </p>
-<p>
-Figure out the UndeclaredThrowableException problem in TestRegisteredPlugin. </p>
-<p>
-Review use of InterruptedException </p>
-<p>
-Shouldn't really throw GrinderException anywhere. </p>
 </section>
 <section name='Other HTTP/HTML libraries' depth='2' id='Other HTTP/HTML libraries'>
 <p>
@@ -231,6 +239,8 @@ In the next beta I'll supply HTTPClient pre-patched for JSSE. </p>
 <p>
 On balance, yes HttpClient looks good and we should use it if it proves to be efficient. I'll add it to the TODO, but its a significant change =&gt; low priority. </p>
 <p>
+Update (Oct 05): Doubts about HttpClient's scalability: http://sourceforge.net/mailarchive/forum.php?thread_id=8372852&amp;forum_id=2649 </p>
+<p>
 We perhaps need to look more closely at parsing support for functional assertions, but I don't want to lose The Grinder's efficiency here. </p>
 <p>
 Also http://www.nogoop.com/product_16.html#compare </p>
@@ -266,6 +276,8 @@ How to build clover reports during full build? </p>
 Include Clover history? </p>
 </section>
 <section name='Documentation' depth='1' id='Documentation'>
+<p>
+grinder.debug.singleprocess </p>
 <p>
 HTTP plug-in. </p>
 <p>
