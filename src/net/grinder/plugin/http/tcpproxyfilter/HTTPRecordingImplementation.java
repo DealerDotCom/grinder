@@ -22,6 +22,7 @@
 package net.grinder.plugin.http.tcpproxyfilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,17 +30,24 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
+import org.apache.xmlbeans.XmlObject;
 import org.picocontainer.Disposable;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
+import net.grinder.plugin.http.xml.AuthorizationHeaderType;
 import net.grinder.plugin.http.xml.BaseURLType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.HTTPRecordingType;
 import net.grinder.plugin.http.xml.HeaderType;
+import net.grinder.plugin.http.xml.HeadersType;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
+import net.grinder.plugin.http.xml.PageType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.tools.tcpproxy.ConnectionDetails;
+import net.grinder.tools.tcpproxy.EndPoint;
 
 
 /**
@@ -50,10 +58,30 @@ import net.grinder.plugin.http.xml.RequestType;
  */
 public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
+  /**
+   * Headers which are likely to have common values.
+   */
+  private static final Set COMMON_HEADERS = new HashSet(Arrays.asList(
+    new String[] {
+      "Accept",
+      "Accept-Charset",
+      "Accept-Encoding",
+      "Accept-Language",
+      "Cache-Control",
+      "Referer", // Deliberate misspelling to match specification.
+      "User-Agent",
+    }
+  ));
+
   private final HttpRecordingDocument m_recordingDocument =
     HttpRecordingDocument.Factory.newInstance();
   private final Logger m_logger;
   private final HTTPRecordingResultProcessor m_resultProcessor;
+
+  private final IntGenerator m_requestIDGenerator = new IntGenerator();
+  private final BaseURLMap m_baseURLMap = new BaseURLMap();
+  private final CommonHeadersMap m_commonHeadersMap = new CommonHeadersMap();
+  private final PageMap m_pageMap = new PageMap();
 
   private long m_lastResponseTime = 0;
 
@@ -81,34 +109,35 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   /**
    * Add a new request to the recording.
    *
-   * @param request The request.
-   */
-  public void addRequest(RequestType request) {
-    synchronized (m_recordingDocument) {
-      m_recordingDocument.getHttpRecording().addNewRequest().set(request);
-    }
-  }
-
-  /**
-   * Add a new base URL to the recording.
+   * <p>
+   * The "global information" (request ID, base URL ID, common headers, page
+   * etc.) is filled in by this method.
+   * </p>
    *
-   * @param baseURL The URL.
+   * @param connectionDetails
+   *          The connection used to make the request.
+   * @param request
+   *          The request as a disconnected element.
    */
-  public void addBaseURL(BaseURLType baseURL) {
-    synchronized (m_recordingDocument) {
-      m_recordingDocument.getHttpRecording().addNewBaseUrl().set(baseURL);
-    }
-  }
+  public void addRequest(ConnectionDetails connectionDetails,
+                         RequestType request) {
 
-  /**
-   * Add new common headers to the recording.
-   *
-   * @param commonHeaders The headers.
-   */
-  public void addCommonHeaders(CommonHeadersType commonHeaders) {
-    synchronized (m_recordingDocument) {
-      m_recordingDocument.getHttpRecording().addNewCommonHeaders()
-      .set(commonHeaders);
+    request.setRequestId(m_requestIDGenerator.next());
+
+    final BaseURLType baseURL =
+      m_baseURLMap.getBaseURL(
+        connectionDetails.isSecure() ?
+          BaseURLType.Scheme.HTTPS : BaseURLType.Scheme.HTTP,
+        connectionDetails.getRemoteEndPoint());
+
+    request.getUrl().setExtends(baseURL.getUrlId());
+
+    m_commonHeadersMap.extractCommonHeaders(request);
+
+    final PageType pageType = m_pageMap.getPage(baseURL, request);
+
+    synchronized (pageType) {
+      pageType.addNewRequest().set(request);
     }
   }
 
@@ -210,6 +239,147 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     catch (IOException e) {
       m_logger.error(e.getMessage());
       e.printStackTrace(m_logger.getErrorLogWriter());
+    }
+  }
+
+  private final class BaseURLMap {
+    private Map m_map = new HashMap();
+    private IntGenerator m_idGenerator = new IntGenerator();
+
+    public BaseURLType getBaseURL(
+      BaseURLType.Scheme.Enum scheme, EndPoint endPoint) {
+
+      final Object key = scheme.toString() + "://" + endPoint;
+
+      synchronized (m_map) {
+        final BaseURLType existing = (BaseURLType)m_map.get(key);
+
+        if (existing != null) {
+          return existing;
+        }
+
+        final BaseURLType result;
+
+        synchronized (m_recordingDocument) {
+          result = m_recordingDocument.getHttpRecording().addNewBaseUrl();
+        }
+
+        result.setUrlId("url" + m_idGenerator.next());
+        result.setScheme(scheme);
+        result.setHost(endPoint.getHost());
+        result.setPort(endPoint.getPort());
+
+        m_map.put(key, result);
+
+        return result;
+      }
+    }
+  }
+
+  private final class CommonHeadersMap {
+    private Map m_map = new HashMap();
+    private IntGenerator m_idGenerator = new IntGenerator();
+
+    public void extractCommonHeaders(RequestType request) {
+
+      final CommonHeadersType commonHeaders =
+        CommonHeadersType.Factory.newInstance();
+      final HeadersType newRequestHeaders = HeadersType.Factory.newInstance();
+
+      final XmlObject[] children = request.getHeaders().selectPath("./*");
+
+      for (int i = 0; i < children.length; ++i) {
+        if (children[i] instanceof HeaderType) {
+          final HeaderType header = (HeaderType)children[i];
+
+          if (COMMON_HEADERS.contains(header.getName())) {
+            commonHeaders.addNewHeader().set(header);
+          }
+          else {
+            newRequestHeaders.addNewHeader().set(header);
+          }
+        }
+        else if (children[i] instanceof AuthorizationHeaderType) {
+          newRequestHeaders.addNewAuthorization().set(children[i]);
+        }
+        else {
+          assert false;
+        }
+      }
+
+      // Key that ignores ID.
+      final Object key =
+        Arrays.asList(commonHeaders.getHeaderArray()).toString();
+
+      synchronized (m_map) {
+        final CommonHeadersType existing = (CommonHeadersType)m_map.get(key);
+
+        if (existing != null) {
+          newRequestHeaders.setExtends(existing.getHeadersId());
+        }
+        else {
+          commonHeaders.setHeadersId("headers" + m_idGenerator.next());
+
+          synchronized (m_recordingDocument) {
+            m_recordingDocument.getHttpRecording().addNewCommonHeaders()
+            .set(commonHeaders);
+          }
+
+          m_map.put(key, commonHeaders);
+
+          newRequestHeaders.setExtends(commonHeaders.getHeadersId());
+        }
+      }
+
+      request.setHeaders(newRequestHeaders);
+    }
+  }
+
+  private final class PageMap {
+    private final Pattern m_isPageResourcePathPattern;
+    private final Map m_map = new HashMap();
+    private final IntGenerator m_idGenerator = new IntGenerator();
+
+    private PageMap() {
+      m_isPageResourcePathPattern = Pattern.compile(
+        ".*(\\.css|\\.gif|\\.ico|\\.jpe?g|\\.js)\\b.*",
+        Pattern.CASE_INSENSITIVE);
+    }
+
+    public PageType getPage(BaseURLType baseURL, RequestType request) {
+
+      synchronized (m_map) {
+        final PageType existing = (PageType) m_map.get(baseURL);
+
+        // Crude heuristic to figure out whether request is the start of
+        // a new page or not.
+        if (existing != null &&
+            !request.isSetBody() &&
+            (m_isPageResourcePathPattern.matcher(
+              request.getUrl().getPath()).matches())) {
+          return existing;
+        }
+
+        final PageType result;
+
+        synchronized (m_recordingDocument) {
+          result = m_recordingDocument.getHttpRecording().addNewPage();
+        }
+
+        result.setPageId("page" + m_idGenerator.next());
+
+        m_map.put(baseURL, result);
+
+        return result;
+      }
+    }
+  }
+
+  private static final class IntGenerator {
+    private int m_value = -1;
+
+    public synchronized int next() {
+      return ++m_value;
     }
   }
 }

@@ -8,8 +8,13 @@
 
   <xs:element name="http-recording" type="tns:HTTPRecordingType">
     <xs:key name="RequestID">
-      <xs:selector xpath="request" />
+      <xs:selector xpath="page/request" />
       <xs:field xpath="request-id" />
+    </xs:key>
+
+    <xs:key name="PageID">
+      <xs:selector xpath="page" />
+      <xs:field xpath="page-id" />
     </xs:key>
 
     <xs:key name="BaseURLID">
@@ -18,7 +23,7 @@
     </xs:key>
 
     <xs:keyref name="BaseURLIDRef" refer="tns:BaseURLID">
-      <xs:selector xpath="request/url" />
+      <xs:selector xpath="page/request/url" />
       <xs:field xpath="extends" />
     </xs:keyref>
 
@@ -28,7 +33,7 @@
     </xs:key>
 
     <xs:keyref name="CommonHeadersIDRef" refer="tns:CommonHeadersID">
-      <xs:selector xpath="request/headers" />
+      <xs:selector xpath="page/request/headers" />
       <xs:field xpath="extends" />
     </xs:keyref>
   </xs:element>
@@ -48,9 +53,34 @@
         minOccurs="0" maxOccurs="unbounded" />
       <xs:element name="base-url" type="tns:BaseURLType"
         minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="page" type="tns:PageType"
+        minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BaseURLType">
+    <xs:sequence>
+      <xs:element name="scheme">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="http" />
+            <xs:enumeration value="https" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="host" type="xs:NMTOKEN"/>
+      <xs:element name="port" type="xs:unsignedShort"/>
+    </xs:sequence>
+
+    <xs:attribute name="url-id" type="xs:NMTOKEN" />
+  </xs:complexType>
+
+  <xs:complexType name="PageType">
+    <xs:sequence>
       <xs:element name="request" type="tns:RequestType"
         minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
+    <xs:attribute name="page-id" type="xs:NMTOKEN" />
   </xs:complexType>
 
   <xs:complexType name="RequestType">
@@ -71,28 +101,11 @@
       </xs:element>
       <xs:element name="url" type="tns:RelativeURLType" />
       <xs:element name="headers" type="tns:HeadersType" />
-      <xs:element name="short-description" type="xs:normalizedString"/>
+      <xs:element name="description" type="xs:normalizedString"/>
       <xs:element name="sleep-time" type="xs:unsignedInt" minOccurs="0" />
       <xs:element name="body" type="tns:BodyType" minOccurs="0" />
     </xs:sequence>
     <xs:attribute name="request-id" type="xs:unsignedInt" />
-  </xs:complexType>
-
-  <xs:complexType name="BaseURLType">
-    <xs:sequence>
-      <xs:element name="scheme">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="http" />
-            <xs:enumeration value="https" />
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="host" type="xs:NMTOKEN"/>
-      <xs:element name="port" type="xs:unsignedShort"/>
-    </xs:sequence>
-
-    <xs:attribute name="url-id" type="xs:NMTOKEN" />
   </xs:complexType>
 
   <xs:complexType name="RelativeURLType">

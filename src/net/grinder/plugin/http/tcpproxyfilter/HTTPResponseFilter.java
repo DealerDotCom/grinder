@@ -48,14 +48,6 @@ public class HTTPResponseFilter implements TCPProxyFilter {
    */
   public HTTPResponseFilter(HTTPRecording httpRecording) {
     m_httpRecording = httpRecording;
-
-    /* TODO - maybe add annotations based on responses.
-    m_wwwAuthenticateHeaderPattern =
-      Pattern.compile(
-        "^WWW-Authenticate:[ \\t]*Basic realm[  \\t]*=" +
-        "[ \\t]*\"([^\"]*)\".*\\r?\\n",
-        Pattern.MULTILINE | Pattern.UNIX_LINES);
-        */
   }
 
   /**
@@ -77,26 +69,6 @@ public class HTTPResponseFilter implements TCPProxyFilter {
     throws FilterException {
 
     m_httpRecording.markLastResponseTime();
-
-    /*
-    // String used to parse headers - header names are
-    // US-ASCII encoded and anchored to start of line.
-    final String asciiString;
-
-    try {
-      asciiString = new String(buffer, 0, bytesRead, "US-ASCII");
-    }
-    catch (UnsupportedEncodingException e) {
-      throw new AssertionError(e);
-    }
-
-    final Matcher matcher = m_wwwAuthenticateHeaderPattern.matcher(asciiString);
-
-    if (matcher.find()) {
-      // Packet is start of new request message.
-      m_httpRecording.setLastAuthenticationRealm(matcher.group(1).trim());
-    }
-    */
 
     return null;
   }

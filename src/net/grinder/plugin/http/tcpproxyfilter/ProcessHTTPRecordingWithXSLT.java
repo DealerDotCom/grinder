@@ -154,7 +154,6 @@ public class ProcessHTTPRecordingWithXSLT
                          new PrintWriter(System.err)));
 
     processor.process(recording);
-    processor.process(recording);
   }
 
   /**

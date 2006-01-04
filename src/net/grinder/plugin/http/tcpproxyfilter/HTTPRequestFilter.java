@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.xmlbeans.XmlObject;
 import org.picocontainer.Disposable;
 
 import HTTPClient.Codecs;
@@ -43,11 +42,8 @@ import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
 import net.grinder.common.Logger;
-import net.grinder.plugin.http.xml.AuthorizationHeaderType;
-import net.grinder.plugin.http.xml.BaseURLType;
 import net.grinder.plugin.http.xml.BasicAuthorizationHeaderType;
 import net.grinder.plugin.http.xml.BodyType;
-import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.FormBodyType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.HeaderType;
@@ -58,7 +54,6 @@ import net.grinder.plugin.http.xml.QueryStringType;
 import net.grinder.plugin.http.xml.RelativeURLType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
-import net.grinder.tools.tcpproxy.EndPoint;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 
 
@@ -76,9 +71,10 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * fragments.
  * </ul>
  *
- * TODO Record and use HTML page information.
+ * TODO Instrument pages.
  * TODO Session key processing.
  * TODO Avoid Jython 64K limit (does it still affect 2.2?)
+ * TODO Page has >0 requests. Cope with 0 pages.
  *
  * @author Philip Aston
  * @author Bertrand Ave
@@ -109,36 +105,17 @@ public final class HTTPRequestFilter
     new String[] { "OPTIONS", "POST", "POST" }
   ));
 
-  /**
-   * Headers which are likely to have common values.
-   */
-  private static final Set COMMON_HEADERS = new HashSet(Arrays.asList(
-    new String[] {
-      "Accept",
-      "Accept-Charset",
-      "Accept-Encoding",
-      "Accept-Language",
-      "Cache-Control",
-      "Referer",
-      "User-Agent",
-    }
-  ));
-
   private final HTTPRecording m_httpRecording;
   private final Logger m_logger;
 
   private final Pattern m_basicAuthorizationHeaderPattern;
   private final Pattern m_headerPattern;
-  private final Pattern m_lastURLPathElementPattern;
   private final Pattern m_messageBodyPattern;
   private final Pattern m_requestLinePattern;
 
-  private final IntGenerator m_requestIDGenerator = new IntGenerator();
+  private final Pattern m_lastPathElementPathPattern;
 
   private final HandlerMap m_handlers = new HandlerMap();
-
-  private final BaseURLMap m_baseURLMap = new BaseURLMap();
-  private final CommonHeadersMap m_commonHeadersMap = new CommonHeadersMap();
 
   /**
    * Constructor.
@@ -181,7 +158,7 @@ public final class HTTPRequestFilter
 
     // Ignore maximum amount of stuff that's not a '?' or ';' followed by
     // a '/', then grab the next until the first '?' or ';'.
-    m_lastURLPathElementPattern = Pattern.compile("^[^\\?;]*/([^\\?;]*)");
+    m_lastPathElementPathPattern = Pattern.compile("^[^\\?;]*/([^\\?;]*)");
   }
 
   /**
@@ -240,17 +217,13 @@ public final class HTTPRequestFilter
    * serialised.</p>
    **/
   private final class Handler {
-    private final BaseURLType m_baseURL;
+    private final ConnectionDetails m_connectionDetails;
 
     // Parse data.
     private Request m_request;
 
     public Handler(ConnectionDetails connectionDetails) {
-      m_baseURL =
-        m_baseURLMap.getBaseURL(
-          connectionDetails.isSecure() ?
-              BaseURLType.Scheme.HTTPS : BaseURLType.Scheme.HTTP,
-          connectionDetails.getRemoteEndPoint());
+      m_connectionDetails = connectionDetails;
     }
 
     public synchronized void handle(byte[] buffer, int length) {
@@ -356,32 +329,43 @@ public final class HTTPRequestFilter
     private final class Request {
       private final RequestType m_requestXML =
         RequestType.Factory.newInstance();
-      private final HeadersType m_headers = HeadersType.Factory.newInstance();
+      private final HeadersType m_headers = m_requestXML.addNewHeaders();
 
       private int m_contentLength = -1;
       private String m_contentType = null;
       private Body m_body;
 
       public Request(String method, String path, String queryString) {
-        final Matcher lastURLPathElementMatcher =
-          m_lastURLPathElementPattern.matcher(path);
 
-        m_requestXML.setRequestId(m_requestIDGenerator.next());
-
-        if (lastURLPathElementMatcher.find()) {
-          m_requestXML.setShortDescription(
-            method + " " + lastURLPathElementMatcher.group(1));
-        }
-        else {
-          m_requestXML.setShortDescription(
-            method + " " + m_requestXML.getRequestId());
-        }
+        // Only set up direct attributes here. The "global information"
+        // (request ID, base URL ID, common headers, page etc.) is filled in
+        // when we record the request.
 
         m_requestXML.setMethod(RequestType.Method.Enum.forString(method));
         m_requestXML.setTime(Calendar.getInstance());
 
+        final Matcher lastPathElementMatcher =
+          m_lastPathElementPathPattern.matcher(path);
+
+        final String description;
+
+        if (lastPathElementMatcher.find()) {
+          final String element = lastPathElementMatcher.group(1);
+
+          if (element.trim().length() != 0) {
+            description = method + " " + element;
+          }
+          else {
+            description = method = " /";
+          }
+        }
+        else {
+          description = method + " " + m_requestXML.getRequestId();
+        }
+
+        m_requestXML.setDescription(description);
+
         final RelativeURLType url = m_requestXML.addNewUrl();
-        url.setExtends(m_baseURL.getUrlId());
         url.setPath(path);
 
         if (queryString != null) {
@@ -393,8 +377,8 @@ public final class HTTPRequestFilter
           }
           else {
             try {
-              final NameValue[] queryStringAsNameValuePairs =
-                parseNameValueString(queryString);
+              final NVPair[] queryStringAsNameValuePairs =
+                Codecs.query2nv(queryString);
 
               final ParsedQueryStringType parsedQuery =
                 ParsedQueryStringType.Factory.newInstance();
@@ -465,28 +449,11 @@ public final class HTTPRequestFilter
       }
 
       public void record() {
-        m_requestXML.setHeaders(
-          m_commonHeadersMap.extractCommonHeaders(m_headers));
-
         if (getBody() != null) {
           getBody().record();
         }
 
-        m_httpRecording.addRequest(m_requestXML);
-      }
-
-      private NameValue[] parseNameValueString(String input)
-        throws ParseException {
-
-        final NVPair[] pairs = Codecs.query2nv(input);
-
-        final NameValue[] result = new NameValue[pairs.length];
-
-        for (int i = 0; i < pairs.length; ++i) {
-          result[i] = new NameValue(pairs[i].getName(), pairs[i].getValue());
-        }
-
-        return result;
+        m_httpRecording.addRequest(m_connectionDetails, m_requestXML);
       }
 
       private class Body {
@@ -560,8 +527,8 @@ public final class HTTPRequestFilter
 
             if ("application/x-www-form-urlencoded".equals(m_contentType)) {
               try {
-                final NameValue[] formNameValuePairs =
-                  parseNameValueString(iso88591String);
+                final NVPair[] formNameValuePairs =
+                  Codecs.query2nv(iso88591String);
 
                 final FormBodyType formData =
                   FormBodyType.Factory.newInstance();
@@ -653,140 +620,6 @@ public final class HTTPRequestFilter
           handler.endMessage();
         }
       }
-    }
-  }
-
-  private final class BaseURLMap {
-    private Map m_map = new HashMap();
-    private IntGenerator m_idGenerator = new IntGenerator();
-
-    public BaseURLType getBaseURL(
-      BaseURLType.Scheme.Enum scheme, EndPoint endPoint) {
-
-      final Object key = scheme.toString() + "://" + endPoint;
-
-      synchronized (m_map) {
-        final BaseURLType existing = (BaseURLType)m_map.get(key);
-
-        if (existing != null) {
-          return existing;
-        }
-
-        final BaseURLType result = BaseURLType.Factory.newInstance();
-        result.setUrlId("url" + m_idGenerator.next());
-        result.setScheme(scheme);
-        result.setHost(endPoint.getHost());
-        result.setPort(endPoint.getPort());
-
-        m_httpRecording.addBaseURL(result);
-        m_map.put(key, result);
-
-        return result;
-      }
-    }
-  }
-
-  private final class CommonHeadersMap {
-    private Map m_map = new HashMap();
-    private IntGenerator m_idGenerator = new IntGenerator();
-
-    public HeadersType extractCommonHeaders(HeadersType requestHeaders) {
-
-      final CommonHeadersType commonHeaders =
-        CommonHeadersType.Factory.newInstance();
-      final HeadersType newRequestHeaders = HeadersType.Factory.newInstance();
-
-      final XmlObject[] children = requestHeaders.selectPath("./*");
-
-      for (int i = 0; i < children.length; ++i) {
-        if (children[i] instanceof HeaderType) {
-          final HeaderType header = (HeaderType)children[i];
-
-          if (COMMON_HEADERS.contains(header.getName())) {
-            commonHeaders.addNewHeader().set(header);
-          }
-          else {
-            newRequestHeaders.addNewHeader().set(header);
-          }
-        }
-        else if (children[i] instanceof AuthorizationHeaderType) {
-          newRequestHeaders.addNewAuthorization().set(children[i]);
-        }
-        else {
-          assert false;
-        }
-      }
-
-      // Key that ignores ID.
-      final Object key =
-        Arrays.asList(commonHeaders.getHeaderArray()).toString();
-
-      synchronized (m_map) {
-        final CommonHeadersType existing = (CommonHeadersType)m_map.get(key);
-
-        if (existing != null) {
-          newRequestHeaders.setExtends(existing.getHeadersId());
-        }
-        else {
-          commonHeaders.setHeadersId("headers" + m_idGenerator.next());
-          m_httpRecording.addCommonHeaders(commonHeaders);
-          m_map.put(key, commonHeaders);
-
-          newRequestHeaders.setExtends(commonHeaders.getHeadersId());
-        }
-      }
-
-      return newRequestHeaders;
-    }
-  }
-
-  private static final class IntGenerator {
-    private int m_value = -1;
-
-    public synchronized int next() {
-      return ++m_value;
-    }
-  }
-
-  private static final class NameValue {
-    private final String m_name;
-    private final String m_value;
-
-    public NameValue(String s1, String s2) {
-      m_name = s1;
-      m_value = s2;
-    }
-
-    public String getName() {
-      return m_name;
-    }
-
-    public String getValue() {
-      return m_value;
-    }
-
-    public String toString() {
-      return getName() + "='" + getValue() + "'";
-    }
-
-    public int hashCode() {
-      return m_name.hashCode() ^ m_value.hashCode();
-    }
-
-    public boolean equals(Object o) {
-      if (o == this) {
-        return true;
-      }
-
-      if (!(o instanceof NameValue)) {
-        return false;
-      }
-
-      final NameValue other = (NameValue)o;
-
-      return
-        getName().equals(other.getName()) &&
-        getValue().equals(other.getValue());
     }
   }
 }

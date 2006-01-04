@@ -24,68 +24,73 @@ from net.grinder.plugin.http import HTTPPluginControl, HTTPRequest
 from HTTPClient import NVPair
 connectionDefaults = HTTPPluginControl.getConnectionDefaults()
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
+
+# These definitions at the top level of the file are evaluated once,
+# when the worker process is started.
 </xsl:text>
 
-    <xsl:apply-templates select="g:base-url"/>
+    <xsl:apply-templates select="*" mode="file"/>
+
     <xsl:value-of select="helper:newLine()"/>
-    <xsl:apply-templates select="g:common-headers"/>
-    <xsl:apply-templates select="g:request"/>
-
-    <xsl:text>
-# An TestRunner instance is created for each worker thread
-class TestRunner:
-</xsl:text>
-
+    <xsl:value-of select="helper:newLine()"/>
+    <xsl:text>class TestRunner:</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text># This method is called for every run</xsl:text>
+    <xsl:text>"""An TestRunner instance is created for each worker thread."""</xsl:text>
+    <xsl:value-of select="helper:newLine()"/>
+
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>def __call__(self):</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>"""This method is called for every run perfomed by the worker thread."""</xsl:text>
     <xsl:value-of select="helper:newLine()"/>
 
-    <xsl:apply-templates select="g:request" mode="__call__"/>
+    <xsl:apply-templates select="*" mode="__call__"/>
+    <xsl:value-of select="helper:newLine()"/>
+
+    <xsl:value-of select="helper:changeIndent(-1)"/>
+
+    <xsl:apply-templates select="*" mode="TestRunner"/>
 
   </xsl:template>
 
 
-  <xsl:template match="g:base-url">
+  <xsl:template match="g:base-url" mode="file">
     <xsl:value-of select="helper:newLine()"/>
     <xsl:value-of select="concat(@url-id, ' = ')"/>
     <xsl:text>'</xsl:text>
     <xsl:value-of select="concat(g:scheme, '://', g:host, ':', g:port)"/>
     <xsl:text>'</xsl:text>
+
+    <xsl:if test="not(following::g:base-url)">
+      <xsl:value-of select="helper:newLine()"/>
+    </xsl:if>
   </xsl:template>
 
 
-  <xsl:template match="g:common-headers[@headers-id='defaultHeaders']">
+  <xsl:template match="g:common-headers[@headers-id='defaultHeaders']" mode="file">
     <xsl:value-of select="helper:newLine()"/>
     <xsl:text>connectionDefaults.defaultHeaders = \</xsl:text>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:call-template name="tuple-list"/>
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
 
-  <xsl:template match="g:common-headers">
+  <xsl:template match="g:common-headers" mode="file">
     <xsl:value-of select="helper:newLine()"/>
     <xsl:value-of select="concat(@headers-id, '= \')"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:call-template name="tuple-list"/>
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
-
-  <xsl:template match="g:request">
-    <xsl:variable name="request-name" select="concat('request', @request-id)"/>
-
+  <xsl:template match="g:request" mode="file">
     <xsl:value-of select="helper:newLine()"/>
+    <xsl:variable name="request-name" select="concat('request', @request-id)"/>
     <xsl:value-of select="$request-name"/>
-    <xsl:text> = HTTPRequest(url=</xsl:text>
-    <xsl:value-of select="g:url/@extends"/>
-    <xsl:text>, headers=</xsl:text>
-    <xsl:value-of select="g:headers/@extends"/>
-    <xsl:text>)</xsl:text>
+
+    <xsl:value-of select="concat(' = HTTPRequest(url=', g:url/@extends)"/>
+    <xsl:value-of select="concat(', headers=', g:headers/@extends, ')')"/>
 
     <xsl:if test="g:body/g:file">
       <xsl:value-of select="helper:newLine()"/>
@@ -96,21 +101,49 @@ class TestRunner:
     </xsl:if>
 
     <xsl:value-of select="helper:newLine()"/>
-    <xsl:value-of select="concat('test', @request-id)"/>
-    <xsl:text> = Test(</xsl:text>
-    <xsl:value-of select="@request-id"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="helper:quoteForPython(g:short-description)"/>
-    <xsl:text>).wrap(</xsl:text>
-    <xsl:value-of select="$request-name"/>
-    <xsl:text>)</xsl:text>
+    <xsl:value-of select="concat('test', @request-id, '= Test(')"/>
+    <xsl:value-of select="concat(@request-id, ', ')"/>
+    <xsl:value-of select="helper:quoteForPython(g:description)"/>
+    <xsl:value-of select="concat(').wrap(', $request-name, ')')"/>
 
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
 
-  <xsl:template match="g:request" mode="__call__">
-    <xsl:apply-templates select="g:sleep-time" mode="__call__"/>
+  <xsl:template match="g:page" mode="file">
+    <xsl:apply-templates select="*" mode="file"/>
+
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:value-of select="concat('def ', @page-id, '():')"/>
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>"""Execute requests for </xsl:text>
+    <xsl:apply-templates select="*" mode="pageDescription"/>
+    <xsl:text>."""</xsl:text>
+    <xsl:apply-templates select="*" mode="page"/>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:page" mode="__call__">
+    <xsl:apply-templates select="*" mode="__call__"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:value-of select="concat(@page-id, '()')"/>
+    <xsl:call-template name="indent">
+      <xsl:with-param name="characters" select="10-string-length(@page-id)"/>
+    </xsl:call-template>
+    <xsl:text> # </xsl:text>
+    <xsl:apply-templates select="*" mode="pageDescription"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:request[position() = 1]" mode="pageDescription">
+    <xsl:value-of select="g:description"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:request" mode="page">
+    <xsl:apply-templates select="g:sleep-time" mode="request"/>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:value-of select="concat('test', @request-id, '.')"/>
@@ -119,33 +152,36 @@ class TestRunner:
     <xsl:value-of select="g:url/g:path"/>
     <xsl:text>'</xsl:text>
 
-    <xsl:apply-templates select="g:url/g:query-string" mode="__call__"/>
+    <xsl:apply-templates select="g:url/g:query-string" mode="request"/>
 
-    <xsl:apply-templates select="g:body" mode="__call__"/>
+    <xsl:apply-templates select="g:body" mode="request"/>
 
-    <xsl:apply-templates select="g:headers" mode="__call__"/>
+    <xsl:apply-templates select="g:headers" mode="request"/>
 
     <xsl:text>)</xsl:text>
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
 
-  <xsl:template match="g:sleep-time" mode="__call__">
+  <xsl:template match="g:sleep-time[../preceding-sibling::g:request]" mode="request">
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:value-of select="concat('grinder.sleep(', ., ')')"/>
   </xsl:template>
 
-
-  <xsl:template match="g:query-string/g:parsed" mode="__call__">
-    <xsl:text>,</xsl:text>
-    <xsl:value-of select="helper:changeIndent(1)"/>
+  <!--  First sleep() for a page appears in the __call__ block. -->
+  <xsl:template match="g:sleep-time[not(../preceding-sibling::g:request)]" mode="__call__">
+    <xsl:value-of select="helper:newLine()"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:value-of select="concat('grinder.sleep(', ., ')')"/>
+  </xsl:template>
+
+  <xsl:template match="g:query-string/g:parsed" mode="request">
+    <xsl:text>,</xsl:text>
     <xsl:call-template name="tuple-list"/>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 
 
-  <xsl:template match="g:query-string/g:unparsed" mode="__call__">
+  <xsl:template match="g:query-string/g:unparsed" mode="request">
     <xsl:text> +</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -154,7 +190,7 @@ class TestRunner:
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:binary" mode="__call__">
+  <xsl:template match="g:body/g:binary" mode="request">
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -163,7 +199,7 @@ class TestRunner:
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:file" mode="__call__">
+  <xsl:template match="g:body/g:file" mode="request">
 
     <!-- Data file is read at top level. We provide a parameter here
     to disambiguate the POST call if per-request headers are
@@ -177,16 +213,13 @@ class TestRunner:
  </xsl:template>
 
 
-  <xsl:template match="g:body/g:form" mode="__call__">
+  <xsl:template match="g:body/g:form" mode="request">
     <xsl:text>,</xsl:text>
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:call-template name="tuple-list"/>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:string" mode="__call__">
+  <xsl:template match="g:body/g:string" mode="request">
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -194,8 +227,9 @@ class TestRunner:
     <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 
+  <xsl:template match="g:body/g:content-type" mode="request"/>
 
-  <xsl:template match="g:headers[node()]" mode="__call__">
+  <xsl:template match="g:headers[node()]" mode="request">
     <xsl:if test="not(../g:url/g:query-string/g:parsed|../g:body)">
       <!-- No keyword arguments for methods, insert dummy parameter. -->
       <xsl:text>, ()</xsl:text>
@@ -203,10 +237,7 @@ class TestRunner:
 
     <xsl:text>,</xsl:text>
 
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:call-template name="tuple-list"/>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 
   <xsl:template match="g:header|g:parameter|g:form-field" mode="tuple">
@@ -231,14 +262,16 @@ class TestRunner:
     <xsl:text>),</xsl:text>
   </xsl:template>
 
-  <xsl:template name="tuple-list" mode="__call__">
+  <xsl:template name="tuple-list">
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>(</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
 
     <xsl:apply-templates mode="tuple"/>
 
     <xsl:text> )</xsl:text>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
+    <xsl:value-of select="helper:changeIndent(-2)"/>
   </xsl:template>
 
   <xsl:template name="indent-tuple-entry">
@@ -251,7 +284,18 @@ class TestRunner:
     </xsl:choose>
   </xsl:template>
 
-  <!-- Ignore these nodes -->
-  <xsl:template match="g:body/g:content-type" mode="__call__"/>
+  <xsl:template name="indent">
+    <xsl:param name="characters" select="1"/>
+    <xsl:value-of select="substring('                      ', 0, $characters)"/>
+  </xsl:template>
+
+
+  <xsl:template match="text()|@*"/>
+  <xsl:template match="text()|@*" mode="__call__"/>
+  <xsl:template match="text()|@*" mode="file"/>
+  <xsl:template match="text()|@*" mode="page"/>
+  <xsl:template match="text()|@*" mode="pageDescription"/>
+  <xsl:template match="text()|@*" mode="request"/>
+  <xsl:template match="text()|@*" mode="TestRunner"/>
 
 </xsl:stylesheet>

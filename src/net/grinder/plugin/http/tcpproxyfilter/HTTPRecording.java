@@ -16,9 +16,8 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
-import net.grinder.plugin.http.xml.BaseURLType;
-import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.tools.tcpproxy.ConnectionDetails;
 
 
 /**
@@ -32,23 +31,18 @@ public interface HTTPRecording {
   /**
    * Add a new request to the recording.
    *
-   * @param request The request.
-   */
-  void addRequest(RequestType request);
-
-  /**
-   * Add a new base URL to the recording.
+   * <p>
+   * The "global information" (request ID, base URL ID, common headers, page
+   * etc.) is filled in by this method.
+   * </p>
    *
-   * @param baseURL The URL.
+   * @param connectionDetails
+   *          The connection used to make the request.
+   * @param request
+   *          The request as a disconnected element.
    */
-  void addBaseURL(BaseURLType baseURL);
-
-  /**
-   * Add new common headers to the recording.
-   *
-   * @param commonHeaders The headers.
-   */
-  void addCommonHeaders(CommonHeadersType commonHeaders);
+  void addRequest(ConnectionDetails connectionDetails,
+                  RequestType request);
 
   /**
    * Called when any response activity is detected. Because the test script
