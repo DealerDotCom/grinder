@@ -78,7 +78,7 @@
   <xs:complexType name="PageType">
     <xs:sequence>
       <xs:element name="request" type="tns:RequestType"
-        minOccurs="0" maxOccurs="unbounded"/>
+        minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="page-id" type="xs:NMTOKEN" />
   </xs:complexType>
