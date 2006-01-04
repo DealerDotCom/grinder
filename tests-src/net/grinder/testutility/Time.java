@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,7 @@ package net.grinder.testutility;
 
 /**
  * Abstract base class which times a method and returns whether it
- * exectuted within the given range.
+ * executed within the given range.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -37,14 +37,14 @@ public abstract class Time {
     m_expectedMin = expectedMin;
     m_expectedMax = expectedMax; // A bit of leeway.
   }
-  
+
   public abstract void doIt() throws Exception;
 
   public boolean run() throws Exception {
     final long then = System.currentTimeMillis();
     doIt();
     final long time = System.currentTimeMillis() - then;
-    
+
     return m_expectedMin <= time && m_expectedMax >= time;
   }
 }
