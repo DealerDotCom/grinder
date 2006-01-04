@@ -74,7 +74,6 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * TODO Instrument pages.
  * TODO Session key processing.
  * TODO Avoid Jython 64K limit (does it still affect 2.2?)
- * TODO Page has >0 requests. Cope with 0 pages.
  *
  * @author Philip Aston
  * @author Bertrand Ave
@@ -356,7 +355,7 @@ public final class HTTPRequestFilter
             description = method + " " + element;
           }
           else {
-            description = method = " /";
+            description = method + " /";
           }
         }
         else {
