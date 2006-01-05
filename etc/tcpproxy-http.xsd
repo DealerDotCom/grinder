@@ -181,7 +181,8 @@
 
   <xs:complexType name="BodyType">
     <xs:sequence>
-      <xs:element name="content-type" type="xs:normalizedString" />
+      <xs:element name="content-type" type="xs:normalizedString"
+        minOccurs="0"/>
       <xs:choice>
         <xs:element name="binary" type="tns:BinaryBodyType" />
         <xs:element name="file" type="tns:FileNameBodyType" />
