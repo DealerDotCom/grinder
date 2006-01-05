@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -190,7 +191,7 @@ public final class HTTPRequestFilter
    * @param connectionDetails a <code>ConnectionDetails</code> value
    */
   public void connectionOpened(ConnectionDetails connectionDetails) {
-    m_handlers.getHandler(connectionDetails);
+    m_handlers.openHandler(connectionDetails);
   }
 
   /**
@@ -576,31 +577,28 @@ public final class HTTPRequestFilter
    * Map of {@link ConnectionDetails} to handlers.
    */
   private class HandlerMap {
-    private final Map m_handlers = new HashMap();
+    private final Map m_handlers = Collections.synchronizedMap(new HashMap());
+
+    public void openHandler(ConnectionDetails connectionDetails) {
+      final Handler newHandler = new Handler(connectionDetails);
+
+      final Handler existing =
+        (Handler)m_handlers.put(connectionDetails, newHandler);
+
+      if (existing != null) {
+        throw new IllegalArgumentException(
+          "Connection " + connectionDetails + " already opened");
+      }
+    }
 
     public Handler getHandler(ConnectionDetails connectionDetails) {
-      synchronized (m_handlers) {
-        final Handler oldHandler =
-          (Handler)m_handlers.get(connectionDetails);
-
-        if (oldHandler != null) {
-          return oldHandler;
-        }
-        else {
-          final Handler newHandler = new Handler(connectionDetails);
-          m_handlers.put(connectionDetails, newHandler);
-          return newHandler;
-        }
-      }
+      return (Handler)m_handlers.get(connectionDetails);
     }
 
     public void closeHandler(ConnectionDetails connectionDetails) {
 
-      final Handler handler;
-
-      synchronized (m_handlers) {
-        handler = (Handler)m_handlers.remove(connectionDetails);
-      }
+      final Handler handler =
+        (Handler)m_handlers.remove(connectionDetails);
 
       if (handler == null) {
         throw new IllegalArgumentException(
