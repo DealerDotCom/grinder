@@ -36,7 +36,7 @@ import org.apache.xmlbeans.XmlOptions;
  * @author Philip Aston
  * @version $Revision$
  */
-public class XMLBeansUtilities extends Assert {
+public class XMLBeansUtilities {
   public static final void validate(XmlObject o) {
     final ArrayList errors = new ArrayList();
 
@@ -55,7 +55,7 @@ public class XMLBeansUtilities extends Assert {
       message.append("in \n");
       message.append(o);
 
-      fail(message.toString());
+      Assert.fail(message.toString());
     }
   }
 }
