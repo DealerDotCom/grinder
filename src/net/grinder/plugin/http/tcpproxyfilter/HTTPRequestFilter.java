@@ -592,7 +592,14 @@ public final class HTTPRequestFilter
     }
 
     public Handler getHandler(ConnectionDetails connectionDetails) {
-      return (Handler)m_handlers.get(connectionDetails);
+      final Handler handler = (Handler)m_handlers.get(connectionDetails);
+
+      if (handler == null) {
+        throw new IllegalArgumentException(
+          "Unknown connection " + connectionDetails);
+      }
+
+      return handler;
     }
 
     public void closeHandler(ConnectionDetails connectionDetails) {
