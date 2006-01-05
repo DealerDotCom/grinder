@@ -371,12 +371,4 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       }
     }
   }
-
-  private static final class IntGenerator {
-    private int m_value = -1;
-
-    public synchronized int next() {
-      return ++m_value;
-    }
-  }
 }
