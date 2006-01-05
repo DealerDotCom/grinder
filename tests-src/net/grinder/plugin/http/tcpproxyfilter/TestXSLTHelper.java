@@ -21,6 +21,8 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import java.text.ParseException;
+
 import HTTPClient.Codecs;
 import junit.framework.TestCase;
 
@@ -95,5 +97,30 @@ public class TestXSLTHelper extends TestCase {
       "      0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, \n" +
       "      0x28, 0x29, 0x2A, 0x2B, )",
       helper.base64ToPython(new String(Codecs.base64Encode(bytes1))));
+  }
+
+  public void testFormatTime() throws Exception {
+    final XSLTHelper helper =  new XSLTHelper();
+
+    try {
+      helper.formatTime("abc");
+      fail("Expected ParseException");
+    }
+    catch (ParseException e) {
+    }
+
+    final String s = helper.formatTime("2005-01-04T18:30:00");
+    assertNotNull(s);
+  }
+
+  public void testQuoteForPython() throws Exception {
+    final XSLTHelper helper =  new XSLTHelper();
+
+    assertEquals("None", helper.quoteForPython(null));
+    assertEquals("''", helper.quoteForPython(""));
+    assertEquals("'foo'", helper.quoteForPython("foo"));
+    assertEquals("'foo\\''", helper.quoteForPython("foo'"));
+    assertEquals("' \\\\ '", helper.quoteForPython(" \\ "));
+    assertEquals("'''foo \n bah'''", helper.quoteForPython("foo \n bah"));
   }
 }
