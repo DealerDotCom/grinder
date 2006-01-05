@@ -22,6 +22,7 @@
 package net.grinder.plugin.http.tcpproxyfilter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -83,6 +84,10 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
 public final class HTTPRequestFilter
   implements TCPProxyFilter, Disposable {
 
+  /** Package scope for unit tests. */
+  static final String OUTPUT_DIRECTORY_PROPERTY =
+    "HTTPRequestFilter.outputDirectory";
+
   /**
    * Headers which we record.
    */
@@ -96,6 +101,7 @@ public final class HTTPRequestFilter
       "Content-Type",
       "Content-type", // Common misspelling.
       "If-Modified-Since",
+      "If-None-Match",
       "Referer", // Deliberate misspelling to match specification.
       "User-Agent",
     }
@@ -116,6 +122,8 @@ public final class HTTPRequestFilter
   private final Pattern m_lastPathElementPathPattern;
 
   private final HandlerMap m_handlers = new HandlerMap();
+
+  private final IntGenerator m_bodyFileIDGenerator = new IntGenerator();
 
   /**
    * Constructor.
@@ -149,11 +157,11 @@ public final class HTTPRequestFilter
       Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     m_headerPattern = Pattern.compile(
-      "^([^:]*)[ \\t]*:[ \\t]*(.*?)\\r?\\n",
+      "^([^:\\r\\n]*)[ \\t]*:[ \\t]*(.*?)\\r?\\n",
       Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     m_basicAuthorizationHeaderPattern = Pattern.compile(
-      "^Authorization[ \\t]*:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?\\n",
+      "^Authorization[ \\t]*:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*?\\r?\\n",
       Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     // Ignore maximum amount of stuff that's not a '?' or ';' followed by
@@ -360,7 +368,7 @@ public final class HTTPRequestFilter
           }
         }
         else {
-          description = method + " " + m_requestXML.getRequestId();
+          description = method + " " + path;
         }
 
         m_requestXML.setDescription(description);
@@ -493,23 +501,32 @@ public final class HTTPRequestFilter
 
         public void record() {
           final BodyType body = m_requestXML.addNewBody();
-          body.setContentType(m_contentType);
+
+          if (m_contentType != null) {
+            body.setContentType(m_contentType);
+          }
 
           final byte[] bytes = m_entityBodyByteStream.toByteArray();
 
           if (bytes.length > 0x4000) {
             // Large amount of data, use a file.
             final String fileName =
-              "http-data-" + m_requestXML.getRequestId() + ".dat";
+              "http-data-" + m_bodyFileIDGenerator.next() + ".dat";
+
+            // Output directory is not an user option, but unit tests
+            // need to control it.
+            final File file = new File(
+              System.getProperty(OUTPUT_DIRECTORY_PROPERTY, null),
+              fileName);
 
             try {
               final FileOutputStream dataStream =
-                new FileOutputStream(fileName);
+                new FileOutputStream(file);
               dataStream.write(bytes, 0, bytes.length);
               dataStream.close();
             }
             catch (IOException e) {
-              m_logger.error("Failed to write body data to '" + fileName + "'");
+              m_logger.error("Failed to write body data to '" + file + "'");
               e.printStackTrace(m_logger.getErrorLogWriter());
             }
 
