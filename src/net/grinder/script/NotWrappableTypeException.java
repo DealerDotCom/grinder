@@ -39,14 +39,4 @@ public class NotWrappableTypeException extends GrinderException {
   public NotWrappableTypeException(String s) {
     super(s);
   }
-
-  /**
-   * Creates a new <code>NotWrappableTypeException</code> instance.
-   *
-   * @param s Exception message.
-   * @param t Nested exception.
-   */
-  public NotWrappableTypeException(String s, Throwable t) {
-    super(s, t);
-  }
 }

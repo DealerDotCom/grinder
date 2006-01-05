@@ -41,14 +41,4 @@ public class InvalidContextException extends GrinderException {
   public InvalidContextException(String s) {
     super(s);
   }
-
-  /**
-   * Creates a new <code>InvalidContextException</code> instance.
-   *
-   * @param s Exception message.
-   * @param t Nested exception.
-   */
-  public InvalidContextException(String s, Throwable t) {
-    super(s, t);
-  }
 }
