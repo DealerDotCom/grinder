@@ -37,7 +37,6 @@ import org.picocontainer.Disposable;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
-import net.grinder.plugin.http.xml.AuthorizationHeaderType;
 import net.grinder.plugin.http.xml.BaseURLType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.HTTPRecordingType;
@@ -193,7 +192,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
         final String existing = (String)defaultHeaders.put(name, value);
 
-        if (existing != null && !value.equals(existing)) {
+        if (existing != null && !value.equals(existing) ||
+            existing == null && i > 0) {
           defaultHeaders.remove(name);
           notDefaultHeaders.add(name);
         }
@@ -299,11 +299,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
             newRequestHeaders.addNewHeader().set(header);
           }
         }
-        else if (children[i] instanceof AuthorizationHeaderType) {
-          newRequestHeaders.addNewAuthorization().set(children[i]);
-        }
         else {
-          assert false;
+          newRequestHeaders.addNewAuthorization().set(children[i]);
         }
       }
 
