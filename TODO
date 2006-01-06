@@ -113,6 +113,9 @@ Task: Distribution file filter should be dynamically settable.
 Note: Klaus-Peter Berg is currently working on a major refactoring of
 the console.
 
+*** Stop the recording when last thread terminates
+Requested by Jürgen Weber
+
 *** Refactoring
 
 Consider moving overwrite / save before close / ... handling to the
