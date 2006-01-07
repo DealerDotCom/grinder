@@ -51,16 +51,18 @@ public class TestTestData extends TestCase {
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
     final TestData testData1 =
-      new TestData(null, threadContextLocator, statisticsSetFactory, test1);
+      new TestData(
+        null, threadContextLocator, statisticsSetFactory.create(), test1);
     assertEquals(test1, testData1.getTest());
-    assertNotNull(testData1.getStatistics());
+    assertNotNull(testData1.getStatisticsSet());
 
     final Test test2 = new StubTest(-33, "");
 
     final TestData testData2 =
-      new TestData(null, threadContextLocator, statisticsSetFactory, test2);
+      new TestData(
+        null, threadContextLocator, statisticsSetFactory.create(), test2);
     assertEquals(test2, testData2.getTest());
-    assertNotNull(testData2.getStatistics());
+    assertNotNull(testData2.getStatisticsSet());
   }
 
   public void testDispatch() throws Exception {
@@ -73,7 +75,7 @@ public class TestTestData extends TestCase {
 
     final Test test = new StubTest(2, "A description");
     final TestData testData =
-      new TestData(null, threadContextLocator, statisticsSetFactory, test);
+      new TestData(null, threadContextLocator, statisticsSetFactory.create(), test);
 
     final Dispatcher.Invokeable invokeable =
       (Dispatcher.Invokeable)
@@ -137,7 +139,7 @@ public class TestTestData extends TestCase {
       (ScriptEngine)scriptEngineStubFactory.getStub();
 
     final TestData testData =
-      new TestData(scriptEngine, null, statisticsSetFactory, null);
+      new TestData(scriptEngine, null, statisticsSetFactory.create(), null);
 
     final Object original = new Object();
 

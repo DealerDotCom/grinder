@@ -26,7 +26,6 @@ import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.StatisticsSet;
-import net.grinder.statistics.StatisticsSetFactory;
 
 
 /**
@@ -49,24 +48,24 @@ final class TestData
    * Cumulative statistics for our test that haven't yet been set to
    * the console.
    */
-  private final StatisticsSet m_statistics;
+  private final StatisticsSet m_statisticsSet;
 
   TestData(ScriptEngine scriptEngine,
            ThreadContextLocator threadContextLocator,
-           StatisticsSetFactory statisticsSetFactory,
+           StatisticsSet statisticsSet,
            Test testDefinition) {
     m_scriptEngine = scriptEngine;
     m_threadContextLocator = threadContextLocator;
     m_test = testDefinition;
-    m_statistics = statisticsSetFactory.create();
+    m_statisticsSet = statisticsSet;
   }
 
   Test getTest() {
     return m_test;
   }
 
-  StatisticsSet getStatistics() {
-    return m_statistics;
+  StatisticsSet getStatisticsSet() {
+    return m_statisticsSet;
   }
 
   public Object dispatch(Invokeable invokeable) throws EngineException {

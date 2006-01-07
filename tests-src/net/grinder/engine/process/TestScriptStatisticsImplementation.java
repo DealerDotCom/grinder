@@ -134,7 +134,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
     final Test test = new StubTest(1, "A description");
     final TestData testData =
       new TestData(null, m_threadContextLocator,
-                   statisticsServices.getStatisticsSetFactory(), test);
+                   statisticsServices.getStatisticsSetFactory().create(), test);
 
     scriptStatisticsImplementation.beginRun();
 
@@ -215,7 +215,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
     final Test test = new StubTest(22, "A description");
     final TestData testData =
       new TestData(null, m_threadContextLocator,
-                   statisticsServices.getStatisticsSetFactory(), test);
+                   statisticsServices.getStatisticsSetFactory().create(), test);
 
     scriptStatisticsImplementation.beginRun();
 
@@ -294,7 +294,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
     final Test test = new StubTest(22, "A description");
     final TestData testData =
       new TestData(null, m_threadContextLocator,
-                   statisticsServices.getStatisticsSetFactory(), test);
+                   statisticsServices.getStatisticsSetFactory().create(), test);
 
     scriptStatisticsImplementation.beginRun();
 

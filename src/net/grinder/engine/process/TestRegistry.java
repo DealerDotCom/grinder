@@ -124,11 +124,11 @@ public final class TestRegistry {
 
       newTestData = new TestData(m_scriptEngine,
                                  m_threadContextLocator,
-                                 m_statisticsSetFactory,
+                                 m_statisticsSetFactory.create(),
                                  test);
 
       m_testMap.put(test, newTestData);
-      m_testStatisticsMap.put(test, newTestData.getStatistics());
+      m_testStatisticsMap.put(test, newTestData.getStatisticsSet());
 
       if (m_newTests == null) {
         m_newTests = new ArrayList();

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -63,7 +63,7 @@ public interface PluginThreadContext {
    * to {@link #stopTimedSection} for a given test wrapping have any effect;
    * other calls the plug-in may make are ignored. This means that the
    * plugin can discard its own overhead (and the Jython invocation
-   * overhead) for single incovations, but composite wrappings must
+   * overhead) for single invocations, but composite wrappings must
    * pay timing penalty for their glue.
    *
    * @see #stopTimedSection

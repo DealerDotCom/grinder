@@ -290,7 +290,7 @@ final class ScriptStatisticsImplementation
 
       m_dataWriter.println(m_buffer);
 
-      m_currentTestData.getStatistics().add(m_statistics);
+      m_currentTestData.getStatisticsSet().add(m_statistics);
       m_currentTestData = null;
     }
   }
