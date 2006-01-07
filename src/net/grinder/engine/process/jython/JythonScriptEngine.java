@@ -487,8 +487,9 @@ public final class JythonScriptEngine implements ScriptEngine {
    * A dispatcher that translates return types and exceptions from the script.
    *
    * <p>
-   * This dispatcher also protects against nested dispatches by the same thread.
-   * This is to work around a problem with our PyInstance instrumentation and
+   * The delegate {@link Dispatcher} can be safely invoked multiple times for
+   * the same test and thread (only the outer invocation will be recorded).
+   * Consequently there is no problem with our PyInstance instrumentation and
    * Jython 1.1, where Jython can make multiple calls through our instrumented
    * invoke methods.
    * </p>
@@ -496,31 +497,13 @@ public final class JythonScriptEngine implements ScriptEngine {
   static final class PyDispatcher {
     private final Dispatcher m_delegate;
 
-    private final ThreadLocal m_dispatchProtection = new ThreadLocal() {
-      public Object initialValue() { return new DispatchProtection(); }
-    };
-
     private PyDispatcher(Dispatcher delegate) {
       m_delegate = delegate;
     }
 
     public PyObject dispatch(Dispatcher.Invokeable invokeable) {
       try {
-        final DispatchProtection dispatchProtection =
-          (DispatchProtection)m_dispatchProtection.get();
-
-        try {
-          if (!dispatchProtection.checkAndSet()) {
-            return (PyObject)m_delegate.dispatch(invokeable);
-          }
-          else {
-            // Already in a dispatch.
-            return (PyObject)invokeable.call();
-          }
-        }
-        finally {
-          dispatchProtection.reset();
-        }
+        return (PyObject)m_delegate.dispatch(invokeable);
       }
       catch (UncheckedGrinderException e) {
         // Don't translate our unchecked exceptions.
@@ -528,20 +511,6 @@ public final class JythonScriptEngine implements ScriptEngine {
       }
       catch (Exception e) {
         throw Py.JavaError(e);
-      }
-    }
-
-    private class DispatchProtection {
-      private boolean m_inDispatch;
-
-      public boolean checkAndSet() {
-        final boolean result = m_inDispatch;
-        m_inDispatch = true;
-        return result;
-      }
-
-      public void reset() {
-        m_inDispatch = false;
       }
     }
   }

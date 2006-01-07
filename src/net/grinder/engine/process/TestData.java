@@ -50,6 +50,10 @@ final class TestData
    */
   private final StatisticsSet m_statisticsSet;
 
+  private final ThreadLocal m_dispatchProtection = new ThreadLocal() {
+    public Object initialValue() { return new DispatchProtection(); }
+  };
+
   TestData(ScriptEngine scriptEngine,
            ThreadContextLocator threadContextLocator,
            StatisticsSet statisticsSet,
@@ -69,13 +73,29 @@ final class TestData
   }
 
   public Object dispatch(Invokeable invokeable) throws EngineException {
-    final ThreadContext threadContext = m_threadContextLocator.get();
+    final DispatchProtection dispatchProtection =
+      (DispatchProtection)m_dispatchProtection.get();
 
-    if (threadContext == null) {
-      throw new EngineException("Only Worker Threads can invoke tests");
+    try {
+      if (!dispatchProtection.checkAndSet()) {
+        final ThreadContext threadContext = m_threadContextLocator.get();
+
+        if (threadContext == null) {
+          throw new EngineException("Only Worker Threads can invoke tests");
+        }
+
+        return threadContext.invokeTest(this, invokeable);
+
+        //return new Dispatcher().dispatch(invokeable);
+      }
+      else {
+        // Already in a dispatch.
+        return invokeable.call();
+      }
     }
-
-    return threadContext.invokeTest(this, invokeable);
+    finally {
+      dispatchProtection.reset();
+    }
   }
 
   /**
@@ -88,4 +108,82 @@ final class TestData
   public Object createProxy(Object o) throws NotWrappableTypeException {
     return m_scriptEngine.createInstrumentedProxy(getTest(), this, o);
   }
+
+    // TODO, rename, comment
+  private class DispatchProtection {
+    private boolean m_inDispatch;
+
+    public boolean checkAndSet() {
+      final boolean result = m_inDispatch;
+      m_inDispatch = true;
+      return result;
+    }
+
+    public void reset() {
+      m_inDispatch = false;
+    }
+  }
+
+  /* TODO
+  private class Dispatcher {
+
+    public Object dispatch(Invokeable invokeable) throws ShutdownException {
+      final ThreadContext threadContext = m_threadContextLocator.get();
+
+      if (threadContext == null) {
+        throw new EngineException("Only Worker Threads can invoke tests");
+      }
+
+      final ThreadLogger threadLogger = threadContext.getThreadLogger();
+
+      if (m_processContext.getShutdown()) {
+        throw new ShutdownException("Process has been shutdown");
+      }
+
+      if (threadLogger.getCurrentTestNumber() != -1) {
+        // Originally we threw a ReentrantInvocationException here.
+        // However, this caused problems when wrapping Jython objects
+        // that call themselves; in our scheme the wrapper shares a
+        // dictionary so self = self and we recurse up our own.
+        return invokeable.call();
+      }
+
+      threadLogger.setCurrentTestNumber(testData.getTest().getNumber());
+
+      m_scriptStatistics.beginTest(testData, getRunNumber());
+
+      try {
+        startTimer();
+
+        final Object testResult;
+
+        try {
+          testResult = invokeable.call();
+        }
+        finally {
+          stopTimer();
+        }
+
+        return testResult;
+      }
+      catch (org.python.core.PyException e) {
+        // Always mark as an error if the test threw an exception.
+        m_scriptStatistics.setSuccessNoChecks(false);
+
+        // We don't log the exception. If the script doesn't handle the
+        // exception it will be logged when the run is aborted,
+        // otherwise we assume the script writer knows what they're
+        // doing.
+        throw e;
+      }
+      finally {
+        m_scriptStatistics.endTest(
+          m_startTime - m_processContext.getExecutionStartTime(),
+          m_elapsedTime);
+
+        threadLogger.setCurrentTestNumber(-1);
+      }
+    }
+  }
+      */
 }
