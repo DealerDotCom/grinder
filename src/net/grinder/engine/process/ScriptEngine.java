@@ -129,12 +129,12 @@ public interface ScriptEngine {
      * <p>If called multiple times for the same test and thread, only the outer
      * invocation should be recorded.</p>
      */
-    Object dispatch(Invokeable invokeable) throws EngineException;
+    Object dispatch(Callable callable) throws EngineException;
 
     /**
      * Interface for things that can be called.
      */
-    interface Invokeable {
+    interface Callable {
       Object call();
     }
   }

@@ -34,7 +34,7 @@ import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.ScriptEngine.WorkerRunnable;
-import net.grinder.engine.process.ScriptEngine.Dispatcher.Invokeable;
+import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
 import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Grinder.ScriptContext;
@@ -340,7 +340,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
         .createInstrumentedProxy(m_test, m_dispatcher, pyFunction);
     final PyObject result = pyFunctionProxy.invoke("__call__");
     assertEquals(new Integer(1), result.__tojava__(Integer.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, pyFunctionProxy.__getattr__("__test__").__tojava__(
       Test.class));
@@ -352,13 +352,13 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final PyObject result2 =
       pyFunctionProxy2.invoke("__call__", m_two, m_three);
     assertEquals(m_six, result2);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result3 =
       pyFunctionProxy2.invoke("__call__", new PyObject[] { m_two, m_three});
     assertEquals(m_six, result3);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     // From Jython.
@@ -367,7 +367,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_interpreter.exec("result4 = proxy()");
     final PyObject result4 = m_interpreter.get("result4");
     assertEquals(new Integer(1), result4.__tojava__(Integer.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -388,7 +388,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
         .createInstrumentedProxy(m_test, m_dispatcher, pyInstance);
     final PyObject result1 = pyInstanceProxy.invoke("two");
     assertEquals(new Integer(2), result1.__tojava__(Integer.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, pyInstanceProxy.__getattr__("__test__").__tojava__(
       Test.class));
@@ -396,24 +396,24 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     final PyObject result2 = pyInstanceProxy.invoke("identity", m_one);
     assertSame(m_one, result2);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result3 = pyInstanceProxy.invoke("sum", m_one, m_two);
     assertEquals(m_three, result3);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result4 = pyInstanceProxy.invoke("sum3", new PyObject[] {
         m_one, m_two, m_three });
     assertEquals(m_six, result4);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result5 = pyInstanceProxy.invoke("sum", new PyObject[] {
         m_one, m_two }, new String[] { "x", "y" });
     assertEquals(m_three, result5);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     // From Jython.
@@ -422,7 +422,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_interpreter.exec("result6 = proxy.sum(2, 4)");
     final PyObject result6 = m_interpreter.get("result6");
     assertEquals(m_six, result6);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
 
     // Under Jython 2.1, our instrumentation causes the dispatcher to
     // be invoked more than once in this case. This isn't a problem as the
@@ -448,7 +448,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
         .createInstrumentedProxy(m_test, m_dispatcher, pyMethod);
     final PyObject result = pyMethodProxy.invoke("__call__", pyInstance);
     assertEquals(new Integer(2), result.__tojava__(Integer.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, pyMethodProxy.__getattr__("__test__").__tojava__(
       Test.class));
@@ -460,7 +460,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_interpreter.exec("result2 = proxy(x)");
     final PyObject result2 = m_interpreter.get("result2");
     assertEquals(new Integer(2), result2.__tojava__(Integer.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -474,7 +474,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
         .createInstrumentedProxy(m_test, m_dispatcher, pyJava);
     final PyObject result = pyJavaProxy.invoke("getClass");
     assertEquals(Random.class, result.__tojava__(Class.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test,
                pyJavaProxy.__getattr__("__test__").__tojava__(Test.class));
@@ -486,7 +486,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_interpreter.exec("result2 = proxy.getClass()");
     final PyObject result2 = m_interpreter.get("result2");
     assertEquals(Random.class, result2.__tojava__(Class.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -503,7 +503,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
         .createInstrumentedProxy(m_test, m_dispatcher, pyJavaMethod);
     final PyObject result = pyJavaMethodProxy.__call__(pyJava);
     assertTrue(result.__tojava__(Object.class) instanceof Integer);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, pyJavaMethodProxy.__getattr__("__test__").__tojava__(
       Test.class));
@@ -515,7 +515,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_interpreter.exec("result2 = proxy(x)");
     final PyObject result2 = m_interpreter.get("result2");
     assertTrue(result2.__tojava__(Object.class) instanceof Integer);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -536,7 +536,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
         .createInstrumentedProxy(m_test, m_dispatcher, pyProxy);
     final PyObject result = pyProxyProxy.invoke("one");
     assertEquals(new Integer(1), result.__tojava__(Integer.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, pyProxyProxy.__getattr__("__test__")
         .__tojava__(Test.class));
@@ -547,13 +547,13 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_interpreter.exec("result2 = proxy.one()");
     final PyObject result2 = m_interpreter.get("result2");
     assertEquals(m_one, result2);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("result3 = proxy.nextInt()");
     final PyObject result3 = m_interpreter.get("result3");
     assertNotNull(result3);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -568,30 +568,30 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final PyObject result = javaProxy.invoke("addOne", Py.java2py(new Integer(
       10)));
     assertEquals(new Integer(11), result.__tojava__(Integer.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, javaProxy.__getattr__("__test__").__tojava__(Test.class));
 
     final PyObject result1 = javaProxy.invoke("getClass");
     assertEquals(MyClass.class, result1.__tojava__(Class.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result2 = javaProxy.invoke("sum", m_one, m_two);
     assertEquals(m_three, result2);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result3 = javaProxy.invoke("sum3", new PyObject[] { m_one,
         m_two, m_three });
     assertEquals(m_six, result3);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result4 = javaProxy.invoke("sum", new PyObject[] { m_one,
         m_two }, Py.NoKeywords);
     assertEquals(m_three, result4);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     // From Jython.
@@ -600,19 +600,19 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_interpreter.exec("result5 = proxy.sum3(0, -29, 30)");
     final PyObject result5 = m_interpreter.get("result5");
     assertEquals(m_one, result5);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("result6 = proxy.sum(1, 1)");
     final PyObject result6 = m_interpreter.get("result6");
     assertEquals(m_two, result6);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("result7 = proxy.getClass()");
     final PyObject result7 = m_interpreter.get("result7");
     assertEquals(MyClass.class, result7.__tojava__(Class.class));
-    m_dispatcherStubFactory.assertSuccess("dispatch", Invokeable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -664,7 +664,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     }
 
     dispatcherStubFactory.assertException("dispatch",
-      new Class[] { Invokeable.class }, PyException.class);
+      new Class[] { Callable.class }, PyException.class);
 
     dispatcherStubFactory.assertNoMoreCalls();
 
@@ -701,8 +701,8 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       return (Dispatcher) getStub();
     }
 
-    public Object override_dispatch(Object proxy, Invokeable invokeable) {
-      return invokeable.call();
+    public Object override_dispatch(Object proxy, Callable callable) {
+      return callable.call();
     }
   }
 

@@ -46,7 +46,7 @@ class InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
 
   public final PyObject invoke(final String name) {
     return getDispatcher().dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
             .super.invoke(name);
@@ -57,7 +57,7 @@ class InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
 
   public final PyObject invoke(final String name, final PyObject arg1) {
     return getDispatcher().dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
             .super.invoke(name, arg1);
@@ -69,7 +69,7 @@ class InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
   public final PyObject invoke(final String name, final PyObject arg1,
                                final PyObject arg2) {
     return getDispatcher().dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
             .super.invoke(name, arg1, arg2);
@@ -80,7 +80,7 @@ class InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
 
   public final PyObject invoke(final String name, final PyObject[] args) {
     return getDispatcher().dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
             .super.invoke(name, args);
@@ -92,7 +92,7 @@ class InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
   public final PyObject invoke(final String name, final PyObject[] args,
                                final String[] keywords) {
     return getDispatcher().dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions
             .super.invoke(name, args, keywords);

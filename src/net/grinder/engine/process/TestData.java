@@ -72,7 +72,7 @@ final class TestData
     return m_statisticsSet;
   }
 
-  public Object dispatch(Invokeable invokeable) throws EngineException {
+  public Object dispatch(Callable callable) throws EngineException {
     final DispatchProtection dispatchProtection =
       (DispatchProtection)m_dispatchProtection.get();
 
@@ -84,13 +84,13 @@ final class TestData
           throw new EngineException("Only Worker Threads can invoke tests");
         }
 
-        return threadContext.invokeTest(this, invokeable);
+        return threadContext.invokeTest(this, callable);
 
         //return new Dispatcher().dispatch(invokeable);
       }
       else {
         // Already in a dispatch.
-        return invokeable.call();
+        return callable.call();
       }
     }
     finally {
@@ -127,7 +127,7 @@ final class TestData
   /* TODO
   private class Dispatcher {
 
-    public Object dispatch(Invokeable invokeable) throws ShutdownException {
+    public Object dispatch(Callable invokeable) throws ShutdownException {
       final ThreadContext threadContext = m_threadContextLocator.get();
 
       if (threadContext == null) {

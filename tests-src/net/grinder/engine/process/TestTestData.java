@@ -77,12 +77,12 @@ public class TestTestData extends TestCase {
     final TestData testData =
       new TestData(null, threadContextLocator, statisticsSetFactory.create(), test);
 
-    final Dispatcher.Invokeable invokeable =
-      (Dispatcher.Invokeable)
-      (new RandomStubFactory(Dispatcher.Invokeable.class)).getStub();
+    final Dispatcher.Callable callable =
+      (Dispatcher.Callable)
+      (new RandomStubFactory(Dispatcher.Callable.class)).getStub();
 
     try {
-      testData.dispatch(invokeable);
+      testData.dispatch(callable);
       fail("Expected EngineException");
     }
     catch (EngineException e) {
@@ -94,11 +94,10 @@ public class TestTestData extends TestCase {
     threadContextLocator.set(
       (ThreadContext)threadContextStubFactory.getStub());
 
-    final Object o = testData.dispatch(invokeable);
+    final Object o = testData.dispatch(callable);
 
     final CallData callData =
-      threadContextStubFactory.assertSuccess("invokeTest",
-                                             testData, invokeable);
+      threadContextStubFactory.assertSuccess("invokeTest", testData, callable);
     assertEquals(o, callData.getResult());
 
     threadContextStubFactory.assertNoMoreCalls();
@@ -106,7 +105,7 @@ public class TestTestData extends TestCase {
 
   /**
    * Creates dynamic ThreadContext stubs which implement invokeTest by
-   * delegating directly to the invokable. Must be public so
+   * delegating directly to the callable. Must be public so
    * override_ methods can be invoked.
    */
   public static class ThreadContextStubFactory extends RandomStubFactory {
@@ -119,9 +118,9 @@ public class TestTestData extends TestCase {
 
     public Object override_invokeTest(Object proxy,
                                       TestData testData,
-                                      Dispatcher.Invokeable invokeable) {
+                                      Dispatcher.Callable callable) {
       assertSame(m_expectedTestData, testData);
-      return invokeable.call();
+      return callable.call();
     }
 
     public ThreadContext getThreadContext() {

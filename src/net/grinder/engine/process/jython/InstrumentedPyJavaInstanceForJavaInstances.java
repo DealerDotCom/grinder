@@ -81,7 +81,7 @@ final class InstrumentedPyJavaInstanceForJavaInstances
 
   public PyObject invoke(final String name) {
     return getDispatcher().dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForJavaInstances.super.invoke(name);
         }
@@ -91,7 +91,7 @@ final class InstrumentedPyJavaInstanceForJavaInstances
 
   public PyObject invoke(final String name, final PyObject arg1) {
     return getDispatcher().dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForJavaInstances.super.invoke(
             name, arg1);
@@ -103,7 +103,7 @@ final class InstrumentedPyJavaInstanceForJavaInstances
   public PyObject invoke(final String name, final PyObject arg1,
                          final PyObject arg2) {
     return getDispatcher().dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForJavaInstances.super.invoke(
             name, arg1, arg2);

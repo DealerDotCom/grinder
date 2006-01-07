@@ -93,7 +93,7 @@ final class InstrumentedPyInstance extends ClonePyInstance {
 
   public PyObject invoke(final String name) {
     return m_dispatcher.dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyInstance.super.invoke(name);
         }
@@ -103,7 +103,7 @@ final class InstrumentedPyInstance extends ClonePyInstance {
 
   public PyObject invoke(final String name, final PyObject arg1) {
     return m_dispatcher.dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyInstance.super.invoke(name, arg1);
         }
@@ -114,7 +114,7 @@ final class InstrumentedPyInstance extends ClonePyInstance {
   public PyObject invoke(final String name, final PyObject arg1,
                          final PyObject arg2) {
     return m_dispatcher.dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyInstance.super.invoke(name, arg1, arg2);
         }

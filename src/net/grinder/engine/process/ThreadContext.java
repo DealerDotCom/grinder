@@ -46,7 +46,7 @@ interface ThreadContext {
 
   PluginThreadContext getPluginThreadContext();
 
-  Object invokeTest(TestData testData, TestData.Invokeable invokeable)
+  Object invokeTest(TestData testData, TestData.Callable callable)
     throws ShutdownException;
 
   SSLContextFactory getThreadSSLContextFactory();

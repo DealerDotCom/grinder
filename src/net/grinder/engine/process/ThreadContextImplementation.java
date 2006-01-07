@@ -128,7 +128,7 @@ final class ThreadContextImplementation
    * startTimer/stopTimer interface is part of the PluginThreadContext
    * interface.
    */
-  public Object invokeTest(TestData testData, TestData.Invokeable invokeable)
+  public Object invokeTest(TestData testData, TestData.Callable callable)
     throws ShutdownException {
 
     if (m_processContext.getShutdown()) {
@@ -140,7 +140,7 @@ final class ThreadContextImplementation
       // However, this caused problems when wrapping Jython objects
       // that call themselves; in our scheme the wrapper shares a
       // dictionary so self = self and we recurse up our own.
-      return invokeable.call();
+      return callable.call();
     }
 
     m_threadLogger.setCurrentTestNumber(testData.getTest().getNumber());
@@ -153,7 +153,7 @@ final class ThreadContextImplementation
       final Object testResult;
 
       try {
-        testResult = invokeable.call();
+        testResult = callable.call();
       }
       finally {
         stopTimer();

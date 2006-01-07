@@ -501,9 +501,9 @@ public final class JythonScriptEngine implements ScriptEngine {
       m_delegate = delegate;
     }
 
-    public PyObject dispatch(Dispatcher.Invokeable invokeable) {
+    public PyObject dispatch(Dispatcher.Callable callable) {
       try {
-        return (PyObject)m_delegate.dispatch(invokeable);
+        return (PyObject)m_delegate.dispatch(callable);
       }
       catch (UncheckedGrinderException e) {
         // Don't translate our unchecked exceptions.

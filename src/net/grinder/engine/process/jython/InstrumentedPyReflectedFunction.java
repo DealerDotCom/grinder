@@ -67,7 +67,7 @@ class InstrumentedPyReflectedFunction extends PyReflectedFunction {
                            final String[] keywords) {
 
     return m_dispatcher.dispatch(
-      new Dispatcher.Invokeable() {
+      new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyReflectedFunction.super.__call__(
             self, args, keywords);
