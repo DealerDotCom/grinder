@@ -80,7 +80,7 @@ what you want. Currently the conditionally built modules are:
   <property name="version" value="3.0-beta29"/> <!-- AND THE NEXT LINE -->
   <property name="cvs.tag" value="release_3_0_beta29"/>
 
-  <property name="year" value="2005"/>
+  <property name="year" value="2006"/>
 
   <!-- local settings -->
   <property file="etc/localpaths.properties"/>
