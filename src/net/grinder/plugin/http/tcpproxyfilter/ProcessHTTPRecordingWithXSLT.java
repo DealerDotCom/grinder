@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
+import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -69,6 +69,11 @@ public class ProcessHTTPRecordingWithXSLT
                                        Logger logger) {
     m_styleSheetInputStream = styleSheetInputStream;
     m_logger = logger;
+
+    // We set our own ErrorListener because the behaviour (e.g. logging to
+    // System.err) of the default ErrorListener depends on the JDK. This is not
+    // perfect (JDK 1.5.0_3 still logs some things to stderr).
+    m_transformerFactory.setErrorListener(new LoggingErrorListener());
   }
 
   /**
@@ -116,13 +121,8 @@ public class ProcessHTTPRecordingWithXSLT
 
       outputWriter.println();
     }
-    catch (TransformerConfigurationException e) {
-      m_logger.error("Failed to initialise XSLT transform");
-      e.printStackTrace(m_logger.getErrorLogWriter());
-    }
     catch (TransformerException e) {
-      m_logger.error("XSLT transformation failed");
-      e.printStackTrace(m_logger.getErrorLogWriter());
+      // ErrorListener will have logged.
     }
     finally {
       m_styleSheetInputStream.close();
@@ -154,6 +154,29 @@ public class ProcessHTTPRecordingWithXSLT
                          new PrintWriter(System.err)));
 
     processor.process(recording);
+  }
+
+  private final class LoggingErrorListener implements ErrorListener {
+
+    private void log(String context, TransformerException e)
+      throws TransformerException {
+      m_logger.error(context + ": " + e.getMessage());
+      e.printStackTrace(m_logger.getErrorLogWriter());
+    }
+
+    public void warning(TransformerException e) throws TransformerException {
+      log("Warning in XSLT transform", e);
+    }
+
+    public void error(TransformerException e) throws TransformerException {
+      log("Error in XSLT transform", e);
+      throw e;
+    }
+
+    public void fatalError(TransformerException e) throws TransformerException {
+      log("Fatal error in XSLT transform", e);
+      throw e;
+    }
   }
 
   /**
