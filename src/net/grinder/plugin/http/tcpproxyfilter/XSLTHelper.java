@@ -37,6 +37,13 @@ import HTTPClient.Codecs;
  * forget the call braces or you'll end up with a no-op.
  * </p>
  *
+ * <p>
+ * This class has static methods for consistent behaviour between JDK versions.
+ * With instance methods the XSLTC implementation in Java 5.0 needs the instance
+ * to be passed as the first argument, whereas the Xalan implementation in Java
+ * 1.5 does not.
+ * </p>
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -44,7 +51,10 @@ public final class XSLTHelper {
   private static DateFormat s_iso8601DateFormat =
     new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-  private int m_indentLevel;
+  private static int s_indentLevel;
+
+  private XSLTHelper() {
+  }
 
   /**
    * Convert an ISO 8601 date/time string to a more friendly, locale specific
@@ -57,7 +67,7 @@ public final class XSLTHelper {
    * @throws ParseException
    *           If the date could not be parsed.
    */
-  public String formatTime(String iso8601) throws ParseException {
+  public static String formatTime(String iso8601) throws ParseException {
     final Date date = s_iso8601DateFormat.parse(iso8601);
     return DateFormat.getDateTimeInstance().format(date);
   }
@@ -68,7 +78,7 @@ public final class XSLTHelper {
    * @param value The string.
    * @return The quoted string.
    */
-  public String quoteForPython(String value) {
+  public static String quoteForPython(String value) {
     if (value == null) {
       return "None";
     }
@@ -106,8 +116,8 @@ public final class XSLTHelper {
    * @see #incrementIndent()
    * @see #decrementIndent()
    */
-  public String indent() {
-    return "                ".substring(0, m_indentLevel * 2);
+  public static String indent() {
+    return "                ".substring(0, s_indentLevel * 2);
   }
 
   /**
@@ -115,7 +125,7 @@ public final class XSLTHelper {
    *
    * @return The string.
    */
-  public String newLine() {
+  public static String newLine() {
     return "\n";
   }
 
@@ -124,7 +134,7 @@ public final class XSLTHelper {
    *
    * @return The string.
    */
-  public String newLineAndIndent() {
+  public static String newLineAndIndent() {
     return newLine() + indent();
   }
 
@@ -134,8 +144,8 @@ public final class XSLTHelper {
    * @param indentChange Offset to indent level, positive or negative.
    * @return The string.
    */
-  public String changeIndent(int indentChange) {
-    m_indentLevel += indentChange;
+  public static String changeIndent(int indentChange) {
+    s_indentLevel += indentChange;
     return "";
   }
 
@@ -146,7 +156,7 @@ public final class XSLTHelper {
    * @param base64String The binary data.
    * @return The scriptlet.
    */
-  public String base64ToPython(String base64String) {
+  public static String base64ToPython(String base64String) {
 
     final byte[] base64 = base64String.getBytes();
 

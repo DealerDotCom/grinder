@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,20 +36,18 @@ import junit.framework.TestCase;
 public class TestXSLTHelper extends TestCase {
 
   public void testBase64ToPython() throws Exception {
-    final XSLTHelper helper =  new XSLTHelper();
-
     final byte[] bytes0 = { 0, -42, 1, 22, };
 
     assertEquals("( 0x00, 0xD6, 0x01, 0x16, )",
-                 helper.base64ToPython(
+                 XSLTHelper.base64ToPython(
                    new String(Codecs.base64Encode(bytes0))));
 
-    helper.changeIndent(2);
+    XSLTHelper.changeIndent(2);
 
     assertEquals("( 0x00, 0xD6, 0x01, 0x16, )",
-      helper.base64ToPython(new String(Codecs.base64Encode(bytes0))));
+      XSLTHelper.base64ToPython(new String(Codecs.base64Encode(bytes0))));
 
-    assertEquals("( )", helper.base64ToPython(""));
+    assertEquals("( )", XSLTHelper.base64ToPython(""));
 
     final byte[] bytes1 = new byte[300];
 
@@ -96,31 +94,27 @@ public class TestXSLTHelper extends TestCase {
       "      0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, \n" +
       "      0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, \n" +
       "      0x28, 0x29, 0x2A, 0x2B, )",
-      helper.base64ToPython(new String(Codecs.base64Encode(bytes1))));
+      XSLTHelper.base64ToPython(new String(Codecs.base64Encode(bytes1))));
   }
 
   public void testFormatTime() throws Exception {
-    final XSLTHelper helper =  new XSLTHelper();
-
     try {
-      helper.formatTime("abc");
+      XSLTHelper.formatTime("abc");
       fail("Expected ParseException");
     }
     catch (ParseException e) {
     }
 
-    final String s = helper.formatTime("2005-01-04T18:30:00");
+    final String s = XSLTHelper.formatTime("2005-01-04T18:30:00");
     assertNotNull(s);
   }
 
   public void testQuoteForPython() throws Exception {
-    final XSLTHelper helper =  new XSLTHelper();
-
-    assertEquals("None", helper.quoteForPython(null));
-    assertEquals("''", helper.quoteForPython(""));
-    assertEquals("'foo'", helper.quoteForPython("foo"));
-    assertEquals("'foo\\''", helper.quoteForPython("foo'"));
-    assertEquals("' \\\\ '", helper.quoteForPython(" \\ "));
-    assertEquals("'''foo \n bah'''", helper.quoteForPython("foo \n bah"));
+    assertEquals("None", XSLTHelper.quoteForPython(null));
+    assertEquals("''", XSLTHelper.quoteForPython(""));
+    assertEquals("'foo'", XSLTHelper.quoteForPython("foo"));
+    assertEquals("'foo\\''", XSLTHelper.quoteForPython("foo'"));
+    assertEquals("' \\\\ '", XSLTHelper.quoteForPython(" \\ "));
+    assertEquals("'''foo \n bah'''", XSLTHelper.quoteForPython("foo \n bah"));
   }
 }
