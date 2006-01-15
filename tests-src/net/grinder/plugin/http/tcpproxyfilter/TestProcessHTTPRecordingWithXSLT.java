@@ -33,6 +33,7 @@ import net.grinder.plugin.http.xml.HTTPRecordingType;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
+import net.grinder.testutility.RedirectStandardStreams;
 import net.grinder.util.StreamCopier;
 
 
@@ -155,7 +156,12 @@ public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
     final HttpRecordingDocument emptyDocument =
       HttpRecordingDocument.Factory.newInstance();
 
-    processor.process(emptyDocument);
+    // Redirect streams, because XSLTC still chucks some stuff out to stderr.
+    new RedirectStandardStreams() {
+      protected void runWithRedirectedStreams() throws Exception {
+        processor.process(emptyDocument);
+    }}.run();
+
 
     AssertUtilities.assertContains(
       (String)
