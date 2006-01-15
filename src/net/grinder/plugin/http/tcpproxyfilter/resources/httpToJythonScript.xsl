@@ -10,6 +10,7 @@
 
 
   <xsl:template match="g:http-recording">
+    <xsl:value-of select="helper:resetIndent()"/>
     <xsl:value-of select="concat('# ', g:metadata/g:version)"/>
 
     <xsl:text>

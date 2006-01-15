@@ -35,6 +35,10 @@ import junit.framework.TestCase;
  */
 public class TestXSLTHelper extends TestCase {
 
+  protected void setUp() throws Exception {
+    XSLTHelper.resetIndent();
+  }
+
   public void testBase64ToPython() throws Exception {
     final byte[] bytes0 = { 0, -42, 1, 22, };
 

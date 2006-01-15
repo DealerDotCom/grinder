@@ -142,10 +142,21 @@ public final class XSLTHelper {
    * Change the indent level.
    *
    * @param indentChange Offset to indent level, positive or negative.
-   * @return The string.
+   * @return An empty string.
    */
   public static String changeIndent(int indentChange) {
     s_indentLevel += indentChange;
+    return "";
+  }
+
+
+  /**
+   * Reset the indent level.
+   *
+   * @return An empty string.
+   */
+  public static String resetIndent() {
+    s_indentLevel = 0;
     return "";
   }
 
