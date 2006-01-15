@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,7 +32,6 @@ import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.QueuedSender;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
-import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
@@ -52,6 +51,11 @@ import net.grinder.util.Sleeper;
  * @version $Revision$
  */
 public class TestScriptContextImplementation extends TestCase {
+
+  private final RandomStubFactory m_threadContextStubFactory =
+    new RandomStubFactory(ThreadContext.class);
+  private final ThreadContext m_threadContext =
+    (ThreadContext)m_threadContextStubFactory.getStub();
 
   public TestScriptContextImplementation(String name) {
     super(name);
@@ -80,19 +84,15 @@ public class TestScriptContextImplementation extends TestCase {
     final int runNumber = 3;
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
-    final ThreadContextStubFactory threadContextStubFactory =
-      new ThreadContextStubFactory();
-    threadContextLocator.set(threadContextStubFactory.getThreadContext());
+    threadContextLocator.set(m_threadContext);
 
-    final PluginThreadContextStubFactory pluginContextStubFactory =
-      new PluginThreadContextStubFactory(threadID, runNumber);
-    threadContextStubFactory.setPluginThreadContext(
-      pluginContextStubFactory.getPluginThreadContext());
+    m_threadContextStubFactory.setResult("getThreadID", new Integer(threadID));
+    m_threadContextStubFactory.setResult("getRunNumber", new Integer(runNumber));
 
     final RandomStubFactory statisticsStubFactory =
       new RandomStubFactory(Statistics.class);
     final Statistics statistics = (Statistics)statisticsStubFactory.getStub();
-    threadContextStubFactory.setScriptStatistics(statistics);
+    m_threadContextStubFactory.setResult("getScriptStatistics", statistics);
 
     final Sleeper sleeper = new Sleeper(1, 0, logger);
 
@@ -164,9 +164,7 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
-    final ThreadContextStubFactory threadContextStubFactory =
-      new ThreadContextStubFactory();
-    threadContextLocator.set(threadContextStubFactory.getThreadContext());
+    threadContextLocator.set(m_threadContext);
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
@@ -212,66 +210,5 @@ public class TestScriptContextImplementation extends TestCase {
     final ExpressionView[] detailExpressionViews =
       detailStatisticsView.getExpressionViews();
     assertTrue(Arrays.asList(detailExpressionViews).contains(expressionView));
-  }
-
-  /**
-   * Must be public so that override_ methods can be called
-   * externally.
-   */
-  public static class ThreadContextStubFactory extends RandomStubFactory {
-
-    private PluginThreadContext m_pluginThreadContext;
-    private Statistics m_scriptStatistics;
-
-    ThreadContextStubFactory() {
-      super(ThreadContext.class);
-    }
-
-    final ThreadContext getThreadContext() {
-      return (ThreadContext)getStub();
-    }
-
-    public final PluginThreadContext override_getPluginThreadContext(
-      Object proxy) {
-      return m_pluginThreadContext;
-    }
-
-    final void setPluginThreadContext(
-      PluginThreadContext pluginThreadContext) {
-      m_pluginThreadContext = pluginThreadContext;
-    }
-
-    public final Statistics override_getScriptStatistics(Object proxy) {
-      return m_scriptStatistics;
-    }
-
-    final void setScriptStatistics(Statistics scriptStatistics) {
-      m_scriptStatistics = scriptStatistics;
-    }
-  }
-
-  public static class PluginThreadContextStubFactory
-    extends RandomStubFactory {
-
-    private final int m_threadID;
-    private final int m_runNumber;
-
-    public PluginThreadContextStubFactory(int threadID, int runNumber) {
-      super(PluginThreadContext.class);
-      m_threadID = threadID;
-      m_runNumber = runNumber;
-    }
-
-    public final PluginThreadContext getPluginThreadContext() {
-      return (PluginThreadContext)getStub();
-    }
-
-    public int override_getThreadID(Object proxy) {
-      return m_threadID;
-    }
-
-    public int override_getRunNumber(Object proxy) {
-      return m_runNumber;
-    }
   }
 }

@@ -1,17 +1,31 @@
 The Grinder 3.0-beta29 (Not yet released)
 -----------------------------------------
 
+  Nested Tests are supported. That is, you can now use a Test to
+  instrument script code that calls things wrapped by other Tests.
+
   New implementation of the HTTPPlugin TCPProxy filter. Key new
   features over the previous filter:
    - Records to a single script.
    - Basic Authorization is recorded.
    - Modular implementation based on an XSLT style sheet.
+   - Requests are grouped together into pages, using simple rules that
+     guess the resources belonging to a page based on the resource type.
+     Pages are instrumented as separate tests.
 
   Changes to net.grinder.plugin.http.HTTPRequest:
    - Removed addHeader(), deleteHeader()
    - Header arrays passed to GET, POST, etc. are now merged with the
      default values held by the HTTPRequest. Previously they setting
      an array on the request overrode all the default values.
+
+  Changes to net.grinder.plugininterface.PluginThreadContext:
+   - getStartTime(), startTimedSection(), stopTimedSection() have
+     been replaced with pauseClock(), resumeClock() to support nested
+     tests. (Since now there can be multiple active dispatch contexts).
+
+  Changes to net.grinder.script.Statistics:
+   - Query methods now return meaningful results within wrapped code.
 
   The HTTPClient Authorization module is no longer enabled by default
   because it prevents raw Authorization headers being sent through.

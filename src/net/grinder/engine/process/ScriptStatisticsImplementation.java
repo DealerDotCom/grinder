@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,15 +21,8 @@
 
 package net.grinder.engine.process;
 
-import java.io.PrintWriter;
-
-import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
-import net.grinder.statistics.ExpressionView;
-import net.grinder.statistics.StatisticsServices;
-import net.grinder.statistics.StatisticsSet;
-import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsIndexMap;
 
 
@@ -41,69 +34,29 @@ import net.grinder.statistics.StatisticsIndexMap;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ScriptStatisticsImplementation
-  implements Statistics, ThreadLifeCycleListener {
+final class ScriptStatisticsImplementation implements Statistics {
 
   private final ThreadContextLocator m_threadContextLocator;
-  private final PrintWriter m_dataWriter;
-  private final boolean m_recordTime;
-  private final StringBuffer m_buffer = new StringBuffer();
-  private final int m_bufferAfterThreadIDIndex;
-  private final ExpressionView[] m_detailExpressionViews;
-  private final StatisticsSet m_statistics;
-  private final StatisticsIndexMap.LongIndex m_errorsIndex;
-  private final StatisticsIndexMap.LongIndex m_untimedTestsIndex;
-  private final StatisticsIndexMap.LongSampleIndex m_timedTestsIndex;
-
-  private TestData m_currentTestData = null;
-  private long m_currentTestStartTime = -1;
-  private long m_currentTestElapsedTime = -1;
-  private boolean m_noTests = true;
-  private boolean m_delayReports = false;
-  private int m_runNumber = -1;
-  private int m_lastRunNumber = -1;
-  private int m_bufferAfterRunNumberIndex = -1;
+  private final TestStatisticsHelper m_testStatisticsHelper;
 
   public ScriptStatisticsImplementation(
     ThreadContextLocator threadContextLocator,
-    PrintWriter dataWriter,
-    StatisticsServices statisticsServices,
-    int threadID,
-    boolean recordTime) {
+    TestStatisticsHelper testStatisticsHelper) {
 
     m_threadContextLocator = threadContextLocator;
-    m_dataWriter = dataWriter;
-    m_recordTime = recordTime;
-
-    m_detailExpressionViews =
-      statisticsServices.getDetailStatisticsView().getExpressionViews();
-    m_statistics = statisticsServices.getStatisticsSetFactory().create();
-
-    final StatisticsIndexMap indexMap =
-      statisticsServices.getStatisticsIndexMap();
-    m_errorsIndex = indexMap.getLongIndex("errors");
-    m_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
-    m_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
-
-    m_buffer.append(threadID);
-    m_buffer.append(", ");
-    m_bufferAfterThreadIDIndex = m_buffer.length();
+    m_testStatisticsHelper = testStatisticsHelper;
   }
 
-  public void setDelayReports(boolean b) {
-    if (!b) {
-      reportInternal();
-    }
-
-    m_delayReports = b;
+  public void setDelayReports(boolean b) throws InvalidContextException {
+    getThreadContext().setDelayReports(b);
   }
 
   public void report() throws InvalidContextException {
-    checkCallContext();
-    reportInternal();
+    getThreadContext().flushPendingDispatchContext();
   }
 
-  private void checkCallContext() throws InvalidContextException {
+  private ThreadContext getThreadContext()
+    throws InvalidContextException {
     final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext == null) {
@@ -113,25 +66,24 @@ final class ScriptStatisticsImplementation
 
     if (threadContext.getScriptStatistics() != this) {
       throw new InvalidContextException(
-        "Statistics objects must be used from the worker thread from" +
+        "Statistics objects must be used only by the worker thread from " +
         "which they are acquired.");
     }
 
-    if (m_noTests) {
-      throw new InvalidContextException(
-        "This worker thread has not yet performed any tests.");
-    }
+    return threadContext;
   }
 
-  private void checkNotAlreadyReported()
-    throws InvalidContextException {
+  private DispatchContext getDispatchContext() throws InvalidContextException {
+    final DispatchContext dispatchContext =
+      getThreadContext().getDispatchContext();
 
-    if (m_currentTestData == null) {
+    if (dispatchContext == null) {
       throw new InvalidContextException(
-        "The statistics for the last test performed by this thread have " +
-        "already been reported. Perhaps you should have called " +
-        "setDelayReports(true)?");
+        "Found no statistics for the last test performed by this thread. " +
+        "Perhaps you should have called setDelayReports(true)?");
     }
+
+    return dispatchContext;
   }
 
   public boolean availableForUpdate() {
@@ -140,158 +92,55 @@ final class ScriptStatisticsImplementation
     return
       threadContext != null &&
       threadContext.getScriptStatistics() == this &&
-      m_currentTestData != null;
+      threadContext.getDispatchContext() != null;
   }
 
   public void setValue(StatisticsIndexMap.LongIndex index, long value)
     throws InvalidContextException {
 
-    checkCallContext();
-    checkNotAlreadyReported();
-    m_statistics.setValue(index, value);
+    getDispatchContext().getStatistics().setValue(index, value);
   }
 
   public void setValue(StatisticsIndexMap.DoubleIndex index, double value)
     throws InvalidContextException {
 
-    checkCallContext();
-    checkNotAlreadyReported();
-    m_statistics.setValue(index, value);
+    getDispatchContext().getStatistics().setValue(index, value);
   }
 
   public void addValue(StatisticsIndexMap.LongIndex index, long value)
     throws InvalidContextException {
 
-    checkCallContext();
-    checkNotAlreadyReported();
-    m_statistics.addValue(index, value);
+    getDispatchContext().getStatistics().addValue(index, value);
   }
 
   public void addValue(StatisticsIndexMap.DoubleIndex index, double value)
     throws InvalidContextException {
 
-    checkCallContext();
-    checkNotAlreadyReported();
-    m_statistics.addValue(index, value);
+    getDispatchContext().getStatistics().addValue(index, value);
   }
 
-  public long getValue(StatisticsIndexMap.LongIndex index) {
+  public long getValue(StatisticsIndexMap.LongIndex index)
+    throws InvalidContextException {
 
-    return m_statistics.getValue(index);
+    return getDispatchContext().getStatistics().getValue(index);
   }
 
-  public double getValue(StatisticsIndexMap.DoubleIndex index) {
-    return m_statistics.getValue(index);
+  public double getValue(StatisticsIndexMap.DoubleIndex index)
+    throws InvalidContextException {
+    return getDispatchContext().getStatistics().getValue(index);
   }
 
   public void setSuccess(boolean success) throws InvalidContextException {
-    checkCallContext();
-    checkNotAlreadyReported();
-
-    setSuccessNoChecks(success);
+    m_testStatisticsHelper.setSuccess(
+      getDispatchContext().getStatistics(), success);
   }
 
-  void setSuccessNoChecks(boolean success) {
-    m_statistics.setValue(m_errorsIndex, success ? 0 : 1);
+  public boolean getSuccess() throws InvalidContextException {
+    return m_testStatisticsHelper.getSuccess(
+      getDispatchContext().getStatistics());
   }
 
-  public boolean getSuccess() {
-    return m_statistics.getValue(m_errorsIndex) == 0;
-  }
-
-  public long getTime() {
-    return m_currentTestElapsedTime;
-  }
-
-  void beginTest(TestData testData, int runNumber) {
-
-    // Flush any pending report.
-    reportInternal();
-
-    m_currentTestData = testData;
-    m_runNumber = runNumber;
-    m_statistics.reset();
-    m_currentTestElapsedTime = -1;
-    m_noTests = false;
-  }
-
-  void endTest(long startTime, long elapsedTime) {
-    m_currentTestStartTime = startTime;
-    m_currentTestElapsedTime = elapsedTime;
-
-    if (!m_delayReports) {
-      reportInternal();
-    }
-  }
-
-  public void beginRun() {
-  }
-
-  public void endRun() {
-    reportInternal();
-  }
-
-  private void reportInternal() {
-
-    if (m_currentTestData != null) {
-      if (getSuccess()) {
-        if (m_recordTime) {
-          m_statistics.reset(m_timedTestsIndex);
-          m_statistics.addSample(m_timedTestsIndex, m_currentTestElapsedTime);
-        }
-        else {
-          m_statistics.setValue(m_untimedTestsIndex, 1);
-        }
-
-        m_statistics.setValue(m_errorsIndex, 0);
-      }
-      else {
-        // The plug-in might have set timing information etc., or set
-        // errors to be greater than 1. For consistency, we override
-        // to a single error per Test with no associated timing
-        // information.
-        m_statistics.setValue(m_untimedTestsIndex, 0);
-        m_statistics.reset(m_timedTestsIndex);
-        m_statistics.setValue(m_errorsIndex, 1);
-        m_currentTestElapsedTime = -1;
-      }
-
-      if (m_runNumber == m_lastRunNumber &&
-          m_lastRunNumber != -1) {
-        m_buffer.setLength(m_bufferAfterRunNumberIndex);
-      }
-      else {
-        m_lastRunNumber = m_runNumber;
-
-        m_buffer.setLength(m_bufferAfterThreadIDIndex);
-        m_buffer.append(m_runNumber);
-        m_buffer.append(", ");
-        m_bufferAfterRunNumberIndex = m_buffer.length();
-      }
-
-      m_buffer.append(m_currentTestData.getTest().getNumber());
-
-      m_buffer.append(", ");
-      m_buffer.append(m_currentTestStartTime);
-
-      for (int i = 0; i < m_detailExpressionViews.length; ++i) {
-        m_buffer.append(", ");
-
-        final StatisticExpression expression =
-          m_detailExpressionViews[i].getExpression();
-
-        if (expression.isDouble()) {
-          m_buffer.append(expression.getDoubleValue(m_statistics));
-        }
-        else {
-          m_buffer.append(expression.getLongValue(m_statistics));
-        }
-      }
-
-      m_dataWriter.println(m_buffer);
-
-      m_currentTestData.getStatisticsSet().add(m_statistics);
-      m_currentTestData = null;
-    }
+  public long getTime() throws InvalidContextException {
+    return getDispatchContext().getElapsedTime();
   }
 }

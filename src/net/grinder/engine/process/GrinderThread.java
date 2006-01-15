@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,11 +23,8 @@
 package net.grinder.engine.process;
 
 import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.List;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.ScriptEngine.ScriptExecutionException;
 import net.grinder.util.Sleeper;
@@ -123,7 +120,7 @@ class GrinderThread implements java.lang.Runnable {
 
         logger.setCurrentRunNumber(currentRun);
 
-        m_beginRunCaller.run();
+        m_context.beginRunEvent();
 
         try {
           scriptThreadRunnable.run();
@@ -144,7 +141,7 @@ class GrinderThread implements java.lang.Runnable {
           }
         }
 
-        m_endRunCaller.run();
+        m_context.endRunEvent();
       }
 
       logger.setCurrentRunNumber(-1);
@@ -197,39 +194,4 @@ class GrinderThread implements java.lang.Runnable {
   public static final short getNumberOfThreads() {
     return s_numberOfThreads;
   }
-
-  private abstract class ThreadLifeCycleListenerCaller {
-
-    public void run() throws EngineException {
-      processList(
-        m_processContext.getPluginRegistry().getPluginThreadListeners(
-          m_context));
-
-      processList(m_context.getThreadLifeCycleListeners());
-    }
-
-    private void processList(List listeners) {
-      final Iterator iterator = listeners.iterator();
-
-      while (iterator.hasNext()) {
-        doOne((ThreadLifeCycleListener)iterator.next());
-      }
-    }
-
-    protected abstract void doOne(ThreadLifeCycleListener threadListener);
-  }
-
-  private final ThreadLifeCycleListenerCaller m_beginRunCaller =
-    new ThreadLifeCycleListenerCaller() {
-      protected void doOne(ThreadLifeCycleListener threadListener) {
-        threadListener.beginRun();
-      }
-    };
-
-  private final ThreadLifeCycleListenerCaller m_endRunCaller =
-    new ThreadLifeCycleListenerCaller() {
-      protected void doOne(ThreadLifeCycleListener threadListener) {
-        threadListener.endRun();
-      }
-    };
 }

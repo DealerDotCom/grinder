@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,10 +28,14 @@ import java.util.List;
 
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.SSLContextFactory;
+import net.grinder.common.Test;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics;
+import net.grinder.statistics.StatisticsSet;
+import net.grinder.util.ListenerSupport;
+import net.grinder.util.ListenerSupport.Informer;
 
 
 /**
@@ -43,19 +47,24 @@ import net.grinder.script.Statistics;
 final class ThreadContextImplementation
   implements ThreadContext, PluginThreadContext {
 
-  private final List m_threadLifeCycleListeners = new ArrayList();
+  private final ListenerSupport m_threadLifeCycleListeners =
+    new ListenerSupport();
+
+  private final DispatchContextStack m_dispatchContextStack =
+    new DispatchContextStack();
 
   private final ProcessContext m_processContext;
   private final ThreadLogger m_threadLogger;
   private final FilenameFactory m_filenameFactory;
+  private final DispatchResultReporter m_dispatchResultReporter;
 
   private final ScriptStatisticsImplementation m_scriptStatistics;
 
   private SSLContextFactory m_sslContextFactory;
 
-  private boolean m_startTimeOverridenByPlugin;
-  private long m_startTime;
-  private long m_elapsedTime;
+  private boolean m_delayReports;
+
+  private DispatchContext m_pendingDispatchContext;
 
   public ThreadContextImplementation(ProcessContext processContext,
                                      ThreadLogger threadLogger,
@@ -67,15 +76,34 @@ final class ThreadContextImplementation
     m_threadLogger = threadLogger;
     m_filenameFactory = filenameFactory;
 
+    final ThreadDataWriter threadDataWriter =
+      new ThreadDataWriter(
+        dataWriter,
+        processContext.getStatisticsServices()
+        .getDetailStatisticsView().getExpressionViews(),
+        m_threadLogger.getThreadID());
+
+    m_dispatchResultReporter = new DispatchResultReporter() {
+
+      public void report(Test test, long startTime, StatisticsSet statistics) {
+        threadDataWriter.report(
+          getRunNumber(),
+          test,
+          startTime - m_processContext.getExecutionStartTime(),
+          statistics);
+      }
+    };
+
     m_scriptStatistics =
       new ScriptStatisticsImplementation(
         processContext.getThreadContextLocator(),
-        dataWriter,
-        processContext.getStatisticsServices(),
-        m_threadLogger.getThreadID(),
-        processContext.getRecordTime());
+        processContext.getTestStatisticsHelper());
 
-    registerThreadLifeCycleListener(m_scriptStatistics);
+    registerThreadLifeCycleListener(
+      new ThreadLifeCycleListener() {
+        public void beginRun() { }
+        public void endRun() { flushPendingDispatchContext(); }
+      });
   }
 
   public FilenameFactory getFilenameFactory() {
@@ -90,110 +118,12 @@ final class ThreadContextImplementation
     return m_threadLogger.getCurrentRunNumber();
   }
 
-  public void startTimedSection() {
-    if (!m_startTimeOverridenByPlugin) {
-      m_startTimeOverridenByPlugin = true;
-      m_startTime = System.currentTimeMillis();
-    }
-  }
-
-  public void stopTimedSection() {
-    m_elapsedTime = System.currentTimeMillis() - m_startTime;
-  }
-
-  private void startTimer() {
-    // This is to make it more likely that the timed section has a
-    // "clear run".
-    Thread.yield();
-
-    m_startTime = System.currentTimeMillis();
-    m_startTimeOverridenByPlugin = false;
-    m_elapsedTime = -1;
-  }
-
-  private void stopTimer() {
-    if (m_elapsedTime < 0) { // Not already stopped.
-      stopTimedSection();
-    }
-  }
-
   public ThreadLogger getThreadLogger() {
     return m_threadLogger;
   }
 
-  /**
-   * This could be factored out to a separate "TestInvoker" class.
-   * However, the sensible owner for a TestInvoker would be
-   * ThreadContext, so keep it here for now. Also, all the
-   * startTimer/stopTimer interface is part of the PluginThreadContext
-   * interface.
-   */
-  public Object invokeTest(TestData testData, TestData.Callable callable)
-    throws ShutdownException {
-
-    if (m_processContext.getShutdown()) {
-      throw new ShutdownException("Process has been shutdown");
-    }
-
-    if (m_threadLogger.getCurrentTestNumber() != -1) {
-      // Originally we threw a ReentrantInvocationException here.
-      // However, this caused problems when wrapping Jython objects
-      // that call themselves; in our scheme the wrapper shares a
-      // dictionary so self = self and we recurse up our own.
-      return callable.call();
-    }
-
-    m_threadLogger.setCurrentTestNumber(testData.getTest().getNumber());
-
-    m_scriptStatistics.beginTest(testData, getRunNumber());
-
-    try {
-      startTimer();
-
-      final Object testResult;
-
-      try {
-        testResult = callable.call();
-      }
-      finally {
-        stopTimer();
-      }
-
-      return testResult;
-    }
-    catch (org.python.core.PyException e) {
-      // Always mark as an error if the test threw an exception.
-      m_scriptStatistics.setSuccessNoChecks(false);
-
-      // We don't log the exception. If the script doesn't handle the
-      // exception it will be logged when the run is aborted,
-      // otherwise we assume the script writer knows what they're
-      // doing.
-      throw e;
-    }
-    finally {
-      m_scriptStatistics.endTest(
-        m_startTime - m_processContext.getExecutionStartTime(),
-        m_elapsedTime);
-
-      m_threadLogger.setCurrentTestNumber(-1);
-    }
-  }
-
-  public void endRun() {
-    m_scriptStatistics.endRun();
-  }
-
-  public long getStartTime() {
-    return m_startTime;
-  }
-
   public Statistics getScriptStatistics() {
     return m_scriptStatistics;
-  }
-
-  public PluginThreadContext getPluginThreadContext() {
-    return this;
   }
 
   public SSLContextFactory getThreadSSLContextFactory() {
@@ -204,12 +134,133 @@ final class ThreadContextImplementation
     m_sslContextFactory = sslContextFactory;
   }
 
-  public List getThreadLifeCycleListeners() {
-    return m_threadLifeCycleListeners;
-  }
-
   public void registerThreadLifeCycleListener(
     ThreadLifeCycleListener listener) {
     m_threadLifeCycleListeners.add(listener);
+  }
+
+  public void beginRunEvent() {
+    m_threadLifeCycleListeners.apply(new Informer() {
+      public void inform(Object listener) {
+        ((ThreadLifeCycleListener)listener).beginRun();
+      } }
+    );
+  }
+
+  public void endRunEvent() {
+    m_threadLifeCycleListeners.apply(new Informer() {
+      public void inform(Object listener) {
+        ((ThreadLifeCycleListener)listener).endRun();
+      } }
+    );
+  }
+
+  public void setDelayReports(boolean b) {
+    if (!b) {
+      flushPendingDispatchContext();
+    }
+
+    m_delayReports = b;
+  }
+
+  public DispatchResultReporter getDispatchResultReporter() {
+    return m_dispatchResultReporter;
+  }
+
+  public DispatchContext getDispatchContext() {
+    final DispatchContext currentDispatchContext =
+      m_dispatchContextStack.peekTop();
+
+    if (currentDispatchContext != null) {
+      return currentDispatchContext;
+    }
+
+    return m_pendingDispatchContext;
+  }
+
+  public void pushDispatchContext(DispatchContext dispatchContext)
+    throws ShutdownException {
+
+    m_processContext.checkIfShutdown();
+
+    getThreadLogger().setCurrentTestNumber(
+      dispatchContext.getTest().getNumber());
+
+    m_dispatchContextStack.push(dispatchContext);
+  }
+
+  public void popDispatchContext() {
+    final DispatchContext dispatchContext = m_dispatchContextStack.pop();
+
+    if (dispatchContext == null) {
+      throw new AssertionError("DispatchContext stack unexpectedly empty");
+    }
+
+    final DispatchContext parentDispatchContext =
+      m_dispatchContextStack.peekTop();
+
+    if (parentDispatchContext != null) {
+      parentDispatchContext.getPauseTimer().add(
+        dispatchContext.getPauseTimer());
+    }
+
+    if (m_delayReports) {
+      flushPendingDispatchContext();
+      m_pendingDispatchContext = dispatchContext;
+    }
+    else {
+      dispatchContext.report();
+    }
+  }
+
+  public void flushPendingDispatchContext() {
+    if (m_pendingDispatchContext != null) {
+      m_pendingDispatchContext.report();
+      m_pendingDispatchContext = null;
+    }
+  }
+
+  public void pauseClock() {
+    final DispatchContext dispatchContext = m_dispatchContextStack.peekTop();
+
+    if (dispatchContext != null) {
+      dispatchContext.getPauseTimer().start();
+    }
+  }
+
+  public void resumeClock() {
+    final DispatchContext dispatchContext = m_dispatchContextStack.peekTop();
+
+    if (dispatchContext != null) {
+      dispatchContext.getPauseTimer().stop();
+    }
+  }
+
+  private static final class DispatchContextStack {
+    private List m_stack = new ArrayList();
+
+    public void push(DispatchContext dispatchContext) {
+      m_stack.add(dispatchContext);
+    }
+
+    public DispatchContext pop() {
+      final int size = m_stack.size();
+
+      if (size == 0) {
+        return null;
+      }
+
+      return (DispatchContext)m_stack.remove(size - 1);
+    }
+
+    public DispatchContext peekTop() {
+      final int size = m_stack.size();
+
+      if (size == 0) {
+        return null;
+      }
+
+      return (DispatchContext)m_stack.get(size - 1);
+    }
   }
 }

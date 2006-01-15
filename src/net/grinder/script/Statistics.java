@@ -25,46 +25,55 @@ import net.grinder.statistics.StatisticsIndexMap;
 
 
 /**
- * Script statistics reporting API.
+ * Script statistics query and reporting API.
  *
  * <p>
  * An implementation of this interface can be obtained using {@link
  * Grinder.ScriptContext#getStatistics}. This can be used in a script to query
- * the result of the last test. For example:
+ * the result of a test. For example:
  *
  * <blockquote>
  *
  * <pre>
- *       result1 = test1.doSomething()
- *       timeTaken1 = grinder.statistics.time
+ *               result1 = test1.doSomething()
+ *               timeTaken1 = grinder.statistics.time
  *
- *       if grinder.statistics.success:
- *         # ...
+ *               if grinder.statistics.success:
+ *                 # ...
  * </pre>
  *
  * </blockquote>
  *
  * <p>
- * By default, test statistics reports are automatically sent to the console and
- * data log when the test implementation returns to the script, so the script
- * cannot modify the test statistics. By using {@link #setDelayReports},
- * scripts can turn off this automatic reporting for the current worker thread.
- * Having done this, the script can modify or set the statistics before they are
- * sent to the log and the console. The statistics reports are sent at a later
- * time as described in {@link #setDelayReports}below. For example:
+ * If called within code wrapped by a {@link Test} proxy, the query methods (the
+ * methods having names that start <code>get...</code>) provide information
+ * about the test in progress. This information may be partially complete.
+ * Otherwise, the query methods provide information about the last test
+ * performed.
+ * </p>
+ *
+ * <p>
+ * The other methods allow the statistics to be updated. By default, test
+ * statistics reports are automatically sent to the console and data log when
+ * the test proxy call completes, so the script cannot modify the test
+ * statistics after the call. By using {@link #setDelayReports}, scripts can
+ * turn off this automatic reporting for the current worker thread. Having done
+ * this, the script can modify or set the statistics before they are sent to the
+ * log and the console. The statistics reports are sent at a later time as
+ * described in {@link #setDelayReports}below. For example:
  *
  * <blockquote>
  *
  * <pre>
- *       grinder.statistics.delayReports = 1
+ *               grinder.statistics.delayReports = 1
  *
- *       result1 = test1.doSomething()
+ *               result1 = test1.doSomething()
  *
- *       if isFailed(result1):
+ *               if isFailed(result1):
  *
- *          # Mark test as failure. The appropriate failure detection
- *          # depends on the type of test.
- *         grinder.statistics.success = 0
+ *                  # Mark test as failure. The appropriate failure detection
+ *                  # depends on the type of test.
+ *                  grinder.statistics.success = 0
  * </pre>
  *
  * </blockquote>
@@ -76,7 +85,8 @@ import net.grinder.statistics.StatisticsIndexMap;
  * be overridden by The Grinder engine when the test finishes.
  * </p>
  *
- * <p>For a list of the standard statistics, see {@link StatisticsIndexMap}.
+ * <p>
+ * For a list of the standard statistics, see {@link StatisticsIndexMap}.
  *
  * <p>
  * There is currently no script interface for updating sample statistics.
@@ -91,13 +101,14 @@ import net.grinder.statistics.StatisticsIndexMap;
 public interface Statistics  {
 
   /**
-   * Use to delay reporting of the last test statistics to the log and
-   * the console so that the script can modify them. Normally test
-   * statistics are reported automatically when the test
-   * implementation returns.
+   * Use to delay reporting of the last test statistics to the log and the
+   * console so that the script can modify them. Normally test statistics are
+   * reported automatically when the test implementation returns. Only affects
+   * reporting for the calling worker thread.
    *
-   * <p>With this set to <code>true</code> the test statistics will be
-   * reported at the following times:
+   * <p>
+   * With this set to <code>true</code> the test statistics will be reported
+   * at the following times:
    * <ol>
    * <li>When the next test is invoked.</li>
    * <li>When the current run completes.</li>
@@ -106,25 +117,33 @@ public interface Statistics  {
    * </ol>
    * </p>
    *
-   * @param b <code>false</code> => enable automatic reporting when
-   * tests return (the default behaviour); <code>true</code> => delay
-   * reporting.
+   * @param b
+   *          <code>false</code> => enable automatic reporting when tests
+   *          return (the default behaviour); <code>true</code> => delay
+   *          reporting.
+   * @throws InvalidContextException
+   *           InvalidContextException If called from a different thread to the
+   *           thread in which the <code>Statistics</code> was was acquired.
    * @see #report
    */
-  void setDelayReports(boolean b);
+  void setDelayReports(boolean b) throws InvalidContextException;
 
   /**
-   * Send the last test statistics to the data log and the console. If
-   * called from within the test implementation, this will cause the
-   * statistics to be sent when the test returns.
+   * Send any pending statistics for the last completed test to the data log and
+   * the console.
    *
-   * <p>Calling this does nothing if the statistics have already been
-   * reported.</p>
+   * <p>
+   * Calling this does nothing if there are no pending statistics to report.
+   * This will be the case if {@link #setDelayReports} has not been called to
+   * delay reporting.
+   * </p>
    *
-   * @exception InvalidContextException If called from a different
-   * thread to the thread in which the <code>Statistics</code> was was
-   * acquired, or before the first test.
-   *  @see #availableForUpdate
+   * @exception InvalidContextException
+   *              If called from a different thread to the thread in which the
+   *              <code>Statistics</code> was was acquired, or before the
+   *              first test.
+   * @see #availableForUpdate
+   * @see #report
    */
   void report() throws InvalidContextException;
 
@@ -206,22 +225,34 @@ public interface Statistics  {
     throws InvalidContextException;
 
   /**
-   * Return the long value specified by <code>index</code> for the
-   * last test.
+   * Return the long value specified by <code>index</code> for the test in
+   * progress, or if the last test completed if there is no test in progress.
    *
-   * @param index The statistic index.
+   * @param index
+   *          The statistic index.
    * @return The value.
+   * @throws InvalidContextException
+   *           If called from a different thread to the thread in which the
+   *           <code>Statistics</code> was was acquired, or before the first
+   *           test.
    */
-  long getValue(StatisticsIndexMap.LongIndex index);
+  long getValue(StatisticsIndexMap.LongIndex index)
+    throws InvalidContextException;
 
   /**
-   * Return the double value specified by <code>index</code> for the
-   * last test.
+   * Return the double value specified by <code>index</code> for the test in
+   * progress, or if the last test completed if there is no test in progress.
    *
-   * @param index The statistic index.
+   * @param index
+   *          The statistic index.
    * @return The value.
+   * @throws InvalidContextException
+   *           If called from a different thread to the thread in which the
+   *           <code>Statistics</code> was was acquired, or before the first
+   *           test.
    */
-  double getValue(StatisticsIndexMap.DoubleIndex index);
+  double getValue(StatisticsIndexMap.DoubleIndex index)
+    throws InvalidContextException;
 
   /**
    * Convenience method that sets whether the last test should be considered a
@@ -257,17 +288,28 @@ public interface Statistics  {
   void setSuccess(boolean success) throws InvalidContextException;
 
   /**
-   * Convenience method that returns whether the last test was a
-   * success (<em>errors</em> is zero) or not.
+   * Convenience method that returns whether the test in progress (or the last
+   * test if there is no test in progress) was a success (<em>errors</em> is
+   * zero) or not.
    *
-   * @return Whether the last test was a success.
+   * @return Whether the test was a success.
+   * @throws InvalidContextException
+   *           If called from a different thread to the thread in which the
+   *           <code>Statistics</code> was was acquired, or before the first
+   *           test.
    */
-  boolean getSuccess();
+  boolean getSuccess() throws InvalidContextException;
 
   /**
-   * Convenience method that returns the time taken by the last test.
+   * Convenience method that returns the elapsed time since the test in progress
+   * was started, or the time taken by the last test if there is no test in
+   * progress.
    *
-   * @return The time for the last test.
+   * @return The elapsed time for the test.
+   * @throws InvalidContextException
+   *           If called from a different thread to the thread in which the
+   *           <code>Statistics</code> was was acquired, or before the first
+   *           test.
    */
-  long getTime();
+  long getTime() throws InvalidContextException;
 }

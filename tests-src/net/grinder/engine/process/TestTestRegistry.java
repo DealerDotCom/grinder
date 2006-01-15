@@ -36,6 +36,11 @@ import net.grinder.testutility.RandomStubFactory;
  * @version $Revision$
  */
 public class TestTestRegistry extends TestCase {
+  private final RandomStubFactory m_testStatisticsHelperStubFactory =
+    new RandomStubFactory(TestStatisticsHelper.class);
+  private final TestStatisticsHelper m_testStatisticsHelper =
+    (TestStatisticsHelper)m_testStatisticsHelperStubFactory.getStub();
+
   public TestTestRegistry(String name) {
     super(name);
   }
@@ -47,7 +52,8 @@ public class TestTestRegistry extends TestCase {
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
     final TestRegistry testRegistry =
-      new TestRegistry(threadContextLocator, statisticsSetFactory);
+      new TestRegistry(
+        threadContextLocator, statisticsSetFactory, m_testStatisticsHelper);
 
     assertNotNull(testRegistry.getTestStatisticsMap());
 
@@ -56,6 +62,8 @@ public class TestTestRegistry extends TestCase {
 
     TestRegistry.setInstance(null);
     assertNull(TestRegistry.getInstance());
+
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
   }
 
   public void testRegister() throws Exception {
@@ -65,7 +73,8 @@ public class TestTestRegistry extends TestCase {
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
     final TestRegistry testRegistry =
-      new TestRegistry(threadContextLocator, statisticsSetFactory);
+      new TestRegistry(
+        threadContextLocator, statisticsSetFactory, m_testStatisticsHelper);
 
     assertNull(testRegistry.getNewTests());
 
@@ -90,5 +99,7 @@ public class TestTestRegistry extends TestCase {
 
     assertTrue(testRegistry.getNewTests().contains(test));
     assertNull(testRegistry.getNewTests());
+
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
   }
 }

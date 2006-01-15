@@ -66,6 +66,7 @@ public final class TestRegistry {
 
   private final ThreadContextLocator m_threadContextLocator;
   private final StatisticsSetFactory m_statisticsSetFactory;
+  private final TestStatisticsHelper m_testStatisticsHelper;
 
   /**
    * A map of Tests to Statistics for passing elsewhere.
@@ -91,9 +92,11 @@ public final class TestRegistry {
    * Constructor.
    */
   TestRegistry(ThreadContextLocator threadContextLocator,
-               StatisticsSetFactory statisticsSetFactory) {
+               StatisticsSetFactory statisticsSetFactory,
+               TestStatisticsHelper testStatisticsHelper) {
     m_threadContextLocator = threadContextLocator;
     m_statisticsSetFactory = statisticsSetFactory;
+    m_testStatisticsHelper = testStatisticsHelper;
     m_testStatisticsMap = new TestStatisticsMap(m_statisticsSetFactory);
   }
 
@@ -122,13 +125,14 @@ public final class TestRegistry {
         throw new EngineException("Script Engine not set");
       }
 
-      newTestData = new TestData(m_scriptEngine,
-                                 m_threadContextLocator,
-                                 m_statisticsSetFactory.create(),
+      newTestData = new TestData(m_threadContextLocator,
+                                 m_statisticsSetFactory,
+                                 m_testStatisticsHelper,
+                                 m_scriptEngine,
                                  test);
 
       m_testMap.put(test, newTestData);
-      m_testStatisticsMap.put(test, newTestData.getStatisticsSet());
+      m_testStatisticsMap.put(test, newTestData.getTestStatistics());
 
       if (m_newTests == null) {
         m_newTests = new ArrayList();

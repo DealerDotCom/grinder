@@ -48,33 +48,16 @@ public interface PluginThreadContext {
   int getRunNumber();
 
   /**
-   * Get the time the current test was started.
+   * The time taken between invocations of {@link #pauseClock()} and
+   * {@link resumeClock} is not included in the recorded time for a test. This
+   * allows plug-ins to discount the cost of expensive pre or post processing.
    *
-   * @return The time in milliseconds since the Epoch (see
-   * <code>System.currentTimeMilis</code>).
+   * <p>Has no effect if called when the is no dispatch in progress.</p>
    */
-  long getStartTime();
+  void pauseClock();
 
   /**
-   * Allow the plug-in more tightly to mark the critical timing
-   * section.
-   *
-   * <p>Only the first call to {@link #startTimedSection} and the last call
-   * to {@link #stopTimedSection} for a given test wrapping have any effect;
-   * other calls the plug-in may make are ignored. This means that the
-   * plugin can discard its own overhead (and the Jython invocation
-   * overhead) for single invocations, but composite wrappings must
-   * pay timing penalty for their glue.
-   *
-   * @see #stopTimedSection
+   * @see #pauseClock()
    */
-  void startTimedSection();
-
-  /**
-   * Allow the plug-in more tightly to mark the critical timing
-   * section.
-   *
-   * @see #startTimedSection
-   */
-  void stopTimedSection();
+  void resumeClock();
 }

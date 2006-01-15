@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,48 +21,16 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.FilenameFactory;
-import net.grinder.common.ThreadLifeCycleListener;
-import net.grinder.common.SSLContextFactory;
-import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.script.Statistics;
-
+import net.grinder.common.Test;
+import net.grinder.statistics.StatisticsSet;
 
 /**
- * Package scope.
+ * Something that can report the results of a test dispatch.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-interface ThreadContext extends PluginThreadContext {
+interface DispatchResultReporter {
 
-  ThreadLogger getThreadLogger();
-
-  FilenameFactory getFilenameFactory();
-
-  Statistics getScriptStatistics();
-
-  DispatchResultReporter getDispatchResultReporter();
-
-  SSLContextFactory getThreadSSLContextFactory();
-
-  void setThreadSSLContextFactory(SSLContextFactory threadSSLFactory);
-
-  void registerThreadLifeCycleListener(ThreadLifeCycleListener listener);
-
-  void beginRunEvent();
-
-  void endRunEvent();
-
-  void setDelayReports(boolean b);
-
-  void pushDispatchContext(DispatchContext dispatchContext)
-    throws ShutdownException;
-
-  void popDispatchContext();
-
-  DispatchContext getDispatchContext();
-
-  void flushPendingDispatchContext();
+  void report(Test test, long startTime, StatisticsSet statistics);
 }
-

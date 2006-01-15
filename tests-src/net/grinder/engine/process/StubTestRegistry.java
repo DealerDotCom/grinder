@@ -34,13 +34,18 @@ import net.grinder.testutility.RandomStubFactory;
  * @version $Revision$
  */
 public class StubTestRegistry {
+  private static final RandomStubFactory s_testStatisticsHelperStubFactory =
+    new RandomStubFactory(TestStatisticsHelper.class);
+  private static final TestStatisticsHelper s_testStatisticsHelper =
+    (TestStatisticsHelper)s_testStatisticsHelperStubFactory.getStub();
+
 
   public static void stubTestRegistry() {
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
     final TestRegistry testRegistry =
-      new TestRegistry(null, statisticsSetFactory);
+      new TestRegistry(null, statisticsSetFactory, s_testStatisticsHelper);
 
     final RandomStubFactory scriptEngineStubFactory =
       new RandomStubFactory(ScriptEngine.class);

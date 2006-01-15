@@ -32,7 +32,6 @@ import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsServicesTestFactory;
 import net.grinder.statistics.StatisticsSet;
-import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
 
 
@@ -74,41 +73,27 @@ public class TestThreadDataWriter extends TestCase {
     final StatisticsSet statistics =
       statisticsServices.getStatisticsSetFactory().create();
 
-    final RandomStubFactory dispatchContextStubFactory =
-      new RandomStubFactory(DispatchContext.class);
-    final DispatchContext dispatchContext =
-      (DispatchContext)dispatchContextStubFactory.getStub();
-
-    dispatchContextStubFactory.setResult("getTest", test1);
-    dispatchContextStubFactory.setResult("getStartTime", new Long(123));
-    dispatchContextStubFactory.setResult("getStatistics", statistics);
     statistics.addSample(s_timedTestsIndex, 99);
 
-    threadDataWriter.report(dispatchContext, 10);
+    threadDataWriter.report(10, test1, 123L, statistics);
 
     assertEquals("33, 10, 1, 123, 99, 0", m_dataOutput.toString().trim());
     m_dataOutput.reset();
 
-    dispatchContextStubFactory.setResult("getStartTime", new Long(125));
-
-    threadDataWriter.report(dispatchContext, 10);
+    threadDataWriter.report(10, test1, 125L, statistics);
 
     assertEquals("33, 10, 1, 125, 99, 0", m_dataOutput.toString().trim());
     m_dataOutput.reset();
 
-    dispatchContextStubFactory.setResult("getTest", test3);
-    dispatchContextStubFactory.setResult("getStartTime", new Long(300));
-
-    threadDataWriter.report(dispatchContext, 11);
+    threadDataWriter.report(11, test3, 300L, statistics);
 
     assertEquals("33, 11, 3, 300, 99, 0", m_dataOutput.toString().trim());
     m_dataOutput.reset();
 
     statistics.reset();
     statistics.setValue(s_errorsIndex, 1);
-    dispatchContextStubFactory.setResult("getStartTime", new Long(301));
 
-    threadDataWriter.report(dispatchContext, 11);
+    threadDataWriter.report(11, test3, 301L, statistics);
 
     assertEquals("33, 11, 3, 301, 0, 1", m_dataOutput.toString().trim());
     m_dataOutput.reset();
@@ -118,7 +103,6 @@ public class TestThreadDataWriter extends TestCase {
     statistics.reset();
     statistics.addSample(s_timedTestsIndex, 5);
     statistics.addValue(s_userDouble0Index, 1.5);
-    dispatchContextStubFactory.setResult("getStartTime", new Long(530));
 
     final ThreadDataWriter threadDataWriter2 =
       new ThreadDataWriter(
@@ -126,7 +110,7 @@ public class TestThreadDataWriter extends TestCase {
           statisticsServices.getDetailStatisticsView().getExpressionViews(),
           33);
 
-    threadDataWriter2.report(dispatchContext, 11);
+    threadDataWriter2.report(11, test3, 530L, statistics);
 
     assertEquals("33, 11, 3, 530, 5, 0, 1.5", m_dataOutput.toString().trim());
     m_dataOutput.reset();

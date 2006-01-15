@@ -862,16 +862,14 @@ public class HTTPRequest {
       final HTTPPluginThreadState threadState = (HTTPPluginThreadState)
         pluginProcessContext.getPluginThreadListener();
 
+      final PluginThreadContext threadContext = threadState.getThreadContext();
+
       // And for fragment, parameters?
       final String path = m_url.getPathAndQuery();
-
-      final PluginThreadContext threadContext = threadState.getThreadContext();
 
       // This will be different to the time the Test was started if
       // the Test wraps several HTTPRequests.
       final long startTime = System.currentTimeMillis();
-
-      threadContext.startTimedSection();
 
       final HTTPConnection connection =
         threadState.getConnectionWrapper(m_url).getConnection();
@@ -885,7 +883,8 @@ public class HTTPRequest {
       final int responseLength = data != null ? data.length : 0;
       httpResponse.getInputStream().close();
 
-      threadContext.stopTimedSection();
+      // Stop the clock whilst we do potentially expensive result processing.
+      threadContext.pauseClock();
 
       final long dnsTime = connection.getDnsTime() - startTime;
       final long connectTime = connection.getConnectTime() - startTime;
@@ -953,6 +952,8 @@ public class HTTPRequest {
       }
 
       processResponse(httpResponse);
+
+      threadContext.resumeClock();
 
       return httpResponse;
     }

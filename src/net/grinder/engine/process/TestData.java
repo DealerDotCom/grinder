@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,9 +23,11 @@
 package net.grinder.engine.process;
 
 import net.grinder.common.Test;
+import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.StatisticsSet;
+import net.grinder.statistics.StatisticsSetFactory;
 
 
 /**
@@ -40,6 +42,8 @@ import net.grinder.statistics.StatisticsSet;
 final class TestData
   implements TestRegistry.RegisteredTest, ScriptEngine.Dispatcher {
 
+  private final StatisticsSetFactory m_statisticsSetFactory;
+  private final TestStatisticsHelper m_testStatisticsHelper;
   private final ScriptEngine m_scriptEngine;
   private final ThreadContextLocator m_threadContextLocator;
   private final Test m_test;
@@ -48,54 +52,30 @@ final class TestData
    * Cumulative statistics for our test that haven't yet been set to
    * the console.
    */
-  private final StatisticsSet m_statisticsSet;
+  private final StatisticsSet m_testStatistics;
 
-  private final ThreadLocal m_dispatchProtection = new ThreadLocal() {
-    public Object initialValue() { return new DispatchProtection(); }
-  };
+  private final DispatcherHolderThreadLocal m_dispatcherHolderThreadLocal =
+    new DispatcherHolderThreadLocal();
 
-  TestData(ScriptEngine scriptEngine,
-           ThreadContextLocator threadContextLocator,
-           StatisticsSet statisticsSet,
+  TestData(ThreadContextLocator threadContextLocator,
+           StatisticsSetFactory statisticsSetFactory,
+           TestStatisticsHelper testStatisticsHelper,
+           ScriptEngine scriptEngine,
            Test testDefinition) {
+    m_statisticsSetFactory = statisticsSetFactory;
+    m_testStatisticsHelper = testStatisticsHelper;
     m_scriptEngine = scriptEngine;
     m_threadContextLocator = threadContextLocator;
     m_test = testDefinition;
-    m_statisticsSet = statisticsSet;
+    m_testStatistics = m_statisticsSetFactory.create();
   }
 
   Test getTest() {
     return m_test;
   }
 
-  StatisticsSet getStatisticsSet() {
-    return m_statisticsSet;
-  }
-
-  public Object dispatch(Callable callable) throws EngineException {
-    final DispatchProtection dispatchProtection =
-      (DispatchProtection)m_dispatchProtection.get();
-
-    try {
-      if (!dispatchProtection.checkAndSet()) {
-        final ThreadContext threadContext = m_threadContextLocator.get();
-
-        if (threadContext == null) {
-          throw new EngineException("Only Worker Threads can invoke tests");
-        }
-
-        return threadContext.invokeTest(this, callable);
-
-        //return new Dispatcher().dispatch(invokeable);
-      }
-      else {
-        // Already in a dispatch.
-        return callable.call();
-      }
-    }
-    finally {
-      dispatchProtection.reset();
-    }
+  StatisticsSet getTestStatistics() {
+    return m_testStatistics;
   }
 
   /**
@@ -109,66 +89,152 @@ final class TestData
     return m_scriptEngine.createInstrumentedProxy(getTest(), this, o);
   }
 
-    // TODO, rename, comment
-  private class DispatchProtection {
-    private boolean m_inDispatch;
+  public Object dispatch(Callable callable) throws EngineException {
+    final DispatcherHolder dispatcherHolder =
+      m_dispatcherHolderThreadLocal.getDispatcherHolder();
 
-    public boolean checkAndSet() {
-      final boolean result = m_inDispatch;
-      m_inDispatch = true;
-      return result;
+    final Dispatcher dispatcher = dispatcherHolder.reserve();
+
+    if (dispatcher != null) {
+      try {
+        return dispatcher.dispatch(callable);
+      }
+      finally {
+        dispatcherHolder.release(dispatcher);
+      }
     }
-
-    public void reset() {
-      m_inDispatch = false;
+    else {
+      // Already in a dispatch.
+      return callable.call();
     }
   }
 
-  /* TODO
-  private class Dispatcher {
+  /**
+   * Thread local storage which keeps a {@link DispatcherHolder} for each worker
+   * thread that has ever used this test.
+   */
+  private final class DispatcherHolderThreadLocal {
+    private ThreadLocal m_threadLocal = new ThreadLocal() {
+      public Object initialValue() {
+        final ThreadContext threadContext = m_threadContextLocator.get();
 
-    public Object dispatch(Callable invokeable) throws ShutdownException {
-      final ThreadContext threadContext = m_threadContextLocator.get();
+        if (threadContext == null) {
+          throw new UncheckedException("Only Worker Threads can invoke tests");
+        }
 
-      if (threadContext == null) {
-        throw new EngineException("Only Worker Threads can invoke tests");
+        final Dispatcher dispatcher =
+          new Dispatcher(m_statisticsSetFactory.create(),
+                         threadContext.getDispatchResultReporter(),
+                         new StopWatchImplementation());
+
+        return new DispatcherHolder(threadContext, dispatcher);
+      }
+    };
+
+    public DispatcherHolder getDispatcherHolder() throws EngineException {
+      try {
+        return (DispatcherHolder)m_threadLocal.get();
+      }
+      catch (UncheckedException e) {
+        throw new EngineException(e.getMessage());
+      }
+    }
+
+    private final class UncheckedException extends UncheckedGrinderException {
+      public UncheckedException(String message) {
+        super(message);
+      }
+    }
+  }
+
+  /**
+   * Caches a single Dispatcher for a particular worker thread. Used by
+   * {@link TestData#dispatch}.
+   *
+   * <p>
+   * Only allowing a single Dispatcher prevents nested invocations for the same
+   * test/thread from being recorded multiple times. This makes life simpler for
+   * the user, and for the script engine instrumentation.
+   * </p>
+   */
+  private static final class DispatcherHolder {
+    private final ThreadContext m_threadContext;
+    private Dispatcher m_dispatcher;
+
+    public DispatcherHolder(ThreadContext threadContext,
+                            Dispatcher dispatcher) {
+      m_threadContext = threadContext;
+      m_dispatcher = dispatcher;
+    }
+
+    public Dispatcher reserve() throws ShutdownException {
+      final Dispatcher result = m_dispatcher;
+
+      if (m_dispatcher != null) {
+        m_threadContext.pushDispatchContext(m_dispatcher);
+        m_dispatcher = null;
       }
 
-      final ThreadLogger threadLogger = threadContext.getThreadLogger();
+      return result;
+    }
 
-      if (m_processContext.getShutdown()) {
-        throw new ShutdownException("Process has been shutdown");
-      }
+    public void release(Dispatcher dispatcher) {
+      m_threadContext.popDispatchContext();
+      m_dispatcher = dispatcher;
+    }
+  }
 
-      if (threadLogger.getCurrentTestNumber() != -1) {
-        // Originally we threw a ReentrantInvocationException here.
-        // However, this caused problems when wrapping Jython objects
-        // that call themselves; in our scheme the wrapper shares a
-        // dictionary so self = self and we recurse up our own.
-        return invokeable.call();
-      }
+  /**
+   * Three states:
+   * <ul>
+   * <li><em>initialised</em> Start time is -1. Dispatch time is -1.
+   * Statistics all zero.</li>
+   * <li><em>dispatching</em> Start time is valid. Dispatch time is -1.
+   * Statistics are valid and available for update.</li>
+   * <li><em>complete</em> Ready to report. Start time is valid. Dispatch
+   * time is valid. Statistics are valid and available for update.</li>
+   * </ul>
+   *
+   * {@link ThreadContextImplementation#getDispatchContext()} takes care to only
+   * return references to Dispatchers that are <em>dispatching</em> or
+   * <em>complete</em>.
+   */
+  private final class Dispatcher implements DispatchContext {
+    private final StatisticsSet m_dispatchStatistics;
+    private final DispatchResultReporter m_resultReporter;
+    private final StopWatch m_pauseTimer;
 
-      threadLogger.setCurrentTestNumber(testData.getTest().getNumber());
+    private long m_startTime = -1;
+    private long m_dispatchTime = -1;
 
-      m_scriptStatistics.beginTest(testData, getRunNumber());
+    public Dispatcher(StatisticsSet statisticsSet,
+                      DispatchResultReporter resultReporter,
+                      StopWatch pauseTimer) {
+      m_dispatchStatistics = statisticsSet;
+      m_resultReporter = resultReporter;
+      m_pauseTimer = pauseTimer;
+    }
+
+    public Object dispatch(Callable callable) {
+      assert m_startTime == -1;
+      assert m_dispatchTime == -1;
 
       try {
-        startTimer();
+        // Make it more likely that the timed section has a "clear run".
+        Thread.yield();
 
-        final Object testResult;
+        m_startTime = System.currentTimeMillis();
 
         try {
-          testResult = invokeable.call();
+          return callable.call();
         }
         finally {
-          stopTimer();
+          m_dispatchTime = System.currentTimeMillis() - m_startTime;
         }
-
-        return testResult;
       }
-      catch (org.python.core.PyException e) {
+      catch (RuntimeException e) {
         // Always mark as an error if the test threw an exception.
-        m_scriptStatistics.setSuccessNoChecks(false);
+        m_testStatisticsHelper.setSuccess(m_dispatchStatistics, false);
 
         // We don't log the exception. If the script doesn't handle the
         // exception it will be logged when the run is aborted,
@@ -176,14 +242,52 @@ final class TestData
         // doing.
         throw e;
       }
-      finally {
-        m_scriptStatistics.endTest(
-          m_startTime - m_processContext.getExecutionStartTime(),
-          m_elapsedTime);
+    }
 
-        threadLogger.setCurrentTestNumber(-1);
+    public void report() {
+      if (m_dispatchTime >= 0) {
+        m_testStatisticsHelper.recordTest(
+          m_dispatchStatistics, getElapsedTime());
+
+        m_resultReporter.report(getTest(), m_startTime, m_dispatchStatistics);
+
+        getTestStatistics().add(m_dispatchStatistics);
+
+        // Reset.
+        m_dispatchStatistics.reset();
+        m_pauseTimer.reset();
+        m_startTime = -1;
+        m_dispatchTime = -1;
       }
     }
+
+    public Test getTest() {
+      return TestData.this.getTest();
+    }
+
+    public StatisticsSet getStatistics() {
+      return m_startTime >= 0 ? m_dispatchStatistics : null;
+    }
+
+    public StopWatch getPauseTimer() {
+      return m_pauseTimer;
+    }
+
+    public long getElapsedTime() {
+      if (m_startTime == -1) {
+        return -1;
+      }
+
+      final long unadjustedTime;
+
+      if (m_dispatchTime == -1) {
+        unadjustedTime = System.currentTimeMillis() - m_startTime;
+      }
+      else {
+        unadjustedTime = m_dispatchTime;
+      }
+
+      return Math.max(unadjustedTime - m_pauseTimer.getTime(), 0);
+    }
   }
-      */
 }

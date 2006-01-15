@@ -123,7 +123,7 @@ public interface ScriptEngine {
    */
   interface Dispatcher {
 
-    /*
+    /**
      * Dispatch method.
      *
      * <p>If called multiple times for the same test and thread, only the outer

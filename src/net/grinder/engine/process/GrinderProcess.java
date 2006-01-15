@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // Copyright (C) 2004 Slavik Gnatenko
 // All rights reserved.
@@ -135,12 +135,13 @@ final class GrinderProcess {
     }
 
     m_context =
-      new ProcessContext(m_initialisationMessage.getWorkerIdentity(),
-                         properties,
-                         m_loggerImplementation.getProcessLogger(),
-                         m_loggerImplementation.getFilenameFactory(),
-                         consoleSender,
-                         StatisticsServicesImplementation.getInstance());
+      new ProcessContextImplementation(
+        m_initialisationMessage.getWorkerIdentity(),
+        properties,
+        m_loggerImplementation.getProcessLogger(),
+        m_loggerImplementation.getFilenameFactory(),
+        consoleSender,
+        StatisticsServicesImplementation.getInstance());
 
     final Logger logger = m_context.getProcessLogger();
 

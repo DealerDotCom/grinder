@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,9 +27,12 @@ import net.grinder.common.Test;
 import net.grinder.common.StubTest;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
+import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
+import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
-import net.grinder.testutility.CallData;
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -41,66 +44,243 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestTestData extends TestCase {
 
-  public void testTestData() throws Exception {
-    final ThreadContextLocator threadContextLocator =
-      new StubThreadContextLocator();
+  private static final StatisticsIndexMap.LongSampleIndex s_timedTestsIndex;
 
-    final Test test1 = new StubTest(99, "Some stuff");
+  static {
+    final StatisticsIndexMap indexMap =
+      StatisticsServicesImplementation.getInstance().getStatisticsIndexMap();
 
-    final StatisticsSetFactory statisticsSetFactory =
-      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+    s_timedTestsIndex= indexMap.getLongSampleIndex("timedTests");
+  }
 
-    final TestData testData1 =
-      new TestData(
-        null, threadContextLocator, statisticsSetFactory.create(), test1);
-    assertEquals(test1, testData1.getTest());
-    assertNotNull(testData1.getStatisticsSet());
 
-    final Test test2 = new StubTest(-33, "");
+  private final StatisticsSetFactory m_statisticsSetFactory =
+    StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
-    final TestData testData2 =
-      new TestData(
-        null, threadContextLocator, statisticsSetFactory.create(), test2);
-    assertEquals(test2, testData2.getTest());
-    assertNotNull(testData2.getStatisticsSet());
+  private final RandomStubFactory m_scriptEngineStubFactory =
+    new RandomStubFactory(ScriptEngine.class);
+  private final ScriptEngine m_scriptEngine =
+    (ScriptEngine)m_scriptEngineStubFactory.getStub();
+
+  private final RandomStubFactory m_testStatisticsHelperStubFactory =
+    new RandomStubFactory(TestStatisticsHelper.class);
+  private final TestStatisticsHelper m_testStatisticsHelper =
+    (TestStatisticsHelper)m_testStatisticsHelperStubFactory.getStub();
+
+  private final StubThreadContextLocator m_threadContextLocator =
+    new StubThreadContextLocator();
+  private final RandomStubFactory m_threadContextStubFactory =
+    new RandomStubFactory(ThreadContext.class);
+  private final ThreadContext m_threadContext =
+    (ThreadContext)m_threadContextStubFactory.getStub();
+
+  public void testCreateProxy() throws Exception {
+    final TestData testData =
+      new TestData(null, m_statisticsSetFactory, null, m_scriptEngine, null);
+
+    final Object original = new Object();
+
+    testData.createProxy(original);
+
+    m_scriptEngineStubFactory.assertSuccess(
+      "createInstrumentedProxy", null, testData, original);
+    m_scriptEngineStubFactory.assertNoMoreCalls();
   }
 
   public void testDispatch() throws Exception {
+    final Test test1 = new StubTest(1, "test1");
 
-    final ThreadContextLocator threadContextLocator =
-      new StubThreadContextLocator();
-
-    final StatisticsSetFactory statisticsSetFactory =
-      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
-
-    final Test test = new StubTest(2, "A description");
     final TestData testData =
-      new TestData(null, threadContextLocator, statisticsSetFactory.create(), test);
+      new TestData(m_threadContextLocator,
+                   m_statisticsSetFactory,
+                   m_testStatisticsHelper,
+                   m_scriptEngine,
+                   test1);
 
-    final Dispatcher.Callable callable =
-      (Dispatcher.Callable)
-      (new RandomStubFactory(Dispatcher.Callable.class)).getStub();
+    assertSame(test1, testData.getTest());
+    final StatisticsSet statistics = testData.getTestStatistics();
+    assertNotNull(statistics);
 
+    final RandomStubFactory callableStubFactory =
+      new RandomStubFactory(Callable.class);
+    final Callable callable = (Callable)callableStubFactory.getStub();
+
+    // 1. Happy case.
     try {
       testData.dispatch(callable);
       fail("Expected EngineException");
     }
     catch (EngineException e) {
+      AssertUtilities.assertContains(e.getMessage(), "Only Worker Threads");
     }
 
-    final RandomStubFactory threadContextStubFactory =
-      new RandomStubFactory(ThreadContext.class);
+    callableStubFactory.assertNoMoreCalls();
 
-    threadContextLocator.set(
-      (ThreadContext)threadContextStubFactory.getStub());
+    m_threadContextLocator.set(m_threadContext);
 
-    final Object o = testData.dispatch(callable);
+    testData.dispatch(callable);
 
-    final CallData callData =
-      threadContextStubFactory.assertSuccess("invokeTest", testData, callable);
-    assertEquals(o, callData.getResult());
+    callableStubFactory.assertSuccess("call");
+    callableStubFactory.assertNoMoreCalls();
 
-    threadContextStubFactory.assertNoMoreCalls();
+    m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
+    m_threadContextStubFactory.assertSuccess(
+      "pushDispatchContext", DispatchContext.class);
+    m_threadContextStubFactory.assertSuccess("popDispatchContext");
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    // Test statistics not updated until we report.
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+
+    // 2. Nested case.
+    final Callable outer = new Callable() {
+
+      public Object call() {
+        // No call to getDispatchResultReporter as dispatcher is reused.
+        m_threadContextStubFactory.assertSuccess(
+          "pushDispatchContext", DispatchContext.class);
+
+        try {
+          testData.dispatch(callable);
+        }
+        catch (EngineException e) {
+          fail(e.getMessage());
+        }
+        return null;
+      }};
+
+    testData.dispatch(outer);
+
+    m_threadContextStubFactory.assertSuccess("popDispatchContext");
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    // Test statistics not updated until we report.
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+
+    // 3. Unhappy case.
+    final RuntimeException problem = new RuntimeException();
+    callableStubFactory.setThrows("call", problem);
+
+    try {
+      testData.dispatch(callable);
+      fail("Expected RuntimeException");
+    }
+    catch (RuntimeException e) {
+      assertSame(problem, e);
+    }
+
+    // The dispatcher's statistics (not the test statistics) are
+    // marked bad.
+    final StatisticsSet dispatcherStatistics =
+      (StatisticsSet)
+      m_testStatisticsHelperStubFactory.assertSuccess(
+      "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
+    assertNotSame(statistics, dispatcherStatistics);
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+  }
+
+  public void testDispatchContext() throws Exception {
+    final Test test1 = new StubTest(1, "test1");
+
+    final TestData testData =
+      new TestData(m_threadContextLocator,
+                   m_statisticsSetFactory,
+                   m_testStatisticsHelper,
+                   m_scriptEngine,
+                   test1);
+
+    assertSame(test1, testData.getTest());
+    final StatisticsSet statistics = testData.getTestStatistics();
+    assertNotNull(statistics);
+
+    final RandomStubFactory callableStubFactory =
+      new RandomStubFactory(Callable.class);
+    final Callable callable = (Callable)callableStubFactory.getStub();
+
+    m_threadContextLocator.set(m_threadContext);
+
+    final long beforeTime = System.currentTimeMillis();
+
+    testData.dispatch(callable);
+
+    callableStubFactory.assertSuccess("call");
+    callableStubFactory.assertNoMoreCalls();
+
+    m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
+    final DispatchContext dispatchContext =
+      (DispatchContext)
+      m_threadContextStubFactory.assertSuccess(
+        "pushDispatchContext", DispatchContext.class).getParameters()[0];
+    m_threadContextStubFactory.assertSuccess("popDispatchContext");
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    // Test statistics not updated until we report.
+    assertEquals(0, statistics.getCount(s_timedTestsIndex));
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+
+    assertSame(test1, dispatchContext.getTest());
+
+    final StatisticsSet dispatchStatistics = dispatchContext.getStatistics();
+    assertNotSame(statistics, dispatchStatistics);
+    assertNotNull(dispatchStatistics);
+
+    assertNotNull(dispatchContext.getPauseTimer());
+
+    final long elapsedTime = dispatchContext.getElapsedTime();
+    assertTrue(elapsedTime >= 0);
+    assertTrue(elapsedTime <= System.currentTimeMillis() - beforeTime);
+
+    dispatchContext.getPauseTimer().add(new StopWatch(){
+
+      public void start() { }
+      public void stop() { }
+      public void reset() { }
+      public void add(StopWatch watch) { }
+
+      public long getTime() throws StopWatchRunningException {
+        return 1000;
+      }
+    });
+
+    // Call will take much less than a second, so we get 0.
+    assertEquals(0, dispatchContext.getElapsedTime());
+
+    // We're using a stubbed test statistics helper, and its easier
+    // for the test to update the statistics by hand.
+    dispatchStatistics.addSample(s_timedTestsIndex, 0);
+
+    dispatchContext.report();
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "recordTest", dispatchStatistics, new Long(0));
+
+    dispatchContext.report();
+    assertEquals(0, dispatchStatistics.getCount(s_timedTestsIndex));
+    assertEquals(1, statistics.getCount(s_timedTestsIndex));
+
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+
+    assertEquals(-1, dispatchContext.getElapsedTime());
+    assertNull(dispatchContext.getStatistics());
+
+    final Callable longerCallable = new Callable() {
+      public Object call() {
+        assertTrue(dispatchContext.getElapsedTime() < 20);
+        try {
+          Thread.sleep(50);
+        }
+        catch (InterruptedException e) {
+          fail(e.getMessage());
+        }
+        assertTrue(dispatchContext.getElapsedTime() >= 50);
+        return null;
+      }
+    };
+
+    testData.dispatch(longerCallable);
+
+    final long elapsedTime2 = dispatchContext.getElapsedTime();
+    assertTrue(elapsedTime2 >= 50);
+    assertTrue(elapsedTime2 <= 200); // Pause timer was reset after last call.
   }
 
   /**
@@ -126,26 +306,5 @@ public class TestTestData extends TestCase {
     public ThreadContext getThreadContext() {
       return (ThreadContext)getStub();
     }
-  }
-
-  public void testCreateProxy() throws Exception {
-    final StatisticsSetFactory statisticsSetFactory =
-      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
-
-    final RandomStubFactory scriptEngineStubFactory =
-      new RandomStubFactory(ScriptEngine.class);
-    final ScriptEngine scriptEngine =
-      (ScriptEngine)scriptEngineStubFactory.getStub();
-
-    final TestData testData =
-      new TestData(scriptEngine, null, statisticsSetFactory.create(), null);
-
-    final Object original = new Object();
-
-    testData.createProxy(original);
-
-    scriptEngineStubFactory.assertSuccess(
-      "createInstrumentedProxy", null, testData, original);
-    scriptEngineStubFactory.assertNoMoreCalls();
   }
 }

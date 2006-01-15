@@ -23,8 +23,10 @@ package net.grinder.engine.process;
 
 import java.io.PrintWriter;
 
+import net.grinder.common.Test;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.StatisticsSet;
 
 /**
  * Writes lines to the data file on behalf of a particular thread.
@@ -52,7 +54,11 @@ class ThreadDataWriter {
     m_bufferAfterThreadIDIndex = m_buffer.length();
   }
 
-  public void report(DispatchContext dispatchContext, int runNumber) {
+  public void report(int runNumber,
+                     Test test,
+                     long timeSinceExecutionStart,
+                     StatisticsSet statistics) {
+
     if (runNumber == m_lastRunNumber && m_lastRunNumber != -1) {
       m_buffer.setLength(m_bufferAfterRunNumberIndex);
     }
@@ -65,10 +71,10 @@ class ThreadDataWriter {
       m_bufferAfterRunNumberIndex = m_buffer.length();
     }
 
-    m_buffer.append(dispatchContext.getTest().getNumber());
+    m_buffer.append(test.getNumber());
 
     m_buffer.append(", ");
-    m_buffer.append(dispatchContext.getStartTime());
+    m_buffer.append(timeSinceExecutionStart);
 
     for (int i = 0; i < m_expressionViews.length; ++i) {
       m_buffer.append(", ");
@@ -77,12 +83,10 @@ class ThreadDataWriter {
         m_expressionViews[i].getExpression();
 
       if (expression.isDouble()) {
-        m_buffer.append(expression.getDoubleValue(
-          dispatchContext.getStatistics()));
+        m_buffer.append(expression.getDoubleValue(statistics));
       }
       else {
-        m_buffer.append(expression.getLongValue(
-          dispatchContext.getStatistics()));
+        m_buffer.append(expression.getLongValue(statistics));
       }
     }
 

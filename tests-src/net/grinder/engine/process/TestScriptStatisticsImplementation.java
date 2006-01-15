@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,25 +21,20 @@
 
 package net.grinder.engine.process;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-
-import net.grinder.common.StubTest;
-import net.grinder.common.Test;
 import net.grinder.script.InvalidContextException;
-import net.grinder.script.Statistics;
-import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsServicesTestFactory;
+import net.grinder.statistics.StatisticsSet;
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 
 import junit.framework.TestCase;
 
 
 /**
- * Unit test case for <code>ScriptStatisticsImplementation</code>.
+ * Unit test case for {@link ScriptStatisticsImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -47,7 +42,6 @@ import junit.framework.TestCase;
 public class TestScriptStatisticsImplementation extends TestCase {
 
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
-  private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
   private static final StatisticsIndexMap.DoubleIndex s_userDouble0Index;
 
   static {
@@ -55,330 +49,168 @@ public class TestScriptStatisticsImplementation extends TestCase {
       StatisticsServicesImplementation.getInstance().getStatisticsIndexMap();
 
     s_errorsIndex = indexMap.getLongIndex("errors");
-    s_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
     s_userDouble0Index = indexMap.getDoubleIndex("userDouble0");
   }
 
-  private final ThreadContextStubFactory m_threadContextFactory =
-    new ThreadContextStubFactory();
+  private final RandomStubFactory m_testStatisticsHelperStubFactory =
+    new RandomStubFactory(TestStatisticsHelper.class);
+  private final TestStatisticsHelper m_testStatisticsHelper =
+    (TestStatisticsHelper)m_testStatisticsHelperStubFactory.getStub();
+
+  private final RandomStubFactory m_threadContextStubFactory =
+    new RandomStubFactory(ThreadContext.class);
+  private final ThreadContext m_threadContext =
+    (ThreadContext)m_threadContextStubFactory.getStub();
+
+  private final RandomStubFactory m_dispatchContextStubFactory =
+    new RandomStubFactory(DispatchContext.class);
+  private final DispatchContext m_dispatchContext =
+    (DispatchContext)m_dispatchContextStubFactory.getStub();
 
   private final StubThreadContextLocator m_threadContextLocator =
     new StubThreadContextLocator();
 
-  private final ByteArrayOutputStream m_dataOutput =
-    new ByteArrayOutputStream();
-
-  private final PrintWriter m_dataWriter = new PrintWriter(m_dataOutput, true);
+  private final StatisticsServices m_statisticsServices =
+    StatisticsServicesTestFactory.createTestInstance();
+  private StatisticsSet m_statisticsSet =
+    m_statisticsServices.getStatisticsSetFactory().create();
 
   public void testContextChecks() throws Exception {
 
-    final ScriptStatisticsImplementation scriptStatisticsImplementation =
+    final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
-          m_dataWriter,
-          StatisticsServicesImplementation.getInstance(),
-          3,
-          false);
+          m_testStatisticsHelper);
 
-    assertFalse(scriptStatisticsImplementation.availableForUpdate());
+    // 1. Null thread context.
+    assertFalse(scriptStatistics.availableForUpdate());
 
     try {
-      scriptStatisticsImplementation.report();
+      scriptStatistics.report();
       fail("Expected InvalidContextException");
     }
     catch (InvalidContextException e) {
-      assertTrue(e.getMessage().indexOf("worker threads") > 0);
+      AssertUtilities.assertContains(e.getMessage(), "worker threads");
     }
 
-    m_threadContextLocator.set(m_threadContextFactory.getThreadContext());
-    assertFalse(scriptStatisticsImplementation.availableForUpdate());
+    // 2. Different script statistics.
+    m_threadContextLocator.set(m_threadContext);
+    m_threadContextStubFactory.setResult("getScriptStatistics",
+      new ScriptStatisticsImplementation(
+        m_threadContextLocator, m_testStatisticsHelper));
+
+    assertFalse(scriptStatistics.availableForUpdate());
 
     try {
-      scriptStatisticsImplementation.report();
+      scriptStatistics.report();
       fail("Expected InvalidContextException");
     }
     catch (InvalidContextException e) {
-      assertTrue(e.getMessage().indexOf("which they are acquired") > 0);
+      AssertUtilities.assertContains(e.getMessage(), "which they are acquired");
     }
 
-    m_threadContextFactory.setScriptStatistics(scriptStatisticsImplementation);
-    assertFalse(scriptStatisticsImplementation.availableForUpdate());
+    // 3. Null dispatch context.
+    m_threadContextStubFactory.setResult("getScriptStatistics", scriptStatistics);
+    m_threadContextStubFactory.setResult("getDispatchContext", null);
+    assertFalse(scriptStatistics.availableForUpdate());
 
     try {
-      scriptStatisticsImplementation.report();
+      scriptStatistics.getSuccess();
       fail("Expected InvalidContextException");
     }
     catch (InvalidContextException e) {
-      assertTrue(e.getMessage().indexOf("not yet performed") > 0);
+      AssertUtilities.assertContains(
+        e.getMessage(), "should have called setDelayReports");
     }
+
+    m_threadContextStubFactory.setResult("getDispatchContext", m_dispatchContext);
+    m_dispatchContextStubFactory.setResult("getStatistics", m_statisticsSet);
+
+    final boolean result = scriptStatistics.getSuccess();
+
+    assertEquals(
+      new Boolean(result),
+      m_testStatisticsHelperStubFactory
+      .assertSuccess("getSuccess", m_statisticsSet).getResult());
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
   }
 
-  public void testReport() throws Exception {
-
-    final StatisticsServices statisticsServices =
-      StatisticsServicesTestFactory.createTestInstance();
-
-    final ScriptStatisticsImplementation scriptStatisticsImplementation =
+  public void testThreadContextPassThrough() throws Exception {
+    final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
-          m_dataWriter,
-          statisticsServices,
-          0,
-          true);
+          m_testStatisticsHelper);
+    m_threadContextLocator.set(m_threadContext);
+    m_threadContextStubFactory.setResult("getScriptStatistics", scriptStatistics);
 
-    m_threadContextLocator.set(m_threadContextFactory.getThreadContext());
-    m_threadContextFactory.setScriptStatistics(scriptStatisticsImplementation);
+    scriptStatistics.setDelayReports(true);
+    m_threadContextStubFactory.assertSuccess("getScriptStatistics");
+    m_threadContextStubFactory.assertSuccess("setDelayReports", Boolean.TRUE);
 
-    assertFalse(scriptStatisticsImplementation.availableForUpdate());
+    scriptStatistics.setDelayReports(false);
+    m_threadContextStubFactory.assertSuccess("getScriptStatistics");
+    m_threadContextStubFactory.assertSuccess("setDelayReports", Boolean.FALSE);
 
-    final Test test = new StubTest(1, "A description");
-    final TestData testData =
-      new TestData(null, m_threadContextLocator,
-                   statisticsServices.getStatisticsSetFactory().create(), test);
+    scriptStatistics.report();
+    m_threadContextStubFactory.assertSuccess("getScriptStatistics");
+    m_threadContextStubFactory.assertSuccess("flushPendingDispatchContext");
 
-    scriptStatisticsImplementation.beginRun();
-
-    scriptStatisticsImplementation.beginTest(testData, 10);
-    assertEquals("No previous data to flush", 0, m_dataOutput.size());
-    assertTrue(scriptStatisticsImplementation.availableForUpdate());
-    assertEquals(-1, scriptStatisticsImplementation.getTime());
-
-    scriptStatisticsImplementation.endTest(123, 99);
-    assertEquals("0, 10, 1, 123, 99, 0", m_dataOutput.toString().trim());
-    assertFalse(scriptStatisticsImplementation.availableForUpdate());
-    assertEquals(99, scriptStatisticsImplementation.getTime());
-
-    m_dataOutput.reset();
-
-    // No op.
-    scriptStatisticsImplementation.report();
-    assertEquals(0, m_dataOutput.size());
-
-    scriptStatisticsImplementation.endRun();
-
-    scriptStatisticsImplementation.beginRun();
-
-    scriptStatisticsImplementation.beginTest(testData, 12);
-    scriptStatisticsImplementation.setSuccess(false);
-    scriptStatisticsImplementation.endTest(300, 10);
-    assertEquals("0, 12, 1, 300, 0, 1", m_dataOutput.toString().trim());
-    assertEquals(-1, scriptStatisticsImplementation.getTime());
-
-    m_dataOutput.reset();
-
-    try {
-      scriptStatisticsImplementation.setSuccess(false);
-      fail("Expected InvalidContextException");
-    }
-    catch (InvalidContextException e) {
-    }
-
-    scriptStatisticsImplementation.setDelayReports(true);
-
-    scriptStatisticsImplementation.beginTest(testData, 12);
-    scriptStatisticsImplementation.endTest(410, 231);
-    assertEquals("Report delayed", 0, m_dataOutput.size());
-    assertEquals(231, scriptStatisticsImplementation.getTime());
-
-    scriptStatisticsImplementation.report();
-    assertEquals("0, 12, 1, 410, 231, 0", m_dataOutput.toString().trim());
-    assertEquals(231, scriptStatisticsImplementation.getTime());
-
-    m_dataOutput.reset();
-
-    scriptStatisticsImplementation.beginTest(testData, 12);
-    scriptStatisticsImplementation.endTest(410, 231);
-    assertEquals("Report delayed", 0, m_dataOutput.size());
-
-    scriptStatisticsImplementation.setDelayReports(false);
-    assertEquals("0, 12, 1, 410, 231, 0", m_dataOutput.toString().trim());
-
-    scriptStatisticsImplementation.endRun();
+    m_threadContextStubFactory.assertNoMoreCalls();
   }
 
-  public void testReportWithRecordTimeFalse() throws Exception {
-
-    final StatisticsServices statisticsServices =
-      StatisticsServicesTestFactory.createTestInstance();
-
-    final ScriptStatisticsImplementation scriptStatisticsImplementation =
+  public void testStatisticsPassThrough() throws Exception {
+    final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
-          m_dataWriter,
-          statisticsServices,
-          3,
-          false);
+          m_testStatisticsHelper);
+    m_threadContextLocator.set(m_threadContext);
+    m_threadContextStubFactory.setResult("getScriptStatistics", scriptStatistics);
 
-    m_threadContextLocator.set(m_threadContextFactory.getThreadContext());
-    m_threadContextFactory.setScriptStatistics(scriptStatisticsImplementation);
+    m_threadContextStubFactory.setResult("getDispatchContext", m_dispatchContext);
+    m_dispatchContextStubFactory.setResult("getStatistics", m_statisticsSet);
 
-    final Test test = new StubTest(22, "A description");
-    final TestData testData =
-      new TestData(null, m_threadContextLocator,
-                   statisticsServices.getStatisticsSetFactory().create(), test);
+    scriptStatistics.setValue(s_errorsIndex, 1);
+    assertEquals(1, scriptStatistics.getValue(s_errorsIndex));
+    assertEquals(1, m_statisticsSet.getValue(s_errorsIndex));
 
-    scriptStatisticsImplementation.beginRun();
+    scriptStatistics.setValue(s_userDouble0Index, 5.3);
+    assertEquals(5.3d, scriptStatistics.getValue(s_userDouble0Index), 0.01);
+    assertEquals(5.3d, m_statisticsSet.getValue(s_userDouble0Index), 0.01);
 
-    scriptStatisticsImplementation.beginTest(testData, 10);
-    assertEquals("No previous data to flush", 0, m_dataOutput.size());
+    scriptStatistics.addValue(s_userDouble0Index, 1.0);
+    assertEquals(6.3d, scriptStatistics.getValue(s_userDouble0Index), 0.01);
+    assertEquals(6.3d, m_statisticsSet.getValue(s_userDouble0Index), 0.01);
 
-    scriptStatisticsImplementation.endTest(123, 99);
-    assertEquals("3, 10, 22, 123, 0, 0", m_dataOutput.toString().trim());
-    assertEquals(99, scriptStatisticsImplementation.getTime());
+    scriptStatistics.addValue(s_errorsIndex, 2);
+    assertEquals(3, scriptStatistics.getValue(s_errorsIndex));
+    assertEquals(3, m_statisticsSet.getValue(s_errorsIndex));
 
-    m_dataOutput.reset();
+    scriptStatistics.setValue(s_errorsIndex, 0);
+    assertEquals(0, scriptStatistics.getValue(s_errorsIndex));
+    assertEquals(0, m_statisticsSet.getValue(s_errorsIndex));
 
-    // No op.
-    scriptStatisticsImplementation.report();
-    assertEquals(0, m_dataOutput.size());
-
-    scriptStatisticsImplementation.endRun();
-
-    scriptStatisticsImplementation.beginRun();
-
-    scriptStatisticsImplementation.beginTest(testData, 12);
-    scriptStatisticsImplementation.setSuccess(false);
-    scriptStatisticsImplementation.endTest(300, 10);
-    assertEquals("3, 12, 22, 300, 0, 1", m_dataOutput.toString().trim());
-
-    m_dataOutput.reset();
-
-    try {
-      scriptStatisticsImplementation.setSuccess(false);
-      fail("Expected InvalidContextException");
-    }
-    catch (InvalidContextException e) {
-    }
-
-    scriptStatisticsImplementation.setDelayReports(true);
-
-    scriptStatisticsImplementation.beginTest(testData, 12);
-    scriptStatisticsImplementation.endTest(410, 231);
-    assertEquals("Report delayed", 0, m_dataOutput.size());
-
-    scriptStatisticsImplementation.report();
-    assertEquals("3, 12, 22, 410, 0, 0", m_dataOutput.toString().trim());
-
-    m_dataOutput.reset();
-
-    scriptStatisticsImplementation.beginTest(testData, 12);
-    scriptStatisticsImplementation.endTest(410, 231);
-    assertEquals("Report delayed", 0, m_dataOutput.size());
-
-    scriptStatisticsImplementation.endRun();
-
-    assertEquals("endRun() has flushed report",
-                 "3, 12, 22, 410, 0, 0", m_dataOutput.toString().trim());
-    assertEquals(231, scriptStatisticsImplementation.getTime());
+    scriptStatistics.setSuccess(false);
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "setSuccess", m_statisticsSet, Boolean.FALSE);
+    scriptStatistics.setSuccess(true);
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "setSuccess", m_statisticsSet, Boolean.TRUE);
   }
 
-  public void testStatistics() throws Exception {
-
-    final StatisticsServices statisticsServices =
-      StatisticsServicesTestFactory.createTestInstance();
-
-    statisticsServices.getDetailStatisticsView().add(
-      new ExpressionView("foo", "foo", "userDouble0"));
-
-    final ScriptStatisticsImplementation scriptStatisticsImplementation =
+  public void testDispatchContextPassThrough() throws Exception {
+    final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
-          m_dataWriter,
-          statisticsServices,
-          3,
-          false);
+          m_testStatisticsHelper);
+    m_threadContextLocator.set(m_threadContext);
+    m_threadContextStubFactory.setResult("getScriptStatistics", scriptStatistics);
 
-    m_threadContextLocator.set(m_threadContextFactory.getThreadContext());
-    m_threadContextFactory.setScriptStatistics(scriptStatisticsImplementation);
+    m_threadContextStubFactory.setResult("getDispatchContext", m_dispatchContext);
 
-    final Test test = new StubTest(22, "A description");
-    final TestData testData =
-      new TestData(null, m_threadContextLocator,
-                   statisticsServices.getStatisticsSetFactory().create(), test);
-
-    scriptStatisticsImplementation.beginRun();
-
-    scriptStatisticsImplementation.beginTest(testData, 10);
-
-    scriptStatisticsImplementation.setValue(s_errorsIndex, 10);
-    scriptStatisticsImplementation.addValue(s_untimedTestsIndex, 7);
-    scriptStatisticsImplementation.addValue(s_untimedTestsIndex, 1);
-    scriptStatisticsImplementation.addValue(s_userDouble0Index, 1.5);
-    scriptStatisticsImplementation.setValue(s_userDouble0Index, 1.5);
-
-    assertEquals(10, scriptStatisticsImplementation.getValue(s_errorsIndex));
-    assertEquals(8,
-                 scriptStatisticsImplementation.getValue(s_untimedTestsIndex));
-    assertEquals(1.5d,
-                 scriptStatisticsImplementation.getValue(s_userDouble0Index),
-                 0.0001d);
-
-    scriptStatisticsImplementation.endTest(123, 99);
-
-    // Errors should be overriden to 1 and
-    // untimed tests should be overridden to 0.
-    assertEquals(1, scriptStatisticsImplementation.getValue(s_errorsIndex));
-    assertEquals(0,
-                 scriptStatisticsImplementation.getValue(s_untimedTestsIndex));
-    assertEquals(1.5d,
-                 scriptStatisticsImplementation.getValue(s_userDouble0Index),
-                 0.0001d);
-
-    assertEquals("3, 10, 22, 123, 0, 1, 1.5", m_dataOutput.toString().trim());
-
-    m_dataOutput.reset();
-
-    scriptStatisticsImplementation.beginTest(testData, 10);
-
-    scriptStatisticsImplementation.setValue(s_errorsIndex, 10);
-    scriptStatisticsImplementation.addValue(s_untimedTestsIndex, 7);
-    scriptStatisticsImplementation.addValue(s_untimedTestsIndex, 1);
-    scriptStatisticsImplementation.addValue(s_userDouble0Index, 1.5);
-    scriptStatisticsImplementation.setSuccess(true);
-
-    assertEquals(0, scriptStatisticsImplementation.getValue(s_errorsIndex));
-    assertEquals(8,
-                 scriptStatisticsImplementation.getValue(s_untimedTestsIndex));
-    assertEquals(1.5d,
-                 scriptStatisticsImplementation.getValue(s_userDouble0Index),
-                 0.0001d);
-
-    scriptStatisticsImplementation.endTest(123, 99);
-
-    // Errors should be overriden to 0 and
-    // untimed tests should be overridden to 1.
-    assertEquals(0, scriptStatisticsImplementation.getValue(s_errorsIndex));
-    assertEquals(1,
-                 scriptStatisticsImplementation.getValue(s_untimedTestsIndex));
-    assertEquals(1.5d,
-                 scriptStatisticsImplementation.getValue(s_userDouble0Index),
-                 0.0001d);
-
-    assertEquals("3, 10, 22, 123, 0, 0, 1.5", m_dataOutput.toString().trim());
-  }
-
-  /**
-   * Must be public so that override_ methods can be called
-   * externally.
-   */
-  public static class ThreadContextStubFactory extends RandomStubFactory {
-
-    private Statistics m_scriptStatistics;
-
-    public ThreadContextStubFactory() {
-      super(ThreadContext.class);
-    }
-
-    public void setScriptStatistics(Statistics statistics) {
-      m_scriptStatistics = statistics;
-    }
-
-    public final ThreadContext getThreadContext() {
-      return (ThreadContext)getStub();
-    }
-
-    public Statistics override_getScriptStatistics(Object proxy) {
-      return m_scriptStatistics;
-    }
+    final long time = 213214L;
+    m_dispatchContextStubFactory.setResult("getElapsedTime", new Long(time));
+    assertEquals(time, scriptStatistics.getTime());
+    m_dispatchContextStubFactory.assertSuccess("getElapsedTime");
+    m_dispatchContextStubFactory.assertNoMoreCalls();
   }
 }
