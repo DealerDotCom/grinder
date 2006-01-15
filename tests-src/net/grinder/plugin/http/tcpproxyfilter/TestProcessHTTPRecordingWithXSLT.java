@@ -127,7 +127,7 @@ public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
     AssertUtilities.assertContains(
       (String)
       m_loggerStubFactory.assertSuccess("error", String.class).getParameters()[0],
-      "XSLT transformation failed");
+      "Unparseable date");
     m_loggerStubFactory.assertSuccess("getErrorLogWriter");
 
     m_loggerStubFactory.assertNoMoreCalls();

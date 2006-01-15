@@ -114,6 +114,9 @@ public class ProcessHTTPRecordingWithXSLT
         m_transformerFactory.newTransformer(
           new StreamSource(m_styleSheetInputStream));
 
+      // One might expect this to be the default, but it's not.
+      transformer.setErrorListener(m_transformerFactory.getErrorListener());
+
       final PrintWriter outputWriter = m_logger.getOutputLogWriter();
 
       transformer.transform(new DOMSource(result.getDomNode()),
