@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+ Copyright (C) 2006 Philip Aston
+ All rights reserved.
+
+ This file is part of The Grinder software distribution. Refer to
+ the file LICENSE which is part of The Grinder distribution for
+ licensing details. The Grinder distribution is available on the
+ Internet at http:grinder.sourceforge.net/
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+
 <xsl:stylesheet
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
   xmlns:g="http://grinder.sourceforge.net/tcpproxy/http/1.0"
@@ -33,7 +57,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:apply-templates select="*" mode="file"/>
 
     <xsl:value-of select="helper:newLine()"/>
-    <xsl:value-of select="helper:newLine()"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>class TestRunner:</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -44,7 +68,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:text>def __call__(self):</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>"""This method is called for every run perfomed by the worker thread."""</xsl:text>
+    <xsl:text>"""This method is called for every run performed by the worker thread."""</xsl:text>
     <xsl:value-of select="helper:newLine()"/>
 
     <xsl:apply-templates select="*" mode="__call__"/>
@@ -85,58 +109,57 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
+
+  <xsl:template match="g:request" mode="generate-id">
+    <!--  We ignore the @request-id attribute, and calculate our own ID's that
+          relate requests to the page. -->
+    <xsl:value-of select=
+    "(count(preceding::g:page) + 1) * 1000 + count(preceding-sibling::g:request) + 1"/>
+  </xsl:template>
+
+
   <xsl:template match="g:request" mode="file">
-    <xsl:value-of select="helper:newLine()"/>
-    <xsl:variable name="request-name" select="concat('request', @request-id)"/>
+    <xsl:if test="not(preceding::g:request)">
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text># Create an HTTPRequest for each request.</xsl:text>
+    </xsl:if>
+
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:variable name="request-number">
+      <xsl:apply-templates select ="." mode="generate-id"/>
+    </xsl:variable>
+    <xsl:variable name="request-name" select="concat('request', $request-number)"/>
     <xsl:value-of select="$request-name"/>
 
     <xsl:value-of select="concat(' = HTTPRequest(url=', g:url/@extends)"/>
     <xsl:value-of select="concat(', headers=', g:headers/@extends, ')')"/>
 
     <xsl:if test="g:body/g:file">
-      <xsl:value-of select="helper:newLine()"/>
+      <xsl:value-of select="helper:newLineAndIndent()"/>
       <xsl:value-of select="$request-name"/>
       <xsl:text>.setDataFromFile('</xsl:text>
       <xsl:value-of select="g:body/g:file"/>
       <xsl:text>')</xsl:text>
     </xsl:if>
 
+    <xsl:if test="not(preceding::g:request)">
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text># Replace the reference to the HTTPRequest with an instrumented version.</xsl:text>
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text># You can access the unadorned instance using </xsl:text>
+      <xsl:value-of select="$request-name"/>
+      <xsl:text>.__target__.</xsl:text>
+    </xsl:if>
+
     <xsl:value-of select="helper:newLine()"/>
-    <xsl:value-of select="concat('test', @request-id, '= Test(')"/>
-    <xsl:value-of select="concat(@request-id, ', ')"/>
+    <xsl:value-of select="concat($request-name, ' = Test(')"/>
+    <xsl:value-of select="concat($request-number, ', ')"/>
     <xsl:value-of select="helper:quoteForPython(g:description)"/>
     <xsl:value-of select="concat(').wrap(', $request-name, ')')"/>
 
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
-
-
-  <xsl:template match="g:page" mode="file">
-    <xsl:apply-templates select="*" mode="file"/>
-
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat('def ', @page-id, '():')"/>
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>"""Execute requests for </xsl:text>
-    <xsl:apply-templates select="*" mode="pageDescription"/>
-    <xsl:text>."""</xsl:text>
-    <xsl:apply-templates select="*" mode="page"/>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
-  </xsl:template>
-
-
-  <xsl:template match="g:page" mode="__call__">
-    <xsl:apply-templates select="*" mode="__call__"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat(@page-id, '()')"/>
-    <xsl:call-template name="indent">
-      <xsl:with-param name="characters" select="10-string-length(@page-id)"/>
-    </xsl:call-template>
-    <xsl:text> # </xsl:text>
-    <xsl:apply-templates select="*" mode="pageDescription"/>
-  </xsl:template>
-
 
   <xsl:template match="g:request[position() = 1]" mode="pageDescription">
     <xsl:value-of select="g:description"/>
@@ -147,7 +170,9 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:apply-templates select="g:sleep-time" mode="request"/>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat('test', @request-id, '.')"/>
+    <xsl:text>request</xsl:text>
+    <xsl:apply-templates select="." mode="generate-id"/>
+    <xsl:text>.</xsl:text>
     <xsl:value-of select="g:method"/>
     <xsl:text>('</xsl:text>
     <xsl:value-of select="g:url/g:path"/>
@@ -161,6 +186,71 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
     <xsl:text>)</xsl:text>
     <xsl:value-of select="helper:newLine()"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:page" mode="generate-id">
+    <!--  We ignore the @page attribute, and calculate our own ID's. -->
+    <xsl:value-of select="(count(preceding::g:page) + 1)"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:page" mode="file">
+    <xsl:apply-templates select="*" mode="file"/>
+
+    <xsl:variable name="page-id">
+      <xsl:apply-templates select="." mode="generate-id"/>
+    </xsl:variable>
+
+    <xsl:variable name="page-fn-name" select="concat('page', $page-id)"/>
+
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:value-of select="concat('def ', $page-fn-name, '():')"/>
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>"""Execute requests for </xsl:text>
+    <xsl:apply-templates select="*" mode="pageDescription"/>
+    <xsl:text>."""</xsl:text>
+    <xsl:apply-templates select="*" mode="page"/>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
+
+    <xsl:if test="not(preceding::g:page)">
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text># Replace the function with an instrumented version.</xsl:text>
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text># You can call the unadorned function using </xsl:text>
+      <xsl:value-of select="$page-fn-name"/>
+      <xsl:text>.__target__().</xsl:text>
+    </xsl:if>
+
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:value-of select="$page-fn-name"/>
+    <xsl:text> = Test(</xsl:text>
+    <xsl:value-of select="$page-id * 1000"/>
+    <xsl:text>, 'Page </xsl:text>
+    <xsl:value-of select="$page-id"/>
+    <xsl:text>').wrap(</xsl:text>
+    <xsl:value-of select="$page-fn-name"/>
+    <xsl:text>)</xsl:text>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:page" mode="__call__">
+    <xsl:apply-templates select="*" mode="__call__"/>
+
+    <xsl:variable name="page-id">
+      <xsl:apply-templates select="." mode="generate-id"/>
+    </xsl:variable>
+    <xsl:variable name="page-fn-name" select="concat('page', $page-id)"/>
+
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:value-of select="concat($page-fn-name, '()')"/>
+    <xsl:call-template name="indent">
+      <xsl:with-param name="characters" select="12-string-length(@page-fn-name)"/>
+    </xsl:call-template>
+    <xsl:text># </xsl:text>
+    <xsl:apply-templates select="*" mode="pageDescription"/>
   </xsl:template>
 
 
@@ -208,7 +298,9 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat('request', ../../@request-id, '.data')"/>
+    <xsl:text>request</xsl:text>
+    <xsl:apply-templates select="../.." mode="generate-id"/>
+    <xsl:text>.__target__.data'</xsl:text>
     <xsl:value-of select="helper:changeIndent(-1)"/>
 
  </xsl:template>
@@ -289,7 +381,6 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:param name="characters" select="1"/>
     <xsl:value-of select="substring('                      ', 0, $characters)"/>
   </xsl:template>
-
 
   <xsl:template match="text()|@*"/>
   <xsl:template match="text()|@*" mode="__call__"/>

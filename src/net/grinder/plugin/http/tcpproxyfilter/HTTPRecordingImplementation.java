@@ -121,7 +121,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   public void addRequest(ConnectionDetails connectionDetails,
                          RequestType request) {
 
-    request.setRequestId(m_requestIDGenerator.next());
+    request.setRequestId("request" + m_requestIDGenerator.next());
 
     final BaseURLType baseURL =
       m_baseURLMap.getBaseURL(

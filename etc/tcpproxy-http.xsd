@@ -38,6 +38,10 @@
     </xs:keyref>
   </xs:element>
 
+  <xs:simpleType name="IDType">
+    <xs:restriction base="xs:NMTOKEN"/>
+  </xs:simpleType>
+
   <xs:complexType name="HTTPRecordingType">
     <xs:sequence>
       <xs:element name="metadata">
@@ -72,7 +76,7 @@
       <xs:element name="port" type="xs:unsignedShort"/>
     </xs:sequence>
 
-    <xs:attribute name="url-id" type="xs:NMTOKEN" />
+    <xs:attribute name="url-id" type="tns:IDType" />
   </xs:complexType>
 
   <xs:complexType name="PageType">
@@ -80,7 +84,7 @@
       <xs:element name="request" type="tns:RequestType"
         minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
-    <xs:attribute name="page-id" type="xs:NMTOKEN" />
+    <xs:attribute name="page-id" type="tns:IDType" />
   </xs:complexType>
 
   <xs:complexType name="RequestType">
@@ -105,7 +109,7 @@
       <xs:element name="sleep-time" type="xs:unsignedInt" minOccurs="0" />
       <xs:element name="body" type="tns:BodyType" minOccurs="0" />
     </xs:sequence>
-    <xs:attribute name="request-id" type="xs:unsignedInt" />
+    <xs:attribute name="request-id" type="tns:IDType" />
   </xs:complexType>
 
   <xs:complexType name="RelativeURLType">
@@ -115,7 +119,7 @@
         minOccurs="0" />
     </xs:sequence>
 
-    <xs:attribute name="extends" type="xs:NMTOKEN"/>
+    <xs:attribute name="extends" type="tns:IDType"/>
   </xs:complexType>
 
   <xs:complexType name="QueryStringType">
@@ -145,13 +149,13 @@
         <xs:element name="authorization" type="tns:AuthorizationHeaderType" />
       </xs:choice>
     </xs:sequence>
-    <xs:attribute name="extends" type="xs:NMTOKEN" use="optional"/>
+    <xs:attribute name="extends" type="tns:IDType" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="CommonHeadersType">
     <xs:complexContent>
       <xs:extension base="tns:HeadersType">
-        <xs:attribute name="headers-id" type="xs:NMTOKEN" />
+        <xs:attribute name="headers-id" type="tns:IDType" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
