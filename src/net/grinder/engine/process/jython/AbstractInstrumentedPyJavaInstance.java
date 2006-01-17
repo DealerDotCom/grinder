@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.engine.process.jython;
 import net.grinder.common.Test;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
+import org.python.core.Py;
 import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
 
@@ -37,6 +38,7 @@ import org.python.core.PyObject;
 abstract class AbstractInstrumentedPyJavaInstance extends PyJavaInstance {
   private final PyDispatcher m_dispatcher;
   private final PyObject m_pyTest;
+  private final Object m_target;
 
   public AbstractInstrumentedPyJavaInstance(Test test,
                                             PyDispatcher dispatcher,
@@ -45,6 +47,7 @@ abstract class AbstractInstrumentedPyJavaInstance extends PyJavaInstance {
 
     m_dispatcher = dispatcher;
     m_pyTest = new PyJavaInstance(test);
+    m_target = target;
   }
 
   protected final PyDispatcher getDispatcher() {
@@ -52,8 +55,13 @@ abstract class AbstractInstrumentedPyJavaInstance extends PyJavaInstance {
   }
 
   public PyObject __findattr__(String name) {
-    if (name == "__test__") { // Valid because name is interned.
+    // Valid because name is interned.
+    if (name == InstrumentedPyInstance.TEST_FIELD_NAME) {
       return m_pyTest;
+    }
+
+    if (name == InstrumentedPyInstance.TARGET_FIELD_NAME) {
+      return Py.java2py(m_target);
     }
 
     return super.__findattr__(name);

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -224,7 +224,7 @@ public final class JythonScriptEngine implements ScriptEngine {
         }
         else if (o instanceof PyFunction) {
           return new InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions(
-            test, pyDispatcher, o);
+            test, pyDispatcher, (PyFunction)o);
         }
         else if (o instanceof PyMethod) {
           return instrumentPyMethod(test, pyDispatcher, (PyMethod)o);

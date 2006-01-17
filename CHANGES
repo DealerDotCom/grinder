@@ -4,6 +4,9 @@ The Grinder 3.0-beta29 (Not yet released)
   Nested Tests are supported. That is, you can now use a Test to
   instrument script code that calls things wrapped by other Tests.
 
+  A __target__ field has been added to test proxy wrappers, allowing
+  convenient access to the wrapped object.
+
   New implementation of the HTTPPlugin TCPProxy filter. Key new
   features over the previous filter:
    - Records to a single script.
@@ -37,8 +40,8 @@ The Grinder 3.0-beta29 (Not yet released)
   removed: addBasicAuthorization(), removeBasicAuthorization(),
   addDigestAuthorization(), removeDigiestAuthorization().
 
-  A new HTTPUtilties class has been added. This has methods that HTTP
-  scripts might find useful.
+  New HTTPUtilities class. This has methods that HTTP scripts might
+  find useful.
 
 
 Grinder 3.0-beta28

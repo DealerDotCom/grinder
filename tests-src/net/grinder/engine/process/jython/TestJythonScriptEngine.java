@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -336,23 +336,40 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     m_interpreter.exec("def return1(): return 1");
     final PyObject pyFunction = m_interpreter.get("return1");
-    final PyObject pyFunctionProxy = (PyObject) scriptEngine
-        .createInstrumentedProxy(m_test, m_dispatcher, pyFunction);
+    final PyObject pyFunctionProxy = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, pyFunction);
     final PyObject result = pyFunctionProxy.invoke("__call__");
-    assertEquals(new Integer(1), result.__tojava__(Integer.class));
+    assertEquals(m_one, result);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, pyFunctionProxy.__getattr__("__test__").__tojava__(
       Test.class));
 
+    final PyObject targetReference =
+      pyFunctionProxy.__getattr__("__target__");
+    assertSame(pyFunction, targetReference);
+    assertNotSame(pyFunctionProxy, targetReference);
+    final PyObject targetResult =  targetReference.invoke("__call__");
+    assertEquals(m_one, targetResult);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
     m_interpreter.exec("def multiply(x, y): return x * y");
     final PyObject pyFunction2 = m_interpreter.get("multiply");
-    final PyObject pyFunctionProxy2 = (PyObject) scriptEngine
-        .createInstrumentedProxy(m_test, m_dispatcher, pyFunction2);
+    final PyObject pyFunctionProxy2 = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, pyFunction2);
     final PyObject result2 =
       pyFunctionProxy2.invoke("__call__", m_two, m_three);
     assertEquals(m_six, result2);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    final PyObject targetReference2 =
+      pyFunctionProxy2.__getattr__("__target__");
+    assertSame(pyFunction2, targetReference2);
+    assertNotSame(pyFunctionProxy2, targetReference2);
+    final PyObject targetResult2 =
+      targetReference2.invoke("__call__", m_two, m_three);
+    assertEquals(m_six, targetResult2);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result3 =
@@ -363,11 +380,49 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     // From Jython.
     m_interpreter.set("proxy", pyFunctionProxy);
+    m_interpreter.set("proxy2", pyFunctionProxy2);
 
-    m_interpreter.exec("result4 = proxy()");
-    final PyObject result4 = m_interpreter.get("result4");
-    assertEquals(new Integer(1), result4.__tojava__(Integer.class));
+    m_interpreter.exec("result5 = proxy()");
+    final PyObject result5 = m_interpreter.get("result5");
+    assertEquals(m_one, result5);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result6 = proxy.__target__()");
+    final PyObject result6 = m_interpreter.get("result6");
+    assertEquals(m_one, result6);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result7 = proxy2.__target__(2, 3)");
+    final PyObject result7 = m_interpreter.get("result7");
+    assertEquals(m_six, result7);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("def multiply4(a, b, c, d): return a * b * c * d");
+    final PyObject pyFunction3 = m_interpreter.get("multiply4");
+    final PyObject pyFunctionProxy3 = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, pyFunction3);
+    m_interpreter.set("proxy3", pyFunctionProxy3);
+
+    m_interpreter.exec("result8 = proxy3.__target__(1, 2, 3, 1)");
+    final PyObject result8 = m_interpreter.get("result8");
+    assertEquals(m_six, result8);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result9 = proxy3.__target__(1, 2, 3, d=1)");
+    final PyObject result9 = m_interpreter.get("result9");
+    assertEquals(m_six, result9);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("def identity(a): return a");
+    final PyObject pyFunction4 = m_interpreter.get("identity");
+    final PyObject pyFunctionProxy4 = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, pyFunction4);
+    m_interpreter.set("proxy4", pyFunctionProxy4);
+
+    m_interpreter.exec("result10 = proxy4.__target__(1)");
+    final PyObject result10 = m_interpreter.get("result10");
+    assertEquals(m_one, result10);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -383,16 +438,25 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       " def sum(self, x, y): return x + y\n" +
       " def sum3(self, x, y, z): return x + y + z\n" +
       "x=Foo()");
+
     final PyObject pyInstance = m_interpreter.get("x");
     final PyObject pyInstanceProxy = (PyObject) scriptEngine
         .createInstrumentedProxy(m_test, m_dispatcher, pyInstance);
     final PyObject result1 = pyInstanceProxy.invoke("two");
-    assertEquals(new Integer(2), result1.__tojava__(Integer.class));
+    assertEquals(m_two, result1);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, pyInstanceProxy.__getattr__("__test__").__tojava__(
       Test.class));
     assertNull(pyInstanceProxy.__findattr__("__blah__"));
+
+    final PyObject targetReference =
+      pyInstanceProxy.__getattr__("__target__");
+    assertSame(pyInstance, targetReference);
+    assertNotSame(pyInstanceProxy, targetReference);
+    final PyObject targetResult =  targetReference.invoke("two");
+    assertEquals(m_two, targetResult);
+    m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result2 = pyInstanceProxy.invoke("identity", m_one);
     assertSame(m_one, result2);
@@ -424,10 +488,22 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     assertEquals(m_six, result6);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
 
-    // Under Jython 2.1, our instrumentation causes the dispatcher to
-    // be invoked more than once in this case. This isn't a problem as the
-    // dispatcher will cope with this.
-    //m_dispatcherStubFactory.assertNoMoreCalls();
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result7 = proxy.__target__.two()");
+    final PyObject result7 = m_interpreter.get("result7");
+    assertEquals(m_two, result7);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result8 = proxy.__target__.identity(2)");
+    final PyObject result8 = m_interpreter.get("result8");
+    assertEquals(m_two, result8);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result9 = proxy.__target__.sum(2, 4)");
+    final PyObject result9 = m_interpreter.get("result9");
+    assertEquals(m_six, result9);
+    m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithPyMethod() throws Exception {
@@ -444,23 +520,85 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final PyObject pyInstance = m_interpreter.get("x");
     m_interpreter.exec("y=Foo.two");
     final PyObject pyMethod = m_interpreter.get("y");
-    final PyObject pyMethodProxy = (PyObject) scriptEngine
-        .createInstrumentedProxy(m_test, m_dispatcher, pyMethod);
+    final PyObject pyMethodProxy = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, pyMethod);
     final PyObject result = pyMethodProxy.invoke("__call__", pyInstance);
-    assertEquals(new Integer(2), result.__tojava__(Integer.class));
+    assertEquals(m_two, result);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, pyMethodProxy.__getattr__("__test__").__tojava__(
       Test.class));
     assertNull(pyMethodProxy.__findattr__("__blah__"));
 
+    final PyObject targetReference =
+      pyMethodProxy.__getattr__("__target__");
+    assertSame(pyMethod, targetReference);
+    assertNotSame(pyMethodProxy, targetReference);
+    final PyObject targetResult =
+      targetReference.invoke("__call__", pyInstance);
+    assertEquals(m_two, targetResult);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("y=Foo.identity");
+    final PyObject pyMethod2 = m_interpreter.get("y");
+    final PyObject pyMethodProxy2 = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, pyMethod2);
+    final PyObject result2 =
+      pyMethodProxy2.invoke("__call__", pyInstance, m_one);
+    assertEquals(m_one, result2);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("y=Foo.sum");
+    final PyObject pyMethod3 = m_interpreter.get("y");
+    final PyObject pyMethodProxy3 = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, pyMethod3);
+    final PyObject result3 =
+      pyMethodProxy3.invoke(
+        "__call__", new PyObject[] { pyInstance, m_one, m_two });
+    assertEquals(m_three, result3);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("y=x.two"); // Bound method.
+    final PyObject pyMethod4 = m_interpreter.get("y");
+    final PyObject pyMethodProxy4 = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, pyMethod4);
+    final PyObject result4 = pyMethodProxy4.invoke("__call__");
+    assertEquals(m_two, result4);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
     // From Jython.
     m_interpreter.set("proxy", pyMethodProxy);
+    m_interpreter.set("proxy2", pyMethodProxy2);
+    m_interpreter.set("proxy3", pyMethodProxy3);
+    m_interpreter.set("proxy4", pyMethodProxy4);
 
-    m_interpreter.exec("result2 = proxy(x)");
-    final PyObject result2 = m_interpreter.get("result2");
-    assertEquals(new Integer(2), result2.__tojava__(Integer.class));
+    m_interpreter.exec("result5 = proxy(x)");
+    final PyObject result5 = m_interpreter.get("result5");
+    assertEquals(m_two, result5);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result6 = proxy.__target__(x)");
+    final PyObject result6 = m_interpreter.get("result6");
+    assertEquals(m_two, result6);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result7 = proxy2.__target__(x, 2)");
+    final PyObject result7 = m_interpreter.get("result7");
+    assertEquals(m_two, result7);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result8 = proxy3.__target__(x, 2, 4)");
+    final PyObject result8 = m_interpreter.get("result8");
+    assertEquals(m_six, result8);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result9 = proxy4.__target__()");
+    final PyObject result9 = m_interpreter.get("result9");
+    assertEquals(m_two, result9);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -480,6 +618,13 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
                pyJavaProxy.__getattr__("__test__").__tojava__(Test.class));
     assertNull(pyJavaProxy.__findattr__("__blah__"));
 
+    final PyObject targetReference = pyJavaProxy.__getattr__("__target__");
+    assertSame(pyJava, targetReference);
+    assertNotSame(pyJavaProxy, targetReference);
+    final PyObject targetResult =  targetReference.invoke("getClass");
+    assertEquals(Random.class, targetResult.__tojava__(Class.class));
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
     // From Jython.
     m_interpreter.set("proxy", pyJavaProxy);
 
@@ -487,6 +632,11 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final PyObject result2 = m_interpreter.get("result2");
     assertEquals(Random.class, result2.__tojava__(Class.class));
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result3 = proxy.__target__.getClass()");
+    final PyObject result3 = m_interpreter.get("result3");
+    assertEquals(Random.class, result3.__tojava__(Class.class));
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -509,6 +659,14 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       Test.class));
     assertNull(pyJavaMethodProxy.__findattr__("__blah__"));
 
+    final PyObject targetReference =
+      pyJavaMethodProxy.__getattr__("__target__");
+    assertSame(pyJavaMethod, targetReference);
+    assertNotSame(pyJavaMethodProxy, targetReference);
+    final PyObject targetResult =  targetReference.__call__(pyJava);
+    assertTrue(targetResult.__tojava__(Object.class) instanceof Integer);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
     // From Jython.
     m_interpreter.set("proxy", pyJavaMethodProxy);
 
@@ -516,6 +674,11 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final PyObject result2 = m_interpreter.get("result2");
     assertTrue(result2.__tojava__(Object.class) instanceof Integer);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result3 = proxy.__target__(x)");
+    final PyObject result3 = m_interpreter.get("result3");
+    assertTrue(result3.__tojava__(Object.class) instanceof Integer);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
@@ -535,11 +698,18 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final PyObject pyProxyProxy = (PyObject) scriptEngine
         .createInstrumentedProxy(m_test, m_dispatcher, pyProxy);
     final PyObject result = pyProxyProxy.invoke("one");
-    assertEquals(new Integer(1), result.__tojava__(Integer.class));
+    assertEquals(m_one, result);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, pyProxyProxy.__getattr__("__test__")
         .__tojava__(Test.class));
+
+    final PyObject targetReference =  pyProxyProxy.__getattr__("__target__");
+    assertSame(pyProxy, targetReference.__tojava__(Object.class));
+    assertNotSame(pyProxyProxy, targetReference);
+    final PyObject targetResult =  targetReference.invoke("one");
+    assertEquals(m_one, targetResult);
+    m_dispatcherStubFactory.assertNoMoreCalls();
 
     // From Jython.
     m_interpreter.set("proxy", pyProxyProxy);
@@ -555,6 +725,11 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     assertNotNull(result3);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result4 = proxy.__target__.one()");
+    final PyObject result4 = m_interpreter.get("result4");
+    assertEquals(m_one, result4);
+    m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithJavaInstance() throws Exception {
@@ -565,12 +740,20 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final Object java = new MyClass();
     final PyObject javaProxy = (PyObject) scriptEngine.createInstrumentedProxy(
       m_test, m_dispatcher, java);
-    final PyObject result = javaProxy.invoke("addOne", Py.java2py(new Integer(
-      10)));
+    final PyObject result =
+      javaProxy.invoke("addOne", Py.java2py(new Integer(10)));
     assertEquals(new Integer(11), result.__tojava__(Integer.class));
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
     assertSame(m_test, javaProxy.__getattr__("__test__").__tojava__(Test.class));
+
+    final PyObject targetReference = javaProxy.__getattr__("__target__");
+    assertSame(java, targetReference.__tojava__(Object.class));
+    assertNotSame(javaProxy, targetReference);
+    final PyObject targetResult =
+      targetReference.invoke("addOne", Py.java2py(new Integer(10)));
+    assertEquals(new Integer(11), targetResult.__tojava__(Integer.class));
+    m_dispatcherStubFactory.assertNoMoreCalls();
 
     final PyObject result1 = javaProxy.invoke("getClass");
     assertEquals(MyClass.class, result1.__tojava__(Class.class));
@@ -613,6 +796,11 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final PyObject result7 = m_interpreter.get("result7");
     assertEquals(MyClass.class, result7.__tojava__(Class.class));
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result8 = proxy.__target__.getClass()");
+    final PyObject result8 = m_interpreter.get("result8");
+    assertEquals(MyClass.class, result8.__tojava__(Class.class));
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 

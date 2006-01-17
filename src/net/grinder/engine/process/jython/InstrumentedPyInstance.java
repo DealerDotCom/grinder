@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,6 +40,12 @@ import org.python.core.PyObject;
  * @version $Revision$
  */
 final class InstrumentedPyInstance extends ClonePyInstance {
+  /** The field name that allows the test to be obtained from a proxy. */
+  static final String TEST_FIELD_NAME = "__test__";
+
+  /** The field name that allows the target to be obtained from a proxy. */
+  static final String TARGET_FIELD_NAME = "__target__";
+
   private final PyDispatcher m_dispatcher;
   private final Test m_test;
   private final PyObject m_pyTest;
@@ -58,6 +64,8 @@ final class InstrumentedPyInstance extends ClonePyInstance {
     m_test = test;
     m_pyTest = new PyJavaInstance(test);
 
+    // At one point this cache also did a __setattr__ with the instrumented
+    // method. This is bad because we share our dictionary with our target.
     m_resultCache = new PyObjectCache() {
       protected PyObject createNewInstance(String name) {
         final PyObject unadorned =
@@ -70,22 +78,16 @@ final class InstrumentedPyInstance extends ClonePyInstance {
         return proxyFactory.instrumentPyMethod(
           m_test, m_dispatcher, (PyMethod)unadorned);
       }
-
-      protected void cacheInstance(String name, PyObject instance) {
-        try {
-          __setattr__(name, instance);
-        }
-        catch (NullPointerException e) {
-          // Unassignable field. Put in our fixed cache.
-          super.cacheInstance(name, instance);
-        }
-      }
     };
   }
 
   public PyObject __findattr__(String name) {
-    if (name == "__test__") { // Valid because name is interned.
+    if (name == TEST_FIELD_NAME) { // Valid because name is interned.
       return m_pyTest;
+    }
+
+    if (name == TARGET_FIELD_NAME) {
+      return getTarget();
     }
 
     return m_resultCache.get(name);
@@ -98,7 +100,7 @@ final class InstrumentedPyInstance extends ClonePyInstance {
           return InstrumentedPyInstance.super.invoke(name);
         }
       }
-      );
+    );
   }
 
   public PyObject invoke(final String name, final PyObject arg1) {
@@ -108,7 +110,7 @@ final class InstrumentedPyInstance extends ClonePyInstance {
           return InstrumentedPyInstance.super.invoke(name, arg1);
         }
       }
-      );
+    );
   }
 
   public PyObject invoke(final String name, final PyObject arg1,
@@ -119,7 +121,7 @@ final class InstrumentedPyInstance extends ClonePyInstance {
           return InstrumentedPyInstance.super.invoke(name, arg1, arg2);
         }
       }
-      );
+    );
   }
 }
 

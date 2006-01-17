@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,6 +39,7 @@ import org.python.core.PyReflectedFunction;
 class InstrumentedPyReflectedFunction extends PyReflectedFunction {
   private final PyDispatcher m_dispatcher;
   private final PyObject m_pyTest;
+  private final PyReflectedFunction m_target;
 
   public InstrumentedPyReflectedFunction(Test test,
                                          PyDispatcher dispatcher,
@@ -53,11 +54,17 @@ class InstrumentedPyReflectedFunction extends PyReflectedFunction {
 
     m_dispatcher = dispatcher;
     m_pyTest = new PyJavaInstance(test);
+    m_target = target;
   }
 
   public PyObject __findattr__(String name) {
-    if (name == "__test__") { // Valid because name is interned.
+    // Valid because name is interned.
+    if (name == InstrumentedPyInstance.TEST_FIELD_NAME) {
       return m_pyTest;
+    }
+
+    if (name == InstrumentedPyInstance.TARGET_FIELD_NAME) {
+      return m_target;
     }
 
     return super.__findattr__(name);
