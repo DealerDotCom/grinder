@@ -48,5 +48,9 @@ public class ClonePyInstance extends PyInstance {
     // do.
     m_target = target;
   }
+
+  protected final PyInstance getTarget() {
+    return m_target;
+  }
 }
 
