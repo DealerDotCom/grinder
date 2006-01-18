@@ -161,23 +161,27 @@ public class ProcessHTTPRecordingWithXSLT
 
   private final class LoggingErrorListener implements ErrorListener {
 
-    private void log(String context, TransformerException e)
-      throws TransformerException {
-      m_logger.error(context + ": " + e.getMessage());
-      e.printStackTrace(m_logger.getErrorLogWriter());
+    private final void logTransformerException(TransformerException e) {
+      final StringBuffer message = new StringBuffer(e.getMessage());
+
+      if (e.getLocationAsString() != null) {
+        message.append(" at ").append(e.getLocationAsString());
+      }
+
+      m_logger.error(message.toString());
     }
 
     public void warning(TransformerException e) throws TransformerException {
-      log("Warning in XSLT transform", e);
+      logTransformerException(e);
     }
 
     public void error(TransformerException e) throws TransformerException {
-      log("Error in XSLT transform", e);
+      logTransformerException(e);
       throw e;
     }
 
     public void fatalError(TransformerException e) throws TransformerException {
-      log("Fatal error in XSLT transform", e);
+      logTransformerException(e);
       throw e;
     }
   }
