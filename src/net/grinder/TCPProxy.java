@@ -466,10 +466,10 @@ public final class TCPProxy {
 
       public synchronized void run() {
         if (!m_stopped) {
+          m_stopped = true;
           m_proxyEngine.stop();
           m_filterContainer.stop();
           m_filterContainer.dispose();
-          m_stopped = true;
         }
       }
     };
