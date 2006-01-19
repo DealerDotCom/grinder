@@ -141,7 +141,7 @@ public final class TCPProxy {
       "\n   [-httpsproxy <host> <port>]  Override -httpproxy settings for" +
       "\n                                HTTPS." +
       "\n   [-ssl]                       Use SSL when port forwarding." +
-      "\n   [-component <class>]         Register the a component class with" +
+      "\n   [-component <class>]         Register a component class with" +
       "\n                                the filter PicoContainer." +
       "\n   [-debug]                     Make filter PicoContainer chatty." +
       "\n" +
@@ -461,15 +461,23 @@ public final class TCPProxy {
   }
 
   private void run() {
-    Runtime.getRuntime().addShutdownHook(
-      new Thread() {
-        public void run() { m_proxyEngine.stop(); }
-      });
+    final Runnable shutdown = new Runnable() {
+      private boolean m_stopped = false;
+
+      public synchronized void run() {
+        if (!m_stopped) {
+          m_proxyEngine.stop();
+          m_filterContainer.stop();
+          m_filterContainer.dispose();
+          m_stopped = true;
+        }
+      }
+    };
+
+    Runtime.getRuntime().addShutdownHook(new Thread(shutdown));
 
     m_proxyEngine.run();
-
-    m_filterContainer.stop();
-    m_filterContainer.dispose();
+    shutdown.run();
   }
 
   private class LoggedInitialisationException extends GrinderException {
