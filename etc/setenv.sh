@@ -1,8 +1,7 @@
 GRINDER_HOME=/work/src/grinder3
 
-#GRINDER=${GRINDER_HOME}/lib/grinder.jar
-GRINDER=${GRINDER_HOME}/build/classes:${GRINDER_HOME}/lib/jython.jar
-GRINDER=${GRINDER_HOME}/build/tests-classes:${GRINDER} # for testing JUnit plugin
+# Manifest has dependencies.
+GRINDER=${GRINDER_HOME}/lib/grinder.jar
 
 XALAN=/opt/xalan/xalan-j_2_3_1/bin/xalan.jar:/opt/xalan/xalan-j_2_3_1/bin/xml-apis.jar
 
