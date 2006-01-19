@@ -118,45 +118,45 @@ public final class TCPProxy {
       "unrecognised or invalid option." +
       "\n\n" +
       "Usage: " +
-      "\n java " + TCPProxy.class + " <options>" +
-      "\n" +
-      "\n Commonly used options:" +
-      "\n   [-requestfilter <filter>]    Add a request filter." +
-      "\n   [-responsefilter <filter>]   Add a response filter." +
-      "\n   [-http [<stylesheet>]]       See below." +
-      "\n   [-properties <file>]         Properties to pass to the filters." +
-      "\n   [-localhost <host name/ip>]  Default is localhost." +
-      "\n   [-localport <port>]          Default is 8001." +
-      "\n   [-keystore <file>]           Key store details for" +
-      "\n   [-keystorepassword <pass>]   SSL certificates." +
-      "\n   [-keystoretype <type>]       Default is JSSE dependent." +
-      "\n" +
-      "\n Other options:" +
-      "\n   [-remotehost <host name>]    Default is localhost." +
-      "\n   [-remoteport <port>]         Default is 7001." +
-      "\n   [-timeout <seconds>]         Proxy engine timeout." +
-      "\n   [-colour]                    Be pretty on ANSI terminals." +
-      "\n   [-console]                   Display the console." +
-      "\n   [-httpproxy <host> <port>]   Route via HTTP/HTTPS proxy." +
-      "\n   [-httpsproxy <host> <port>]  Override -httpproxy settings for" +
-      "\n                                HTTPS." +
-      "\n   [-ssl]                       Use SSL when port forwarding." +
-      "\n   [-component <class>]         Register a component class with" +
-      "\n                                the filter PicoContainer." +
-      "\n   [-debug]                     Make filter PicoContainer chatty." +
-      "\n" +
-      "\n <filter> can be the name of a class that implements " +
+      "\n  java " + TCPProxy.class + " <options>" +
+      "\n\n" +
+      "Commonly used options:" +
+      "\n  [-http [<stylesheet>]]       See below." +
+      "\n  [-console]                   Display the console." +
+      "\n  [-requestfilter <filter>]    Add a request filter." +
+      "\n  [-responsefilter <filter>]   Add a response filter." +
+      "\n  [-localhost <host name/ip>]  Default is localhost." +
+      "\n  [-localport <port>]          Default is 8001." +
+      "\n  [-keystore <file>]           Key store details for" +
+      "\n  [-keystorepassword <pass>]   SSL certificates." +
+      "\n  [-keystoretype <type>]       Default is JSSE dependent." +
+      "\n\n" +
+      "Other options:" +
+      "\n  [-properties <file>]         Properties to pass to the filters." +
+      "\n  [-remotehost <host name>]    Default is localhost." +
+      "\n  [-remoteport <port>]         Default is 7001." +
+      "\n  [-timeout <seconds>]         Proxy engine timeout." +
+      "\n  [-httpproxy <host> <port>]   Route via HTTP/HTTPS proxy." +
+      "\n  [-httpsproxy <host> <port>]  Override -httpproxy settings for" +
+      "\n                               HTTPS." +
+      "\n  [-ssl]                       Use SSL when port forwarding." +
+      "\n  [-colour]                    Be pretty on ANSI terminals." +
+      "\n  [-component <class>]         Register a component class with" +
+      "\n                               the filter PicoContainer." +
+      "\n  [-debug]                     Make filter PicoContainer chatty." +
+      "\n\n" +
+      "<filter> is the name of a class that implements " +
       TCPProxyFilter.class.getName() + " or one of NONE, ECHO. The default " +
       "is ECHO. Multiple filters can be specified for each stream." +
       "\n\n" +
-      "If neither -remotehost nor -remoteport is specified, the " +
-      "TCPProxy listens as an HTTP/HTTPS Proxy on <localhost:localport>." +
+      "By default, the TCPProxy listens as an HTTP/HTTPS Proxy on " +
+      "<localhost:localport>." +
       "\n\n" +
       "If either -remotehost or -remoteport is specified, the TCPProxy " +
       "acts a simple port forwarder between <localhost:localport> and " +
       "<remotehost:remoteport>. Specify -ssl for SSL support." +
       "\n\n" +
-      "-http sets the request and response filters to produce a test script " +
+      "-http sets up request and response filters to produce a test script " +
       "suitable for use with the HTTP plugin. The output can be customised " +
       "by specifying the file name of an alternative XSLT style sheet." +
       "\n\n" +
@@ -164,13 +164,18 @@ public final class TCPProxy {
       "before timing out and freeing the local port. The TCPProxy will " +
       "not time out if there are active connections." +
       "\n\n" +
-      "-console displays a simple console that allows the TCPProxy " +
-      "to be shutdown cleanly." +
+      "-console displays a simple control window that allows the TCPProxy " +
+      "to be shutdown cleanly. This is needed because some shells, e.g. " +
+      "Cygwin bash, do not allow Java processes to be interrupted cleanly, " +
+      "so filters cannot rely on standard shutdown hooks. " +
       "\n\n" +
       "-httpproxy and -httpsproxy allow output to be directed through " +
       "another HTTP/HTTPS proxy; this may help you reach the Internet. " +
       "These options are not supported in port forwarding mode." +
-      "\n"
+      "\n\n" +
+      "Typical usage: " +
+      "\n  java " + TCPProxy.class + " -http -console > grinder.py" +
+      "\n\n"
       );
   }
 
