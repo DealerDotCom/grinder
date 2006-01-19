@@ -111,6 +111,7 @@ what you want. Currently the conditionally built modules are:
   <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
   <property name="release.dir" location="releases"/>
   <property name="doc.dir" location="docs"/>
+  <property name="xmlbeans.jar" location="${lib.dir}/grinder-xmlbeans.jar"/>
 
   <!-- javadoc -->
   <property name="javadoc.dir" location="${doc.dir}/javadoc"/>
@@ -185,7 +186,10 @@ what you want. Currently the conditionally built modules are:
     </path>
 
     <path id="picocontainer.classpath">
-      <pathelement path="${lib.dir}/picocontainer-*.jar"/>
+      <!-- Must use fileset, pathelement doesn't accept wildcards. -->
+      <fileset dir="${lib.dir}">
+	<include name="picocontainer-*.jar"/>
+      </fileset>
     </path>
 
     <path id="xmlbeans.classpath">
@@ -198,6 +202,7 @@ what you want. Currently the conditionally built modules are:
       <path refid="jython.classpath"/>
       <path refid="picocontainer.classpath"/>
       <path refid="xmlbeans.classpath"/>
+      <pathelement path="${xmlbeans.jar}"/>
     </path>
 
     <!-- options -->
@@ -269,8 +274,9 @@ what you want. Currently the conditionally built modules are:
 
     <copy todir="${classes.dir}">
       <fileset dir="${src.dir}"  includes="**/resources/*.gif"/>
-      <fileset dir="${src.dir}"  includes="**/resources/*.png"/>
       <fileset dir="${src.dir}"  includes="**/resources/*.keystore"/>
+      <fileset dir="${src.dir}"  includes="**/resources/*.png"/>
+      <fileset dir="${src.dir}"  includes="**/resources/*.xsl"/>
     </copy>
 
     <copy todir="${classes.dir}" filtering="on">
@@ -299,8 +305,6 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Compilation rules                                    -->
   <!-- =================================================================== -->
-
-  <property name="xmlbeans.jar" location="${lib.dir}/grinder-xmlbeans.jar"/>
 
   <fileset id="xmlbeans.src.fileset" dir="${etc.dir}">
     <include name="**/*.xsd"/>
@@ -333,7 +337,7 @@ what you want. Currently the conditionally built modules are:
     </xmlbean>
   </target>
 
-  <target name="compile" depends="init"
+  <target name="compile" depends="init,compile-xmlbeans"
     description="Compiles the source.">
     <mkdir dir="${classes.dir}"/>
 
@@ -343,7 +347,7 @@ what you want. Currently the conditionally built modules are:
            destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
-     deprecation="false"> <!-- Uses deprecated API's -->
+           deprecation="false"> <!-- Uses deprecated API's -->
        <classpath refid="build.classpath"/>
        <exclude name="net/grinder/**"/>
     </javac>
@@ -354,7 +358,8 @@ what you want. Currently the conditionally built modules are:
            destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
-     deprecation="${deprecation}">
+           deprecation="${deprecation}"
+           source="1.4">
        <include name="net/grinder/**"/>
        <classpath refid="build.classpath"/>
     </javac>
@@ -396,7 +401,7 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Creates the jar                                                     -->
   <!-- =================================================================== -->
-  <target name="jar" depends="compile, copy-resources, checkstyle"
+  <target name="jar" depends="compile, copy-resources"
     description="Default target, creates lib/grinder.jar.">
 
     <jar jarfile="${lib.dir}/${name}.jar"
@@ -677,7 +682,7 @@ what you want. Currently the conditionally built modules are:
     </zip>
   </target>
 
-  <target name="all" depends="assert-have-everything,jar"/>
+  <target name="all" depends="assert-have-everything,jar,checkstyle"/>
 
   <target name="dist" depends="all" description="Generates distribution.">
     <antcall target="do-dist">
