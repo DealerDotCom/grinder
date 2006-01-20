@@ -80,7 +80,7 @@ final class InstrumentedPyInstance extends ClonePyInstance {
       InstrumentedPyInstance.super.__findattr__(name);
 
     if (unadorned instanceof PyMethod) {
-      // We create new instrumentation ever time.
+      // We create new instrumentation every time.
       //
       // At one point, we cached the instrumented method. However, Jython
       // doesn't cache the underlying PyMethod (it creates a new PyMethod
