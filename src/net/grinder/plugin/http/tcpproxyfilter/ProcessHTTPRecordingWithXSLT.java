@@ -161,7 +161,7 @@ public class ProcessHTTPRecordingWithXSLT
 
   private final class LoggingErrorListener implements ErrorListener {
 
-    private final void logTransformerException(TransformerException e) {
+    private void logTransformerException(TransformerException e) {
       final StringBuffer message = new StringBuffer(e.getMessage());
 
       if (e.getLocationAsString() != null) {
