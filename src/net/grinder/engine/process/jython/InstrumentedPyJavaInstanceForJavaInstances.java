@@ -23,6 +23,7 @@ package net.grinder.engine.process.jython;
 
 import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
+import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
 import org.python.core.PyMethod;
@@ -47,8 +48,8 @@ import org.python.core.PyObject;
 final class InstrumentedPyJavaInstanceForJavaInstances
   extends AbstractInstrumentedPyJavaInstance {
 
+  private final JythonScriptEngine.PyInstrumentedProxyFactory m_proxyFactory;
   private final Test m_test;
-  private final PyObjectCache m_resultCache;
 
   public InstrumentedPyJavaInstanceForJavaInstances(
     final JythonScriptEngine.PyInstrumentedProxyFactory proxyFactory,
@@ -58,25 +59,21 @@ final class InstrumentedPyJavaInstanceForJavaInstances
 
     super(test, dispatcher, target);
 
+    m_proxyFactory = proxyFactory;
     m_test = test;
-
-    m_resultCache = new PyObjectCache() {
-      protected PyObject createNewInstance(String name) {
-        final PyObject unadorned =
-          InstrumentedPyJavaInstanceForJavaInstances.super.__findattr__(name);
-
-        if (!(unadorned instanceof PyMethod)) {
-          return unadorned;
-        }
-
-        return proxyFactory.instrumentPyMethod(
-          m_test, dispatcher, (PyMethod)unadorned);
-      }
-    };
   }
 
   public PyObject __findattr__(String name) {
-    return m_resultCache.get(name);
+    final PyObject unadorned =
+      InstrumentedPyJavaInstanceForJavaInstances.super.__findattr__(name);
+
+    if (unadorned instanceof PyMethod) {
+      // See notes in InstrumentedPyInstance about why we don't cache this.
+      return m_proxyFactory.instrumentPyMethod(
+        m_test, getDispatcher(), (PyMethod)unadorned);
+    }
+
+    return unadorned;
   }
 
   public PyObject invoke(final String name) {
@@ -97,7 +94,7 @@ final class InstrumentedPyJavaInstanceForJavaInstances
             name, arg1);
         }
       }
-      );
+    );
   }
 
   public PyObject invoke(final String name, final PyObject arg1,
@@ -109,7 +106,7 @@ final class InstrumentedPyJavaInstanceForJavaInstances
             name, arg1, arg2);
         }
       }
-      );
+    );
   }
 }
 

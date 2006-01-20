@@ -734,12 +734,12 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
   public void testCreateProxyWithJavaInstance() throws Exception {
 
-    final JythonScriptEngine scriptEngine = new JythonScriptEngine(
-      m_scriptContext);
+    final JythonScriptEngine scriptEngine =
+      new JythonScriptEngine(m_scriptContext);
 
     final Object java = new MyClass();
-    final PyObject javaProxy = (PyObject) scriptEngine.createInstrumentedProxy(
-      m_test, m_dispatcher, java);
+    final PyObject javaProxy = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, java);
     final PyObject result =
       javaProxy.invoke("addOne", Py.java2py(new Integer(10)));
     assertEquals(new Integer(11), result.__tojava__(Integer.class));
@@ -786,6 +786,12 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
+    m_interpreter.exec("result5Cached = proxy.sum3(0, -29, 30)");
+    final PyObject result5Cached = m_interpreter.get("result5Cached");
+    assertEquals(m_one, result5Cached);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
     m_interpreter.exec("result6 = proxy.sum(1, 1)");
     final PyObject result6 = m_interpreter.get("result6");
     assertEquals(m_two, result6);
@@ -801,6 +807,36 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_interpreter.exec("result8 = proxy.__target__.getClass()");
     final PyObject result8 = m_interpreter.get("result8");
     assertEquals(MyClass.class, result8.__tojava__(Class.class));
+    m_dispatcherStubFactory.assertNoMoreCalls();
+  }
+
+  public void testCreateProxyWithRecursiveCode() throws Exception {
+
+    final JythonScriptEngine scriptEngine =
+      new JythonScriptEngine(m_scriptContext);
+
+    m_interpreter.exec(
+      "class Recurse:\n" +
+      "  def __init__(self):\n" +
+      "    self.i = 3\n" +
+      "  def foo(self):\n" +
+      "    self.i = self.i - 1\n" +
+      "    if self.i == 0: return 0\n" +
+      "    return self.i + self.foo()\n" +
+      "r = Recurse()");
+
+    final PyObject proxy = (PyObject)
+      scriptEngine.createInstrumentedProxy(
+        m_test, m_dispatcher, m_interpreter.get("r"));
+
+    final PyObject result = proxy.invoke("foo");
+
+    assertEquals(new PyInteger(3), result);
+    // The dispatcher will be called multiple times. The real dispatcher
+    // only records the out invocation.
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 

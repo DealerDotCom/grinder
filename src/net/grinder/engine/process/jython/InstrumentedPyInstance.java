@@ -23,6 +23,7 @@ package net.grinder.engine.process.jython;
 
 import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
+import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
 import org.python.core.ClonePyInstance;
@@ -46,10 +47,10 @@ final class InstrumentedPyInstance extends ClonePyInstance {
   /** The field name that allows the target to be obtained from a proxy. */
   static final String TARGET_FIELD_NAME = "__target__";
 
+  private final JythonScriptEngine.PyInstrumentedProxyFactory m_proxyFactory;
   private final PyDispatcher m_dispatcher;
   private final Test m_test;
   private final PyObject m_pyTest;
-  private final PyObjectCache m_resultCache;
 
   public InstrumentedPyInstance(
     final JythonScriptEngine.PyInstrumentedProxyFactory proxyFactory,
@@ -60,25 +61,10 @@ final class InstrumentedPyInstance extends ClonePyInstance {
 
     super(targetClass, target);
 
+    m_proxyFactory = proxyFactory;
     m_dispatcher = dispatcher;
     m_test = test;
     m_pyTest = new PyJavaInstance(test);
-
-    // At one point this cache also did a __setattr__ with the instrumented
-    // method. This is bad because we share our dictionary with our target.
-    m_resultCache = new PyObjectCache() {
-      protected PyObject createNewInstance(String name) {
-        final PyObject unadorned =
-          InstrumentedPyInstance.super.__findattr__(name);
-
-        if (!(unadorned instanceof PyMethod)) {
-          return unadorned;
-        }
-
-        return proxyFactory.instrumentPyMethod(
-          m_test, m_dispatcher, (PyMethod)unadorned);
-      }
-    };
   }
 
   public PyObject __findattr__(String name) {
@@ -90,7 +76,26 @@ final class InstrumentedPyInstance extends ClonePyInstance {
       return getTarget();
     }
 
-    return m_resultCache.get(name);
+    final PyObject unadorned =
+      InstrumentedPyInstance.super.__findattr__(name);
+
+    if (unadorned instanceof PyMethod) {
+      // We create new instrumentation ever time.
+      //
+      // At one point, we cached the instrumented method. However, Jython
+      // doesn't cache the underlying PyMethod (it creates a new PyMethod
+      // whenever one is asked for), so its hard/too expensive to check the
+      // cached value is correct.
+      //
+      // Another bad idea was to call __setattr__ with the instrumented method,
+      // and use our dictionary as the cache. We share our dictionary with our
+      // target, so invocations on the target
+      // ended up being instrumented.
+      return m_proxyFactory.instrumentPyMethod(
+        m_test, m_dispatcher, (PyMethod)unadorned);
+    }
+
+    return unadorned;
   }
 
   public PyObject invoke(final String name) {
