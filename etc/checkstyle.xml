@@ -42,7 +42,7 @@
 
         <module name="ConstantName">
           <property name="format"
-	            value="^(s_[a-z][a-zA-Z0-9]*)|([A-Z][A-Z0-9_]*)$"/>
+              value="^(s_[a-z][a-zA-Z0-9]*)|([A-Z][A-Z0-9_]*)$"/>
         </module>
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
@@ -68,7 +68,10 @@
           <property name="separated" value="false"/>
         </module>
         -->
+        <!-- If you import a class, this moans if you also import one of its
+             nested classes. -->
         <module name="RedundantImport"/>
+         -->
         <module name="UnusedImports"/>
 
         <!-- Aim to reduce non-default maxima over time. -->
@@ -133,7 +136,7 @@
         <!-- Doesn't support my preferred "all static, then
         non-static" rule. -->
         <!-- <module name="DeclarationOrder"/> -->
-        <module name="DefaultComesLast"/>     
+        <module name="DefaultComesLast"/>
         <module name="DoubleCheckedLocking"/>
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
