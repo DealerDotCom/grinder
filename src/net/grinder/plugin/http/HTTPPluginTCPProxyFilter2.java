@@ -150,7 +150,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
   private final String m_recordedScenarioFileName;
   private final PrintWriter m_recordedScenarioFileWriter;
 
-  private final Pattern m_basicAuthorizationHeaderPattern;
   private final Pattern m_contentTypePattern;
   private final Pattern m_contentLengthPattern;
   private final Pattern m_messageBodyPattern;
@@ -256,11 +255,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
           getHeaderExpression(s_mirroredHeaders[i]),
           Pattern.MULTILINE | Pattern.UNIX_LINES);
     }
-
-    m_basicAuthorizationHeaderPattern =
-      Pattern.compile(
-        "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?\\n",
-        Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     // Ignore maximum amount of stuff thats not a '?' followed by
     // a '/', then grab the next until the first '?'.
@@ -570,10 +564,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
     }
 
     return handler;
-  }
-
-  private synchronized int getRequestNumber() {
-    return m_currentRequestNumber;
   }
 
   private synchronized int incrementRequestNumber() {
@@ -967,7 +957,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
             recordedScenarioOutput.append(" = ( ");
 
             for (int i = 0; i < bytes.length; ++i) {
-              final int x = bytes[i] < 0 ? (int) bytes[i] + 0x100 :
+              final int x = bytes[i] < 0 ? bytes[i] + 0x100 :
                 (int) bytes[i];
               recordedScenarioOutput.append(Integer.toString(x));
               recordedScenarioOutput.append(", ");
@@ -1093,7 +1083,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
 
           for (int i = 0; i < bytes.length; ++i) {
             final int x =
-              bytes[i] < 0 ? (int)bytes[i] + 0x100 : (int)bytes[i];
+              bytes[i] < 0 ? bytes[i] + 0x100 : (int)bytes[i];
 
             testOutput.append(Integer.toString(x));
             testOutput.append(", ");
@@ -1332,9 +1322,8 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
         i++;
       }
       if (!discardThisPage && !isDiscardingAssociatedResources()) {
-        int pageNumber;
         if (isNewPage) {
-          pageNumber = incrementPageNumber();
+          incrementPageNumber();
         }
         generateRecordedScenario(isNewPage,
                                  parsedFormData,

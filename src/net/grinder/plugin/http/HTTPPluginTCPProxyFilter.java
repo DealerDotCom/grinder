@@ -104,7 +104,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
   private final String m_testFileName;
   private final PrintWriter m_testFileWriter;
 
-  private final Pattern m_basicAuthorizationHeaderPattern;
   private final Pattern m_contentTypePattern;
   private final Pattern m_contentLengthPattern;
   private final Pattern m_messageBodyPattern;
@@ -177,11 +176,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
           getHeaderExpression(s_mirroredHeaders[i]),
           Pattern.MULTILINE | Pattern.UNIX_LINES);
     }
-
-    m_basicAuthorizationHeaderPattern =
-      Pattern.compile(
-        "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?\\n",
-        Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     // Ignore maximum amount of stuff thats not a '?' followed by
     // a '/', then grab the next until the first '?'.
@@ -330,10 +324,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     }
 
     return handler;
-  }
-
-  private synchronized int getRequestNumber() {
-    return m_currentRequestNumber;
   }
 
   private synchronized int incrementRequestNumber() {
