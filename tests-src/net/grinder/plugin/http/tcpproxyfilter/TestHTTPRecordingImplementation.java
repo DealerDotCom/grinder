@@ -88,7 +88,7 @@ public class TestHTTPRecordingImplementation extends TestCase {
     assertTrue(metadata.getVersion().length() > 0);
     assertNotNull(metadata.getTime());
     assertEquals(0, recording.getHttpRecording().getCommonHeadersArray().length);
-    assertEquals(0, recording.getHttpRecording().getBaseUrlArray().length);
+    assertEquals(0, recording.getHttpRecording().getBaseUriArray().length);
     assertEquals(0, recording.getHttpRecording().getPageArray().length);
     m_resultProcessorStubFactory.assertNoMoreCalls();
 
@@ -123,7 +123,7 @@ public class TestHTTPRecordingImplementation extends TestCase {
   private RequestType createRequest(String path) {
     final RequestType result = RequestType.Factory.newInstance();
     result.setMethod(RequestType.Method.Enum.forString("GET"));
-    result.addNewUrl().setPath(path);
+    result.addNewUri().setUnparsed(path);
     result.addNewHeaders();
     result.setTime(Calendar.getInstance());
     result.setDescription("GET " + path);
@@ -176,17 +176,17 @@ public class TestHTTPRecordingImplementation extends TestCase {
     final HTTPRecordingType result = recording.getHttpRecording();
     assertEquals(1, result.getCommonHeadersArray().length);
 
-    assertEquals(2, result.getBaseUrlArray().length);
-    assertEquals("hostb", result.getBaseUrlArray(0).getHost().toString());
-    assertEquals("https", result.getBaseUrlArray(1).getScheme().toString());
+    assertEquals(2, result.getBaseUriArray().length);
+    assertEquals("hostb", result.getBaseUriArray(0).getHost().toString());
+    assertEquals("https", result.getBaseUriArray(1).getScheme().toString());
 
     assertEquals(2, result.getPageArray().length);
 
     final PageType page0 = result.getPageArray(0);
     assertEquals(2, page0.getRequestArray().length);
-    assertEquals(result.getBaseUrlArray(0).getUrlId(),
-                 page0.getRequestArray(1).getUrl().getExtends());
-    assertEquals("bah.gif", page0.getRequestArray(1).getUrl().getPath());
+    assertEquals(result.getBaseUriArray(0).getUriId(),
+                 page0.getRequestArray(1).getUri().getExtends());
+    assertEquals("bah.gif", page0.getRequestArray(1).getUri().getUnparsed());
 
     final PageType page1 = result.getPageArray(1);
     assertEquals(1, page1.getRequestArray().length);

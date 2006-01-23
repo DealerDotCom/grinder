@@ -37,7 +37,7 @@ import org.picocontainer.Disposable;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
-import net.grinder.plugin.http.xml.BaseURLType;
+import net.grinder.plugin.http.xml.BaseURIType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.HTTPRecordingType;
 import net.grinder.plugin.http.xml.HeaderType;
@@ -123,13 +123,13 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
     request.setRequestId("request" + m_requestIDGenerator.next());
 
-    final BaseURLType baseURL =
+    final BaseURIType baseURL =
       m_baseURLMap.getBaseURL(
         connectionDetails.isSecure() ?
-          BaseURLType.Scheme.HTTPS : BaseURLType.Scheme.HTTP,
+          BaseURIType.Scheme.HTTPS : BaseURIType.Scheme.HTTP,
         connectionDetails.getRemoteEndPoint());
 
-    request.getUrl().setExtends(baseURL.getUrlId());
+    request.getUri().setExtends(baseURL.getUriId());
 
     m_commonHeadersMap.extractCommonHeaders(request);
 
@@ -246,25 +246,25 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     private Map m_map = new HashMap();
     private IntGenerator m_idGenerator = new IntGenerator();
 
-    public BaseURLType getBaseURL(
-      BaseURLType.Scheme.Enum scheme, EndPoint endPoint) {
+    public BaseURIType getBaseURL(
+      BaseURIType.Scheme.Enum scheme, EndPoint endPoint) {
 
       final Object key = scheme.toString() + "://" + endPoint;
 
       synchronized (m_map) {
-        final BaseURLType existing = (BaseURLType)m_map.get(key);
+        final BaseURIType existing = (BaseURIType)m_map.get(key);
 
         if (existing != null) {
           return existing;
         }
 
-        final BaseURLType result;
+        final BaseURIType result;
 
         synchronized (m_recordingDocument) {
-          result = m_recordingDocument.getHttpRecording().addNewBaseUrl();
+          result = m_recordingDocument.getHttpRecording().addNewBaseUri();
         }
 
-        result.setUrlId("url" + m_idGenerator.next());
+        result.setUriId("url" + m_idGenerator.next());
         result.setScheme(scheme);
         result.setHost(endPoint.getHost());
         result.setPort(endPoint.getPort());
@@ -343,18 +343,29 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         Pattern.CASE_INSENSITIVE);
     }
 
-    public PageType getPage(BaseURLType baseURL, RequestType request) {
+    public PageType getPage(BaseURIType baseURL, RequestType request) {
 
       synchronized (m_map) {
         final PageType existing = (PageType) m_map.get(baseURL);
 
         // Crude heuristic to figure out whether request is the start of
         // a new page or not.
-        if (existing != null &&
-            !request.isSetBody() &&
-            (m_isPageResourcePathPattern.matcher(
-              request.getUrl().getPath()).matches())) {
-          return existing;
+        if (existing != null && !request.isSetBody()) {
+          final String pathToCheck;
+          final String unparsedPath = request.getUri().getUnparsed();
+
+          if (unparsedPath != null) {
+            pathToCheck = unparsedPath;
+          }
+          else {
+            final String[] segmentArray =
+              request.getUri().getParsed().getSegmentArray();
+            pathToCheck = segmentArray[segmentArray.length - 1];
+          }
+
+          if (m_isPageResourcePathPattern.matcher(pathToCheck).matches()) {
+            return existing;
+          }
         }
 
         final PageType result;

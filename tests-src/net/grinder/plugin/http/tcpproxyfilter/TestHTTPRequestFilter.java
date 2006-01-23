@@ -22,6 +22,8 @@
 package net.grinder.plugin.http.tcpproxyfilter;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.plugin.http.xml.FormFieldType;
@@ -67,6 +69,16 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     super.tearDown();
     // Can't set a system property to null.
     System.setProperty(HTTPRequestFilter.OUTPUT_DIRECTORY_PROPERTY, "./");
+  }
+
+  public void testRegexp() {
+    final Pattern pattern = Pattern.compile("([^/;]+)(?:;([^/;=]+)(?:=([^/;]+))?)?");
+    final Matcher matcher = pattern.matcher("foo/bah;aaa=bbb/lah;x=y");
+    while (matcher.find()) {
+      for (int i=0; i<matcher.groupCount() + 1; ++i) {
+        System.out.println(i + ": " + matcher.group(i));
+      }
+    }
   }
 
   public void testConstructAndDispose() throws Exception {
@@ -150,9 +162,9 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("GET", request.getMethod().toString());
-    assertEquals("/something", request.getUrl().getPath());
-    assertEquals("query", request.getUrl().getQueryString().getParsed().getParameterArray(0).getName());
-    assertEquals("whatever", request.getUrl().getQueryString().getParsed().getParameterArray(0).getValue());
+    assertEquals("/something", request.getUri().getUnparsed());
+    assertEquals("query", request.getUri().getQueryString().getParsed().getParameterArray(0).getName());
+    assertEquals("whatever", request.getUri().getQueryString().getParsed().getParameterArray(0).getValue());
     assertEquals("GET something", request.getDescription());
     assertEquals(0, request.getHeaders().getHeaderArray().length);
     assertFalse(request.toString(), request.isSetSleepTime());
@@ -194,8 +206,8 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("GET", request.getMethod().toString());
-    assertEquals("blah", request.getUrl().getPath());
-    assertFalse(request.getUrl().isSetQueryString());
+    assertEquals("blah", request.getUri().getUnparsed());
+    assertFalse(request.getUri().isSetQueryString());
     assertEquals("GET blah", request.getDescription());
     assertEquals(1, request.getHeaders().getHeaderArray().length);
     assertEquals(1, request.getHeaders().getAuthorizationArray().length);
@@ -242,8 +254,8 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("GET", request.getMethod().toString());
-    assertEquals("/blah", request.getUrl().getPath());
-    assertEquals("unparsablequerystring", request.getUrl().getQueryString().getUnparsed());
+    assertEquals("/blah", request.getUri().getUnparsed());
+    assertEquals("unparsablequerystring", request.getUri().getQueryString().getUnparsed());
     assertEquals("GET blah", request.getDescription());
     assertEquals(0, request.getHeaders().getHeaderArray().length);
     assertEquals(0, request.getHeaders().getAuthorizationArray().length);
@@ -280,8 +292,8 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("POST", request.getMethod().toString());
-    assertEquals("/", request.getUrl().getPath());
-    assertFalse(request.getUrl().isSetQueryString());
+    assertEquals("/", request.getUri().getUnparsed());
+    assertFalse(request.getUri().isSetQueryString());
     assertEquals("POST /", request.getDescription());
     assertEquals(0, request.getHeaders().getHeaderArray().length);
     assertEquals(0, request.getHeaders().getAuthorizationArray().length);
@@ -326,9 +338,9 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("POST", request.getMethod().toString());
-    assertEquals("/blah", request.getUrl().getPath());
+    assertEquals("/blah", request.getUri().getUnparsed());
     // QS not parsed for POSTs.
-    assertEquals("query=lah", request.getUrl().getQueryString().getUnparsed());
+    assertEquals("query=lah", request.getUri().getQueryString().getUnparsed());
     assertEquals("POST blah", request.getDescription());
     assertEquals(1, request.getHeaders().getHeaderArray().length);
     assertEquals(0, request.getHeaders().getAuthorizationArray().length);
@@ -388,8 +400,8 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("POST", request.getMethod().toString());
-    assertEquals("/blah", request.getUrl().getPath());
-    assertFalse(request.getUrl().isSetQueryString());
+    assertEquals("/blah", request.getUri().getUnparsed());
+    assertFalse(request.getUri().isSetQueryString());
     assertEquals("POST blah", request.getDescription());
     assertEquals(1, request.getHeaders().getHeaderArray().length);
     assertEquals(0, request.getHeaders().getAuthorizationArray().length);
@@ -436,8 +448,8 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request1);
 
     assertEquals("POST", request1.getMethod().toString());
-    assertEquals("/blah", request1.getUrl().getPath());
-    assertFalse(request1.getUrl().isSetQueryString());
+    assertEquals("/blah", request1.getUri().getUnparsed());
+    assertFalse(request1.getUri().isSetQueryString());
     assertEquals("POST blah", request1.getDescription());
     assertEquals(0, request1.getHeaders().getHeaderArray().length);
     assertEquals(0, request1.getHeaders().getAuthorizationArray().length);
@@ -470,8 +482,8 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request2);
 
     assertEquals("POST", request2.getMethod().toString());
-    assertEquals("/blah", request2.getUrl().getPath());
-    assertFalse(request2.getUrl().isSetQueryString());
+    assertEquals("/blah", request2.getUri().getUnparsed());
+    assertFalse(request2.getUri().isSetQueryString());
     assertEquals("POST blah", request2.getDescription());
     assertEquals(0, request2.getHeaders().getHeaderArray().length);
     assertEquals(0, request2.getHeaders().getAuthorizationArray().length);
@@ -502,5 +514,4 @@ public class TestHTTPRequestFilter extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
 
   }
-
 }

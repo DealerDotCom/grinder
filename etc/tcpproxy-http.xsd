@@ -17,13 +17,18 @@
       <xs:field xpath="page-id" />
     </xs:key>
 
-    <xs:key name="BaseURLID">
-      <xs:selector xpath="base-url" />
-      <xs:field xpath="url-id" />
+    <xs:key name="BaseURIID">
+      <xs:selector xpath="base-uri" />
+      <xs:field xpath="uri-id" />
     </xs:key>
 
-    <xs:keyref name="BaseURLIDRef" refer="tns:BaseURLID">
-      <xs:selector xpath="page/request/url" />
+    <xs:key name="URIPathNameValueParameterID">
+      <xs:selector xpath="page/request/uri/parsed/nameValueParameter" />
+      <xs:field xpath="parameter-id" />
+    </xs:key>
+
+    <xs:keyref name="BaseURIIDRef" refer="tns:BaseURIID">
+      <xs:selector xpath="page/request/uri" />
       <xs:field xpath="extends" />
     </xs:keyref>
 
@@ -55,14 +60,15 @@
 
       <xs:element name="common-headers" type="tns:CommonHeadersType"
         minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="base-url" type="tns:BaseURLType"
+      <xs:element name="base-uri" type="tns:BaseURIType"
         minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="page" type="tns:PageType"
         minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="BaseURLType">
+  <xs:complexType name="BaseURIType">
+    <!-- Scheme and conventional server authority. No support for userinfo. -->
     <xs:sequence>
       <xs:element name="scheme">
         <xs:simpleType>
@@ -75,8 +81,7 @@
       <xs:element name="host" type="xs:NMTOKEN"/>
       <xs:element name="port" type="xs:unsignedShort"/>
     </xs:sequence>
-
-    <xs:attribute name="url-id" type="tns:IDType" />
+    <xs:attribute name="uri-id" type="tns:IDType" />
   </xs:complexType>
 
   <xs:complexType name="PageType">
@@ -103,7 +108,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="url" type="tns:RelativeURLType" />
+      <xs:element name="uri" type="tns:RelativeURIType" />
       <xs:element name="headers" type="tns:HeadersType" />
       <xs:element name="description" type="xs:normalizedString"/>
       <xs:element name="sleep-time" type="xs:unsignedInt" minOccurs="0" />
@@ -112,9 +117,35 @@
     <xs:attribute name="request-id" type="tns:IDType" />
   </xs:complexType>
 
-  <xs:complexType name="RelativeURLType">
+  <xs:complexType name="URIPathNameValueParameterType">
+    <xs:complexContent>
+      <xs:extension base="tns:NameValueType">
+        <xs:attribute name="parameter-id" type="tns:IDType"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ParsedURIPathType">
+    <xs:sequence maxOccurs="unbounded">
+      <!--  segment includes '/'. -->
+      <xs:element name="segment" type="xs:normalizedString"/>
+      <xs:choice>
+        <!--  simpleParameter includes ';', nameValueParameter doesn't. -->
+        <xs:element name="simpleParameter" type="xs:normalizedString"
+          minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="nameValueParameter"
+          type="tns:URIPathNameValueParameterType"
+          minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RelativeURIType">
     <xs:sequence>
-      <xs:element name="path" type="xs:normalizedString" />
+      <xs:choice>
+        <xs:element name="unparsed" type="xs:normalizedString" />
+        <xs:element name="parsed" type="tns:ParsedURIPathType" />
+      </xs:choice>
       <xs:element name="query-string" type="tns:QueryStringType"
         minOccurs="0" />
     </xs:sequence>

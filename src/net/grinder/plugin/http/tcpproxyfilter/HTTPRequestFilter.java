@@ -52,9 +52,11 @@ import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.HeadersType;
 import net.grinder.plugin.http.xml.ParameterType;
 import net.grinder.plugin.http.xml.ParsedQueryStringType;
+import net.grinder.plugin.http.xml.ParsedURIPathType;
 import net.grinder.plugin.http.xml.QueryStringType;
-import net.grinder.plugin.http.xml.RelativeURLType;
+import net.grinder.plugin.http.xml.RelativeURIType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.plugin.http.xml.URIPathNameValueParameterType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 
@@ -119,10 +121,14 @@ public final class HTTPRequestFilter
   private final Pattern m_requestLinePattern;
 
   private final Pattern m_lastPathElementPathPattern;
+  private final Pattern m_parsePathPattern;
 
   private final HandlerMap m_handlers = new HandlerMap();
 
   private final IntGenerator m_bodyFileIDGenerator = new IntGenerator();
+
+  private final PathNameValueParameterIDMap m_pathParameterIDMap =
+    new PathNameValueParameterIDMap();
 
   /**
    * Constructor.
@@ -166,6 +172,9 @@ public final class HTTPRequestFilter
     // Ignore maximum amount of stuff that's not a '?' or ';' followed by
     // a '/', then grab the next until the first '?' or ';'.
     m_lastPathElementPathPattern = Pattern.compile("^[^\\?;]*/([^\\?;]*)");
+
+    m_parsePathPattern =
+      Pattern.compile("(/?[^/;]+)(?:;([^/;=]+)(?:=([^/;]+))?)?");
   }
 
   /**
@@ -372,15 +381,49 @@ public final class HTTPRequestFilter
 
         m_requestXML.setDescription(description);
 
-        final RelativeURLType url = m_requestXML.addNewUrl();
-        url.setPath(path);
+        final RelativeURIType uri = m_requestXML.addNewUri();
+
+        final ParsedURIPathType parsedPath =
+          ParsedURIPathType.Factory.newInstance();
+
+        boolean complexPath = false;
+
+        final Matcher pathMatcher = m_parsePathPattern.matcher(path);
+
+        while (pathMatcher.find()) {
+          parsedPath.addSegment(pathMatcher.group(1));
+
+          if (pathMatcher.group(2) != null) {
+            complexPath = true;
+
+            if (pathMatcher.group(3) == null) {
+              parsedPath.addSimpleParameter(';' + pathMatcher.group(2));
+            }
+            else {
+              final URIPathNameValueParameterType nameValue =
+                parsedPath.addNewNameValueParameter();
+              nameValue.setName(pathMatcher.group(2));
+              nameValue.setValue(pathMatcher.group(3));
+              nameValue.setParameterId(
+                m_pathParameterIDMap.getPathID(
+                  nameValue.getName(), nameValue.getValue()));
+            }
+          }
+        }
+
+        if (complexPath) {
+          uri.setParsed(parsedPath);
+        }
+        else {
+          uri.setUnparsed(path);
+        }
 
         if (queryString != null) {
-          final QueryStringType urlQueryString = url.addNewQueryString();
+          final QueryStringType uriQueryString = uri.addNewQueryString();
 
           if (expectingBody()) {
             // Requests with bodies don't have parsed query strings.
-            urlQueryString.setUnparsed(queryString);
+            uriQueryString.setUnparsed(queryString);
           }
           else {
             try {
@@ -396,10 +439,10 @@ public final class HTTPRequestFilter
                 parameter.setValue(queryStringAsNameValuePairs[i].getValue());
               }
 
-             urlQueryString.setParsed(parsedQuery);
+             uriQueryString.setParsed(parsedQuery);
             }
             catch (ParseException e) {
-              urlQueryString.setUnparsed(queryString);
+              uriQueryString.setUnparsed(queryString);
             }
           }
         }
@@ -640,6 +683,26 @@ public final class HTTPRequestFilter
           handler.endMessage();
         }
       }
+    }
+  }
+
+  private final class PathNameValueParameterIDMap {
+    private final Map m_map = new HashMap();
+    private final IntGenerator m_idGenerator = new IntGenerator();
+
+    public synchronized String getPathID(String name, String value) {
+
+      final String key = name + "/" + value;
+
+      final String existing = (String)m_map.get(key);
+
+      if (existing != null ) {
+        return existing;
+      }
+
+      final String id = "parameter" + m_idGenerator.next();
+      m_map.put(key, id);
+      return id;
     }
   }
 }
