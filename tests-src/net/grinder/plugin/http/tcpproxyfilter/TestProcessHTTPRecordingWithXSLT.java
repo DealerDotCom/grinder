@@ -129,7 +129,6 @@ public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
       (String)
       m_loggerStubFactory.assertSuccess("error", String.class).getParameters()[0],
       "Unparseable date");
-    m_loggerStubFactory.assertSuccess("getErrorLogWriter");
 
     m_loggerStubFactory.assertNoMoreCalls();
 
@@ -162,12 +161,7 @@ public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
         processor.process(emptyDocument);
     }}.run();
 
-
-    AssertUtilities.assertContains(
-      (String)
-      m_loggerStubFactory.assertSuccess("error", String.class).getParameters()[0],
-      "rror in XSLT transform"); // Might be fatal, might not.
-    m_loggerStubFactory.assertSuccess("getErrorLogWriter");
+    m_loggerStubFactory.assertSuccess("error", String.class);
 
     // Processor might log multiple messages; ignore.
     // m_loggerStubFactory.assertNoMoreCalls();
