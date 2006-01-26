@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -99,8 +99,6 @@ class HTTPPluginThreadState implements PluginThreadListener {
   public void beginRun() {
     // Discard our cookies.
     CookieModule.discardAllCookies(this);
-
-    // SHOULD ALSO REMOVE OLD AUTHORIZATIONS.
 
     // Close connections from previous run.
     final Iterator i = m_httpConnectionWrappers.values().iterator();
