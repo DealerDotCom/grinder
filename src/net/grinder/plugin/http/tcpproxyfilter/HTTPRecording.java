@@ -17,6 +17,7 @@
 package net.grinder.plugin.http.tcpproxyfilter;
 
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.plugin.http.xml.ParsedTokenType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 
 
@@ -41,8 +42,7 @@ public interface HTTPRecording {
    * @param request
    *          The request as a disconnected element.
    */
-  void addRequest(ConnectionDetails connectionDetails,
-                  RequestType request);
+  void addRequest(ConnectionDetails connectionDetails, RequestType request);
 
   /**
    * Called when any response activity is detected. Because the test script
@@ -57,4 +57,25 @@ public interface HTTPRecording {
    * @return The last response time.
    */
   long getLastResponseTime();
+
+  /**
+   * Add a new name-value token, or return an existing one.
+   *
+   * @param name The name.
+   * @param value The value.
+   * @param source Where the token was found.
+   * @return The token.
+   */
+  ParsedTokenType addNameValueToken(
+    String name, String value, ParsedTokenType.Source.Enum source);
+
+  /**
+   * Return the token id of the token with key <code>(name, value)</code>, or
+   * <code>null</code> if no such token exists.
+   *
+   * @param name Token name.
+   * @param value Token value.
+   * @return The token id, or <code>null</code>.
+   */
+  String getNameValueTokenID(String name, String value);
 }

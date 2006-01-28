@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,8 +21,15 @@
 
 package net.grinder.plugin.http;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import net.grinder.common.GrinderException;
+import net.grinder.plugininterface.PluginProcessContext;
 import HTTPClient.Codecs;
+import HTTPClient.HTTPResponse;
 import HTTPClient.NVPair;
+import HTTPClient.ParseException;
 
 
 /**
@@ -32,6 +39,18 @@ import HTTPClient.NVPair;
  * @version $Revision$
  */
 class HTTPUtilitiesImplementation implements HTTPUtilities {
+
+  private final PluginProcessContext m_processContext;
+
+  private final Pattern m_pathNameValuePattern;
+  private final Pattern m_queryNameValuePattern;
+
+  public HTTPUtilitiesImplementation(PluginProcessContext processContext) {
+    m_processContext = processContext;
+
+    m_pathNameValuePattern = Pattern.compile("(?:;([^;/\\?=;]+)=([^;/\\?]*))");
+    m_queryNameValuePattern = Pattern.compile("([^&=;]+)=([^&]*)");
+  }
 
   /**
    * Create a {@link NVPair} for an HTTP Basic Authorization header.
@@ -46,5 +65,69 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     return new NVPair("Authorization",
                       "Basic " +
                       Codecs.base64Encode(userID + ":" + password));
+  }
+
+  public HTTPResponse getLastResponse() throws GrinderException {
+    final HTTPPluginThreadState threadState =
+      (HTTPPluginThreadState)m_processContext.getPluginThreadListener();
+
+    return threadState.getLastResponse();
+  }
+
+  public String valueFromLocationHeaderURI(String tokenName)
+    throws GrinderException {
+
+    final HTTPResponse response = getLastResponse();
+
+    if (response == null) {
+      return null;
+    }
+
+    final String location;
+
+    try {
+      location = Codecs.URLDecode(response.getHeader("Location"));
+    }
+    catch (ParseException e) {
+      // Don't throw an exception on invalid encodings.
+      return null;
+    }
+    catch (Exception e) {
+      throw new AssertionError("HTTPResponse not initialised (" + e + ")");
+    }
+
+    if (location != null) {
+      final int queryIndex = location.indexOf('?');
+
+      final String beforeQuery =
+        queryIndex >= 0 ? location.substring(0, queryIndex) : location;
+      final Matcher pathMatcher = m_pathNameValuePattern.matcher(beforeQuery);
+
+      while (pathMatcher.find()) {
+        if (pathMatcher.group(1).equals(tokenName)) {
+          return pathMatcher.group(2);
+        }
+      }
+
+      if (queryIndex == -1) {
+        return null;
+      }
+
+      final String query = location.substring(queryIndex + 1);
+      final Matcher queryMatcher = m_queryNameValuePattern.matcher(query);
+
+      while (queryMatcher.find()) {
+        if (queryMatcher.group(1).equals(tokenName)) {
+          return queryMatcher.group(2);
+        }
+      }
+    }
+
+    return null;
+  }
+
+  public String valueFromBodyURI(String tokenName) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

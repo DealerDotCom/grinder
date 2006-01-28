@@ -952,6 +952,7 @@ public class HTTPRequest {
       }
 
       processResponse(httpResponse);
+      threadState.setLastResponse(httpResponse);
 
       threadContext.resumeClock();
 

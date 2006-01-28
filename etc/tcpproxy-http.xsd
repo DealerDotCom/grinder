@@ -22,9 +22,14 @@
       <xs:field xpath="uri-id" />
     </xs:key>
 
-    <xs:key name="URIPathNameValueParameterID">
-      <xs:selector xpath="page/request/uri/parsed/nameValueParameter" />
-      <xs:field xpath="parameter-id" />
+    <xs:key name="CommonHeadersID">
+      <xs:selector xpath="common-headers" />
+      <xs:field xpath="headers-id" />
+    </xs:key>
+
+    <xs:key name="TokenID">
+      <xs:selector xpath="page/request/response/parsed-token" />
+      <xs:field xpath="token-id" />
     </xs:key>
 
     <xs:keyref name="BaseURIIDRef" refer="tns:BaseURIID">
@@ -32,19 +37,19 @@
       <xs:field xpath="extends" />
     </xs:keyref>
 
-    <xs:key name="CommonHeadersID">
-      <xs:selector xpath="common-headers" />
-      <xs:field xpath="headers-id" />
-    </xs:key>
-
     <xs:keyref name="CommonHeadersIDRef" refer="tns:CommonHeadersID">
       <xs:selector xpath="page/request/headers" />
       <xs:field xpath="extends" />
     </xs:keyref>
+
+    <xs:key name="TokenIDRef">
+      <xs:selector xpath="page/request/uri/parsed/token-parameter" />
+      <xs:field xpath="token-id" />
+    </xs:key>
   </xs:element>
 
   <xs:simpleType name="IDType">
-    <xs:restriction base="xs:NMTOKEN"/>
+    <xs:restriction base="xs:NMTOKEN" />
   </xs:simpleType>
 
   <xs:complexType name="HTTPRecordingType">
@@ -61,9 +66,9 @@
       <xs:element name="common-headers" type="tns:CommonHeadersType"
         minOccurs="0" maxOccurs="unbounded" />
       <xs:element name="base-uri" type="tns:BaseURIType"
-        minOccurs="0" maxOccurs="unbounded"/>
+        minOccurs="0" maxOccurs="unbounded" />
       <xs:element name="page" type="tns:PageType"
-        minOccurs="0" maxOccurs="unbounded"/>
+        minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
   </xs:complexType>
 
@@ -78,8 +83,8 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="host" type="xs:NMTOKEN"/>
-      <xs:element name="port" type="xs:unsignedShort"/>
+      <xs:element name="host" type="xs:NMTOKEN" />
+      <xs:element name="port" type="xs:unsignedShort" />
     </xs:sequence>
     <xs:attribute name="uri-id" type="tns:IDType" />
   </xs:complexType>
@@ -87,9 +92,38 @@
   <xs:complexType name="PageType">
     <xs:sequence>
       <xs:element name="request" type="tns:RequestType"
-        minOccurs="1" maxOccurs="unbounded"/>
+        minOccurs="1" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="page-id" type="tns:IDType" />
+  </xs:complexType>
+
+  <xs:complexType name="ParsedTokenType">
+    <xs:sequence>
+      <xs:choice>
+        <!-- Might have different token types in the future. -->
+        <xs:element name="name-value" type="tns:NameValueType" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="token-id" type="tns:IDType" />
+    <xs:attribute name="source">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="LOCATION_HEADER_PATH_PARAMETER" />
+          <xs:enumeration value="LOCATION_HEADER_QUERY_STRING" />
+          <xs:enumeration value="BODY_URI_PATH_PARAMETER" />
+          <xs:enumeration value="BODY_URI_QUERY_STRING" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ResponseType">
+    <xs:sequence>
+      <xs:element name="token" type="tns:ParsedTokenType"
+        minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="status-code" type="xs:unsignedShort" />
+    <xs:attribute name="reason-phrase" type="xs:normalizedString" />
   </xs:complexType>
 
   <xs:complexType name="RequestType">
@@ -110,32 +144,28 @@
       </xs:element>
       <xs:element name="uri" type="tns:RelativeURIType" />
       <xs:element name="headers" type="tns:HeadersType" />
-      <xs:element name="description" type="xs:normalizedString"/>
+      <xs:element name="description" type="xs:normalizedString" />
       <xs:element name="sleep-time" type="xs:unsignedInt" minOccurs="0" />
       <xs:element name="body" type="tns:BodyType" minOccurs="0" />
+      <xs:element name="response" type="tns:ResponseType" />
     </xs:sequence>
     <xs:attribute name="request-id" type="tns:IDType" />
   </xs:complexType>
 
-  <xs:complexType name="URIPathNameValueParameterType">
-    <xs:complexContent>
-      <xs:extension base="tns:NameValueType">
-        <xs:attribute name="parameter-id" type="tns:IDType"/>
-      </xs:extension>
-    </xs:complexContent>
+  <xs:complexType name="TokenReferenceType">
+    <xs:attribute name="token-id" type="tns:IDType" />
   </xs:complexType>
 
   <xs:complexType name="ParsedURIPathType">
     <xs:sequence maxOccurs="unbounded">
-      <!--  segment includes '/'. -->
-      <xs:element name="segment" type="xs:normalizedString"/>
-      <xs:choice>
-        <!--  simpleParameter includes ';', nameValueParameter doesn't. -->
-        <xs:element name="simpleParameter" type="xs:normalizedString"
-          minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element name="nameValueParameter"
-          type="tns:URIPathNameValueParameterType"
-          minOccurs="0" maxOccurs="unbounded"/>
+
+      <!-- Segment text includes leading '/', if any. -->
+      <xs:element name="segment" type="xs:normalizedString" />
+
+      <!-- Parameters don't include leading ';'. -->
+      <xs:choice minOccurs="0">
+        <xs:element name="literal-parameter" type="xs:normalizedString"/>
+        <xs:element name="token-parameter" type="tns:TokenReferenceType"/>
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
@@ -150,7 +180,7 @@
         minOccurs="0" />
     </xs:sequence>
 
-    <xs:attribute name="extends" type="tns:IDType"/>
+    <xs:attribute name="extends" type="tns:IDType" />
   </xs:complexType>
 
   <xs:complexType name="QueryStringType">
@@ -176,11 +206,11 @@
     <xs:complexType name="HeadersType">
     <xs:sequence>
       <xs:choice maxOccurs="unbounded" minOccurs="0">
-        <xs:element name="header" type="tns:HeaderType"/>
+        <xs:element name="header" type="tns:HeaderType" />
         <xs:element name="authorization" type="tns:AuthorizationHeaderType" />
       </xs:choice>
     </xs:sequence>
-    <xs:attribute name="extends" type="tns:IDType" use="optional"/>
+    <xs:attribute name="extends" type="tns:IDType" use="optional" />
   </xs:complexType>
 
   <xs:complexType name="CommonHeadersType">
@@ -199,7 +229,7 @@
 
   <xs:complexType name="AuthorizationHeaderType">
     <xs:sequence>
-      <xs:element name="basic" type="tns:BasicAuthorizationHeaderType"/>
+      <xs:element name="basic" type="tns:BasicAuthorizationHeaderType" />
     </xs:sequence>
   </xs:complexType>
 
@@ -207,17 +237,17 @@
     <xs:attribute name="userid">
       <xs:simpleType>
         <xs:restriction base="xs:string">
-          <xs:pattern value="[^:]*"/>
+          <xs:pattern value="[^:]*" />
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="password" type="xs:string"/>
+    <xs:attribute name="password" type="xs:string" />
   </xs:complexType>
 
   <xs:complexType name="BodyType">
     <xs:sequence>
       <xs:element name="content-type" type="xs:normalizedString"
-        minOccurs="0"/>
+        minOccurs="0" />
       <xs:choice>
         <xs:element name="binary" type="tns:BinaryBodyType" />
         <xs:element name="file" type="tns:FileNameBodyType" />
@@ -228,11 +258,11 @@
   </xs:complexType>
 
   <xs:simpleType name="BinaryBodyType">
-    <xs:restriction base="xs:base64Binary"/>
+    <xs:restriction base="xs:base64Binary" />
   </xs:simpleType>
 
   <xs:simpleType name="FileNameBodyType">
-    <xs:restriction base="xs:string"/>
+    <xs:restriction base="xs:string" />
   </xs:simpleType>
 
   <xs:complexType name="FormBodyType">
@@ -244,18 +274,18 @@
 
   <xs:complexType name="FormFieldType">
     <xs:complexContent>
-      <xs:extension base="tns:NameValueType"/>
+      <xs:extension base="tns:NameValueType" />
     </xs:complexContent>
   </xs:complexType>
 
   <xs:simpleType name="StringBodyType">
     <xs:restriction base="xs:string">
-      <xs:whiteSpace value="preserve"/>
+      <xs:whiteSpace value="preserve" />
     </xs:restriction>
   </xs:simpleType>
 
   <xs:complexType name="NameValueType" abstract="true">
-    <xs:attribute name="name" type="xs:NMTOKEN"/>
-    <xs:attribute name="value" type="xs:string"/>
+    <xs:attribute name="name" type="xs:NMTOKEN" />
+    <xs:attribute name="value" type="xs:string" />
   </xs:complexType>
 </xs:schema>

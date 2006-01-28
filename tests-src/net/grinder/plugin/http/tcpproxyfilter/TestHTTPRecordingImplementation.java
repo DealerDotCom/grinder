@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,6 +33,7 @@ import net.grinder.plugin.http.xml.HeadersType;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
 import net.grinder.plugin.http.xml.PageType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.plugin.http.xml.ResponseType;
 import net.grinder.plugin.http.xml.HTTPRecordingType.Metadata;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.XMLBeansUtilities;
@@ -127,6 +128,9 @@ public class TestHTTPRecordingImplementation extends TestCase {
     result.addNewHeaders();
     result.setTime(Calendar.getInstance());
     result.setDescription("GET " + path);
+    final ResponseType response = result.addNewResponse();
+    response.setStatusCode(200);
+    response.setReasonPhrase("OK");
 
     XMLBeansUtilities.validate(result);
 

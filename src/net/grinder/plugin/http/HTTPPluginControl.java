@@ -46,7 +46,7 @@ public final class HTTPPluginControl {
   }
 
   private static final HTTPUtilities s_utilties =
-    new HTTPUtilitiesImplementation();
+    new HTTPUtilitiesImplementation(s_pluginProcessContext);
 
   private HTTPPluginControl() {
   }

@@ -16,6 +16,8 @@
 
 package net.grinder.plugin.http;
 
+import net.grinder.common.GrinderException;
+import HTTPClient.HTTPResponse;
 import HTTPClient.NVPair;
 
 
@@ -38,4 +40,38 @@ public interface HTTPUtilities {
    * @return The NVPair that can be used as a header with {@link HTTPRequest}.
    */
   NVPair basicAuthorizationHeader(String userID, String password);
+
+  /**
+   * Return the response for the last request made by the calling worker thread.
+   *
+   * @return The response, or <code>null</code> if the calling thread has not
+   *         made any requests.
+   * @throws GrinderException
+   *           If not called from a worker thread.
+   */
+  HTTPResponse getLastResponse() throws GrinderException;
+
+  /**
+   * Return the value for a path parameter or query string name-value token with
+   * the given <code>tokenName</code> in a Location header from the last
+   * response. If there are multiple matches, the first value is returned.
+   *
+   * @param tokenName
+   *          The token name.
+   * @return The first value if one is found, or <code>null</code>.
+   * @throws GrinderException If not called from a worker thread.
+   */
+  String valueFromLocationHeaderURI(String tokenName) throws GrinderException;
+
+  /**
+   * Return the value for a path parameter or query string name-value token with
+   * the given <code>tokenName</code> in a URI in the body of the last
+   * response. If there are multiple matches, the first value is returned.
+   *
+   * @param tokenName
+   *          The token name.
+   * @return The first value if one is found, or <code>null</code>.
+   * @throws GrinderException If not called from a worker thread.
+   */
+  String valueFromBodyURI(String tokenName) throws GrinderException;
 }

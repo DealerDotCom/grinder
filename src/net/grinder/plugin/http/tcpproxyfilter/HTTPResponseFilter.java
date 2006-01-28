@@ -38,16 +38,16 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  */
 public class HTTPResponseFilter implements TCPProxyFilter {
 
-  private final HTTPRecording m_httpRecording;
+  private final HTTPFilterEventListener m_eventListener;
 
   /**
    * Constructor.
    *
-   * @param httpRecording
-   *          Common HTTP recording state.
+   * @param eventListener
+   *         Connection handler.
    */
-  public HTTPResponseFilter(HTTPRecording httpRecording) {
-    m_httpRecording = httpRecording;
+  public HTTPResponseFilter(HTTPFilterEventListener eventListener) {
+    m_eventListener = eventListener;
   }
 
   /**
@@ -68,7 +68,7 @@ public class HTTPResponseFilter implements TCPProxyFilter {
                        int bytesRead)
     throws FilterException {
 
-    m_httpRecording.markLastResponseTime();
+    m_eventListener.response(connectionDetails, buffer, bytesRead);
 
     return null;
   }

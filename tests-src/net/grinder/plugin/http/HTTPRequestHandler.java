@@ -6,8 +6,13 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import HTTPClient.NVPair;
 
 
 /**
@@ -16,6 +21,8 @@ import java.util.regex.Pattern;
  */
 class HTTPRequestHandler implements Runnable {
   private static final Pattern s_contentLengthPattern;
+
+  private final List m_headers = new ArrayList();
 
   static {
     try {
@@ -204,5 +211,22 @@ class HTTPRequestHandler implements Runnable {
    */
   protected void writeHeaders(StringBuffer response) {
     response.append("HTTP/1.0 200 OK\r\n");
+
+    final Iterator iterator = m_headers.iterator();
+
+    while (iterator.hasNext()) {
+      final NVPair pair = (NVPair)iterator.next();
+
+      response.append(pair.getName()).append(": ").append(pair.getValue());
+      response.append("\r\n");
+    }
+  }
+
+  public void clearHeaders() {
+    m_headers.clear();
+  }
+
+  public void addHeader(String name, String value) {
+    m_headers.add(new NVPair(name, value));
   }
 }

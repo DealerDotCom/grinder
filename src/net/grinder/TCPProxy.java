@@ -43,6 +43,8 @@ import net.grinder.plugin.http.HTTPPluginTCPProxyFilter;
 import net.grinder.plugin.http.HTTPPluginTCPProxyFilter2;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter2;
+import net.grinder.plugin.http.tcpproxyfilter.ConnectionCache;
+import net.grinder.plugin.http.tcpproxyfilter.ConnectionHandlerFactoryImplementation;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRecordingImplementation;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRequestFilter;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPResponseFilter;
@@ -260,6 +262,10 @@ public final class TCPProxy {
         else if (args[i].equalsIgnoreCase("-http")) {
           requestFilterChain.add(HTTPRequestFilter.class);
           responseFilterChain.add(HTTPResponseFilter.class);
+          m_filterContainer.registerComponentImplementation(
+            ConnectionCache.class);
+          m_filterContainer.registerComponentImplementation(
+            ConnectionHandlerFactoryImplementation.class);
           m_filterContainer.registerComponentImplementation(
             HTTPRecordingImplementation.class);
           m_filterContainer.registerComponentImplementation(

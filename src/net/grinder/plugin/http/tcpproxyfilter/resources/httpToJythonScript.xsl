@@ -64,31 +64,59 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:text>"""A TestRunner instance is created for each worker thread."""</xsl:text>
     <xsl:value-of select="helper:newLine()"/>
 
+    <xsl:apply-templates select="*" mode="TestRunner"/>
+
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>def __call__(self):</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>"""This method is called for every run performed by the worker thread."""</xsl:text>
-    <xsl:value-of select="helper:newLine()"/>
 
     <xsl:apply-templates select="*" mode="__call__"/>
+
+    <xsl:if test="not(//g:request)">
+      <xsl:value-of select="helper:newLine()"/>
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text># Empty recording!</xsl:text>
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text>pass</xsl:text>
+    </xsl:if>
+
     <xsl:value-of select="helper:newLine()"/>
 
-    <xsl:value-of select="helper:changeIndent(-1)"/>
+    <xsl:value-of select="helper:changeIndent(-2)"/>
+    <xsl:value-of select="helper:newLine()"/>
+    <xsl:value-of select="helper:newLine()"/>
 
-    <xsl:apply-templates select="*" mode="TestRunner"/>
+    <xsl:text>def instrumentMethod(test, method_name, c=TestRunner):</xsl:text>
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>"""Instrument a method with the given Test."""</xsl:text>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>unadorned = getattr(c, method_name)</xsl:text>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>import new</xsl:text>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>method = new.instancemethod(test.wrap(unadorned), None, c)</xsl:text>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>setattr(c, method_name, method)</xsl:text>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
+    <xsl:value-of select="helper:newLine()"/>
+
+    <xsl:apply-templates select="*" mode="instrumentMethod"/>
+    <xsl:value-of select="helper:newLine()"/>
 
   </xsl:template>
 
 
-  <xsl:template match="g:base-url" mode="file">
+  <xsl:template match="g:base-uri" mode="file">
     <xsl:value-of select="helper:newLine()"/>
-    <xsl:value-of select="concat(@url-id, ' = ')"/>
+    <xsl:value-of select="concat(@uri-id, ' = ')"/>
     <xsl:text>'</xsl:text>
     <xsl:value-of select="concat(g:scheme, '://', g:host, ':', g:port)"/>
     <xsl:text>'</xsl:text>
 
-    <xsl:if test="not(following::g:base-url)">
+    <xsl:if test="not(following::g:base-uri)">
       <xsl:value-of select="helper:newLine()"/>
     </xsl:if>
   </xsl:template>
@@ -145,7 +173,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:value-of select="$request-name"/>
 
-    <xsl:value-of select="concat(' = HTTPRequest(url=', g:url/@extends)"/>
+    <xsl:value-of select="concat(' = HTTPRequest(url=', g:uri/@extends)"/>
     <xsl:value-of select="concat(', headers=', g:headers/@extends, ')')"/>
 
     <xsl:if test="g:body/g:file">
@@ -202,18 +230,17 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:apply-templates select="." mode="generate-test-number"/>
     <xsl:text>.</xsl:text>
     <xsl:value-of select="g:method"/>
-    <xsl:text>('</xsl:text>
-    <xsl:value-of select="g:url/g:path"/>
-    <xsl:text>'</xsl:text>
+    <xsl:text>(</xsl:text>
 
-    <xsl:apply-templates select="g:url/g:query-string" mode="request"/>
-
+    <xsl:apply-templates select="g:uri/g:parsed|g:uri/g:unparsed" mode="request"/>
+    <xsl:apply-templates select="g:uri/g:query-string" mode="request"/>
     <xsl:apply-templates select="g:body" mode="request"/>
-
     <xsl:apply-templates select="g:headers" mode="request"/>
 
     <xsl:text>)</xsl:text>
+    <xsl:apply-templates select="g:response/g:token" mode="request"/>
     <xsl:value-of select="helper:newLine()"/>
+
   </xsl:template>
 
 
@@ -259,7 +286,37 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
   <xsl:template match="g:page" mode="file">
     <xsl:apply-templates select="*" mode="file"/>
+  </xsl:template>
 
+
+  <xsl:template match="g:page" mode="TestRunner">
+    <xsl:apply-templates select="*" mode="TestRunner"/>
+
+    <xsl:variable name="page-function-name">
+      <xsl:apply-templates select="." mode="generate-function-name"/>
+    </xsl:variable>
+
+    <xsl:if test="not(preceding::g:page)">
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text># A method for each recorded page.</xsl:text>
+    </xsl:if>
+
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:value-of select="concat('def ', $page-function-name, '(self):')"/>
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>"""</xsl:text>
+    <xsl:apply-templates select="*" mode="page-description"/>
+    <xsl:text>."""</xsl:text>
+    <xsl:apply-templates select="*" mode="page-function"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>return result</xsl:text>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
+    <xsl:value-of select="helper:newLine()"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:page" mode="instrumentMethod">
     <xsl:variable name="page-number">
       <xsl:apply-templates select="." mode="generate-number"/>
     </xsl:variable>
@@ -272,38 +329,24 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
       <xsl:apply-templates select="." mode="generate-function-name"/>
     </xsl:variable>
 
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat('def ', $page-function-name, '():')"/>
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>"""</xsl:text>
-    <xsl:apply-templates select="*" mode="page-description"/>
-    <xsl:text>."""</xsl:text>
-    <xsl:apply-templates select="*" mode="page-function"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>return result</xsl:text>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
-    <xsl:value-of select="helper:newLine()"/>
-
     <xsl:if test="not(preceding::g:page)">
       <xsl:value-of select="helper:newLineAndIndent()"/>
-      <xsl:text># Replace the function with an instrumented version.</xsl:text>
+      <xsl:text># Replace each method with an instrumented version.</xsl:text>
       <xsl:value-of select="helper:newLineAndIndent()"/>
-      <xsl:text># You can call the unadorned function using </xsl:text>
+      <xsl:text># You can call the unadorned method using </xsl:text>
+      <xsl:text>self.</xsl:text>
       <xsl:value-of select="$page-function-name"/>
       <xsl:text>.__target__().</xsl:text>
     </xsl:if>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="$page-function-name"/>
-    <xsl:text> = Test(</xsl:text>
+    <xsl:text>instrumentMethod(Test(</xsl:text>
     <xsl:value-of select="$page-test-number"/>
     <xsl:text>, 'Page </xsl:text>
     <xsl:value-of select="$page-number"/>
-    <xsl:text>').wrap(</xsl:text>
+    <xsl:text>'), '</xsl:text>
     <xsl:value-of select="$page-function-name"/>
-    <xsl:text>)</xsl:text>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>')</xsl:text>
   </xsl:template>
 
 
@@ -315,7 +358,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     </xsl:variable>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat($page-function-name, '()')"/>
+    <xsl:value-of select="concat('self.', $page-function-name, '()')"/>
     <xsl:call-template name="indent">
       <xsl:with-param name="characters" select="12-string-length($page-function-name)"/>
     </xsl:call-template>
@@ -335,6 +378,86 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:value-of select="concat('grinder.sleep(', ., ')')"/>
   </xsl:template>
+
+
+  <xsl:template match="g:token[g:name-value]" mode="request">
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>self.</xsl:text>
+    <xsl:value-of select="@token-id"/>
+    <xsl:variable name="name" select="g:name-value/@name"/>
+    <xsl:text> = \</xsl:text>
+
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>'</xsl:text>
+    <xsl:value-of select="$name"/>
+    <xsl:text>=' + </xsl:text>
+
+    <xsl:text>httpUtilities.</xsl:text>
+    <xsl:choose>
+      <xsl:when test="@source = 'LOCATION_HEADER_PATH_PARAMETER' or
+                      @source = 'LOCATION_HEADER_QUERY_STRING'">
+        <xsl:text>valueFromLocationHeaderURI('</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>valueFromBodyURI('</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:value-of select="$name"/>
+    <xsl:text>')</xsl:text>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:uri/g:unparsed" mode="request">
+    <xsl:text>'</xsl:text>
+    <xsl:value-of select="."/>
+    <xsl:text>'</xsl:text>
+  </xsl:template>
+
+
+  <xsl:template match="g:uri/g:parsed/g:segment|g:uri/g:parsed/g:literal-parameter" mode="request">
+    <xsl:variable
+      name="preceding-sibling-name"
+      select="local-name(preceding-sibling::node()[1])"/>
+
+    <xsl:choose>
+      <xsl:when test="position() = 1">
+        <!--  First sibling, open quotes. -->
+        <xsl:text>'</xsl:text>
+      </xsl:when>
+      <xsl:when test="$preceding-sibling-name != 'segment' and
+                      $preceding-sibling-name != 'literal-parameter'">
+        <!-- Previous sibling is not a g:segment or literal-parameter -->
+        <xsl:text> +</xsl:text>
+        <xsl:value-of select="helper:changeIndent(1)"/>
+        <xsl:value-of select="helper:newLineAndIndent()"/>
+        <xsl:text>'</xsl:text>
+        <xsl:value-of select="helper:changeIndent(-1)"/>
+      </xsl:when>
+    </xsl:choose>
+
+    <xsl:if test="local-name(.) = 'literal-parameter'">
+      <xsl:text>;</xsl:text>
+    </xsl:if>
+
+    <xsl:value-of select="."/>
+
+    <xsl:if test="position() = last()">
+      <!--  Final sibling, close quotes. -->
+      <xsl:text>'</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="g:uri/g:parsed/g:token-parameter" mode="request">
+    <xsl:text>;' +</xsl:text>
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>self.</xsl:text>
+    <xsl:value-of select="@token-id"/>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
+  </xsl:template>
+
 
   <xsl:template match="g:query-string/g:parsed" mode="request">
     <xsl:text>,</xsl:text>
@@ -395,7 +518,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
 
   <xsl:template match="g:headers[node()]" mode="request">
-    <xsl:if test="not(../g:url/g:query-string/g:parsed|../g:body)">
+    <xsl:if test="not(../g:uri/g:query-string/g:parsed|../g:body)">
       <!-- No keyword arguments for methods, insert dummy parameter. -->
       <xsl:text>, ()</xsl:text>
     </xsl:if>
@@ -467,5 +590,6 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   <xsl:template match="text()|@*" mode="page-description"/>
   <xsl:template match="text()|@*" mode="request"/>
   <xsl:template match="text()|@*" mode="TestRunner"/>
+  <xsl:template match="text()|@*" mode="instrumentMethod"/>
 
 </xsl:stylesheet>

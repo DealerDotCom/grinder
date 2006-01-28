@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,8 +43,11 @@ import net.grinder.plugin.http.xml.HTTPRecordingType;
 import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.HeadersType;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
+import net.grinder.plugin.http.xml.NameValueType;
 import net.grinder.plugin.http.xml.PageType;
+import net.grinder.plugin.http.xml.ParsedTokenType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.plugin.http.xml.ParsedTokenType.Source.Enum;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
 
@@ -81,6 +84,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   private final BaseURLMap m_baseURLMap = new BaseURLMap();
   private final CommonHeadersMap m_commonHeadersMap = new CommonHeadersMap();
   private final PageMap m_pageMap = new PageMap();
+  private final NameValueTokenMap m_nameValueTokenMap = new NameValueTokenMap();
 
   private long m_lastResponseTime = 0;
 
@@ -160,6 +164,31 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     synchronized (this) {
       return m_lastResponseTime;
     }
+  }
+
+  /**
+   * Add a new name-value token.
+   *
+   * @param name The name.
+   * @param value The value.
+   * @param source Where the token was found.
+   * @return The token.
+   */
+  public ParsedTokenType addNameValueToken(
+    String name, String value, Enum source) {
+    return m_nameValueTokenMap.add(name, value, source);
+  }
+
+  /**
+   * Return the token id of the token with key <code>(name, value)</code>, or
+   * <code>null</code> if no such token exists.
+   *
+   * @param name Token name.
+   * @param value Token value.
+   * @return The token id, or <code>null</code>.
+   */
+  public String getNameValueTokenID(String name, String value) {
+    return m_nameValueTokenMap.getTokenID(name, value);
   }
 
   /**
@@ -380,6 +409,63 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
         return result;
       }
+    }
+  }
+
+  private static final class NameValueTokenMap {
+    private final Map m_mapByName = new HashMap();
+
+    public ParsedTokenType add(String name, String value, Enum source) {
+      synchronized (m_mapByName) {
+        final Map existingMapByValue = (Map)m_mapByName.get(name);
+        final Map mapByValue;
+
+        if (existingMapByValue != null) {
+          final ParsedTokenType existingToken =
+            (ParsedTokenType)existingMapByValue.get(value);
+
+          if (existingToken != null) {
+            return existingToken;
+          }
+
+          mapByValue = existingMapByValue;
+        }
+        else {
+          mapByValue = new HashMap();
+          m_mapByName.put(name, mapByValue);
+        }
+
+        final ParsedTokenType newToken = ParsedTokenType.Factory.newInstance();
+        newToken.setSource(source);
+        final NameValueType nameValue = newToken.addNewNameValue();
+        nameValue.setName(name);
+        nameValue.setValue(value);
+
+        mapByValue.put(value, newToken);
+
+        final int numberOfValues = mapByValue.size();
+        newToken.setTokenId(
+          "token_" + (numberOfValues > 1 ? name + numberOfValues : name));
+
+        return newToken;
+      }
+    }
+
+    public String getTokenID(String name, String value) {
+      synchronized (m_mapByName) {
+        final Map existingMapByValue = (Map)m_mapByName.get(name);
+
+        if (existingMapByValue != null) {
+          final ParsedTokenType existingToken =
+            (ParsedTokenType)existingMapByValue.get(value);
+
+          if (existingToken != null) {
+            return existingToken.getTokenId();
+          }
+        }
+      }
+
+      return null;
     }
   }
 }

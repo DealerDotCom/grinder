@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,19 +21,30 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import junit.framework.TestCase;
+
+import net.grinder.common.LoggerStubFactory;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
-import junit.framework.TestCase;
 
 
 /**
- * Unit tests for {@link HTTPResponseFilter}.
+ * Unit tests for {@link ConnectionHandlerFactoryImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestHTTPResponseFilter extends TestCase {
+public class TestConnectionHandlerFactoryImplementation extends TestCase {
+
+  private final RandomStubFactory m_httpRecordingStubFactory =
+    new RandomStubFactory(HTTPRecording.class);
+  private final HTTPRecording m_httpRecording =
+    (HTTPRecording) m_httpRecordingStubFactory.getStub();
+
+  private final LoggerStubFactory m_loggerStubFactory =
+    new LoggerStubFactory();
+
 
   private final ConnectionDetails m_connectionDetails =
     new ConnectionDetails(
@@ -41,29 +52,16 @@ public class TestHTTPResponseFilter extends TestCase {
       new EndPoint("hostB", 80),
       false);
 
-  public void testDelegation() throws Exception {
-    final RandomStubFactory connectionMapStubFactory =
-      new RandomStubFactory(HTTPFilterEventListener.class);
-    final HTTPFilterEventListener connectionMap =
-      (HTTPFilterEventListener)connectionMapStubFactory.getStub();
+  public void testFactory() {
+    final ConnectionHandlerFactory factory =
+      new ConnectionHandlerFactoryImplementation(m_httpRecording,
+        m_loggerStubFactory.getLogger());
 
-    final HTTPResponseFilter filter = new HTTPResponseFilter(connectionMap);
+    final ConnectionHandler handler1 = factory.create(m_connectionDetails);
+    final ConnectionHandler handler2 = factory.create(m_connectionDetails);
+    assertNotSame(handler1, handler2);
 
-    connectionMapStubFactory.assertNoMoreCalls();
-
-    filter.connectionOpened(m_connectionDetails);
-    connectionMapStubFactory.assertNoMoreCalls();
-
-    final byte[] buffer = new byte[100];
-
-    final byte[] result = filter.handle(m_connectionDetails, buffer, 56);
-    assertNull(result);
-    connectionMapStubFactory.assertSuccess(
-      "response", m_connectionDetails, buffer, new Integer(56));
-
-    filter.connectionClosed(m_connectionDetails);
-
-    connectionMapStubFactory.assertNoMoreCalls();
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertNoMoreCalls();
   }
-
 }

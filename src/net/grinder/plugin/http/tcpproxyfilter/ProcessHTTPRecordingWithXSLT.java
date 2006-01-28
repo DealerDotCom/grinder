@@ -144,6 +144,12 @@ public class ProcessHTTPRecordingWithXSLT
     */
   }
 
+  /**
+   * Allow command line invocation for testing purposes.
+   *
+   * @param arguments Command line arguments.
+   * @throws Exception If something went wrong.
+   */
   public static void main(String[] arguments) throws Exception {
     final HttpRecordingDocument recording =
       HttpRecordingDocument.Factory.parse(

@@ -27,6 +27,7 @@ import java.util.Map;
 
 import HTTPClient.CookieModule;
 import HTTPClient.HTTPConnection;
+import HTTPClient.HTTPResponse;
 import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
@@ -50,6 +51,7 @@ class HTTPPluginThreadState implements PluginThreadListener {
   private final SSLContextFactory m_sslContextFactory;
 
   private Map m_httpConnectionWrappers = new HashMap();
+  private HTTPResponse m_lastResponse;
 
   HTTPPluginThreadState(PluginThreadContext threadContext,
                         SSLContextFactory sslContextFactory)
@@ -111,6 +113,14 @@ class HTTPPluginThreadState implements PluginThreadListener {
   }
 
   public void endRun() {
+  }
+
+  public void setLastResponse(HTTPResponse lastResponse) {
+    m_lastResponse = lastResponse;
+  }
+
+  public HTTPResponse getLastResponse() {
+    return m_lastResponse;
   }
 }
 
