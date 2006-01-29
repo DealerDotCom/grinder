@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
@@ -864,8 +864,11 @@ public class HTTPRequest {
 
       final PluginThreadContext threadContext = threadState.getThreadContext();
 
-      // And for fragment, parameters?
-      final String path = m_url.getPathAndQuery();
+      final String pathAndQuery = m_url.getPathAndQuery();
+      final String fragment = m_url.getFragment();
+
+      final String path =
+        fragment != null ? pathAndQuery + '#' + fragment : pathAndQuery;
 
       // This will be different to the time the Test was started if
       // the Test wraps several HTTPRequests.
