@@ -39,7 +39,6 @@ final class RegularExpressions {
   private final Pattern m_responseLinePattern;
 
   private final Pattern m_lastPathElementPathPattern;
-  private final Pattern m_parsePathPattern;
 
   public RegularExpressions() {
     m_messageBodyPattern = Pattern.compile("\\r\\n\\r\\n(.*)", Pattern.DOTALL);
@@ -56,8 +55,7 @@ final class RegularExpressions {
     m_requestLinePattern = Pattern.compile(
       "^([A-Z]+)[ \\t]+" +          // Method.
       "(?:https?://[^/]+)?"  +      // Ignore scheme, host, port.
-      "([^\\?]+)" +                 // Path.
-      "(?:\\?(.*))?" +              // Optional query string.
+      "(.+)" +                      // Path, query string, fragment.
       "[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?\\n",
       Pattern.MULTILINE | Pattern.UNIX_LINES);
 
@@ -80,12 +78,9 @@ final class RegularExpressions {
       "^Authorization[ \\t]*:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*?\\r?\\n",
       Pattern.MULTILINE | Pattern.UNIX_LINES);
 
-    // Ignore maximum amount of stuff that's not a '?' or ';' followed by
-    // a '/', then grab the next until the first '?' or ';'.
-    m_lastPathElementPathPattern = Pattern.compile("^[^\\?;]*/([^\\?;]*)");
-
-    m_parsePathPattern =
-      Pattern.compile("(/?[^;/\\?]+)(?:;([^;/\\?=]+)=([^;/\\?]*))?");
+    // Ignore maximum amount of stuff that's not a '?', ';', or '#' followed by
+    // a '/', then grab the next until the first '?', ';', or '#'.
+    m_lastPathElementPathPattern = Pattern.compile("^[^\\?;#]*/([^\\?;#]*)");
   }
 
   public Pattern getRequestLinePattern() {
@@ -110,9 +105,5 @@ final class RegularExpressions {
 
   public Pattern getLastPathElementPathPattern() {
     return m_lastPathElementPathPattern;
-  }
-
-  public Pattern getParsePathPattern() {
-    return m_parsePathPattern;
   }
 }

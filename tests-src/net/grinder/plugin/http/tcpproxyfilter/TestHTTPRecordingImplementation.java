@@ -124,7 +124,7 @@ public class TestHTTPRecordingImplementation extends TestCase {
   private RequestType createRequest(String path) {
     final RequestType result = RequestType.Factory.newInstance();
     result.setMethod(RequestType.Method.Enum.forString("GET"));
-    result.addNewUri().setUnparsed(path);
+    result.addNewUri().addNewPath().addText(path);
     result.addNewHeaders();
     result.setTime(Calendar.getInstance());
     result.setDescription("GET " + path);
@@ -190,7 +190,7 @@ public class TestHTTPRecordingImplementation extends TestCase {
     assertEquals(2, page0.getRequestArray().length);
     assertEquals(result.getBaseUriArray(0).getUriId(),
                  page0.getRequestArray(1).getUri().getExtends());
-    assertEquals("bah.gif", page0.getRequestArray(1).getUri().getUnparsed());
+    assertEquals("bah.gif", page0.getRequestArray(1).getUri().getPath().getTextArray(0));
 
     final PageType page1 = result.getPageArray(1);
     assertEquals(1, page1.getRequestArray().length);

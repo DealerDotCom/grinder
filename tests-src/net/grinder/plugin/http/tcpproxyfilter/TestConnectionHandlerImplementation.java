@@ -25,6 +25,8 @@ import java.io.File;
 
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.plugin.http.xml.FormFieldType;
+import net.grinder.plugin.http.xml.NameValueType;
+import net.grinder.plugin.http.xml.ParsedTokenType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
@@ -80,6 +82,14 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
         m_connectionDetails);
 
+    final ParsedTokenType parsedToken = ParsedTokenType.Factory.newInstance();
+    final NameValueType nameValue = parsedToken.addNewNameValue();
+    nameValue.setName("query");
+    nameValue.setValue("whatever");
+    parsedToken.setTokenId("tokenID");
+
+    m_httpRecordingStubFactory.setResult("addNameValueToken", parsedToken);
+
     final String message = "GET /something?query=whatever HTTP/1.0\r\n\r\n";
     final byte[] buffer = message.getBytes();
 
@@ -109,9 +119,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("GET", request.getMethod().toString());
-    assertEquals("/something", request.getUri().getUnparsed());
-    assertEquals("query", request.getUri().getQueryString().getParsed().getParameterArray(0).getName());
-    assertEquals("whatever", request.getUri().getQueryString().getParsed().getParameterArray(0).getValue());
+    assertEquals("/something", request.getUri().getPath().getTextArray(0));
+    assertEquals("tokenID", request.getUri().getQueryString().getTokenParameterArray(0).getTokenId());
     assertEquals("GET something", request.getDescription());
     assertEquals(0, request.getHeaders().getHeaderArray().length);
     assertFalse(request.toString(), request.isSetSleepTime());
@@ -162,7 +171,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("GET", request.getMethod().toString());
-    assertEquals("blah", request.getUri().getUnparsed());
+    assertEquals("blah", request.getUri().getPath().getTextArray(0));
     assertFalse(request.getUri().isSetQueryString());
     assertEquals("GET blah", request.getDescription());
     assertEquals(1, request.getHeaders().getHeaderArray().length);
@@ -217,8 +226,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("GET", request.getMethod().toString());
-    assertEquals("/blah", request.getUri().getUnparsed());
-    assertEquals("unparsablequerystring", request.getUri().getQueryString().getUnparsed());
+    assertEquals("/blah", request.getUri().getPath().getTextArray(0));
+    assertEquals("unparsablequerystring", request.getUri().getQueryString().getTextArray(0));
     assertEquals("GET blah", request.getDescription());
     assertEquals(0, request.getHeaders().getHeaderArray().length);
     assertEquals(0, request.getHeaders().getAuthorizationArray().length);
@@ -265,7 +274,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("POST", request.getMethod().toString());
-    assertEquals("/", request.getUri().getUnparsed());
+    assertEquals("/", request.getUri().getPath().getTextArray(0));
     assertFalse(request.getUri().isSetQueryString());
     assertEquals("POST /", request.getDescription());
     assertEquals(0, request.getHeaders().getHeaderArray().length);
@@ -318,9 +327,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("POST", request.getMethod().toString());
-    assertEquals("/blah", request.getUri().getUnparsed());
-    // QS not parsed for POSTs.
-    assertEquals("query=lah", request.getUri().getQueryString().getUnparsed());
+    assertEquals("/blah", request.getUri().getPath().getTextArray(0));
+    assertEquals("query=lah", request.getUri().getQueryString());
     assertEquals("POST blah", request.getDescription());
     assertEquals(1, request.getHeaders().getHeaderArray().length);
     assertEquals(0, request.getHeaders().getAuthorizationArray().length);
@@ -388,7 +396,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request);
 
     assertEquals("POST", request.getMethod().toString());
-    assertEquals("/blah", request.getUri().getUnparsed());
+    assertEquals("/blah", request.getUri().getPath().getTextArray(0));
     assertFalse(request.getUri().isSetQueryString());
     assertEquals("POST blah", request.getDescription());
     assertEquals(1, request.getHeaders().getHeaderArray().length);
@@ -443,7 +451,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request1);
 
     assertEquals("POST", request1.getMethod().toString());
-    assertEquals("/blah", request1.getUri().getUnparsed());
+    assertEquals("/blah", request1.getUri().getPath().getTextArray(0));
     assertFalse(request1.getUri().isSetQueryString());
     assertEquals("POST blah", request1.getDescription());
     assertEquals(0, request1.getHeaders().getHeaderArray().length);
@@ -478,7 +486,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     XMLBeansUtilities.validate(request2);
 
     assertEquals("POST", request2.getMethod().toString());
-    assertEquals("/blah", request2.getUri().getUnparsed());
+    assertEquals("/blah", request2.getUri().getPath().getTextArray(0));
     assertFalse(request2.getUri().isSetQueryString());
     assertEquals("POST blah", request2.getDescription());
     assertEquals(0, request2.getHeaders().getHeaderArray().length);

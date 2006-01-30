@@ -117,36 +117,36 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
 
     final HTTPUtilities httpUtilities =
       new HTTPUtilitiesImplementation(m_pluginProcessContext);
-    assertNull(httpUtilities.valueFromLocationHeaderURI("foo"));
+    assertNull(httpUtilities.valueFromLocationURI("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
     request.GET(handler.getURL());
-    assertNull(httpUtilities.valueFromLocationHeaderURI("foo"));
+    assertNull(httpUtilities.valueFromLocationURI("foo"));
 
     handler.addHeader("Location", "http://www.w3.org/pub/WWW/People.html");
     request.GET(handler.getURL());
-    assertNull(httpUtilities.valueFromLocationHeaderURI("foo"));
+    assertNull(httpUtilities.valueFromLocationURI("foo"));
 
     handler.clearHeaders();
     handler.addHeader(
       "Location", "http://www.w3.org/pub/WWW/People.html?foo=bah&lah=dah");
     request.GET(handler.getURL());
-    assertEquals("bah", httpUtilities.valueFromLocationHeaderURI("foo"));
-    assertNull(httpUtilities.valueFromLocationHeaderURI("bah"));
+    assertEquals("bah", httpUtilities.valueFromLocationURI("foo"));
+    assertNull(httpUtilities.valueFromLocationURI("bah"));
 
     handler.clearHeaders();
     handler.addHeader(
       "Location", "http://www.w3.org/pub/WWW/People.html;foo=?foo=bah&lah=dah");
     request.GET(handler.getURL());
-    assertEquals("", httpUtilities.valueFromLocationHeaderURI("foo"));
-    assertEquals("dah", httpUtilities.valueFromLocationHeaderURI("lah"));
+    assertEquals("", httpUtilities.valueFromLocationURI("foo"));
+    assertEquals("dah", httpUtilities.valueFromLocationURI("lah"));
 
     handler.clearHeaders();
     handler.addHeader(
       "Location", "http://www.w3.org/pub/WWW/People.html;JSESSIONID=1234");
     request.GET(handler.getURL());
     assertEquals("1234",
-      httpUtilities.valueFromLocationHeaderURI("JSESSIONID"));
-    assertNull(httpUtilities.valueFromLocationHeaderURI("foo"));
+      httpUtilities.valueFromLocationURI("JSESSIONID"));
+    assertNull(httpUtilities.valueFromLocationURI("foo"));
   }
 }

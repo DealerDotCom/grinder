@@ -21,15 +21,13 @@
 
 package net.grinder.plugin.http;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import net.grinder.common.GrinderException;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.util.URIParser;
+import net.grinder.util.URIParserImplementation;
 import HTTPClient.Codecs;
 import HTTPClient.HTTPResponse;
 import HTTPClient.NVPair;
-import HTTPClient.ParseException;
 
 
 /**
@@ -40,16 +38,11 @@ import HTTPClient.ParseException;
  */
 class HTTPUtilitiesImplementation implements HTTPUtilities {
 
+  private final URIParser m_uriParser = new URIParserImplementation();
   private final PluginProcessContext m_processContext;
-
-  private final Pattern m_pathNameValuePattern;
-  private final Pattern m_queryNameValuePattern;
 
   public HTTPUtilitiesImplementation(PluginProcessContext processContext) {
     m_processContext = processContext;
-
-    m_pathNameValuePattern = Pattern.compile("(?:;([^;/\\?=;]+)=([^;/\\?]*))");
-    m_queryNameValuePattern = Pattern.compile("([^&=;]+)=([^&]*)");
   }
 
   /**
@@ -74,7 +67,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     return threadState.getLastResponse();
   }
 
-  public String valueFromLocationHeaderURI(String tokenName)
+  public String valueFromLocationURI(final String tokenName)
     throws GrinderException {
 
     final HTTPResponse response = getLastResponse();
@@ -86,41 +79,36 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     final String location;
 
     try {
-      location = Codecs.URLDecode(response.getHeader("Location"));
-    }
-    catch (ParseException e) {
-      // Don't throw an exception on invalid encodings.
-      return null;
+      location = response.getHeader("Location");
     }
     catch (Exception e) {
       throw new AssertionError("HTTPResponse not initialised (" + e + ")");
     }
 
     if (location != null) {
-      final int queryIndex = location.indexOf('?');
+      final String[] result = new String[1];
 
-      final String beforeQuery =
-        queryIndex >= 0 ? location.substring(0, queryIndex) : location;
-      final Matcher pathMatcher = m_pathNameValuePattern.matcher(beforeQuery);
+      m_uriParser.parse(location, new URIParser.AbstractParseListener() {
+        public boolean pathParameterNameValue(String name, String value) {
+          if (name.equals(tokenName)) {
+            result[0] = value;
+            return false;
+          }
 
-      while (pathMatcher.find()) {
-        if (pathMatcher.group(1).equals(tokenName)) {
-          return pathMatcher.group(2);
+          return true;
         }
-      }
 
-      if (queryIndex == -1) {
-        return null;
-      }
+        public boolean queryStringNameValue(String name, String value) {
+          if (name.equals(tokenName)) {
+            result[0] = value;
+            return false;
+          }
 
-      final String query = location.substring(queryIndex + 1);
-      final Matcher queryMatcher = m_queryNameValuePattern.matcher(query);
-
-      while (queryMatcher.find()) {
-        if (queryMatcher.group(1).equals(tokenName)) {
-          return queryMatcher.group(2);
+          return true;
         }
-      }
+      });
+
+      return result[0];
     }
 
     return null;

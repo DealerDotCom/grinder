@@ -28,7 +28,7 @@
     </xs:key>
 
     <xs:key name="TokenID">
-      <xs:selector xpath="page/request/response/parsed-token" />
+      <xs:selector xpath="page/request/response/token" />
       <xs:field xpath="token-id" />
     </xs:key>
 
@@ -156,15 +156,11 @@
     <xs:attribute name="token-id" type="tns:IDType" />
   </xs:complexType>
 
-  <xs:complexType name="ParsedURIPathType">
+  <xs:complexType name="ParsedURIPartType">
     <xs:sequence maxOccurs="unbounded">
+      <xs:element name="text" type="xs:normalizedString" />
 
-      <!-- Segment text includes leading '/', if any. -->
-      <xs:element name="segment" type="xs:normalizedString" />
-
-      <!-- Parameters don't include leading ';'. -->
       <xs:choice minOccurs="0">
-        <xs:element name="literal-parameter" type="xs:normalizedString"/>
         <xs:element name="token-parameter" type="tns:TokenReferenceType"/>
       </xs:choice>
     </xs:sequence>
@@ -172,38 +168,19 @@
 
   <xs:complexType name="RelativeURIType">
     <xs:sequence>
-      <xs:choice>
-        <xs:element name="unparsed" type="xs:normalizedString" />
-        <xs:element name="parsed" type="tns:ParsedURIPathType" />
-      </xs:choice>
-      <xs:element name="query-string" type="tns:QueryStringType"
-        minOccurs="0" />
+      <xs:element name="path" type="tns:ParsedURIPartType" />
+      <xs:element name="query-string" type="tns:ParsedURIPartType" minOccurs="0"/>
+      <!-- Browsers, and HTTPClient, strip fragments from URIs they send to the
+      wire. We capture it just for completeness. If a browser was used for the
+      TCPProxy recording, there won't be any fragments in the incoming stream
+      anyway. -->
+      <xs:element name="fragment" type="xs:normalizedString" minOccurs="0" />
     </xs:sequence>
 
     <xs:attribute name="extends" type="tns:IDType" />
   </xs:complexType>
 
-  <xs:complexType name="QueryStringType">
-    <xs:choice>
-      <xs:element name="unparsed" type="xs:normalizedString" />
-      <xs:element name="parsed" type="tns:ParsedQueryStringType" />
-    </xs:choice>
-  </xs:complexType>
-
-  <xs:complexType name="ParsedQueryStringType">
-    <xs:sequence>
-      <xs:element name="parameter" type="tns:ParameterType"
-        minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="ParameterType">
-    <xs:complexContent>
-      <xs:extension base="tns:NameValueType" />
-    </xs:complexContent>
-  </xs:complexType>
-
-    <xs:complexType name="HeadersType">
+  <xs:complexType name="HeadersType">
     <xs:sequence>
       <xs:choice maxOccurs="unbounded" minOccurs="0">
         <xs:element name="header" type="tns:HeaderType" />

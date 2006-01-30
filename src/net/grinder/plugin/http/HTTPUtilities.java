@@ -61,7 +61,7 @@ public interface HTTPUtilities {
    * @return The first value if one is found, or <code>null</code>.
    * @throws GrinderException If not called from a worker thread.
    */
-  String valueFromLocationHeaderURI(String tokenName) throws GrinderException;
+  String valueFromLocationURI(String tokenName) throws GrinderException;
 
   /**
    * Return the value for a path parameter or query string name-value token with

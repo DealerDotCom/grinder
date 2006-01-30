@@ -39,7 +39,6 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * fragments.
  * </ul>
  *
- * TODO Session key processing.
  * TODO Avoid Jython 64K limit (does it still affect 2.2?)
  *
  * @author Philip Aston

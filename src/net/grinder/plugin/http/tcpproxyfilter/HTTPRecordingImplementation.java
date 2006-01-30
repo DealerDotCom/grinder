@@ -380,17 +380,9 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         // Crude heuristic to figure out whether request is the start of
         // a new page or not.
         if (existing != null && !request.isSetBody()) {
-          final String pathToCheck;
-          final String unparsedPath = request.getUri().getUnparsed();
-
-          if (unparsedPath != null) {
-            pathToCheck = unparsedPath;
-          }
-          else {
-            final String[] segmentArray =
-              request.getUri().getParsed().getSegmentArray();
-            pathToCheck = segmentArray[segmentArray.length - 1];
-          }
+          final String[] segmentArray =
+            request.getUri().getPath().getTextArray();
+          final String pathToCheck = segmentArray[segmentArray.length - 1];
 
           if (m_isPageResourcePathPattern.matcher(pathToCheck).matches()) {
             return existing;
@@ -444,6 +436,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         mapByValue.put(value, newToken);
 
         final int numberOfValues = mapByValue.size();
+
+        // TODO: make this a valid identifier.
         newToken.setTokenId(
           "token_" + (numberOfValues > 1 ? name + numberOfValues : name));
 

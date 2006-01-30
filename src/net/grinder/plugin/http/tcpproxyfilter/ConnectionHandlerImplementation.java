@@ -40,18 +40,18 @@ import net.grinder.plugin.http.xml.FormBodyType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.HeadersType;
-import net.grinder.plugin.http.xml.ParameterType;
-import net.grinder.plugin.http.xml.ParsedQueryStringType;
 import net.grinder.plugin.http.xml.ParsedTokenType;
-import net.grinder.plugin.http.xml.ParsedURIPathType;
-import net.grinder.plugin.http.xml.QueryStringType;
+import net.grinder.plugin.http.xml.ParsedURIPartType;
 import net.grinder.plugin.http.xml.RelativeURIType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.ResponseType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
+import net.grinder.util.URIParser;
+import net.grinder.util.URIParserImplementation;
 import HTTPClient.Codecs;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
+import HTTPClient.URI;
 
 
 /**
@@ -96,6 +96,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     }
   ));
 
+  private final URIParser m_uriParser = new URIParserImplementation();
   private final Logger m_logger;
   private final RegularExpressions m_regularExpressions;
   private final HTTPRecording m_httpRecording;
@@ -145,10 +146,9 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       newRequestMessage();
 
       final String method = matcher.group(1);
-      final String path = matcher.group(2);
-      final String queryString = matcher.group(3);
+      final String relativeURI = matcher.group(2);
 
-      m_request = new Request(method, path, queryString);
+      m_request = new Request(method, relativeURI);
     }
 
     // Stuff we do whatever.
@@ -264,26 +264,29 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
         final String value = headerMatcher.group(2);
 
         if ("Location".equals(name)) {
-          // TODO cope with encoding.
-          final Matcher pathMatcher =
-            m_regularExpressions.getParsePathPattern().matcher(value);
+          m_uriParser.parse(value, new URIParser.AbstractParseListener() {
 
-          while (pathMatcher.find()) {
-            // Ignore the path segment in group 1.
-            final String group2 = pathMatcher.group(2);
-            final String group3 = pathMatcher.group(3);
-
-            if (group3 != null) {
+            public boolean pathParameterNameValue(String name, String value) {
               response.addNewToken().set(
                 m_httpRecording.addNameValueToken(
-                  group2, group3,
+                  name, value,
                   ParsedTokenType.Source.LOCATION_HEADER_PATH_PARAMETER));
+
+              return true;
             }
-          }
+
+            public boolean queryStringNameValue(String name, String value) {
+              response.addNewToken().set(
+                m_httpRecording.addNameValueToken(
+                  name, value,
+                  ParsedTokenType.Source.LOCATION_HEADER_QUERY_STRING));
+
+              return true;
+            }
+          });
         }
 
         // TODO parse body.
-        // TODO query string.
       }
     }
   }
@@ -308,7 +311,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     private Body m_body;
     private boolean m_contentLengthReached;
 
-    public Request(String method, String path, String queryString) {
+    public Request(String method, String relativeURI) {
 
       // Only set up direct attributes here. The "global information"
       // (request ID, base URL ID, common headers, page etc.) is filled in
@@ -317,8 +320,18 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       m_requestXML.setMethod(RequestType.Method.Enum.forString(method));
       m_requestXML.setTime(Calendar.getInstance());
 
+      String unescapedURI;
+
+      try {
+        unescapedURI = URI.unescape(relativeURI, null);
+      }
+      catch (ParseException e) {
+        unescapedURI = relativeURI;
+      }
+
       final Matcher lastPathElementMatcher =
-        m_regularExpressions.getLastPathElementPathPattern().matcher(path);
+        m_regularExpressions.getLastPathElementPathPattern().matcher(
+          unescapedURI);
 
       final String description;
 
@@ -333,82 +346,73 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
         }
       }
       else {
-        description = method + " " + path;
+        description = method + " " + relativeURI;
       }
 
       m_requestXML.setDescription(description);
 
       final RelativeURIType uri = m_requestXML.addNewUri();
 
-      final ParsedURIPathType parsedPath =
-        ParsedURIPathType.Factory.newInstance();
+      final ParsedURIPartType parsedPath =
+        ParsedURIPartType.Factory.newInstance();
+      final ParsedURIPartType parsedQueryString =
+        ParsedURIPartType.Factory.newInstance();
+      final String[] fragment = new String[1];
 
-      boolean complexPath = false;
+      // Look for tokens in path parameters and query string. We create
+      // references to any tokens that have been seen before in some response.
+      m_uriParser.parse(relativeURI, new URIParser.AbstractParseListener() {
 
-      final Matcher pathMatcher =
-        m_regularExpressions.getParsePathPattern().matcher(path);
+        public boolean path(String path) {
+          parsedPath.addText(path);
+          return true;
+        }
 
-      while (pathMatcher.find()) {
-        // TODO cope with encoding.
-        parsedPath.addSegment(pathMatcher.group(1));
+        private void addNameValue(
+          ParsedURIPartType part, String name, String value) {
 
-        final String group2 = pathMatcher.group(2);
-        final String group3 = pathMatcher.group(3);
-
-        // Look for tokens in path parameters. We assume that any interesting
-        // tokens will have been generated by the server and have been seen
-        // before in some response.
-        if (group3 != null) {
-          // Found a possible name-value token in the path parameter.
           final String tokenID =
-            m_httpRecording.getNameValueTokenID(group2, group3);
+            m_httpRecording.getNameValueTokenID(name, value);
 
           if (tokenID != null) {
             // Matches a name-value token we've found before.
-            parsedPath.addNewTokenParameter().setTokenId(tokenID);
-            complexPath = true;
+            part.addNewTokenParameter().setTokenId(tokenID);
           }
           else {
-            parsedPath.addLiteralParameter(
-              path.substring(pathMatcher.start(2), pathMatcher.end(3)));
+            part.addText(name + "=" + value);
           }
         }
-      }
 
-      if (complexPath) {
-        uri.setParsed(parsedPath);
-      }
-      else {
-        uri.setUnparsed(path);
-      }
-
-      if (queryString != null) {
-        final QueryStringType uriQueryString = uri.addNewQueryString();
-
-        if (expectingBody()) {
-          // Requests with bodies don't have parsed query strings.
-          uriQueryString.setUnparsed(queryString);
+        public boolean pathParameterNameValue(String name, String value) {
+          addNameValue(parsedPath, name, value);
+          return true;
         }
-        else {
-          try {
-            final NVPair[] queryStringAsNameValuePairs =
-              Codecs.query2nv(queryString);
 
-            final ParsedQueryStringType parsedQuery =
-              ParsedQueryStringType.Factory.newInstance();
-
-            for (int i = 0; i < queryStringAsNameValuePairs.length; ++i) {
-              final ParameterType parameter = parsedQuery.addNewParameter();
-              parameter.setName(queryStringAsNameValuePairs[i].getName());
-              parameter.setValue(queryStringAsNameValuePairs[i].getValue());
-            }
-
-           uriQueryString.setParsed(parsedQuery);
-          }
-          catch (ParseException e) {
-            uriQueryString.setUnparsed(queryString);
-          }
+        public boolean queryString(String queryString) {
+          parsedQueryString.addText(queryString);
+          return true;
         }
+
+        public boolean queryStringNameValue(String name, String value) {
+          addNameValue(parsedQueryString, name, value);
+          return true;
+        }
+
+        public boolean fragment(String theFragment) {
+          fragment[0] = theFragment;
+          return true;
+        }
+      });
+
+      uri.setPath(parsedPath);
+
+      if (parsedQueryString.getTokenParameterArray().length > 0 ||
+          parsedQueryString.getTextArray().length > 0) {
+        uri.setQueryString(parsedQueryString);
+      }
+
+      if (fragment[0] != null) {
+        uri.setFragment(fragment[0]);
       }
 
       final long lastResponseTime = m_httpRecording.getLastResponseTime();
