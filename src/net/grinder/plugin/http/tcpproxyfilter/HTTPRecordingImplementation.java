@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
@@ -43,11 +45,10 @@ import net.grinder.plugin.http.xml.HTTPRecordingType;
 import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.HeadersType;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
-import net.grinder.plugin.http.xml.NameValueType;
 import net.grinder.plugin.http.xml.PageType;
-import net.grinder.plugin.http.xml.ParsedTokenType;
 import net.grinder.plugin.http.xml.RequestType;
-import net.grinder.plugin.http.xml.ParsedTokenType.Source.Enum;
+import net.grinder.plugin.http.xml.TokenReferenceType;
+import net.grinder.plugin.http.xml.TokenType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
 
@@ -171,24 +172,12 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
    *
    * @param name The name.
    * @param value The value.
-   * @param source Where the token was found.
-   * @return The token.
+   * @param tokenReference This reference is updated with the appropriate
+   * token ID, and the value if it has changed.
    */
-  public ParsedTokenType addNameValueToken(
-    String name, String value, Enum source) {
-    return m_nameValueTokenMap.add(name, value, source);
-  }
-
-  /**
-   * Return the token id of the token with key <code>(name, value)</code>, or
-   * <code>null</code> if no such token exists.
-   *
-   * @param name Token name.
-   * @param value Token value.
-   * @return The token id, or <code>null</code>.
-   */
-  public String getNameValueTokenID(String name, String value) {
-    return m_nameValueTokenMap.getTokenID(name, value);
+  public void addNameValueTokenReference(
+    String name, String value, TokenReferenceType tokenReference) {
+    m_nameValueTokenMap.add(name, value, tokenReference);
   }
 
   /**
@@ -373,93 +362,152 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     }
 
     public PageType getPage(BaseURIType baseURL, RequestType request) {
+      final PageList pageList;
 
       synchronized (m_map) {
-        final PageType existing = (PageType) m_map.get(baseURL);
+        final PageList existing = (PageList) m_map.get(baseURL);
 
-        // Crude heuristic to figure out whether request is the start of
-        // a new page or not.
-        if (existing != null && !request.isSetBody()) {
-          final String[] segmentArray =
-            request.getUri().getPath().getTextArray();
-          final String pathToCheck = segmentArray[segmentArray.length - 1];
+        if (existing != null) {
+          pageList = existing;
+        }
+        else {
+          pageList = new PageList();
+          m_map.put(baseURL, pageList);
+        }
+      }
 
-          if (m_isPageResourcePathPattern.matcher(pathToCheck).matches()) {
-            return existing;
+      return pageList.getPageForRequest(request);
+    }
+
+    /**
+     * A list of pages for a particular URL, keyed by request time.
+     *
+     * <p>
+     * {@link #getPage()} is called when the end of the message is received. We
+     * need to associate the pages based on the beginning of messages to avoid
+     * getting things out of order.
+     * </p>
+     */
+    private class PageList {
+      private SortedMap m_pages = new TreeMap();
+
+      public PageType getPageForRequest(RequestType request) {
+        synchronized (m_pages) {
+          // We don't allow for case where request is already in map.
+          // We assume request times are unique.
+          final SortedMap headMap =
+            m_pages.headMap(request.getTime().getTime());
+
+          // Crude heuristics to figure out whether request is the start of
+          // a new page or not.
+          if (headMap.size() != 0) {
+            if (!request.isSetBody()) {
+              final String[] textArray =
+                request.getUri().getPath().getTextArray();
+              final String lastText = textArray[textArray.length - 1];
+
+              if (m_isPageResourcePathPattern.matcher(lastText).matches()) {
+                final Object o = headMap.lastKey();
+                System.err.println("Found " + o);
+                return (PageType)headMap.get(headMap.lastKey());
+              }
+            }
           }
+
+          final PageType result;
+
+          // TODO This ordering is wrong too. We really need to put all the
+          // requests in a TreeMap. This will happen when we remove the page
+          // detection from this and put it in the stylesheet.
+          synchronized (m_recordingDocument) {
+            result = m_recordingDocument.getHttpRecording().addNewPage();
+          }
+
+          result.setPageId("page" + m_idGenerator.next());
+
+          m_pages.put(request.getTime().getTime(), result);
+
+          return result;
         }
-
-        final PageType result;
-
-        synchronized (m_recordingDocument) {
-          result = m_recordingDocument.getHttpRecording().addNewPage();
-        }
-
-        result.setPageId("page" + m_idGenerator.next());
-
-        m_map.put(baseURL, result);
-
-        return result;
       }
     }
   }
 
-  private static final class NameValueTokenMap {
-    private final Map m_mapByName = new HashMap();
+  private final class NameValueTokenMap {
+    private final Map m_map = new HashMap();
 
-    public ParsedTokenType add(String name, String value, Enum source) {
-      synchronized (m_mapByName) {
-        final Map existingMapByValue = (Map)m_mapByName.get(name);
-        final Map mapByValue;
+    public void add(
+      String name, String value, TokenReferenceType tokenReference) {
 
-        if (existingMapByValue != null) {
-          final ParsedTokenType existingToken =
-            (ParsedTokenType)existingMapByValue.get(value);
+      final TokenValuePair tokenValuePair;
 
-          if (existingToken != null) {
-            return existingToken;
+      synchronized (m_map) {
+        final TokenValuePair existing = (TokenValuePair)m_map.get(name);
+
+        if (existing == null) {
+          final TokenType newToken;
+
+          synchronized (m_recordingDocument) {
+            newToken = m_recordingDocument.getHttpRecording().addNewToken();
           }
 
-          mapByValue = existingMapByValue;
+          // TODO: make this a valid identifier.
+          newToken.setTokenId("token_" + name);
+          newToken.setName(name);
+
+          tokenValuePair = new TokenValuePair(newToken);
+          m_map.put(name, tokenValuePair);
         }
         else {
-          mapByValue = new HashMap();
-          m_mapByName.put(name, mapByValue);
+          tokenValuePair = existing;
         }
+      }
 
-        final ParsedTokenType newToken = ParsedTokenType.Factory.newInstance();
-        newToken.setSource(source);
-        final NameValueType nameValue = newToken.addNewNameValue();
-        nameValue.setName(name);
-        nameValue.setValue(value);
+      tokenReference.setTokenId(tokenValuePair.getToken().getTokenId());
 
-        mapByValue.put(value, newToken);
-
-        final int numberOfValues = mapByValue.size();
-
-        // TODO: make this a valid identifier.
-        newToken.setTokenId(
-          "token_" + (numberOfValues > 1 ? name + numberOfValues : name));
-
-        return newToken;
+      if (!value.equals(tokenValuePair.getLastValue())) {
+        tokenReference.setNewValue(value);
+        tokenValuePair.setLastValue(value);
       }
     }
 
-    public String getTokenID(String name, String value) {
-      synchronized (m_mapByName) {
-        final Map existingMapByValue = (Map)m_mapByName.get(name);
+    private class TokenValuePair {
+      private final TokenType m_token;
+      private String m_lastValue;
 
-        if (existingMapByValue != null) {
-          final ParsedTokenType existingToken =
-            (ParsedTokenType)existingMapByValue.get(value);
-
-          if (existingToken != null) {
-            return existingToken.getTokenId();
-          }
-        }
+      public TokenValuePair(TokenType token) {
+        m_token = token;
       }
 
-      return null;
+      public TokenType getToken() {
+        return m_token;
+      }
+
+      public String getLastValue() {
+        return m_lastValue;
+      }
+
+      public void setLastValue(String lastValue) {
+        m_lastValue = lastValue;
+      }
+
+      public int hashCode() {
+        return m_token.hashCode();
+      }
+
+      public boolean equals(Object o) {
+        if (o == this) {
+          return true;
+        }
+
+        if (!(o instanceof TokenValuePair)) {
+          return false;
+        }
+
+        final TokenValuePair other = (TokenValuePair)o;
+
+        return getToken().equals(other.getToken());
+      }
     }
   }
 }

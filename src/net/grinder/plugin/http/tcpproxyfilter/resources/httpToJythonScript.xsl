@@ -222,6 +222,8 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   <xsl:template match="g:request" mode="page-function">
     <xsl:apply-templates select="g:sleep-time" mode="request"/>
 
+    <xsl:apply-templates select=".//g:token-reference" mode="request"/>
+
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:if test="position() = 1">
       <xsl:text>result = </xsl:text>
@@ -232,14 +234,15 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:value-of select="g:method"/>
     <xsl:text>(</xsl:text>
 
-    <xsl:apply-templates select="g:uri/g:path" mode="request"/>
-    <xsl:apply-templates select="g:uri/g:query-string" mode="request"/>
-    <xsl:apply-templates select="g:uri/g:fragment" mode="request"/>
-    <xsl:apply-templates select="g:body" mode="request"/>
-    <xsl:apply-templates select="g:headers" mode="request"/>
+    <xsl:apply-templates select="g:uri/g:path" mode="request-uri"/>
+    <xsl:apply-templates select="g:uri/g:query-string" mode="request-uri"/>
+    <xsl:apply-templates select="g:uri/g:fragment" mode="request-uri"/>
+    <xsl:apply-templates select="g:body" mode="request-uri"/>
+    <xsl:apply-templates select="g:headers" mode="request-uri"/>
 
     <xsl:text>)</xsl:text>
-    <xsl:apply-templates select="g:response/g:token" mode="request"/>
+
+    <xsl:apply-templates select="g:response/g:parsed-token" mode="request"/>
     <xsl:value-of select="helper:newLine()"/>
 
   </xsl:template>
@@ -373,6 +376,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:value-of select="concat('grinder.sleep(', ., ')')"/>
   </xsl:template>
 
+
   <!--  First sleep() for a page appears in the __call__ block. -->
   <xsl:template match="g:sleep-time[not(../preceding-sibling::g:request)]" mode="__call__">
     <xsl:value-of select="helper:newLine()"/>
@@ -381,11 +385,14 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:token[g:name-value]" mode="request">
+  <!-- parsed-token reference with a new value. -->
+  <xsl:template match="g:parsed-token[g:new-value]" mode="request">
+    <xsl:variable name="token-id" select="@token-id"/>
+
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>self.</xsl:text>
-    <xsl:value-of select="@token-id"/>
-    <xsl:variable name="name" select="g:name-value/@name"/>
+    <xsl:value-of select="$token-id"/>
+    <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
     <xsl:text> = \</xsl:text>
 
     <xsl:value-of select="helper:changeIndent(1)"/>
@@ -405,28 +412,50 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:text>')</xsl:text>
 
     <xsl:text> # '</xsl:text>
-    <xsl:value-of select="g:name-value/@value"/>
+    <xsl:value-of select="g:new-value"/>
     <xsl:value-of select="helper:changeIndent(-1)"/>
     <xsl:text>'</xsl:text>
   </xsl:template>
 
-  <xsl:template match="g:path" mode="request">
-    <!-- Open quote here, last g:text or g:token-parameter will close. -->
+
+  <!-- token-reference with a new value. -->
+  <xsl:template match="g:token-reference[g:new-value]" mode="request">
+    <xsl:variable name="token-id" select="@token-id"/>
+
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>self.</xsl:text>
+    <xsl:value-of select="$token-id"/>
+    <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
+    <xsl:text> = \</xsl:text>
+
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text> '</xsl:text>
+    <xsl:value-of select="g:new-value"/>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
     <xsl:text>'</xsl:text>
-    <xsl:apply-templates mode="request"/>
   </xsl:template>
 
-  <xsl:template match="g:query-string" mode="request">
+
+  <xsl:template match="g:path" mode="request-uri">
+    <!-- Open quote here, last g:text or g:token-reference will close. -->
+    <xsl:text>'</xsl:text>
+    <xsl:apply-templates mode="request-uri"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:query-string" mode="request-uri">
     <xsl:text> +</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <!-- Open quote here, last g:text or g:token-parameter will close. -->
+    <!-- Open quote here, last g:text or g:token-reference will close. -->
     <xsl:text>'?</xsl:text>
     <xsl:value-of select="helper:changeIndent(-1)"/>
-    <xsl:apply-templates mode="request"/>
+    <xsl:apply-templates mode="request-uri"/>
   </xsl:template>
 
-  <xsl:template match="g:path/g:text|g:query-string/g:text" mode="request">
+
+  <xsl:template match="g:path/g:text|g:query-string/g:text" mode="request-uri">
     <xsl:variable
       name="preceding-sibling-name"
       select="local-name(preceding-sibling::node()[1])"/>
@@ -448,9 +477,12 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:path/g:token-parameter|g:query-string/g:token-parameter" mode="request">
+  <xsl:template match="g:path/g:token-reference|g:query-string/g:token-reference" mode="request-uri">
     <xsl:variable name="token-id" select="@token-id"/>
-    <xsl:value-of select="//g:token[@token-id=$token-id]/g:name-value/@name"/>
+
+    <!-- A previous parsed-token or token-reference will have defined a
+         variable. -->
+    <xsl:value-of select="//g:token[@token-id=$token-id]/g:name"/>
     <xsl:text>=' +</xsl:text>
 
     <xsl:value-of select="helper:changeIndent(1)"/>
@@ -458,17 +490,17 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:text>self.</xsl:text>
     <xsl:value-of select="$token-id"/>
     <xsl:value-of select="helper:changeIndent(-1)"/>
+
   </xsl:template>
 
 
-  <xsl:template match="g:fragment" mode="request">
-    <!-- Browsers, and HTTPClient, strip fragments from URIs they send to the
-    wire, so we don't bother putting it into the script. If a browser was used
-    for the TCPProxy recording, there won't be any fragments in the incoming
-    stream anyway. -->
-  </xsl:template>
+  <!-- Browsers, and HTTPClient, strip fragments from URIs they send to the
+  wire, so we don't bother putting it into the script. If a browser was used
+  for the TCPProxy recording, there won't be any fragments in the incoming
+  stream anyway. -->
+  <xsl:template match="g:fragment" mode="request-uri"/>
 
-  <xsl:template match="g:body/g:binary" mode="request">
+  <xsl:template match="g:body/g:binary" mode="request-uri">
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -477,7 +509,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:file" mode="request">
+  <xsl:template match="g:body/g:file" mode="request-uri">
 
     <!-- Data file is read at top level. We provide a parameter here
     to disambiguate the POST call if per-request headers are
@@ -493,13 +525,13 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
  </xsl:template>
 
 
-  <xsl:template match="g:body/g:form" mode="request">
+  <xsl:template match="g:body/g:form" mode="request-uri">
     <xsl:text>,</xsl:text>
     <xsl:call-template name="tuple-list"/>
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:string" mode="request">
+  <xsl:template match="g:body/g:string" mode="request-uri">
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -508,10 +540,10 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:content-type" mode="request"/>
+  <xsl:template match="g:body/g:content-type" mode="request-uri"/>
 
 
-  <xsl:template match="g:headers[node()]" mode="request">
+  <xsl:template match="g:headers[node()]" mode="request-uri">
     <xsl:if test="not(../g:body)">
       <!-- No keyword arguments for methods, insert dummy parameter. -->
       <xsl:text>, ()</xsl:text>
@@ -583,6 +615,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   <xsl:template match="text()|@*" mode="page-function"/>
   <xsl:template match="text()|@*" mode="page-description"/>
   <xsl:template match="text()|@*" mode="request"/>
+  <xsl:template match="text()|@*" mode="request-uri"/>
   <xsl:template match="text()|@*" mode="TestRunner"/>
   <xsl:template match="text()|@*" mode="instrumentMethod"/>
 

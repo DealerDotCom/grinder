@@ -28,7 +28,7 @@
     </xs:key>
 
     <xs:key name="TokenID">
-      <xs:selector xpath="page/request/response/token" />
+      <xs:selector xpath="token" />
       <xs:field xpath="token-id" />
     </xs:key>
 
@@ -43,7 +43,7 @@
     </xs:keyref>
 
     <xs:key name="TokenIDRef">
-      <xs:selector xpath="page/request/uri/parsed/token-parameter" />
+      <xs:selector xpath="page/request/response/parsed-token|page/request/uri/path/token-reference|page/request/uri/query-string/token-reference" />
       <xs:field xpath="token-id" />
     </xs:key>
   </xs:element>
@@ -67,6 +67,8 @@
         minOccurs="0" maxOccurs="unbounded" />
       <xs:element name="base-uri" type="tns:BaseURIType"
         minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="token" type="tns:TokenType"
+        minOccurs="0" maxOccurs="unbounded" />
       <xs:element name="page" type="tns:PageType"
         minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
@@ -89,6 +91,15 @@
     <xs:attribute name="uri-id" type="tns:IDType" />
   </xs:complexType>
 
+  <xs:complexType name="TokenType">
+    <xs:sequence>
+      <!-- Might have different token types in the future, but for now we just
+           capture name-value pairs. -->
+      <xs:element name="name" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="token-id" type="tns:IDType" />
+  </xs:complexType>
+
   <xs:complexType name="PageType">
     <xs:sequence>
       <xs:element name="request" type="tns:RequestType"
@@ -97,29 +108,33 @@
     <xs:attribute name="page-id" type="tns:IDType" />
   </xs:complexType>
 
-  <xs:complexType name="ParsedTokenType">
+  <xs:complexType name="TokenReferenceType">
     <xs:sequence>
-      <xs:choice>
-        <!-- Might have different token types in the future. -->
-        <xs:element name="name-value" type="tns:NameValueType" />
-      </xs:choice>
+      <xs:element name="new-value" type="xs:string" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="token-id" type="tns:IDType" />
-    <xs:attribute name="source">
-      <xs:simpleType>
-        <xs:restriction base="xs:string">
-          <xs:enumeration value="LOCATION_HEADER_PATH_PARAMETER" />
-          <xs:enumeration value="LOCATION_HEADER_QUERY_STRING" />
-          <xs:enumeration value="BODY_URI_PATH_PARAMETER" />
-          <xs:enumeration value="BODY_URI_QUERY_STRING" />
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ParsedTokenReferenceType">
+    <xs:complexContent>
+      <xs:extension base="tns:TokenReferenceType">
+        <xs:attribute name="source">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="LOCATION_HEADER_PATH_PARAMETER" />
+              <xs:enumeration value="LOCATION_HEADER_QUERY_STRING" />
+              <xs:enumeration value="BODY_URI_PATH_PARAMETER" />
+              <xs:enumeration value="BODY_URI_QUERY_STRING" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 
   <xs:complexType name="ResponseType">
     <xs:sequence>
-      <xs:element name="token" type="tns:ParsedTokenType"
+      <xs:element name="parsed-token" type="tns:ParsedTokenReferenceType"
         minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="status-code" type="xs:unsignedShort" />
@@ -152,17 +167,10 @@
     <xs:attribute name="request-id" type="tns:IDType" />
   </xs:complexType>
 
-  <xs:complexType name="TokenReferenceType">
-    <xs:attribute name="token-id" type="tns:IDType" />
-  </xs:complexType>
-
   <xs:complexType name="ParsedURIPartType">
     <xs:sequence maxOccurs="unbounded">
       <xs:element name="text" type="xs:normalizedString" />
-
-      <xs:choice minOccurs="0">
-        <xs:element name="token-parameter" type="tns:TokenReferenceType"/>
-      </xs:choice>
+      <xs:element name="token-reference" type="tns:TokenReferenceType" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -170,6 +178,7 @@
     <xs:sequence>
       <xs:element name="path" type="tns:ParsedURIPartType" />
       <xs:element name="query-string" type="tns:ParsedURIPartType" minOccurs="0"/>
+
       <!-- Browsers, and HTTPClient, strip fragments from URIs they send to the
       wire. We capture it just for completeness. If a browser was used for the
       TCPProxy recording, there won't be any fragments in the incoming stream

@@ -137,7 +137,7 @@ public class ProcessHTTPRecordingWithXSLT
       final Iterator parameterIterator = properties.entrySet().iterator();
 
       while (parameterIterator.hasNext()) {
-    final Map.Entry entry = (Map.Entry)parameterIterator.next();
+        final Map.Entry entry = (Map.Entry)parameterIterator.next();
         transformer.setParameter((String)entry.getKey(), entry.getValue());
       }
     }

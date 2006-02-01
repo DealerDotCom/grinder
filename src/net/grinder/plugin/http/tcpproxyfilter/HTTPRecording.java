@@ -17,7 +17,7 @@
 package net.grinder.plugin.http.tcpproxyfilter;
 
 import net.grinder.plugin.http.xml.RequestType;
-import net.grinder.plugin.http.xml.ParsedTokenType;
+import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 
 
@@ -59,23 +59,13 @@ public interface HTTPRecording {
   long getLastResponseTime();
 
   /**
-   * Add a new name-value token, or return an existing one.
+   * Add a new name-value token, or update an existing one.
    *
    * @param name The name.
-   * @param value The value.
-   * @param source Where the token was found.
-   * @return The token.
+   * @param value The new value.
+   * @param tokenReference This reference is updated with the appropriate
+   * token ID, and the value if it has changed.
    */
-  ParsedTokenType addNameValueToken(
-    String name, String value, ParsedTokenType.Source.Enum source);
-
-  /**
-   * Return the token id of the token with key <code>(name, value)</code>, or
-   * <code>null</code> if no such token exists.
-   *
-   * @param name Token name.
-   * @param value Token value.
-   * @return The token id, or <code>null</code>.
-   */
-  String getNameValueTokenID(String name, String value);
+  void addNameValueTokenReference(
+    String name, String value, TokenReferenceType tokenReference);
 }

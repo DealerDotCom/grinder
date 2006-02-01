@@ -26,8 +26,8 @@ import java.io.File;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.NameValueType;
-import net.grinder.plugin.http.xml.ParsedTokenType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.plugin.http.xml.TokenType;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.FileUtilities;
@@ -82,13 +82,11 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
         m_connectionDetails);
 
-    final ParsedTokenType parsedToken = ParsedTokenType.Factory.newInstance();
-    final NameValueType nameValue = parsedToken.addNewNameValue();
-    nameValue.setName("query");
-    nameValue.setValue("whatever");
-    parsedToken.setTokenId("tokenID");
+    final TokenType token = TokenType.Factory.newInstance();
+    token.setName("query");
+    token.setTokenId("tokenID");
 
-    m_httpRecordingStubFactory.setResult("addNameValueToken", parsedToken);
+    m_httpRecordingStubFactory.setResult("addNameValueToken", token);
 
     final String message = "GET /something?query=whatever HTTP/1.0\r\n\r\n";
     final byte[] buffer = message.getBytes();
@@ -120,7 +118,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
     assertEquals("GET", request.getMethod().toString());
     assertEquals("/something", request.getUri().getPath().getTextArray(0));
-    assertEquals("tokenID", request.getUri().getQueryString().getTokenParameterArray(0).getTokenId());
+    assertEquals("tokenID", request.getUri().getQueryString().getTokenReferenceArray(0).getTokenId());
     assertEquals("GET something", request.getDescription());
     assertEquals(0, request.getHeaders().getHeaderArray().length);
     assertFalse(request.toString(), request.isSetSleepTime());

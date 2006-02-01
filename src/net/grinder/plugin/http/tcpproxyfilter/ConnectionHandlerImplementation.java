@@ -40,7 +40,7 @@ import net.grinder.plugin.http.xml.FormBodyType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.HeadersType;
-import net.grinder.plugin.http.xml.ParsedTokenType;
+import net.grinder.plugin.http.xml.ParsedTokenReferenceType;
 import net.grinder.plugin.http.xml.ParsedURIPartType;
 import net.grinder.plugin.http.xml.RelativeURIType;
 import net.grinder.plugin.http.xml.RequestType;
@@ -267,19 +267,25 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           m_uriParser.parse(value, new URIParser.AbstractParseListener() {
 
             public boolean pathParameterNameValue(String name, String value) {
-              response.addNewToken().set(
-                m_httpRecording.addNameValueToken(
-                  name, value,
-                  ParsedTokenType.Source.LOCATION_HEADER_PATH_PARAMETER));
+              final ParsedTokenReferenceType tokenReference =
+                response.addNewParsedToken();
+              tokenReference.setSource(
+                ParsedTokenReferenceType.Source.LOCATION_HEADER_PATH_PARAMETER);
+
+              m_httpRecording.addNameValueTokenReference(
+                name, value, tokenReference);
 
               return true;
             }
 
             public boolean queryStringNameValue(String name, String value) {
-              response.addNewToken().set(
-                m_httpRecording.addNameValueToken(
-                  name, value,
-                  ParsedTokenType.Source.LOCATION_HEADER_QUERY_STRING));
+              final ParsedTokenReferenceType tokenReference =
+                response.addNewParsedToken();
+              tokenReference.setSource(
+                ParsedTokenReferenceType.Source.LOCATION_HEADER_QUERY_STRING);
+
+              m_httpRecording.addNameValueTokenReference(
+                name, value, tokenReference);
 
               return true;
             }
@@ -368,23 +374,9 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           return true;
         }
 
-        private void addNameValue(
-          ParsedURIPartType part, String name, String value) {
-
-          final String tokenID =
-            m_httpRecording.getNameValueTokenID(name, value);
-
-          if (tokenID != null) {
-            // Matches a name-value token we've found before.
-            part.addNewTokenParameter().setTokenId(tokenID);
-          }
-          else {
-            part.addText(name + "=" + value);
-          }
-        }
-
         public boolean pathParameterNameValue(String name, String value) {
-          addNameValue(parsedPath, name, value);
+          m_httpRecording.addNameValueTokenReference(
+            name, value, parsedPath.addNewTokenReference());
           return true;
         }
 
@@ -394,7 +386,8 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
         }
 
         public boolean queryStringNameValue(String name, String value) {
-          addNameValue(parsedQueryString, name, value);
+          m_httpRecording.addNameValueTokenReference(
+            name, value, parsedQueryString.addNewTokenReference());
           return true;
         }
 
@@ -406,7 +399,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
       uri.setPath(parsedPath);
 
-      if (parsedQueryString.getTokenParameterArray().length > 0 ||
+      if (parsedQueryString.getTokenReferenceArray().length > 0 ||
           parsedQueryString.getTextArray().length > 0) {
         uri.setQueryString(parsedQueryString);
       }
