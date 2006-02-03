@@ -752,11 +752,11 @@ grinder.test0.parameter.post=getPostData.dat
       <dl>
            <dt/>
       <dd class="quote">
-      <p>Solution:
+      <p>Solution:<br></br>
       We found that it was a problem with DNS configuration. Solution was to add the web 
       servers host names and ip addresses to the windows hosts file.</p>
 
-      <p>Verification:
+      <p>Verification:<br></br>
       Simply on the command line write "nslookup", then hit enter, and on the following line type your web server "hostname" and hit enter. 
       If this takes a long time to get an ip address, it can mean that this is your problem.</p>
       </dd>
