@@ -741,7 +741,52 @@ grinder.test0.parameter.post=getPostData.dat
 
       </answer>
     </faq>
+    <faq id="grinder-dnsdelay">
+      <question>
+       The Grinder pauses before either threads start sending data, or the TCPProxy carries out a request, when interacting with webservers. Why is this?
+      </question>
+      <answer>
+      <p><a href="mailto:karol.muszynski@hp.com">Karol
+       Muszynski</a> writes:</p>
 
+      <dl>
+           <dt/>
+      <dd class="quote">
+      <p>Solution:
+      We found that it was a problem with DNS configuration. Solution was to add the web 
+      servers host names and ip addresses to the windows hosts file.</p>
+
+      <p>Verification:
+      Simply on the command line write "nslookup", then hit enter, and on the following line type your web server "hostname" and hit enter. 
+      If this takes a long time to get an ip address, it can mean that this is your problem.</p>
+      </dd>
+      </dl>
+
+      <p>Common locations for hosts files:</p>
+      <p><strong>Windows:</strong> "C:\winnt\system32\drivers\etc\hosts"<br></br>
+      <strong>Unix:</strong> "/etc/hosts"
+      </p>
+      </answer>
+    </faq>
+    <faq id="grinder-debug">
+      <question>
+      How do I setup debugging when using the Grinder?
+      </question>
+      <answer>
+      <p>Please start the agent with:</p>
+
+<source>      
+    java -Dgrinder.debug.singleprocess=true net.grinder.Grinder
+</source>
+
+      <p>This puts the worker and agent code in a single process, making it
+       easier to take a thread dump of the worker code.</p>
+
+      <p>Use the minimum number of threads that cause the problem. When the
+      hang is observed, take a thread dump (press Ctrl-Break in the terminal
+      window) and post the output to the <a href="mailto:grinder-use@lists.sourceforge.net">grinder-use</a> mail list.</p>
+      </answer>
+    </faq>
   </faqsection>
   <faqsection id="g3-scripts">
     <title>Scripts</title>
@@ -1025,6 +1070,17 @@ class TestRunner:
       </source>
       </answer>
     </faq>
+    <faq id="jython-indentation">
+      <question>
+      Why do I get syntax errors when editing my Jython scripts, even when the code looks correct?
+      </question>
+      <answer>
+      <p>Python and Jython use indentation to delimit blocks. You need to indent your script consistently.</p>
+      <p>Check out these links for more information:</p>
+      <p><a href="http://diveintopython.org/getting_to_know_python/indenting_code.html">http://diveintopython.org/getting_to_know_python/indenting_code.html</a><br></br>
+       <a href="http://www.python.org/doc/current/ref/indentation.html">http://www.python.org/doc/current/ref/indentation.html</a></p>
+      </answer>
+    </faq>
   </faqsection>
   <faqsection id="g3-ssl">
     <title>SSL</title>
@@ -1190,6 +1246,7 @@ class TestRunner:
       sales.py and those beginning with 3xxx relate to purchases.py.</p>
       </answer>
     </faq>
-  </faqsection>
+
+   </faqsection>
   </faqsection>
 </faqs>
