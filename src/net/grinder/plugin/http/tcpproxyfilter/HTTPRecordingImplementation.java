@@ -21,21 +21,27 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.xmlbeans.XmlObject;
 import org.picocontainer.Disposable;
+
+import HTTPClient.ParseException;
+import HTTPClient.URI;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
@@ -46,11 +52,14 @@ import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.HeadersType;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
 import net.grinder.plugin.http.xml.PageType;
+import net.grinder.plugin.http.xml.ParsedURIPartType;
+import net.grinder.plugin.http.xml.RelativeURIType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.plugin.http.xml.TokenType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
+import net.grinder.util.URIParser;
 
 
 /**
@@ -80,11 +89,13 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     HttpRecordingDocument.Factory.newInstance();
   private final Logger m_logger;
   private final HTTPRecordingResultProcessor m_resultProcessor;
+  private final RegularExpressions m_regularExpressions;
+  private final URIParser m_uriParser;
 
-  private final IntGenerator m_requestIDGenerator = new IntGenerator();
+  private final IntGenerator m_bodyFileIDGenerator = new IntGenerator();
   private final BaseURLMap m_baseURLMap = new BaseURLMap();
   private final CommonHeadersMap m_commonHeadersMap = new CommonHeadersMap();
-  private final PageMap m_pageMap = new PageMap();
+  private final RequestList m_requestList = new RequestList();
   private final NameValueTokenMap m_nameValueTokenMap = new NameValueTokenMap();
 
   private long m_lastResponseTime = 0;
@@ -96,12 +107,21 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
    *          Component which handles result.
    * @param logger
    *          A logger.
+   * @param regularExpressions
+   *          Compiled regular expressions.
+   * @param uriParser
+   *          A URI parser.
    */
   public HTTPRecordingImplementation(
-    HTTPRecordingResultProcessor resultProcessor, Logger logger) {
+    HTTPRecordingResultProcessor resultProcessor,
+    Logger logger,
+    RegularExpressions regularExpressions,
+    URIParser uriParser) {
 
     m_resultProcessor = resultProcessor;
     m_logger = logger;
+    m_regularExpressions = regularExpressions;
+    m_uriParser = uriParser;
 
     final HTTPRecordingType.Metadata httpRecording =
       m_recordingDocument.addNewHttpRecording().addNewMetadata();
@@ -114,56 +134,145 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
    * Add a new request to the recording.
    *
    * <p>
-   * The "global information" (request ID, base URL ID, common headers, page
-   * etc.) is filled in by this method.
+   * The request is returned to allow the caller to add things it doesn't know
+   * yet, e.g. headers, body, response.
    * </p>
    *
    * @param connectionDetails
    *          The connection used to make the request.
-   * @param request
-   *          The request as a disconnected element.
+   * @param method
+   *          The HTTP method.
+   * @param relativeURI
+   *          The URI.
+   * @param relativeURI
+   * @return The request.
    */
-  public void addRequest(ConnectionDetails connectionDetails,
-                         RequestType request) {
+  public RequestType addRequest(
+    ConnectionDetails connectionDetails, String method, String relativeURI) {
 
-    request.setRequestId("request" + m_requestIDGenerator.next());
+    final RequestType request = m_requestList.add();
+    request.setTime(Calendar.getInstance());
 
-    final BaseURIType baseURL =
+    synchronized (this) {
+      if (m_lastResponseTime > 0) {
+        final long time = System.currentTimeMillis() - m_lastResponseTime;
+
+        if (time > 10) {
+          request.setSleepTime(time);
+        }
+      }
+    }
+
+    request.addNewHeaders();
+
+    request.setMethod(RequestType.Method.Enum.forString(method));
+
+    String unescapedURI;
+
+    try {
+      unescapedURI = URI.unescape(relativeURI, null);
+    }
+    catch (ParseException e) {
+      unescapedURI = relativeURI;
+    }
+
+    final Matcher lastPathElementMatcher =
+      m_regularExpressions.getLastPathElementPathPattern().matcher(
+        unescapedURI);
+
+    final String description;
+
+    if (lastPathElementMatcher.find()) {
+      final String element = lastPathElementMatcher.group(1);
+
+      if (element.trim().length() != 0) {
+        description = method + " " + element;
+      }
+      else {
+        description = method + " /";
+      }
+    }
+    else {
+      description = method + " " + relativeURI;
+    }
+
+    request.setDescription(description);
+
+    final RelativeURIType uri = request.addNewUri();
+
+    uri.setUnparsed(unescapedURI);
+
+    uri.setExtends(
       m_baseURLMap.getBaseURL(
         connectionDetails.isSecure() ?
           BaseURIType.Scheme.HTTPS : BaseURIType.Scheme.HTTP,
-        connectionDetails.getRemoteEndPoint());
+        connectionDetails.getRemoteEndPoint()).getUriId());
 
-    request.getUri().setExtends(baseURL.getUriId());
+    final ParsedURIPartType parsedPath = uri.addNewPath();
+    final ParsedURIPartType parsedQueryString = uri.addNewQueryString();
+    final String[] fragment = new String[1];
 
-    m_commonHeadersMap.extractCommonHeaders(request);
+    // Look for tokens in path parameters and query string. We create
+    // references to any tokens that have been seen before in some response.
+    m_uriParser.parse(relativeURI, new URIParser.AbstractParseListener() {
 
-    final PageType pageType = m_pageMap.getPage(baseURL, request);
+      public boolean path(String path) {
+        parsedPath.addText(path);
+        return true;
+      }
 
-    synchronized (pageType) {
-      pageType.addNewRequest().set(request);
+      public boolean pathParameterNameValue(String name, String value) {
+        addNameValueTokenReference(
+          name, value, parsedPath.addNewTokenReference());
+        return true;
+      }
+
+      public boolean queryString(String queryString) {
+        parsedQueryString.addText(queryString);
+        return true;
+      }
+
+      public boolean queryStringNameValue(String name, String value) {
+        addNameValueTokenReference(
+          name, value, parsedQueryString.addNewTokenReference());
+        return true;
+      }
+
+      public boolean fragment(String theFragment) {
+        fragment[0] = theFragment;
+        return true;
+      }
+    });
+
+    if (parsedQueryString.getTokenReferenceArray().length == 0 &&
+        parsedQueryString.getTextArray().length ==  0) {
+      uri.unsetQueryString();
     }
+
+    if (fragment[0] != null) {
+      uri.setFragment(fragment[0]);
+    }
+
+    return request;
   }
 
   /**
-   * Called when any response activity is detected. Because the test script
-   * represents a single thread of control we need to calculate the sleep deltas
-   * using the last time any activity occurred on any connection.
+   * Called when a complete request message has been read.
+   *
+   * @param request The request.
+   */
+  public void endRequest(RequestType request) {
+    m_commonHeadersMap.extractCommonHeaders(request);
+  }
+
+  /**
+   * Called when a response message starts. Because the test script represents a
+   * single thread of control we need to calculate the sleep deltas using the
+   * last time any activity occurred on any connection.
    */
   public void markLastResponseTime() {
     synchronized (this) {
       m_lastResponseTime = System.currentTimeMillis();
-    }
-  }
-
-  /**
-   * Get the last response time.
-   *
-   * @return The last response time.
-   */
-  public long getLastResponseTime() {
-    synchronized (this) {
-      return m_lastResponseTime;
     }
   }
 
@@ -181,6 +290,15 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   /**
+   * Create a new file name for body data.
+   *
+   * @return The file name.
+   */
+  public File createBodyDataFileName() {
+    return new File("http-data-" + m_bodyFileIDGenerator.next() + ".dat");
+  }
+
+  /**
    * Called after the component has been stopped.
    */
   public void dispose() {
@@ -189,6 +307,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     synchronized (m_recordingDocument) {
       result = (HttpRecordingDocument)m_recordingDocument.copy();
     }
+
+    m_requestList.record(result.getHttpRecording());
 
     // Extract default headers that are present in all common headers.
     final CommonHeadersType[] commonHeaders =
@@ -350,84 +470,57 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     }
   }
 
-  private final class PageMap {
-    private final Pattern m_isPageResourcePathPattern;
-    private final Map m_map = new HashMap();
-    private final IntGenerator m_idGenerator = new IntGenerator();
+  private final class RequestList {
+    private final List m_requests = new ArrayList();
+    private final Pattern m_resourcePathPattern = Pattern.compile(
+      ".*(?:\\.css|\\.gif|\\.ico|\\.jpe?g|\\.js|\\.png)(?:\\?.*)?$",
+      Pattern.CASE_INSENSITIVE);
 
-    private PageMap() {
-      m_isPageResourcePathPattern = Pattern.compile(
-        ".*(\\.css|\\.gif|\\.ico|\\.jpe?g|\\.js)\\b.*",
-        Pattern.CASE_INSENSITIVE);
+    public RequestType add() {
+      final RequestType request = RequestType.Factory.newInstance();
+      m_requests.add(request);
+      return request;
     }
 
-    public PageType getPage(BaseURIType baseURL, RequestType request) {
-      final PageList pageList;
+    public void record(HTTPRecordingType httpRecording) {
+      synchronized (m_requests) {
+        final Iterator iterator = m_requests.iterator();
 
-      synchronized (m_map) {
-        final PageList existing = (PageList) m_map.get(baseURL);
+        String lastBaseURI = null;
+        boolean lastResponseWasRedirect = false;
 
-        if (existing != null) {
-          pageList = existing;
-        }
-        else {
-          pageList = new PageList();
-          m_map.put(baseURL, pageList);
-        }
-      }
+        PageType currentPage = null;
 
-      return pageList.getPageForRequest(request);
-    }
+        while (iterator.hasNext()) {
+          final RequestType request = (RequestType)iterator.next();
 
-    /**
-     * A list of pages for a particular URL, keyed by request time.
-     *
-     * <p>
-     * {@link #getPage()} is called when the end of the message is received. We
-     * need to associate the pages based on the beginning of messages to avoid
-     * getting things out of order.
-     * </p>
-     */
-    private class PageList {
-      private SortedMap m_pages = new TreeMap();
+          if (request.getResponse() == null) {
+            continue;
+          }
 
-      public PageType getPageForRequest(RequestType request) {
-        synchronized (m_pages) {
-          // We don't allow for case where request is already in map.
-          // We assume request times are unique.
-          final SortedMap headMap =
-            m_pages.headMap(request.getTime().getTime());
+          synchronized (m_recordingDocument) {
+            // Crude but effective pagination heuristics.
+            if (!request.getUri().getExtends().equals(lastBaseURI) ||
+                request.isSetBody() ||
+                !(m_resourcePathPattern.matcher(request.getUri().getUnparsed())
+                     .matches() ||
+                  lastResponseWasRedirect)) {
+              currentPage = httpRecording.addNewPage();
+            }
 
-          // Crude heuristics to figure out whether request is the start of
-          // a new page or not.
-          if (headMap.size() != 0) {
-            if (!request.isSetBody()) {
-              final String[] textArray =
-                request.getUri().getPath().getTextArray();
-              final String lastText = textArray[textArray.length - 1];
+            currentPage.addNewRequest().set(request);
+            lastBaseURI = request.getUri().getExtends();
 
-              if (m_isPageResourcePathPattern.matcher(lastText).matches()) {
-                final Object o = headMap.lastKey();
-                System.err.println("Found " + o);
-                return (PageType)headMap.get(headMap.lastKey());
-              }
+            switch (request.getResponse().getStatusCode()) {
+              case HttpURLConnection.HTTP_MOVED_PERM:
+              case HttpURLConnection.HTTP_MOVED_TEMP:
+              case 307:
+                lastResponseWasRedirect = true;
+                break;
+              default:
+                lastResponseWasRedirect = false;
             }
           }
-
-          final PageType result;
-
-          // TODO This ordering is wrong too. We really need to put all the
-          // requests in a TreeMap. This will happen when we remove the page
-          // detection from this and put it in the stylesheet.
-          synchronized (m_recordingDocument) {
-            result = m_recordingDocument.getHttpRecording().addNewPage();
-          }
-
-          result.setPageId("page" + m_idGenerator.next());
-
-          m_pages.put(request.getTime().getTime(), result);
-
-          return result;
         }
       }
     }
@@ -435,6 +528,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
   private final class NameValueTokenMap {
     private final Map m_map = new HashMap();
+    private final Map m_uniqueTokenIDs = new HashMap();
 
     public void add(
       String name, String value, TokenReferenceType tokenReference) {
@@ -451,8 +545,33 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
             newToken = m_recordingDocument.getHttpRecording().addNewToken();
           }
 
-          // TODO: make this a valid identifier.
-          newToken.setTokenId("token_" + name);
+          // Build a tokenID that is also a reasonable identifier.
+          final StringBuffer tokenID = new StringBuffer();
+          tokenID.append("token_");
+
+          for (int i = 0; i < name.length(); ++i) {
+            final char c = name.charAt(i);
+
+            if (Character.isJavaIdentifierPart(c)) {
+              tokenID.append(c);
+            }
+          }
+
+          //
+          final String partToken = tokenID.toString();
+          final Integer existingValue =
+            (Integer)m_uniqueTokenIDs.get(partToken);
+
+          if (existingValue != null) {
+            tokenID.append(existingValue);
+            m_uniqueTokenIDs.put(partToken,
+                              new Integer(existingValue.intValue() + 1));
+          }
+          else {
+            m_uniqueTokenIDs.put(partToken, new Integer(0));
+          }
+
+          newToken.setTokenId(tokenID.toString());
           newToken.setName(name);
 
           tokenValuePair = new TokenValuePair(newToken);

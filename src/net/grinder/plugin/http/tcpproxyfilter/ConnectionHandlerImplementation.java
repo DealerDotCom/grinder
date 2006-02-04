@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -39,19 +38,14 @@ import net.grinder.plugin.http.xml.BodyType;
 import net.grinder.plugin.http.xml.FormBodyType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.HeaderType;
-import net.grinder.plugin.http.xml.HeadersType;
 import net.grinder.plugin.http.xml.ParsedTokenReferenceType;
-import net.grinder.plugin.http.xml.ParsedURIPartType;
-import net.grinder.plugin.http.xml.RelativeURIType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.ResponseType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.util.URIParser;
-import net.grinder.util.URIParserImplementation;
 import HTTPClient.Codecs;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
-import HTTPClient.URI;
 
 
 /**
@@ -64,10 +58,6 @@ import HTTPClient.URI;
  * @version $Revision$
  */
 final class ConnectionHandlerImplementation implements ConnectionHandler {
-
-  /** Package scope for unit tests. */
-  static final String OUTPUT_DIRECTORY_PROPERTY =
-    "HTTPRequestFilter.outputDirectory";
 
   /**
    * Headers which we record.
@@ -96,13 +86,11 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     }
   ));
 
-  private final URIParser m_uriParser = new URIParserImplementation();
+  private final HTTPRecording m_httpRecording;
   private final Logger m_logger;
   private final RegularExpressions m_regularExpressions;
-  private final HTTPRecording m_httpRecording;
+  private final URIParser m_uriParser;
   private final ConnectionDetails m_connectionDetails;
-
-  private final IntGenerator m_bodyFileIDGenerator = new IntGenerator();
 
   // Parse data.
   private Request m_request;
@@ -111,11 +99,13 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     HTTPRecording httpRecording,
     Logger logger,
     RegularExpressions regularExpressions,
+    URIParser uriParser,
     ConnectionDetails connectionDetails) {
 
+    m_httpRecording = httpRecording;
     m_logger = logger;
     m_regularExpressions = regularExpressions;
-    m_httpRecording = httpRecording;
+    m_uriParser = uriParser;
     m_connectionDetails = connectionDetails;
   }
 
@@ -234,7 +224,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       m_regularExpressions.getResponseLinePattern().matcher(asciiString);
 
     if (matcher.find()) {
-      // Packet is start of new request message.
+      // Packet is start of new response message.
 
       m_httpRecording.markLastResponseTime();
 
@@ -302,15 +292,14 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
    */
   public synchronized void newRequestMessage() {
     if (m_request != null) {
-      m_request.record();
+      m_request.end();
     }
 
     m_request = null;
   }
 
   private final class Request {
-    private final RequestType m_requestXML = RequestType.Factory.newInstance();
-    private final HeadersType m_headers = m_requestXML.addNewHeaders();
+    private final RequestType m_requestXML;
 
     private int m_contentLength = -1;
     private String m_contentType = null;
@@ -318,105 +307,8 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     private boolean m_contentLengthReached;
 
     public Request(String method, String relativeURI) {
-
-      // Only set up direct attributes here. The "global information"
-      // (request ID, base URL ID, common headers, page etc.) is filled in
-      // when we record the request.
-
-      m_requestXML.setMethod(RequestType.Method.Enum.forString(method));
-      m_requestXML.setTime(Calendar.getInstance());
-
-      String unescapedURI;
-
-      try {
-        unescapedURI = URI.unescape(relativeURI, null);
-      }
-      catch (ParseException e) {
-        unescapedURI = relativeURI;
-      }
-
-      final Matcher lastPathElementMatcher =
-        m_regularExpressions.getLastPathElementPathPattern().matcher(
-          unescapedURI);
-
-      final String description;
-
-      if (lastPathElementMatcher.find()) {
-        final String element = lastPathElementMatcher.group(1);
-
-        if (element.trim().length() != 0) {
-          description = method + " " + element;
-        }
-        else {
-          description = method + " /";
-        }
-      }
-      else {
-        description = method + " " + relativeURI;
-      }
-
-      m_requestXML.setDescription(description);
-
-      final RelativeURIType uri = m_requestXML.addNewUri();
-
-      final ParsedURIPartType parsedPath =
-        ParsedURIPartType.Factory.newInstance();
-      final ParsedURIPartType parsedQueryString =
-        ParsedURIPartType.Factory.newInstance();
-      final String[] fragment = new String[1];
-
-      // Look for tokens in path parameters and query string. We create
-      // references to any tokens that have been seen before in some response.
-      m_uriParser.parse(relativeURI, new URIParser.AbstractParseListener() {
-
-        public boolean path(String path) {
-          parsedPath.addText(path);
-          return true;
-        }
-
-        public boolean pathParameterNameValue(String name, String value) {
-          m_httpRecording.addNameValueTokenReference(
-            name, value, parsedPath.addNewTokenReference());
-          return true;
-        }
-
-        public boolean queryString(String queryString) {
-          parsedQueryString.addText(queryString);
-          return true;
-        }
-
-        public boolean queryStringNameValue(String name, String value) {
-          m_httpRecording.addNameValueTokenReference(
-            name, value, parsedQueryString.addNewTokenReference());
-          return true;
-        }
-
-        public boolean fragment(String theFragment) {
-          fragment[0] = theFragment;
-          return true;
-        }
-      });
-
-      uri.setPath(parsedPath);
-
-      if (parsedQueryString.getTokenReferenceArray().length > 0 ||
-          parsedQueryString.getTextArray().length > 0) {
-        uri.setQueryString(parsedQueryString);
-      }
-
-      if (fragment[0] != null) {
-        uri.setFragment(fragment[0]);
-      }
-
-      final long lastResponseTime = m_httpRecording.getLastResponseTime();
-
-      if (lastResponseTime > 0) {
-        final long time = System.currentTimeMillis() - lastResponseTime;
-
-        if (time > 10) {
-          m_requestXML.setSleepTime(time);
-        }
-      }
+      m_requestXML =
+        m_httpRecording.addRequest(m_connectionDetails, method, relativeURI);
     }
 
     public ResponseType addNewResponse() {
@@ -433,7 +325,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       }
       else {
         final BasicAuthorizationHeaderType basicAuthorization =
-          m_headers.addNewAuthorization().addNewBasic();
+          m_requestXML.getHeaders().addNewAuthorization().addNewBasic();
 
         basicAuthorization.setUserid(decoded.substring(0, colon));
         basicAuthorization.setPassword(decoded.substring(colon + 1));
@@ -474,17 +366,17 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     }
 
     public void addHeader(String name, String value) {
-      final HeaderType header = m_headers.addNewHeader();
+      final HeaderType header = m_requestXML.getHeaders().addNewHeader();
       header.setName(name);
       header.setValue(value);
     }
 
-    public void record() {
+    public void end() {
       if (getBody() != null) {
-        getBody().record();
+        getBody().end();
       }
 
-      m_httpRecording.addRequest(m_connectionDetails, m_requestXML);
+      m_httpRecording.endRequest(m_requestXML);
     }
 
     private class Body {
@@ -522,7 +414,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
         }
       }
 
-      public void record() {
+      public void end() {
         final BodyType body = m_requestXML.addNewBody();
 
         if (m_contentType != null) {
@@ -533,13 +425,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
         if (bytes.length > 0x4000) {
           // Large amount of data, use a file.
-          final String fileName =
-            "http-data-" + m_bodyFileIDGenerator.next() + ".dat";
-
-          // Output directory is not an user option, but unit tests
-          // need to control it.
-          final File file = new File(
-            System.getProperty(OUTPUT_DIRECTORY_PROPERTY, null), fileName);
+          final File file = m_httpRecording.createBodyDataFileName();
 
           try {
             final FileOutputStream dataStream =
@@ -552,7 +438,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
             e.printStackTrace(m_logger.getErrorLogWriter());
           }
 
-          body.setFile(fileName);
+          body.setFile(file.getPath());
         }
         else {
           final String iso88591String;
@@ -569,16 +455,13 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
               final NVPair[] formNameValuePairs =
                 Codecs.query2nv(iso88591String);
 
-              final FormBodyType formData =
-                FormBodyType.Factory.newInstance();
+              final FormBodyType formData = body.addNewForm();
 
               for (int i = 0; i < formNameValuePairs.length; ++i) {
                 final FormFieldType formField = formData.addNewFormField();
                 formField.setName(formNameValuePairs[i].getName());
                 formField.setValue(formNameValuePairs[i].getValue());
               }
-
-              body.setForm(formData);
             }
             catch (ParseException e) {
               // Failed to parse form data as name-value pairs, we'll

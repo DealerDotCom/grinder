@@ -49,6 +49,7 @@ import net.grinder.plugin.http.tcpproxyfilter.HTTPRecordingImplementation;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRequestFilter;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPResponseFilter;
 import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT;
+import net.grinder.plugin.http.tcpproxyfilter.RegularExpressionsImplementation;
 import net.grinder.tools.tcpproxy.CompositeFilter;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EchoFilter;
@@ -63,6 +64,7 @@ import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation;
 import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
+import net.grinder.util.URIParserImplementation;
 
 
 /**
@@ -270,6 +272,10 @@ public final class TCPProxy {
             HTTPRecordingImplementation.class);
           m_filterContainer.registerComponentImplementation(
             ProcessHTTPRecordingWithXSLT.class);
+          m_filterContainer.registerComponentImplementation(
+            RegularExpressionsImplementation.class);
+          m_filterContainer.registerComponentImplementation(
+            URIParserImplementation.class);
 
           if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
             m_filterContainer.registerComponentInstance(

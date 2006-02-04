@@ -18,6 +18,7 @@ package net.grinder.plugin.http.tcpproxyfilter;
 
 import net.grinder.common.Logger;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
+import net.grinder.util.URIParser;
 
 
 /**
@@ -31,19 +32,31 @@ public final class ConnectionHandlerFactoryImplementation
 
   private final Logger m_logger;
   private final HTTPRecording m_httpRecording;
-  private final RegularExpressions m_regularExpressions =
-    new RegularExpressions();
+  private final RegularExpressions m_regularExpressions;
+  private final URIParser m_uriParser;
 
   /**
    * Constructor.
    *
-   * @param httpRecording Common recording state.
-   * @param logger Logger.
+   * @param httpRecording
+   *          Common recording state.
+   * @param logger
+   *          Logger.
+   * @param regularExpressions
+   *          Compiled regular expressions.
+   * @param uriParser
+   *          A URI parser.
    */
-  public ConnectionHandlerFactoryImplementation(HTTPRecording httpRecording,
-                                                Logger logger) {
+  public ConnectionHandlerFactoryImplementation(
+    HTTPRecording httpRecording,
+    Logger logger,
+    RegularExpressions regularExpressions,
+    URIParser uriParser) {
+
     m_logger = logger;
     m_httpRecording = httpRecording;
+    m_regularExpressions = regularExpressions;
+    m_uriParser = uriParser;
   }
 
   /**
@@ -53,7 +66,10 @@ public final class ConnectionHandlerFactoryImplementation
    * @return A new ConnectionHandler.
    */
   public ConnectionHandler create(ConnectionDetails connectionDetails) {
-    return new ConnectionHandlerImplementation(
-        m_httpRecording, m_logger, m_regularExpressions, connectionDetails);
+    return new ConnectionHandlerImplementation(m_httpRecording,
+                                               m_logger,
+                                               m_regularExpressions,
+                                               m_uriParser,
+                                               connectionDetails);
   }
 }

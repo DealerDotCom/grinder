@@ -16,6 +16,8 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import java.io.File;
+
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
@@ -33,30 +35,35 @@ public interface HTTPRecording {
    * Add a new request to the recording.
    *
    * <p>
-   * The "global information" (request ID, base URL ID, common headers, page
-   * etc.) is filled in by this method.
+   * The request is returned to allow the caller to add things it doesn't know
+   * yet, e.g. headers, body, response.
    * </p>
    *
    * @param connectionDetails
    *          The connection used to make the request.
-   * @param request
-   *          The request as a disconnected element.
+   * @param method
+   *          The HTTP method.
+   * @param relativeURI
+   *          The URI.
+   * @param relativeURI
+   * @return The request.
    */
-  void addRequest(ConnectionDetails connectionDetails, RequestType request);
+  RequestType addRequest(
+    ConnectionDetails connectionDetails, String method, String relativeURI);
 
   /**
-   * Called when any response activity is detected. Because the test script
-   * represents a single thread of control we need to calculate the sleep deltas
-   * using the last time any activity occurred on any connection.
+   * Called when a complete request message has been read.
+   *
+   * @param request The request.
+   */
+  void endRequest(RequestType request);
+
+  /**
+   * Called when a response message starts. Because the test script represents a
+   * single thread of control we need to calculate the sleep deltas using the
+   * last time any activity occurred on any connection.
    */
   void markLastResponseTime();
-
-  /**
-   * Get the last response time.
-   *
-   * @return The last response time.
-   */
-  long getLastResponseTime();
 
   /**
    * Add a new name-value token, or update an existing one.
@@ -68,4 +75,11 @@ public interface HTTPRecording {
    */
   void addNameValueTokenReference(
     String name, String value, TokenReferenceType tokenReference);
+
+  /**
+   * Create a new file name for body data.
+   *
+   * @return The file name.
+   */
+  File createBodyDataFileName();
 }

@@ -1,11 +1,6 @@
 // Copyright (C) 2006 Philip Aston
 // All rights reserved.
 //
-// This file is part of The Grinder software distribution. Refer to
-// the file LICENSE which is part of The Grinder distribution for
-// licensing details. The Grinder distribution is available on the
-// Internet at http://grinder.sourceforge.net/
-//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -23,87 +18,53 @@ package net.grinder.plugin.http.tcpproxyfilter;
 
 import java.util.regex.Pattern;
 
-
 /**
- * Compiled regular expressions.
+ * Common regular expressions.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class RegularExpressions {
+public interface RegularExpressions {
 
-  private final Pattern m_basicAuthorizationHeaderPattern;
-  private final Pattern m_headerPattern;
-  private final Pattern m_messageBodyPattern;
-  private final Pattern m_requestLinePattern;
-  private final Pattern m_responseLinePattern;
+  /**
+   * A pattern that matches the first line of an HTTP request.
+   *
+   * @return The pattern.
+   */
+  Pattern getRequestLinePattern();
 
-  private final Pattern m_lastPathElementPathPattern;
+  /**
+   * A pattern that matches the first line of an HTTP response.
+   *
+   * @return The pattern.
+   */
+  Pattern getResponseLinePattern();
 
-  public RegularExpressions() {
-    m_messageBodyPattern = Pattern.compile("\\r\\n\\r\\n(.*)", Pattern.DOTALL);
+  /**
+   * A pattern that matches an HTTP message body.
+   *
+   * @return The pattern.
+   */
+  Pattern getMessageBodyPattern();
 
-    // We're generally flexible about SP and CRLF, see RFC 2616, 19.3.
+  /**
+   * A pattern that matches an HTTP header.
+   *
+   * @return The pattern
+   */
+  Pattern getHeaderPattern();
 
-    // From RFC 2616:
-    //
-    // Request-Line = Method SP Request-URI SP HTTP-Version CRLF
-    // HTTP-Version = "HTTP" "/" 1*DIGIT "." 1*DIGIT
-    // http_URL = "http:" "//" host [ ":" port ] [ abs_path [ "?" query ]]
-    //
+  /**
+   * A pattern that matches an HTTP Basic Authorization header.
+   *
+   * @return The pattern
+   */
+  Pattern getBasicAuthorizationHeaderPattern();
 
-    m_requestLinePattern = Pattern.compile(
-      "^([A-Z]+)[ \\t]+" +          // Method.
-      "(?:https?://[^/]+)?"  +      // Ignore scheme, host, port.
-      "(.+)" +                      // Path, query string, fragment.
-      "[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?\\n",
-      Pattern.MULTILINE | Pattern.UNIX_LINES);
-
-    // RFC 2616, 6.1:
-    //
-    // Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
-
-    m_responseLinePattern = Pattern.compile(
-      "^HTTP/\\d.\\d[ \\t]+" +
-      "(\\d+)" +                   // Status-Code
-      "[ \\t]+" +
-      "(.*)" +                     // Reason-Phrase
-      "[ \\t]*\\r?\\n");
-
-    m_headerPattern = Pattern.compile(
-      "^([^:\\r\\n]*)[ \\t]*:[ \\t]*(.*?)\\r?\\n",
-      Pattern.MULTILINE | Pattern.UNIX_LINES);
-
-    m_basicAuthorizationHeaderPattern = Pattern.compile(
-      "^Authorization[ \\t]*:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*?\\r?\\n",
-      Pattern.MULTILINE | Pattern.UNIX_LINES);
-
-    // Ignore maximum amount of stuff that's not a '?', ';', or '#' followed by
-    // a '/', then grab the next until the first '?', ';', or '#'.
-    m_lastPathElementPathPattern = Pattern.compile("^[^\\?;#]*/([^\\?;#]*)");
-  }
-
-  public Pattern getRequestLinePattern() {
-    return m_requestLinePattern;
-  }
-
-  public Pattern getResponseLinePattern() {
-    return m_responseLinePattern;
-  }
-
-  public Pattern getMessageBodyPattern() {
-    return m_messageBodyPattern;
-  }
-
-  public Pattern getHeaderPattern() {
-    return m_headerPattern;
-  }
-
-  public Pattern getBasicAuthorizationHeaderPattern() {
-    return m_basicAuthorizationHeaderPattern;
-  }
-
-  public Pattern getLastPathElementPathPattern() {
-    return m_lastPathElementPathPattern;
-  }
+  /**
+   * A pattern that matches the last element in a path.
+   *
+   * @return The pattern
+   */
+  Pattern getLastPathElementPathPattern();
 }

@@ -7,16 +7,6 @@
   attributeFormDefault="unqualified" elementFormDefault="qualified">
 
   <xs:element name="http-recording" type="tns:HTTPRecordingType">
-    <xs:key name="RequestID">
-      <xs:selector xpath="page/request" />
-      <xs:field xpath="request-id" />
-    </xs:key>
-
-    <xs:key name="PageID">
-      <xs:selector xpath="page" />
-      <xs:field xpath="page-id" />
-    </xs:key>
-
     <xs:key name="BaseURIID">
       <xs:selector xpath="base-uri" />
       <xs:field xpath="uri-id" />
@@ -105,7 +95,6 @@
       <xs:element name="request" type="tns:RequestType"
         minOccurs="1" maxOccurs="unbounded" />
     </xs:sequence>
-    <xs:attribute name="page-id" type="tns:IDType" />
   </xs:complexType>
 
   <xs:complexType name="TokenReferenceType">
@@ -164,20 +153,20 @@
       <xs:element name="body" type="tns:BodyType" minOccurs="0" />
       <xs:element name="response" type="tns:ResponseType" />
     </xs:sequence>
-    <xs:attribute name="request-id" type="tns:IDType" />
   </xs:complexType>
 
   <xs:complexType name="ParsedURIPartType">
     <xs:sequence maxOccurs="unbounded">
       <xs:element name="text" type="xs:normalizedString" />
-      <xs:element name="token-reference" type="tns:TokenReferenceType" minOccurs="0"/>
+      <xs:element name="token-reference" type="tns:TokenReferenceType" minOccurs="0" />
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="RelativeURIType">
     <xs:sequence>
+      <xs:element name="unparsed" type="xs:normalizedString" />
       <xs:element name="path" type="tns:ParsedURIPartType" />
-      <xs:element name="query-string" type="tns:ParsedURIPartType" minOccurs="0"/>
+      <xs:element name="query-string" type="tns:ParsedURIPartType" minOccurs="0" />
 
       <!-- Browsers, and HTTPClient, strip fragments from URIs they send to the
       wire. We capture it just for completeness. If a browser was used for the

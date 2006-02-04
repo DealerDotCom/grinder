@@ -139,8 +139,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
 
   <xsl:template match="g:request" mode="generate-test-number">
-    <!--  We ignore the @request-id attribute, and calculate our own numbers
-          sequentially follow the requests page test number. -->
+    <!--  Numbers sequentially follow the requests' page test number. -->
 
     <xsl:variable name="request-number"
                   select="count(preceding-sibling::g:request) + 1"/>
@@ -253,10 +252,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
 
   <xsl:template match="g:page" mode="generate-number">
-    <!--  We ignore the @page-id attribute, and calculate our own number.
-          (@page-id is zero-based, we want something that maps to the test
-           number).
-          We number page tests 100, 200, ... and request tests 101, 102; 201,
+    <!--  We number page tests 100, 200, ... and request tests 101, 102; 201,
           202, ... There's a correspondance between request and page test
           numbers (request test numbers sequentially follow their page Test
           number). We cope gracefully with pages that have more than 100 tests.
