@@ -25,7 +25,6 @@ import java.io.File;
 
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.plugin.http.xml.FormFieldType;
-import net.grinder.plugin.http.xml.NameValueType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.TokenType;
 import net.grinder.testutility.AbstractFileTestCase;
