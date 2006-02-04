@@ -61,7 +61,7 @@ public interface HTTPRecording {
   /**
    * Called when a response message starts. Because the test script represents a
    * single thread of control we need to calculate the sleep deltas using the
-   * last time any activity occurred on any connection.
+   * last time any response was received on any connection.
    */
   void markLastResponseTime();
 

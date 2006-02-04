@@ -155,12 +155,16 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
     synchronized (this) {
       if (m_lastResponseTime > 0) {
+        // We only want to record a sleep time for the first request after
+        // a response.
         final long time = System.currentTimeMillis() - m_lastResponseTime;
 
         if (time > 10) {
           request.setSleepTime(time);
         }
       }
+
+      m_lastResponseTime = 0;
     }
 
     request.addNewHeaders();
@@ -268,7 +272,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   /**
    * Called when a response message starts. Because the test script represents a
    * single thread of control we need to calculate the sleep deltas using the
-   * last time any activity occurred on any connection.
+   * last time any response was received on any connection.
    */
   public void markLastResponseTime() {
     synchronized (this) {
