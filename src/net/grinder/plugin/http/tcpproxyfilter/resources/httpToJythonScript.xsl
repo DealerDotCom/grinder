@@ -398,19 +398,18 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:choose>
       <xsl:when test="@source = 'LOCATION_HEADER_PATH_PARAMETER' or
                       @source = 'LOCATION_HEADER_QUERY_STRING'">
-        <xsl:text>valueFromLocationURI('</xsl:text>
+        <xsl:text>valueFromLocationURI(</xsl:text>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:text>valueFromBodyURI('</xsl:text>
+        <xsl:text>valueFromBodyURI(</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:value-of select="$name"/>
-    <xsl:text>')</xsl:text>
+    <xsl:value-of select="helper:quoteForPython($name)"/>
+    <xsl:text>)</xsl:text>
 
-    <xsl:text> # '</xsl:text>
-    <xsl:value-of select="g:new-value"/>
+    <xsl:text> # </xsl:text>
+    <xsl:value-of select="helper:quoteForPython(g:new-value)"/>
     <xsl:value-of select="helper:changeIndent(-1)"/>
-    <xsl:text>'</xsl:text>
   </xsl:template>
 
 
@@ -426,10 +425,8 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text> '</xsl:text>
-    <xsl:value-of select="g:new-value"/>
+    <xsl:value-of select="helper:quoteForPython(g:new-value)"/>
     <xsl:value-of select="helper:changeIndent(-1)"/>
-    <xsl:text>'</xsl:text>
   </xsl:template>
 
 
@@ -464,7 +461,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
       <xsl:value-of select="helper:changeIndent(-1)"/>
     </xsl:if>
 
-    <xsl:value-of select="."/>
+    <xsl:value-of select="helper:escape(.)"/>
 
     <xsl:if test="position() = last()">
       <!--  Final sibling, close quotes. -->

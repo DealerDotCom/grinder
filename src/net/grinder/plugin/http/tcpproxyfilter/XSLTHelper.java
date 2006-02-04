@@ -87,24 +87,27 @@ public final class XSLTHelper {
 
     final String quotes = value.indexOf("\n") > -1 ? "'''" : "'";
 
-    result.append(quotes);
+    result.append(quotes).append(escape(value)).append(quotes);
 
-    final int length = value.length();
+    return result.toString();
+  }
 
-    for (int i = 0; i < length; ++i) {
+  public static String escape(String value) {
+    final StringBuffer result = new StringBuffer(value.length());
+
+    for (int i = 0; i < value.length(); ++i) {
       final char c = value.charAt(i);
 
       switch (c) {
       case '\'':
+      case '"':
       case '\\':
         result.append('\\');
-        // fall through.
+        // Fall through.
       default:
         result.append(c);
       }
     }
-
-    result.append(quotes);
 
     return result.toString();
   }
