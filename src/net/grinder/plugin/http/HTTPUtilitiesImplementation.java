@@ -73,7 +73,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     final HTTPResponse response = getLastResponse();
 
     if (response == null) {
-      return null;
+      return "";
     }
 
     final String location;
@@ -111,7 +111,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
       return result[0];
     }
 
-    return null;
+    return "";
   }
 
   public String valueFromBodyURI(String tokenName) {

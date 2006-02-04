@@ -56,10 +56,18 @@ public interface HTTPUtilities {
    * the given <code>tokenName</code> in a Location header from the last
    * response. If there are multiple matches, the first value is returned.
    *
+   * <p>
+   * If there is no match, an empty string is returned rather than
+   * <code>null</code>. This makes scripts more robust (as they don't need to
+   * check the value before using it), but they lose the ability to distinguish
+   * between a missing token and an empty value.
+   * </p>
+   *
    * @param tokenName
    *          The token name.
-   * @return The first value if one is found, or <code>null</code>.
-   * @throws GrinderException If not called from a worker thread.
+   * @return The first value if one is found.
+   * @throws GrinderException
+   *           If not called from a worker thread.
    */
   String valueFromLocationURI(String tokenName) throws GrinderException;
 
