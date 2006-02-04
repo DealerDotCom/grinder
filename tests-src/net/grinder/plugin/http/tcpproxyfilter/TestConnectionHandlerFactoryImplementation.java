@@ -27,6 +27,7 @@ import net.grinder.common.LoggerStubFactory;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
+import net.grinder.util.URIParser;
 
 
 /**
@@ -45,6 +46,15 @@ public class TestConnectionHandlerFactoryImplementation extends TestCase {
   private final LoggerStubFactory m_loggerStubFactory =
     new LoggerStubFactory();
 
+  final RandomStubFactory m_regularExpressionsStubFactory =
+    new RandomStubFactory(RegularExpressions.class);
+  final RegularExpressions m_regularExpressions =
+    (RegularExpressions)m_regularExpressionsStubFactory.getStub();
+
+  final RandomStubFactory m_uriParserStubFactory =
+    new RandomStubFactory(URIParser.class);
+  final URIParser m_uriParser = (URIParser)m_uriParserStubFactory.getStub();
+
 
   private final ConnectionDetails m_connectionDetails =
     new ConnectionDetails(
@@ -55,7 +65,7 @@ public class TestConnectionHandlerFactoryImplementation extends TestCase {
   public void testFactory() {
     final ConnectionHandlerFactory factory =
       new ConnectionHandlerFactoryImplementation(m_httpRecording,
-        m_loggerStubFactory.getLogger());
+        m_loggerStubFactory.getLogger(), m_regularExpressions, m_uriParser);
 
     final ConnectionHandler handler1 = factory.create(m_connectionDetails);
     final ConnectionHandler handler2 = factory.create(m_connectionDetails);
@@ -63,5 +73,7 @@ public class TestConnectionHandlerFactoryImplementation extends TestCase {
 
     m_httpRecordingStubFactory.assertNoMoreCalls();
     m_loggerStubFactory.assertNoMoreCalls();
+    m_regularExpressionsStubFactory.assertNoMoreCalls();
+    m_uriParserStubFactory.assertNoMoreCalls();
   }
 }
