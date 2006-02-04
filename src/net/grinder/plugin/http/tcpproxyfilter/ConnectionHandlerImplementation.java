@@ -375,8 +375,6 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       if (getBody() != null) {
         getBody().end();
       }
-
-      m_httpRecording.endRequest(m_requestXML);
     }
 
     private class Body {

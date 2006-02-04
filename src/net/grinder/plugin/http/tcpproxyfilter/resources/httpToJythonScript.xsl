@@ -223,6 +223,8 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
     <xsl:apply-templates select=".//g:token-reference" mode="request"/>
 
+    <xsl:apply-templates select="g:annotation" mode="request"/>
+
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:if test="position() = 1">
       <xsl:text>result = </xsl:text>
@@ -370,6 +372,14 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   <xsl:template match="g:sleep-time[../preceding-sibling::g:request]" mode="request">
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:value-of select="concat('grinder.sleep(', ., ')')"/>
+  </xsl:template>
+
+
+  <xsl:template match="g:annotation" mode="request">
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text># </xsl:text>
+    <xsl:value-of select ="."/>
   </xsl:template>
 
 

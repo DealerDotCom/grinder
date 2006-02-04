@@ -55,6 +55,7 @@ import net.grinder.plugin.http.xml.PageType;
 import net.grinder.plugin.http.xml.ParsedURIPartType;
 import net.grinder.plugin.http.xml.RelativeURIType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.plugin.http.xml.ResponseType;
 import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.plugin.http.xml.TokenType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
@@ -258,15 +259,6 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     }
 
     return request;
-  }
-
-  /**
-   * Called when a complete request message has been read.
-   *
-   * @param request The request.
-   */
-  public void endRequest(RequestType request) {
-    m_commonHeadersMap.extractCommonHeaders(request);
   }
 
   /**
@@ -498,9 +490,13 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         while (iterator.hasNext()) {
           final RequestType request = (RequestType)iterator.next();
 
-          if (request.getResponse() == null) {
+          final ResponseType response = request.getResponse();
+
+          if (response == null) {
             continue;
           }
+
+          m_commonHeadersMap.extractCommonHeaders(request);
 
           synchronized (m_recordingDocument) {
             // Crude but effective pagination heuristics.
@@ -512,18 +508,23 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
               currentPage = httpRecording.addNewPage();
             }
 
-            currentPage.addNewRequest().set(request);
             lastBaseURI = request.getUri().getExtends();
 
-            switch (request.getResponse().getStatusCode()) {
+            switch (response.getStatusCode()) {
               case HttpURLConnection.HTTP_MOVED_PERM:
               case HttpURLConnection.HTTP_MOVED_TEMP:
               case 307:
                 lastResponseWasRedirect = true;
+
+                request.setAnnotation(
+                  "Expecting " + response.getStatusCode() +
+                  " '" + response.getReasonPhrase() + "'");
                 break;
               default:
                 lastResponseWasRedirect = false;
             }
+
+            currentPage.addNewRequest().set(request);
           }
         }
       }

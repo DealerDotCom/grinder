@@ -52,13 +52,6 @@ public interface HTTPRecording {
     ConnectionDetails connectionDetails, String method, String relativeURI);
 
   /**
-   * Called when a complete request message has been read.
-   *
-   * @param request The request.
-   */
-  void endRequest(RequestType request);
-
-  /**
    * Called when a response message starts. Because the test script represents a
    * single thread of control we need to calculate the sleep deltas using the
    * last time any response was received on any connection.

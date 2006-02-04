@@ -149,6 +149,7 @@
       <xs:element name="uri" type="tns:RelativeURIType" />
       <xs:element name="headers" type="tns:HeadersType" />
       <xs:element name="description" type="xs:normalizedString" />
+      <xs:element name="annotation" type="xs:normalizedString" minOccurs="0" />
       <xs:element name="sleep-time" type="xs:unsignedInt" minOccurs="0" />
       <xs:element name="body" type="tns:BodyType" minOccurs="0" />
       <xs:element name="response" type="tns:ResponseType" />
