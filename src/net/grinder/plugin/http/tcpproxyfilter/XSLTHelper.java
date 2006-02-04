@@ -92,6 +92,13 @@ public final class XSLTHelper {
     return result.toString();
   }
 
+  /**
+   * Escape quotes and back slashes for Python. One day, this might escape
+   * white space and non-printable characters too.
+   *
+   * @param value The string.
+   * @return The quoted string.
+   */
   public static String escape(String value) {
     final StringBuffer result = new StringBuffer(value.length());
 
