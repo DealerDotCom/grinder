@@ -86,7 +86,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     }
 
     if (location != null) {
-      final String[] result = new String[1];
+      final String[] result = { "" };
 
       m_uriParser.parse(location, new URIParser.AbstractParseListener() {
         public boolean pathParameterNameValue(String name, String value) {

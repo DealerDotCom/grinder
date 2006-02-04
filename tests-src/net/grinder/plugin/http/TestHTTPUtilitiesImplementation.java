@@ -117,22 +117,22 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
 
     final HTTPUtilities httpUtilities =
       new HTTPUtilitiesImplementation(m_pluginProcessContext);
-    assertNull(httpUtilities.valueFromLocationURI("foo"));
+    assertEquals("", httpUtilities.valueFromLocationURI("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
     request.GET(handler.getURL());
-    assertNull(httpUtilities.valueFromLocationURI("foo"));
+    assertEquals("", httpUtilities.valueFromLocationURI("foo"));
 
     handler.addHeader("Location", "http://www.w3.org/pub/WWW/People.html");
     request.GET(handler.getURL());
-    assertNull(httpUtilities.valueFromLocationURI("foo"));
+    assertEquals("", httpUtilities.valueFromLocationURI("foo"));
 
     handler.clearHeaders();
     handler.addHeader(
       "Location", "http://www.w3.org/pub/WWW/People.html?foo=bah&lah=dah");
     request.GET(handler.getURL());
     assertEquals("bah", httpUtilities.valueFromLocationURI("foo"));
-    assertNull(httpUtilities.valueFromLocationURI("bah"));
+    assertEquals("", httpUtilities.valueFromLocationURI("bah"));
 
     handler.clearHeaders();
     handler.addHeader(
@@ -147,6 +147,6 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     request.GET(handler.getURL());
     assertEquals("1234",
       httpUtilities.valueFromLocationURI("JSESSIONID"));
-    assertNull(httpUtilities.valueFromLocationURI("foo"));
+    assertEquals("", httpUtilities.valueFromLocationURI("foo"));
   }
 }
