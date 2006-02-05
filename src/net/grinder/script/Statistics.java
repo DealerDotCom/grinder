@@ -28,18 +28,19 @@ import net.grinder.statistics.StatisticsIndexMap;
  * Script statistics query and reporting API.
  *
  * <p>
- * An implementation of this interface can be obtained using {@link
- * Grinder.ScriptContext#getStatistics}. This can be used in a script to query
- * the result of a test. For example:
+ * An implementation of this interface can be obtained by calling {@link
+ * Grinder.ScriptContext#getStatistics getStatistics} on the
+ * {@link Grinder#grinder grinder} context object. This can be used in a script
+ * to query the result of a test. For example:
  *
  * <blockquote>
  *
  * <pre>
- *               result1 = test1.doSomething()
- *               timeTaken1 = grinder.statistics.time
+ *                   result1 = test1.doSomething()
+ *                   timeTaken1 = grinder.statistics.time
  *
- *               if grinder.statistics.success:
- *                 # ...
+ *                   if grinder.statistics.success:
+ *                     # ...
  * </pre>
  *
  * </blockquote>
@@ -65,15 +66,15 @@ import net.grinder.statistics.StatisticsIndexMap;
  * <blockquote>
  *
  * <pre>
- *               grinder.statistics.delayReports = 1
+ *   grinder.statistics.delayReports = 1
  *
- *               result1 = test1.doSomething()
+ *   result1 = test1.doSomething()
  *
- *               if isFailed(result1):
+ *   if isFailed(result1):
  *
- *                  # Mark test as failure. The appropriate failure detection
- *                  # depends on the type of test.
- *                  grinder.statistics.success = 0
+ *      # Mark test as failure. The appropriate failure detection
+ *      # depends on the type of test.
+ *      grinder.statistics.success = 0
  * </pre>
  *
  * </blockquote>
@@ -160,7 +161,7 @@ public interface Statistics  {
    * Sets the long statistic with index <code>index</code> to the
    * specified <code>value</code> for the last test.
    *
-   * @param index The statistic index.
+   * @param index The statistic index. See {@link #getStatisticsIndexMap()}.
    * @param value The value.
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
@@ -177,7 +178,7 @@ public interface Statistics  {
    * Sets the double statistic with index <code>index</code> to the
    * specified <code>value</code> for the last test .
    *
-   * @param index The statistic index.
+   * @param index The statistic index. See {@link #getStatisticsIndexMap()}.
    * @param value The value.
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
@@ -194,7 +195,7 @@ public interface Statistics  {
    * Add <code>value</code> to the long statistic with index
    * <code>index</code> for the last test.
    *
-   * @param index The statistic index.
+   * @param index The statistic index. See {@link #getStatisticsIndexMap()}.
    * @param value The value.
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
@@ -211,7 +212,7 @@ public interface Statistics  {
    * Add <code>value</code> to the double statistic with index
    * <code>index</code> for the last test.
    *
-   * @param index The statistic index.
+   * @param index The statistic index. See {@link #getStatisticsIndexMap()}.
    * @param value The value.
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
@@ -229,7 +230,7 @@ public interface Statistics  {
    * progress, or if the last test completed if there is no test in progress.
    *
    * @param index
-   *          The statistic index.
+   *          The statistic index. See {@link #getStatisticsIndexMap()}.
    * @return The value.
    * @throws InvalidContextException
    *           If called from a different thread to the thread in which the
@@ -244,7 +245,7 @@ public interface Statistics  {
    * progress, or if the last test completed if there is no test in progress.
    *
    * @param index
-   *          The statistic index.
+   *          The statistic index. See {@link #getStatisticsIndexMap()}.
    * @return The value.
    * @throws InvalidContextException
    *           If called from a different thread to the thread in which the
@@ -312,4 +313,11 @@ public interface Statistics  {
    *           test.
    */
   long getTime() throws InvalidContextException;
+
+  /**
+   * The {@link StatisticsIndexMap} is a registry of statistic index objects.
+   *
+   * @return The registry.
+   */
+  StatisticsIndexMap getStatisticsIndexMap();
 }

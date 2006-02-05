@@ -38,13 +38,15 @@ final class ScriptStatisticsImplementation implements Statistics {
 
   private final ThreadContextLocator m_threadContextLocator;
   private final TestStatisticsHelper m_testStatisticsHelper;
+  private final StatisticsIndexMap m_statisticsIndexMap;
 
   public ScriptStatisticsImplementation(
     ThreadContextLocator threadContextLocator,
-    TestStatisticsHelper testStatisticsHelper) {
+    TestStatisticsHelper testStatisticsHelper, StatisticsIndexMap map) {
 
     m_threadContextLocator = threadContextLocator;
     m_testStatisticsHelper = testStatisticsHelper;
+    m_statisticsIndexMap = map;
   }
 
   public void setDelayReports(boolean b) throws InvalidContextException {
@@ -142,5 +144,9 @@ final class ScriptStatisticsImplementation implements Statistics {
 
   public long getTime() throws InvalidContextException {
     return getDispatchContext().getElapsedTime();
+  }
+
+  public StatisticsIndexMap getStatisticsIndexMap() {
+    return m_statisticsIndexMap;
   }
 }

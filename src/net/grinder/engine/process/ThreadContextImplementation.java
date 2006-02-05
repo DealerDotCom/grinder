@@ -97,7 +97,8 @@ final class ThreadContextImplementation
     m_scriptStatistics =
       new ScriptStatisticsImplementation(
         processContext.getThreadContextLocator(),
-        processContext.getTestStatisticsHelper());
+        processContext.getTestStatisticsHelper(),
+        processContext.getStatisticsServices().getStatisticsIndexMap());
 
     registerThreadLifeCycleListener(
       new ThreadLifeCycleListener() {

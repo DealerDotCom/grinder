@@ -80,7 +80,12 @@ public class TestScriptStatisticsImplementation extends TestCase {
     final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
-          m_testStatisticsHelper);
+          m_testStatisticsHelper,
+          m_statisticsServices.getStatisticsIndexMap());
+
+    assertSame(
+      scriptStatistics.getStatisticsIndexMap(),
+      m_statisticsServices.getStatisticsIndexMap());
 
     // 1. Null thread context.
     assertFalse(scriptStatistics.availableForUpdate());
@@ -97,7 +102,9 @@ public class TestScriptStatisticsImplementation extends TestCase {
     m_threadContextLocator.set(m_threadContext);
     m_threadContextStubFactory.setResult("getScriptStatistics",
       new ScriptStatisticsImplementation(
-        m_threadContextLocator, m_testStatisticsHelper));
+        m_threadContextLocator,
+        m_testStatisticsHelper,
+        m_statisticsServices.getStatisticsIndexMap()));
 
     assertFalse(scriptStatistics.availableForUpdate());
 
@@ -139,7 +146,8 @@ public class TestScriptStatisticsImplementation extends TestCase {
     final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
-          m_testStatisticsHelper);
+          m_testStatisticsHelper,
+          m_statisticsServices.getStatisticsIndexMap());
     m_threadContextLocator.set(m_threadContext);
     m_threadContextStubFactory.setResult("getScriptStatistics", scriptStatistics);
 
@@ -162,7 +170,8 @@ public class TestScriptStatisticsImplementation extends TestCase {
     final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
-          m_testStatisticsHelper);
+          m_testStatisticsHelper,
+          m_statisticsServices.getStatisticsIndexMap());
     m_threadContextLocator.set(m_threadContext);
     m_threadContextStubFactory.setResult("getScriptStatistics", scriptStatistics);
 
@@ -201,7 +210,8 @@ public class TestScriptStatisticsImplementation extends TestCase {
     final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
-          m_testStatisticsHelper);
+          m_testStatisticsHelper,
+          m_statisticsServices.getStatisticsIndexMap());
     m_threadContextLocator.set(m_threadContext);
     m_threadContextStubFactory.setResult("getScriptStatistics", scriptStatistics);
 
