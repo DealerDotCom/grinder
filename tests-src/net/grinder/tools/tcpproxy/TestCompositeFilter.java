@@ -148,4 +148,14 @@ public class TestCompositeFilter extends TestCase {
     m_filter1StubFactory.assertNoMoreCalls();
     m_filter2StubFactory.assertNoMoreCalls();
   }
+
+  public void testToString() throws Exception {
+    final CompositeFilter composite = new CompositeFilter();
+    composite.add(m_filter1);
+    composite.add(m_filter2);
+    composite.add(m_filter1);
+
+    final String s = composite.toString();
+    assertNotNull(s);
+  }
 }

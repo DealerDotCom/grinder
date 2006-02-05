@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -143,10 +143,7 @@ public final class CompositeFilter implements TCPProxyFilter {
 
       final String fullName = filter.getClass().getName();
       final int lastDot = fullName.lastIndexOf(".");
-      final String shortName =
-        lastDot > 0 ? fullName.substring(lastDot + 1) : fullName;
-
-      result.append(shortName);
+      result.append(fullName.substring(lastDot + 1)); // Works for -1 too.
     }
 
     return result.toString();

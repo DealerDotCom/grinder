@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,7 @@ package net.grinder.tools.tcpproxy;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -135,5 +136,32 @@ public class TestTCPProxySocketFactories extends AbstractFileTestCase {
                                                      m_freeLocalPort));
     createdServerSocket2.close();
     createdLocalSocket2.close();
+  }
+
+  public void testUnhappyCases() throws Exception {
+
+    final TCPProxySocketFactory socketFactory =
+      new TCPProxySocketFactoryImplementation();
+
+    try {
+      socketFactory.createClientSocket(
+        new EndPoint("localhost", m_freeLocalPort));
+      fail("Expected VerboseConnectException");
+    }
+    catch (VerboseConnectException e) {
+      assertTrue(e.getCause() instanceof ConnectException);
+    }
+
+    final TCPProxySSLSocketFactory sslSocketFactory =
+      new TCPProxySSLSocketFactoryImplementation();
+
+    try {
+      sslSocketFactory.createClientSocket(
+        new EndPoint("localhost", m_freeLocalPort));
+      fail("Expected VerboseConnectException");
+    }
+    catch (VerboseConnectException e) {
+      assertTrue(e.getCause() instanceof ConnectException);
+    }
   }
 }
