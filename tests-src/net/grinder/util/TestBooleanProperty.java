@@ -71,6 +71,9 @@ public class TestBooleanProperty extends TestCase {
     catch (BooleanProperty.PropertyException e) {
       assertTrue(e.getCause() instanceof BeanException);
     }
+
+    // Can't think of a way to test the IllegalAccessException paths.
+    // The PropertyDescriptor only finds public fields.
   }
 
   public static class Bean {
