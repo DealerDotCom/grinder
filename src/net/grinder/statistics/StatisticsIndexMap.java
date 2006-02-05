@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000-2006 Philip Aston
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
 // All rights reserved.
@@ -30,11 +30,11 @@ import java.util.Map;
 
 
 /**
- * A register of statistic index objects.
+ * A registry of statistic index objects.
  *
  * <p>
  * Each statistic has a unique index object and a name. The index objects are
- * used with {@link net.grinder.script.Statistics}and the names can be used in
+ * used with {@link net.grinder.script.Statistics} and the names can be used in
  * expressions (see {@link ExpressionView}). Statistics can either be
  * <em>long</em> integer values (see {@link #getLongIndex}) or
  * <em>double</em> floating-point values ({@link #getDoubleIndex}).
@@ -49,9 +49,9 @@ import java.util.Map;
  * </p>
  *
  * <p>
- * Additionally, there are five long statistics that scripts and custom plug-ins
- * can use for their own purposes, <code>userLong0</code>,
- * <code>userLong1</code>, ... <code>userLong4</code>.
+ * There are five long statistics that scripts and custom plug-ins can use for
+ * their own purposes, <code>userLong0</code>, <code>userLong1</code>, ...
+ * <code>userLong4</code>.
  * </p>
  *
  * <p>
@@ -62,17 +62,24 @@ import java.util.Map;
  * </p>
  *
  * <p>
- * Additionally, there are five double statistics for use by scripts and custom
- * plugins, <code>userDouble0</code>,<code>userDouble1</code>, ...
+ * There are five double statistics for use by scripts and custom plug-ins,
+ * <code>userDouble0</code>,<code>userDouble1</code>, ...
  * <code>userDouble4</code>.
  * </p>
  *
+ * <h4>HTTP Plug-in Statistics</h4>
+ *
+ * The HTTP Plugin adds a number of statistics. These are have their own special
+ * indicies. They can be accessed using the well known names which the class
+ * constants beginning with HTTP, e.g. {@link #HTTP_PLUGIN_CONNECT_TIME_KEY}.
+ *
+ * <h4>Sample Statistics</h4>
+ *
  * <p>
  * There is a special type of index object for <em>sample</em> statistics, see
- * {@link LongSampleIndex},{@link #getLongSampleIndex},
- * {@link DoubleSampleIndex},{@link #getDoubleSampleIndex}. Sample statistics
- * are the result of a series of sample values. The values can be either
- * <em>long</em>s or <em>double</em>s. Sample statistics have three
+ * {@link #getLongSampleIndex} and {@link #getDoubleSampleIndex}. Sample
+ * statistics are the result of a series of sample values. The values can be
+ * either <em>long</em>s or <em>double</em>s. Sample statistics have three
  * attribute values that can be read: the <em>count</em> (number of samples),
  * <em>sum</em> (total of all sample values), and sample <em>variance</em>.
  * These attributes can be queried using the appropriate expression function
@@ -111,42 +118,42 @@ public final class StatisticsIndexMap implements Serializable {
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
-   * indicies.
+   * indicies. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_RESPONSE_STATUS_KEY =
     "httpplugin.responseStatusKey";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
-   * indicies.
+   * indicies. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_RESPONSE_LENGTH_KEY =
     "httpplugin.responseLengthKey";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
-   * indices.
+   * indices. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_RESPONSE_ERRORS_KEY =
     "httpplugin.responseErrorsKey";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
-   * indices.
+   * indices. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_DNS_TIME_KEY =
     "httpplugin.dnsTimeKey";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
-   * indices.
+   * indices. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_CONNECT_TIME_KEY =
     "httpplugin.connectTimeKey";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
-   * indices.
+   * indices. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_FIRST_BYTE_TIME_KEY =
     "httpplugin.firstByteTimeKey";
@@ -334,7 +341,7 @@ public final class StatisticsIndexMap implements Serializable {
   }
 
   /**
-   * Opaque object that represents a double statistic.
+   * Class of opaque objects that represent <code>double</code> statistics.
    */
   public static final class DoubleIndex extends AbstractSimpleIndex {
     private DoubleIndex(int i) {
@@ -343,7 +350,7 @@ public final class StatisticsIndexMap implements Serializable {
   }
 
   /**
-   * Opaque object that represents a long statistic.
+   * Class of opaque objects that represent <code>long</code> statistics.
    */
   public static final class LongIndex extends AbstractSimpleIndex {
     private LongIndex(int i) {
@@ -391,8 +398,8 @@ public final class StatisticsIndexMap implements Serializable {
   }
 
   /**
-   * Object that represents a sample statistic with <code>double</code> sample
-   * values.
+   * Class of objects that represent sample statistics with <code>double</code>
+   * sample values.
    */
   public static final class DoubleSampleIndex extends SampleIndex {
     private final DoubleIndex m_sumIndex;
@@ -419,8 +426,8 @@ public final class StatisticsIndexMap implements Serializable {
   }
 
   /**
-   * Object that represents a sample statistic with <code>long</code> sample
-   * values.
+   * Class of objects that represent sample statistics with <code>long</code>
+   * sample values.
    */
   public static final class LongSampleIndex extends SampleIndex {
     private final LongIndex m_sumIndex;
