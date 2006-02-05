@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -125,32 +125,4 @@ public final class TerminalColour {
   private static String controlString(String body) {
     return (char)0033 + "[" + body + 'm';
   }
-
-  /**
-   * Simple test method.
-   *
-   * @param args Command line arguments.
-   */
-  public static void main(String[] args) {
-
-    System.out.println(BLACK + "black");
-    System.out.println(RED + "red");
-    System.out.println(BLUE + "blue");
-    System.out.println(GREEN_BACKGROUND + "green background");
-    System.out.println(MAGENTA + "magenta");
-    System.out.println(BLUE_BACKGROUND + "blue background");
-    System.out.println(WHITE + "white");
-    System.out.println(BLACK_BACKGROUND + "black background");
-    System.out.println(GREEN + "green");
-    System.out.println(RED_BACKGROUND + "red background");
-    System.out.println(YELLOW_BACKGROUND + "yellow background");
-    System.out.println(MAGENTA_BACKGROUND + "magenta background");
-    System.out.println(YELLOW + "yellow");
-    System.out.println(CYAN_BACKGROUND + "cyan background");
-    System.out.println(WHITE_BACKGROUND + "white background");
-    System.out.println(CYAN + "cyan");
-    System.out.println(NONE + "none");
-
-    System.out.println();
-  }
-} // Colour
+}
