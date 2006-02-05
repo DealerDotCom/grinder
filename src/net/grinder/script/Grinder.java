@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,12 +45,6 @@ public class Grinder {
    * Scripts can get contextual information through a global
    * <code>net.grinder.script.Grinder.grinder</code> object that
    * supports this interface.
-   *
-   * <p>Whilst this <code>grinder</code> object is implicitly
-   * available to all scripts, it is good practice to add an explict
-   * import (<code>from net.grinder.script.Grinder import grinder
-   * </code>) to the top of your scripts so that they can be called as
-   * Python modules from other scripts.
    *
    * @author Philip Aston
    * @version $Revision$
