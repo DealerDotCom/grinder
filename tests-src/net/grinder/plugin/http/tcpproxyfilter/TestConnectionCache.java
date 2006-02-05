@@ -62,60 +62,83 @@ public class TestConnectionCache extends TestCase {
     m_connectionHandlerFactoryStubFactory.assertNoMoreCalls();
   }
 
-  public void testOpenAndClose() throws Exception {
-    final ConnectionCache connectionMap =
+  public void testConnectionCache() throws Exception {
+    final ConnectionCache connectionCache =
       new ConnectionCache(m_connectionHandlerFactory);
 
-    connectionMap.open(m_connectionDetails);
+    connectionCache.open(m_connectionDetails);
     m_connectionHandlerFactoryStubFactory.assertSuccess(
       "create", m_connectionDetails);
 
     try {
-      connectionMap.open(m_connectionDetails);
+      connectionCache.open(m_connectionDetails);
       fail("Expected IllegalArgumentException");
     }
     catch (IllegalArgumentException e) {
     }
 
-    connectionMap.close(m_connectionDetails);
+    connectionCache.close(m_connectionDetails);
 
     try {
-      connectionMap.close(m_connectionDetails);
+      connectionCache.close(m_connectionDetails);
       fail("Expected IllegalArgumentException");
     }
     catch (IllegalArgumentException e) {
     }
 
     try {
-      connectionMap.request(m_connectionDetails, new byte[100], 56);
+      connectionCache.request(m_connectionDetails, new byte[100], 56);
       fail("Expected IllegalArgumentException");
     }
     catch (IllegalArgumentException e) {
     }
 
-    connectionMap.dispose();
+    try {
+      connectionCache.response(m_connectionDetails.getOtherEnd(), new byte[100], 56);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
 
-    final ConnectionCache connectionMap2 =
+    connectionCache.dispose();
+
+    final ConnectionCache connectionCache2 =
       new ConnectionCache(m_connectionHandlerFactory);
 
-    connectionMap2.open(m_connectionDetails);
+    connectionCache2.open(m_connectionDetails);
     m_connectionHandlerFactoryStubFactory.assertSuccess(
       "create", m_connectionDetails);
 
-    connectionMap2.request(m_connectionDetails, new byte[10], 0);
-    connectionMap2.request(m_connectionDetails, new byte[20], 0);
+    connectionCache2.request(m_connectionDetails, new byte[10], 0);
+    connectionCache2.request(m_connectionDetails, new byte[20], 0);
 
     try {
-      connectionMap.request(m_connectionDetails2, new byte[10], 0);
+      connectionCache.request(m_connectionDetails2, new byte[10], 0);
       fail("Expected IllegalArgumentException");
     }
     catch (IllegalArgumentException e) {
     }
 
-    connectionMap2.dispose(); // Closes all handlers.
+    connectionCache2.response(m_connectionDetails.getOtherEnd(), new byte[20], 0);
 
     try {
-      connectionMap.request(m_connectionDetails, new byte[10], 5);
+      connectionCache.response(m_connectionDetails2.getOtherEnd(), new byte[10], 0);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
+
+    connectionCache2.dispose(); // Closes all handlers.
+
+    try {
+      connectionCache.request(m_connectionDetails, new byte[10], 5);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
+
+    try {
+      connectionCache.response(m_connectionDetails.getOtherEnd(), new byte[10], 5);
       fail("Expected IllegalArgumentException");
     }
     catch (IllegalArgumentException e) {
