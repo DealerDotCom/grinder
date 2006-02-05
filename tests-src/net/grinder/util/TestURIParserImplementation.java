@@ -70,6 +70,10 @@ public class TestURIParserImplementation extends TestCase {
     m_parseListenerStubFactory.assertSuccess("path", "/bah dah");
     m_parseListenerStubFactory.assertSuccess("queryString", "Bw");
     m_parseListenerStubFactory.assertNoMoreCalls();
+
+    // Broken escapes.
+    parser.parse("http://foo:1234/bah%20dah?%42%77", m_parseListener);
+
   }
 
   public void testParseTermination() {
@@ -111,6 +115,38 @@ public class TestURIParserImplementation extends TestCase {
     m_parseListenerStubFactory.assertSuccess("path", "/path");
     m_parseListenerStubFactory.assertSuccess("queryString", "queryString");
     m_parseListenerStubFactory.assertSuccess("fragment", "fragment");
+    m_parseListenerStubFactory.assertNoMoreCalls();
+
+    parser.parse("scheme://authority/path;stop=value?queryString#fragment", m_parseListener);
+    m_parseListenerStubFactory.assertSuccess("scheme", "scheme");
+    m_parseListenerStubFactory.assertSuccess("authority", "authority");
+    m_parseListenerStubFactory.assertSuccess("path", "/path;");
+    m_parseListenerStubFactory.assertSuccess("pathParameterNameValue", "stop", "value");
+    m_parseListenerStubFactory.assertNoMoreCalls();
+
+    parser.parse("scheme://authority/path;foo=bah&==name=value?queryString#fragment", m_parseListener);
+    m_parseListenerStubFactory.assertSuccess("scheme", "scheme");
+    m_parseListenerStubFactory.assertSuccess("authority", "authority");
+    m_parseListenerStubFactory.assertSuccess("path", "/path;");
+    m_parseListenerStubFactory.assertSuccess("pathParameterNameValue", "foo", "bah");
+    m_parseListenerStubFactory.assertSuccess("path", "&==");
+    m_parseListenerStubFactory.assertNoMoreCalls();
+
+    parser.parse("scheme://authority/path?name=value&stop=foo", m_parseListener);
+    m_parseListenerStubFactory.assertSuccess("scheme", "scheme");
+    m_parseListenerStubFactory.assertSuccess("authority", "authority");
+    m_parseListenerStubFactory.assertSuccess("path", "/path");
+    m_parseListenerStubFactory.assertSuccess("queryStringNameValue", "name", "value");
+    m_parseListenerStubFactory.assertSuccess("queryString", "&");
+    m_parseListenerStubFactory.assertSuccess("queryStringNameValue", "stop", "foo");
+    m_parseListenerStubFactory.assertNoMoreCalls();
+
+    parser.parse("scheme://authority/path?foo=bah&==name=value", m_parseListener);
+    m_parseListenerStubFactory.assertSuccess("scheme", "scheme");
+    m_parseListenerStubFactory.assertSuccess("authority", "authority");
+    m_parseListenerStubFactory.assertSuccess("path", "/path");
+    m_parseListenerStubFactory.assertSuccess("queryStringNameValue", "foo", "bah");
+    m_parseListenerStubFactory.assertSuccess("queryString", "&==");
     m_parseListenerStubFactory.assertNoMoreCalls();
   }
 
@@ -165,7 +201,7 @@ public class TestURIParserImplementation extends TestCase {
     }
 
     public boolean path(String path) {
-      return !path.equals("/stop");
+      return !path.equals("/stop") && !path.equals("&==");
     }
 
     public boolean pathParameterNameValue(String name, String value) {
@@ -173,7 +209,7 @@ public class TestURIParserImplementation extends TestCase {
     }
 
     public boolean queryString(String queryString) {
-      return !queryString.equals("stop");
+      return !queryString.equals("stop") && !queryString.equals("&==");
     }
 
     public boolean queryStringNameValue(String name, String value) {

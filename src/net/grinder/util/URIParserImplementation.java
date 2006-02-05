@@ -90,64 +90,60 @@ public final class URIParserImplementation implements URIParser {
       }
     }
 
-    if (path != null) {
-      final Matcher nameValueMatcher = m_pathNameValuePattern.matcher(path);
+    final Matcher pathNameValueMatcher = m_pathNameValuePattern.matcher(path);
 
-      int i = 0;
+    int lastText = 0;
 
-      while (nameValueMatcher.find()) {
-        final int start = nameValueMatcher.start();
+    while (pathNameValueMatcher.find()) {
+      final int start = pathNameValueMatcher.start();
 
-        if (start != i) {
-          if (!listener.path(unescapePath(path.substring(i, start)))) {
-            return;
-          }
-        }
-
-        if (!listener.pathParameterNameValue(
-          unescapePath(nameValueMatcher.group(1)),
-          unescapePath(nameValueMatcher.group(2)))) {
-          return;
-        }
-
-        i = nameValueMatcher.end();
+      if (!listener.path(unescapePath(path.substring(lastText, start)))) {
+        return;
       }
 
-      if (path.length() != i) {
-        if (!listener.path(unescapePath(path.substring(i)))) {
-          return;
-        }
+      if (!listener.pathParameterNameValue(
+        unescapePath(pathNameValueMatcher.group(1)),
+        unescapePath(pathNameValueMatcher.group(2)))) {
+        return;
+      }
+
+      lastText = pathNameValueMatcher.end();
+    }
+
+    if (path.length() != lastText) {
+      if (!listener.path(unescapePath(path.substring(lastText)))) {
+        return;
       }
     }
 
     if (queryString != null) {
-      final Matcher nameValueMatcher =
+      final Matcher queryNameValueMatcher =
         m_queryStringNameValuePattern.matcher(queryString);
 
-      int i = 0;
+      lastText = 0;
 
-      while (nameValueMatcher.find()) {
-        final int start = nameValueMatcher.start();
+      while (queryNameValueMatcher.find()) {
+        final int start = queryNameValueMatcher.start();
 
-        if (start != i) {
+        if (start != lastText) {
           if (!listener.queryString(
-            unescapeQueryString(queryString.substring(i, start)))) {
+            unescapeQueryString(queryString.substring(lastText, start)))) {
             return;
           }
         }
 
         if (!listener.queryStringNameValue(
-          unescapeQueryString(nameValueMatcher.group(1)),
-          unescapeQueryString(nameValueMatcher.group(2)))) {
+          unescapeQueryString(queryNameValueMatcher.group(1)),
+          unescapeQueryString(queryNameValueMatcher.group(2)))) {
           return;
         }
 
-        i = nameValueMatcher.end();
+        lastText = queryNameValueMatcher.end();
       }
 
-      if (queryString.length() != i) {
+      if (queryString.length() != lastText) {
         if (!listener.queryString(
-          unescapeQueryString(queryString.substring(i)))) {
+          unescapeQueryString(queryString.substring(lastText)))) {
           return;
         }
       }
@@ -173,6 +169,8 @@ public final class URIParserImplementation implements URIParser {
       return URI.unescape(text, null);
     }
     catch (ParseException pe) {
+      // With the current URI.unescape() implementation, ParseExceptions are
+      // never thrown.
       return text;
     }
   }
@@ -192,6 +190,8 @@ public final class URIParserImplementation implements URIParser {
       return URI.unescape(text, URI.resvdPathChar);
     }
     catch (ParseException pe) {
+      // With the current URI.unescape() implementation, ParseExceptions are
+      // never thrown.
       return text;
     }
   }
@@ -211,6 +211,8 @@ public final class URIParserImplementation implements URIParser {
       return URI.unescape(text, URI.resvdQueryChar);
     }
     catch (ParseException pe) {
+      // With the current URI.unescape() implementation, ParseExceptions are
+      // never thrown.
       return text;
     }
   }

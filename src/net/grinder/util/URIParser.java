@@ -126,7 +126,7 @@ public interface URIParser {
   /**
    * Null implementation of {@link ParseListener}.
    */
-  class AbstractParseListener implements ParseListener {
+  abstract class AbstractParseListener implements ParseListener {
 
     public boolean scheme(String scheme) {
       return true;
