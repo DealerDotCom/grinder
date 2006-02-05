@@ -121,4 +121,13 @@ public class TestXSLTHelper extends TestCase {
     assertEquals("' \\\\ '", XSLTHelper.quoteForPython(" \\ "));
     assertEquals("'''foo \n bah'''", XSLTHelper.quoteForPython("foo \n bah"));
   }
+
+  public void testEscape() throws Exception {
+    assertEquals("", XSLTHelper.escape(""));
+    assertEquals("\\'", XSLTHelper.escape("'"));
+    assertEquals("\\\"", XSLTHelper.escape("\""));
+    assertEquals("\\\\", XSLTHelper.escape("\\"));
+    assertEquals("Hello \\'quoted\\\" \\\\world",
+                 XSLTHelper.escape("Hello 'quoted\" \\world"));
+  }
 }
