@@ -83,9 +83,9 @@ public final class RegularExpressionsImplementation
       "^Authorization[ \\t]*:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*?\\r?\\n",
       Pattern.MULTILINE | Pattern.UNIX_LINES);
 
-    // Ignore maximum amount of stuff that's not a '?', ';', or '#' followed by
-    // a '/', then grab the next until the first '?', ';', or '#'.
-    m_lastPathElementPathPattern = Pattern.compile("^[^\\?;#]*/([^\\?;#]*)");
+    // Ignore maximum amount of stuff that's not a '?', or '#' followed by
+    // a '/', then grab the next until the first ';', '?', or '#'.
+    m_lastPathElementPathPattern = Pattern.compile("^[^\\?#]*/([^\\?;#]*)");
   }
 
   /**
