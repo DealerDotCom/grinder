@@ -410,11 +410,12 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     }
   }
 
-  private final class CommonHeadersMap {
+  private static final class CommonHeadersMap {
     private Map m_map = new HashMap();
     private IntGenerator m_idGenerator = new IntGenerator();
 
-    public void extractCommonHeaders(RequestType request) {
+    public void extractCommonHeaders(
+      HTTPRecordingType httpRecording, RequestType request) {
 
       final CommonHeadersType commonHeaders =
         CommonHeadersType.Factory.newInstance();
@@ -451,10 +452,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         else {
           commonHeaders.setHeadersId("headers" + m_idGenerator.next());
 
-          synchronized (m_recordingDocument) {
-            m_recordingDocument.getHttpRecording().addNewCommonHeaders()
-            .set(commonHeaders);
-          }
+          httpRecording.addNewCommonHeaders().set(commonHeaders);
 
           m_map.put(key, commonHeaders);
 
@@ -496,7 +494,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
             continue;
           }
 
-          m_commonHeadersMap.extractCommonHeaders(request);
+          m_commonHeadersMap.extractCommonHeaders(httpRecording, request);
 
           synchronized (m_recordingDocument) {
             // Crude but effective pagination heuristics.
@@ -562,7 +560,6 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
             }
           }
 
-          //
           final String partToken = tokenID.toString();
           final Integer existingValue =
             (Integer)m_uniqueTokenIDs.get(partToken);
@@ -573,7 +570,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
                               new Integer(existingValue.intValue() + 1));
           }
           else {
-            m_uniqueTokenIDs.put(partToken, new Integer(0));
+            m_uniqueTokenIDs.put(partToken, new Integer(2));
           }
 
           newToken.setTokenId(tokenID.toString());
@@ -613,24 +610,6 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
       public void setLastValue(String lastValue) {
         m_lastValue = lastValue;
-      }
-
-      public int hashCode() {
-        return m_token.hashCode();
-      }
-
-      public boolean equals(Object o) {
-        if (o == this) {
-          return true;
-        }
-
-        if (!(o instanceof TokenValuePair)) {
-          return false;
-        }
-
-        final TokenValuePair other = (TokenValuePair)o;
-
-        return getToken().equals(other.getToken());
       }
     }
   }
