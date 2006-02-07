@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,15 +42,10 @@ public abstract class AbstractFileTestCase extends TestCase {
 
   private File m_directory;
 
-  protected void setUp() throws Exception {
-    m_directory = File.createTempFile(getClass().getName(), "test");
-    m_directory.delete();
-    m_directory.mkdir();
-    m_directory.deleteOnExit();
-  }
-
   protected void tearDown() throws Exception {
-    delete(m_directory);
+    if (m_directory != null) {
+      delete(m_directory);
+    }
   }
 
   private static void delete(File f) throws Exception {
@@ -73,7 +68,14 @@ public abstract class AbstractFileTestCase extends TestCase {
     }
   }
 
-  protected final File getDirectory() {
+  protected final File getDirectory() throws IOException {
+    if (m_directory == null) {
+      m_directory = File.createTempFile(getClass().getName(), "test");
+      m_directory.delete();
+      m_directory.mkdir();
+      m_directory.deleteOnExit();
+    }
+
     return m_directory;
   }
 
