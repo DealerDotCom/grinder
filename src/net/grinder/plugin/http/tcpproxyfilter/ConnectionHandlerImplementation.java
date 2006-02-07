@@ -430,13 +430,13 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
               new FileOutputStream(file);
             dataStream.write(bytes, 0, bytes.length);
             dataStream.close();
+
+            body.setFile(file.getPath());
           }
           catch (IOException e) {
             m_logger.error("Failed to write body data to '" + file + "'");
             e.printStackTrace(m_logger.getErrorLogWriter());
           }
-
-          body.setFile(file.getPath());
         }
         else {
           final String iso88591String;
