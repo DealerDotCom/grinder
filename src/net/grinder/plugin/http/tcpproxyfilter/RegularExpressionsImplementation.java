@@ -80,7 +80,7 @@ public final class RegularExpressionsImplementation
       Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     m_basicAuthorizationHeaderPattern = Pattern.compile(
-      "^Authorization[ \\t]*:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*?\\r?\\n",
+      "^Authorization[ \\t]*:[ \\t]*Basic[ \\t]+([a-zA-Z0-9+/]*=*).*?\\r?\\n",
       Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     // Ignore maximum amount of stuff that's not a '?', or '#' followed by
