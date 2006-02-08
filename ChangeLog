@@ -1,4 +1,424 @@
+2006-02-08  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java, tests-src/net/grinder/plugin/http/HTTPRequestHandler.java, tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java:
+	valueFromBodyURI().
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressions.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressionsImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestRegularExpressionsImplementation.java:
+	Record tokens from hyperlinks in response bodies.
+
+2006-02-07  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/testutility/AbstractFileTestCase.java:
+	Create directory on demand.
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java:
+	More tests.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java:
+	Don't set the file name if the file couldn't be created.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressionsImplementation.java:
+	Correct Basic Authorization expression.
+
+2006-02-06  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java:
+	Coverage.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java:
+	Fix common header extraction.
+	TokenValuePair doesn't require equality semantics.
+	Start unique token name suffix numbers from 2.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressionsImplementation.java:
+	Fix last path element expression to look past path parameters.
+
+2006-02-05  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestXSLTHelper.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionCache.java:
+	Coverage.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java:
+	Remove TODO.
+
+	* CHANGES, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/script/Statistics.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java:
+	Add getStatisticsIndexMap to script statistics interface.
+
+	* src/net/grinder/script/Grinder.java, src/net/grinder/statistics/StatisticsIndexMap.java:
+	Improve Javadoc.
+
+	* src/net/grinder/tools/tcpproxy/CompositeFilter.java, tests-src/net/grinder/tools/tcpproxy/TestCompositeFilter.java, tests-src/net/grinder/tools/tcpproxy/TestTCPProxySocketFactories.java:
+	Coverage.
+
+	* src/net/grinder/util/TerminalColour.java:
+	Remove redundant test method.
+
+	* tests-src/net/grinder/util/TestBooleanProperty.java:
+	Comment on coverage.
+
+	* src/net/grinder/util/URIParser.java, src/net/grinder/util/URIParserImplementation.java, tests-src/net/grinder/util/TestAbstractParseListener.java, tests-src/net/grinder/util/TestURIParserImplementation.java:
+	Tests and coverage.
+
+2006-02-04  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerFactoryImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java:
+	Make tests compile and run.
+
+	* src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java, tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java:
+	Don't return null if token values are missing. Makes the scripts to brittle.
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java:
+	Add annotation comments for requests that result in a redirect.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java: Javadoc.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Fix some quoting.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java:
+	Only accumulate sleep time for the first request after a response.
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactoryImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressions.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressionsImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Remove page and request IDs from schema.
+	Change HTTPRecording contract so that requests are added in order.
+
+	* src/net/grinder/plugin/http/HTTPUtilities.java, src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java:
+	Don't return null if token values are missing. Makes the scripts to brittle.
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java:
+	Remove redundant import.
+
+2006-02-01  Philip Aston  <philipa@mail.com>
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java:
+	Further work on URI parsing.
+	New values do not mean a new token, so we handle with duplicate click/back button protection tokens.
+	Tokens that were not found in responses are initialised to literals.
+
+2006-01-30  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPUtilities.java, src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java, etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl, src/net/grinder/util/URIParser.java, src/net/grinder/util/URIParserImplementation.java, tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java, tests-src/net/grinder/util/TestURIParserImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressions.java:
+	Standardise URI parsing. Capture tokens from query strings.
+
+2006-01-29  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPRequest.java: Don't drop fragment.
+
+2006-01-28  Philip Aston  <philipa@mail.com>
+
+	* .settings/org.eclipse.core.resources.prefs, etc/tcpproxy-http.xsd, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPUtilities.java, src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl, tests-src/net/grinder/plugin/http/HTTPRequestHandler.java, tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/plugin/http/HTTPPluginThreadState.java, src/net/grinder/plugin/http/HTTPRequest.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionCache.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerFactoryImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRequestFilter.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPResponseFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionCache.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandler.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactory.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPFilterEventListener.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPResponseFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressions.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactoryImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java:
+	Automatic recording, parsing, and replay of name value tokens.
+	Checkpoint 1: working for path parameters.
+
+2006-01-26  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPPluginThreadState.java:
+	Remove out of date comment.
+
+2006-01-24  Philip Aston  <philipa@mail.com>
+
+	* etc/checkstyle.xml: Allow long import lines.
+
+	* etc/checkstyle.xml: Fix.
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestProcessHTTPRecordingWithXSLT.java:
+	Just report location information in messages, rather than full stack trace.
+
+2006-01-23  Philip Aston  <philipa@mail.com>
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java:
+	Parse URI path parameters.
+
+2006-01-22  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	Fix warnings.
+
+2006-01-20  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/jython/InstrumentedPyInstance.java:
+	Correct spelling in comment.
+
+	* etc/checkstyle.xml:
+	Switch off RedundantImport as it prevents importing of both a class and one of its nested classes.
+
+	* src/net/grinder/engine/process/jython/InstrumentedPyInstance.java, src/net/grinder/engine/process/jython/PyObjectCache.java, tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java:
+	Remove broken caching of PyMethods.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java:
+	Remove redundant final modifier.
+
+2006-01-19  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Better test numbering and comments.
+
+	* src/net/grinder/TCPProxy.java: Improve usage message.
+
+	* src/net/grinder/TCPProxy.java: Only try to stop the filter once.
+
+	* etc/setenv.sh, etc/grinder-manifest.mf: Fix manifest classpath.
+
+	* build.xml: Fix ANT build to compile J2SE 1.4 source, xmlbeans.
+	Include xsl resources in jar.
+
+	* src/net/grinder/TCPProxy.java: Stop picocontainer in shutdown hook.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/resources/httpRecordingToJythonScript.xsl:
+	Dead.
+
+2006-01-18  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java:
+	Just report location information in messages, rather than full stack trace.
+
+2006-01-17  Philip Aston  <philipa@mail.com>
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Instrument pages.
+
+	* src/org/python/core/ClonePyInstance.java, CHANGES, tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java, src/net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java, src/net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java, src/net/grinder/engine/process/jython/JythonScriptEngine.java:
+	Add __target__ field to test proxies.
+
+2006-01-15  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugininterface/PluginThreadContext.java, CHANGES, TODO, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ScriptEngine.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/ThreadDataWriter.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/script/Statistics.java, tests-src/net/grinder/engine/process/StubTestRegistry.java, tests-src/net/grinder/engine/process/TestRegisteredPlugin.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/engine/process/TestTestRegistry.java, tests-src/net/grinder/engine/process/TestThreadContextImplementation.java, tests-src/net/grinder/engine/process/TestThreadDataWriter.java, src/net/grinder/engine/process/DispatchContext.java, src/net/grinder/engine/process/DispatchResultReporter.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/TestStatisticsHelper.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadContextImplementation.java:
+	Support nested Tests.
+
+	* TODO: Reminder to fix log line truncation.
+
+	* .settings/org.eclipse.jdt.ui.prefs: New template.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestXSLTHelper.java:
+	Static state needs to be reset.
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestProcessHTTPRecordingWithXSLT.java:
+	Redirect streams around tests to shut up XSLTC.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestProcessHTTPRecordingWithXSLT.java:
+	XSLT transformation & tests now work with Xalan (JDK 1.4) and XSLTC (JDK 1.5).
+
+2006-01-14  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestXSLTHelper.java:
+	XSLTHelper methods needs to be static to avoid differences between JDK versions.
+
+	* tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java:
+	Test.
+
+2006-01-11  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestProcessHTTPRecordingWithXSLT.java, src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java:
+	Add ErrorListener.
+
+2006-01-09  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/engine/process/TestStopWatchImplementation.java, src/net/grinder/engine/process/StopWatch.java, src/net/grinder/engine/process/StopWatchImplementation.java:
+	Simple timer.
+
+	* LICENSE, build.xml, src/net/grinder/console/swingui/resources/about.html:
+	Happy New Year.
+
+2006-01-08  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/ThreadDataWriter.java, tests-src/net/grinder/engine/process/TestThreadDataWriter.java:
+	Code for writing to the data file deserves its own class.
+
+2006-01-07  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/ScriptEngine.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/engine/process/jython/InstrumentedPyInstance.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java, src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java, src/net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java, src/net/grinder/engine/process/jython/JythonScriptEngine.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	s/invo[ck]e?able/callable/gi
+
+	* tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java, src/net/grinder/engine/process/ScriptEngine.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/jython/JythonScriptEngine.java:
+	Move protection for multiple invocations of a test by same thread from the Jython script engine to TestData.
+
+	* src/net/grinder/plugininterface/PluginThreadContext.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java:
+	Minor refactoring of TestData to reduce coupling.
+
+2006-01-06  Philip Aston  <philipa@mail.com>
+
+	* TODO: Stop the recording when last thread terminates.
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestProcessHTTPRecordingWithXSLT.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/resources/identity.xsl:
+	Unit tests.
+
+2006-01-05  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRequestFilter.java:
+	Unit tests.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java:
+	Record "If-None-Matched" header.
+	Tighten up header regexps.
+	Fix generation of large body file names.
+	If last path element can't be matched, base description on full path.
+	Allow unit tests to specify the output directory.
+	Content-Type is optional.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/IntGenerator.java:
+	Extract IntGenerator to package scope.
+
+	* tests-src/net/grinder/testutility/XMLBeansUtilities.java:
+	No need to extend Assert.
+
+	* etc/tcpproxy-http.xsd: Body content type is optional.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java:
+	Throw consistent exception if an unknown handler is requested.
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPResponseFilter.java:
+	Unit tests.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java:
+	Only allow a Handler to be opened once - symmetric policy with closeHandle().
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestXSLTHelper.java, tests-src/net/grinder/testutility/XMLBeansUtilities.java:
+	Unit tests.
+
+	* src/net/grinder/script/InvalidContextException.java, src/net/grinder/script/NotWrappableTypeException.java:
+	Remove unused constructors.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java:
+	Correct calculation of default headers.
+
+2006-01-04  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/util/thread/TestMonitor.java:
+	Unit tests for Monitor.
+
+	* tests-src/net/grinder/testutility/Time.java: Javadoc spelling.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java:
+	Fix accidental assignment.
+
+	* etc/tcpproxy-http.xsd: Every page has at least one request.
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPResponseFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/.cvsignore, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Group requests into pages.
+
+2006-01-02  Philip Aston  <philipa@mail.com>
+
+	* build.xml, etc/.cvsignore, etc/httpToXML.xsl, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Update TCPProxy command line options for new HTTP Plug-in filter.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/OutputRecordingAsXML.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/recording.xml:
+	Removed.
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpRecordingToJythonScript.xsl:
+	Refactor heading parsing.
+	Default headers that apply to all requests are now identified.
+	Fix bug due to HttpRequest.POST etc. not accepting a parsed query string.
+
+2005-12-31  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/plugin/http/HTTPUtilities.java, src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPResponseFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpRecordingToJythonScript.xsl, src/net/grinder/plugin/http/tcpproxyfilter/resources/recording.xml:
+	Third checkpoint of HTTP XML filter.
+	Basic Authorization now works.
+
+2005-12-30  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/tools/tcpproxy/ConnectionDetails.java, tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java:
+	Remove ConnectionDetails.getURLBase().
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/OutputRecordingAsScript.java, src/net/grinder/plugin/http/tcpproxyfilter/OutputRecordingAsXML.java, src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java, src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpRecordingToJythonScript.xsl, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpRecordingToScript.xsl, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestXSLTHelper.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingResultProcessor.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java:
+	Third checkpoint of HTTP XML filter.
+	Added handling of various body types.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	setDataFromFile now returns the data.
+
+	* src/net/grinder/TCPProxy.java: Remove deprecated -output option.
+	Add -debug option which makes the filter PicoContainer verbose.
+
+2005-12-29  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Fix typo.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java: Remove TODO.
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPToXMLRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpRecordingToScript.xsl, src/net/grinder/plugin/http/tcpproxyfilter/resources/recording.xml, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingResultProcessor.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPResponseFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPToXMLResponseFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/OutputRecordingAsScript.java, src/net/grinder/plugin/http/tcpproxyfilter/OutputRecordingAsXML.java, src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java:
+	Second checkpoint of HTTP XML filter.
+	Now can generate script using stylesheet.
+
+	* tests-src/net/grinder/plugin/http/TestHTTPRequest.java, src/net/grinder/plugin/http/HTTPRequest.java:
+	Handle relative paths that start with two slashes.
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPRequest.java, tests-src/net/grinder/plugin/http/HTTPRequestHandler.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	Changes to net.grinder.plugin.http.HTTPRequest:
+	- Removed addHeader(), deleteHeader()
+	- NVPair[] arrays passed to GET, POST, etc. are now merged with the
+	default values held by the HTTPRequest. Previously they overrode the
+	default values.
+
+2005-12-28  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/TCPProxy.java:
+	Allow general components to be added to the filter PicoContainer.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPToXMLRequestFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPToXMLResponseFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/RequestStreamToXMLFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/ResponseEventListener.java:
+	Add HTTP response filter.
+
+	* build.xml, etc/localpaths.properties, src/net/grinder/plugin/http/tcpproxyfilter/RequestStreamToXMLFilter.java, LICENSE, LICENSE-PicoContainer, src/net/grinder/TCPProxy.java, src/net/grinder/console/swingui/resources/about.html, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter2.java, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/CompositeFilter.java, src/net/grinder/tools/tcpproxy/ConnectionDetails.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, tests-src/net/grinder/tools/tcpproxy/TestCompositeFilter.java, tests-src/net/grinder/tools/tcpproxy/TestEchoFilter.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPMethodAbsoluteURIFilterDecorator.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPMethodRelativeURIFilterDecorator.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java, tests-src/net/grinder/tools/tcpproxy/TestNullFilter.java, tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/AbstractFilterDecorator.java, src/net/grinder/tools/tcpproxy/NullFilter.java, src/net/grinder/tools/tcpproxy/TCPProxyFilter.java:
+	TCPProxy filters are now wired by a PicoContainer.
+
+	* tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java:
+	Remove unused imports.
+
+2005-12-27  Philip Aston  <philipa@mail.com>
+
+	* etc/tcpproxy-http.xsd, etc/tcpproxy-http.xsdconfig, src/net/grinder/plugin/http/tcpproxyfilter/RequestStreamToXMLFilter.java, src/net/grinder/plugin/http/tcpproxyfilter/ResponseEventListener.java, src/net/grinder/plugin/http/tcpproxyfilter/package.html:
+	First checkpoint of HTTP XML filter.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	Remove getCallData().
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java, tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java:
+	Use assertSuccess() rather than getCallData().
+	Replace assertSomeSuccess() with setIgnoreCallOrder().
+
+	* tests-src/net/grinder/testutility/AbstractStubFactory.java, tests-src/net/grinder/testutility/CallRecorder.java:
+	Refactor CallRecorder record methods.
+	Replace assertSomeSuccess() with setIgnoreCallOrder().
+
+	* tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/agent/TestWorkerLauncher.java, tests-src/net/grinder/console/editor/TestEditorModel.java, tests-src/net/grinder/console/distribution/TestFileDistribution.java, tests-src/net/grinder/console/swingui/TestFileTreeModel.java:
+	Use assertSuccess() rather than getCallData().
+
+	* tests-src/net/grinder/communication/TestHandlerChainSender.java, tests-src/net/grinder/engine/process/TestRegisteredPlugin.java, tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java, tests-src/net/grinder/testutility/CallAssertions.java, tests-src/net/grinder/testutility/CallData.java, tests-src/net/grinder/testutility/CallRecorder.java:
+	Rename "assertFailed" to "assertException".
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, tests-src/net/grinder/tools/tcpproxy/MyFilterStubFactory.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java, tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java:
+	Stop filters after the engine
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	Method which asserts some call data matched.
+
+2005-12-24  Philip Aston  <philipa@mail.com>
+
+	* LICENSE, build.xml, etc/grinder-manifest.mf, etc/localpaths.properties, src/net/grinder/console/swingui/resources/about.html:
+	XMLBeans support.
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Only stop() once.
+	Call stop() on the filters at most once, no matter how many engines are referencing them.
+
+	* src/net/grinder/tools/tcpproxy/AbstractFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java:
+	Common TCPFilter decorator implementation.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxyEngine.java: Javadoc.
+
+2005-12-23  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter2.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/NullFilter.java, src/net/grinder/tools/tcpproxy/TCPProxyFilter.java, tests-src/net/grinder/tools/tcpproxy/TestEchoFilter.java, tests-src/net/grinder/tools/tcpproxy/TestNullFilter.java:
+	TCPProxyFilters now take a Logger instead of a PrintWriter.
+
+	* tests-src/net/grinder/common/LoggerStubFactory.java, tests-src/net/grinder/common/TestGrinderProperties.java, tests-src/net/grinder/console/common/TestDisplayMessageConsoleException.java, tests-src/net/grinder/console/common/TestResources.java, tests-src/net/grinder/testutility/CountingPrintWriter.java, tests-src/net/grinder/testutility/StubPrintWriter.java:
+	Make LoggerStubFactory more versatile.
+
+	* CHANGES, build.xml: Next is 29.
+
 2005-12-22  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Don't just build the docs, release them.
 
 	* The Grinder 3.0-beta28 is released.
 
