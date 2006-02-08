@@ -82,7 +82,6 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     HTTPPlugin.getPlugin().initialize(m_pluginProcessContext);
   }
 
-
   public void testBasicAuthorizationHeader() throws Exception {
     final HTTPUtilities httpUtilities =
       new HTTPUtilitiesImplementation(m_pluginProcessContext);
@@ -145,8 +144,47 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     handler.addHeader(
       "Location", "http://www.w3.org/pub/WWW/People.html;JSESSIONID=1234");
     request.GET(handler.getURL());
-    assertEquals("1234",
-      httpUtilities.valueFromLocationURI("JSESSIONID"));
+    assertEquals("1234", httpUtilities.valueFromLocationURI("JSESSIONID"));
     assertEquals("", httpUtilities.valueFromLocationURI("foo"));
+  }
+
+  public void testValueFromBodyURI() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals("", httpUtilities.valueFromBodyURI("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    request.GET(handler.getURL());
+    assertEquals("", httpUtilities.valueFromBodyURI("foo"));
+
+    handler.setBody(
+      "<body><a href='http://www.w3.org/pub/WWW/People.html'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals("", httpUtilities.valueFromBodyURI("foo"));
+
+    handler.setBody(
+      "<body><a href='http://www.w3.org/pub/WWW/People.html?foo=bah&lah=dah'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals("bah", httpUtilities.valueFromBodyURI("foo"));
+    assertEquals("", httpUtilities.valueFromBodyURI("bah"));
+
+    handler.setBody(
+      "<body><a href='http://www.w3.org/pub/WWW/People.html;foo=?foo=bah&lah=dah'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals("", httpUtilities.valueFromBodyURI("foo"));
+    assertEquals("dah", httpUtilities.valueFromBodyURI("lah"));
+
+    handler.setBody(
+    "<body><a href='http://www.w3.org/pub/WWW/People.html;JSESSIONID=1234'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals("1234", httpUtilities.valueFromBodyURI("JSESSIONID"));
+    assertEquals("", httpUtilities.valueFromBodyURI("foo"));
+
+    handler.addHeader("Content-type", "garbage");
+    request.GET(handler.getURL());
+    assertEquals("1234", httpUtilities.valueFromBodyURI("JSESSIONID"));
+    assertEquals("", httpUtilities.valueFromBodyURI("foo"));
   }
 }

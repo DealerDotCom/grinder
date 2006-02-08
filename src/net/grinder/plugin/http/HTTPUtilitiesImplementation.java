@@ -21,13 +21,20 @@
 
 package net.grinder.plugin.http;
 
+import java.io.IOException;
+import java.util.regex.Matcher;
+
 import net.grinder.common.GrinderException;
+import net.grinder.plugin.http.tcpproxyfilter.RegularExpressions;
+import net.grinder.plugin.http.tcpproxyfilter.RegularExpressionsImplementation;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.util.URIParser;
 import net.grinder.util.URIParserImplementation;
 import HTTPClient.Codecs;
 import HTTPClient.HTTPResponse;
+import HTTPClient.ModuleException;
 import HTTPClient.NVPair;
+import HTTPClient.ParseException;
 
 
 /**
@@ -39,6 +46,8 @@ import HTTPClient.NVPair;
 class HTTPUtilitiesImplementation implements HTTPUtilities {
 
   private final URIParser m_uriParser = new URIParserImplementation();
+  private final RegularExpressions m_regularExpressions =
+    new RegularExpressionsImplementation();
   private final PluginProcessContext m_processContext;
 
   public HTTPUtilitiesImplementation(PluginProcessContext processContext) {
@@ -85,9 +94,9 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
       throw new AssertionError("HTTPResponse not initialised (" + e + ")");
     }
 
-    if (location != null) {
-      final String[] result = { "" };
+    final String[] result = { "" };
 
+    if (location != null) {
       m_uriParser.parse(location, new URIParser.AbstractParseListener() {
         public boolean pathParameterNameValue(String name, String value) {
           if (name.equals(tokenName)) {
@@ -107,15 +116,76 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
           return true;
         }
       });
+    }
 
-      return result[0];
+    return result[0];
+  }
+
+  public String valueFromBodyURI(final String tokenName)
+    throws GrinderException {
+
+    final HTTPResponse response = getLastResponse();
+
+    if (response == null) {
+      return "";
+    }
+
+    final String body;
+
+    try {
+      // This shouldn't fail as we have already read the complete response.
+      body = response.getText();
+    }
+    catch (IOException e) {
+      throw new ParseAssertion("Unexpected IOException", e);
+    }
+    catch (ModuleException e) {
+      throw new ParseAssertion("Unexpected HTTPClient ModuleException", e);
+    }
+    catch (ParseException e) {
+      throw new ParseAssertion("Unexpected HTTPClient ParseException", e);
+    }
+
+    final String[] result = { "" };
+
+    final Matcher matcher =
+      m_regularExpressions.getHyperlinkURIPattern().matcher(body);
+
+    while (matcher.find()) {
+      final String uri = matcher.group(1);
+
+      m_uriParser.parse(uri, new URIParser.AbstractParseListener() {
+        public boolean pathParameterNameValue(String name, String value) {
+          if (name.equals(tokenName)) {
+            result[0] = value;
+            return false;
+          }
+
+          return true;
+        }
+
+        public boolean queryStringNameValue(String name, String value) {
+          if (name.equals(tokenName)) {
+            result[0] = value;
+            return false;
+          }
+
+          return true;
+        }
+      });
+
+      if (result[0] != "") {
+        return result[0];
+      }
     }
 
     return "";
   }
 
-  public String valueFromBodyURI(String tokenName) {
-    // TODO Auto-generated method stub
-    return null;
+  private class ParseAssertion extends GrinderException {
+
+    public ParseAssertion(String message, Throwable cause) {
+      super(message, cause);
+    }
   }
 }

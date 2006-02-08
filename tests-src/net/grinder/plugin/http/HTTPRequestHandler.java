@@ -39,6 +39,7 @@ class HTTPRequestHandler implements Runnable {
   private final ServerSocket m_serverSocket;
   private String m_lastRequestHeaders;
   private byte[] m_lastRequestBody;
+  private String m_body;
 
   public HTTPRequestHandler() throws Exception {
     m_serverSocket = new ServerSocket(0);
@@ -187,6 +188,11 @@ class HTTPRequestHandler implements Runnable {
         final StringBuffer response = new StringBuffer();
         writeHeaders(response);
         response.append("\r\n");
+
+        if (m_body != null) {
+          response.append(m_body);
+        }
+
         out.write(response.toString().getBytes());
         out.flush();
 
@@ -228,5 +234,9 @@ class HTTPRequestHandler implements Runnable {
 
   public void addHeader(String name, String value) {
     m_headers.add(new NVPair(name, value));
+  }
+
+  public void setBody(String body) {
+    m_body = body;
   }
 }
