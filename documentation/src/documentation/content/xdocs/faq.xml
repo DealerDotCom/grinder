@@ -1081,6 +1081,31 @@ class TestRunner:
        <a href="http://www.python.org/doc/current/ref/indentation.html">http://www.python.org/doc/current/ref/indentation.html</a></p>
       </answer>
     </faq>
+    <faq id="set-script">
+      <question>
+      Whenever I try to run scripts i get "the script file 'grinder.py' does not exist or is not readable"?
+      </question>
+      <answer>
+      <p>You need to define which script should be used. If you do not define it the default script name is "grinder.py".</p>
+      <p>If your script is not called "grinder.py", either add a line to grinder.properties that specifies its name, e.g.:</p>
+
+<source>
+	grinder.script: http.py 
+</source>
+
+      <p>or specify it on the command line, e.g.:</p>
+
+<source>
+	java -Dgrinder.script=http.py net.grinder.Grinder
+</source>
+
+      <p>or set it in the console. Go to the script tab, navigate to the location of your script. Select it and then click 
+      on the "Set script to run" button.</p>
+      <p>Finally, it could simply be that the script file is unreadable. Check the file permissions of the script and/or 
+      attempt to open it in an editor to check if its readable.</p>
+
+      </answer>
+    </faq>
   </faqsection>
   <faqsection id="g3-ssl">
     <title>SSL</title>
