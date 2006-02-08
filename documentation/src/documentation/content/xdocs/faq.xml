@@ -1083,7 +1083,7 @@ class TestRunner:
     </faq>
     <faq id="set-script">
       <question>
-      Whenever I try to run scripts i get "the script file 'grinder.py' does not exist or is not readable"?
+      Whenever I try to run scripts I get "the script file 'grinder.py' does not exist or is not readable"?
       </question>
       <answer>
       <p>You need to define which script should be used. If you do not define it the default script name is "grinder.py".</p>
