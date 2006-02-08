@@ -28,7 +28,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
@@ -220,6 +222,8 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       throw new AssertionError(e);
     }
 
+    int bodyStart = 0;
+
     final Matcher matcher =
       m_regularExpressions.getResponseLinePattern().matcher(asciiString);
 
@@ -234,7 +238,6 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       response.setReasonPhrase(matcher.group(2));
 
       String headers = asciiString;
-      int bodyStart = -1;
 
       if (m_request.expectingResponseBody()) {
         final Matcher messageBodyMatcher =
@@ -257,32 +260,59 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           m_uriParser.parse(value, new URIParser.AbstractParseListener() {
 
             public boolean pathParameterNameValue(String name, String value) {
-              final ParsedTokenReferenceType tokenReference =
-                response.addNewParsedToken();
-              tokenReference.setSource(
+              m_request.addTokenReference(
+                name,
+                value,
                 ParsedTokenReferenceType.Source.LOCATION_HEADER_PATH_PARAMETER);
-
-              m_httpRecording.addNameValueTokenReference(
-                name, value, tokenReference);
 
               return true;
             }
 
             public boolean queryStringNameValue(String name, String value) {
-              final ParsedTokenReferenceType tokenReference =
-                response.addNewParsedToken();
-              tokenReference.setSource(
+              m_request.addTokenReference(
+                name,
+                value,
                 ParsedTokenReferenceType.Source.LOCATION_HEADER_QUERY_STRING);
-
-              m_httpRecording.addNameValueTokenReference(
-                name, value, tokenReference);
 
               return true;
             }
           });
         }
+      }
+    }
 
-        // TODO parse body.
+    if (m_request.getResponse() != null) {
+      // Parse body for href="<url>" patterns containing URL tokens. We could
+      // chose to do this only for certain content types, (probably just
+      // text/html) but its better to catch too many tokens than too few.
+
+      final Matcher uriMatcher =
+        m_regularExpressions.getHyperlinkURIPattern().matcher(
+          asciiString.substring(bodyStart));
+
+      while (uriMatcher.find()) {
+        m_uriParser.parse(
+          uriMatcher.group(1),
+          new URIParser.AbstractParseListener() {
+
+            public boolean pathParameterNameValue(String name, String value) {
+              m_request.addTokenReference(
+                name,
+                value,
+                ParsedTokenReferenceType.Source.BODY_URI_PATH_PARAMETER);
+
+              return true;
+            }
+
+            public boolean queryStringNameValue(String name, String value) {
+              m_request.addTokenReference(
+                name,
+                value,
+                ParsedTokenReferenceType.Source.BODY_URI_QUERY_STRING);
+
+              return true;
+            }
+          });
       }
     }
   }
@@ -305,6 +335,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     private String m_contentType = null;
     private Body m_body;
     private boolean m_contentLengthReached;
+    private final Map m_tokenValueMap = new HashMap();
 
     public Request(String method, String relativeURI) {
       m_requestXML =
@@ -313,6 +344,10 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
     public ResponseType addNewResponse() {
       return m_requestXML.addNewResponse();
+    }
+
+    public ResponseType getResponse() {
+      return m_requestXML.getResponse();
     }
 
     public void addBasicAuthorization(String base64) {
@@ -374,6 +409,27 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     public void end() {
       if (getBody() != null) {
         getBody().end();
+      }
+    }
+
+    public void addTokenReference(
+      String name,
+      String value,
+      ParsedTokenReferenceType.Source.Enum source) {
+      final ParsedTokenReferenceType tokenReference =
+        getResponse().addNewParsedToken();
+      tokenReference.setSource(source);
+
+      m_httpRecording.addNameValueTokenReference(
+        name, value, tokenReference);
+
+      final Object oldValue = m_tokenValueMap.put(name, value);
+
+      if (oldValue != null && !oldValue.equals(value)) {
+        m_logger.error(
+          "Differing values for token '" + name +
+          "' found in response hyperlinks. Generated script may be " +
+          "inaccurate.");
       }
     }
 

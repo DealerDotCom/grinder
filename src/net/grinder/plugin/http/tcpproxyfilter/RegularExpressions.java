@@ -67,4 +67,11 @@ public interface RegularExpressions {
    * @return The pattern
    */
   Pattern getLastPathElementPathPattern();
+
+  /**
+   * A pattern that matches URLs referenced by hyperlinks.
+   *
+   * @return The pattern.
+   */
+  Pattern getHyperlinkURIPattern();
 }

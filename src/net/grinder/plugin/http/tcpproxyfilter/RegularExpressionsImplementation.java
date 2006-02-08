@@ -38,8 +38,8 @@ public final class RegularExpressionsImplementation
   private final Pattern m_messageBodyPattern;
   private final Pattern m_requestLinePattern;
   private final Pattern m_responseLinePattern;
-
   private final Pattern m_lastPathElementPathPattern;
+  private final Pattern m_hrefURIPattern;
 
   /**
    * Constructor.
@@ -86,6 +86,9 @@ public final class RegularExpressionsImplementation
     // Ignore maximum amount of stuff that's not a '?', or '#' followed by
     // a '/', then grab the next until the first ';', '?', or '#'.
     m_lastPathElementPathPattern = Pattern.compile("^[^\\?#]*/([^\\?;#]*)");
+
+    m_hrefURIPattern = Pattern.compile(
+      ".*?href[ \\t]*=[ \\t]*['\"]([^'\"]*)['\"]");
   }
 
   /**
@@ -140,5 +143,14 @@ public final class RegularExpressionsImplementation
    */
   public Pattern getLastPathElementPathPattern() {
     return m_lastPathElementPathPattern;
+  }
+
+  /**
+   * A pattern that matches URLs referenced by hyperlinks.
+   *
+   * @return The pattern.
+   */
+  public Pattern getHyperlinkURIPattern() {
+    return m_hrefURIPattern;
   }
 }

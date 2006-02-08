@@ -319,6 +319,66 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
+  public void testResponseMessageWithTokensInLinks() throws Exception {
+    final ConnectionHandler handler =
+      new ConnectionHandlerImplementation(
+        m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
+        m_uriParser, m_connectionDetails);
+
+    final RequestType request = RequestType.Factory.newInstance();
+    request.addNewHeaders();
+    request.setMethod(RequestType.Method.Enum.forString("GET"));
+
+    m_httpRecordingStubFactory.setResult("addRequest", request);
+
+    final String message = "GET / HTTP/1.0\r\n";
+    final byte[] buffer = message.getBytes();
+    handler.handleRequest(buffer, buffer.length);
+
+    m_httpRecordingStubFactory.assertSuccess("addRequest",
+      m_connectionDetails, "GET", "/");
+
+    final String response =
+      "HTTP/1.0 200 OK\r\n" +
+      "\r\n" +
+      "<html>" +
+      "<body><a href='./foo;session=57?token=1'>Hello world</a>" +
+      "<a href=\"http://grinder.sourceforge.net/?token=1\">something else</a>";
+
+    final byte[] responseBuffer = response.getBytes();
+    handler.handleResponse(responseBuffer, responseBuffer.length);
+
+    m_httpRecordingStubFactory.assertSuccess("markLastResponseTime");
+
+    final Object[] parameters =
+      m_httpRecordingStubFactory.assertSuccess("addNameValueTokenReference",
+        String.class, String.class, ParsedTokenReferenceType.class).getParameters();
+    assertEquals("session", parameters[0]);
+    assertEquals("57", parameters[1]);
+    assertEquals(ParsedTokenReferenceType.Source.BODY_URI_PATH_PARAMETER,
+      ((ParsedTokenReferenceType)parameters[2]).getSource());
+    m_httpRecordingStubFactory.assertSuccess("addNameValueTokenReference",
+      String.class, String.class, ParsedTokenReferenceType.class);
+    m_httpRecordingStubFactory.assertSuccess("addNameValueTokenReference",
+      String.class, String.class, ParsedTokenReferenceType.class);
+
+    m_loggerStubFactory.assertNoMoreCalls();
+
+    final String response2 =
+      "<a href=\"http://grinder.sourceforge.net/?token=2\">something else</a>" +
+      "</body>";
+    final byte[] responseBuffer2 = response2.getBytes();
+    handler.handleResponse(responseBuffer2, responseBuffer2.length);
+    m_httpRecordingStubFactory.assertSuccess("addNameValueTokenReference",
+      String.class, String.class, ParsedTokenReferenceType.class);
+
+    // Differing token values.
+    m_loggerStubFactory.assertSuccess("error", String.class);
+
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
   public void testRequestStringBody() throws Exception {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
