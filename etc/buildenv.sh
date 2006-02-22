@@ -1,5 +1,5 @@
 export ANT_HOME=/opt/ant/apache-ant-1.6.2
-export JAVA_HOME=/system/bea-8.1.4/jdk142_05
+export JAVA_HOME=/opt/bea-815/jdk142_08
 export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
 JSSE_HOME=/opt/jsse/jsse1.0.2/lib/
