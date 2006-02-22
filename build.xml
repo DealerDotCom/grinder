@@ -91,32 +91,32 @@ what you want. Currently the conditionally built modules are:
   <property name="deprecation" value="on"/>
 
   <!-- source of all evil -->
-  <property name="src.dir" location="src"/>
-  <property name="native-src.dir" location="native"/>
-  <property name="test-src.dir" location="tests-src"/>
-  <property name="etc.dir" location="etc"/>
-  <property name="examples.dir" location="examples"/>
-  <property name="contrib.dir" location="contrib"/>
+  <property name="src.dir" value="src"/>
+  <property name="native-src.dir" value="native"/>
+  <property name="test-src.dir" value="tests-src"/>
+  <property name="etc.dir" value="etc"/>
+  <property name="examples.dir" value="examples"/>
+  <property name="contrib.dir" value="contrib"/>
   <property name="export-to-doc-build.dir"
-            location="${grinder-doc.dir}/imported"/>
+            value="${grinder-doc.dir}/imported"/>
 
   <!-- output -->
   <!-- classes.dir is calcuated in init. -->
-  <property name="build.dir" location="${basedir}/build"/>
-  <property name="test-classes.dir" location="${build.dir}/tests-classes"/>
-  <property name="lib.dir" location="lib"/>
-  <property name="dist.root" location="${build.dir}/distribution"/>
-  <property name="dist.dir" location="${dist.root}/${name}-${version}"/>
-  <property name="clover.dir" location="clover"/>
+  <property name="build.dir" value="${basedir}/build"/>
+  <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
+  <property name="lib.dir" value="lib"/>
+  <property name="dist.root" value="${build.dir}/distribution"/>
+  <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
+  <property name="clover.dir" value="clover"/>
   <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
-  <property name="release.dir" location="releases"/>
-  <property name="doc.dir" location="docs"/>
-  <property name="xmlbeans.jar" location="${lib.dir}/grinder-xmlbeans.jar"/>
+  <property name="release.dir" value="releases"/>
+  <property name="doc.dir" value="docs"/>
+  <property name="xmlbeans.jar" value="${lib.dir}/grinder-xmlbeans.jar"/>
 
   <!-- javadoc -->
-  <property name="javadoc.dir" location="${doc.dir}/javadoc"/>
-  <property name="javadoc.css" location="${etc.dir}/javadoc.css"/>
-  <property name="package-lists.dir" location="${etc.dir}/packagelists"/>
+  <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
+  <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
+  <property name="package-lists.dir" value="${etc.dir}/packagelists"/>
 
   <!-- distribution patternsets -->
   <patternset id="sources.patternset">
@@ -326,7 +326,7 @@ what you want. Currently the conditionally built modules are:
              classname="org.apache.xmlbeans.impl.tool.XMLBean"
              classpathref="xmlbeans.classpath"/>
 
-    <property name="xmlbeans-build.dir" location="${build.dir}/xmlbeans"/>
+    <property name="xmlbeans-build.dir" value="${build.dir}/xmlbeans"/>
     <delete dir="${xmlbeans-build.dir}"/>
 
     <xmlbean
