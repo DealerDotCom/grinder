@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -93,7 +93,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
   /**
    * Return the number of entries in the
-   * <code>TestStatisticsMap</code>. For use by the unit tests.
+   * <code>TestStatisticsMap</code>.
    *
    * @return an <code>int</code> value
    */
@@ -137,7 +137,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
   /**
    * Reset all our statistics and return a snapshot.
    *
-   * @return The snapshot.
+   * @return The snapshot. Only Tests with non-zero statistics are included.
    */
   public TestStatisticsMap reset() {
     final TestStatisticsMap result =
@@ -157,7 +157,9 @@ public class TestStatisticsMap implements java.io.Externalizable {
           statistics.reset();
         }
 
-        result.put(pair.getTest(), snapshot);
+        if (!snapshot.isZero()) {
+          result.put(pair.getTest(), snapshot);
+        }
       }
     }
 

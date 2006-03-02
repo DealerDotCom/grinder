@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,6 +47,9 @@ final class StatisticsSetImplementation implements StatisticsSet {
   private final long[] m_longData;
   private final double[] m_doubleData;
 
+  // true => all statistics are zero; false => they might be.
+  private boolean m_zero = true;
+
   /**
    * Creates a new <code>StatisticsSetImplementation</code> instance.
    *
@@ -64,11 +67,14 @@ final class StatisticsSetImplementation implements StatisticsSet {
    *
    * Assuming the caller owns this
    * <code>StatisticsSetImplementation</code> (or they shouldn't be
-   * reseting it), we don't synchronise
+   * reseting it), we don't synchronise.
    */
   public void reset() {
-    Arrays.fill(m_longData, 0);
-    Arrays.fill(m_doubleData, 0);
+    if (!m_zero) {
+      Arrays.fill(m_longData, 0);
+      Arrays.fill(m_doubleData, 0);
+      m_zero = true;
+    }
   }
 
   /**
@@ -85,10 +91,13 @@ final class StatisticsSetImplementation implements StatisticsSet {
     final StatisticsSetImplementation result =
       new StatisticsSetImplementation(m_statisticsIndexMap);
 
-    System.arraycopy(
-        m_longData, 0, result.m_longData, 0, result.m_longData.length);
-    System.arraycopy(
-        m_doubleData, 0, result.m_doubleData, 0, result.m_doubleData.length);
+    if (!m_zero) {
+      System.arraycopy(
+          m_longData, 0, result.m_longData, 0, result.m_longData.length);
+      System.arraycopy(
+          m_doubleData, 0, result.m_doubleData, 0, result.m_doubleData.length);
+      result.m_zero = false;
+    }
 
     return result;
   }
@@ -131,6 +140,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
   public synchronized void setValue(StatisticsIndexMap.LongIndex index,
                                     long value) {
     m_longData[index.getValue()] = value;
+    m_zero &= value == 0;
   }
 
   /**
@@ -145,6 +155,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
   public synchronized void setValue(StatisticsIndexMap.DoubleIndex index,
                                     double value) {
     m_doubleData[index.getValue()] = value;
+    m_zero &= value == 0;
   }
 
   /**
@@ -159,6 +170,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
   public synchronized void addValue(StatisticsIndexMap.LongIndex index,
                                     long value) {
     m_longData[index.getValue()] += value;
+    m_zero &= value == 0;
   }
 
   /**
@@ -174,6 +186,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
                                     double value) {
 
     m_doubleData[index.getValue()] += value;
+    m_zero &= value == 0;
   }
 
   /**
@@ -193,6 +206,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
 
     m_longData[index.getSumIndex().getValue()] += value;
     ++m_longData[index.getCountIndex().getValue()];
+    m_zero = false;
   }
 
   /**
@@ -212,6 +226,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
 
     m_doubleData[index.getSumIndex().getValue()] += value;
     ++m_longData[index.getCountIndex().getValue()];
+    m_zero = false;
   }
 
   /**
@@ -418,6 +433,12 @@ final class StatisticsSetImplementation implements StatisticsSet {
         m_doubleData[i] += doubleData[i];
       }
     }
+
+    m_zero = false;
+  }
+
+  public synchronized boolean isZero() {
+    return m_zero;
   }
 
   /**
@@ -562,10 +583,12 @@ final class StatisticsSetImplementation implements StatisticsSet {
 
     for (int i = 0; i < m_longData.length; i++) {
       m_longData[i] = serialiser.readLong(in);
+      m_zero &= m_longData[i] == 0;
     }
 
     for (int i = 0; i < m_doubleData.length; i++) {
       m_doubleData[i] = serialiser.readDouble(in);
+      m_zero &= m_doubleData[i] == 0;
     }
   }
 }

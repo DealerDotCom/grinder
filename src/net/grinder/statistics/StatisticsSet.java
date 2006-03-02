@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -170,4 +170,18 @@ public interface StatisticsSet {
    * @param operand The {@link StatisticsSet} value to add.
    */
   void add(StatisticsSet operand);
+
+  /**
+   * Return whether all the statistics are zero. This allows us to optimise
+   * cases where there's no information to be processed.
+   *
+   * <p>
+   * This method can return <code>false</code>, even if all of the statistics
+   * are zero; but if it returns <code>true</code> they are guaranteed to be
+   * zero.
+   * </p>
+   *
+   * @return <code>true</code> => all values are zero.
+   */
+  boolean isZero();
 }

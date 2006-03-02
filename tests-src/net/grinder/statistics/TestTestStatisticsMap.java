@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -207,6 +207,14 @@ public class TestTestStatisticsMap extends TestCase {
 
     assertEquals(10,
         snapshot1.new Iterator().next().getStatistics().getValue(m_index));
+
+    // The map was reset, so the statistics will be zero and reset()
+    // will not copy them through.
+    final TestStatisticsMap snapshot2 = map.reset();
+    assertFalse(snapshot2.equals(snapshot1));
+    assertFalse(snapshot2.equals(map));
+    assertEquals(0, snapshot2.size());
+    assertEquals(1, map.size());
   }
 
   public void testToString() throws Exception {

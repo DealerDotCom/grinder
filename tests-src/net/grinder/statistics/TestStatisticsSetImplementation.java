@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -84,14 +84,20 @@ public class TestStatisticsSetImplementation extends TestCase {
     final StatisticsSetImplementation statistics0 =
       new StatisticsSetImplementation(m_indexMap);
 
+    assertTrue(statistics0.isZero());
+
     statistics0.setValue(m_longIndex2, 700);
     statistics0.setValue(m_doubleIndex2, -0.9999);
     assertEquals(700, statistics0.getValue(m_longIndex2));
     assertDoublesEqual(-0.9999d, statistics0.getValue(m_doubleIndex2));
 
+    assertFalse(statistics0.isZero());
+
     statistics0.reset();
     assertEquals(0, statistics0.getValue(m_longIndex2));
     assertDoublesEqual(0d, statistics0.getValue(m_doubleIndex2));
+
+    assertTrue(statistics0.isZero());
   }
 
   public void testGetValueSetValueAndEquals() throws Exception {
@@ -177,9 +183,14 @@ public class TestStatisticsSetImplementation extends TestCase {
     final StatisticsSetImplementation statistics1 =
       new StatisticsSetImplementation(m_indexMap);
 
+    assertTrue(statistics1.isZero());
+
     // 0 + 0 = 0
     statistics0.add(statistics1);
     assertEquals(statistics0, statistics1);
+
+    assertFalse(statistics0.isZero());
+    assertTrue(statistics1.isZero());
 
     // 0 + 1 = 1
     statistics0.addValue(m_longIndex0, 100);
