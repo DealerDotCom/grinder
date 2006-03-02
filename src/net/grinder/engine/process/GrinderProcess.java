@@ -379,8 +379,6 @@ final class GrinderProcess {
             m_context.getTestRegistry().getTestStatisticsMap().reset();
           m_accumulatedStatistics.add(sample);
 
-          System.err.println(sample.size());
-
           // We look up the new tests after we've taken the sample to
           // avoid a race condition when new tests are being added.
           final Collection newTests =
