@@ -375,6 +375,14 @@ final class GrinderProcess {
         final QueuedSender consoleSender = m_context.getConsoleSender();
 
         try {
+          final TestStatisticsMap sample =
+            m_context.getTestRegistry().getTestStatisticsMap().reset();
+          m_accumulatedStatistics.add(sample);
+
+          System.err.println(sample.size());
+
+          // We look up the new tests after we've taken the sample to
+          // avoid a race condition when new tests are being added.
           final Collection newTests =
             m_context.getTestRegistry().getNewTests();
 
@@ -382,11 +390,9 @@ final class GrinderProcess {
             consoleSender.queue(new RegisterTestsMessage(newTests));
           }
 
-          final TestStatisticsMap sample =
-            m_context.getTestRegistry().getTestStatisticsMap().reset();
-          m_accumulatedStatistics.add(sample);
-
-          consoleSender.queue(new ReportStatisticsMessage(sample));
+          if (sample.size() > 0) {
+            consoleSender.queue(new ReportStatisticsMessage(sample));
+          }
 
           consoleSender.send(
             m_context.createStatusMessage(WorkerProcessReport.STATE_RUNNING,

@@ -49,6 +49,10 @@ The Grinder 3.0-beta29 (Not yet released)
   removed: addBasicAuthorization(), removeBasicAuthorization(),
   addDigestAuthorization(), removeDigiestAuthorization().
 
+  The worker process to console communication has been made more
+  efficient, and a race condition which caused "Ignoring unknown test"
+  messages has been removed. Thanks to Dhinakar K for the report.
+
 
 Grinder 3.0-beta28
 ------------------

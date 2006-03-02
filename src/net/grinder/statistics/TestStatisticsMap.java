@@ -97,8 +97,10 @@ public class TestStatisticsMap implements java.io.Externalizable {
    *
    * @return an <code>int</code> value
    */
-  final int size() {
-    return m_data.size();
+  public final int size() {
+    synchronized (this) {
+      return m_data.size();
+    }
   }
 
   /**
