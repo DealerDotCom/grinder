@@ -381,6 +381,41 @@ void doit() { Thread.sleep(10000); // 10 seconds }
       </answer>
 
     </faq>
+    <faq id="browserVsgrinder">
+      <question>
+        For a given webpage, why does a Grinder script take a much longer time to complete than my browser takes to display the page?
+      </question>
+      <answer>
+        <p>How your web application behaves under non-trivial load and how long it 
+        takes to display a page are two distinct concerns.</p>
+        <p>The Grinder runs through test script elements sequentially while browsers,
+        such as MS Internet Explorer, can request several elements at the same time 
+        using parallel threads. The number of parallel threads depends on the browser type,
+        MS Internet Explorer typically uses 3. Therefore the browser should complete requesting
+        the complete list of elements from a webpage before the Grinder.</p>
+        <p>If you are concerned over page download times rather than application behaviour under 
+        load then <a href="mailto:pbooth@marketaxess.com">Peter Booth</a> writes:</p>
+  <dl>
+          <dt/>
+    <dd class="quote">
+To understand how a typical browser will download and display *your* page you should use a tool like IBM's <a href="http://www.alphaworks.ibm.com/tech/pagedetailer">Page Detailer</a> 
+which intercepts and instruments all browser activity and visualizes this in an easy to interpret fashion.
+ It can highlight tuning opportunities like coalescing Javascript, reducing GIF count, that are more in the 
+page design than dynamic application design arena. 
+    </dd>
+  </dl>
+        <p>From the IBM Page Detailer Website</p>
+  <dl>
+          <dt/>
+    <dd class="quote">
+IBM Page Detailer places a probe in the Windows Socket Stack to capture data 
+about timing, size, and data flow, and then it presents the collected data in both 
+graphical and tabular views, clearly showing how the page was delivered to the browser.
+    </dd>
+  </dl>
+        <p>Tools like IBM Page Detailer are a useful addition to your arsenal when looking at the complete picture.</p>
+      </answer>
+    </faq>    
   </faqsection>
 
   <faqsection id="problems">
