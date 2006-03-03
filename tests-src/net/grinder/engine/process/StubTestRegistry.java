@@ -45,7 +45,7 @@ public class StubTestRegistry {
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
     final TestRegistry testRegistry =
-      new TestRegistry(null, statisticsSetFactory, s_testStatisticsHelper);
+      new TestRegistry(null, statisticsSetFactory, s_testStatisticsHelper, null);
 
     final RandomStubFactory scriptEngineStubFactory =
       new RandomStubFactory(ScriptEngine.class);

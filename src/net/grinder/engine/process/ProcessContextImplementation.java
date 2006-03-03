@@ -35,6 +35,8 @@ import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.Sleeper;
+import net.grinder.util.StandardTimeAuthority;
+import net.grinder.util.TimeAuthority;
 
 
 /**
@@ -56,6 +58,7 @@ final class ProcessContextImplementation implements ProcessContext {
   private final Sleeper m_sleeper;
   private final StatisticsServices m_statisticsServices;
   private final TestStatisticsHelper m_testStatisticsHelper;
+  private final TimeAuthority m_timeAuthority;
 
   private long m_executionStartTime;
   private boolean m_shutdown;
@@ -75,6 +78,8 @@ final class ProcessContextImplementation implements ProcessContext {
     m_threadContextLocator = new ThreadContextLocatorImplementation();
     m_testStatisticsHelper = new TestStatisticsHelperImplementation();
 
+    m_timeAuthority = new StandardTimeAuthority();
+
     final Logger externalLogger =
       new ExternalLogger(m_processLogger, m_threadContextLocator);
 
@@ -82,9 +87,10 @@ final class ProcessContextImplementation implements ProcessContext {
       new ExternalFilenameFactory(filenameFactory, m_threadContextLocator);
 
     m_sleeper = new Sleeper(
+      m_timeAuthority,
+      externalLogger,
       properties.getDouble("grinder.sleepTimeFactor", 1.0d),
-      properties.getDouble("grinder.sleepTimeVariation", 0.2d),
-      externalLogger);
+      properties.getDouble("grinder.sleepTimeVariation", 0.2d));
 
     final SSLControl sslControl =
       new SSLControlImplementation(m_threadContextLocator);
@@ -108,7 +114,8 @@ final class ProcessContextImplementation implements ProcessContext {
     m_testRegistry =
       new TestRegistry(m_threadContextLocator,
                        statisticsServices.getStatisticsSetFactory(),
-                       m_testStatisticsHelper);
+                       m_testStatisticsHelper,
+                       m_timeAuthority);
 
     TestRegistry.setInstance(m_testRegistry);
 
@@ -196,20 +203,10 @@ final class ProcessContextImplementation implements ProcessContext {
     return m_threadContextLocator;
   }
 
-  /**
-   *
-   *
-   * @param startTime
-   */
-  public void setExecutionStartTime(long startTime) {
-    m_executionStartTime = startTime;
+  public void setExecutionStartTime() {
+    m_executionStartTime = m_timeAuthority.getTimeInMilliseconds();
   }
 
-  /**
-   *
-   *
-   * @return
-   */
   public long getExecutionStartTime() {
     return m_executionStartTime;
   }

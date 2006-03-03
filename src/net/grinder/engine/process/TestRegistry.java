@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,6 +32,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.statistics.TestStatisticsMap;
+import net.grinder.util.TimeAuthority;
 
 
 /**
@@ -67,6 +68,7 @@ public final class TestRegistry {
   private final ThreadContextLocator m_threadContextLocator;
   private final StatisticsSetFactory m_statisticsSetFactory;
   private final TestStatisticsHelper m_testStatisticsHelper;
+  private final TimeAuthority m_timeAuthority;
 
   /**
    * A map of Tests to Statistics for passing elsewhere.
@@ -93,10 +95,12 @@ public final class TestRegistry {
    */
   TestRegistry(ThreadContextLocator threadContextLocator,
                StatisticsSetFactory statisticsSetFactory,
-               TestStatisticsHelper testStatisticsHelper) {
+               TestStatisticsHelper testStatisticsHelper,
+               TimeAuthority timeAuthority) {
     m_threadContextLocator = threadContextLocator;
     m_statisticsSetFactory = statisticsSetFactory;
     m_testStatisticsHelper = testStatisticsHelper;
+    m_timeAuthority = timeAuthority;
     m_testStatisticsMap = new TestStatisticsMap(m_statisticsSetFactory);
   }
 
@@ -128,6 +132,7 @@ public final class TestRegistry {
       newTestData = new TestData(m_threadContextLocator,
                                  m_statisticsSetFactory,
                                  m_testStatisticsHelper,
+                                 m_timeAuthority,
                                  m_scriptEngine,
                                  test);
 

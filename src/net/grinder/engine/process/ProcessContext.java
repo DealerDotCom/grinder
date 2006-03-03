@@ -54,17 +54,16 @@ interface ProcessContext {
    * Unsynchronised for efficiency. {@link GrinderProcess} calls
    * {@link #setExecutionStartTime} just before launching threads,
    * after which it is never called again.
-   *
-   * @param startTime Start of execution, in milliseconds since Epoch.
    */
-  void setExecutionStartTime(long startTime);
+  void setExecutionStartTime();
 
   /**
    * Unsynchronised for efficiency. {@link GrinderProcess} calls
    * {@link #setExecutionStartTime} just before launching threads,
    * after which it is never called again.
    *
-   * @return Start of execution, in milliseconds since Epoch.
+   * @return Start of execution, in milliseconds. Basis time depends
+   * on the time authority in use by the process context.
    */
   long getExecutionStartTime();
 

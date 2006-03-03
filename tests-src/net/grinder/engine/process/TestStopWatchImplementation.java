@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,8 @@ package net.grinder.engine.process;
 
 import net.grinder.engine.process.StopWatch.StopWatchNotRunningException;
 import net.grinder.engine.process.StopWatch.StopWatchRunningException;
+import net.grinder.util.TimeAuthority;
+import net.grinder.util.TimeAuthorityStubFactory;
 import junit.framework.TestCase;
 
 
@@ -35,7 +37,13 @@ import junit.framework.TestCase;
 public class TestStopWatchImplementation extends TestCase {
 
   public void testStopWatch() throws Exception {
-    final StopWatch stopWatch = new StopWatchImplementation();
+    final TimeAuthorityStubFactory timeAuthorityStubFactory =
+      new TimeAuthorityStubFactory();
+    final TimeAuthority timeAuthority =
+      timeAuthorityStubFactory.getTimeAuthority();
+    timeAuthorityStubFactory.nextTime(2000);
+
+    final StopWatch stopWatch = new StopWatchImplementation(timeAuthority);
 
     try {
       stopWatch.stop();
@@ -44,7 +52,12 @@ public class TestStopWatchImplementation extends TestCase {
     catch (StopWatchNotRunningException e) {
     }
 
+    timeAuthorityStubFactory.assertNoMoreCalls();
+
     stopWatch.start();
+
+    timeAuthorityStubFactory.assertSuccess("getTimeInMilliseconds");
+    timeAuthorityStubFactory.assertNoMoreCalls();
 
     try {
       stopWatch.start();
@@ -67,7 +80,9 @@ public class TestStopWatchImplementation extends TestCase {
     catch (StopWatchRunningException e) {
     }
 
-    final StopWatch stopWatch2 = new StopWatchImplementation();
+    timeAuthorityStubFactory.assertNoMoreCalls();
+
+    final StopWatch stopWatch2 = new StopWatchImplementation(timeAuthority);
 
     try {
       stopWatch2.add(stopWatch);
@@ -76,33 +91,27 @@ public class TestStopWatchImplementation extends TestCase {
     catch (StopWatchRunningException e) {
     }
 
-    Thread.sleep(10);
+    timeAuthorityStubFactory.assertNoMoreCalls();
+    timeAuthorityStubFactory.nextTime(3000);
 
     stopWatch.stop();
 
-    final long result = stopWatch.getTime();
+    assertEquals(1000, stopWatch.getTime());
 
-    assertTrue(result >= 10);
-    assertTrue(result < 100);
+    timeAuthorityStubFactory.assertSuccess("getTimeInMilliseconds");
+    timeAuthorityStubFactory.assertNoMoreCalls();
 
     stopWatch.reset();
 
     assertEquals(0, stopWatch.getTime());
 
     stopWatch.start();
-    Thread.sleep(20);
     stopWatch.stop();
-    final long result2 = stopWatch.getTime();
-
-    assertTrue(result2 >= 20);
-    assertTrue(result2 < 100);
+    assertEquals(0, stopWatch.getTime());
 
     stopWatch.start();
-    Thread.sleep(20);
+    timeAuthorityStubFactory.nextTime(5000);
     stopWatch.stop();
-    final long result3 = stopWatch.getTime();
-
-    assertTrue(result3 >= 40);
-    assertTrue(result3 < 100);
+    assertEquals(2000, stopWatch.getTime());
   }
 }

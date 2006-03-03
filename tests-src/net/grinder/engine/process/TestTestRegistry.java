@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,8 @@ import net.grinder.common.Test;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.TimeAuthority;
+import net.grinder.util.TimeAuthorityStubFactory;
 
 
 /**
@@ -41,6 +43,11 @@ public class TestTestRegistry extends TestCase {
   private final TestStatisticsHelper m_testStatisticsHelper =
     (TestStatisticsHelper)m_testStatisticsHelperStubFactory.getStub();
 
+  private final TimeAuthorityStubFactory m_timeAuthorityStubFactory =
+    new TimeAuthorityStubFactory();
+  private final TimeAuthority m_timeAuthority =
+    m_timeAuthorityStubFactory.getTimeAuthority();
+
   public TestTestRegistry(String name) {
     super(name);
   }
@@ -53,7 +60,8 @@ public class TestTestRegistry extends TestCase {
 
     final TestRegistry testRegistry =
       new TestRegistry(
-        threadContextLocator, statisticsSetFactory, m_testStatisticsHelper);
+        threadContextLocator, statisticsSetFactory, m_testStatisticsHelper,
+        m_timeAuthority);
 
     assertNotNull(testRegistry.getTestStatisticsMap());
 
@@ -64,6 +72,7 @@ public class TestTestRegistry extends TestCase {
     assertNull(TestRegistry.getInstance());
 
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+    m_timeAuthorityStubFactory.assertNoMoreCalls();
   }
 
   public void testRegister() throws Exception {
@@ -74,7 +83,8 @@ public class TestTestRegistry extends TestCase {
 
     final TestRegistry testRegistry =
       new TestRegistry(
-        threadContextLocator, statisticsSetFactory, m_testStatisticsHelper);
+        threadContextLocator, statisticsSetFactory, m_testStatisticsHelper,
+        m_timeAuthority);
 
     assertNull(testRegistry.getNewTests());
 
@@ -101,5 +111,6 @@ public class TestTestRegistry extends TestCase {
     assertNull(testRegistry.getNewTests());
 
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+    m_timeAuthorityStubFactory.assertNoMoreCalls();
   }
 }

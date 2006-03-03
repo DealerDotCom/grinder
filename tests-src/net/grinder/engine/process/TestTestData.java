@@ -34,6 +34,7 @@ import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.StandardTimeAuthority;
 
 
 /**
@@ -74,9 +75,13 @@ public class TestTestData extends TestCase {
   private final ThreadContext m_threadContext =
     (ThreadContext)m_threadContextStubFactory.getStub();
 
+  private final StandardTimeAuthority m_timeAuthority =
+    new StandardTimeAuthority();
+
   public void testCreateProxy() throws Exception {
     final TestData testData =
-      new TestData(null, m_statisticsSetFactory, null, m_scriptEngine, null);
+      new TestData(null, m_statisticsSetFactory, null,
+                   m_timeAuthority, m_scriptEngine, null);
 
     final Object original = new Object();
 
@@ -94,6 +99,7 @@ public class TestTestData extends TestCase {
       new TestData(m_threadContextLocator,
                    m_statisticsSetFactory,
                    m_testStatisticsHelper,
+                   m_timeAuthority,
                    m_scriptEngine,
                    test1);
 
@@ -186,6 +192,7 @@ public class TestTestData extends TestCase {
       new TestData(m_threadContextLocator,
                    m_statisticsSetFactory,
                    m_testStatisticsHelper,
+                   m_timeAuthority,
                    m_scriptEngine,
                    test1);
 

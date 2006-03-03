@@ -28,6 +28,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
+import net.grinder.util.TimeAuthority;
 
 
 /**
@@ -44,6 +45,7 @@ final class TestData
 
   private final StatisticsSetFactory m_statisticsSetFactory;
   private final TestStatisticsHelper m_testStatisticsHelper;
+  private final TimeAuthority m_timeAuthority;
   private final ScriptEngine m_scriptEngine;
   private final ThreadContextLocator m_threadContextLocator;
   private final Test m_test;
@@ -60,10 +62,12 @@ final class TestData
   TestData(ThreadContextLocator threadContextLocator,
            StatisticsSetFactory statisticsSetFactory,
            TestStatisticsHelper testStatisticsHelper,
+           TimeAuthority timeAuthority,
            ScriptEngine scriptEngine,
            Test testDefinition) {
     m_statisticsSetFactory = statisticsSetFactory;
     m_testStatisticsHelper = testStatisticsHelper;
+    m_timeAuthority = timeAuthority;
     m_scriptEngine = scriptEngine;
     m_threadContextLocator = threadContextLocator;
     m_test = testDefinition;
@@ -125,7 +129,7 @@ final class TestData
         final Dispatcher dispatcher =
           new Dispatcher(m_statisticsSetFactory.create(),
                          threadContext.getDispatchResultReporter(),
-                         new StopWatchImplementation());
+                         new StopWatchImplementation(m_timeAuthority));
 
         return new DispatcherHolder(threadContext, dispatcher);
       }
@@ -223,13 +227,14 @@ final class TestData
         // Make it more likely that the timed section has a "clear run".
         Thread.yield();
 
-        m_startTime = System.currentTimeMillis();
+        m_startTime = m_timeAuthority.getTimeInMilliseconds();
 
         try {
           return callable.call();
         }
         finally {
-          m_dispatchTime = System.currentTimeMillis() - m_startTime;
+          m_dispatchTime =
+            m_timeAuthority.getTimeInMilliseconds() - m_startTime;
         }
       }
       catch (RuntimeException e) {
@@ -281,7 +286,7 @@ final class TestData
       final long unadjustedTime;
 
       if (m_dispatchTime == -1) {
-        unadjustedTime = System.currentTimeMillis() - m_startTime;
+        unadjustedTime = m_timeAuthority.getTimeInMilliseconds() - m_startTime;
       }
       else {
         unadjustedTime = m_dispatchTime;

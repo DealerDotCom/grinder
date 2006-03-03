@@ -236,7 +236,7 @@ final class GrinderProcess {
 
     logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
 
-    m_context.setExecutionStartTime(System.currentTimeMillis());
+    m_context.setExecutionStartTime();
 
     // Start the threads.
     for (int i = 0; i < numberOfThreads; i++) {

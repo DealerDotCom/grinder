@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,19 +46,25 @@ public final class Sleeper {
   private static Random s_random = new Random();
   private static List s_allSleepers = new ArrayList();
 
-  private boolean m_shutdown = false;
+  private final TimeAuthority m_timeAuthority;
   private final double m_factor;
   private final double m_limit9975Factor;
   private final Logger m_logger;
 
+  private boolean m_shutdown = false;
+
   /**
    * The constructor.
    *
+   * @param timeAuthority An authority on the current time.
+   * @param logger A logger to chat to. Pass <code>null</code> for no chat.
    * @param factor All sleep times are modified by this factor.
    * @param limit9975Factor See {@link #sleepNormal}.
-   * @param logger  A logger to chat to. Pass <code>null</code> for no chat.
    */
-  public Sleeper(double factor, double limit9975Factor, Logger logger) {
+  public Sleeper(TimeAuthority timeAuthority,
+                 Logger logger,
+                 double factor,
+                 double limit9975Factor) {
 
     if (factor < 0d || limit9975Factor < 0d) {
       throw new IllegalArgumentException("Factors must be positive");
@@ -68,6 +74,7 @@ public final class Sleeper {
       s_allSleepers.add(new WeakReference(this));
     }
 
+    m_timeAuthority  = timeAuthority;
     m_factor = factor;
     m_limit9975Factor = limit9975Factor;
     m_logger = logger;
@@ -164,7 +171,7 @@ public final class Sleeper {
         m_logger.output("sleeping for " + factoredTime + " ms");
       }
 
-      long currentTime = System.currentTimeMillis();
+      long currentTime = m_timeAuthority.getTimeInMilliseconds();
       final long wakeUpTime = currentTime + factoredTime;
 
       while (currentTime < wakeUpTime) {
@@ -178,7 +185,7 @@ public final class Sleeper {
           throw new UncheckedInterruptedException(e);
         }
 
-        currentTime = System.currentTimeMillis();
+        currentTime = m_timeAuthority.getTimeInMilliseconds();
       }
     }
   }

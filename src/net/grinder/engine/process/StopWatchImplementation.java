@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,8 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.util.TimeAuthority;
+
 
 /**
  * Implementation of {@link StopWatch}.
@@ -30,15 +32,21 @@ package net.grinder.engine.process;
  */
 final class StopWatchImplementation implements StopWatch {
 
+  private final TimeAuthority m_timeAuthority;
+
   private long m_time;
   private long m_startTime = -1;
+
+  public StopWatchImplementation(TimeAuthority timeAuthority) {
+    m_timeAuthority = timeAuthority;
+  }
 
   public void start() {
     if (m_startTime != -1) {
       throw new StopWatchRunningException("Already running");
     }
 
-    m_startTime = System.currentTimeMillis();
+    m_startTime = m_timeAuthority.getTimeInMilliseconds();
   }
 
   public void stop() {
@@ -46,7 +54,7 @@ final class StopWatchImplementation implements StopWatch {
       throw new StopWatchNotRunningException("Not running");
     }
 
-    m_time = m_time + System.currentTimeMillis() - m_startTime;
+    m_time = m_time + m_timeAuthority.getTimeInMilliseconds() - m_startTime;
     m_startTime = -1;
   }
 
