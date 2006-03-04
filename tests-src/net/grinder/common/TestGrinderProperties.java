@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -90,6 +90,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     m_intSet.put("An_integer", "9");
     m_intSet.put("Number", "-9");
+    m_intSet.put("AnotherNumber", "-9  ");
 
     m_brokenIntSet.put("Broken_int_1", "9x");
     m_brokenIntSet.put("Broken_int_2", "");
@@ -98,6 +99,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     m_longSet.put("A_long", "1234542222");
     m_longSet.put("Another_long", "-19");
+    m_longSet.put("YetAnother_long", "  -19");
 
     m_brokenLongSet.put("Broken_long_1", "0x9");
     m_brokenLongSet.put("Broken_long_2", "");
@@ -106,6 +108,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     m_shortSet.put("A_short", "123");
     m_shortSet.put("Another_short", "0");
+    m_shortSet.put("OneMore_short", " 0 ");
 
     m_brokenShortSet.put("Broken_short_1", "0x9");
     m_brokenShortSet.put("Broken_short_2", "1.4");
@@ -113,6 +116,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     m_doubleSet.put("A_double", "1.0");
     m_doubleSet.put("Another_double", "1");
+    m_doubleSet.put("Mines_a_double", "  1");
 
     m_brokenDoubleSet.put("Broken_double_1", "0x9");
     m_brokenDoubleSet.put("Broken_double_2", "1/0");
@@ -185,7 +189,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     (new IterateOverProperties(m_intSet) {
         void match(String key, String value) throws Exception {
-          assertEquals(Integer.parseInt(value),
+          assertEquals(Integer.parseInt(value.trim()),
                        m_grinderProperties.getInt(key, 99));
         }
       }
@@ -209,7 +213,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     (new IterateOverProperties(m_longSet) {
         void match(String key, String value) throws Exception {
-          assertEquals(Long.parseLong(value),
+          assertEquals(Long.parseLong(value.trim()),
                        m_grinderProperties.getLong(key, 99));
         }
       }
@@ -234,7 +238,8 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     (new IterateOverProperties(m_shortSet) {
         void match(String key, String value) throws Exception {
-          assertEquals(Short.parseShort(value),
+          assertEquals(key,
+                      Short.parseShort(value.trim()),
                        m_grinderProperties.getShort(key, (short)99));
         }
       }
@@ -320,8 +325,8 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     (new IterateOverProperties(m_intSet) {
         void match(String key, String value) throws Exception {
-          properties.setInt(key, Integer.parseInt(value));
-          assertEquals(value, properties.getProperty(key, null));
+          properties.setInt(key, Integer.parseInt(value.trim()));
+          assertEquals(value.trim(), properties.getProperty(key, null));
         }
       }
      ).run();
@@ -332,8 +337,8 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     (new IterateOverProperties(m_longSet) {
         void match(String key, String value) throws Exception {
-          properties.setLong(key, Long.parseLong(value));
-          assertEquals(value, properties.getProperty(key, null));
+          properties.setLong(key, Long.parseLong(value.trim()));
+          assertEquals(value.trim(), properties.getProperty(key, null));
         }
       }
      ).run();
@@ -344,8 +349,8 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     (new IterateOverProperties(m_shortSet) {
         void match(String key, String value) throws Exception {
-          properties.setShort(key, Short.parseShort(value));
-          assertEquals(value, properties.getProperty(key, null));
+          properties.setShort(key, Short.parseShort(value.trim()));
+          assertEquals(value.trim(), properties.getProperty(key, null));
         }
       }
      ).run();
