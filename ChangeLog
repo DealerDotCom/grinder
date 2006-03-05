@@ -1,3 +1,41 @@
+2006-03-05  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/ThreadContextImplementation.java, tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	Added grinder.logDataStream for Tom Barnes.
+
+	* .project, CHANGES, build.xml, etc/grinder-manifest.mf, etc/localpaths.properties, src-j2se5/net/grinder/util/NanoTimeTimeAuthority.java, src-j2se5/net/grinder/util/package.html, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContextImplementation.java:
+	Add grinder.useNanoTime property.
+
+2006-03-04  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/common/GrinderProperties.java, tests-src/net/grinder/common/TestGrinderProperties.java:
+	Trim strings before parsing them as numbers.
+	Thanks to Paul Wallace for the report.
+
+2006-03-03  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/util/Sleeper.java, src/net/grinder/util/StandardTimeAuthority.java, src/net/grinder/util/TimeAuthority.java, tests-src/net/grinder/engine/process/StubTestRegistry.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/engine/process/TestStopWatchImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/engine/process/TestTestRegistry.java, tests-src/net/grinder/util/TestSleeper.java, tests-src/net/grinder/util/TimeAuthorityStubFactory.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/StopWatchImplementation.java, src/net/grinder/engine/process/TestRegistry.java:
+	Abstract out TimeAuthority so we can switch in J2SE 5 System.nanoTime().
+
+2006-03-02  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Remove debug message.
+
+	* src/net/grinder/statistics/TestStatisticsMap.java, CHANGES, src/net/grinder/engine/process/GrinderProcess.java:
+	Address race condition which caused "Ignoring unknown test" messages
+	to appear on the console terminal. Thanks to Dhinakar K for the
+	report.
+
+	* src/net/grinder/statistics/StatisticsSet.java, src/net/grinder/statistics/StatisticsSetImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/TestStatisticsSetImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	Make TestStatisticsMaps more sparse by ommitting StatisticsSets that have not been modified.
+
+2006-02-22  Philip Aston  <philipa@mail.com>
+
+	* etc/buildenv.sh, etc/setenv.sh: Java installation has moved.
+
+	* build.xml: Revert use of location. Doesn't work with relative paths.
+
 2006-02-08  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java, tests-src/net/grinder/plugin/http/HTTPRequestHandler.java, tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java:
