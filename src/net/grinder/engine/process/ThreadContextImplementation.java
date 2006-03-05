@@ -76,23 +76,37 @@ final class ThreadContextImplementation
     m_threadLogger = threadLogger;
     m_filenameFactory = filenameFactory;
 
-    final ThreadDataWriter threadDataWriter =
-      new ThreadDataWriter(
-        dataWriter,
-        processContext.getStatisticsServices()
-        .getDetailStatisticsView().getExpressionViews(),
-        m_threadLogger.getThreadID());
+    // Undocumented property. Added so Tom Barnes can investigate overhead
+    // of data logging.
+    if (processContext.getProperties().getBoolean("grinder.logData", true)) {
+      final ThreadDataWriter threadDataWriter =
+        new ThreadDataWriter(
+          dataWriter,
+          processContext.getStatisticsServices()
+          .getDetailStatisticsView().getExpressionViews(),
+          m_threadLogger.getThreadID());
 
-    m_dispatchResultReporter = new DispatchResultReporter() {
-
-      public void report(Test test, long startTime, StatisticsSet statistics) {
-        threadDataWriter.report(
-          getRunNumber(),
-          test,
-          startTime - m_processContext.getExecutionStartTime(),
-          statistics);
-      }
-    };
+      m_dispatchResultReporter = new DispatchResultReporter() {
+        public void report(Test test,
+                           long startTime,
+                           StatisticsSet statistics) {
+          threadDataWriter.report(
+            getRunNumber(),
+            test,
+            startTime - m_processContext.getExecutionStartTime(),
+            statistics);
+        }
+      };
+    }
+    else {
+      m_dispatchResultReporter = new DispatchResultReporter() {
+        public void report(Test test,
+                           long startTime,
+                           StatisticsSet statistics) {
+          // Null reporter.
+        }
+      };
+    }
 
     m_scriptStatistics =
       new ScriptStatisticsImplementation(

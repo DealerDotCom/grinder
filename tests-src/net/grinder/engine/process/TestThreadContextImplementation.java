@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import net.grinder.common.FilenameFactory;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
@@ -50,10 +51,10 @@ public class TestThreadContextImplementation extends TestCase {
   private final FilenameFactory m_filenameFactory =
     (FilenameFactory)m_filenameFactoryStubFactory.getStub();
 
-  private final RandomStubFactory m_processContextStubFactory =
-    new RandomStubFactory(ProcessContext.class);
+  private final ProcessContextStubFactory m_processContextStubFactory =
+    new ProcessContextStubFactory();
   private final ProcessContext m_processContext =
-    (ProcessContext)m_processContextStubFactory.getStub();
+    m_processContextStubFactory.getProcessContext();
 
   private final RandomStubFactory m_sslContextFactoryStubFactory =
     new RandomStubFactory(SSLContextFactory.class);
@@ -115,6 +116,32 @@ public class TestThreadContextImplementation extends TestCase {
     final String output = dataStringWriter.toString();
     AssertUtilities.assertContains(output, "22");
   }
+
+  public void testNullDispatchResultReporter() throws Exception {
+
+    final StringWriter dataStringWriter = new StringWriter();
+
+    m_processContext.getProperties().setBoolean("grinder.logData", false);
+
+    final ThreadContext threadContext =
+      new ThreadContextImplementation(
+        m_processContext, m_threadLogger, m_filenameFactory,
+        new PrintWriter(dataStringWriter, true));
+
+    final DispatchResultReporter dispatchResultReporter =
+      threadContext.getDispatchResultReporter();
+
+    final Test test = new StubTest(22, "test");
+
+    final StatisticsSet statistics =
+      m_statisticsServices.getStatisticsSetFactory().create();
+
+    dispatchResultReporter.report(test, 123456, statistics);
+
+    m_threadLoggerStubFactory.assertNoMoreCalls();
+    assertEquals("", dataStringWriter.toString());
+  }
+
 
   public void testDispatchContext() throws Exception {
     final ThreadContext threadContext =
@@ -251,5 +278,23 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.setDelayReports(false);
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
+  }
+
+  public static final class ProcessContextStubFactory
+    extends RandomStubFactory {
+
+    private GrinderProperties m_properties = new GrinderProperties();
+
+    public ProcessContextStubFactory() {
+      super(ProcessContext.class);
+    }
+
+    public ProcessContext getProcessContext() {
+      return (ProcessContext)getStub();
+    }
+
+    public GrinderProperties override_getProperties(Object proxy) {
+      return m_properties;
+    }
   }
 }
