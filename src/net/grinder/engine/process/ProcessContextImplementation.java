@@ -29,11 +29,13 @@ import net.grinder.common.Logger;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.QueuedSender;
 import net.grinder.console.messages.WorkerProcessReportMessage;
+import net.grinder.engine.common.EngineException;
 import net.grinder.script.Grinder;
 import net.grinder.script.SSLControl;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
+import net.grinder.util.JVM;
 import net.grinder.util.Sleeper;
 import net.grinder.util.StandardTimeAuthority;
 import net.grinder.util.TimeAuthority;
@@ -78,7 +80,33 @@ final class ProcessContextImplementation implements ProcessContext {
     m_threadContextLocator = new ThreadContextLocatorImplementation();
     m_testStatisticsHelper = new TestStatisticsHelperImplementation();
 
-    m_timeAuthority = new StandardTimeAuthority();
+    TimeAuthority alternateTimeAuthority = null;
+
+    if (properties.getBoolean("grinder.useNanoTime", false)) {
+      if (!JVM.getInstance().isAtLeastVersion(1, 5)) {
+        logger.output("grinder.useNanoTime=true requires J2SE 5 or later, " +
+                      "ignoring this setting",
+                      Logger.LOG | Logger.TERMINAL);
+      }
+      else {
+        try {
+          final Class nanoTimeClass =
+            Class.forName("net.grinder.util.NanoTimeTimeAuthority");
+          alternateTimeAuthority = (TimeAuthority)nanoTimeClass.newInstance();
+          logger.output("Using System.nanoTime()");
+        }
+        catch (Exception e) {
+          throw new EngineException("Failed to load nanoTime() support", e);
+        }
+      }
+    }
+
+    if (alternateTimeAuthority != null) {
+      m_timeAuthority = alternateTimeAuthority;
+    }
+    else {
+      m_timeAuthority = new StandardTimeAuthority();
+    }
 
     final Logger externalLogger =
       new ExternalLogger(m_processLogger, m_threadContextLocator);

@@ -25,6 +25,7 @@ What do I need?
 As well as Ant, to build and run The Grinder you need:
 
   - J2SE 1.4.1 or later
+  - J2SE 5 (to build option J2SE 5 specific code)
 
 The following addtional packages are necessary to build and run The Grinder.
 They are bundled in the lib directory:
@@ -92,6 +93,7 @@ what you want. Currently the conditionally built modules are:
 
   <!-- source of all evil -->
   <property name="src.dir" value="src"/>
+  <property name="j2se5-src.dir" value="src-j2se5"/>
   <property name="native-src.dir" value="native"/>
   <property name="test-src.dir" value="tests-src"/>
   <property name="etc.dir" value="etc"/>
@@ -104,6 +106,7 @@ what you want. Currently the conditionally built modules are:
   <!-- classes.dir is calcuated in init. -->
   <property name="build.dir" value="${basedir}/build"/>
   <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
+  <property name="j2se5-classes.dir" value="${build.dir}/j2se5-classes"/>
   <property name="lib.dir" value="lib"/>
   <property name="dist.root" value="${build.dir}/distribution"/>
   <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
@@ -111,6 +114,7 @@ what you want. Currently the conditionally built modules are:
   <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
   <property name="release.dir" value="releases"/>
   <property name="doc.dir" value="docs"/>
+  <property name="j2se5.jar" value="${lib.dir}/grinder-j2se5.jar"/>
   <property name="xmlbeans.jar" value="${lib.dir}/grinder-xmlbeans.jar"/>
 
   <!-- javadoc -->
@@ -188,7 +192,7 @@ what you want. Currently the conditionally built modules are:
     <path id="picocontainer.classpath">
       <!-- Must use fileset, pathelement doesn't accept wildcards. -->
       <fileset dir="${lib.dir}">
-	<include name="picocontainer-*.jar"/>
+  <include name="picocontainer-*.jar"/>
       </fileset>
     </path>
 
@@ -365,6 +369,22 @@ what you want. Currently the conditionally built modules are:
     </javac>
   </target>
 
+  <target name="compile-j2se5" depends="init"
+          description="Compiles the J2SE 5 source.">
+    <mkdir dir="${j2se5-classes.dir}"/>
+
+    <javac srcdir="${j2se5-src.dir}"
+           destdir="${j2se5-classes.dir}"
+           debug="${debug}"
+           optimize="${optimize}"
+           deprecation="${deprecation}"
+           source="1.5"
+           executable="${j2se5compiler.exe}"
+           fork="true">
+      <classpath refid="build.classpath"/>
+    </javac>
+  </target>
+
   <target name="compile-native" depends="init"
           description="Compiles the native source.">
     <exec executable="gcc">
@@ -401,13 +421,15 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Creates the jar                                                     -->
   <!-- =================================================================== -->
-  <target name="jar" depends="compile, copy-resources"
+  <target name="jar" depends="compile, copy-resources, compile-j2se5"
     description="Default target, creates lib/grinder.jar.">
 
     <jar jarfile="${lib.dir}/${name}.jar"
          basedir="${classes.dir}"
-         manifest="etc/grinder-manifest.mf">
-    </jar>
+         manifest="etc/grinder-manifest.mf"/>
+
+    <jar jarfile="${j2se5.jar}"
+         basedir="${j2se5-classes.dir}"/>
   </target>
 
   <!-- =================================================================== -->

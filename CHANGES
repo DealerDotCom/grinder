@@ -16,8 +16,8 @@ The Grinder 3.0-beta29 (Not yet released)
      guess the resources belonging to a page based on the resource type.
      Pages are instrumented as separate tests.
    - Name value tokens are identified in URL path parameters and query
-     strings and mapped to script variables. Most session tokens that encoded
-     in URLs will now be handled automatically.
+     strings and mapped to script variables. Most session tokens that
+     encoded in URLs will now be handled automatically.
 
   Several changes to the script API, including:
     net.grinder.plugin.http.HTTPRequest:
@@ -47,11 +47,16 @@ The Grinder 3.0-beta29 (Not yet released)
   HTTPPluginConnection.setUseAuthorizationModule() method. The
   following convenience wrappers around the HTTPClient API were also
   removed: addBasicAuthorization(), removeBasicAuthorization(),
-  addDigestAuthorization(), removeDigiestAuthorization().
+  addDigestAuthorization(), removeDigestAuthorization().
 
   The worker process to console communication has been made more
   efficient, and a race condition which caused "Ignoring unknown test"
   messages has been removed. Thanks to Dhinakar K for the report.
+
+  The Grinder can now optionally use J2SE 5 System.nanoTime() which
+  might give more precision on some platforms. Times are still
+  reported in milliseconds. See the grinder.useNanoTime property.
+  Thanks to Tom Barnes for requesting this feature.
 
 
 Grinder 3.0-beta28

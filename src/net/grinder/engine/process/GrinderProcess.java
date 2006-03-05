@@ -110,6 +110,11 @@ final class GrinderProcess {
       properties.getBoolean("grinder.logProcessStreams", true),
       properties.getInt("grinder.numberOfOldLogs", 1));
 
+    final Logger processLogger = m_loggerImplementation.getProcessLogger();
+    processLogger.output("The Grinder version " +
+                         GrinderBuild.getVersionString());
+    processLogger.output(JVM.getInstance().toString());
+
     final QueuedSender consoleSender;
 
     if (m_initialisationMessage.getReportToConsole()) {
@@ -138,12 +143,10 @@ final class GrinderProcess {
       new ProcessContextImplementation(
         m_initialisationMessage.getWorkerIdentity(),
         properties,
-        m_loggerImplementation.getProcessLogger(),
+        processLogger,
         m_loggerImplementation.getFilenameFactory(),
         consoleSender,
         StatisticsServicesImplementation.getInstance());
-
-    final Logger logger = m_context.getProcessLogger();
 
     // If we don't call getLocalHost() before spawning our
     // ConsoleListener thread, any attempt to call it afterwards will
@@ -153,7 +156,8 @@ final class GrinderProcess {
     try { java.net.InetAddress.getLocalHost(); }
     catch (UnknownHostException e) { /* Ignore */ }
 
-    m_consoleListener = new ConsoleListener(m_eventSynchronisation, logger);
+    m_consoleListener =
+      new ConsoleListener(m_eventSynchronisation, processLogger);
     m_accumulatedStatistics =
       new TestStatisticsMap(
         m_context.getStatisticsServices().getStatisticsSetFactory());
@@ -178,9 +182,6 @@ final class GrinderProcess {
    */
   public void run() throws GrinderException {
     final Logger logger = m_context.getProcessLogger();
-
-    logger.output("The Grinder version " + GrinderBuild.getVersionString());
-    logger.output(JVM.getInstance().toString());
 
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
