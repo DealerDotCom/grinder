@@ -15,6 +15,14 @@
 
     <tr>
       <td>
+        <a href="  http://cdjdn.com/downloads/performancetesting-grinder.pdf">Performance Testing using The Grinder</a>
+      </td>
+
+      <td>A high-level overview of test methodology using The Grinder from Paul Evans/Blue Slate Solutions. Hosted by the Capital District Java Developers Network.</td>
+    </tr>
+
+    <tr>
+      <td>
         <a href="http://www.anser-e.com/testing/GrinderAutomationTutorial.html">Grinder Test Automation for the WebLogic Server</a>
       </td>
 
