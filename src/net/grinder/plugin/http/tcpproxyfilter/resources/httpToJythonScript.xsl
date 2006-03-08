@@ -574,7 +574,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
       <xsl:with-param name="first-entry" select="not(../preceding-sibling::*)"/>
     </xsl:call-template>
 
-    <xsl:text>httpUtilities.basicAuthorization(</xsl:text>
+    <xsl:text>httpUtilities.basicAuthorizationHeader(</xsl:text>
     <xsl:value-of select="helper:quoteForPython(@userid)"/>
     <xsl:text>, </xsl:text>
     <xsl:value-of select="helper:quoteForPython(@password)"/>
