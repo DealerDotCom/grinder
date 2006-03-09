@@ -134,8 +134,6 @@ public final class XSLTHelper {
       }
     }
 
-    System.err.println("'" + value + "' -> '" + result + "'");
-
     return result.toString();
   }
 
