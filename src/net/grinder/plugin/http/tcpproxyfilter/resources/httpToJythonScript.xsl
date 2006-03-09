@@ -418,7 +418,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:text>)</xsl:text>
 
     <xsl:text> # </xsl:text>
-    <xsl:value-of select="helper:quoteForPython(g:new-value)"/>
+    <xsl:value-of select="helper:summariseAsLine(g:new-value, 40)"/>
     <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 

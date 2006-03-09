@@ -130,4 +130,12 @@ public class TestXSLTHelper extends TestCase {
     assertEquals("Hello \\'quoted\\\" \\\\world",
                  XSLTHelper.escape("Hello 'quoted\" \\world"));
   }
+
+  public void testSummariseAsLine() throws Exception {
+    assertEquals("blah, blah", XSLTHelper.summariseAsLine("blah, blah", 20));
+    assertEquals("blah,...", XSLTHelper.summariseAsLine("blah, blah", 5));
+    assertEquals("blah,\\nblah", XSLTHelper.summariseAsLine("blah,\nblah", 20));
+    assertEquals("\\r blah,\\t", XSLTHelper.summariseAsLine("\r blah,\t", 20));
+    assertEquals("..bla...", XSLTHelper.summariseAsLine("\0\0blah", 5));
+  }
 }

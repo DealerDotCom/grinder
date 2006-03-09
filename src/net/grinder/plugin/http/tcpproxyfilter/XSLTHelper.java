@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -88,6 +88,53 @@ public final class XSLTHelper {
     final String quotes = value.indexOf("\n") > -1 ? "'''" : "'";
 
     result.append(quotes).append(escape(value)).append(quotes);
+
+    return result.toString();
+  }
+
+  /**
+   * Transform new line characters and other control characters to a printable
+   * representation. Truncate string if longer than
+   * <code>maximumCharacters</code. If the string is truncated,
+   * add ellipses.
+   *
+   * @param value
+   *          The input string.
+   * @param maximumCharacters
+   *          Truncate at this number of characters if result would otherwise be
+   *          longer.
+   * @return The result.
+   */
+  public static String summariseAsLine(String value, int maximumCharacters) {
+
+    final StringBuffer result = new StringBuffer(value.length());
+
+    if (value.length() > maximumCharacters) {
+      result.append(value.substring(0, maximumCharacters));
+      result.append("...");
+    }
+    else {
+      result.append(value);
+    }
+
+    for (int i = 0; i < result.length(); ++i) {
+      final char c = result.charAt(i);
+
+      if (c == '\t') {
+        result.replace(i, i + 1, "\\t");
+      }
+      else if (c == '\r') {
+        result.replace(i, i + 1, "\\r");
+      }
+      else if (c == '\n') {
+        result.replace(i, i + 1, "\\n");
+      }
+      else if (Character.isISOControl(c)) {
+        result.setCharAt(i, '.');
+      }
+    }
+
+    System.err.println("'" + value + "' -> '" + result + "'");
 
     return result.toString();
   }
