@@ -547,9 +547,15 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
 
   <xsl:template match="g:headers[node()]" mode="request-uri">
-    <xsl:if test="not(../g:body)">
+    <xsl:if test="../g:method='GET' or
+                  ../g:method='HEAD' or
+                  (../g:method='OPTIONS' or
+                   ../g:method='POST' or
+                   ../g:method='PUT') and not(../g:body)">
       <!-- No keyword arguments for methods, insert dummy parameter. -->
-      <xsl:text>, ()</xsl:text>
+      <!-- The query string argument is alwasy null for GET, HEAD, as we pass
+           query information via the uri. -->
+      <xsl:text>, None</xsl:text>
     </xsl:if>
 
     <xsl:text>,</xsl:text>
