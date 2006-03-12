@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.console.distribution;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -61,7 +60,7 @@ public final class FileDistributionImplementation implements FileDistribution {
   }
 
   FileDistributionImplementation(DistributionControl distributionControl,
-                   UpdateableAgentCacheState agentCacheState) {
+                                 UpdateableAgentCacheState agentCacheState) {
     m_distributionControl = distributionControl;
     m_cacheState = agentCacheState;
   }
@@ -123,11 +122,18 @@ public final class FileDistributionImplementation implements FileDistribution {
 
   /**
    * Scan the given directory for files that have been recently modified. Update
-   * the agent cache state appropriately.
+   * the agent cache state appropriately. Notify our listeners if changed files
+   * are discovered.
    *
-   * @param directory The directory to scan.
+   * @param directory
+   *          The directory to scan.
+   * @param distributionFileFilterPattern
+   *          Current filter pattern.
    */
-  public void scanDistributionFiles(Directory directory) {
+  public void scanDistributionFiles(
+    Directory directory,
+    Pattern distributionFileFilterPattern) {
+
     final long now = System.currentTimeMillis();
 
     // We back up a little from m_lastScanTime to protect against
@@ -135,15 +141,10 @@ public final class FileDistributionImplementation implements FileDistribution {
     final long scanTime =
       Math.max(m_cacheState.getEarliestFileTime(), m_lastScanTime - 100);
 
-    // Don't filter directories by time here, it would prevent listContents
-    // from finding changes to files in directories.
-    final FileFilter timeFilter = new FileFilter() {
-        public boolean accept(File file) {
-          return file.isDirectory() || file.lastModified() > scanTime;
-        }
-      };
-
-    final File[] laterFiles = directory.listContents(timeFilter, true, true);
+    final File[] laterFiles =
+      directory.listContents(
+        new FileDistributionFilter(distributionFileFilterPattern, scanTime),
+        true, true);
 
     m_lastScanTime = now;
 

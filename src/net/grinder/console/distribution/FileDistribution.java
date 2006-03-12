@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -59,7 +59,8 @@ public interface FileDistribution extends FileChangeWatcher {
    * @param distributionFileFilterPattern Current filter pattern.
    * @return Handler for new file distribution.
    */
-  FileDistributionHandler getHandler(Directory directory,
+  FileDistributionHandler getHandler(
+    Directory directory,
     Pattern distributionFileFilterPattern);
 
   /**
@@ -69,6 +70,10 @@ public interface FileDistribution extends FileChangeWatcher {
    *
    * @param directory
    *          The directory to scan.
+   * @param distributionFileFilterPattern
+   *          Current filter pattern.
    */
-  void scanDistributionFiles(Directory directory);
+  void scanDistributionFiles(
+    Directory directory,
+    Pattern distributionFileFilterPattern);
 }

@@ -58,6 +58,9 @@ The Grinder 3.0-beta29 (Not yet released)
   reported in milliseconds. See the grinder.useNanoTime property.
   Thanks to Tom Barnes for requesting this feature.
 
+  Fix console file scanning to used the same filtering as the file
+  distributon. Thanks to whoever reported this. (Bug 1447361).
+
 
 Grinder 3.0-beta28
 ------------------
@@ -89,8 +92,8 @@ Grinder 3.0-beta28
   More relaxed handling of invalid dates in Cookies. Requested by
   Martin Wagner.
 
-  Nicer output for ConnectExceptions and UnknownHost exceptions. (Bug
-  927828).
+  Nicer output for ConnectExceptions and UnknownHost exceptions.
+  (Bug 927828).
 
   Handle Cookies with empty expires attribute. (Bug 982834).
 

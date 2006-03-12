@@ -40,6 +40,9 @@ import net.grinder.util.Directory;
  */
 public class TestFileDistribution extends AbstractFileTestCase {
 
+  private final Pattern m_matchNonePattern = Pattern.compile("^$");
+  private final Pattern m_matchAllPattern = Pattern.compile(".*");
+
   public void testGetHandler() throws Exception {
     final RandomStubFactory distributionControlStubFactory =
       new RandomStubFactory(DistributionControl.class);
@@ -57,11 +60,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
     anotherFile.mkdir();
     final Directory directory2 = new Directory(anotherFile);
 
-    final Pattern matchNonePattern = Pattern.compile("^$");
-    final Pattern matchAllPattern = Pattern.compile(".*");
-
     final FileDistributionHandler fileDistributionHandler1 =
-      fileDistribution.getHandler(directory1, matchNonePattern);
+      fileDistribution.getHandler(directory1, m_matchNonePattern);
 
     distributionControlStubFactory.assertSuccess("clearFileCaches");
     distributionControlStubFactory.assertNoMoreCalls();
@@ -74,7 +74,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     // Test with same directory.
     final FileDistributionHandler fileDistributionHandler2 =
-      fileDistribution.getHandler(directory1, matchNonePattern);
+      fileDistribution.getHandler(directory1, m_matchNonePattern);
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler2);
     distributionControlStubFactory.assertNoMoreCalls();
@@ -82,7 +82,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     // Test with a different directory, should now need to flush the
     // file caches.
     final FileDistributionHandler fileDistributionHandler3 =
-      fileDistribution.getHandler(directory2, matchNonePattern);
+      fileDistribution.getHandler(directory2, m_matchNonePattern);
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler3);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler3);
@@ -95,7 +95,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     // Test with the same directory, but a different pattern, should
     // need to flush.
     final FileDistributionHandler fileDistributionHandler4 =
-      fileDistribution.getHandler(directory2, matchAllPattern);
+      fileDistribution.getHandler(directory2, m_matchAllPattern);
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler4);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler4);
@@ -109,7 +109,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     // Test with original directory.
     final FileDistributionHandler fileDistributionHandler5 =
-      fileDistribution.getHandler(directory1, matchAllPattern);
+      fileDistribution.getHandler(directory1, m_matchAllPattern);
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler5);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler5);
@@ -120,7 +120,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     agentCacheState.setOutOfDate();
 
     final FileDistributionHandler fileDistributionHandler6 =
-      fileDistribution.getHandler(directory1, matchAllPattern);
+      fileDistribution.getHandler(directory1, m_matchAllPattern);
 
     assertNotSame(fileDistributionHandler5, fileDistributionHandler6);
     distributionControlStubFactory.assertSuccess("clearFileCaches");
@@ -152,7 +152,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
       new FileDistributionImplementation(distributionControl, agentCacheState);
     fileDistribution.addFileChangedListener(filesChangedListener);
 
-    fileDistribution.scanDistributionFiles(directory);
+    fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
     assertEquals(0, agentCacheState.getEarliestFileTime());
 
     final File file1 = new File(getDirectory(), "file1");
@@ -164,7 +164,9 @@ public class TestFileDistribution extends AbstractFileTestCase {
     oldFile.setLastModified(0);
     file2.setLastModified(file1.lastModified() + 5000);
 
-    fileDistribution.scanDistributionFiles(directory);
+    fileDistribution.scanDistributionFiles(directory, m_matchAllPattern);
+    assertEquals(0, agentCacheState.getEarliestFileTime());
+    fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
     assertEquals(file1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
@@ -179,7 +181,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     agentCacheStateStubFactory.setEarliestFileTime(file2.lastModified() - 10);
     agentCacheStateStubFactory.resetOutOfDate();
-    fileDistribution.scanDistributionFiles(directory);
+    fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
     assertEquals(file2.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
@@ -187,7 +189,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     // last scan time.
     agentCacheStateStubFactory.setEarliestFileTime(0);
     agentCacheStateStubFactory.resetOutOfDate();
-    fileDistribution.scanDistributionFiles(directory);
+    fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
     assertEquals(file1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
     fileListenerStubFactory.resetCallHistory();
@@ -205,7 +207,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
     oldDirectory.setLastModified(0);
     file2.setLastModified(file1.lastModified() + 5000);
 
-    fileDistribution.scanDistributionFiles(new Directory(testDirectory));
+    fileDistribution.scanDistributionFiles(
+      new Directory(testDirectory), m_matchNonePattern);
     assertEquals(directory1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 

@@ -96,7 +96,8 @@ public class Console {
     timer.schedule(new TimerTask() {
         public void run() {
           fileDistribution.scanDistributionFiles(
-            properties.getDistributionDirectory());
+            properties.getDistributionDirectory(),
+            properties.getDistributionFileFilterPattern());
         }
       },
       properties.getScanDistributionFilesPeriod(),
