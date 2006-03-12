@@ -231,6 +231,13 @@ Meo Bogliolo writes:
  > navigation... I currently look at think time in the scripts to
  > understand when the user "changes" page.
 
+Allow the filters to optionally parse unknown command line options.
+They would also then have to be able to contribute to the help text.
+This would allow the http plugin to add options to specify a
+different filename, and also to specify stdout.
+
+Failed connection events.
+
 ** HTTP Plugin
 
 Remove ParseException, ProtocolNotSuppException from public APIs.
