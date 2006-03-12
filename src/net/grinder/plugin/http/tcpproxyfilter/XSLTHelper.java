@@ -95,7 +95,7 @@ public final class XSLTHelper {
   /**
    * Transform new line characters and other control characters to a printable
    * representation. Truncate string if longer than
-   * <code>maximumCharacters</code. If the string is truncated,
+   * <code>maximumCharacters</code>. If the string is truncated,
    * add ellipses.
    *
    * @param value
