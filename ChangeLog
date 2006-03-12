@@ -1,3 +1,30 @@
+2006-03-12  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/distribution/TestFileDistribution.java, src/net/grinder/console/Console.java, CHANGES, src/net/grinder/console/distribution/FileDistribution.java, src/net/grinder/console/distribution/FileDistributionImplementation.java:
+	Fix console file scanning to used the same filtering as the file distributon. (Bug 1447361).
+
+	* TODO: More to do.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java:
+	Fix javadoc.
+
+2006-03-09  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Fix problem where dummy parameters were erroneously introduced for DELETE, TRACE.
+	Use None as its more obvious that ().
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java:
+	Remove debug output.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestXSLTHelper.java:
+	Safer quoting of tokens in comments.
+
+2006-03-08  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Fix call to basicAuthorizationHeader(). Thanks Cal!
+
 2006-03-05  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/ThreadContextImplementation.java, tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
