@@ -825,6 +825,19 @@ grinder.test0.parameter.post=getPostData.dat
   </faqsection>
   <faqsection id="g3-scripts">
     <title>Scripts</title>
+
+    <faq id="http-recording">
+      <question>How do I record an HTTP script?</question>
+
+      <answer>
+      <p>Using the Grinder 3 it is possible to automatically generate a script
+      of your HTTP journey. To do this you need to make use of the TCPProxy and its
+      associated HTTP TCPProxy filters. The recommended filter to use is "-http" as the
+      other filters are now deprecated. See this <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">link</a>
+      for how to use the TCPProxy and the recommended filter.</p>
+      </answer>
+    </faq>
+
     <faq id="jython-libraries">
       <question>How do I use standard Python
       modules in my scripts?</question>
@@ -1194,6 +1207,31 @@ class TestRunner:
   </faqsection>
   <faqsection id="tcpproxy">
     <title>The TCPProxy</title>
+
+    <faq id="choice-of-filters">
+      <question>
+      Which of the three HTTP TCPProxy filters should I use?
+      </question>
+
+      <answer>
+      <p>The correct HTTP TCPProxy filter to use is: </p>
+      <p>-http</p>
+      <p>The reason for this is that the other filters have been 
+      deprecated.</p>
+      <p>Over the beta period the HTTP TCPProxy filter has 
+      evolved, to begin with it simply captured the elements of the 
+      response traffic. A second filter was created with ability to 
+      group these elements into pages. The latest incarnation of the
+      HTTP TCPProxy filter combines the best of both approaches. It 
+      combines the granularity of the orginal filter instrumentation
+      with the logical grouping of the second filter. It also has a 
+      couple of new tricks as well such as automatically handling/capturing
+      basic authentication.</p>
+      <p>The deprecated filters are:</p>
+      <p>-httpplugin<br/>
+      -newhttpplugin</p>
+      </answer>
+    </faq>
 
     <faq id="what-happened-to-the-tcpsniffer">
       <question>

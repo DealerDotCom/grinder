@@ -70,7 +70,9 @@ See http://forrest.apache.org/docs/linking.html for more info
       <console label="The Console" href="console.html">
       <process-controls href="#process-controls"/>
       </console>
-      <tcpproxy label="The TCPProxy" href="tcpproxy.html"/>
+      <tcpproxy label="The TCPProxy" href="tcpproxy.html">
+		  <HTTPPluginTCPProxyFilter href="#HTTPPluginTCPProxyFilter"/>
+	  </tcpproxy>
     </getting-started>
     <plugins label="Plug-ins">
       <http-plugin label="HTTP plug-in" href="http-plugin.html" >

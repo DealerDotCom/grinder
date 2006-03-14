@@ -112,6 +112,11 @@ class TestRunner:
         grinder.logger.output("Hello World")
 </source>
     </section>
+	<section>
+      <title>Automatically generating scripts</title>
+	  <p>If you are creating a script for a website or web application, you can use the <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a> to generate an HTTPPlugin script
+      suitable for use with The Grinder.</p>
+	</section>
   </section>
 
   <section id="tests">

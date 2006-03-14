@@ -22,7 +22,7 @@
   Because the TCPProxy lets you see what's going on at a network level
   it is also very useful as a debugging tool in its own right.</p>
 
-  <section>
+  <section id="starting-tcpproxy">
     <title>Starting the TCPProxy</title>
 
     <p>You start the TCPProxy with something like:</p>
@@ -126,103 +126,197 @@ GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F[A3A3A3DF]Og[
   <section id="HTTPPluginTCPProxyFilter">
     <title>Using the HTTPPluginTCPProxyFilter</title>
 
-    <p>You can use the TCPProxy to generate an HTTP plugin script
+    <p>You can use the TCPProxy to generate an HTTPPlugin script
     suitable for use with The Grinder.</p>
+	<p>The first step is to invoke the TCPProxy. A command like 
+    the following should be used to invoke the TCPProxy with the
+	recommended HTTP filter:</p>
 
 <source>
-java net.grinder.TCPProxy -httpplugin
+java net.grinder.TCPProxy -console -http > grinder.py
 </source>
 
     <p>The output of the HTTPPluginTCPProxyFilter looks like:</p>
 
 <source>
-Script will be generated to the files 'httpscript.py' and 'httpscript_tests.py'
-Initialising as an HTTP/HTTPS proxy with the parameters:
-   Request filters:  HTTPPluginTCPProxyFilter
-   Response filters: HTTPPluginTCPProxyResponseFilter
-   Local address:    localhost:8001
-Engine initialised, listening on port 8001
+14/03/06 17:04:25 (tcpproxy): Initialising as an HTTP/HTTPS proxy with the
+parameters:
+   Request filters:    HTTPRequestFilter
+   Response filters:   HTTPResponseFilter
+   Local address:      127.0.0.1:8001
+14/03/06 17:04:27 (tcpproxy): Engine initialised, listening on port 8001
 </source>
 
-    <p>The generated script is written to two files,
-    <code>httpscript.py</code> and <code>httpscript_tests.py</code>.
-    The <code>httpscript.py</code> file contains the high level flow
-    of recorded tests. For example:</p>
+	<p>The console provides you with a clean way to exit the proxy when 
+	you have finished recording your script. The console looks like this:</p>
+	
+	<figure src="../images/tcpproxy-console.png" width="175" height="63"
+    alt="TCPProxy Console"/>	  
+	 
+	<p>The next step is to configure your browser to use the TCPProxy as 
+	the HTTP proxy (as stated earlier in this <a href="#starting-tcpproxy">page</a>).
+	It is a wise idea to clear out any cache/temporary internet files that 
+    might be on your workstation. Also for IE users changing the temporary
+	internet files settings to check for a newer version on every visit to 
+	a page is useful.</p>   
+
+	<figure src="../images/ie-cache-settings.png" width="354" height="351"
+    alt="Temporary Internet Files Settings in IE"/>	  
+
+    <p>You should now run through your test scenario on your website.</p>	  
+	  	  	  
+    <p>Having finished your run through press "Stop" on the TCPProxy
+	console and the generated script is then written to <code>grinder.py</code>.</p>
+    <p>The <code>grinder.py</code> file contains headers, requests and
+	a logical grouping of requests into pages, of the recorded tests.</p>
+    <p>For example, the headers section:</p>
 
 <source>
-# httpscript.py
+# The Grinder 3.0-beta29
+# HTTP script recorded by TCPProxy at 14-Feb-2006 16:25:38
 
-from httpscript_tests import *
-
-class TestRunner:
-    def __call__(self):
-
-        tests[0].GET('http://localhost:7001/')
-
-        grinder.sleep(70)
-        tests[1].GET('http://localhost:7001/index.jsp')
-
-        grinder.sleep(100)
-        tests[2].GET('http://localhost:7001/images/header_index.gif')
-
-        grinder.sleep(190)
-        tests[3].GET('http://localhost:7001/images/bullet.gif')
-
-        tests[4].GET('http://localhost:7001/images/built_on_bea.gif')
-
-        grinder.sleep(20)
-        tests[5].GET('http://localhost:7001/images/transparent.gif')
-
-        grinder.sleep(2564)
-        tests[6].GET('http://localhost:7001/examplesWebApp/index.jsp')
-
-        # ..
-</source>
-
-    <p>The details are kept in <code>httpscript_tests.py</code> so
-    that the <code>httpscript.py</code> file is more readable:</p>
-
-<source>
-# httpscript_tests.py
-
-from HTTPClient import NVPair
-from net.grinder.plugin.http import HTTPRequest
 from net.grinder.script import Test
+from net.grinder.script.Grinder import grinder
+from net.grinder.plugin.http import HTTPPluginControl, HTTPRequest
+from HTTPClient import NVPair
+connectionDefaults = HTTPPluginControl.getConnectionDefaults()
+httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
-tests = {}
+# These definitions at the top level of the file are evaluated once,
+# when the worker process is started.
 
-headers0 = ( NVPair('Accept', 'image/gif, image/x-xbitmap, image/jpeg,
-    image/pjpeg, application/vnd.ms-powerpoint, application/vnd.ms-excel,
-    application/msword, application/x-shockwave-flash, */*'), 
-            NVPair('Accept-Language', 'en-gb'), )
-request0 = HTTPRequest(headers = headers0)
-tests[0] = Test(0, 'GET ').wrap(request0)
+connectionDefaults.defaultHeaders = \
+  ( NVPair('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1'),
+    NVPair('Accept-Encoding', 'gzip,deflate'),
+    NVPair('Accept-Language', 'en-us,en;q=0.5'),
+    NVPair('Accept-Charset', 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'), )
 
+headers0= \
+  ( NVPair('Accept', 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5'), )
 
-request1 = HTTPRequest(headers = headers0)
-tests[1] = Test(1, 'GET index.jsp').wrap(request1)
+headers1= \
+  ( NVPair('Accept', 'text/css,*/*;q=0.1'),
+    NVPair('Referer', 'http://localhost/'), )
 
-headers2 = ( NVPair('Accept', '*/*'), 
-            NVPair('Accept-Language', 'en-gb'), 
-            NVPair('If-Modified-Since', 'Thu, 17 Jul 2003 08:33:25 GMT'), 
-            NVPair('Referer', 'http://localhost:7001/index.jsp'), )
-request2 = HTTPRequest(headers = headers2)
-tests[2] = Test(2, 'GET header_index.gif').wrap(request2)
+headers2= \
+  ( NVPair('Accept', 'text/css,*/*;q=0.1'),
+    NVPair('Referer', 'http://localhost/css/product_styles.css'), )
 
-request3 = HTTPRequest(headers = headers2)
-tests[3] = Test(3, 'GET bullet.gif').wrap(request3)
+headers3= \
+  ( NVPair('Accept', 'image/png,*/*;q=0.5'),
+    NVPair('Referer', 'http://localhost/css/colours.css'), )
 
+headers4= \
+  ( NVPair('Accept', 'image/png,*/*;q=0.5'),
+    NVPair('Referer', 'http://localhost/'), )
+
+#....
+</source>
+
+    <p>In the requests section each unique request is captured:</p>
+
+<source>
+url0 = 'http://localhost:80'
+
+# Create an HTTPRequest for each request, then replace the
+# reference to the HTTPRequest with an instrumented version.
+# You can access the unadorned instance using request101.__target__.
+request101 = HTTPRequest(url=url0, headers=headers0)
+request101 = Test(101, 'GET /').wrap(request101)
+
+request102 = HTTPRequest(url=url0, headers=headers1)
+request102 = Test(102, 'GET product_styles.css').wrap(request102)
+
+request103 = HTTPRequest(url=url0, headers=headers2)
+request103 = Test(103, 'GET tools.css').wrap(request103)
+
+request104 = HTTPRequest(url=url0, headers=headers2)
+request104 = Test(104, 'GET colours.css').wrap(request104)
+
+request105 = HTTPRequest(url=url0, headers=headers2)
+request105 = Test(105, 'GET forms.css').wrap(request105)
+	
 # ...
 </source>
+	  
+    <p>Finally the TestRunner section. This section groups the requests into 
+	pages and defines each page as a method, sets sleep interval between requests 
+	and provides an instrumented method for the return of data from the tests: </p>
 
-    <p>Once you've recorded these files you just need to add a simple
-    <a
-    href="site:getting-started/properties"><code>grinder.properties</code></a>
+<source>	
+class TestRunner:
+  """A TestRunner instance is created for each worker thread."""
+
+  # A method for each recorded page.
+  def page1(self):
+    """GET / (requests 101-121)."""
+    result = request101.GET('/', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+    self.token_database = \
+      httpUtilities.valueFromBodyURI('database') # 'B'
+
+    grinder.sleep(171)
+    request102.GET('/css/product_styles.css', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+
+    grinder.sleep(50)
+    request103.GET('/css/tools.css', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+
+    request104.GET('/css/colours.css', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+
+    request105.GET('/css/forms.css', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+
+#.....
+
+    return result
+
+  def page2(self):
+
+#.....	
+	
+  def __call__(self):
+    """This method is called for every run performed by the worker thread."""
+    self.page1()      # GET / (requests 101-121)
+
+    grinder.sleep(100)
+    self.page2()      # GET logging.html (requests 201-217)
+
+#.....
+
+def instrumentMethod(test, method_name, c=TestRunner):
+  """Instrument a method with the given Test."""
+  unadorned = getattr(c, method_name)
+  import new
+  method = new.instancemethod(test.wrap(unadorned), None, c)
+  setattr(c, method_name, method)
+
+# Replace each method with an instrumented version.
+# You can call the unadorned method using self.page1.__target__().
+instrumentMethod(Test(100, 'Page 1'), 'page1')
+instrumentMethod(Test(200, 'Page 2'), 'page2')
+
+#.....					
+</source>  
+
+    <p>Once you've recorded your script you have two methods 
+	that you can use to replay your script:</p>
+	<p>You can create a simple
+    <a href="site:g3/getting-started/properties"><code>grinder.properties</code></a>
     file and you can replay the recorded scenario with The Grinder.
     Your properties file should at least set <a
-    href="site:getting-started/properties">grinder.script</a> to
-    <code>httpscript.py</code>. The recorded scripts can be edited by
-    hand to suit your needs.</p>
+    href="site:g3/getting-started/properties"><code>grinder.script</code></a> to
+    <code>grinder.py</code>.</p>
+	<p>Alternately you can use the Grinder <a href="site:g3/getting-started/console">Console</a>
+	to distribute your script to an	agent and set it as the script to run. 
+	An agent will still need a simple 
+	<a href="site:g3/getting-started/properties"><code>grinder.properties</code></a>
+	, though you will not need to set the <a
+    href="site:g3/getting-started/properties"><code>grinder.script</code></a> property.</p>
+		
+	<p>The recorded script grinder.py can be edited by hand to suit your needs.</p>
 
   </section>
 

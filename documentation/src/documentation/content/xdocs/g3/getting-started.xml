@@ -241,7 +241,7 @@ java -cp %CLASSPATH% net.grinder.Console
      <li>startProxy.cmd:
 <source>
 Call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
-java -cp %CLASSPATH% net.grinder.TCPProxy -console -httpPlugin
+java -cp %CLASSPATH% net.grinder.TCPProxy -console -http > grinder.py
 </source>
      </li>
     </ul>
@@ -279,7 +279,7 @@ java -cp $CLASSPATH net.grinder.Console
 <source>
 #!/usr/bin/ksh
 . <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
-java -cp $CLASSPATH net.grinder.TCPProxy -console -httpPlugin
+java -cp $CLASSPATH net.grinder.TCPProxy -console -http > grinder.py
 </source>
       </li>
      </ul>
@@ -393,6 +393,13 @@ java -cp $CLASSPATH net.grinder.TCPProxy -console -httpPlugin
    people using the implementation concurrently.</p>
   </section>
 
+  <section id="howtorecord">
+  <title>How do I record a script?</title>
+  <p>You can manully create scripts for use with the Grinder and there are a number of examples of how to do this in the <a href="site:script-gallery">Script Gallery</a>.
+  See the <a href="site:scripts/scripts-intro">Scripts</a> section for more details on how to create scripts.</p>
+  <p>If you are creating a script for a website or web application, you can use the <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a> to generate an HTTPPlugin script
+    suitable for use with The Grinder.</p>
+  </section>
 
 </body>
 </document>
