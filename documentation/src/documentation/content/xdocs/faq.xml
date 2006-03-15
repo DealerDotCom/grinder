@@ -1215,21 +1215,23 @@ class TestRunner:
 
       <answer>
       <p>The correct HTTP TCPProxy filter to use is: </p>
-      <p>-http</p>
-      <p>The reason for this is that the other filters have been 
-      deprecated.</p>
-      <p>Over the beta period the HTTP TCPProxy filter has 
-      evolved, to begin with it simply captured the elements of the 
-      response traffic. A second filter was created with ability to 
-      group these elements into pages. The latest incarnation of the
-      HTTP TCPProxy filter combines the best of both approaches. It 
-      combines the granularity of the orginal filter instrumentation
-      with the logical grouping of the second filter. It also has a 
-      couple of new tricks as well such as automatically handling/capturing
-      basic authentication.</p>
+      <p><strong>-http</strong></p>
+      <p>This is the latest incarnation of the HTTP TCPProxy filter and
+      combines the best of both old filters as well as providing some new features.</p>
+
+      <p>Key new features over the previous filters (which are deprecated):</p>
+   <p>- Records to a single script.<br />
+   - Basic Authorization is recorded.<br />
+   - Modular implementation based on an XSLT style sheet.<br />
+   - Requests are grouped together into pages, using simple rules that
+     guess the resources belonging to a page based on the resource type.
+     Pages are instrumented as separate tests.<br />
+   - Name value tokens are identified in URL path parameters and query
+     strings and mapped to script variables. Most session tokens that encoded
+     in URLs will now be handled automatically.</p>
       <p>The deprecated filters are:</p>
-      <p>-httpplugin<br/>
-      -newhttpplugin</p>
+      <p><em>-httpplugin</em><br/>
+      <em>-newhttpplugin</em></p>
       </answer>
     </faq>
 
