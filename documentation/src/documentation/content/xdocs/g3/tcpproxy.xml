@@ -50,7 +50,18 @@ Engine initialised, listening on port 8001
 
     <p>This indicates that the TCPProxy is listening as an HTTP proxy
     on port <code>8001</code> (the default, but you can change it with
-    <code>-localPort</code>). You must now set your browser connection
+    <code>-localPort</code>).</p> 
+
+    <p>The TCPProxy will proxy both HTTP and HTTPS. See <a
+    href="#ssl">below</a> for details on customising the SSL
+    configuration.</p>
+
+  </section>
+
+  <section id="BrowserPreparation">
+    <title>Preparing the Browser</title>		
+	  
+    <p>You must now set your browser connection
     settings to specify the TCPProxy as the HTTP proxy. In the browser
     options dialog, set the proxy host to be the host on which the
     TCPProxy is running and proxy port to be <code>8001</code>).</p>
@@ -58,27 +69,36 @@ Engine initialised, listening on port 8001
     <figure src="../images/proxy-preferences.png" width="562"
     height="462" alt="Browser proxy preferences"/>
 
+	<p>It is important to remember to remove any "bypass proxy server" or "No Proxy for" settings
+	that you might have so that all the traffic flows through the TCPProxy and can 
+	be captured.</p>
+	  
+    <note><a href="site:mozilla">Firefox</a> users will find Jeremy
+    Gillick's <em>SwitchProxy</em> extension useful for switching to and
+    from the TCPProxy.</note>	  	  
+	  
+	<p>It is also a wise idea to clear out any cache/temporary internet files that 
+    might be on your workstation. Also for IE users changing the temporary
+	internet files settings to check for a newer version on every visit to 
+	a page is useful.</p>   
+
+	<figure src="../images/ie-cache-settings.png" width="354" height="351"
+    alt="Temporary Internet Files Settings in IE"/>	  	  
+	
     <p>The TCPProxy appears to your browser just like any other HTTP
     proxy server, and you can use your browser as normal. If you type
     <code>http://grinder.sourceforge.net</code> into your browser it
     will display The Grinder home page and the TCPProxy will output
     all of the HTTP interactions between the browser and the
-    SourceForge site.</p>
-
-    <p>The TCPProxy will proxy both HTTP and HTTPS. See <a
-    href="#ssl">below</a> for details on customising the SSL
-    configuration.</p>
-
-  <note><a href="site:mozilla">Firefox</a> users will find Jeremy
-  Gillick's <em>SwitchProxy</em> extension useful for switching to and
-  from the TCPProxy.</note>
+    SourceForge site.</p>	  	    
 
   </section>
-
+	
   <section id="EchoFilter">
     <title>Using the EchoFilter</title>
 
-    <p>The EchoFilter outputs the stream activity to the terminal. It
+    <p>The EchoFilter is the default filter used by the TCPProxy if no options are specified
+	in the startup command. The EchoFilter outputs the stream activity to the terminal. It
     can be very useful for debugging as described in <a
     href="site:use-the-tcpproxy">this FAQ</a>.</p>
 
@@ -124,11 +144,18 @@ GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F[A3A3A3DF]Og[
   </section>
 
   <section id="HTTPPluginTCPProxyFilter">
-    <title>Using the HTTPPluginTCPProxyFilter</title>
+    <title>Using the HTTPPluginTCPProxyFilters</title>
 
     <p>You can use the TCPProxy to generate an HTTPPlugin script
-    suitable for use with The Grinder.</p>
-	<p>The first step is to invoke the TCPProxy. A command like 
+    suitable for use with The Grinder. The Grinder provides a number 
+    of HTTP filters for this purpose. These filters are:</p>
+	<p>-httpplugin <em>(deprecated)</em><br />
+	-newhttpplugin <em>(deprecated)</em><br />
+	-http <strong>(recommended)</strong></p>
+	  
+    <p>Below is a howto detailing the use of the recommended HTTP filter.</p>	  
+	  
+	<p>The first step is to invoke the TCPProxy with an HTTP filter. A command like 
     the following should be used to invoke the TCPProxy with the
 	recommended HTTP filter:</p>
 
@@ -154,14 +181,7 @@ parameters:
     alt="TCPProxy Console"/>	  
 	 
 	<p>The next step is to configure your browser to use the TCPProxy as 
-	the HTTP proxy (as stated earlier in this <a href="#starting-tcpproxy">page</a>).
-	It is a wise idea to clear out any cache/temporary internet files that 
-    might be on your workstation. Also for IE users changing the temporary
-	internet files settings to check for a newer version on every visit to 
-	a page is useful.</p>   
-
-	<figure src="../images/ie-cache-settings.png" width="354" height="351"
-    alt="Temporary Internet Files Settings in IE"/>	  
+	the HTTP proxy (as stated earlier in this <a href="#BrowserPreparation">page</a>).</p>
 
     <p>You should now run through your test scenario on your website.</p>	  
 	  	  	  
@@ -239,7 +259,7 @@ request105 = Test(105, 'GET forms.css').wrap(request105)
 # ...
 </source>
 	  
-    <p>Finally the TestRunner section. This section groups the requests into 
+    <p>Finally the TestRunner class. This section groups the requests into 
 	pages and defines each page as a method, sets sleep interval between requests 
 	and provides an instrumented method for the return of data from the tests: </p>
 
