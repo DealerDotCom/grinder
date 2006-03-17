@@ -183,7 +183,7 @@ class TestRunner:
 
     <p>You're not restricted to wrapping method calls. In fact, its
     more common to wrap objects. Here's an example using The Grinder's
-    <a href="site:http-plugin">HTTP plug-in</a>.</p>
+    <a href="site:g3/plugins/http-plugin">HTTP plug-in</a>.</p>
 
 <source>
 # A simple example using the HTTP plugin that shows the retrieval of a
@@ -216,7 +216,7 @@ class TestRunner:
     interfaces that make up the core API, as well as additional
     packages added by the shipped plug-ins. This section provides
     overview information on various areas of the API. See also the <a
-    href="site:http-plugin">HTTP plugin documentation</a>.</p>
+    href="site:g3/plugins/http-plugin">HTTP plugin documentation</a>.</p>
 
     <dl>
       <dt><strong>The <a href="script-javadoc/net/grinder/script/package-summary.html">net.grinder.script</a> package</strong></dt>
