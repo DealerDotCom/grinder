@@ -69,12 +69,17 @@ Engine initialised, listening on port 8001
     <figure src="../images/proxy-preferences.png" width="562"
     height="462" alt="Browser proxy preferences"/>
 
+	<p>The relevant options dialog can be accessed by the following steps:</p>
+	<p><strong>MSIE</strong>: Tools -> Internet Options -> Connections -> Local Area Network Settings. <br />
+	<strong>Mozilla/Netscape</strong>: Edit -> Preferences -> Advanced - Proxies.<br />
+	<strong>Mozilla/Firefox</strong>: Tools -> Options -> General -> Connection Settings.<br />
+	<strong>Opera</strong>: Tools -> Preferences -> Advanced -> Network -> Proxy Servers.</p>
 	<p>It is important to remember to remove any "bypass proxy server" or "No Proxy for" settings
 	that you might have so that all the traffic flows through the TCPProxy and can 
 	be captured.</p>
 	  
     <note><a href="site:mozilla">Firefox</a> users will find Jeremy
-    Gillick's <em>SwitchProxy</em> extension useful for switching to and
+    Gillick's <a href="https://addons.mozilla.org/quicksearch.php?q=switchproxy&amp;section=A&amp;application=firefox"><em>SwitchProxy</em></a> extension useful for switching to and
     from the TCPProxy.</note>	  	  
 	  
 	<p>It is also a wise idea to clear out any cache/temporary internet files that 
@@ -341,6 +346,19 @@ instrumentMethod(Test(200, 'Page 2'), 'page2')
 	<p>The recorded script grinder.py can be edited by hand to suit your needs.</p>
 
   </section>
+	
+  <section id="EchoFilter">
+    <title>Using Stylesheets</title>	
+	
+	<p>The recommended TCPProxy HTTP filter, <em>-http</em>, modifies the output of its request
+	and response filters by way of an XLST stylesheet when producing the recorded script.</p>
+	<p>The standard/default stylesheet can be found in in etc/httpToJythonScript.xsl</p>
+	<p>Replacing the standard stylesheet with one of your own making is a quick and easy way to
+	customise the output of the filter.</p>
+	<p>if you want to see the intermediate XML model you can use:</p>
+	  
+<source>java net.grinder.TCPProxy -http etc/httpToXML.xsl -console</source>	  
+  </section>	  
 
   <section id="ssl">
     <title>SSL and HTTPS support</title>
