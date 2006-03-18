@@ -38,7 +38,6 @@ The following additional packages are necesary to run The Grinder unit
 tests, reports.
 
   - JUnit 3.8.1
-  - Xalan 2.3.1
   - Checkstyle 3.4
   - Clover 1.3.5
 
