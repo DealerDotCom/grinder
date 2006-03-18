@@ -61,6 +61,10 @@ The Grinder 3.0-beta29 (Not yet released)
   Fix console file scanning to used the same filtering as the file
   distributon. Thanks to whoever reported this. (Bug 1447361).
 
+  The HTTP proxy code in the TCPProxy has been improved; this should
+  address problems seen when chaining TCPProxy's together as HTTPS
+  proxies. Thanks to Justin Nowell for prompting me to look at this.
+
 
 Grinder 3.0-beta28
 ------------------

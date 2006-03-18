@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000-2006 Philip Aston
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003 Bertrand Ave
@@ -25,6 +25,7 @@
 package net.grinder.tools.tcpproxy;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,6 +72,9 @@ import net.grinder.util.thread.UncheckedInterruptedException;
  */
 public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
+  private static final long s_connectTimeout =
+    Long.getLong("tcpproxy.connecttimeout", 5000).longValue();
+
   private final Pattern m_httpConnectPattern;
   private final Pattern m_httpsConnectPattern;
   private final ProxySSLEngine m_proxySSLEngine;
@@ -78,7 +82,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   private final EndPoint m_chainedHTTPProxy;
   private final HTTPSProxySocketFactory m_httpsProxySocketFactory;
   private final EndPoint m_proxyAddress;
-
 
   /**
    * Constructor.
@@ -119,12 +122,12 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     m_chainedHTTPProxy = chainedHTTPProxy;
 
     m_httpConnectPattern =
-      Pattern.compile("^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)/",
-                      Pattern.MULTILINE);
+      Pattern.compile("^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)/.*\r\n\r\n",
+                      Pattern.DOTALL);
 
     m_httpsConnectPattern =
-      Pattern.compile("^CONNECT[ \\t]+([^:]+):(\\d+)",
-                      Pattern.MULTILINE);
+      Pattern.compile("^CONNECT[ \\t]+([^:]+):(\\d+).*\r\n\r\n",
+                      Pattern.DOTALL);
 
     // When handling HTTPS proxies, we use our plain socket to accept
     // connections on. We suck the bit we understand off the front and
@@ -176,144 +179,161 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       }
 
       try {
-        // Grab the first upstream packet and grep it for the
-        // remote server and port in the method line.
         final BufferedInputStream in =
           new BufferedInputStream(localSocket.getInputStream(), buffer.length);
 
         in.mark(buffer.length);
 
-        // Read a buffer full.
-        final int bytesRead = in.read(buffer);
+        int time = 0;
 
-        final String line =
-          bytesRead > 0 ? new String(buffer, 0, bytesRead, "US-ASCII") : "";
+        // Read data into buffer until we time out or one of the handlers
+        // matches.
+        while (true) {
+          while (time < s_connectTimeout && in.available() == 0) {
+            sleep(10);
+            time += 10;
+          }
 
-        final Matcher httpConnectMatcher =
-          m_httpConnectPattern.matcher(line);
+          final boolean timeout = in.available() == 0;
 
-        final Matcher httpsConnectMatcher =
-          m_httpsConnectPattern.matcher(line);
+          in.reset(); // Easier than maintaining a cursor.
 
-        if (httpConnectMatcher.find()) {
-          // HTTP proxy request.
+          final String bufferAsString;
 
-          // Reset stream to beginning of request.
-          in.reset();
-
-          new StreamThread(
-            new HTTPProxyStreamDemultiplexer(
-              in, localSocket, EndPoint.clientEndPoint(localSocket)),
-            "HTTPProxyStreamDemultiplexer for " + localSocket,
-            in);
-        }
-        else if (httpsConnectMatcher.find()) {
-          // HTTPS proxy request.
-
-          // group(2) must be a port number by specification.
-          final EndPoint remoteEndPoint =
-            new EndPoint(httpsConnectMatcher.group(1),
-                         Integer.parseInt(httpsConnectMatcher.group(2)));
-
-          if (m_httpsProxySocketFactory != null) {
-            // Read additional data from the client (HTTP protocol
-            // version and headers) and pass it to our
-            // HTTPSProxySocketFactory for use in the establishment of
-            // the chained proxy connection.
-
-            final ByteArrayOutputStream additionalRequestBytes =
-              new ByteArrayOutputStream();
-
-            additionalRequestBytes.write(
-              line.substring(httpsConnectMatcher.end(2)).getBytes());
-
-            // Non-blocking read.
-            while (in.available() > 0) {
-              final int n = in.read(buffer);
-
-              if (n > 0) {
-                additionalRequestBytes.write(buffer, 0, n);
-              }
-            }
-
-            m_httpsProxySocketFactory.setAdditionalRequestBytes(
-              additionalRequestBytes.toByteArray());
+          if (in.available() > 0) {
+            final int bytesRead = in.read(buffer);
+            bufferAsString = new String(buffer, 0, bytesRead, "US-ASCII");
           }
           else {
-            // Discard anything else the client has to say.
-            while (in.available() > 0) {
-              in.read(buffer);
+            bufferAsString = "";
+          }
+
+          if (timeout) {
+            // Time out without matching a handler.
+            final HTMLElement message = new HTMLElement();
+
+            message.addElement("p").addText(
+              "Failed to determine proxy destination.");
+
+            if (bufferAsString.length() > 0) {
+              final HTMLElement paragraph1 = message.addElement("p");
+              paragraph1.addText(
+                "Do not type TCPProxy address into your browser. ");
+              paragraph1.addText("The browser proxy settings should be set " +
+                                 "to the TCPProxy address (");
+              paragraph1.addElement("code").addText(m_proxyAddress.toString());
+              paragraph1.addText("), and you should type the address of the " +
+                               "target server into the browser.");
+              message.addElement("p").addText(
+                "Text of received message follows:");
+              message.addElement("p").addElement("pre")
+                .addElement("blockquote").addText(bufferAsString);
             }
+            else {
+              message.addElement("p").addText(
+                "Client opened connection but sent no bytes.");
+            }
+
+            sendHTTPErrorResponse(message, "400 Bad Request",
+                                  localSocket.getOutputStream());
+
+            localSocket.close();
+
+            break;
           }
 
-          // Set our proxy engine up to create connections to the
-          // remoteEndPoint.
-          m_proxySSLEngine.setConnectionDetails(
-            EndPoint.clientEndPoint(localSocket), remoteEndPoint);
+          final Matcher httpConnectMatcher =
+              m_httpConnectPattern.matcher(bufferAsString);
 
-          // Create a new proxy connection to the proxy engine.
-          final Socket sslProxySocket =
-            getSocketFactory().createClientSocket(
-              m_proxySSLEngine.getListenEndPoint());
+          final Matcher httpsConnectMatcher =
+            m_httpsConnectPattern.matcher(bufferAsString);
 
-          // Set up a couple of threads to punt everything we receive
-          // over localSocket to sslProxySocket, and vice versa.
-          new StreamThread(
-            new StreamCopier(4096, true)
-              .getRunnable(in, sslProxySocket.getOutputStream()),
-            "Copy to proxy engine for " + remoteEndPoint,
-            in);
+          if (httpConnectMatcher.find()) {
+            // HTTP proxy request.
 
-          final OutputStream out = localSocket.getOutputStream();
+            // Reset stream to beginning of request.
+            in.reset();
 
-          new StreamThread(
-            new StreamCopier(4096, true)
-              .getRunnable(sslProxySocket.getInputStream(), out),
-            "Copy from proxy engine for " + remoteEndPoint,
-            sslProxySocket.getInputStream());
+            new StreamThread(
+              new HTTPProxyStreamDemultiplexer(
+                in, localSocket, EndPoint.clientEndPoint(localSocket)),
+              "HTTPProxyStreamDemultiplexer for " + localSocket,
+              in);
 
-          if (m_httpsProxySocketFactory != null) {
-            // Chuck the chained proxy's response back as our own.
-            out.write(m_httpsProxySocketFactory.getResponseBytes());
-            out.flush();
+            break;
           }
-          else {
-            // Send a 200 response to send to client. Client
-            // will now start sending SSL data to localSocket.
-            final StringBuffer response = new StringBuffer();
-            response.append("HTTP/1.0 200 OK\r\n");
-            response.append("Proxy-agent: The Grinder/");
-            response.append(GrinderBuild.getVersionString());
-            response.append("\r\n");
-            response.append("\r\n");
+          else if (httpsConnectMatcher.find()) {
+            // HTTPS proxy request.
 
-            out.write(response.toString().getBytes());
-            out.flush();
+            // group(2) must be a port number by specification.
+            final EndPoint remoteEndPoint =
+              new EndPoint(httpsConnectMatcher.group(1),
+                           Integer.parseInt(httpsConnectMatcher.group(2)));
+
+            if (m_httpsProxySocketFactory != null) {
+              // Read additional data from the client (HTTP protocol
+              // version and headers) and pass it to our
+              // HTTPSProxySocketFactory for use in the establishment of
+              // the chained proxy connection.
+
+              final ByteArrayOutputStream additionalRequestBytes =
+                new ByteArrayOutputStream();
+
+              additionalRequestBytes.write(
+                bufferAsString.substring(httpsConnectMatcher.end(2))
+                .getBytes());
+
+              m_httpsProxySocketFactory.setAdditionalRequestBytes(
+                additionalRequestBytes.toByteArray());
+            }
+
+            // Set our proxy engine up to create connections to the
+            // remoteEndPoint.
+            m_proxySSLEngine.setConnectionDetails(
+              EndPoint.clientEndPoint(localSocket), remoteEndPoint);
+
+            // Create a new proxy connection to the proxy engine.
+            final Socket sslProxySocket =
+              getSocketFactory().createClientSocket(
+                m_proxySSLEngine.getListenEndPoint());
+
+            // Set up a couple of threads to punt everything we receive
+            // over localSocket to sslProxySocket, and vice versa.
+            new StreamThread(
+              new StreamCopier(4096, true)
+                .getRunnable(in, sslProxySocket.getOutputStream()),
+              "Copy to proxy engine for " + remoteEndPoint,
+              in);
+
+            final OutputStream out = localSocket.getOutputStream();
+
+            new StreamThread(
+              new StreamCopier(4096, true)
+                .getRunnable(sslProxySocket.getInputStream(), out),
+              "Copy from proxy engine for " + remoteEndPoint,
+              sslProxySocket.getInputStream());
+
+            if (m_httpsProxySocketFactory != null) {
+              // Chuck the chained proxy's response back as our own.
+              out.write(m_httpsProxySocketFactory.getResponseBytes());
+              out.flush();
+            }
+            else {
+              // Send a 200 response to send to client. Client
+              // will now start sending SSL data to localSocket.
+              final StringBuffer response = new StringBuffer();
+              response.append("HTTP/1.0 200 OK\r\n");
+              response.append("Proxy-agent: The Grinder/");
+              response.append(GrinderBuild.getVersionString());
+              response.append("\r\n");
+              response.append("\r\n");
+
+              out.write(response.toString().getBytes());
+              out.flush();
+            }
+
+            break;
           }
-        }
-        else {
-          final HTMLElement message = new HTMLElement();
-
-          message.addElement("p").addText(
-            "Failed to determine proxy destination from message. ");
-
-          final HTMLElement paragraph1 = message.addElement("p");
-          paragraph1.addText(
-            "Do not type TCPProxy address into your browser. ");
-          paragraph1.addText("The browser proxy settings should be set to " +
-                             "the TCPProxy address (");
-          paragraph1.addElement("code").addText(m_proxyAddress.toString());
-          paragraph1.addText("), and you should type the address of the " +
-                           "target server into the browser.");
-
-          message.addElement("p").addText("Text of received message follows:");
-
-          message.addElement("pre").addElement("blockquote").addText(line);
-
-          sendHTTPErrorResponse(message, "400 Bad Request",
-                                localSocket.getOutputStream());
-
-          localSocket.close();
         }
       }
       catch (IOException e) {
@@ -355,6 +375,15 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     response.setMessage(status, message);
 
     outputStream.write(response.toString().getBytes("US-ASCII"));
+  }
+
+  private void sleep(int milliseconds) {
+    try {
+      Thread.sleep(milliseconds);
+    }
+    catch (InterruptedException e) {
+      throw new UncheckedInterruptedException(e);
+    }
   }
 
   /**
@@ -484,7 +513,20 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         // that we can return exceptions as some simple HTTP error
         // page?
         UncheckedInterruptedException.ioException(e);
-        logIOException(e);
+        final String description = logIOException(e);
+
+        final HTMLElement message = new HTMLElement();
+        message.addElement("p").addText(description);
+
+        try {
+          // Should probably return other types of status code.
+          sendHTTPErrorResponse(
+            message, "502 Bad Gateway", m_localSocket.getOutputStream());
+        }
+        catch (IOException e2) {
+          // Ignore.
+          UncheckedInterruptedException.ioException(e2);
+        }
       }
       finally {
         // When exiting, close all our outgoing streams. This will
@@ -682,7 +724,10 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         throw new VerboseConnectException(e, "HTTPS proxy " + m_httpsProxy);
       }
 
-      final OutputStream outputStream = socket.getOutputStream();
+      // Use a buffered output stream so the output is flushed as one.
+      final OutputStream outputStream =
+        new BufferedOutputStream(socket.getOutputStream());
+
       final InputStream inputStream = socket.getInputStream();
 
       outputStream.write(("CONNECT " + remoteEndPoint).getBytes());
@@ -692,22 +737,16 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       // Wait for, and discard response.
       final byte[] buffer = new byte[1024];
 
-      final long timeout =
-        Long.getLong("tcpproxy.httpsproxy.connecttimeout", 5000).longValue();
-
-      for (int i = 0; i < timeout && inputStream.available() == 0; i += 10) {
-        try {
-          Thread.sleep(10);
-        }
-        catch (InterruptedException e) {
-          throw new UncheckedInterruptedException(e);
-        }
+      for (int i = 0;
+           i < s_connectTimeout && inputStream.available() == 0;
+           i += 10) {
+        sleep(10);
       }
 
       if (inputStream.available() == 0) {
         throw new IOException(
           "HTTPS proxy " + m_httpsProxy + " failed to respond after " +
-          timeout + " ms");
+          s_connectTimeout + " ms");
       }
 
       // We've got a live one. Read its response.

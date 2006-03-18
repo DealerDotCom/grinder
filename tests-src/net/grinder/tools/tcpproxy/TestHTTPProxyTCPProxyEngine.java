@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -88,6 +88,9 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     // Set the filters not to generate random output.
     m_requestFilterStubFactory.setResult(null);
     m_responseFilterStubFactory.setResult(null);
+
+    // Speed things up.
+    System.setProperty("tcpproxy.connecttimeout", "500");
   }
 
   protected void tearDown() throws Exception {
@@ -265,6 +268,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     m_requestFilterStubFactory.assertNoMoreCalls();
     m_responseFilterStubFactory.assertNoMoreCalls();
 
+    m_loggerStubFactory.waitUntilCalled(10000);
     m_loggerStubFactory.assertSuccess("error", String.class);
     m_loggerStubFactory.assertNoMoreCalls();
   }
@@ -408,7 +412,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     final PrintWriter clientWriter =
       new PrintWriter(clientPlainSocket.getOutputStream(), true);
-    clientWriter.print("CONNECT " + echoer.getEndPoint());
+    clientWriter.print("CONNECT " + echoer.getEndPoint() + "\r\n\r\n");
     clientWriter.flush();
 
     final String response = readResponse(clientPlainSocket, "Proxy-agent");
@@ -702,7 +706,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     final PrintWriter clientWriter =
       new PrintWriter(clientPlainSocket.getOutputStream(), true);
-    clientWriter.print("CONNECT " + echoer.getEndPoint());
+    clientWriter.print("CONNECT " + echoer.getEndPoint() + "\r\n\r\n");
     clientWriter.flush();
 
     final String response = readResponse(clientPlainSocket, "Proxy-agent");
@@ -753,6 +757,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
                                               Integer.class);
     m_responseFilterStubFactory.assertNoMoreCalls();
 
+    m_loggerStubFactory.assertNoMoreCalls();
+
     engine.stop();
     engineThread.join();
 
@@ -769,7 +775,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     m_responseFilterStubFactory.assertSuccess(
       "connectionClosed", ConnectionDetails.class);
 
-    m_loggerStubFactory.assertNoMoreCalls();
+    // Sometimes log an SSL exception when shutting down.
+    // m_loggerStubFactory.assertNoMoreCalls();
 
     // Stopping engine or filter again doesn't do anything.
     engine.stop();

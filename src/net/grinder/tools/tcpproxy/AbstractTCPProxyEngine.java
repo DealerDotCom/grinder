@@ -424,29 +424,37 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    * Log IOExceptions.
    *
    * @param e The exception.
+   * @return A description of the exception.
    */
-  protected final void logIOException(IOException e) {
+  protected final String logIOException(IOException e) {
 
     final Class c = e.getClass();
     final String message = e.getMessage();
+    final String description;
 
     if (e instanceof NoActivityTimeOutException) {
-      getLogger().error("Listen time out");
+      description = "Listen time out";
     }
     else if (e instanceof ConnectException) {
-      getLogger().error(message);
+      description = message;
     }
     else if (e instanceof UnknownHostException) {
-      getLogger().error("Failed to connect to unknown host '" + message + "'");
+      description = "Failed to connect to unknown host '" + message + "'";
+
     }
     else if (IOException.class.equals(c) && "Stream closed".equals(message) ||
              e instanceof SocketException) {
       // Ignore common exceptions that are due to connections being
       // closed.
+      return "";
     }
     else {
       e.printStackTrace(getLogger().getErrorLogWriter());
+      return message;
     }
+
+    getLogger().error(description);
+    return description;
   }
 
   /**
