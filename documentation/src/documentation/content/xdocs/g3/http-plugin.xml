@@ -69,7 +69,11 @@
 from net.grinder.plugin.http import HTTPPluginControl
 </source>
   </section>  
-  
+
+  </section>
+  <section>
+  <title>Using the HTTPPlugin</title>
+	  	    
   <section>
     <title>Setting an HTTP proxy</title>
 
