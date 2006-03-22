@@ -176,6 +176,24 @@ which will be used to configure the chosen Forrest skin.
       text-decoration: underline; font-weight: bold;
     }
 
+    #content {
+      padding: 40px 20px 20px 180px;
+      width: 768px; <!--  Can't work out how to left align this div in IE. -->
+      font-size: small; <!-- Doesn't look great on IE, but at least it gives an integer pt size. -->
+    }
+
+    #content p { line-height: 150%; text-align: justify; }
+    #content a { font-weight: bold; }
+    #content dt { color: #303030; }
+    #content h1,h2,h3,h4,h5 { color: #808080; }
+    #content li { line-height: 140%; margin-bottom: 5px; }
+
+    #content .underlined_5 {border-bottom: solid 0px #000000;}
+    #content .underlined_10 {border-bottom: solid 1px #808080;}
+
+    #top {  background: url("images/fade.png") #fff repeat-x; }
+    #top .projectlogo { padding-top: 0; }
+
   </extra-css>
 
   <colors>
