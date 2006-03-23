@@ -40,6 +40,7 @@ public final class RegularExpressionsImplementation
   private final Pattern m_responseLinePattern;
   private final Pattern m_lastPathElementPathPattern;
   private final Pattern m_hrefURIPattern;
+  private final Pattern m_hiddenParameterPattern;
 
   /**
    * Constructor.
@@ -89,6 +90,14 @@ public final class RegularExpressionsImplementation
 
     m_hrefURIPattern = Pattern.compile(
       ".*?href[ \\t]*=[ \\t]*['\"]([^'\"]*)['\"]");
+
+    m_hiddenParameterPattern = Pattern.compile(
+      "<\\s*input\\s+" +
+      ".*?" +
+      "type\\s*=\\s*[\"']\\s*hidden\\s*[\"']" +
+      ".*?" +
+      "/?>",
+      Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
   }
 
   /**
@@ -152,5 +161,14 @@ public final class RegularExpressionsImplementation
    */
   public Pattern getHyperlinkURIPattern() {
     return m_hrefURIPattern;
+  }
+
+  /**
+   * A pattern that matches hidden parameters in HTML forms.
+   *
+   * @return The pattern.
+   */
+  public Pattern getHiddenParameterPattern() {
+    return m_hiddenParameterPattern;
   }
 }

@@ -27,6 +27,7 @@ import net.grinder.common.LoggerStubFactory;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
+import net.grinder.util.AttributeStringParser;
 import net.grinder.util.URIParser;
 
 
@@ -55,6 +56,11 @@ public class TestConnectionHandlerFactoryImplementation extends TestCase {
     new RandomStubFactory(URIParser.class);
   final URIParser m_uriParser = (URIParser)m_uriParserStubFactory.getStub();
 
+  final RandomStubFactory m_attributeStringParserStubFactory =
+    new RandomStubFactory(AttributeStringParser.class);
+  final AttributeStringParser m_attributeStringParser =
+    (AttributeStringParser)m_attributeStringParserStubFactory.getStub();
+
 
   private final ConnectionDetails m_connectionDetails =
     new ConnectionDetails(
@@ -65,7 +71,8 @@ public class TestConnectionHandlerFactoryImplementation extends TestCase {
   public void testFactory() {
     final ConnectionHandlerFactory factory =
       new ConnectionHandlerFactoryImplementation(m_httpRecording,
-        m_loggerStubFactory.getLogger(), m_regularExpressions, m_uriParser);
+        m_loggerStubFactory.getLogger(), m_regularExpressions, m_uriParser,
+        m_attributeStringParser);
 
     final ConnectionHandler handler1 = factory.create(m_connectionDetails);
     final ConnectionHandler handler2 = factory.create(m_connectionDetails);

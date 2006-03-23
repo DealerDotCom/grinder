@@ -44,17 +44,18 @@ import net.grinder.plugin.http.xml.ParsedTokenReferenceType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.ResponseType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
+import net.grinder.util.AttributeStringParser;
 import net.grinder.util.URIParser;
 import HTTPClient.Codecs;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
-
 /**
  * Class that handles a particular connection.
  *
- * <p>Multi-threaded calls for a given connection are
- * serialised.</p>
+ * <p>
+ * Multi-threaded calls for a given connection are serialised.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -89,25 +90,29 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
   ));
 
   private final HTTPRecording m_httpRecording;
+
   private final Logger m_logger;
+
   private final RegularExpressions m_regularExpressions;
+
   private final URIParser m_uriParser;
+  private final AttributeStringParser m_attributeStringParser;
+
   private final ConnectionDetails m_connectionDetails;
 
   // Parse data.
   private Request m_request;
 
-  public ConnectionHandlerImplementation(
-    HTTPRecording httpRecording,
-    Logger logger,
-    RegularExpressions regularExpressions,
-    URIParser uriParser,
+  public ConnectionHandlerImplementation(HTTPRecording httpRecording,
+    Logger logger, RegularExpressions regularExpressions, URIParser uriParser,
+    AttributeStringParser attributeStringParser,
     ConnectionDetails connectionDetails) {
 
     m_httpRecording = httpRecording;
     m_logger = logger;
     m_regularExpressions = regularExpressions;
     m_uriParser = uriParser;
+    m_attributeStringParser = attributeStringParser;
     m_connectionDetails = connectionDetails;
   }
 
@@ -283,12 +288,13 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
     if (m_request.getResponse() != null) {
       // Parse body for href="<url>" patterns containing URL tokens. We could
-      // chose to do this only for certain content types, (probably just
+      // choose to do this only for certain content types, (probably just
       // text/html) but its better to catch too many tokens than too few.
 
+      final String body = asciiString.substring(bodyStart);
+
       final Matcher uriMatcher =
-        m_regularExpressions.getHyperlinkURIPattern().matcher(
-          asciiString.substring(bodyStart));
+        m_regularExpressions.getHyperlinkURIPattern().matcher(body);
 
       while (uriMatcher.find()) {
         m_uriParser.parse(
@@ -305,14 +311,30 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
             }
 
             public boolean queryStringNameValue(String name, String value) {
-              m_request.addTokenReference(
-                name,
-                value,
+              m_request.addTokenReference(name, value,
                 ParsedTokenReferenceType.Source.BODY_URI_QUERY_STRING);
 
               return true;
             }
           });
+      }
+
+      final Matcher hiddenParameterMatcher = m_regularExpressions
+          .getHiddenParameterPattern().matcher(body);
+
+      while (hiddenParameterMatcher.find()) {
+        final AttributeStringParser.AttributeMap map =
+          m_attributeStringParser.parse(hiddenParameterMatcher.group());
+
+        final String name = map.get("name");
+        final String value = map.get("value");
+
+        if (name != null && value != null) {
+          m_request.addTokenReference(
+            name,
+            value,
+            ParsedTokenReferenceType.Source.BODY_HIDDEN_INPUT);
+        }
       }
     }
   }
@@ -412,9 +434,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       }
     }
 
-    public void addTokenReference(
-      String name,
-      String value,
+    public void addTokenReference(String name, String value,
       ParsedTokenReferenceType.Source.Enum source) {
       final ParsedTokenReferenceType tokenReference =
         getResponse().addNewParsedToken();

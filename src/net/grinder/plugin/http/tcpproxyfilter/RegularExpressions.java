@@ -74,4 +74,11 @@ public interface RegularExpressions {
    * @return The pattern.
    */
   Pattern getHyperlinkURIPattern();
+
+  /**
+   * A pattern that matches hidden parameters in HTML forms.
+   *
+   * @return The pattern.
+   */
+  Pattern getHiddenParameterPattern();
 }

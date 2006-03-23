@@ -18,6 +18,7 @@ package net.grinder.plugin.http.tcpproxyfilter;
 
 import net.grinder.common.Logger;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
+import net.grinder.util.AttributeStringParser;
 import net.grinder.util.URIParser;
 
 
@@ -34,6 +35,7 @@ public final class ConnectionHandlerFactoryImplementation
   private final HTTPRecording m_httpRecording;
   private final RegularExpressions m_regularExpressions;
   private final URIParser m_uriParser;
+  private final AttributeStringParser m_attributeStringParser;
 
   /**
    * Constructor.
@@ -46,17 +48,21 @@ public final class ConnectionHandlerFactoryImplementation
    *          Compiled regular expressions.
    * @param uriParser
    *          A URI parser.
+   * @param attributeStringParser
+   *          An AttributeStringParser.
    */
   public ConnectionHandlerFactoryImplementation(
     HTTPRecording httpRecording,
     Logger logger,
     RegularExpressions regularExpressions,
-    URIParser uriParser) {
+    URIParser uriParser,
+    AttributeStringParser attributeStringParser) {
 
     m_logger = logger;
     m_httpRecording = httpRecording;
     m_regularExpressions = regularExpressions;
     m_uriParser = uriParser;
+    m_attributeStringParser = attributeStringParser;
   }
 
   /**
@@ -70,6 +76,7 @@ public final class ConnectionHandlerFactoryImplementation
                                                m_logger,
                                                m_regularExpressions,
                                                m_uriParser,
+                                               m_attributeStringParser,
                                                connectionDetails);
   }
 }

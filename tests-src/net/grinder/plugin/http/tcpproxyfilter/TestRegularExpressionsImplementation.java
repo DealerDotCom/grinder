@@ -55,4 +55,36 @@ public class TestRegularExpressionsImplementation extends TestCase {
 
     assertFalse(matcher.find());
   }
+
+  public void testHiddenParameterPattern() throws Exception {
+    final RegularExpressions regularExpressions =
+      new RegularExpressionsImplementation();
+
+    final Pattern pattern = regularExpressions.getHiddenParameterPattern();
+
+    final String[] goodMatches = {
+      " <input type='hidden' name=\"name\" value='myvalue'>",
+      " <input type='HIDDEN' />",
+      " <  Input Name='name' Type=\"hidden\" />",
+      "<input\ntype='hidden'\nname=\"name\"\nvalue='myvalue'>",
+    };
+
+    for (int i = 0; i < goodMatches.length; ++i) {
+      final Matcher matcher = pattern.matcher(goodMatches[i]);
+      assertTrue("Matches '" + goodMatches[i] + "'", matcher.find());
+      assertEquals(goodMatches[i].trim(), matcher.group());
+    }
+
+    final String[] badMatches = {
+        " <input type='hidden' name=\"name\" value='myvalue'",
+        "<output type='hidden' name=\"name\" value='myvalue'>",
+        "<input type='somethingelse' name=\"name\" value='myvalue'/>",
+        "<input>",
+      };
+
+      for (int i = 0; i < badMatches.length; ++i) {
+        final Matcher matcher = pattern.matcher(badMatches[i]);
+        assertFalse("Fails to match '" + badMatches[i] + "'", matcher.find());
+      }
+  }
 }
