@@ -107,7 +107,7 @@ public final class ConnectionCache
   }
 
   /**
-   * A connection has been closed, create a handler.
+   * A connection has been closed, remove the handler.
    *
    * @param connectionDetails Details.
    */
