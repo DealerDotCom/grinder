@@ -62,6 +62,7 @@ import net.grinder.tools.tcpproxy.TCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation;
+import net.grinder.util.AttributeStringParserImplementation;
 import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
 import net.grinder.util.URIParserImplementation;
@@ -264,6 +265,8 @@ public final class TCPProxy {
         else if (args[i].equalsIgnoreCase("-http")) {
           requestFilterChain.add(HTTPRequestFilter.class);
           responseFilterChain.add(HTTPResponseFilter.class);
+          m_filterContainer.registerComponentImplementation(
+            AttributeStringParserImplementation.class);
           m_filterContainer.registerComponentImplementation(
             ConnectionCache.class);
           m_filterContainer.registerComponentImplementation(

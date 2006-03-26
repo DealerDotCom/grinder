@@ -221,7 +221,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   <xsl:template match="g:request" mode="page-function">
     <xsl:apply-templates select="g:sleep-time" mode="request"/>
 
-    <xsl:apply-templates select=".//g:token-reference" mode="request"/>
+    <xsl:apply-templates select=".//g:token-reference[not(../../g:response)]" mode="request"/>
 
     <xsl:apply-templates select="g:annotation" mode="request"/>
 
@@ -243,7 +243,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
     <xsl:text>)</xsl:text>
 
-    <xsl:apply-templates select="g:response/g:parsed-token" mode="request"/>
+    <xsl:apply-templates select="g:response/g:token-reference" mode="request"/>
     <xsl:value-of select="helper:newLine()"/>
 
   </xsl:template>
@@ -391,52 +391,49 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <!-- parsed-token reference with a new value. -->
-  <xsl:template match="g:parsed-token[g:new-value]" mode="request">
-    <xsl:variable name="token-id" select="@token-id"/>
-
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>self.</xsl:text>
-    <xsl:value-of select="$token-id"/>
-    <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
-    <xsl:text> = \</xsl:text>
-
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-
-    <xsl:text>httpUtilities.</xsl:text>
-    <xsl:choose>
-      <xsl:when test="@source = 'LOCATION_HEADER_PATH_PARAMETER' or
-                      @source = 'LOCATION_HEADER_QUERY_STRING'">
-        <xsl:text>valueFromLocationURI(</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:text>valueFromBodyURI(</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-    <xsl:value-of select="helper:quoteForPython($name)"/>
-    <xsl:text>)</xsl:text>
-
-    <xsl:text> # </xsl:text>
-    <xsl:value-of select="helper:summariseAsLine(g:new-value, 40)"/>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
-  </xsl:template>
-
-
   <!-- token-reference with a new value. -->
   <xsl:template match="g:token-reference[g:new-value]" mode="request">
     <xsl:variable name="token-id" select="@token-id"/>
+    <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>self.</xsl:text>
     <xsl:value-of select="$token-id"/>
-    <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
     <xsl:text> = \</xsl:text>
 
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="helper:quoteForPython(g:new-value)"/>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
+
+    <xsl:choose>
+      <xsl:when test="@source">
+        <xsl:text>httpUtilities.</xsl:text>
+        <xsl:choose>
+          <xsl:when test="@source = 'RESPONSE_LOCATION_HEADER_PATH_PARAMETER' or
+                          @source = 'RESPONSE_LOCATION_HEADER_QUERY_STRING'">
+            <xsl:text>valueFromLocationURI(</xsl:text>
+          </xsl:when>
+          <xsl:when test="@source = 'RESPONSE_BODY_HIDDEN_INPUT'">
+            <xsl:text>valueFromHiddenInput(</xsl:text>
+          </xsl:when>
+          <!--  TODO hidden parameter -->
+          <xsl:otherwise>
+            <xsl:text>valueFromBodyURI(</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+
+        <xsl:value-of select="helper:quoteForPython($name)"/>
+        <xsl:text>)</xsl:text>
+
+        <xsl:text> # </xsl:text>
+        <xsl:value-of select="helper:summariseAsLine(g:new-value, 40)"/>
+        <xsl:value-of select="helper:changeIndent(-1)"/>
+      </xsl:when>
+
+      <xsl:otherwise>
+        <xsl:value-of select="helper:quoteForPython(g:new-value)"/>
+        <xsl:value-of select="helper:changeIndent(-1)"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 
@@ -479,12 +476,11 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     </xsl:if>
   </xsl:template>
 
-
+ <!--  TODO -->
   <xsl:template match="g:path/g:token-reference|g:query-string/g:token-reference" mode="request-uri">
     <xsl:variable name="token-id" select="@token-id"/>
 
-    <!-- A previous parsed-token or token-reference will have defined a
-         variable. -->
+    <!-- A previous token-reference will have defined a variable. -->
     <xsl:value-of select="//g:token[@token-id=$token-id]/g:name"/>
     <xsl:text>=' +</xsl:text>
 

@@ -40,9 +40,10 @@ import net.grinder.plugin.http.xml.BodyType;
 import net.grinder.plugin.http.xml.FormBodyType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.HeaderType;
-import net.grinder.plugin.http.xml.ParsedTokenReferenceType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
 import net.grinder.plugin.http.xml.ResponseType;
+import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.util.AttributeStringParser;
 import net.grinder.util.URIParser;
@@ -265,19 +266,21 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           m_uriParser.parse(value, new URIParser.AbstractParseListener() {
 
             public boolean pathParameterNameValue(String name, String value) {
-              m_request.addTokenReference(
+              m_request.addResponseTokenReference(
                 name,
                 value,
-                ParsedTokenReferenceType.Source.LOCATION_HEADER_PATH_PARAMETER);
+                ResponseTokenReferenceType.Source
+                .RESPONSE_LOCATION_HEADER_PATH_PARAMETER);
 
               return true;
             }
 
             public boolean queryStringNameValue(String name, String value) {
-              m_request.addTokenReference(
+              m_request.addResponseTokenReference(
                 name,
                 value,
-                ParsedTokenReferenceType.Source.LOCATION_HEADER_QUERY_STRING);
+                ResponseTokenReferenceType.Source
+                .RESPONSE_LOCATION_HEADER_QUERY_STRING);
 
               return true;
             }
@@ -287,6 +290,9 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     }
 
     if (m_request.getResponse() != null) {
+      // TODO This ought to work the same as the request processing; i.e.
+      // write data to a buffer and only parse it when we've read everything.
+
       // Parse body for href="<url>" patterns containing URL tokens. We could
       // choose to do this only for certain content types, (probably just
       // text/html) but its better to catch too many tokens than too few.
@@ -302,17 +308,19 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           new URIParser.AbstractParseListener() {
 
             public boolean pathParameterNameValue(String name, String value) {
-              m_request.addTokenReference(
+              m_request.addResponseTokenReference(
                 name,
                 value,
-                ParsedTokenReferenceType.Source.BODY_URI_PATH_PARAMETER);
+                ResponseTokenReferenceType.Source
+                .RESPONSE_BODY_URI_PATH_PARAMETER);
 
               return true;
             }
 
             public boolean queryStringNameValue(String name, String value) {
-              m_request.addTokenReference(name, value,
-                ParsedTokenReferenceType.Source.BODY_URI_QUERY_STRING);
+              m_request.addResponseTokenReference(name, value,
+                ResponseTokenReferenceType.Source
+                .RESPONSE_BODY_URI_QUERY_STRING);
 
               return true;
             }
@@ -330,10 +338,10 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
         final String value = map.get("value");
 
         if (name != null && value != null) {
-          m_request.addTokenReference(
+          m_request.addResponseTokenReference(
             name,
             value,
-            ParsedTokenReferenceType.Source.BODY_HIDDEN_INPUT);
+            ResponseTokenReferenceType.Source.RESPONSE_BODY_HIDDEN_INPUT);
         }
       }
     }
@@ -434,22 +442,25 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       }
     }
 
-    public void addTokenReference(String name, String value,
-      ParsedTokenReferenceType.Source.Enum source) {
-      final ParsedTokenReferenceType tokenReference =
-        getResponse().addNewParsedToken();
-      tokenReference.setSource(source);
-
-      m_httpRecording.addNameValueTokenReference(
-        name, value, tokenReference);
+    public void addResponseTokenReference(String name, String value,
+      ResponseTokenReferenceType.Source.Enum source) {
 
       final Object oldValue = m_tokenValueMap.put(name, value);
 
-      if (oldValue != null && !oldValue.equals(value)) {
-        m_logger.error(
-          "Differing values for token '" + name +
-          "' found in response hyperlinks. Generated script may be " +
-          "inaccurate.");
+      if (oldValue == null) {
+        final ResponseTokenReferenceType tokenReference =
+          getResponse().addNewTokenReference();
+        tokenReference.setSource(source.toString());
+        m_httpRecording.setTokenReference(name, value, tokenReference);
+      }
+      else {
+        // TODO - convert this to annotate the script, together with
+        // details of conflicting sources.
+        if (!oldValue.equals(value)) {
+          m_logger.error(
+            "Differing values for token '" + name +
+            "' found in the response. Generated script may be inaccurate.");
+        }
       }
     }
 
@@ -532,9 +543,26 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
               final FormBodyType formData = body.addNewForm();
 
               for (int i = 0; i < formNameValuePairs.length; ++i) {
-                final FormFieldType formField = formData.addNewFormField();
-                formField.setName(formNameValuePairs[i].getName());
-                formField.setValue(formNameValuePairs[i].getValue());
+                final String name = formNameValuePairs[i].getName();
+                final String value = formNameValuePairs[i].getValue();
+
+                // We only tokenise form attributes that we've seen in a
+                // previous hidden input field.
+                if (m_httpRecording.tokenReferenceExists(
+                      name,
+                      ResponseTokenReferenceType.Source
+                      .RESPONSE_BODY_HIDDEN_INPUT.toString())) {
+
+                  final TokenReferenceType tokenReference =
+                    formData.addNewTokenReference();
+                  m_httpRecording.setTokenReference(
+                    name, value, tokenReference);
+                }
+                else {
+                  final FormFieldType formField = formData.addNewFormField();
+                  formField.setName(name);
+                  formField.setValue(value);
+                }
               }
             }
             catch (ParseException e) {

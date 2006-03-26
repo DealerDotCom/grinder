@@ -33,7 +33,7 @@
     </xs:keyref>
 
     <xs:key name="TokenIDRef">
-      <xs:selector xpath="page/request/response/parsed-token|page/request/uri/path/token-reference|page/request/uri/query-string/token-reference" />
+      <xs:selector xpath="page/request/response/token-reference|page/request/uri/path/token-reference|page/request/uri/query-string/token-reference|page/request/body/form/token-reference" />
       <xs:field xpath="token-id" />
     </xs:key>
   </xs:element>
@@ -102,18 +102,22 @@
       <xs:element name="new-value" type="xs:string" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="token-id" type="tns:IDType" />
+
+    <!-- Source is specified if value should be obtained dynamically. -->
+    <xs:attribute name="source" type="xs:string" use="optional"/>
   </xs:complexType>
 
-  <xs:complexType name="ParsedTokenReferenceType">
+  <xs:complexType name="ResponseTokenReferenceType">
     <xs:complexContent>
       <xs:extension base="tns:TokenReferenceType">
         <xs:attribute name="source">
           <xs:simpleType>
             <xs:restriction base="xs:string">
-              <xs:enumeration value="LOCATION_HEADER_PATH_PARAMETER" />
-              <xs:enumeration value="LOCATION_HEADER_QUERY_STRING" />
-              <xs:enumeration value="BODY_URI_PATH_PARAMETER" />
-              <xs:enumeration value="BODY_URI_QUERY_STRING" />
+              <xs:enumeration value="RESPONSE_LOCATION_HEADER_PATH_PARAMETER" />
+              <xs:enumeration value="RESPONSE_LOCATION_HEADER_QUERY_STRING" />
+              <xs:enumeration value="RESPONSE_BODY_URI_PATH_PARAMETER" />
+              <xs:enumeration value="RESPONSE_BODY_URI_QUERY_STRING" />
+              <xs:enumeration value="RESPONSE_BODY_HIDDEN_INPUT" />
             </xs:restriction>
           </xs:simpleType>
         </xs:attribute>
@@ -123,7 +127,7 @@
 
   <xs:complexType name="ResponseType">
     <xs:sequence>
-      <xs:element name="parsed-token" type="tns:ParsedTokenReferenceType"
+      <xs:element name="token-reference" type="tns:ResponseTokenReferenceType"
         minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="status-code" type="xs:unsignedShort" />
@@ -181,7 +185,7 @@
 
   <xs:complexType name="HeadersType">
     <xs:sequence>
-      <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="header" type="tns:HeaderType" />
         <xs:element name="authorization" type="tns:AuthorizationHeaderType" />
       </xs:choice>
@@ -243,8 +247,10 @@
 
   <xs:complexType name="FormBodyType">
     <xs:sequence>
-      <xs:element name="form-field" type="tns:FormFieldType"
-        minOccurs="0" maxOccurs="unbounded" />
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="form-field" type="tns:FormFieldType" />
+        <xs:element name="token-reference" type="tns:TokenReferenceType" />
+      </xs:choice>
     </xs:sequence>
   </xs:complexType>
 

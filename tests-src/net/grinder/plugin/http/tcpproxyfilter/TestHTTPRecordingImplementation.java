@@ -35,6 +35,7 @@ import net.grinder.plugin.http.xml.HeadersType;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
 import net.grinder.plugin.http.xml.PageType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.plugin.http.xml.HTTPRecordingType.Metadata;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
@@ -372,5 +373,28 @@ public class TestHTTPRecordingImplementation extends TestCase {
     final File file2 = httpRecording.createBodyDataFileName();
 
     assertTrue(!file1.equals(file2));
+  }
+
+  public void testTokenReferenceMethods() throws Exception {
+    final HTTPRecording httpRecording =
+      new HTTPRecordingImplementation(
+        m_resultProcessor, null, m_regularExpressions, m_uriParser);
+
+    assertFalse(httpRecording.tokenReferenceExists("foo", null));
+    assertFalse(httpRecording.tokenReferenceExists("foo", "somewhere"));
+
+    final TokenReferenceType tokenReference = TokenReferenceType.Factory.newInstance();
+    tokenReference.setSource("somewhere");
+    httpRecording.setTokenReference("foo", "bah", tokenReference);
+
+    assertFalse(httpRecording.tokenReferenceExists("foo", null));
+    assertTrue(httpRecording.tokenReferenceExists("foo", "somewhere"));
+
+    tokenReference.unsetSource();
+    httpRecording.setTokenReference("foo", "bah", tokenReference);
+
+    assertTrue(httpRecording.tokenReferenceExists("foo", null));
+    assertTrue(httpRecording.tokenReferenceExists("foo", "somewhere"));
+
   }
 }

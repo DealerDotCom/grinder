@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -59,15 +59,35 @@ public interface HTTPRecording {
   void markLastResponseTime();
 
   /**
-   * Add a new name-value token, or update an existing one.
+   * Fill in token reference details, creating the token if necessary.
+   *
+   * <p>
+   * The reference source is cached for use by
+   * {@link #tokenReferenceExists(String, String)}, so it should be set before
+   * this method is called.
+   * </p>
    *
    * @param name The name.
-   * @param value The new value.
-   * @param tokenReference This reference is updated with the appropriate
-   * token ID, and the value if it has changed.
+   * @param value The value.
+   * @param tokenReference This reference is set with the appropriate
+   * token ID, and the new value is set if appropriate.
    */
-  void addNameValueTokenReference(
+  void setTokenReference(
     String name, String value, TokenReferenceType tokenReference);
+
+  /**
+   * Check for existence of token. The token must have at least one previous
+   * reference with a source type of <code>source</code>.
+   *
+   * @param name
+   *          Token name.
+   * @param source
+   *          Token source.
+   * @return <code>true</code> if a token with name <code>name</code>
+   *         exists, and has at least one reference with a source type of
+   *         <code>source</code>.
+   */
+  boolean tokenReferenceExists(String name, String source);
 
   /**
    * Create a new file name for body data.

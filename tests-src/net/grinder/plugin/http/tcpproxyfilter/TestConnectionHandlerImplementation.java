@@ -25,8 +25,8 @@ import java.io.File;
 
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.plugin.http.xml.FormFieldType;
-import net.grinder.plugin.http.xml.ParsedTokenReferenceType;
 import net.grinder.plugin.http.xml.RequestType;
+import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
 import net.grinder.plugin.http.xml.TokenType;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.FileUtilities;
@@ -247,15 +247,15 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
     m_httpRecordingStubFactory.assertSuccess("markLastResponseTime");
     m_httpRecordingStubFactory.assertSuccess(
-      "addNameValueTokenReference",
+      "setTokenReference",
       String.class,
       String.class,
-      ParsedTokenReferenceType.class);
+      ResponseTokenReferenceType.class);
     m_httpRecordingStubFactory.assertSuccess(
-      "addNameValueTokenReference",
+      "setTokenReference",
       String.class,
       String.class,
-      ParsedTokenReferenceType.class);
+      ResponseTokenReferenceType.class);
 
     m_httpRecordingStubFactory.assertNoMoreCalls();
     m_loggerStubFactory.assertNoMoreCalls();
@@ -357,16 +357,19 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     m_httpRecordingStubFactory.assertSuccess("markLastResponseTime");
 
     final Object[] parameters =
-      m_httpRecordingStubFactory.assertSuccess("addNameValueTokenReference",
-        String.class, String.class, ParsedTokenReferenceType.class).getParameters();
+      m_httpRecordingStubFactory.assertSuccess("setTokenReference",
+        String.class, String.class, ResponseTokenReferenceType.class).getParameters();
     assertEquals("session", parameters[0]);
     assertEquals("57", parameters[1]);
-    assertEquals(ParsedTokenReferenceType.Source.BODY_URI_PATH_PARAMETER,
-      ((ParsedTokenReferenceType)parameters[2]).getSource());
-    m_httpRecordingStubFactory.assertSuccess("addNameValueTokenReference",
-      String.class, String.class, ParsedTokenReferenceType.class);
-    m_httpRecordingStubFactory.assertSuccess("addNameValueTokenReference",
-      String.class, String.class, ParsedTokenReferenceType.class);
+    assertEquals(ResponseTokenReferenceType.Source.RESPONSE_BODY_URI_PATH_PARAMETER.toString(),
+      ((ResponseTokenReferenceType)parameters[2]).getSource());
+    m_httpRecordingStubFactory.assertSuccess("setTokenReference",
+      String.class, String.class, ResponseTokenReferenceType.class);
+
+    // Should only record the first "token" token.
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+
+    // TODO: assert warning annotations.
 
     m_loggerStubFactory.assertNoMoreCalls();
 
@@ -375,11 +378,55 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
       "</body>";
     final byte[] responseBuffer2 = response2.getBytes();
     handler.handleResponse(responseBuffer2, responseBuffer2.length);
-    m_httpRecordingStubFactory.assertSuccess("addNameValueTokenReference",
-      String.class, String.class, ParsedTokenReferenceType.class);
 
     // Differing token values.
     m_loggerStubFactory.assertSuccess("error", String.class);
+
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  public void testResponseMessageWithTokensInHiddenParameters() throws Exception {
+    final ConnectionHandler handler =
+      new ConnectionHandlerImplementation(
+        m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
+        m_uriParser, m_attributeStringParser, m_connectionDetails);
+
+    final RequestType request = RequestType.Factory.newInstance();
+    request.addNewHeaders();
+    request.setMethod(RequestType.Method.Enum.forString("GET"));
+
+    m_httpRecordingStubFactory.setResult("addRequest", request);
+
+    final String message = "GET / HTTP/1.0\r\n";
+    final byte[] buffer = message.getBytes();
+    handler.handleRequest(buffer, buffer.length);
+
+    m_httpRecordingStubFactory.assertSuccess("addRequest",
+      m_connectionDetails, "GET", "/");
+
+    final String response =
+      "HTTP/1.0 200 OK\r\n" +
+      "\r\n" +
+      "<html>" +
+      "<body><form>\n\n<input name=\"foo\" value=\"123\" \n" +
+      " type=\"HIDDEN\">" +
+      "<input type='hidden' name='blah'/>" +
+      "</form>" +
+      "</body></html>";
+
+    final byte[] responseBuffer = response.getBytes();
+    handler.handleResponse(responseBuffer, responseBuffer.length);
+
+    m_httpRecordingStubFactory.assertSuccess("markLastResponseTime");
+
+    final Object[] parameters =
+      m_httpRecordingStubFactory.assertSuccess("setTokenReference",
+        String.class, String.class, ResponseTokenReferenceType.class).getParameters();
+    assertEquals("foo", parameters[0]);
+    assertEquals("123", parameters[1]);
+    assertEquals(ResponseTokenReferenceType.Source.RESPONSE_BODY_HIDDEN_INPUT.toString(),
+      ((ResponseTokenReferenceType)parameters[2]).getSource());
 
     m_httpRecordingStubFactory.assertNoMoreCalls();
     m_loggerStubFactory.assertNoMoreCalls();
@@ -482,6 +529,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     request.setMethod(RequestType.Method.Enum.forString("POST"));
 
     m_httpRecordingStubFactory.setResult("addRequest", request);
+    m_httpRecordingStubFactory.setResult("tokenReferenceExists", Boolean.FALSE);
 
     final String message =
       "POST /something HTTP/1.0\r\n" +

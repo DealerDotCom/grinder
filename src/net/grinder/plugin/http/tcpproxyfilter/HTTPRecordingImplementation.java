@@ -97,7 +97,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   private final BaseURLMap m_baseURLMap = new BaseURLMap();
   private final CommonHeadersMap m_commonHeadersMap = new CommonHeadersMap();
   private final RequestList m_requestList = new RequestList();
-  private final NameValueTokenMap m_nameValueTokenMap = new NameValueTokenMap();
+  private final TokenMap m_tokenMap = new TokenMap();
 
   private long m_lastResponseTime = 0;
 
@@ -217,8 +217,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     final ParsedURIPartType parsedQueryString = uri.addNewQueryString();
     final String[] fragment = new String[1];
 
-    // Look for tokens in path parameters and query string. We create
-    // references to any tokens that have been seen before in some response.
+    // Look for tokens in path parameters and query string.
     m_uriParser.parse(relativeURI, new URIParser.AbstractParseListener() {
 
       public boolean path(String path) {
@@ -227,7 +226,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       }
 
       public boolean pathParameterNameValue(String name, String value) {
-        addNameValueTokenReference(
+        setTokenReference(
           name, value, parsedPath.addNewTokenReference());
         return true;
       }
@@ -238,7 +237,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       }
 
       public boolean queryStringNameValue(String name, String value) {
-        addNameValueTokenReference(
+        setTokenReference(
           name, value, parsedQueryString.addNewTokenReference());
         return true;
       }
@@ -273,16 +272,41 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   /**
-   * Add a new name-value token.
+   * Fill in token reference details, creating the token if necessary.
    *
-   * @param name The name.
-   * @param value The value.
-   * @param tokenReference This reference is updated with the appropriate
-   * token ID, and the value if it has changed.
+   * <p>
+   * The reference source is cached for use by
+   * {@link #tokenReferenceExists(String, String)}, so it should be set before
+   * this method is called.
+   * </p>
+   *
+   * @param name
+   *          The name.
+   * @param value
+   *          The value.
+   * @param tokenReference
+   *          This reference is set with the appropriate token ID, and the new
+   *          value is set if appropriate.
    */
-  public void addNameValueTokenReference(
+  public void setTokenReference(
     String name, String value, TokenReferenceType tokenReference) {
-    m_nameValueTokenMap.add(name, value, tokenReference);
+    m_tokenMap.add(name, value, tokenReference);
+  }
+
+  /**
+   * Check for existence of token. The token must have at least one previous
+   * reference with a source type of <code>source</code>.
+   *
+   * @param name
+   *          Token name.
+   * @param source
+   *          Token source.
+   * @return <code>true</code> if a token with name <code>name</code>
+   *         exists, and has at least one reference with a source type of
+   *         <code>source</code>.
+   */
+  public boolean tokenReferenceExists(String name, String source) {
+    return m_tokenMap.exists(name, source);
   }
 
   /**
@@ -529,17 +553,24 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     }
   }
 
-  private final class NameValueTokenMap {
+  /**
+   * Responsible for tokens at the recording level. Generates unique token
+   * names. Tracks the last value for a particular token name, allowing the
+   * "newValue" attribute of token references to be set appropriately. Token
+   * names are deemed to have global (recording) scope; a simple model that
+   * might not be right for every use case.
+   */
+  private final class TokenMap {
     private final Map m_map = new HashMap();
     private final Map m_uniqueTokenIDs = new HashMap();
 
     public void add(
       String name, String value, TokenReferenceType tokenReference) {
 
-      final TokenValuePair tokenValuePair;
+      final TokenLastValuePair tokenValuePair;
 
       synchronized (m_map) {
-        final TokenValuePair existing = (TokenValuePair)m_map.get(name);
+        final TokenLastValuePair existing = (TokenLastValuePair)m_map.get(name);
 
         if (existing == null) {
           final TokenType newToken;
@@ -576,7 +607,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
           newToken.setTokenId(tokenID.toString());
           newToken.setName(name);
 
-          tokenValuePair = new TokenValuePair(newToken);
+          tokenValuePair = new TokenLastValuePair(newToken);
           m_map.put(name, tokenValuePair);
         }
         else {
@@ -590,13 +621,27 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         tokenReference.setNewValue(value);
         tokenValuePair.setLastValue(value);
       }
+
+      tokenValuePair.addSource(tokenReference.getSource());
     }
 
-    private class TokenValuePair {
+    public boolean exists(String name, String source) {
+
+      final TokenLastValuePair existing;
+
+      synchronized (m_map) {
+        existing = (TokenLastValuePair)m_map.get(name);
+      }
+
+      return existing != null && existing.hasAReferenceWithSource(source);
+    }
+
+    private class TokenLastValuePair {
       private final TokenType m_token;
       private String m_lastValue;
+      private Set m_sources = new HashSet();
 
-      public TokenValuePair(TokenType token) {
+      public TokenLastValuePair(TokenType token) {
         m_token = token;
       }
 
@@ -604,12 +649,20 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         return m_token;
       }
 
+      public void setLastValue(String lastValue) {
+        m_lastValue = lastValue;
+      }
+
       public String getLastValue() {
         return m_lastValue;
       }
 
-      public void setLastValue(String lastValue) {
-        m_lastValue = lastValue;
+      public void addSource(String source) {
+        m_sources.add(source);
+      }
+
+      public boolean hasAReferenceWithSource(String source) {
+        return m_sources.contains(source);
       }
     }
   }
