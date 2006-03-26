@@ -22,7 +22,6 @@
 package HTTPClient;
 
 import java.net.ProtocolException;
-import java.util.Date;
 
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
@@ -59,15 +58,15 @@ public class TestCookie extends TestCase {
     assertEquals("/path", cookies[0].getPath());
     assertNull(cookies[0].expires());
 
-    final Date d = new Date();
     final Cookie[] cookies2 =
-      Cookie.parse("foo=bah;path=lah;expires=" + d, m_roRequest);
+      Cookie.parse("foo=bah;path=lah;expires=Sat, Mar 25 16:53:28 GMT 2006", m_roRequest);
     assertEquals(1, cookies2.length);
     assertEquals("host.local", cookies2[0].getDomain());
     assertEquals("foo", cookies2[0].getName());
     assertEquals("bah", cookies2[0].getValue());
     assertEquals("lah", cookies2[0].getPath());
-    assertEquals(d.toString(), cookies2[0].expires().toString());
+    // Date.toString() doesn't use a comma after the week day.
+    assertEquals("Sat Mar 25 16:53:28 GMT 2006", cookies2[0].expires().toString());
   }
 
   public void testWithMartinsBrokenDates() throws Exception {
