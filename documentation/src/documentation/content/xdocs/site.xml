@@ -71,8 +71,8 @@ See http://forrest.apache.org/docs/linking.html for more info
       <process-controls href="#process-controls"/>
       </console>
       <tcpproxy label="The TCPProxy" href="tcpproxy.html">
-		  <HTTPPluginTCPProxyFilter href="#HTTPPluginTCPProxyFilter"/>
-	  </tcpproxy>
+      <HTTPPluginTCPProxyFilter href="#HTTPPluginTCPProxyFilter"/>
+    </tcpproxy>
     </getting-started>
     <plugins label="Plug-ins">
       <http-plugin label="HTTP plug-in" href="http-plugin.html" >
@@ -104,6 +104,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <common-http label="HTTP" href="faq.html#HTTP"/>
       <common-problems label="Problems" href="faq.html#problems"/>
       <g2vsg3 href="faq.html#g2vsg3"/>
+      <http-caching href="faq.html#http-caching"/>
     </common>
     <g2faq label="The Grinder 2">
       <g2-general label="General" href="faq.html#g2-general"/>

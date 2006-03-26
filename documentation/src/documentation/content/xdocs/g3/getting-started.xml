@@ -20,7 +20,7 @@
     <p>The Grinder is a framework for running test scripts across a
     number of machines. The framework is comprised of three types of
     <em>process</em> (or program). <em>Worker processes</em>,
-    <em>agent processes</em> and the <em> <a
+    <em>agent processes</em>, and the <em> <a
     href="site:console">console</a></em>. The responsibilities of
     each of the process types are:</p>
 
@@ -37,7 +37,6 @@
         <strong>Agent processes</strong>
         <ul>
           <li>Manage worker processes</li>
-          <li>A single agent process runs on each client machine</li>
         </ul>
       </li>
 
@@ -66,7 +65,7 @@
     <p>A <em>test</em> is a unit of work against which statistics are
     recorded. Users specify which tests to run using a Jython <a
     href="site:scripts-intro">test script</a>. Tests are uniquely defined by
-    a <em>test number</em> and may also have a <em>description</em>.
+    a <em>test number</em> and also have a <em>description</em>.
     If you wish your scripts can report many different actions (e.g.
     different web page requests) against the same test, The Grinder
     will aggregate the results.</p>
@@ -80,27 +79,28 @@
   <section>
     <title>Network communication</title>
 
-    <p>Each worker process sets up a TCP network connection to the
+    <p>Each worker process sets up a network connection to the
     console to report statistics. Each agent process sets up a
     connection to the console to receive commands, which it passes on
-    to its worker processes. The console accepts both types of
+    to its worker processes. The console listens for both types of
     connection on a particular address and port. By default, the
     console listens on port <code>6372</code> on all local network
     interfaces of the machine running the console.</p>
-
-    <p>To change the console addresses, set the
-    <code>grinder.consoleHost</code> and
-    <code>grinder.consolePort</code> properties in the <a
-    href="site:g3/getting-started/properties"><code>grinder.properties</code></a> file before
-    starting The Grinder agents. The values must match those specified
-    in the console options dialog.</p>
 
     <p>If an agent process fails to connect to the console, or the
     <code>grinder.useConsole</code> property is <code>false</code>,
     the agent will continue independently without the console and
     automatically will start its worker processes. The worker
     processes will run to completion and not report to the
-    console.</p>
+    console. This can be useful when you want to quickly try out a test
+    script without bothering to start the console. </p>
+
+    <note>To change the console addresses, set the
+    <code>grinder.consoleHost</code> and
+    <code>grinder.consolePort</code> properties in the <a
+    href="site:g3/getting-started/properties"><code>grinder.properties</code></a>
+    file before starting The Grinder agents. The values must match those specified
+    in the console options dialog.</note>
   </section>
 
   <section>
@@ -110,11 +110,14 @@
     <code>out-host-n.log</code>, where <code> host</code> is the
     machine host name and <code>n</code> is the worker process number.
     Errors are written to <code>error-host-n.log</code>. If no errors
-    occur, an error file will not be created. Data about individual
-    test invocations is written into a file called
+    occur, an error file will not be created.</p>
+
+    <p>Data about individual test invocations is written into a file called
     <code>data-host-n.log</code> that can be imported into a
     spreadsheet tool such as Microsoft Excel<sup>TM</sup> for further
-    analysis.</p>
+    analysis. The data file is the only place where information about
+    individual tests is recorded; the console displays only aggregate
+    information.</p>
 
     <p>The final statistics summary (in the <code>out-*</code> files
     of each process) looks something like this:</p>
@@ -123,23 +126,29 @@
 Final statistics for this process:
 
               Successful
-              Tests         Errors        Average (ms)
-Test 0        25            0             255.52
-Test 1        25            0             213.40
-Test 2        25            0             156.80         "Image"
-Test 3        25            0             90.48
-Test 4        25            0             228.68         "Login page"
-Test 5        25            0             86.12          "Security check"
-Test 6        25            0             216.20
-Test 7        25            0             73.20
-Test 8        25            0             141.92
-Test 9        25            0             104.68         "Logout page"
+              Tests         Errors        Mean Test    Test Time
+                                          Time (ms)    Standard
+                                                       Deviation
+                                                       (ms)
 
-Totals        250           0             156.70
+Test 0        25            0             255.52       22.52
+Test 1        25            0             213.40       25.15
+Test 2        25            0             156.80       20.81         "Image"
+Test 3        25            0             90.48        14.41
+Test 4        25            0             228.68       23.97         "Login page"
+Test 5        25            0             86.12        12.53         "Security check"
+Test 6        25            0             216.20       8.89
+Test 7        25            0             73.20        12.83
+Test 8        25            0             141.92       18.36
+Test 9        25            0             104.68       19.86         "Logout page"
+
+Totals        250           0             156.70       23.32
 </source>
 
     <p>The console has a dynamic display of similar information
-    collected from all the worker processes.</p>
+    collected from all the worker processes. Plug-ins and advanced test
+    scripts can provide additional statistics; for example, the HTTP plug-in
+    adds a statistic for the content length of the response body.</p>
 
     <p>Each test has one of two possible outcomes:</p>
 
@@ -149,11 +158,12 @@ Totals        250           0             156.70
       to the <em>Total</em>.</li>
 
       <li>Error. The execution of a test raised an exception. The
-      number of <em>Errors</em> for the test is incremented.</li>
+      number of <em>Errors</em> for the test is incremented. The time taken
+      is discarded.</li>
     </ol>
 
-    <p>The <em>Total</em> and <em>Average</em> figures are calculated
-    based only on successful tests.</p>
+    <p>The <em>Total</em>, <em>Mean</em>, and <em>Standard Deviation</em>
+    figures are calculated based only on successful tests.</p>
   </section>
 
   <section id="howtostart">
@@ -218,11 +228,9 @@ java net.grinder.Grinder myproperties
 <source>
 set GRINDERPATH=<em>(full path to grinder install directory)</em>
 set GRINDERPROPERTIES=<em>(full path to grinder.properties)</em>\grinder.properties
-set CLASSPATH=%CLASSPATH%;%GRINDERPATH%\lib\grinder.jar
-set CLASSPATH=%CLASSPATH%;%GRINDERPATH%\lib\jython.jar
+set CLASSPATH=%GRINDERPATH%\lib\grinder.jar;%CLASSPATH%
 set JAVA_HOME=<em>(full path to java install directory)</em>
-set JAVA_BINDIR=%JAVA_HOME%\bin
-PATH=%JAVA_BINDIR%;%PATH%
+PATH=%JAVA_HOME%\bin;%PATH%
 </source>
      </li>
      <li>startAgent.cmd:
@@ -240,7 +248,7 @@ java -cp %CLASSPATH% net.grinder.Console
      </li>
      <li>startProxy.cmd:
 <source>
-Call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
+call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
 java -cp %CLASSPATH% net.grinder.TCPProxy -console -http > grinder.py
 </source>
      </li>
@@ -253,11 +261,9 @@ java -cp %CLASSPATH% net.grinder.TCPProxy -console -http > grinder.py
 #!/usr/bin/ksh
 GRINDERPATH=<em>(full path to grinder install directory)</em>
 GRINDERPROPERTIES=<em>(full path to grinder.properties)</em>/grinder.properties
-CLASSPATH=$CLASSPATH:$GRINDERPATH/lib/grinder.jar
-CLASSPATH=$CLASSPATH:$GRINDERPATH/lib/jython.jar
+CLASSPATH=$GRINDERPATH/lib/grinder.jar:$CLASSPATH
 JAVA_HOME=<em>(full path to java install directory)</em>
-JAVA_BINDIR=$JAVA_HOME/bin
-PATH=$JAVA_BINDIR:$PATH
+PATH=$JAVA_HOME/bin:$PATH
 export CLASSPATH PATH GRINDERPROPERTIES
 </source>
       </li>
@@ -285,9 +291,17 @@ java -cp $CLASSPATH net.grinder.TCPProxy -console -http > grinder.py
      </ul>
   </section>
 
+  <section id="howtorecord">
+  <title>How do I create a script?</title>
+  <p>You can manully create scripts for use with the Grinder and there are a number of examples of how to do this in the <a href="site:script-gallery">Script Gallery</a>.
+  See the <a href="site:scripts/scripts-intro">Scripts</a> section for more details on how to create scripts.</p>
+  <p>If you are creating a script for a website or web application, you can use the <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a> to generate an HTTPPlugin script
+    suitable for use with The Grinder.</p>
+  </section>
+
   <section id="howtosetup">
-    <title>How do I set up the Grinder?</title>
-    <p>Well the short answer is however works best for you. Many people will already know how they want to setup
+    <title>How should I set up a project structure for The Grinder?</title>
+    <p>Well the short answer is however works best for you. Many people will already know how they want to set up
     their directory structure and will have no issue implementing The Grinder as one of their many tools. For those
     looking for a little guidance it is worth asking yourself questions like:</p>
     <ul>
@@ -391,14 +405,6 @@ java -cp $CLASSPATH net.grinder.TCPProxy -console -http > grinder.py
 
    <p>Modularizing the implementation like this gives greater flexibility and repeatability and opens up the prospect of multiple
    people using the implementation concurrently.</p>
-  </section>
-
-  <section id="howtorecord">
-  <title>How do I record a script?</title>
-  <p>You can manully create scripts for use with the Grinder and there are a number of examples of how to do this in the <a href="site:script-gallery">Script Gallery</a>.
-  See the <a href="site:scripts/scripts-intro">Scripts</a> section for more details on how to create scripts.</p>
-  <p>If you are creating a script for a website or web application, you can use the <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a> to generate an HTTPPlugin script
-    suitable for use with The Grinder.</p>
   </section>
 
 </body>

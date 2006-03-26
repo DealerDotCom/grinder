@@ -21,10 +21,10 @@
 
     <p><icon src="images/PythonPoweredSmall.gif" alt="Python
     powered"/> The most significant change that The Grinder 3
-    introduces is a <a href="ext:jython">Jython</a> (the Java
-    implementation of Python) scripting engine that is used to execute
-    test scripts. Test scripts replace the specification of tests in
-    the <code>grinder.properties</code> file. The
+    introduces is a <a href="ext:jython">Jython</a> scripting engine that is
+    used to execute test scripts. Jython is a Java implementation of the popular
+    Python language. Test scripts specify the tests to run. In The Grinder 2,
+    tests were specified in the <code>grinder.properties</code> file. The
     <code>grinder.properties</code> file is still used to specify
     general control information (how to contact the console, how many
     worker processes to use, ..), as well as the name of the test
@@ -80,9 +80,6 @@
     <code>zip</code> files. They can be downloaded from <a
     href="ext:sourceforge/grinder">SourceForge.net</a>.</p>
 
-    <p>To simplify SSL and HTTPS configuration, JSSE is now
-    <em>required</em> for The Grinder 3. Consequently you may find it
-    easier to use J2SE 1.4.1 with The Grinder 3.</p>
   </section>
 
   <section>
@@ -91,11 +88,11 @@
     <ul>
       <li>The TCPSniffer has been renamed <em>TCPProxy</em> for
       correctness. The TCPProxy can be used with other HTTP and HTTPS
-      proxies. Other new features and fixes have been added to the
+      proxies. Many new features and fixes have been added to the
       TCPProxy.</li>
 
       <li>Console signals are now transmitted over a TCP socket
-      connection. Mulicast is no longer used, removing a frequent
+      connection. Multicast is no longer used, removing a frequent
       source of setup problems.</li>
 
       <li>The interface that plug-ins must implement has changed
@@ -143,16 +140,6 @@
       scripts and then distribute them to the worker processes. It
       will no longer be necessary to copy grinder.properties files
       around or to use a shared disk.</p>
-    </section>
-
-    <section>
-      <title>Embedded Agent</title>
-
-      <p>A new agent will be provided that can be loaded within an
-      existing Java Virtual Machine. This will allow, for example,
-      threads to be started within an application server which can run
-      test scripts that make direct calls against local resources such
-      as EJBs.</p>
     </section>
   </section>
 

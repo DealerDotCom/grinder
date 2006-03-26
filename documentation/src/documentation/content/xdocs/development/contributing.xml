@@ -69,10 +69,10 @@
 java -Duser.language="es" net.grinder.Console
 </source>
 
-    <p>Bertrand Ave has produced a translation for French speaking
-    users (<code>user.language="fr"</code>) and Huibert Alblas has
-    produced a German translation
-    (<code>user.language="de"</code>).</p>
+    <p>Bertrand Ave produced a translation for French speaking
+    users (<code>user.language="fr"</code>), Huibert Alblas
+    produced a German translation (<code>user.language="de"</code>),
+    and Italian, Polish, and Russian translations have since followed.</p>
 
     <section>
       <title>How to provide a translation</title>

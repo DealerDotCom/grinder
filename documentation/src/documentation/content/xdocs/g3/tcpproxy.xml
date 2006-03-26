@@ -83,9 +83,12 @@ Engine initialised, listening on port 8001
     from the TCPProxy.</note>
 
   <p>It is also a wise idea to clear out any cache/temporary internet files that
-    might be on your workstation. Also for IE users changing the temporary
-  internet files settings to check for a newer version on every visit to
-  a page is useful.</p>
+    might be on your workstation. On the other hand, you might decide not to do
+    this if you want to record a script representing a frequent user to your
+    site who has images are <a href="site:gfaq/common/http-caching">resources in
+    their browser cache</a>. Also for IE users
+    changing the temporary internet files settings to check for a newer version
+    on every visit to a page can be useful.</p>
 
   <figure src="../images/ie-cache-settings.png" width="354" height="351"
     alt="Temporary Internet Files Settings in IE"/>
@@ -139,26 +142,26 @@ Content-Type: image/gif
 
 ------ ads.osdn.com:80->127.0.0.1:2273 ------
 80B
-GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F[A3A3A3DF]Og[F2BAC3DCDCDCABABABF7D4DAE6]x[8BFCF1F3DB]9U[EFA9B5FBE9ECF1F1F1F9F9F9B2B2B29C9C9CF3C3CBF5F5F5E5E5E5949494EB97A5070707]%%%[EA8D9DE0]Ul[EAEAEA838383F8DCE18C8C8CE0E0E0]===[E2]ez[D9D9D9B9B9B9EDEDED]JJJ[F0B3BDBEBEBE]AAA[F9E5E9]333[FDFAFBE88394F9E0[000000FFFFFF]![F9040000000000],[00000000]e[00])[000006FFC09E]pH,[1A8FC8A4]r[C9][D5B2]e[15]][E17F]+
+GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F
     </source>
 
     <p>Information lines are displayed to indicate the end point
     addresses and direction of the information flow and also whether a
-    has just been opened or closed.</p>
+    connection has just been opened or closed.</p>
 
   </section>
 
   <section id="HTTPPluginTCPProxyFilter">
     <title>Using the HTTPPluginTCPProxyFilters</title>
 
-    <p>You can use the TCPProxy to generate an HTTPPlugin script
+    <p>You can use the TCPProxy to generate an HTTP script
     suitable for use with The Grinder. The Grinder provides a number
     of HTTP filters for this purpose. These filters are:</p>
   <p>-http <strong>(recommended)</strong><br />
   -httpplugin <em>(deprecated)</em><br />
   -newhttpplugin <em>(deprecated)</em></p>
 
-    <p>Below is a howto detailing the use of the recommended HTTP filter.</p>
+    <p>Below is a HOWTO detailing the use of the recommended HTTP filter.</p>
 
   <p>The first step is to invoke the TCPProxy with an HTTP filter. A command like
     the following should be used to invoke the TCPProxy with the
@@ -168,7 +171,10 @@ GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F[A3A3A3DF]Og[
 java net.grinder.TCPProxy -console -http > grinder.py
 </source>
 
-    <p>The output of the HTTPPluginTCPProxyFilter looks like:</p>
+  <p>The <code>&gt; grinder.py</code> part of the line sends the script to a
+  file called <code>grinder.py</code>.</p>
+
+    <p>The terminal output of the HTTPPluginTCPProxyFilter looks like:</p>
 
 <source>
 14/03/06 17:04:25 (tcpproxy): Initialising as an HTTP/HTTPS proxy with the
@@ -180,7 +186,7 @@ parameters:
 </source>
 
   <p>The console (initiated by <em>-console</em>) displays a simple control window that allows the TCPProxy
-   to be shutdown cleanly. This is needed because some shells, e.g. Cygwin bash,
+   to be shut down cleanly. This is needed because some shells, e.g. Cygwin bash,
    do not allow Java processes to be interrupted cleanly, so filters cannot rely
    on standard shutdown hooks. The console looks like this:</p>
 

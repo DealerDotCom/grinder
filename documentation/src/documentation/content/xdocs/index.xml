@@ -38,7 +38,8 @@
     href="site:g3/whats-new">The Grinder 3</a> is currently available
     as a beta quality release. The Grinder 3 uses the powerful
     scripting language Jython, and allows any Java code to be tested
-    without the need to write a plug-in.</p>
+    without the need to write a plug-in. New users are
+    <a href="site:gfaq/common/g2vsg3">advised</a> to start with The Grinder 3.</p>
 
     <p>The latest news, downloads, and mailing list archives can be
     found on <a href="ext:sourceforge/grinder">SourceForge.net</a>.
