@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -155,7 +155,9 @@ final class ResourcePool {
         // Block until more resources are freed.
         synchronized (m_reservableMutex) {
           try {
-            m_reservableMutex.wait();
+            // Don't block for ever because the outstanding
+            // resources might have already been freed.
+            m_reservableMutex.wait(1000);
           }
           catch (InterruptedException e) {
             throw new UncheckedInterruptedException(e);
