@@ -421,7 +421,7 @@ final class GrinderProcess {
     }
   }
 
-  private class TickLoggerTimerTask extends TimerTask {
+  private static class TickLoggerTimerTask extends TimerTask {
     public void run() {
       LoggerImplementation.tick();
     }

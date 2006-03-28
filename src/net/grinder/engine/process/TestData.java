@@ -143,12 +143,6 @@ final class TestData
         throw new EngineException(e.getMessage());
       }
     }
-
-    private final class UncheckedException extends UncheckedGrinderException {
-      public UncheckedException(String message) {
-        super(message);
-      }
-    }
   }
 
   /**
@@ -293,6 +287,13 @@ final class TestData
       }
 
       return Math.max(unadjustedTime - m_pauseTimer.getTime(), 0);
+    }
+  }
+
+  private static final class UncheckedException
+    extends UncheckedGrinderException {
+    public UncheckedException(String message) {
+      super(message);
     }
   }
 }

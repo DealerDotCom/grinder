@@ -429,7 +429,7 @@ public final class JythonScriptEngine implements ScriptEngine {
    * @author Philip Aston
    * @version $Revision$
    */
-  private class JythonVersionAdapter {
+  private static class JythonVersionAdapter {
     private final Field m_instanceClassField;
 
     // The softly spoken Welshman.

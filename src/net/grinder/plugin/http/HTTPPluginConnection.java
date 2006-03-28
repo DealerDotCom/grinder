@@ -194,7 +194,7 @@ public interface HTTPPluginConnection {
    * interface, used for outbound HTTP requests is the first returned
    * to the Java VM by the operating system. This method allows a
    * different network interface to be specified that will be used for
-   * connactions that are subsequently created. It does not affect
+   * connections that are subsequently created. It does not affect
    * existing socket connections that may have already been created
    * for this <code>HTTPPluginConnection</code>.</p>
    *

@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
@@ -129,7 +129,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
     return m_proxyPort;
   }
 
-  public synchronized void setLocalAddress(String localAddress)
+  public void setLocalAddress(String localAddress)
     throws URLException {
 
     try {

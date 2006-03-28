@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000-2006 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
 //
@@ -372,7 +372,7 @@ public final class Agent {
     }
   }
 
-  private class RampUpTimerTask extends TimerTask {
+  private static class RampUpTimerTask extends TimerTask {
 
     private final WorkerLauncher m_processLauncher;
     private final int m_processIncrement;

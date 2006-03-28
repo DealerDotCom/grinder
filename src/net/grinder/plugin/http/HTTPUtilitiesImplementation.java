@@ -182,7 +182,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     return "";
   }
 
-  private class ParseAssertion extends GrinderException {
+  private static class ParseAssertion extends GrinderException {
 
     public ParseAssertion(String message, Throwable cause) {
       super(message, cause);
