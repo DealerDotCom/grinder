@@ -52,6 +52,13 @@ Engine initialised, listening on port 8001
     on port <code>8001</code> (the default, but you can change it with
     <code>-localPort</code>).</p>
 
+    <p>The TCPProxy appears to your browser just like any other HTTP
+    proxy server, and you can use your browser as normal. If you type
+    <code>http://grinder.sourceforge.net</code> into your browser it
+    will display The Grinder home page and the TCPProxy will output
+    all of the HTTP interactions between the browser and the
+    SourceForge site.</p>
+
     <p>The TCPProxy will proxy both HTTP and HTTPS. See <a
     href="#ssl">below</a> for details on customising the SSL
     configuration.</p>
@@ -61,7 +68,7 @@ Engine initialised, listening on port 8001
   <section id="BrowserPreparation">
     <title>Preparing the Browser</title>
 
-    <p>You must now set your browser connection
+    <p>You should now set your browser connection
     settings to specify the TCPProxy as the HTTP proxy. In the browser
     options dialog, set the proxy host to be the host on which the
     TCPProxy is running and proxy port to be <code>8001</code>).</p>
@@ -82,23 +89,16 @@ Engine initialised, listening on port 8001
     Gillick's <a href="https://addons.mozilla.org/quicksearch.php?q=switchproxy&amp;section=A&amp;application=firefox"><em>SwitchProxy</em></a> extension useful for switching to and
     from the TCPProxy.</note>
 
-  <p>It is also a wise idea to clear out any cache/temporary internet files that
+  <p>It might also be a good idea to clear out any cache/temporary Internet files that
     might be on your workstation. On the other hand, you might decide not to do
     this if you want to record a script representing a frequent user to your
     site who has images are <a href="site:gfaq/common/http-caching">resources in
-    their browser cache</a>. Also for IE users
-    changing the temporary internet files settings to check for a newer version
+    their browser cache</a>. Also for IE users,
+    changing the temporary Internet files settings to check for a newer version
     on every visit to a page can be useful.</p>
 
   <figure src="../images/ie-cache-settings.png" width="354" height="351"
     alt="Temporary Internet Files Settings in IE"/>
-
-    <p>The TCPProxy appears to your browser just like any other HTTP
-    proxy server, and you can use your browser as normal. If you type
-    <code>http://grinder.sourceforge.net</code> into your browser it
-    will display The Grinder home page and the TCPProxy will output
-    all of the HTTP interactions between the browser and the
-    SourceForge site.</p>
 
   </section>
 
@@ -156,15 +156,16 @@ GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F
 
     <p>You can use the TCPProxy to generate an HTTP script
     suitable for use with The Grinder. The Grinder provides a number
-    of HTTP filters for this purpose. These filters are:</p>
+    of HTTP filters for this purpose. These filters are controlled by command
+    line options:</p>
   <p>-http <strong>(recommended)</strong><br />
   -httpplugin <em>(deprecated)</em><br />
   -newhttpplugin <em>(deprecated)</em></p>
 
-    <p>Below is a HOWTO detailing the use of the recommended HTTP filter.</p>
+    <p>What follows is a HOWTO detailing the use of the recommended HTTP filter.</p>
 
-  <p>The first step is to invoke the TCPProxy with an HTTP filter. A command like
-    the following should be used to invoke the TCPProxy with the
+  <p>The first step is to start the TCPProxy with an HTTP filter. A command like
+    the following should be used to start the TCPProxy with the
   recommended HTTP filter:</p>
 
 <source>
@@ -186,20 +187,23 @@ parameters:
 </source>
 
   <p>The console (initiated by <em>-console</em>) displays a simple control window that allows the TCPProxy
-   to be shut down cleanly. This is needed because some shells, e.g. Cygwin bash,
+   to be shut down cleanly. This is needed because some terminal shells, e.g. Cygwin bash,
    do not allow Java processes to be interrupted cleanly, so filters cannot rely
    on standard shutdown hooks. The console looks like this:</p>
 
   <figure src="../images/tcpproxy-console.png" width="175" height="63"
     alt="TCPProxy Console"/>
 
-  <p>The next step is to configure your browser to use the TCPProxy as
-  the HTTP proxy (as stated earlier in this <a href="#BrowserPreparation">page</a>).</p>
+  <p>The TCPProxy console will be incorporated into the main <a href="site:console">console</a> in
+  a future release.</p>
 
-    <p>You should now run through your test scenario on your website.</p>
+  <p>Set your browser to use the TCPProxy as
+  the HTTP proxy as <a href="#BrowserPreparation">described earlier</a>),
+  and run through your test scenario on your website.</p>
 
-    <p>Having finished your run through press "Stop" on the TCPProxy
-  console and the generated script is then written to <code>grinder.py</code>.</p>
+  <p>Having finished your run through, press "Stop" on the TCPProxy
+  console and the generated script will be written to <code>grinder.py</code>.</p>
+
     <p>The <code>grinder.py</code> file contains headers, requests and
   a logical grouping of requests into pages, of the recorded tests.</p>
     <p>For example, the headers section:</p>
@@ -336,34 +340,45 @@ instrumentMethod(Test(200, 'Page 2'), 'page2')
 
     <p>Once you've recorded your script you have two methods
   that you can use to replay your script:</p>
-  <p>You can create a simple
+
+  <ol>
+
+  <li>You can create a simple
     <a href="site:g3/getting-started/properties"><code>grinder.properties</code></a>
     file and you can replay the recorded scenario with The Grinder.
     Your properties file should at least set <a
     href="site:g3/getting-started/properties"><code>grinder.script</code></a> to
-    <code>grinder.py</code>.</p>
-  <p>Alternately you can use the Grinder <a href="site:g3/getting-started/console">Console</a>
+    <code>grinder.py</code>.</li>
+
+  <li>Alternately you can use the Grinder <a href="site:g3/getting-started/console">console</a>
   to distribute your script to an	agent and set it as the script to run.
-  An agent will still need a simple
-  <a href="site:g3/getting-started/properties"><code>grinder.properties</code></a>
+  Each agent will still need a simple
+  <a href="site:g3/getting-started/properties"><code>grinder.properties</code></a> file
   , though you will not need to set the <a
-    href="site:g3/getting-started/properties"><code>grinder.script</code></a> property.</p>
+    href="site:g3/getting-started/properties"><code>grinder.script</code></a> property.</li>
+
+  </ol>
 
   <p>The recorded script grinder.py can be edited by hand to suit your needs.</p>
 
-  </section>
-
   <section id="Stylesheets">
-    <title>Using Stylesheets</title>
+    <title>Altering the output with custom stylesheet</title>
 
   <p>The recommended TCPProxy HTTP filter, <em>-http</em>, modifies the output of its request
   and response filters by way of an XLST stylesheet when producing the recorded script.</p>
-  <p>The standard/default stylesheet can be found in in etc/httpToJythonScript.xsl</p>
-  <p>Replacing the standard stylesheet with one of your own making is a quick and easy way to
-  customise the output of the filter.</p>
-  <p>if you want to see the intermediate XML model you can use:</p>
+
+  <p>The standard/default stylesheet can be found in <code>etc/httpToJythonScript.xsl</code>.
+  Replacing the standard stylesheet with one of your own making allows you to
+  customise the output of the filter. You shuould pass the file name of your
+  custom stylesheet as a command line argument directly after <code>-http</code>.</p>
+
+  <p>If you want to see the intermediate XML model you can use:</p>
 
 <source>java net.grinder.TCPProxy -http etc/httpToXML.xsl -console</source>
+
+  <p>The model confirms to the XML schema <code>etc/tcpproxy-http.xsd</code>.</p>
+  </section>
+
   </section>
 
   <section id="ssl">
@@ -391,17 +406,17 @@ instrumentMethod(Test(200, 'Page 2'), 'page2')
 
     <p>When first establishing a connection, your browser will present
     a warning and confirmation dialog. This is because the built-in
-    certficate isn't authorised by any of the certificate authorities
-    that the browser trusts. Additionally the built-in certificate
-    authorises <code>localhost</code>, so if your server doesn't
+    certificate isn't authorised by any of the certificate authorities
+    that the browser trusts. Additionally, the built-in certificate
+    authorises <code>localhost</code> so if your server doesn't
     listen at this address the browser will complain. Choose the
     "accept this certificate for this session" option.</p>
 
     <warning>The Grinder deliberately accelerates SSL initialisation
     by using a random number generator that is seeded with a fixed
-    number. This does not hinder SSL communication, but theoretcially
+    number. This does not hinder SSL communication, but theoretically
     makes it less secure. No guarantee is made as to the
-    cryptographical strength of any SSL communication using The
+    cryptographic strength of any SSL communication using The
     Grinder.</warning>
 
     <p>Advanced users can specify their own server certificate for the
@@ -473,7 +488,7 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
     <table>
     <tr>
       <th>Option</th>
-      <th>Desciption</th>
+      <th>Description</th>
     </tr>
 
     <tr>
@@ -498,23 +513,6 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
       script for The Grinder suitable for use with the HTTP
       plugin. The output can be customised by specifying the file name of an
     alternative XSLT style sheet.</td>
-    </tr>
-
-
-    <tr>
-      <td><code>-httpplugin</code></td>
-
-      <td>Adds a deprecated request filter and a response filter to produce a
-      script for The Grinder suitable for use with the HTTP
-      plugin.</td>
-    </tr>
-
-    <tr>
-      <td><code>-newhttpplugin</code></td>
-
-      <td>Adds a deprecated request filter and a response filter to produce a
-      script for The Grinder suitable for use with the HTTP
-      plugin.</td>
     </tr>
 
     <tr>
@@ -669,6 +667,28 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
       <td><code>-debug</code></td>
 
       <td>Make filter PicoContainer chatty.</td>
+    </tr>
+
+    <tr>
+      <td><strong>Deprecated</strong></td>
+
+      <td></td>
+    </tr>
+
+    <tr>
+      <td><code>-httpplugin</code></td>
+
+      <td>Adds a deprecated request filter and a response filter to produce a
+      script for The Grinder suitable for use with the HTTP
+      plugin. Use <code>-http</code> instead.</td>
+    </tr>
+
+    <tr>
+      <td><code>-newhttpplugin</code></td>
+
+      <td>Adds a deprecated request filter and a response filter to produce a
+      script for The Grinder suitable for use with the HTTP
+      plugin. Use <code>-http</code> instead.</td>
     </tr>
 
 

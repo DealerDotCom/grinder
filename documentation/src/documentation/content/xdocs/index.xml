@@ -24,22 +24,21 @@
     testing HTTP services, as well as a tool which allows HTTP scripts
     to be automatically recorded.</p>
 
-    <p>The Grinder was originally developed for the book
-    <em>Professional Java 2 Enterprise Edition with BEA WebLogic
-    Server</em> by Paco G&#xf3;mez and Peter Zadrozny. Philip Aston
-    took ownership of the code and reworked it to create <strong>The
-    Grinder 2</strong>. Philip continues to enhance and maintain The
-    Grinder, and welcomes all contributions. Recently Peter, Philip
-    and Ted Osborne have published the book <a
-    href="site:links/book">J2EE Performance Testing</a> which makes
-    extensive use of The Grinder.</p>
-
     <p>The next major version of The Grinder, <a
     href="site:g3/whats-new">The Grinder 3</a> is currently available
     as a beta quality release. The Grinder 3 uses the powerful
     scripting language Jython, and allows any Java code to be tested
     without the need to write a plug-in. New users are
     <a href="site:gfaq/common/g2vsg3">advised</a> to start with The Grinder 3.</p>
+
+    <p>The Grinder was originally developed for the book
+    <em>Professional Java 2 Enterprise Edition with BEA WebLogic
+    Server</em> by Paco G&#xf3;mez and Peter Zadrozny. Philip Aston
+    took ownership of the code and reworked it to create The
+    Grinder 2. Philip continues to enhance and maintain The
+    Grinder, and welcomes all contributions. Peter, Philip
+    and Ted Osborne published the book <a href="site:links/book">
+    J2EE Performance Testing</a> which makes extensive use of The Grinder.</p>
 
     <p>The latest news, downloads, and mailing list archives can be
     found on <a href="ext:sourceforge/grinder">SourceForge.net</a>.

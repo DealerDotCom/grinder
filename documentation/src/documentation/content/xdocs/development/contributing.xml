@@ -10,7 +10,7 @@
 <body>
 
   <p>Although the source is freely available for download, The Grinder
-  CVS archive is currently not public. Patches are individually
+  CVS repository is currently not public. Patches are individually
   reviewed and applied by Philip Aston.</p>
 
   <section>
@@ -50,6 +50,19 @@
 
   </section>
 
+  <section id="documentation">
+    <title>Documentation help wanted</title>
+
+    <p>Documenation can always be improved. Tutorials and examples from
+    users of The Grinder are always welcome. Please mail suggestions,
+    corrections, and improvements to the <a href="ext:mail/grinder-development">
+    grinder-development@lists.sourceforge.net</a> mailing list.</p>
+
+    <p>The CVS repository for The Grinder documentation is public. Authors who
+    have made valuable contributions can ask for check-in rights via the
+    <a href="ext:mail/grinder-development">grinder-development@lists.sourceforge.net</a>
+    mailing list.</p>
+  </section>
 
   <section id="translating">
     <title>Internationalisation help wanted</title>
