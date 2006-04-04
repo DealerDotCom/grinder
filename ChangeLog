@@ -1,3 +1,39 @@
+2006-03-28  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/TCPProxy.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/jython/JythonScriptEngine.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java:
+	Minor fixes courtesy of findbugs.
+
+	* src/net/grinder/engine/process/LoggerImplementation.java:
+	Fix broken filtering of output notification that errors have occurred.
+	Thanks to Calum Fitzgerald / findbugs.
+
+	* src/net/grinder/communication/ResourcePool.java:
+	Fix possible deadlock.
+	Thanks to Calum Fitzgerald / findbugs.
+
+2006-03-26  Philip Aston  <philipa@mail.com>
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java:
+	Parse tokens from hidden input fields, part 2.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ConnectionCache.java:
+	Fix javadoc.
+
+	* tests-src/HTTPClient/TestCookie.java:
+	Rely less on Date behaviour. Not sure exactly what broke this, I've checked it wasn't the change to DST.
+
+2006-03-23  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressions.java, tests-src/net/grinder/util/TestAttributeStringParserImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactoryImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressionsImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerFactoryImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestRegularExpressionsImplementation.java, src/net/grinder/util/AttributeStringParser.java, src/net/grinder/util/AttributeStringParserImplementation.java:
+	Parse tokens from hidden input fields.
+
+2006-03-18  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Xalan is bundled in J2SE 1.4.1.
+
+	* CHANGES, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java:
+	Reduce the chance of reading partial proxy messages.
+
 2006-03-12  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/console/distribution/TestFileDistribution.java, src/net/grinder/console/Console.java, CHANGES, src/net/grinder/console/distribution/FileDistribution.java, src/net/grinder/console/distribution/FileDistributionImplementation.java:
