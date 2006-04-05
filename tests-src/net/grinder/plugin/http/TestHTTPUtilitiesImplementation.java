@@ -177,7 +177,8 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("dah", httpUtilities.valueFromBodyURI("lah"));
 
     handler.setBody(
-    "<body><a href='http://www.w3.org/pub/WWW/People.html;JSESSIONID=1234'>foo</a></body>");
+    "<body><a href='http://www.w3.org/pub/WWW/People.html;JSESSIONID=1234'>foo</a>" +
+    "<a href='http://www.w3.org/pub/WWW/People.html;JSESSIONID=5678'>foo</a></body>");
     request.GET(handler.getURL());
     assertEquals("1234", httpUtilities.valueFromBodyURI("JSESSIONID"));
     assertEquals("", httpUtilities.valueFromBodyURI("foo"));
@@ -186,5 +187,9 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     request.GET(handler.getURL());
     assertEquals("1234", httpUtilities.valueFromBodyURI("JSESSIONID"));
     assertEquals("", httpUtilities.valueFromBodyURI("foo"));
+    assertEquals("1234", httpUtilities.valueFromBodyURI("JSESSIONID", "<body>"));
+    assertEquals("5678", httpUtilities.valueFromBodyURI("JSESSIONID", "</a>"));
+    assertEquals("", httpUtilities.valueFromBodyURI("JSESSIONID", "5"));
+    assertEquals("", httpUtilities.valueFromBodyURI("JSESSIONID", "999"));
   }
 }

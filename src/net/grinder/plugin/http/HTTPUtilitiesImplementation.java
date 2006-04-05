@@ -21,7 +21,6 @@
 
 package net.grinder.plugin.http;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
 
 import net.grinder.common.GrinderException;
@@ -32,9 +31,7 @@ import net.grinder.util.URIParser;
 import net.grinder.util.URIParserImplementation;
 import HTTPClient.Codecs;
 import HTTPClient.HTTPResponse;
-import HTTPClient.ModuleException;
 import HTTPClient.NVPair;
-import HTTPClient.ParseException;
 
 
 /**
@@ -123,6 +120,11 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
 
   public String valueFromBodyURI(final String tokenName)
     throws GrinderException {
+    return valueFromBodyURI(tokenName, null);
+  }
+
+  public String valueFromBodyURI(final String tokenName, String afterText)
+    throws GrinderException {
 
     final HTTPResponse response = getLastResponse();
 
@@ -136,20 +138,25 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
       // This shouldn't fail as we have already read the complete response.
       body = response.getText();
     }
-    catch (IOException e) {
-      throw new ParseAssertion("Unexpected IOException", e);
-    }
-    catch (ModuleException e) {
-      throw new ParseAssertion("Unexpected HTTPClient ModuleException", e);
-    }
-    catch (ParseException e) {
-      throw new ParseAssertion("Unexpected HTTPClient ParseException", e);
+    catch (Exception e) {
+      throw new AssertionError(e);
     }
 
-    final String[] result = { "" };
+    int start = 0;
+
+    if (afterText != null) {
+      start = body.indexOf(afterText);
+
+      if (start == -1) {
+        return "";
+      }
+    }
 
     final Matcher matcher =
-      m_regularExpressions.getHyperlinkURIPattern().matcher(body);
+      m_regularExpressions.getHyperlinkURIPattern().matcher(
+        body.substring(start));
+
+    final String[] result = { "" };
 
     while (matcher.find()) {
       final String uri = matcher.group(1);
@@ -180,12 +187,5 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     }
 
     return "";
-  }
-
-  private static class ParseAssertion extends GrinderException {
-
-    public ParseAssertion(String message, Throwable cause) {
-      super(message, cause);
-    }
   }
 }
