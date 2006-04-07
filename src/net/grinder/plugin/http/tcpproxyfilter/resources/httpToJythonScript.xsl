@@ -50,6 +50,9 @@ from HTTPClient import NVPair
 connectionDefaults = HTTPPluginControl.getConnectionDefaults()
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
+# To use a proxy server, uncomment the next line and set the host and port.
+# connectionDefaults.setProxyServer("localhost", 8001)
+
 # These definitions at the top level of the file are evaluated once,
 # when the worker process is started.
 </xsl:text>
@@ -222,6 +225,8 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:apply-templates select="g:sleep-time" mode="request"/>
 
     <xsl:apply-templates select=".//g:token-reference[not(../../g:response)]" mode="request"/>
+
+    <xsl:apply-templates select=".//g:conflicting-token-reference" mode="request"/>
 
     <xsl:apply-templates select="g:annotation" mode="request"/>
 
@@ -415,7 +420,6 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
           <xsl:when test="@source = 'RESPONSE_BODY_HIDDEN_INPUT'">
             <xsl:text>valueFromHiddenInput(</xsl:text>
           </xsl:when>
-          <!--  TODO hidden parameter -->
           <xsl:otherwise>
             <xsl:text>valueFromBodyURI(</xsl:text>
           </xsl:otherwise>
@@ -425,7 +429,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
         <xsl:text>)</xsl:text>
 
         <xsl:text> # </xsl:text>
-        <xsl:value-of select="helper:summariseAsLine(g:new-value, 40)"/>
+        <xsl:value-of select="helper:quoteForPython(helper:summariseAsLine(g:new-value, 40))"/>
         <xsl:value-of select="helper:changeIndent(-1)"/>
       </xsl:when>
 
@@ -436,6 +440,14 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     </xsl:choose>
   </xsl:template>
 
+  <!-- First occurrence foo of a conflicting token for a particular request
+       and token-id. -->
+  <xsl:template match="g:conflicting-token-reference[not(preceding-sibling::g:conflicting-token-reference/@token-id = @token-id)]" mode="request">
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text># Conflicting values for </xsl:text>
+    <xsl:value-of select="@token-id"/>
+    <xsl:text> found in response, using the first one.</xsl:text>
+  </xsl:template>
 
   <xsl:template match="g:path" mode="request-uri">
     <!-- Open quote here, last g:text or g:token-reference will close. -->
@@ -476,7 +488,6 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     </xsl:if>
   </xsl:template>
 
- <!--  TODO -->
   <xsl:template match="g:path/g:token-reference|g:query-string/g:token-reference" mode="request-uri">
     <xsl:variable name="token-id" select="@token-id"/>
 
@@ -570,6 +581,19 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:text>),</xsl:text>
   </xsl:template>
 
+  <xsl:template match="g:token-reference" mode="tuple">
+    <xsl:variable name="token-id" select="@token-id"/>
+    <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
+
+    <xsl:call-template name="indent-tuple-entry"/>
+
+    <xsl:text>NVPair(</xsl:text>
+    <xsl:value-of select="helper:quoteForPython($token-id)"/>
+    <xsl:text>, </xsl:text>
+    <xsl:text>self.</xsl:text>
+    <xsl:value-of select="$token-id"/>
+    <xsl:text>),</xsl:text>
+  </xsl:template>
 
   <xsl:template match="g:authorization/g:basic" mode="tuple">
     <xsl:call-template name="indent-tuple-entry">
