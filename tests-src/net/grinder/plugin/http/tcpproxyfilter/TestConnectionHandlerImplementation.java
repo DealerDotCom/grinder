@@ -24,6 +24,7 @@ package net.grinder.plugin.http.tcpproxyfilter;
 import java.io.File;
 
 import net.grinder.common.LoggerStubFactory;
+import net.grinder.plugin.http.xml.ConflictingTokenReferenceType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
@@ -363,13 +364,15 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     assertEquals("57", parameters[1]);
     assertEquals(ResponseTokenReferenceType.Source.RESPONSE_BODY_URI_PATH_PARAMETER.toString(),
       ((ResponseTokenReferenceType)parameters[2]).getSource());
-    m_httpRecordingStubFactory.assertSuccess("setTokenReference",
-      String.class, String.class, ResponseTokenReferenceType.class);
+
+    final Object[] parameters2 =
+      m_httpRecordingStubFactory.assertSuccess("setTokenReference",
+        String.class, String.class, ResponseTokenReferenceType.class).getParameters();
+    assertEquals("token", parameters2[0]);
+    assertFalse(parameters2[2] instanceof ConflictingTokenReferenceType);
 
     // Should only record the first "token" token.
     m_httpRecordingStubFactory.assertNoMoreCalls();
-
-    // TODO: assert warning annotations.
 
     m_loggerStubFactory.assertNoMoreCalls();
 
@@ -380,7 +383,11 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     handler.handleResponse(responseBuffer2, responseBuffer2.length);
 
     // Differing token values.
-    m_loggerStubFactory.assertSuccess("error", String.class);
+    final Object[] parameters3 =
+      m_httpRecordingStubFactory.assertSuccess("setTokenReference",
+        String.class, String.class, ResponseTokenReferenceType.class).getParameters();
+    assertEquals("token", parameters3[0]);
+    assertTrue(parameters3[2] instanceof ConflictingTokenReferenceType);
 
     m_httpRecordingStubFactory.assertNoMoreCalls();
     m_loggerStubFactory.assertNoMoreCalls();
