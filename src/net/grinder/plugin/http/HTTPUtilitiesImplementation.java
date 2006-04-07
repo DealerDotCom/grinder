@@ -27,6 +27,8 @@ import net.grinder.common.GrinderException;
 import net.grinder.plugin.http.tcpproxyfilter.RegularExpressions;
 import net.grinder.plugin.http.tcpproxyfilter.RegularExpressionsImplementation;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.util.AttributeStringParser;
+import net.grinder.util.AttributeStringParserImplementation;
 import net.grinder.util.URIParser;
 import net.grinder.util.URIParserImplementation;
 import HTTPClient.Codecs;
@@ -45,6 +47,8 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
   private final URIParser m_uriParser = new URIParserImplementation();
   private final RegularExpressions m_regularExpressions =
     new RegularExpressionsImplementation();
+  private final AttributeStringParser m_attributeStringParser =
+    new AttributeStringParserImplementation();
   private final PluginProcessContext m_processContext;
 
   public HTTPUtilitiesImplementation(PluginProcessContext processContext) {
@@ -118,6 +122,38 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     return result[0];
   }
 
+  public String valueFromHiddenInput(final String tokenName)
+    throws GrinderException {
+    return valueFromHiddenInput(tokenName, null);
+  }
+
+  public String valueFromHiddenInput(String tokenName, String afterText)
+    throws GrinderException {
+
+    final String body = bodyStringAfter(afterText);
+
+    if (body == null) {
+      return "";
+    }
+
+    final Matcher matcher =
+      m_regularExpressions.getHiddenInputPattern().matcher(body);
+
+    while (matcher.find()) {
+      final AttributeStringParser.AttributeMap map =
+        m_attributeStringParser.parse(matcher.group());
+
+      final String name = map.get("name");
+      final String value = map.get("value");
+
+      if (name != null && value != null && name.equals(tokenName)) {
+        return value;
+      }
+    }
+
+    return "";
+  }
+
   public String valueFromBodyURI(final String tokenName)
     throws GrinderException {
     return valueFromBodyURI(tokenName, null);
@@ -126,35 +162,14 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
   public String valueFromBodyURI(final String tokenName, String afterText)
     throws GrinderException {
 
-    final HTTPResponse response = getLastResponse();
+    final String body = bodyStringAfter(afterText);
 
-    if (response == null) {
+    if (body == null) {
       return "";
     }
 
-    final String body;
-
-    try {
-      // This shouldn't fail as we have already read the complete response.
-      body = response.getText();
-    }
-    catch (Exception e) {
-      throw new AssertionError(e);
-    }
-
-    int start = 0;
-
-    if (afterText != null) {
-      start = body.indexOf(afterText);
-
-      if (start == -1) {
-        return "";
-      }
-    }
-
     final Matcher matcher =
-      m_regularExpressions.getHyperlinkURIPattern().matcher(
-        body.substring(start));
+      m_regularExpressions.getHyperlinkURIPattern().matcher(body);
 
     final String[] result = { "" };
 
@@ -187,5 +202,36 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     }
 
     return "";
+  }
+
+  private String bodyStringAfter(String text) throws GrinderException {
+
+    final HTTPResponse response = getLastResponse();
+
+    if (response == null) {
+      return null;
+    }
+
+    final String body;
+
+    try {
+      // This shouldn't fail as we have already read the complete response.
+      body = response.getText();
+    }
+    catch (Exception e) {
+      throw new AssertionError(e);
+    }
+
+    if (text != null) {
+      final int start = body.indexOf(text);
+
+      if (start == -1) {
+        return null;
+      }
+
+      return body.substring(start);
+    }
+
+    return body;
   }
 }

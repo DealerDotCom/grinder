@@ -192,4 +192,27 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromBodyURI("JSESSIONID", "5"));
     assertEquals("", httpUtilities.valueFromBodyURI("JSESSIONID", "999"));
   }
+
+  public void testValueFromHiddenInput() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    request.GET(handler.getURL());
+    assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
+
+    handler.setBody("<body><input type='hidden' name='foo'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
+
+    // TODO - does foo override value here?
+    handler.setBody("<body><input type='hidden' name='foo' value='bah'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals("bah", httpUtilities.valueFromHiddenInput("foo"));
+    assertEquals("", httpUtilities.valueFromHiddenInput("bah"));
+
+      }
 }

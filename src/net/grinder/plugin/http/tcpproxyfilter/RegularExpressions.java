@@ -80,5 +80,5 @@ public interface RegularExpressions {
    *
    * @return The pattern.
    */
-  Pattern getHiddenParameterPattern();
+  Pattern getHiddenInputPattern();
 }

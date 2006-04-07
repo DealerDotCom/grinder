@@ -109,7 +109,7 @@
 
   <xs:complexType name="ResponseTokenReferenceType">
     <xs:complexContent>
-      <xs:extension base="tns:TokenReferenceType">
+      <xs:restriction base="tns:TokenReferenceType">
         <xs:attribute name="source">
           <xs:simpleType>
             <xs:restriction base="xs:string">
@@ -121,13 +121,21 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:attribute>
-      </xs:extension>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ConflictingTokenReferenceType">
+    <xs:complexContent>
+      <xs:restriction base="tns:ResponseTokenReferenceType"/>
     </xs:complexContent>
   </xs:complexType>
 
   <xs:complexType name="ResponseType">
     <xs:sequence>
       <xs:element name="token-reference" type="tns:ResponseTokenReferenceType"
+        minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="conflicting-token-reference" type="tns:ConflictingTokenReferenceType"
         minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="status-code" type="xs:unsignedShort" />

@@ -60,7 +60,7 @@ public class TestRegularExpressionsImplementation extends TestCase {
     final RegularExpressions regularExpressions =
       new RegularExpressionsImplementation();
 
-    final Pattern pattern = regularExpressions.getHiddenParameterPattern();
+    final Pattern pattern = regularExpressions.getHiddenInputPattern();
 
     final String[] goodMatches = {
       " <input type='hidden' name=\"name\" value='myvalue'>",

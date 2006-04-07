@@ -328,7 +328,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       }
 
       final Matcher hiddenParameterMatcher = m_regularExpressions
-          .getHiddenParameterPattern().matcher(body);
+          .getHiddenInputPattern().matcher(body);
 
       while (hiddenParameterMatcher.find()) {
         final AttributeStringParser.AttributeMap map =
@@ -447,21 +447,21 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
       final Object oldValue = m_tokenValueMap.put(name, value);
 
+      final ResponseTokenReferenceType tokenReference;
+
       if (oldValue == null) {
-        final ResponseTokenReferenceType tokenReference =
-          getResponse().addNewTokenReference();
-        tokenReference.setSource(source.toString());
-        m_httpRecording.setTokenReference(name, value, tokenReference);
+        tokenReference = getResponse().addNewTokenReference();
       }
       else {
-        // TODO - convert this to annotate the script, together with
-        // details of conflicting sources.
-        if (!oldValue.equals(value)) {
-          m_logger.error(
-            "Differing values for token '" + name +
-            "' found in the response. Generated script may be inaccurate.");
+        if (oldValue.equals(value)) {
+          return;
         }
+
+        tokenReference = getResponse().addNewConflictingTokenReference();
       }
+
+      tokenReference.setSource(source.toString());
+      m_httpRecording.setTokenReference(name, value, tokenReference);
     }
 
     private class Body {

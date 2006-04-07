@@ -40,7 +40,7 @@ public final class RegularExpressionsImplementation
   private final Pattern m_responseLinePattern;
   private final Pattern m_lastPathElementPathPattern;
   private final Pattern m_hrefURIPattern;
-  private final Pattern m_hiddenParameterPattern;
+  private final Pattern m_hiddenInputPattern;
 
   /**
    * Constructor.
@@ -91,7 +91,7 @@ public final class RegularExpressionsImplementation
     m_hrefURIPattern = Pattern.compile(
       ".*?href[ \\t]*=[ \\t]*['\"]([^'\"]*)['\"]");
 
-    m_hiddenParameterPattern = Pattern.compile(
+    m_hiddenInputPattern = Pattern.compile(
       "<\\s*input\\s+" +
       ".*?" +
       "type\\s*=\\s*[\"']\\s*hidden\\s*[\"']" +
@@ -168,7 +168,7 @@ public final class RegularExpressionsImplementation
    *
    * @return The pattern.
    */
-  public Pattern getHiddenParameterPattern() {
-    return m_hiddenParameterPattern;
+  public Pattern getHiddenInputPattern() {
+    return m_hiddenInputPattern;
   }
 }
