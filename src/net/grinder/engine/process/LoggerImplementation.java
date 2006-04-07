@@ -357,7 +357,7 @@ final class LoggerImplementation {
                      "\"), see error log for details",
                      Logger.LOG);
 
-      if (!m_errorOccurred && (w & Logger.TERMINAL) != 0) {
+      if (!m_errorOccurred && (w & Logger.TERMINAL) == 0) {
         m_processLogger.output(
           "There were errors, see " + m_errorFile + " for details",
           Logger.TERMINAL);
