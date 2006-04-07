@@ -208,7 +208,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     request.GET(handler.getURL());
     assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
 
-    // TODO - does foo override value here?
+    // input tags should be empty. The content has no meaning
     handler.setBody("<body><input type='hidden' name='foo' value='bah'>foo</input></body>");
     request.GET(handler.getURL());
     assertEquals("bah", httpUtilities.valueFromHiddenInput("foo"));
