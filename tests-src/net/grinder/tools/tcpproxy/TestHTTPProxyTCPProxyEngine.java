@@ -263,13 +263,32 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     clientSocket2.close();
 
+    m_loggerStubFactory.waitUntilCalled(10000);
+    m_loggerStubFactory.assertSuccess("error", String.class);
+
+    final Socket clientSocket3 =
+      new Socket(engine.getListenEndPoint().getHost(),
+                 engine.getListenEndPoint().getPort());
+
+    final byte[] hugeBunchOfCrap = new byte[50000];
+    clientSocket3.getOutputStream().write(hugeBunchOfCrap);
+
+    final String response3 = readResponse(clientSocket3, null);
+
+    AssertUtilities.assertStartsWith(response3, "HTTP/1.0 400 Bad Request");
+    AssertUtilities.assertContainsHeader(response3, "Connection", "close");
+    AssertUtilities.assertContainsHeader(response3, "Content-type", "text/html");
+
+    clientSocket3.close();
+
     waitUntilAllStreamThreadsStopped();
+
+    m_loggerStubFactory.waitUntilCalled(10000);
+    m_loggerStubFactory.assertSuccess("error", String.class);
 
     m_requestFilterStubFactory.assertNoMoreCalls();
     m_responseFilterStubFactory.assertNoMoreCalls();
 
-    m_loggerStubFactory.waitUntilCalled(10000);
-    m_loggerStubFactory.assertSuccess("error", String.class);
     m_loggerStubFactory.assertNoMoreCalls();
   }
 

@@ -163,8 +163,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    */
   public void run() {
 
-    // Should be more than adequate.
-    final byte[] buffer = new byte[4096];
+    // I've seen pathological messages with huge tracking cookies that are
+    // bigger than 4K. Let's super-size this.
+    final byte[] buffer = new byte[40960];
 
     while (!isStopped()) {
       final Socket localSocket;
@@ -196,12 +197,31 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
           final boolean timeout = in.available() == 0;
 
-          in.reset(); // Easier than maintaining a cursor.
+          // Rewind our buffered stream: easier than maintaining a cursor.
+          in.reset();
 
           final String bufferAsString;
 
           if (in.available() > 0) {
             final int bytesRead = in.read(buffer);
+
+            if (bytesRead == buffer.length) {
+              while (in.available() > 0) {
+                // Drain.
+                in.read(buffer);
+              }
+
+              final HTMLElement message = new HTMLElement();
+              message.addElement("p").addText(
+                "Buffer overflow - failed to match HTTP message after " +
+                buffer.length + " bytes");
+
+              sendHTTPErrorResponse(message, "400 Bad Request",
+                localSocket.getOutputStream());
+
+              break;
+            }
+
             bufferAsString = new String(buffer, 0, bytesRead, "US-ASCII");
           }
           else {
