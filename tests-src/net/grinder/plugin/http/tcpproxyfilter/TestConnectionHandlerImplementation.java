@@ -28,6 +28,7 @@ import net.grinder.plugin.http.xml.ConflictingTokenReferenceType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
+import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.plugin.http.xml.TokenType;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.FileUtilities;
@@ -104,7 +105,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     m_httpRecordingStubFactory.assertSuccess("markLastResponseTime");
     m_httpRecordingStubFactory.assertNoMoreCalls();
 
-    handler.newRequestMessage();
+    handler.requestFinished();
 
     m_httpRecordingStubFactory.assertNoMoreCalls();
     m_loggerStubFactory.assertNoMoreCalls();
@@ -356,6 +357,18 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     handler.handleResponse(responseBuffer, responseBuffer.length);
 
     m_httpRecordingStubFactory.assertSuccess("markLastResponseTime");
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+
+    final String response2 =
+      "<a href=\"http://grinder.sourceforge.net/?token=2\">something else</a>" +
+      "</body>";
+    final byte[] responseBuffer2 = response2.getBytes();
+    handler.handleResponse(responseBuffer2, responseBuffer2.length);
+
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+
+    // Response is not flushed until the request is over.
+    handler.requestFinished();
 
     final Object[] parameters =
       m_httpRecordingStubFactory.assertSuccess("setTokenReference",
@@ -370,17 +383,6 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
         String.class, String.class, ResponseTokenReferenceType.class).getParameters();
     assertEquals("token", parameters2[0]);
     assertFalse(parameters2[2] instanceof ConflictingTokenReferenceType);
-
-    // Should only record the first "token" token.
-    m_httpRecordingStubFactory.assertNoMoreCalls();
-
-    m_loggerStubFactory.assertNoMoreCalls();
-
-    final String response2 =
-      "<a href=\"http://grinder.sourceforge.net/?token=2\">something else</a>" +
-      "</body>";
-    final byte[] responseBuffer2 = response2.getBytes();
-    handler.handleResponse(responseBuffer2, responseBuffer2.length);
 
     // Differing token values.
     final Object[] parameters3 =
@@ -427,6 +429,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
     m_httpRecordingStubFactory.assertSuccess("markLastResponseTime");
 
+    handler.requestFinished();
+
     final Object[] parameters =
       m_httpRecordingStubFactory.assertSuccess("setTokenReference",
         String.class, String.class, ResponseTokenReferenceType.class).getParameters();
@@ -469,7 +473,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     m_loggerStubFactory.assertSuccess("error", String.class);
     m_loggerStubFactory.assertNoMoreCalls();
 
-    handler.newRequestMessage(); // Force body to be flushed.
+    handler.requestFinished(); // Force body to be flushed.
 
     assertEquals("bah", request.getBody().getContentType());
     assertEquals("012345678", request.getBody().getString());
@@ -514,7 +518,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     handler.handleRequest(buffer2, 50);
     handler.handleRequest(buffer2, 50);
 
-    handler.newRequestMessage(); // Force body to be flushed.
+    handler.requestFinished(); // Force body to be flushed.
 
     assertEquals("bah", request.getBody().getContentType());
     assertEquals(100, request.getBody().getBinary().length);
@@ -551,7 +555,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
       m_connectionDetails, "POST", "/something");
     m_httpRecordingStubFactory.assertNoMoreCalls();
 
-    handler.newRequestMessage(); // Force body to be flushed.
+    handler.requestFinished(); // Force body to be flushed.
 
     final FormFieldType[] formFieldArray =
       request.getBody().getForm().getFormFieldArray();
@@ -561,6 +565,36 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     assertFalse(request.getBody().isSetBinary());
     assertFalse(request.getBody().isSetString());
     assertFalse(request.getBody().isSetFile());
+    assertEquals(0, request.getBody().getForm().getTokenReferenceArray().length);
+
+    m_loggerStubFactory.assertNoMoreCalls();
+
+    m_httpRecordingStubFactory.resetCallHistory(); // tokenReferenceExists
+
+    final RequestType request2 = RequestType.Factory.newInstance();
+    request2.addNewHeaders();
+    request2.setMethod(RequestType.Method.Enum.forString("POST"));
+
+    m_httpRecordingStubFactory.setResult("addRequest", request2);
+    m_httpRecordingStubFactory.setResult("tokenReferenceExists", Boolean.TRUE);
+
+    handler.handleRequest(buffer, buffer.length);
+
+    m_httpRecordingStubFactory.assertSuccess("addRequest",
+      m_connectionDetails, "POST", "/something");
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+
+    handler.requestFinished(); // Force body to be flushed.
+
+    assertEquals(0, request2.getBody().getForm().getFormFieldArray().length);
+    assertFalse(request2.getBody().isSetBinary());
+    assertFalse(request2.getBody().isSetString());
+    assertFalse(request2.getBody().isSetFile());
+    final TokenReferenceType[] tokenReferenceArray =
+      request2.getBody().getForm().getTokenReferenceArray();
+    assertEquals(2, tokenReferenceArray.length);
+    assertFalse(tokenReferenceArray[0].isSetSource());
+    assertFalse(tokenReferenceArray[0].isSetNewValue());
 
     m_loggerStubFactory.assertNoMoreCalls();
   }
@@ -599,7 +633,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
     handler.handleRequest(buffer2, buffer2.length);
 
-    handler.newRequestMessage(); // Force body to be flushed.
+    handler.requestFinished(); // Force body to be flushed.
 
     m_httpRecordingStubFactory.assertSuccess("createBodyDataFileName");
 
@@ -648,7 +682,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
     handler.handleRequest(buffer2, buffer2.length);
 
-    handler.newRequestMessage(); // Force body to be flushed.
+    handler.requestFinished(); // Force body to be flushed.
 
     assertFalse(request.getBody().isSetFile());
     assertFalse(request.getBody().isSetBinary());
@@ -703,8 +737,13 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     m_httpRecordingStubFactory.assertSuccess("addRequest",
       m_connectionDetails, "GET", "/");
 
-    // Responses that don't start with a standard response line are ignored.
+    m_loggerStubFactory.assertNoMoreCalls();
+
+    // Responses that don't start with a standard response line are logged and
+    // ignored.
     handler.handleResponse(new byte[0], 0);
+
+    m_loggerStubFactory.assertSuccess("error", String.class);
 
     m_httpRecordingStubFactory.assertNoMoreCalls();
     m_loggerStubFactory.assertNoMoreCalls();

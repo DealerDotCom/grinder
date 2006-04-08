@@ -38,7 +38,7 @@ public interface ConnectionHandler {
   /**
    * Called when a new request message is expected.
    */
-  void newRequestMessage();
+  void requestFinished();
 
   /**
    * Part of a response message has been received.

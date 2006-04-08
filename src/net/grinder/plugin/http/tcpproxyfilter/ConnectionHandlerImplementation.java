@@ -132,7 +132,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     }
 
     if (m_request != null && m_request.isContentLengthReached()) {
-      newRequestMessage();
+      requestFinished();
     }
 
     final Matcher matcher =
@@ -141,7 +141,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     if (matcher.find()) {
       // Packet is start of new request message.
 
-      newRequestMessage();
+      requestFinished();
 
       final String method = matcher.group(1);
       final String relativeURI = matcher.group(2);
@@ -205,8 +205,8 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       // know the content length, and writing the body can end the
       // processing of the current request.
       if (bodyStart > -1) {
-        m_request.new Body().write(
-          buffer, bodyStart, buffer.length - bodyStart);
+        m_request.new RequestBody().write(
+          buffer, bodyStart, length - bodyStart);
       }
     }
   }
@@ -228,8 +228,6 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       throw new AssertionError(e);
     }
 
-    int bodyStart = 0;
-
     final Matcher matcher =
       m_regularExpressions.getResponseLinePattern().matcher(asciiString);
 
@@ -238,12 +236,23 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
       m_httpRecording.markLastResponseTime();
 
-      final ResponseType response = m_request.addNewResponse();
+      m_request.addNewResponse(Integer.parseInt(matcher.group(1)),
+                               matcher.group(2));
+    }
 
-      response.setStatusCode(Integer.parseInt(matcher.group(1)));
-      response.setReasonPhrase(matcher.group(2));
+    final Response response = m_request.getResponse();
+
+    if (response == null) {
+      m_logger.error("UNEXPECTED - No current response");
+    }
+    else if (response.getBody() != null) {
+      response.getBody().write(buffer, 0, length);
+    }
+    else {
+      // Still parsing headers.
 
       String headers = asciiString;
+      int bodyStart = -1;
 
       if (m_request.expectingResponseBody()) {
         final Matcher messageBodyMatcher =
@@ -266,7 +275,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           m_uriParser.parse(value, new URIParser.AbstractParseListener() {
 
             public boolean pathParameterNameValue(String name, String value) {
-              m_request.addResponseTokenReference(
+              response.addResponseTokenReference(
                 name,
                 value,
                 ResponseTokenReferenceType.Source
@@ -276,7 +285,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
             }
 
             public boolean queryStringNameValue(String name, String value) {
-              m_request.addResponseTokenReference(
+              response.addResponseTokenReference(
                 name,
                 value,
                 ResponseTokenReferenceType.Source
@@ -287,62 +296,12 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           });
         }
       }
-    }
 
-    if (m_request.getResponse() != null) {
-      // TODO This ought to work the same as the request processing; i.e.
-      // write data to a buffer and only parse it when we've read everything.
-
-      // Parse body for href="<url>" patterns containing URL tokens. We could
-      // choose to do this only for certain content types, (probably just
-      // text/html) but its better to catch too many tokens than too few.
-
-      final String body = asciiString.substring(bodyStart);
-
-      final Matcher uriMatcher =
-        m_regularExpressions.getHyperlinkURIPattern().matcher(body);
-
-      while (uriMatcher.find()) {
-        m_uriParser.parse(
-          uriMatcher.group(1),
-          new URIParser.AbstractParseListener() {
-
-            public boolean pathParameterNameValue(String name, String value) {
-              m_request.addResponseTokenReference(
-                name,
-                value,
-                ResponseTokenReferenceType.Source
-                .RESPONSE_BODY_URI_PATH_PARAMETER);
-
-              return true;
-            }
-
-            public boolean queryStringNameValue(String name, String value) {
-              m_request.addResponseTokenReference(name, value,
-                ResponseTokenReferenceType.Source
-                .RESPONSE_BODY_URI_QUERY_STRING);
-
-              return true;
-            }
-          });
-      }
-
-      final Matcher hiddenParameterMatcher = m_regularExpressions
-          .getHiddenInputPattern().matcher(body);
-
-      while (hiddenParameterMatcher.find()) {
-        final AttributeStringParser.AttributeMap map =
-          m_attributeStringParser.parse(hiddenParameterMatcher.group());
-
-        final String name = map.get("name");
-        final String value = map.get("value");
-
-        if (name != null && value != null) {
-          m_request.addResponseTokenReference(
-            name,
-            value,
-            ResponseTokenReferenceType.Source.RESPONSE_BODY_HIDDEN_INPUT);
-        }
+      // Write out the body after parsing the headers for consistency with
+      // handleRequest.
+      if (bodyStart > -1) {
+        response.new ResponseBody().write(
+          buffer, bodyStart, length - bodyStart);
       }
     }
   }
@@ -350,7 +309,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
   /**
    * Called when a new request message is expected.
    */
-  public synchronized void newRequestMessage() {
+  public synchronized void requestFinished() {
     if (m_request != null) {
       m_request.end();
     }
@@ -363,21 +322,26 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
     private int m_contentLength = -1;
     private String m_contentType = null;
-    private Body m_body;
+    private RequestBody m_body;
     private boolean m_contentLengthReached;
-    private final Map m_tokenValueMap = new HashMap();
+
+    private Response m_response = null;
 
     public Request(String method, String relativeURI) {
       m_requestXML =
         m_httpRecording.addRequest(m_connectionDetails, method, relativeURI);
     }
 
-    public ResponseType addNewResponse() {
-      return m_requestXML.addNewResponse();
+    public void addNewResponse(int statusCode, String reasonPhrase) {
+      final ResponseType responseXML = m_requestXML.addNewResponse();
+      responseXML.setStatusCode(statusCode);
+      responseXML.setReasonPhrase(reasonPhrase);
+
+      m_response = new Response(responseXML);
     }
 
-    public ResponseType getResponse() {
-      return m_requestXML.getResponse();
+    public Response getResponse() {
+      return m_response;
     }
 
     public void addBasicAuthorization(String base64) {
@@ -397,7 +361,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       }
     }
 
-    public Body getBody() {
+    public RequestBody getBody() {
       return m_body;
     }
 
@@ -440,35 +404,14 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       if (getBody() != null) {
         getBody().end();
       }
+
+      if (getResponse() != null) {
+        getResponse().end();
+      }
     }
 
-    public void addResponseTokenReference(String name, String value,
-      ResponseTokenReferenceType.Source.Enum source) {
-
-      final Object oldValue = m_tokenValueMap.put(name, value);
-
-      final ResponseTokenReferenceType tokenReference;
-
-      if (oldValue == null) {
-        tokenReference = getResponse().addNewTokenReference();
-      }
-      else {
-        if (oldValue.equals(value)) {
-          return;
-        }
-
-        tokenReference = getResponse().addNewConflictingTokenReference();
-      }
-
-      tokenReference.setSource(source.toString());
-      m_httpRecording.setTokenReference(name, value, tokenReference);
-    }
-
-    private class Body {
-      private final ByteArrayOutputStream m_entityBodyByteStream =
-        new ByteArrayOutputStream();
-
-      public Body() {
+    private class RequestBody extends AbstractBody {
+      public RequestBody() {
         assert m_body == null;
         m_body = this;
       }
@@ -477,23 +420,23 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
         final int lengthToWrite;
 
         if (m_contentLength != -1 &&
-            length > m_contentLength - m_entityBodyByteStream.size()) {
+            length > m_contentLength - getSize()) {
 
           m_logger.error("Expected content length exceeded, truncating");
-          lengthToWrite = m_contentLength - m_entityBodyByteStream.size();
+          lengthToWrite = m_contentLength - getSize();
         }
         else {
           lengthToWrite = length;
         }
 
-        m_entityBodyByteStream.write(bytes, start, lengthToWrite);
+        super.write(bytes, start, lengthToWrite);
 
         // We mark the request as finished if we've reached the specified
         // Content-Length. We rely on next message or connection close
         // event to flush the data, this allows us to parse the response. We
         // also rely on these events if no Content-Length is specified.
         if (m_contentLength != -1 &&
-            m_entityBodyByteStream.size() >= m_contentLength) {
+            getSize() >= m_contentLength) {
 
           m_request.setContentLengthReached();
         }
@@ -506,7 +449,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           body.setContentType(m_contentType);
         }
 
-        final byte[] bytes = m_entityBodyByteStream.toByteArray();
+        final byte[] bytes = toByteArray();
 
         if (bytes.length > 0x4000) {
           // Large amount of data, use a file.
@@ -526,6 +469,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           }
         }
         else {
+          // Basic handling of strings; should use content character encoding.
           final String iso88591String;
 
           try {
@@ -572,7 +516,6 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           }
 
           if (body.getForm() == null) {
-            // Basic handling of strings; should use content type headers.
             boolean looksLikeAnExtendedASCIIString = true;
 
             for (int i = 0; i < bytes.length; ++i) {
@@ -603,4 +546,136 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       return m_contentLengthReached;
     }
   }
+
+  private final class Response {
+
+    private final ResponseType m_responseXML;
+    private ResponseBody m_body;
+    private final Map m_tokenValueMap = new HashMap();
+
+    public Response(ResponseType responseXML) {
+      m_responseXML = responseXML;
+    }
+
+    public ResponseBody getBody() {
+      return m_body;
+    }
+
+    public void end() {
+      if (getBody() != null) {
+        getBody().end();
+      }
+    }
+
+    public void addResponseTokenReference(String name, String value,
+      ResponseTokenReferenceType.Source.Enum source) {
+
+      final Object oldValue = m_tokenValueMap.put(name, value);
+
+      final ResponseTokenReferenceType tokenReference;
+
+      if (oldValue == null) {
+        tokenReference = m_responseXML.addNewTokenReference();
+      }
+      else {
+        if (oldValue.equals(value)) {
+          return;
+        }
+
+        tokenReference = m_responseXML.addNewConflictingTokenReference();
+      }
+
+      tokenReference.setSource(source.toString());
+      m_httpRecording.setTokenReference(name, value, tokenReference);
+    }
+
+    private class ResponseBody extends AbstractBody {
+      public ResponseBody() {
+        assert m_body == null;
+        m_body = this;
+      }
+
+      public void end() {
+        // Parse body for href="<url>" patterns containing URL tokens. We could
+        // choose to do this only for certain content types, (probably just
+        // text/html) but its better to catch too many tokens than too few.
+
+        // This ought to respect content character encoding.
+        final String iso85591String;
+
+        try {
+          iso85591String = new String(toByteArray(), "ISO8859_1");
+        }
+        catch (UnsupportedEncodingException e) {
+          throw new AssertionError(e);
+        }
+
+        final Matcher uriMatcher =
+          m_regularExpressions.getHyperlinkURIPattern().matcher(iso85591String);
+
+        while (uriMatcher.find()) {
+          m_uriParser.parse(
+            uriMatcher.group(1),
+            new URIParser.AbstractParseListener() {
+
+              public boolean pathParameterNameValue(String name, String value) {
+                addResponseTokenReference(
+                  name,
+                  value,
+                  ResponseTokenReferenceType.Source
+                  .RESPONSE_BODY_URI_PATH_PARAMETER);
+
+                return true;
+              }
+
+              public boolean queryStringNameValue(String name, String value) {
+                addResponseTokenReference(name, value,
+                  ResponseTokenReferenceType.Source
+                  .RESPONSE_BODY_URI_QUERY_STRING);
+
+                return true;
+              }
+            });
+        }
+
+        final Matcher hiddenParameterMatcher = m_regularExpressions
+            .getHiddenInputPattern().matcher(iso85591String);
+
+        while (hiddenParameterMatcher.find()) {
+          final AttributeStringParser.AttributeMap map =
+            m_attributeStringParser.parse(hiddenParameterMatcher.group());
+
+          final String name = map.get("name");
+          final String value = map.get("value");
+
+          if (name != null && value != null) {
+            addResponseTokenReference(
+              name,
+              value,
+              ResponseTokenReferenceType.Source.RESPONSE_BODY_HIDDEN_INPUT);
+          }
+        }
+      }
+    }
+  }
+
+  private abstract static class AbstractBody {
+    private final ByteArrayOutputStream m_entityBodyByteStream =
+      new ByteArrayOutputStream();
+
+    public void write(byte[] bytes, int start, int length) {
+      m_entityBodyByteStream.write(bytes, start, length);
+    }
+
+    public abstract void end();
+
+    protected final int getSize() {
+      return m_entityBodyByteStream.size();
+    }
+
+    protected final byte[] toByteArray() {
+      return m_entityBodyByteStream.toByteArray();
+    }
+  }
+
 }

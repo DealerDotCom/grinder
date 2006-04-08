@@ -121,7 +121,7 @@ public final class ConnectionCache
         "Unknown connection " + connectionDetails);
     }
 
-    handler.newRequestMessage();
+    handler.requestFinished();
   }
 
   /**
@@ -134,7 +134,7 @@ public final class ConnectionCache
 
       while (iterator.hasNext()) {
         final ConnectionHandler handler = (ConnectionHandler)iterator.next();
-        handler.newRequestMessage();
+        handler.requestFinished();
       }
     }
   }
