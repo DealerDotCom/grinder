@@ -498,16 +498,11 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
     final String message =
       "POST /something HTTP/1.0\r\n" +
-      "Content-Length: 100\r\n" +
+      "Content-Length: 150\r\n" +
       "Content-Type: bah\r\n" +
       "\r\n";
 
     final byte[] buffer = message.getBytes();
-    handler.handleRequest(buffer, buffer.length);
-
-    m_httpRecordingStubFactory.assertSuccess("addRequest",
-      m_connectionDetails, "POST", "/something");
-    m_httpRecordingStubFactory.assertNoMoreCalls();
 
     final byte[] buffer2 = new byte[50];
 
@@ -515,13 +510,25 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
       buffer2[i] = (byte) i;
     }
 
+    // Deliberately use an oversized buffer to check handleRequest trims
+    // correctly.
+    final byte[] buffer3 = new byte[buffer.length + buffer2.length + 100];
+    System.arraycopy(buffer, 0, buffer3, 0, buffer.length);
+    System.arraycopy(buffer2, 0, buffer3, buffer.length, buffer2.length);
+
+    handler.handleRequest(buffer3, buffer.length + buffer2.length);
+
+    m_httpRecordingStubFactory.assertSuccess("addRequest",
+      m_connectionDetails, "POST", "/something");
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+
     handler.handleRequest(buffer2, 50);
     handler.handleRequest(buffer2, 50);
 
     handler.requestFinished(); // Force body to be flushed.
 
     assertEquals("bah", request.getBody().getContentType());
-    assertEquals(100, request.getBody().getBinary().length);
+    assertEquals(150, request.getBody().getBinary().length);
     assertFalse(request.getBody().isSetString());
     assertFalse(request.getBody().isSetFile());
     assertFalse(request.getBody().isSetForm());
