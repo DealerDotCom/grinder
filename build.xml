@@ -334,8 +334,11 @@ what you want. Currently the conditionally built modules are:
 
     <xmlbean
       classgendir="${xmlbeans-build.dir}"
+      srcgendir="${xmlbeans-build.dir}/src"
       classpathref="xmlbeans.classpath"
-      destfile="${xmlbeans.jar}">
+      destfile="${xmlbeans.jar}"
+      debug="${debug}"
+      optimize="${optimize}">
       <fileset refid="xmlbeans.src.fileset"/>
     </xmlbean>
   </target>
