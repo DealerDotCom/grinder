@@ -226,8 +226,6 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
     <xsl:apply-templates select=".//g:token-reference[not(../../g:response)]" mode="request"/>
 
-    <xsl:apply-templates select=".//g:conflicting-token-reference" mode="request"/>
-
     <xsl:apply-templates select="g:annotation" mode="request"/>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -398,6 +396,8 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
   <!-- token-reference with a new value. -->
   <xsl:template match="g:token-reference[g:new-value]" mode="request">
+    <xsl:apply-templates select=".//g:conflicting-value" mode="request"/>
+
     <xsl:variable name="token-id" select="@token-id"/>
     <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
 
@@ -440,13 +440,27 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     </xsl:choose>
   </xsl:template>
 
-  <!-- First occurrence foo of a conflicting token for a particular request
-       and token-id. -->
-  <xsl:template match="g:conflicting-token-reference[not(preceding-sibling::g:conflicting-token-reference/@token-id = @token-id)]" mode="request">
+  <xsl:template match="g:conflicting-value[not(preceding-sibling::g:conflicting-value)]" mode="request">
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text># Conflicting values for </xsl:text>
-    <xsl:value-of select="@token-id"/>
-    <xsl:text> found in response, using the first one.</xsl:text>
+    <xsl:text># </xsl:text>
+    <xsl:value-of select="count(../*)"/>
+    <xsl:text> different values for </xsl:text>
+    <xsl:value-of select="../@token-id"/>
+    <xsl:text> found in response</xsl:text>
+
+    <xsl:choose>
+      <xsl:when test="preceding-sibling::g:new-value">
+        <xsl:text>, using the first one.</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>; the first matched</xsl:text>
+        <xsl:value-of select="helper:newLineAndIndent()"/>
+        <xsl:text># the last known value of </xsl:text>
+        <xsl:value-of select="../@token-id"/>
+        <xsl:text> - don't update the variable.</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+
   </xsl:template>
 
   <xsl:template match="g:path" mode="request-uri">

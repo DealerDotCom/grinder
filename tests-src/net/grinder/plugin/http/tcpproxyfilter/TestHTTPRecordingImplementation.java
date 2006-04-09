@@ -382,6 +382,7 @@ public class TestHTTPRecordingImplementation extends TestCase {
 
     assertFalse(httpRecording.tokenReferenceExists("foo", null));
     assertFalse(httpRecording.tokenReferenceExists("foo", "somewhere"));
+    assertNull(httpRecording.getLastValueForToken("foo"));
 
     final TokenReferenceType tokenReference = TokenReferenceType.Factory.newInstance();
     tokenReference.setSource("somewhere");
@@ -389,12 +390,16 @@ public class TestHTTPRecordingImplementation extends TestCase {
 
     assertFalse(httpRecording.tokenReferenceExists("foo", null));
     assertTrue(httpRecording.tokenReferenceExists("foo", "somewhere"));
+    assertEquals("bah", httpRecording.getLastValueForToken("foo"));
 
     tokenReference.unsetSource();
     httpRecording.setTokenReference("foo", "bah", tokenReference);
 
     assertTrue(httpRecording.tokenReferenceExists("foo", null));
     assertTrue(httpRecording.tokenReferenceExists("foo", "somewhere"));
+    assertEquals("bah", httpRecording.getLastValueForToken("foo"));
 
+    httpRecording.setTokenReference("foo", "blah", tokenReference);
+    assertEquals("blah", httpRecording.getLastValueForToken("foo"));
   }
 }

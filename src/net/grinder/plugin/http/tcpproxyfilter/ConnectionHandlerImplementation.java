@@ -37,13 +37,15 @@ import java.util.regex.Matcher;
 import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.BasicAuthorizationHeaderType;
 import net.grinder.plugin.http.xml.BodyType;
+import net.grinder.plugin.http.xml.ConflictingTokenReferenceType;
 import net.grinder.plugin.http.xml.FormBodyType;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.HeaderType;
 import net.grinder.plugin.http.xml.RequestType;
-import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
 import net.grinder.plugin.http.xml.ResponseType;
+import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
 import net.grinder.plugin.http.xml.TokenReferenceType;
+import net.grinder.plugin.http.xml.TokenResponseLocationType;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.util.AttributeStringParser;
 import net.grinder.util.URIParser;
@@ -278,7 +280,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
               response.addResponseTokenReference(
                 name,
                 value,
-                ResponseTokenReferenceType.Source
+                TokenResponseLocationType
                 .RESPONSE_LOCATION_HEADER_PATH_PARAMETER);
 
               return true;
@@ -288,7 +290,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
               response.addResponseTokenReference(
                 name,
                 value,
-                ResponseTokenReferenceType.Source
+                TokenResponseLocationType
                 .RESPONSE_LOCATION_HEADER_QUERY_STRING);
 
               return true;
@@ -494,7 +496,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
                 // previous hidden input field.
                 if (m_httpRecording.tokenReferenceExists(
                       name,
-                      ResponseTokenReferenceType.Source
+                      TokenResponseLocationType
                       .RESPONSE_BODY_HIDDEN_INPUT.toString())) {
 
                   final TokenReferenceType tokenReference =
@@ -551,7 +553,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
     private final ResponseType m_responseXML;
     private ResponseBody m_body;
-    private final Map m_tokenValueMap = new HashMap();
+    private final Map m_tokensInResponseMap = new HashMap();
 
     public Response(ResponseType responseXML) {
       m_responseXML = responseXML;
@@ -568,25 +570,33 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     }
 
     public void addResponseTokenReference(String name, String value,
-      ResponseTokenReferenceType.Source.Enum source) {
+      TokenResponseLocationType.Enum source) {
 
-      final Object oldValue = m_tokenValueMap.put(name, value);
+      final ResponseTokenReferenceType existingTokenReference =
+        (ResponseTokenReferenceType)m_tokensInResponseMap.get(name);
 
-      final ResponseTokenReferenceType tokenReference;
+      if (existingTokenReference == null) {
+        final ResponseTokenReferenceType newTokenReference =
+          m_responseXML.addNewTokenReference();
 
-      if (oldValue == null) {
-        tokenReference = m_responseXML.addNewTokenReference();
+        newTokenReference.setSource(source.toString());
+        m_httpRecording.setTokenReference(name, value, newTokenReference);
+
+        m_tokensInResponseMap.put(name, newTokenReference);
       }
       else {
-        if (oldValue.equals(value)) {
+        if (m_httpRecording.getLastValueForToken(name).equals(value)) {
+          // Can't simply check existingTokenReference.getNewValue() as it
+          // may not be set.
           return;
         }
 
-        tokenReference = m_responseXML.addNewConflictingTokenReference();
-      }
+        final ConflictingTokenReferenceType conflictingValue =
+          existingTokenReference.addNewConflictingValue();
 
-      tokenReference.setSource(source.toString());
-      m_httpRecording.setTokenReference(name, value, tokenReference);
+        conflictingValue.setValue(value);
+        conflictingValue.setSource(source.toString());
+      }
     }
 
     private class ResponseBody extends AbstractBody {
@@ -622,16 +632,14 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
                 addResponseTokenReference(
                   name,
                   value,
-                  ResponseTokenReferenceType.Source
-                  .RESPONSE_BODY_URI_PATH_PARAMETER);
+                  TokenResponseLocationType.RESPONSE_BODY_URI_PATH_PARAMETER);
 
                 return true;
               }
 
               public boolean queryStringNameValue(String name, String value) {
                 addResponseTokenReference(name, value,
-                  ResponseTokenReferenceType.Source
-                  .RESPONSE_BODY_URI_QUERY_STRING);
+                  TokenResponseLocationType.RESPONSE_BODY_URI_QUERY_STRING);
 
                 return true;
               }
@@ -652,7 +660,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
             addResponseTokenReference(
               name,
               value,
-              ResponseTokenReferenceType.Source.RESPONSE_BODY_HIDDEN_INPUT);
+              TokenResponseLocationType.RESPONSE_BODY_HIDDEN_INPUT);
           }
         }
       }

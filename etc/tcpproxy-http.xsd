@@ -100,6 +100,8 @@
   <xs:complexType name="TokenReferenceType">
     <xs:sequence>
       <xs:element name="new-value" type="xs:string" minOccurs="0"/>
+      <xs:element name="conflicting-value" minOccurs="0" maxOccurs="unbounded"
+        type="tns:ConflictingTokenReferenceType"/>
     </xs:sequence>
     <xs:attribute name="token-id" type="tns:IDType" />
 
@@ -107,35 +109,52 @@
     <xs:attribute name="source" type="xs:string" use="optional"/>
   </xs:complexType>
 
+  <xs:simpleType name="TokenResponseLocationType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="RESPONSE_LOCATION_HEADER_PATH_PARAMETER" />
+      <xs:enumeration value="RESPONSE_LOCATION_HEADER_QUERY_STRING" />
+      <xs:enumeration value="RESPONSE_BODY_URI_PATH_PARAMETER" />
+      <xs:enumeration value="RESPONSE_BODY_URI_QUERY_STRING" />
+      <xs:enumeration value="RESPONSE_BODY_HIDDEN_INPUT" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ConflictingTokenReferenceType">
+    <xs:sequence>
+      <xs:element name="value" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="source" type="xs:string"/>
+  </xs:complexType>
+
+  <!-- XML Schema, what did we do to deserve it? -->
   <xs:complexType name="ResponseTokenReferenceType">
     <xs:complexContent>
       <xs:restriction base="tns:TokenReferenceType">
-        <xs:attribute name="source">
-          <xs:simpleType>
-            <xs:restriction base="xs:string">
-              <xs:enumeration value="RESPONSE_LOCATION_HEADER_PATH_PARAMETER" />
-              <xs:enumeration value="RESPONSE_LOCATION_HEADER_QUERY_STRING" />
-              <xs:enumeration value="RESPONSE_BODY_URI_PATH_PARAMETER" />
-              <xs:enumeration value="RESPONSE_BODY_URI_QUERY_STRING" />
-              <xs:enumeration value="RESPONSE_BODY_HIDDEN_INPUT" />
-            </xs:restriction>
-          </xs:simpleType>
-        </xs:attribute>
-      </xs:restriction>
-    </xs:complexContent>
-  </xs:complexType>
+        <xs:sequence>
+          <xs:element name="new-value" type="xs:string" minOccurs="0"/>
+          <xs:element name="conflicting-value" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:restriction base="tns:ConflictingTokenReferenceType">
+                  <xs:sequence>
+                    <xs:element name="value" type="xs:string"/>
+                  </xs:sequence>
+                  <xs:attribute name="source" type="tns:TokenResponseLocationType"/>
+                </xs:restriction>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="token-id" type="tns:IDType" />
 
-  <xs:complexType name="ConflictingTokenReferenceType">
-    <xs:complexContent>
-      <xs:restriction base="tns:ResponseTokenReferenceType"/>
+        <xs:attribute name="source" type="tns:TokenResponseLocationType"/>
+      </xs:restriction>
     </xs:complexContent>
   </xs:complexType>
 
   <xs:complexType name="ResponseType">
     <xs:sequence>
       <xs:element name="token-reference" type="tns:ResponseTokenReferenceType"
-        minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="conflicting-token-reference" type="tns:ConflictingTokenReferenceType"
         minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="status-code" type="xs:unsignedShort" />
@@ -147,7 +166,7 @@
       <xs:element name="time" type="xs:dateTime" />
       <xs:element name="method">
         <xs:simpleType>
-          <xs:restriction base="xs:string">
+            <xs:restriction base="xs:string">
             <xs:enumeration value="DELETE" />
             <xs:enumeration value="GET" />
             <xs:enumeration value="HEAD" />

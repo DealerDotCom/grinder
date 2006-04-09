@@ -76,6 +76,15 @@ public interface HTTPRecording {
     String name, String value, TokenReferenceType tokenReference);
 
   /**
+   * Return the last value recorded for the given token.
+   *
+   * @param name The token name.
+   * @return The last value, or <code>null</code> if no token reference
+   * for this token has been seen.
+   */
+  String getLastValueForToken(String name);
+
+  /**
    * Check for existence of token. The token must have at least one previous
    * reference with a source type of <code>source</code>.
    *

@@ -294,6 +294,17 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   /**
+   * Return the last value recorded for the given token.
+   *
+   * @param name The token name.
+   * @return The last value, or <code>null</code> if no token reference
+   * for this token has been seen.
+   */
+  public String getLastValueForToken(String name) {
+    return m_tokenMap.getLastValue(name);
+  }
+
+  /**
    * Check for existence of token. The token must have at least one previous
    * reference with a source type of <code>source</code>.
    *
@@ -623,6 +634,17 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       }
 
       tokenValuePair.addSource(tokenReference.getSource());
+    }
+
+    public String getLastValue(String name) {
+
+      final TokenLastValuePair existing;
+
+      synchronized (m_map) {
+        existing = (TokenLastValuePair)m_map.get(name);
+      }
+
+      return existing != null ? existing.getLastValue() : null;
     }
 
     public boolean exists(String name, String source) {
