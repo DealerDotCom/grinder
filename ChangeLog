@@ -1,3 +1,56 @@
+2006-04-09  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta29 is released.
+
+	* CHANGES: Update for release.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Increase another buffer size for parsing HTTP proxy headers.
+
+	* build.xml: Keep the xmlbeans source.
+	Pass through debug and optimise flags to the xmlbeans compiler.
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java:
+	Further refinements to the annotation of conflicting token values.
+
+2006-04-08  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java:
+	Increase the buffer size for parsing HTTP proxy headers.
+	Don't spin if the buffer size is exceeded - chuck out an error response instead.
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java:
+	Test for bug in request body processing where wrong buffer length was used.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ConnectionCache.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandler.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java:
+	Refactor response body processing so the whole body is parsed together.
+	Fix bug in request body processing where wrong buffer length was used.
+
+2006-04-07  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java:
+	Change TODO to comment as there is nothing to do.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Add hidden parameters to form submissions.
+	Add warnings for conflicting token values.
+	Minor tweaks.
+
+	* src/net/grinder/engine/process/LoggerImplementation.java:
+	Really fix filtering.
+
+	* etc/tcpproxy-http.xsd, src/net/grinder/plugin/http/HTTPUtilities.java, src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressions.java, src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressionsImplementation.java, tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java, tests-src/net/grinder/plugin/http/tcpproxyfilter/TestRegularExpressionsImplementation.java:
+	Explicitly mark conflicting response tokens.
+	Add HTTPUtilities.valueFromHiddenInput().
+
+	* tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java:
+	Update now we explicitly mark conflicting tokens.
+
+2006-04-05  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPUtilities.java, src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java, tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java:
+	Overload valueFromBodyURI with version that takes a literal string that marks the start of the search.
+
 2006-03-28  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/TCPProxy.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/jython/JythonScriptEngine.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java:
