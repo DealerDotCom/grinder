@@ -1,5 +1,5 @@
-The Grinder 3.0-beta29 (Not yet released)
------------------------------------------
+The Grinder 3.0-beta29
+----------------------
 
   Nested Tests are supported. That is, you can now use a Test to
   instrument script code that calls things wrapped by other Tests.
@@ -17,7 +17,8 @@ The Grinder 3.0-beta29 (Not yet released)
      Pages are instrumented as separate tests.
    - Name value tokens are identified in URL path parameters and query
      strings and mapped to script variables. Most session tokens that
-     encoded in URLs will now be handled automatically.
+     encoded in URLs or present in hidden form fields will now be
+     handled automatically.
 
   Several changes to the script API, including:
     net.grinder.plugin.http.HTTPRequest:
