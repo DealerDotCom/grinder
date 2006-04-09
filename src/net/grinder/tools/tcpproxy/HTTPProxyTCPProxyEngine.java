@@ -428,12 +428,16 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
     public void run() {
 
-      final byte[] buffer = new byte[4096];
+      // Needs to hold the largest reasonable set of HTTP headers - see
+      // comment in HTTPProxyTCPProxyEngine.run().
+      final byte[] buffer = new byte[40960];
 
       try {
         while (true) {
-          // Read a buffer full. We're relying on the world conspiring
-          // to place request at start of buffer.
+          // Read a buffer full. We're not as robust as we should be here. We
+          // rely on the World conspiring to place request at start of buffer,
+          // the request headers fitting in our buffer, and the request headers
+          // not being fragmented.
           final int bytesRead = m_in.read(buffer);
 
           if (bytesRead == -1) {
