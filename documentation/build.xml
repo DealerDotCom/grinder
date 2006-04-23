@@ -84,14 +84,16 @@ for details of other targets.
     <exec executable="${forrest.home}/bin/forrest.bat">
      <env key="FORREST_HOME" path="${forrest.home}"/>
     </exec>
+  </target>
 
+  <target name="tidy-up-forrest-output" depends="init">
     <!-- No idea why Forrest generates these bogus files, get rid off them. -->
-    <delete quiet="true">
-      <fileset dir="${doc.dir}/*/index.html"/>
+    <delete>
+      <fileset dir="${doc.dir}" includes="*/index.html"/>
     </delete>
   </target>
 
-  <target name="all" depends="clean,forrest"/>
+  <target name="all" depends="clean,forrest,tidy-up-forrest-output"/>
 
   <target name="release" depends="all" description="Generates a release.">
 
