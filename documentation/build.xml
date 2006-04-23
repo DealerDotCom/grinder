@@ -84,6 +84,11 @@ for details of other targets.
     <exec executable="${forrest.home}/bin/forrest.bat">
      <env key="FORREST_HOME" path="${forrest.home}"/>
     </exec>
+
+    <!-- No idea why Forrest generates these bogus files, get rid off them. -->
+    <delete quite="true">
+      <fileset dir="${doc.dir}/*/index.html"/>
+    </delete>
   </target>
 
   <target name="all" depends="clean,forrest"/>
