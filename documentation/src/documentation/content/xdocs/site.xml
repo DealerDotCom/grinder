@@ -177,7 +177,7 @@ See http://forrest.apache.org/docs/linking.html for more info
   </advanced>
   <https href="https.html"/>
         <urlcon-vs-httpclient href="urlcon_vs_httpclient.html"/>
-  <jsse-zip href="jsse.zip"/>
+  <jsse-zip href="JSSE.zip"/>
       </httpclient>
     </innovation>
 
