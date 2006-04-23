@@ -386,36 +386,36 @@ void doit() { Thread.sleep(10000); // 10 seconds }
         For a given webpage, why does a Grinder script take a much longer time to complete than my browser takes to display the page?
       </question>
       <answer>
-        <p>How your web application behaves under non-trivial load and how long it 
+        <p>How your web application behaves under non-trivial load and how long it
         takes to display a page are two distinct concerns.</p>
         <p>The Grinder runs through test script elements sequentially while browsers,
-        such as MS Internet Explorer, can request several elements at the same time 
+        such as MS Internet Explorer, can request several elements at the same time
         using parallel threads. The number of parallel threads depends on the browser type,
         MS Internet Explorer typically uses 3. Therefore the browser should complete requesting
         the complete list of elements from a webpage before the Grinder.</p>
-        <p>If you are concerned over page download times rather than application behaviour under 
+        <p>If you are concerned over page download times rather than application behaviour under
         load then <a href="mailto:pbooth@marketaxess.com">Peter Booth</a> writes:</p>
   <dl>
           <dt/>
     <dd class="quote">
-To understand how a typical browser will download and display *your* page you should use a tool like IBM's <a href="http://www.alphaworks.ibm.com/tech/pagedetailer">Page Detailer</a> 
+To understand how a typical browser will download and display *your* page you should use a tool like IBM's <a href="http://www.alphaworks.ibm.com/tech/pagedetailer">Page Detailer</a>
 which intercepts and instruments all browser activity and visualizes this in an easy to interpret fashion.
- It can highlight tuning opportunities like coalescing Javascript, reducing GIF count, that are more in the 
-page design than dynamic application design arena. 
+ It can highlight tuning opportunities like coalescing Javascript, reducing GIF count, that are more in the
+page design than dynamic application design arena.
     </dd>
   </dl>
         <p>From the IBM Page Detailer Website</p>
   <dl>
           <dt/>
     <dd class="quote">
-IBM Page Detailer places a probe in the Windows Socket Stack to capture data 
-about timing, size, and data flow, and then it presents the collected data in both 
+IBM Page Detailer places a probe in the Windows Socket Stack to capture data
+about timing, size, and data flow, and then it presents the collected data in both
 graphical and tabular views, clearly showing how the page was delivered to the browser.
     </dd>
   </dl>
         <p>Tools like IBM Page Detailer are a useful addition to your arsenal when looking at the complete picture.</p>
       </answer>
-    </faq>    
+    </faq>
   </faqsection>
 
   <faqsection id="problems">
@@ -515,7 +515,7 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
 
     <faq>
       <question>
-	  How do I specify the ephemeral port range?
+    How do I specify the ephemeral port range?
       </question>
       <answer>
       <p>When a client connects to a TCP server, the client side port uses
@@ -597,15 +597,15 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 
   <ul>
     <li><a
-    href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html">
+    href="http://web.archive.org/web/20030802192353/www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html">
     http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html</a></li>
 
     <li><a
-    href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html">
+    href="http://web.archive.org/web/20030802192353/www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html">
     http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html</a></li>
 
     <li><a
-    href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html">
+    href="http://web.archive.org/web/20030802192353/www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html">
     http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html</a></li>
   </ul>
 
@@ -788,11 +788,11 @@ grinder.test0.parameter.post=getPostData.dat
            <dt/>
       <dd class="quote">
       <p>Solution:<br></br>
-      We found that it was a problem with DNS configuration. Solution was to add the web 
+      We found that it was a problem with DNS configuration. Solution was to add the web
       servers host names and ip addresses to the windows hosts file.</p>
 
       <p>Verification:<br></br>
-      Simply on the command line write "nslookup", then hit enter, and on the following line type your web server "hostname" and hit enter. 
+      Simply on the command line write "nslookup", then hit enter, and on the following line type your web server "hostname" and hit enter.
       If this takes a long time to get an ip address, it can mean that this is your problem.</p>
       </dd>
       </dl>
@@ -810,7 +810,7 @@ grinder.test0.parameter.post=getPostData.dat
       <answer>
       <p>Please start the agent with:</p>
 
-<source>      
+<source>
     java -Dgrinder.debug.singleprocess=true net.grinder.Grinder
 </source>
 
@@ -1138,18 +1138,18 @@ class TestRunner:
       <p>If your script is not called "grinder.py", either add a line to grinder.properties that specifies its name, e.g.:</p>
 
 <source>
-	grinder.script: http.py 
+  grinder.script: http.py
 </source>
 
       <p>or specify it on the command line, e.g.:</p>
 
 <source>
-	java -Dgrinder.script=http.py net.grinder.Grinder
+  java -Dgrinder.script=http.py net.grinder.Grinder
 </source>
 
-      <p>or set it in the console. Go to the script tab, navigate to the location of your script. Select it and then click 
+      <p>or set it in the console. Go to the script tab, navigate to the location of your script. Select it and then click
       on the "Set script to run" button.</p>
-      <p>Finally, it could simply be that the script file is unreadable. Check the file permissions of the script and/or 
+      <p>Finally, it could simply be that the script file is unreadable. Check the file permissions of the script and/or
       attempt to open it in an editor to check if its readable.</p>
 
       </answer>

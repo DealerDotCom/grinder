@@ -134,7 +134,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <apache href="http://www.apache.org/"/>
 
-    <cenqua href="http://www.clover.com/">
+    <cenqua href="http://www.cenqua.com/">
       <clover href="clover"/>
     </cenqua>
 
@@ -171,7 +171,7 @@ See http://forrest.apache.org/docs/linking.html for more info
     <iso-639 href="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt"/>
 
     <innovation href="http://www.innovation.ch/">
-      <httpclient href="java/HTTPClient">
+      <httpclient href="java/HTTPClient/">
   <advanced href="advanced_info.html">
     <pers_con href="#pers_con"/>
   </advanced>
@@ -194,7 +194,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <jsse-samples href="j2se/1.4.1/docs/guide/security/jsse/samples/"/>
     </javasoft>
 
-    <jedit-syntax href="http://sntax.jedit.org/"/>
+    <jedit-syntax href="http://syntax.jedit.org/"/>
 
     <junit href="http://junit.sourceforge.net/"/>
 
