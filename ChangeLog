@@ -1,3 +1,11 @@
+2006-04-23  Philip Aston  <philipa@mail.com>
+
+	* Republished source files for Grinder 3.0-beta29.
+
+	* build.xml: Fix build problems (Thanks to John Standford White):
+	 - Compile third party code -source=1.4.
+	 - Include J2SE5 classes in source distribution.
+
 2006-04-09  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta29 is released.
