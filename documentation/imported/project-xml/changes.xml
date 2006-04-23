@@ -1,6 +1,64 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.0-beta29' id='The Grinder 3.0-beta29'>
+<p>
+Nested Tests are supported. That is, you can now use a Test to instrument script code that calls things wrapped by other Tests. </p>
+<p>
+A __target__ field has been added to test proxy wrappers, allowing convenient access to the wrapped object. </p>
+<p>
+New implementation of the HTTPPlugin TCPProxy filter. Key new features over the previous filter (which is deprecated): </p>
+<ul>
+<li>
+ Records to a single script. </li>
+<li>
+ Basic Authorization is recorded. </li>
+<li>
+ Modular implementation based on an XSLT style sheet. </li>
+<li>
+ Requests are grouped together into pages, using simple rules that guess the resources belonging to a page based on the resource type. Pages are instrumented as separate tests. </li>
+<li>
+ Name value tokens are identified in URL path parameters and query strings and mapped to script variables. Most session tokens that encoded in URLs or present in hidden form fields will now be handled automatically. </li>
+</ul>
+<p>
+Several changes to the script API, including: net.grinder.plugin.http.HTTPRequest: </p>
+<ul>
+<li>
+ Removed addHeader(), deleteHeader() </li>
+<li>
+ Header arrays passed to GET, POST, etc. are now merged with the default values held by the HTTPRequest. Previously they setting an array on the request overrode all the default values. </li>
+</ul>
+<p>
+net.grinder.plugininterface.PluginThreadContext: </p>
+<ul>
+<li>
+ getStartTime(), startTimedSection(), stopTimedSection() have been replaced with pauseClock(), resumeClock() to support nested tests. (Since now there can be multiple active dispatch contexts). </li>
+</ul>
+<p>
+net.grinder.script.Statistics: </p>
+<ul>
+<li>
+ Query methods now return meaningful results within wrapped code. </li>
+<li>
+ Added getStatisticsIndexMap. Thanks to Beecher Greenman for reporting this omission. </li>
+</ul>
+<p>
+net.grinder.plugin.http.HTTPUtilities </p>
+<ul>
+<li>
+ New class. This has methods that HTTP scripts might find useful. </li>
+</ul>
+<p>
+The HTTPClient Authorization module is no longer enabled by default because it prevents raw Authorization headers being sent through. The module also slows things down as HTTPClient must parse responses for challenges. Advanced users who still wish to use the HTTPClient Authorization module can enable it with the new HTTPPluginConnection.setUseAuthorizationModule() method. The following convenience wrappers around the HTTPClient API were also removed: addBasicAuthorization(), removeBasicAuthorization(), addDigestAuthorization(), removeDigestAuthorization(). </p>
+<p>
+The worker process to console communication has been made more efficient, and a race condition which caused "Ignoring unknown test" messages has been removed. Thanks to Dhinakar K for the report. </p>
+<p>
+The Grinder can now optionally use J2SE 5 System.nanoTime() which might give more precision on some platforms. Times are still reported in milliseconds. See the grinder.useNanoTime property. Thanks to Tom Barnes for requesting this feature. </p>
+<p>
+Fix console file scanning to used the same filtering as the file distributon. Thanks to whoever reported this. (<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1447361&amp;group_id=18598&amp;atid=118598">Bug 1447361</a>). </p>
+<p>
+The HTTP proxy code in the TCPProxy has been improved; this should address problems seen when chaining TCPProxy's together as HTTPS proxies. Thanks to Justin Nowell for prompting me to look at this. </p>
+</section>
 <section name='Grinder 3.0-beta28' id='Grinder 3.0-beta28'>
 <p>
 Updates to the Italian translation from Meo Bogliolo. </p>
@@ -19,7 +77,7 @@ New grinder.debug.singleprocess property. If set to true, the agent process spaw
 <p>
 More relaxed handling of invalid dates in Cookies. Requested by Martin Wagner. </p>
 <p>
-Nicer output for ConnectExceptions and UnknownHost exceptions. (Bug 927828). </p>
+Nicer output for ConnectExceptions and UnknownHost exceptions. (<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=927828&amp;group_id=18598&amp;atid=118598">Bug 927828</a>). </p>
 <p>
 Handle Cookies with empty expires attribute. (<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=982834&amp;group_id=18598&amp;atid=118598">Bug 982834</a>). </p>
 <p>

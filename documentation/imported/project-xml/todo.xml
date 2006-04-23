@@ -59,6 +59,10 @@ Task: Distribution file filter should be dynamically settable. </p>
 <section name='Console' depth='2' id='Console'>
 <p>
 Note: Klaus-Peter Berg is currently working on a major refactoring of the console. </p>
+<section name='Stop the recording when last thread terminates' depth='3' id='Stop the recording when last thread terminates'>
+<p>
+Requested by Jürgen Weber </p>
+</section>
 <section name='Refactoring' depth='3' id='Refactoring'>
 <p>
 Consider moving overwrite / save before close / ... handling to the model. Needs some kind of command pattern to represent choices. </p>
@@ -91,6 +95,8 @@ b) You must cause any work that you distribute or publish, that in whole or in p
 <section name='Engine' depth='2' id='Engine'>
 <p>
 There should be an ExternalFilenameFactory, cf ExternalLogger. </p>
+<p>
+Log lines should not be truncated. </p>
 <section name='Interactive mode' depth='3' id='Interactive mode'>
 <p>
 Possible to have an interactive mode for debugging? E.g. a simple UI that can be launched from a thread which drops the user into a console? Would need to launch with grinder.debug.singleprocess=true. </p>
@@ -100,8 +106,6 @@ Possible to have an interactive mode for debugging? E.g. a simple UI that can be
 Could we support a procedural "startTest()", "stopTest()" API? </p>
 <p>
 Perhaps. This procedural style would certainly be more obvious to the average user than "wrapping". OTOH, wrapping is powerful and I'm not sure we want to support two mechanisms to instrument code. </p>
-<p>
-Currently the engine only supports the concept of a single active test (transaction) per worker thread. It would be interesting to support multiple, nested tests. This would allow the recording of group statistics as well as individual statistics. The implementation would be correspondingly more complex. </p>
 </section>
 </section>
 <section name='Statistics' depth='2' id='Statistics'>
@@ -137,6 +141,10 @@ Internationalise messages. </p>
 Support different client certificates for proxied connection. </p>
 <p>
 Meo Bogliolo writes: <br/>&gt; What do You think about adding the possibility to insert remarks <br/>&gt; with the TCPProxy Console? Maybe it's usefull in complex <br/>&gt; navigation... I currently look at think time in the scripts to <br/>&gt; understand when the user "changes" page. </p>
+<p>
+Allow the filters to optionally parse unknown command line options. They would also then have to be able to contribute to the help text. This would allow the http plugin to add options to specify a different filename, and also to specify stdout. </p>
+<p>
+Failed connection events. </p>
 </section>
 <section name='HTTP Plugin' depth='2' id='HTTP Plugin'>
 <p>
