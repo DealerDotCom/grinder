@@ -86,7 +86,7 @@ for details of other targets.
     </exec>
 
     <!-- No idea why Forrest generates these bogus files, get rid off them. -->
-    <delete quite="true">
+    <delete quiet="true">
       <fileset dir="${doc.dir}/*/index.html"/>
     </delete>
   </target>
