@@ -602,7 +602,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:call-template name="indent-tuple-entry"/>
 
     <xsl:text>NVPair(</xsl:text>
-    <xsl:value-of select="helper:quoteForPython($token-id)"/>
+    <xsl:value-of select="helper:quoteForPython($name)"/>
     <xsl:text>, </xsl:text>
     <xsl:text>self.</xsl:text>
     <xsl:value-of select="$token-id"/>
