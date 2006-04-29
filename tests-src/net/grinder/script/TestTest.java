@@ -67,7 +67,7 @@ public class TestTest extends TestCase {
     for (int i=0; i<size; i++) {
       keys.add(new Integer(i));
     }
-	
+
     Collections.shuffle(keys);
 
     final Iterator keyIterator = keys.iterator();
@@ -76,7 +76,7 @@ public class TestTest extends TestCase {
       final int i = ((Integer)keyIterator.next()).intValue();
       sorted.add(new Test(i, Integer.toString(i)));
     }
-	
+
     final Iterator sortedIterator = sorted.iterator();
     int i = 0;
 
@@ -112,5 +112,16 @@ public class TestTest extends TestCase {
       new ObjectOutputStream(byteArrayOutputStream);
 
     objectOutputStream.writeObject(test);
+  }
+
+  public void testWrap() throws Exception {
+    final Test t1 = new Test(1, "six cars");
+    final Test t2 = new Test(2, "house in ireland");
+
+    final Integer i = new Integer(10);
+
+    final Object proxy1 = t1.wrap(i);
+    final Object proxy2 = t2.wrap(i);
+    assertNotSame(proxy1, proxy2);
   }
 }
