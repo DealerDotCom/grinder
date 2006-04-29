@@ -184,6 +184,9 @@ code.
 
 ** Statistics
 
+Total time should distinguish nested tests. Introduce new concept of a
+Group Test?
+
 Split out serializeable kernel of TestStatisticsMap? Look hard at where the
 message is deserialised.
 
