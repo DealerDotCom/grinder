@@ -25,7 +25,6 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -118,43 +117,12 @@ public class Grinder {
     GrinderProperties getProperties();
 
     /**
-     * Register a new "summary" statistics view. These views appear in
-     * the worker process output log summaries and are displayed in the
-     * console.
-     *
-     * @param statisticsView The new statistics view.
-     * @exception GrinderException If the view could not be registered.
-     */
-    void registerSummaryStatisticsView(StatisticsView statisticsView)
-      throws GrinderException;
-
-    /**
-     * Register a new "detail" statistics view which appears in the
-     * worker process data logs. Each test invocation will have an entry
-     * displayed for the detail statistics views.
-     *
-     * <p>You should call <code>registerSummaryStatisticsView</code>
-     * from the top level of your script. It cannot be called from a
-     * worker thread - the data logs are initialised by the time the
-     * worker threads start.</p>
-     *
-     * @param statisticsView The new statistics view.
-     * @exception GrinderException If the view could not be registered.
-     * @exception InvalidContextException If called from a worker
-     * thread.
-     */
-    void registerDetailStatisticsView(StatisticsView statisticsView)
-      throws GrinderException, InvalidContextException;
-
-    /**
-     * Get the Statistics for the calling worker thread. This provides
-     * access to the statistics of the last test invoked by the thread.
+     * Get a {@link Statistics} object that allows statistics to be queried
+     * and updated.
      *
      * @return The statistics.
-     * @exception InvalidContextException If called from a non-worker
-     * thread.
      */
-    Statistics getStatistics() throws InvalidContextException;
+    Statistics getStatistics();
 
 
     /**

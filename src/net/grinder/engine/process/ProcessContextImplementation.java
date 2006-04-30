@@ -32,6 +32,7 @@ import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.Grinder;
 import net.grinder.script.SSLControl;
+import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
@@ -123,16 +124,22 @@ final class ProcessContextImplementation implements ProcessContext {
     final SSLControl sslControl =
       new SSLControlImplementation(m_threadContextLocator);
 
+    final Statistics scriptStatistics =
+      new ScriptStatisticsImplementation(
+        m_threadContextLocator,
+        m_testStatisticsHelper,
+        statisticsServices,
+        consoleSender);
+
     m_scriptContext = new ScriptContextImplementation(
       m_workerIdentity,
       m_threadContextLocator,
       properties,
-      m_consoleSender,
       externalLogger,
       externalFilenameFactory,
       m_sleeper,
       sslControl,
-      statisticsServices);
+      scriptStatistics);
 
     m_pluginRegistry =
       new PluginRegistryImplementation(externalLogger, m_scriptContext,
@@ -278,15 +285,6 @@ final class ProcessContextImplementation implements ProcessContext {
    */
   public StatisticsServices getStatisticsServices() {
     return m_statisticsServices;
-  }
-
-  /**
-   *
-   *
-   * @return
-   */
-  public TestStatisticsHelper getTestStatisticsHelper() {
-    return m_testStatisticsHelper;
   }
 
   private final class TestStatisticsHelperImplementation

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,8 +38,8 @@ import java.util.TreeSet;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.script.Grinder.ScriptContext#registerDetailStatisticsView
- * @see net.grinder.script.Grinder.ScriptContext#registerSummaryStatisticsView
+ * @see net.grinder.script.Statistics#registerDetailStatisticsView
+ * @see net.grinder.script.Statistics#registerSummaryStatisticsView
  */
 public final class StatisticsView implements Externalizable {
 

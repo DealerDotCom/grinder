@@ -32,7 +32,6 @@ import net.grinder.common.Test;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.ListenerSupport.Informer;
@@ -57,8 +56,6 @@ final class ThreadContextImplementation
   private final ThreadLogger m_threadLogger;
   private final FilenameFactory m_filenameFactory;
   private final DispatchResultReporter m_dispatchResultReporter;
-
-  private final ScriptStatisticsImplementation m_scriptStatistics;
 
   private SSLContextFactory m_sslContextFactory;
 
@@ -108,11 +105,6 @@ final class ThreadContextImplementation
       };
     }
 
-    m_scriptStatistics =
-      new ScriptStatisticsImplementation(
-        processContext.getThreadContextLocator(),
-        processContext.getTestStatisticsHelper(),
-        processContext.getStatisticsServices().getStatisticsIndexMap());
 
     registerThreadLifeCycleListener(
       new ThreadLifeCycleListener() {
@@ -135,10 +127,6 @@ final class ThreadContextImplementation
 
   public ThreadLogger getThreadLogger() {
     return m_threadLogger;
-  }
-
-  public Statistics getScriptStatistics() {
-    return m_scriptStatistics;
   }
 
   public SSLContextFactory getThreadSSLContextFactory() {

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 2006 Philip Aston
+// Copyright (C) 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,47 +19,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.script;
 
-import net.grinder.common.FilenameFactory;
-import net.grinder.common.ThreadLifeCycleListener;
-import net.grinder.common.SSLContextFactory;
-import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.common.GrinderException;
 
 
 /**
- * Package scope.
+ * Exception thrown if the requested statistic does not exist.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-interface ThreadContext extends PluginThreadContext {
-
-  ThreadLogger getThreadLogger();
-
-  FilenameFactory getFilenameFactory();
-
-  DispatchResultReporter getDispatchResultReporter();
-
-  SSLContextFactory getThreadSSLContextFactory();
-
-  void setThreadSSLContextFactory(SSLContextFactory threadSSLFactory);
-
-  void registerThreadLifeCycleListener(ThreadLifeCycleListener listener);
-
-  void beginRunEvent();
-
-  void endRunEvent();
-
-  void setDelayReports(boolean b);
-
-  void pushDispatchContext(DispatchContext dispatchContext)
-    throws ShutdownException;
-
-  void popDispatchContext();
-
-  DispatchContext getDispatchContext();
-
-  void flushPendingDispatchContext();
+public class NoSuchStatisticException extends GrinderException {
+  /**
+   * Creates a new <code>NoSuchStatisticException</code> instance.
+   *
+   * @param s Exception message.
+   */
+  public NoSuchStatisticException(String s) {
+    super(s);
+  }
 }
-

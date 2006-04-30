@@ -50,6 +50,7 @@ import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
+import net.grinder.statistics.StatisticsIndexMap;
 
 
 /**
@@ -925,28 +926,35 @@ public class HTTPRequest {
         final Statistics statistics = scriptContext.getStatistics();
 
         if (statistics.availableForUpdate()) {
-          //Log the custom statistics if we have a statistics context.
+          // Log the custom statistics if we have a statistics context.
 
-          statistics.addValue(plugin.getResponseLengthIndex(), responseLength);
+          statistics.addLong(
+            StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY, responseLength);
 
           // If many HTTPRequests are wrapped in the same Test, the
           // last one wins.
-          statistics.setValue(plugin.getResponseStatusIndex(), statusCode);
+          statistics.setLong(
+            StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY, statusCode);
 
           // These statistics are accumulated over all the
           // HTTPRequests wrapped in the Test.
           if (dnsTime >= 0) {
-            statistics.addValue(plugin.getDnsTimeIndex(), dnsTime);
+            statistics.addLong(
+              StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY, dnsTime);
           }
 
           if (connectTime >= 0) {
-            statistics.addValue(plugin.getConnnectionTimeIndex(), connectTime);
+            statistics.addLong(
+              StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY, connectTime);
           }
 
-          statistics.addValue(plugin.getFirstByteTimeIndex(), timeToFirstByte);
+          statistics.addLong(
+            StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
+            timeToFirstByte);
 
           if (statusCode >= HttpURLConnection.HTTP_BAD_REQUEST) {
-            statistics.addValue(plugin.getResponseErrorsIndex(), 1);
+            statistics.addLong(
+              StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY, 1);
           }
         }
       }

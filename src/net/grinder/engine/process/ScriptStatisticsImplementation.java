@@ -21,9 +21,16 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.common.GrinderException;
+import net.grinder.communication.QueuedSender;
+import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.script.InvalidContextException;
+import net.grinder.script.NoSuchStatisticException;
 import net.grinder.script.Statistics;
-import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsServices;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.StatisticsIndexMap.DoubleIndex;
+import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 
 
 /**
@@ -38,15 +45,19 @@ final class ScriptStatisticsImplementation implements Statistics {
 
   private final ThreadContextLocator m_threadContextLocator;
   private final TestStatisticsHelper m_testStatisticsHelper;
-  private final StatisticsIndexMap m_statisticsIndexMap;
+  private final StatisticsServices m_statisticsServices;
+  private final QueuedSender m_consoleSender;
 
   public ScriptStatisticsImplementation(
     ThreadContextLocator threadContextLocator,
-    TestStatisticsHelper testStatisticsHelper, StatisticsIndexMap map) {
+    TestStatisticsHelper testStatisticsHelper,
+    StatisticsServices statisticsServices,
+    QueuedSender consoleSender) {
 
     m_threadContextLocator = threadContextLocator;
     m_testStatisticsHelper = testStatisticsHelper;
-    m_statisticsIndexMap = map;
+    m_statisticsServices = statisticsServices;
+    m_consoleSender = consoleSender;
   }
 
   public void setDelayReports(boolean b) throws InvalidContextException {
@@ -64,12 +75,6 @@ final class ScriptStatisticsImplementation implements Statistics {
     if (threadContext == null) {
       throw new InvalidContextException(
         "Statistics interface is only supported for worker threads.");
-    }
-
-    if (threadContext.getScriptStatistics() != this) {
-      throw new InvalidContextException(
-        "Statistics objects must be used only by the worker thread from " +
-        "which they are acquired.");
     }
 
     return threadContext;
@@ -93,43 +98,49 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     return
       threadContext != null &&
-      threadContext.getScriptStatistics() == this &&
       threadContext.getDispatchContext() != null;
   }
 
-  public void setValue(StatisticsIndexMap.LongIndex index, long value)
-    throws InvalidContextException {
+  public void setLong(String statisticName, long value)
+    throws InvalidContextException, NoSuchStatisticException {
 
-    getDispatchContext().getStatistics().setValue(index, value);
+    getDispatchContext().getStatistics().setValue(
+      getLongIndex(statisticName), value);
   }
 
-  public void setValue(StatisticsIndexMap.DoubleIndex index, double value)
-    throws InvalidContextException {
+  public void setDouble(String statisticName, double value)
+    throws InvalidContextException, NoSuchStatisticException {
 
-    getDispatchContext().getStatistics().setValue(index, value);
+    getDispatchContext().getStatistics().setValue(
+      getDoubleIndex(statisticName), value);
   }
 
-  public void addValue(StatisticsIndexMap.LongIndex index, long value)
-    throws InvalidContextException {
+  public void addLong(String statisticName, long value)
+    throws InvalidContextException, NoSuchStatisticException {
 
-    getDispatchContext().getStatistics().addValue(index, value);
+    getDispatchContext().getStatistics().addValue(
+      getLongIndex(statisticName), value);
   }
 
-  public void addValue(StatisticsIndexMap.DoubleIndex index, double value)
-    throws InvalidContextException {
+  public void addDouble(String statisticName, double value)
+  throws InvalidContextException, NoSuchStatisticException {
 
-    getDispatchContext().getStatistics().addValue(index, value);
+    getDispatchContext().getStatistics().addValue(
+      getDoubleIndex(statisticName), value);
   }
 
-  public long getValue(StatisticsIndexMap.LongIndex index)
-    throws InvalidContextException {
+  public long getLong(String statisticName)
+    throws InvalidContextException, NoSuchStatisticException {
 
-    return getDispatchContext().getStatistics().getValue(index);
+    return getDispatchContext().getStatistics().getValue(
+      getLongIndex(statisticName));
   }
 
-  public double getValue(StatisticsIndexMap.DoubleIndex index)
-    throws InvalidContextException {
-    return getDispatchContext().getStatistics().getValue(index);
+  public double getDouble(String statisticName)
+    throws InvalidContextException, NoSuchStatisticException {
+
+    return getDispatchContext().getStatistics().getValue(
+      getDoubleIndex(statisticName));
   }
 
   public void setSuccess(boolean success) throws InvalidContextException {
@@ -146,7 +157,54 @@ final class ScriptStatisticsImplementation implements Statistics {
     return getDispatchContext().getElapsedTime();
   }
 
-  public StatisticsIndexMap getStatisticsIndexMap() {
-    return m_statisticsIndexMap;
+  private LongIndex getLongIndex(String statisticName)
+    throws NoSuchStatisticException {
+
+    final LongIndex index =
+      m_statisticsServices.getStatisticsIndexMap().getLongIndex(statisticName);
+
+    if (index == null) {
+      throw new NoSuchStatisticException(
+        "'" + statisticName + "' is not a basic long statistic.");
+    }
+
+    return index;
+  }
+
+  private DoubleIndex getDoubleIndex(String statisticName)
+    throws NoSuchStatisticException {
+
+    final DoubleIndex index =
+      m_statisticsServices.getStatisticsIndexMap().getDoubleIndex(
+        statisticName);
+
+    if (index == null) {
+      throw new NoSuchStatisticException(
+        "'" + statisticName + "' is not a basic double statistic.");
+    }
+
+    return index;
+  }
+
+  public void registerSummaryStatisticsView(StatisticsView statisticsView)
+  throws GrinderException {
+    m_statisticsServices.getSummaryStatisticsView().add(statisticsView);
+
+    // Queue up, will get flushed with next process status or
+    // statistics report.
+    m_consoleSender.queue(new RegisterStatisticsViewMessage(statisticsView));
+  }
+
+  public void registerDetailStatisticsView(StatisticsView statisticsView)
+    throws GrinderException {
+
+    if (m_threadContextLocator.get() != null) {
+      throw new InvalidContextException(
+        "registerDetailStatisticsView() is not supported from worker threads");
+    }
+
+    // DetailStatisticsViews are only for the data logs, so we don't
+    // register the view with the console.
+    m_statisticsServices.getDetailStatisticsView().add(statisticsView);
   }
 }

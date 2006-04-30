@@ -1,4 +1,4 @@
-// Copyright (C) 2000-2006 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
 // All rights reserved.
@@ -39,39 +39,8 @@ import java.util.Map;
  * <em>long</em> integer values (see {@link #getLongIndex}) or
  * <em>double</em> floating-point values ({@link #getDoubleIndex}).
  *
- * <p>
- * The standard long statistics used by The Grinder are:
- * <ul>
- * <li><code>errors</code></li>
- * <li><code>untimedTests</code></li>
- * <li><code>period</code></li>
- * </ul>
- * </p>
- *
- * <p>
- * There are five long statistics that scripts and custom plug-ins can use for
- * their own purposes, <code>userLong0</code>, <code>userLong1</code>, ...
- * <code>userLong4</code>.
- * </p>
- *
- * <p>
- * The standard double statistics used by The Grinder are:
- * <ul>
- * <li><code>peakTPS</code></li>
- * </ul>
- * </p>
- *
- * <p>
- * There are five double statistics for use by scripts and custom plug-ins,
- * <code>userDouble0</code>,<code>userDouble1</code>, ...
- * <code>userDouble4</code>.
- * </p>
- *
- * <h4>HTTP Plug-in Statistics</h4>
- *
- * The HTTP Plugin adds a number of statistics. These are have their own special
- * indicies. They can be accessed using the well known names which the class
- * constants beginning with HTTP, e.g. {@link #HTTP_PLUGIN_CONNECT_TIME_KEY}.
+ * <p>See {@link net.grinder.script.Statistics} for details of the statistics
+ * provided by The Grinder.
  *
  * <h4>Sample Statistics</h4>
  *
@@ -84,21 +53,6 @@ import java.util.Map;
  * <em>sum</em> (total of all sample values), and sample <em>variance</em>.
  * These attributes can be queried using the appropriate expression function
  * (e.g. <em>count()</em>), see {@link ExpressionView}.
- * </p>
- *
- * <p>
- * The standard long sample statistics used by The Grinder are:
- * <ul>
- * <li><code>timedTests</code></li>
- * </ul>
- * </p>
- *
- * <p>
- * There are no standard double sample statistics.
- * </p>
- *
- * <p>
- * There is currently no provision for user specified sample statistics.
  * </p>
  *
  * @author Philip Aston
@@ -121,42 +75,42 @@ public final class StatisticsIndexMap implements Serializable {
    * indicies. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_RESPONSE_STATUS_KEY =
-    "httpplugin.responseStatusKey";
+    "httpplugin.responseStatus";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
    * indicies. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_RESPONSE_LENGTH_KEY =
-    "httpplugin.responseLengthKey";
+    "httpplugin.responseLength";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
    * indices. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_RESPONSE_ERRORS_KEY =
-    "httpplugin.responseErrorsKey";
+    "httpplugin.responseErrors";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
    * indices. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_DNS_TIME_KEY =
-    "httpplugin.dnsTimeKey";
+    "httpplugin.dnsTime";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
    * indices. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_CONNECT_TIME_KEY =
-    "httpplugin.connectTimeKey";
+    "httpplugin.connectTime";
 
   /**
    * Special slot for the HTTP plugin so it doesn't steal "user"
    * indices. Use with {@link #getLongIndex(String)}.
    */
   public static final String HTTP_PLUGIN_FIRST_BYTE_TIME_KEY =
-    "httpplugin.firstByteTimeKey";
+    "httpplugin.firstByteTime";
 
   /**
    * Constructor.

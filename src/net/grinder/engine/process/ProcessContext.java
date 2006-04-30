@@ -74,7 +74,4 @@ interface ProcessContext {
   Sleeper getSleeper();
 
   StatisticsServices getStatisticsServices();
-
-  TestStatisticsHelper getTestStatisticsHelper();
-
 }

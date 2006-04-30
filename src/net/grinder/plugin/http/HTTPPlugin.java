@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
@@ -81,39 +81,9 @@ public class HTTPPlugin implements GrinderPlugin {
 
   private PluginProcessContext m_pluginProcessContext;
   private SSLContextFactory m_sslContextFactory;
-  private StatisticsIndexMap.LongIndex m_responseStatusIndex;
-  private StatisticsIndexMap.LongIndex m_responseLengthIndex;
-  private StatisticsIndexMap.LongIndex m_responseErrorsIndex;
-  private StatisticsIndexMap.LongIndex m_dnsTimeIndex;
-  private StatisticsIndexMap.LongIndex m_connectionTimeIndex;
-  private StatisticsIndexMap.LongIndex m_firstByteTimeIndex;
 
   final PluginProcessContext getPluginProcessContext() {
     return m_pluginProcessContext;
-  }
-
-  final StatisticsIndexMap.LongIndex getResponseStatusIndex() {
-    return m_responseStatusIndex;
-  }
-
-  final StatisticsIndexMap.LongIndex getResponseLengthIndex() {
-    return m_responseLengthIndex;
-  }
-
-  final StatisticsIndexMap.LongIndex getResponseErrorsIndex() {
-    return m_responseErrorsIndex;
-  }
-
-  final StatisticsIndexMap.LongIndex getDnsTimeIndex() {
-    return m_dnsTimeIndex;
-  }
-
-  final StatisticsIndexMap.LongIndex getConnnectionTimeIndex() {
-    return m_connectionTimeIndex;
-  }
-
-  final StatisticsIndexMap.LongIndex getFirstByteTimeIndex() {
-    return m_firstByteTimeIndex;
   }
 
   /**
@@ -183,7 +153,8 @@ public class HTTPPlugin implements GrinderPlugin {
           "Time to first byte", "statistic.httpplugin.firstByteTimeKey",
           StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY));
 
-      scriptContext.registerDetailStatisticsView(detailsStatisticsView);
+      scriptContext.getStatistics().registerDetailStatisticsView(
+        detailsStatisticsView);
 
       final StatisticsView summaryStatisticsView = new StatisticsView();
 
@@ -228,34 +199,8 @@ public class HTTPPlugin implements GrinderPlugin {
           "(/ " + StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY +
           " (+ (count timedTests) untimedTests))"));
 
-      scriptContext.registerSummaryStatisticsView(summaryStatisticsView);
-
-      final StatisticsIndexMap statisticsIndexMap =
-        m_pluginProcessContext.getStatisticsServices().getStatisticsIndexMap();
-
-      m_responseStatusIndex =
-        statisticsIndexMap.getLongIndex(
-          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY);
-
-      m_responseLengthIndex =
-        statisticsIndexMap.getLongIndex(
-          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY);
-
-      m_responseErrorsIndex =
-        statisticsIndexMap.getLongIndex(
-          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY);
-
-      m_dnsTimeIndex =
-        statisticsIndexMap.getLongIndex(
-          StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY);
-
-      m_connectionTimeIndex =
-        statisticsIndexMap.getLongIndex(
-          StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY);
-
-      m_firstByteTimeIndex =
-        statisticsIndexMap.getLongIndex(
-          StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY);
+      scriptContext.getStatistics().registerSummaryStatisticsView(
+        summaryStatisticsView);
     }
     catch (GrinderException e) {
       throw new PluginException("Could not register custom statistics", e);

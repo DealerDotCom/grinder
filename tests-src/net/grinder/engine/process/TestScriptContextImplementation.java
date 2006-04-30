@@ -23,22 +23,13 @@ package net.grinder.engine.process;
 
 import junit.framework.TestCase;
 
-import java.util.Arrays;
-
-import net.grinder.common.GrinderProperties;
 import net.grinder.common.FilenameFactory;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.WorkerIdentity;
-import net.grinder.communication.QueuedSender;
-import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
-import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
-import net.grinder.statistics.ExpressionView;
-import net.grinder.statistics.StatisticsServicesImplementation;
-import net.grinder.statistics.StatisticsView;
-import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.Time;
 import net.grinder.util.Sleeper;
@@ -65,11 +56,6 @@ public class TestScriptContextImplementation extends TestCase {
   public void testConstructorAndGetters() throws Exception {
 
     final GrinderProperties properties = new GrinderProperties();
-
-    final RandomStubFactory queuedSenderStubFactory =
-      new RandomStubFactory(QueuedSender.class);
-    final QueuedSender queuedSender =
-      (QueuedSender)queuedSenderStubFactory.getStub();
 
     final RandomStubFactory loggerStubFactory =
       new RandomStubFactory(Logger.class);
@@ -108,9 +94,8 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        workerIdentity, threadContextLocator, properties, queuedSender, logger,
-        filenameFactory, sleeper, sslControl,
-        StatisticsServicesImplementation.getInstance());
+        workerIdentity, threadContextLocator, properties, logger,
+        filenameFactory, sleeper, sslControl, statistics);
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
     assertEquals(threadID, scriptContext.getThreadID());
@@ -124,13 +109,7 @@ public class TestScriptContextImplementation extends TestCase {
     threadContextLocator.set(null);
     assertEquals(-1, scriptContext.getThreadID());
     assertEquals(-1, scriptContext.getRunNumber());
-
-    try {
-      scriptContext.getStatistics();
-      fail("Expected InvalidContextException");
-    }
-    catch (InvalidContextException e) {
-    }
+    assertEquals(statistics, scriptContext.getStatistics());
   }
 
   public void testSleep() throws Exception {
@@ -143,8 +122,8 @@ public class TestScriptContextImplementation extends TestCase {
       new Sleeper(new StandardTimeAuthority(), logger, 1, 0);
 
     final ScriptContextImplementation scriptContext =
-      new ScriptContextImplementation(null, null, null, null, null, null,
-                                      sleeper, null, null);
+      new ScriptContextImplementation(
+        null, null, null, null, null, sleeper, null, null);
 
     assertTrue(
       new Time(50, 70) {
@@ -155,62 +134,5 @@ public class TestScriptContextImplementation extends TestCase {
       new Time(40, 70) {
         public void doIt() throws Exception  { scriptContext.sleep(50, 5); }
       }.run());
-  }
-
-  public void testRegisterStatisticsViews() throws Exception {
-
-    final RandomStubFactory queuedSenderStubFactory =
-      new RandomStubFactory(QueuedSender.class);
-    final QueuedSender queuedSender =
-      (QueuedSender)queuedSenderStubFactory.getStub();
-
-    final ThreadContextLocator threadContextLocator =
-      new StubThreadContextLocator();
-    threadContextLocator.set(m_threadContext);
-
-    final ScriptContextImplementation scriptContext =
-      new ScriptContextImplementation(
-        null, threadContextLocator, null,
-        queuedSender, null, null, null, null,
-        StatisticsServicesImplementation.getInstance());
-
-    final ExpressionView expressionView =
-      new ExpressionView("display", "resource key", "errors");
-    final StatisticsView statisticsView = new StatisticsView();
-    statisticsView.add(expressionView);
-    scriptContext.registerSummaryStatisticsView(statisticsView);
-
-    final CallData callData =
-      queuedSenderStubFactory.assertSuccess(
-        "queue", RegisterStatisticsViewMessage.class);
-    final RegisterStatisticsViewMessage message =
-      (RegisterStatisticsViewMessage)callData.getParameters()[0];
-    assertEquals(statisticsView, message.getStatisticsView());
-    queuedSenderStubFactory.assertNoMoreCalls();
-
-    final StatisticsView summaryStatisticsView =
-      StatisticsServicesImplementation.getInstance().getSummaryStatisticsView();
-
-    final ExpressionView[] summaryExpressionViews =
-      summaryStatisticsView.getExpressionViews();
-    assertTrue(Arrays.asList(summaryExpressionViews).contains(expressionView));
-
-    try {
-      scriptContext.registerDetailStatisticsView(statisticsView);
-      fail("Expected InvalidContextException");
-    }
-    catch (InvalidContextException e) {
-    }
-
-    threadContextLocator.set(null);
-
-    scriptContext.registerDetailStatisticsView(statisticsView);
-
-    final StatisticsView detailStatisticsView =
-      StatisticsServicesImplementation.getInstance().getDetailStatisticsView();
-
-    final ExpressionView[] detailExpressionViews =
-      detailStatisticsView.getExpressionViews();
-    assertTrue(Arrays.asList(detailExpressionViews).contains(expressionView));
   }
 }

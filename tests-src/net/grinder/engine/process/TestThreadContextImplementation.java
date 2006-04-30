@@ -83,9 +83,6 @@ public class TestThreadContextImplementation extends TestCase {
     assertSame(m_filenameFactory, threadContext.getFilenameFactory());
     assertEquals(13, threadContext.getThreadID());
     assertEquals(2, threadContext.getRunNumber());
-    assertNotNull(threadContext.getScriptStatistics());
-    assertSame(threadContext.getScriptStatistics(),
-               threadContext.getScriptStatistics());
 
     assertNull(threadContext.getThreadSSLContextFactory());
     threadContext.setThreadSSLContextFactory(m_sslContextFactory);

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,14 +26,9 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.WorkerIdentity;
-import net.grinder.communication.QueuedSender;
-import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.script.Grinder.ScriptContext;
-import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.SSLControl;
-import net.grinder.statistics.StatisticsServices;
-import net.grinder.statistics.StatisticsView;
 import net.grinder.util.Sleeper;
 
 
@@ -48,31 +43,28 @@ final class ScriptContextImplementation implements ScriptContext {
   private final WorkerIdentity m_workerIdentity;
   private final ThreadContextLocator m_threadContextLocator;
   private final GrinderProperties m_properties;
-  private final QueuedSender m_consoleSender;
   private final Logger m_logger;
   private final FilenameFactory m_filenameFactory;
   private final Sleeper m_sleeper;
   private final SSLControl m_sslControl;
-  private final StatisticsServices m_statisticsServices;
+  private final Statistics m_scriptStatistics;
 
   public ScriptContextImplementation(WorkerIdentity workerIdentity,
                                      ThreadContextLocator threadContextLocator,
                                      GrinderProperties properties,
-                                     QueuedSender consoleSender,
                                      Logger logger,
                                      FilenameFactory filenameFactory,
                                      Sleeper sleeper,
                                      SSLControl sslControl,
-                                     StatisticsServices statisticsServices) {
+                                     Statistics scriptStatistics) {
     m_workerIdentity = workerIdentity;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
-    m_consoleSender = consoleSender;
     m_logger = logger;
     m_filenameFactory = filenameFactory;
     m_sleeper = sleeper;
     m_sslControl = sslControl;
-    m_statisticsServices = statisticsServices;
+    m_scriptStatistics = scriptStatistics;
   }
 
   public String getProcessName() {
@@ -119,37 +111,8 @@ final class ScriptContextImplementation implements ScriptContext {
     return m_properties;
   }
 
-  public void registerSummaryStatisticsView(StatisticsView statisticsView)
-    throws GrinderException {
-    m_statisticsServices.getSummaryStatisticsView().add(statisticsView);
-
-    // Queue up, will get flushed with next process status or
-    // statistics report.
-    m_consoleSender.queue(new RegisterStatisticsViewMessage(statisticsView));
-  }
-
-  public void registerDetailStatisticsView(StatisticsView statisticsView)
-    throws GrinderException {
-
-    if (m_threadContextLocator.get() != null) {
-      throw new InvalidContextException(
-        "registerDetailStatisticsView() is not supported from worker threads");
-    }
-
-    // DetailStatisticsViews are only for the data logs, so we don't
-    // register the view with the console.
-    m_statisticsServices.getDetailStatisticsView().add(statisticsView);
-  }
-
-  public Statistics getStatistics() throws InvalidContextException {
-    final ThreadContext threadContext = m_threadContextLocator.get();
-
-    if (threadContext == null) {
-      throw new InvalidContextException(
-        "getStatistics() is only supported for worker threads");
-    }
-
-    return threadContext.getScriptStatistics();
+  public Statistics getStatistics() {
+    return m_scriptStatistics;
   }
 
   public SSLControl getSSLControl() {

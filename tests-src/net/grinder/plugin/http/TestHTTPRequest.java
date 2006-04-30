@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,6 +39,7 @@ import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
+import net.grinder.statistics.StatisticsView;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -89,7 +90,14 @@ public class TestHTTPRequest extends TestCase {
     final PluginProcessContext pluginProcessContext =
       (PluginProcessContext)pluginProcessContextStubFactory.getStub();
 
+    m_statisticsStubFactory.assertNoMoreCalls();
     HTTPPlugin.getPlugin().initialize(pluginProcessContext);
+
+    m_statisticsStubFactory.assertSuccess(
+      "registerDetailStatisticsView", StatisticsView.class);
+    m_statisticsStubFactory.assertSuccess(
+      "registerSummaryStatisticsView", StatisticsView.class);
+    m_statisticsStubFactory.assertNoMoreCalls();
   }
 
   public void testSetUrl() throws Exception {
@@ -692,23 +700,21 @@ public class TestHTTPRequest extends TestCase {
     assertEquals(Boolean.TRUE,
       m_statisticsStubFactory.assertSuccess("availableForUpdate").getResult());
 
-    final HTTPPlugin httpPlugin = HTTPPlugin.getPlugin();
+    m_statisticsStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY, new Long(0));
 
     m_statisticsStubFactory.assertSuccess(
-      "addValue", httpPlugin.getResponseLengthIndex(), new Long(0));
+      "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY, new Long(302));
 
     m_statisticsStubFactory.assertSuccess(
-      "setValue", httpPlugin.getResponseStatusIndex(), new Long(302));
-
-    m_statisticsStubFactory.assertSuccess(
-      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+      "addLong", String.class, Long.class);
 
     try {
       m_statisticsStubFactory.assertSuccess(
-        "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+        "addLong", String.class, Long.class);
 
       m_statisticsStubFactory.assertSuccess(
-        "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+        "addLong", String.class, Long.class);
     }
     catch (java.util.NoSuchElementException e) {
       // Whatever.
@@ -743,26 +749,25 @@ public class TestHTTPRequest extends TestCase {
     assertEquals(Boolean.TRUE,
       m_statisticsStubFactory.assertSuccess("availableForUpdate").getResult());
 
-    final HTTPPlugin httpPlugin = HTTPPlugin.getPlugin();
+    m_statisticsStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY, new Long(0));
 
     m_statisticsStubFactory.assertSuccess(
-      "addValue", httpPlugin.getResponseLengthIndex(), new Long(0));
+      "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY, new Long(400));
 
     m_statisticsStubFactory.assertSuccess(
-      "setValue", httpPlugin.getResponseStatusIndex(), new Long(400));
-
-    m_statisticsStubFactory.assertSuccess(
-      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+      "addLong", String.class, Long.class);
 
     try {
       m_statisticsStubFactory.assertSuccess(
-        "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+        "addLong", String.class, Long.class);
 
       m_statisticsStubFactory.assertSuccess(
-        "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+        "addLong", String.class, Long.class);
 
       m_statisticsStubFactory.assertSuccess(
-        "addValue", httpPlugin.getResponseErrorsIndex(), new Long(1));
+        "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY, new Long(1));
+
     }
     catch (java.util.NoSuchElementException e) {
       // Whatever.

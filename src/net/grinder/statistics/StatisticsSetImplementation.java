@@ -314,7 +314,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The index.
    * @return The sum.
    */
-  public synchronized long getSum(LongSampleIndex index) {
+  public long getSum(LongSampleIndex index) {
     return getValue(index.getSumIndex());
   }
 
