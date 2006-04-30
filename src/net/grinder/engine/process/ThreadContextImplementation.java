@@ -32,6 +32,7 @@ import net.grinder.common.Test;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.ListenerSupport.Informer;
@@ -62,6 +63,8 @@ final class ThreadContextImplementation
   private boolean m_delayReports;
 
   private DispatchContext m_pendingDispatchContext;
+
+  private ImmutableStatisticsSet m_lastReportedStatistics;
 
   public ThreadContextImplementation(ProcessContext processContext,
                                      ThreadLogger threadLogger,
@@ -181,6 +184,10 @@ final class ThreadContextImplementation
     return m_pendingDispatchContext;
   }
 
+  public ImmutableStatisticsSet getLastReportedStatistics() {
+    return m_lastReportedStatistics;
+  }
+
   public void pushDispatchContext(DispatchContext dispatchContext)
     throws ShutdownException {
 
@@ -212,13 +219,13 @@ final class ThreadContextImplementation
       m_pendingDispatchContext = dispatchContext;
     }
     else {
-      dispatchContext.report();
+      m_lastReportedStatistics = dispatchContext.report();
     }
   }
 
   public void flushPendingDispatchContext() {
     if (m_pendingDispatchContext != null) {
-      m_pendingDispatchContext.report();
+      m_lastReportedStatistics = m_pendingDispatchContext.report();
       m_pendingDispatchContext = null;
     }
   }

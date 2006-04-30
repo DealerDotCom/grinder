@@ -27,10 +27,12 @@ import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.NoSuchStatisticException;
 import net.grinder.script.Statistics;
+import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.StatisticsIndexMap.DoubleIndex;
 import net.grinder.statistics.StatisticsIndexMap.LongIndex;
+import net.grinder.statistics.StatisticsIndexMap.LongSampleIndex;
 
 
 /**
@@ -47,6 +49,7 @@ final class ScriptStatisticsImplementation implements Statistics {
   private final TestStatisticsHelper m_testStatisticsHelper;
   private final StatisticsServices m_statisticsServices;
   private final QueuedSender m_consoleSender;
+  private final LongSampleIndex m_timedTestsIndex;
 
   public ScriptStatisticsImplementation(
     ThreadContextLocator threadContextLocator,
@@ -58,6 +61,10 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_testStatisticsHelper = testStatisticsHelper;
     m_statisticsServices = statisticsServices;
     m_consoleSender = consoleSender;
+
+    m_timedTestsIndex =
+      m_statisticsServices.getStatisticsIndexMap()
+      .getLongSampleIndex("timedTests");
   }
 
   public void setDelayReports(boolean b) throws InvalidContextException {
@@ -91,6 +98,27 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
 
     return dispatchContext;
+  }
+
+  private ImmutableStatisticsSet getStatistics()
+    throws InvalidContextException {
+    final ThreadContext threadContext = getThreadContext();
+
+    final DispatchContext dispatchContext = threadContext.getDispatchContext();
+
+    if (dispatchContext != null) {
+      return dispatchContext.getStatistics();
+    }
+
+    final ImmutableStatisticsSet lastReportedStatistics =
+      threadContext.getLastReportedStatistics();
+
+    if (lastReportedStatistics == null) {
+      throw new InvalidContextException(
+        "No tests have been performed by this thread. ");
+    }
+
+    return lastReportedStatistics;
   }
 
   public boolean availableForUpdate() {
@@ -132,15 +160,13 @@ final class ScriptStatisticsImplementation implements Statistics {
   public long getLong(String statisticName)
     throws InvalidContextException, NoSuchStatisticException {
 
-    return getDispatchContext().getStatistics().getValue(
-      getLongIndex(statisticName));
+    return getStatistics().getValue(getLongIndex(statisticName));
   }
 
   public double getDouble(String statisticName)
     throws InvalidContextException, NoSuchStatisticException {
 
-    return getDispatchContext().getStatistics().getValue(
-      getDoubleIndex(statisticName));
+    return getStatistics().getValue(getDoubleIndex(statisticName));
   }
 
   public void setSuccess(boolean success) throws InvalidContextException {
@@ -149,12 +175,28 @@ final class ScriptStatisticsImplementation implements Statistics {
   }
 
   public boolean getSuccess() throws InvalidContextException {
-    return m_testStatisticsHelper.getSuccess(
-      getDispatchContext().getStatistics());
+    return m_testStatisticsHelper.getSuccess(getStatistics());
   }
 
   public long getTime() throws InvalidContextException {
-    return getDispatchContext().getElapsedTime();
+
+    final ThreadContext threadContext = getThreadContext();
+
+    final DispatchContext dispatchContext = threadContext.getDispatchContext();
+
+    if (dispatchContext != null) {
+      return dispatchContext.getElapsedTime();
+    }
+
+    final ImmutableStatisticsSet lastReportedStatistics =
+      threadContext.getLastReportedStatistics();
+
+    if (lastReportedStatistics == null) {
+      throw new InvalidContextException(
+        "No tests have been performed by this thread. ");
+    }
+
+    return lastReportedStatistics.getSum(m_timedTestsIndex);
   }
 
   private LongIndex getLongIndex(String statisticName)

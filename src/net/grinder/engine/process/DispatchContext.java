@@ -17,6 +17,7 @@
 package net.grinder.engine.process;
 
 import net.grinder.common.Test;
+import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsSet;
 
 
@@ -39,14 +40,19 @@ interface DispatchContext {
    * The statistics, or <code>null</code> if the statistics have been
    * reported. Can be updated.
    *
-   * @return The statistics, or <code>null</code>.
+   * @return The statistics, or <code>null</code>. This object may be reused
+   *         for efficiency, so is only valid until the next time report() is
+   *         called.
    */
   StatisticsSet getStatistics();
 
   /**
    * Report any pending dispatch.
+   *
+   * @return The statistics that were reported. This object may be reused for
+   *         efficiency; its only valid until the next time report() is called.
    */
-  void report();
+  ImmutableStatisticsSet report();
 
   StopWatch getPauseTimer();
 

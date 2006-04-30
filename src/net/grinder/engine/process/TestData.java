@@ -26,6 +26,7 @@ import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.util.TimeAuthority;
@@ -127,7 +128,7 @@ final class TestData
         }
 
         final Dispatcher dispatcher =
-          new Dispatcher(m_statisticsSetFactory.create(),
+          new Dispatcher(m_statisticsSetFactory,
                          threadContext.getDispatchResultReporter(),
                          new StopWatchImplementation(m_timeAuthority));
 
@@ -198,22 +199,28 @@ final class TestData
    * <em>complete</em>.
    */
   private final class Dispatcher implements DispatchContext {
-    private final StatisticsSet m_dispatchStatistics;
+    private final StatisticsSet m_statisticsSet1;
+    private final StatisticsSet m_statisticsSet2;
     private final DispatchResultReporter m_resultReporter;
     private final StopWatch m_pauseTimer;
+    private StatisticsSet m_dispatchStatistics;
 
     private long m_startTime = -1;
     private long m_dispatchTime = -1;
 
-    public Dispatcher(StatisticsSet statisticsSet,
+    public Dispatcher(StatisticsSetFactory statisticsSetFactory,
                       DispatchResultReporter resultReporter,
                       StopWatch pauseTimer) {
-      m_dispatchStatistics = statisticsSet;
+      m_statisticsSet1 = statisticsSetFactory.create();
+      m_statisticsSet2 = statisticsSetFactory.create();
+      m_dispatchStatistics = m_statisticsSet1;
+
       m_resultReporter = resultReporter;
       m_pauseTimer = pauseTimer;
     }
 
     public Object dispatch(Callable callable) {
+      // TODO replace assertions here and in report() with an exception.
       assert m_startTime == -1;
       assert m_dispatchTime == -1;
 
@@ -243,21 +250,31 @@ final class TestData
       }
     }
 
-    public void report() {
-      if (m_dispatchTime >= 0) {
-        m_testStatisticsHelper.recordTest(
-          m_dispatchStatistics, getElapsedTime());
+    public ImmutableStatisticsSet report() {
+      assert m_dispatchTime >= 0;
 
-        m_resultReporter.report(getTest(), m_startTime, m_dispatchStatistics);
+      m_testStatisticsHelper.recordTest(m_dispatchStatistics, getElapsedTime());
 
-        getTestStatistics().add(m_dispatchStatistics);
+      m_resultReporter.report(getTest(), m_startTime, m_dispatchStatistics);
+      getTestStatistics().add(m_dispatchStatistics);
 
-        // Reset.
-        m_dispatchStatistics.reset();
-        m_pauseTimer.reset();
-        m_startTime = -1;
-        m_dispatchTime = -1;
+      final ImmutableStatisticsSet result = m_dispatchStatistics;
+
+      // Reset. We reuse statistics sets, otherwise we would need to clone
+      // our result for every test report.
+      if (m_dispatchStatistics == m_statisticsSet1) {
+        m_dispatchStatistics = m_statisticsSet2;
       }
+      else {
+        m_dispatchStatistics = m_statisticsSet1;
+      }
+
+      m_dispatchStatistics.reset();
+      m_pauseTimer.reset();
+      m_startTime = -1;
+      m_dispatchTime = -1;
+
+      return result;
     }
 
     public Test getTest() {

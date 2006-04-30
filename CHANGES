@@ -2,8 +2,8 @@ The Grinder 3.0-beta30
 ----------------------
 
   Fix HTTPlugin TCPProxy filter so that scripts send the real token
-  name back to the server, not the token id. Thanks to VmasterZen
-  for reporting this.
+  name back to the server, not the token id. Thanks to VmasterZen for
+  reporting this.
 
   Changes to the script statistics API:
 
@@ -11,6 +11,11 @@ The Grinder 3.0-beta30
     means they don't need to use StatisticsIndexMap. This addresses an
     issue with script access to StatisticsIndexMap - thanks to Stefan
     Grinsted for the report.
+
+  Fix scripts statistics so the query methods work outside of an open
+  test dispatch context; they return values for the last test reported
+  by the worker thread. This was broken by the support for nested
+  tests introduced in the last beta.
 
 
 The Grinder 3.0-beta29

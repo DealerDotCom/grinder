@@ -51,6 +51,7 @@ import junit.framework.TestCase;
  */
 public class TestScriptStatisticsImplementation extends TestCase {
 
+  private static final StatisticsIndexMap.LongSampleIndex s_timedTestsIndex;
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
   private static final StatisticsIndexMap.DoubleIndex s_userDouble0Index;
 
@@ -60,6 +61,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
 
     s_errorsIndex = indexMap.getLongIndex("errors");
     s_userDouble0Index = indexMap.getDoubleIndex("userDouble0");
+    s_timedTestsIndex= indexMap.getLongSampleIndex("timedTests");
   }
 
   private final RandomStubFactory m_testStatisticsHelperStubFactory =
@@ -103,14 +105,6 @@ public class TestScriptStatisticsImplementation extends TestCase {
     assertFalse(scriptStatistics.availableForUpdate());
 
     try {
-      scriptStatistics.report();
-      fail("Expected InvalidContextException");
-    }
-    catch (InvalidContextException e) {
-      AssertUtilities.assertContains(e.getMessage(), "worker threads");
-    }
-
-    try {
       scriptStatistics.getSuccess();
       fail("Expected InvalidContextException");
     }
@@ -118,13 +112,34 @@ public class TestScriptStatisticsImplementation extends TestCase {
       AssertUtilities.assertContains(e.getMessage(), "worker threads");
     }
 
-    // 2. Null dispatch context.
+    try {
+      scriptStatistics.report();
+      fail("Expected InvalidContextException");
+    }
+    catch (InvalidContextException e) {
+      AssertUtilities.assertContains(e.getMessage(), "worker threads");
+    }
+
+    // 2. Null dispatch context, no last statistics.
     m_threadContextLocator.set(m_threadContext);
     m_threadContextStubFactory.setResult("getDispatchContext", null);
+    m_threadContextStubFactory.setResult("getLastReportedStatistics", null);
     assertFalse(scriptStatistics.availableForUpdate());
 
+    try {
+      scriptStatistics.getSuccess();
+      fail("Expected InvalidContextException");
+    }
+    catch (InvalidContextException e) {
+      AssertUtilities.assertContains(e.getMessage(), "No tests");
+    }
+
+    // 3. Null dispatch context, last statistics.
+    m_threadContextStubFactory.setResult(
+      "getLastReportedStatistics", m_statisticsSet);
+
     // This will return info about the last test.
-    scriptStatistics.getSuccess();
+    assertFalse(scriptStatistics.getSuccess());
     m_testStatisticsHelperStubFactory
     .assertSuccess("getSuccess", ImmutableStatisticsSet.class);
 
@@ -229,7 +244,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
     }
   }
 
-  public void testDispatchContextPassThrough() throws Exception {
+  public void testGetTime() throws Exception {
     final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
@@ -239,12 +254,31 @@ public class TestScriptStatisticsImplementation extends TestCase {
 
     m_threadContextLocator.set(m_threadContext);
 
-    m_threadContextStubFactory.setResult("getDispatchContext", m_dispatchContext);
+    m_threadContextStubFactory.setResult("getDispatchContext", null);
+    m_threadContextStubFactory.setResult("getLastReportedStatistics", null);
+
+    try {
+      scriptStatistics.getTime();
+      fail("Expected InvalidContextException");
+    }
+    catch (InvalidContextException e) {
+    }
+
+    m_threadContextStubFactory.setResult("getDispatchContext",
+                                         m_dispatchContext);
 
     final long time = 213214L;
     m_dispatchContextStubFactory.setResult("getElapsedTime", new Long(time));
     assertEquals(time, scriptStatistics.getTime());
     m_dispatchContextStubFactory.assertSuccess("getElapsedTime");
+    m_dispatchContextStubFactory.assertNoMoreCalls();
+
+    final long time2 = 3214L;
+    m_threadContextStubFactory.setResult("getDispatchContext", null);
+    m_threadContextStubFactory.setResult("getLastReportedStatistics",
+                                         m_statisticsSet);
+    m_statisticsSet.addSample(s_timedTestsIndex, time2);
+    assertEquals(time2, scriptStatistics.getTime());
     m_dispatchContextStubFactory.assertNoMoreCalls();
   }
 

@@ -28,6 +28,7 @@ import net.grinder.common.StubTest;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
+import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
@@ -130,13 +131,20 @@ public class TestTestData extends TestCase {
     callableStubFactory.assertNoMoreCalls();
 
     m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
-    m_threadContextStubFactory.assertSuccess(
-      "pushDispatchContext", DispatchContext.class);
+    final DispatchContext dispatchContext =
+      (DispatchContext) m_threadContextStubFactory.assertSuccess(
+      "pushDispatchContext", DispatchContext.class).getParameters()[0];
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
 
     // Test statistics not updated until we report.
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+
+    // Calling report() is the only way to reset the dispatcher.
+    dispatchContext.report();
+
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "recordTest", StatisticsSet.class, Long.class);
 
     // 2. Nested case.
     final Callable outer = new Callable() {
@@ -162,6 +170,11 @@ public class TestTestData extends TestCase {
 
     // Test statistics not updated until we report.
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+
+    dispatchContext.report();
+
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "recordTest", StatisticsSet.class, Long.class);
 
     // 3. Unhappy case.
     final RuntimeException problem = new RuntimeException();
@@ -256,12 +269,18 @@ public class TestTestData extends TestCase {
     // for the test to update the statistics by hand.
     dispatchStatistics.addSample(s_timedTestsIndex, 0);
 
-    dispatchContext.report();
+    final ImmutableStatisticsSet reportedStatistics = dispatchContext.report();
     m_testStatisticsHelperStubFactory.assertSuccess(
       "recordTest", dispatchStatistics, new Long(0));
+    assertEquals(1, reportedStatistics.getCount(s_timedTestsIndex));
 
-    dispatchContext.report();
-    assertEquals(0, dispatchStatistics.getCount(s_timedTestsIndex));
+    try {
+      dispatchContext.report();
+      fail("Expected assertion");
+    }
+    catch (AssertionError e) {
+    }
+
     assertEquals(1, statistics.getCount(s_timedTestsIndex));
 
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();

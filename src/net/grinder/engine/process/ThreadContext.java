@@ -25,6 +25,7 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.statistics.ImmutableStatisticsSet;
 
 
 /**
@@ -59,6 +60,8 @@ interface ThreadContext extends PluginThreadContext {
   void popDispatchContext();
 
   DispatchContext getDispatchContext();
+
+  ImmutableStatisticsSet getLastReportedStatistics();
 
   void flushPendingDispatchContext();
 }

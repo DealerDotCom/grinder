@@ -21,6 +21,7 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsSet;
 
 
@@ -34,7 +35,7 @@ interface TestStatisticsHelper {
 
   void setSuccess(StatisticsSet statistics, boolean success);
 
-  boolean getSuccess(StatisticsSet statistics);
+  boolean getSuccess(ImmutableStatisticsSet statistics);
 
   void recordTest(StatisticsSet statistics, long elapsedTime);
 }

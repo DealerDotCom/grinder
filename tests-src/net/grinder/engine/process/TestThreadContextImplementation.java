@@ -146,6 +146,7 @@ public class TestThreadContextImplementation extends TestCase {
         m_processContext, m_threadLogger, m_filenameFactory, null);
 
     assertNull(threadContext.getDispatchContext());
+    assertNull(threadContext.getLastReportedStatistics());
 
     try {
       threadContext.popDispatchContext();
@@ -162,6 +163,8 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.pushDispatchContext(m_dispatchContext);
 
     assertSame(m_dispatchContext, threadContext.getDispatchContext());
+    assertNull(threadContext.getLastReportedStatistics());
+
     m_threadLoggerStubFactory.assertSuccess(
       "setCurrentTestNumber", new Integer(14));
 
@@ -172,6 +175,7 @@ public class TestThreadContextImplementation extends TestCase {
 
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
+    assertNotNull(threadContext.getLastReportedStatistics());
 
     final RandomStubFactory anotherDispatchContextStubFactory =
       new RandomStubFactory(DispatchContext.class);

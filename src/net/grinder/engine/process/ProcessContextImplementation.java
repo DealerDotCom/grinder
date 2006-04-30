@@ -33,6 +33,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.script.Grinder;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
+import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
@@ -304,7 +305,7 @@ final class ProcessContextImplementation implements ProcessContext {
       m_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
     }
 
-    public boolean getSuccess(StatisticsSet statistics) {
+    public boolean getSuccess(ImmutableStatisticsSet statistics) {
       return statistics.getValue(m_errorsIndex) == 0;
     }
 
