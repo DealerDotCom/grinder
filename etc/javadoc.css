@@ -23,3 +23,30 @@ body { background-color: #FFFFFF }
 A:link { color: #0000A0 }          /* unvisited link */
 A:visited { color: #A00000 }       /* visited links */
 A:active { color: #00A000 }        /* active links */
+
+.table {
+  border-collapse: collapse;
+  border-color: #D0D0D0;
+  border-style: solid;
+  border-width: 1px 1px 1px 1px;
+}
+
+.table th {
+  background-color: #E0E0E0;
+  font-family: sans-serif;
+  text-align: left;
+  border-width: 1px 1px 1px 1px;
+  border-color: #D0D0D0;
+  border-style: solid;
+  padding-left: .4em;
+  padding-right: .4em;
+}
+
+.table td {
+  padding-left: .4em;
+  padding-right: .4em;
+  border-color: #D0D0D0;
+  border-style: solid;
+  border-width: 1px 1px 1px 1px;
+}
+
