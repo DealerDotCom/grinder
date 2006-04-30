@@ -357,7 +357,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    *
    * <p>
    * <strong>Currently the implementation assumes that the argument is actually
-   * a <code>StatisticsSetImplementation</code> </strong>.
+   * a <code>StatisticsSetImplementation</code>.</strong>
    * </p>
    *
    * <p>
@@ -365,9 +365,9 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * </p>.
    *
    * @param operand
-   *          The <code>StatisticsSet</code> value to add.
+   *          The statistics set value to add.
    */
-  public synchronized void add(StatisticsSet operand) {
+  public synchronized void add(ImmutableStatisticsSet operand) {
 
     final StatisticsSetImplementation operandImplementation =
       (StatisticsSetImplementation)operand;

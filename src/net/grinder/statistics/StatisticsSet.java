@@ -31,36 +31,13 @@ package net.grinder.statistics;
  * @version $Revision$
  * @see net.grinder.script.Grinder.ScriptContext#getStatistics
  */
-public interface StatisticsSet {
+public interface StatisticsSet extends ImmutableStatisticsSet {
 
   /**
    * Reset this StatisticsSet to default values. Allows instance to
    * be reused.
    */
   void reset();
-
-  /**
-   * Clone this object.
-   *
-   * @return A copy of this StatisticsSet.
-   */
-  StatisticsSet snapshot();
-
-  /**
-   * Return the value specified by <code>index</code>.
-   *
-   * @param index The index.
-   * @return The value.
-   */
-  long getValue(StatisticsIndexMap.LongIndex index);
-
-  /**
-   * Return the value specified by <code>index</code>.
-   *
-   * @param index The index.
-   * @return The value.
-   */
-  double getValue(StatisticsIndexMap.DoubleIndex index);
 
   /**
    * Set the value specified by <code>index</code>.
@@ -129,59 +106,9 @@ public interface StatisticsSet {
   void reset(StatisticsIndexMap.DoubleSampleIndex index);
 
   /**
-   * Get the total sample value for the sample statistic specified by
-   * <code>index</code>.
-   *
-   * @param index The index.
-   * @return The sum.
-   */
-  long getSum(StatisticsIndexMap.LongSampleIndex index);
-
-  /**
-   * Get the total sample value for the sample statistic specified by
-   * <code>index</code>.
-   *
-   * @param index The index.
-   * @return The sum.
-   */
-  double getSum(StatisticsIndexMap.DoubleSampleIndex index);
-
-  /**
-   * Get the number of samples for the sample statistic specified by
-   * <code>index</code>.
-   *
-   * @param index The index.
-   * @return The count.
-   */
-  long getCount(StatisticsIndexMap.SampleIndex index);
-
-  /**
-   * Get the sample variance for the sample statistic specified by
-   * <code>index</code>.
-   *
-   * @param index The index.
-   * @return The count.
-   */
-  double getVariance(StatisticsIndexMap.SampleIndex index);
-
-  /**
    * Add the values of another {@link StatisticsSet} to ours.
    * Assumes we don't need to synchronise access to operand.
    * @param operand The {@link StatisticsSet} value to add.
    */
-  void add(StatisticsSet operand);
-
-  /**
-   * Return whether all the statistics are zero. This allows us to optimise
-   * cases where there's no information to be processed.
-   *
-   * <p>
-   * This method can return <code>false</code>, even if all of the statistics
-   * are zero; but if it returns <code>true</code> they are guaranteed to be
-   * zero.
-   * </p>
-   *
-   * @return <code>true</code> => all values are zero.
-   */
-  boolean isZero();
+  void add(ImmutableStatisticsSet operand);
 }
