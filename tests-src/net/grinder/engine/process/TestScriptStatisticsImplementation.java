@@ -29,6 +29,7 @@ import net.grinder.script.InvalidContextException;
 import net.grinder.script.NoSuchStatisticException;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -109,13 +110,27 @@ public class TestScriptStatisticsImplementation extends TestCase {
       AssertUtilities.assertContains(e.getMessage(), "worker threads");
     }
 
+    try {
+      scriptStatistics.getSuccess();
+      fail("Expected InvalidContextException");
+    }
+    catch (InvalidContextException e) {
+      AssertUtilities.assertContains(e.getMessage(), "worker threads");
+    }
+
     // 2. Null dispatch context.
     m_threadContextLocator.set(m_threadContext);
     m_threadContextStubFactory.setResult("getDispatchContext", null);
     assertFalse(scriptStatistics.availableForUpdate());
 
+    // This will return info about the last test.
+    scriptStatistics.getSuccess();
+    m_testStatisticsHelperStubFactory
+    .assertSuccess("getSuccess", ImmutableStatisticsSet.class);
+
     try {
-      scriptStatistics.getSuccess();
+      // This will fail as it needs a dispatch context.
+      scriptStatistics.setSuccess(false);
       fail("Expected InvalidContextException");
     }
     catch (InvalidContextException e) {
@@ -131,7 +146,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
     assertEquals(
       new Boolean(result),
       m_testStatisticsHelperStubFactory
-      .assertSuccess("getSuccess", m_statisticsSet).getResult());
+      .assertSuccess("getSuccess", ImmutableStatisticsSet.class).getResult());
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     m_queuedSenderStubFactory.assertNoMoreCalls();
