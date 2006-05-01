@@ -16,35 +16,5 @@ or update the standard statistics (number of errors, test time
 and so on) can do so using the {@link net.grinder.script.Statistics}
 script API.</p>
 
-<h3>Example usage</h3>
-<h4>Using a custom statistic from a script</h4>
-
-<pre>
-# Obtain the index object for the a spare long statistic.
-deliveryTimeIndex = StatisticsIndexMap.getInstance().getLongIndex("userLong0")
-
-# Delay statistic reporting so we can alter statistics.
-grinder.statistics.delayReports = 1
-
-# Use the RawStatistics interface to set the statistic value for the
-# last test.
-grinder.statistics.setValue(deliveryTimeIndex, deliveryTime)
-</pre>
-
-<h4>Registering custom statistic views from a script</h4>
-
-<pre>
-detailView = StatisticsView()
-detailView.add(ExpressionView("Delivery time", "", "userLong0"))
-
-summaryView = StatisticsView()
-summaryView.add(ExpressionView(
-    "Mean delivery time",
-    "statistic.deliveryTime",
-    "(/ userLong0(+ (count timedTests) untimedTests))"))
-	    
-grinder.registerDetailStatisticsView(detailView)
-grinder.registerSummaryStatisticsView(summaryView)
-</pre>
   </body>
 </html>
