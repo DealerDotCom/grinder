@@ -298,12 +298,12 @@
 
         <tr>
           <td>
-            <code>grinder.recordTime</code>
+            <code>grinder.reportTimesToConsole</code>
           </td>
 
           <td>Set to <code>false</code> to disable reporting of <a
-          href="site:development/timing">timing information</a>;
-          other statistics are still reported.</td>
+          href="site:development/timing">timing information</a> to the
+          console; other statistics are still reported.</td>
 
           <td>true</td>
     </tr>
