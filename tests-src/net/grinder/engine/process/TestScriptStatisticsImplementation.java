@@ -139,7 +139,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
       "getLastReportedStatistics", m_statisticsSet);
 
     // This will return info about the last test.
-    assertFalse(scriptStatistics.getSuccess());
+    scriptStatistics.getSuccess();
     m_testStatisticsHelperStubFactory
     .assertSuccess("getSuccess", ImmutableStatisticsSet.class);
 
