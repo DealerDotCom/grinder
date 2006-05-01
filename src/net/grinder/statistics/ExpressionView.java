@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,10 +20,6 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.statistics;
-
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
 
 /**
@@ -59,13 +55,7 @@ public class ExpressionView {
 
   private static int s_creationOrder;
 
-  private static StatisticExpressionFactory getExpressionFactory() {
-    return StatisticsServicesImplementation.getInstance()
-           .getStatisticExpressionFactory();
-  }
-
   private final String m_displayName;
-  private final String m_displayNameResourceKey;
   private final String m_expressionString;
   private final int m_hashCode;
   private final int m_creationOrder;
@@ -75,28 +65,29 @@ public class ExpressionView {
   /**
    * Creates a new <code>ExpressionView</code> instance.
    *
-   * @param displayName A common display name.
-   * @param displayNameResourceKey A resource key to use to look up
-   * an internationalised display name.
-   * @param expressionString An expression string, used to create
-   * the {@link StatisticExpression}.
-   * @exception StatisticsException If the expression is invalid.
+   * @param displayName
+   *          A display name. In the console, this is converted to a key for an
+   *          internationalised resource bundle look up by prefixing the string
+   *          with "statistic." and replacing any whitespace with underscores.
+   * @param expressionString
+   *          An expression string, used to create the
+   *          {@link StatisticExpression}.
+   * @exception StatisticsException
+   *              If the expression is invalid.
    * @see StatisticExpressionFactoryImplementation
    */
-  public ExpressionView(String displayName, String displayNameResourceKey,
-                        String expressionString)
+  public ExpressionView(String displayName, String expressionString)
     throws StatisticsException {
-    this(displayName, displayNameResourceKey,
-         getExpressionFactory().normaliseExpressionString(expressionString),
-         getExpressionFactory().createExpression(expressionString));
+    this(displayName, expressionString,
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory());
   }
 
   ExpressionView(String displayName,
-                 String displayNameResourceKey,
                  String expressionString,
                  StatisticExpressionFactory expressionFactory)
     throws StatisticsException {
-    this(displayName, displayNameResourceKey,
+    this(displayName,
          expressionFactory.normaliseExpressionString(expressionString),
          expressionFactory.createExpression(expressionString));
   }
@@ -104,20 +95,22 @@ public class ExpressionView {
   /**
    * Creates a new <code>ExpressionView</code> instance.
    *
+   * <p>
+   * This constructor takes a {@link StatisticExpression}, and is used to by
+   * the console to construct a view around expressions that have no string
+   * representation (namely, those involving peak statistics).
+   * </p>
+   *
    * @param displayName
    *          A common display name.
-   * @param displayNameResourceKey
-   *          A resource key to use to look up an internationalised display
-   *          name.
    * @param expression
    *          A {@link StatisticExpression}.
    */
-  public ExpressionView(String displayName, String displayNameResourceKey,
-                        StatisticExpression expression) {
-    this(displayName, displayNameResourceKey, "", expression);
+  public ExpressionView(String displayName, StatisticExpression expression) {
+    this(displayName, null, expression);
   }
 
-  private ExpressionView(String displayName, String displayNameResourceKey,
+  private ExpressionView(String displayName,
                          String expressionString,
                          StatisticExpression expression) {
     // Ensure that the standard ExpressionViews are initialised before
@@ -125,39 +118,16 @@ public class ExpressionView {
     StatisticsServicesImplementation.getInstance();
 
     m_displayName = displayName;
-    m_displayNameResourceKey = displayNameResourceKey;
     m_expressionString = expressionString;
     m_expression = expression;
 
     m_hashCode =
       m_displayName.hashCode() ^
-      m_displayNameResourceKey.hashCode() ^
-      m_expressionString.hashCode();
+      (expressionString != null ? m_expressionString.hashCode() : 0);
 
     synchronized (ExpressionView.class) {
       m_creationOrder = s_creationOrder++;
     }
-  }
-
-  /**
-   * @see StatisticsView#readExternal
-   */
-  ExpressionView(ObjectInput in) throws IOException, StatisticsException {
-    this(in.readUTF(), in.readUTF(), in.readUTF());
-  }
-
-  /**
-   * @see StatisticsView#writeExternal
-   */
-  final void myWriteExternal(ObjectOutput out) throws IOException {
-    if (m_expressionString == "") {
-      throw new IOException(
-        "This expression view is not externalisable");
-    }
-
-    out.writeUTF(m_displayName);
-    out.writeUTF(m_displayNameResourceKey);
-    out.writeUTF(m_expressionString);
   }
 
   /**
@@ -170,22 +140,22 @@ public class ExpressionView {
   }
 
   /**
-   * Get the display name resource key.
-   *
-   * @return A key that might be used to look up an
-   * internationalised display name.
-   */
-  public final String getDisplayNameResourceKey() {
-    return m_displayNameResourceKey;
-  }
-
-  /**
    * Return the {@link StatisticExpression}.
    *
    * @return The {@link StatisticExpression}.
    */
   public final StatisticExpression getExpression() {
     return m_expression;
+  }
+
+  /**
+   * Return the expression string.
+   *
+   * @return The string, or <code>null</code> if this view was built directly
+   *         from a {@link StatisticExpression}.
+   */
+  public final String getExpressionString() {
+    return m_expressionString;
   }
 
   /**
@@ -208,14 +178,12 @@ public class ExpressionView {
     return
       m_hashCode == otherView.m_hashCode &&
       m_displayName.equals(otherView.m_displayName) &&
-      m_displayNameResourceKey.equals(
-        otherView.m_displayNameResourceKey) &&
 
       // If either expression string is null, one of the views
       // is not externalisable. We then only compare on the
       // display names.
-      (m_expressionString.length() == 0 ||
-       otherView.m_expressionString.length() == 0 ||
+      (m_expressionString == null ||
+       otherView.m_expressionString == null ||
        m_expressionString.equals(otherView.m_expressionString));
   }
 
@@ -235,9 +203,18 @@ public class ExpressionView {
    * @return The <code>String</code>
    */
   public final String toString() {
-    return
-      "ExpressionView(" + m_displayName + ", " +
-      m_displayNameResourceKey + ", " + m_expressionString + ")";
+    final StringBuffer result = new StringBuffer(32);
+    result.append("ExpressionView(");
+    result.append(m_displayName);
+
+    if (m_expressionString != null) {
+      result.append(", ");
+      result.append(m_expressionString);
+    }
+
+    result.append(")");
+
+    return result.toString();
   }
 
   final int getCreationOrder() {

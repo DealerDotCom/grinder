@@ -24,7 +24,7 @@ package net.grinder.engine.process;
 import java.util.Arrays;
 
 import net.grinder.communication.QueuedSender;
-import net.grinder.console.messages.RegisterStatisticsViewMessage;
+import net.grinder.console.messages.RegisterExpressionViewMessage;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.NoSuchStatisticException;
 import net.grinder.script.Statistics;
@@ -301,17 +301,16 @@ public class TestScriptStatisticsImplementation extends TestCase {
         queuedSender);
 
     final ExpressionView expressionView =
-      new ExpressionView("display", "resource key", "errors");
-    final StatisticsView statisticsView = new StatisticsView();
-    statisticsView.add(expressionView);
-    scriptStatistics.registerSummaryStatisticsView(statisticsView);
+      new ExpressionView("display", "errors");
+    scriptStatistics.registerSummaryExpression("display", "errors");
 
     final CallData callData =
       queuedSenderStubFactory.assertSuccess(
-        "queue", RegisterStatisticsViewMessage.class);
-    final RegisterStatisticsViewMessage message =
-      (RegisterStatisticsViewMessage)callData.getParameters()[0];
-    assertEquals(statisticsView, message.getStatisticsView());
+        "queue", RegisterExpressionViewMessage.class);
+    final RegisterExpressionViewMessage message =
+      (RegisterExpressionViewMessage)callData.getParameters()[0];
+    assertEquals("display", message.getExpressionView().getDisplayName());
+    assertEquals("errors", message.getExpressionView().getExpressionString());
     queuedSenderStubFactory.assertNoMoreCalls();
 
     final StatisticsView summaryStatisticsView =
@@ -322,7 +321,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
     assertTrue(Arrays.asList(summaryExpressionViews).contains(expressionView));
 
     try {
-      scriptStatistics.registerDetailStatisticsView(statisticsView);
+      scriptStatistics.registerDataLogExpression("display2", "untimedTests");
       fail("Expected InvalidContextException");
     }
     catch (InvalidContextException e) {
@@ -330,13 +329,14 @@ public class TestScriptStatisticsImplementation extends TestCase {
 
     threadContextLocator.set(null);
 
-    scriptStatistics.registerDetailStatisticsView(statisticsView);
+    scriptStatistics.registerDataLogExpression("display2", "untimedTests");
 
     final StatisticsView detailStatisticsView =
       m_statisticsServices.getDetailStatisticsView();
 
     final ExpressionView[] detailExpressionViews =
       detailStatisticsView.getExpressionViews();
-    assertTrue(Arrays.asList(detailExpressionViews).contains(expressionView));
+    assertTrue(Arrays.asList(detailExpressionViews).contains(
+      new ExpressionView("display2", "untimedTests")));
   }
 }

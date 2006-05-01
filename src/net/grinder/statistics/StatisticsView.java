@@ -21,10 +21,6 @@
 
 package net.grinder.statistics;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,9 +37,7 @@ import java.util.TreeSet;
  * @see net.grinder.script.Statistics#registerDetailStatisticsView
  * @see net.grinder.script.Statistics#registerSummaryStatisticsView
  */
-public final class StatisticsView implements Externalizable {
-
-  private static final long serialVersionUID = -4846650473903375223L;
+public final class StatisticsView {
 
   /**
    * We define a <code>Comparator</code> for {@link ExpressionView}s
@@ -103,45 +97,6 @@ public final class StatisticsView implements Externalizable {
    */
   public synchronized ExpressionView[] getExpressionViews() {
     return (ExpressionView[])m_columns.toArray(new ExpressionView[0]);
-  }
-
-  /**
-   * Externalisation method.
-   *
-   * @param out Handle to the output stream.
-   * @exception IOException If an I/O error occurs.
-   */
-  public synchronized void writeExternal(ObjectOutput out) throws IOException {
-    out.writeInt(m_columns.size());
-
-    final Iterator iterator = m_columns.iterator();
-
-    while (iterator.hasNext()) {
-      final ExpressionView view = (ExpressionView)iterator.next();
-      view.myWriteExternal(out);
-    }
-  }
-
-  /**
-   * Externalisation method.
-   *
-   * @param in Handle to the input stream.
-   * @exception IOException If an I/O error occurs.
-   */
-  public synchronized void readExternal(ObjectInput in) throws IOException {
-    final int n = in.readInt();
-
-    m_columns.clear();
-
-    for (int i = 0; i < n; i++) {
-      try {
-        add(new ExpressionView(in));
-      }
-      catch (StatisticsException e) {
-        throw new IOException(
-          "Could not instantiate ExpressionView: " + e.getMessage());
-      }
-    }
   }
 
   /**

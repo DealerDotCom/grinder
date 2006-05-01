@@ -38,11 +38,9 @@ final class CommonStatisticsViews {
     try {
       final ExpressionView[] detailExpressionViews = {
         new ExpressionView("Test time",
-                           "statistic.testTime",
                            "(sum timedTests)",
                            expressionFactory),
         new ExpressionView("Errors",
-                           "statistic.errors",
                            "errors",
                            expressionFactory),
       };
@@ -53,19 +51,15 @@ final class CommonStatisticsViews {
 
       final ExpressionView[] summaryExpressionViews = {
         new ExpressionView("Tests",
-                           "statistic.tests",
                            "(+ (count timedTests) untimedTests)",
                            expressionFactory),
         new ExpressionView("Errors",
-                           "statistic.errors",
                            "errors",
                            expressionFactory),
         new ExpressionView("Mean Test Time (ms)",
-                           "statistic.meanTestTime",
                            "(/ (sum timedTests) (count timedTests))",
                            expressionFactory),
         new ExpressionView("Test Time Standard Deviation (ms)",
-                           "statistic.testTimeStandardDeviation",
                            "(sqrt (variance timedTests))",
                            expressionFactory),
       };

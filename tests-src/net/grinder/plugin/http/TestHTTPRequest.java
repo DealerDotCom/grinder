@@ -39,7 +39,6 @@ import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
-import net.grinder.statistics.StatisticsView;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -93,11 +92,8 @@ public class TestHTTPRequest extends TestCase {
     m_statisticsStubFactory.assertNoMoreCalls();
     HTTPPlugin.getPlugin().initialize(pluginProcessContext);
 
-    m_statisticsStubFactory.assertSuccess(
-      "registerDetailStatisticsView", StatisticsView.class);
-    m_statisticsStubFactory.assertSuccess(
-      "registerSummaryStatisticsView", StatisticsView.class);
-    m_statisticsStubFactory.assertNoMoreCalls();
+    // Discard the registration of statistic views.
+    m_statisticsStubFactory.resetCallHistory();
   }
 
   public void testSetUrl() throws Exception {

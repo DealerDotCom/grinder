@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,7 +27,6 @@ import java.io.Writer;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.statistics.StatisticsSet;
-import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -47,16 +46,6 @@ final class CumulativeStatisticsTableModel
     super(model);
 
     m_totalString = model.getResources().getString("table.total.label");
-  }
-
-  /**
-   * {@link net.grinder.console.model.ModelListener} interface. New
-   * <code>StatisticsView</code>s have been added.
-   **/
-  public synchronized void newStatisticsViews(
-    StatisticsView intervalStatisticsView,
-    StatisticsView cumulativeStatisticsView) {
-    addColumns(cumulativeStatisticsView);
   }
 
   public synchronized void resetTestsAndStatisticsViews() {

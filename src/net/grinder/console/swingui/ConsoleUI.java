@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -92,8 +92,8 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
+import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsSet;
-import net.grinder.statistics.StatisticsView;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 import net.grinder.util.thread.UncheckedInterruptedException;
@@ -719,16 +719,13 @@ public final class ConsoleUI implements ModelListener {
   }
 
   /**
-   * {@link net.grinder.console.model.ModelListener} interface. New
-   * <code>StatisticsView</code>s have been added. We need do
-   * nothing.
+   * Called when a new statistic expression has been added to the model. We need
+   * do nothing. {@link net.grinder.console.model.ModelListener} interface.
    *
-   * @param intervalStatisticsView Interval statistics view.
-   * @param cumulativeStatisticsView Cumulative statistics view.
+   * @param statisticExpression
+   *          The new statistic expression.
    */
-  public void newStatisticsViews(
-    StatisticsView intervalStatisticsView,
-    StatisticsView cumulativeStatisticsView) {
+  public void newStatisticExpression(ExpressionView statisticExpression) {
   }
 
   /**

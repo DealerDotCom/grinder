@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,6 @@ package net.grinder.console.swingui;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.statistics.StatisticsSet;
-import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -42,16 +41,6 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
   public synchronized void resetTestsAndStatisticsViews() {
     super.resetTestsAndStatisticsViews();
     addColumns(getModel().getIntervalStatisticsView());
-  }
-
-  /**
-   * {@link net.grinder.console.model.ModelListener} interface. New
-   * <code>StatisticsView</code>s have been added.
-   **/
-  public synchronized void newStatisticsViews(
-    StatisticsView intervalStatisticsView,
-    StatisticsView cumulativeStatisticsView) {
-    addColumns(intervalStatisticsView);
   }
 
   protected StatisticsSet getStatistics(int row) {

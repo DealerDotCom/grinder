@@ -9,8 +9,19 @@ The Grinder 3.0-beta30
 
     Scripts now refer to statistics by name rather than indicies. This
     means they don't need to use StatisticsIndexMap. This addresses an
-    issue with script access to StatisticsIndexMap - thanks to Stefan
-    Grinsted for the report.
+    issue with scripts being unable to access StatisticsIndexMap -
+    thanks to Stefan Grinsted for the report.
+
+    The ScriptContext registerSummaryStatisticsView() and
+    registerDetailStatisticsView() methods have been replaced with
+    Statistics.registerSummaryExpression() and
+    Statistics.registerDataLogExpression(). The new methods use
+    expression strings, rather than requiring the use StatisticsView
+    and ExpressionView objects.
+
+    The scripts no longer need objects from the net.grinder.statistics
+    package; consequently that package has been removed from the
+    statistics API.
 
   Fix scripts statistics so the query methods work outside of an open
   test dispatch context; they return values for the last test reported

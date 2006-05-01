@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -169,15 +169,14 @@ public final class Model {
       statisticExpressionFactory.createExpression(
         "(* 1000 (/ (+ (count timedTests) untimedTests) period))");
 
-    m_tpsExpressionView =
-      new ExpressionView("TPS", "statistic.tps", m_tpsExpression);
+    m_tpsExpressionView = new ExpressionView("TPS", m_tpsExpression);
 
     m_peakTPSExpression =
       statisticExpressionFactory.createPeak(
         indexMap.getDoubleIndex("peakTPS"), m_tpsExpression);
 
     m_peakTPSExpressionView =
-      new ExpressionView("Peak TPS", "statistic.peakTPS", m_peakTPSExpression);
+      new ExpressionView("Peak TPS", m_peakTPSExpression);
 
     m_totalSampleAccumulator =
       new SampleAccumulator(m_peakTPSExpression, m_periodIndex,
@@ -325,26 +324,23 @@ public final class Model {
   }
 
   /**
-   * Register new statistics views.
+   * Register new statistic expression.
    *
-   * @param intervalStatisticsView a <code>StatisticsView</code> value
-   * @param cumulativeStatisticsView a <code>StatisticsView</code> value
+   * @param statisticExpression The expression.
    */
-  public void registerStatisticsViews(
-    final StatisticsView intervalStatisticsView,
-    final StatisticsView cumulativeStatisticsView) {
+  public void registerStatisticExpression(
+    final ExpressionView statisticExpression) {
 
     // The StatisticsView objects are responsible for synchronisation.
-    m_intervalStatisticsView.add(intervalStatisticsView);
-    m_cumulativeStatisticsView.add(cumulativeStatisticsView);
+    m_intervalStatisticsView.add(statisticExpression);
+    m_cumulativeStatisticsView.add(statisticExpression);
 
     m_modelListeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
           final ModelListener modelListener = (ModelListener)listener;
 
-          modelListener.newStatisticsViews(intervalStatisticsView,
-                                           cumulativeStatisticsView);
+          modelListener.newStatisticExpression(statisticExpression);
         }
       });
   }

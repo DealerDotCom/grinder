@@ -38,9 +38,8 @@ import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.script.Grinder;
-import net.grinder.statistics.ExpressionView;
+import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -121,86 +120,61 @@ public class HTTPPlugin implements GrinderPlugin {
 
     // Register custom statistics.
     try {
-      final StatisticsView detailsStatisticsView = new StatisticsView();
-      detailsStatisticsView.add(
-        new ExpressionView(
-          "HTTP response code", "statistic.httpplugin.responseStatusKey",
-          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY));
 
-      detailsStatisticsView.add(
-        new ExpressionView(
-          "HTTP response length", "statistic.httpplugin.responseLengthKey",
-          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY));
+      final Statistics statistics = scriptContext.getStatistics();
 
-      detailsStatisticsView.add(
-        new ExpressionView(
-          "HTTP response errors", "statistic.httpplugin.responseErrorsKey",
-          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY));
+      statistics.registerDataLogExpression(
+        "HTTP response code",
+        StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY);
 
-      detailsStatisticsView.add(
-        new ExpressionView(
-          "Time to resolve host", "statistic.httpplugin.dnsTimeKey",
-          StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY));
+      statistics.registerDataLogExpression(
+        "HTTP response length",
+        StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY);
 
-      detailsStatisticsView.add(
-        new ExpressionView(
-          "Time to establish connection",
-          "statistic.httpplugin.connectTimeKey",
-          StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY));
+      statistics.registerDataLogExpression(
+        "HTTP response errors",
+        StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY);
 
-      detailsStatisticsView.add(
-        new ExpressionView(
-          "Time to first byte", "statistic.httpplugin.firstByteTimeKey",
-          StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY));
+      statistics.registerDataLogExpression(
+        "Time to resolve host",
+        StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY);
 
-      scriptContext.getStatistics().registerDetailStatisticsView(
-        detailsStatisticsView);
+      statistics.registerDataLogExpression(
+        "Time to establish connection",
+        StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY);
 
-      final StatisticsView summaryStatisticsView = new StatisticsView();
+      statistics.registerDataLogExpression(
+        "Time to first byte",
+        StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY);
 
-      summaryStatisticsView.add(
-        new ExpressionView(
-          "Mean response length",
-          "statistic.httpplugin.meanResponseLengthKey",
-          "(/ " + StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY +
-          " (+ (count timedTests) untimedTests))"));
+      statistics.registerSummaryExpression(
+        "Mean response length",
+        "(/ " + StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY +
+        " (+ (count timedTests) untimedTests))");
 
-      summaryStatisticsView.add(
-        new ExpressionView(
-          "Response bytes per second",
-          "statistic.httpplugin.responseBPSKey",
-          "(* 1000 (/ " + StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY +
-          " period))"));
+      statistics.registerSummaryExpression(
+        "Response bytes per second",
+        "(* 1000 (/ " + StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY +
+        " period))");
 
-      summaryStatisticsView.add(
-        new ExpressionView(
-          "Response errors",
-          "statistic.httpplugin.responseErrorsKey",
-          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY));
+      statistics.registerSummaryExpression(
+        "Response errors",
+        StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY);
 
-      summaryStatisticsView.add(
-        new ExpressionView(
-          "Mean time to resolve host",
-          "statistic.httpplugin.meanDnsTimeKey",
-          "(/ " + StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY +
-          " (+ (count timedTests) untimedTests))"));
+      statistics.registerSummaryExpression(
+        "Mean time to resolve host",
+        "(/ " + StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY +
+        " (+ (count timedTests) untimedTests))");
 
-      summaryStatisticsView.add(
-        new ExpressionView(
-          "Mean time to establish connection",
-          "statistic.httpplugin.meanConnectTimeKey",
-          "(/ " + StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY +
-          " (+ (count timedTests) untimedTests))"));
+      statistics.registerSummaryExpression(
+        "Mean time to establish connection",
+        "(/ " + StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY +
+        " (+ (count timedTests) untimedTests))");
 
-      summaryStatisticsView.add(
-        new ExpressionView(
-          "Mean time to first byte",
-          "statistic.httpplugin.meanFirstByteTimeKey",
-          "(/ " + StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY +
-          " (+ (count timedTests) untimedTests))"));
-
-      scriptContext.getStatistics().registerSummaryStatisticsView(
-        summaryStatisticsView);
+      statistics.registerSummaryExpression(
+        "Mean time to first byte",
+        "(/ " + StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY +
+        " (+ (count timedTests) untimedTests))");
     }
     catch (GrinderException e) {
       throw new PluginException("Could not register custom statistics", e);

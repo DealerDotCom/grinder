@@ -65,10 +65,10 @@ public class TestStatisticsTable extends TestCase {
         .getLongIndex("userLong1");
 
     final ExpressionView[] expressionViews = {
-        new ExpressionView("A", "", "userLong0"),
-        new ExpressionView("B", "", "userLong1"),
-        new ExpressionView("A plus B", "", "(+ userLong0 userLong1)"),
-        new ExpressionView("A divided by B", "", "(/ userLong0 userLong1)"), };
+        new ExpressionView("A", "userLong0"),
+        new ExpressionView("B", "userLong1"),
+        new ExpressionView("A plus B", "(+ userLong0 userLong1)"),
+        new ExpressionView("A divided by B", "(/ userLong0 userLong1)"), };
 
     m_statisticsView = new StatisticsView();
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -99,7 +99,9 @@ abstract class DynamicStatisticsTableModel
       for (int i = 0; i < m_columnLabels.length; ++i) {
         final String resource =
           m_model.getResources().getString(
-            m_columnViews[i].getDisplayNameResourceKey(), false);
+            "statistic." +
+            m_columnViews[i].getDisplayName().replaceAll("\\s+", "_"),
+            false);
 
         m_columnLabels[i] =
           resource != null ?
@@ -108,6 +110,21 @@ abstract class DynamicStatisticsTableModel
 
       fireTableStructureChanged();
     }
+  }
+
+  /**
+   * Called when a new statistic expression has been added to the model.
+   * {@link net.grinder.console.model.ModelListener} interface.
+   *
+   * @param statisticExpression
+   *          The new statistic expression.
+   */
+  public void newStatisticExpression(ExpressionView statisticExpression) {
+
+    final StatisticsView statisticsView = new StatisticsView();
+    statisticsView.add(statisticExpression);
+
+    addColumns(statisticsView);
   }
 
   public final synchronized void newTests(Set newTests,

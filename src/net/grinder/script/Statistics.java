@@ -22,7 +22,6 @@
 package net.grinder.script;
 
 import net.grinder.common.GrinderException;
-import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -96,7 +95,7 @@ import net.grinder.statistics.StatisticsView;
  * <td><em>period</em></td>
  * <td>basic&nbsp;long</td>
  * <td>The sampling period duration, in milliseconds. <br/>This statistic is
- * used to define {@link net.grinder.statistics.ExpressionView views} for
+ * used to define views for
  * evaluation in the console and has no meaning in a worker process.</td>
  * </tr>
  *
@@ -104,8 +103,7 @@ import net.grinder.statistics.StatisticsView;
  * <td><em>peakTPS</em></td>
  * <td>basic&nbsp;double</td>
  * <td>The highest Tests Per Second figure in the current sampling period.
- * <br/>This statistic is used to define
- * {@link net.grinder.statistics.ExpressionView views} for evaluation in the
+ * <br/>This statistic is used to define views for evaluation in the
  * console and has no meaning in a worker process.</td>
  * </tr>
  *
@@ -357,14 +355,13 @@ import net.grinder.statistics.StatisticsView;
  *
  * <h2>Registering new views</h2>
  *
- * New statistics views for the console and the data log can be registered using
- * {@link #registerDetailStatisticsView(StatisticsView)} and
- * {@link #registerSummaryStatisticsView(StatisticsView)}.
+ * New statistics expressions for the console and the data log can be registered
+ * using {@link #registerSummaryExpression(String, String)} and
+ * {@link #registerDataLogExpression(String, String)}.
  *
  *
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.statistics.StatisticsView
  */
 public interface Statistics  {
 
@@ -604,31 +601,66 @@ public interface Statistics  {
   long getTime() throws InvalidContextException;
 
   /**
-   * Register a new "summary" statistics view. These views appear in
-   * the worker process output log summaries and are displayed in the
-   * console.
+   * Register a new "summary" statistic expression. This expression will appear
+   * in the worker process output log summaries and the console.
    *
-   * @param statisticsView The new statistics view.
-   * @throws GrinderException If the view could not be registered.
+   * <p>
+   * Statistic expressions are composed of statistic names (see
+   * {@link Statistics}) in a simple post-fix format using the symbols
+   * <code>+</code>, <code>-</code>, <code>/</code> and <code>*</code>,
+   * which have their usual meanings, in conjunction with simple statistic names
+   * or sub-expressions. Precedence can be controlled by grouping expressions in
+   * parentheses. For example, the error rate is
+   * <code>(* (/ errors period) 1000)</code> errors per second.
+   * </p>
+   *
+   * <p>
+   * Sample statistics, such as <em>timedTests</em>, must be introduced with
+   * one of <code>sum</code>, <code>count</code>, or <code>variance</code>,
+   * depending on the attribute of interest.
+   * </p>
+   *
+   * <p>
+   * For example, the statistic expression <code>(/ (sum timedTests)
+   * (count timedTests))</code>
+   * represents the mean test time in milliseconds.
+   * </p>
+   *
+   * @param displayName
+   *          A display name. In the console, this is converted to a key for an
+   *          internationalised resource bundle look up by prefixing the string
+   *          with <code>statistic.</code> and replacing any whitespace with
+   *          underscores.
+   * @param expression
+   *          The expression string.
+   * @throws GrinderException
+   *           If the expression could not be registered.
    */
-  void registerSummaryStatisticsView(StatisticsView statisticsView)
+  void registerSummaryExpression(String displayName, String expression)
     throws GrinderException;
 
   /**
-   * Register a new "detail" statistics view which appears in the
-   * worker process data logs. Each test invocation will have an entry
-   * displayed for the detail statistics views.
+   * Register a new "detail" statistic expression. This expression will appear
+   * in the worker process data log. Each test invocation will have an value
+   * displayed for the detail statistic expression.
    *
-   * <p>You should call <code>registerSummaryStatisticsView</code>
+   * <p>You should call <code>registerDataLogExpression</code>
    * from the top level of your script. It cannot be called from a
    * worker thread - the data logs are initialised by the time the
    * worker threads start.</p>
    *
-   * @param statisticsView The new statistics view.
-   * @throws GrinderException If the view could not be registered.
+   * @param displayName
+   *          A display name. In the console, this is converted to a key for an
+   *          internationalised resource bundle look up by prefixing the string
+   *          with <code>statistic.</code> and replacing any whitespace with
+   *          underscores.
+   * @param expression
+   *          The expression string.
+   * @throws GrinderException If the expression could not be registered.
    * @throws InvalidContextException If called from a worker
    * thread.
+   * @see #registerSummaryExpression for details of the expression format.
    */
-  void registerDetailStatisticsView(StatisticsView statisticsView)
+  void registerDataLogExpression(String displayName, String expression)
     throws GrinderException, InvalidContextException;
 }

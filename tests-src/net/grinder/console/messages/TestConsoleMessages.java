@@ -23,6 +23,11 @@ package net.grinder.console.messages;
 
 import junit.framework.TestCase;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -30,9 +35,9 @@ import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
-import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.testutility.Serializer;
 
@@ -51,20 +56,51 @@ public class TestConsoleMessages extends TestCase {
 
   public void testRegisterStatisticsViewMessage() throws Exception {
 
-    final StatisticsView statisticsView = new StatisticsView();
-    statisticsView.add(new ExpressionView("One", "blah", "userLong0"));
+    final ExpressionView expressionView =
+      new ExpressionView("One", "userLong0");
 
-    final RegisterStatisticsViewMessage original =
-      new RegisterStatisticsViewMessage(statisticsView);
+    final RegisterExpressionViewMessage original =
+      new RegisterExpressionViewMessage(expressionView);
 
-    assertEquals(1, original.getStatisticsView().getExpressionViews().length);
+    final RegisterExpressionViewMessage received =
+      (RegisterExpressionViewMessage) serialise(original);
 
-    final RegisterStatisticsViewMessage received =
-      (RegisterStatisticsViewMessage) serialise(original);
+    assertEquals(original.getExpressionView(),
+                 received.getExpressionView());
 
-    assertEquals(1, received.getStatisticsView().getExpressionViews().length);
-    assertEquals(original.getStatisticsView().getExpressionViews()[0],
-                 received.getStatisticsView().getExpressionViews()[0]);
+    final StatisticExpressionFactory statisticExpressionFactory =
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory();
+
+    final ExpressionView view2 =
+      new ExpressionView("My view2",
+                         statisticExpressionFactory.createExpression(
+                           "userLong0"));
+    try {
+      serialise(new RegisterExpressionViewMessage(view2));
+      fail("Expected IOException");
+    }
+    catch (IOException e) {
+    }
+
+    final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+    final ObjectOutputStream objectStream = new ObjectOutputStream(byteStream);
+    original.writeExternal(objectStream);
+    objectStream.close();
+
+    // Corrupt the serialised message.
+    final byte[] bytes = byteStream.toByteArray();
+    bytes[bytes.length - 5] = 'X';
+
+    final RegisterExpressionViewMessage incomingMessage =
+      new RegisterExpressionViewMessage();
+    try {
+      incomingMessage.readExternal(
+        new ObjectInputStream(new ByteArrayInputStream(bytes)));
+
+      fail("Expected IOException");
+    } catch (IOException e) {
+    }
   }
 
   public void testRegisterTestsMessage() throws Exception {

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,7 +30,7 @@ import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
-import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.ExpressionView;
 
 
 /**
@@ -63,13 +63,11 @@ public class TestSwingDispatchedModelListener extends TestCase {
     assertSame(myTests, listener.m_newTests);
     assertSame(myModelTestIndex, listener.m_modelTestIndex);
 
-    final StatisticsView view1 = new StatisticsView();
-    final StatisticsView view2 = new StatisticsView();
-    listener.newStatisticsViews(view1, view2);
+    final ExpressionView view1 = new ExpressionView("foo", "errors");
+    listener.newStatisticExpression(view1);
     SwingUtilities.invokeAndWait(m_voidRunnable);
     assertTrue(listener.m_updateCalled);
-    assertSame(view1, listener.m_intervalStatisticsView);
-    assertSame(view2, listener.m_cumulativeStatisticsView);
+    assertSame(view1, listener.m_newStaticticExpression);
   }
 
   private class MyModelListener implements ModelListener {
@@ -81,8 +79,7 @@ public class TestSwingDispatchedModelListener extends TestCase {
     private boolean m_resetTestsAndStatisticsViewsCalled = false;
 
     public boolean m_newStatisticsViewsCalled = false;
-    public StatisticsView m_intervalStatisticsView;
-    public StatisticsView m_cumulativeStatisticsView;
+    public ExpressionView m_newStaticticExpression;
 
     public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
       m_newTestsCalled = true;
@@ -94,16 +91,13 @@ public class TestSwingDispatchedModelListener extends TestCase {
       m_updateCalled = true;
     }
 
-    public void newStatisticsViews(StatisticsView intervalStatisticsView,
-           StatisticsView cumulativeStatisticsView)
-    {
+    public void newStatisticExpression(ExpressionView statisticExpression) {
+
       m_newStatisticsViewsCalled = true;
-      m_intervalStatisticsView = intervalStatisticsView;
-      m_cumulativeStatisticsView = cumulativeStatisticsView;
+      m_newStaticticExpression = statisticExpression;
     }
 
-    public void resetTestsAndStatisticsViews()
-    {
+    public void resetTestsAndStatisticsViews() {
       m_resetTestsAndStatisticsViewsCalled = true;
     }
 

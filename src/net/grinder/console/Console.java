@@ -38,14 +38,14 @@ import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionImplementation;
-import net.grinder.console.messages.RegisterStatisticsViewMessage;
+import net.grinder.console.messages.RegisterExpressionViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
+import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServicesImplementation;
-import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -149,11 +149,11 @@ public class Console {
             return true;
           }
 
-          if (message instanceof RegisterStatisticsViewMessage) {
-            final StatisticsView statisticsView =
-              ((RegisterStatisticsViewMessage)message).getStatisticsView();
+          if (message instanceof RegisterExpressionViewMessage) {
+            final ExpressionView expressionView =
+              ((RegisterExpressionViewMessage)message).getExpressionView();
 
-            m_model.registerStatisticsViews(statisticsView, statisticsView);
+            m_model.registerStatisticExpression(expressionView);
             return true;
           }
 

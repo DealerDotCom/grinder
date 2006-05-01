@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,7 @@ import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
-import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.ExpressionView;
 
 
 /**
@@ -62,14 +62,12 @@ class SwingDispatchedModelListener implements ModelListener {
     SwingUtilities.invokeLater(m_updateRunnable);
   }
 
-  public void newStatisticsViews(
-    final StatisticsView intervalStatisticsView,
-    final StatisticsView cumulativeStatisticsView) {
+  public void newStatisticExpression(final ExpressionView statisticExpression) {
+
     SwingUtilities.invokeLater(
       new Runnable() {
         public void run() {
-          m_delegate.newStatisticsViews(intervalStatisticsView,
-                                        cumulativeStatisticsView);
+          m_delegate.newStatisticExpression(statisticExpression);
         }
       }
       );

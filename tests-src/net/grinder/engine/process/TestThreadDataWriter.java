@@ -99,7 +99,7 @@ public class TestThreadDataWriter extends TestCase {
     m_dataOutput.reset();
 
     statisticsServices.getDetailStatisticsView().add(
-      new ExpressionView("foo", "foo", "userDouble0"));
+      new ExpressionView("foo", "userDouble0"));
     statistics.reset();
     statistics.addSample(s_timedTestsIndex, 5);
     statistics.addValue(s_userDouble0Index, 1.5);

@@ -23,13 +23,13 @@ package net.grinder.engine.process;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.QueuedSender;
-import net.grinder.console.messages.RegisterStatisticsViewMessage;
+import net.grinder.console.messages.RegisterExpressionViewMessage;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.NoSuchStatisticException;
 import net.grinder.script.Statistics;
+import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsServices;
-import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.StatisticsIndexMap.DoubleIndex;
 import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.statistics.StatisticsIndexMap.LongSampleIndex;
@@ -228,25 +228,28 @@ final class ScriptStatisticsImplementation implements Statistics {
     return index;
   }
 
-  public void registerSummaryStatisticsView(StatisticsView statisticsView)
+  public void registerSummaryExpression(String displayName, String expression)
   throws GrinderException {
-    m_statisticsServices.getSummaryStatisticsView().add(statisticsView);
+
+    final ExpressionView expressionView =
+      new ExpressionView(displayName, expression);
+
+    m_statisticsServices.getSummaryStatisticsView().add(expressionView);
 
     // Queue up, will get flushed with next process status or
     // statistics report.
-    m_consoleSender.queue(new RegisterStatisticsViewMessage(statisticsView));
+    m_consoleSender.queue(new RegisterExpressionViewMessage(expressionView));
   }
 
-  public void registerDetailStatisticsView(StatisticsView statisticsView)
+  public void registerDataLogExpression(String displayName, String expression)
     throws GrinderException {
 
     if (m_threadContextLocator.get() != null) {
       throw new InvalidContextException(
-        "registerDetailStatisticsView() is not supported from worker threads");
+        "registerDataLogExpression() is not supported from worker threads");
     }
 
-    // DetailStatisticsViews are only for the data logs, so we don't
-    // register the view with the console.
-    m_statisticsServices.getDetailStatisticsView().add(statisticsView);
+    m_statisticsServices.getDetailStatisticsView().add(
+      new ExpressionView(displayName, expression));
   }
 }

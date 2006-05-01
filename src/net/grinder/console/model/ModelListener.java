@@ -24,7 +24,7 @@ package net.grinder.console.model;
 import java.util.EventListener;
 import java.util.Set;
 
-import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.ExpressionView;
 
 
 /**
@@ -49,13 +49,11 @@ public interface ModelListener extends EventListener {
   void newTests(Set newTests, ModelTestIndex modelTestIndex);
 
   /**
-   * Called when new views have been added to the model.
+   * Called when a new statistic expression has been added to the model.
    *
-   * @param intervalStatisticsView a <code>StatisticsView</code> value
-   * @param cumulativeStatisticsView a <code>StatisticsView</code> value
+   * @param statisticExpression The new statistic expression.
    */
-  void newStatisticsViews(StatisticsView intervalStatisticsView,
-                          StatisticsView cumulativeStatisticsView);
+  void newStatisticExpression(ExpressionView statisticExpression);
 
   /**
    * Called when existing tests and statistics views should be

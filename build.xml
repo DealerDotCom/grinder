@@ -621,7 +621,7 @@ what you want. Currently the conditionally built modules are:
         value="${build.dir}/script-javadoc-src"/>
 
     <!-- Sigh, I'm tired of convincing the javadoc task to do the right thing
-         so instead lets create a copy of the source it should process.
+         so instead let's create a copy of the source it should process.
          This is faster too. -->
     <copy todir="${script-javadoc-src.dir}">
       <fileset dir="${src.dir}">
@@ -640,9 +640,6 @@ what you want. Currently the conditionally built modules are:
         <exclude name="net/grinder/plugin/http/HTTPPluginThreadState.java"/>
         <exclude name="net/grinder/plugin/http/HTTPPluginTCPProxy*.java"/>
         <include name="net/grinder/script/*.java"/>
-        <include name="net/grinder/statistics/ExpressionView.java"/>
-        <include name="net/grinder/statistics/StatisticsException.java"/>
-        <include name="net/grinder/statistics/StatisticsView.java"/>
         <include name="**/*.html"/>
       </fileset>
     </copy>
