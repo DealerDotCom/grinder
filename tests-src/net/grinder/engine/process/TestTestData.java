@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 import net.grinder.common.Test;
 import net.grinder.common.StubTest;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
 import net.grinder.statistics.ImmutableStatisticsSet;
@@ -196,6 +197,14 @@ public class TestTestData extends TestCase {
       "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
     assertNotSame(statistics, dispatcherStatistics);
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+
+    // 4. Assertion failures.
+    try {
+      testData.dispatch(callable);
+      fail("Expected DispatchStateException");
+    }
+    catch (DispatchStateException e) {
+    }
   }
 
   public void testDispatchContext() throws Exception {
@@ -276,9 +285,9 @@ public class TestTestData extends TestCase {
 
     try {
       dispatchContext.report();
-      fail("Expected assertion");
+      fail("Expected DispatchStateException");
     }
-    catch (AssertionError e) {
+    catch (DispatchStateException e) {
     }
 
     assertEquals(1, statistics.getCount(s_timedTestsIndex));

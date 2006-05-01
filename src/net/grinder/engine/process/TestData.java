@@ -219,10 +219,10 @@ final class TestData
       m_pauseTimer = pauseTimer;
     }
 
-    public Object dispatch(Callable callable) {
-      // TODO replace assertions here and in report() with an exception.
-      assert m_startTime == -1;
-      assert m_dispatchTime == -1;
+    public Object dispatch(Callable callable) throws DispatchStateException {
+      if (m_startTime != -1 || m_dispatchTime != -1) {
+        throw new DispatchStateException("Last statistics were not reported");
+      }
 
       try {
         // Make it more likely that the timed section has a "clear run".
@@ -250,8 +250,10 @@ final class TestData
       }
     }
 
-    public ImmutableStatisticsSet report() {
-      assert m_dispatchTime >= 0;
+    public ImmutableStatisticsSet report() throws DispatchStateException {
+      if (m_dispatchTime < 0) {
+        throw new DispatchStateException("No statistics to report");
+      }
 
       m_testStatisticsHelper.recordTest(m_dispatchStatistics, getElapsedTime());
 

@@ -17,6 +17,7 @@
 package net.grinder.engine.process;
 
 import net.grinder.common.Test;
+import net.grinder.engine.common.EngineException;
 import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsSet;
 
@@ -47,14 +48,25 @@ interface DispatchContext {
   StatisticsSet getStatistics();
 
   /**
-   * Report any pending dispatch.
+   * Report any pending statistics.
    *
    * @return The statistics that were reported. This object may be reused for
    *         efficiency; its only valid until the next time report() is called.
+   * @throws DispatchStateException If there are no statistics to report.
    */
-  ImmutableStatisticsSet report();
+  ImmutableStatisticsSet report() throws DispatchStateException;
 
   StopWatch getPauseTimer();
 
   long getElapsedTime();
+
+  /**
+   * Exception that indicates the dispatcher was in an invalid state for
+   * the called method .
+   */
+  static class DispatchStateException extends EngineException {
+    DispatchStateException(String message) {
+      super(message);
+    }
+  }
 }

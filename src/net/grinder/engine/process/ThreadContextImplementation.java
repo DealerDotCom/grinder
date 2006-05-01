@@ -31,6 +31,7 @@ import net.grinder.common.SSLContextFactory;
 import net.grinder.common.Test;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsSet;
@@ -219,13 +220,24 @@ final class ThreadContextImplementation
       m_pendingDispatchContext = dispatchContext;
     }
     else {
-      m_lastReportedStatistics = dispatchContext.report();
+      try {
+        m_lastReportedStatistics = dispatchContext.report();
+      }
+      catch (DispatchStateException e) {
+        throw new AssertionError(e);
+      }
     }
   }
 
   public void flushPendingDispatchContext() {
     if (m_pendingDispatchContext != null) {
-      m_lastReportedStatistics = m_pendingDispatchContext.report();
+      try {
+        m_lastReportedStatistics = m_pendingDispatchContext.report();
+      }
+      catch (DispatchStateException e) {
+        throw new AssertionError(e);
+      }
+
       m_pendingDispatchContext = null;
     }
   }
