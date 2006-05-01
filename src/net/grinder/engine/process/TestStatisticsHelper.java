@@ -23,6 +23,7 @@ package net.grinder.engine.process;
 
 import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsSet;
+import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
@@ -38,4 +39,6 @@ interface TestStatisticsHelper {
   boolean getSuccess(ImmutableStatisticsSet statistics);
 
   void recordTest(StatisticsSet statistics, long elapsedTime);
+
+  void removeTestTimeFromSample(TestStatisticsMap sample);
 }

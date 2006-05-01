@@ -48,7 +48,6 @@ import net.grinder.communication.QueuedSender;
 import net.grinder.communication.QueuedSenderDecorator;
 import net.grinder.communication.Receiver;
 import net.grinder.console.messages.RegisterTestsMessage;
-import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
@@ -390,7 +389,8 @@ final class GrinderProcess {
           }
 
           if (sample.size() > 0) {
-            consoleSender.queue(new ReportStatisticsMessage(sample));
+            consoleSender.queue(
+              m_context.createReportStatisticsMessage(sample));
           }
 
           consoleSender.send(

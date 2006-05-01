@@ -19,9 +19,11 @@ package net.grinder.engine.process;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.communication.QueuedSender;
+import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.script.Grinder;
 import net.grinder.statistics.StatisticsServices;
+import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.Sleeper;
 
 
@@ -37,6 +39,9 @@ interface ProcessContext {
 
   WorkerProcessReportMessage createStatusMessage(short state,
     short numberOfThreads, short totalNumberOfThreads);
+
+  ReportStatisticsMessage createReportStatisticsMessage(
+    TestStatisticsMap sample);
 
   Logger getProcessLogger();
 

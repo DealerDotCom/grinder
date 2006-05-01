@@ -28,15 +28,14 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.QueuedSender;
+import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.Grinder;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
-import net.grinder.statistics.ImmutableStatisticsSet;
-import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
-import net.grinder.statistics.StatisticsSet;
+import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.JVM;
 import net.grinder.util.Sleeper;
 import net.grinder.util.StandardTimeAuthority;
@@ -52,7 +51,6 @@ import net.grinder.util.TimeAuthority;
 final class ProcessContextImplementation implements ProcessContext {
   private final WorkerIdentity m_workerIdentity;
   private final GrinderProperties m_properties;
-  private final boolean m_recordTime;
   private final Logger m_processLogger;
   private final QueuedSender m_consoleSender;
   private final ThreadContextLocator m_threadContextLocator;
@@ -63,6 +61,7 @@ final class ProcessContextImplementation implements ProcessContext {
   private final StatisticsServices m_statisticsServices;
   private final TestStatisticsHelper m_testStatisticsHelper;
   private final TimeAuthority m_timeAuthority;
+  private final boolean m_reportTimesToConsole;
 
   private long m_executionStartTime;
   private boolean m_shutdown;
@@ -75,12 +74,13 @@ final class ProcessContextImplementation implements ProcessContext {
 
     m_workerIdentity = workerIdentity;
     m_properties = properties;
-    m_recordTime = properties.getBoolean("grinder.recordTime", true);
     m_processLogger = logger;
     m_consoleSender = consoleSender;
     m_statisticsServices = statisticsServices;
     m_threadContextLocator = new ThreadContextLocatorImplementation();
-    m_testStatisticsHelper = new TestStatisticsHelperImplementation();
+    m_testStatisticsHelper =
+      new TestStatisticsHelperImplementation(
+        m_statisticsServices.getStatisticsIndexMap());
 
     TimeAuthority alternateTimeAuthority = null;
 
@@ -153,29 +153,19 @@ final class ProcessContextImplementation implements ProcessContext {
                        m_testStatisticsHelper,
                        m_timeAuthority);
 
+    m_reportTimesToConsole =
+      properties.getBoolean("grinder.reportTimesToConsole", true);
+
     TestRegistry.setInstance(m_testRegistry);
 
     Grinder.grinder = m_scriptContext;
     m_shutdown = false;
   }
 
-  /**
-   *
-   *
-   * @return
-   */
   public QueuedSender getConsoleSender() {
     return m_consoleSender;
   }
 
-  /**
-   *
-   *
-   * @param state
-   * @param numberOfThreads
-   * @param totalNumberOfThreads
-   * @return
-   */
   public WorkerProcessReportMessage createStatusMessage(
     short state, short numberOfThreads, short totalNumberOfThreads) {
 
@@ -185,56 +175,36 @@ final class ProcessContextImplementation implements ProcessContext {
                                           totalNumberOfThreads);
   }
 
-  /**
-   *
-   *
-   * @return
-   */
+  public ReportStatisticsMessage createReportStatisticsMessage(
+    TestStatisticsMap sample) {
+
+    if (!m_reportTimesToConsole) {
+      m_testStatisticsHelper.removeTestTimeFromSample(sample);
+    }
+
+    return new ReportStatisticsMessage(sample);
+  }
+
   public Logger getProcessLogger() {
     return m_processLogger;
   }
 
-  /**
-   *
-   *
-   * @return
-   */
   public PluginRegistryImplementation getPluginRegistry() {
     return m_pluginRegistry;
   }
 
-  /**
-   *
-   *
-   * @return
-   */
   public TestRegistry getTestRegistry() {
     return m_testRegistry;
   }
 
-  /**
-   *
-   *
-   * @return
-   */
   public GrinderProperties getProperties() {
     return m_properties;
   }
 
-  /**
-   *
-   *
-   * @return
-   */
   public Grinder.ScriptContext getScriptContext() {
     return m_scriptContext;
   }
 
-  /**
-   *
-   *
-   * @return
-   */
   public ThreadContextLocator getThreadContextLocator() {
     return m_threadContextLocator;
   }
@@ -247,21 +217,12 @@ final class ProcessContextImplementation implements ProcessContext {
     return m_executionStartTime;
   }
 
-  /**
-   *
-   *
-   * @throws ShutdownException
-   */
   public void checkIfShutdown() throws ShutdownException {
     if (m_shutdown) {
       throw new ShutdownException("Process has been shutdown");
     }
   }
 
-  /**
-   *
-   *
-   */
   public void shutdown() {
     // Interrupt any sleepers.
     Sleeper.shutdownAllCurrentSleepers();
@@ -270,70 +231,12 @@ final class ProcessContextImplementation implements ProcessContext {
     m_shutdown = true;
   }
 
-  /**
-   *
-   *
-   * @return
-   */
   public Sleeper getSleeper() {
     return m_sleeper;
   }
 
-  /**
-   *
-   *
-   * @return
-   */
   public StatisticsServices getStatisticsServices() {
     return m_statisticsServices;
-  }
-
-  private final class TestStatisticsHelperImplementation
-    implements TestStatisticsHelper {
-
-    private final StatisticsIndexMap.LongIndex m_errorsIndex;
-    private final StatisticsIndexMap.LongIndex m_untimedTestsIndex;
-    private final StatisticsIndexMap.LongSampleIndex m_timedTestsIndex;
-
-    public TestStatisticsHelperImplementation() {
-
-      final StatisticsIndexMap indexMap =
-        m_statisticsServices.getStatisticsIndexMap();
-
-      m_errorsIndex = indexMap.getLongIndex("errors");
-      m_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
-      m_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
-    }
-
-    public boolean getSuccess(ImmutableStatisticsSet statistics) {
-      return statistics.getValue(m_errorsIndex) == 0;
-    }
-
-    public void setSuccess(StatisticsSet statistics, boolean success) {
-      statistics.setValue(m_errorsIndex, success ? 0 : 1);
-    }
-
-    public void recordTest(StatisticsSet statistics, long elapsedTime) {
-      if (getSuccess(statistics)) {
-        if (m_recordTime) {
-          statistics.reset(m_timedTestsIndex);
-          statistics.addSample(m_timedTestsIndex, elapsedTime);
-        }
-        else {
-          statistics.setValue(m_untimedTestsIndex, 1);
-        }
-
-        setSuccess(statistics, true);
-      }
-      else {
-        // The plug-in might have set timing information etc., or set errors to
-        // be greater than 1. For consistency, we override to a single error per
-        // Test with no associated timing information.
-        statistics.setValue(m_untimedTestsIndex, 0);
-        statistics.reset(m_timedTestsIndex);
-        setSuccess(statistics, false);
-      }
-    }
   }
 
   private static final class ThreadContextLocatorImplementation

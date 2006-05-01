@@ -17,6 +17,11 @@ The Grinder 3.0-beta30
   by the worker thread. This was broken by the support for nested
   tests introduced in the last beta.
 
+  The grinder.recordTime property has been replaced by a new
+  grinder.reportTimesToConsole property. The difference between the two
+  is that test times are now always recorded in the worker process data
+  log.
+
 
 The Grinder 3.0-beta29
 ----------------------

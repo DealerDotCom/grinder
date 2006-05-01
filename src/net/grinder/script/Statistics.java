@@ -60,18 +60,10 @@ import net.grinder.statistics.StatisticsView;
  * </tr>
  *
  * <tr>
- * <td><em>untimedTests</em></td>
- * <td>basic&nbsp;long</td>
- * <td>The number of successful tests performed that have no timing
- * information. A test is considered successful if it is not marked as an error.
- * </td>
- * </tr>
- *
- * <tr>
  * <td><em>timedTests</em></td>
  * <td>sample&nbsp;long</td>
- * <td>Sample statistic that records successful tests that have timing
- * information. </td>
+ * <td>Sample statistic that records successful tests.
+ * A test is considered successful if it is not marked as an error.</td>
  * </tr>
  *
  * <tr>
@@ -90,13 +82,22 @@ import net.grinder.statistics.StatisticsView;
  * purposes.</td>
  * </tr>
  *
+ * <tr>
+ * <td><em>untimedTests</em></td>
+ * <td>basic&nbsp;long</td>
+ * <td>The number of successful tests performed that have no timing
+ * information.
+ * <br/>This statistic only used when reporting statistics to the console,
+ * it has no meaning in a worker process.
+ * </td>
+ * </tr>
  *
  * <tr>
  * <td><em>period</em></td>
  * <td>basic&nbsp;long</td>
  * <td>The sampling period duration, in milliseconds. <br/>This statistic is
  * used to define {@link net.grinder.statistics.ExpressionView views} for
- * evaluation in the console and has no meaning in a worker process .</td>
+ * evaluation in the console and has no meaning in a worker process.</td>
  * </tr>
  *
  * <tr>
@@ -132,19 +133,11 @@ import net.grinder.statistics.StatisticsView;
  * </tr>
  *
  * <tr>
- * <td><em>untimedTests</em></td>
- * <td>basic&nbsp;long</td>
- * <td><code>1</code> if the worker process is not recording timing
- * information and the test was successful, otherwise <code>0</code>.</td>
- * </tr>
- *
- * <tr>
  * <td><em>timedTests</em></td>
  * <td>sample&nbsp;long</td>
- * <td>If the process is recording timing information and the test was
- * successful, the count is <code>1</code> and the sum is the test time in
- * milliseconds, otherwise the sum and the count are zero. The variance is
- * always <code>0</code>.
+ * <td>If the test was successful, the count is <code>1</code> and the sum is
+ * the test time in milliseconds, otherwise the sum and the count are zero.
+ * The variance is always <code>0</code>.
  * </td>
  * </tr>
  *
@@ -165,6 +158,12 @@ import net.grinder.statistics.StatisticsView;
  * </tr>
  *
  * <tr>
+ * <td><em>untimedTests</em></td>
+ * <td>basic&nbsp;long</td>
+ * <td>Not relevant.</td>
+ * </tr>
+ *
+ * <tr>
  * <td><em>period</em></td>
  * <td>basic&nbsp;long</td>
  * <td>Not relevant.</td>
@@ -179,22 +178,23 @@ import net.grinder.statistics.StatisticsView;
  * </table> </blockquote>
  *
  * <p>
- * The Grinder updates the statistics for each test just before it is reported
+ * The Grinder updates the statistics for each test just before it is recorded
  * as follows:
  * </p>
  *
  * <ul>
- * <li>If <em>errors</em> is <code>0</code> and the worker process is
- * recording time, the elapsed time of the test is added to the
- * <em>timedTests</em> sample statistic.</li>
- * <li>If <em>errors</em> is <code>0</code> and the process is not
- * recording time (refer to the <code>grinder.recordTime</code> property in <a
- * href="http://grinder.sourceforge.net/g3/properties.html">The Grinder manual
- * </a>), <em>untimedTests</em> is set to <code>1</code>.</li>
+ * <li>If <em>errors</em> is <code>0</code>, the elapsed time of the test is
+ * added to the <em>timedTests</em> sample statistic.</li>
  * <li>If <em>errors</em> is not <code>0</code>, the <em>timedTests</em>
  * and <em>untimedTests</em> statistics are reset to zero, and <em>errors</em>
  * is set to <code>1</code>.
  * </ul>
+ *
+ * <p>If the <code>grinder.reportTimesToConsole</code> property (see <a
+ * href="http://grinder.sourceforge.net/g3/properties.html">The Grinder manual
+ * </a>) is <code>false</code>,  the statistics sent to the console are further
+ * modified by setting <em>untimedTests</em> to the count of the
+ * <em>timedTests</em> statistic, and resetting <em>timedTests</em>.</p>
  *
  * <h4>HTTP Plug-in Statistics</h4>
  *
