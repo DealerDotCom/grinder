@@ -1,3 +1,63 @@
+2006-05-01  Philip Aston  <philipa@mail.com>
+
+	* .project: PyDev.
+
+	* src/net/grinder/script/Statistics.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java, tests-src/net/grinder/engine/process/TestThreadDataWriter.java, CHANGES, build.xml, src/net/grinder/console/Console.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsView.java, tests-src/net/grinder/console/messages/TestConsoleMessages.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, src/net/grinder/console/messages/RegisterExpressionViewMessage.java, src/net/grinder/console/messages/RegisterStatisticsViewMessage.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/Console_it.properties, src/net/grinder/console/swingui/resources/Console_pl.properties, src/net/grinder/console/swingui/resources/Console_ru.properties, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java:
+	Replace ScriptContex.registerSummaryStatisticsView() and
+	ScriptContext.registerDetailStatisticsView() methods with
+	Statistics.registerSummaryExpression() and
+	Statistics.registerDataLogExpression().
+
+	* src/net/grinder/engine/process/TestStatisticsHelper.java, tests-src/net/grinder/engine/process/TestTestStatisticsHelperImplementation.java, CHANGES, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/TestStatisticsHelperImplementation.java, src/net/grinder/script/Statistics.java:
+	Replace grinder.recordTime with grinder.reportTimesToConsole.
+
+	* src/net/grinder/statistics/package.html:
+	Remove out of date documentation.
+
+	* src/net/grinder/engine/process/DispatchContext.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContextImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java:
+	Fix API rather than rely on assertions.
+
+	* tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java:
+	Don't rely on behaviour of a random stub.
+
+	* build.xml: Run unit tests with assertions enabled.
+
+2006-04-30  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/engine/process/DispatchContext.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestStatisticsHelper.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadContextImplementation.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	Fix scripts statistics so the query methods work outside of an open test dispatch context; they return values for the last test reported by the worker thread.
+
+	* tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java:
+	Scripts now refer to statistics by name rather than indicies. This
+	means they don't need to use StatisticsIndexMap. This addresses an
+	issue with script access to StatisticsIndexMap - thanks to Stefan
+	Grinsted for the report.
+
+	* src/net/grinder/statistics/ImmutableStatisticsSet.java, src/net/grinder/statistics/StatisticsSet.java, src/net/grinder/statistics/StatisticsSetImplementation.java:
+	Split out read-only StatisticsSet methods into a separate interface.
+
+	* etc/javadoc.css: Table style.
+
+	* build.xml, CHANGES, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/script/Grinder.java, src/net/grinder/script/NoSuchStatisticException.java, src/net/grinder/script/Statistics.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsSetImplementation.java, src/net/grinder/statistics/StatisticsView.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPRequest.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java, tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	Scripts now refer to statistics by name rather than indicies. This
+	means they don't need to use StatisticsIndexMap. This addresses an
+	issue with script access to StatisticsIndexMap - thanks to Stefan
+	Grinsted for the report.
+
+2006-04-29  Philip Aston  <philipa@mail.com>
+
+	* TODO: Note to self.
+
+	* tests-src/net/grinder/script/TestTest.java: Basic test of wrapping.
+
+	* build.xml: Next is beta 30.
+
+2006-04-25  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Sigh - send the real token name back to the server, not the
+	token id. Thanks to VmasterZen for reporting this.
+
 2006-04-23  Philip Aston  <philipa@mail.com>
 
 	* Republished source files for Grinder 3.0-beta29.
