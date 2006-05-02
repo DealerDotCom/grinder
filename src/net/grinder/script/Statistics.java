@@ -644,10 +644,11 @@ public interface Statistics  {
    * in the worker process data log. Each test invocation will have an value
    * displayed for the detail statistic expression.
    *
-   * <p>You should call <code>registerDataLogExpression</code>
-   * from the top level of your script. It cannot be called from a
-   * worker thread - the data logs are initialised by the time the
-   * worker threads start.</p>
+   * <p>
+   * You should call <code>registerDataLogExpression</code> from the top level
+   * of your script. It cannot be called from a worker thread - the data logs
+   * are initialised by the time the worker threads start.
+   * </p>
    *
    * @param displayName
    *          A display name. In the console, this is converted to a key for an
@@ -656,10 +657,12 @@ public interface Statistics  {
    *          underscores.
    * @param expression
    *          The expression string.
-   * @throws GrinderException If the expression could not be registered.
-   * @throws InvalidContextException If called from a worker
-   * thread.
-   * @see #registerSummaryExpression for details of the expression format.
+   * @throws GrinderException
+   *           If the expression could not be registered.
+   * @throws InvalidContextException
+   *           If called from a worker thread.
+   * @see #registerSummaryExpression(String, String) for details of the
+   *      expression format.
    */
   void registerDataLogExpression(String displayName, String expression)
     throws GrinderException, InvalidContextException;
