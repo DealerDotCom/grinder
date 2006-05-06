@@ -110,6 +110,8 @@ Perhaps. This procedural style would certainly be more obvious to the average us
 </section>
 <section name='Statistics' depth='2' id='Statistics'>
 <p>
+Total time should distinguish nested tests. Introduce new concept of a Group Test? </p>
+<p>
 Split out serializeable kernel of TestStatisticsMap? Look hard at where the message is deserialised. </p>
 <p>
 public ExpressionView ctor should probably be deprecated. </p>

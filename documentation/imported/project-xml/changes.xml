@@ -1,6 +1,22 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.0-beta30' id='The Grinder 3.0-beta30'>
+<p>
+Fix HTTPlugin TCPProxy filter so that scripts send the real token name back to the server, not the token id. Thanks to VmasterZen for reporting this. </p>
+<p>
+Changes to the script statistics API: </p>
+<p>
+Scripts now refer to statistics by name rather than indicies. This means they don't need to use StatisticsIndexMap. This addresses an issue with scripts being unable to access StatisticsIndexMap - thanks to Stefan Grinsted for the report. </p>
+<p>
+The ScriptContext registerSummaryStatisticsView() and registerDetailStatisticsView() methods have been replaced with Statistics.registerSummaryExpression() and Statistics.registerDataLogExpression(). The new methods use expression strings, rather than requiring the use StatisticsView and ExpressionView objects. </p>
+<p>
+The scripts no longer need objects from the net.grinder.statistics package; consequently that package has been removed from the statistics API. </p>
+<p>
+Fix scripts statistics so the query methods work outside of an open test dispatch context; they return values for the last test reported by the worker thread. This was broken by the support for nested tests introduced in the last beta. </p>
+<p>
+The grinder.recordTime property has been replaced by a new grinder.reportTimesToConsole property. The difference between the two is that test times are now always recorded in the worker process data log. </p>
+</section>
 <section name='The Grinder 3.0-beta29' id='The Grinder 3.0-beta29'>
 <p>
 Nested Tests are supported. That is, you can now use a Test to instrument script code that calls things wrapped by other Tests. </p>
