@@ -15,7 +15,7 @@ The scripts no longer need objects from the net.grinder.statistics package; cons
 <p>
 Fix scripts statistics so the query methods work outside of an open test dispatch context; they return values for the last test reported by the worker thread. This was broken by the support for nested tests introduced in the last beta. </p>
 <p>
-The grinder.recordTime property has been replaced by a new grinder.reportTimesToConsole property. The difference between the two is that test times are now always recorded in the worker process data log. </p>
+The grinder.recordTime property has been replaced by a new grinder.reportTimesToConsole property. Test times are now always recorded in the worker process data log, irrespective of the value of grinder.reportTimesToConsole. </p>
 </section>
 <section name='The Grinder 3.0-beta29' id='The Grinder 3.0-beta29'>
 <p>

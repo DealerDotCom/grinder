@@ -160,10 +160,6 @@ Pablo Estades Fernández says: <br/>&gt; I need to use client cert on TCPProxy to
 <p>
 Consider forcing TestRunner to be registered with grinder. </p>
 <p>
-The Grinder should have error handling for attempts to call the ScriptStatistics report() or delayStatistics() methods from within wrapped code. </p>
-<p>
-Wrapped code should be able to use the ScriptStatistics interface and not have the settings overrwritten by the engine. </p>
-<p>
 Add per-run statistics. This would also allow number of aborted runs to be recorded. </p>
 <p>
 Script access to global statistics. </p>
