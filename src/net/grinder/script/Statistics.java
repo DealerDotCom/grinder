@@ -651,10 +651,7 @@ public interface Statistics  {
    * </p>
    *
    * @param displayName
-   *          A display name. In the console, this is converted to a key for an
-   *          internationalised resource bundle look up by prefixing the string
-   *          with <code>statistic.</code> and replacing any whitespace with
-   *          underscores.
+   *          A display name.
    * @param expression
    *          The expression string.
    * @throws GrinderException
