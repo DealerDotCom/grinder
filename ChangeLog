@@ -1,9 +1,25 @@
+2006-05-06  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, TODO, examples/jmsreceiver.py:
+	Update documentation for changes to the script statistics API.
+
+	* src/net/grinder/script/Statistics.java:
+	Display name not relevent for data log expressions.
+
+	* src/net/grinder/script/Statistics.java: Javadoc.
+
+2006-05-02  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/script/Statistics.java: Fix @see.
+
+	* ChangeLog: *** empty log message ***
+
 2006-05-01  Philip Aston  <philipa@mail.com>
 
 	* .project: PyDev.
 
 	* src/net/grinder/script/Statistics.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java, tests-src/net/grinder/engine/process/TestThreadDataWriter.java, CHANGES, build.xml, src/net/grinder/console/Console.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsView.java, tests-src/net/grinder/console/messages/TestConsoleMessages.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, src/net/grinder/console/messages/RegisterExpressionViewMessage.java, src/net/grinder/console/messages/RegisterStatisticsViewMessage.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/Console_it.properties, src/net/grinder/console/swingui/resources/Console_pl.properties, src/net/grinder/console/swingui/resources/Console_ru.properties, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java:
-	Replace ScriptContex.registerSummaryStatisticsView() and
+	Replace ScriptContext.registerSummaryStatisticsView() and
 	ScriptContext.registerDetailStatisticsView() methods with
 	Statistics.registerSummaryExpression() and
 	Statistics.registerDataLogExpression().
