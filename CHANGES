@@ -29,9 +29,9 @@ The Grinder 3.0-beta30
   tests introduced in the last beta.
 
   The grinder.recordTime property has been replaced by a new
-  grinder.reportTimesToConsole property. The difference between the two
-  is that test times are now always recorded in the worker process data
-  log.
+  grinder.reportTimesToConsole property. Test times are now always
+  recorded in the worker process data log, irrespective of the value
+  of grinder.reportTimesToConsole.
 
 
 The Grinder 3.0-beta29

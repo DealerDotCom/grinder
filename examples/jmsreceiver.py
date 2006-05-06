@@ -12,7 +12,7 @@
 # This script demonstrates the use of The Grinder statistics API to
 # record a "delivery time" custom statistic.
 #
-# Copyright (C) 2003, 2004, 2005 Philip Aston
+# Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
 # Copyright (C) 2005 Dietrich Bollmann
 # Distributed under the terms of The Grinder license.
 
@@ -22,11 +22,10 @@ from javax.jms import MessageListener, Session
 from javax.naming import Context, InitialContext
 from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
-from net.grinder.statistics import ExpressionView, StatisticsIndexMap, StatisticsView
 from threading import Condition
 from weblogic.jndi import WLInitialContextFactory
 
-# Look up connection factory and queue in JNDI. 
+# Look up connection factory and queue in JNDI.
 properties = Properties()
 properties[Context.PROVIDER_URL] = "t3://localhost:7001"
 properties[Context.INITIAL_CONTEXT_FACTORY] = WLInitialContextFactory.name
@@ -41,31 +40,21 @@ initialContext.close()
 connection = connectionFactory.createQueueConnection()
 connection.start()
 
-# Use userLong0 statistic to represent the "delivery time".
-deliveryTimeIndex = StatisticsIndexMap.getInstance().getLongIndex("userLong0")
-
-# Add two statistics views:
+# Add two statistics expressions:
 # 1. Delivery time:- the mean time taken between the server sending
-# the message and the receiver receiving the message.
-# 2. Mean delivery time:- the delivery time averaged over all
-# tests.
+#    the message and the receiver receiving the message.
+# 2. Mean delivery time:- the delivery time averaged over all tests.
+# We use the userLong0 statistic to represent the "delivery time".
 
-detailView = StatisticsView()
-detailView.add(ExpressionView("Delivery time", "", "userLong0"))
-	    
-summaryView = StatisticsView()
-summaryView.add(ExpressionView(
-    "Mean delivery time",
-    "statistic.deliveryTime",
-    "(/ userLong0(+ timedTests untimedTests))"))
-	    
-grinder.registerDetailStatisticsView(detailView)
-grinder.registerSummaryStatisticsView(summaryView)
+grinder.statistics.registerDataLogExpression("Delivery time", "userLong0")
+grinder.statistics.registerSummaryExpression(
+              "Mean delivery time",
+                        "(/ userLong0(+ timedTests untimedTests))")
 
 # We record each message receipt against a single test. The
 # test time is meaningless.
 def recordDeliveryTime(deliveryTime):
-    grinder.statistics.setValue(deliveryTimeIndex, deliveryTime)
+    grinder.statistics.setValue("userLong0", deliveryTime)
 
 recordTest = Test(1, "Receive messages").wrap(recordDeliveryTime)
 
@@ -87,7 +76,7 @@ class TestRunner(MessageListener):
         # Read 10 messages from the queue.
         for i in range(0, 10):
 
-            # Wait until we have received a message.            
+            # Wait until we have received a message.
             self.cv.acquire()
             while not self.messageQueue: self.cv.wait()
             # Pop delivery time from first message in message queue
@@ -118,6 +107,6 @@ class TestRunner(MessageListener):
         deliveryTime = System.currentTimeMillis() - message.getJMSTimestamp()
 
         self.messageQueue.append(deliveryTime)
-        
+
         self.cv.notifyAll()
         self.cv.release()
