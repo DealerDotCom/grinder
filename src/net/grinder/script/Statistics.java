@@ -353,7 +353,7 @@ import net.grinder.common.GrinderException;
  * finishes as described above.
  * </p>
  *
- * <h2>Registering new views</h2>
+ * <h2>Registering new expressions</h2>
  *
  * New statistics expressions for the console and the data log can be registered
  * using {@link #registerSummaryExpression(String, String)} and
