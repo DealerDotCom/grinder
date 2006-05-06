@@ -1,5 +1,7 @@
 2006-05-06  Philip Aston  <philipa@mail.com>
 
+	* The Grinder 3.0-beta30 is released.
+
 	* CHANGES, TODO, examples/jmsreceiver.py:
 	Update documentation for changes to the script statistics API.
 
