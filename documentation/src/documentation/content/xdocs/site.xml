@@ -79,6 +79,7 @@ See http://forrest.apache.org/docs/linking.html for more info
           <string-bean href="#string-bean"/>
       </http-plugin>
     </plugins>
+    <statistics label ="Statistics" href="statistics.html"/>
     <scripts label="Scripts">
       <scripts-intro label="Introduction" href="scripts.html">
          <jython-installation href="#jython-installation"/>

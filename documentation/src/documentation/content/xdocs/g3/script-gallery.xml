@@ -62,7 +62,7 @@ logWrapper = test1.wrap(log)
 # A TestRunner instance is created for each thread. It can be used to
 # store thread-specific data.
 class TestRunner:
-    
+
     # This method is called for every run.
     def __call__(self):
         logWrapper("Hello World")
@@ -165,7 +165,7 @@ class TestRunner:
             HTTPRequest(url="http://localhost:7001/console"))
 
         result = request.GET()
-       
+
         result = maybeAuthenticate(result)
 
         result = request.GET()
@@ -184,7 +184,7 @@ def maybeAuthenticate(lastResult):
 
         request = authenticationTest.wrap(
             HTTPRequest(url="%s/j_security_check" % lastResult.originalURI))
-            
+
         return request.POST(authenticationFormData)
 </source>
 
@@ -213,7 +213,7 @@ class MyCookiePolicyHandler(CookiePolicyHandler):
     def acceptCookie(self, cookie, request, response):
         log("accept cookie: %s" % cookie)
         return 1
-        
+
     def sendCookie(self, cookie, request):
         log("send cookie: %s" % cookie)
         return 1
@@ -221,7 +221,7 @@ class MyCookiePolicyHandler(CookiePolicyHandler):
 CookieModule.setCookiePolicyHandler(MyCookiePolicyHandler())
 
 test1 = Test(1, "Request resource")
-request1 = test1.wrap(HTTPRequest())   
+request1 = test1.wrap(HTTPRequest())
 
 class TestRunner:
     def __call__(self):
@@ -287,7 +287,7 @@ from weblogic.jndi import WLInitialContextFactory
 tests = {
     "home" : Test(1, "TraderHome"),
     "trade" : Test(2, "Trader buy/sell"),
-    "query" : Test(3, "Trader getBalance"),   
+    "query" : Test(3, "Trader getBalance"),
     }
 
 # Initial context lookup for EJB home.
@@ -302,7 +302,7 @@ random = Random()
 class TestRunner:
     def __call__(self):
         log = grinder.logger.output
-        
+
         trader = homeTest.create()
 
         tradeTest = tests["trade"].wrap(trader)
@@ -317,7 +317,7 @@ class TestRunner:
         stocksToBuy = { "BEAS" : abs(random.nextInt()) % 1000 }
         for stock, amount in stocksToBuy.items():
             tradeResult = tradeTest.buy("Phil", stock, amount)
-            log("Result of tradeTest.buy(): %s" % tradeResult)            
+            log("Result of tradeTest.buy(): %s" % tradeResult)
 
         queryTest = tests["query"].wrap(trader)
         balance = queryTest.getBalance()
@@ -374,16 +374,16 @@ statement.execute("create table grinder_fun(thread number, run number)")
 
 ensureClosed(statement)
 ensureClosed(connection)
-    
+
 class TestRunner:
     def __call__(self):
         connection = None
         statement = None
 
         try:
-	    connection = getConnection()
-	    statement = connection.createStatement()
-            
+      connection = getConnection()
+      statement = connection.createStatement()
+
             testInsert = test1.wrap(statement)
             testInsert.execute("insert into grinder_fun values(%d, %d)" %
                                (grinder.threadID, grinder.runNumber))
@@ -392,9 +392,9 @@ class TestRunner:
             testQuery.execute("select * from grinder_fun where thread=%d" %
                               grinder.threadID)
 
-	finally:
+  finally:
             ensureClosed(statement)
-	    ensureClosed(connection)
+      ensureClosed(connection)
 </source>
 
   </section>
@@ -427,13 +427,13 @@ from org.xml.sax import InputSource
 
 bookDetailsTest = Test(1, "Get book details from Amazon")
 parser = javadom.XercesDomImplementation()
-        
+
 class TestRunner:
     def __call__(self):
         if grinder.runNumber > 0 or grinder.threadID > 0:
             raise RuntimeError("Use limited to one thread, one run; "
                                "see Amazon Web Services terms and conditions")
-        
+
         request = bookDetailsTest.wrap(
             HTTPRequest(url="http://xml.amazon.com/onca/xml"))
 
@@ -445,14 +445,14 @@ class TestRunner:
             NVPair("type", "heavy"),
             NVPair("AsinSearch", "1904284000"),
             )
-        
+
         bytes = request.POST(parameters).inputStream
 
         # Parse results
         document = parser.buildDocumentUrl(InputSource(bytes))
 
         result = {}
-        
+
         for details in document.getElementsByTagName("Details"):
             for detailName in ("ProductName", "SalesRank", "ListPrice"):
                 result[detailName] = details.getElementsByTagName(
@@ -565,7 +565,7 @@ def TestRunner():
 
 <source>
 # A script that demonstrates how the various parts of a script and
-# their effects on worker threads. 
+# their effects on worker threads.
 
 # The "top level" of the script is called once for each worker
 # process. Perform any one-off initialisation here. For example,
@@ -584,7 +584,7 @@ class TestRunner:
     # There's a runsForThread variable for each worker thread. This
     # statement specifies a class-wide initial value.
     runsForThread = 0
-    
+
     # The __init__ method is called once for each thread.
     def __init__(self):
         # There's an initialisationTime variable for each worker thread.
@@ -608,7 +608,7 @@ class TestRunner:
         grinder.logger.output(
             "runsForThread=%d, totalNumberOfRuns=%d, initialisationTime=%d" %
             (self.runsForThread, totalNumberOfRuns, self.initialisationTime))
-        
+
         # You can also vary behaviour based on thread ID.
         if grinder.threadID % 2 == 0:
             grinder.logger.output("I have an even thread ID.")
@@ -645,7 +645,7 @@ class TestRunner:
         result = request1.GET("http://localhost:7001/")
         grinder.logger.output("The last test took %d milliseconds" % statistics.time)
 
-        
+
         # Example 2. Normally test results are reported automatically
         # when the test returns. If you want to alter the statistics
         # after a test has completed, you must set delayReports = 1 to
@@ -696,7 +696,7 @@ from javax.jms import Session
 from javax.naming import Context, InitialContext
 from weblogic.jndi import WLInitialContextFactory
 
-# Look up connection factory and queue in JNDI. 
+# Look up connection factory and queue in JNDI.
 properties = Properties()
 properties[Context.PROVIDER_URL] = "t3://localhost:7001"
 properties[Context.INITIAL_CONTEXT_FACTORY] = WLInitialContextFactory.name
@@ -762,7 +762,7 @@ class TestRunner:
 # This script demonstrates the use of The Grinder statistics API to
 # record a "delivery time" custom statistic.
 #
-# Copyright (C) 2003, 2004, 2005 Philip Aston
+# Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
 # Copyright (C) 2005 Dietrich Bollmann
 # Distributed under the terms of The Grinder license.
 
@@ -772,11 +772,10 @@ from javax.jms import MessageListener, Session
 from javax.naming import Context, InitialContext
 from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
-from net.grinder.statistics import ExpressionView, StatisticsIndexMap, StatisticsView
 from threading import Condition
 from weblogic.jndi import WLInitialContextFactory
 
-# Look up connection factory and queue in JNDI. 
+# Look up connection factory and queue in JNDI.
 properties = Properties()
 properties[Context.PROVIDER_URL] = "t3://localhost:7001"
 properties[Context.INITIAL_CONTEXT_FACTORY] = WLInitialContextFactory.name
@@ -791,31 +790,21 @@ initialContext.close()
 connection = connectionFactory.createQueueConnection()
 connection.start()
 
-# Use userLong0 statistic to represent the "delivery time".
-deliveryTimeIndex = StatisticsIndexMap.getInstance().getLongIndex("userLong0")
-
-# Add two statistics views:
+# Add two statistics expressions:
 # 1. Delivery time:- the mean time taken between the server sending
-# the message and the receiver receiving the message.
-# 2. Mean delivery time:- the delivery time averaged over all
-# tests.
+#    the message and the receiver receiving the message.
+# 2. Mean delivery time:- the delivery time averaged over all tests.
+# We use the userLong0 statistic to represent the "delivery time".
 
-detailView = StatisticsView()
-detailView.add(ExpressionView("Delivery time", "", "userLong0"))
-	    
-summaryView = StatisticsView()
-summaryView.add(ExpressionView(
-    "Mean delivery time",
-    "statistic.deliveryTime",
-    "(/ userLong0(+ timedTests untimedTests))"))
-	    
-grinder.registerDetailStatisticsView(detailView)
-grinder.registerSummaryStatisticsView(summaryView)
+grinder.statistics.registerDataLogExpression("Delivery time", "userLong0")
+grinder.statistics.registerSummaryExpression(
+              "Mean delivery time",
+              "(/ userLong0(+ timedTests untimedTests))")
 
 # We record each message receipt against a single test. The
 # test time is meaningless.
 def recordDeliveryTime(deliveryTime):
-    grinder.statistics.setValue(deliveryTimeIndex, deliveryTime)
+    grinder.statistics.setValue("userLong0", deliveryTime)
 
 recordTest = Test(1, "Receive messages").wrap(recordDeliveryTime)
 
@@ -837,7 +826,7 @@ class TestRunner(MessageListener):
         # Read 10 messages from the queue.
         for i in range(0, 10):
 
-            # Wait until we have received a message.            
+            # Wait until we have received a message.
             self.cv.acquire()
             while not self.messageQueue: self.cv.wait()
             # Pop delivery time from first message in message queue
@@ -868,7 +857,7 @@ class TestRunner(MessageListener):
         deliveryTime = System.currentTimeMillis() - message.getJMSTimestamp()
 
         self.messageQueue.append(deliveryTime)
-        
+
         self.cv.notifyAll()
         self.cv.release()
 </source>
@@ -951,7 +940,7 @@ emailSendTest1 = Test(1, "Email Send Engine")
 class TestRunner:
     def __call__(self):
         smtpHost = "mailhost"
-        
+
         properties = System.getProperties()
         properties["mail.smtp.host"] = smtpHost
         session = Session.getInstance(System.getProperties())
@@ -1007,7 +996,7 @@ def createTestRunner(module):
 class TestRunner:
     def __init__(self):
         self.testRunners = [createTestRunner(m) for m in scripts.values()]
-    
+
     # This method is called for every run.
     def __call__(self):
         for testRunner in self.testRunners: testRunner()
@@ -1043,7 +1032,7 @@ class TestRunner:
             self.testRunner = createTestRunner(scripts[2])
         else:
             self.testRunner = createTestRunner(scripts[0])
-    
+
     # This method is called for every run.
     def __call__(self):
         self.testRunner()
