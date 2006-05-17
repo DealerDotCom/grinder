@@ -21,6 +21,7 @@
 
 package net.grinder.communication;
 
+import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -200,6 +201,46 @@ public class TestResourcePool extends TestCase {
           resourcePool.reserveAll();
         }
       }.getException().getClass());
+  }
+
+  public void testReserveAllMultiThreaded() throws Exception {
+    final ResourcePool resourcePool = new ResourcePool();
+
+    resourcePool.add(new MyResource());
+    resourcePool.add(new MyResource());
+    resourcePool.add(new MyResource());
+    resourcePool.add(new MyResource());
+    resourcePool.add(new MyResource());
+
+    class ReserveAll implements Runnable {
+      public void run() {
+        for (int i=0; i<100; ++i) {
+          final List list = resourcePool.reserveAll();
+
+          assertEquals(5, list.size());
+
+          final Iterator iterator = list.iterator();
+
+          while (iterator.hasNext()) {
+            ((ResourcePool.Reservation)iterator.next()).free();
+          }
+        }
+      }
+    }
+
+    final Thread[] threads = new Thread[30];
+
+    for (int i=0; i<threads.length; ++i) {
+      threads[i] = new Thread(new ReserveAll());
+    }
+
+    for (int i=0; i<threads.length; ++i) {
+      threads[i].start();
+    }
+
+    for (int i=0; i<threads.length; ++i) {
+      threads[i].join();
+    }
   }
 
   public void testClose() throws Exception {

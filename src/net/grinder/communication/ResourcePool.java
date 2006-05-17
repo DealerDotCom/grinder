@@ -45,6 +45,7 @@ final class ResourcePool {
 
   private final Object m_reservableListMutex = new Object();
   private final Object m_reservableMutex = new Object();
+  private final Object m_reserveAllMutex = new Object();
   private List m_reservables = new ArrayList();
   private int m_lastReservable = 0;
   private int m_nextPurge = 0;
@@ -121,52 +122,57 @@ final class ResourcePool {
    */
   public List reserveAll() {
 
-    final List result;
-    final List reserveList;
+    // Only one thread gets to reserveAll at a time. Otherwise two threads
+    // calling this can deadlock each other. See bug #1199086.
+    synchronized (m_reserveAllMutex) {
 
-    synchronized (m_reservableListMutex) {
-      purgeZombieResources();
+      final List result;
+      final List reserveList;
 
-      result = new ArrayList(m_reservables.size());
-      reserveList = new ArrayList(m_reservables);
-    }
+      synchronized (m_reservableListMutex) {
+        purgeZombieResources();
 
-    while (reserveList.size() > 0) {
-      // Iterate backwards so remove is cheap.
-      final ListIterator iterator =
-        reserveList.listIterator(reserveList.size());
+        result = new ArrayList(m_reservables.size());
+        reserveList = new ArrayList(m_reservables);
+      }
 
-      while (iterator.hasPrevious()) {
-        final Reservable reservable = (Reservable)iterator.previous();
+      while (reserveList.size() > 0) {
+        // Iterate backwards so remove is cheap.
+        final ListIterator iterator =
+          reserveList.listIterator(reserveList.size());
 
-        if (reservable.isSentinel()) {
-          iterator.remove();
+        while (iterator.hasPrevious()) {
+          final Reservable reservable = (Reservable)iterator.previous();
+
+          if (reservable.isSentinel()) {
+            iterator.remove();
+          }
+          else if (reservable.reserve()) {
+            result.add(reservable);
+            iterator.remove();
+          }
+          else if (reservable.isClosed()) {
+            iterator.remove();
+          }
         }
-        else if (reservable.reserve()) {
-          result.add(reservable);
-          iterator.remove();
-        }
-        else if (reservable.isClosed()) {
-          iterator.remove();
+
+        if (reserveList.size() > 0) {
+          // Block until more resources are freed.
+          synchronized (m_reservableMutex) {
+            try {
+              // Don't block for ever because the outstanding
+              // resources might have already been freed.
+              m_reservableMutex.wait(1000);
+            }
+            catch (InterruptedException e) {
+              throw new UncheckedInterruptedException(e);
+            }
+          }
         }
       }
 
-      if (reserveList.size() > 0) {
-        // Block until more resources are freed.
-        synchronized (m_reservableMutex) {
-          try {
-            // Don't block for ever because the outstanding
-            // resources might have already been freed.
-            m_reservableMutex.wait(1000);
-          }
-          catch (InterruptedException e) {
-            throw new UncheckedInterruptedException(e);
-          }
-        }
-      }
+      return result;
     }
-
-    return result;
   }
 
   /**

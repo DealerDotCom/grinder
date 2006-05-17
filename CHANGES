@@ -1,3 +1,10 @@
+The Grinder 3.0-beta31
+----------------------
+
+  Fix bug 1199086 - Distribution to multiple agents hangs. Thanks to
+  capwin@sourceforge.net for analysing the problem.
+
+
 The Grinder 3.0-beta30
 ----------------------
 
