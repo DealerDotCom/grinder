@@ -87,6 +87,8 @@ final class RegisteredPlugin implements PluginProcessContext {
 
       m_threadListenerThreadLocal.set(newPluginThreadListener);
 
+      threadContext.registerThreadLifeCycleListener(newPluginThreadListener);
+
       return newPluginThreadListener;
     }
     catch (PluginException e) {
