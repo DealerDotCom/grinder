@@ -4,6 +4,9 @@ The Grinder 3.0-beta31
   Fix bug 1199086 - Distribution to multiple agents hangs. Thanks to
   capwin@sourceforge.net for analysing the problem.
 
+  Fix bug 1495428 - Plugin thread context not correctly registered for
+  events.
+
 
 The Grinder 3.0-beta30
 ----------------------

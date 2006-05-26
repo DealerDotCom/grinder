@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,6 @@
 package net.grinder.engine.process;
 
 import junit.framework.TestCase;
-
-import java.util.List;
 
 import net.grinder.common.Logger;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -106,37 +104,5 @@ public class TestPluginRegistryImplementation extends TestCase {
 
     grinderPluginStubFactory.assertNoMoreCalls();
     loggerStubFactory.assertNoMoreCalls();
-  }
-
-  public void testGetPluginThreadListenerList() throws Exception {
-    final RandomStubFactory loggerStubFactory =
-      new RandomStubFactory(Logger.class);
-    final Logger logger = (Logger)loggerStubFactory.getStub();
-
-    final PluginRegistryImplementation pluginRegistryImplementation =
-      new PluginRegistryImplementation(logger, null, null, null);
-
-    final RandomStubFactory threadContextStubFactory =
-      new RandomStubFactory(ThreadContext.class);
-    final ThreadContext threadContext =
-      (ThreadContext)threadContextStubFactory.getStub();
-
-    final List list1 =
-      pluginRegistryImplementation.getPluginThreadListeners(threadContext);
-
-    assertEquals(0, list1.size());
-
-    final RandomStubFactory grinderPluginStubFactory1 =
-      new RandomStubFactory(GrinderPlugin.class);
-    final GrinderPlugin grinderPlugin1 =
-      (GrinderPlugin)grinderPluginStubFactory1.getStub();
-
-    final RandomStubFactory grinderPluginStubFactory2 =
-      new RandomStubFactory(GrinderPlugin.class);
-    final GrinderPlugin grinderPlugin2 =
-      (GrinderPlugin)grinderPluginStubFactory2.getStub();
-
-    pluginRegistryImplementation.register(grinderPlugin1);
-    pluginRegistryImplementation.register(grinderPlugin2);
   }
 }

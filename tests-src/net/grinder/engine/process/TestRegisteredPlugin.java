@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,7 @@ package net.grinder.engine.process;
 
 import junit.framework.TestCase;
 
+import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
@@ -131,11 +132,13 @@ public class TestRegisteredPlugin extends TestCase {
       registeredPlugin.getPluginThreadListener();
 
     grinderPluginStubFactory.assertSuccess(
-      "createThreadListener", new Class[] { PluginThreadContext.class });
+      "createThreadListener", PluginThreadContext.class);
 
     final PluginThreadListener pluginThreadListener2 =
       registeredPlugin.getPluginThreadListener();
 
+    threadContextStubFactory.assertSuccess(
+      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
     threadContextStubFactory.assertNoMoreCalls();
     grinderPluginStubFactory.assertNoMoreCalls();
 
@@ -145,6 +148,8 @@ public class TestRegisteredPlugin extends TestCase {
       registeredPlugin.getPluginThreadListener(threadContext);
 
     assertSame(pluginThreadListener1, pluginThreadListener3);
+
+    threadContextStubFactory.assertNoMoreCalls();
   }
 
   /**

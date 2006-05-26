@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2002 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,10 +21,7 @@
 
 package net.grinder.engine.process;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import net.grinder.common.Logger;
@@ -92,25 +89,6 @@ public final class PluginRegistryImplementation extends PluginRegistry {
         m_plugins.put(plugin, registeredPlugin);
         m_logger.output("registered plug-in " + plugin.getClass().getName());
       }
-    }
-  }
-
-  List getPluginThreadListeners(ThreadContext threadContext)
-    throws EngineException {
-    synchronized (m_plugins) {
-      final List result = new ArrayList(m_plugins.size());
-
-      final Iterator iterator = m_plugins.values().iterator();
-
-      while (iterator.hasNext()) {
-        final RegisteredPlugin registeredPlugin =
-          (RegisteredPlugin)iterator.next();
-
-        result.add(
-          registeredPlugin.getPluginThreadListener(threadContext));
-      }
-
-      return result;
     }
   }
 }
