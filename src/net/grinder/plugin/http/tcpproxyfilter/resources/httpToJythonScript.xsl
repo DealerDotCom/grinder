@@ -543,7 +543,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>request</xsl:text>
     <xsl:apply-templates select="../.." mode="generate-test-number"/>
-    <xsl:text>.__target__.data'</xsl:text>
+    <xsl:text>.__target__.data</xsl:text>
     <xsl:value-of select="helper:changeIndent(-1)"/>
 
  </xsl:template>

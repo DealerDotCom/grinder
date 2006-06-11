@@ -7,6 +7,9 @@ The Grinder 3.0-beta31
   Fix bug 1495428 - Plugin thread context not correctly registered for
   events.
 
+  Fix HTTPPlugin TCPProxy filter to remove extraneous quote from
+  reference to POST data files.
+
 
 The Grinder 3.0-beta30
 ----------------------
