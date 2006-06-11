@@ -8,7 +8,8 @@ The Grinder 3.0-beta31
   events.
 
   Fix HTTPPlugin TCPProxy filter to remove extraneous quote from
-  reference to POST data files.
+  reference to POST data files. Thanks to Saurabh Sehgal for the
+  report.
 
 
 The Grinder 3.0-beta30
