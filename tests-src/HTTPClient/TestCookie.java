@@ -89,6 +89,11 @@ public class TestCookie extends TestCase {
     Cookie.parse("foo=bah;expires=", m_roRequest);
   }
 
+  public void testDotNetHttpOnlyNonsense() throws Exception {
+    Cookie.parse(".ASPXANONYMOUS=AcbBC8KU9yE3MmQyMDA1Ni0wZDlmLTQ0MjktYWI2NS0zMTUwOGQwZmZhNTk1; expires=Wed, 16-Aug-2006 04:12:47 GMT; path=/;HttpOnly, language=en-US; path=/;HttpOnly",
+      m_roRequest);
+  }
+
   public static final class RoRequestStubFactory extends RandomStubFactory {
     private String m_host = "host";
     private String m_requestURI = "/path/sub;blah=blah";

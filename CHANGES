@@ -11,6 +11,9 @@ The Grinder 3.0-beta31
   reference to POST data files. Thanks to Saurabh Sehgal for the
   report.
 
+  Relax cookie parsing to cope with .NET nonsense. Requested and
+  prototyped by John S. White.
+
 
 The Grinder 3.0-beta30
 ----------------------

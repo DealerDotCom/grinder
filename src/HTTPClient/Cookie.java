@@ -153,6 +153,23 @@ public class Cookie implements Serializable
         int    beg = 0,
                end = 0,
          start = 0;
+
+        /** ++GRINDER MODIFICATION **/
+        // Cope with .NET nonsense.
+        // See http://www.hanselman.com/blog/HttpOnlyCookiesOnASPNET11.aspx
+        if (set_cookie.indexOf("HttpOnly") != -1) {
+          // Typical section of a .NET cookie:
+          //    ... ; path=/;HttpOnly, language=en-US; path=/;HttpOnly
+          //
+          // We remove all instances of "HttpOnly," that follow a semi-colon,
+          // and all instances of HttpOnly following a semi-colon at the end of
+          // the cookie. This leaves something that is more conventional
+          // This shouldn't break any valid cookies.
+          set_cookie = set_cookie.replaceAll(";\\s*HttpOnly,",";");
+          set_cookie = set_cookie.replaceAll(";\\s*HttpOnly$",";");
+        }
+        /** --GRINDER MODIFICATION **/
+
         char[] buf = set_cookie.toCharArray();
         int    len = buf.length;
 
