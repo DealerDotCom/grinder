@@ -3085,12 +3085,19 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
                         }
 
                         if (input_demux.available(null) == 0)
-			    sock_out.write(req.getData()); // he's still waiting
+                          /** GRINDER MODIFICATION++ **/
+			    //sock_out.write(req.getData()); // he's still waiting
+                          writeData(sock_out, req.getData());
+                          /** GRINDER MODIFICATION-- **/
 			else
 			    keep_alive = false;		// Uh oh!
 		    }
 		    else
-			sock_out.write(req.getData());
+            /** GRINDER MODIFICATION++ **/
+			//sock_out.write(req.getData());
+            writeData(sock_out, req.getData());
+            /** GRINDER MODIFICATION-- **/
+            
 		}
 
 		if (req.getStream() != null)
@@ -3214,6 +3221,27 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	return resp;
     }
 
+    /** GRINDER MODIFICATION++ **/
+    private void writeData(OutputStream out, byte[] buffer)
+      throws IOException {
+
+      final BandwidthLimiter bandwidthLimiter =
+        getBandwidthLimiterFactory().create();
+      
+      int position = 0;
+      
+      do {
+        final int bytesToSend =
+          Math.min(buffer.length - position,
+                   bandwidthLimiter.maximumBytes(position));
+        
+        out.write(buffer, position, bytesToSend);
+        
+        position += bytesToSend;
+      }
+      while (position < buffer.length);
+    }
+    /** GRINDER MODIFICATION-- **/
 
     /**
      * Gets a socket. Creates a socket to the proxy if set, or else to the
@@ -3996,4 +4024,68 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    out.write(b, off, len);
 	}
     }
+    
+    /** ++GRINDER MODIFICATION **/
+    /**
+     * Something that can restrict data transfer bandwidth.
+     */
+    public static interface BandwidthLimiter {
+      
+      /**
+       * Return an upper limit on the number of bytes that should be transfered
+       * at this point in time.
+       * 
+       * @param position
+       *          Number of bytes into the current transfer. Starts at 0.
+       * 
+       * @return The maximum number of bytes that should be transfered.
+       */
+      int maximumBytes(int position);
+    }
+    
+    public static interface BandwidthLimiterFactory {
+      BandwidthLimiter create();
+    }
+    
+    private static BandwidthLimiterFactory
+      s_defaultBandwidthLimiterFactory =
+        new DefaultBandwidthLimiterFactory();
+    
+    private BandwidthLimiterFactory m_bandwidthLimiterFactory =
+      s_defaultBandwidthLimiterFactory;
+    
+    public void setBufferGrowthStrategyFactory(BandwidthLimiterFactory f) {
+      if (f == null) {
+        m_bandwidthLimiterFactory = s_defaultBandwidthLimiterFactory;
+      }
+      else {
+        m_bandwidthLimiterFactory = f;
+      }
+    }
+    
+    BandwidthLimiterFactory getBandwidthLimiterFactory() {
+      return m_bandwidthLimiterFactory;
+    }
+    
+    private static final class UnlimitedBandwidthLimiter
+      implements BandwidthLimiter {
+
+      public int maximumBytes(int position) {
+        return Integer.MAX_VALUE;
+      }
+    }
+    
+    private static final class DefaultBandwidthLimiterFactory
+      implements BandwidthLimiterFactory {
+      
+      final BandwidthLimiter m_unlimitedBandwidthLimiter =
+        new UnlimitedBandwidthLimiter();
+
+      public BandwidthLimiter create() {
+        // Stateless, so we can reuse.
+        return m_unlimitedBandwidthLimiter;
+      }
+    }
+    
+    /** --GRINDER MODIFICATION **/
 }

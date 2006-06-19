@@ -29,7 +29,7 @@ import net.grinder.testutility.Time;
 
 
 /**
- * JUnit test case for {@link Sleeper}.
+ * JUnit test case for {@link SleeperImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -44,25 +44,25 @@ public class TestSleeper extends TestCase {
 
   public void testConstruction() throws Exception {
     try {
-      new Sleeper(m_timeAuthority, null, -1, 1);
+      new SleeperImplementation(m_timeAuthority, null, -1, 1);
       fail("IllegalArgumentException expected");
     }
     catch (IllegalArgumentException e) {
     }
 
     try {
-      new Sleeper(m_timeAuthority, null, 1, -1);
+      new SleeperImplementation(m_timeAuthority, null, 1, -1);
       fail("IllegalArgumentException expected");
     }
     catch (IllegalArgumentException e) {
     }
 
-    new Sleeper(m_timeAuthority, null, 1, 1);
+    new SleeperImplementation(m_timeAuthority, null, 1, 1);
   }
 
   public void testSleepNormal() throws Exception {
     // Warm up Hot Spot.
-    final Sleeper sleep0 = new Sleeper(m_timeAuthority, null, 1, 0);
+    final Sleeper sleep0 = new SleeperImplementation(m_timeAuthority, null, 1, 0);
 
     Time time0 = new Time(0, 1000) {
         public void doIt() throws Exception { sleep0.sleepNormal(10); }
@@ -71,7 +71,7 @@ public class TestSleeper extends TestCase {
     for (int i=0; i<10; i++) { time0.run(); }
 
     // Now do the tests.
-    final Sleeper sleep1 = new Sleeper(m_timeAuthority, null, 1, 0);
+    final Sleeper sleep1 = new SleeperImplementation(m_timeAuthority, null, 1, 0);
 
     assertTrue(
       new Time(50, 70) {
@@ -83,14 +83,14 @@ public class TestSleeper extends TestCase {
         public void doIt() throws Exception  { sleep1.sleepNormal(0); }
       }.run());
 
-    final Sleeper sleep2 = new Sleeper(m_timeAuthority, null, 2, 0);
+    final Sleeper sleep2 = new SleeperImplementation(m_timeAuthority, null, 2, 0);
 
     assertTrue(
       new Time(100, 120) {
         public void doIt() throws Exception  { sleep2.sleepNormal(50); }
       }.run());
 
-    final Sleeper sleep3 = new Sleeper(m_timeAuthority, null, 1, 0.1);
+    final Sleeper sleep3 = new SleeperImplementation(m_timeAuthority, null, 1, 0.1);
 
     final Time time = new Time(40, 60) {
         public void doIt() throws Exception { sleep3.sleepNormal(50);}
@@ -108,7 +108,7 @@ public class TestSleeper extends TestCase {
 
   public void testSleepFlat() throws Exception {
     // Warm up Hot Spot.
-    final Sleeper sleep0 = new Sleeper(m_timeAuthority, null, 1, 0);
+    final Sleeper sleep0 = new SleeperImplementation(m_timeAuthority, null, 1, 0);
 
     Time time0 = new Time(0, 1000) {
         public void doIt() throws Exception { sleep0.sleepFlat(10); }
@@ -117,7 +117,7 @@ public class TestSleeper extends TestCase {
     for (int i=0; i<10; i++) { time0.run(); }
 
     // Now do the tests.
-    final Sleeper sleep1 = new Sleeper(m_timeAuthority, null, 1, 0);
+    final Sleeper sleep1 = new SleeperImplementation(m_timeAuthority, null, 1, 0);
 
     assertTrue(
       new Time(0, 70) {
@@ -129,7 +129,7 @@ public class TestSleeper extends TestCase {
         public void doIt() throws Exception  { sleep1.sleepFlat(0); }
       }.run());
 
-    final Sleeper sleep2 = new Sleeper(m_timeAuthority, null, 2, 0);
+    final Sleeper sleep2 = new SleeperImplementation(m_timeAuthority, null, 2, 0);
 
     assertTrue(
       new Time(0, 120) {
@@ -140,7 +140,7 @@ public class TestSleeper extends TestCase {
       new RandomStubFactory(Logger.class);
     final Logger logger = (Logger)loggerStubFactory.getStub();
 
-    final Sleeper sleep3 = new Sleeper(m_timeAuthority, logger, 1, 0);
+    final Sleeper sleep3 = new SleeperImplementation(m_timeAuthority, logger, 1, 0);
     sleep3.sleepFlat(10);
     loggerStubFactory.assertSuccess("output", String.class);
     loggerStubFactory.assertNoMoreCalls();
@@ -163,7 +163,7 @@ public class TestSleeper extends TestCase {
       t1.getSleeper().sleepFlat(10);
       fail("Expected ShutdownException");
     }
-    catch (Sleeper.ShutdownException e) {
+    catch (SleeperImplementation.ShutdownException e) {
     }
   }
 
@@ -177,28 +177,28 @@ public class TestSleeper extends TestCase {
           t1.start();
           t2.start();
           Thread.sleep(500);
-          Sleeper.shutdownAllCurrentSleepers();
+          SleeperImplementation.shutdownAllCurrentSleepers();
           t1.join();
           t2.join();
         }
       }.run());
 
     // No-op.
-    Sleeper.shutdownAllCurrentSleepers();
+    SleeperImplementation.shutdownAllCurrentSleepers();
   }
 
   private final class TakeFifty extends Thread {
     private final Sleeper m_sleeper;
 
     public TakeFifty() throws Sleeper.ShutdownException {
-      m_sleeper = new Sleeper(m_timeAuthority, null, 1, 0);
+      m_sleeper = new SleeperImplementation(m_timeAuthority, null, 1, 0);
     }
 
     public final void run() {
       try {
         m_sleeper.sleepNormal(50000);
       }
-      catch (Sleeper.ShutdownException e) {
+      catch (SleeperImplementation.ShutdownException e) {
       }
     }
 

@@ -14,6 +14,9 @@ The Grinder 3.0-beta31
   Relax cookie parsing to cope with .NET nonsense. Requested and
   prototyped by John S. White.
 
+  Fulfil Feature Request 1482811 - slow socket connections. Requested
+  by Travis Bear. See HTTPPluginConnection.setBandwidthLimit().
+
 
 The Grinder 3.0-beta30
 ----------------------

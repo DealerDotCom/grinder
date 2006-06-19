@@ -19,27 +19,34 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.util;
+package HTTPClient;
+
+import HTTPClient.HTTPConnection.BandwidthLimiter;
+import HTTPClient.HTTPConnection.BandwidthLimiterFactory;
+import junit.framework.TestCase;
+
 
 /**
- * Something that knows the time.
- *
+ * Unit tests for our default {@link HTTPConnection.BandwidthLimiter}
+ * implementation.
+ * 
  * @author Philip Aston
  * @version $Revision$
  */
-public interface TimeAuthority {
-
-  /**
-   * Return the current time in milliseconds.
-   *
-   * <p>
-   * This is an abstraction over {@link System#currentTimeMillis()} and the J2SE
-   * 5 <code>System.nanoTime()</code> method.
-   * </p>
-   *
-   * @return The time. The base time is arbitrary but constant for a given
-   *         TimeAuthority, in a similar fashion to that of
-   *         <code>nanoTime</code>.
-   */
-  long getTimeInMilliseconds();
+public class TestDefaultBandwidthLimiter extends TestCase {
+  
+  public void testBandwithLimiter() throws Exception {
+    final HTTPConnection connection = new HTTPConnection("foo");
+    final BandwidthLimiterFactory bandwidthLimiterFactory =
+      connection.getBandwidthLimiterFactory();
+    
+    final BandwidthLimiter bandwidthLimiter =
+      bandwidthLimiterFactory.create();
+    
+    assertEquals(Integer.MAX_VALUE, bandwidthLimiter.maximumBytes(0));
+    assertEquals(Integer.MAX_VALUE, bandwidthLimiter.maximumBytes(100));
+    assertEquals(Integer.MAX_VALUE,
+                 bandwidthLimiter.maximumBytes(Integer.MAX_VALUE));
+    assertEquals(Integer.MAX_VALUE, bandwidthLimiter.maximumBytes(0));
+  }
 }

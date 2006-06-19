@@ -45,6 +45,7 @@ import java.util.Date;
 import java.util.Enumeration;
 
 
+
 /**
  * This defines the http-response class returned by the requests. It's
  * basically a wrapper around the Response class which first lets all
@@ -900,103 +901,136 @@ public class HTTPResponse implements HTTPClientModuleConstants
     /**
      * Reads the response data received. Does not return until either
      * Content-Length bytes have been read or EOF is reached.
-     *
-     * @inp       the input stream from which to read the data
+     * 
+     * @inp the input stream from which to read the data
      * @exception IOException if any read on the input stream fails
      */
     private void readResponseData(InputStream inp)
 	    throws IOException, ModuleException
     {
-	/** ++GRINDER MODIFICATION **/
-      // if (ContentLength == 0)
-      // return;
-	/** --GRINDER MODIFICATION **/
+    /** ++GRINDER MODIFICATION * */
+    // if (ContentLength == 0)
+    // return;
+    /** --GRINDER MODIFICATION * */
 
-	if (Data == null)
-	    Data = new byte[0];
+    if (Data == null)
+      Data = new byte[0];
 
-	/** ++GRINDER MODIFICATION **/
-        if (ContentLength == 0)
-          return;
-	/** --GRINDER MODIFICATION **/
+    /** ++GRINDER MODIFICATION * */
+    if (ContentLength == 0)
+      return;
+    /** --GRINDER MODIFICATION * */
 
-	// read response data
+    // read response data
+    int off = Data.length;
 
-	int off = Data.length;
+    try {
+      /** ++GRINDER MODIFICATION * */
+      // // check Content-length header in case CE-Module removed it
+      // if (getHeader("Content-Length") != null)
+      // {
+      // int rcvd = 0;
+      // Data = new byte[ContentLength];
+      //
+      // do
+      // {
+      // off += rcvd;
+      // rcvd = inp.read(Data, off, ContentLength-off);
+      // } while (rcvd != -1 && off+rcvd < ContentLength);
+      //
+      // /* Don't do this!
+      // * If we do, then getData() won't work after a getInputStream()
+      // * because we'll never get all the expected data. Instead, let
+      // * the underlying RespInputStream throw the EOF.
+      // if (rcvd == -1) // premature EOF
+      // {
+      // throw new EOFException("Encountered premature EOF while " +
+      // "reading headers: received " + off +
+      // " bytes instead of the expected " +
+      // ContentLength + " bytes");
+      // }
+      // */
+      // }
+      // else
+      // {
+      // int inc = 1000,
+      // rcvd = 0;
+      //
+      // do
+      // {
+      // off += rcvd;
+      // Data = Util.resizeArray(Data, off+inc);
+      // } while ((rcvd = inp.read(Data, off, inc)) != -1);
+      //
+      // Data = Util.resizeArray(Data, off);
+      // }
+      
+      final HTTPConnection.BandwidthLimiterFactory
+        bandwidthLimiterFactory =
+          request.getConnection().getBandwidthLimiterFactory();
 
-	try
+      final HTTPConnection.BandwidthLimiter bandwidthLimiter =
+        bandwidthLimiterFactory.create();
+      
+      final boolean fixedSize;
+
+      // Check Content-length header in case CE-Module removed it.
+      if (getHeader("Content-Length") != null) {
+        // As per the original code, we don't raise problems about unexpected
+        // EOFs if the available data doesn't match the content length.
+        Data = new byte[ContentLength];
+        fixedSize = true;
+      }
+      else {
+        Data = new byte[1000];
+        fixedSize = false;
+      }
+
+      int rcvd = 0;
+
+      do {
+        off += rcvd;
+
+        if (fixedSize) {
+          if (off >= Data.length) {
+            break;
+          }
+        }
+        else {
+          // Grow exponentially so that the number of copies for an N byte
+          // response is O(ln N). We resize every time we've used at least half
+          // the remaining bytes.
+          if ((Data.length - off) < Data.length / 2) {
+            Data = Util.resizeArray(Data,  Data.length * 2);
+          }
+        }
+        
+        final int maximumBytes =
+          Math.min(Data.length - off, bandwidthLimiter.maximumBytes(off));
+
+        rcvd = inp.read(Data, off, maximumBytes);
+      }
+      while (rcvd != -1);
+
+      if (off < Data.length) {
+        Data = Util.resizeArray(Data, off);
+      }
+
+      /** --GRINDER MODIFICATION * */
+    }
+    catch (IOException ioe)
 	{
-	    // check Content-length header in case CE-Module removed it
-	    if (getHeader("Content-Length") != null)
-	    {
-		int rcvd = 0;
-		Data = new byte[ContentLength];
-
-		do
-		{
-		    off  += rcvd;
-		    rcvd  = inp.read(Data, off, ContentLength-off);
-		} while (rcvd != -1  &&  off+rcvd < ContentLength);
-
-                /* Don't do this!
-		 * If we do, then getData() won't work after a getInputStream()
-		 * because we'll never get all the expected data. Instead, let
-		 * the underlying RespInputStream throw the EOF.
-		if (rcvd == -1)	// premature EOF
-		{
-		    throw new EOFException("Encountered premature EOF while " +
-					    "reading headers: received " + off +
-					    " bytes instead of the expected " +
-					    ContentLength + " bytes");
-		}
-		*/
-	    }
-	    else
-	    {
-		int inc  = 1000,
-		    rcvd = 0;
-
-                /** ++GRINDER MODIFICATION **/
-		// do
-		// {
-		//     off  += rcvd;
-		//     Data  = Util.resizeArray(Data, off+inc);
-		// } while ((rcvd = inp.read(Data, off, inc)) != -1);
-
-		do 
-                {
-		    off += rcvd;
-
-                    // Resize the buffer if it has less that 1000
-                    // bytes spare.
-                    if (Data.length - off < 1000)
-                    {
-                      Data = Util.resizeArray(Data, Data.length + inc);
-
-                      // Grow exponentially so that the number of
-                      // copies for an N byte response is O(ln N).
-                      inc *= 2;
-                    }
-		}
-                while ((rcvd = inp.read(Data, off, Data.length - off)) != -1);
-                /** --GRINDER MODIFICATION **/
-
-		Data = Util.resizeArray(Data, off);
-	    }
-	}
-	catch (IOException ioe)
-	{
-	    Data = Util.resizeArray(Data, off);
-	    throw ioe;
-	}
+      Data = Util.resizeArray(Data, off);
+      throw ioe;
+    }
 	finally
 	{
 	    try
 		{ inp.close(); }
 	    catch (IOException ioe)
 		{ }
-	}
-    }
+      }
+      }
 
 
     int getTimeout()

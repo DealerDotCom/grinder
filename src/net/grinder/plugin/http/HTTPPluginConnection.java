@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
@@ -83,7 +83,6 @@ public interface HTTPPluginConnection {
    * @param useTransferEncoding <code>true</code> => use transfer encoding.
    */
   void setUseTransferEncoding(boolean useTransferEncoding);
-
 
   /**
    * Set whether the HTTPClient Authorization Module is enabled.
@@ -208,4 +207,27 @@ public interface HTTPPluginConnection {
    * resolved.
    */
   void setLocalAddress(String localAddress) throws URLException;
+
+  /**
+   * Artificially limit the bandwidth used by this connection.
+   *
+   * <p>
+   * Only bytes in the HTTP message bodies are taken into account when
+   * interpreting <code>targetBPS</code>. No account is taken of the network
+   * efficiency (e.g. it might take 10 bits on the wire to transmit one byte of
+   * application data), or of the HTTP headers.
+   * </p>
+   *
+   * <p>The limiting is also applied to the bodies of POST requests uploaded to
+   * the server.</p>
+   *
+   * <p>
+   * When bandwidth limiting is applied, the time taken by each HTTP request
+   * will be correspondingly longer.</p>.
+   *
+   * @param targetBPS
+   *          Target bandwidth in bits per second. Set to <code>0</code> to
+   *          disable bandwidth limiting.
+   */
+  void setBandwidthLimit(int targetBPS);
 }

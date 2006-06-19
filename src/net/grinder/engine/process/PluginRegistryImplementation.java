@@ -31,6 +31,7 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.statistics.StatisticsServices;
+import net.grinder.util.TimeAuthority;
 
 
 /**
@@ -47,17 +48,20 @@ public final class PluginRegistryImplementation extends PluginRegistry {
   private final ThreadContextLocator m_threadContextLocator;
   private final StatisticsServices m_statisticsServices;
   private final Map m_plugins = new HashMap();
+  private final TimeAuthority m_timeAuthority;
 
   /**
    * Constructor.
    */
   PluginRegistryImplementation(Logger logger, ScriptContext scriptContext,
                                ThreadContextLocator threadContextLocator,
-                               StatisticsServices statisticsServices) {
+                               StatisticsServices statisticsServices,
+                               TimeAuthority timeAuthority) {
     m_logger = logger;
     m_scriptContext = scriptContext;
     m_threadContextLocator = threadContextLocator;
     m_statisticsServices = statisticsServices;
+    m_timeAuthority = timeAuthority;
 
     setInstance(this);
   }
@@ -75,7 +79,7 @@ public final class PluginRegistryImplementation extends PluginRegistry {
 
         final RegisteredPlugin registeredPlugin =
           new RegisteredPlugin(plugin, m_scriptContext, m_threadContextLocator,
-                               m_statisticsServices);
+                               m_statisticsServices, m_timeAuthority);
 
         try {
           plugin.initialize(registeredPlugin);

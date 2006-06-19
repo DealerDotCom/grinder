@@ -33,6 +33,7 @@ import net.grinder.script.Statistics;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.Time;
 import net.grinder.util.Sleeper;
+import net.grinder.util.SleeperImplementation;
 import net.grinder.util.StandardTimeAuthority;
 
 
@@ -81,7 +82,7 @@ public class TestScriptContextImplementation extends TestCase {
     final Statistics statistics = (Statistics)statisticsStubFactory.getStub();
     m_threadContextStubFactory.setResult("getScriptStatistics", statistics);
 
-    final Sleeper sleeper = new Sleeper(null, logger, 1, 0);
+    final Sleeper sleeper = new SleeperImplementation(null, logger, 1, 0);
 
     final RandomStubFactory sslControlStubFactory =
       new RandomStubFactory(SSLControl.class);
@@ -119,7 +120,7 @@ public class TestScriptContextImplementation extends TestCase {
     final Logger logger = (Logger)loggerStubFactory.getStub();
 
     final Sleeper sleeper =
-      new Sleeper(new StandardTimeAuthority(), logger, 1, 0);
+      new SleeperImplementation(new StandardTimeAuthority(), logger, 1, 0);
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(

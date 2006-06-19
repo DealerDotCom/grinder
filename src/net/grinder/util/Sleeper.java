@@ -1,10 +1,5 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2006 Philip Aston
 // All rights reserved.
-//
-// This file is part of The Grinder software distribution. Refer to
-// the file LICENSE which is part of The Grinder distribution for
-// licensing details. The Grinder distribution is available on the
-// Internet at http://grinder.sourceforge.net/
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -21,95 +16,23 @@
 
 package net.grinder.util;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
- * Manage sleeping.
- *
- * <p>Several threads can safely use the same <code>Sleeper</code>.
- * </p>
+ * Something that can sleep.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class Sleeper {
-
-  private static Random s_random = new Random();
-  private static List s_allSleepers = new ArrayList();
-
-  private final TimeAuthority m_timeAuthority;
-  private final double m_factor;
-  private final double m_limit9975Factor;
-  private final Logger m_logger;
-
-  private boolean m_shutdown = false;
-
-  /**
-   * The constructor.
-   *
-   * @param timeAuthority An authority on the current time.
-   * @param logger A logger to chat to. Pass <code>null</code> for no chat.
-   * @param factor All sleep times are modified by this factor.
-   * @param limit9975Factor See {@link #sleepNormal}.
-   */
-  public Sleeper(TimeAuthority timeAuthority,
-                 Logger logger,
-                 double factor,
-                 double limit9975Factor) {
-
-    if (factor < 0d || limit9975Factor < 0d) {
-      throw new IllegalArgumentException("Factors must be positive");
-    }
-
-    synchronized (Sleeper.class) {
-      s_allSleepers.add(new WeakReference(this));
-    }
-
-    m_timeAuthority  = timeAuthority;
-    m_factor = factor;
-    m_limit9975Factor = limit9975Factor;
-    m_logger = logger;
-  }
-
-  /**
-   * Shutdown all Sleepers that are currently constructed.
-   */
-  public static synchronized void shutdownAllCurrentSleepers() {
-
-    final Iterator iterator = s_allSleepers.iterator();
-
-    while (iterator.hasNext()) {
-      final WeakReference reference = (WeakReference)iterator.next();
-
-      final Sleeper sleeper = (Sleeper)reference.get();
-
-      if (sleeper != null) {
-        sleeper.shutdown();
-      }
-    }
-
-    s_allSleepers.clear();
-  }
+public interface Sleeper extends TimeAuthority {
 
   /**
    * Shutdown this <code>Sleeper</code>. Once called, all sleep
    * method invocations will throw {@link ShutdownException},
    * including those already sleeping.
    */
-  public synchronized void shutdown() {
-
-    m_shutdown = true;
-    notifyAll();
-  }
+  void shutdown();
 
   /**
    * Sleep for a time based on the meanTime parameter. The actual
@@ -120,10 +43,7 @@ public final class Sleeper {
    * @param meanTime Mean time.
    * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
    */
-  public void sleepNormal(long meanTime) throws ShutdownException {
-
-    sleepNormal(meanTime, (long)((meanTime * m_limit9975Factor) / 3.0));
-  }
+  void sleepNormal(long meanTime) throws ShutdownException;
 
   /**
    * Sleep for a random time drawn from a pseudo normal distribution.
@@ -132,19 +52,7 @@ public final class Sleeper {
    * @param sigma Standard deviation.
    * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
    */
-  public void sleepNormal(long meanTime, long sigma) throws ShutdownException {
-
-    checkShutdown();
-
-    if (meanTime > 0) {
-      if (sigma > 0) {
-        doSleep(meanTime + (long)(s_random.nextGaussian() * sigma));
-      }
-      else {
-        doSleep(meanTime);
-      }
-    }
-  }
+  void sleepNormal(long meanTime, long sigma) throws ShutdownException;
 
   /**
    * Sleep for a time based on the maximumTime parameter. The actual
@@ -154,55 +62,13 @@ public final class Sleeper {
    * @param maximumTime Maximum time.
    * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
    */
-  public void sleepFlat(long maximumTime) throws ShutdownException {
-    checkShutdown();
-
-    if (maximumTime > 0) {
-      doSleep(Math.abs(s_random.nextLong()) % maximumTime);
-    }
-  }
-
-  private void doSleep(long time) throws ShutdownException {
-
-    if (time > 0) {
-      final long factoredTime = (long)(time * m_factor);
-
-      if (m_logger != null) {
-        m_logger.output("sleeping for " + factoredTime + " ms");
-      }
-
-      long currentTime = m_timeAuthority.getTimeInMilliseconds();
-      final long wakeUpTime = currentTime + factoredTime;
-
-      while (currentTime < wakeUpTime) {
-        try {
-          synchronized (this) {
-            checkShutdown();
-            wait(wakeUpTime - currentTime);
-          }
-        }
-        catch (InterruptedException e) {
-          throw new UncheckedInterruptedException(e);
-        }
-
-        currentTime = m_timeAuthority.getTimeInMilliseconds();
-      }
-    }
-  }
-
-  private void checkShutdown() throws ShutdownException {
-
-    if (m_shutdown) {
-      throw new ShutdownException("Shut down");
-    }
-  }
+  void sleepFlat(long maximumTime) throws ShutdownException;
 
   /**
    * Exception used to indicate that a Sleeper has been shutdown.
    */
   public static final class ShutdownException extends GrinderException {
-
-    private ShutdownException(String message) {
+    ShutdownException(String message) {
       super(message);
     }
   }

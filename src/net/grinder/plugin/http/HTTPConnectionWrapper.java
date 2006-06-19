@@ -26,6 +26,8 @@ package net.grinder.plugin.http;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import net.grinder.util.Sleeper;
+
 import HTTPClient.CookieModule;
 import HTTPClient.HTTPConnection;
 import HTTPClient.NVPair;
@@ -48,6 +50,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
   private static final Class s_transferEncodingModule;
 
   private final HTTPConnection m_httpConnection;
+  private final Sleeper m_slowClientSleeper;
 
   static {
     // Load HTTPClient modules dynamically as we don't have public
@@ -66,9 +69,11 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
   }
 
   public HTTPConnectionWrapper(HTTPConnection httpConnection,
-                               HTTPPluginConnectionDefaults defaults) {
+                               HTTPPluginConnectionDefaults defaults,
+                               Sleeper slowClientSleeper) {
 
     m_httpConnection = httpConnection;
+    m_slowClientSleeper = slowClientSleeper;
     m_httpConnection.setAllowUserInteraction(false);
 
     synchronized (defaults) {
@@ -83,6 +88,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
         defaults.getVerifyServerDistinguishedName());
       setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
       setLocalAddress(defaults.getLocalAddress());
+      setBandwidthLimit(defaults.getBandwidthLimit());
     }
   }
 
@@ -165,6 +171,17 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
 
   private void setLocalAddress(InetAddress localAddress) {
     m_httpConnection.setLocalAddress(localAddress, 0);
+  }
+
+  public void setBandwidthLimit(int targetBPS) {
+    if (targetBPS < 1) {
+      m_httpConnection.setBufferGrowthStrategyFactory(null);
+    }
+    else {
+      m_httpConnection.setBufferGrowthStrategyFactory(
+        new SlowClientBandwidthLimiterFactory(m_slowClientSleeper,
+                                                  targetBPS));
+    }
   }
 }
 

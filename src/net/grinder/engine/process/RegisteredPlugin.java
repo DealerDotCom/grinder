@@ -29,6 +29,7 @@ import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.statistics.StatisticsServices;
+import net.grinder.util.TimeAuthority;
 
 
 /**
@@ -44,14 +45,17 @@ final class RegisteredPlugin implements PluginProcessContext {
   private final ThreadContextLocator m_threadContextLocator;
   private final StatisticsServices m_statisticsServices;
   private final ThreadLocal m_threadListenerThreadLocal = new ThreadLocal();
+  private final TimeAuthority m_timeAuthority;
 
   public RegisteredPlugin(GrinderPlugin plugin, ScriptContext scriptContext,
                           ThreadContextLocator threadContextLocator,
-                          StatisticsServices statisticsServices) {
+                          StatisticsServices statisticsServices,
+                          TimeAuthority timeAuthority) {
     m_plugin = plugin;
     m_scriptContext = scriptContext;
     m_threadContextLocator = threadContextLocator;
     m_statisticsServices = statisticsServices;
+    m_timeAuthority = timeAuthority;
   }
 
   public ScriptContext getScriptContext() {
@@ -102,5 +106,9 @@ final class RegisteredPlugin implements PluginProcessContext {
 
   public StatisticsServices getStatisticsServices() {
     return m_statisticsServices;
+  }
+
+  public TimeAuthority getTimeAuthority() {
+    return m_timeAuthority;
   }
 }

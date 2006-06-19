@@ -30,6 +30,7 @@ import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.TimeAuthority;
 
 
 /**
@@ -50,15 +51,20 @@ public class TestPluginRegistryImplementation extends TestCase {
     final ScriptContext scriptContext =
       (ScriptContext)scriptContextStubFactory.getStub();
 
+    final RandomStubFactory timeAuthorityStubFactory =
+      new RandomStubFactory(TimeAuthority.class);
+    final TimeAuthority timeAuthority =
+      (TimeAuthority)timeAuthorityStubFactory.getStub();
+    
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
     final PluginRegistry pluginRegistry =
       new PluginRegistryImplementation(
         logger, scriptContext, threadContextLocator,
-        StatisticsServicesImplementation.getInstance());
+        StatisticsServicesImplementation.getInstance(), timeAuthority);
 
-    assertEquals(pluginRegistry, PluginRegistry.getInstance());
+    assertSame(pluginRegistry, PluginRegistry.getInstance());
   }
 
   public void testRegister() throws Exception {
@@ -70,6 +76,11 @@ public class TestPluginRegistryImplementation extends TestCase {
       new RandomStubFactory(ScriptContext.class);
     final ScriptContext scriptContext =
       (ScriptContext)scriptContextStubFactory.getStub();
+    
+    final RandomStubFactory timeAuthorityStubFactory =
+      new RandomStubFactory(TimeAuthority.class);
+    final TimeAuthority timeAuthority =
+      (TimeAuthority)timeAuthorityStubFactory.getStub();
 
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
@@ -77,7 +88,7 @@ public class TestPluginRegistryImplementation extends TestCase {
     final PluginRegistry pluginRegistry =
       new PluginRegistryImplementation(
         logger, scriptContext, threadContextLocator,
-        StatisticsServicesImplementation.getInstance());
+        StatisticsServicesImplementation.getInstance(), timeAuthority);
 
     final RandomStubFactory grinderPluginStubFactory =
       new RandomStubFactory(GrinderPlugin.class);
@@ -93,7 +104,8 @@ public class TestPluginRegistryImplementation extends TestCase {
 
     final RegisteredPlugin registeredPlugin =
       (RegisteredPlugin)callData.getParameters()[0];
-    assertEquals(scriptContext, registeredPlugin.getScriptContext());
+    assertSame(scriptContext, registeredPlugin.getScriptContext());
+    assertSame(timeAuthority, registeredPlugin.getTimeAuthority());
 
     grinderPluginStubFactory.assertNoMoreCalls();
 

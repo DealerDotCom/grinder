@@ -40,6 +40,8 @@ import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.script.Grinder;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.util.Sleeper;
+import net.grinder.util.SleeperImplementation;
 
 
 /**
@@ -80,6 +82,7 @@ public class HTTPPlugin implements GrinderPlugin {
 
   private PluginProcessContext m_pluginProcessContext;
   private SSLContextFactory m_sslContextFactory;
+  private Sleeper m_slowClientSleeper;
 
   final PluginProcessContext getPluginProcessContext() {
     return m_pluginProcessContext;
@@ -100,6 +103,10 @@ public class HTTPPlugin implements GrinderPlugin {
       processContext.getScriptContext();
 
     m_sslContextFactory = scriptContext.getSSLControl();
+
+    m_slowClientSleeper =
+      new SleeperImplementation(
+        m_pluginProcessContext.getTimeAuthority(), null, 1, 0);
 
     // Remove standard HTTPClient modules which we don't want. We load
     // HTTPClient modules dynamically as we don't have public access.
@@ -191,6 +198,8 @@ public class HTTPPlugin implements GrinderPlugin {
   public PluginThreadListener createThreadListener(
     PluginThreadContext threadContext) throws PluginException {
 
-    return new HTTPPluginThreadState(threadContext, m_sslContextFactory);
+    return new HTTPPluginThreadState(threadContext,
+                                     m_sslContextFactory,
+                                     m_slowClientSleeper);
   }
 }

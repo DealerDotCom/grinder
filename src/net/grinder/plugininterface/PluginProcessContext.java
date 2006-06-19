@@ -25,6 +25,7 @@ package net.grinder.plugininterface;
 import net.grinder.common.GrinderException;
 import net.grinder.script.Grinder;
 import net.grinder.statistics.StatisticsServices;
+import net.grinder.util.TimeAuthority;
 
 
 /**
@@ -60,4 +61,11 @@ public interface PluginProcessContext {
    * @return A {@link StatisticsServices}.
    */
   StatisticsServices getStatisticsServices();
+
+  /**
+   * Something that knows the time.
+   *
+   * @return The time authority.
+   */
+  TimeAuthority getTimeAuthority();
 }

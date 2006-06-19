@@ -37,6 +37,7 @@ import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginThreadListener;
+import net.grinder.util.Sleeper;
 
 
 /**
@@ -52,12 +53,15 @@ class HTTPPluginThreadState implements PluginThreadListener {
 
   private Map m_httpConnectionWrappers = new HashMap();
   private HTTPResponse m_lastResponse;
+  private final Sleeper m_slowClientSleeper;
 
   HTTPPluginThreadState(PluginThreadContext threadContext,
-                        SSLContextFactory sslContextFactory)
+                        SSLContextFactory sslContextFactory,
+                        Sleeper slowClientSleeper)
     throws PluginException {
     m_threadContext = threadContext;
     m_sslContextFactory = sslContextFactory;
+    m_slowClientSleeper = slowClientSleeper;
   }
 
   public PluginThreadContext getThreadContext() {
@@ -91,7 +95,9 @@ class HTTPPluginThreadState implements PluginThreadListener {
     }
 
     final HTTPConnectionWrapper newConnectionWrapper =
-      new HTTPConnectionWrapper(httpConnection, connectionDefaults);
+      new HTTPConnectionWrapper(httpConnection,
+                                connectionDefaults,
+                                m_slowClientSleeper);
 
     m_httpConnectionWrappers.put(keyURI, newConnectionWrapper);
 

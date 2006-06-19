@@ -38,6 +38,7 @@ import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.JVM;
 import net.grinder.util.Sleeper;
+import net.grinder.util.SleeperImplementation;
 import net.grinder.util.StandardTimeAuthority;
 import net.grinder.util.TimeAuthority;
 
@@ -116,7 +117,7 @@ final class ProcessContextImplementation implements ProcessContext {
     final FilenameFactory externalFilenameFactory =
       new ExternalFilenameFactory(filenameFactory, m_threadContextLocator);
 
-    m_sleeper = new Sleeper(
+    m_sleeper = new SleeperImplementation(
       m_timeAuthority,
       externalLogger,
       properties.getDouble("grinder.sleepTimeFactor", 1.0d),
@@ -145,7 +146,7 @@ final class ProcessContextImplementation implements ProcessContext {
     m_pluginRegistry =
       new PluginRegistryImplementation(externalLogger, m_scriptContext,
                                        m_threadContextLocator,
-                                       statisticsServices);
+                                       statisticsServices, m_timeAuthority);
 
     m_testRegistry =
       new TestRegistry(m_threadContextLocator,
@@ -225,7 +226,7 @@ final class ProcessContextImplementation implements ProcessContext {
 
   public void shutdown() {
     // Interrupt any sleepers.
-    Sleeper.shutdownAllCurrentSleepers();
+    SleeperImplementation.shutdownAllCurrentSleepers();
 
     // Worker threads poll this before each test execution.
     m_shutdown = true;

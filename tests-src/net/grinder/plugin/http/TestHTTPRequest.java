@@ -67,7 +67,7 @@ public class TestHTTPRequest extends TestCase {
       new RandomStubFactory(SSLContextFactory.class).getStub();
 
     final HTTPPluginThreadState threadState =
-      new HTTPPluginThreadState(threadContext, sslContextFactory);
+      new HTTPPluginThreadState(threadContext, sslContextFactory, null);
 
     m_statisticsStubFactory.setResult("availableForUpdate", Boolean.FALSE);
     final Statistics statistics =

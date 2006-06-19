@@ -51,6 +51,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
   private int m_proxyPort;
   private boolean m_verifyServerDistinguishedName = false;
   private InetAddress m_localAddress;
+  private int m_slowClientTargetBPS;
 
   public void setFollowRedirects(boolean followRedirects) {
     m_followRedirects = followRedirects;
@@ -142,6 +143,14 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 
   InetAddress getLocalAddress() {
     return m_localAddress;
+  }
+
+  public void setBandwidthLimit(int targetBPS) {
+    m_slowClientTargetBPS = targetBPS;
+  }
+
+  int getBandwidthLimit() {
+    return m_slowClientTargetBPS;
   }
 
   private static final HTTPPluginConnectionDefaults

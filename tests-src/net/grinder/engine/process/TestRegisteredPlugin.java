@@ -32,6 +32,7 @@ import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.TimeAuthority;
 
 
 /**
@@ -55,6 +56,11 @@ public class TestRegisteredPlugin extends TestCase {
       new RandomStubFactory(ScriptContext.class);
     final ScriptContext scriptContext =
       (ScriptContext)scriptContextStubFactory.getStub();
+    
+    final RandomStubFactory timeAuthorityStubFactory =
+      new RandomStubFactory(TimeAuthority.class);
+    final TimeAuthority timeAuthority =
+      (TimeAuthority)timeAuthorityStubFactory.getStub();
 
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
@@ -63,9 +69,11 @@ public class TestRegisteredPlugin extends TestCase {
       new RegisteredPlugin(plugin,
                            scriptContext,
                            threadContextLocator,
-                           StatisticsServicesImplementation.getInstance());
+                           StatisticsServicesImplementation.getInstance(),
+                           timeAuthority);
 
-    assertEquals(scriptContext, registeredPlugin.getScriptContext());
+    assertSame(scriptContext, registeredPlugin.getScriptContext());
+    assertSame(timeAuthority, registeredPlugin.getTimeAuthority());
   }
 
   public void testGetPluginThreadListener() throws Exception {
@@ -80,6 +88,11 @@ public class TestRegisteredPlugin extends TestCase {
     final ScriptContext scriptContext =
       (ScriptContext)scriptContextStubFactory.getStub();
 
+    final RandomStubFactory timeAuthorityStubFactory =
+      new RandomStubFactory(TimeAuthority.class);
+    final TimeAuthority timeAuthority =
+      (TimeAuthority)timeAuthorityStubFactory.getStub();
+    
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
@@ -87,7 +100,8 @@ public class TestRegisteredPlugin extends TestCase {
       new RegisteredPlugin(grinderPlugin,
                            scriptContext,
                            threadContextLocator,
-                           StatisticsServicesImplementation.getInstance());
+                           StatisticsServicesImplementation.getInstance(),
+                           timeAuthority);
 
     try {
       registeredPlugin.getPluginThreadListener();
