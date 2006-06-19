@@ -1,3 +1,53 @@
+2006-06-19  Philip Aston  <philipa@mail.com>
+
+	* .settings/org.eclipse.core.resources.prefs, src/net/grinder/util/SleeperImplementation.java, src/net/grinder/util/TimeAuthority.java, tests-src/HTTPClient/TestDefaultBandwidthLimiter.java, src/net/grinder/util/Sleeper.java, CHANGES, etc/slowclient.py, src/net/grinder/engine/process/PluginRegistryImplementation.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java, tests-src/net/grinder/util/TestSleeper.java, src/HTTPClient/HTTPConnection.java, src/HTTPClient/HTTPResponse.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/SlowClientBandwidthLimiterFactory.java, tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/process/TestRegisteredPlugin.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginThreadState.java:
+	Fulfil Feature Request 1482811 - slow socket connections. Requested by Travis Bear.
+
+2006-06-12  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/HTTPClient/Cookie.java, tests-src/HTTPClient/TestCookie.java:
+	Relax cookie parsing to cope with .NET nonsense. Requested and prototyped by John S. White.
+
+2006-06-11  Philip Aston  <philipa@mail.com>
+
+	* CHANGES: Attribution.
+
+	* CHANGES, src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl:
+	Remove erroneous quote in POST data file reference.
+
+2006-05-26  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/engine/process/PluginRegistryImplementation.java, src/net/grinder/engine/process/RegisteredPlugin.java, tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/process/TestRegisteredPlugin.java:
+	Fix bug 1495428 - Plugin thread context not correctly registered for events.
+
+2006-05-22  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/RegisteredPlugin.java:
+	Fix bug: plugin thread listeners were not correctly registered to
+	receive thread events.
+
+2006-05-17  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/communication/ResourcePool.java, tests-src/net/grinder/communication/TestResourcePool.java:
+	Fix bug 1199086 - Distribution to multiple agents hangs. Thanks to
+	capwin@sourceforge.net for analysing the problem.
+
+2006-05-07  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Next is 31.
+
+2006-05-06  Philip Aston  <philipa@mail.com>
+
+	* ChangeLog: *** empty log message ***
+
+	* CHANGES, TODO, examples/jmsreceiver.py:
+	Update documentation for changes to the script statistics API.
+
+	* src/net/grinder/script/Statistics.java:
+	Display name not relevent for data log expressions.
+
+	* src/net/grinder/script/Statistics.java: Javadoc.
+
 2006-05-06  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta30 is released.
