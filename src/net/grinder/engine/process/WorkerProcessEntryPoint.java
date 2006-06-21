@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,10 +41,10 @@ public class WorkerProcessEntryPoint {
    *
    * <p>
    * This is not intended to be used directly; you should always start The
-   * Grinder by starting an agent process. If you'red debugging, you might want
+   * Grinder by starting an agent process. If you're debugging, you might want
    * to use the single threaded mode if you want the worker "process" to be
    * launched in the same JVM as the agent. See the grinder.debug.singleprocess
-   * property
+   * property.
    * </p>
    *
    * @param args
