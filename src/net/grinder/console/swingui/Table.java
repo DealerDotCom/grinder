@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000-2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
@@ -53,6 +54,7 @@ final class Table extends JTable {
   private final TableCellRenderer m_headerRenderer = new MyHeaderRenderer();
   private final Font m_boldFont;
   private final Font m_defaultFont;
+  private final Color m_defaultForeground;
 
   public Table(TableModel tableModel) {
     super(tableModel);
@@ -62,6 +64,7 @@ final class Table extends JTable {
     setDragEnabled(true);
 
     m_defaultFont = m_cellRenderer.getFont();
+    m_defaultForeground = m_cellRenderer.getForeground();
     m_boldFont = m_defaultFont.deriveFont(Font.BOLD);
 
     createDefaultColumnsFromModel();
@@ -86,8 +89,7 @@ final class Table extends JTable {
     final boolean bold = model.isBold(row, column);
 
     if (red | bold) {
-      m_cellRenderer.setForeground(
-        red ? Colours.RED :  m_cellRenderer.getForeground());
+      m_cellRenderer.setForeground(red ? Colours.RED : m_defaultForeground);
       m_cellRenderer.setTheFont(bold ? m_boldFont : m_defaultFont);
 
       return m_cellRenderer;

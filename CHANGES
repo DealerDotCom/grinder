@@ -16,6 +16,9 @@ The Grinder 3.0-beta31
 
   Fulfil Feature Request 1482811 - slow socket connections. Requested
   by Travis Bear. See HTTPPluginConnection.setBandwidthLimit().
+  
+  Fix console bug where the Total line in statistics tables could be
+  incorrectly rendered in red.
 
 
 The Grinder 3.0-beta30
