@@ -40,14 +40,24 @@ final class SlowClientBandwidthLimiterFactory
 
   private final Sleeper m_sleeper;
   private final int m_targetBPS;
-
-  private long m_lastBufferResizeTime;
-  private int m_lastPosition;
-  private int m_sleepTime;
+  private final int m_bufferIncrement;
 
   public SlowClientBandwidthLimiterFactory(Sleeper sleeper, int targetBPS) {
     m_sleeper = sleeper;
     m_targetBPS = targetBPS;
+
+    // We must use a larger buffer increment for higher BPS rates due to the
+    // precision to which we can sleep (maybe ~10ms). Limiting for higher
+    // BPS rates will only apply to large messages, but that's not something
+    // we can help.
+    //
+    // I considered adjusting the buffer increment based on the target baud, or
+    // dynamically based on the measured performance. I discounted this because
+    // there's no obvious algorithm, and its likely to cause non-linear
+    // behaviour due to external influences such as the MTU size. Also, having
+    // the increment too small will increase the work that we have to do within
+    // The Grinder, which might significantly skew timings.
+    m_bufferIncrement = Math.max(100, m_targetBPS / 500);
   }
 
   public BandwidthLimiter create() {
@@ -56,48 +66,50 @@ final class SlowClientBandwidthLimiterFactory
 
   private final class SlowClientBandwidthLimiter implements BandwidthLimiter {
 
-    private static final float DAMPING_FACTOR = 2 / 3f;
+    // Too large and the instantaneous bandwidth varies too much.
+    // Too small and we don't reach the target fast enough.
+    private static final float DAMPING_FACTOR = 0.5f;
 
-    // I considered adjusting the buffer increment based on the target baud, or
-    // dynamically based on the measured performance. I discounted this because
-    // there's no obvious algorithm, and its likely to cause non-linear
-    // behaviour due to external influences such as the MTU size. Also, having
-    // the increment too small will increase the work that we have to do within
-    // The Grinder, which might significantly skew timings. The fixed value of
-    // 100 will split the average HTTP message up into a few chunks.
-    private static final int BUFFER_INCREMENT = 100;
+    private long m_startTime;
+    private int m_sleepTime;
+    private float m_damping;
 
     public int maximumBytes(int position) {
 
       final long now = m_sleeper.getTimeInMilliseconds();
 
-      // If position is 0, we use the last value for sleep time; otherwise
-      // we adjust the sleep time to be closer to the ideal.
-      if (position != 0) {
-        final int timeSinceLastResize = (int)(now - m_lastBufferResizeTime);
+      if (position == 0) {
+        m_startTime = now;
 
+        // Set the initial sleep time to 0 so we start pumping bytes straight
+        // away.
+        m_sleepTime = 0;
+
+        // Set the second sleep time based on the first lot of bytes transfered.
+        // The damping is 2 to account for the initial call.
+        m_damping = 2;
+      }
+      else {
         m_sleepTime +=
-          ((position - m_lastPosition) * 8 * 1000 / m_targetBPS -
-          timeSinceLastResize) * DAMPING_FACTOR;
+          (position * 8 * 1000 / m_targetBPS - (now - m_startTime)) * m_damping;
 
         if (m_sleepTime < 0) {
           m_sleepTime = 0;
         }
-      }
 
-      m_lastPosition = position;
-      m_lastBufferResizeTime = now;
+        m_damping = DAMPING_FACTOR;
+      }
 
       try {
         m_sleeper.sleepNormal(m_sleepTime, 0);
       }
       catch (ShutdownException e) {
-        // Don't propagate exception - the thread will work out its shutdown
+        // Don't propagate exception - the thread will work out it's shutdown
         // soon enough.
       }
 
-      // Allow BUFFER_INCREMENT bytes to be read.
-      return BUFFER_INCREMENT;
+      // Allow m_bufferIncrement bytes to be read.
+      return m_bufferIncrement;
     }
   }
 }
