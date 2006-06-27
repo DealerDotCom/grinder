@@ -1,3 +1,19 @@
+2006-06-27  Philip Aston  <philipa@mail.com>
+
+	* etc/slowclient.py, examples/slowClient.py, src/net/grinder/plugin/http/SlowClientBandwidthLimiterFactory.java:
+	Improved slow client algorithm. Should work better with large buffer sizes.
+
+2006-06-26  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/console/swingui/Table.java:
+	Fix console bug where the Total line in statistics tables could be
+	incorrectly rendered in red.
+
+2006-06-21  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/WorkerProcessEntryPoint.java:
+	Fix Javadoc typo.
+
 2006-06-19  Philip Aston  <philipa@mail.com>
 
 	* .settings/org.eclipse.core.resources.prefs, src/net/grinder/util/SleeperImplementation.java, src/net/grinder/util/TimeAuthority.java, tests-src/HTTPClient/TestDefaultBandwidthLimiter.java, src/net/grinder/util/Sleeper.java, CHANGES, etc/slowclient.py, src/net/grinder/engine/process/PluginRegistryImplementation.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java, tests-src/net/grinder/util/TestSleeper.java, src/HTTPClient/HTTPConnection.java, src/HTTPClient/HTTPResponse.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/SlowClientBandwidthLimiterFactory.java, tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/process/TestRegisteredPlugin.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginThreadState.java:
