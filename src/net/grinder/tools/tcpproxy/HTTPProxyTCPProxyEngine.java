@@ -200,33 +200,17 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // Rewind our buffered stream: easier than maintaining a cursor.
           in.reset();
 
-          final String bufferAsString;
+          final int bytesRead;
 
           if (in.available() > 0) {
-            final int bytesRead = in.read(buffer);
-
-            if (bytesRead == buffer.length) {
-              while (in.available() > 0) {
-                // Drain.
-                in.read(buffer);
-              }
-
-              final HTMLElement message = new HTMLElement();
-              message.addElement("p").addText(
-                "Buffer overflow - failed to match HTTP message after " +
-                buffer.length + " bytes");
-
-              sendHTTPErrorResponse(message, "400 Bad Request",
-                localSocket.getOutputStream());
-
-              break;
-            }
-
-            bufferAsString = new String(buffer, 0, bytesRead, "US-ASCII");
+            bytesRead = in.read(buffer);
           }
           else {
-            bufferAsString = "";
+            bytesRead = 0;
           }
+
+          final String bufferAsString =
+            new String(buffer, 0, bytesRead, "US-ASCII");
 
           if (timeout) {
             // Time out without matching a handler.
@@ -351,6 +335,23 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               out.write(response.toString().getBytes());
               out.flush();
             }
+
+            break;
+          }
+
+          if (bytesRead == buffer.length) {
+            while (in.available() > 0) {
+              // Drain.
+              in.read(buffer);
+            }
+
+            final HTMLElement message = new HTMLElement();
+            message.addElement("p").addText(
+              "Buffer overflow - failed to match HTTP message after " +
+              buffer.length + " bytes");
+
+            sendHTTPErrorResponse(message, "400 Bad Request",
+              localSocket.getOutputStream());
 
             break;
           }
