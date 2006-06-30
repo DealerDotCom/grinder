@@ -165,7 +165,7 @@ public class Cookie implements Serializable
           // and all instances of HttpOnly following a semi-colon at the end of
           // the cookie. This leaves something that is more conventional
           // This shouldn't break any valid cookies.
-          set_cookie = set_cookie.replaceAll(";\\s*HttpOnly,",";");
+          set_cookie = set_cookie.replaceAll(";\\s*HttpOnly,",";,");
           set_cookie = set_cookie.replaceAll(";\\s*HttpOnly$",";");
         }
         /** --GRINDER MODIFICATION **/
