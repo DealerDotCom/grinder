@@ -54,7 +54,7 @@ import net.grinder.util.FileContents;
 
 
 /**
- * Unit test case for {@link ConsoleControlImplementation}.
+ * Unit test case for {@link ConsoleCommunicationImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$

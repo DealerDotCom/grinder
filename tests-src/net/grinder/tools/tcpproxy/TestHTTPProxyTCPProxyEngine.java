@@ -150,7 +150,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
    * @param terminalExpression
    *          The expression, or <code>null</code> to return the first buffer
    *          full.
-   * @return
+   * @return The response.
    * @throws IOException If a IO problem occurs.
    * @throws InterruptedException If we're interrupted.
    */
