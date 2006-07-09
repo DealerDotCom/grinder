@@ -156,11 +156,11 @@ final class Table extends JTable {
           m_textArea.setBackground(header.getBackground());
           m_textArea.setFont(header.getFont());
         }
-      }
 
-      // See Java Bug 4760433.
-      m_textArea.setSize(table.getColumnModel().getColumn(column).getWidth(),
-                         Integer.MAX_VALUE);
+        // See Java Bug 4760433.
+        m_textArea.setSize(table.getColumnModel().getColumn(column).getWidth(),
+                           Integer.MAX_VALUE);
+      }
 
       m_textArea.setText((value == null) ? "" : value.toString());
       m_textArea.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
