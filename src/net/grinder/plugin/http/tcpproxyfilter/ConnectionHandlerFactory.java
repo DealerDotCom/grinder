@@ -20,7 +20,7 @@ import net.grinder.tools.tcpproxy.ConnectionDetails;
 
 
 /**
- * Factory for {@link ConnectionHandlers}.
+ * Factory for {@link ConnectionHandler}s.
  *
  * @author Philip Aston
  * @version $Revision$

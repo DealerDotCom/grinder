@@ -1,4 +1,4 @@
-// Copyright (C)  2005 Philip Aston
+// Copyright (C)  2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -68,19 +68,22 @@ final class OptionalConfirmDialog {
   /**
    * Show a confirmation dialog.
    *
-   * @param message The question to ask.
-   * @param title The dialog title.
-   * @param optionType The option types to present. See {@link
-   * JOptionPane}.
-   * @param askPropertyName The name of a boolean Console property
-   * that is set if the user has chosen not to display the
-   * confirmation.
+   * @param message
+   *          The question to ask.
+   * @param title
+   *          The dialog title.
+   * @param optionType
+   *          The option types to present. See {@link JOptionPane}.
+   * @param askPropertyName
+   *          The name of a boolean Console property that is set if the user has
+   *          chosen not to display the confirmation.
    * @return The chosen option. This is either a value returned from
-   * {@link JOptionPane#showConfirmDialog} or {@link
-   * #DONT_ASK_OPTION}.
-   * @throws PropertyException If the property could not be read or written.
-   * @throws DisplayMessageConsoleException If a problem occured
-   * persisting the property.
+   *         {@link JOptionPane#showConfirmDialog(Component, Object)} or
+   *         {@link #DONT_ASK_OPTION}.
+   * @throws BooleanProperty.PropertyException
+   *           If the property could not be read or written.
+   * @throws DisplayMessageConsoleException
+   *           If a problem occured persisting the property.
    */
   public int show(String message, String title, int optionType,
                   String askPropertyName)

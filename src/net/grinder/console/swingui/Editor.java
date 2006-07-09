@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -258,9 +258,9 @@ final class Editor {
     public CustomJEditTextArea(TextAreaDefaults textAreaDefaults) {
       super(textAreaDefaults);
 
-      final TextAreaPainter painter = getPainter();
-      m_enabledBackground = painter.getBackground();
-      m_enabledCaretColour = painter.getCaretColor();
+      final TextAreaPainter thePainter = getPainter();
+      m_enabledBackground = thePainter.getBackground();
+      m_enabledCaretColour = thePainter.getCaretColor();
     }
 
     public Dimension getPreferredSize() {
@@ -276,7 +276,7 @@ final class Editor {
 
       setEditable(b);
 
-      final TextAreaPainter painter = getPainter();
+      final TextAreaPainter thePainter = getPainter();
 
       // JEditTextArea has a MouseListener that calls requestFocus
       // without checking isRequestFocusEnabled, so there is no way to
@@ -284,9 +284,9 @@ final class Editor {
       // We can't use setCaretVisible(false) to make the caret
       // invisible as it is set true by the JEditTextArea focus
       // handler. Paint it invisibly instead.
-      painter.setCaretColor(b ? m_enabledCaretColour : Colours.GREY);
-      painter.setBackground(b ? m_enabledBackground : Colours.GREY);
-      painter.setLineHighlightEnabled(b);
+      thePainter.setCaretColor(b ? m_enabledCaretColour : Colours.GREY);
+      thePainter.setBackground(b ? m_enabledBackground : Colours.GREY);
+      thePainter.setLineHighlightEnabled(b);
 
       if (!b) {
         transferFocus();

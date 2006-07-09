@@ -34,8 +34,8 @@ import java.util.TreeSet;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.script.Statistics#registerDetailStatisticsView
- * @see net.grinder.script.Statistics#registerSummaryStatisticsView
+ * @see net.grinder.script.Statistics#registerDataLogExpression
+ * @see net.grinder.script.Statistics#registerSummaryExpression
  */
 public final class StatisticsView {
 

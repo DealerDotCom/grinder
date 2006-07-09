@@ -23,7 +23,7 @@ import net.grinder.util.URIParser;
 
 
 /**
- * Factory for {@link ConnectionHandlers}.
+ * Factory for {@link ConnectionHandler}s.
  *
  * @author Philip Aston
  * @version $Revision$

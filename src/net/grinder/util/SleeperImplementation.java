@@ -58,7 +58,7 @@ public final class SleeperImplementation implements Sleeper {
    * @param timeAuthority An authority on the current time.
    * @param logger A logger to chat to. Pass <code>null</code> for no chat.
    * @param factor All sleep times are modified by this factor.
-   * @param limit9975Factor See {@link #sleepNormal}.
+   * @param limit9975Factor See {@link #sleepNormal(long)}.
    */
   public SleeperImplementation(TimeAuthority timeAuthority,
                                Logger logger,

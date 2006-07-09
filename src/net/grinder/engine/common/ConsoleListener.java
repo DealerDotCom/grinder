@@ -40,7 +40,6 @@ import net.grinder.util.thread.Monitor;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.engine.process.GrinderProcess
  */
 public final class ConsoleListener {
 

@@ -168,8 +168,8 @@ public final class XSLTHelper {
    * Return an appropriately indent string.
    *
    * @return The string.
-   * @see #incrementIndent()
-   * @see #decrementIndent()
+   * @see #changeIndent
+   * @see #resetIndent
    */
   public static String indent() {
     return "                ".substring(0, s_indentLevel * 2);
@@ -185,7 +185,7 @@ public final class XSLTHelper {
   }
 
   /**
-   * Equivalent to {@link #newLine()} followed by {@link #indent()).
+   * Equivalent to {@link #newLine()} followed by {@link #indent()}.
    *
    * @return The string.
    */

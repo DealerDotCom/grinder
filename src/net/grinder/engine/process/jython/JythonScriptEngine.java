@@ -196,18 +196,23 @@ public final class JythonScriptEngine implements ScriptEngine {
    * alter the <code>_is</code> implementation of wrapped objects) so we can't
    * do anything nice about this.
    * </p>
-   *
-   * @param test
-   *          The test.
-   * @param pyDispatcher
-   *          The proxy should use this to dispatch the work.
-   * @param o
-   *          Object to wrap.
-   * @return The instrumented proxy.
-   * @throws NotWrappableTypeException
-   *           If the target cannot be wrapped.
    */
   class PyInstrumentedProxyFactory {
+
+    /**
+     * See {@link PyInstrumentedProxyFactory}.
+     *
+     *
+     * @param test
+     *          The test.
+     * @param pyDispatcher
+     *          The proxy should use this to dispatch the work.
+     * @param o
+     *          Object to wrap.
+     * @return The instrumented proxy.
+     * @throws NotWrappableTypeException
+     *           If the target cannot be wrapped.
+     */
     public PyObject instrumentObject(Test test,
                                      PyDispatcher pyDispatcher,
                                      Object o)

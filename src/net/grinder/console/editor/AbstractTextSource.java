@@ -41,7 +41,7 @@ public abstract class AbstractTextSource implements TextSource {
 
   /**
    * Return whether the text has changed since the last call to {@link
-   * #getText} or {@link #setText}.
+   * TextSource#getText} or {@link TextSource#setText}.
    *
    * @return <code>true</code> => the text has changed.
    */

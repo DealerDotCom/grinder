@@ -173,11 +173,13 @@ final class GrinderProcess {
    *
    * <p>
    * This method is interruptible, in the same sense as
-   * {@link InterruptibleRunnable#interruptibleRun()}. We don't implement
-   * that method because we want to be able to throw exceptions.</p>
+   * {@link net.grinder.util.thread.InterruptibleRunnable#interruptibleRun()}.
+   * We don't implement that method because we want to be able to throw
+   * exceptions.
+   * </p>
    *
-   * @return Exit status to be indicated to parent process.
-   * @throws GrinderException If something went wrong.
+   * @throws GrinderException
+   *           If something went wrong.
    */
   public void run() throws GrinderException {
     final Logger logger = m_context.getProcessLogger();

@@ -45,7 +45,6 @@ public interface HTTPRecording {
    *          The HTTP method.
    * @param relativeURI
    *          The URI.
-   * @param relativeURI
    * @return The request.
    */
   RequestType addRequest(

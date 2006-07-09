@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -65,8 +65,8 @@ import net.grinder.common.SSLContextFactory;
  *
  * <ul>
  * <li>{@link #setKeyManagers}</li>
- * <li>{@link #setKeyStore}</li>
- * <li>{@link #setKeyStoreFile}</li>
+ * <li>{@link #setKeyStore(InputStream, String)}</li>
+ * <li>{@link #setKeyStoreFile(String, String)}</li>
  * </ul>
  *
  * <p>Each of these methods creates a new SSL context when called. (They
@@ -96,7 +96,7 @@ public interface SSLControl extends SSLContextFactory {
    * @exception InvalidContextException If called from a non-worker
    * thread.
    * @see #setKeyStore(InputStream, String, String)
-   * @see #setKeyStoreFile
+   * @see #setKeyStoreFile(String, String)
    */
   void setKeyManagers(KeyManager[] keyManagers) throws InvalidContextException;
 
@@ -116,7 +116,7 @@ public interface SSLControl extends SSLContextFactory {
    * thread.
    * @exception IOException If key store could not be read.
    * @see #setKeyManagers
-   * @see #setKeyStoreFile
+   * @see #setKeyStoreFile(String, String)
    */
   void setKeyStoreFile(String keyStoreFileName, String password,
                        String keyStoreType)
@@ -154,7 +154,7 @@ public interface SSLControl extends SSLContextFactory {
    * thread.
    * @exception IOException If key store could not be read.
    * @see #setKeyManagers
-   * @see #setKeyStoreFile
+   * @see #setKeyStoreFile(String, String)
    */
   void setKeyStore(InputStream keyStoreInputStream,
                    String password,
