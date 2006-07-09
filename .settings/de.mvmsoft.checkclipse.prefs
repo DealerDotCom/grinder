@@ -1,7 +1,8 @@
-#Sat Oct 08 11:21:27 BST 2005
+#Sun Jul 09 15:20:33 BST 2006
 filenames.properties=/The Grinder/etc/checkstyle.properties
 filenames.suppression=/The Grinder/etc/checkstyle-suppressions.xml
 enabled=true
-projectclassloader=false
+file_filter=in\:\\.java$\nin\:\\.properties$\nex\:tests-src/.*\nex\:src/HTTPClient/.*\nex\:src/org/.*\n
+projectclassloader=true
 filenames.config=/The Grinder/etc/checkstyle.xml
 filenames.filter=/The Grinder/etc/checkstyle.filters
