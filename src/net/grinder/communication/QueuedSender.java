@@ -43,7 +43,7 @@ public interface QueuedSender extends Sender {
    * @param message A {@link Message}.
    * @exception CommunicationException If an error occurs.
    * @see #flush
-   * @see #send
+   * @see Sender#send
    **/
   void queue(Message message) throws CommunicationException;
 }
