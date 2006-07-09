@@ -483,11 +483,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
     }
   }
 
-  /**
-   * add a comment.
-   *
-   * @return void
-   */
   private void addComment(PrintWriter out, String version) {
     out.println("#");
     out.println("# The Grinder version " + version);
@@ -513,7 +508,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
     final String[] result = new String[st.countTokens()];
     int i = 0;
     while (st.hasMoreTokens()) {
-      String value = st.nextToken();
+      final String value = st.nextToken();
       if (value.trim().length() > 0) {
         result[i] = value;
         i++;
@@ -526,7 +521,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
    * display a debug information.
    *
    * @param message message to display
-   * @return void
    */
   private void debug(String message) {
     if ("on".equals(s_debug)) {
@@ -829,7 +823,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
      * display a warning information.
      *
      * @param message message to display
-     * @return void
      */
     private void warn(String message) {
       m_out.println("# WARNING: " + message);
@@ -840,7 +833,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
      * display a debug information.
      *
      * @param message message to display
-     * @return void
      */
     private void debug(String message) {
       if ("on".equals(s_debug)) {
@@ -1354,7 +1346,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
    *
    * @param resultBuffer buffer
    * @param indentLevel number of indentations
-   * @return void
    */
   private void appendNewLineAndIndent(StringBuffer resultBuffer,
                                       int indentLevel) {
@@ -1400,7 +1391,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter, Disposable {
    * @param resultBuffer buffer
    * @param pair couple (name, value) to add
    * @param handleSessionId Session id.
-   * @return void
    */
   private void appendNVPair(StringBuffer resultBuffer, NVPair pair,
     boolean handleSessionId) {
