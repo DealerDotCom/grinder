@@ -29,7 +29,6 @@ import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.grinder.common.AgentIdentity;
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
@@ -137,8 +136,7 @@ public final class Agent {
           }
 
           try {
-            m_consoleCommunication =
-              new ConsoleCommunication(connector, m_agentIdentity);
+            m_consoleCommunication = new ConsoleCommunication(connector);
             lastConnector = connector;
           }
           catch (CommunicationException e) {
@@ -403,16 +401,13 @@ public final class Agent {
   private final class ConsoleCommunication {
     private final ClientReceiver m_receiver;
     private final ClientSender m_sender;
-    private final AgentIdentity m_agentIdentity;
     private final TimerTask m_reportRunningTask;
 
-    public ConsoleCommunication(Connector connector,
-                                AgentIdentity agentIdentity)
+    public ConsoleCommunication(Connector connector)
         throws CommunicationException, FileStore.FileStoreException {
 
       m_receiver = ClientReceiver.connect(connector);
       m_sender = ClientSender.connect(m_receiver);
-      m_agentIdentity = agentIdentity;
 
       m_sender.send(
         new AgentProcessReportMessage(
