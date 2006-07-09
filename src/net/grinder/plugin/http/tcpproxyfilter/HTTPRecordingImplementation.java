@@ -145,7 +145,6 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
    *          The HTTP method.
    * @param relativeURI
    *          The URI.
-   * @param relativeURI
    * @return The request.
    */
   public RequestType addRequest(
@@ -537,7 +536,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
                 request.isSetBody() ||
                 !(m_resourcePathPattern.matcher(request.getUri().getUnparsed())
                      .matches() ||
-                  lastResponseWasRedirect)) {
+                  lastResponseWasRedirect) ||
+                currentPage == null) {
               currentPage = httpRecording.addNewPage();
             }
 
