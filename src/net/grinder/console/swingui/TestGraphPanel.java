@@ -71,11 +71,12 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 
   TestGraphPanel(JComponent parentComponent,
                  Model model,
+                 Resources resources,
                  SwingDispatcherFactory swingDispatcherFactory) {
 
     m_parentComponent = parentComponent;
     m_model = model;
-    m_resources = model.getResources();
+    m_resources = resources;
     m_swingDispatcherFactory = swingDispatcherFactory;
 
     m_testLabel = m_resources.getString("graph.test.label") + " ";

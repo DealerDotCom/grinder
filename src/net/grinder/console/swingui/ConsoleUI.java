@@ -126,6 +126,7 @@ public final class ConsoleUI implements ModelListener {
   private final ProcessControl m_processControl;
   private final FileDistribution m_fileDistribution;
   private final EditorModel m_editorModel;
+  private final Resources m_resources;
 
   private final JFrame m_frame;
   private final JLabel m_stateLabel;
@@ -151,25 +152,25 @@ public final class ConsoleUI implements ModelListener {
    * @param model The console model.
    * @param processControl ProcessReport control.
    * @param fileDistribution File distribution.
+   * @param resources Resources.
    * @exception ConsoleException if an error occurs
    */
   public ConsoleUI(Model model,
                    ProcessControl processControl,
-                   FileDistribution fileDistribution)
+                   FileDistribution fileDistribution,
+                   Resources resources)
     throws ConsoleException {
 
     m_model = model;
     m_processControl = processControl;
     m_fileDistribution = fileDistribution;
-
-    final Resources resources = m_model.getResources();
+    m_resources = resources;
 
     // Create the frame to contain the a menu and the top level pane.
-    // Need to do this before our actions are constructed as we use
-    // the frame to create dialogs.
-    m_frame = new JFrame(resources.getString("title"));
+    // Do before actions are constructed as we use the frame to create dialogs.
+    m_frame = new JFrame(m_resources.getString("title"));
 
-    m_errorHandler = new ErrorDialogHandler(m_frame, resources);
+    m_errorHandler = new ErrorDialogHandler(m_frame, m_resources);
 
     final SwingDispatcherFactory swingDispatcherFactory =
       new SwingDispatcherFactory(m_errorHandler);
@@ -180,22 +181,22 @@ public final class ConsoleUI implements ModelListener {
 
     m_errorHandler.registerWithLookAndFeel(m_lookAndFeel);
 
-    m_editorModel = new EditorModel(resources,
+    m_editorModel = new EditorModel(m_resources,
                                     new Editor.TextSourceFactory(),
                                     m_fileDistribution.getAgentCacheState(),
                                     m_fileDistribution);
 
     m_optionalConfirmDialog =
-      new OptionalConfirmDialog(m_frame, resources, m_model.getProperties());
+      new OptionalConfirmDialog(m_frame, m_resources, m_model.getProperties());
 
-    m_stateIgnoringString = resources.getString("state.ignoring.label") + ' ';
-    m_stateWaitingString = resources.getString("state.waiting.label");
-    m_stateStoppedString = resources.getString("state.stopped.label");
+    m_stateIgnoringString = m_resources.getString("state.ignoring.label") + ' ';
+    m_stateWaitingString = m_resources.getString("state.waiting.label");
+    m_stateStoppedString = m_resources.getString("state.stopped.label");
     m_stateStoppedAndIgnoringString =
-      resources.getString("state.stoppedAndIgnoring.label") + ' ';
+      m_resources.getString("state.stoppedAndIgnoring.label") + ' ';
     m_stateCapturingString =
-      resources.getString("state.capturing.label") + ' ';
-    m_stateUnknownString = resources.getString("state.unknown.label");
+      m_resources.getString("state.capturing.label") + ' ';
+    m_stateUnknownString = m_resources.getString("state.unknown.label");
 
     m_closeFileAction = new CloseFileAction();
     m_exitAction = new ExitAction();
@@ -209,7 +210,7 @@ public final class ConsoleUI implements ModelListener {
     m_actionTable.add(m_stopAction);
     m_actionTable.add(m_saveFileAsAction);
 
-    m_actionTable.add(new AboutAction(resources.getImageIcon("logo.image")));
+    m_actionTable.add(new AboutAction(m_resources.getImageIcon("logo.image")));
     m_actionTable.add(new ChooseDirectoryAction());
     m_actionTable.add(new StartProcessesAction());
     m_actionTable.add(new DistributeFilesAction());
@@ -221,7 +222,7 @@ public final class ConsoleUI implements ModelListener {
     m_actionTable.add(new StopProcessesAction());
 
     m_stateLabel = new JLabel();
-    m_samplingControlPanel = new SamplingControlPanel(resources);
+    m_samplingControlPanel = new SamplingControlPanel(m_resources);
 
     final JPanel controlAndTotalPanel = createControlAndTotalPanel();
 
@@ -235,7 +236,10 @@ public final class ConsoleUI implements ModelListener {
       BorderFactory.createEmptyBorder(3, 3, 3, 3);
 
     final TestGraphPanel graphPanel =
-      new TestGraphPanel(tabbedPane, model, swingDispatcherFactory);
+      new TestGraphPanel(tabbedPane,
+                         m_model,
+                         m_resources,
+                         swingDispatcherFactory);
     graphPanel.resetTestsAndStatisticsViews(); // Show logo.
 
     final JScrollPane graphTabPane =
@@ -245,22 +249,23 @@ public final class ConsoleUI implements ModelListener {
 
     graphTabPane.setBorder(BorderFactory.createEmptyBorder());
 
-    tabbedPane.addTab(resources.getString("graphTab.title"),
-                      resources.getImageIcon("graphTab.image"),
+    tabbedPane.addTab(m_resources.getString("graphTab.title"),
+                      m_resources.getImageIcon("graphTab.image"),
                       graphTabPane,
-                      resources.getString("graphTab.tip"));
+                      m_resources.getString("graphTab.tip"));
 
     final Font tabLabelFont =
       new JLabel().getFont().deriveFont(Font.PLAIN | Font.ITALIC);
 
-    m_cumulativeTableModel = new CumulativeStatisticsTableModel(model);
+    m_cumulativeTableModel =
+      new CumulativeStatisticsTableModel(m_model, m_resources);
 
     final JScrollPane cumulativeTablePane =
       new JScrollPane(new Table(m_cumulativeTableModel));
 
     final TitledBorder cumulativeTableTitledBorder =
       BorderFactory.createTitledBorder(
-        threePixelBorder, resources.getString("cumulativeTable.label"));
+        threePixelBorder, m_resources.getString("cumulativeTable.label"));
 
     cumulativeTableTitledBorder.setTitleFont(tabLabelFont);
     cumulativeTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
@@ -270,14 +275,14 @@ public final class ConsoleUI implements ModelListener {
     cumulativeTablePane.setMinimumSize(new Dimension(100, 60));
 
     final SampleStatisticsTableModel sampleModel =
-      new SampleStatisticsTableModel(model);
+      new SampleStatisticsTableModel(m_model, m_resources);
 
     final JScrollPane sampleTablePane =
       new JScrollPane(new Table(sampleModel));
 
     final TitledBorder sampleTableTitledBorder =
       BorderFactory.createTitledBorder(
-        threePixelBorder, resources.getString("sampleTable.label"));
+        threePixelBorder, m_resources.getString("sampleTable.label"));
 
     sampleTableTitledBorder.setTitleFont(tabLabelFont);
     sampleTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
@@ -295,13 +300,13 @@ public final class ConsoleUI implements ModelListener {
     resultsPane.setResizeWeight(1.0d);
     resultsPane.setBorder(BorderFactory.createEmptyBorder());
 
-    tabbedPane.addTab(resources.getString("resultsTab.title"),
-                      resources.getImageIcon("resultsTab.image"),
+    tabbedPane.addTab(m_resources.getString("resultsTab.title"),
+                      m_resources.getImageIcon("resultsTab.image"),
                       resultsPane,
-                      resources.getString("resultsTab.tip"));
+                      m_resources.getString("resultsTab.tip"));
 
     final ProcessStatusTableModel processStatusModel =
-      new ProcessStatusTableModel(resources,
+      new ProcessStatusTableModel(m_resources,
                                   m_processControl,
                                   swingDispatcherFactory);
 
@@ -310,7 +315,7 @@ public final class ConsoleUI implements ModelListener {
 
     final TitledBorder processTableTitledBorder =
       BorderFactory.createTitledBorder(
-        threePixelBorder, resources.getString("processStatusTableTab.tip"));
+        threePixelBorder, m_resources.getString("processStatusTableTab.tip"));
 
     processTableTitledBorder.setTitleFont(tabLabelFont);
     processTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
@@ -318,14 +323,14 @@ public final class ConsoleUI implements ModelListener {
 
     processStatusPane.setBorder(processTableTitledBorder);
 
-    tabbedPane.addTab(resources.getString("processStatusTableTab.title"),
-                      resources.getImageIcon(
+    tabbedPane.addTab(m_resources.getString("processStatusTableTab.title"),
+                      m_resources.getImageIcon(
                         "processStatusTableTab.image"),
                       processStatusPane,
-                      resources.getString("processStatusTableTab.tip"));
+                      m_resources.getString("processStatusTableTab.tip"));
 
 
-    final Editor editor = new Editor(resources, m_editorModel, tabLabelFont);
+    final Editor editor = new Editor(m_resources, m_editorModel, tabLabelFont);
 
     final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
     fileTreeModel.setRootDirectory(
@@ -345,7 +350,7 @@ public final class ConsoleUI implements ModelListener {
     m_fileDistribution.addFileChangedListener(
       fileTreeModel.new RefreshChangedDirectoriesListener());
 
-    m_fileTree = new FileTree(resources,
+    m_fileTree = new FileTree(m_resources,
                               getErrorHandler(),
                               m_editorModel,
                               new BufferTreeModel(m_editorModel),
@@ -401,10 +406,10 @@ public final class ConsoleUI implements ModelListener {
     scriptPane.setOneTouchExpandable(true);
     scriptPane.setBorder(BorderFactory.createEmptyBorder());
 
-    tabbedPane.addTab(resources.getString("scriptTab.title"),
-                      resources.getImageIcon("scriptTab.image"),
+    tabbedPane.addTab(m_resources.getString("scriptTab.title"),
+                      m_resources.getImageIcon("scriptTab.image"),
                       scriptPane,
-                      resources.getString("scriptTab.tip"));
+                      m_resources.getString("scriptTab.tip"));
 
     final JPanel contentPanel = new JPanel(new BorderLayout());
     contentPanel.add(hackToFixLayout, BorderLayout.WEST);
@@ -426,7 +431,7 @@ public final class ConsoleUI implements ModelListener {
     topLevelPane.add(menuBar, BorderLayout.NORTH);
     topLevelPane.add(toolBarPanel, BorderLayout.CENTER);
 
-    final ImageIcon logoIcon = resources.getImageIcon("logo.image");
+    final ImageIcon logoIcon = m_resources.getImageIcon("logo.image");
 
     if (logoIcon != null) {
       final Image logoImage = logoIcon.getImage();
@@ -456,11 +461,9 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private JPanel createControlAndTotalPanel() {
-    final Resources resources = m_model.getResources();
-
     final LabelledGraph totalGraph =
-      new LabelledGraph(resources.getString("totalGraph.title"),
-                        resources, Colours.DARK_GREY,
+      new LabelledGraph(m_resources.getString("totalGraph.title"),
+                        m_resources, Colours.DARK_GREY,
                         m_model.getTPSExpression(),
                         m_model.getPeakTPSExpression(),
                         m_model.getTestStatisticsQueries());
@@ -472,7 +475,8 @@ public final class ConsoleUI implements ModelListener {
 
     m_model.addTotalSampleListener(
       new SampleListener() {
-        private final String m_suffix = ' ' + resources.getString("tps.units");
+        private final String m_suffix =
+          ' ' + m_resources.getString("tps.units");
 
         public void update(StatisticsSet intervalStatistics,
                            StatisticsSet cumulativeStatistics) {
@@ -545,7 +549,7 @@ public final class ConsoleUI implements ModelListener {
 
   private abstract class ListTokeniserTemplate {
     protected void iterate(JComponent component, String key) {
-      final String tokens = m_model.getResources().getString(key);
+      final String tokens = m_resources.getString(key);
       final Iterator iterator =
         Collections.list(new StringTokenizer(tokens)).iterator();
 
@@ -609,7 +613,7 @@ public final class ConsoleUI implements ModelListener {
 
     protected void token(JComponent component, String key) {
       final JMenu menu =
-        new JMenu(m_model.getResources().getString(key + ".menu.label"));
+        new JMenu(m_resources.getString(key + ".menu.label"));
 
       new MenuAssembler().populate(menu, key + ".menu");
 
@@ -746,13 +750,13 @@ public final class ConsoleUI implements ModelListener {
     private final JFileChooser m_fileChooser = new JFileChooser(".");
 
     SaveResultsAction() {
-      super(m_model.getResources(), "save-results", true);
+      super(m_resources, "save-results", true);
 
       m_fileChooser.setDialogTitle(
-        m_model.getResources().getString("save-results.label"));
+        m_resources.getString("save-results.label"));
 
       m_fileChooser.setSelectedFile(
-        new File(m_model.getResources().getString("default.filename")));
+        new File(m_resources.getString("default.filename")));
 
       m_lookAndFeel.addListener(
         new LookAndFeel.ComponentListener(m_fileChooser));
@@ -767,7 +771,7 @@ public final class ConsoleUI implements ModelListener {
         if (file.exists() &&
             JOptionPane.showConfirmDialog(
               m_frame,
-              m_model.getResources().getString("overwriteConfirmation.text"),
+              m_resources.getString("overwriteConfirmation.text"),
               file.toString(),
               JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
           return;
@@ -783,7 +787,7 @@ public final class ConsoleUI implements ModelListener {
           UncheckedInterruptedException.ioException(e);
           getErrorHandler().handleErrorMessage(
             e.getMessage(),
-            m_model.getResources().getString("fileError.title"));
+            m_resources.getString("fileError.title"));
         }
       }
     }
@@ -793,12 +797,12 @@ public final class ConsoleUI implements ModelListener {
     private final OptionsDialogHandler m_optionsDialogHandler;
 
     OptionsAction() {
-      super(m_model.getResources(), "options", true);
+      super(m_resources, "options", true);
 
       m_optionsDialogHandler =
         new OptionsDialogHandler(m_frame, m_lookAndFeel,
                                  m_model.getProperties(),
-                                 m_model.getResources()) {
+                                 m_resources) {
           protected void setNewOptions(ConsoleProperties newOptions) {
             m_model.getProperties().set(newOptions);
             m_samplingControlPanel.refresh();
@@ -816,13 +820,13 @@ public final class ConsoleUI implements ModelListener {
     private final ImageIcon m_logoIcon;
 
     AboutAction(ImageIcon logoIcon) {
-      super(m_model.getResources(), "about", true);
+      super(m_resources, "about", true);
       m_logoIcon = logoIcon;
     }
 
     public void actionPerformed(ActionEvent event) {
 
-      final Resources resources = m_model.getResources();
+      final Resources resources = m_resources;
 
       final String title = resources.getString("about.label");
       final String aboutText = resources.getStringFromFile("about.text", true);
@@ -855,7 +859,7 @@ public final class ConsoleUI implements ModelListener {
   private final class ExitAction extends CustomAction {
 
     ExitAction() {
-      super(m_model.getResources(), "exit");
+      super(m_resources, "exit");
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -877,7 +881,7 @@ public final class ConsoleUI implements ModelListener {
 
   private final class StartAction extends CustomAction {
     StartAction() {
-      super(m_model.getResources(), "start");
+      super(m_resources, "start");
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -893,7 +897,7 @@ public final class ConsoleUI implements ModelListener {
 
   private final class StopAction extends CustomAction {
     StopAction() {
-      super(m_model.getResources(), "stop");
+      super(m_resources, "stop");
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -911,7 +915,7 @@ public final class ConsoleUI implements ModelListener {
 
   private final class NewFileAction extends CustomAction {
     public NewFileAction() {
-      super(m_model.getResources(), "new-file");
+      super(m_resources, "new-file");
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -921,7 +925,7 @@ public final class ConsoleUI implements ModelListener {
 
   private final class SaveFileAction extends CustomAction {
     public SaveFileAction() {
-      super(m_model.getResources(), "save-file");
+      super(m_resources, "save-file");
 
       m_editorModel.addListener(new EditorModel.AbstractListener() {
           public void bufferStateChanged(Buffer ignored) {
@@ -940,7 +944,7 @@ public final class ConsoleUI implements ModelListener {
           if (!buffer.isUpToDate() &&
               JOptionPane.showConfirmDialog(
                 m_frame,
-                m_model.getResources().getString(
+                m_resources.getString(
                   "outOfDateOverwriteConfirmation.text"),
                 buffer.getFile().toString(),
                 JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
@@ -964,7 +968,7 @@ public final class ConsoleUI implements ModelListener {
     private final JFileChooser m_fileChooser = new JFileChooser(".");
 
     public SaveFileAsAction() {
-      super(m_model.getResources(), "save-file-as", true);
+      super(m_resources, "save-file-as", true);
 
       m_editorModel.addListener(new EditorModel.AbstractListener() {
           public void bufferStateChanged(Buffer ignored) {
@@ -973,10 +977,10 @@ public final class ConsoleUI implements ModelListener {
         });
 
       m_fileChooser.setDialogTitle(
-        m_model.getResources().getString("save-file-as.label"));
+        m_resources.getString("save-file-as.label"));
 
       final String pythonFilesText =
-        m_model.getResources().getString("pythonScripts.label");
+        m_resources.getString("pythonScripts.label");
 
       m_fileChooser.addChoosableFileFilter(
         new FileFilter() {
@@ -1024,7 +1028,7 @@ public final class ConsoleUI implements ModelListener {
       if (!distributionDirectory.isParentOf(file) &&
         JOptionPane.showConfirmDialog(
           m_frame,
-          m_model.getResources().getString(
+          m_resources.getString(
             "saveOutsideOfDistributionConfirmation.text"),
           (String) getValue(NAME),
           JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
@@ -1036,24 +1040,22 @@ public final class ConsoleUI implements ModelListener {
         final Buffer oldBuffer = m_editorModel.getBufferForFile(file);
 
         if (oldBuffer != null) {
-          final Resources resources = m_model.getResources();
-
           final ArrayList messages = new ArrayList();
           messages.add(
-            resources.getString("ignoreExistingBufferConfirmation.text"));
+            m_resources.getString("ignoreExistingBufferConfirmation.text"));
 
           if (oldBuffer.isDirty()) {
             messages.add(
-              resources.getString("existingBufferHasUnsavedChanges.text"));
+              m_resources.getString("existingBufferHasUnsavedChanges.text"));
           }
 
           if (!oldBuffer.isUpToDate()) {
             messages.add(
-              resources.getString("existingBufferOutOfDate.text"));
+              m_resources.getString("existingBufferOutOfDate.text"));
           }
 
           messages.add(
-            resources.getString("ignoreExistingBufferConfirmation2.text"));
+            m_resources.getString("ignoreExistingBufferConfirmation2.text"));
 
           if (JOptionPane.showConfirmDialog(
                 m_frame, messages.toArray(), file.toString(),
@@ -1067,7 +1069,7 @@ public final class ConsoleUI implements ModelListener {
           if (file.exists() &&
               JOptionPane.showConfirmDialog(
                 m_frame,
-                m_model.getResources().getString("overwriteConfirmation.text"),
+                m_resources.getString("overwriteConfirmation.text"),
                 file.toString(),
                 JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
             return;
@@ -1080,8 +1082,7 @@ public final class ConsoleUI implements ModelListener {
         if (!buffer.isUpToDate() &&
             JOptionPane.showConfirmDialog(
               m_frame,
-              m_model.getResources().getString(
-                "outOfDateOverwriteConfirmation.text"),
+              m_resources.getString("outOfDateOverwriteConfirmation.text"),
               buffer.getFile().toString(),
               JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
           return;
@@ -1094,7 +1095,7 @@ public final class ConsoleUI implements ModelListener {
 
   private final class CloseFileAction extends CustomAction {
     public CloseFileAction() {
-      super(m_model.getResources(), "close-file");
+      super(m_resources, "close-file");
 
       m_editorModel.addListener(new EditorModel.AbstractListener() {
           public void bufferStateChanged(Buffer ignored) {
@@ -1115,7 +1116,7 @@ public final class ConsoleUI implements ModelListener {
 
           final String confirmationMessage =
             MessageFormat.format(
-              m_model.getResources().getString(
+              m_resources.getString(
                 "saveModifiedBufferConfirmation.text"),
               new Object[] { buffer.getDisplayName() });
 
@@ -1191,7 +1192,7 @@ public final class ConsoleUI implements ModelListener {
   private class StartProcessesAction extends CustomAction {
 
     StartProcessesAction() {
-      super(m_model.getResources(), "start-processes");
+      super(m_resources, "start-processes");
       m_processControl.addProcessStatusListener(
         new EnableIfAgentsConnected(this));
     }
@@ -1203,7 +1204,7 @@ public final class ConsoleUI implements ModelListener {
         if (script == null) {
           final int chosen =
             m_optionalConfirmDialog.show(
-              m_model.getResources().getString(
+              m_resources.getString(
                 "scriptNotSetConfirmation.text"),
               (String) getValue(NAME),
               JOptionPane.OK_CANCEL_OPTION,
@@ -1220,7 +1221,7 @@ public final class ConsoleUI implements ModelListener {
           if (m_fileDistribution.getAgentCacheState().getOutOfDate()) {
             JOptionPane.showMessageDialog(
               m_frame,
-              m_model.getResources().getString("cachesOutOfDateWarning.text"),
+              m_resources.getString("cachesOutOfDateWarning.text"),
               (String) getValue(NAME),
               JOptionPane.WARNING_MESSAGE);
             return;
@@ -1229,7 +1230,7 @@ public final class ConsoleUI implements ModelListener {
           if (m_editorModel.isABufferDirty()) {
             final int chosen =
               m_optionalConfirmDialog.show(
-                m_model.getResources().getString(
+                m_resources.getString(
                   "startWithUnsavedBuffersConfirmation.text"),
                 (String) getValue(NAME),
                 JOptionPane.OK_CANCEL_OPTION,
@@ -1247,7 +1248,7 @@ public final class ConsoleUI implements ModelListener {
 
           if (relativeScript == null) {
             getErrorHandler().handleErrorMessage(
-              m_model.getResources().getString(
+              m_resources.getString(
                 "scriptNotInDirectoryError.text"),
               (String) getValue(NAME));
 
@@ -1266,7 +1267,7 @@ public final class ConsoleUI implements ModelListener {
 
   private final class ResetProcessesAction extends CustomAction {
     ResetProcessesAction() {
-      super(m_model.getResources(), "reset-processes");
+      super(m_resources, "reset-processes");
       m_processControl.addProcessStatusListener(
         new EnableIfAgentsConnected(this));
     }
@@ -1278,7 +1279,7 @@ public final class ConsoleUI implements ModelListener {
       try {
         final int chosen =
           m_optionalConfirmDialog.show(
-            m_model.getResources().getString(
+            m_resources.getString(
               "resetConsoleWithProcessesConfirmation.text"),
             (String) getValue(NAME),
             JOptionPane.YES_NO_CANCEL_OPTION,
@@ -1315,7 +1316,7 @@ public final class ConsoleUI implements ModelListener {
 
   private final class StopProcessesAction extends CustomAction {
     StopProcessesAction() {
-      super(m_model.getResources(), "stop-processes");
+      super(m_resources, "stop-processes");
       m_processControl.addProcessStatusListener(
         new EnableIfAgentsConnected(this));
     }
@@ -1325,7 +1326,7 @@ public final class ConsoleUI implements ModelListener {
       try {
         final int chosen =
           m_optionalConfirmDialog.show(
-            m_model.getResources().getString("stopProcessesConfirmation.text"),
+            m_resources.getString("stopProcessesConfirmation.text"),
             (String) getValue(NAME),
             JOptionPane.OK_CANCEL_OPTION,
             "stopProcessesAsk");
@@ -1348,10 +1349,10 @@ public final class ConsoleUI implements ModelListener {
     private final JFileChooser m_fileChooser = new JFileChooser(".");
 
     ChooseDirectoryAction() {
-      super(m_model.getResources(), "choose-directory", true);
+      super(m_resources, "choose-directory", true);
 
       m_fileChooser.setDialogTitle(
-        m_model.getResources().getString("choose-directory.tip"));
+        m_resources.getString("choose-directory.tip"));
 
       m_fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -1365,7 +1366,7 @@ public final class ConsoleUI implements ModelListener {
     public void actionPerformed(ActionEvent event) {
       try {
         if (m_fileChooser.showDialog(m_frame,
-                                     m_model.getResources().getString(
+                                     m_resources.getString(
                                        "choose-directory.label")) ==
             JFileChooser.APPROVE_OPTION) {
 
@@ -1376,7 +1377,7 @@ public final class ConsoleUI implements ModelListener {
           if (!file.exists()) {
             if (JOptionPane.showConfirmDialog(
                   m_frame,
-                  m_model.getResources().getString("createDirectory.text"),
+                  m_resources.getString("createDirectory.text"),
                   file.toString(),
                   JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
               return;
@@ -1403,7 +1404,7 @@ public final class ConsoleUI implements ModelListener {
   private final class DistributeFilesAction extends CustomAction {
 
     DistributeFilesAction() {
-      super(m_model.getResources(), "distribute-files");
+      super(m_resources, "distribute-files");
 
       final AgentCacheState agentCacheState =
         m_fileDistribution.getAgentCacheState();

@@ -47,6 +47,7 @@ abstract class DynamicStatisticsTableModel
   extends AbstractTableModel implements ModelListener, Table.TableModel {
 
   private final Model m_model;
+  private final Resources m_resources;
 
   private final String m_testString;
   private final String m_testColumnString;
@@ -57,17 +58,16 @@ abstract class DynamicStatisticsTableModel
   private ExpressionView[] m_columnViews;
   private String[] m_columnLabels;
 
-  protected DynamicStatisticsTableModel(Model model)
+  protected DynamicStatisticsTableModel(Model model, Resources resources)
     throws ConsoleException {
 
     m_model = model;
+    m_resources = resources;
 
-    final Resources resources = m_model.getResources();
-
-    m_testString = resources.getString("table.test.label") + ' ';
-    m_testColumnString = resources.getString("table.testColumn.label");
+    m_testString = m_resources.getString("table.test.label") + ' ';
+    m_testColumnString = m_resources.getString("table.testColumn.label");
     m_testDescriptionColumnString =
-      resources.getString("table.descriptionColumn.label");
+      m_resources.getString("table.descriptionColumn.label");
 
     resetTestsAndStatisticsViews();
 
@@ -98,7 +98,7 @@ abstract class DynamicStatisticsTableModel
 
       for (int i = 0; i < m_columnLabels.length; ++i) {
         final String resource =
-          m_model.getResources().getString(
+          m_resources.getString(
             "statistic." +
             m_columnViews[i].getDisplayName().replaceAll("\\s+", "_"),
             false);

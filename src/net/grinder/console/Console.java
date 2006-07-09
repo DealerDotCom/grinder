@@ -81,8 +81,7 @@ public class Console {
                             new File(homeDirectory, ".grinder_console"));
 
     m_model =
-      new Model(properties, resources,
-                StatisticsServicesImplementation.getInstance());
+      new Model(properties, StatisticsServicesImplementation.getInstance());
 
     final Timer timer = new Timer(true);
 
@@ -131,7 +130,8 @@ public class Console {
     m_userInterface =
       new ConsoleUI(m_model,
                     m_communication.getProcessControl(),
-                    fileDistribution);
+                    fileDistribution,
+                    resources);
 
     m_communication.setErrorHandler(m_userInterface.getErrorHandler());
 
