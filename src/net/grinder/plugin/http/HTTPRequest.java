@@ -74,6 +74,9 @@ public class HTTPRequest {
   private static Pattern s_pathParser =
     Pattern.compile("([^?#]*)(\\?([^#]*))?(#(.*))?");
 
+  private static final Pattern s_absoluteURIPattern =
+    Pattern.compile("^[^:/?#]*:.*");
+
   private URI m_defaultURL;
   private NVPair[] m_defaultHeaders = new NVPair[0];
   private byte[] m_defaultData;
@@ -975,19 +978,6 @@ public class HTTPRequest {
   }
 
   private static boolean isAbsolute(String uri) {
-
-    char ch = '\0';
-    int  pos = 0;
-    final int length = uri.length();
-
-    while (pos < length &&
-           (ch = uri.charAt(pos)) != ':' &&
-           ch != '/' &&
-           ch != '?' &&
-           ch != '#') {
-      pos++;
-    }
-
-    return ch == ':';
+    return s_absoluteURIPattern.matcher(uri).matches();
   }
 }
