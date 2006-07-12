@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,7 @@ package net.grinder.communication;
 
 
 /**
- * Used to check whether a socket resources peer has been shut down.
+ * Used to check whether a socket resource's peer has been shut down.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -32,7 +32,7 @@ public interface CheckIfPeerShutdown {
 
   /**
    * Check whether the peer connection has been shut down. If so,
-   * shut down ourselves and return <code>true</code>.
+   * clean it up and return <code>true</code>.
    *
    * @return boolean <code>true</code> => yes, the peer has been shut
    * down.
