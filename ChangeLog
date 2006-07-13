@@ -1,3 +1,71 @@
+2006-07-13  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/SocketWrapper.java:
+	Synchronise on SocketWrapper when accessing socket streams.
+
+	* src/net/grinder/communication/Sender.java: Javadoc.
+
+	* src/net/grinder/communication/StreamReceiver.java, src/net/grinder/communication/StreamSender.java:
+	Allow package classes to construct us with specific locking objects.
+
+2006-07-12  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/FanOutServerSender.java:
+	isPeerShutdown() shouldn't stop after it finds the first one that's shut down.
+
+	* src/net/grinder/communication/CheckIfPeerShutdown.java: Fix Javadoc.
+
+2006-07-09  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java:
+	Avoid potential NPE.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java:
+	Easier to fix the problems than work out why eclipse can't filter them.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	Reimplement isAbsolute() using regexp.
+
+	* .settings/de.mvmsoft.checkclipse.prefs:
+	Filter out Console.properties so that the <Translation> check works for us.
+
+	* src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/Console_it.properties, src/net/grinder/console/swingui/resources/Console_pl.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_ru.properties:
+	Tidy up the translations.
+
+	* src/net/grinder/console/Console.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java:
+	Don't use the Model to pass Resources around.
+
+	* .checkclipse, .settings/de.mvmsoft.checkclipse.prefs, etc/checkstyle.filters:
+	Updates for latest checkclipse.
+
+	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java:
+	Fix Javadoc references.
+
+	* src/net/grinder/console/swingui/Table.java: Avoid potential NPE.
+
+	* src/net/grinder/communication/QueuedSender.java:
+	Fix Javadoc references.
+
+	* src/net/grinder/engine/agent/Agent.java:
+	Remove extraneous reference from inner class.
+
+	* src/net/grinder/statistics/StatisticsView.java, src/net/grinder/engine/process/jython/JythonScriptEngine.java, src/net/grinder/console/distribution/FileDistribution.java, src/net/grinder/console/editor/AbstractTextSource.java, src/net/grinder/engine/common/ConsoleListener.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/util/ListenerSupport.java, src/net/grinder/util/SleeperImplementation.java, src/net/grinder/console/swingui/Editor.java, src/net/grinder/console/swingui/OptionalConfirmDialog.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactory.java, src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java, src/net/grinder/script/SSLControl.java, src/net/grinder/util/html/HTMLElement.java, src/net/grinder/util/thread/Monitor.java, src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactoryImplementation.java, src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java:
+	Fix Javadoc references.
+
+2006-06-30  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Move buffer full check to fix issue where the delivery of a bulk load of
+	data from a socket read could be mistaken for a malformed HTTP packet.
+
+	* src/HTTPClient/Cookie.java:
+	Fix .NET workaround not to strip the comma separating cookies.
+
+2006-06-27  Philip Aston  <philipa@mail.com>
+
+	* etc/slowclient.py, examples/slowClient.py, src/net/grinder/plugin/http/SlowClientBandwidthLimiterFactory.java:
+	Improved slow client algorithm. Should work better with large buffer sizes.
+
 2006-06-27  Philip Aston  <philipa@mail.com>
 
 	* etc/slowclient.py, examples/slowClient.py, src/net/grinder/plugin/http/SlowClientBandwidthLimiterFactory.java:
@@ -53,8 +121,6 @@
 	* build.xml: Next is 31.
 
 2006-05-06  Philip Aston  <philipa@mail.com>
-
-	* ChangeLog: *** empty log message ***
 
 	* CHANGES, TODO, examples/jmsreceiver.py:
 	Update documentation for changes to the script statistics API.
