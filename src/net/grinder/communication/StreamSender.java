@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000-2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -51,12 +51,10 @@ public class StreamSender extends AbstractSender {
   /**
    * Constructor.
    *
-   * <p>Private, as current clients don't need to specify stream lock.</p>
-   *
    * @param outputStream The output stream to write to.
    * @param streamLock Lock on this object around all stream operations.
    */
-  private StreamSender(OutputStream outputStream, Object streamLock) {
+  StreamSender(OutputStream outputStream, Object streamLock) {
     m_outputStream = new BufferedOutputStream(outputStream);
     m_streamLock = streamLock;
   }

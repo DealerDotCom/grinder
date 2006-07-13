@@ -52,12 +52,10 @@ public class StreamReceiver implements Receiver {
   /**
    * Constructor.
    *
-   * <p>Private, as current clients don't need to specify stream lock.</p>
-   *
    * @param inputStream The input stream to read from.
    * @param streamLock Lock on this object around all stream operations.
    */
-  private StreamReceiver(InputStream inputStream, Object streamLock) {
+  StreamReceiver(InputStream inputStream, Object streamLock) {
     m_inputStream = inputStream;
     m_streamLock = streamLock;
   }
