@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -144,7 +144,7 @@ final class SocketWrapper
       // peer has closed the connection. We make an effort to tell the
       // peer.
       try {
-        new StreamSender(getOutputStream()).shutdown();
+        new StreamSender(getOutputStream(), this).shutdown();
       }
       catch (CommunicationException e) {
         // Ignore.
