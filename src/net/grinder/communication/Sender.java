@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000-2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,7 @@ package net.grinder.communication;
 
 
 /**
- * Interface for classes that manage the sending of  messages.
+ * Interface for classes that manage the sending of messages.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -34,7 +34,7 @@ public interface Sender {
    * Send the given message.
    *
    * @param message A {@link Message}.
-   * @exception CommunicationException If an error occurs.
+   * @throws CommunicationException If an error occurs.
    */
   void send(Message message) throws CommunicationException;
 
