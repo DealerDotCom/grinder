@@ -15,7 +15,8 @@ The Grinder 3.0-beta31
   prototyped by John S. White.
 
   Fulfil Feature Request 1482811 - slow socket connections. Requested
-  by Travis Bear. See HTTPPluginConnection.setBandwidthLimit().
+  by Travis Bear. See HTTPPluginConnection.setBandwidthLimit(). Travis
+  and Leland Olney assisted in the testing and fixing of this feature.
   
   Fix console bug where the Total line in statistics tables could be
   incorrectly rendered in red.
