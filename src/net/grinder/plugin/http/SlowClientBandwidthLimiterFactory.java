@@ -90,8 +90,8 @@ final class SlowClientBandwidthLimiterFactory
         m_damping = 2;
       }
       else {
-	final long expectedTime = (long)position * 8 * 1000 / m_targetBPS;
-    	final long actualTime = now - m_startTime;
+        final long expectedTime = (long)position * 8 * 1000 / m_targetBPS;
+        final long actualTime = now - m_startTime;
         m_sleepTime += (expectedTime - actualTime) * m_damping;
 
         if (m_sleepTime < 0) {
