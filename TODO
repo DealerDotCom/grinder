@@ -16,6 +16,39 @@ against it too :-).
 
 * Enhancements
 
+** Console API
+
+Fairly easy:
+ Command channel to the console.
+ Event channel back from the console.
+This makes API yucky. All methods void; event handling.
+
+RMI instead? Still need event channel. Need multiple ports.
+
+
+Process control
+
+ void startWorkerProcess(some id)
+ void stopWorkerProcess(some id)
+ List<ProcessStatus> getProcessStatus() - NB return value
+ void addProcessEventListener(ProcessEventListener)
+
+ void setScript(...?)
+
+Recording control
+
+ void startRecording()
+ void stopRecording()
+ void resetRecording()
+
+
+*** what about access from grinder scripts?
+
+*** sample log file
+
+
+
+
 ** Script Distribution
 
 *** Model
@@ -186,6 +219,9 @@ code.
 
 Total time should distinguish nested tests. Introduce new concept of a
 Group Test?
+
+Should TPS averages be harmonic means?
+http://en.wikipedia.org/wiki/Harmonic_mean
 
 Split out serializeable kernel of TestStatisticsMap? Look hard at where the
 message is deserialised.
