@@ -11,15 +11,18 @@ The Grinder 3.0-beta31
   reference to POST data files. Thanks to Saurabh Sehgal for the
   report.
 
-  Relax cookie parsing to cope with .NET nonsense. Requested and
-  prototyped by John S. White.
+  Fix bug 1525387 - Relax cookie parsing to cope with .NET nonsense.
+  Requested and prototyped by John S. White.
 
   Fulfil Feature Request 1482811 - slow socket connections. Requested
   by Travis Bear. See HTTPPluginConnection.setBandwidthLimit(). Travis
   and Leland Olney assisted in the testing and fixing of this feature.
-  
+
   Fix console bug where the Total line in statistics tables could be
   incorrectly rendered in red.
+
+  Fix bug 1525628 - Throw NotWrappableTypeException not
+  NullPointerException on attempt to wrap a null object.
 
 
 The Grinder 3.0-beta30

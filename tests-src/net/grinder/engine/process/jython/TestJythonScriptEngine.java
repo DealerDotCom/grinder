@@ -866,6 +866,9 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     // Can't wrap PyClass.
     interpreter.exec("class Foo: pass");
     assertNotWrappable(interpreter.get("Foo"));
+
+    // Can't wrap None.
+    assertNotWrappable(null);
   }
 
   public void testPyDispatcherErrorHandling() throws Exception {

@@ -247,6 +247,9 @@ public final class JythonScriptEngine implements ScriptEngine {
         return new InstrumentedPyInstance(
           this, test, pyDispatcher, pyClass, pyInstance);
       }
+      else if (o == null) {
+        throw new NotWrappableTypeException("Can't wrap null/None");
+      }
       else {
         // Java object.
 
