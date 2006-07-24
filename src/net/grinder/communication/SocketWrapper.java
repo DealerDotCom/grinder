@@ -38,7 +38,9 @@ import net.grinder.util.thread.UncheckedInterruptedException;
  * <p>This class is thread safe, and synchronises its access to the underlying
  * socket. Client classes that access the sockets streams through
  * {@link #getInputStream} and {@link #getOutputStream} should synchronise on
- * the SocketWrapper instance around any access to the stream objects.</p>
+ * the SocketWrapper instance around any access to the stream objects.
+ *
+ * TODO This strategy is broken. Need individual locks for each direction -use streams?. </p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -144,7 +146,7 @@ final class SocketWrapper
       // peer has closed the connection. We make an effort to tell the
       // peer.
       try {
-        new StreamSender(getOutputStream(), this).shutdown();
+        new StreamSender(getOutputStream()).shutdown();
       }
       catch (CommunicationException e) {
         // Ignore.
