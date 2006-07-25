@@ -55,7 +55,7 @@ public class StreamReceiver implements Receiver {
    * @param inputStream The input stream to read from.
    * @param streamLock Lock on this object around all stream operations.
    */
-  StreamReceiver(InputStream inputStream, Object streamLock) {
+  private StreamReceiver(InputStream inputStream, Object streamLock) {
     m_inputStream = inputStream;
     m_streamLock = streamLock;
   }

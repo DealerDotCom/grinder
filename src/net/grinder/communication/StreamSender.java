@@ -54,7 +54,7 @@ public class StreamSender extends AbstractSender {
    * @param outputStream The output stream to write to.
    * @param streamLock Lock on this object around all stream operations.
    */
-  StreamSender(OutputStream outputStream, Object streamLock) {
+  private StreamSender(OutputStream outputStream, Object streamLock) {
     m_outputStream = new BufferedOutputStream(outputStream);
     m_streamLock = streamLock;
   }

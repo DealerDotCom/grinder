@@ -75,6 +75,9 @@ abstract class AbstractFanOutSender extends AbstractSender {
         final OutputStream outputStream =
           resourceToOutputStream(reservation.getResource());
 
+        // We don't need to synchronise access to the SocketWrapper
+        // stream; access is protected through the socket set and only we
+        // hold the reservation.
         m_kernel.execute(
           new WriteMessageToStream(message, outputStream, reservation));
       }

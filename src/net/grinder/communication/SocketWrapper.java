@@ -32,15 +32,15 @@ import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
- * Wrapper for a {@link Socket} that is {ResourcePool.ResourcePool}
- * and understands our connection close protocol.
+ * Wrapper for a {@link Socket} that is {ResourcePool.ResourcePool} and
+ * understands our connection close protocol.
  *
- * <p>This class is thread safe, and synchronises its access to the underlying
- * socket. Client classes that access the sockets streams through
- * {@link #getInputStream} and {@link #getOutputStream} should synchronise on
- * the SocketWrapper instance around any access to the stream objects.
- *
- * TODO This strategy is broken. Need individual locks for each direction -use streams?. </p>
+ * <p>
+ * Client classes that access the sockets streams through
+ * {@link #getInputStream} or {@link #getOutputStream}, and that do not
+ * otherwise know they have exclusive access, should synchronise on the
+ * particular stream object while they use it.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -58,6 +58,7 @@ final class SocketWrapper
   private final Socket m_socket;
   private final ConnectionIdentity m_connectionIdentity;
   private final BufferedInputStream m_inputStream;
+  private final OutputStream m_outputStream;
 
   private final ListenerSupport m_closedListeners = new ListenerSupport();
 
@@ -71,10 +72,12 @@ final class SocketWrapper
   /**
    * Constructor.
    *
-   * @param socket Socket to wrap. We assume the caller doesn't maintain
-   * any references to the socket, and that we are now responsible for
-   * sychronising further access.
-   * @throws CommunicationException If an error occurred.
+   * @param socket
+   *          Socket to wrap. If the caller maintains any references to the
+   *          socket, if should synchronise access to the socket streams as
+   *          described in {@link SocketWrapper}.
+   * @throws CommunicationException
+   *           If an error occurred.
    */
   public SocketWrapper(Socket socket) throws CommunicationException {
     m_socket = socket;
@@ -82,6 +85,8 @@ final class SocketWrapper
     try {
       m_inputStream =
         new BufferedInputStream(m_socket.getInputStream(), BUFFER_SIZE);
+
+      m_outputStream = m_socket.getOutputStream();
 
       m_connectionIdentity =
         new ConnectionIdentity(m_socket.getInetAddress(),
@@ -104,7 +109,7 @@ final class SocketWrapper
   public boolean isPeerShutdown() {
 
     try {
-      synchronized (this) {
+      synchronized (m_inputStream) {
         if (m_inputStream.available() > 0) {
           m_inputStream.mark(BUFFER_SIZE);
 
@@ -145,12 +150,7 @@ final class SocketWrapper
       // Java provides no way for socket code to enquire whether the
       // peer has closed the connection. We make an effort to tell the
       // peer.
-      try {
-        new StreamSender(getOutputStream()).shutdown();
-      }
-      catch (CommunicationException e) {
-        // Ignore.
-      }
+      new StreamSender(getOutputStream()).shutdown();
 
       try {
         m_socket.close();
@@ -185,18 +185,8 @@ final class SocketWrapper
    *
    * @return The output stream.
    */
-  public OutputStream getOutputStream()
-    throws CommunicationException {
-
-    synchronized (this) {
-      try {
-        return m_socket.getOutputStream();
-      }
-      catch (IOException e) {
-        UncheckedInterruptedException.ioException(e);
-        throw new CommunicationException("Communication failed", e);
-      }
-    }
+  public OutputStream getOutputStream() {
+    return m_outputStream;
   }
 
   /**
