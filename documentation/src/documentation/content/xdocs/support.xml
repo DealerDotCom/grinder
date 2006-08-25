@@ -9,8 +9,14 @@
 <body>
   <section>
     <title>Mailing lists</title>
-    <p>Requests for help should be send to <a
+    <p>Requests for help should be sent to <a
     href="ext:mail/grinder-use">grinder-use@lists.sourceforge.net</a>.</p>
+
+    <note>To reduce spam, you must now
+    <a href="ext:sourceforge/grinder-mail">subscribe</a>
+    to a list before you can send email to it. The email address you send
+    mail from must be the one you used to subscribe.
+    </note>
 
     <p><a
     href="ext:mail/grinder-announce">grinder-announce@lists.sourceforge.net</a>
