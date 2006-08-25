@@ -1,6 +1,20 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.0-beta31' id='The Grinder 3.0-beta31'>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1199086&amp;group_id=18598&amp;atid=118598">bug 1199086</a> - Distribution to multiple agents hangs. Thanks to capwin@sourceforge.net for analysing the problem. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1495428&amp;group_id=18598&amp;atid=118598">bug 1495428</a> - Plugin thread context not correctly registered for events. </p>
+<p>
+Fix HTTPPlugin TCPProxy filter to remove extraneous quote from reference to POST data files. Thanks to Saurabh Sehgal for the report. </p>
+<p>
+Relax cookie parsing to cope with .NET nonsense. Requested and prototyped by John S. White. </p>
+<p>
+Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1482811&amp;group_id=18598&amp;atid=368598">Request 1482811</a> - slow socket connections. Requested by Travis Bear. See HTTPPluginConnection.setBandwidthLimit(). </p>
+<p>
+Fix console bug where the Total line in statistics tables could be incorrectly rendered in red. </p>
+</section>
 <section name='The Grinder 3.0-beta30' id='The Grinder 3.0-beta30'>
 <p>
 Fix HTTPlugin TCPProxy filter so that scripts send the real token name back to the server, not the token id. Thanks to VmasterZen for reporting this. </p>
