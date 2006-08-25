@@ -1087,7 +1087,7 @@ class TestRunner:
     # use p
       </source>
 
-      <p>Occasionally, you the regular expression must be dynamically generated
+      <p>Occasionally, the regular expression must be dynamically generated
       by a worker thread, so this technique doesn't work. In this case, you can
       import <code>re</code> in every worker thread:</p>
 
