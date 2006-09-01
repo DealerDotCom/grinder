@@ -46,6 +46,22 @@ Recording control
 
 *** sample log file
 
+*** feedback from travis
+Commnents on the API: - 
+
+ * For sure there will need to be an ability to retrieve stats, as you
+mentioned.
+
+ * A file transfer API, or some other configuration management API will
+be needed so that a centrally managed config, such as might be included
+in grinder.properties, can be pushed out to the agents.
+
+ * Right now I'm using scripted ssh calls to start the agents on the
+remote machines.  It would be better if there was a good, generic,
+cross-platform way the controller/console could initiate a connection to
+a given agent.  This might mean having the agent process running as a
+server/service on the agent machine, so that it would always be
+available.
 
 
 
