@@ -1,0 +1,9 @@
+<FindBugsFilter>
+     <Match classregex=".*__CLOVER_.*" />
+     <Match classregex=".*HTTPPluginTCPProxyFilter2.*" />
+
+      <!--  Sigh, don't think matching against package is allowed. -->
+     <Match classregex=".*HTTPPluginTCPProxyResponseFilter2.*" />
+     <Match classregex="HTTPClient.*" />
+     <Match classregex="org.syntax.*" />
+</FindBugsFilter>
