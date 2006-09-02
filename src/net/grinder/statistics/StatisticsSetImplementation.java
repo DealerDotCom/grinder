@@ -64,12 +64,8 @@ final class StatisticsSetImplementation implements StatisticsSet {
   /**
    * Reset this StatisticsSet to default values. Allows instance to
    * be reused.
-   *
-   * Assuming the caller owns this
-   * <code>StatisticsSetImplementation</code> (or they shouldn't be
-   * reseting it), we don't synchronise.
    */
-  public void reset() {
+  public synchronized void reset() {
     if (!m_zero) {
       Arrays.fill(m_longData, 0);
       Arrays.fill(m_doubleData, 0);
