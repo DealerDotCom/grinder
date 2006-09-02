@@ -578,7 +578,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     }
   }
 
-  private final class ProxySSLEngine extends AbstractTCPProxyEngine {
+  private static final class ProxySSLEngine extends AbstractTCPProxyEngine {
 
     private EndPoint m_clientEndPoint;
     private EndPoint m_remoteEndPoint;

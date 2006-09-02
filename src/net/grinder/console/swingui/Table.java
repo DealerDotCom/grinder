@@ -126,7 +126,7 @@ final class Table extends JTable {
     }
   }
 
-  private final class MyHeaderRenderer implements TableCellRenderer {
+  private static final class MyHeaderRenderer implements TableCellRenderer {
 
     private JTextArea m_textArea = new JTextArea();
 
