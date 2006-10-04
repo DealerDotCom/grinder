@@ -75,6 +75,10 @@ final class TestStatisticsHelperImplementation
     statistics.setValue(m_untimedTestsIndex, 0);
   }
 
+  public long getTestTime(ImmutableStatisticsSet statistics) {
+    return statistics.getSum(m_timedTestsIndex);
+  }
+
   public void removeTestTimeFromSample(TestStatisticsMap sample) {
     final Iterator iterator = sample.new Iterator();
 

@@ -116,11 +116,15 @@ public class TestTestStatisticsHelperImplementation extends TestCase {
     statistics1.addSample(m_timedTestsIndex, 21321);
     statistics1.addSample(m_timedTestsIndex, 1231);
 
+    assertEquals(21321 + 1231, helper.getTestTime(statistics1));
+
     final StatisticsSet statistics2 =
       m_statisticsServices.getStatisticsSetFactory().create();
     statistics2.setValue(m_untimedTestsIndex, 1);
     statistics2.addSample(m_timedTestsIndex, 18782);
     statistics2.setValue(m_errorsIndex, 1);
+
+    assertEquals(18782, helper.getTestTime(statistics2));
 
     final TestStatisticsMap sample = new TestStatisticsMap();
     sample.put(new StubTest(1, ""), statistics1);
@@ -132,10 +136,12 @@ public class TestTestStatisticsHelperImplementation extends TestCase {
     assertEquals(2, statistics1.getValue(m_untimedTestsIndex));
     assertEquals(0, statistics1.getCount(m_timedTestsIndex));
     assertEquals(0, statistics1.getSum(m_timedTestsIndex));
+    assertEquals(0, helper.getTestTime(statistics1));
 
     assertEquals(1, statistics2.getValue(m_errorsIndex));
     assertEquals(2, statistics2.getValue(m_untimedTestsIndex));
     assertEquals(0, statistics2.getCount(m_timedTestsIndex));
     assertEquals(0, statistics2.getSum(m_timedTestsIndex));
+    assertEquals(0, helper.getTestTime(statistics2));
   }
 }
