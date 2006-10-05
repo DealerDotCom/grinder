@@ -58,6 +58,8 @@ public class TestTestStatisticsHelperImplementation extends TestCase {
     final TestStatisticsHelper helper =
       new TestStatisticsHelperImplementation(m_indexMap);
 
+    assertSame(m_indexMap, helper.getStatisticsIndexMap());
+
     final StatisticsSet statistics =
       m_statisticsServices.getStatisticsSetFactory().create();
 

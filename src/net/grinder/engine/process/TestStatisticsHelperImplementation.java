@@ -38,12 +38,14 @@ import net.grinder.statistics.TestStatisticsMap.Pair;
 final class TestStatisticsHelperImplementation
   implements TestStatisticsHelper {
 
+  private final StatisticsIndexMap m_statisticsIndexMap;
   private final StatisticsIndexMap.LongIndex m_errorsIndex;
   private final StatisticsIndexMap.LongIndex m_untimedTestsIndex;
   private final StatisticsIndexMap.LongSampleIndex m_timedTestsIndex;
 
   public TestStatisticsHelperImplementation(StatisticsIndexMap indexMap) {
 
+    m_statisticsIndexMap = indexMap;
     m_errorsIndex = indexMap.getLongIndex("errors");
     m_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
     m_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
@@ -90,5 +92,9 @@ final class TestStatisticsHelperImplementation
                           statistics.getCount(m_timedTestsIndex));
       statistics.reset(m_timedTestsIndex);
     }
+  }
+
+  public StatisticsIndexMap getStatisticsIndexMap() {
+    return m_statisticsIndexMap;
   }
 }
