@@ -127,11 +127,9 @@ final class ProcessContextImplementation implements ProcessContext {
       new SSLControlImplementation(m_threadContextLocator);
 
     final Statistics scriptStatistics =
-      new ScriptStatisticsImplementation(
-        m_threadContextLocator,
-        m_testStatisticsHelper,
-        statisticsServices,
-        consoleSender);
+      new ScriptStatisticsImplementation(m_threadContextLocator,
+                                         statisticsServices,
+                                         consoleSender);
 
     m_scriptContext = new ScriptContextImplementation(
       m_workerIdentity,
@@ -246,6 +244,7 @@ final class ProcessContextImplementation implements ProcessContext {
     private final ThreadLocal m_threadContextThreadLocal = new ThreadLocal();
 
     public ThreadContext get() {
+
       return (ThreadContext)m_threadContextThreadLocal.get();
     }
 

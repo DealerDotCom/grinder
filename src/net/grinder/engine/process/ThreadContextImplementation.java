@@ -33,7 +33,7 @@ import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.statistics.ImmutableStatisticsSet;
+import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.ListenerSupport.Informer;
@@ -65,7 +65,7 @@ final class ThreadContextImplementation
 
   private DispatchContext m_pendingDispatchContext;
 
-  private ImmutableStatisticsSet m_lastReportedStatistics;
+  private StatisticsForTest m_statisticsForLastTest;
 
   public ThreadContextImplementation(ProcessContext processContext,
                                      ThreadLogger threadLogger,
@@ -113,7 +113,7 @@ final class ThreadContextImplementation
     registerThreadLifeCycleListener(
       new ThreadLifeCycleListener() {
         public void beginRun() { }
-        public void endRun() { flushPendingDispatchContext(); }
+        public void endRun() { reportPendingDispatchContext(); }
       });
   }
 
@@ -141,6 +141,10 @@ final class ThreadContextImplementation
     m_sslContextFactory = sslContextFactory;
   }
 
+  public DispatchResultReporter getDispatchResultReporter() {
+    return m_dispatchResultReporter;
+  }
+
   public void registerThreadLifeCycleListener(
     ThreadLifeCycleListener listener) {
     m_threadLifeCycleListeners.add(listener);
@@ -160,33 +164,6 @@ final class ThreadContextImplementation
         ((ThreadLifeCycleListener)listener).endRun();
       } }
     );
-  }
-
-  public void setDelayReports(boolean b) {
-    if (!b) {
-      flushPendingDispatchContext();
-    }
-
-    m_delayReports = b;
-  }
-
-  public DispatchResultReporter getDispatchResultReporter() {
-    return m_dispatchResultReporter;
-  }
-
-  public DispatchContext getDispatchContext() {
-    final DispatchContext currentDispatchContext =
-      m_dispatchContextStack.peekTop();
-
-    if (currentDispatchContext != null) {
-      return currentDispatchContext;
-    }
-
-    return m_pendingDispatchContext;
-  }
-
-  public ImmutableStatisticsSet getLastReportedStatistics() {
-    return m_lastReportedStatistics;
   }
 
   public void pushDispatchContext(DispatchContext dispatchContext)
@@ -216,12 +193,13 @@ final class ThreadContextImplementation
     }
 
     if (m_delayReports) {
-      flushPendingDispatchContext();
+      reportPendingDispatchContext();
       m_pendingDispatchContext = dispatchContext;
     }
     else {
       try {
-        m_lastReportedStatistics = dispatchContext.report();
+        m_statisticsForLastTest = dispatchContext.getStatisticsForTest();
+        dispatchContext.report();
       }
       catch (DispatchStateException e) {
         throw new AssertionError(e);
@@ -229,10 +207,34 @@ final class ThreadContextImplementation
     }
   }
 
-  public void flushPendingDispatchContext() {
+  public StatisticsForTest getStatisticsForCurrentTest() {
+     final DispatchContext dispatchContext = m_dispatchContextStack.peekTop();
+
+     if (dispatchContext == null) {
+       return null;
+     }
+
+     return dispatchContext.getStatisticsForTest();
+  }
+
+  public StatisticsForTest getStatisticsForLastTest() {
+    return m_statisticsForLastTest;
+  }
+
+  public void setDelayReports(boolean b) {
+    if (!b) {
+      reportPendingDispatchContext();
+    }
+
+    m_delayReports = b;
+  }
+
+  public void reportPendingDispatchContext() {
     if (m_pendingDispatchContext != null) {
       try {
-        m_lastReportedStatistics = m_pendingDispatchContext.report();
+        m_statisticsForLastTest =
+          m_pendingDispatchContext.getStatisticsForTest();
+        m_pendingDispatchContext.report();
       }
       catch (DispatchStateException e) {
         throw new AssertionError(e);

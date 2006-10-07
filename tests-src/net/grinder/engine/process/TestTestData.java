@@ -29,7 +29,8 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
-import net.grinder.statistics.ImmutableStatisticsSet;
+import net.grinder.script.InvalidContextException;
+import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
@@ -48,12 +49,14 @@ import net.grinder.util.StandardTimeAuthority;
 public class TestTestData extends TestCase {
 
   private static final StatisticsIndexMap.LongSampleIndex s_timedTestsIndex;
+  private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
 
   static {
     final StatisticsIndexMap indexMap =
       StatisticsServicesImplementation.getInstance().getStatisticsIndexMap();
 
     s_timedTestsIndex= indexMap.getLongSampleIndex("timedTests");
+    s_untimedTestsIndex= indexMap.getLongIndex("untimedTests");
   }
 
 
@@ -210,10 +213,15 @@ public class TestTestData extends TestCase {
   public void testDispatchContext() throws Exception {
     final Test test1 = new StubTest(1, "test1");
 
+    // We need a real helper here, not a stub.
+    final TestStatisticsHelper testStatisticsHelper =
+      new TestStatisticsHelperImplementation(
+        StatisticsServicesImplementation.getInstance().getStatisticsIndexMap());
+
     final TestData testData =
       new TestData(m_threadContextLocator,
                    m_statisticsSetFactory,
-                   m_testStatisticsHelper,
+                   testStatisticsHelper,
                    m_timeAuthority,
                    m_scriptEngine,
                    test1);
@@ -245,13 +253,15 @@ public class TestTestData extends TestCase {
 
     // Test statistics not updated until we report.
     assertEquals(0, statistics.getCount(s_timedTestsIndex));
-    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     assertSame(test1, dispatchContext.getTest());
 
-    final StatisticsSet dispatchStatistics = dispatchContext.getStatistics();
-    assertNotSame(statistics, dispatchStatistics);
-    assertNotNull(dispatchStatistics);
+    final StatisticsForTest dispatchStatisticsForTest =
+      dispatchContext.getStatisticsForTest();
+    assertSame(dispatchStatisticsForTest,
+      dispatchContext.getStatisticsForTest());
+    assertEquals(test1, dispatchStatisticsForTest.getTest());
+    assertNotNull(dispatchStatisticsForTest);
 
     assertNotNull(dispatchContext.getPauseTimer());
 
@@ -274,14 +284,12 @@ public class TestTestData extends TestCase {
     // Call will take much less than a second, so we get 0.
     assertEquals(0, dispatchContext.getElapsedTime());
 
-    // We're using a stubbed test statistics helper, and its easier
-    // for the test to update the statistics by hand.
-    dispatchStatistics.addSample(s_timedTestsIndex, 0);
+    assertEquals(0, dispatchStatisticsForTest.getLong("untimedTests"));
 
-    final ImmutableStatisticsSet reportedStatistics = dispatchContext.report();
-    m_testStatisticsHelperStubFactory.assertSuccess(
-      "recordTest", dispatchStatistics, new Long(0));
-    assertEquals(1, reportedStatistics.getCount(s_timedTestsIndex));
+    // Its easier for the test to update the statistics by hand.
+    dispatchStatisticsForTest.setLong("untimedTests", 2);
+
+    dispatchContext.report();
 
     try {
       dispatchContext.report();
@@ -290,12 +298,20 @@ public class TestTestData extends TestCase {
     catch (DispatchStateException e) {
     }
 
+    // report() will have updated the statistics with a single,
+    // successful, timed test.
     assertEquals(1, statistics.getCount(s_timedTestsIndex));
-
-    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+    assertEquals(0, statistics.getValue(s_untimedTestsIndex));
 
     assertEquals(-1, dispatchContext.getElapsedTime());
-    assertNull(dispatchContext.getStatistics());
+    assertNull(dispatchContext.getStatisticsForTest());
+
+    try {
+      dispatchStatisticsForTest.setLong("untimedTests", 2);
+      fail("Expected InvalidContextException");
+    }
+    catch (InvalidContextException e) {
+    }
 
     final Callable longerCallable = new Callable() {
       public Object call() {

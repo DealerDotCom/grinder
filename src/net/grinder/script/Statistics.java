@@ -110,9 +110,9 @@ import net.grinder.common.GrinderException;
  * </table> </blockquote>
  *
  * <p>
- * The methods of the {@link Statistics} interface update or return statistics
- * for a single test. Consequentially, the statistics should be interpreted as
- * follows when using this interface.
+ * The {@link #getForCurrentTest()} and {@link #getForLastTest()} methods allow
+ * scripts to query or update statistics for a single test. Consequentially,
+ * the statistics should be interpreted as follows when using this interface.
  * </p>
  *
  * <blockquote> <table class="table">
@@ -190,7 +190,7 @@ import net.grinder.common.GrinderException;
  *
  * <p>If the <code>grinder.reportTimesToConsole</code> property (see <a
  * href="http://grinder.sourceforge.net/g3/properties.html">The Grinder manual
- * </a>) is <code>false</code>,  the statistics sent to the console are further
+ * </a>) is <code>false</code>, the statistics sent to the console are further
  * modified by setting <em>untimedTests</em> to the count of the
  * <em>timedTests</em> statistic, and resetting <em>timedTests</em>.</p>
  *
@@ -256,10 +256,11 @@ import net.grinder.common.GrinderException;
  * <h2>Querying statistics</h2>
  *
  * <p>
- * {@link #getDouble(String)} and {@link #getLong(String)} provide basic
+ * {@link StatisticsForTest#getDouble(String)} and
+ * {@link StatisticsForTest#getLong(String)} provide basic
  * statistics about the current or last test performed by the calling worker
- * thread. There is also {@link #getSuccess()}, which is equivalent to
- * <code>getLong("errors") != 0</code>.
+ * thread. There is also {@link StatisticsForTest#getSuccess()}, which is
+ * equivalent to <code>getLong("errors") != 0</code>.
  * </p>
  *
  * <p>
@@ -271,36 +272,44 @@ import net.grinder.common.GrinderException;
  * <pre>
  * result1 = test1.doSomething()
  *
- * if grinder.statistics.success and \
- *   grinder.statistics.getLong(&quot;httpplugin.responseStatus&quot;) == 200:
+ * statisticsForTest = grinder.statistics.forLastTest
+ *
+ * if statisticsForTest.success and \
+ *   statisticsForTest.getLong(&quot;httpplugin.responseStatus&quot;) == 200:
  *   # ...
  * </pre>
  *
  * </blockquote>
  *
  * <p>
- * If called from within code wrapped by a {@link Test} proxy, the query methods
- * provide information about the test in progress. This information may be
- * partially complete. Otherwise, the query methods provide information about
- * the last test performed by the calling worker thread.
+ * Calling query methods on the result of {@link #getForLastTest} provides
+ * information about the last test performed by the calling worker thread.
+ * </p>
+ *
+ * <p>
+ * Calling query methods on the result of {@link #getForCurrentTest} from within
+ * code wrapped by a {@link Test} proxy provides information about the test in
+ * progress. This information may be partially complete.
  * </p>
  *
  * <p>
  * There are no general methods to access the count, sum, and variance of sample
- * statistics. There is a single <em>timedTests</em> sample statistic, and
- * these terms aren't that meaningful for a single test. Instead, the time of
- * the last test (or the elapsed time of the current test) can be obtained with
- * {@link #getTime()}, and {@link #getSuccess()} returns whether the test was
+ * statistics; these terms aren't that meaningful for a single test. Instead,
+ * there are specific methods which influence the only sample statistic used
+ * by The Grinder - the <em>timedTests</em> statistic. The time of the last test
+ * can be obtained with {@link StatisticsForTest#getTime()} (or the elapsed time
+ * of the current test when used with {@link #getForCurrentTest()}}, and
+ * {@link StatisticsForTest#getSuccess()} returns whether the test was
  * successful or not.
  *
  * <p>
  * There's a subtle difference between the sum of <em>timedTests</em> and the
- * result of {@link #getTime()}. {@link #getTime()} always returns the time
+ * result of {@link StatisticsForTest#getTime()}.
+ * {@link StatisticsForTest#getTime()} always returns the time
  * taken by the test, even if the test was an error and the time will not be
  * added to <em>timedTests</em>. This allows the script to access the time
  * taken by a failed test, even though it's not recorded anywhere else.
  * </p>
- *
  *
  * <h2>Updating statistics</h2>
  *
@@ -309,16 +318,16 @@ import net.grinder.common.GrinderException;
  * </p>
  *
  * <ul>
- * <li>{@link #setSuccess(boolean)}</li>
- * <li>{@link #setLong(String, long)}</li>
- * <li>{@link #setDouble(String, double)}</li>
- * <li>{@link #addLong(String, long)}
- * <li>{@link #addDouble(String, double)}</li>
+ * <li>{@link StatisticsForTest#setSuccess(boolean)}</li>
+ * <li>{@link StatisticsForTest#setLong(String, long)}</li>
+ * <li>{@link StatisticsForTest#setDouble(String, double)}</li>
+ * <li>{@link StatisticsForTest#addLong(String, long)}
+ * <li>{@link StatisticsForTest#addDouble(String, double)}</li>
  * </ul>
  *
  * <p>
- * The only way to influence the <em>timedTests</em> sample statistic is to
- * mark the test as an error.
+ * The only way to influence the <em>timedTests</em> sample statistic through
+ * this interface is to mark the test as an error.
  * </p>
  *
  * <p>
@@ -340,17 +349,16 @@ import net.grinder.common.GrinderException;
  * if isFailed(result1):
  *   # Mark test as failure. The appropriate failure detection
  *   # depends on the type of test.
- *   grinder.statistics.success = 0
+ *   grinder.statistics.forLastTest.success = 0
  * </pre>
  *
  * </blockquote>
  *
  * <p>
  * It is also possible to set the statistics from within test implementation
- * itself. This is more useful for user statistics than for the standard
- * statistics (e.g. <em>untimedTests</em>, <em>errors</em>) as the
- * standard statistics may be overridden by The Grinder engine when the test
- * finishes as described above.
+ * itself using {@link #getForCurrentTest()}. Changes to the standard statistics
+ * will be modified by The Grinder engine when the test finishes as described
+ * above.
  * </p>
  *
  * <h2>Registering new expressions</h2>
@@ -366,14 +374,68 @@ import net.grinder.common.GrinderException;
 public interface Statistics  {
 
   /**
-   * Use to delay reporting of the last test statistics to the log and the
-   * console so that the script can modify them. Normally test statistics are
-   * reported automatically when the test implementation returns. Only affects
-   * reporting for the calling worker thread.
+   * Access to the statistics for the current test.
    *
    * <p>
-   * With this set to <code>true</code> the test statistics will be reported
-   * at the following times:
+   * This is only valid when called from code wrapped within a Test. If this is
+   * not the case, {@link InvalidContextException} will be thrown. E.g.
+   * </p>
+   *
+   * <pre>
+   * def foo():
+   *   statistics = grinder.statistics.getForCurrentTest()
+   *   t = statistics.time      # Time since foo() was called.
+   *   statistics.success = 0   # Mark test as bad.
+   *
+   * instrumentedFoo = Test(1, &quot;My Test&quot;).wrap(foo)
+   *
+   * instrumentedFoo()              # OK.
+   * foo()                          # The statistics.getForCurrentTest() call in
+   *                                # foo() will throw exception as there is no
+   *                                # current test.
+   * statistics.getForCurrentTest() # Will throw exception, no current test.
+   * </pre>
+   *
+   * @return The statistics for the current test.
+   * @throws InvalidContextException
+   *           If not called from a worker thread.
+   * @throws InvalidContextException
+   *           If there is no test in progress.
+   * @see #getForLastTest()
+   * @see #isTestInProgress()
+   */
+  StatisticsForTest getForCurrentTest() throws InvalidContextException;
+
+  /**
+   * Access the statistics for the last completed test. These can only
+   * be updated if {@link #setDelayReports(boolean) reporting has been
+   * delayed}.
+   *
+   * @return The statistics for the last test.
+   * @throws InvalidContextException
+   *           If not called from a worker thread.
+   * @throws InvalidContextException
+   *           If called before the first test has started.
+   * @see #getForCurrentTest
+   */
+  StatisticsForTest getForLastTest() throws InvalidContextException;
+
+  /**
+   * Returns whether there is a test in progress.
+   *
+   * @return <code>true</code => {@link #getForCurrentTest} will
+   * not throw {@link InvalidContextException}.
+   */
+  boolean isTestInProgress();
+
+  /**
+   * Use to delay reporting of the last test statistics to the log and the
+   * console so that the script can modify them. Normally test statistics are
+   * reported automatically when the code wrapped by the test completes.
+   *
+   * <p>
+   * With this set to <code>true</code> the statistics for a completed test
+   * will be reported at the following times:
    * <ol>
    * <li>When the next test is invoked.</li>
    * <li>When the current run completes.</li>
@@ -382,10 +444,14 @@ public interface Statistics  {
    * </ol>
    * </p>
    *
+   * <p>
+   * This method only changes reporting for the calling worker thread.
+   * </p>
+   *
    * @param b
-   *          <code>false</code> => enable automatic reporting when tests
-   *          return (the default behaviour); <code>true</code> => delay
-   *          reporting.
+   *          <code>false</code> => enable automatic reporting when the code
+   *          wrapped by a test completes (the default behaviour);
+   *          <code>true</code> => delay reporting.
    * @throws InvalidContextException
    *           If not called from a worker thread.
    * @see #report
@@ -406,199 +472,6 @@ public interface Statistics  {
    *           If not called from a worker thread.
    */
   void report() throws InvalidContextException;
-
-  /**
-   * Return whether the statistics for the current test are available
-   * for update. If this returns <code>true</code>, then other methods
-   * will not throw {@link InvalidContextException}.
-   *
-   * @return Whether the statistics for the current test are available
-   * for update.
-   */
-  boolean availableForUpdate();
-
-  /**
-   * Sets the long statistic <code>statisticName</code> to the specified
-   * <code>value</code>.
-   *
-   * @param statisticName
-   *          The statistic name. See {@link Statistics} for a list
-   *          of valid names.
-   * @param value
-   *          The value.
-   * @throws InvalidContextException
-   *           If not called from a worker thread.
-   * @throws InvalidContextException
-   *           If called before the first test has started.
-   * @throws InvalidContextException
-   *           If called when the statistics have already been sent for the last
-   *           test performed by this thread - see {@link #setDelayReports} and
-   *           {@link #availableForUpdate}.
-   * @throws NoSuchStatisticException
-   *           If <code>statisticName</code> does not refer to a known
-   *           basic long statistic.
-   */
-  void setLong(String statisticName, long value)
-    throws InvalidContextException, NoSuchStatisticException;
-
-  /**
-   * Sets the double statistic <code>statisticName</code> to the specified
-   * <code>value</code>.
-   *
-   * @param statisticName
-   *          The statistic name. See {@link Statistics} for a list of valid
-   *          names.
-   * @param value
-   *          The value.
-   * @throws InvalidContextException
-   *           If not called from a worker thread.
-   * @throws InvalidContextException
-   *           If called before the first test has started.
-   * @throws InvalidContextException
-   *           If called when the statistics have already been sent for the last
-   *           test performed by this thread - see {@link #setDelayReports} and
-   *           {@link #availableForUpdate}.
-   * @throws NoSuchStatisticException
-   *           If <code>statisticName</code> does not refer to a known
-   *           basic double statistic.
-   */
-  void setDouble(String statisticName, double value)
-    throws InvalidContextException, NoSuchStatisticException;
-
-  /**
-   * Add <code>value</code> to the long statistic <code>statisticName</code>.
-   *
-   * @param statisticName
-   *          The statistic name. See {@link Statistics} for a list of valid
-   *          names.
-   * @param value
-   *          The value.
-   * @throws InvalidContextException
-   *           If not called from a worker thread.
-   * @throws InvalidContextException
-   *           If called before the first test has started.
-   * @throws InvalidContextException
-   *           If called when the statistics have already been sent for the last
-   *           test performed by this thread - see {@link #setDelayReports} and
-   *           {@link #availableForUpdate}.
-   * @throws NoSuchStatisticException
-   *           If <code>statisticName</code> does not refer to a known
-   *           basic long statistic.
-   */
-  void addLong(String statisticName, long value)
-    throws InvalidContextException, NoSuchStatisticException;
-
-  /**
-   * Add <code>value</code> to the double statistic <code>statisticName</code>.
-   *
-   * @param statisticName
-   *          The statistic name. See {@link Statistics} for a list of valid
-   *          names.
-   * @param value
-   *          The value.
-   * @throws InvalidContextException
-   *           If not called from a worker thread.
-   * @throws InvalidContextException
-   *           If called before the first test has started.
-   * @throws InvalidContextException
-   *           If called when the statistics have already been sent for the last
-   *           test performed by this thread - see {@link #setDelayReports} and
-   *           {@link #availableForUpdate}.
-   * @throws NoSuchStatisticException
-   *           If <code>statisticName</code> does not refer to a known
-   *           basic double statistic.
-   */
-  void addDouble(String statisticName, double value)
-    throws InvalidContextException, NoSuchStatisticException;
-
-  /**
-   * Return the value of long statistic <code>statisticName</code> for the
-   * test in progress, or if the last test completed if there is no test in
-   * progress.
-   *
-   * @param statisticName
-   *          The statistic name. See {@link Statistics} for a list of valid
-   *          names.
-   * @return The value.
-   * @throws InvalidContextException
-   *           If not called from a worker thread.
-   * @throws InvalidContextException
-   *           If called before the first test has started.
-   * @throws NoSuchStatisticException
-   *           If <code>statisticName</code> does not refer to a known
-   *           basic long statistic.
-   */
-  long getLong(String statisticName)
-    throws InvalidContextException, NoSuchStatisticException;
-
-  /**
-   * Return the value of the double statistic <code>statisticName</code> for
-   * the test in progress, or if the last test completed if there is no test in
-   * progress.
-   *
-   * @param statisticName
-   *          The statistic name. See {@link Statistics} for a list of valid
-   *          names.
-   * @return The value.
-   * @throws InvalidContextException
-   *           If not called from a worker thread.
-   * @throws InvalidContextException
-   *           If called before the first test has started.
-   * @throws NoSuchStatisticException
-   *           If <code>statisticName</code> does not refer to a known
-   *           basic double statistic.
-   */
-  double getDouble(String statisticName)
-    throws InvalidContextException, NoSuchStatisticException;
-
-  /**
-   * Convenience method that sets whether the last test should be considered a
-   * success or not.
-   *
-   *
-   * @param success
-   *          If <code>true</code> <em>errors</em> is set to <code>0</code>,
-   *          otherwise <em>errors</em> is set to <code>1</code>.
-   * @throws InvalidContextException
-   *           If not called from a worker thread.
-   * @throws InvalidContextException
-   *           If called before the first test has started.
-   * @throws InvalidContextException
-   *           If called when the statistics have already been sent for the last
-   *           test performed by this thread - see {@link #setDelayReports} and
-   *           {@link #availableForUpdate}.
-   */
-  void setSuccess(boolean success) throws InvalidContextException;
-
-  /**
-   * Convenience method that returns whether the test in progress (or the last
-   * test if there is no test in progress) was a success (<em>errors</em> is
-   * zero) or not.
-   *
-   * @return Whether the test was a success.
-   * @throws InvalidContextException
-   *           If not called from a worker thread.
-   * @throws InvalidContextException
-   *           If called before the first test has started.
-   */
-  boolean getSuccess() throws InvalidContextException;
-
-  /**
-   * Convenience method that returns the elapsed time since the test in progress
-   * was started, or the time taken by the last test if there is no test in
-   * progress.
-   *
-   * <p>{@link #getTime()} always returns the time taken by the test,
-   * even if the test was an error and the time will not be added to
-   * <em>timedTests</em>.</p>
-   *
-   * @return The elapsed time for the test.
-   * @throws InvalidContextException
-   *           If not called from a worker thread.
-   * @throws InvalidContextException
-   *           If called before the first test has started.
-   */
-  long getTime() throws InvalidContextException;
 
   /**
    * Register a new "summary" statistic expression. This expression will appear
@@ -662,5 +535,168 @@ public interface Statistics  {
    *      expression format.
    */
   void registerDataLogExpression(String displayName, String expression)
-    throws GrinderException, InvalidContextException;
+     throws GrinderException, InvalidContextException;
+
+  /**
+   * Query and update methods for the statistics relating to a particular call
+   * of a test.
+   *
+   * @see Statistics#getForLastTest()
+   * @see Statistics#getForCurrentTest()
+   */
+  interface StatisticsForTest {
+
+    /**
+     * Return the Test that the statistics are for.
+     *
+     * @return The test.
+     */
+    net.grinder.common.Test getTest();
+
+    /**
+     * Sets the long statistic <code>statisticName</code> to the specified
+     * <code>value</code>.
+     *
+     * @param statisticName
+     *          The statistic name. See {@link Statistics} for a list of valid
+     *          names.
+     * @param value
+     *          The value.
+     * @throws InvalidContextException
+     *           If called when the statistics have already been sent for the
+     *           last test performed by this thread - see
+     *           {@link Statistics#setDelayReports}.
+     * @throws NoSuchStatisticException
+     *           If <code>statisticName</code> does not refer to a known basic
+     *           long statistic.
+     */
+    void setLong(String statisticName, long value)
+      throws InvalidContextException, NoSuchStatisticException;
+
+    /**
+     * Sets the double statistic <code>statisticName</code> to the specified
+     * <code>value</code>.
+     *
+     * @param statisticName
+     *          The statistic name. See {@link Statistics} for a list of valid
+     *          names.
+     * @param value
+     *          The value.
+     * @throws InvalidContextException
+     *           If called when the statistics have already been sent for the
+     *           last test performed by this thread - see
+     *           {@link Statistics#setDelayReports(boolean)}.
+     * @throws NoSuchStatisticException
+     *           If <code>statisticName</code> does not refer to a known basic
+     *           double statistic.
+     */
+    void setDouble(String statisticName, double value)
+      throws InvalidContextException, NoSuchStatisticException;
+
+    /**
+     * Add <code>value</code> to the long statistic <code>statisticName</code>.
+     *
+     * @param statisticName
+     *          The statistic name. See {@link Statistics} for a list of valid
+     *          names.
+     * @param value
+     *          The value.
+     * @throws InvalidContextException
+     *           If called when the statistics have already been sent for the
+     *           last test performed by this thread - see
+     *           {@link Statistics#setDelayReports(boolean)}.
+     * @throws NoSuchStatisticException
+     *           If <code>statisticName</code> does not refer to a known basic
+     *           long statistic.
+     */
+    void addLong(String statisticName, long value)
+      throws InvalidContextException, NoSuchStatisticException;
+
+    /**
+     * Add <code>value</code> to the double statistic
+     * <code>statisticName</code>.
+     *
+     * @param statisticName
+     *          The statistic name. See {@link Statistics} for a list of valid
+     *          names.
+     * @param value
+     *          The value.
+     * @throws InvalidContextException
+     *           If called when the statistics have already been sent for the
+     *           last test performed by this thread - see
+     *           {@link Statistics#setDelayReports(boolean)}.
+     * @throws NoSuchStatisticException
+     *           If <code>statisticName</code> does not refer to a known basic
+     *           double statistic.
+     */
+    void addDouble(String statisticName, double value)
+      throws InvalidContextException, NoSuchStatisticException;
+
+    /**
+     * Return the value of long statistic <code>statisticName</code>.
+     *
+     * @param statisticName
+     *          The statistic name. See {@link Statistics} for a list of valid
+     *          names.
+     * @return The value.
+     * @throws NoSuchStatisticException
+     *           If <code>statisticName</code> does not refer to a known
+     *           basic long statistic.
+     */
+    long getLong(String statisticName) throws NoSuchStatisticException;
+
+    /**
+     * Return the value of the double statistic <code>statisticName</code>.
+     *
+     * @param statisticName
+     *          The statistic name. See {@link Statistics} for a list of valid
+     *          names.
+     * @return The value.
+     * @throws NoSuchStatisticException
+     *           If <code>statisticName</code> does not refer to a known basic
+     *           double statistic.
+     */
+    double getDouble(String statisticName) throws NoSuchStatisticException;
+
+    /**
+     * Convenience method that sets whether the last test should be considered a
+     * success or not.
+     *
+     * @param success
+     *          If <code>true</code> <em>errors</em> is set to
+     *          <code>0</code>, otherwise <em>errors</em> is set to
+     *          <code>1</code>.
+     * @throws InvalidContextException
+     *           If called when the statistics have already been sent for the
+     *           last test performed by this thread - see
+     *           {@link Statistics#setDelayReports(boolean)}.
+     */
+    void setSuccess(boolean success) throws InvalidContextException;
+
+    /**
+     * Convenience method that returns whether the test was a success
+     * (<em>errors</em> is zero) or not.
+     *
+     * @return Whether the test was a success.
+     */
+    boolean getSuccess();
+
+    /**
+     * Returns the elapsed time for the test.
+     *
+     * <p>If this {@link StatisticsForTest} was obtained with
+     * {@link Statistics#getForCurrentTest}, the result will be the elapsed time
+     * since the test in progress was started. If it was obtained with
+     * {@link Statistics#getForLastTest}. the result will be the time taken by
+     * the last test.
+     *
+     * <p>
+     * {@link #getTime()} always returns the time taken by the test, even if the
+     * test was an error and the time will not be added to <em>timedTests</em>.
+     * </p>
+     *
+     * @return The elapsed time for the test.
+     */
+    long getTime();
+  }
 }

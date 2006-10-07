@@ -25,8 +25,9 @@ package net.grinder.engine.process;
 import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.script.NotWrappableTypeException;
-import net.grinder.statistics.ImmutableStatisticsSet;
+import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.util.TimeAuthority;
@@ -98,20 +99,7 @@ final class TestData
     final DispatcherHolder dispatcherHolder =
       m_dispatcherHolderThreadLocal.getDispatcherHolder();
 
-    final Dispatcher dispatcher = dispatcherHolder.reserve();
-
-    if (dispatcher != null) {
-      try {
-        return dispatcher.dispatch(callable);
-      }
-      finally {
-        dispatcherHolder.release(dispatcher);
-      }
-    }
-    else {
-      // Already in a dispatch.
-      return callable.call();
-    }
+    return dispatcherHolder.dispatch(callable);
   }
 
   /**
@@ -128,8 +116,7 @@ final class TestData
         }
 
         final Dispatcher dispatcher =
-          new Dispatcher(m_statisticsSetFactory,
-                         threadContext.getDispatchResultReporter(),
+          new Dispatcher(threadContext.getDispatchResultReporter(),
                          new StopWatchImplementation(m_timeAuthority));
 
         return new DispatcherHolder(threadContext, dispatcher);
@@ -166,20 +153,27 @@ final class TestData
       m_dispatcher = dispatcher;
     }
 
-    public Dispatcher reserve() throws ShutdownException {
-      final Dispatcher result = m_dispatcher;
+    public Object dispatch(Callable callable)
+      throws DispatchStateException, ShutdownException {
 
       if (m_dispatcher != null) {
-        m_threadContext.pushDispatchContext(m_dispatcher);
-        m_dispatcher = null;
+        final Dispatcher dispatcher = m_dispatcher;
+
+        try {
+          m_threadContext.pushDispatchContext(dispatcher);
+          m_dispatcher = null;
+
+          return dispatcher.dispatch(callable);
+        }
+        finally {
+          m_threadContext.popDispatchContext();
+          m_dispatcher = dispatcher;
+        }
       }
-
-      return result;
-    }
-
-    public void release(Dispatcher dispatcher) {
-      m_threadContext.popDispatchContext();
-      m_dispatcher = dispatcher;
+      else {
+        // Already in a dispatch.
+        return callable.call();
+      }
     }
   }
 
@@ -187,11 +181,11 @@ final class TestData
    * Three states:
    * <ul>
    * <li><em>initialised</em> Start time is -1. Dispatch time is -1.
-   * Statistics all zero.</li>
+   * m_statisticsForTest is null.</li>
    * <li><em>dispatching</em> Start time is valid. Dispatch time is -1.
-   * Statistics are valid and available for update.</li>
+   * m_statisticsForTest is not null.</li>
    * <li><em>complete</em> Ready to report. Start time is valid. Dispatch
-   * time is valid. Statistics are valid and available for update.</li>
+   * time is valid. m_statisticsForTest is null.</li>
    * </ul>
    *
    * {@link ThreadContextImplementation#getDispatchContext()} takes care to only
@@ -199,21 +193,15 @@ final class TestData
    * <em>complete</em>.
    */
   private final class Dispatcher implements DispatchContext {
-    private final StatisticsSet m_statisticsSet1;
-    private final StatisticsSet m_statisticsSet2;
     private final DispatchResultReporter m_resultReporter;
     private final StopWatch m_pauseTimer;
-    private StatisticsSet m_dispatchStatistics;
 
     private long m_startTime = -1;
     private long m_dispatchTime = -1;
+    private StatisticsForTestImplementation m_statisticsForTest;
 
-    public Dispatcher(StatisticsSetFactory statisticsSetFactory,
-                      DispatchResultReporter resultReporter,
+    public Dispatcher(DispatchResultReporter resultReporter,
                       StopWatch pauseTimer) {
-      m_statisticsSet1 = statisticsSetFactory.create();
-      m_statisticsSet2 = statisticsSetFactory.create();
-      m_dispatchStatistics = m_statisticsSet1;
 
       m_resultReporter = resultReporter;
       m_pauseTimer = pauseTimer;
@@ -223,6 +211,13 @@ final class TestData
       if (m_startTime != -1 || m_dispatchTime != -1) {
         throw new DispatchStateException("Last statistics were not reported");
       }
+
+      m_pauseTimer.reset();
+
+      m_statisticsForTest = new StatisticsForTestImplementation(
+        this,
+        m_testStatisticsHelper,
+        m_statisticsSetFactory.create());
 
       try {
         // Make it more likely that the timed section has a "clear run".
@@ -240,7 +235,8 @@ final class TestData
       }
       catch (RuntimeException e) {
         // Always mark as an error if the test threw an exception.
-        m_testStatisticsHelper.setSuccess(m_dispatchStatistics, false);
+        m_testStatisticsHelper.setSuccess(
+          m_statisticsForTest.getStatistics(), false);
 
         // We don't log the exception. If the script doesn't handle the
         // exception it will be logged when the run is aborted,
@@ -250,41 +246,28 @@ final class TestData
       }
     }
 
-    public ImmutableStatisticsSet report() throws DispatchStateException {
+    public void report() throws DispatchStateException {
       if (m_dispatchTime < 0) {
         throw new DispatchStateException("No statistics to report");
       }
 
-      m_testStatisticsHelper.recordTest(m_dispatchStatistics, getElapsedTime());
+      final StatisticsSet statistics =  m_statisticsForTest.getStatistics();
 
-      m_resultReporter.report(getTest(), m_startTime, m_dispatchStatistics);
-      getTestStatistics().add(m_dispatchStatistics);
+      m_testStatisticsHelper.recordTest(statistics, getElapsedTime());
 
-      final ImmutableStatisticsSet result = m_dispatchStatistics;
+      m_resultReporter.report(getTest(), m_startTime, statistics);
+      getTestStatistics().add(statistics);
 
-      // Reset. We reuse statistics sets, otherwise we would need to clone
-      // our result for every test report.
-      if (m_dispatchStatistics == m_statisticsSet1) {
-        m_dispatchStatistics = m_statisticsSet2;
-      }
-      else {
-        m_dispatchStatistics = m_statisticsSet1;
-      }
+      // Disassociate ourselves from m_statisticsForTest;
+      m_statisticsForTest.freeze();
+      m_statisticsForTest = null;
 
-      m_dispatchStatistics.reset();
-      m_pauseTimer.reset();
       m_startTime = -1;
       m_dispatchTime = -1;
-
-      return result;
     }
 
     public Test getTest() {
       return TestData.this.getTest();
-    }
-
-    public StatisticsSet getStatistics() {
-      return m_startTime >= 0 ? m_dispatchStatistics : null;
     }
 
     public StopWatch getPauseTimer() {
@@ -306,6 +289,10 @@ final class TestData
       }
 
       return Math.max(unadjustedTime - m_pauseTimer.getTime(), 0);
+    }
+
+    public StatisticsForTest getStatisticsForTest() {
+      return m_statisticsForTest;
     }
   }
 

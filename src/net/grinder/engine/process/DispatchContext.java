@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2006 Philip Aston
 // All rights reserved.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -18,8 +18,7 @@ package net.grinder.engine.process;
 
 import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
-import net.grinder.statistics.ImmutableStatisticsSet;
-import net.grinder.statistics.StatisticsSet;
+import net.grinder.script.Statistics.StatisticsForTest;
 
 
 /**
@@ -38,26 +37,39 @@ interface DispatchContext {
   Test getTest();
 
   /**
-   * The statistics, or <code>null</code> if the statistics have been
-   * reported. Can be updated.
+   * Creates a {@link StatisticsForTest} through which the script can query and
+   * update the statistics. The statistics are only mutable update until the
+   * next time {@link #report()} is called; after that time the
+   * {@link StatisticsForTest} is disassociated from this
+   * {@link DispatchContext} and the statistics are read-only.
    *
-   * @return The statistics, or <code>null</code>. This object may be reused
-   *         for efficiency, so is only valid until the next time report() is
-   *         called.
+   * @return The handle the script uses to update the statistics, or
+   *    <code>null</code> if there currently is no test in progress.
    */
-  StatisticsSet getStatistics();
+  StatisticsForTest getStatisticsForTest();
 
   /**
    * Report any pending statistics.
    *
-   * @return The statistics that were reported. This object may be reused for
-   *         efficiency; its only valid until the next time report() is called.
    * @throws DispatchStateException If there are no statistics to report.
    */
-  ImmutableStatisticsSet report() throws DispatchStateException;
+  void report() throws DispatchStateException;
 
+  /**
+   * Return a {@link StopWatch} which can be started and stopped around
+   * code that should not contribute to the elapsed time measurement.
+   *
+   * @return The stop watch.
+   */
   StopWatch getPauseTimer();
 
+  /**
+   * If there is a test in progress, return the elapsed time since the
+   * start of the test. If a test has been completed, but not reported, return
+   * the test time. Otherwise return -1.
+   *
+   * @return The elapsed time for the test.
+   */
   long getElapsedTime();
 
   /**

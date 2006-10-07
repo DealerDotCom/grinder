@@ -29,6 +29,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
+import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
@@ -139,14 +140,13 @@ public class TestThreadContextImplementation extends TestCase {
     assertEquals("", dataStringWriter.toString());
   }
 
-
   public void testDispatchContext() throws Exception {
     final ThreadContext threadContext =
       new ThreadContextImplementation(
         m_processContext, m_threadLogger, m_filenameFactory, null);
 
-    assertNull(threadContext.getDispatchContext());
-    assertNull(threadContext.getLastReportedStatistics());
+    assertNull(threadContext.getStatisticsForCurrentTest());
+    assertNull(threadContext.getStatisticsForLastTest());
 
     try {
       threadContext.popDispatchContext();
@@ -160,22 +160,34 @@ public class TestThreadContextImplementation extends TestCase {
 
     m_threadLoggerStubFactory.resetCallHistory();
 
+    final RandomStubFactory statisticsForTestStubFactory =
+      new RandomStubFactory(StatisticsForTest.class);
+    final StatisticsForTest statisticsForTest =
+      (StatisticsForTest)statisticsForTestStubFactory.getStub();
+    m_dispatchContextStubFactory.setResult(
+      "getStatisticsForTest", statisticsForTest);
+
     threadContext.pushDispatchContext(m_dispatchContext);
-
-    assertSame(m_dispatchContext, threadContext.getDispatchContext());
-    assertNull(threadContext.getLastReportedStatistics());
-
-    m_threadLoggerStubFactory.assertSuccess(
-      "setCurrentTestNumber", new Integer(14));
 
     m_dispatchContextStubFactory.assertSuccess("getTest");
     m_dispatchContextStubFactory.assertNoMoreCalls();
 
+    assertSame(statisticsForTest, threadContext.getStatisticsForCurrentTest());
+    assertNull(threadContext.getStatisticsForLastTest());
+
+    m_threadLoggerStubFactory.assertSuccess(
+      "setCurrentTestNumber", new Integer(14));
+
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
+    m_dispatchContextStubFactory.assertNoMoreCalls();
+
     threadContext.popDispatchContext();
 
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
-    assertNotNull(threadContext.getLastReportedStatistics());
+    assertSame(statisticsForTest, threadContext.getStatisticsForLastTest());
+    assertNull(threadContext.getStatisticsForCurrentTest());
 
     final RandomStubFactory anotherDispatchContextStubFactory =
       new RandomStubFactory(DispatchContext.class);
@@ -197,6 +209,7 @@ public class TestThreadContextImplementation extends TestCase {
 
     threadContext.popDispatchContext();
     m_dispatchContextStubFactory.assertSuccess("getPauseTimer");
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
     anotherDispatchContextStubFactory.assertSuccess("getPauseTimer");
@@ -214,6 +227,7 @@ public class TestThreadContextImplementation extends TestCase {
 
     threadContext.popDispatchContext();
     m_dispatchContextStubFactory.assertNoMoreCalls();
+    anotherDispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     anotherDispatchContextStubFactory.assertSuccess("report");
     anotherDispatchContextStubFactory.assertNoMoreCalls();
 
@@ -256,9 +270,10 @@ public class TestThreadContextImplementation extends TestCase {
 
     // Now have a pending context.
 
-    threadContext.flushPendingDispatchContext();
+    threadContext.reportPendingDispatchContext();
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertSuccess("report");
-    threadContext.flushPendingDispatchContext();
+    threadContext.reportPendingDispatchContext();
     m_dispatchContextStubFactory.assertNoMoreCalls();
 
     // Test flushed at end of run.
@@ -268,6 +283,7 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.beginRunEvent();
     m_dispatchContextStubFactory.assertNoMoreCalls();
     threadContext.endRunEvent();
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
 
@@ -277,6 +293,7 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.popDispatchContext();
     m_dispatchContextStubFactory.assertNoMoreCalls();
     threadContext.setDelayReports(false);
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
   }

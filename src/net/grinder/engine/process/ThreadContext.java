@@ -25,7 +25,7 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.statistics.ImmutableStatisticsSet;
+import net.grinder.script.Statistics.StatisticsForTest;
 
 
 /**
@@ -52,17 +52,17 @@ interface ThreadContext extends PluginThreadContext {
 
   void endRunEvent();
 
-  void setDelayReports(boolean b);
-
   void pushDispatchContext(DispatchContext dispatchContext)
     throws ShutdownException;
 
   void popDispatchContext();
 
-  DispatchContext getDispatchContext();
+  StatisticsForTest getStatisticsForCurrentTest();
 
-  ImmutableStatisticsSet getLastReportedStatistics();
+  StatisticsForTest getStatisticsForLastTest();
 
-  void flushPendingDispatchContext();
+  void setDelayReports(boolean b);
+
+  void reportPendingDispatchContext();
 }
 
