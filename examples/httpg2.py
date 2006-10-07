@@ -45,13 +45,13 @@ if pluginParameters["disablePersistentConnections"]:
 class G2HTTPTest:
     """Parses parameters for an individual test and wraps the test
     invocation in a G3 Test."""
-    
+
     def __init__(self, testNumber, properties):
         self.sleepTime = properties["sleepTime"]
 
         headers = []
         seenContentType = 0
-        
+
         for e in properties.getPropertySubset("parameter.header.").entrySet():
             headers.append(NVPair(e.key, e.value))
             if not seenContentType and e.key.lower() == "content-type":
@@ -98,7 +98,7 @@ class G2HTTPTest:
             connection.addBasicAuthorization(self.basicAuthentication[0],
                                              self.basicAuthentication[1],
                                              self.basicAuthentication[2])
-        
+
         grinder.statistics.delayReports = 1
 
         if self.postData:
@@ -116,7 +116,7 @@ class G2HTTPTest:
                     description = "_%s" % self.test.description
                 else:
                     description = ""
-            
+
                 filename = grinder.filenameFactory.createFilename(
                     "page",
                     "_%d_%.3d%s" % (iteration, self.test.number, description))
@@ -132,11 +132,11 @@ class G2HTTPTest:
                         (self.okString, filename))
 
         if error:
-            grinder.statistics.success = 0
+            grinder.statistics.forLastTest.success = 0
 
         if self.sleepTime:
             grinder.sleep(long(self.sleepTime))
-            
+
 # Parse per-test parameters.
 testProperties = grinder.properties.getPropertySubset("grinder.test")
 tests = {}
@@ -154,7 +154,7 @@ sortedTests.sort()
 class TestRunner:
     def __init__(self):
         self.iteration = 0
-    
+
     def __call__(self):
         for testNumber,g2HTTPTest in sortedTests:
             g2HTTPTest.doTest(self.iteration)

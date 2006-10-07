@@ -54,7 +54,7 @@ grinder.statistics.registerSummaryExpression(
 # We record each message receipt against a single test. The
 # test time is meaningless.
 def recordDeliveryTime(deliveryTime):
-    grinder.statistics.setValue("userLong0", deliveryTime)
+    grinder.statistics.forCurrentTest.setValue("userLong0", deliveryTime)
 
 recordTest = Test(1, "Receive messages").wrap(recordDeliveryTime)
 
