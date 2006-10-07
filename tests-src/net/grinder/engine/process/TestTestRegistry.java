@@ -23,7 +23,9 @@ package net.grinder.engine.process;
 
 import junit.framework.TestCase;
 
+import net.grinder.common.StubTest;
 import net.grinder.common.Test;
+import net.grinder.engine.common.EngineException;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.RandomStubFactory;
@@ -88,9 +90,15 @@ public class TestTestRegistry extends TestCase {
 
     assertNull(testRegistry.getNewTests());
 
-    final RandomStubFactory testStubFactory =
-      new RandomStubFactory(Test.class);
-    final Test test = (Test)testStubFactory.getStub();
+    final Test test1 = new StubTest(1, "Test 1");
+    final Test test2 = new StubTest(2, "Test 2");
+
+    try {
+      testRegistry.register(test1);
+      fail("Expected EngineException");
+    }
+    catch (EngineException e) {
+    }
 
     final RandomStubFactory scriptEngineStubFactory =
       new RandomStubFactory(ScriptEngine.class);
@@ -99,15 +107,19 @@ public class TestTestRegistry extends TestCase {
 
     testRegistry.setScriptEngine(scriptEngine);
 
-    final TestRegistry.RegisteredTest registeredTest1 =
-      testRegistry.register(test);
+    final TestRegistry.RegisteredTest registeredTest1a =
+      testRegistry.register(test1);
+
+    final TestRegistry.RegisteredTest registeredTest1b =
+      testRegistry.register(test1);
 
     final TestRegistry.RegisteredTest registeredTest2 =
-      testRegistry.register(test);
+      testRegistry.register(test2);
 
-    assertSame(registeredTest1, registeredTest2);
+    assertSame(registeredTest1a, registeredTest1b);
+    assertNotSame(registeredTest2, registeredTest1a);
 
-    assertTrue(testRegistry.getNewTests().contains(test));
+    assertTrue(testRegistry.getNewTests().contains(test1));
     assertNull(testRegistry.getNewTests());
 
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
