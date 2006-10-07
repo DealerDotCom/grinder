@@ -48,6 +48,7 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
+import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsIndexMap;
@@ -928,35 +929,38 @@ public class HTTPRequest {
       try {
         final Statistics statistics = scriptContext.getStatistics();
 
-        if (statistics.availableForUpdate()) {
+        if (statistics.isTestInProgress()) {
           // Log the custom statistics if we have a statistics context.
 
-          statistics.addLong(
+          final StatisticsForTest statisticsForCurrentTest =
+            statistics.getForCurrentTest();
+
+          statisticsForCurrentTest.addLong(
             StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY, responseLength);
 
           // If many HTTPRequests are wrapped in the same Test, the
           // last one wins.
-          statistics.setLong(
+          statisticsForCurrentTest.setLong(
             StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY, statusCode);
 
           // These statistics are accumulated over all the
           // HTTPRequests wrapped in the Test.
           if (dnsTime >= 0) {
-            statistics.addLong(
+            statisticsForCurrentTest.addLong(
               StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY, dnsTime);
           }
 
           if (connectTime >= 0) {
-            statistics.addLong(
+            statisticsForCurrentTest.addLong(
               StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY, connectTime);
           }
 
-          statistics.addLong(
+          statisticsForCurrentTest.addLong(
             StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
             timeToFirstByte);
 
           if (statusCode >= HttpURLConnection.HTTP_BAD_REQUEST) {
-            statistics.addLong(
+            statisticsForCurrentTest.addLong(
               StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY, 1);
           }
         }

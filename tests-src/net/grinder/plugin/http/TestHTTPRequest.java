@@ -37,7 +37,6 @@ import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics;
-import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
@@ -69,7 +68,7 @@ public class TestHTTPRequest extends TestCase {
     final HTTPPluginThreadState threadState =
       new HTTPPluginThreadState(threadContext, sslContextFactory, null);
 
-    m_statisticsStubFactory.setResult("availableForUpdate", Boolean.FALSE);
+    m_statisticsStubFactory.setResult("isTestInProgress", Boolean.FALSE);
     final Statistics statistics =
       (Statistics)m_statisticsStubFactory.getStub();
 
@@ -663,7 +662,7 @@ public class TestHTTPRequest extends TestCase {
     loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(Boolean.FALSE,
-      m_statisticsStubFactory.assertSuccess("availableForUpdate").getResult());
+      m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
     m_statisticsStubFactory.assertNoMoreCalls();
 
     handler.shutdown();
@@ -680,7 +679,7 @@ public class TestHTTPRequest extends TestCase {
     m_scriptContextStubFactory.setResult("getLogger",
                                          loggerStubFactory.getLogger());
 
-    m_statisticsStubFactory.setResult("availableForUpdate", Boolean.TRUE);
+    m_statisticsStubFactory.setResult("isTestInProgress", Boolean.TRUE);
 
     final HTTPRequest request = new HTTPRequest();
     final HTTPResponse response = request.GET(handler.getURL());
@@ -694,27 +693,9 @@ public class TestHTTPRequest extends TestCase {
     loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(Boolean.TRUE,
-      m_statisticsStubFactory.assertSuccess("availableForUpdate").getResult());
+      m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
 
-    m_statisticsStubFactory.assertSuccess(
-      "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY, new Long(0));
-
-    m_statisticsStubFactory.assertSuccess(
-      "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY, new Long(302));
-
-    m_statisticsStubFactory.assertSuccess(
-      "addLong", String.class, Long.class);
-
-    try {
-      m_statisticsStubFactory.assertSuccess(
-        "addLong", String.class, Long.class);
-
-      m_statisticsStubFactory.assertSuccess(
-        "addLong", String.class, Long.class);
-    }
-    catch (java.util.NoSuchElementException e) {
-      // Whatever.
-    }
+    m_statisticsStubFactory.assertSuccess("getForCurrentTest");
 
     m_statisticsStubFactory.assertNoMoreCalls();
   }
@@ -730,7 +711,7 @@ public class TestHTTPRequest extends TestCase {
     m_scriptContextStubFactory.setResult("getLogger",
                                          loggerStubFactory.getLogger());
 
-    m_statisticsStubFactory.setResult("availableForUpdate", Boolean.TRUE);
+    m_statisticsStubFactory.setResult("isTestInProgress", Boolean.TRUE);
 
     final HTTPRequest request = new HTTPRequest();
     final HTTPResponse response = request.GET(handler.getURL());
@@ -743,31 +724,9 @@ public class TestHTTPRequest extends TestCase {
     loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(Boolean.TRUE,
-      m_statisticsStubFactory.assertSuccess("availableForUpdate").getResult());
+      m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
 
-    m_statisticsStubFactory.assertSuccess(
-      "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY, new Long(0));
-
-    m_statisticsStubFactory.assertSuccess(
-      "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY, new Long(400));
-
-    m_statisticsStubFactory.assertSuccess(
-      "addLong", String.class, Long.class);
-
-    try {
-      m_statisticsStubFactory.assertSuccess(
-        "addLong", String.class, Long.class);
-
-      m_statisticsStubFactory.assertSuccess(
-        "addLong", String.class, Long.class);
-
-      m_statisticsStubFactory.assertSuccess(
-        "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY, new Long(1));
-
-    }
-    catch (java.util.NoSuchElementException e) {
-      // Whatever.
-    }
+    m_statisticsStubFactory.assertSuccess("getForCurrentTest");
 
     m_statisticsStubFactory.assertNoMoreCalls();
 
