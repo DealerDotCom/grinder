@@ -1,3 +1,98 @@
+2006-10-08  Philip Aston  <philipa@mail.com>
+
+	* examples/amazon.py, examples/helloworldfunctions.py, examples/http.py, examples/jaxrpc.py, examples/parallel.py, examples/statistics.py, examples/composite.py, examples/cookies.py, examples/ejb.py, examples/email.py, examples/fba.py, examples/form.py, examples/grinder.properties, examples/helloworld.py, examples/httpunit.py, examples/jdbc.py, examples/jmsreceiver.py, examples/jmssender.py, examples/scenario.py, examples/scriptlifecycle.py, examples/sequence.py, examples/xml-rpc.py:
+	Normalise examples for script gallery generation.
+
+	* build.xml, etc/changes2xml.py, etc/scripts2XML.py:
+	Build script gallery from examples.
+
+	* examples/statistics.py:
+	Update to match changes to the script statistics API.
+
+	* src/net/grinder/engine/process/ThreadContextImplementation.java, tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	Fix getStatisticsForLastTest().
+
+2006-10-07  Philip Aston  <philipa@mail.com>
+
+	* examples/httpg2.py, examples/jmsreceiver.py, src/net/grinder/plugin/http/HTTPRequest.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	Update to match changes to the script statistics API.
+
+	* src/net/grinder/script/Statistics.java, CHANGES, src/net/grinder/engine/process/DispatchContext.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/StatisticsForTestImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadContextImplementation.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java, tests-src/net/grinder/engine/process/TestStatisticsForTestImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	 Fix bug 1527299 - statistics.delayReports doesn't work with
+	 nested tests. This required a significant change to the script
+	 statistics API.
+
+	* tests-src/net/grinder/engine/process/TestTestRegistry.java: Coverage.
+
+2006-10-05  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/TestStatisticsHelper.java, src/net/grinder/engine/process/TestStatisticsHelperImplementation.java, tests-src/net/grinder/engine/process/TestTestStatisticsHelperImplementation.java:
+	Add getStatisticsIndexMap().
+
+2006-10-04  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/TestStatisticsHelper.java, src/net/grinder/engine/process/TestStatisticsHelperImplementation.java, tests-src/net/grinder/engine/process/TestTestStatisticsHelperImplementation.java:
+	Add getTestTime().
+
+2006-09-02  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/Table.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Make unnecessarily inner classes into nested classes.
+
+	* etc/findbugs-exclude.xml, .fbprefs, .fbwarnings, .project: FindBugs.
+
+	* src/net/grinder/statistics/StatisticsSetImplementation.java:
+	Repeat after me: uncontended synchronisation is cheap and correct.
+
+2006-09-01  Philip Aston  <philipa@mail.com>
+
+	* TODO: *** empty log message ***
+
+2006-07-25  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/AbstractFanOutSender.java, src/net/grinder/communication/SocketWrapper.java, src/net/grinder/communication/StreamReceiver.java, src/net/grinder/communication/StreamSender.java:
+	Review and tighten up locking strategy for SocketWrapper.
+
+2006-07-24  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/SocketWrapper.java:
+	Revert change to locking strategy - the two streams need to be
+	able to operate independently.
+
+2006-07-22  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/engine/process/jython/JythonScriptEngine.java, tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	Fix bug 1525628 - Throw NotWrappableTypeException not NullPointerException on attempt to wrap a null object.
+
+	* TODO: Ramblings about the console API.
+	Thought about harmonic means.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java: Checkstyle.
+
+2006-07-20  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/SlowClientBandwidthLimiterFactory.java:
+	Remove tabs from file.
+
+2006-07-18  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/plugin/http/SlowClientBandwidthLimiterFactory.java:
+	Bug fix for bandwith limiting large transfers from Travis Bear.
+
+	* TODO: Progress.
+
+2006-07-13  Philip Aston  <philipa@mail.com>
+
+	* ChangeLog: *** empty log message ***
+
+	* src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/SocketWrapper.java:
+	Synchronise on SocketWrapper when accessing socket streams.
+
+	* src/net/grinder/communication/Sender.java: Javadoc.
+
+	* src/net/grinder/communication/StreamReceiver.java, src/net/grinder/communication/StreamSender.java:
+	Allow package classes to construct us with specific locking objects.
+
 2006-07-13  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/SocketWrapper.java:
