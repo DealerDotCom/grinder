@@ -12,6 +12,24 @@
   <title>Articles</title>
 
   <table class="noborder">
+    <tr>
+      <td>
+        <a href="http://blackanvil.blogspot.com/2006/06/shootout-load-runner-vs-grinder-vs.html#links">The Black Anvil: Shootout: Load Runner vs The Grinder vs Apache JMeter</a>
+      </td>
+
+      <td>Detailed comparison of The Grinder, JMeter, and Load Runner from Travis Bear.
+
+       <p class="quote">"...I recommended The Grinder as the tool to go forward
+       with. It has a simple, clean UI that clearly shows what is going on
+       without trying to do too much, and offers great power and simplicity
+       with its unique Jython-based scripting approach. Jython allows complex
+       scripts to be developed much more rapidly than in more formal languages
+       like Java, yet it can access any Java library or class easily, allowing
+       us to re-use elements of our existing work."</p>
+
+         <p>Travis has since assisted with the implementation of slow socket support for The Grinder.</p>
+       </td>
+    </tr>
 
     <tr>
       <td>
