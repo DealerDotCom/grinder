@@ -87,6 +87,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <tutorial label="Tutorial" href="tutorial-perks.html"/>
       <script-gallery label="Script Gallery" href="script-gallery.html">
         <helloworldfunctions href="#helloworldfunctions"/>
+        <statistics href="#statistics"/>
       </script-gallery>
       <script-api label="API Javadocs" href="ext:grinder/api"/>
     </scripts>

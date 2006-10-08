@@ -9,7 +9,7 @@
 <body>
 
   <section>
-    <title>Standard Statistics</title>
+    <title>Standard statistics</title>
 
     <p>Details of the statistics provided by The Grinder can be found in
       the documentation of the <a
@@ -28,7 +28,7 @@
   </section>
 
   <section>
-    <title>Distribution of Statistics</title>
+    <title>Distribution of statistics</title>
 
     <p>All the statistics displayed in the console are aggregates
     (totals or averages) of a number of tests received in the
@@ -38,6 +38,27 @@
 
     <p>The only place per-test statistics are available is in the
     process <code>data_*</code> files.</p>
+  </section>
+
+
+  <section>
+    <title>Querying and updating statistics</title>
+
+    <p>A script can query the statistics about the last completed test
+    using <a href="script-javadoc/net/grinder/script/Statistics.html#getForLastTest()">
+    grinder.statisticsForLastTest</a>. Script code wrapped in a test can access
+    information about the statistics for the test (which may be incomplete) using
+    <a href="script-javadoc/net/grinder/script/Statistics.html#getForCurrentTest()">
+    grinder.statisticsForCurrentTest</a>. For details of the query and update
+    methods, see
+    <a href="script-javadoc/net/grinder/script/Statistics.StatisticsForTest.html">
+    StatisticsForTest</a>. Refer to the documentation of the
+    <a href="script-javadoc/net/grinder/script/Statistics.html">Statistics</a>
+    interface for other details.</p>
+
+    <p>An <a href="site:script-gallery/statistics">example script</a>
+    demonstrating these APIs can be found in the Script Gallery.</p>
+
   </section>
 
   <section>
