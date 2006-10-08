@@ -5,38 +5,68 @@ from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
 
-test1 = Test(1, "Request resource")
-request1 = test1.wrap(HTTPRequest())
 
 class TestRunner:
     def __call__(self):
-        statistics = grinder.statistics
+        request = Test(1, "Basic request").wrap(
+                      HTTPRequest(url = "http://localhost:7001"))
 
         # Example 1. You can get the time of the last test as follows.
-        result = request1.GET("http://localhost:7001/")
-        grinder.logger.output("The last test took %d milliseconds" % statistics.time)
+        result = request.GET("index.html")
 
-        
+        grinder.logger.output("The last test took %d milliseconds" %
+                              grinder.statistics.forLastTest.time)
+
+
         # Example 2. Normally test results are reported automatically
         # when the test returns. If you want to alter the statistics
         # after a test has completed, you must set delayReports = 1 to
         # delay the reporting before performing the test. This only
         # affects the current worker thread.
-        statistics.delayReports = 1
+        grinder.statistics.delayReports = 1
 
-        result = request1.GET("http://localhost:7001/")
+        result = request.GET("index.html")
 
-        if statistics.time > 5:
+        if grinder.statistics.forLastTest.time > 5:
             # We set success = 0 to mark the test as a failure. This
             # discards the test time to comply with the convention of
-            # only recording time for successful tests, so lets log
+            # only recording time for successful tests, so let's log
             # the actual time to the error log.
-            grinder.logger.error("The last test took too long (%d milliseconds)" %
-                     statistics.time)
-            statistics.success = 0
+            grinder.logger.error("The last test took too long (%d ms)" %
+                                 grinder.statistics.forLastTest.time)
+            grinder.statistics.forLastTest.success = 0
 
         # With delayReports = 1 you can call report() to explicitly.
-        statistics.report()
+        grinder.statistics.report()
 
         # You can also turn the automatic reporting back on.
-        statistics.delayReports = 0
+        grinder.statistics.delayReports = 0
+
+
+        # Example 3.
+        # getForCurrentTest() accesses statistics for the current test.
+        # getForLastTest() accesses statistics for the last completed test.
+
+        def page(self):
+            resourceRequest = Test(2, "Request resource").wrap(
+                                  HTTPRequest(url = "http://localhost:7001"))
+
+            resourceRequest.GET("index.html");
+            resourceRequest.GET("foo.css");
+
+            grinder.logger.output("GET foo.css returned a %d byte body" %
+                                  grinder.statistics.forLastTest.getLong(
+                                      "httpplugin.responseLength"))
+
+            grinder.logger.output("Page has taken %d ms so far" %
+                                  grinder.statistics.forCurrentTest.time)
+
+            if grinder.statistics.forLastTest.time > 10:
+                grinder.statistics.forCurrentTest.success = 0
+
+            resourceRequest.GET("image.gif");
+
+        instrumentedPage = Test(3, "Page").wrap(page)
+
+        instrumentedPage(self)
+
