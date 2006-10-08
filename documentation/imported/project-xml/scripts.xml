@@ -1,40 +1,7 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0"  encoding="iso-8859-1"?>
 
-<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
-
-<document>
-<header>
-  <title>Script Gallery</title>
-</header>
-
-<body>
-
-  <p>This page contains examples of Jython scripts and script snippets
-  that can be used with The Grinder 3. The scripts can also be found
-  in the <code>examples</code> directory of the distribution. To use
-  one of these scripts, you'll need to set up a <a
-  href="site:getting-started/properties"><code>grinder.properties</code></a>
-  file. Please also make sure you are using the latest beta version of
-  The Grinder 3.</p>
-
-  <p>If you're new to Python, it might help to know that that blocks
-  are delimited by lexical indentation.</p>
-
-  <p>The scripts make use of The Grinder <a
-  href="script-javadoc/index.html">script API</a>. The
-  <code>grinder</code> object in the scripts is an instance of
-  <code>ScriptContext</code> through which the script can obtain
-  contextual information (such as the worker process ID) and services
-  (such as logging).</p>
-
-  <p>If you have a script that you would like to like to see to this
-  page, please send it to <a
-  href="ext:mail/grinder-use">grinder-use</a>.</p>
-
-  <section id="hello-world">
-    <title>Hello World</title>
-
-<source>
+<scripts>
+<script title='Hello World' id='helloworld'>
 # A minimal script that tests The Grinder logging facility.
 #
 # This script shows the recommended style for scripts, with a
@@ -66,14 +33,8 @@ class TestRunner:
     # This method is called for every run.
     def __call__(self):
         logWrapper("Hello World")
-</source>
-
-  </section>
-
-  <section id="http">
-    <title>Simple HTTP example</title>
-
-<source>
+</script>
+<script title='Simple HTTP example' id='http'>
 # A simple example using the HTTP plugin that shows the retrieval of a
 # single page via HTTP. The resulting page is written to a file.
 #
@@ -101,16 +62,10 @@ def writeToFile(text):
         "page", "-%d.html" % grinder.runNumber)
 
     file = open(filename, "w")
-    print >> file, text
+    print &gt;&gt; file, text
     file.close()
-</source>
-
-  </section>
-
-  <section id="scenario">
-    <title>Recording many HTTP interactions as one test</title>
-
-<source>
+</script>
+<script title='Recording many HTTP interactions as one test' id='scenario'>
 # This example shows how many HTTP interactions can be grouped as a
 # single test by wrapping them in a function.
 
@@ -132,14 +87,8 @@ page1Test = Test(1, "First page").wrap(page1)
 class TestRunner:
     def __call__(self):
         page1Test()
-</source>
-
-  </section>
-
-  <section id="fba">
-    <title>HTTP/J2EE form based authentication</title>
-
-<source>
+</script>
+<script title='HTTP/J2EE form based authentication' id='fba'>
 # A more complex HTTP example based on an authentication conversation
 # with the server. This script demonstrates how to follow different
 # paths based on a response returned by the server and how to post
@@ -186,54 +135,8 @@ def maybeAuthenticate(lastResult):
             HTTPRequest(url="%s/j_security_check" % lastResult.originalURI))
 
         return request.POST(authenticationFormData)
-</source>
-
-  </section>
-
-  <section id="cookies">
-    <title>HTTP cookies</title>
-
-<source>
-# HTTP example which shows how to access HTTP cookies.
-#
-# By default, the HTTPClient library handles Cookie interaction and
-# removes the cookie headers from responses. If you want to access
-# them, one way is to define your own CookiePolicyHandler. This script
-# defines a CookiePolicyHandler that simply logs all cookies that are
-# sent or received.
-
-from net.grinder.script.Grinder import grinder
-from net.grinder.script import Test
-from net.grinder.plugin.http import HTTPRequest, HTTPPluginControl
-from HTTPClient import CookieModule, CookiePolicyHandler
-
-log = grinder.logger.output
-
-class MyCookiePolicyHandler(CookiePolicyHandler):
-    def acceptCookie(self, cookie, request, response):
-        log("accept cookie: %s" % cookie)
-        return 1
-
-    def sendCookie(self, cookie, request):
-        log("send cookie: %s" % cookie)
-        return 1
-
-CookieModule.setCookiePolicyHandler(MyCookiePolicyHandler())
-
-test1 = Test(1, "Request resource")
-request1 = test1.wrap(HTTPRequest())
-
-class TestRunner:
-    def __call__(self):
-        result = request1.GET("http://localhost:7001/console")
-</source>
-
-  </section>
-
-  <section id="form">
-    <title>HTTP multipart form submission</title>
-
-<source>
+</script>
+<script title='HTTP multipart form submission' id='form'>
 # This script uses the HTTPClient.Codecs class to post itself to the
 # server as a multi-part form. Thanks to Marc Gemis.
 
@@ -262,14 +165,8 @@ class TestRunner:
 
         # Call the version of POST that takes a byte array.
         result = request1.POST("/upload", data, headers)
-</source>
-
-  </section>
-
-  <section id="ejb">
-    <title>Enterprise Java Beans</title>
-
-<source>
+</script>
+<script title='Enterprise Java Beans' id='ejb'>
 # Exercise a stateful session EJB from the BEA WebLogic Server 7.0
 # examples. Additionally this script demonstrates the use of the
 # ScriptContext sleep(), getThreadId() and getRunNumber() methods.
@@ -331,14 +228,8 @@ class TestRunner:
             d = queryTest.__test__
             log("Query test is test %d, (%s)" % (d.number, d.description))
 
-</source>
-
-  </section>
-
-  <section id="jdbc">
-    <title>Grinding a database with JDBC</title>
-
-<source>
+</script>
+<script title='Grinding a database with JDBC' id='jdbc'>
 # Some simple database playing with JDBC.
 #
 # To run this, set the Oracle login details appropriately and add the
@@ -380,29 +271,23 @@ class TestRunner:
         connection = None
         statement = None
 
-        try:
-      connection = getConnection()
-      statement = connection.createStatement()
+    try:
+        connection = getConnection()
+        statement = connection.createStatement()
 
-            testInsert = test1.wrap(statement)
-            testInsert.execute("insert into grinder_fun values(%d, %d)" %
-                               (grinder.threadID, grinder.runNumber))
+        testInsert = test1.wrap(statement)
+        testInsert.execute("insert into grinder_fun values(%d, %d)" %
+                           (grinder.threadID, grinder.runNumber))
 
-            testQuery = test2.wrap(statement)
-            testQuery.execute("select * from grinder_fun where thread=%d" %
-                              grinder.threadID)
+        testQuery = test2.wrap(statement)
+        testQuery.execute("select * from grinder_fun where thread=%d" %
+                          grinder.threadID)
 
-  finally:
-            ensureClosed(statement)
-      ensureClosed(connection)
-</source>
-
-  </section>
-
-  <section id="amazon">
-    <title>Simple HTTP Web Service</title>
-
-<source>
+    finally:
+        ensureClosed(statement)
+        ensureClosed(connection)
+</script>
+<script title='Simple HTTP Web Service' id='amazon'>
 # Calls an Amazon.com web service to obtain information about a book.
 #
 # To run this script you must install the standard Python xml module.
@@ -415,7 +300,7 @@ class TestRunner:
 #       the xml module) to your CLASSPATH.
 #
 # You may also need to obtain your own Amazon.com web service license
-# and replace the script text |insert license key here| with the
+# and replace the script text &lt;insert license key here&gt; with the
 # license key, although currently that doesn't appear to be necessary.
 
 from net.grinder.script.Grinder import grinder
@@ -430,7 +315,7 @@ parser = javadom.XercesDomImplementation()
 
 class TestRunner:
     def __call__(self):
-        if grinder.runNumber > 0 or grinder.threadID > 0:
+        if grinder.runNumber &gt; 0 or grinder.threadID &gt; 0:
             raise RuntimeError("Use limited to one thread, one run; "
                                "see Amazon Web Services terms and conditions")
 
@@ -441,7 +326,7 @@ class TestRunner:
             NVPair("v", "1.0"),
             NVPair("f", "xml"),
             NVPair("t", "webservices-20"),
-            NVPair("dev-t", "|insert license key here|"),
+            NVPair("dev-t", "&lt;insert license key here&gt;"),
             NVPair("type", "heavy"),
             NVPair("AsinSearch", "1904284000"),
             )
@@ -459,14 +344,9 @@ class TestRunner:
                     detailName)[0].firstChild.nodeValue
 
         grinder.logger.output(str(result))
-</source>
 
-  </section>
-
-  <section id="jaxrpc">
-    <title>JAX-RPC Web Service</title>
-
-<source>
+</script>
+<script title='JAX-RPC Web Service' id='jaxrpc'>
 # Exercise a basic Web Service from the BEA WebLogic Server 7.0
 # examples.
 #
@@ -490,16 +370,8 @@ class TestRunner:
     def __call__(self):
         result = portTest.sayHello(grinder.threadID, grinder.grinderID)
         grinder.logger.output("Got '%s'" % result)
-</source>
-
-  </section>
-
-  <section id="xml-rpc">
-    <title>XML-RPC Web Service</title>
-
-<source>
-# XML-RPC example.
-#
+</script>
+<script title='XML-RPC Web Service' id='xml-rpc'>
 # A server should be running on the localhost. This script uses the
 # example from
 # http://xmlrpc-c.sourceforge.net/xmlrpc-howto/xmlrpc-howto-java-server.html
@@ -529,13 +401,8 @@ class TestRunner:
         sum = result.get("sum")
 
         grinder.logger.output("SUM %d" % sum)
-</source>
-    </section>
-
-  <section id="helloworldfunctions">
-    <title>Hello World, with functions</title>
-
-<source>
+</script>
+<script title='Hello World, with functions' id='helloworldfunctions'>
 # The Hello World example re-written using functions.
 #
 # In previous examples we've defined TestRunner as a class; calling
@@ -556,14 +423,8 @@ def doRun():
 
 def TestRunner():
     return doRun
-</source>
-
-  </section>
-
-  <section id="script-lifecycle">
-    <title>The script life cycle</title>
-
-<source>
+</script>
+<script title='The script life cycle' id='scriptlifecycle'>
 # A script that demonstrates how the various parts of a script and
 # their effects on worker threads.
 
@@ -619,14 +480,8 @@ class TestRunner:
     # that were created in __init__.
     def __del__(self):
         grinder.logger.output("Thread shutting down")
-</source>
-
-  </section>
-
-  <section id="statistics">
-    <title>Accessing test statistics</title>
-
-<source>
+</script>
+<script title='Accessing test statistics' id='statistics'>
 # Examples of using The Grinder statistics API with standard
 # statistics.
 
@@ -634,16 +489,17 @@ from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
 
-test1 = Test(1, "Request resource")
-request1 = test1.wrap(HTTPRequest())
 
 class TestRunner:
     def __call__(self):
-        statistics = grinder.statistics
+        request = Test(1, "Basic request").wrap(
+                      HTTPRequest(url = "http://localhost:7001"))
 
         # Example 1. You can get the time of the last test as follows.
-        result = request1.GET("http://localhost:7001/")
-        grinder.logger.output("The last test took %d milliseconds" % statistics.time)
+        result = request.GET("index.html")
+
+        grinder.logger.output("The last test took %d milliseconds" %
+                              grinder.statistics.forLastTest.time)
 
 
         # Example 2. Normally test results are reported automatically
@@ -651,34 +507,55 @@ class TestRunner:
         # after a test has completed, you must set delayReports = 1 to
         # delay the reporting before performing the test. This only
         # affects the current worker thread.
-        statistics.delayReports = 1
+        grinder.statistics.delayReports = 1
 
-        result = request1.GET("http://localhost:7001/")
+        result = request.GET("index.html")
 
-        if statistics.time > 5:
+        if grinder.statistics.forLastTest.time &gt; 5:
             # We set success = 0 to mark the test as a failure. This
             # discards the test time to comply with the convention of
-            # only recording time for successful tests, so lets log
+            # only recording time for successful tests, so let's log
             # the actual time to the error log.
-            grinder.logger.error("The last test took too long (%d milliseconds)" %
-                     statistics.time)
-            statistics.success = 0
+            grinder.logger.error("The last test took too long (%d ms)" %
+                                 grinder.statistics.forLastTest.time)
+            grinder.statistics.forLastTest.success = 0
 
         # With delayReports = 1 you can call report() to explicitly.
-        statistics.report()
+        grinder.statistics.report()
 
         # You can also turn the automatic reporting back on.
-        statistics.delayReports = 0
-</source>
+        grinder.statistics.delayReports = 0
 
-  </section>
 
-  <section id="jms-sender">
-    <title>Java Message Service - Queue Sender</title>
+        # Example 3.
+        # getForCurrentTest() accesses statistics for the current test.
+        # getForLastTest() accesses statistics for the last completed test.
 
-<source>
-# An example JMS sender.
-#
+        def page(self):
+            resourceRequest = Test(2, "Request resource").wrap(
+                                  HTTPRequest(url = "http://localhost:7001"))
+
+            resourceRequest.GET("index.html");
+            resourceRequest.GET("foo.css");
+
+            grinder.logger.output("GET foo.css returned a %d byte body" %
+                                  grinder.statistics.forLastTest.getLong(
+                                      "httpplugin.responseLength"))
+
+            grinder.logger.output("Page has taken %d ms so far" %
+                                  grinder.statistics.forCurrentTest.time)
+
+            if grinder.statistics.forLastTest.time &gt; 10:
+                grinder.statistics.forCurrentTest.success = 0
+
+            resourceRequest.GET("image.gif");
+
+        instrumentedPage = Test(3, "Page").wrap(page)
+
+        instrumentedPage(self)
+
+</script>
+<script title='Java Message Service - Queue Sender' id='jmssender'>
 # JMS objects are looked up and messages are created once during
 # initialisation. This default JNDI names are for the WebLogic Server
 # 7.0 examples domain - change accordingly.
@@ -740,16 +617,8 @@ class TestRunner:
 
         log("Closing queue session")
         session.close()
-</source>
-
-  </section>
-
-  <section id="jms-receiver">
-    <title>Java Message Service - Queue Receiver</title>
-
-<source>
-# An example JMS receiver.
-#
+</script>
+<script title='Java Message Service - Queue Receiver' id='jmsreceiver'>
 # JMS objects are looked up and messages are created once during
 # initialisation. This default JNDI names are for the WebLogic Server
 # 7.0 examples domain - change accordingly.
@@ -799,12 +668,12 @@ connection.start()
 grinder.statistics.registerDataLogExpression("Delivery time", "userLong0")
 grinder.statistics.registerSummaryExpression(
               "Mean delivery time",
-              "(/ userLong0(+ timedTests untimedTests))")
+                        "(/ userLong0(+ timedTests untimedTests))")
 
 # We record each message receipt against a single test. The
 # test time is meaningless.
 def recordDeliveryTime(deliveryTime):
-    grinder.statistics.setValue("userLong0", deliveryTime)
+    grinder.statistics.forCurrentTest.setValue("userLong0", deliveryTime)
 
 recordTest = Test(1, "Receive messages").wrap(recordDeliveryTime)
 
@@ -860,14 +729,8 @@ class TestRunner(MessageListener):
 
         self.cv.notifyAll()
         self.cv.release()
-</source>
-
-  </section>
-
-  <section id="httpunit">
-    <title>Using The Grinder with other test frameworks</title>
-
-<source>
+</script>
+<script title='Using The Grinder with other test frameworks' id='httpunit'>
 # Example showing how The Grinder can be used with HTTPUnit.
 #
 # Copyright (C) 2003, 2004 Tony Lodge
@@ -907,14 +770,9 @@ class TestRunner:
     def __call__(self):
         for t in tests:
             result = t.run()
-</source>
 
-  </section>
-
-  <section id="javamail">
-    <title>Email</title>
-
-<source>
+</script>
+<script title='Email' id='email'>
 # Send email using Java Mail (http://java.sun.com/products/javamail/)
 #
 # This Grinder Jython script should only be used for legal email test
@@ -963,16 +821,8 @@ class TestRunner:
         transport.connect(smtpHost, "username", "password")
         transport.send(message)
         transport.close()
-</source>
-
-  </section>
-
-  <section id="sequence">
-    <title>Run test scripts in sequence</title>
-
-<source>
-# Run many scripts in sequence.
-#
+</script>
+<script title='Run test scripts in sequence' id='sequence'>
 # Scripts are defined in Python modules (helloworld.py, goodbye.py)
 # specified in grinder.properties:
 #
@@ -1000,14 +850,8 @@ class TestRunner:
     # This method is called for every run.
     def __call__(self):
         for testRunner in self.testRunners: testRunner()
-</source>
-
-  </section>
-
-  <section id="parallel">
-    <title>Run test scripts in parallel</title>
-
-<source>
+</script>
+<script title='Run test scripts in parallel' id='parallel'>
 # Run TestScript1 in 50% of threads, TestScript2 in 25% of threads,
 # and TestScript3 in 25% of threads.
 
@@ -1035,11 +879,6 @@ class TestRunner:
 
     # This method is called for every run.
     def __call__(self):
-        self.testRunner()
-</source>
-
-  </section>
-
-</body>
-</document>
+        self.testRunner()</script>
+</scripts>
 

@@ -4,7 +4,7 @@
   <map:components>
     <map:generators default="file">
       <map:generator name="dir"
-	src="org.apache.cocoon.generation.DirectoryGenerator"/>
+                     src="org.apache.cocoon.generation.DirectoryGenerator"/>
     </map:generators>
   </map:components>
 
@@ -14,7 +14,7 @@
 
     <map:pipeline>
       <map:match pattern="**changes.xml">
-	<map:generate type="file" src="../../imported/project-xml/changes.xml"/>
+        <map:generate type="file" src="../../imported/project-xml/changes.xml"/>
         <map:transform src="changes2doc.xsl"/>
         <map:serialize type="xml"/>
       </map:match>
@@ -22,8 +22,16 @@
 
     <map:pipeline>
       <map:match pattern="**todo.xml">
-	<map:generate type="file" src="../../imported/project-xml/todo.xml"/>
+        <map:generate type="file" src="../../imported/project-xml/todo.xml"/>
         <map:transform src="todo2doc.xsl"/>
+        <map:serialize type="xml"/>
+      </map:match>
+    </map:pipeline>
+
+    <map:pipeline>
+      <map:match pattern="**script-gallery.xml">
+        <map:generate type="file" src="../../imported/project-xml/scripts.xml"/>
+        <map:transform src="scripts2doc.xsl"/>
         <map:serialize type="xml"/>
       </map:match>
     </map:pipeline>
