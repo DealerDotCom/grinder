@@ -46,4 +46,6 @@ interface TestStatisticsHelper {
   void removeTestTimeFromSample(TestStatisticsMap sample);
 
   StatisticsIndexMap getStatisticsIndexMap();
+
+  void incrementErrors(StatisticsSet testStatistics);
 }

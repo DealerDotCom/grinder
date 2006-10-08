@@ -104,7 +104,7 @@ public class TestTestStatisticsHelperImplementation extends TestCase {
     statistics.setValue(m_errorsIndex, 2);
     helper.recordTest(statistics, 1234);
     assertEquals(1, statistics.getValue(m_errorsIndex));
-    assertEquals(0, statistics.getSum(m_timedTestsIndex));
+    assertEquals(1234, statistics.getSum(m_timedTestsIndex));
     assertEquals(0, statistics.getValue(m_untimedTestsIndex));
   }
 
@@ -145,5 +145,19 @@ public class TestTestStatisticsHelperImplementation extends TestCase {
     assertEquals(0, statistics2.getCount(m_timedTestsIndex));
     assertEquals(0, statistics2.getSum(m_timedTestsIndex));
     assertEquals(0, helper.getTestTime(statistics2));
+  }
+
+  public void testIncrementErrors() throws Exception {
+
+    final StatisticsSet statistics =
+      m_statisticsServices.getStatisticsSetFactory().create();
+
+    final TestStatisticsHelper helper =
+      new TestStatisticsHelperImplementation(m_indexMap);
+
+    helper.incrementErrors(statistics);
+    helper.incrementErrors(statistics);
+    helper.incrementErrors(statistics);
+    assertEquals(3, statistics.getValue(m_errorsIndex));
   }
 }

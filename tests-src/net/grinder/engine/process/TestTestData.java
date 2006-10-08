@@ -143,12 +143,18 @@ public class TestTestData extends TestCase {
 
     // Test statistics not updated until we report.
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+    m_testStatisticsHelperStubFactory.setResult("getSuccess", Boolean.TRUE);
 
     // Calling report() is the only way to reset the dispatcher.
     dispatchContext.report();
 
     m_testStatisticsHelperStubFactory.assertSuccess(
       "recordTest", StatisticsSet.class, Long.class);
+
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "getSuccess", StatisticsSet.class);
+
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     // 2. Nested case.
     final Callable outer = new Callable() {
@@ -180,6 +186,11 @@ public class TestTestData extends TestCase {
     m_testStatisticsHelperStubFactory.assertSuccess(
       "recordTest", StatisticsSet.class, Long.class);
 
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "getSuccess", StatisticsSet.class);
+
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
+
     // 3. Unhappy case.
     final RuntimeException problem = new RuntimeException();
     callableStubFactory.setThrows("call", problem);
@@ -208,6 +219,22 @@ public class TestTestData extends TestCase {
     }
     catch (DispatchStateException e) {
     }
+
+    // 5. Lets test the reporting with an error.
+    m_testStatisticsHelperStubFactory.setResult("getSuccess", Boolean.FALSE);
+
+    dispatchContext.report();
+
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "recordTest", StatisticsSet.class, Long.class);
+
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "getSuccess", dispatcherStatistics);
+
+    m_testStatisticsHelperStubFactory.assertSuccess(
+      "incrementErrors", statistics);
+
+    m_testStatisticsHelperStubFactory.assertNoMoreCalls();
   }
 
   public void testDispatchContext() throws Exception {

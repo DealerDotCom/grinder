@@ -30,12 +30,10 @@ class TestRunner:
         result = request.GET("index.html")
 
         if grinder.statistics.forLastTest.time > 5:
-            # We set success = 0 to mark the test as a failure. This
-            # discards the test time to comply with the convention of
-            # only recording time for successful tests, so let's log
-            # the actual time to the error log.
-            grinder.logger.error("The last test took too long (%d ms)" %
-                                 grinder.statistics.forLastTest.time)
+            # We set success = 0 to mark the test as a failure. The test
+            # time will be reported to the data log, but not included
+            # in the aggregate statistics sent to the console or the
+            # summary table.
             grinder.statistics.forLastTest.success = 0
 
         # With delayReports = 1 you can call report() to explicitly.

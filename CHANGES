@@ -33,6 +33,14 @@ The Grinder 3.0-beta31
   last reported test, it's statistics can be queried and can be
   modified if statistics reports are delayed.
 
+  The statistics for an erroneous test is now recorded in the data log,
+  but not included in the aggregate statistics sent to the console and
+  the summary table (only the number of errors is incremented). This
+  makes the aggregate statistics averages correct, whilst still allowing
+  the test time to be retrieved from the data log. (Previously, the
+  test time was zeroed for erroneous tests, so both the data log and
+  the agregate statistics averages other than test time were incorrect).
+
 
 The Grinder 3.0-beta30
 ----------------------

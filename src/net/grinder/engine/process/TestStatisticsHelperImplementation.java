@@ -59,19 +59,14 @@ final class TestStatisticsHelperImplementation
     statistics.setValue(m_errorsIndex, success ? 0 : 1);
   }
 
+  /**
+   * Set the elapsed time for the test and normalise statistics.
+   */
   public void recordTest(StatisticsSet statistics, long elapsedTime) {
-    if (getSuccess(statistics)) {
-      statistics.reset(m_timedTestsIndex);
-      statistics.addSample(m_timedTestsIndex, elapsedTime);
-      setSuccess(statistics, true);
-    }
-    else {
-      // The plug-in might have set timing information etc., or set errors to
-      // be greater than 1. For consistency, we override to a single error per
-      // Test with no associated timing information.
-      statistics.reset(m_timedTestsIndex);
-      setSuccess(statistics, false);
-    }
+    statistics.reset(m_timedTestsIndex);
+    statistics.addSample(m_timedTestsIndex, elapsedTime);
+
+    setSuccess(statistics, getSuccess(statistics));
 
     // Should only be set for statistics sent to the console.
     statistics.setValue(m_untimedTestsIndex, 0);
@@ -96,5 +91,9 @@ final class TestStatisticsHelperImplementation
 
   public StatisticsIndexMap getStatisticsIndexMap() {
     return m_statisticsIndexMap;
+  }
+
+  public void incrementErrors(StatisticsSet testStatistics) {
+    testStatistics.addValue(m_errorsIndex, 1);
   }
 }

@@ -256,7 +256,15 @@ final class TestData
       m_testStatisticsHelper.recordTest(statistics, getElapsedTime());
 
       m_resultReporter.report(getTest(), m_startTime, statistics);
-      getTestStatistics().add(statistics);
+
+      if (m_testStatisticsHelper.getSuccess(statistics)) {
+        getTestStatistics().add(statistics);
+      }
+      else {
+        // If an error, we consider other information to be unreliable,
+        // so do not aggregate it.
+        m_testStatisticsHelper.incrementErrors(getTestStatistics());
+      }
 
       // Disassociate ourselves from m_statisticsForTest;
       m_statisticsForTest.freeze();
