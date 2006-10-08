@@ -192,13 +192,14 @@ final class ThreadContextImplementation
         dispatchContext.getPauseTimer());
     }
 
+    m_statisticsForLastTest = dispatchContext.getStatisticsForTest();
+
     if (m_delayReports) {
       reportPendingDispatchContext();
       m_pendingDispatchContext = dispatchContext;
     }
     else {
       try {
-        m_statisticsForLastTest = dispatchContext.getStatisticsForTest();
         dispatchContext.report();
       }
       catch (DispatchStateException e) {
@@ -232,8 +233,6 @@ final class ThreadContextImplementation
   public void reportPendingDispatchContext() {
     if (m_pendingDispatchContext != null) {
       try {
-        m_statisticsForLastTest =
-          m_pendingDispatchContext.getStatisticsForTest();
         m_pendingDispatchContext.report();
       }
       catch (DispatchStateException e) {

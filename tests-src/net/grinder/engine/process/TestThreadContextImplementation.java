@@ -265,13 +265,22 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.setDelayReports(true);
     m_dispatchContextStubFactory.assertNoMoreCalls();
 
-    threadContext.popDispatchContext();
+    assertNull(threadContext.getStatisticsForLastTest());
+
+    assertNotNull(threadContext.getStatisticsForCurrentTest());
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertNoMoreCalls();
+
+    threadContext.popDispatchContext();
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
+    m_dispatchContextStubFactory.assertNoMoreCalls();
+
+    assertNotNull(threadContext.getStatisticsForLastTest());
+    assertNull(threadContext.getStatisticsForCurrentTest());
 
     // Now have a pending context.
 
     threadContext.reportPendingDispatchContext();
-    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertSuccess("report");
     threadContext.reportPendingDispatchContext();
     m_dispatchContextStubFactory.assertNoMoreCalls();
@@ -280,10 +289,10 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.pushDispatchContext(m_dispatchContext);
     m_dispatchContextStubFactory.assertSuccess("getTest");
     threadContext.popDispatchContext();
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     threadContext.beginRunEvent();
     m_dispatchContextStubFactory.assertNoMoreCalls();
     threadContext.endRunEvent();
-    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
 
@@ -291,9 +300,9 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.pushDispatchContext(m_dispatchContext);
     m_dispatchContextStubFactory.assertSuccess("getTest");
     threadContext.popDispatchContext();
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertNoMoreCalls();
     threadContext.setDelayReports(false);
-    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
   }
