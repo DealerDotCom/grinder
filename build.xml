@@ -585,6 +585,37 @@ what you want. Currently the conditionally built modules are:
       <arg value="TODO"/>
     </java>
 
+    <java classname="org.python.util.jython" logError="true"
+      output="${xml-output.dir}/scripts.xml">
+
+      <sysproperty key="python.home" path="${jython.dir}"/>
+
+      <classpath>
+        <pathelement path="${jython.dir}/${jython.jar}"/>
+      </classpath>
+      <arg path="${etc.dir}/scripts2xml.py"/>
+      <arg value="examples/helloworld.py"/>
+      <arg value="examples/http.py"/>
+      <arg value="examples/scenario.py"/>
+      <arg value="examples/fba.py"/>
+      <arg value="examples/cookies.py"/>
+      <arg value="examples/form.py"/>
+      <arg value="examples/ejb.py"/>
+      <arg value="examples/jdbc.py"/>
+      <arg value="examples/amazon.py"/>
+      <arg value="examples/jaxrpc.py"/>
+      <arg value="examples/xml-rpc.py"/>
+      <arg value="examples/helloworldfunctions.py"/>
+      <arg value="examples/scriptlifecycle.py"/>
+      <arg value="examples/statistics.py"/>
+      <arg value="examples/jmssender.py"/>
+      <arg value="examples/jmsreceiver.py"/>
+      <arg value="examples/httpunit.py"/>
+      <arg value="examples/email.py"/>
+      <arg value="examples/sequence.py"/>
+      <arg value="examples/parallel.py"/>
+    </java>
+
   </target>
 
   <target name="javadoc" depends="init" description="Generates the javadoc.">

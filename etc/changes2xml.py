@@ -44,7 +44,7 @@ class XMLOutput:
 
     def __init__(self, topLevelTag):
         self._result += self._stack.open(topLevelTag)
-        
+
     def addLine(self, line):
         line = line.strip()
 
@@ -68,12 +68,17 @@ class XMLOutput:
             else:
                 self._result += line
 
-            self._result += " "                    
+            self._result += " "
+
+    def addLiteral(self, element, text, **attributes):
+        self._result += self._stack.open(element, **attributes)
+        self._result += text # Probably needs quoting
+        self._result += self._stack.close()
 
     def closeToDepth(self, depth):
         for difference in range(depth, self._stack.depth()):
             self._result += self._stack.close()
-                
+
     def openSection(self, name, **attributes):
         self._result += self._stack.perhapsClose(("li", "ul", "p"))
 
@@ -98,8 +103,10 @@ class XMLOutput:
         return id
 
 
-def quote(line):
-    result = line.replace(chr(0x0a), "")
+def quote(line, replaceNewLines=1):
+    result = line
+    if replaceNewLines:
+        result = result.replace(chr(0x0a), "")
     result = result.replace("&", "&amp;");
     result = result.replace("<", "&lt;");
     result = result.replace(">", "&gt;");
@@ -116,13 +123,13 @@ def changes2xml(file):
         line = quote(line)
 
         if line[:1] == "-": continue
-        
+
         if line and line[0] != " " and line[0] != "\t":
             output.closeToDepth(1)
             output.openSection(line.strip())
         else:
             output.addLine(line)
-			
+
     return output.result()
 
 
