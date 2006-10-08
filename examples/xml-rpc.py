@@ -1,4 +1,4 @@
-# XML-RPC example.
+# XML-RPC Web Service
 #
 # A server should be running on the localhost. This script uses the
 # example from

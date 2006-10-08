@@ -1,3 +1,5 @@
+# Hello World
+#
 # A minimal script that tests The Grinder logging facility.
 #
 # This script shows the recommended style for scripts, with a
@@ -25,7 +27,7 @@ logWrapper = test1.wrap(log)
 # A TestRunner instance is created for each thread. It can be used to
 # store thread-specific data.
 class TestRunner:
-    
+
     # This method is called for every run.
     def __call__(self):
         logWrapper("Hello World")

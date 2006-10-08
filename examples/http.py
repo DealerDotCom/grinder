@@ -1,3 +1,5 @@
+# Simple HTTP example
+#
 # A simple example using the HTTP plugin that shows the retrieval of a
 # single page via HTTP. The resulting page is written to a file.
 #

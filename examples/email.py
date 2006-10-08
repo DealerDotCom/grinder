@@ -1,3 +1,5 @@
+# Email
+#
 # Send email using Java Mail (http://java.sun.com/products/javamail/)
 #
 # This Grinder Jython script should only be used for legal email test
@@ -23,7 +25,7 @@ emailSendTest1 = Test(1, "Email Send Engine")
 class TestRunner:
     def __call__(self):
         smtpHost = "mailhost"
-        
+
         properties = System.getProperties()
         properties["mail.smtp.host"] = smtpHost
         session = Session.getInstance(System.getProperties())

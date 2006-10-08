@@ -1,3 +1,5 @@
+# Using The Grinder with other test frameworks
+#
 # Example showing how The Grinder can be used with HTTPUnit.
 #
 # Copyright (C) 2003, 2004 Tony Lodge

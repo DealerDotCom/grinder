@@ -1,3 +1,5 @@
+# HTTP/J2EE form based authentication
+#
 # A more complex HTTP example based on an authentication conversation
 # with the server. This script demonstrates how to follow different
 # paths based on a response returned by the server and how to post
@@ -23,7 +25,7 @@ class TestRunner:
             HTTPRequest(url="http://localhost:7001/console"))
 
         result = request.GET()
-       
+
         result = maybeAuthenticate(result)
 
         result = request.GET()
@@ -42,5 +44,5 @@ def maybeAuthenticate(lastResult):
 
         request = authenticationTest.wrap(
             HTTPRequest(url="%s/j_security_check" % lastResult.originalURI))
-            
+
         return request.POST(authenticationFormData)

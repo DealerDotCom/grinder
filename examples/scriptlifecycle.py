@@ -1,5 +1,7 @@
+# The script life cycle
+#
 # A script that demonstrates how the various parts of a script and
-# their effects on worker threads. 
+# their effects on worker threads.
 
 # The "top level" of the script is called once for each worker
 # process. Perform any one-off initialisation here. For example,
@@ -18,7 +20,7 @@ class TestRunner:
     # There's a runsForThread variable for each worker thread. This
     # statement specifies a class-wide initial value.
     runsForThread = 0
-    
+
     # The __init__ method is called once for each thread.
     def __init__(self):
         # There's an initialisationTime variable for each worker thread.
@@ -42,7 +44,7 @@ class TestRunner:
         grinder.logger.output(
             "runsForThread=%d, totalNumberOfRuns=%d, initialisationTime=%d" %
             (self.runsForThread, totalNumberOfRuns, self.initialisationTime))
-        
+
         # You can also vary behaviour based on thread ID.
         if grinder.threadID % 2 == 0:
             grinder.logger.output("I have an even thread ID.")

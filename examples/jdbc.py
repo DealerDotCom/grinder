@@ -1,3 +1,5 @@
+# Grinding a database with JDBC
+#
 # Some simple database playing with JDBC.
 #
 # To run this, set the Oracle login details appropriately and add the
@@ -33,24 +35,24 @@ statement.execute("create table grinder_fun(thread number, run number)")
 
 ensureClosed(statement)
 ensureClosed(connection)
-    
+
 class TestRunner:
     def __call__(self):
         connection = None
         statement = None
 
-        try:
-	    connection = getConnection()
-	    statement = connection.createStatement()
-            
-            testInsert = test1.wrap(statement)
-            testInsert.execute("insert into grinder_fun values(%d, %d)" %
-                               (grinder.threadID, grinder.runNumber))
+    try:
+        connection = getConnection()
+        statement = connection.createStatement()
 
-            testQuery = test2.wrap(statement)
-            testQuery.execute("select * from grinder_fun where thread=%d" %
-                              grinder.threadID)
+        testInsert = test1.wrap(statement)
+        testInsert.execute("insert into grinder_fun values(%d, %d)" %
+                           (grinder.threadID, grinder.runNumber))
 
-	finally:
-            ensureClosed(statement)
-	    ensureClosed(connection)
+        testQuery = test2.wrap(statement)
+        testQuery.execute("select * from grinder_fun where thread=%d" %
+                          grinder.threadID)
+
+    finally:
+        ensureClosed(statement)
+        ensureClosed(connection)

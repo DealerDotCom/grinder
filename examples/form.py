@@ -1,3 +1,5 @@
+# HTTP multipart form submission
+#
 # This script uses the HTTPClient.Codecs class to post itself to the
 # server as a multi-part form. Thanks to Marc Gemis.
 

@@ -1,4 +1,4 @@
-# An example JMS receiver.
+# Java Message Service - Queue Receiver
 #
 # JMS objects are looked up and messages are created once during
 # initialisation. This default JNDI names are for the WebLogic Server

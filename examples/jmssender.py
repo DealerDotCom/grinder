@@ -1,4 +1,4 @@
-# An example JMS sender.
+# Java Message Service - Queue Sender
 #
 # JMS objects are looked up and messages are created once during
 # initialisation. This default JNDI names are for the WebLogic Server
@@ -17,7 +17,7 @@ from javax.jms import Session
 from javax.naming import Context, InitialContext
 from weblogic.jndi import WLInitialContextFactory
 
-# Look up connection factory and queue in JNDI. 
+# Look up connection factory and queue in JNDI.
 properties = Properties()
 properties[Context.PROVIDER_URL] = "t3://localhost:7001"
 properties[Context.INITIAL_CONTEXT_FACTORY] = WLInitialContextFactory.name

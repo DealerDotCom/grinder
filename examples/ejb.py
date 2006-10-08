@@ -1,3 +1,5 @@
+# Enterprise Java Beans
+#
 # Exercise a stateful session EJB from the BEA WebLogic Server 7.0
 # examples. Additionally this script demonstrates the use of the
 # ScriptContext sleep(), getThreadId() and getRunNumber() methods.
@@ -15,7 +17,7 @@ from weblogic.jndi import WLInitialContextFactory
 tests = {
     "home" : Test(1, "TraderHome"),
     "trade" : Test(2, "Trader buy/sell"),
-    "query" : Test(3, "Trader getBalance"),   
+    "query" : Test(3, "Trader getBalance"),
     }
 
 # Initial context lookup for EJB home.
@@ -30,7 +32,7 @@ random = Random()
 class TestRunner:
     def __call__(self):
         log = grinder.logger.output
-        
+
         trader = homeTest.create()
 
         tradeTest = tests["trade"].wrap(trader)
@@ -45,7 +47,7 @@ class TestRunner:
         stocksToBuy = { "BEAS" : abs(random.nextInt()) % 1000 }
         for stock, amount in stocksToBuy.items():
             tradeResult = tradeTest.buy("Phil", stock, amount)
-            log("Result of tradeTest.buy(): %s" % tradeResult)            
+            log("Result of tradeTest.buy(): %s" % tradeResult)
 
         queryTest = tests["query"].wrap(trader)
         balance = queryTest.getBalance()

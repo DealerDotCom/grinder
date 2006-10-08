@@ -1,3 +1,5 @@
+# Recording many HTTP interactions as one test
+#
 # This example shows how many HTTP interactions can be grouped as a
 # single test by wrapping them in a function.
 

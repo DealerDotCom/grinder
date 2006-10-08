@@ -1,3 +1,5 @@
+# Accessing test statistics
+#
 # Examples of using The Grinder statistics API with standard
 # statistics.
 

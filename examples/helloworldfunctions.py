@@ -1,3 +1,5 @@
+# Hello World, with functions
+#
 # The Hello World example re-written using functions.
 #
 # In previous examples we've defined TestRunner as a class; calling

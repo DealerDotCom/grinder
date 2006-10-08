@@ -1,3 +1,5 @@
+# JAX-RPC Web Service
+#
 # Exercise a basic Web Service from the BEA WebLogic Server 7.0
 # examples.
 #

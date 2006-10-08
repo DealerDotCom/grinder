@@ -1,4 +1,4 @@
-# Run many scripts in sequence.
+# Run test scripts in sequence
 #
 # Scripts are defined in Python modules (helloworld.py, goodbye.py)
 # specified in grinder.properties:
@@ -23,7 +23,7 @@ def createTestRunner(module):
 class TestRunner:
     def __init__(self):
         self.testRunners = [createTestRunner(m) for m in scripts.values()]
-    
+
     # This method is called for every run.
     def __call__(self):
         for testRunner in self.testRunners: testRunner()

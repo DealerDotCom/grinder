@@ -1,3 +1,5 @@
+# Simple HTTP Web Service
+#
 # Calls an Amazon.com web service to obtain information about a book.
 #
 # To run this script you must install the standard Python xml module.
@@ -22,13 +24,13 @@ from org.xml.sax import InputSource
 
 bookDetailsTest = Test(1, "Get book details from Amazon")
 parser = javadom.XercesDomImplementation()
-        
+
 class TestRunner:
     def __call__(self):
         if grinder.runNumber > 0 or grinder.threadID > 0:
             raise RuntimeError("Use limited to one thread, one run; "
                                "see Amazon Web Services terms and conditions")
-        
+
         request = bookDetailsTest.wrap(
             HTTPRequest(url="http://xml.amazon.com/onca/xml"))
 
@@ -40,14 +42,14 @@ class TestRunner:
             NVPair("type", "heavy"),
             NVPair("AsinSearch", "1904284000"),
             )
-        
+
         bytes = request.POST(parameters).inputStream
 
         # Parse results
         document = parser.buildDocumentUrl(InputSource(bytes))
 
         result = {}
-        
+
         for details in document.getElementsByTagName("Details"):
             for detailName in ("ProductName", "SalesRank", "ListPrice"):
                 result[detailName] = details.getElementsByTagName(

@@ -1,3 +1,5 @@
+# HTTP cookies
+#
 # HTTP example which shows how to access HTTP cookies.
 #
 # By default, the HTTPClient library handles Cookie interaction and
@@ -17,7 +19,7 @@ class MyCookiePolicyHandler(CookiePolicyHandler):
     def acceptCookie(self, cookie, request, response):
         log("accept cookie: %s" % cookie)
         return 1
-        
+
     def sendCookie(self, cookie, request):
         log("send cookie: %s" % cookie)
         return 1
@@ -25,7 +27,7 @@ class MyCookiePolicyHandler(CookiePolicyHandler):
 CookieModule.setCookiePolicyHandler(MyCookiePolicyHandler())
 
 test1 = Test(1, "Request resource")
-request1 = test1.wrap(HTTPRequest())   
+request1 = test1.wrap(HTTPRequest())
 
 class TestRunner:
     def __call__(self):
