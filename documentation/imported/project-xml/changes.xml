@@ -9,11 +9,15 @@ Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=149542
 <p>
 Fix HTTPPlugin TCPProxy filter to remove extraneous quote from reference to POST data files. Thanks to Saurabh Sehgal for the report. </p>
 <p>
-Relax cookie parsing to cope with .NET nonsense. Requested and prototyped by John S. White. </p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1525387&amp;group_id=18598&amp;atid=118598">bug 1525387</a> - Relax cookie parsing to cope with .NET nonsense. Requested and prototyped by John S. White. </p>
 <p>
-Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1482811&amp;group_id=18598&amp;atid=368598">Request 1482811</a> - slow socket connections. Requested by Travis Bear. See HTTPPluginConnection.setBandwidthLimit(). </p>
+Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1482811&amp;group_id=18598&amp;atid=368598">Request 1482811</a> - slow socket connections. Requested by Travis Bear. See HTTPPluginConnection.setBandwidthLimit(). Travis and Leland Olney assisted in the testing and fixing of this feature. </p>
 <p>
 Fix console bug where the Total line in statistics tables could be incorrectly rendered in red. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1525628&amp;group_id=18598&amp;atid=118598">bug 1525628</a> - Throw NotWrappableTypeException not NullPointerException on attempt to wrap a null object. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1527299&amp;group_id=18598&amp;atid=118598">bug 1527299</a> - statistics.delayReports doesn't work with nested tests. This required a significant change to the script statistics API. The script can now distinguish between the statistics for the current test (statistics.forCurrentTest), and the statistics for the last completed test (statistics.forLastTest). If there is a current test, it's statistics can be queried and modified. If there is a last reported test, it's statistics can be queried and can be modified if statistics reports are delayed. </p>
 </section>
 <section name='The Grinder 3.0-beta30' id='The Grinder 3.0-beta30'>
 <p>

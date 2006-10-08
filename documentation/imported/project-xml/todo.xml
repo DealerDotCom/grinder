@@ -13,7 +13,41 @@ The TODO list is part of the binary distribution. I'll accept patches against it
 <li>
  Philip Aston </li>
 </ul>
+<p>
+Huifeng says: </p>
+<p>
+The second is about the pre-version. In this snapshot version. The synchronization between the console and the agent is not full solved. Although the console can distribute the test scripts to several agent process(In my environment, three is OK). But the console process can not remember which agent process have been updated. It need distribution several time and then the agent process can be run. Last month I find the test result statistic is absolute wrong. But today I find the script run well in beta30 can not be run under the pre-version. The login page fail and I am look for the reason. </p>
 <section name='Enhancements' depth='1' id='Enhancements'>
+<section name='Console API' depth='2' id='Console API'>
+<p>
+Fairly easy: Command channel to the console. Event channel back from the console. This makes API yucky. All methods void; event handling. </p>
+<p>
+RMI instead? Still need event channel. Need multiple ports. </p>
+<p>
+Process control </p>
+<p>
+void startWorkerProcess(some id) void stopWorkerProcess(some id) List&lt;ProcessStatus&gt; getProcessStatus() - NB return value void addProcessEventListener(ProcessEventListener) </p>
+<p>
+void setScript(...?) </p>
+<p>
+Recording control </p>
+<p>
+void startRecording() void stopRecording() void resetRecording() </p>
+<section name='what about access from grinder scripts?' depth='3' id='what about access from grinder scripts?'>
+</section>
+<section name='sample log file' depth='3' id='sample log file'>
+</section>
+<section name='feedback from travis' depth='3' id='feedback from travis'>
+<p>
+Commnents on the API: - </p>
+<p>
+* For sure there will need to be an ability to retrieve stats, as you mentioned. </p>
+<p>
+* A file transfer API, or some other configuration management API will be needed so that a centrally managed config, such as might be included in grinder.properties, can be pushed out to the agents. </p>
+<p>
+* Right now I'm using scripted ssh calls to start the agents on the remote machines.  It would be better if there was a good, generic, cross-platform way the controller/console could initiate a connection to a given agent.  This might mean having the agent process running as a server/service on the agent machine, so that it would always be available. </p>
+</section>
+</section>
 <section name='Script Distribution' depth='2' id='Script Distribution'>
 <section name='Model' depth='3' id='Model'>
 <p>
@@ -111,6 +145,8 @@ Perhaps. This procedural style would certainly be more obvious to the average us
 <section name='Statistics' depth='2' id='Statistics'>
 <p>
 Total time should distinguish nested tests. Introduce new concept of a Group Test? </p>
+<p>
+Should TPS averages be harmonic means? http://en.wikipedia.org/wiki/Harmonic_mean </p>
 <p>
 Split out serializeable kernel of TestStatisticsMap? Look hard at where the message is deserialised. </p>
 <p>
@@ -263,8 +299,6 @@ Each time L&amp;F changes, the saveAs dialog gets another All Files filter! </p>
 <section name='TCPProxy' depth='2' id='TCPProxy-1'>
 <p>
 Should listen on all interfaces if -localhost is not specified. </p>
-<p>
-Fix the proxy to record Authorization again. Can use connection ID. The G2 HTTPClient plugin implementation interprets basicAuthentication properties wrongly. It first sends a request without the authentication headers, then catches the 401 and automatically resends a request with the authentication headers. </p>
 </section>
 </section>
 <section name='Build' depth='1' id='Build'>
