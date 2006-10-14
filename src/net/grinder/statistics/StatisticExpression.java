@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -44,7 +44,7 @@ public interface StatisticExpression {
   /**
    * Apply this {@link StatisticExpression} to the given {@link
    * StatisticsSet} and return the result as a <code>long</code>,
-   * ronding as necessary.
+   * rounding as necessary.
    *
    * @param statisticsSet A <code>StatisticsSet</code> value.
    * @return The result.
