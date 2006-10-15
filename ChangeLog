@@ -2,6 +2,8 @@
 
 	* The Grinder 3.0-beta31 is released.
 
+	* tests-src/net/grinder/communication/TestClientSender.java: Fix test.
+
 	* examples/grinder.properties: Don't change the default script.
 
 	* CHANGES, TODO, tests-src/net/grinder/engine/process/TestTestData.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleAccumulator.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/engine/process/DispatchContext.java, src/net/grinder/engine/process/TestStatisticsHelperImplementation.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/console/swingui/Colours.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/Table.java, src/net/grinder/statistics/ImmutableStatisticsSet.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsSet.java, src/net/grinder/statistics/StatisticsSetImplementation.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/TestStatisticsSetImplementation.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
