@@ -89,7 +89,7 @@ public final class RegularExpressionsImplementation
     m_lastPathElementPathPattern = Pattern.compile("^[^\\?#]*/([^\\?;#]*)");
 
     m_hrefURIPattern = Pattern.compile(
-      ".*?href[ \\t]*=[ \\t]*['\"]([^'\"]*)['\"]");
+      "href[ \\t]*=[ \\t]*['\"]([^'\"]*)['\"]");
 
     m_hiddenInputPattern = Pattern.compile(
       "<\\s*input\\s+" +
