@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -185,7 +185,7 @@ public class TestClientSender extends TestCase {
 
   }
 
-  public void testWithBadPairedClientSender() throws Exception {
+  public void testWithBadPairedClientReceiver() throws Exception {
     final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
 
     final Connector connector =
@@ -195,8 +195,11 @@ public class TestClientSender extends TestCase {
     final ClientReceiver clientReceiver = ClientReceiver.connect(connector);
     clientReceiver.shutdown();
 
+    // The connection health is not checked on connect().
+    final ClientSender sender = ClientSender.connect(clientReceiver);
+
     try {
-      ClientSender.connect(clientReceiver);
+      sender.send(null);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
