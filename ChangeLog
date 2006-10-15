@@ -1,3 +1,40 @@
+2006-10-15  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta31 is released.
+
+	* examples/grinder.properties: Don't change the default script.
+
+	* CHANGES, TODO, tests-src/net/grinder/engine/process/TestTestData.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleAccumulator.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/engine/process/DispatchContext.java, src/net/grinder/engine/process/TestStatisticsHelperImplementation.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/console/swingui/Colours.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/Table.java, src/net/grinder/statistics/ImmutableStatisticsSet.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsSet.java, src/net/grinder/statistics/StatisticsSetImplementation.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/TestStatisticsSetImplementation.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	Fix bug 1484703 - Total statistics wrong for composite tests.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressionsImplementation.java:
+	Remove extraneous ".*?" from start of regexp.
+
+2006-10-14  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/statistics/StatisticExpression.java:
+	Fix spelling in javadoc.
+
+2006-10-08  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, examples/statistics.py, src/net/grinder/engine/process/TestStatisticsHelper.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/engine/process/TestTestStatisticsHelperImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestStatisticsHelperImplementation.java:
+	Don't include any stats from erroneous tests in aggregates (but ++errors).
+	Don't zero stats from an erroneous test before recording it in the data log.
+
+	* ChangeLog: *** empty log message ***
+
+	* examples/amazon.py, examples/helloworldfunctions.py, examples/http.py, examples/jaxrpc.py, examples/parallel.py, examples/statistics.py, examples/composite.py, examples/cookies.py, examples/ejb.py, examples/email.py, examples/fba.py, examples/form.py, examples/grinder.properties, examples/helloworld.py, examples/httpunit.py, examples/jdbc.py, examples/jmsreceiver.py, examples/jmssender.py, examples/scenario.py, examples/scriptlifecycle.py, examples/sequence.py, examples/xml-rpc.py:
+	Normalise examples for script gallery generation.
+
+	* build.xml, etc/changes2xml.py, etc/scripts2XML.py:
+	Build script gallery from examples.
+
+	* examples/statistics.py:
+	Update to match changes to the script statistics API.
+
+	* src/net/grinder/engine/process/ThreadContextImplementation.java, tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	Fix getStatisticsForLastTest().
+
 2006-10-08  Philip Aston  <philipa@mail.com>
 
 	* examples/amazon.py, examples/helloworldfunctions.py, examples/http.py, examples/jaxrpc.py, examples/parallel.py, examples/statistics.py, examples/composite.py, examples/cookies.py, examples/ejb.py, examples/email.py, examples/fba.py, examples/form.py, examples/grinder.properties, examples/helloworld.py, examples/httpunit.py, examples/jdbc.py, examples/jmsreceiver.py, examples/jmssender.py, examples/scenario.py, examples/scriptlifecycle.py, examples/sequence.py, examples/xml-rpc.py:
@@ -84,16 +121,6 @@
 2006-07-13  Philip Aston  <philipa@mail.com>
 
 	* ChangeLog: *** empty log message ***
-
-	* src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/SocketWrapper.java:
-	Synchronise on SocketWrapper when accessing socket streams.
-
-	* src/net/grinder/communication/Sender.java: Javadoc.
-
-	* src/net/grinder/communication/StreamReceiver.java, src/net/grinder/communication/StreamSender.java:
-	Allow package classes to construct us with specific locking objects.
-
-2006-07-13  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/SocketWrapper.java:
 	Synchronise on SocketWrapper when accessing socket streams.
