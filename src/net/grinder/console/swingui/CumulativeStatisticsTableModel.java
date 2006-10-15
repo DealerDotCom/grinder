@@ -21,6 +21,7 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.Writer;
 
@@ -93,16 +94,30 @@ final class CumulativeStatisticsTableModel
     }
   }
 
-  public boolean isRed(int row, int column) {
+  public Color getForeground(int row, int column) {
 
     if (row < getLastModelTestIndex().getNumberOfTests()) {
-      return super.isRed(row, column);
+      return super.getForeground(row, column);
     }
     else {
-      return
-        column == 3 &&
-        getModel().getTestStatisticsQueries().getNumberOfErrors(
-            getModel().getTotalCumulativeStatistics()) > 0;
+      if (column == 3 &&
+          getModel().getTestStatisticsQueries().getNumberOfErrors(
+              getModel().getTotalCumulativeStatistics()) > 0) {
+        return Colours.RED;
+      }
+      else {
+        return null;
+      }
+    }
+  }
+
+  public Color getBackground(int row, int column) {
+
+    if (row < getLastModelTestIndex().getNumberOfTests()) {
+      return super.getBackground(row, column);
+    }
+    else {
+      return null;
     }
   }
 

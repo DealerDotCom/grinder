@@ -359,6 +359,10 @@ public class TestTestData extends TestCase {
     final long elapsedTime2 = dispatchContext.getElapsedTime();
     assertTrue(elapsedTime2 >= 50);
     assertTrue(elapsedTime2 <= 200); // Pause timer was reset after last call.
+
+    assertFalse(statistics.isComposite());
+    dispatchContext.setHasNestedContexts();
+    assertTrue(statistics.isComposite());
   }
 
   /**

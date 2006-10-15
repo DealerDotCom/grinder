@@ -41,11 +41,12 @@ import net.grinder.common.Test;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestStatisticsMap implements java.io.Externalizable {
+public final class TestStatisticsMap implements java.io.Externalizable {
 
   // The serialVersionUID should be incremented whenever the default
-  // statistic indicies are changed in StatisticsIndexMap.
-  private static final long serialVersionUID = 2L;
+  // statistic indicies are changed in StatisticsIndexMap, or
+  // when the StatisticsSet externalisation methods are changed.
+  private static final long serialVersionUID = 3L;
 
   private final transient StatisticsSetFactory m_statisticsSetFactory;
 
@@ -80,7 +81,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * @param test A test.
    * @param statistics The test's statistics.
    */
-  public final void put(Test test, StatisticsSet statistics) {
+  public void put(Test test, StatisticsSet statistics) {
     if (!(statistics instanceof StatisticsSetImplementation)) {
       throw new AssertionError(
         "StatisticsSet implementation not supported");
@@ -97,7 +98,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
    *
    * @return an <code>int</code> value
    */
-  public final int size() {
+  public int size() {
     synchronized (this) {
       return m_data.size();
     }
@@ -109,7 +110,9 @@ public class TestStatisticsMap implements java.io.Externalizable {
    *
    * @param other The other <code>TestStatisticsMap</code>.
    */
-  public final void add(TestStatisticsMap other) {
+  public void add(TestStatisticsMap other) {
+    // Use an Iterator rather than ForEach as its important to be clear
+    // about this versus the other.
     synchronized (other) {
       final Iterator otherIterator = other.new Iterator();
 
@@ -145,13 +148,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
     final TestStatisticsMap result =
       new TestStatisticsMap(m_statisticsSetFactory);
 
-    synchronized (this) {
-      final Iterator iterator = new Iterator();
-
-      while (iterator.hasNext()) {
-        final Pair pair = iterator.next();
-
-        final StatisticsSet statistics = pair.getStatistics();
+    new ForEach() {
+      public void next(Test test, StatisticsSet statistics) {
         final StatisticsSet snapshot;
 
         synchronized (statistics) {
@@ -160,30 +158,51 @@ public class TestStatisticsMap implements java.io.Externalizable {
         }
 
         if (!snapshot.isZero()) {
-          result.put(pair.getTest(), snapshot);
+          result.put(test, snapshot);
         }
       }
     }
+    .iterate();
 
     return result;
   }
 
   /**
-   * Add up all our statistics.
+   * Add up all the non-composite statistics.
    *
-   * @return The sum of all our statistics.
+   * @return The sum of all the non-composite statistics.
    */
-  public StatisticsSet createTotalStatisticsSet() {
+  public StatisticsSet nonCompositeStatisticsTotals() {
     final StatisticsSet result = m_statisticsSetFactory.create();
 
-    synchronized (this) {
-      final Iterator iterator = new Iterator();
-
-      while (iterator.hasNext()) {
-        final TestStatisticsMap.Pair pair = iterator.next();
-        result.add(pair.getStatistics());
+    new ForEach() {
+      public void next(Test test, StatisticsSet statistics) {
+        if (!statistics.isComposite()) {
+          result.add(statistics);
+        }
       }
     }
+    .iterate();
+
+    return result;
+  }
+
+  /**
+   * Add up all the composite statistics.
+   *
+   * @return The sum of all the composite statistics.
+   */
+  public StatisticsSet compositeStatisticsTotals() {
+    final StatisticsSet result = m_statisticsSetFactory.create();
+
+    new ForEach() {
+      public void next(Test test, StatisticsSet statistics) {
+        if (statistics.isComposite()) {
+          result.add(statistics);
+        }
+      }
+    }
+    .iterate();
 
     return result;
   }
@@ -195,7 +214,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * @param o <code>Object</code> to compare to.
    * @return <code>true</code> if and only if the two objects are equal.
    */
-  public final boolean equals(Object o) {
+  public boolean equals(Object o) {
     if (o == this) {
       return true;
     }
@@ -234,7 +253,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
    *
    * @return The hash code.
    */
-  public final int hashCode() {
+  public int hashCode() {
     return super.hashCode();
   }
 
@@ -249,19 +268,16 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
     result.append("TestStatisticsMap = {");
 
-    synchronized (this) {
-      final Iterator iterator = new Iterator();
-
-      while (iterator.hasNext()) {
-        final Pair pair = iterator.next();
-
+    new ForEach() {
+      public void next(Test test, StatisticsSet statisticsSet) {
         result.append("(");
-        result.append(pair.getTest());
+        result.append(test);
         result.append(", ");
-        result.append(pair.getStatistics());
+        result.append(statisticsSet);
         result.append(")");
       }
     }
+    .iterate();
 
     result.append("}");
 
@@ -333,8 +349,14 @@ public class TestStatisticsMap implements java.io.Externalizable {
   }
 
   /**
-   * A type safe iterator. Should synchronize on the
+   * A type safe iterator. Should synchronise on the
    * <code>TestStatisticsMap</code> around use.
+   *
+   * <p>
+   * See the simpler {@link ForEach} for cases where you don't need control over
+   * advancing the iterator or to propagate exceptions from the code that
+   * handles each item.
+   * </p>
    */
   public final class Iterator {
     private final java.util.Iterator m_iterator;
@@ -403,5 +425,32 @@ public class TestStatisticsMap implements java.io.Externalizable {
     public StatisticsSet getStatistics() {
       return m_statistics;
     }
+  }
+
+  /**
+   * Convenience visitor-like wrapper around an Iterator.
+   */
+  public abstract class ForEach {
+    /**
+     * Runs the iteratation.
+     */
+    public void iterate() {
+      synchronized (this) {
+        final Iterator iterator = new Iterator();
+
+        while (iterator.hasNext()) {
+          final Pair pair = iterator.next();
+          next(pair.getTest(), pair.getStatistics());
+        }
+      }
+    }
+
+    /**
+     * Receives a call for each item in the iteration.
+     *
+     * @param test The item's Test.
+     * @param statistics The item's statistics.
+     */
+    protected abstract void next(Test test, StatisticsSet statistics);
   }
 }

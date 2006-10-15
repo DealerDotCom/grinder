@@ -44,6 +44,7 @@ public class TestTestStatisticsMap extends TestCase {
 
   private final Test m_test0 = new StubTest(0, "foo");
   private final Test m_test1 = new StubTest(1, "");
+  private final Test m_test2 = new StubTest(2, "");
   private StatisticsSet m_statistics0;
   private StatisticsSet m_statistics1;
   private StatisticsIndexMap.LongIndex m_index;
@@ -272,5 +273,22 @@ public class TestTestStatisticsMap extends TestCase {
       // We get a simplified test object.
       assertEquals("", pair.getTest().getDescription());
     }
+  }
+
+  public void testTotalsMethods() throws Exception {
+    final TestStatisticsMap map =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
+    map.put(m_test0, m_statistics0);
+    map.put(m_test1, m_statistics0);
+    map.put(m_test2, m_statistics1);
+
+    m_statistics1.setValue(m_index, 3);
+    m_statistics1.setIsComposite();
+
+    final StatisticsSet compositeTotals = map.compositeStatisticsTotals();
+    assertEquals(3, compositeTotals.getValue(m_index));
+
+    final StatisticsSet nonCompositeTotals = map.nonCompositeStatisticsTotals();
+    assertEquals(20, nonCompositeTotals.getValue(m_index));
   }
 }

@@ -452,27 +452,24 @@ public final class Model {
     m_receivedReport = true;
 
     if (getState() == STATE_CAPTURING) {
-      // TestStatisticsMap doesn't change within the console so we
-      // don't need to synchronise.
-      final TestStatisticsMap.Iterator iterator =
-        testStatisticsMap.new Iterator();
+      testStatisticsMap.new ForEach() {
+        public void next(Test test, StatisticsSet statistics) {
+          final SampleAccumulator sampleAccumulator =
+            (SampleAccumulator)m_accumulators.get(test);
 
-      while (iterator.hasNext()) {
-        final TestStatisticsMap.Pair pair = iterator.next();
+          if (sampleAccumulator == null) {
+            System.err.println("Ignoring unknown test: " + test);
+          }
+          else {
+            sampleAccumulator.add(statistics);
 
-        final StatisticsSet statistics = pair.getStatistics();
-
-        final SampleAccumulator sampleAccumulator =
-          (SampleAccumulator)m_accumulators.get(pair.getTest());
-
-        if (sampleAccumulator == null) {
-          System.err.println("Ignoring unknown test: " + pair.getTest());
-        }
-        else {
-          sampleAccumulator.add(statistics);
-          m_totalSampleAccumulator.add(statistics);
+            if (!statistics.isComposite()) {
+              m_totalSampleAccumulator.add(statistics);
+            }
+          }
         }
       }
+      .iterate();
     }
     else if (getState() == STATE_WAITING_FOR_TRIGGER &&
              m_properties.getIgnoreSampleCount() == 0) {

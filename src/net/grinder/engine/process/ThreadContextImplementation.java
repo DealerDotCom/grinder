@@ -174,6 +174,12 @@ final class ThreadContextImplementation
     getThreadLogger().setCurrentTestNumber(
       dispatchContext.getTest().getNumber());
 
+    final DispatchContext existingContext = m_dispatchContextStack.peekTop();
+
+    if (existingContext != null) {
+      existingContext.setHasNestedContexts();
+    }
+
     m_dispatchContextStack.push(dispatchContext);
   }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -61,6 +61,11 @@ public class StatisticsTable {
                             FixedWidthFormatter.FLOW_TRUNCATE,
                             COLUMN_WIDTH);
 
+  private final FixedWidthFormatter m_freeTextFormatter =
+    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
+                            FixedWidthFormatter.FLOW_WORD_WRAP,
+                            72);
+
   private final StatisticsView m_statisticsView;
 
   /**
@@ -80,7 +85,7 @@ public class StatisticsTable {
    *
    * @param out The output writer
    */
-  public final void print(PrintWriter out) {
+  public final void print(final PrintWriter out) {
     final ExpressionView[] expressionViews =
       m_statisticsView.getExpressionViews();
 
@@ -123,69 +128,167 @@ public class StatisticsTable {
 
     out.println();
 
+    final LineFormatter formatter = new LineFormatter(expressionViews);
+
+    final LineFormatter compositeTotalsFormatter =
+      new CompositeStatisticsLineFormater(expressionViews);
+
     synchronized (m_testStatisticsMap) {
 
-      final TestStatisticsMap.Iterator iterator =
-        m_testStatisticsMap.new Iterator();
+      m_testStatisticsMap.new ForEach() {
+        public void next(Test test, StatisticsSet statistics) {
+          out.print(formatter.format("Test " + test.getNumber(), statistics));
 
-      while (iterator.hasNext()) {
-        final TestStatisticsMap.Pair pair = iterator.next();
+          final String testDescription = test.getDescription();
 
-        final Test test = pair.getTest();
-
-        final StringBuffer output = formatLine("Test " + test.getNumber(),
-                                               pair.getStatistics(),
-                                               expressionViews);
-
-        final String testDescription = test.getDescription();
-
-        if (testDescription != null) {
-          output.append(" \"" + testDescription + "\"");
+          if (testDescription != null) {
+            out.println(" \"" + testDescription + "\"");
+          }
+          else {
+            out.println();
+          }
         }
-
-        out.println(output.toString());
       }
+      .iterate();
 
       out.println();
-      out.println(formatLine("Totals",
-                             m_testStatisticsMap.createTotalStatisticsSet(),
-                             expressionViews));
+      out.println(
+        formatter.format(
+          "Totals", m_testStatisticsMap.nonCompositeStatisticsTotals()));
+
+      final StatisticsSet compositeStatisticsTotals =
+        m_testStatisticsMap.compositeStatisticsTotals();
+
+      if (!compositeStatisticsTotals.isZero()) {
+        out.println(
+          compositeTotalsFormatter.format("", compositeStatisticsTotals));
+      }
+    }
+
+    out.println();
+
+    final StringBuffer text = new StringBuffer();
+    StringBuffer buffer = new StringBuffer(
+      "Tests resulting in error only contribute to the Errors column. " +
+      "Statistics for individual tests can be found in the data file, " +
+      "including (possibly incomplete) statistics for erroneous tests. " +
+      "Composite tests are marked with () and not included in the totals.");
+
+    while (buffer.length() > 0) {
+      final StringBuffer remainder = new StringBuffer();
+      m_freeTextFormatter.transform(buffer, remainder);
+
+      if (text.length() > 0) {
+        text.append("\n");
+      }
+
+      text.append("  ");
+      text.append(buffer.toString());
+
+      buffer = remainder;
+    }
+
+    out.println(text);
+  }
+
+  private class LineFormatter {
+    private final ExpressionView[] m_expressionViews;
+
+    public LineFormatter(ExpressionView[] expressionViews) {
+      m_expressionViews = expressionViews;
+    }
+
+    public String format(String rowLabel,
+                         StatisticsSet statistics) {
+
+      final StringBuffer result = new StringBuffer();
+
+      final StringBuffer cell = new StringBuffer();
+
+      cell.append(startOfLine(statistics));
+
+      cell.append(rowLabel);
+
+      final StringBuffer remainder = new StringBuffer();
+
+      m_rowLabelFormatter.transform(cell, remainder);
+      result.append(cell.toString());
+      result.append(COLUMN_SEPARATOR);
+
+      for (int i = 0; i < m_expressionViews.length; ++i) {
+        final StringBuffer statisticsCell =
+          new StringBuffer(formatExpression(m_expressionViews[i], statistics));
+
+        if (i == m_expressionViews.length - 1) {
+          statisticsCell.append(endOfLine(statistics));
+        }
+
+        m_rowCellFormatter.transform(statisticsCell, remainder);
+        result.append(statisticsCell.toString());
+
+        result.append(COLUMN_SEPARATOR);
+      }
+
+      return result.toString();
+    }
+
+    protected String startOfLine(StatisticsSet statistics) {
+      if (statistics.isComposite()) {
+        return "(";
+      }
+
+      return "";
+    }
+
+    protected String endOfLine(StatisticsSet statistics) {
+      if (statistics.isComposite()) {
+        return ")";
+      }
+
+      return "";
+    }
+
+    protected String formatExpression(ExpressionView expressionView,
+                                      StatisticsSet statistics) {
+
+      final StatisticExpression expression = expressionView.getExpression();
+
+      if (expression.isDouble()) {
+        return m_twoDPFormat.format(expression.getDoubleValue(statistics));
+      }
+      else {
+        return String.valueOf(expression.getLongValue(statistics));
+      }
     }
   }
 
-  private StringBuffer formatLine(String rowLabel,
-                                  StatisticsSet statisticsSet,
-                                  ExpressionView[] expressionViews) {
-    final StringBuffer result = new StringBuffer();
+  private class CompositeStatisticsLineFormater extends LineFormatter {
 
-    final StringBuffer cell = new StringBuffer(rowLabel);
-    final StringBuffer remainder = new StringBuffer();
-
-    m_rowLabelFormatter.transform(cell, remainder);
-    result.append(cell.toString());
-    result.append(COLUMN_SEPARATOR);
-
-    for (int i = 0; i < expressionViews.length; ++i) {
-
-      final StatisticExpression expression =
-        expressionViews[i].getExpression();
-
-      final String text;
-
-      if (expression.isDouble()) {
-        text = m_twoDPFormat.format(expression.getDoubleValue(
-                                      statisticsSet));
-      }
-      else {
-        text = String.valueOf(expression.getLongValue(statisticsSet));
-      }
-
-      cell.replace(0, cell.length(), text);
-      m_rowCellFormatter.transform(cell, remainder);
-      result.append(cell.toString());
-      result.append(COLUMN_SEPARATOR);
+    public CompositeStatisticsLineFormater(ExpressionView[] expressionViews) {
+      super(expressionViews);
     }
 
-    return result;
+    protected String formatExpression(ExpressionView expressionView,
+                                      StatisticsSet statistics) {
+
+      if (expressionView.getShowForCompositeStatistics()) {
+        final StringBuffer result = new StringBuffer("(");
+        result.append(super.formatExpression(expressionView, statistics));
+        result.append(")");
+
+        return result.toString();
+      }
+      else {
+        return "";
+      }
+    }
+
+    protected String startOfLine(StatisticsSet statistics) {
+      return "";
+    }
+
+    protected String endOfLine(StatisticsSet statistics) {
+      return "";
+    }
   }
 }

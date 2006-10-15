@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // Copyright (C) 2005 Martin Wagner.
 // All rights reserved.
 //
@@ -30,6 +30,7 @@ import java.util.Locale;
 
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
+import net.grinder.testutility.AssertUtilities;
 
 
 /**
@@ -53,22 +54,24 @@ public class TestStatisticsTable extends TestCase {
   protected void setUp() throws Exception {
     Locale.setDefault(Locale.US);
 
-    m_testStatisticsMap = new TestStatisticsMap(m_statisticsServices
-        .getStatisticsSetFactory());
+    m_testStatisticsMap =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
 
     final StatisticsIndexMap indexMap =
       m_statisticsServices.getStatisticsIndexMap();
 
-    final StatisticsIndexMap.LongIndex aIndex = indexMap
-        .getLongIndex("userLong0");
-    final StatisticsIndexMap.LongIndex bIndex = indexMap
-        .getLongIndex("userLong1");
+    final StatisticsIndexMap.LongIndex aIndex =
+      indexMap.getLongIndex("userLong0");
+    final StatisticsIndexMap.LongIndex bIndex =
+      indexMap.getLongIndex("userLong1");
 
     final ExpressionView[] expressionViews = {
-        new ExpressionView("A", "userLong0"),
-        new ExpressionView("B", "userLong1"),
-        new ExpressionView("A plus B", "(+ userLong0 userLong1)"),
-        new ExpressionView("A divided by B", "(/ userLong0 userLong1)"), };
+      new ExpressionView("A", "userLong0",       StatisticsServicesImplementation.getInstance()
+        .getStatisticExpressionFactory(), true),
+      new ExpressionView("B", "userLong1"),
+      new ExpressionView("A plus B", "(+ userLong0 userLong1)"),
+      new ExpressionView("A divided by B", "(/ userLong0 userLong1)"),
+    };
 
     m_statisticsView = new StatisticsView();
 
@@ -76,8 +79,11 @@ public class TestStatisticsTable extends TestCase {
       m_statisticsView.add(expressionViews[i]);
     }
 
-    final Test[] tests = { new StubTest(9, "Test 9"), new StubTest(3, null),
-        new StubTest(113, "Another test"), };
+    final Test[] tests = {
+      new StubTest(9, "Test 9"),
+      new StubTest(3, null),
+      new StubTest(113, "Another test"),
+    };
 
     final StatisticsSet[] statistics = new StatisticsSet[tests.length];
 
@@ -105,31 +111,63 @@ public class TestStatisticsTable extends TestCase {
   public void testStatisticsTable() throws Exception {
     final StringWriter expected = new StringWriter();
     final PrintWriter in = new PrintWriter(expected);
-    in
-        .println("             A            B            A plus B     A divided by ");
-    in
-        .println("                                                    B            ");
+
+    in.println("             A            B            A plus B     A divided by ");
+    in.println("                                                    B            ");
     in.println();
-    in
-        .println("Test 3       1            2            3            0.50         ");
-    in
-        .println("Test 9       0            1            1            0.00          \"Test 9\"");
-    in
-        .println("Test 113     2            3            5            0.67          \"Another test\"");
+    in.println("Test 3       1            2            3            0.50         ");
+    in.println("Test 9       0            1            1            0.00          \"Test 9\"");
+    in.println("Test 113     2            3            5            0.67          \"Another test\"");
     in.println();
-    in
-        .println("Totals       3            6            9            0.50         ");
+    in.println("Totals       3            6            9            0.50         ");
     in.close();
 
-    final StatisticsTable table = new StatisticsTable(m_statisticsView,
-      m_testStatisticsMap);
+    final StatisticsTable table =
+      new StatisticsTable(m_statisticsView, m_testStatisticsMap);
 
-    final StringWriter stringWriter = new StringWriter();
-    final PrintWriter out = new PrintWriter(stringWriter);
+    final StringWriter output = new StringWriter();
+    final PrintWriter out = new PrintWriter(output);
     table.print(out);
     out.close();
 
-    assertEquals(expected.getBuffer().toString(), stringWriter.getBuffer()
-        .toString());
+    AssertUtilities.assertContains(
+      output.getBuffer().toString(),
+      expected.getBuffer().toString());
+  }
+
+  public void testStatisticsTableWithCompositeTests() throws Exception {
+    final StatisticsSet statistics =
+      m_statisticsServices.getStatisticsSetFactory().create();
+    statistics.setValue(
+      m_statisticsServices.getStatisticsIndexMap().getLongIndex("userLong1"), 1);
+    statistics.setIsComposite();
+    m_testStatisticsMap.put(new StubTest(4, "T4"), statistics);
+
+    final StringWriter expected = new StringWriter();
+    final PrintWriter in = new PrintWriter(expected);
+
+    in.println("             A            B            A plus B     A divided by ");
+    in.println("                                                    B            ");
+    in.println();
+    in.println("Test 3       1            2            3            0.50         ");
+    in.println("(Test 4      0            1            1            0.00)         \"T4\"");
+    in.println("Test 9       0            1            1            0.00          \"Test 9\"");
+    in.println("Test 113     2            3            5            0.67          \"Another test\"");
+    in.println();
+    in.println("Totals       3            6            9            0.50         ");
+    in.println("             (0)                                                 ");
+    in.close();
+
+    final StatisticsTable table =
+      new StatisticsTable(m_statisticsView, m_testStatisticsMap);
+
+    final StringWriter output = new StringWriter();
+    final PrintWriter out = new PrintWriter(output);
+    table.print(out);
+    out.close();
+
+    AssertUtilities.assertContains(
+      output.getBuffer().toString(),
+      expected.getBuffer().toString());
   }
 }

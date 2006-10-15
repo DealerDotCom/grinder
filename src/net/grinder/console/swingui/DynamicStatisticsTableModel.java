@@ -21,6 +21,7 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Set;
@@ -207,14 +208,18 @@ abstract class DynamicStatisticsTableModel
   }
 
   public boolean isBold(int row, int column) {
-    return isRed(row, column);
+    return
+    column == 3 &&
+    getModel().getTestStatisticsQueries().getNumberOfErrors(
+        getStatistics(row)) > 0;
   }
 
-  public boolean isRed(int row, int column) {
-    return
-      column == 3 &&
-      getModel().getTestStatisticsQueries().getNumberOfErrors(
-          getStatistics(row)) > 0;
+  public Color getForeground(int row, int column) {
+    return isBold(row, column) ? Colours.RED : null;
+  }
+
+  public Color getBackground(int row, int column) {
+    return getStatistics(row).isComposite() ? Colours.LIGHT_GREY : null;
   }
 
   public synchronized void write(Writer writer, String columnDelimiter,

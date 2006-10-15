@@ -39,10 +39,12 @@ final class CommonStatisticsViews {
       final ExpressionView[] detailExpressionViews = {
         new ExpressionView("Test time",
                            "(sum timedTests)",
-                           expressionFactory),
+                           expressionFactory,
+                           false),
         new ExpressionView("Errors",
                            "errors",
-                           expressionFactory),
+                           expressionFactory,
+                           false),
       };
 
       for (int i = 0; i < detailExpressionViews.length; ++i) {
@@ -52,16 +54,20 @@ final class CommonStatisticsViews {
       final ExpressionView[] summaryExpressionViews = {
         new ExpressionView("Tests",
                            "(+ (count timedTests) untimedTests)",
-                           expressionFactory),
+                           expressionFactory,
+                           true),
         new ExpressionView("Errors",
                            "errors",
-                           expressionFactory),
+                           expressionFactory,
+                           true),
         new ExpressionView("Mean Test Time (ms)",
                            "(/ (sum timedTests) (count timedTests))",
-                           expressionFactory),
+                           expressionFactory,
+                           false),
         new ExpressionView("Test Time Standard Deviation (ms)",
                            "(sqrt (variance timedTests))",
-                           expressionFactory),
+                           expressionFactory,
+                           false),
       };
 
       for (int i = 0; i < summaryExpressionViews.length; ++i) {

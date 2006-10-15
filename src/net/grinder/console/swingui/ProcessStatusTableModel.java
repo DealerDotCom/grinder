@@ -22,6 +22,7 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -176,8 +177,12 @@ class ProcessStatusTableModel
     return row == m_data.length - 1;
   }
 
-  public boolean isRed(int row, int column) {
-    return false;
+  public Color getForeground(int row, int column) {
+    return null;
+  }
+
+  public Color getBackground(int row, int column) {
+    return null;
   }
 
   private final class RowData {

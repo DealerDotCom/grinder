@@ -73,6 +73,11 @@ interface DispatchContext {
   long getElapsedTime();
 
   /**
+   * Set that this <code>DispatchContext</code> has nested contexts.
+   */
+  void setHasNestedContexts();
+
+  /**
    * Exception that indicates the dispatcher was in an invalid state for
    * the called method .
    */

@@ -78,6 +78,7 @@ public class TestStatisticsSetImplementation extends TestCase {
 
     assertEquals(0, statistics.getValue(m_longIndex1));
     assertDoublesEqual(0d, statistics.getValue(m_doubleIndex2));
+    assertFalse(statistics.isComposite());
   }
 
   public void testReset() throws Exception {
@@ -86,18 +87,22 @@ public class TestStatisticsSetImplementation extends TestCase {
 
     assertTrue(statistics0.isZero());
 
+    statistics0.reset();
+    assertTrue(statistics0.isZero());
+
     statistics0.setValue(m_longIndex2, 700);
     statistics0.setValue(m_doubleIndex2, -0.9999);
+    statistics0.setIsComposite();
     assertEquals(700, statistics0.getValue(m_longIndex2));
     assertDoublesEqual(-0.9999d, statistics0.getValue(m_doubleIndex2));
-
     assertFalse(statistics0.isZero());
+    assertTrue(statistics0.isComposite());
 
     statistics0.reset();
     assertEquals(0, statistics0.getValue(m_longIndex2));
     assertDoublesEqual(0d, statistics0.getValue(m_doubleIndex2));
-
     assertTrue(statistics0.isZero());
+    assertFalse(statistics0.isComposite());
   }
 
   public void testGetValueSetValueAndEquals() throws Exception {
@@ -108,12 +113,14 @@ public class TestStatisticsSetImplementation extends TestCase {
 
     assertEquals(statistics0, statistics0);
     assertEquals(statistics0, statistics1);
+    assertEquals(statistics1, statistics0);
 
     statistics0.setValue(m_longIndex1, 700);
     assertEquals(700, statistics0.getValue(m_longIndex1));
     statistics0.setValue(m_longIndex1, -300);
     assertEquals(-300, statistics0.getValue(m_longIndex1));
     assertTrue(!statistics0.equals(statistics1));
+    assertTrue(!statistics1.equals(statistics0));
 
     statistics1.setValue(m_longIndex1, 500);
     assertTrue(!statistics0.equals(statistics1));
@@ -152,6 +159,13 @@ public class TestStatisticsSetImplementation extends TestCase {
 
     statistics0.setValue(m_doubleIndex1, 0);
     assertEquals(statistics0, statistics1);
+
+    assertFalse(statistics0.isComposite());
+    statistics0.setIsComposite();
+    assertTrue(statistics0.isComposite());
+    assertTrue(!statistics0.equals(statistics1));
+    statistics1.setIsComposite();
+    assertEquals(statistics0, statistics1);
   }
 
   public void testAddValue() throws Exception {
@@ -184,6 +198,7 @@ public class TestStatisticsSetImplementation extends TestCase {
       new StatisticsSetImplementation(m_indexMap);
 
     assertTrue(statistics1.isZero());
+    assertFalse(statistics1.isComposite());
 
     // 0 + 0 = 0
     statistics0.add(statistics1);
@@ -191,12 +206,15 @@ public class TestStatisticsSetImplementation extends TestCase {
 
     assertFalse(statistics0.isZero());
     assertTrue(statistics1.isZero());
+    assertFalse(statistics1.isComposite());
 
     // 0 + 1 = 1
     statistics0.addValue(m_longIndex0, 100);
     statistics0.addValue(m_doubleIndex2, -5.5);
+    statistics0.setIsComposite();
     statistics1.add(statistics0);
     assertEquals(statistics0, statistics1);
+    assertTrue(statistics1.isComposite());
 
     // 1 + 1 != 1
     statistics1.add(statistics0);
@@ -215,12 +233,14 @@ public class TestStatisticsSetImplementation extends TestCase {
       new StatisticsSetImplementation(m_indexMap);
     original.addValue(m_longIndex0, 10);
     original.setValue(m_doubleIndex2, 3);
+    original.setIsComposite();
 
     final StatisticsSet snapshot = original.snapshot();
 
     assertDoublesEqual(3d, snapshot.getValue(m_doubleIndex2));
     assertEquals(0, snapshot.getValue(m_longIndex1));
     assertEquals(10, snapshot.getValue(m_longIndex0));
+    assertTrue(original.isComposite());
 
     assertDoublesEqual(3d, original.getValue(m_doubleIndex2));
     assertEquals(0, original.getValue(m_longIndex1));
@@ -238,6 +258,10 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertDoublesEqual(20d, original.getValue(m_doubleIndex0));
     assertEquals(0, original.getValue(m_longIndex1));
     assertEquals(15, original.getValue(m_longIndex0));
+
+    original.reset();
+    final StatisticsSet snapshot2 = original.snapshot();
+    assertTrue(snapshot2.isZero());
   }
 
   public void testLongSampleReadAndWrite() throws Exception {
@@ -368,11 +392,12 @@ public class TestStatisticsSetImplementation extends TestCase {
 
     final StatisticsSetImplementation original1 =
       new StatisticsSetImplementation(m_indexMap);
+    original1.setIsComposite();
 
     final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 
-    final ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-      byteOutputStream);
+    final ObjectOutputStream objectOutputStream =
+      new ObjectOutputStream(byteOutputStream);
 
     final Serialiser serialiser = new Serialiser();
 
@@ -438,6 +463,10 @@ public class TestStatisticsSetImplementation extends TestCase {
 
     assertTrue(s0.indexOf(expectedSubstring0.toString()) >= 0);
     assertTrue(s0.indexOf(expectedSubstring1.toString()) >= 0);
+
+    assertTrue(s0.indexOf("composite = false") >= 0);
+    rawStatistics.setIsComposite();
+    assertTrue(rawStatistics.toString().indexOf("composite = true") >= 0);
   }
 
   private void assertDoublesEqual(double a, double b) {

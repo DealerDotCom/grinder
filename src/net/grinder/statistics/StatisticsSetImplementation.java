@@ -50,6 +50,8 @@ final class StatisticsSetImplementation implements StatisticsSet {
   // true => all statistics are zero; false => they might be.
   private boolean m_zero = true;
 
+  private boolean m_composite;
+
   /**
    * Creates a new <code>StatisticsSetImplementation</code> instance.
    *
@@ -70,6 +72,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
       Arrays.fill(m_longData, 0);
       Arrays.fill(m_doubleData, 0);
       m_zero = true;
+      m_composite = false;
     }
   }
 
@@ -93,6 +96,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
       System.arraycopy(
           m_doubleData, 0, result.m_doubleData, 0, result.m_doubleData.length);
       result.m_zero = false;
+      result.m_composite = m_composite;
     }
 
     return result;
@@ -431,10 +435,22 @@ final class StatisticsSetImplementation implements StatisticsSet {
     }
 
     m_zero = false;
+
+    if (operand.isComposite()) {
+      setIsComposite();
+    }
   }
 
   public synchronized boolean isZero() {
     return m_zero;
+  }
+
+  public synchronized boolean isComposite() {
+    return m_composite;
+  }
+
+  public synchronized void setIsComposite() {
+    m_composite = true;
   }
 
   /**
@@ -454,6 +470,10 @@ final class StatisticsSetImplementation implements StatisticsSet {
 
     final StatisticsSetImplementation otherStatistics =
       (StatisticsSetImplementation)o;
+
+    if (m_composite != otherStatistics.m_composite) {
+      return false;
+    }
 
     final long[] otherLongData = otherStatistics.m_longData;
 
@@ -523,7 +543,9 @@ final class StatisticsSetImplementation implements StatisticsSet {
       result.append(m_doubleData[i]);
     }
 
-    result.append("}}");
+    result.append("}, composite = ");
+    result.append(m_composite ? "true" : "false");
+    result.append("}");
 
     return result.toString();
   }
@@ -543,7 +565,9 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * </ul>
    * </p>
    *
-   * <p>Synchronised to ensure a consistent view.</p>.
+   * <p>Synchronised to ensure a consistent view.</p>
+   *
+   * <p>If you change this, update TestStatisticsMap serialVersionUID.</p>
    *
    * @param out Handle to the output stream.
    * @param serialiser <code>Serialiser</code> helper object.
@@ -560,11 +584,15 @@ final class StatisticsSetImplementation implements StatisticsSet {
     for (int i = 0; i < m_doubleData.length; i++) {
       serialiser.writeDouble(out, m_doubleData[i]);
     }
+
+    out.writeBoolean(m_composite);
   }
 
   /**
    * Efficient externalisation method used by {@link
    * StatisticsSetFactory#readStatisticsExternal}.
+   *
+   * <p>If you change this, update TestStatisticsMap serialVersionUID.</p>
    *
    * @param statisticsIndexMap The {@link StatisticsIndexMap} to use.
    * @param in Handle to the input stream.
@@ -586,5 +614,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
       m_doubleData[i] = serialiser.readDouble(in);
       m_zero &= m_doubleData[i] == 0;
     }
+
+    m_composite = in.readBoolean();
   }
 }

@@ -111,4 +111,9 @@ public interface StatisticsSet extends ImmutableStatisticsSet {
    * @param operand The {@link StatisticsSet} value to add.
    */
   void add(ImmutableStatisticsSet operand);
+
+  /**
+   * Marked this statistics set as containing composite statistics.
+   */
+  void setIsComposite();
 }

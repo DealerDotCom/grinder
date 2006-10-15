@@ -55,6 +55,9 @@ final class Colours {
   public static final Color GREY = Color.gray;
 
   /** Colour constant. */
+  public static final Color LIGHT_GREY = Color.lightGray;
+
+  /** Colour constant. */
   public static final Color HIGHLIGHT_BLUE = SystemColor.textHighlight;
 
   /** Colour constant. */

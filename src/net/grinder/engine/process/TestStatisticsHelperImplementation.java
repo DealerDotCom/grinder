@@ -21,12 +21,11 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.common.Test;
 import net.grinder.statistics.ImmutableStatisticsSet;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.statistics.TestStatisticsMap.Iterator;
-import net.grinder.statistics.TestStatisticsMap.Pair;
 
 
 /**
@@ -77,16 +76,14 @@ final class TestStatisticsHelperImplementation
   }
 
   public void removeTestTimeFromSample(TestStatisticsMap sample) {
-    final Iterator iterator = sample.new Iterator();
-
-    while (iterator.hasNext()) {
-      final Pair next = iterator.next();
-      final StatisticsSet statistics = next.getStatistics();
-
-      statistics.addValue(m_untimedTestsIndex,
-                          statistics.getCount(m_timedTestsIndex));
-      statistics.reset(m_timedTestsIndex);
+    sample.new ForEach() {
+      public void next(Test test, StatisticsSet statistics) {
+        statistics.addValue(m_untimedTestsIndex,
+                            statistics.getCount(m_timedTestsIndex));
+        statistics.reset(m_timedTestsIndex);
+      }
     }
+    .iterate();
   }
 
   public StatisticsIndexMap getStatisticsIndexMap() {

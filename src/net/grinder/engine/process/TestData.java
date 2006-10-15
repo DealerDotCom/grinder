@@ -302,6 +302,10 @@ final class TestData
     public StatisticsForTest getStatisticsForTest() {
       return m_statisticsForTest;
     }
+
+    public void setHasNestedContexts() {
+      m_testStatistics.setIsComposite();
+    }
   }
 
   private static final class UncheckedException

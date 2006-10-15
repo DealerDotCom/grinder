@@ -33,13 +33,21 @@ The Grinder 3.0-beta31
   last reported test, it's statistics can be queried and can be
   modified if statistics reports are delayed.
 
-  The statistics for an erroneous test is now recorded in the data log,
-  but not included in the aggregate statistics sent to the console and
-  the summary table (only the number of errors is incremented). This
-  makes the aggregate statistics averages correct, whilst still allowing
-  the test time to be retrieved from the data log. (Previously, the
-  test time was zeroed for erroneous tests, so both the data log and
-  the agregate statistics averages other than test time were incorrect).
+  The statistics for an erroneous test is now recorded in the data
+  log, but not included in the aggregate statistics sent to the
+  console and the summary table (only the number of errors is
+  incremented). This makes the aggregate statistics averages correct,
+  whilst still allowing the test time to be retrieved from the data
+  log. (Previously, the test time was zeroed for erroneous tests, so
+  both the data log and the aggregate statistics averages other than
+  test time were incorrect).
+
+  Fix bug 1484703 - Total statistics wrong for composite tests. This
+  was most apparent with the HTTP plugin - the total average test time
+  also included the page tests so "double accounted" for the time of
+  individual tests. The statistics display has now been changed so
+  that the statistics for composite tests (tests which wrap calls of
+  other tests) are no longer including in the totals.
 
 
 The Grinder 3.0-beta30

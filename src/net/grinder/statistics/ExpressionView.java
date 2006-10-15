@@ -57,6 +57,7 @@ public class ExpressionView {
 
   private final String m_displayName;
   private final String m_expressionString;
+  private final boolean m_showForCompositeStatistics;
   private final int m_hashCode;
   private final int m_creationOrder;
 
@@ -78,18 +79,23 @@ public class ExpressionView {
    */
   public ExpressionView(String displayName, String expressionString)
     throws StatisticsException {
-    this(displayName, expressionString,
+    this(
+      displayName,
+      expressionString,
       StatisticsServicesImplementation.getInstance()
-      .getStatisticExpressionFactory());
+      .getStatisticExpressionFactory(),
+      false);
   }
 
   ExpressionView(String displayName,
                  String expressionString,
-                 StatisticExpressionFactory expressionFactory)
+                 StatisticExpressionFactory expressionFactory,
+                 boolean showForCompositeStatistics)
     throws StatisticsException {
     this(displayName,
          expressionFactory.normaliseExpressionString(expressionString),
-         expressionFactory.createExpression(expressionString));
+         expressionFactory.createExpression(expressionString),
+         showForCompositeStatistics);
   }
 
   /**
@@ -107,18 +113,20 @@ public class ExpressionView {
    *          A {@link StatisticExpression}.
    */
   public ExpressionView(String displayName, StatisticExpression expression) {
-    this(displayName, null, expression);
+    this(displayName, null, expression, false);
   }
 
   private ExpressionView(String displayName,
                          String expressionString,
-                         StatisticExpression expression) {
+                         StatisticExpression expression,
+                         boolean showForCompositeStatistics) {
     // Ensure that the standard ExpressionViews are initialised before
     // any user ExpressionViews.
     StatisticsServicesImplementation.getInstance();
 
     m_displayName = displayName;
     m_expressionString = expressionString;
+    m_showForCompositeStatistics = showForCompositeStatistics;
     m_expression = expression;
 
     m_hashCode =
@@ -156,6 +164,17 @@ public class ExpressionView {
    */
   public final String getExpressionString() {
     return m_expressionString;
+  }
+
+  /**
+   * Return whether this view is relevant for totals of composite statistics.
+   * Many views (particularly those representing aggregate time, or averages)
+   * are ambiguous for composite statistics, so we don't show them.
+   *
+   * @return <code>true</code> => show this view for composite statistics.
+   */
+  public final boolean getShowForCompositeStatistics() {
+    return m_showForCompositeStatistics;
   }
 
   /**

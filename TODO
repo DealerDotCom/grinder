@@ -47,7 +47,7 @@ Recording control
 *** sample log file
 
 *** feedback from travis
-Commnents on the API: - 
+Commnents on the API: -
 
  * For sure there will need to be an ability to retrieve stats, as you
 mentioned.
@@ -231,10 +231,11 @@ to the average user than "wrapping". OTOH, wrapping is powerful
 and I'm not sure we want to support two mechanisms to instrument
 code.
 
-** Statistics
+** Communication
 
-Total time should distinguish nested tests. Introduce new concept of a
-Group Test?
+Resolve anomaly that Senders throw exceptions but Receivers return null.
+
+** Statistics
 
 Should TPS averages be harmonic means?
 http://en.wikipedia.org/wiki/Harmonic_mean
@@ -431,6 +432,8 @@ Also http://www.nogoop.com/product_16.html#compare
 ** Console/agent
 Each time L&F changes, the saveAs dialog gets another All Files
 filter!
+
+Add reset console action.
 
 ** TCPProxy
 Should listen on all interfaces if -localhost is not specified.

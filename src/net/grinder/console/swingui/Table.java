@@ -47,14 +47,24 @@ final class Table extends JTable {
    */
   public interface TableModel extends javax.swing.table.TableModel {
     boolean isBold(int row, int column);
-    boolean isRed(int row, int column);
+
+    /**
+     * @return <code>null</code> => default colour.
+     */
+    Color getForeground(int row, int column);
+
+    /**
+     * @return <code>null</code> => default colour.
+     */
+    Color getBackground(int row, int column);
   }
 
   private final MyCellRenderer m_cellRenderer = new MyCellRenderer();
   private final TableCellRenderer m_headerRenderer = new MyHeaderRenderer();
   private final Font m_boldFont;
-  private final Font m_defaultFont;
+  private final Font m_plainFont;
   private final Color m_defaultForeground;
+  private final Color m_defaultBackground;
 
   public Table(TableModel tableModel) {
     super(tableModel);
@@ -63,9 +73,15 @@ final class Table extends JTable {
     setColumnSelectionAllowed(true);
     setDragEnabled(true);
 
-    m_defaultFont = m_cellRenderer.getFont();
     m_defaultForeground = m_cellRenderer.getForeground();
-    m_boldFont = m_defaultFont.deriveFont(Font.BOLD);
+    m_defaultBackground = m_cellRenderer.getBackground();
+
+    // Believe it or not, I found the font returned from getFont() is bold
+    // whereas the renderer normally renders in a plain font. Thus we
+    // can't rely on getFont() for the default - go figure!
+    m_plainFont = m_cellRenderer.getFont().deriveFont(Font.PLAIN);
+    m_cellRenderer.setFont(m_plainFont);
+    m_boldFont = m_cellRenderer.getFont().deriveFont(Font.BOLD);
 
     createDefaultColumnsFromModel();
   }
@@ -85,17 +101,23 @@ final class Table extends JTable {
   public TableCellRenderer getCellRenderer(int row, int column) {
     final TableModel model = (TableModel)getModel();
 
-    final boolean red = model.isRed(row, column);
+    final Color foreground = model.getForeground(row, column);
+    final Color background = model.getBackground(row, column);
     final boolean bold = model.isBold(row, column);
 
-    if (red | bold) {
-      m_cellRenderer.setForeground(red ? Colours.RED : m_defaultForeground);
-      m_cellRenderer.setTheFont(bold ? m_boldFont : m_defaultFont);
-
-      return m_cellRenderer;
+    if (foreground == null &&
+        background == null &&
+        !bold) {
+      return super.getCellRenderer(row, column);
     }
     else {
-      return super.getCellRenderer(row, column);
+      m_cellRenderer.setForeground(
+        foreground != null ? foreground : m_defaultForeground);
+      m_cellRenderer.setBackground(
+        background != null ? background : m_defaultBackground);
+      m_cellRenderer.setTheFont(bold ? m_boldFont : m_plainFont);
+
+      return m_cellRenderer;
     }
   }
 

@@ -97,4 +97,13 @@ public interface ImmutableStatisticsSet {
    * @return <code>true</code> => all values are zero.
    */
   boolean isZero();
+
+  /**
+   * Return whether this statistics set has been marked as containing
+   * composite statistics.
+   *
+   * @return <code>true</code> => this statistics set contains composite
+   * statistics.
+   */
+  boolean isComposite();
 }
