@@ -399,8 +399,8 @@ void doit() { Thread.sleep(10000); // 10 seconds }
           <dt/>
     <dd class="quote">
 To understand how a typical browser will download and display *your* page you should use a tool like IBM's <a href="http://www.alphaworks.ibm.com/tech/pagedetailer">Page Detailer</a>
-which intercepts and instruments all browser activity and visualizes this in an easy to interpret fashion.
- It can highlight tuning opportunities like coalescing Javascript, reducing GIF count, that are more in the
+which intercepts and instruments all browser activity and visualises this in an easy to interpret fashion.
+ It can highlight tuning opportunities like coalescing JavaScript, reducing GIF count, that are more in the
 page design than dynamic application design arena.
     </dd>
   </dl>
@@ -413,7 +413,12 @@ about timing, size, and data flow, and then it presents the collected data in bo
 graphical and tabular views, clearly showing how the page was delivered to the browser.
     </dd>
   </dl>
-        <p>Tools like IBM Page Detailer are a useful addition to your arsenal when looking at the complete picture.</p>
+
+        <p>Tools like IBM Page Detailer are a useful addition to your arsenal
+        when looking at the complete picture.
+
+        The <a href="https://addons.mozilla.org/firefox/966/">tamperdata</a>
+        add-on for Firefox is also worth a look. </p>
       </answer>
     </faq>
   </faqsection>
@@ -536,6 +541,21 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
 
       </answer>
      </faq>
+
+    <faq>
+      <question>
+        Why can't I create more than ten connections per second on Windows XP?
+      </question>
+      <answer>
+      <p>
+        If you're using Windows XP SP2,
+        <a href="http://www.speedguide.net/read_articles.php?id=1497">this
+        article</a> may provide the answer.
+      </p>
+
+      </answer>
+     </faq>
+
    </faqsection>
 
   </faqsection>
