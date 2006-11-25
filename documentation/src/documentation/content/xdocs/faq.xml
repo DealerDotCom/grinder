@@ -543,7 +543,7 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
      </faq>
 
     <faq>
-      <question>
+      <question id="ten-cps">
         Why can't I create more than ten connections per second on Windows XP?
       </question>
       <answer>
@@ -1297,6 +1297,25 @@ class TestRunner:
   a file. Now grab a coffee and compare.</p>
       </answer>
     </faq>
+
+    <faq id="InvalidKeyException">
+      <question>
+        I'm getting <code>java.security.InvalidKeyException: Illegal key size
+        or default parameters</code>
+      </question>
+
+      <answer>
+      <p>
+       This is due to a mismatch of the SSL configuration of the server
+       and that of the JDK you use to run The Grinder; most likely a clash
+       between domestic and export strength key lengths. You should probably
+       install the <a href="http://java.sun.com/javase/downloads/index.jsp">
+       Unlimited Strength Jurisdiction Policy Files</a> for your Java
+       version from Sun.
+      </p>
+
+      </answer>
+     </faq>
 
     <faq id="tcpproxy-colour-codes">
       <question>
