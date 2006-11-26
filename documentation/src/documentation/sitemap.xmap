@@ -1,12 +1,7 @@
 <?xml version="1.0"?>
 
 <map:sitemap xmlns:map="http://apache.org/cocoon/sitemap/1.0">
-  <map:components>
-    <map:generators default="file">
-      <map:generator name="dir"
-                     src="org.apache.cocoon.generation.DirectoryGenerator"/>
-    </map:generators>
-  </map:components>
+  <map:components/>
 
   <map:resources/>
 

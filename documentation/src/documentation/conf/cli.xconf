@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!--
-  Copyright 2002-2004 The Apache Software Foundation
+  Copyright 2002-2004 The Apache Software Foundation or its licensors,
+  as applicable.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -104,8 +105,9 @@
    <broken-links type="xml" 
                  file="../brokenlinks.xml"
                  generate="false"
-                 extension=".error"/>
-   
+                 extension=".error"
+                 show-referrers="true"/>
+
    <!--+
        |  Load classes at startup. This is necessary for generating
        |  from sites that use SQL databases and JDBC.
@@ -203,17 +205,20 @@
        | dev@cocoon.apache.org.
        +-->
 
-<!--
    <exclude pattern="**/"/>
    <exclude pattern="**apidocs**"/>
    <exclude pattern="api/**"/>
--->
 
-   <exclude pattern="**/script-javadoc/**"/>
-   
+<!--
+  This is a workaround for FOR-284 "link rewriting broken when
+  linking to xml source views which contain site: links".
+  See the explanation there and in declare-broken-site-links.xsl
+-->
    <exclude pattern="site:**"/>
    <exclude pattern="ext:**"/>
-      
+   <exclude pattern="**/site:**"/>
+   <exclude pattern="**/ext:**"/>
+
    <!-- Exclude tokens used in URLs to ASF mirrors (interpreted by a CGI) -->
    <exclude pattern="[preferred]/**"/>
    <exclude pattern="[location]"/>
@@ -299,6 +304,10 @@
        | <uris> nodes are processed. Thus, one xconf file can be 
        | used to manage multiple sites.
        +-->
+
+   <!-- Include mirrors.html template.
+     It is not part of the actual site, but need to have the style applied.
+   -->
    <!--
    <uris name="mirrors" follow-links="false">
      <uri type="append" src="mirrors.html"/>
@@ -311,5 +320,4 @@
    <!--
    <uri-file>uris.txt</uri-file>
    -->
-
 </cocoon>

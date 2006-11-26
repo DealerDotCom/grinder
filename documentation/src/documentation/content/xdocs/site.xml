@@ -37,8 +37,8 @@ See http://forrest.apache.org/docs/linking.html for more info
   <!-- The href must be wholesite.html/pdf You can change the labels
   and node names -->
   <all label="All documentation" tab="project">
-    <g2-manual label="G2 Manual" href="ext:grinder/g2manual"/>
-    <g3-manual label="G3 Manual" href="ext:grinder/g3manual"/>
+    <g2-manual label="G2 Manual" href="ext:grinder/g2/manual"/>
+    <g3-manual label="G3 Manual" href="ext:grinder/g3/manual"/>
     <whole_site_html label="Wholesite HTML" href="wholesite.html"/>
     <whole_site_pdf label="Wholesite PDF" href="wholesite.pdf"/>
   </all>
@@ -89,7 +89,7 @@ See http://forrest.apache.org/docs/linking.html for more info
         <helloworldfunctions href="#helloworldfunctions"/>
         <statistics href="#statistics"/>
       </script-gallery>
-      <script-api label="API Javadocs" href="ext:grinder/api"/>
+      <script-api label="Script API" href="ext:grinder/g3/api"/>
     </scripts>
     <ssl label="SSL support" href="ssl-support.html">
       <ssl-keymanager href="#own-key-manager"/>
@@ -160,26 +160,29 @@ See http://forrest.apache.org/docs/linking.html for more info
     </gmane>
 
     <!-- Cheating here to be able to link between tabs from left to right -->
-    <grinder href="http://grinder.sourceforge.net/">
-      <api href="g3/script-javadoc/index.html"/>
+    <grinder href="./">
       <faq href="faq.html"/>
       <g2faq href="faq.html#g2"/>
-      <g2manual href="g2/getting-started.html"/>
       <g3faq href="faq.html#g3"/>
-      <g3manual href="g3/getting-started.html"/>
+      <g2>
+	<manual href="g2/getting-started.html"/>
+      </g2>
+      <g3>
+	<api href="g3/script-javadoc/index.html"/>
+	<manual href="g3/getting-started.html"/>
+      </g3>
     </grinder>
-
 
     <iso-639 href="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt"/>
 
     <innovation href="http://www.innovation.ch/">
       <httpclient href="java/HTTPClient/">
-  <advanced href="advanced_info.html">
-    <pers_con href="#pers_con"/>
-  </advanced>
-  <https href="https.html"/>
+	<advanced href="advanced_info.html">
+	  <pers_con href="#pers_con"/>
+	</advanced>
+	<https href="https.html"/>
         <urlcon-vs-httpclient href="urlcon_vs_httpclient.html"/>
-  <jsse-zip href="JSSE.zip"/>
+	<jsse-zip href="JSSE.zip"/>
       </httpclient>
     </innovation>
 
@@ -191,7 +194,7 @@ See http://forrest.apache.org/docs/linking.html for more info
     <javasoft href="http://java.sun.com/">
       <j2se href="j2se/"/>
       <jsse href="products/jsse/">
-  <install href="INSTALL.html"/>
+	<install href="INSTALL.html"/>
       </jsse>
       <jsse-samples href="j2se/1.4.1/docs/guide/security/jsse/samples/"/>
     </javasoft>
@@ -212,7 +215,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <microsoft>
       <support href="http://support.microsoft.com/">
-  <delayed-ack href="kb/328890/"/>
+	<delayed-ack href="kb/328890/"/>
       </support>
     </microsoft>
 

@@ -34,10 +34,13 @@
 
   <tab id="project" label="Project" dir=""/>
 
-  <tab id="manual" label="Manual" href="g3/whats-new.html"/>
+  <tab id="manual" label="Manual" dir="g3" indexfile="whats-new.html"/>
 
-  <tab id="faq-tab" label="FAQ" href="faq.html"/>
-  
-  <tab id="sourceforge" label="SourceForge" href="ext:sourceforge/grinder"/>
+  <tab id="faq-tab" label="FAQ" dir="" indexfile="faq.html"/>
+
+  <!-- ext: links are broken here under Forrest 0.7, use absolute link instead.
+     Related in some way to FOR-284. -->
+  <tab id="sourceforge" label="SourceForge"
+       href="http://sourceforge.net/projects/grinder"/>
 
 </tabs>
