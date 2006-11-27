@@ -13,16 +13,29 @@ The TODO list is part of the binary distribution. I'll accept patches against it
 <li>
  Philip Aston </li>
 </ul>
-<p>
-Huifeng says: </p>
-<p>
-The second is about the pre-version. In this snapshot version. The synchronization between the console and the agent is not full solved. Although the console can distribute the test scripts to several agent process(In my environment, three is OK). But the console process can not remember which agent process have been updated. It need distribution several time and then the agent process can be run. Last month I find the test result statistic is absolute wrong. But today I find the script run well in beta30 can not be run under the pre-version. The login page fail and I am look for the reason. </p>
 <section name='Enhancements' depth='1' id='Enhancements'>
 <section name='Console API' depth='2' id='Console API'>
+<section name='Protocols' depth='3' id='Protocols'>
 <p>
-Fairly easy: Command channel to the console. Event channel back from the console. This makes API yucky. All methods void; event handling. </p>
+// Should doc this somewhere better. Hessian not good - requires a servlet engine. Sync calls add complexity to the comms engine Reconsider RMI??? </p>
+<ul>
+<li>
+ Should read tutorial </li>
+</ul>
 <p>
-RMI instead? Still need event channel. Need multiple ports. </p>
+Synchronous is better than pure one way </p>
+<ul>
+<li>
+ More natural API </li>
+<li>
+ Can probably get away without asynchronous event channel </li>
+<li>
+ If server side locked response channel correctly, it could send events. Would need client side to intercept these. </li>
+</ul>
+<p>
+Go with simple blocking sync. API for now. </p>
+</section>
+<section name='API' depth='3' id='API'>
 <p>
 Process control </p>
 <p>
@@ -33,6 +46,7 @@ void setScript(...?) </p>
 Recording control </p>
 <p>
 void startRecording() void stopRecording() void resetRecording() </p>
+</section>
 <section name='what about access from grinder scripts?' depth='3' id='what about access from grinder scripts?'>
 </section>
 <section name='sample log file' depth='3' id='sample log file'>
@@ -142,9 +156,11 @@ Could we support a procedural "startTest()", "stopTest()" API? </p>
 Perhaps. This procedural style would certainly be more obvious to the average user than "wrapping". OTOH, wrapping is powerful and I'm not sure we want to support two mechanisms to instrument code. </p>
 </section>
 </section>
-<section name='Statistics' depth='2' id='Statistics'>
+<section name='Communication' depth='2' id='Communication'>
 <p>
-Total time should distinguish nested tests. Introduce new concept of a Group Test? </p>
+Resolve anomaly that Senders throw exceptions but Receivers return null. </p>
+</section>
+<section name='Statistics' depth='2' id='Statistics'>
 <p>
 Should TPS averages be harmonic means? http://en.wikipedia.org/wiki/Harmonic_mean </p>
 <p>
@@ -295,6 +311,8 @@ Also http://www.nogoop.com/product_16.html#compare </p>
 <section name='Console/agent' depth='2' id='Console/agent'>
 <p>
 Each time L&amp;F changes, the saveAs dialog gets another All Files filter! </p>
+<p>
+Add reset console action. </p>
 </section>
 <section name='TCPProxy' depth='2' id='TCPProxy-1'>
 <p>

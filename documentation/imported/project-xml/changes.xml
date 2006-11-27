@@ -1,6 +1,20 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.0-beta32 &lt;not yet released&gt;' id='The Grinder 3.0-beta32 &lt;not yet released&gt;'>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1577573&amp;group_id=18598&amp;atid=118598">bug 1577573</a> - valueFromBodyURI() could be optimised. TCPProxy recorded scripts use this method, and its previous inefficiency caused beta 30 and beta 31 to be overly demanding of CPU and memory. Thanks to Andy Kim for the original bug report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1579641&amp;group_id=18598&amp;atid=118598">bug 1579641</a> - Exceptions thrown by HTTPRequest.processResponse() were not logged correctly. Thanks to Richard Taylor for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1585912&amp;group_id=18598&amp;atid=118598">bug 1585912</a> - jdbc.py incorrectly indented. Thanks to Coey (cminear at users.sourceforge.net) for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1593169&amp;group_id=18598&amp;atid=118598">bug 1593169</a> - AssertionError thrown in instrumentation code. Thanks to Peter Wickersham and Matt Schlobohm for the report and analysis. </p>
+<p>
+Added MQ library and example code from Phillip Mayhew to the contrib directory. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1592664&amp;group_id=18598&amp;atid=118598">bug 1592664</a> - InterruptedException when grinder.processes &gt; 1. This is due to JRE badness that I've had to work around. Thanks to Stephane Nicoll and whoever opened the bug for the reports. </p>
+</section>
 <section name='The Grinder 3.0-beta31' id='The Grinder 3.0-beta31'>
 <p>
 Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1199086&amp;group_id=18598&amp;atid=118598">bug 1199086</a> - Distribution to multiple agents hangs. Thanks to capwin@sourceforge.net for analysing the problem. </p>
@@ -18,6 +32,10 @@ Fix console bug where the Total line in statistics tables could be incorrectly r
 Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1525628&amp;group_id=18598&amp;atid=118598">bug 1525628</a> - Throw NotWrappableTypeException not NullPointerException on attempt to wrap a null object. </p>
 <p>
 Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1527299&amp;group_id=18598&amp;atid=118598">bug 1527299</a> - statistics.delayReports doesn't work with nested tests. This required a significant change to the script statistics API. The script can now distinguish between the statistics for the current test (statistics.forCurrentTest), and the statistics for the last completed test (statistics.forLastTest). If there is a current test, it's statistics can be queried and modified. If there is a last reported test, it's statistics can be queried and can be modified if statistics reports are delayed. </p>
+<p>
+The statistics for an erroneous test is now recorded in the data log, but not included in the aggregate statistics sent to the console and the summary table (only the number of errors is incremented). This makes the aggregate statistics averages correct, whilst still allowing the test time to be retrieved from the data log. (Previously, the test time was zeroed for erroneous tests, so both the data log and the aggregate statistics averages other than test time were incorrect). </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1484703&amp;group_id=18598&amp;atid=118598">bug 1484703</a> - Total statistics wrong for composite tests. This was most apparent with the HTTP plugin - the total average test time also included the page tests so "double accounted" for the time of individual tests. The statistics display has now been changed so that the statistics for composite tests (tests which wrap calls of other tests) are no longer including in the totals. </p>
 </section>
 <section name='The Grinder 3.0-beta30' id='The Grinder 3.0-beta30'>
 <p>

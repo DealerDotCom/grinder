@@ -136,6 +136,40 @@ def maybeAuthenticate(lastResult):
 
         return request.POST(authenticationFormData)
 </script>
+<script title='HTTP cookies' id='cookies'>
+# HTTP example which shows how to access HTTP cookies.
+#
+# By default, the HTTPClient library handles Cookie interaction and
+# removes the cookie headers from responses. If you want to access
+# them, one way is to define your own CookiePolicyHandler. This script
+# defines a CookiePolicyHandler that simply logs all cookies that are
+# sent or received.
+
+from net.grinder.script.Grinder import grinder
+from net.grinder.script import Test
+from net.grinder.plugin.http import HTTPRequest, HTTPPluginControl
+from HTTPClient import CookieModule, CookiePolicyHandler
+
+log = grinder.logger.output
+
+class MyCookiePolicyHandler(CookiePolicyHandler):
+    def acceptCookie(self, cookie, request, response):
+        log("accept cookie: %s" % cookie)
+        return 1
+
+    def sendCookie(self, cookie, request):
+        log("send cookie: %s" % cookie)
+        return 1
+
+CookieModule.setCookiePolicyHandler(MyCookiePolicyHandler())
+
+test1 = Test(1, "Request resource")
+request1 = test1.wrap(HTTPRequest())
+
+class TestRunner:
+    def __call__(self):
+        result = request1.GET("http://localhost:7001/console")
+</script>
 <script title='HTTP multipart form submission' id='form'>
 # This script uses the HTTPClient.Codecs class to post itself to the
 # server as a multi-part form. Thanks to Marc Gemis.
@@ -271,21 +305,21 @@ class TestRunner:
         connection = None
         statement = None
 
-    try:
-        connection = getConnection()
-        statement = connection.createStatement()
+        try:
+            connection = getConnection()
+            statement = connection.createStatement()
 
-        testInsert = test1.wrap(statement)
-        testInsert.execute("insert into grinder_fun values(%d, %d)" %
-                           (grinder.threadID, grinder.runNumber))
+            testInsert = test1.wrap(statement)
+            testInsert.execute("insert into grinder_fun values(%d, %d)" %
+                               (grinder.threadID, grinder.runNumber))
 
-        testQuery = test2.wrap(statement)
-        testQuery.execute("select * from grinder_fun where thread=%d" %
-                          grinder.threadID)
+            testQuery = test2.wrap(statement)
+            testQuery.execute("select * from grinder_fun where thread=%d" %
+                              grinder.threadID)
 
-    finally:
-        ensureClosed(statement)
-        ensureClosed(connection)
+        finally:
+            ensureClosed(statement)
+            ensureClosed(connection)
 </script>
 <script title='Simple HTTP Web Service' id='amazon'>
 # Calls an Amazon.com web service to obtain information about a book.
@@ -512,12 +546,10 @@ class TestRunner:
         result = request.GET("index.html")
 
         if grinder.statistics.forLastTest.time &gt; 5:
-            # We set success = 0 to mark the test as a failure. This
-            # discards the test time to comply with the convention of
-            # only recording time for successful tests, so let's log
-            # the actual time to the error log.
-            grinder.logger.error("The last test took too long (%d ms)" %
-                                 grinder.statistics.forLastTest.time)
+            # We set success = 0 to mark the test as a failure. The test
+            # time will be reported to the data log, but not included
+            # in the aggregate statistics sent to the console or the
+            # summary table.
             grinder.statistics.forLastTest.success = 0
 
         # With delayReports = 1 you can call report() to explicitly.
