@@ -12,10 +12,10 @@
     <p>Requests for help should be sent to <a
     href="ext:mail/grinder-use">grinder-use@lists.sourceforge.net</a>.</p>
 
-    <note>To reduce spam, you must now
+    <note>To reduce spam, <strong>you must now
     <a href="ext:sourceforge/grinder-mail">subscribe</a>
-    to a list before you can send email to it. The email address you send
-    mail from must be the one you used to subscribe.
+    to a list before you can send email to it</strong>. The email address you
+    send mail from must be the one you used to subscribe.
     </note>
 
     <p><a
@@ -37,10 +37,10 @@
     and unsubscribe</a> to the lists.</p>
 
     <p>When Philip Aston finds the time to respond to mail about The
-    Grinder, <strong>messages copied to one of the above mail lists
-    get priority</strong>. He freely copies responses to the lists; if there is
-    a particular reason why you want to keep your communication
-    private you must say so. Finally, if you can provide answers
+    Grinder, <strong>messages not copied to one of the above mail lists
+    are likely to be ignored</strong>. Philip freely copies responses to the
+    lists; if there is a particular reason why you want to keep your
+    communication private you must say so. Finally, if you can provide answers
     yourself, please don't be shy!</p>
 
     <note>The Grinder is free software. No one is under any obligation
