@@ -13,6 +13,12 @@
   CVS repository is currently not public. Patches are individually
   reviewed and applied by Philip Aston.</p>
 
+  <p>The Subversion repository for the documentation (not the source code) is
+  available for anonymous access from SourceForge. You can monitor changes
+  to this repository via <a href="ext:cia/grinder">CIA</a>. Note, the published
+  documentation refers to the latest released version of The Grinder, and so
+  can lag Subversion by a month or two.</p>
+
   <section>
   <title>How to give back</title>
 
