@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,6 +45,11 @@ public final class ConnectionType {
   public static final ConnectionType WORKER =
     new ConnectionType(1, "WORKER connection type");
 
+  /** Connection type constant. */
+  public static final ConnectionType CONSOLE_CLIENT =
+    new ConnectionType(2, "CONSOLE_CLIENT connection type");
+
+
   /**
    * Serialisation method that reads a ConnectionType from a stream.
    * Package scope.
@@ -71,6 +76,9 @@ public final class ConnectionType {
 
     case 1:
       return ConnectionType.WORKER;
+
+    case 2:
+      return ConnectionType.CONSOLE_CLIENT;
 
     default:
       throw new CommunicationException("Unknown connection type (" + i + ")");
