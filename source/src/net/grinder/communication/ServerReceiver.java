@@ -48,23 +48,28 @@ public final class ServerReceiver implements Receiver {
   private final List m_threadPools = new ArrayList();
 
   /**
-   * Registers a new (socket, connection type) pair which the
-   * <code>ServerReceiver</code> should process messages from.
+   * Registers a new {@link Acceptor} from which the <code>ServerReceiver</code>
+   * should process messages. Actively polls connections of the given types for
+   * messages, deserialises them, and queues them for retrieval using
+   * {@link #waitForMessage()}.
    *
    * <p>
-   * A single <code>ServerReceiver</code> can listen to multiple (socket,
-   * connection type). You can register the same (socket, connection type) pair
-   * with multiple <code>ServerReceiver</code>s, but there is no way of
-   * controlling which receiver will receive messages from the pair.
+   * A single <code>ServerReceiver</code> can listen to messages from multiple
+   * {@link Acceptor}s. You can register the same {@link Acceptor} with
+   * multiple <code>ServerReceiver</code>s, but then there is no way of
+   * controlling which receiver will receive messages from a given
+   * {@link Acceptor}.
    * </p>
    *
    * @param acceptor
    *          Acceptor.
-   * @param connectionType
-   *          Connection type.
+   * @param connectionTypes
+   *          Type of connections to listen for.
    * @param numberOfThreads
-   *          How many threads to dedicate to processing the (socket,
-   *          connectionType) pair.
+   *          How many threads to dedicate to processing the Acceptor. The
+   *          threads this method spawns just read, deserialise, and queue. Set
+   *          <code>numberOfThreads</code> to the number of concurrent streams
+   *          you expect to be able to read.
    * @param idleThreadPollDelay
    *          Time in milliseconds that an idle thread should sleep if there are
    *          no sockets to process.
@@ -73,26 +78,35 @@ public final class ServerReceiver implements Receiver {
    *              If this <code>ServerReceiver</code> has been shutdown.
    */
   public void receiveFrom(Acceptor acceptor,
-                          ConnectionType connectionType,
+                          ConnectionType[] connectionTypes,
                           int numberOfThreads,
                           final int idleThreadPollDelay)
     throws CommunicationException {
 
+    if (connectionTypes.length == 0) {
+      // Nothing to do.
+      return;
+    }
 
-    final ResourcePool acceptedSocketSet =
-      acceptor.getSocketSet(connectionType);
+    final ResourcePool[] acceptedSocketSets =
+      new ResourcePool[connectionTypes.length];
+
+    for (int i = 0; i < connectionTypes.length; ++i) {
+      acceptedSocketSets[i] = acceptor.getSocketSet(connectionTypes[i]);
+    }
 
     final ThreadPool.InterruptibleRunnableFactory runnableFactory =
       new ThreadPool.InterruptibleRunnableFactory() {
         public InterruptibleRunnable create() {
-          return new ServerReceiverRunnable(acceptedSocketSet,
-                                            idleThreadPollDelay);
+          return new ServerReceiverRunnable(
+            new CombinedResourcePool(acceptedSocketSets),
+            idleThreadPollDelay);
         }
       };
 
     final ThreadPool threadPool =
       new ThreadPool("ServerReceiver (" + acceptor.getPort() + ", " +
-                     connectionType + ")",
+                     connectionTypes + ")",
                      numberOfThreads,
                      runnableFactory);
 
@@ -161,14 +175,54 @@ public final class ServerReceiver implements Receiver {
     return result;
   }
 
+  /**
+   * Obtain reservations from multiple ResourcePools. Delegates reserveNext()
+   * to the next resource ppol
+   *
+   * @author Philip Aston
+   * @version $Revision$
+   */
+  private class CombinedResourcePool {
+    private final ResourcePool[] m_resourcePools;
+
+    // Guarded by m_resourcePools.
+    private int m_next;
+
+    CombinedResourcePool(ResourcePool[] resourcePools) {
+      assert resourcePools.length > 0;
+      m_resourcePools = resourcePools;
+    }
+
+    public Reservation reserveNext() {
+      int i = 0;
+      int start;
+
+      synchronized (m_resourcePools) {
+        start = ++m_next;
+      }
+
+      while (true) {
+        final Reservation reservation =
+          m_resourcePools[(start + i) % m_resourcePools.length].reserveNext();
+
+        if (!reservation.isSentinel() ||
+            i == m_resourcePools.length - 1) {
+          return reservation;
+        }
+
+        ++i;
+      }
+    }
+  }
+
   private final class ServerReceiverRunnable
     implements InterruptibleRunnable {
 
-    private final ResourcePool m_set;
+    private final CombinedResourcePool m_sockets;
     private final int m_delay;
 
-    private ServerReceiverRunnable(ResourcePool set, int delay) {
-      m_set = set;
+    private ServerReceiverRunnable(CombinedResourcePool sockets, int delay) {
+      m_sockets = sockets;
       m_delay = delay;
     }
 
@@ -178,7 +232,7 @@ public final class ServerReceiver implements Receiver {
         boolean idle = false;
 
         while (true) {
-          final Reservation reservation = m_set.reserveNext();
+          final Reservation reservation = m_sockets.reserveNext();
           boolean holdReservation = false;
 
           try {

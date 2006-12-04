@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -144,7 +144,8 @@ public class TestAgent extends AbstractFileTestCase {
 
     final Acceptor acceptor = new Acceptor("", port, 1);
     final ServerReceiver receiver = new ServerReceiver();
-    receiver.receiveFrom(acceptor, ConnectionType.AGENT, 1, 10);
+    receiver.receiveFrom(
+      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 1, 10);
     final Sender sender =
       new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
 

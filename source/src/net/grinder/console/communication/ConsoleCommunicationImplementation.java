@@ -238,13 +238,12 @@ public final class ConsoleCommunicationImplementation
 
     try {
       m_receiver.receiveFrom(m_acceptor,
-                             ConnectionType.WORKER,
+                             new ConnectionType[] {
+                              ConnectionType.AGENT,
+                              ConnectionType.CONSOLE_CLIENT,
+                              ConnectionType.WORKER,
+                             },
                              5,
-                             m_idlePollDelay);
-
-      m_receiver.receiveFrom(m_acceptor,
-                             ConnectionType.AGENT,
-                             2,
                              m_idlePollDelay);
     }
     catch (CommunicationException e) {

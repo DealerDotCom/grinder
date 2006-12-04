@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,7 +42,8 @@ public class TestClientSenderAndServerReceiver
 
   private Receiver createReceiver() throws Exception {
     final ServerReceiver receiver = new ServerReceiver();
-    receiver.receiveFrom(getAcceptor(), getConnectionType(), 3, 10);
+    receiver.receiveFrom(
+      getAcceptor(), new ConnectionType[] { getConnectionType() }, 3, 10);
     return receiver;
   }
 
