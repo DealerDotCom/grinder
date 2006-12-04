@@ -9,15 +9,19 @@
 
 <body>
 
-  <p>Although the source is freely available for download, The Grinder
-  CVS repository is currently not public. Patches are individually
-  reviewed and applied by Philip Aston.</p>
+  <p>The Subversion repository for the source code and the documentation source
+  is available for read-only anonymous access from SourceForge. To check out
+  the source code, you'll want to do something like this:
+  </p>
 
-  <p>The Subversion repository for the documentation (not the source code) is
-  available for anonymous access from SourceForge. You can monitor changes
-  to this repository via <a href="ext:cia/grinder">CIA</a>. Note, the published
-  documentation refers to the latest released version of The Grinder, and so
-  can lag Subversion by a month or two.</p>
+  <source>
+  $ svn co https://grinder.svn.sourceforge.net/svnroot/grinder/trunk/source grinder
+  </source>
+
+  <p>You can monitor
+  changes to this repository via <a href="ext:cia/grinder">CIA</a>. Note, the
+  published documentation refers to the latest released version of The Grinder,
+  and so can lag Subversion by a month or two.</p>
 
   <section>
   <title>How to give back</title>
@@ -25,12 +29,13 @@
   <p>If you feel you have something worth sharing, please first
   discuss your ideas on the <a
   href="ext:mail/grinder-development">grinder-development list</a>.
-  Patches should also be submitted to this list. Ideally patches
-  should be in 'unified diff' (<code>diff -u</code>) format against
-  the latest released version of The Grinder 3. Patches should also
+  If your ideas develop into code, you can submit patches to this list.
+  Patches should be in 'unified diff' (<code>diff -u</code>) format against
+  either the latest released version of The Grinder 3, or the Subversion
+  trunk (please state which revision). Patches should also
   include updates to the relevant documentation sources. Please
-  include a statement that you, and where appropriate your employer,
-  are happy for your work to be distributed under the terms of <a
+  include a statement in your email  that you, and where appropriate your
+  employer, are happy for your work to be distributed under the terms of <a
   href="site:license">The Grinder license</a>.</p>
 
   <p>Please pay attention to the existing coding style of The Grinder.
