@@ -132,7 +132,7 @@ public class TestHandlerChainSender extends TestCase {
     messageRequiringResponse.setResponder(sender);
 
     handlerChainSender.send(messageRequiringResponse);
-    senderStubFactory.assertSuccess("send", (Object)null);
+    senderStubFactory.assertSuccess("send", NoResponseMessage.class);
     senderStubFactory.assertNoMoreCalls();
 
     // Now check a handler can send a response.
