@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<!--
+Forrest site.xml
+This file contains an outline of the site's information content.  It is used to:
+- Generate the website menus (though these can be overridden - see docs)
+- Provide semantic, location-independent aliases for internal 'site:' URIs, eg
+<link href="site:changes"> links to changes.html (or ../changes.html if in
+  subdir).
+- Provide aliases for external URLs in the external-refs section.  Eg, <link
+  href="ext:cocoon"> links to http://cocoon.apache.org/
+
+See http://forrest.apache.org/docs/linking.html for more info
+-->
+
+<site label="The Grinder" href="" xmlns="http://apache.org/forrest/linkmap/1.0" tab="">
+
+  <project label="Project" tab="project">
+    <introduction label="Introduction" href="index.html"/>
+    <license label="License" href="license.html"/>
+    <download label="Download" href="download.html"/>
+    <support label="Support" href="support.html"/>
+    <faq label="FAQ" href="ext:grinder/faq"/>
+    <links label="Links" href="links.html">
+      <book href="#book"/>
+    </links>
+  </project>
+
+  <development label="Development" tab="project" href="development/">
+    <changes label="Changes" href="changes.html"/>
+    <todo label="To Do" href="todo.html"/>
+    <contributing label="Contributing" href="contributing.html">
+      <translating href="#translating"/>
+    </contributing>
+    <timing label="Timing" href="timing.html"/>
+  </development>
+
+  <!-- The href must be wholesite.html/pdf You can change the labels
+  and node names -->
+  <all label="All documentation" tab="project">
+    <g2-manual label="G2 Manual" href="ext:grinder/g2/manual"/>
+    <g3-manual label="G3 Manual" href="ext:grinder/g3/manual"/>
+    <whole_site_html label="Wholesite HTML" href="wholesite.html"/>
+    <whole_site_pdf label="Wholesite PDF" href="wholesite.pdf"/>
+  </all>
+
+  <g2 label="The Grinder 2" href="g2/" tab="manual">
+    <getting-started label="Getting started" >
+       <getting-started-intro  label="Introduction" href="getting-started.html"/>
+       <properties label="Properties" href="properties.html"/>
+       <console label="The Console" href="console.html"/>
+       <tcpsniffer label="The TCPSniffer" href="tcpsniffer.html">
+         <HttpPluginSnifferFilter href="#HttpPluginSnifferFilter"/>
+       </tcpsniffer>
+    </getting-started>
+    <plugins label="Plug-ins">
+      <http-plugin label="HTTP plug-in" href="http-plugin.html">
+          <string-bean href="#string-bean"/>
+      </http-plugin>
+      <junit-plugin label="JUnit plug-in" href="junit-plugin.html"/>
+    </plugins>
+    <faq label="FAQ" href="ext:grinder/g2faq"/>
+  </g2>
+
+  <g3 label="The Grinder 3" href="g3/" tab="manual">
+    <whats-new label="What's new?" href="whats-new.html"/>
+    <features label="Features" href="features.html"/>
+    <getting-started label="Getting started" >
+      <getting-started-intro label="Introduction" href="getting-started.html"/>
+      <properties label="Properties" href="properties.html"/>
+      <console label="The Console" href="console.html">
+      <process-controls href="#process-controls"/>
+      </console>
+      <tcpproxy label="The TCPProxy" href="tcpproxy.html">
+      <HTTPPluginTCPProxyFilter href="#HTTPPluginTCPProxyFilter"/>
+    </tcpproxy>
+    </getting-started>
+    <plugins label="Plug-ins">
+      <http-plugin label="HTTP plug-in" href="http-plugin.html" >
+          <string-bean href="#string-bean"/>
+      </http-plugin>
+    </plugins>
+    <statistics label ="Statistics" href="statistics.html"/>
+    <scripts label="Scripts">
+      <scripts-intro label="Introduction" href="scripts.html">
+         <jython-installation href="#jython-installation"/>
+      </scripts-intro>
+      <tutorial label="Tutorial" href="tutorial-perks.html"/>
+      <script-gallery label="Script Gallery" href="script-gallery.html">
+        <helloworldfunctions href="#helloworldfunctions"/>
+        <statistics href="#statistics"/>
+      </script-gallery>
+      <script-api label="Script API" href="ext:grinder/g3/api"/>
+    </scripts>
+    <ssl label="SSL support" href="ssl-support.html">
+      <ssl-keymanager href="#own-key-manager"/>
+    </ssl>
+    <faq label="FAQ" href="ext:grinder/g3faq"/>
+  </g3>
+
+  <gfaq label="Questions" tab="faq-tab">
+    <contents label="Contents" href="faq.html"/>
+    <common label="Common" >
+      <common-general label="General" href="faq.html#general"/>
+      <common-running label="Running the Tests" href="faq.html#running"/>
+      <common-statistics label="Statistics" href="faq.html#statistics"/>
+      <common-http label="HTTP" href="faq.html#HTTP"/>
+      <common-problems label="Problems" href="faq.html#problems"/>
+      <g2vsg3 href="faq.html#g2vsg3"/>
+      <http-caching href="faq.html#http-caching"/>
+    </common>
+    <g2faq label="The Grinder 2">
+      <g2-general label="General" href="faq.html#g2-general"/>
+      <g2-scripts label="Scripts" href="faq.html#g2-scripts"/>
+      <multicast href="faq.html#multicast"/>
+      <post-and-string-beans href="faq.html#post-and-string-beans"/>
+      <premature-eof href="faq.html#premature-eof"/>
+    </g2faq>
+    <g3faq label="The Grinder 3">
+      <g3-general label="General" href="faq.html#g3-general"/>
+      <g3-scripts label="Scripts" href="faq.html#g3-scripts"/>
+      <g3-ssl label="SSL" href="faq.html#g3-ssl"/>
+      <g3-tcpproxy label="The TCPProxy" href="faq.html#tcpproxy"/>
+      <use-the-tcpproxy href="faq.html#use-the-tcpproxy"/>
+    </g3faq>
+  </gfaq>
+
+  <external-refs>
+    <amazon href="http://www.amazon.com/">
+      <j2ee-performance-testing href="exec/obidos/tg/detail/-/159059181X/qid=1064753861/sr=1-1/ref=sr_1_1/002-5481898-2224815"/>
+      <jython-essentials href="exec/obidos/tg/detail/-/0596002475/qid%3D1044795121/103-7145719-3118225"/>
+    </amazon>
+
+    <anser-e href="http://www.anser-e.com/">
+      <run6 href="run6/Run6a.html"/>
+    </anser-e>
+
+    <apache href="http://www.apache.org/"/>
+
+    <cenqua href="http://www.cenqua.com/">
+      <clover href="clover"/>
+    </cenqua>
+
+    <checkstyle href="http://checkstyle.sourceforge.net/"/>
+
+    <cia href="http://cia.navi.cx/">
+      <grinder href="stats/project/grinder"/>
+    </cia>
+
+    <cygwin href="http://cygwin.com/"/>
+
+    <forrest href="http://forrest.apache.org/">
+      <linking href="docs/linking.html"/>
+      <validation href="docs/validation.html"/>
+      <webapp href="docs/your-project.html#webapp"/>
+      <dtd-docs href="docs/dtd-docs.html"/>
+    </forrest>
+
+    <fowler href="http://martinfowler.com/">
+      <constructor-injection href="articles/injection.html#ConstructorInjectionWithPicocontainer"/>
+    </fowler>
+
+    <gmane href="http://gmane.org/">
+      <grinder-lists href="find.php?list=grinder"/>
+    </gmane>
+
+    <!-- Cheating here to be able to link between tabs from left to right -->
+    <grinder href="./">
+      <faq href="faq.html"/>
+      <g2faq href="faq.html#g2"/>
+      <g3faq href="faq.html#g3"/>
+      <g2>
+  <manual href="g2/getting-started.html"/>
+      </g2>
+      <g3>
+  <api href="g3/script-javadoc/index.html"/>
+  <manual href="g3/getting-started.html"/>
+      </g3>
+    </grinder>
+
+    <iso-639 href="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt"/>
+
+    <innovation href="http://www.innovation.ch/">
+      <httpclient href="java/HTTPClient/">
+  <advanced href="advanced_info.html">
+    <pers_con href="#pers_con"/>
+  </advanced>
+  <https href="https.html"/>
+        <urlcon-vs-httpclient href="urlcon_vs_httpclient.html"/>
+  <jsse-zip href="JSSE.zip"/>
+      </httpclient>
+    </innovation>
+
+    <jakarta href="http://jakarta.apache.org/">
+      <ant href="ant/index.html"/>
+      <oro href="oro/index.html"/>
+    </jakarta>
+
+    <javasoft href="http://java.sun.com/">
+      <j2se href="j2se/"/>
+      <jsse href="products/jsse/">
+  <install href="INSTALL.html"/>
+      </jsse>
+      <jsse-samples href="j2se/1.4.1/docs/guide/security/jsse/samples/"/>
+    </javasoft>
+
+    <jedit-syntax href="http://syntax.jedit.org/"/>
+
+    <junit href="http://junit.sourceforge.net/"/>
+
+    <jython href="http://www.jython.org/">
+      <registry href="docs/registry.html"/>
+    </jython>
+
+    <mail>
+      <grinder-announce href="mailto:grinder-announce@lists.sourceforge.net"/>
+      <grinder-development href="mailto:grinder-development@lists.sourceforge.net"/>
+      <grinder-use href="mailto:grinder-use@lists.sourceforge.net"/>
+    </mail>
+
+    <microsoft>
+      <support href="http://support.microsoft.com/">
+  <delayed-ack href="kb/328890/"/>
+      </support>
+    </microsoft>
+
+    <mozilla href="http://www.mozilla.com/"/>
+
+    <ncftp href="http://www.ncftp.com/">
+      <ephemeral-ports href="ncftpd/doc/misc/ephemeral_ports.html"/>
+    </ncftp>
+
+    <oreilly href="http://www.oreilly.com/">
+      <jython-essentials-c1 href="catalog/jythoness/chapter/ch01.html"/>
+    </oreilly>
+
+    <picocontainer href="http://picocontainer.codehaus.org/"/>
+
+    <python href="http://www.python.org/"/>
+
+    <sourceforge href="http://www.sourceforge.net/">
+      <grinder href="projects/grinder"/>
+      <junit href="projects/junit"/>
+      <extra-line href="tracker/index.php?func=detail&amp;aid=1081136&amp;group_id=18598&amp;atid=118598"/>
+      <grinder-mail href="mail/?group_id=18598"/>
+    </sourceforge>
+
+    <swtest-discuss href="http://lists.topica.com/lists/swtest-discuss/"/>
+
+    <tejasconsulting href="http://tejasconsulting.com/"/>
+
+    <testpros href="http://www.TestPros.com/">
+      <mail href="mailto:info@TestPros.com"/>
+    </testpros>
+
+    <winzip href="http://www.winzip.com/"/>
+
+    <xemacs href="http://www.xemacs.org/"/>
+
+    <xmlbeans href="http://xmlbeans.apache.org/"/>
+
+  </external-refs>
+</site>

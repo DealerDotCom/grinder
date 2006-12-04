@@ -1,0 +1,699 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+<header>
+  <title>The TCPProxy</title>
+</header>
+
+<body>
+  <p>The TCPProxy is a proxy process that you can place in a TCP
+  stream, such as the HTTP connection between your browser and a
+  server. It filters the request and response streams, sending the
+  results to the terminal window (<code>stdout</code>). You can
+  control its behaviour by specifying different filters.</p>
+
+  <figure src="../images/tcpproxy.gif" width="762" height="340"
+  alt="The TCPProxy"/>
+
+  <p>The TCPProxy's main purpose is to automatically generate HTTP
+  test scripts that can be replayed with The Grinder's HTTP plugin.
+  Because the TCPProxy lets you see what's going on at a network level
+  it is also very useful as a debugging tool in its own right.</p>
+
+  <section id="starting-tcpproxy">
+    <title>Starting the TCPProxy</title>
+
+    <p>You start the TCPProxy with something like:</p>
+
+<source>
+CLASSPATH=/opt/grinder/lib/grinder.jar
+export CLASSPATH
+
+java net.grinder.TCPProxy
+</source>
+
+    <p>Say <code>java net.grinder.TCPProxy -?</code> to get a full
+    list of the command line options.</p>
+
+    <p>With no additional options, the TCPProxy will start and display
+    the following information:</p>
+
+<source>
+Initialising as an HTTP/HTTPS proxy with the parameters:
+   Request filters:  EchoFilter
+   Response filters: EchoFilter
+   Local address:    localhost:8001
+Engine initialised, listening on port 8001
+</source>
+
+    <p>This indicates that the TCPProxy is listening as an HTTP proxy
+    on port <code>8001</code> (the default, but you can change it with
+    <code>-localPort</code>).</p>
+
+    <p>The TCPProxy appears to your browser just like any other HTTP
+    proxy server, and you can use your browser as normal. If you type
+    <code>http://grinder.sourceforge.net</code> into your browser it
+    will display The Grinder home page and the TCPProxy will output
+    all of the HTTP interactions between the browser and the
+    SourceForge site.</p>
+
+    <p>The TCPProxy will proxy both HTTP and HTTPS. See <a
+    href="#ssl">below</a> for details on customising the SSL
+    configuration.</p>
+
+  </section>
+
+  <section id="BrowserPreparation">
+    <title>Preparing the Browser</title>
+
+    <p>You should now set your browser connection
+    settings to specify the TCPProxy as the HTTP proxy. In the browser
+    options dialog, set the proxy host to be the host on which the
+    TCPProxy is running and proxy port to be <code>8001</code>).</p>
+
+    <figure src="../images/proxy-preferences.png" width="562"
+    height="462" alt="Browser proxy preferences"/>
+
+  <p>The relevant options dialog can be accessed by the following steps:</p>
+  <p><strong>MSIE</strong>: Tools -> Internet Options -> Connections -> Local Area Network Settings. <br />
+  <strong>Mozilla/Netscape</strong>: Edit -> Preferences -> Advanced - Proxies.<br />
+  <strong>Mozilla/Firefox</strong>: Tools -> Options -> General -> Connection Settings.<br />
+  <strong>Opera</strong>: Tools -> Preferences -> Advanced -> Network -> Proxy Servers.</p>
+  <p>It is important to remember to remove any "bypass proxy server" or "No Proxy for" settings
+  that you might have so that all the traffic flows through the TCPProxy and can
+  be captured.</p>
+
+    <note><a href="site:mozilla">Firefox</a> users will find Jeremy
+    Gillick's <a href="https://addons.mozilla.org/quicksearch.php?q=switchproxy&amp;section=A&amp;application=firefox"><em>SwitchProxy</em></a> extension useful for switching to and
+    from the TCPProxy.</note>
+
+  <p>It might also be a good idea to clear out any cache/temporary Internet files that
+    might be on your workstation. On the other hand, you might decide not to do
+    this if you want to record a script representing a frequent user to your
+    site who has images are <a href="site:gfaq/common/http-caching">resources in
+    their browser cache</a>. Also for IE users,
+    changing the temporary Internet files settings to check for a newer version
+    on every visit to a page can be useful.</p>
+
+  <figure src="../images/ie-cache-settings.png" width="354" height="351"
+    alt="Temporary Internet Files Settings in IE"/>
+
+  </section>
+
+  <section id="EchoFilter">
+    <title>Using the EchoFilter</title>
+
+    <p>The EchoFilter is the default filter used by the TCPProxy if no options are specified
+  in the startup command. The EchoFilter outputs the stream activity to the terminal. It
+    can be very useful for debugging as described in <a
+    href="site:use-the-tcpproxy">this FAQ</a>.</p>
+
+    <p>Bytes that do not have a printable ASCII representation are
+    displayed in hexadecimal between square brackets. Here's some
+    example output:</p>
+
+    <source>
+------ 127.0.0.1:2263->ads.osdn.com:80 ------
+GET /?ad_id=5839&amp;alloc_id=12703&amp;site_id=2&amp;request_id=8320720&amp;1102173982760 HTTP/1.1
+Host: ads.osdn.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0
+Accept: image/png,*/*;q=0.5
+Accept-Language: en-gb,en-us;q=0.7,en;q=0.3
+Accept-Encoding: gzip,deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Keep-Alive: 300
+Proxy-Connection: keep-alive
+Referer: http://sourceforge.net/projects/grinder
+
+
+--- ads.osdn.com:80->127.0.0.1:2263 opened --
+------ ads.osdn.com:80->127.0.0.1:2273 ------
+HTTP/1.1 200 OK
+Date: Sat, 04 Dec 2004 15:26:27 GMT
+Server: Apache/1.3.29 (Unix) mod_gzip/1.3.26.1a mod_perl/1.29
+Pragma: no-cache
+Cache-control: private
+Connection: close
+Transfer-Encoding: chunked
+Content-Type: image/gif
+
+
+------ ads.osdn.com:80->127.0.0.1:2273 ------
+80B
+GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F
+    </source>
+
+    <p>Information lines are displayed to indicate the end point
+    addresses and direction of the information flow and also whether a
+    connection has just been opened or closed.</p>
+
+  </section>
+
+  <section id="HTTPPluginTCPProxyFilter">
+    <title>Using the HTTPPluginTCPProxyFilters</title>
+
+    <p>You can use the TCPProxy to generate an HTTP script
+    suitable for use with The Grinder. The Grinder provides a number
+    of HTTP filters for this purpose. These filters are controlled by command
+    line options:</p>
+  <p>-http <strong>(recommended)</strong><br />
+  -httpplugin <em>(deprecated)</em><br />
+  -newhttpplugin <em>(deprecated)</em></p>
+
+    <p>What follows is a HOWTO detailing the use of the recommended HTTP filter.</p>
+
+  <p>The first step is to start the TCPProxy with an HTTP filter. A command like
+    the following should be used to start the TCPProxy with the
+  recommended HTTP filter:</p>
+
+<source>
+java net.grinder.TCPProxy -console -http > grinder.py
+</source>
+
+  <p>The <code>&gt; grinder.py</code> part of the line sends the script to a
+  file called <code>grinder.py</code>.</p>
+
+    <p>The terminal output of the HTTPPluginTCPProxyFilter looks like:</p>
+
+<source>
+14/03/06 17:04:25 (tcpproxy): Initialising as an HTTP/HTTPS proxy with the
+parameters:
+   Request filters:    HTTPRequestFilter
+   Response filters:   HTTPResponseFilter
+   Local address:      localhost:8001
+14/03/06 17:04:27 (tcpproxy): Engine initialised, listening on port 8001
+</source>
+
+  <p>The console (initiated by <em>-console</em>) displays a simple control window that allows the TCPProxy
+   to be shut down cleanly. This is needed because some terminal shells, e.g. Cygwin bash,
+   do not allow Java processes to be interrupted cleanly, so filters cannot rely
+   on standard shutdown hooks. The console looks like this:</p>
+
+  <figure src="../images/tcpproxy-console.png" width="175" height="63"
+    alt="TCPProxy Console"/>
+
+  <p>The TCPProxy console will be incorporated into the main <a href="site:console">console</a> in
+  a future release.</p>
+
+  <p>Set your browser to use the TCPProxy as
+  the HTTP proxy as <a href="#BrowserPreparation">described earlier</a>),
+  and run through your test scenario on your website.</p>
+
+  <p>Having finished your run through, press "Stop" on the TCPProxy
+  console and the generated script will be written to <code>grinder.py</code>.</p>
+
+    <p>The <code>grinder.py</code> file contains headers, requests and
+  a logical grouping of requests into pages, of the recorded tests.</p>
+    <p>For example, the headers section:</p>
+
+<source>
+# The Grinder 3.0-beta29
+# HTTP script recorded by TCPProxy at 14-Feb-2006 16:25:38
+
+from net.grinder.script import Test
+from net.grinder.script.Grinder import grinder
+from net.grinder.plugin.http import HTTPPluginControl, HTTPRequest
+from HTTPClient import NVPair
+connectionDefaults = HTTPPluginControl.getConnectionDefaults()
+httpUtilities = HTTPPluginControl.getHTTPUtilities()
+
+# These definitions at the top level of the file are evaluated once,
+# when the worker process is started.
+
+connectionDefaults.defaultHeaders = \
+  ( NVPair('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1'),
+    NVPair('Accept-Encoding', 'gzip,deflate'),
+    NVPair('Accept-Language', 'en-us,en;q=0.5'),
+    NVPair('Accept-Charset', 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'), )
+
+headers0= \
+  ( NVPair('Accept', 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5'), )
+
+headers1= \
+  ( NVPair('Accept', 'text/css,*/*;q=0.1'),
+    NVPair('Referer', 'http://localhost/'), )
+
+headers2= \
+  ( NVPair('Accept', 'text/css,*/*;q=0.1'),
+    NVPair('Referer', 'http://localhost/css/product_styles.css'), )
+
+headers3= \
+  ( NVPair('Accept', 'image/png,*/*;q=0.5'),
+    NVPair('Referer', 'http://localhost/css/colours.css'), )
+
+headers4= \
+  ( NVPair('Accept', 'image/png,*/*;q=0.5'),
+    NVPair('Referer', 'http://localhost/'), )
+
+#....
+</source>
+
+    <p>In the requests section each unique request is captured:</p>
+
+<source>
+url0 = 'http://localhost:80'
+
+# Create an HTTPRequest for each request, then replace the
+# reference to the HTTPRequest with an instrumented version.
+# You can access the unadorned instance using request101.__target__.
+request101 = HTTPRequest(url=url0, headers=headers0)
+request101 = Test(101, 'GET /').wrap(request101)
+
+request102 = HTTPRequest(url=url0, headers=headers1)
+request102 = Test(102, 'GET product_styles.css').wrap(request102)
+
+request103 = HTTPRequest(url=url0, headers=headers2)
+request103 = Test(103, 'GET tools.css').wrap(request103)
+
+request104 = HTTPRequest(url=url0, headers=headers2)
+request104 = Test(104, 'GET colours.css').wrap(request104)
+
+request105 = HTTPRequest(url=url0, headers=headers2)
+request105 = Test(105, 'GET forms.css').wrap(request105)
+
+# ...
+</source>
+
+    <p>Finally the TestRunner class. This section groups the requests into
+  pages and defines each page as a method, sets sleep interval between requests
+  and provides an instrumented method for the return of data from the tests: </p>
+
+<source>
+class TestRunner:
+  """A TestRunner instance is created for each worker thread."""
+
+  # A method for each recorded page.
+  def page1(self):
+    """GET / (requests 101-121)."""
+    result = request101.GET('/', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+    self.token_database = \
+      httpUtilities.valueFromBodyURI('database') # 'B'
+
+    grinder.sleep(171)
+    request102.GET('/css/product_styles.css', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+
+    grinder.sleep(50)
+    request103.GET('/css/tools.css', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+
+    request104.GET('/css/colours.css', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+
+    request105.GET('/css/forms.css', (),
+      ( httpUtilities.basicAuthorizationHeader('user', 'pwd'), ))
+
+#.....
+
+    return result
+
+  def page2(self):
+
+#.....
+
+  def __call__(self):
+    """This method is called for every run performed by the worker thread."""
+    self.page1()      # GET / (requests 101-121)
+
+    grinder.sleep(100)
+    self.page2()      # GET logging.html (requests 201-217)
+
+#.....
+
+def instrumentMethod(test, method_name, c=TestRunner):
+  """Instrument a method with the given Test."""
+  unadorned = getattr(c, method_name)
+  import new
+  method = new.instancemethod(test.wrap(unadorned), None, c)
+  setattr(c, method_name, method)
+
+# Replace each method with an instrumented version.
+# You can call the unadorned method using self.page1.__target__().
+instrumentMethod(Test(100, 'Page 1'), 'page1')
+instrumentMethod(Test(200, 'Page 2'), 'page2')
+
+#.....
+</source>
+
+    <p>Once you've recorded your script you have two methods
+  that you can use to replay your script:</p>
+
+  <ol>
+
+  <li>You can create a simple
+    <a href="site:g3/getting-started/properties"><code>grinder.properties</code></a>
+    file and you can replay the recorded scenario with The Grinder.
+    Your properties file should at least set <a
+    href="site:g3/getting-started/properties"><code>grinder.script</code></a> to
+    <code>grinder.py</code>.</li>
+
+  <li>Alternately you can use the Grinder <a href="site:g3/getting-started/console">console</a>
+  to distribute your script to an	agent and set it as the script to run.
+  Each agent will still need a simple
+  <a href="site:g3/getting-started/properties"><code>grinder.properties</code></a> file
+  , though you will not need to set the <a
+    href="site:g3/getting-started/properties"><code>grinder.script</code></a> property.</li>
+
+  </ol>
+
+  <p>The recorded script grinder.py can be edited by hand to suit your needs.</p>
+
+  <section id="Stylesheets">
+    <title>Altering the output with custom stylesheet</title>
+
+  <p>The recommended TCPProxy HTTP filter, <em>-http</em>, modifies the output of its request
+  and response filters by way of an XLST stylesheet when producing the recorded script.</p>
+
+  <p>The standard/default stylesheet can be found in <code>etc/httpToJythonScript.xsl</code>.
+  Replacing the standard stylesheet with one of your own making allows you to
+  customise the output of the filter. You shuould pass the file name of your
+  custom stylesheet as a command line argument directly after <code>-http</code>.</p>
+
+  <p>If you want to see the intermediate XML model you can use:</p>
+
+<source>java net.grinder.TCPProxy -http etc/httpToXML.xsl -console</source>
+
+  <p>The model confirms to the XML schema <code>etc/tcpproxy-http.xsd</code>.</p>
+  </section>
+
+  </section>
+
+  <section id="ssl">
+    <title>SSL and HTTPS support</title>
+
+    <p>The TCPProxy has SSL support based on the <a
+    href="ext:javasoft/jsse">JSSE</a>. The JSSE is required by The
+    Grinder, and is now part of Java 2 Standard Edition 1.4.1, see the
+    <a href="site:download">Download page</a> for further details.</p>
+
+    <p>SSL relationships are necessarily point to point. When you
+    interpose the TCPProxy in SSL communications between a browser and
+    a server you end up with two SSL connections. Each SSL connection
+    has its own set of client and server certificates (both of which
+    are optional).</p>
+
+    <figure src="../images/tcpproxy-ssl.gif" width="762" height="200"
+    alt="TCPProxy and SSL"/>
+
+    <p>The TCPProxy will negotiate appropriate certificates for both
+    connections using built-in certificates or in a user-specified
+    Java key store. In particular, the TCPProxy needs a self-signed
+    server certificate for the connection from the browser. By
+    default, the TCPProxy will use a built-in certificate.</p>
+
+    <p>When first establishing a connection, your browser will present
+    a warning and confirmation dialog. This is because the built-in
+    certificate isn't authorised by any of the certificate authorities
+    that the browser trusts. Additionally, the built-in certificate
+    authorises <code>localhost</code> so if your server doesn't
+    listen at this address the browser will complain. Choose the
+    "accept this certificate for this session" option.</p>
+
+    <warning>The Grinder deliberately accelerates SSL initialisation
+    by using a random number generator that is seeded with a fixed
+    number. This does not hinder SSL communication, but theoretically
+    makes it less secure. No guarantee is made as to the
+    cryptographic strength of any SSL communication using The
+    Grinder.</warning>
+
+    <p>Advanced users can specify their own server certificate for the
+    connection from the browser, or add client certificates for the
+    connection to the server, using the <code>-keystore</code>,
+    <code>-keystorepassword</code>, and <code>-keystoretype</code>
+    options. See the J2SE/JSSE documentation for how to set up a key
+    store.</p>
+
+    <p>If you fail to provide a key store with a valid server
+    certificate (hard to do now The Grinder has a built in
+    certificate), you may get a <em>No available certificate
+    corresponds to the SSL cipher suites which are enabled</em>
+    exception, and your browser may report that it cannot communicate
+    as it has no common encryption algorithms. Internet Explorer likes
+    to be different. If start the TCPProxy without a valid server
+    certificate and then connect through it using Internet Explorer,
+    the TCPProxy will report "SSL peer shut down incorrectly. The
+    browser will just spin away until it times out. The easiest way to
+    provide a server certificate is to copy the <em>testkeys</em> file
+    from the <a href="ext:javasoft/jsse-samples">JSSE samples
+    distribution</a> and start the proxy using:</p>
+
+<source>
+java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
+</source>
+  </section>
+
+  <section id="chained-proxies">
+    <title>Using the TCPProxy with other proxies</title>
+
+    <p>The TCPProxy can be used with other HTTP/HTTPS proxies.</p>
+
+    <figure src="../images/tcpproxy-proxy.gif" width="762"
+    height="172" alt="Chained proxies"/>
+
+    <p>Use the <code>-httpproxy</code> option to specify the host name
+    and port of the proxy. Use the <code>-httpsproxy</code> option if
+    your HTTPS proxy requires separate settings.</p>
+
+    <note>The Grinder does not work with NTLM proxies</note>
+  </section>
+
+  <section id="port-forwarding-mode">
+    <title>Using the TCPProxy as a port forwarder</title>
+
+    <p>It is normally most useful to use the TCPProxy in its HTTP
+    Proxy mode as described above.</p>
+
+    <p>When using the TCPProxy as a debugging tool it occasionally is
+    useful to use it in <em>port forwarding</em> mode. This mode is
+    enabled when one or more of <code>-remotehost</code> and
+    <code>-remoteport</code> are specified. In port forwarding mode,
+    the TCPProxy simply listens on <code>localhost:localport</code>
+    and forwards to <code>remotehost:remoteport</code>.</p>
+
+    <p>To understand why HTTP Proxy mode is usually better than port
+    forwarding mode when using a browser, consider what happens if the
+    remote server returns a page with an absolute URL link back to
+    itself. If you click on the link, the browser will contact the
+    server directly, bypassing the TCPProxy. Another disadvantage is
+    that you can't use the TCPProxy with more than one remote
+    sever.</p>
+  </section>
+
+  <section id="options-summary">
+    <title>Summary of TCPProxy options</title>
+
+    <table>
+    <tr>
+      <th>Option</th>
+      <th>Description</th>
+    </tr>
+
+    <tr>
+      <td><strong>Common</strong></td>
+
+      <td></td>
+    </tr>
+
+    <tr>
+      <td><code>-console</code></td>
+
+      <td>Display a simple console that has a control button that
+      allows The TCPProxy to be shutdown cleanly. This can help in
+      certain situations where a hard kill of the TCPProxy process
+      would loose output that is still buffered in memory .</td>
+    </tr>
+
+    <tr>
+      <td><code>-http [stylesheet]</code></td>
+
+      <td>Adds the recommended request filter and a response filter to produce a
+      script for The Grinder suitable for use with the HTTP
+      plugin. The output can be customised by specifying the file name of an
+    alternative XSLT style sheet.</td>
+    </tr>
+
+    <tr>
+      <td><code>-requestfilter filter</code></td>
+
+      <td>Add a request filter. <code>filter</code> can be the name of
+      a class that implements
+      <code>net.grinder.tools.tcpproxy.TCPProxyFilter</code> or one of
+      <code>NONE</code>, <code>ECHO</code>. The option can be
+      specified multiple times, in which case the filters are invoked
+      one after another. If the not specified, the default
+      <code>ECHO</code> filter is used.</td>
+    </tr>
+
+    <tr>
+      <td><code>-responsefilter filter</code></td>
+
+      <td>Add a response filter. <code>filter</code> can be the name
+      of a class that implements
+      <code>net.grinder.tools.tcpproxy.TCPProxyFilter</code> or one of
+      <code>NONE</code>, <code>ECHO</code>. The option can be
+      specified multiple times, in which case the filters are invoked
+      one after another. If the not specified, the default
+      <code>ECHO</code> filter is used.</td>
+    </tr>
+
+    <tr>
+      <td><code>-localhost host</code></td>
+
+      <td>Set the host name or IP address to listen on. This must
+      correspond to an interface of the machine the TCPProxy is
+      started on. The default is <code>localhost</code>.</td>
+    </tr>
+
+    <tr>
+      <td><code>-localport port</code></td>
+
+      <td>Set the port to listen on. The default is
+      <code>8001</code>.</td>
+    </tr>
+
+    <tr>
+      <td><code>-keystore file</code></td>
+
+      <td>Specify a custom key store. Usually the built-in keystore is
+      good enough so <code>-keystore</code> does not need to be
+      specified.</td>
+    </tr>
+
+    <tr>
+      <td><code>-keystorepassword password</code></td>
+
+      <td>Set the key store password. Only used if
+      <code>-keystore</code> is set. Optional for some key store
+      types.</td>
+    </tr>
+
+    <tr>
+      <td><code>-keystoretype type</code></td>
+
+      <td>Set the key store type. Only used if <code>-keystore</code>
+      is set. If not specified, the default value depends on JSSE
+      configuration but is usually <code>jks</code>.</td>
+    </tr>
+
+    <tr>
+      <td><strong>Additional</strong></td>
+
+      <td></td>
+    </tr>
+
+    <tr>
+      <td><code>-properties file</code></td>
+
+      <td>Specify a file containing properties that are passed on to
+      the filters.</td>
+    </tr>
+
+    <tr>
+      <td><code>-remotehost host</code></td>
+
+      <td>Set the host name or port the TCPProxy should connect to in
+      <a href="#port-forwarding-mode">port forwarding mode</a>. The
+      TCPProxy starts in port forwarding mode if either
+      <code>-remotehost</code> or <code>-remoteport</code> is set. The
+      default is <code>localhost</code>.</td>
+    </tr>
+
+    <tr>
+      <td><code>-remoteport port</code></td>
+
+      <td>Set the port the TCPProxy should connect to in <a
+      href="#port-forwarding-mode">port forwarding mode</a>. The
+      TCPProxy starts in port forwarding mode if either
+      <code>-remotehost</code> or <code>-remoteport</code> is set. The
+      default is <code>7001</code>.</td>
+    </tr>
+
+    <tr>
+      <td><code>-timeout seconds</code></td>
+
+      <td>Set an idle timeout. This is how long the TCPProxy will wait
+      for a request before timing out and freeing the local port. The
+      TCPProxy will not time out if there are active connections.</td>
+    </tr>
+
+    <tr>
+      <td><code>-httpproxy host port</code></td>
+
+      <td>Specify that output should be directed through <a
+      href="#chained-proxies">another HTTP/HTTPS proxy</a>. This may
+      help you reach the Internet. This option is not supported in <a
+      href="#port-forwarding-mode">port forwarding mode</a>.</td>
+    </tr>
+
+    <tr>
+      <td><code>-httpsproxy host port</code></td>
+
+      <td>Specify that output should be directed through a HTTPS
+      proxy. Overrides any <code>-httpproxy </code> setting. This
+      option is not supported in <a href="#port-forwarding-mode">port
+      forwarding mode</a>.</td>
+    </tr>
+
+
+    <tr>
+      <td><code>-ssl</code></td>
+
+      <td>Use SSL in <a href="#port-forwarding-mode">port forwarding
+      mode</a>. This will make both the TCPProxy's local socket and
+      the connections to the target server use SSL. The default
+      <em>HTTP Proxy mode</em> ignores this option and always listens
+      as an HTTP proxy and an HTTPS proxy.</td>
+    </tr>
+
+    <tr>
+      <td><code>-colour</code></td>
+
+      <td>Specify that a simple colour scheme should be used to
+      distinguish request streams from response schemes. This uses
+      terminal control codes that only work on ANSI compliant
+      terminals.</td>
+    </tr>
+
+    <tr>
+      <td><code>-component class</code></td>
+
+      <td>Register a component class with the filter PicoContainer.</td>
+    </tr>
+
+    <tr>
+      <td><code>-debug</code></td>
+
+      <td>Make filter PicoContainer chatty.</td>
+    </tr>
+
+    <tr>
+      <td><strong>Deprecated</strong></td>
+
+      <td></td>
+    </tr>
+
+    <tr>
+      <td><code>-httpplugin</code></td>
+
+      <td>Adds a deprecated request filter and a response filter to produce a
+      script for The Grinder suitable for use with the HTTP
+      plugin. Use <code>-http</code> instead.</td>
+    </tr>
+
+    <tr>
+      <td><code>-newhttpplugin</code></td>
+
+      <td>Adds a deprecated request filter and a response filter to produce a
+      script for The Grinder suitable for use with the HTTP
+      plugin. Use <code>-http</code> instead.</td>
+    </tr>
+
+
+    </table>
+  </section>
+
+</body>
+</document>

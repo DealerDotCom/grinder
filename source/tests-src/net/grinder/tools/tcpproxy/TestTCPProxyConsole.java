@@ -1,0 +1,92 @@
+// Copyright (C) 2005 Philip Aston
+// All rights reserved.
+//
+// This file is part of The Grinder software distribution. Refer to
+// the file LICENSE which is part of The Grinder distribution for
+// licensing details. The Grinder distribution is available on the
+// Internet at http://grinder.sourceforge.net/
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+// OF THE POSSIBILITY OF SUCH DAMAGE.
+
+package net.grinder.tools.tcpproxy;
+
+import java.awt.Component;
+import java.awt.event.WindowEvent;
+import javax.swing.JButton;
+
+import net.grinder.testutility.RandomStubFactory;
+
+import junit.framework.TestCase;
+
+
+/**
+ * Unit test case for {@link TCPProxyConsole}.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
+public class TestTCPProxyConsole extends TestCase {
+
+  public void testConstructor() throws Exception {
+    final RandomStubFactory engineStubFactory =
+      new RandomStubFactory(TCPProxyEngine.class);
+    final TCPProxyEngine engine = (TCPProxyEngine)engineStubFactory.getStub();
+
+    final TCPProxyConsole console =
+      new TCPProxyConsole(engine);
+
+    console.dispose();
+
+    engineStubFactory.assertNoMoreCalls();
+  }
+
+  public void testButton() throws Exception {
+    final RandomStubFactory engineStubFactory =
+      new RandomStubFactory(TCPProxyEngine.class);
+    final TCPProxyEngine engine = (TCPProxyEngine)engineStubFactory.getStub();
+
+    final TCPProxyConsole console =
+      new TCPProxyConsole(engine);
+
+    JButton stopButton = null;
+
+    final Component[] components = console.getContentPane().getComponents();
+    for (int i=0; i<components.length; ++i) {
+      if (components[i] instanceof JButton) {
+        final JButton b = (JButton)components[i];
+        if ("Stop".equals(b.getText())) {
+          stopButton = (JButton)components[i];
+        }
+      }
+    }
+
+    assertNotNull(stopButton);
+
+    if (stopButton != null) { // Shut up eclipse null warning.
+      stopButton.doClick();
+    }
+    engineStubFactory.assertSuccess("stop");
+    engineStubFactory.assertNoMoreCalls();
+
+    console.dispatchEvent(new WindowEvent(console, WindowEvent.WINDOW_CLOSING));
+    engineStubFactory.assertSuccess("stop");
+    engineStubFactory.assertNoMoreCalls();
+
+    console.dispose();
+
+    engineStubFactory.assertNoMoreCalls();
+
+
+  }
+}

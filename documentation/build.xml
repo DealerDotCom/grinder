@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+<!--
+
+"How to build the Grinder Documentation" by Philip Aston.
+
+What do I need?
+===============
+
+Jakarta Ant 1.6.2
+J2SE 1.4.1 or later
+Apache Forrest 0.6
+
+(You might not need these exact versions).
+
+
+What do I do?
+=============
+
+Do the following:
+
+  1. Acquire and install Ant. Set/export ANT_HOME, JAVA_HOME and PATH
+     as described in the Ant user guide.
+
+  2. Acquire and install Apache Forrest. Update
+     etc/localpaths.properties to reflect your Forrest installation.
+
+  3. Type ant (or ant.bat on Windows platforms)
+
+Say
+   ant -projecthelp
+
+for details of other targets. 
+-->
+
+<project name="The Grinder Documentation" default="all" basedir=".">
+
+  <property name="Name" value="The Grinder Documentation"/>
+  <property name="name" value="grinder-documentation"/>
+
+  <!-- source of all evil -->
+  <property name="src.dir" value="src"/>
+  <property name="etc.dir" value="etc"/>
+  <property name="imported.dir" value="imported"/>
+  <property name="imported-script-javadoc.dir" value="${imported.dir}/script-javadoc"/>
+
+  <!-- local settings -->
+  <property file="${etc.dir}/localpaths.properties"/>
+
+  <!-- output -->
+  <property name="release.dir" value="releases"/>
+  <property name="build.dir" value="${basedir}/build"/>
+  <property name="doc.dir" value="docs"/>
+  <property name="script-javadoc.dir" value="${doc.dir}/g3/script-javadoc"/>
+  <property name="build.log" value="${build.dir}/build.log"/>
+
+  <!-- =================================================================== -->
+  <!-- Initialization target                                               -->
+  <!-- =================================================================== -->
+  <target name="init">
+    <tstamp/>
+
+    <mkdir dir="${build.dir}"/>
+    <record name="${build.log}" loglevel="verbose" append="false"/>
+
+    <echo message="** Building ${Name} on ${TODAY} **"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Rules to create the documentation                               -->
+  <!-- =================================================================== -->
+
+  <target name="forrest" depends="init"
+          description="Generates the documentation.">
+
+    <delete quiet="true">
+      <fileset dir="${script-javadoc.dir}"/>
+    </delete>
+
+    <copy todir="${script-javadoc.dir}">
+      <fileset dir="${imported-script-javadoc.dir}"/>
+    </copy>
+
+    <!-- Quick hack for now. -->
+    <exec executable="${forrest.home}/bin/forrest.bat">
+     <env key="FORREST_HOME" path="${forrest.home}"/>
+    </exec>
+  </target>
+
+  <target name="tidy-up-forrest-output" depends="init">
+    <!-- No idea why Forrest generates these bogus files, get rid off them. -->
+    <delete>
+      <fileset dir="${doc.dir}" includes="*/index.html"/>
+    </delete>
+  </target>
+
+  <target name="all" depends="clean,forrest,tidy-up-forrest-output"/>
+
+  <target name="release" depends="all" description="Generates a release.">
+
+    <echo message=""/>
+    <echo message=""/>
+    <echo message="****************************************************"/>
+    <echo message="*** Have you checked everything in?              ***"/>
+    <echo message="****************************************************"/>
+    <echo message=""/>
+
+    <input message="Continue? " validargs="y,n" addproperty="do.release"/>
+
+    <condition property="do.abort">
+      <equals arg1="n" arg2="${do.release}"/>
+    </condition>
+
+    <fail if="do.abort">Build aborted by user.</fail>
+
+    <echo message="Building release"/>
+    <mkdir dir="${release.dir}"/>
+
+    <zip zipfile="${release.dir}/${name}-${DSTAMP}.zip">
+      <zipfileset dir="${doc.dir}">
+      </zipfileset>
+    </zip>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Clean targets                                                       -->
+  <!-- =================================================================== -->
+
+  <!-- Doesn't depend on init, or it will undo directories created there -->
+  <target name="clean" description="Removes build files.">
+    <delete dir="${build.dir}"/>
+    <delete dir="${doc.dir}"/>
+    <delete>
+      <fileset dir="." includes="**/*~" defaultexcludes="false"/>
+    </delete>
+  </target>
+
+</project>
+
+<!-- End of file -->
