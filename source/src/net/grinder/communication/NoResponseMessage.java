@@ -23,46 +23,13 @@ package net.grinder.communication;
 
 
 /**
- * Interface for classes that manage the sending of messages.
+ * Message indicating that that a blocking send was not handled.
+ *
+ * <p>Package scope.</p>
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 1.1 $
  */
-public interface BlockingSender {
-
-  /**
-   * Send the given message and await a response.
-   *
-   * <p>
-   * The input stream is implementation dependent. This should only be used
-   * where the sender can guarantee that the input stream will be free for
-   * exclusive use.
-   * </p>
-   *
-   * @param message
-   *          A {@link Message}.
-   * @return The response message.
-   * @throws CommunicationException
-   *           If an error occurs.
-   */
-  Message blockingSend(Message message) throws CommunicationException;
-
-  /**
-   * Cleanly shut down the <code>Sender</code>.
-   */
-  void shutdown();
-
-  /**
-   * Exception indicating that the server chose to send no response back
-   * to a {@link BlockingSender#blockingSend(Message)}.
-   *
-   * @author Philip Aston
-   * @version $Revision$
-   */
-  class NoResponseException extends CommunicationException {
-
-    NoResponseException(String s) {
-      super(s);
-    }
-  }
+class NoResponseMessage implements Message {
+  private static final long serialVersionUID = 1;
 }

@@ -126,6 +126,9 @@ public final class ClientSender
     if (result == null) {
       throw new CommunicationException("Shut down");
     }
+    else if (result instanceof NoResponseMessage) {
+      throw new NoResponseException("Server did not respond");
+    }
 
     return result;
   }

@@ -115,7 +115,7 @@ public final class HandlerChainSender implements Sender {
 
       if (!messageRequringResponse.isResponseSent()) {
         // No one responded.
-        messageRequringResponse.sendResponse(null);
+        messageRequringResponse.sendResponse(new NoResponseMessage());
       }
     }
 
