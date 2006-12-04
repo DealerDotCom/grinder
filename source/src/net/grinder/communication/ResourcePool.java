@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,17 +21,11 @@
 
 package net.grinder.communication;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-
-import net.grinder.util.ListenerSupport;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
- * Class that manages a pool of resources.
+ * A pool of resources.
  *
  * <p>Each resource in the pool is wrapped in a wrapper that keeps
  * track of whether it is currently in use. Clients access resources
@@ -40,31 +34,7 @@ import net.grinder.util.thread.UncheckedInterruptedException;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ResourcePool {
-  private static final int PURGE_FREQUENCY = 1000;
-
-  // Used to signal when a Reservable has been freed.
-  private final Object m_reservableFreedMutex = new Object();
-
-  // Guards reserveAll().
-  private final Object m_reserveAllMutex = new Object();
-
-  // Guards m_reservables.
-  private final Object m_reservablesMutex = new Object();
-
-  // Guarded by m_reservablesMutex.
-  private List m_reservables = new ArrayList();
-  private int m_lastReservable = 0;
-  private int m_nextPurge = 0;
-
-  private final ListenerSupport m_listeners = new ListenerSupport();
-
-  /**
-   * Constructor.
-   */
-  public ResourcePool() {
-    m_reservables.add(new Sentinel());
-  }
+interface ResourcePool {
 
   /**
    * Adds a resource to the pool.
@@ -73,22 +43,7 @@ final class ResourcePool {
    * @return Allows the client to notify the resource pool if the
    * resource has been closed.
    */
-  public Closeable add(final Resource resource) {
-    final ResourceWrapper resourceWrapper = new ResourceWrapper(resource);
-
-    synchronized (m_reservablesMutex) {
-      m_reservables.add(resourceWrapper);
-    }
-
-    m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).resourceAdded(resource);
-        }
-      });
-
-    return resourceWrapper;
-  }
+  Closeable add(final Resource resource);
 
   /**
    * Returns a resource, reserved for exclusive use by the caller.
@@ -100,24 +55,7 @@ final class ResourcePool {
    * @return The resource. It is up to the caller to free or close the
    * resource.
    */
-  public Reservation reserveNext() {
-    synchronized (m_reservablesMutex) {
-      purgeZombieResources();
-
-      while (true) {
-        if (++m_lastReservable >= m_reservables.size()) {
-          m_lastReservable = 0;
-        }
-
-        final Reservable reservable =
-          (Reservable)m_reservables.get(m_lastReservable);
-
-        if (reservable.reserve()) {
-          return reservable;
-        }
-      }
-    }
-  }
+  Reservation reserveNext();
 
   /**
    * Returns a list of all the current resources. Blocks until all
@@ -127,60 +65,7 @@ final class ResourcePool {
    * @return The resources. It is up to the caller to free or close
    * each resource.
    */
-  public List reserveAll() {
-
-    // Only one thread gets to reserveAll at a time. Otherwise two threads
-    // calling this can deadlock each other. See bug #1199086.
-    synchronized (m_reserveAllMutex) {
-
-      final List result;
-      final List reserveList;
-
-      synchronized (m_reservablesMutex) {
-        purgeZombieResources();
-
-        result = new ArrayList(m_reservables.size());
-        reserveList = new ArrayList(m_reservables);
-      }
-
-      while (reserveList.size() > 0) {
-        // Iterate backwards so remove is cheap.
-        final ListIterator iterator =
-          reserveList.listIterator(reserveList.size());
-
-        while (iterator.hasPrevious()) {
-          final Reservable reservable = (Reservable)iterator.previous();
-
-          if (reservable.isSentinel()) {
-            iterator.remove();
-          }
-          else if (reservable.reserve()) {
-            result.add(reservable);
-            iterator.remove();
-          }
-          else if (reservable.isClosed()) {
-            iterator.remove();
-          }
-        }
-
-        if (reserveList.size() > 0) {
-          // Block until more resources are freed.
-          synchronized (m_reservableFreedMutex) {
-            try {
-              // Don't block for ever because the outstanding
-              // resources might have already been freed.
-              m_reservableFreedMutex.wait(1000);
-            }
-            catch (InterruptedException e) {
-              throw new UncheckedInterruptedException(e);
-            }
-          }
-        }
-      }
-
-      return result;
-    }
-  }
+  List reserveAll();
 
   /**
    * Close the resources currently in the pool. Resources can be closed
@@ -193,69 +78,21 @@ final class ResourcePool {
    * the pool if necessary.
    * </p>
    */
-  public void closeCurrentResources() {
-    final Reservable[] reservablesClone;
-
-    // We don't reserve so that resources are closed promptly and resource
-    // leaks don't cause us a problem. It's up to the resource implementation
-    // to allow it to be closed cleanly whilst reserved by another thread.
-    synchronized (m_reservablesMutex) {
-      reservablesClone = (Reservable[])
-        m_reservables.toArray(new Reservable[m_reservables.size()]);
-    }
-
-    // We don't hold m_reservablesMutex whilst closing the Reservables to
-    // remove chance of deadlock with actions taken by listeners.
-    for (int i = 0; i < reservablesClone.length; ++i) {
-      reservablesClone[i].close();
-    }
-  }
+  void closeCurrentResources();
 
   /**
    * Count the active resources.
    *
    * @return The number of active resources.
    */
-  public int countActive() {
-    int result = 0;
+  int countActive();
 
-    synchronized (m_reservablesMutex) {
-      final Iterator iterator = m_reservables.iterator();
-
-      while (iterator.hasNext()) {
-        final Reservable reservable = (Reservable)iterator.next();
-
-        if (!reservable.isClosed() && !reservable.isSentinel()) {
-          ++result;
-        }
-      }
-    }
-
-    return result;
-  }
-
-  private void purgeZombieResources() {
-    synchronized (m_reservablesMutex) {
-      if (++m_nextPurge > PURGE_FREQUENCY) {
-        m_nextPurge = 0;
-
-        final List newReservables = new ArrayList(m_reservables.size());
-
-        final Iterator iterator = m_reservables.iterator();
-
-        while (iterator.hasNext()) {
-          final Reservable reservable = (Reservable)iterator.next();
-
-          if (!reservable.isClosed()) {
-            newReservables.add(reservable);
-          }
-        }
-
-        m_reservables = newReservables;
-        m_lastReservable = 0;
-      }
-    }
-  }
+  /**
+   * Add a new listener.
+   *
+   * @param listener The listener.
+   */
+  void addListener(Listener listener);
 
   /**
    * Public interface to a resource.
@@ -272,15 +109,6 @@ final class ResourcePool {
     void resourceAdded(Resource resource);
 
     void resourceClosed(Resource resource);
-  }
-
-  /**
-   * Add a new listener.
-   *
-   * @param listener The listener.
-   */
-  public void addListener(Listener listener) {
-    m_listeners.add(listener);
   }
 
   /**
@@ -303,146 +131,5 @@ final class ResourcePool {
     Resource getResource();
 
     void free();
-  }
-
-  private interface Reservable extends Reservation {
-    boolean reserve();
-  }
-
-  private static final class Sentinel implements Reservable {
-
-    public boolean isSentinel() {
-      return true;
-    }
-
-    public boolean reserve() {
-      return true;
-    }
-
-    public Resource getResource() {
-      return null;
-    }
-
-    public void free() {
-    }
-
-    public void close() {
-    }
-
-    public boolean isClosed() {
-      return false;
-    }
-  }
-
-  private final class ResourceWrapper implements Reservable {
-
-    private final Resource m_resource;
-    private boolean m_busy = false;
-    private boolean m_closed;
-
-    public ResourceWrapper(Resource resource) {
-      m_resource = resource;
-    }
-
-    public boolean isSentinel() {
-      return false;
-    }
-
-    public boolean reserve() {
-      // Perhaps assert !m_busy.
-
-      synchronized (this) {
-        if (m_busy || m_closed) {
-          return false;
-        }
-
-        m_busy = true;
-      }
-
-      return true;
-    }
-
-    public void free() {
-      // Perhaps assert m_busy.
-
-      final boolean stateChanged;
-
-      synchronized (this) {
-        stateChanged = m_busy;
-        m_busy = false;
-      }
-
-      if (stateChanged) {
-        synchronized (m_reservableFreedMutex) {
-          m_reservableFreedMutex.notifyAll();
-        }
-      }
-    }
-
-    public Resource getResource() {
-      return m_resource;
-    }
-
-    public void close() {
-
-      final boolean stateChanged;
-
-      synchronized (this) {
-        stateChanged = !m_closed;
-
-        // If the outside world is closing us, we'll be reserved.
-        // If the ResourcePool is closing, we might not be.
-
-        if (stateChanged) {
-          // Update state before closing resource to prevent possible
-          // recursion.
-          m_busy = false;
-          m_closed = true;
-
-          m_resource.close();
-        }
-      }
-
-      if (stateChanged) {
-        synchronized (m_reservableFreedMutex) {
-          m_reservableFreedMutex.notifyAll();
-        }
-
-        final ListenerSupport.Informer informer;
-
-        try {
-          informer = new ListenerSupport.Informer() {
-              public void inform(Object listener) {
-                ((Listener)listener).resourceClosed(m_resource);
-              }
-            };
-        }
-        catch (Exception e) {
-          // Hack to fix bug 1592664. When shutting down (so this
-          // thread is being validly interrupted), the allocation of
-          // the Informer occasionally results in a
-          // java.lang.InterruptedException. This is clearly a JRE
-          // bug. (Repeatable with J2SE 1.4.2_11-b06 and 1.5.0_04-b05,
-          // but not with JRockit). We have to catch Exception, since
-          // InterruptedException is a checked exception.
-
-          if (e instanceof RuntimeException) {
-            throw (RuntimeException)e;
-          }
-          else if (e instanceof InterruptedException) {
-            throw new UncheckedInterruptedException((InterruptedException)e);
-          }
-          else {
-            throw new AssertionError(e);
-          }
-        }
-
-        m_listeners.apply(informer);
-      }
-    }
-
-    public synchronized boolean isClosed() {
-      return m_closed;
-    }
   }
 }

@@ -265,7 +265,7 @@ public final class Acceptor {
         return original;
       }
       else {
-        final ResourcePool newSocketSet = new ResourcePool();
+        final ResourcePool newSocketSet = new ResourcePoolImplementation();
 
         newSocketSet.addListener(
           new ResourcePool.Listener() {

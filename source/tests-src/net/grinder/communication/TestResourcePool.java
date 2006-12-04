@@ -44,7 +44,7 @@ public class TestResourcePool extends TestCase {
 
   public void testConstructorAndSentinel() throws Exception {
 
-    final ResourcePool resourcePool = new ResourcePool();
+    final ResourcePool resourcePool = new ResourcePoolImplementation();
 
     final ResourcePool.Reservation reservation = resourcePool.reserveNext();
     assertTrue(reservation.isSentinel());
@@ -69,7 +69,7 @@ public class TestResourcePool extends TestCase {
 
   public void testAddAndReserveNext() throws Exception {
 
-    final ResourcePool resourcePool = new ResourcePool();
+    final ResourcePool resourcePool = new ResourcePoolImplementation();
 
     final RandomStubFactory listener1StubFactory =
       new RandomStubFactory(ResourcePool.Listener.class);
@@ -155,7 +155,7 @@ public class TestResourcePool extends TestCase {
 
   public void testReserveAll() throws Exception {
 
-    final ResourcePool resourcePool = new ResourcePool();
+    final ResourcePool resourcePool = new ResourcePoolImplementation();
     assertEquals(0, resourcePool.reserveAll().size());
     assertEquals(0, resourcePool.reserveAll().size());
 
@@ -204,7 +204,7 @@ public class TestResourcePool extends TestCase {
   }
 
   public void testReserveAllMultiThreaded() throws Exception {
-    final ResourcePool resourcePool = new ResourcePool();
+    final ResourcePool resourcePool = new ResourcePoolImplementation();
 
     resourcePool.add(new MyResource());
     resourcePool.add(new MyResource());
@@ -245,7 +245,7 @@ public class TestResourcePool extends TestCase {
 
   public void testClose() throws Exception {
 
-    final ResourcePool resourcePool = new ResourcePool();
+    final ResourcePool resourcePool = new ResourcePoolImplementation();
     assertEquals(0, resourcePool.reserveAll().size());
     assertEquals(0, resourcePool.reserveAll().size());
 
@@ -286,7 +286,7 @@ public class TestResourcePool extends TestCase {
 
   public void testCountActive() throws Exception {
 
-    final ResourcePool resourcePool = new ResourcePool();
+    final ResourcePool resourcePool = new ResourcePoolImplementation();
     assertEquals(0, resourcePool.countActive());
 
     final MyResource resource1 = new MyResource();
