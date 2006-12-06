@@ -30,7 +30,7 @@ import java.util.TimerTask;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
-import net.grinder.communication.HandlerChainSender.MessageHandler;
+import net.grinder.communication.MessageHandlerChain.MessageHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.communication.ConsoleCommunication;

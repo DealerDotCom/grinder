@@ -34,7 +34,7 @@ import net.grinder.communication.FanOutServerSender;
 import net.grinder.communication.HandlerChainSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.ServerReceiver;
-import net.grinder.communication.HandlerChainSender.MessageHandler;
+import net.grinder.communication.MessageHandlerChain.MessageHandler;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;

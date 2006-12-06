@@ -33,8 +33,8 @@ import java.util.TimerTask;
 
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
-import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.communication.Message;
+import net.grinder.communication.MessageHandlerChain.MessageHandler;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;

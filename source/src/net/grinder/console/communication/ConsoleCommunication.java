@@ -21,7 +21,7 @@
 
 package net.grinder.console.communication;
 
-import net.grinder.communication.HandlerChainSender.MessageHandler;
+import net.grinder.communication.MessageHandlerChain.MessageHandler;
 import net.grinder.console.common.ErrorHandler;
 
 
