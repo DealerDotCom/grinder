@@ -85,7 +85,7 @@ final class FileStore {
     }
 
     m_incremental = false;
-    
+
     m_messageHandler = new MessageHandler() {
       public boolean process(Message message) throws CommunicationException {
         if (message instanceof ClearCacheMessage) {
