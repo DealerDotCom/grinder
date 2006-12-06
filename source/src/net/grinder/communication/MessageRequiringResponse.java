@@ -25,11 +25,14 @@ package net.grinder.communication;
 /**
  * Pair a {@link Message} with a way to send a response.
  *
+ * <p>Package scope</p>.
+ *
  * @see ClientSender#blockingSend(Message)
+ * @see MessageHandlerChain#add(MessageHandlerChain.MessageResponder)
  * @author Philip Aston
  * @version $Revision$
  */
-public final class MessageRequiringResponse implements Message {
+final class MessageRequiringResponse implements Message {
 
   private static final long serialVersionUID = 1L;
 
