@@ -74,7 +74,7 @@ public final class ConsoleListener {
   public static final int ANY = START | RESET | STOP | SHUTDOWN;
 
   private final Monitor m_notifyOnMessage;
-  private final Logger m_logger;
+  private final HandlerChainSender.MessageHandler m_messageHandler;
   private int m_messagesReceived = 0;
   private int m_lastMessagesReceived = 0;
   private StartGrinderMessage m_lastStartGrinderMessage;
@@ -87,9 +87,36 @@ public final class ConsoleListener {
    * @param logger A {@link net.grinder.common.Logger} to log received
    * event messages to.
    */
-  public ConsoleListener(Monitor notifyOnMessage, Logger logger) {
+  public ConsoleListener(Monitor notifyOnMessage, final Logger logger) {
     m_notifyOnMessage = notifyOnMessage;
-    m_logger = logger;
+
+    m_messageHandler = new HandlerChainSender.MessageHandler() {
+      public boolean process(Message message) {
+        if (message instanceof StartGrinderMessage) {
+          logger.output("received a start message");
+          m_lastStartGrinderMessage = (StartGrinderMessage) message;
+          setReceived(START);
+          return true;
+        }
+        else if (message instanceof StopGrinderMessage) {
+          logger.output("received a stop message");
+          setReceived(STOP);
+          return true;
+        }
+        else if (message instanceof ResetGrinderMessage) {
+          logger.output("received a reset message");
+          setReceived(RESET);
+          return true;
+        }
+
+        return false;
+      }
+
+      public void shutdown() {
+        logger.output("communication shutdown", Logger.LOG);
+        setReceived(SHUTDOWN);
+      }
+    };
   }
 
   /**
@@ -100,7 +127,6 @@ public final class ConsoleListener {
    *
    */
   public void waitForMessage() {
-
     while (!checkForMessage(ConsoleListener.ANY)) {
       synchronized (m_notifyOnMessage) {
         m_notifyOnMessage.waitNoInterrruptException();
@@ -177,33 +203,7 @@ public final class ConsoleListener {
    */
   public HandlerChainSender.MessageHandler getMessageHandler() {
 
-    return new HandlerChainSender.MessageHandler() {
-        public boolean process(Message message) {
-          if (message instanceof StartGrinderMessage) {
-            m_logger.output("received a start message");
-            m_lastStartGrinderMessage = (StartGrinderMessage) message;
-            setReceived(START);
-            return true;
-          }
-          else if (message instanceof StopGrinderMessage) {
-            m_logger.output("received a stop message");
-            setReceived(STOP);
-            return true;
-          }
-          else if (message instanceof ResetGrinderMessage) {
-            m_logger.output("received a reset message");
-            setReceived(RESET);
-            return true;
-          }
-
-          return false;
-        }
-
-        public void shutdown() {
-          m_logger.output("communication shutdown", Logger.LOG);
-          setReceived(SHUTDOWN);
-        }
-      };
+    return m_messageHandler;
   }
 
   /**
