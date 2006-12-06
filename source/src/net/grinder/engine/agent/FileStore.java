@@ -27,8 +27,8 @@ import java.io.IOException;
 
 import net.grinder.common.Logger;
 import net.grinder.communication.CommunicationException;
-import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.communication.Message;
+import net.grinder.communication.MessageHandlerChain.MessageHandler;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;

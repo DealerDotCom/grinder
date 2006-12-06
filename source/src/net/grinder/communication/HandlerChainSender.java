@@ -31,40 +31,48 @@ import net.grinder.util.ListenerSupport;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class HandlerChainSender implements Sender {
+public final class HandlerChainSender implements Sender, MessageHandlerChain {
 
   private final ListenerSupport m_messageHandlers = new ListenerSupport();
 
   /**
-   * Handler interface.
-   */
-  public interface MessageHandler {
-    /**
-     * The handler implements this to receive a message.
-     *
-     * @param message
-     *          The message.
-     * @return <code>true</code>=> The handler processed the message.
-     * @throws CommunicationException
-     *           If an error occurred. If a handler throws an exception,
-     *           subsequent handlers will not be called.
-     *
-     */
-    boolean process(Message message) throws CommunicationException;
-
-    /**
-     * Notify the handler that we've been shutdown.
-     */
-    void shutdown();
-  }
-
-  /**
-   * Add a message hander.
+   * Add a message handler.
    *
    * @param messageHandler The message handler.
    */
   public void add(MessageHandler messageHandler) {
     m_messageHandlers.add(messageHandler);
+  }
+
+  /**
+   * Add a message responder.
+   *
+   * @param messageResponder The message responder.
+   */
+  public void add(final MessageResponder messageResponder) {
+    m_messageHandlers.add(
+      new MessageHandler() {
+        public boolean process(Message message) throws CommunicationException {
+          if (message instanceof MessageRequiringResponse) {
+            final MessageRequiringResponse messageRequringResponse =
+              (MessageRequiringResponse)message;
+
+            final Message response =
+              messageResponder.process(messageRequringResponse.getMessage());
+
+            if (response != null) {
+              messageRequringResponse.sendResponse(response);
+              return true;
+            }
+          }
+
+          return false;
+        }
+
+        public void shutdown() {
+          messageResponder.shutdown();
+        }
+      });
   }
 
   /**
@@ -128,7 +136,6 @@ public final class HandlerChainSender implements Sender {
   * Shutdown all our handlers.
   */
   public void shutdown() {
-
     m_messageHandlers.apply(new ListenerSupport.Informer() {
       public void inform(Object listener) {
         ((MessageHandler)listener).shutdown();

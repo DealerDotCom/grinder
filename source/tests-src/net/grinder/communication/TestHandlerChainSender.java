@@ -21,7 +21,7 @@
 
 package net.grinder.communication;
 
-import net.grinder.communication.HandlerChainSender.MessageHandler;
+import net.grinder.communication.MessageHandlerChain.MessageHandler;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
 
