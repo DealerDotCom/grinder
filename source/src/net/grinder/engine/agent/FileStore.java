@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -52,7 +52,9 @@ final class FileStore {
   private final File m_readmeFile;
   private final Directory m_incomingDirectory;
   private final Directory m_currentDirectory;
+  private final MessageHandler m_messageHandler;
   private boolean m_incremental;
+
 
   public FileStore(File directory, Logger logger) throws FileStoreException {
 
@@ -83,6 +85,57 @@ final class FileStore {
     }
 
     m_incremental = false;
+    
+    m_messageHandler = new MessageHandler() {
+      public boolean process(Message message) throws CommunicationException {
+        if (message instanceof ClearCacheMessage) {
+          m_logger.output("Clearing file store");
+
+          try {
+            synchronized (m_incomingDirectory) {
+              m_incomingDirectory.deleteContents();
+            }
+          }
+          catch (Directory.DirectoryException e) {
+            m_logger.error(e.getMessage());
+            throw new CommunicationException(e.getMessage(), e);
+          }
+
+          m_incremental = false;
+          return true;
+        }
+        else if (message instanceof DistributeFileMessage) {
+          try {
+            synchronized (m_incomingDirectory) {
+              m_incomingDirectory.create();
+
+              createReadmeFile();
+
+              final FileContents fileContents =
+                ((DistributeFileMessage)message).getFileContents();
+
+              m_logger.output("Updating file store: " + fileContents);
+              fileContents.create(m_incomingDirectory);
+            }
+
+            return true;
+          }
+          catch (FileContents.FileContentsException e) {
+            m_logger.error(e.getMessage());
+            throw new CommunicationException(e.getMessage(), e);
+          }
+          catch (Directory.DirectoryException e) {
+            m_logger.error(e.getMessage());
+            throw new CommunicationException(e.getMessage(), e);
+          }
+        }
+
+        return false;
+      }
+
+      public void shutdown() {
+      }
+    };
   }
 
   public Directory getDirectory() throws FileStoreException {
@@ -104,57 +157,7 @@ final class FileStore {
   }
 
   public MessageHandler getMessageHandler() {
-
-    return new MessageHandler() {
-        public boolean process(Message message) throws CommunicationException {
-          if (message instanceof ClearCacheMessage) {
-            m_logger.output("Clearing file store");
-
-            try {
-              synchronized (m_incomingDirectory) {
-                m_incomingDirectory.deleteContents();
-              }
-            }
-            catch (Directory.DirectoryException e) {
-              m_logger.error(e.getMessage());
-              throw new CommunicationException(e.getMessage(), e);
-            }
-
-            m_incremental = false;
-            return true;
-          }
-          else if (message instanceof DistributeFileMessage) {
-            try {
-              synchronized (m_incomingDirectory) {
-                m_incomingDirectory.create();
-
-                createReadmeFile();
-
-                final FileContents fileContents =
-                  ((DistributeFileMessage)message).getFileContents();
-
-                m_logger.output("Updating file store: " + fileContents);
-                fileContents.create(m_incomingDirectory);
-              }
-
-              return true;
-            }
-            catch (FileContents.FileContentsException e) {
-              m_logger.error(e.getMessage());
-              throw new CommunicationException(e.getMessage(), e);
-            }
-            catch (Directory.DirectoryException e) {
-              m_logger.error(e.getMessage());
-              throw new CommunicationException(e.getMessage(), e);
-            }
-          }
-
-          return false;
-        }
-
-        public void shutdown() {
-        }
-      };
+    return m_messageHandler;
   }
 
   private void createReadmeFile() throws CommunicationException {
