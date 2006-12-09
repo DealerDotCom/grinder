@@ -80,4 +80,17 @@ public interface MessageDispatchRegistry {
     }
   }
 
+  /**
+   * Most handlers ignore the shutdown event, so provide this as a convenient
+   * base for anonymous classes.
+   */
+  public abstract static class AbstractBlockingHandler
+    implements BlockingSender {
+
+    /**
+     * Ignore shutdown events.
+     */
+    public void shutdown() {
+    }
+  }
 }
