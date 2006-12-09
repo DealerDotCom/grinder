@@ -21,7 +21,7 @@
 
 package net.grinder.console.communication;
 
-import net.grinder.communication.MessageHandlerChain.MessageHandler;
+import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.console.common.ErrorHandler;
 
 
@@ -34,11 +34,12 @@ import net.grinder.console.common.ErrorHandler;
 public interface ConsoleCommunication {
 
   /**
-   * Add a message hander.
+   * Returns the message dispatch registry which callers can use to register new
+   * message handlers.
    *
-   * @param messageHandler The message handler.
+   * @return The registry.
    */
-  void addMessageHandler(MessageHandler messageHandler);
+  MessageDispatchRegistry getMessageDispatchRegistry();
 
   /**
    * Wait to receive a message, then process it.

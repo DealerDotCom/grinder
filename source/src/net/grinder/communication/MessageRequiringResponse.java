@@ -28,7 +28,7 @@ package net.grinder.communication;
  * <p>Package scope</p>.
  *
  * @see ClientSender#blockingSend(Message)
- * @see MessageHandlerChain#add(MessageHandlerChain.MessageResponder)
+ * @see MessageDispatchRegistry#set(Class, BlockingSender)
  * @author Philip Aston
  * @version $Revision$
  */

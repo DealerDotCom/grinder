@@ -31,10 +31,11 @@ import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
-import net.grinder.communication.HandlerChainSender;
 import net.grinder.communication.Message;
+import net.grinder.communication.MessageDispatchRegistry;
+import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
+import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.ServerReceiver;
-import net.grinder.communication.MessageHandlerChain.MessageHandler;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
@@ -74,7 +75,8 @@ public final class ConsoleCommunicationImplementation
   private final DistributionControl m_distributionControl =
     new DistributionControlImplementation();
 
-  private final HandlerChainSender m_messageHandlers = new HandlerChainSender();
+  private final MessageDispatchSender m_messageDispatcher =
+    new MessageDispatchSender();
 
   private final WakeableCondition m_processing = new WakeableCondition();
 
@@ -107,34 +109,25 @@ public final class ConsoleCommunicationImplementation
     m_properties = properties;
     m_idlePollDelay = idlePollDelay;
 
-    addMessageHandler(
-      new MessageHandler() {
-        public boolean process(Message message) {
-          if (message instanceof AgentProcessReportMessage) {
-            final AgentProcessReportMessage agentProcessReportMessage =
-              (AgentProcessReportMessage)message;
-
-            m_processStatusSet.addAgentStatusReport(agentProcessReportMessage);
-
-            return true;
-          }
-
-          if (message instanceof WorkerProcessReportMessage) {
-            final WorkerProcessReportMessage workerProcessReportMessage =
-              (WorkerProcessReportMessage)message;
-
-            m_processStatusSet.addWorkerStatusReport(
-              workerProcessReportMessage);
-
-            return true;
-          }
-
-          return false;
+    m_messageDispatcher.set(
+      AgentProcessReportMessage.class,
+      new AbstractHandler() {
+        public void send(Message message) {
+          m_processStatusSet.addAgentStatusReport(
+            (AgentProcessReportMessage)message);
         }
+      }
+    );
 
-        public void shutdown() {
+    m_messageDispatcher.set(
+      WorkerProcessReportMessage.class,
+      new AbstractHandler() {
+        public void send(Message message) {
+          m_processStatusSet.addWorkerStatusReport(
+            (WorkerProcessReportMessage)message);
         }
-      });
+      }
+    );
 
     properties.addPropertyChangeListener(
       new PropertyChangeListener() {
@@ -289,12 +282,13 @@ public final class ConsoleCommunicationImplementation
   }
 
   /**
-   * Add a message hander.
+   * Returns the message dispatch registry which callers can use to register new
+   * message handlers.
    *
-   * @param messageHandler The message handler.
+   * @return The registry.
    */
-  public void addMessageHandler(MessageHandler messageHandler) {
-    m_messageHandlers.add(messageHandler);
+  public MessageDispatchRegistry getMessageDispatchRegistry() {
+    return m_messageDispatcher;
   }
 
   /**
@@ -317,7 +311,7 @@ public final class ConsoleCommunicationImplementation
           // We return, to give our caller a chance to handle any shut down.
         }
         else {
-          m_messageHandlers.send(message);
+          m_messageDispatcher.send(message);
         }
 
         break;

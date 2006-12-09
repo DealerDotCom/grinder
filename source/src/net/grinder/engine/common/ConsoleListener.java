@@ -22,8 +22,10 @@
 package net.grinder.engine.common;
 
 import net.grinder.common.Logger;
-import net.grinder.communication.HandlerChainSender;
+import net.grinder.communication.CommunicationException;
+import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.Message;
+import net.grinder.communication.Sender;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
@@ -32,11 +34,6 @@ import net.grinder.util.thread.Monitor;
 
 /**
  * Process console messages and allows them to be asynchronously queried.
- *
- * <p>
- * <code>ConsoleListener</code> is passive; the message is "received" through
- * a {HandlerChainSender.MessageHandler} obtained from
- * {@link #getMessageHandler}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -74,7 +71,7 @@ public final class ConsoleListener {
   public static final int ANY = START | RESET | STOP | SHUTDOWN;
 
   private final Monitor m_notifyOnMessage;
-  private final HandlerChainSender.MessageHandler m_messageHandler;
+  private final Logger m_logger;
   private int m_messagesReceived = 0;
   private int m_lastMessagesReceived = 0;
   private StartGrinderMessage m_lastStartGrinderMessage;
@@ -87,36 +84,9 @@ public final class ConsoleListener {
    * @param logger A {@link net.grinder.common.Logger} to log received
    * event messages to.
    */
-  public ConsoleListener(Monitor notifyOnMessage, final Logger logger) {
+  public ConsoleListener(Monitor notifyOnMessage, Logger logger) {
     m_notifyOnMessage = notifyOnMessage;
-
-    m_messageHandler = new HandlerChainSender.MessageHandler() {
-      public boolean process(Message message) {
-        if (message instanceof StartGrinderMessage) {
-          logger.output("received a start message");
-          m_lastStartGrinderMessage = (StartGrinderMessage) message;
-          setReceived(START);
-          return true;
-        }
-        else if (message instanceof StopGrinderMessage) {
-          logger.output("received a stop message");
-          setReceived(STOP);
-          return true;
-        }
-        else if (message instanceof ResetGrinderMessage) {
-          logger.output("received a reset message");
-          setReceived(RESET);
-          return true;
-        }
-
-        return false;
-      }
-
-      public void shutdown() {
-        logger.output("communication shutdown", Logger.LOG);
-        setReceived(SHUTDOWN);
-      }
-    };
+    m_logger = logger;
   }
 
   /**
@@ -196,14 +166,41 @@ public final class ConsoleListener {
   }
 
   /**
-   * Returns a {@link HandlerChainSender.MessageHandler} that can be used to
-   * pass {@link Message}s to the <code>ConsoleListener</code>.
+   * Registers message handlers with a dispatcher.
    *
-   * @return The <code>MessageHandler</code>.
+   * @param messageDispatcher The dispatcher.
    */
-  public HandlerChainSender.MessageHandler getMessageHandler() {
 
-    return m_messageHandler;
+  public void registerMessageHandlers(
+    MessageDispatchRegistry messageDispatcher) {
+
+    messageDispatcher.set(
+      StartGrinderMessage.class,
+      new AbstractMessageHandler() {
+        public void send(Message message) throws CommunicationException {
+          m_logger.output("received a start message");
+          m_lastStartGrinderMessage = (StartGrinderMessage) message;
+          setReceived(START);
+        }
+      });
+
+    messageDispatcher.set(
+      StopGrinderMessage.class,
+      new AbstractMessageHandler() {
+        public void send(Message message) throws CommunicationException {
+          m_logger.output("received a stop message");
+          setReceived(STOP);
+        }
+      });
+
+    messageDispatcher.set(
+      ResetGrinderMessage.class,
+      new AbstractMessageHandler() {
+        public void send(Message message) throws CommunicationException {
+          m_logger.output("received a reset message");
+          setReceived(RESET);
+        }
+      });
   }
 
   /**
@@ -213,5 +210,14 @@ public final class ConsoleListener {
    */
   public StartGrinderMessage getLastStartGrinderMessage() {
     return m_lastStartGrinderMessage;
+  }
+
+  private abstract class AbstractMessageHandler implements Sender {
+    public void shutdown() {
+      if ((m_messagesReceived & SHUTDOWN) == 0) {
+        m_logger.output("communication shutdown", Logger.LOG);
+        setReceived(SHUTDOWN);
+      }
+    }
   }
 }

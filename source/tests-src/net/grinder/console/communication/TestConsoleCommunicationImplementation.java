@@ -34,7 +34,7 @@ import java.util.TimerTask;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
-import net.grinder.communication.MessageHandlerChain.MessageHandler;
+import net.grinder.communication.Sender;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -303,7 +303,7 @@ public class TestConsoleCommunicationImplementation
     final MessageHandlerStubFactory messageHandlerStubFactory =
       new MessageHandlerStubFactory();
 
-    m_consoleCommunication.addMessageHandler(
+    m_consoleCommunication.getMessageDispatchRegistry().addFallback(
       messageHandlerStubFactory.getMessageHandler());
 
     m_processMessagesThread.start();
@@ -333,7 +333,7 @@ public class TestConsoleCommunicationImplementation
 
     messageHandlerStubFactory.waitUntilCalled(10000);
 
-    messageHandlerStubFactory.assertSuccess("process", MyMessage.class);
+    messageHandlerStubFactory.assertSuccess("send", MyMessage.class);
 
     assertEquals(
       1,
@@ -349,7 +349,7 @@ public class TestConsoleCommunicationImplementation
 
     messageHandlerStubFactory.waitUntilCalled(10000);
 
-    messageHandlerStubFactory.assertSuccess("process",
+    messageHandlerStubFactory.assertSuccess("send",
                                             StopGrinderMessage.class);
   }
 
@@ -470,15 +470,15 @@ public class TestConsoleCommunicationImplementation
     extends RandomStubFactory {
 
     public MessageHandlerStubFactory() {
-      super(MessageHandler.class);
+      super(Sender.class);
     }
 
     public boolean override_process(Object proxy, Message message) {
       return message instanceof MyMessage;
     }
 
-    public MessageHandler getMessageHandler() {
-      return (MessageHandler)getStub();
+    public Sender getMessageHandler() {
+      return (Sender)getStub();
     }
   }
 

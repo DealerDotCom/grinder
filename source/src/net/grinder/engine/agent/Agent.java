@@ -40,8 +40,9 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
 import net.grinder.communication.FanOutStreamSender;
-import net.grinder.communication.HandlerChainSender;
+import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.MessagePump;
+import net.grinder.communication.TeeSender;
 import net.grinder.console.messages.AgentProcessReportMessage;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
@@ -422,14 +423,20 @@ public final class Agent {
             m_logger);
       }
 
-      // Ordering of the handlers is important.
-      final HandlerChainSender handlerChainSender =
-        new HandlerChainSender();
-      handlerChainSender.add(m_fileStore.getMessageHandler());
-      handlerChainSender.add(m_fanOutStreamSender);
-      handlerChainSender.add(m_consoleListener.getMessageHandler());
+      final MessageDispatchSender fileStoreMessageDispatcher =
+        new MessageDispatchSender();
+      m_fileStore.registerMessageHandlers(fileStoreMessageDispatcher);
 
-      new MessagePump(m_receiver, handlerChainSender, 1);
+      final MessageDispatchSender messageDispatcher =
+        new MessageDispatchSender();
+      m_consoleListener.registerMessageHandlers(messageDispatcher);
+
+      // Everything that the file store doesn't handle is tee'd to the
+      // worker processes and our message handlers.
+      fileStoreMessageDispatcher.addFallback(
+        new TeeSender(messageDispatcher, m_fanOutStreamSender));
+
+      new MessagePump(m_receiver, fileStoreMessageDispatcher, 1);
 
       m_reportRunningTask = new TimerTask() {
         public void run() {

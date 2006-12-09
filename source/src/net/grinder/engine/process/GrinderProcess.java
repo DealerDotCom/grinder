@@ -41,7 +41,7 @@ import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
-import net.grinder.communication.HandlerChainSender;
+import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.QueuedSender;
@@ -161,9 +161,9 @@ final class GrinderProcess {
       new TestStatisticsMap(
         m_context.getStatisticsServices().getStatisticsSetFactory());
 
-    final HandlerChainSender handlerChainSender = new HandlerChainSender();
-    handlerChainSender.add(m_consoleListener.getMessageHandler());
-    m_messagePump = new MessagePump(agentReceiver, handlerChainSender, 1);
+    final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
+    m_consoleListener.registerMessageHandlers(messageDispatcher);
+    m_messagePump = new MessagePump(agentReceiver, messageDispatcher, 1);
   }
 
   /**

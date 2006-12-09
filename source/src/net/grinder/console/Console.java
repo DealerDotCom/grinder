@@ -30,7 +30,8 @@ import java.util.TimerTask;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
-import net.grinder.communication.MessageHandlerChain.MessageHandler;
+import net.grinder.communication.MessageDispatchRegistry;
+import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.communication.ConsoleCommunication;
@@ -44,7 +45,6 @@ import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
-import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServicesImplementation;
 
 
@@ -135,32 +135,32 @@ public class Console {
 
     m_communication.setErrorHandler(m_userInterface.getErrorHandler());
 
-    m_communication.addMessageHandler(
-      new MessageHandler() {
-        public boolean process(Message message) {
-          if (message instanceof RegisterTestsMessage) {
-            m_model.registerTests(((RegisterTestsMessage)message).getTests());
-            return true;
-          }
+    final MessageDispatchRegistry messageDispatchRegistry =
+      m_communication.getMessageDispatchRegistry();
 
-          if (message instanceof ReportStatisticsMessage) {
-            m_model.addTestReport(
-              ((ReportStatisticsMessage)message).getStatisticsDelta());
-            return true;
-          }
-
-          if (message instanceof RegisterExpressionViewMessage) {
-            final ExpressionView expressionView =
-              ((RegisterExpressionViewMessage)message).getExpressionView();
-
-            m_model.registerStatisticExpression(expressionView);
-            return true;
-          }
-
-          return false;
+    messageDispatchRegistry.set(
+      RegisterTestsMessage.class,
+      new AbstractHandler() {
+        public void send(Message message) {
+          m_model.registerTests(((RegisterTestsMessage)message).getTests());
         }
+      });
 
-        public void shutdown() {
+    messageDispatchRegistry.set(
+      ReportStatisticsMessage.class,
+      new AbstractHandler() {
+        public void send(Message message) {
+          m_model.addTestReport(
+            ((ReportStatisticsMessage)message).getStatisticsDelta());
+        }
+      });
+
+    messageDispatchRegistry.set(
+      RegisterExpressionViewMessage.class,
+      new AbstractHandler() {
+        public void send(Message message) {
+          m_model.registerStatisticExpression(
+            ((RegisterExpressionViewMessage)message).getExpressionView());
         }
       });
   }

@@ -30,8 +30,8 @@ import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
+import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.SimpleMessage;
-import net.grinder.communication.MessageHandlerChain.MessageHandler;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.testutility.AbstractFileTestCase;
@@ -54,7 +54,6 @@ public class TestFileStore extends AbstractFileTestCase {
     assertEquals(1, getDirectory().list().length);
 
     final FileStore fileStore = new FileStore(getDirectory(), null);
-    assertNotNull(fileStore.getMessageHandler());
     final File currentDirectory = fileStore.getDirectory().getFile();
     assertNotNull(currentDirectory);
 
@@ -115,15 +114,16 @@ public class TestFileStore extends AbstractFileTestCase {
 
     final FileStore fileStore = new FileStore(getDirectory(), logger);
 
-    final MessageHandler messageHandler = fileStore.getMessageHandler();
+    final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
+    fileStore.registerMessageHandlers(messageDispatcher);
 
-    // Other Messages get passed through.
+    // Other Messages get ignored.
     final Message message0 = new SimpleMessage();
-    assertFalse(messageHandler.process(message0));
+    messageDispatcher.send(message0);
     loggerStubFactory.assertNoMoreCalls();
 
     // Shutdown does nothing.
-    messageHandler.shutdown();
+    messageDispatcher.shutdown();
     loggerStubFactory.assertNoMoreCalls();
 
     // Test with a good message.
@@ -157,7 +157,7 @@ public class TestFileStore extends AbstractFileTestCase {
     FileUtilities.setCanAccess(getDirectory(), false);
 
     try {
-      messageHandler.process(message1);
+      messageDispatcher.send(message1);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
@@ -171,7 +171,7 @@ public class TestFileStore extends AbstractFileTestCase {
 
     incomingDirectoryFile.delete();
 
-    assertTrue(messageHandler.process(message1));
+    messageDispatcher.send(message1);
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
 
@@ -210,7 +210,7 @@ public class TestFileStore extends AbstractFileTestCase {
     targetFile.setReadOnly();
 
     try {
-      messageHandler.process(message1);
+      messageDispatcher.send(message1);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
@@ -225,7 +225,7 @@ public class TestFileStore extends AbstractFileTestCase {
     FileUtilities.setCanAccess(targetFile, false);
 
     try {
-      messageHandler.process(message2);
+      messageDispatcher.send(message2);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
@@ -237,7 +237,7 @@ public class TestFileStore extends AbstractFileTestCase {
     loggerStubFactory.assertSuccess("error", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
 
-    assertTrue(messageHandler.process(message2));
+    messageDispatcher.send(message2);
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
 

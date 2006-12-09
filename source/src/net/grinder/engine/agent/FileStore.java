@@ -28,7 +28,8 @@ import java.io.IOException;
 import net.grinder.common.Logger;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-import net.grinder.communication.MessageHandlerChain.MessageHandler;
+import net.grinder.communication.MessageDispatchRegistry;
+import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
@@ -52,7 +53,6 @@ final class FileStore {
   private final File m_readmeFile;
   private final Directory m_incomingDirectory;
   private final Directory m_currentDirectory;
-  private final MessageHandler m_messageHandler;
   private boolean m_incremental;
 
 
@@ -85,57 +85,6 @@ final class FileStore {
     }
 
     m_incremental = false;
-
-    m_messageHandler = new MessageHandler() {
-      public boolean process(Message message) throws CommunicationException {
-        if (message instanceof ClearCacheMessage) {
-          m_logger.output("Clearing file store");
-
-          try {
-            synchronized (m_incomingDirectory) {
-              m_incomingDirectory.deleteContents();
-            }
-          }
-          catch (Directory.DirectoryException e) {
-            m_logger.error(e.getMessage());
-            throw new CommunicationException(e.getMessage(), e);
-          }
-
-          m_incremental = false;
-          return true;
-        }
-        else if (message instanceof DistributeFileMessage) {
-          try {
-            synchronized (m_incomingDirectory) {
-              m_incomingDirectory.create();
-
-              createReadmeFile();
-
-              final FileContents fileContents =
-                ((DistributeFileMessage)message).getFileContents();
-
-              m_logger.output("Updating file store: " + fileContents);
-              fileContents.create(m_incomingDirectory);
-            }
-
-            return true;
-          }
-          catch (FileContents.FileContentsException e) {
-            m_logger.error(e.getMessage());
-            throw new CommunicationException(e.getMessage(), e);
-          }
-          catch (Directory.DirectoryException e) {
-            m_logger.error(e.getMessage());
-            throw new CommunicationException(e.getMessage(), e);
-          }
-        }
-
-        return false;
-      }
-
-      public void shutdown() {
-      }
-    };
   }
 
   public Directory getDirectory() throws FileStoreException {
@@ -156,8 +105,62 @@ final class FileStore {
     }
   }
 
-  public MessageHandler getMessageHandler() {
-    return m_messageHandler;
+  /**
+   * Registers message handlers with a dispatcher.
+   *
+   * @param messageDispatcher The dispatcher.
+   */
+
+  public void registerMessageHandlers(
+    MessageDispatchRegistry messageDispatcher) {
+
+    messageDispatcher.set(
+      ClearCacheMessage.class,
+      new AbstractHandler() {
+        public void send(Message message) throws CommunicationException {
+          m_logger.output("Clearing file store");
+
+          try {
+            synchronized (m_incomingDirectory) {
+              m_incomingDirectory.deleteContents();
+            }
+          }
+          catch (Directory.DirectoryException e) {
+            m_logger.error(e.getMessage());
+            throw new CommunicationException(e.getMessage(), e);
+          }
+
+          m_incremental = false;
+        }
+      });
+
+    messageDispatcher.set(
+      DistributeFileMessage.class,
+      new AbstractHandler() {
+        public void send(Message message) throws CommunicationException {
+          try {
+            synchronized (m_incomingDirectory) {
+              m_incomingDirectory.create();
+
+              createReadmeFile();
+
+              final FileContents fileContents =
+                ((DistributeFileMessage)message).getFileContents();
+
+              m_logger.output("Updating file store: " + fileContents);
+              fileContents.create(m_incomingDirectory);
+            }
+          }
+          catch (FileContents.FileContentsException e) {
+            m_logger.error(e.getMessage());
+            throw new CommunicationException(e.getMessage(), e);
+          }
+          catch (Directory.DirectoryException e) {
+            m_logger.error(e.getMessage());
+            throw new CommunicationException(e.getMessage(), e);
+          }
+        }
+      });
   }
 
   private void createReadmeFile() throws CommunicationException {
