@@ -48,6 +48,10 @@ public class TestServerReceiver extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
+
+    // No op.
+    serverReceiver.receiveFrom(acceptor, new ConnectionType[0], 1, 2);
+
     serverReceiver.receiveFrom(
       acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
 
