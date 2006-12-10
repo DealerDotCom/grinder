@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import junit.framework.TestCase;
+import net.grinder.communication.BlockingSender.NoResponseException;
 import net.grinder.util.StreamCopier;
 
 
@@ -261,6 +262,22 @@ public class TestClientSender extends TestCase {
     assertEquals(message1, received1);
     receiver1.join();
     assertNull(receiver1.getException());
+
+    final NoResponseMessage message2 = new NoResponseMessage();
+
+    final ReceiveOneMessageAndReply receiver2 =
+      new ReceiveOneMessageAndReply(socketInput, socketOutput);
+    receiver2.start();
+
+    try {
+      clientSender.blockingSend(message2);
+      fail("Expected NoResponseException");
+    }
+    catch (NoResponseException e) {
+    }
+
+    receiver2.join();
+    assertNull(receiver2.getException());
 
     socketAcceptor.close();
   }

@@ -21,8 +21,10 @@
 
 package net.grinder.communication;
 
-import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
+
+import net.grinder.testutility.RandomStubFactory;
+import net.grinder.communication.MessageDispatchRegistry.AbstractBlockingHandler;
 
 
 /**
@@ -250,6 +252,14 @@ public class TestMessageDispatchSender extends TestCase {
     final BlockingSender responder =
       (BlockingSender)responderStubFactory.getStub();
     messageDispatchSender.set(OtherMessage.class, responder);
+
+    final BlockingSender blockingSender2 =
+      new AbstractBlockingHandler() {
+
+        public Message blockingSend(Message message) throws CommunicationException {
+          return null;
+        }};
+    messageDispatchSender.set(Message.class, blockingSender2);
 
     messageDispatchSender.shutdown();
 
