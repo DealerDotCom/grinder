@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +29,8 @@ import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
+import net.grinder.testutility.AssertUtilities;
+
 
 /**
  *  Unit test case for <code>ConnectionType</code>.
@@ -41,6 +43,15 @@ public class TestConnectionType extends TestCase {
   public TestConnectionType(String name) {
     super(name);
   }
+
+  public void testToString() {
+    assertNotNull(ConnectionType.AGENT.toString());
+    AssertUtilities.assertNotEquals(ConnectionType.AGENT.toString(),
+                                    ConnectionType.CONSOLE_CLIENT.toString());
+    AssertUtilities.assertNotEquals(ConnectionType.CONSOLE_CLIENT.toString(),
+                                    ConnectionType.WORKER.toString());
+    AssertUtilities.assertNotEquals(ConnectionType.WORKER.toString(),
+                                    ConnectionType.AGENT.toString());  }
 
   public void testEquality() throws Exception {
     assertEquals(ConnectionType.AGENT.hashCode(),
@@ -55,6 +66,7 @@ public class TestConnectionType extends TestCase {
 
     assertTrue(!ConnectionType.AGENT.equals(ConnectionType.WORKER));
     assertTrue(!ConnectionType.WORKER.equals(ConnectionType.AGENT));
+    assertTrue(!ConnectionType.CONSOLE_CLIENT.equals(ConnectionType.AGENT));
 
     assertTrue(!ConnectionType.WORKER.equals(new Object()));
   }
@@ -62,12 +74,15 @@ public class TestConnectionType extends TestCase {
   public void testSerialisation() throws Exception {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     ConnectionType.AGENT.write(outputStream);
+    ConnectionType.CONSOLE_CLIENT.write(outputStream);
     ConnectionType.WORKER.write(outputStream);
 
     final InputStream inputSteam =
       new ByteArrayInputStream(outputStream.toByteArray());
 
     assertEquals(ConnectionType.AGENT, ConnectionType.read(inputSteam));
+    assertEquals(ConnectionType.CONSOLE_CLIENT,
+                 ConnectionType.read(inputSteam));
     assertEquals(ConnectionType.WORKER, ConnectionType.read(inputSteam));
 
     try {

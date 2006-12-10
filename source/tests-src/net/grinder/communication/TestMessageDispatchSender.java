@@ -136,12 +136,10 @@ public class TestMessageDispatchSender extends TestCase {
 
     messageDispatchSender.set(
       SimpleMessage.class,
-      new BlockingSender() {
+      new MessageDispatchRegistry.AbstractBlockingHandler() {
         public Message blockingSend(Message message)  {
           return responseMessage;
         }
-
-        public void shutdown() { }
       });
 
     final MessageRequiringResponse messageRequiringResponse2 =
@@ -150,6 +148,75 @@ public class TestMessageDispatchSender extends TestCase {
 
     messageDispatchSender.send(messageRequiringResponse2);
     senderStubFactory.assertSuccess("send", responseMessage);
+    senderStubFactory.assertNoMoreCalls();
+
+    // Finally, check that fallback handler can handle response.
+    final Message responseMessage2 = new SimpleMessage();
+
+    messageDispatchSender.addFallback(
+      new MessageDispatchRegistry.AbstractHandler() {
+        public void send(Message message) throws CommunicationException {
+          if (message instanceof MessageRequiringResponse) {
+            final MessageRequiringResponse m =
+              (MessageRequiringResponse) message;
+            m.sendResponse(responseMessage2);
+          }
+        }
+      });
+
+    final MessageRequiringResponse messageRequiringResponse3 =
+      new MessageRequiringResponse(new OtherMessage());
+    messageRequiringResponse3.setResponder(sender);
+
+    messageDispatchSender.send(messageRequiringResponse3);
+    senderStubFactory.assertSuccess("send", responseMessage2);
+    senderStubFactory.assertNoMoreCalls();
+  }
+
+  public void testWithBadHandlers() throws Exception {
+    final MessageDispatchSender messageDispatchSender =
+      new MessageDispatchSender();
+
+    final Message message = new SimpleMessage();
+
+    final RandomStubFactory senderStubFactory =
+      new RandomStubFactory(Sender.class);
+    final Sender handler = (Sender)senderStubFactory.getStub();
+
+    final CommunicationException communicationException =
+      new CommunicationException("");
+    senderStubFactory.setThrows("send", communicationException);
+
+    messageDispatchSender.addFallback(handler);
+
+    try {
+      messageDispatchSender.send(message);
+    }
+    catch (CommunicationException e) {
+      assertSame(communicationException, e);
+    }
+
+    senderStubFactory.assertException(
+      "send",
+      new Class[] { Message.class, },
+      communicationException);
+
+    senderStubFactory.assertNoMoreCalls();
+
+    messageDispatchSender.set(SimpleMessage.class, handler);
+
+    try {
+      messageDispatchSender.send(message);
+    }
+    catch (CommunicationException e) {
+      assertSame(communicationException, e);
+    }
+
+    senderStubFactory.assertException(
+      "send",
+      new Class[] { Message.class, },
+      communicationException);
+
     senderStubFactory.assertNoMoreCalls();
   }
 
@@ -178,13 +245,21 @@ public class TestMessageDispatchSender extends TestCase {
     messageDispatchSender.addFallback(sender);
     messageDispatchSender.addFallback(sender);
 
+    final RandomStubFactory responderStubFactory =
+      new RandomStubFactory(BlockingSender.class);
+    final BlockingSender responder =
+      (BlockingSender)responderStubFactory.getStub();
+    messageDispatchSender.set(OtherMessage.class, responder);
+
     messageDispatchSender.shutdown();
 
     handlerStubFactory.assertSuccess("shutdown");
     handlerStubFactory.assertNoMoreCalls();
     senderStubFactory.assertSuccess("shutdown");
-    senderStubFactory.assertSuccess("shutdown"); // Registered twice.
+    senderStubFactory.assertSuccess("shutdown"); // Registered thrice.
     senderStubFactory.assertNoMoreCalls();
+    responderStubFactory.assertSuccess("shutdown");
+    responderStubFactory.assertNoMoreCalls();
   }
 
   public static final class HandlerSenderStubFactory
