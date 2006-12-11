@@ -62,7 +62,7 @@ import net.grinder.util.thread.UncheckedInterruptedException;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class Model implements ModelInterface {
+public final class ModelImplementation implements ModelInterface {
 
   /**
    * Constant that represents the model state of <em>waiting for a
@@ -136,13 +136,13 @@ public final class Model implements ModelInterface {
   private long m_currentTime;
 
   /**
-   * Creates a new <code>Model</code> instance.
+   * Creates a new <code>ModelImplementation</code> instance.
    *
    * @param properties The console properties.
    * @param statisticsServices Statistics services.
    * @exception GrinderException if an error occurs
    */
-  public Model(ConsoleProperties properties,
+  public ModelImplementation(ConsoleProperties properties,
                StatisticsServices statisticsServices)
     throws GrinderException {
 
@@ -481,9 +481,9 @@ public final class Model implements ModelInterface {
 
   /**
    * I've thought a couple of times about replacing this with a
-   * java.util.TimerTask, and giving Model a Timer thread. Its not as
-   * nice as it first seems though because you have to deal with
-   * cancelling and rescheduling the TimerTask when the sample period
+   * java.util.TimerTask, and giving ModelImplementation a Timer thread.
+   * It's not as nice as it first seems though because you have to deal with
+   * canceling and rescheduling the TimerTask when the sample period
    * is changed.
    */
   private final class Sampler implements Runnable {

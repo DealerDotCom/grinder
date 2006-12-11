@@ -44,7 +44,7 @@ import net.grinder.console.messages.RegisterExpressionViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.console.model.Model;
+import net.grinder.console.model.ModelImplementation;
 import net.grinder.console.swingui.ConsoleUI;
 import net.grinder.statistics.StatisticsServicesImplementation;
 
@@ -80,8 +80,9 @@ public class Console {
       new ConsoleProperties(resources,
                             new File(homeDirectory, ".grinder_console"));
 
-    final Model model =
-      new Model(properties, StatisticsServicesImplementation.getInstance());
+    final ModelImplementation model =
+      new ModelImplementation(
+        properties, StatisticsServicesImplementation.getInstance());
 
     final Timer timer = new Timer(true);
 

@@ -28,7 +28,7 @@ import net.grinder.statistics.ExpressionView;
 
 
 /**
- * Interface for listeners to {@link Model}.
+ * Interface for listeners to {@link ModelImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$

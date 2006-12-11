@@ -27,7 +27,7 @@ import java.io.Writer;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.Model;
+import net.grinder.console.model.ModelImplementation;
 import net.grinder.statistics.StatisticsSet;
 
 
@@ -43,7 +43,8 @@ final class CumulativeStatisticsTableModel
   private boolean m_includeTotals = true;
   private final String m_totalString;
 
-  public CumulativeStatisticsTableModel(Model model, Resources resources)
+  public CumulativeStatisticsTableModel(
+    ModelImplementation model, Resources resources)
     throws ConsoleException {
 
     super(model, resources);

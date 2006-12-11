@@ -35,7 +35,7 @@ import javax.swing.JPanel;
 
 import net.grinder.common.Test;
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.Model;
+import net.grinder.console.model.ModelImplementation;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
@@ -58,7 +58,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 
   private final Dimension m_preferredSize = new Dimension();
 
-  private final Model m_model;
+  private final ModelImplementation m_model;
   private final Resources m_resources;
   private final SwingDispatcherFactory m_swingDispatcherFactory;
   private final String m_testLabel;
@@ -70,7 +70,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   private final Map m_components = new HashMap();
 
   TestGraphPanel(JComponent parentComponent,
-                 Model model,
+                 ModelImplementation model,
                  Resources resources,
                  SwingDispatcherFactory swingDispatcherFactory) {
 
@@ -96,10 +96,13 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   }
 
   /**
-   * Model listener interface called when new tests have been registered.
+   * ModelImplementation listener interface called when new tests have been
+   * registered.
    *
-   * @param newTests The new tests.
-   * @param modelTestIndex Updated test index.
+   * @param newTests
+   *          The new tests.
+   * @param modelTestIndex
+   *          Updated test index.
    */
   public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
 

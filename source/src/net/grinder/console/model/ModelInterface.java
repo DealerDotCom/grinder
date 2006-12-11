@@ -23,7 +23,7 @@ package net.grinder.console.model;
 
 
 /**
- * Interface to {@Model}.
+ * Interface to {@ModelImplementation}.
  *
  * <p>Initially created to provide an abstraction to the console client
  * handler. Will refactor over time so that the model interface is
