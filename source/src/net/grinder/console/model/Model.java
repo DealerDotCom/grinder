@@ -32,7 +32,7 @@ package net.grinder.console.model;
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface ModelInterface {
+public interface Model {
 
   /**
    * Reset the model.

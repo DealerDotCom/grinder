@@ -62,7 +62,7 @@ import net.grinder.util.thread.UncheckedInterruptedException;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ModelImplementation implements ModelInterface {
+public final class ModelImplementation implements Model {
 
   /**
    * Constant that represents the model state of <em>waiting for a

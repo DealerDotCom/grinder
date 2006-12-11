@@ -28,7 +28,7 @@ import net.grinder.console.communication.server.messages.ResetRecordingMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
-import net.grinder.console.model.ModelInterface;
+import net.grinder.console.model.Model;
 
 
 
@@ -40,14 +40,14 @@ import net.grinder.console.model.ModelInterface;
  */
 public class DispatchClientCommands {
 
-  private final ModelInterface m_model;
+  private final Model m_model;
 
   /**
    * Constructor for DispatchClientCommands.
    *
    * @param model The model.
    */
-  public DispatchClientCommands(ModelInterface model) {
+  public DispatchClientCommands(Model model) {
     m_model = model;
   }
 
