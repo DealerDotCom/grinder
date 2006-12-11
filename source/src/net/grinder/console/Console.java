@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +37,7 @@ import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.communication.ProcessStatus;
+import net.grinder.console.communication.server.DispatchClientCommands;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionImplementation;
 import net.grinder.console.messages.RegisterExpressionViewMessage;
@@ -58,7 +59,6 @@ import net.grinder.statistics.StatisticsServicesImplementation;
 public class Console {
 
   private final ConsoleCommunication m_communication;
-  private final Model m_model;
   private final ConsoleUI m_userInterface;
 
   /**
@@ -80,7 +80,7 @@ public class Console {
       new ConsoleProperties(resources,
                             new File(homeDirectory, ".grinder_console"));
 
-    m_model =
+    final Model model =
       new Model(properties, StatisticsServicesImplementation.getInstance());
 
     final Timer timer = new Timer(true);
@@ -128,7 +128,7 @@ public class Console {
       });
 
     m_userInterface =
-      new ConsoleUI(m_model,
+      new ConsoleUI(model,
                     m_communication.getProcessControl(),
                     fileDistribution,
                     resources);
@@ -142,7 +142,7 @@ public class Console {
       RegisterTestsMessage.class,
       new AbstractHandler() {
         public void send(Message message) {
-          m_model.registerTests(((RegisterTestsMessage)message).getTests());
+          model.registerTests(((RegisterTestsMessage)message).getTests());
         }
       });
 
@@ -150,7 +150,7 @@ public class Console {
       ReportStatisticsMessage.class,
       new AbstractHandler() {
         public void send(Message message) {
-          m_model.addTestReport(
+          model.addTestReport(
             ((ReportStatisticsMessage)message).getStatisticsDelta());
         }
       });
@@ -159,10 +159,14 @@ public class Console {
       RegisterExpressionViewMessage.class,
       new AbstractHandler() {
         public void send(Message message) {
-          m_model.registerStatisticExpression(
+          model.registerStatisticExpression(
             ((RegisterExpressionViewMessage)message).getExpressionView());
         }
       });
+
+    final DispatchClientCommands dispatchClientCommands =
+      new DispatchClientCommands(model);
+    dispatchClientCommands.registerMessageHandlers(messageDispatchRegistry);
   }
 
   /**
