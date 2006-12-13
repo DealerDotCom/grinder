@@ -18,22 +18,6 @@ against it too :-).
 
 ** Console API
 
-*** Protocols
-
-// Should doc this somewhere better.
-Hessian not good - requires a servlet engine.
-Sync calls add complexity to the comms engine
-Reconsider RMI???
-  - Should read tutorial
-
-Synchronous is better than pure one way
-   - More natural API
-   - Can probably get away without asynchronous event channel
-    - If server side locked response channel correctly, it could send
-      events. Would need client side to intercept these.
-
-Go with simple blocking sync. API for now.
-
 *** API
 
 Process control
@@ -45,7 +29,7 @@ Process control
 
  void setScript(...?)
 
-Recording control
+Recording control (done).
 
  void startRecording()
  void stopRecording()
