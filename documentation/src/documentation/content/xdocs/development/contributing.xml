@@ -8,6 +8,8 @@
 </header>
 
 <body>
+  <section>
+  <title>The Source</title>
 
   <p>The Subversion repository for the source code and the documentation source
   is available for read-only anonymous access from SourceForge. To check out
@@ -22,6 +24,32 @@
   changes to this repository via <a href="ext:cia/grinder">CIA</a>. Note, the
   published documentation refers to the latest released version of The Grinder,
   and so can lag Subversion by a month or two.</p>
+
+  </section>
+
+  <section>
+  <title>What do I need to build The Grinder?</title>
+
+  <p>If you want to build The Grinder from source, you'll need:</p>
+
+  <table class="noborder">
+    <tr>
+      <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.6.2</a></td>
+      <td>to build The Grinder from source</td>
+    </tr>
+    <tr>
+      <td><a href="ext:sourceforge/junit/">JUnit 3.8.1</a></td>
+      <td>to run the unit tests</td>
+    </tr>
+    <tr>
+      <td><a href="ext:checkstyle">Checkstyle 3.4</a></td>
+      <td>to check the formatting of changes you may make to The Grinder</td>
+    </tr>
+  </table>
+
+  <p>Later versions of these packages should also work.</p>
+
+  </section>
 
   <section>
   <title>How to give back</title>

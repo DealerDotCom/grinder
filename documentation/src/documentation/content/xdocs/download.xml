@@ -22,7 +22,8 @@
   <code>grinder-3.0-version.zip</code>. The remaining
   files that are needed to build The Grinder are distributed in the zip file
   labelled <code>grinder-3.0-version-src.zip</code>; these are mainly of
-  interest to developers wanting to extend The Grinder.
+  interest to developers wanting to <a href="site:development/contributing">
+  extend The Grinder</a>.
   </p>
 
   <section>
@@ -45,32 +46,16 @@
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:javasoft/jsse/">JSSE 1.0.2</a></td>
-      <td>for SSL support with The Grinder 2 (see below)</td>
-    </tr>
-    <tr>
-      <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.5.1</a></td>
-      <td>to build The Grinder from source</td>
-    </tr>
-    <tr>
-      <td><a href="ext:sourceforge/junit/">JUnit 3.8.1</a></td>
-      <td>to test The Grinder itself</td>
-    </tr>
-    <tr>
-      <td><a href="ext:checkstyle">Checkstyle 3.4</a></td>
-      <td>to check the formatting of changes you may make to The Grinder</td>
+      <td><a href="ext:javasoft/jsse/">
+        JSSE (Java Secure Socket Extension) 1.0.2</a></td>
+      <td>for SSL support with The Grinder 2.
+
+      <p>Note, JSSE is a standard part of Java 2 Standard Edition 1.4.1 and later.</p>
+      </td>
     </tr>
   </table>
-
-  <p>Later versions of these packages should also work.</p>
-
-  <note>JSSE (Java Secure Socket Extension) is a standard part of Java 2
-  Standard Edition 1.4.1 and later. To simplify SSL and HTTPS
-  configuration, JSSE is now <em>required</em> for The Grinder 3.
-  Consequently you may find it easier to use J2SE 1.4.1 with The
-  Grinder 3.</note>
-
   </section>
+
 </section>
 
 </body>
