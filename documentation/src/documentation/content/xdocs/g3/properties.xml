@@ -332,7 +332,7 @@
           <code>System.currentTimeMills()</code>. The Grinder will still report
           times in milliseconds. The precision of these methods depends on the
           JVM implementation and the operating system. Settting to
-          <code>true</code> requires J2SE 5 or later.</td>
+          <code>true</code> requires <a href="ext:j2se15">J2SE 5</a> or later.</td>
 
           <td>false</td>
     </tr>
