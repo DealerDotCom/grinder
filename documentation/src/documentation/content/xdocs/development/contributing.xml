@@ -11,8 +11,8 @@
   <section>
   <title>The Source</title>
 
-  <p>The Subversion repository for the source code and the documentation source
-  is available for read-only anonymous access from SourceForge. To check out
+  <p>The <a href="ext:svn">Subversion</a> repository for the source code and the documentation source
+  is available for <a href="ext:sourceforge/svn">read-only anonymous access from SourceForge</a>. To check out
   the source code, you'll want to do something like this:
   </p>
 
@@ -20,8 +20,8 @@
   $ svn co https://grinder.svn.sourceforge.net/svnroot/grinder/trunk/source grinder
   </source>
 
-  <p>You can monitor
-  changes to this repository via <a href="ext:cia/grinder">CIA</a>. Note, the
+  <p>You can <a href="ext:sourceforge/vcview">browse this repository</a>, and monitor
+  changes to the repository via <a href="ext:cia/grinder">CIA</a>. Note, the
   published documentation refers to the latest released version of The Grinder,
   and so can lag Subversion by a month or two.</p>
 
@@ -34,9 +34,30 @@
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.6.2</a></td>
-      <td>to build The Grinder from source</td>
+      <td><a href="ext:jakarta/j2se14">J2SE 1.4 or higher</a></td>
+      <td></td>
     </tr>
+    <tr>
+      <td><a href="ext:jakarta/j2se15">J2SE 1.5 or higher</a></td>
+      <td>To build compile optional J2SE 1.5 specific code</td>
+    </tr>
+    <tr>
+      <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.6.2</a></td>
+      <td></td>
+    </tr>
+  </table>
+
+  <p>Later versions of these packages should also work.</p>
+
+  </section>
+
+  <section>
+  <title>What do I need to test and package The Grinder?</title>
+
+  <p>The following optional packages are necessary to run The Grinder unit
+tests, reports, and release process.</p>
+
+  <table class="noborder">
     <tr>
       <td><a href="ext:sourceforge/junit/">JUnit 3.8.1</a></td>
       <td>to run the unit tests</td>
@@ -45,6 +66,15 @@
       <td><a href="ext:checkstyle">Checkstyle 3.4</a></td>
       <td>to check the formatting of changes you may make to The Grinder</td>
     </tr>
+    <tr>
+      <td><a href="ext:clover">Clover 1.3.5</a></td>
+      <td>to check unit test coverage</td>
+    </tr>
+    <tr>
+      <td><a href="ext:svnant">svnant 1.0.0</a></td>
+      <td>to run the Ant tasks that release The Grinder</td>
+    </tr>
+
   </table>
 
   <p>Later versions of these packages should also work.</p>

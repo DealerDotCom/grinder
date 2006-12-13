@@ -245,7 +245,13 @@ See http://forrest.apache.org/docs/linking.html for more info
       <junit href="projects/junit"/>
       <extra-line href="tracker/index.php?func=detail&amp;aid=1081136&amp;group_id=18598&amp;atid=118598"/>
       <grinder-mail href="mail/?group_id=18598"/>
+      <svn href="svn/?group_id=18598"/>
+      <vcview href="http://grinder.svn.sourceforge.net/viewvc/grinder/trunk/source"/>
     </sourceforge>
+
+    <svn href="http://subversion.tigris.org/"/>
+
+    <svnant href="http://subclipse.tigris.org/svnant.html"/>
 
     <swtest-discuss href="http://lists.topica.com/lists/swtest-discuss/"/>
 
