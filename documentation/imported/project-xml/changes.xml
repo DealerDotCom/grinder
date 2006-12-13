@@ -14,6 +14,10 @@ Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=159316
 Added MQ library and example code from Phillip Mayhew to the contrib directory. </p>
 <p>
 Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1592664&amp;group_id=18598&amp;atid=118598">bug 1592664</a> - InterruptedException when grinder.processes &gt; 1. This is due to JRE badness that I've had to work around. Thanks to Stephane Nicoll and whoever opened the bug for the reports. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1604111&amp;group_id=18598&amp;atid=118598">bug 1604111</a> - Deadlock on shutdown (TCPProxy). Thanks to Graham Sweetland for his assistance in reproducing this problem. </p>
+<p>
+Added an initial version of the console API. This API is under development and not stable. It will grow and change over the next few releases. Its not ready for mass consumption yet, but advanced users can check out the API (net.grinder.console.client.ConsoleClient). </p>
 </section>
 <section name='The Grinder 3.0-beta31' id='The Grinder 3.0-beta31'>
 <p>

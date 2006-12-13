@@ -15,26 +15,6 @@ The TODO list is part of the binary distribution. I'll accept patches against it
 </ul>
 <section name='Enhancements' depth='1' id='Enhancements'>
 <section name='Console API' depth='2' id='Console API'>
-<section name='Protocols' depth='3' id='Protocols'>
-<p>
-// Should doc this somewhere better. Hessian not good - requires a servlet engine. Sync calls add complexity to the comms engine Reconsider RMI??? </p>
-<ul>
-<li>
- Should read tutorial </li>
-</ul>
-<p>
-Synchronous is better than pure one way </p>
-<ul>
-<li>
- More natural API </li>
-<li>
- Can probably get away without asynchronous event channel </li>
-<li>
- If server side locked response channel correctly, it could send events. Would need client side to intercept these. </li>
-</ul>
-<p>
-Go with simple blocking sync. API for now. </p>
-</section>
 <section name='API' depth='3' id='API'>
 <p>
 Process control </p>
@@ -43,7 +23,7 @@ void startWorkerProcess(some id) void stopWorkerProcess(some id) List&lt;Process
 <p>
 void setScript(...?) </p>
 <p>
-Recording control </p>
+Recording control (done). </p>
 <p>
 void startRecording() void stopRecording() void resetRecording() </p>
 </section>
