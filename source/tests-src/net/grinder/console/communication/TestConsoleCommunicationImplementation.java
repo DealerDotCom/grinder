@@ -245,7 +245,7 @@ public class TestConsoleCommunicationImplementation
     while (m_consoleCommunication.getNumberOfConnections() != 1) {
       distributionControl.clearFileCaches();
       ++n;
-      assert (n < 10);
+      assertTrue(n < 10);
     }
 
     for (int i = 0; i < n; ++i) {
