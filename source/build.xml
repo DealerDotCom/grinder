@@ -25,7 +25,7 @@ What do I need?
 As well as Ant, to build and run The Grinder you need:
 
   - J2SE 1.4.1 or later
-  - J2SE 5 (to build option J2SE 5 specific code)
+  - J2SE 5 (to build optional J2SE 5 specific code)
 
 The following addtional packages are necessary to build and run The Grinder.
 They are bundled in the lib directory:
@@ -34,14 +34,19 @@ They are bundled in the lib directory:
   - Apache XMLBeans 2.1.0
   - PicoContainer 1.2-RC-1
 
-The following additional packages are necesary to run The Grinder unit
-tests, reports.
+The following optional packages are necessary to run The Grinder unit
+tests, reports, and release process.
 
   - JUnit 3.8.1
   - Checkstyle 3.4
   - Clover 1.3.5
+  - svnant 1.0.0
 
   (You might not need these exact versions).
+
+If you are using svnant and have Cygwin svn installed, ensure you put
+the javahl library in your PATH. Otherwise svnant will pass Cygwin svn
+windows paths, which it won't like.
 
 
 What do I do?
@@ -78,7 +83,7 @@ what you want. Currently the conditionally built modules are:
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
   <property name="version" value="3.0-beta32"/> <!-- AND THE NEXT LINE -->
-  <property name="cvs.tag" value="release_3_0_beta32"/>
+  <property name="release.tag" value="release_3_0_beta32"/>
 
   <property name="year" value="2006"/>
 
@@ -192,7 +197,7 @@ what you want. Currently the conditionally built modules are:
     <path id="picocontainer.classpath">
       <!-- Must use fileset, pathelement doesn't accept wildcards. -->
       <fileset dir="${lib.dir}">
-  <include name="picocontainer-*.jar"/>
+	<include name="picocontainer-*.jar"/>
       </fileset>
     </path>
 
@@ -207,6 +212,12 @@ what you want. Currently the conditionally built modules are:
       <path refid="picocontainer.classpath"/>
       <path refid="xmlbeans.classpath"/>
       <pathelement path="${xmlbeans.jar}"/>
+    </path>
+
+    <path id="svnant.classpath">
+      <pathelement path="${svnant.home}/lib/svnant.jar"/>
+      <pathelement path="${svnant.home}/lib/svnClientAdapter.jar"/>
+      <pathelement path="${svnant.home}/lib/svnjavahl.jar"/>
     </path>
 
     <!-- options -->
@@ -224,6 +235,10 @@ what you want. Currently the conditionally built modules are:
 
     <available file="${grinder-doc.dir}/build.xml"
                property="have.grinder-doc-build"/>
+
+    <available classpathref="svnant.classpath"
+               resource="svntask.properties"
+               property="have.svnant"/>
 
     <!-- filter tokens -->
     <filter token="version" value="${version}"/>
@@ -247,6 +262,10 @@ what you want. Currently the conditionally built modules are:
 
   <target name="assert-have-grinder-doc-build" unless="have.grinder-doc-build">
     <fail message="To build this target, edit etc/localpaths.properties and set grinder-doc.dir to a valid grinder documentation build"/>
+  </target>
+
+  <target name="assert-have-svnant" unless="have.svnant">
+    <fail message="To build this target, edit etc/localpaths.properties and set svnant.home to a valid svnant installation"/>
   </target>
 
   <target name="assert-have-everything"
@@ -556,8 +575,8 @@ what you want. Currently the conditionally built modules are:
 
     <delete>
       <fileset dir="${xml-output.dir}">
-        <exclude name="**/CVS"/>
-        <exclude name="**/CVS/**"/>
+        <exclude name="**/.svn"/>
+        <exclude name="**/.svn/**"/>
       </fileset>
     </delete>
 
@@ -680,8 +699,8 @@ what you want. Currently the conditionally built modules are:
 
     <delete>
       <fileset dir="${script-javadoc-output.dir}">
-        <exclude name="**/CVS"/>
-        <exclude name="**/CVS/**"/>
+        <exclude name="**/.svn"/>
+        <exclude name="**/.svn/**"/>
       </fileset>
     </delete>
 
@@ -746,11 +765,29 @@ what you want. Currently the conditionally built modules are:
     </antcall>
   </target>
 
+  <target name="svn-diff" depends="init,assert-have-svnant">
+    <taskdef resource="svntask.properties"
+             classpathref="svnant.classpath"/>
+
+    <tempfile property="temp.file" prefix="svndiff"/>
+
+    <svn>
+      <diff oldTargetRevision="HEAD" 
+	    outFile="${temp.file}"/>
+    </svn>
+
+    <concat>
+      <fileset file="${temp.file}"/>
+    </concat>
+
+    <delete file="${temp.file}"/>
+  </target>
+
   <target name="release" depends="realclean,all,checkstyle,test,javadoc,release-documentation"
           description="Generates a release.">
 
-    <echo message="Running cvs diff"/>
-    <cvs command="diff" quiet="true"/>
+    <echo message="Running svn diff"/>
+    <antcall target="svn-diff"/>
 
     <echo message=""/>
     <echo message=""/>
@@ -768,8 +805,8 @@ what you want. Currently the conditionally built modules are:
 
     <fail if="do.abort">Build aborted by user.</fail>
 
-    <echo message="Running cvs tag"/>
-    <cvs command="tag -R -F ${cvs.tag}" quiet="true"/>
+    <echo message="Running svn tag"/>
+    <svn command="tag -R -F ${release.tag}" quiet="true"/>
 
     <echo message="Building release"/>
     <mkdir dir="${release.dir}"/>
