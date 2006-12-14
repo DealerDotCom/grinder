@@ -1,5 +1,5 @@
-The Grinder 3.0-beta32 <not yet released>
------------------------------------------
+The Grinder 3.0-beta32
+----------------------
 
   Fix bug 1577573 - valueFromBodyURI() could be optimised. TCPProxy
   recorded scripts use this method, and its previous inefficiency
@@ -24,6 +24,11 @@ The Grinder 3.0-beta32 <not yet released>
 
   Fix bug 1604111 - Deadlock on shutdown (TCPProxy). Thanks to Graham
   Sweetland for his assistance in reproducing this problem.
+
+  Added an initial version of the console API. This API is under
+  development and not stable. It will grow and change over the next
+  few releases. Its not ready for mass consumption yet, but advanced
+  users can check out the API (net.grinder.console.client.ConsoleClient).
 
 
 The Grinder 3.0-beta31
