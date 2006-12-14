@@ -1,3 +1,35 @@
+2006-12-14 [r3387-3388]  Philip Aston
+
+	* CHANGES: Release documentation.
+
+	* build.xml: Add svn to ant build - part 2. Tag releases.
+
+2006-12-13 [r3380-3382]  Philip Aston
+
+	* build.xml, etc/localpaths.properties, etc/buildenv.sh: Add svn to
+	  ant build - part 1.
+
+	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
+	  assert -> assertTrue.
+
+	* .settings/org.eclipse.core.resources.prefs (removed): Eclipse
+	  stuff.
+
+2006-12-13 [r3379]  Philip Aston
+
+	* TODO: Progress.
+
+2006-12-13 [r3375]  Philip Aston
+
+	* etc/svn2log.sh, etc/setenv.sh, etc/publish.sh, etc/buildenv.sh:
+	  Give .sh files unix line endings to avoid problems with recent
+	  cygwin bash.
+
+2006-12-12 [r3373]  Philip Aston
+
+	* etc/svn2log.sh (added), ChangeLog, etc/svn2logusers (added): Use
+	  svn2log to generate ChangeLog.
+
 2006-12-11 [r3372]  Philip Aston
 
 	* src/net/grinder/console/model/ModelImplementation.java,
