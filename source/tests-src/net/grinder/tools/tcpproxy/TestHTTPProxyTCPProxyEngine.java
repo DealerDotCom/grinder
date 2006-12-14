@@ -376,6 +376,11 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     waitUntilAllStreamThreadsStopped(engine);
 
+    assertTrue(m_requestFilterStubFactory.getCallHistory().indexOf(
+               "connectionClosed") != -1 &&
+               m_responseFilterStubFactory.getCallHistory().indexOf(
+               "connectionClosed") != -1);
+
     m_requestFilterStubFactory.assertSuccess("handle",
                                              ConnectionDetails.class,
                                              new byte[0].getClass(),
@@ -392,7 +397,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     // handle() must have been called at least 3 times, but can be called
     // more.
     while (m_requestFilterStubFactory.peekFirst() != null &&
-           m_requestFilterStubFactory.peekFirst().getMethod()
+           m_requestFilterStubFactory.peekFirst().getMethod().getName()
            .equals("handle")) {
       m_requestFilterStubFactory.assertSuccess("handle",
                                                ConnectionDetails.class,
@@ -414,7 +419,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
                                               Integer.class);
 
     while (m_responseFilterStubFactory.peekFirst() != null &&
-           m_responseFilterStubFactory.peekFirst().getMethod()
+           m_responseFilterStubFactory.peekFirst().getMethod().getName()
            .equals("handle")) {
       m_responseFilterStubFactory.assertSuccess("handle",
                                                 ConnectionDetails.class,
