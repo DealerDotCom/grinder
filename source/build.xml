@@ -106,6 +106,9 @@ what you want. Currently the conditionally built modules are:
   <property name="export-to-doc-build.dir"
             value="${grinder-doc.dir}/imported"/>
 
+  <property name="svn.url"
+            value="https://grinder.svn.sourceforge.net/svnroot/grinder"/>
+
   <!-- output -->
   <!-- classes.dir is calcuated in init. -->
   <property name="build.dir" value="${basedir}/build"/>
@@ -197,7 +200,7 @@ what you want. Currently the conditionally built modules are:
     <path id="picocontainer.classpath">
       <!-- Must use fileset, pathelement doesn't accept wildcards. -->
       <fileset dir="${lib.dir}">
-	<include name="picocontainer-*.jar"/>
+  <include name="picocontainer-*.jar"/>
       </fileset>
     </path>
 
@@ -769,11 +772,13 @@ what you want. Currently the conditionally built modules are:
     <taskdef resource="svntask.properties"
              classpathref="svnant.classpath"/>
 
+    <!-- <svn><status></svn> is no good - only deals with single file. -->
+
     <tempfile property="temp.file" prefix="svndiff"/>
 
     <svn>
-      <diff oldTargetRevision="HEAD" 
-	    outFile="${temp.file}"/>
+      <diff oldTargetRevision="HEAD"
+      outFile="${temp.file}"/>
     </svn>
 
     <concat>
@@ -782,6 +787,19 @@ what you want. Currently the conditionally built modules are:
 
     <delete file="${temp.file}"/>
   </target>
+
+  <target name="svn-tag" depends="init,assert-have-svnant">
+    <taskdef resource="svntask.properties"
+             classpathref="svnant.classpath"/>
+
+    <svn>
+      <copy
+        srcUrl="${svn.url}/trunk/"
+        destUrl="${svn.url}/tags/${release.tag}/"
+        message="Tag release ${release.tag}"/>
+    </svn>
+  </target>
+
 
   <target name="release" depends="realclean,all,checkstyle,test,javadoc,release-documentation"
           description="Generates a release.">
@@ -805,8 +823,8 @@ what you want. Currently the conditionally built modules are:
 
     <fail if="do.abort">Build aborted by user.</fail>
 
-    <echo message="Running svn tag"/>
-    <svn command="tag -R -F ${release.tag}" quiet="true"/>
+    <echo message="Tagging the repository"/>
+    <antcall target="svn-tag"/>
 
     <echo message="Building release"/>
     <mkdir dir="${release.dir}"/>
