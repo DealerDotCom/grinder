@@ -1,7 +1,7 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
-<section name='The Grinder 3.0-beta32 &lt;not yet released&gt;' id='The Grinder 3.0-beta32 &lt;not yet released&gt;'>
+<section name='The Grinder 3.0-beta32' id='The Grinder 3.0-beta32'>
 <p>
 Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1577573&amp;group_id=18598&amp;atid=118598">bug 1577573</a> - valueFromBodyURI() could be optimised. TCPProxy recorded scripts use this method, and its previous inefficiency caused beta 30 and beta 31 to be overly demanding of CPU and memory. Thanks to Andy Kim for the original bug report. </p>
 <p>
