@@ -768,12 +768,13 @@ what you want. Currently the conditionally built modules are:
     </antcall>
   </target>
 
-  <target name="svn-diff" depends="init,assert-have-svnant">
-    <taskdef resource="svntask.properties"
-             classpathref="svnant.classpath"/>
+  <target name="svn-init" depends="init,assert-have-svnant">
+    <!-- svn-init exists to ensure we do the taskdef only once, otherwise
+         javahl is not found after the second taskdef. -->
+    <taskdef resource="svntask.properties" classpathref="svnant.classpath"/>
+  </target>
 
-    <!-- <svn><status></svn> is no good - only deals with single file. -->
-
+  <target name="svn-diff" depends="init,svn-init">
     <tempfile property="temp.file" prefix="svndiff"/>
 
     <svn>
@@ -788,15 +789,11 @@ what you want. Currently the conditionally built modules are:
     <delete file="${temp.file}"/>
   </target>
 
-  <target name="svn-tag" depends="init,assert-have-svnant">
-    <taskdef resource="svntask.properties"
-             classpathref="svnant.classpath"/>
-
+  <target name="svn-tag" depends="init,svn-init">
     <svn>
-      <copy
-        srcUrl="${svn.url}/trunk/"
-        destUrl="${svn.url}/tags/${release.tag}/"
-        message="Tag release ${release.tag}"/>
+      <copy srcUrl="${svn.url}/trunk/"
+            destUrl="${svn.url}/tags/${release.tag}/"
+            message="Tag release ${release.tag}"/>
     </svn>
   </target>
 
