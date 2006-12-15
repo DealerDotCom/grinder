@@ -1,4 +1,22 @@
-2006-12-14 [r3387-3388]  Philip Aston
+2006-12-15 [r3394]  Philip Aston
+
+	* build.xml: Only initialise the svn tasks once, otherwise they
+	  don't work with javahl. - Try again.
+
+2006-12-15 [r3393]  Philip Aston
+
+	* build.xml: Only initialise the svn tasks once, otherwise they
+	  don't work with javahl.
+
+2006-12-14 [r3392]  Philip Aston
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java:
+	  Really fix incorrect assertions about number of calls to handle()
+	  for the good engine tests.
+
+2006-12-14 [r3387-3389]  Philip Aston
+
+	* ChangeLog: Latest change log.
 
 	* CHANGES: Release documentation.
 
