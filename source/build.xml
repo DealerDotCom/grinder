@@ -793,7 +793,7 @@ what you want. Currently the conditionally built modules are:
     <svn>
       <copy srcUrl="${svn.url}/trunk/"
             destUrl="${svn.url}/tags/${release.tag}/"
-            message="Tag release ${release.tag}"/>
+            message="Tag ${release.tag}"/>
     </svn>
   </target>
 
