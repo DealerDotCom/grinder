@@ -28,11 +28,11 @@ import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.JMenu;
+import javax.swing.SwingUtilities;
 
 
 /**
@@ -40,6 +40,11 @@ import javax.swing.JMenu;
  * {@link ContainerListener}. Uses <a href=
  * "http://weblogs.java.net/blog/enicholas/archive/2006/06/mnemonic_magic.html">
  * heuristics suggested by Ethan Nichols</a>.
+ *
+ * <p>
+ * A mnemonic can be explictly indicated for a button by prefixing the character
+ * in the button's text with an underscore.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision:$
@@ -53,10 +58,13 @@ final class MnemonicHeuristics {
       new LetterOrDigitHeuristic(),
   };
 
-  private final MnemonicSet m_existingMnemonics = new MnemonicSet();
+  private final MnemonicMap m_existingMnemonics = new MnemonicMap();
 
+  private final MnemonicChangedListener m_mnemonicChangedListener =
+    new MnemonicChangedListener();
   private final TextChangedListener m_textChangedListener =
     new TextChangedListener();
+
 
   /**
    * Each <code>MnemonicHeuristics</code> is built for a particular container.
@@ -69,8 +77,7 @@ final class MnemonicHeuristics {
    * on changes.
    * </p>
    *
-   *
-   * @param theContainer
+   * @param theContainer The container.
    */
   public MnemonicHeuristics(Container theContainer) {
 
@@ -92,8 +99,9 @@ final class MnemonicHeuristics {
     for (int i = 0; i < existingComponents.length; ++i) {
       if (existingComponents[i] instanceof AbstractButton) {
         final AbstractButton button = (AbstractButton)existingComponents[i];
-        setMnemonic(button);
+        m_mnemonicChangedListener.add(button);
         m_textChangedListener.add(button);
+        setMnemonic(button);
       }
     }
 
@@ -101,63 +109,150 @@ final class MnemonicHeuristics {
       public void componentAdded(ContainerEvent e) {
         if (e.getChild() instanceof AbstractButton) {
           final AbstractButton button = (AbstractButton)e.getChild();
-          setMnemonic(button);
+          m_mnemonicChangedListener.add(button);
           m_textChangedListener.add(button);
+          setMnemonic(button);
         }
       }
 
       public void componentRemoved(ContainerEvent e) {
+        final Component button = e.getChild();
+        m_mnemonicChangedListener.remove(button);
         m_textChangedListener.remove(e.getChild());
       }
     });
   }
 
-  private void setMnemonic(AbstractButton button) {
+  private void setMnemonic(final AbstractButton button) {
     final int existingMnemonic = button.getMnemonic();
 
     if (existingMnemonic != 0) {
-      m_existingMnemonics.add(existingMnemonic);
+      m_existingMnemonics.add(existingMnemonic, button);
+      return;
     }
-    else {
-      final String text = button.getText();
 
-      for (int i = 0; i < m_heuristics.length; ++i) {
-        final int result = m_heuristics[i].apply(text);
+    final String text = button.getText();
 
-        if (result != 0) {
-          button.setMnemonic(result);
-          m_existingMnemonics.add(result);
-          return;
+    // Remove our text changed listener whilst changing text to prevent
+    // recursion.
+    m_textChangedListener.remove(button);
+    button.setText(removeMnemonicMarkers(text));
+    m_textChangedListener.add(button);
+
+    // Look for explicit mnemonic indicated by an underscore in the button's
+    // text. We remove the underscores.
+    int underscore = text.indexOf('_');
+    int numberOfUnderscores = 0;
+
+    while (underscore >= 0 && underscore < text.length() - 1) {
+
+      final int explicitMnemonic = toKey(text.charAt(underscore + 1), false);
+
+      final AbstractButton existingExplicit =
+        m_existingMnemonics.getExplicit(explicitMnemonic);
+
+      // If there is an existing button with the same explicit mnemonic, it
+      // takes precedence and we fall back to other heuristics.
+      if (explicitMnemonic != 0 &&
+          existingExplicit == null || existingExplicit == button) {
+
+        final AbstractButton oldButton =
+          m_existingMnemonics.remove(explicitMnemonic);
+
+        button.setMnemonic(explicitMnemonic);
+
+        // Calling setDisplayedIndex() directly here doesn't work for text
+        // change events since it is overwritten by AbstractButton.setText(),
+        // based on the original text. I've submitted a bug to Sun.
+        //
+        // Instead, we dispatch the change in the AWT event dispatching thread,
+        // which works for the common case that setText() is called from that
+        // thread.
+        final int index = underscore - numberOfUnderscores;
+
+        SwingUtilities.invokeLater(
+          new Runnable() {
+            public void run() { button.setDisplayedMnemonicIndex(index); }
+          });
+
+        m_existingMnemonics.addExplicit(explicitMnemonic, button);
+
+        // If there is a different existing button with an implicit mnemonic,
+        // we take precedence and we calculate a new mnemonic for it.
+        if (oldButton != null && oldButton != button) {
+          oldButton.setMnemonic(0);
+          setMnemonic(oldButton);
         }
+
+        return;
+      }
+
+      // Treat subsequent underscores as indications of alternative mnemonics.
+      underscore = text.indexOf('_', underscore + 1);
+      ++numberOfUnderscores;
+    }
+
+    // No explicit mnemonic, use heuristics.
+    for (int i = 0; i < m_heuristics.length; ++i) {
+      final int result = m_heuristics[i].apply(button.getText());
+
+      if (result != 0) {
+        button.setMnemonic(result);
+        m_existingMnemonics.add(result, button);
+        return;
       }
     }
   }
 
-  private final class TextChangedListener implements PropertyChangeListener {
-    public void propertyChange(PropertyChangeEvent evt) {
-      final AbstractButton button = (AbstractButton)evt.getSource();
-      m_existingMnemonics.remove(button.getMnemonic());
-      button.setMnemonic(0);
-      setMnemonic(button);
+  private abstract class AbstractPropertyListener
+    implements PropertyChangeListener {
+
+    private final String m_property;
+
+    protected AbstractPropertyListener(String property) {
+      m_property = property;
     }
 
     public void add(Component component) {
-      component.addPropertyChangeListener(
-        AbstractButton.TEXT_CHANGED_PROPERTY, this);
+      component.addPropertyChangeListener(m_property, this);
     }
 
     public void remove(Component component) {
-      component.removePropertyChangeListener(
-        AbstractButton.TEXT_CHANGED_PROPERTY, this);
+      component.removePropertyChangeListener(m_property, this);
     }
   }
 
-  private int toKey(char c) {
+  private final class MnemonicChangedListener extends AbstractPropertyListener {
+    public MnemonicChangedListener() {
+      super(AbstractButton.MNEMONIC_CHANGED_PROPERTY);
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+      m_existingMnemonics.remove(
+        ((Integer)evt.getOldValue()).intValue(),
+        (AbstractButton)evt.getSource());
+    }
+  }
+
+  private final class TextChangedListener extends AbstractPropertyListener {
+    public TextChangedListener() {
+      super(AbstractButton.TEXT_CHANGED_PROPERTY);
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+      final AbstractButton button = (AbstractButton)evt.getSource();
+      m_existingMnemonics.remove(button.getMnemonic(), button);
+      button.setMnemonic(0);
+      setMnemonic(button);
+    }
+  }
+
+  private int toKey(char c, boolean filterExisting) {
     // We convert candidate characters to key by converting to uppercase...
     final char upper = Character.toUpperCase(c);
 
     // .. filtering out existing mnemonics...
-    if (!m_existingMnemonics.contains(upper)) {
+    if (!filterExisting || !m_existingMnemonics.contains(upper)) {
 
       // .. and throwing away anything that doesn't map to a key.
       if (KeyEvent.getKeyText(upper).equals(String.valueOf(upper))) {
@@ -166,6 +261,10 @@ final class MnemonicHeuristics {
     }
 
     return 0;
+  }
+
+  private int toKey(char c) {
+    return toKey(c, true);
   }
 
   private interface Heuristic {
@@ -221,19 +320,80 @@ final class MnemonicHeuristics {
     }
   }
 
-  private class MnemonicSet {
-    private final Set m_set = new HashSet();
+  private static class MnemonicMap {
+    private final Map m_map = new HashMap();
 
-    public boolean add(int mnemonic) {
-      return m_set.add(new Integer(mnemonic));
+    public void add(int mnemonic, AbstractButton button) {
+      m_map.put(new Integer(mnemonic), new ButtonWrapper(button, false));
     }
 
-    public boolean remove(int mnemonic) {
-      return m_set.remove(new Integer(mnemonic));
+    public void addExplicit(int mnemonic, AbstractButton button) {
+      m_map.put(new Integer(mnemonic), new ButtonWrapper(button, true));
+    }
+
+    public AbstractButton getExplicit(int mnemonic) {
+      final ButtonWrapper wrapper =
+        (ButtonWrapper)m_map.get(new Integer(mnemonic));
+
+      if (wrapper != null && wrapper.isExplicit()) {
+        return wrapper.getButton();
+      }
+
+      return null;
+    }
+
+    public AbstractButton remove(int mnemonic) {
+      final ButtonWrapper wrapper =
+        (ButtonWrapper)m_map.remove(new Integer(mnemonic));
+
+      return wrapper != null ? wrapper.getButton() : null;
+    }
+
+    /**
+     * Version of <code>remove</code> that only removes an entry if it was
+     * for a particular button.
+     */
+    public AbstractButton remove(int mnemonic, AbstractButton button) {
+      final ButtonWrapper wrapper =
+        (ButtonWrapper)m_map.get(new Integer(mnemonic));
+
+      if (wrapper != null && wrapper.getButton() == button) {
+        return remove(mnemonic);
+      }
+
+      return null;
     }
 
     public boolean contains(int mnemonic) {
-      return m_set.contains(new Integer(mnemonic));
+      return m_map.containsKey(new Integer(mnemonic));
     }
+
+    private static class ButtonWrapper {
+      private final AbstractButton m_button;
+      private final boolean m_isExplicit;
+
+      public ButtonWrapper(AbstractButton button, boolean explicitMnemonic) {
+        m_button = button;
+        m_isExplicit = explicitMnemonic;
+      }
+
+      public AbstractButton getButton() {
+        return m_button;
+      }
+
+      public boolean isExplicit() {
+        return m_isExplicit;
+      }
+    }
+  }
+
+  /**
+   * Utility method that removes explicit mnemonic indicators from a string.
+   *
+   * @param s The string to clean.
+   * @return <code>s</code>, without its mnemonic indicators.
+   */
+  public static String removeMnemonicMarkers(String s) {
+    return s.replaceAll("_", "");
   }
 }
