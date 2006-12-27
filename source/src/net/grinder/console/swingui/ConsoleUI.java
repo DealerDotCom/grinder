@@ -775,7 +775,8 @@ public final class ConsoleUI implements ModelListener {
       super(m_resources, "save-results", true);
 
       m_fileChooser.setDialogTitle(
-        m_resources.getString("save-results.label"));
+        MnemonicHeuristics.removeMnemonicMarkers(
+          m_resources.getString("save-results.label")));
 
       m_fileChooser.setSelectedFile(
         new File(m_resources.getString("default.filename")));
@@ -850,7 +851,9 @@ public final class ConsoleUI implements ModelListener {
 
       final Resources resources = m_resources;
 
-      final String title = resources.getString("about.label");
+      final String title =
+        MnemonicHeuristics.removeMnemonicMarkers(
+          resources.getString("about.label"));
       final String aboutText = resources.getStringFromFile("about.text", true);
 
       final JEditorPane htmlPane = new JEditorPane("text/html", aboutText);
@@ -999,7 +1002,8 @@ public final class ConsoleUI implements ModelListener {
         });
 
       m_fileChooser.setDialogTitle(
-        m_resources.getString("save-file-as.label"));
+        MnemonicHeuristics.removeMnemonicMarkers(
+          m_resources.getString("save-file-as.label")));
 
       final String pythonFilesText =
         m_resources.getString("pythonScripts.label");
@@ -1387,9 +1391,11 @@ public final class ConsoleUI implements ModelListener {
 
     public void actionPerformed(ActionEvent event) {
       try {
-        if (m_fileChooser.showDialog(m_frame,
-                                     m_resources.getString(
-                                       "choose-directory.label")) ==
+        final String title =
+          MnemonicHeuristics.removeMnemonicMarkers(
+            m_resources.getString("choose-directory.label"));
+
+        if (m_fileChooser.showDialog(m_frame, title) ==
             JFileChooser.APPROVE_OPTION) {
 
           final Directory directory =
