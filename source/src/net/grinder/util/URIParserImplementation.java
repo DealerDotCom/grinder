@@ -47,6 +47,7 @@ public final class URIParserImplementation implements URIParser {
    */
   public URIParserImplementation() {
     // RFC 2396, appendix B.
+    // See also http://internet.ls-la.net/folklore/url-regexpr.html
     m_uriPattern =
       Pattern.compile(
         "^(?:([^:/?#]+):)?" + // Group 1: optional scheme.
