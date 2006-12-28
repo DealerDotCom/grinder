@@ -134,7 +134,7 @@ public class GrinderProperties extends Properties {
    *
    * @param name Property name.
    * @exception PersistenceException If there is no file associated with this
-   * {@link GrinderProperties} or an I/O exception occurs..
+   * {@link GrinderProperties} or an I/O exception occurs.
    */
   public final void saveSingleProperty(String name)
     throws PersistenceException {
@@ -157,7 +157,13 @@ public class GrinderProperties extends Properties {
       }
 
       final OutputStream outputStream = new FileOutputStream(m_file);
-      properties.setProperty(name, getProperty(name));
+
+      final String value = getProperty(name);
+
+      if (value != null) {
+        properties.setProperty(name, value);
+      }
+
       properties.store(outputStream, generateFileHeader());
       outputStream.close();
     }
