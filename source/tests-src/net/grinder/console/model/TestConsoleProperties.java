@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.console.model;
 
+import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -31,6 +32,7 @@ import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
@@ -388,6 +390,59 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
+  public void testFrameBounds() throws Exception {
+
+    final ConsoleProperties properties =
+      new ConsoleProperties(s_resources, m_file);
+
+    assertNull(properties.getFrameBounds());
+
+    final Rectangle rectangle = new Rectangle(12, 42, 311, 1322);
+
+    properties.setFrameBounds(rectangle);
+    assertEquals(rectangle, properties.getFrameBounds());
+
+    final ConsoleProperties properties2 =
+      new ConsoleProperties(s_resources, m_file);
+
+    properties.setFrameBounds(null);
+    assertNull(properties.getFrameBounds());
+
+    assertEquals(rectangle, properties2.getFrameBounds());
+
+    FileUtilities.setCanAccess(m_file, false);
+
+    try {
+      properties.setFrameBounds(rectangle);
+      fail("Expected DisplayMessageConsoleException");
+    }
+    catch (DisplayMessageConsoleException e) {
+    }
+
+    FileUtilities.setCanAccess(m_file, true);
+
+    final GrinderProperties writeProperties =
+      new GrinderProperties(m_file);
+    writeProperties.setProperty(
+      ConsoleProperties.FRAME_BOUNDS_PROPERTY, "1,2,3");
+    writeProperties.save();
+
+    assertNull(new ConsoleProperties(s_resources, m_file).getFrameBounds());
+
+    writeProperties.setProperty(
+      ConsoleProperties.FRAME_BOUNDS_PROPERTY, "A,2,3");
+    writeProperties.save();
+
+    assertNull(new ConsoleProperties(s_resources, m_file).getFrameBounds());
+
+    writeProperties.setProperty(
+      ConsoleProperties.FRAME_BOUNDS_PROPERTY, "1,2,3,4");
+    writeProperties.save();
+
+    assertEquals(new Rectangle(1, 2, 3, 4),
+                 new ConsoleProperties(s_resources, m_file).getFrameBounds());
+  }
+
   public void testCopyConstructor() throws Exception {
     final ConsoleProperties p1 = new ConsoleProperties(s_resources, m_file);
     final ConsoleProperties p2 = new ConsoleProperties(p1);
@@ -550,8 +605,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       writePropertyToFile(m_propertyName, Integer.toString(i1));
 
-      final ConsoleProperties properties = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
 
       assertEquals(i1, get(properties));
 
@@ -562,8 +617,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
 
       assertEquals(i2, get(properties2));
 
@@ -652,8 +707,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       writePropertyToFile(m_propertyName, "false");
 
-      final ConsoleProperties properties = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
 
       assertTrue(!get(properties));
 
@@ -662,8 +717,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
 
       assertTrue(get(properties2));
 
@@ -713,8 +768,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     public void doTest() throws Exception {
 
       if (m_allowNulls) {
-        final ConsoleProperties properties = new ConsoleProperties(s_resources,
-          m_file);
+        final ConsoleProperties properties =
+          new ConsoleProperties(s_resources, m_file);
 
         assertNull(get(properties));
 
@@ -727,14 +782,14 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
         properties.save();
 
-        final ConsoleProperties properties2 = new ConsoleProperties(
-          s_resources, m_file);
+        final ConsoleProperties properties2 =
+          new ConsoleProperties(s_resources, m_file);
 
         assertNull(get(properties2));
       }
       else {
-        final ConsoleProperties properties = new ConsoleProperties(s_resources,
-          m_file);
+        final ConsoleProperties properties =
+          new ConsoleProperties(s_resources, m_file);
 
         try {
           set(properties, null);
@@ -749,8 +804,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       writePropertyToFile(m_propertyName, s1);
 
-      final ConsoleProperties properties = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
 
       assertEquals(s1, get(properties));
 
@@ -761,8 +816,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
 
       assertEquals(s2, get(properties2));
 
@@ -773,8 +828,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       }
       while (s3.equals(s2));
 
-      final PropertyChangeEvent expected = new PropertyChangeEvent(properties2,
-        m_propertyName, s2, s3);
+      final PropertyChangeEvent expected =
+        new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
 
       final ChangeListener listener = new ChangeListener(expected);
       final ChangeListener listener2 = new ChangeListener(expected);
@@ -812,8 +867,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       writePropertyToFile(m_propertyName, f1.getPath());
 
-      final ConsoleProperties properties = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
 
       assertEquals(f1, get(properties));
 
@@ -824,8 +879,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
 
       assertEquals(f2, get(properties2));
 
@@ -836,8 +891,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       }
       while (f3.equals(f2));
 
-      final PropertyChangeEvent expected = createPropertyChangeEvent(
-        properties2, f2, f3);
+      final PropertyChangeEvent expected =
+        createPropertyChangeEvent(properties2, f2, f3);
 
       final ChangeListener listener = new ChangeListener(expected);
       final ChangeListener listener2 = new ChangeListener(expected);
@@ -905,8 +960,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       writePropertyToFile(m_propertyName, s1);
 
-      final ConsoleProperties properties = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
 
       assertEquals(s1, get(properties).pattern());
 
@@ -917,8 +972,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 = new ConsoleProperties(s_resources,
-        m_file);
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
 
       assertEquals(s2, get(properties2).pattern());
 

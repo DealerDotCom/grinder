@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,14 @@
 
 package net.grinder.console.model;
 
+import java.awt.Rectangle;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -108,6 +111,10 @@ public final class ConsoleProperties {
   public static final String LOOK_AND_FEEL_PROPERTY =
     "grinder.console.lookAndFeel";
 
+  /** Property name. */
+  public static final String FRAME_BOUNDS_PROPERTY =
+    "grinder.console.frameBounds";
+
   private final PropertyChangeSupport m_changeSupport =
     new PropertyChangeSupport(this);
 
@@ -122,6 +129,9 @@ public final class ConsoleProperties {
   private int m_scanDistributionFilesPeriod;
   private String m_lookAndFeel;
 
+  private RectangleProperty m_frameBounds =
+    new RectangleProperty(FRAME_BOUNDS_PROPERTY);
+
   private AskBoolean m_resetConsoleWithProcessesAsk =
     new AskBoolean(RESET_CONSOLE_WITH_PROCESSES_ASK_PROPERTY);
 
@@ -135,8 +145,8 @@ public final class ConsoleProperties {
     new AskBoolean(STOP_PROCESSES_ASK_PROPERTY);
 
   /**
-   *We hang onto the host as a string so we can copy and externalise
-   *it reasonably.
+   * We hang onto the host as a string so we can copy and externalise
+   * it reasonably.
    */
   private String m_consoleHostString;
   private int m_consolePort;
@@ -154,7 +164,7 @@ public final class ConsoleProperties {
    *
    * @param resources Console resources.
    * @param file The properties file.
-   * @exception DisplayMessageConsoleException If the properties file
+   * @throws DisplayMessageConsoleException If the properties file
    * cannot be read or the properties file contains invalid data.
    *
    */
@@ -202,6 +212,8 @@ public final class ConsoleProperties {
 
     setLookAndFeel(m_properties.getProperty(LOOK_AND_FEEL_PROPERTY, null));
 
+    m_frameBounds.setFromProperties();
+
     m_resetConsoleWithProcessesAsk.setFromProperties();
     m_scriptNotSetAsk.setFromProperties();
     m_startWithUnsavedBuffersAsk.setFromProperties();
@@ -240,7 +252,7 @@ public final class ConsoleProperties {
     setScanDistributionFilesPeriodInternal(
       properties.getScanDistributionFilesPeriod());
     setLookAndFeel(properties.getLookAndFeel());
-
+    m_frameBounds.set(properties.getFrameBounds());
     m_resetConsoleWithProcessesAsk.set(
       properties.getResetConsoleWithProcessesAsk());
     m_scriptNotSetAsk.set(properties.getScriptNotSetAsk());
@@ -273,7 +285,7 @@ public final class ConsoleProperties {
   /**
    * Save to the associated file.
    *
-   * @exception DisplayMessageConsoleException If an error occurs.
+   * @throws DisplayMessageConsoleException If an error occurs.
    */
   public void save() throws DisplayMessageConsoleException {
     m_properties.setInt(COLLECT_SAMPLES_PROPERTY, m_collectSampleCount);
@@ -300,6 +312,8 @@ public final class ConsoleProperties {
     if (m_lookAndFeel != null) {
       m_properties.setProperty(LOOK_AND_FEEL_PROPERTY, m_lookAndFeel);
     }
+
+    m_frameBounds.setToProperties();
 
     m_resetConsoleWithProcessesAsk.setToProperties();
     m_scriptNotSetAsk.setToProperties();
@@ -575,12 +589,13 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Set whether the user wants to be asked if console should be reset
+   * Set and save whether the user wants to be asked if console should be reset
    * with the worker processes.
    *
-   * @param value <code>true</code> => the user wants to be asked.
-   * @exception DisplayMessageConsoleException If the property
-   * couldn't be persisted
+   * @param value
+   *          <code>true</code> => the user wants to be asked.
+   * @throws DisplayMessageConsoleException
+   *            If the property couldn't be persisted
    */
   public void setResetConsoleWithProcessesAsk(boolean value)
     throws DisplayMessageConsoleException {
@@ -599,12 +614,13 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Set whether the user wants to be asked if console should be reset
+   * Set and save whether the user wants to be asked if console should be reset
    * with the worker processes.
    *
-   * @param value <code>true</code> => the user wants to be asked.
-   * @exception DisplayMessageConsoleException If the property
-   * couldn't be persisted.
+   * @param value
+   *          <code>true</code> => the user wants to be asked.
+   * @throws DisplayMessageConsoleException
+   *           If the property couldn't be persisted.
    */
   public void setScriptNotSetAsk(boolean value)
     throws DisplayMessageConsoleException {
@@ -624,12 +640,13 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Set whether the user wants to be warned when starting processes
+   * Set and save whether the user wants to be warned when starting processes
    * with unsaved buffers.
    *
-   * @param value <code>true</code> => the user wants to be warned.
-   * @exception DisplayMessageConsoleException If the property
-   * couldn't be persisted.
+   * @param value
+   *          <code>true</code> => the user wants to be warned.
+   * @throws DisplayMessageConsoleException
+   *           If the property couldn't be persisted.
    */
   public void setStartWithUnsavedBuffersAsk(boolean value)
     throws DisplayMessageConsoleException {
@@ -648,12 +665,13 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Set whether the user wants to be asked to confirm that processes
+   * Set and save whether the user wants to be asked to confirm that processes
    * should be stopped.
    *
-   * @param value <code>true</code> => the user wants to be asked.
-   * @exception DisplayMessageConsoleException If the property
-   * couldn't be persisted.
+   * @param value
+   *          <code>true</code> => the user wants to be asked.
+   * @throws DisplayMessageConsoleException
+   *           If the property couldn't be persisted.
    */
   public void setStopProcessesAsk(boolean value)
     throws DisplayMessageConsoleException {
@@ -728,10 +746,11 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Save the distribution directory property value to the user's
-   * preferences file.
+   * Save the distribution directory property value to the user's preferences
+   * file.
    *
-   * @throws DisplayMessageConsoleException If the property could not be saved.
+   * @throws DisplayMessageConsoleException
+   *           If the property could not be saved.
    */
   public void saveDistributionDirectory()
     throws DisplayMessageConsoleException {
@@ -859,6 +878,29 @@ public final class ConsoleProperties {
       LOOK_AND_FEEL_PROPERTY, old, m_lookAndFeel);
   }
 
+  /**
+   * Get the location and size of the console frame.
+   *
+   * @return The console frame bounds.
+   */
+  public Rectangle getFrameBounds() {
+    return m_frameBounds.get();
+  }
+
+  /**
+   * Set and save the location and size of the console frame.
+   *
+   * @param bounds The console frame bounds.
+   * @throws DisplayMessageConsoleException
+   *           If the property couldn't be persisted.
+   */
+  public void setFrameBounds(Rectangle bounds)
+    throws DisplayMessageConsoleException {
+
+    m_frameBounds.set(bounds);
+    m_frameBounds.save();
+  }
+
   private final class AskBoolean {
     private final String m_propertyName;
     private boolean m_value = true;
@@ -882,6 +924,76 @@ public final class ConsoleProperties {
     public void set(boolean b) {
       final boolean old = m_value;
       m_value = b;
+
+      m_changeSupport.firePropertyChange(m_propertyName, old, m_value);
+    }
+
+    public void save() throws DisplayMessageConsoleException {
+      setToProperties();
+
+      try {
+        m_properties.saveSingleProperty(m_propertyName);
+      }
+      catch (GrinderProperties.PersistenceException e) {
+        throw new DisplayMessageConsoleException(
+          m_resources, "couldNotSaveOptionsError.text", e);
+      }
+    }
+  }
+
+  private final class RectangleProperty {
+    private final String m_propertyName;
+    private Rectangle m_value = null;
+
+    public RectangleProperty(String propertyName) {
+      m_propertyName = propertyName;
+    }
+
+    public void setFromProperties() {
+      final String property =
+        m_properties.getProperty(m_propertyName, null);
+
+      if (property == null) {
+        set(null);
+      }
+      else {
+        final StringTokenizer tokenizer = new StringTokenizer(property, ",");
+
+        try {
+          set(new Rectangle(
+            Integer.parseInt(tokenizer.nextToken()),
+            Integer.parseInt(tokenizer.nextToken()),
+            Integer.parseInt(tokenizer.nextToken()),
+            Integer.parseInt(tokenizer.nextToken())));
+        }
+        catch (NoSuchElementException e) {
+          set(null);
+        }
+        catch (NumberFormatException e) {
+          set(null);
+        }
+      }
+    }
+
+    public void setToProperties() {
+      if (m_value != null) {
+        m_properties.setProperty(
+          m_propertyName,
+          m_value.x + "," + m_value.y + "," +
+          m_value.width + "," + m_value.height);
+      }
+      else {
+        m_properties.remove(m_propertyName);
+      }
+    }
+
+    public Rectangle get() {
+      return m_value;
+    }
+
+    public void set(Rectangle rectangle) {
+      final Rectangle old = m_value;
+      m_value = rectangle;
 
       m_changeSupport.firePropertyChange(m_propertyName, old, m_value);
     }

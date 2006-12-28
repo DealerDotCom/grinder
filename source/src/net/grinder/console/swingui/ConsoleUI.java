@@ -27,7 +27,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -129,6 +128,7 @@ public final class ConsoleUI implements ModelListener {
   private final Resources m_resources;
 
   private final JFrame m_frame;
+  private final FrameBounds m_frameBounds;
   private final JLabel m_stateLabel;
   private final SamplingControlPanel m_samplingControlPanel;
   private final FileTree m_fileTree;
@@ -446,15 +446,10 @@ public final class ConsoleUI implements ModelListener {
     final LookAndFeelListener lookAndFeelListener = new LookAndFeelListener();
     m_lookAndFeel.addListener(lookAndFeelListener);
 
-    // Fire the listener to set the frame size.
-    lookAndFeelListener.lookAndFeelChanged();
+    m_frameBounds = new FrameBounds(m_model.getProperties(), m_frame);
+    m_frameBounds.restore();
 
     resultsPane.setDividerLocation(resultsPane.getMaximumDividerLocation());
-
-    final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-    m_frame.setLocation(screenSize.width / 2 - m_frame.getSize().width / 2,
-                        screenSize.height / 2 - m_frame.getSize().height / 2);
 
     m_frame.setVisible(true);
   }
@@ -537,11 +532,17 @@ public final class ConsoleUI implements ModelListener {
 
     public void lookAndFeelChanged() {
       m_frame.setVisible(false);
-      super.lookAndFeelChanged();
-      m_frame.pack();
 
-      // Arbitrary size that looks good for Phil.
-      m_frame.setSize(new Dimension(900, 600));
+      try {
+        m_frameBounds.store();
+      }
+      catch (ConsoleException e) {
+        getErrorHandler().handleException(e);
+      }
+
+      super.lookAndFeelChanged();
+
+      m_frameBounds.restore();
       m_frame.setVisible(true);
     }
   }
@@ -892,6 +893,13 @@ public final class ConsoleUI implements ModelListener {
     }
 
     void exit() {
+      try {
+        m_frameBounds.store();
+      }
+      catch (ConsoleException e) {
+        getErrorHandler().handleException(e);
+      }
+
       final Buffer[] buffers = m_editorModel.getBuffers();
 
       for (int i = 0; i < buffers.length; ++i) {
