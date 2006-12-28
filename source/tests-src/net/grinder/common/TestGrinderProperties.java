@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
@@ -34,6 +35,7 @@ import java.util.Properties;
 
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.FileUtilities;
+import net.grinder.testutility.Serializer;
 
 
 /**
@@ -616,6 +618,16 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     }
 
     abstract void match(String key, String value) throws Exception;
+  }
+
+  public void testSerialisation() throws Exception {
+    final GrinderProperties properties = new GrinderProperties();
+    properties.setProperty("Hello", "World");
+
+    final GrinderProperties properties2 =
+      (GrinderProperties)Serializer.serialize(properties);
+
+    assertEquals(properties, properties2);
   }
 }
 
