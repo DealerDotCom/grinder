@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,7 +54,9 @@ import net.grinder.util.FileContents;
 
 
 /**
- * Unit test case for {@link ConsoleCommunicationImplementation}.
+ * Unit test case for {@link ConsoleCommunicationImplementation}. Also tests
+ * {@link ProcessControlImplementation} and
+ * {@link DistributionControlImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -120,9 +122,6 @@ public class TestConsoleCommunicationImplementation
   }
 
   public void testConstruction() throws Exception {
-    assertNotNull(m_consoleCommunication.getProcessControl());
-    assertNotNull(m_consoleCommunication.getDistributionControl());
-
     final TimerTask timerTask = m_timer.getLastScheduledTimerTask();
     timerTask.run();
 
@@ -162,13 +161,13 @@ public class TestConsoleCommunicationImplementation
     objectStream.flush();
   }
 
-  public void testProcessControl() throws Exception {
+  public void testWithProcessControl() throws Exception {
     final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.AGENT.write(socket.getOutputStream());
 
     final ProcessControl processControl =
-      m_consoleCommunication.getProcessControl();
+      new ProcessControlImplementation(m_timer, m_consoleCommunication);
 
     final RandomStubFactory listenerStubFactory =
       new RandomStubFactory(ProcessStatus.Listener.class);
@@ -224,8 +223,8 @@ public class TestConsoleCommunicationImplementation
         .getConsolePort());
     ConnectionType.AGENT.write(socket.getOutputStream());
 
-    final DistributionControl distributionControl = m_consoleCommunication
-        .getDistributionControl();
+    final DistributionControl distributionControl =
+      new DistributionControlImplementation(m_consoleCommunication);
 
     final Socket socket2 = new Socket(InetAddress.getByName(null), m_properties
         .getConsolePort());
@@ -308,9 +307,10 @@ public class TestConsoleCommunicationImplementation
 
     m_processMessagesThread.start();
 
-    assertEquals(
-      0,
-      m_consoleCommunication.getProcessControl().getNumberOfLiveAgents());
+    final ProcessControl processControl =
+      new ProcessControlImplementation(m_timer, m_consoleCommunication);
+
+    assertEquals(0, processControl.getNumberOfLiveAgents());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
@@ -335,10 +335,7 @@ public class TestConsoleCommunicationImplementation
 
     messageHandlerStubFactory.assertSuccess("send", MyMessage.class);
 
-    assertEquals(
-      1,
-      m_consoleCommunication.getProcessControl().getNumberOfLiveAgents());
-
+    assertEquals(1, processControl.getNumberOfLiveAgents());
 
     // ConsoleCommunication should have handled the original
     // AgentProcessReportMessage and WorkerProcessReportMessage. We check here
@@ -373,7 +370,8 @@ public class TestConsoleCommunicationImplementation
       "handleException", DisplayMessageConsoleException.class);
     errorHandlerStubFactory.assertNoMoreCalls();
 
-    m_consoleCommunication.getDistributionControl().clearFileCaches();
+    new DistributionControlImplementation(m_consoleCommunication)
+    .clearFileCaches();
 
     errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
@@ -398,7 +396,8 @@ public class TestConsoleCommunicationImplementation
     errorHandlerStubFactory2.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
 
-    brokenConsoleCommunication.getDistributionControl().clearFileCaches();
+    new DistributionControlImplementation(brokenConsoleCommunication)
+    .clearFileCaches();
 
     errorHandlerStubFactory2.assertSuccess(
       "handleResourceErrorMessage", String.class, String.class);

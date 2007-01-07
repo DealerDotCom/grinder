@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,6 @@ package net.grinder.console.communication;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,22 +32,13 @@ import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
-import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
-import net.grinder.console.messages.AgentProcessReportMessage;
-import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.engine.messages.ClearCacheMessage;
-import net.grinder.engine.messages.DistributeFileMessage;
-import net.grinder.engine.messages.ResetGrinderMessage;
-import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.engine.messages.StopGrinderMessage;
-import net.grinder.util.FileContents;
 import net.grinder.util.thread.WakeableCondition;
 
 
@@ -66,14 +56,8 @@ public final class ConsoleCommunicationImplementation
   private final int m_idlePollDelay;
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
-  private final ProcessStatusImplementation m_processStatusSet;
 
   private final ErrorQueue m_errorQueue = new ErrorQueue();
-
-  private final ProcessControl m_processControl =
-    new ProcessControlImplementation();
-  private final DistributionControl m_distributionControl =
-    new DistributionControlImplementation();
 
   private final MessageDispatchSender m_messageDispatcher =
     new MessageDispatchSender();
@@ -109,26 +93,6 @@ public final class ConsoleCommunicationImplementation
     m_properties = properties;
     m_idlePollDelay = idlePollDelay;
 
-    m_messageDispatcher.set(
-      AgentProcessReportMessage.class,
-      new AbstractHandler() {
-        public void send(Message message) {
-          m_processStatusSet.addAgentStatusReport(
-            (AgentProcessReportMessage)message);
-        }
-      }
-    );
-
-    m_messageDispatcher.set(
-      WorkerProcessReportMessage.class,
-      new AbstractHandler() {
-        public void send(Message message) {
-          m_processStatusSet.addWorkerStatusReport(
-            (WorkerProcessReportMessage)message);
-        }
-      }
-    );
-
     properties.addPropertyChangeListener(
       new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent event) {
@@ -140,8 +104,6 @@ public final class ConsoleCommunicationImplementation
           }
         }
       });
-
-    m_processStatusSet = new ProcessStatusImplementation(timer);
 
     reset();
 
@@ -264,24 +226,6 @@ public final class ConsoleCommunicationImplementation
   }
 
   /**
-   * Get a ProcessControl implementation.
-   *
-   * @return The <code>ProcessControl</code>.
-   */
-  public ProcessControl getProcessControl() {
-    return m_processControl;
-  }
-
-  /**
-   * Get a DistributionControl implementation.
-   *
-   * @return The <code>DistributionControl</code>.
-   */
-  public DistributionControl getDistributionControl() {
-    return m_distributionControl;
-  }
-
-  /**
    * Returns the message dispatch registry which callers can use to register new
    * message handlers.
    *
@@ -334,82 +278,29 @@ public final class ConsoleCommunicationImplementation
     return m_acceptor == null ? 0 : m_acceptor.getNumberOfConnections();
   }
 
-  private class ProcessControlImplementation implements ProcessControl {
-
-   /**
-     * Signal the worker processes to start.
-     */
-    public void startWorkerProcesses(File scriptFile) {
-      send(new StartGrinderMessage(scriptFile));
-    }
-
-    /**
-     * Signal the worker processes to reset.
-     */
-    public void resetWorkerProcesses() {
-      send(new ResetGrinderMessage());
-    }
-
-    /**
-     * Signal the worker processes to stop.
-     */
-    public void stopWorkerProcesses() {
-      send(new StopGrinderMessage());
-    }
-
-    /**
-     * Add a listener for process status data.
-     *
-     * @param listener The listener.
-     */
-    public void addProcessStatusListener(ProcessStatus.Listener listener) {
-      m_processStatusSet.addListener(listener);
-    }
-
-    /**
-     * How many agents are live?
-     *
-     * @return The number of agents.
-     */
-    public int getNumberOfLiveAgents() {
-      return m_processStatusSet.getNumberOfLiveAgents();
-    }
-  }
-
-  private class DistributionControlImplementation
-    implements DistributionControl {
-
-    /**
-     * Signal the agent processes to clear their file caches.
-     */
-    public void clearFileCaches() {
-      send(new ClearCacheMessage());
-    }
-
-    /**
-     * Send a file to the file caches.
-     *
-     * @param fileContents The file contents.
-     */
-    public void sendFile(FileContents fileContents) {
-      send(new DistributeFileMessage(fileContents));
-    }
-  }
-
-  private void send(Message message) {
+  /**
+   * Send the given message to the agent processes (which may pass it on to
+   * their workers).
+   *
+   * <p>Any errors that occur will be handled with the error handler, see
+   * {@link #setErrorHandler}.</p>
+   *
+   * @param message The message to send.
+   */
+  public void sendToAgents(Message message) {
     if (m_sender == null) {
-       m_errorQueue.handleResourceErrorMessage(
-         "sendError.text", "Failed to send message");
+      m_errorQueue.handleResourceErrorMessage(
+        "sendError.text", "Failed to send message");
     }
     else {
       try {
         m_sender.send(message);
-      }
-      catch (CommunicationException e) {
-        m_errorQueue.handleException(
-          new DisplayMessageConsoleException(
-            m_resources, "sendError.text", e));
-      }
-    }
+     }
+     catch (CommunicationException e) {
+       m_errorQueue.handleException(
+         new DisplayMessageConsoleException(
+           m_resources, "sendError.text", e));
+     }
+   }
   }
 }

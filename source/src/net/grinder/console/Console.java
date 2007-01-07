@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,6 +36,9 @@ import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
+import net.grinder.console.communication.DistributionControlImplementation;
+import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.ProcessControlImplementation;
 import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.communication.server.DispatchClientCommands;
 import net.grinder.console.distribution.FileDistribution;
@@ -91,7 +94,7 @@ public class Console {
 
     final FileDistribution fileDistribution =
       new FileDistributionImplementation(
-        m_communication.getDistributionControl());
+        new DistributionControlImplementation(m_communication));
 
     timer.schedule(new TimerTask() {
         public void run() {
@@ -103,7 +106,10 @@ public class Console {
       properties.getScanDistributionFilesPeriod(),
       properties.getScanDistributionFilesPeriod());
 
-    m_communication.getProcessControl().addProcessStatusListener(
+    final ProcessControl processControl =
+      new ProcessControlImplementation(timer, m_communication);
+
+    processControl.addProcessStatusListener(
       new ProcessStatus.Listener() {
         public void update(ProcessStatus.ProcessReports[] processStatuses,
                            boolean newAgent) {
@@ -128,11 +134,10 @@ public class Console {
         }
       });
 
-    m_userInterface =
-      new ConsoleUI(model,
-                    m_communication.getProcessControl(),
-                    fileDistribution,
-                    resources);
+    m_userInterface = new ConsoleUI(model,
+                                    processControl,
+                                    fileDistribution,
+                                    resources);
 
     m_communication.setErrorHandler(m_userInterface.getErrorHandler());
 

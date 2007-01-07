@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.console.communication;
 
+import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.console.common.ErrorHandler;
 
@@ -47,18 +48,15 @@ public interface ConsoleCommunication {
   void processOneMessage();
 
   /**
-   * Get a ProcessControl implementation.
+   * Send the given message to the agent processes (which may pass it on to
+   * their workers).
    *
-   * @return The <code>ProcessControl</code>.
-   */
-  ProcessControl getProcessControl();
-
-  /**
-   * Get a DistributionControl implementation.
+   * <p>Any errors that occur will be handled with the error handler, see
+   * {@link #setErrorHandler(ErrorHandler)}.</p>
    *
-   * @return The <code>DistributionControl</code>.
+   * @param message The message to send.
    */
-  DistributionControl getDistributionControl();
+  void sendToAgents(Message message);
 
   /**
    * Set the error handler. Any errors the
