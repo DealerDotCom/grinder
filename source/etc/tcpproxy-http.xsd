@@ -162,7 +162,9 @@
   </xs:complexType>
 
   <xs:complexType name="RequestType">
-    <xs:sequence>
+  	<xs:sequence>
+      <xs:element name="comment" type="tns:CommentType"
+             minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="time" type="xs:dateTime" />
       <xs:element name="method">
         <xs:simpleType>
@@ -287,6 +289,9 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:simpleType name="CommentType">
+    <xs:restriction base="xs:string" />
+  </xs:simpleType>
   <xs:simpleType name="StringBodyType">
     <xs:restriction base="xs:string">
       <xs:whiteSpace value="preserve" />

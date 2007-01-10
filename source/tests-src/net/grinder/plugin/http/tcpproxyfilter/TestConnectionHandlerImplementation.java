@@ -1,4 +1,5 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,6 +34,8 @@ import net.grinder.plugin.http.xml.TokenType;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.FileUtilities;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.tools.tcpproxy.CommentSource;
+import net.grinder.tools.tcpproxy.CommentSourceImplementation;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
 import net.grinder.util.AttributeStringParser;
@@ -72,11 +75,15 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
       new EndPoint("hostB", 80),
       false);
 
+  private final CommentSource m_commentSource =
+    new CommentSourceImplementation();
+
   public void testRequestWithGet() throws Exception {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -115,7 +122,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -155,7 +163,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource, m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -224,7 +232,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource, m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -267,7 +275,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -300,7 +309,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource, m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -331,7 +340,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -404,7 +414,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource, m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -452,7 +462,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -493,7 +504,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -545,7 +557,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -615,7 +628,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -662,7 +676,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     final RequestType request = RequestType.Factory.newInstance();
     request.addNewHeaders();
@@ -711,7 +726,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     handler.handleRequest(new byte[0], 0);
     m_loggerStubFactory.assertSuccess("error", String.class);
@@ -730,7 +746,8 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
-        m_uriParser, m_attributeStringParser, m_connectionDetails);
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
 
     // Response with no request.
     handler.handleResponse(new byte[0], 0);

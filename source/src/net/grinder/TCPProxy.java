@@ -1,7 +1,8 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003, 2004, 2005 Bertrand Ave
+// Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -50,6 +51,7 @@ import net.grinder.plugin.http.tcpproxyfilter.HTTPRequestFilter;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPResponseFilter;
 import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT;
 import net.grinder.plugin.http.tcpproxyfilter.RegularExpressionsImplementation;
+import net.grinder.tools.tcpproxy.CommentSourceImplementation;
 import net.grinder.tools.tcpproxy.CompositeFilter;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EchoFilter;
@@ -62,6 +64,7 @@ import net.grinder.tools.tcpproxy.TCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation;
+import net.grinder.tools.tcpproxy.UpdatableCommentSource;
 import net.grinder.util.AttributeStringParserImplementation;
 import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
@@ -74,6 +77,7 @@ import net.grinder.util.URIParserImplementation;
  * @author Phil Dawes
  * @author Philip Aston
  * @author Bertrand Ave
+ * @author Venelin Mitov
  * @version $Revision$
  */
 public final class TCPProxy {
@@ -194,6 +198,13 @@ public final class TCPProxy {
     m_logger = logger;
 
     m_filterContainer.registerComponentInstance(m_logger);
+
+    //Register the CommentSourceImplementation class with the
+    //PicoContainer. The same commentSource object is passed to the
+    //TCPProxyConsole constructor.
+    final UpdatableCommentSource commentSource =
+      new CommentSourceImplementation();
+    m_filterContainer.registerComponentInstance(commentSource);
 
     // Default values.
     int localPort = 8001;
@@ -474,7 +485,7 @@ public final class TCPProxy {
     }
 
     if (console) {
-      new TCPProxyConsole(m_proxyEngine);
+      new TCPProxyConsole(m_proxyEngine, commentSource);
     }
 
     m_logger.error("Engine initialised, listening on port " + localPort);

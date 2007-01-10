@@ -1,4 +1,5 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,6 +47,7 @@ import net.grinder.plugin.http.xml.ResponseType;
 import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
 import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.plugin.http.xml.TokenResponseLocationType;
+import net.grinder.tools.tcpproxy.CommentSource;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.util.AttributeStringParser;
 import net.grinder.util.URIParser;
@@ -100,6 +102,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
   private final URIParser m_uriParser;
   private final AttributeStringParser m_attributeStringParser;
+  private final CommentSource m_commentSource;
 
   private final ConnectionDetails m_connectionDetails;
 
@@ -108,7 +111,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
   public ConnectionHandlerImplementation(HTTPRecording httpRecording,
     Logger logger, RegularExpressions regularExpressions, URIParser uriParser,
-    AttributeStringParser attributeStringParser,
+    AttributeStringParser attributeStringParser, CommentSource commentSource,
     ConnectionDetails connectionDetails) {
 
     m_httpRecording = httpRecording;
@@ -116,6 +119,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     m_regularExpressions = regularExpressions;
     m_uriParser = uriParser;
     m_attributeStringParser = attributeStringParser;
+    m_commentSource = commentSource;
     m_connectionDetails = connectionDetails;
   }
 
@@ -148,7 +152,8 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       final String method = matcher.group(1);
       final String relativeURI = matcher.group(2);
 
-      m_request = new Request(method, relativeURI);
+      m_request = new Request(method, relativeURI,
+          m_commentSource.getComments());
     }
 
     // Stuff we do whatever.
@@ -329,10 +334,16 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
     private Response m_response = null;
 
-    public Request(String method, String relativeURI) {
+    public Request(String method, String relativeURI, String[] userComments) {
       m_requestXML =
         m_httpRecording.addRequest(m_connectionDetails, method, relativeURI);
+
+      //add the user comments to the request element
+      for (int i = 0; i < userComments.length; i++) {
+        m_requestXML.addComment(userComments[i]);
+      }
     }
+
 
     public void addNewResponse(int statusCode, String reasonPhrase) {
       final ResponseType responseXML = m_requestXML.addNewResponse();

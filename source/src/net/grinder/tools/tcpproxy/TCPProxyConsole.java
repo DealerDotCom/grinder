@@ -1,5 +1,6 @@
 // Copyright (C) 2003 Bertrand Ave
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,6 +32,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 
@@ -38,43 +40,68 @@ import javax.swing.SwingConstants;
  * Console for the TCPProxy.
  *
  * @author Bertrand Ave
+ * @author Venelin Mitov
  * @version $Revision$
  */
 public final class TCPProxyConsole extends JFrame {
+  /**
+   * A store for user comments inserted during capture.
+   */
+  private final UpdatableCommentSource m_commentSource;
 
   /**
    * Constructor.
    *
-   * @param proxyEngine The <code>TCPProxyEngine</code> we control.
+   * @param proxyEngine
+   *          The <code>TCPProxyEngine</code> we control.
+   * @param commentSource
+   *          The <code>UpdatableCommentSource</code> where user comments are
+   *          inserted.
    */
-  public TCPProxyConsole(final TCPProxyEngine proxyEngine) {
+  public TCPProxyConsole(final TCPProxyEngine proxyEngine,
+                         UpdatableCommentSource commentSource) {
+
     super("TCPProxy Console");
 
+    m_commentSource = commentSource;
     setResizable(false);
 
     addWindowListener(new WindowAdapter() {
-        public void windowClosing(WindowEvent e) {
-          proxyEngine.stop();
-        }
-      });
+      public void windowClosing(WindowEvent e) {
+        proxyEngine.stop();
+      }
+    });
 
     final Container content = getContentPane();
     content.setBackground(Color.white);
     content.setLayout(new FlowLayout());
 
-    final JButton button1 = new JButton("Recording");
-    button1.setEnabled(false);
-    content.add(button1);
+    final JTextField commentTextField =
+      new JTextField("Insert a comment and press enter", 25);
+    content.add(commentTextField);
 
-    final JButton button2 = new JButton("Stop");
-    button2.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-           proxyEngine.stop();
-         }
-      });
+    final JButton commentButton = new JButton("Insert comment");
+    content.add(commentButton);
 
-    button2.setHorizontalTextPosition(SwingConstants.LEFT);
-    content.add(button2);
+    // Add the same ActionListener to both the commenTextField and button1
+    final ActionListener addCommentActionListener = new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        m_commentSource.addComment(commentTextField.getText());
+        commentTextField.setText(null);
+      }
+    };
+    commentButton.addActionListener(addCommentActionListener);
+    commentTextField.addActionListener(addCommentActionListener);
+
+    final JButton stopButton = new JButton("Stop");
+    stopButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        proxyEngine.stop();
+      }
+    });
+
+    stopButton.setHorizontalTextPosition(SwingConstants.LEFT);
+    content.add(stopButton);
 
     pack();
     setVisible(true);

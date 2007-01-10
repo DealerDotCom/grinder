@@ -1,4 +1,5 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,9 +43,10 @@ public class TestTCPProxyConsole extends TestCase {
     final RandomStubFactory engineStubFactory =
       new RandomStubFactory(TCPProxyEngine.class);
     final TCPProxyEngine engine = (TCPProxyEngine)engineStubFactory.getStub();
+    final UpdatableCommentSource commentSource = new CommentSourceImplementation();
 
     final TCPProxyConsole console =
-      new TCPProxyConsole(engine);
+      new TCPProxyConsole(engine, commentSource);
 
     console.dispose();
 
@@ -55,9 +57,11 @@ public class TestTCPProxyConsole extends TestCase {
     final RandomStubFactory engineStubFactory =
       new RandomStubFactory(TCPProxyEngine.class);
     final TCPProxyEngine engine = (TCPProxyEngine)engineStubFactory.getStub();
+    final UpdatableCommentSource commentSource =
+      new CommentSourceImplementation();
 
     final TCPProxyConsole console =
-      new TCPProxyConsole(engine);
+      new TCPProxyConsole(engine, commentSource);
 
     JButton stopButton = null;
 

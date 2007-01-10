@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
- Copyright (C) 2006 Philip Aston
+ Copyright (C) 2006, 2007 Philip Aston
+ Copyright (C) 2007 Venelin Mitov
  All rights reserved.
 
  This file is part of The Grinder software distribution. Refer to
@@ -172,6 +173,11 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
       <xsl:text>.__target__.</xsl:text>
     </xsl:if>
 
+    <xsl:for-each select="g:comment">
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text># </xsl:text>
+      <xsl:value-of select="."/>
+    </xsl:for-each>
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:value-of select="$request-name"/>
 

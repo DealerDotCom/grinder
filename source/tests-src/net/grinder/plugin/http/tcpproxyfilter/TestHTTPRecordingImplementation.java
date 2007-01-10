@@ -1,4 +1,5 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -129,6 +130,12 @@ public class TestHTTPRecordingImplementation extends TestCase {
     final EndPoint endPoint1 = new EndPoint("hostA", 80);
     final EndPoint endPoint2 = new EndPoint("hostB", 80);
     final EndPoint endPoint3 = new EndPoint("hostC", 80);
+    final String[] userComments = new String[]{
+        "BEGIN ENTER gmail homepage",
+        "END ENTER gmail homepage",
+        "BEGIN CLICK Sign In",
+        "END CLICK Sign In",
+    };
 
     // Request 1
     final ConnectionDetails connectionDetails1 =
@@ -136,9 +143,14 @@ public class TestHTTPRecordingImplementation extends TestCase {
 
     final RequestType request1 =
       httpRecording.addRequest(connectionDetails1, "GET", "/");
+    for (int i = 0; i < userComments.length; i++) {
+      request1.addComment(userComments[i]);
+    }
     assertEquals("/", request1.getUri().getUnparsed());
     assertEquals("GET", request1.getMethod().toString());
     assertEquals("GET /", request1.getDescription());
+    AssertUtilities.assertArraysEqual(userComments, request1.getCommentArray());
+    assertEquals("END CLICK Sign In", request1.getCommentArray(3));
     assertFalse(request1.isSetSleepTime());
     request1.addNewResponse();
     httpRecording.markLastResponseTime();
@@ -230,7 +242,8 @@ public class TestHTTPRecordingImplementation extends TestCase {
       httpRecording.addRequest(
         connectionDetails1,
         "GET",
-        "/path;name=value/blah;dah/foo?foo=y");
+        "/path;name=value/blah;dah/foo?foo=y"
+      );
 
     assertEquals("GET", request1.getMethod().toString());
     assertEquals("GET foo", request1.getDescription());
@@ -269,7 +282,6 @@ public class TestHTTPRecordingImplementation extends TestCase {
 
     final EndPoint endPoint1 = new EndPoint("hostA", 80);
     final EndPoint endPoint2 = new EndPoint("hostB", 80);
-
     final ConnectionDetails connectionDetails1 =
       new ConnectionDetails(endPoint1, endPoint2, false);
 

@@ -7,6 +7,9 @@ The Grinder 3.0-beta33 <Not yet released>
   Fulfil Feature Request 1484448 - Console window size doesn't persist.
   Requested by Travis Bear.
 
+  Fulfil Feature Request 1185967 - Insert comments while capturing with
+  the TCPProxy. Patch implemented by Venelin Mitov.
+
 
 The Grinder 3.0-beta32
 ----------------------

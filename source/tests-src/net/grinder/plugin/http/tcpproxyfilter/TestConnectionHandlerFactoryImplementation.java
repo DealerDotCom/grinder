@@ -1,4 +1,5 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +26,8 @@ import junit.framework.TestCase;
 
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.tools.tcpproxy.CommentSource;
+import net.grinder.tools.tcpproxy.CommentSourceImplementation;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
 import net.grinder.util.AttributeStringParser;
@@ -61,6 +64,7 @@ public class TestConnectionHandlerFactoryImplementation extends TestCase {
   final AttributeStringParser m_attributeStringParser =
     (AttributeStringParser)m_attributeStringParserStubFactory.getStub();
 
+  final CommentSource m_commentSource = new CommentSourceImplementation();
 
   private final ConnectionDetails m_connectionDetails =
     new ConnectionDetails(
@@ -72,7 +76,7 @@ public class TestConnectionHandlerFactoryImplementation extends TestCase {
     final ConnectionHandlerFactory factory =
       new ConnectionHandlerFactoryImplementation(m_httpRecording,
         m_loggerStubFactory.getLogger(), m_regularExpressions, m_uriParser,
-        m_attributeStringParser);
+        m_attributeStringParser, m_commentSource);
 
     final ConnectionHandler handler1 = factory.create(m_connectionDetails);
     final ConnectionHandler handler2 = factory.create(m_connectionDetails);
