@@ -240,6 +240,10 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <python href="http://www.python.org/"/>
 
+    <zephyrfalcon href="http://zephyrfalcon.org/">
+       <pythonpitfalls href="labs/python_pitfalls.html"/>
+    </zephyrfalcon>
+
     <sourceforge href="http://www.sourceforge.net/">
       <grinder href="projects/grinder"/>
       <junit href="projects/junit"/>

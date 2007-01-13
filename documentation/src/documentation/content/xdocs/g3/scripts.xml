@@ -27,6 +27,7 @@
     <ul>
       <li><a href="ext:jython">The Jython home page</a></li>
       <li><a href="ext:python">The Python language web site</a></li>
+      <li><a href="ext:pythonpitfalls">Ten Python pitfalls</a></li>
     </ul>
 
     <p>I recommend the <a href="ext:amazon/jython-essentials">Jython
