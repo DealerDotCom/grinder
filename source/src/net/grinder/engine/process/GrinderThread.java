@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,7 +45,7 @@ class GrinderThread implements java.lang.Runnable {
    * it really means "the number of GrinderThread's that have been
    * created but not run to completion"
    */
-  private static short s_numberOfThreads = 0;
+  private static volatile short s_numberOfThreads = 0;
 
   private final Object m_notifyOnCompletion;
   private final ProcessContext m_processContext;
@@ -83,7 +83,7 @@ class GrinderThread implements java.lang.Runnable {
 
     m_numberOfRuns = properties.getInt("grinder.runs", 1);
 
-    incrementThreadCount();    // See s_numberOfThreads javadoc.
+    s_numberOfThreads++;    // See s_numberOfThreads javadoc.
   }
 
   /**
@@ -175,20 +175,12 @@ class GrinderThread implements java.lang.Runnable {
     }
     finally {
       logger.setCurrentRunNumber(-1);
-      decrementThreadCount();
+      --s_numberOfThreads;
 
       synchronized (m_notifyOnCompletion) {
         m_notifyOnCompletion.notifyAll();
       }
     }
-  }
-
-  private static synchronized void incrementThreadCount() {
-    s_numberOfThreads++;
-  }
-
-  private static synchronized void decrementThreadCount() {
-    s_numberOfThreads--;
   }
 
   public static final short getNumberOfThreads() {
