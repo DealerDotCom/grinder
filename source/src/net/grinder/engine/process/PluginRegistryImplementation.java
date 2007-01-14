@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2006 Philip Aston
+// Copyright (C) 2002 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,7 +41,7 @@ import net.grinder.util.TimeAuthority;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class PluginRegistryImplementation extends PluginRegistry {
+final class PluginRegistryImplementation extends PluginRegistry {
 
   private final Logger m_logger;
   private final ScriptContext m_scriptContext;
