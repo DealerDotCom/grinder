@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +37,8 @@ import junit.framework.AssertionFailedError;
  * @author    Philip Aston
  */
 public class CallRecorder extends Assert implements CallAssertions {
+
+  private static ThreadRecording s_threadRecording = new ThreadRecording();
 
   private final Monitor m_callDataListMonitor = new Monitor();
   private final LinkedList m_callDataList = new LinkedList();
@@ -77,13 +79,20 @@ public class CallRecorder extends Assert implements CallAssertions {
   public String getCallHistory() {
     final StringBuffer result = new StringBuffer();
 
-    synchronized (m_callDataListMonitor) {
-      final Iterator iterator = m_callDataList.iterator();
+    try {
+      s_threadRecording.disable();
 
-      while(iterator.hasNext()) {
-        result.append(iterator.next());
-        result.append("\n");
+      synchronized (m_callDataListMonitor) {
+        final Iterator iterator = m_callDataList.iterator();
+
+        while(iterator.hasNext()) {
+          result.append(iterator.next());
+          result.append("\n");
+        }
       }
+    }
+    finally {
+      s_threadRecording.enable();
     }
 
     return result.toString();
@@ -119,8 +128,9 @@ public class CallRecorder extends Assert implements CallAssertions {
   }
 
   public final void record(CallData callData) {
-    if (!m_ignoreObjectMethods ||
-    callData.getMethod().getDeclaringClass() != Object.class) {
+    if (s_threadRecording.isEnabled() &&
+        (!m_ignoreObjectMethods ||
+         callData.getMethod().getDeclaringClass() != Object.class)) {
       synchronized (m_callDataListMonitor) {
         m_callDataList.add(callData);
         m_callDataListMonitor.notifyAll();
@@ -271,46 +281,75 @@ public class CallRecorder extends Assert implements CallAssertions {
 
   private abstract class AssertMatchingCallTemplate {
     public final CallData run() {
-      if (m_ignoreCallOrder) {
-        synchronized (m_callDataListMonitor) {
-          // Check the earliest call first.
-          final Iterator iterator = m_callDataList.iterator();
+      try {
+        s_threadRecording.disable();
 
-          while (iterator.hasNext()) {
+        if (m_ignoreCallOrder) {
+          synchronized (m_callDataListMonitor) {
+            // Check the earliest call first.
+            final Iterator iterator = m_callDataList.iterator();
+
+            while (iterator.hasNext()) {
+              try {
+                final CallData callData = (CallData)iterator.next();
+
+                test(callData);
+                iterator.remove();
+                m_callDataListMonitor.notifyAll();
+
+                return callData;
+              }
+              catch (AssertionFailedError e) {
+              }
+            }
+          }
+
+          fail("No matching call");
+          return null; // Not reached.
+        }
+        else {
+          // Check the earliest call.
+          synchronized (m_callDataListMonitor) {
             try {
-              final CallData callData = (CallData)iterator.next();
-
-              test(callData);
-              iterator.remove();
+              final CallData callData = (CallData)m_callDataList.removeFirst();
               m_callDataListMonitor.notifyAll();
-
+              test(callData);
               return callData;
             }
-            catch (AssertionFailedError e) {
+            catch (NoSuchElementException e) {
+              fail("No more calls");
+              return null; // Not reached.
             }
           }
         }
-
-        fail("No matching call");
-        return null; // Not reached.
       }
-      else {
-        // Check the earliest call.
-        synchronized (m_callDataListMonitor) {
-          try {
-            final CallData callData = (CallData)m_callDataList.removeFirst();
-            m_callDataListMonitor.notifyAll();
-            test(callData);
-            return callData;
-          }
-          catch (NoSuchElementException e) {
-            fail("No more calls");
-            return null; // Not reached.
-          }
-        }
+      finally {
+        s_threadRecording.enable();
       }
     }
 
     public abstract void test(CallData callData);
+  }
+
+  /**
+   * Used to disable all CallRecorder recording for the calling thread so we
+   * don't record side effects of CallRecorder processing. This also prevents
+   * some ConcurrentModificationExceptions.
+   */
+  private static final class ThreadRecording {
+
+    private final ThreadLocal m_threadLocal = new ThreadLocal();
+
+    public void disable() {
+      m_threadLocal.set(this);
+    }
+
+    public void enable() {
+      m_threadLocal.set(null);
+    }
+
+    public boolean isEnabled() {
+      return m_threadLocal.get() == null;
+    }
   }
 }
