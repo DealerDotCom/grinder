@@ -64,8 +64,8 @@ final class ProcessContextImplementation implements ProcessContext {
   private final TimeAuthority m_timeAuthority;
   private final boolean m_reportTimesToConsole;
 
-  private long m_executionStartTime;
-  private boolean m_shutdown;
+  private volatile long m_executionStartTime;
+  private volatile boolean m_shutdown;
 
   ProcessContextImplementation(WorkerIdentity workerIdentity,
                  GrinderProperties properties, Logger logger,
