@@ -500,6 +500,39 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
+  public void testRequestWithUserComment() throws Exception {
+    ConnectionHandler handler = new ConnectionHandlerImplementation(
+        m_httpRecording, m_loggerStubFactory.getLogger(), m_regularExpressions,
+        m_uriParser, m_attributeStringParser, m_commentSource,
+        m_connectionDetails);
+    
+    //Add some user comments to the comment source. They should be added to the 
+    //resulting request.
+    ((CommentSourceImplementation)m_commentSource).addComment("user comment 1");
+    ((CommentSourceImplementation)m_commentSource).addComment("user comment 2");
+    
+    final RequestType request = RequestType.Factory.newInstance();
+    
+    request.addNewHeaders();
+    request.setMethod(RequestType.Method.Enum.forString("GET"));
+    request.setCommentArray(new String[]{"user comment 1", "user comment 2"});
+    
+    final TokenType token = TokenType.Factory.newInstance();
+    token.setName("query");
+    token.setTokenId("tokenID");
+
+    m_httpRecordingStubFactory.setResult("addRequest", request);
+    m_httpRecordingStubFactory.setResult("addNameValueToken", token);
+
+    final String message = "GET /something?query=whatever HTTP/1.0\r\n\r\n";
+    final byte[] buffer = message.getBytes();
+    handler.handleRequest(buffer, buffer.length);
+    
+    m_httpRecordingStubFactory.assertSuccess("addRequest",
+        m_connectionDetails, "GET", "/something?query=whatever");
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+  }
+  
   public void testRequestBinaryBody() throws Exception {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
