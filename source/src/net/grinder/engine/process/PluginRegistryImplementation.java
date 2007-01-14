@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.grinder.common.Logger;
+import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
@@ -41,14 +42,16 @@ import net.grinder.util.TimeAuthority;
  * @author Philip Aston
  * @version $Revision$
  */
-final class PluginRegistryImplementation extends PluginRegistry {
+final class PluginRegistryImplementation
+  extends PluginRegistry implements ProcessLifeCycleListener {
 
   private final Logger m_logger;
   private final ScriptContext m_scriptContext;
   private final ThreadContextLocator m_threadContextLocator;
   private final StatisticsServices m_statisticsServices;
-  private final Map m_plugins = new HashMap();
   private final TimeAuthority m_timeAuthority;
+
+  private final Map m_plugins = new HashMap();
 
   /**
    * Constructor.
@@ -73,7 +76,6 @@ final class PluginRegistryImplementation extends PluginRegistry {
    * @exception EngineException if an error occurs
    */
   public void register(GrinderPlugin plugin) throws EngineException {
-
     synchronized (m_plugins) {
       if (!m_plugins.containsKey(plugin)) {
 
@@ -94,5 +96,40 @@ final class PluginRegistryImplementation extends PluginRegistry {
         m_logger.output("registered plug-in " + plugin.getClass().getName());
       }
     }
+  }
+
+  public void beginThread(final ThreadContext threadContext) {
+    // A new thread has been started. Create a thread listener for each plugin.
+    // We use a ThreadLifeCycleListener so the thread listener is created in the
+    // worker thread.
+
+    threadContext.registerThreadLifeCycleListener(
+      new ThreadLifeCycleListener() {
+        public void beginThread() {
+          final RegisteredPlugin[] registeredPlugins;
+
+          synchronized (m_plugins) {
+            registeredPlugins = (RegisteredPlugin[])m_plugins.values().toArray(
+                                  new RegisteredPlugin[m_plugins.size()]);
+          }
+
+          for (int i = 0; i < registeredPlugins.length; ++i) {
+            try {
+              registeredPlugins[i].createPluginThreadListener(threadContext);
+            }
+            catch (EngineException e) {
+              // Swallow plugin failures. We don't need a result from
+              // createPluginThreadListener(), and it will have produced
+              // adequate logging.
+            }
+          }
+        }
+
+        public void beginRun() { }
+
+        public void endRun() { }
+
+        public void endThread() { }
+      });
   }
 }

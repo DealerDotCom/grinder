@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +29,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
+import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -235,9 +236,13 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.resumeClock();
     anotherDispatchContextStubFactory.assertNoMoreCalls();
 
-    threadContext.beginRunEvent();
+    threadContext.fireBeginThreadEvent();
     anotherDispatchContextStubFactory.assertNoMoreCalls();
-    threadContext.endRunEvent();
+    threadContext.fireBeginRunEvent();
+    anotherDispatchContextStubFactory.assertNoMoreCalls();
+    threadContext.fireEndRunEvent();
+    anotherDispatchContextStubFactory.assertNoMoreCalls();
+    threadContext.fireEndThreadEvent();
     anotherDispatchContextStubFactory.assertNoMoreCalls();
 
     try {
@@ -246,6 +251,33 @@ public class TestThreadContextImplementation extends TestCase {
     }
     catch (AssertionError e) {
     }
+  }
+
+  public void testEvents() throws Exception {
+    final RandomStubFactory threadLifeCycleListenerStubFactory =
+      new RandomStubFactory(ThreadLifeCycleListener.class);
+    final ThreadLifeCycleListener threadLifeCycleListener =
+      (ThreadLifeCycleListener)threadLifeCycleListenerStubFactory.getStub();
+
+    final ThreadContext threadContext =
+      new ThreadContextImplementation(
+        m_processContext, m_threadLogger, m_filenameFactory, null);
+
+    threadContext.registerThreadLifeCycleListener(threadLifeCycleListener);
+
+    threadContext.fireBeginThreadEvent();
+    threadLifeCycleListenerStubFactory.assertSuccess("beginThread");
+
+    threadContext.fireBeginRunEvent();
+    threadLifeCycleListenerStubFactory.assertSuccess("beginRun");
+
+    threadContext.fireEndRunEvent();
+    threadLifeCycleListenerStubFactory.assertSuccess("endRun");
+
+    threadContext.fireEndThreadEvent();
+    threadLifeCycleListenerStubFactory.assertSuccess("endThread");
+
+    threadLifeCycleListenerStubFactory.assertNoMoreCalls();
   }
 
   public void testDelayReports() throws Exception {
@@ -290,9 +322,9 @@ public class TestThreadContextImplementation extends TestCase {
     m_dispatchContextStubFactory.assertSuccess("getTest");
     threadContext.popDispatchContext();
     m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
-    threadContext.beginRunEvent();
+    threadContext.fireBeginRunEvent();
     m_dispatchContextStubFactory.assertNoMoreCalls();
-    threadContext.endRunEvent();
+    threadContext.fireEndRunEvent();
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
 

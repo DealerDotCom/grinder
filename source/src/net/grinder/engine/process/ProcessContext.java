@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -45,8 +45,6 @@ interface ProcessContext {
 
   Logger getProcessLogger();
 
-  PluginRegistryImplementation getPluginRegistry();
-
   TestRegistry getTestRegistry();
 
   GrinderProperties getProperties();
@@ -79,4 +77,6 @@ interface ProcessContext {
   Sleeper getSleeper();
 
   StatisticsServices getStatisticsServices();
+
+  void fireBeginThreadEvent(ThreadContext threadContext);
 }

@@ -84,6 +84,9 @@ class GrinderThread implements java.lang.Runnable {
     m_numberOfRuns = properties.getInt("grinder.runs", 1);
 
     s_numberOfThreads++;    // See s_numberOfThreads javadoc.
+
+    // Dispatch the process context callback in the main thread.
+    m_processContext.fireBeginThreadEvent(m_context);
   }
 
   /**
@@ -97,6 +100,10 @@ class GrinderThread implements java.lang.Runnable {
     final PrintWriter errorWriter = logger.getErrorLogWriter();
 
     logger.setCurrentRunNumber(-1);
+
+    // Fire begin thread event before creating the worker runnable to allow
+    // plugins to do per-thread initialisation required by the script code.
+    m_context.fireBeginThreadEvent();
 
     try {
       final ScriptEngine.WorkerRunnable scriptThreadRunnable =
@@ -120,7 +127,7 @@ class GrinderThread implements java.lang.Runnable {
 
         logger.setCurrentRunNumber(currentRun);
 
-        m_context.beginRunEvent();
+        m_context.fireBeginRunEvent();
 
         try {
           scriptThreadRunnable.run();
@@ -141,7 +148,7 @@ class GrinderThread implements java.lang.Runnable {
           }
         }
 
-        m_context.endRunEvent();
+        m_context.fireEndRunEvent();
       }
 
       logger.setCurrentRunNumber(-1);
@@ -160,6 +167,8 @@ class GrinderThread implements java.lang.Runnable {
           e.printStackTrace(errorWriter);
         }
       }
+
+      m_context.fireEndThreadEvent();
     }
     catch (ScriptExecutionException e) {
       synchronized (errorWriter) {

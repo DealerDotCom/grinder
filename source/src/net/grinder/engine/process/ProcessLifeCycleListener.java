@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,46 +19,18 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.engine.process;
 
 
 /**
- * Thread life cycle event call backs.
+ * Process life cycle callbacks.
  *
- * <p>
- * All methods will be called using the thread to which the event refers.
- * </p>
+ * <p>Package scope</p>
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 2664 $
  */
-public interface ThreadLifeCycleListener {
+interface ProcessLifeCycleListener {
 
-  /**
-   * This method is called just after the thread has started.
-   *
-   * <p>
-   * Plugin thread listeners created by
-   * {@link net.grinder.plugininterface.GrinderPlugin#createThreadListener} will
-   * will receive this event, so long as their plugin registers itself before
-   * the worker threads start (see notes at
-   * {@link net.grinder.plugininterface.PluginRegistry}).
-   * </p>
-   */
-  void beginThread();
-
-  /**
-   * This method is called at the start of every run.
-   */
-  void beginRun();
-
-  /**
-   * This method is called at the end of every run.
-   */
-  void endRun();
-
-  /**
-   * This method is called when the thread is shut down.
-   */
-  void endThread();
+  void beginThread(ThreadContext threadContext);
 }

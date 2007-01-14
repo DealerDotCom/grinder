@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,7 +56,7 @@ public class TestRegisteredPlugin extends TestCase {
       new RandomStubFactory(ScriptContext.class);
     final ScriptContext scriptContext =
       (ScriptContext)scriptContextStubFactory.getStub();
-    
+
     final RandomStubFactory timeAuthorityStubFactory =
       new RandomStubFactory(TimeAuthority.class);
     final TimeAuthority timeAuthority =
@@ -73,6 +73,8 @@ public class TestRegisteredPlugin extends TestCase {
                            timeAuthority);
 
     assertSame(scriptContext, registeredPlugin.getScriptContext());
+    assertSame(StatisticsServicesImplementation.getInstance(),
+               registeredPlugin.getStatisticsServices());
     assertSame(timeAuthority, registeredPlugin.getTimeAuthority());
   }
 
@@ -92,7 +94,7 @@ public class TestRegisteredPlugin extends TestCase {
       new RandomStubFactory(TimeAuthority.class);
     final TimeAuthority timeAuthority =
       (TimeAuthority)timeAuthorityStubFactory.getStub();
-    
+
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
@@ -159,7 +161,7 @@ public class TestRegisteredPlugin extends TestCase {
     assertSame(pluginThreadListener1, pluginThreadListener2);
 
     final PluginThreadListener pluginThreadListener3 =
-      registeredPlugin.getPluginThreadListener(threadContext);
+      registeredPlugin.createPluginThreadListener(threadContext);
 
     assertSame(pluginThreadListener1, pluginThreadListener3);
 

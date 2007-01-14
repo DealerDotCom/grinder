@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,6 +20,8 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.engine.process;
+
+import java.io.PrintWriter;
 
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
@@ -71,10 +73,10 @@ final class RegisteredPlugin implements PluginProcessContext {
       throw new EngineException("Must be called from worker thread");
     }
 
-    return getPluginThreadListener(threadContext);
+    return createPluginThreadListener(threadContext);
   }
 
-  PluginThreadListener getPluginThreadListener(ThreadContext threadContext)
+  PluginThreadListener createPluginThreadListener(ThreadContext threadContext)
     throws EngineException {
 
     final PluginThreadListener existingPluginThreadListener =
@@ -84,24 +86,29 @@ final class RegisteredPlugin implements PluginProcessContext {
       return existingPluginThreadListener;
     }
 
+    final PluginThreadListener newPluginThreadListener;
+
     try {
-      final PluginThreadListener newPluginThreadListener =
-        m_plugin.createThreadListener(threadContext);
-
-      m_threadListenerThreadLocal.set(newPluginThreadListener);
-
-      threadContext.registerThreadLifeCycleListener(newPluginThreadListener);
-
-      return newPluginThreadListener;
+      newPluginThreadListener = m_plugin.createThreadListener(threadContext);
     }
     catch (PluginException e) {
       final Logger logger = threadContext.getThreadLogger();
 
-      logger.error("Thread could not initialise plugin: " + e);
-      e.printStackTrace(logger.getErrorLogWriter());
+      final PrintWriter errorLogWriter = logger.getErrorLogWriter();
 
-      throw new EngineException("Thread could not initialise plugin", e);
+      synchronized (errorLogWriter) {
+        logger.error("Plugin could not create thread listener: " + e);
+        e.printStackTrace(errorLogWriter);
+      }
+
+      throw new EngineException("Plugin could not create thread listener", e);
     }
+
+    m_threadListenerThreadLocal.set(newPluginThreadListener);
+
+    threadContext.registerThreadLifeCycleListener(newPluginThreadListener);
+
+    return newPluginThreadListener;
   }
 
   public StatisticsServices getStatisticsServices() {

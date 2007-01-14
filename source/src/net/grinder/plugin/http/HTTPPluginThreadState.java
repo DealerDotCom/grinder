@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -104,6 +104,8 @@ class HTTPPluginThreadState implements PluginThreadListener {
     return newConnectionWrapper;
   }
 
+  public void beginThread() { }
+
   public void beginRun() {
     // Discard our cookies.
     CookieModule.discardAllCookies(this);
@@ -118,8 +120,9 @@ class HTTPPluginThreadState implements PluginThreadListener {
     m_httpConnectionWrappers.clear();
   }
 
-  public void endRun() {
-  }
+  public void endRun() { }
+
+  public void endThread() { }
 
   public void setLastResponse(HTTPResponse lastResponse) {
     m_lastResponse = lastResponse;

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,10 @@ package net.grinder.engine.process;
 import junit.framework.TestCase;
 
 import net.grinder.common.Logger;
+import net.grinder.common.ThreadLifeCycleListener;
+import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -41,80 +44,130 @@ import net.grinder.util.TimeAuthority;
  */
 public class TestPluginRegistryImplementation extends TestCase {
 
+  private final RandomStubFactory m_loggerStubFactory =
+    new RandomStubFactory(Logger.class);
+  private final Logger m_logger = (Logger)m_loggerStubFactory.getStub();
+
+  private final RandomStubFactory m_scriptContextStubFactory =
+    new RandomStubFactory(ScriptContext.class);
+  private final ScriptContext m_scriptContext =
+    (ScriptContext)m_scriptContextStubFactory.getStub();
+
+  private final RandomStubFactory m_timeAuthorityStubFactory =
+    new RandomStubFactory(TimeAuthority.class);
+  private final TimeAuthority m_timeAuthority =
+    (TimeAuthority)m_timeAuthorityStubFactory.getStub();
+
+  private final ThreadContextLocator m_threadContextLocator =
+    new StubThreadContextLocator();
+  private final RandomStubFactory m_grinderPluginStubFactory =
+    new RandomStubFactory(GrinderPlugin.class);
+  private final GrinderPlugin m_grinderPlugin =
+    (GrinderPlugin)m_grinderPluginStubFactory.getStub();
+
+  public void setUp() {
+    m_grinderPluginStubFactory.setIgnoreObjectMethods(true);
+  }
+
   public void testConstructorAndSingleton() throws Exception {
-    final RandomStubFactory loggerStubFactory =
-      new RandomStubFactory(Logger.class);
-    final Logger logger = (Logger)loggerStubFactory.getStub();
-
-    final RandomStubFactory scriptContextStubFactory =
-      new RandomStubFactory(ScriptContext.class);
-    final ScriptContext scriptContext =
-      (ScriptContext)scriptContextStubFactory.getStub();
-
-    final RandomStubFactory timeAuthorityStubFactory =
-      new RandomStubFactory(TimeAuthority.class);
-    final TimeAuthority timeAuthority =
-      (TimeAuthority)timeAuthorityStubFactory.getStub();
-    
-    final ThreadContextLocator threadContextLocator =
-      new StubThreadContextLocator();
-
     final PluginRegistry pluginRegistry =
       new PluginRegistryImplementation(
-        logger, scriptContext, threadContextLocator,
-        StatisticsServicesImplementation.getInstance(), timeAuthority);
+        m_logger, m_scriptContext, m_threadContextLocator,
+        StatisticsServicesImplementation.getInstance(), m_timeAuthority);
 
     assertSame(pluginRegistry, PluginRegistry.getInstance());
   }
 
   public void testRegister() throws Exception {
-    final RandomStubFactory loggerStubFactory =
-      new RandomStubFactory(Logger.class);
-    final Logger logger = (Logger)loggerStubFactory.getStub();
-
-    final RandomStubFactory scriptContextStubFactory =
-      new RandomStubFactory(ScriptContext.class);
-    final ScriptContext scriptContext =
-      (ScriptContext)scriptContextStubFactory.getStub();
-    
-    final RandomStubFactory timeAuthorityStubFactory =
-      new RandomStubFactory(TimeAuthority.class);
-    final TimeAuthority timeAuthority =
-      (TimeAuthority)timeAuthorityStubFactory.getStub();
-
-    final ThreadContextLocator threadContextLocator =
-      new StubThreadContextLocator();
-
     final PluginRegistry pluginRegistry =
       new PluginRegistryImplementation(
-        logger, scriptContext, threadContextLocator,
-        StatisticsServicesImplementation.getInstance(), timeAuthority);
+        m_logger, m_scriptContext, m_threadContextLocator,
+        StatisticsServicesImplementation.getInstance(), m_timeAuthority);
 
-    final RandomStubFactory grinderPluginStubFactory =
-      new RandomStubFactory(GrinderPlugin.class);
-    grinderPluginStubFactory.setIgnoreObjectMethods(true);
-    final GrinderPlugin grinderPlugin =
-      (GrinderPlugin)grinderPluginStubFactory.getStub();
-
-    pluginRegistry.register(grinderPlugin);
+    pluginRegistry.register(m_grinderPlugin);
 
     final CallData callData =
-      grinderPluginStubFactory.assertSuccess("initialize",
-                                             RegisteredPlugin.class);
+      m_grinderPluginStubFactory.assertSuccess("initialize",
+                                               RegisteredPlugin.class);
 
     final RegisteredPlugin registeredPlugin =
       (RegisteredPlugin)callData.getParameters()[0];
-    assertSame(scriptContext, registeredPlugin.getScriptContext());
-    assertSame(timeAuthority, registeredPlugin.getTimeAuthority());
+    assertSame(m_scriptContext, registeredPlugin.getScriptContext());
+    assertSame(m_timeAuthority, registeredPlugin.getTimeAuthority());
 
-    grinderPluginStubFactory.assertNoMoreCalls();
+    m_grinderPluginStubFactory.assertNoMoreCalls();
 
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerStubFactory.assertNoMoreCalls();
 
-    pluginRegistry.register(grinderPlugin);
+    pluginRegistry.register(m_grinderPlugin);
 
-    grinderPluginStubFactory.assertNoMoreCalls();
-    loggerStubFactory.assertNoMoreCalls();
+    m_grinderPluginStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  public void testRegisterWithBadPlugin() throws Exception {
+    final PluginRegistry pluginRegistry =
+      new PluginRegistryImplementation(
+        m_logger, m_scriptContext, m_threadContextLocator,
+        StatisticsServicesImplementation.getInstance(), m_timeAuthority);
+
+    final PluginException initialiseException =
+      new PluginException("barf");
+    m_grinderPluginStubFactory.setThrows("initialize", initialiseException);
+
+    try {
+      pluginRegistry.register(m_grinderPlugin);
+      fail("Expected EngineException");
+    }
+    catch (EngineException e) {
+      assertSame(initialiseException, e.getCause());
+    }
+  }
+
+  public void testListeners() throws Exception {
+    final PluginRegistryImplementation pluginRegistry =
+      new PluginRegistryImplementation(
+        m_logger, m_scriptContext, m_threadContextLocator,
+        StatisticsServicesImplementation.getInstance(), m_timeAuthority);
+
+    final RandomStubFactory threadContextStubFactory =
+      new RandomStubFactory(ThreadContext.class);
+    final ThreadContext threadContext =
+      (ThreadContext)threadContextStubFactory.getStub();
+
+    pluginRegistry.beginThread(threadContext);
+
+    final CallData callData =
+      threadContextStubFactory.assertSuccess(
+        "registerThreadLifeCycleListener",
+        ThreadLifeCycleListener.class);
+
+    final ThreadLifeCycleListener threadListener =
+      (ThreadLifeCycleListener)callData.getParameters()[0];
+
+    assertNotNull(threadListener);
+
+    threadListener.beginThread();
+    threadContextStubFactory.assertNoMoreCalls();
+    threadListener.beginRun();
+    threadListener.endRun();
+    threadListener.endThread();
+
+    pluginRegistry.register(m_grinderPlugin);
+    m_grinderPluginStubFactory.assertSuccess(
+      "initialize", RegisteredPlugin.class);
+
+    threadListener.beginThread();
+    m_grinderPluginStubFactory.assertSuccess(
+      "createThreadListener", threadContext);
+    threadContextStubFactory.assertSuccess(
+      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
+
+    threadListener.beginRun();
+    threadListener.endRun();
+    threadListener.endThread();
+
+    threadContextStubFactory.assertNoMoreCalls();
   }
 }

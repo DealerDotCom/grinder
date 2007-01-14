@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,10 +37,12 @@ import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.JVM;
+import net.grinder.util.ListenerSupport;
 import net.grinder.util.Sleeper;
 import net.grinder.util.SleeperImplementation;
 import net.grinder.util.StandardTimeAuthority;
 import net.grinder.util.TimeAuthority;
+import net.grinder.util.ListenerSupport.Informer;
 
 
 /**
@@ -50,6 +52,9 @@ import net.grinder.util.TimeAuthority;
  * @version $Revision$
  */
 final class ProcessContextImplementation implements ProcessContext {
+  private final ListenerSupport m_processLifeCycleListeners =
+    new ListenerSupport();
+
   private final WorkerIdentity m_workerIdentity;
   private final GrinderProperties m_properties;
   private final Logger m_processLogger;
@@ -146,6 +151,8 @@ final class ProcessContextImplementation implements ProcessContext {
                                        m_threadContextLocator,
                                        statisticsServices, m_timeAuthority);
 
+    m_processLifeCycleListeners.add(m_pluginRegistry);
+
     m_testRegistry =
       new TestRegistry(m_threadContextLocator,
                        statisticsServices.getStatisticsSetFactory(),
@@ -238,13 +245,20 @@ final class ProcessContextImplementation implements ProcessContext {
     return m_statisticsServices;
   }
 
+  public void fireBeginThreadEvent(final ThreadContext threadContext) {
+    m_processLifeCycleListeners.apply(new Informer() {
+      public void inform(Object listener) {
+        ((ProcessLifeCycleListener)listener).beginThread(threadContext);
+      } }
+    );
+  }
+
   private static final class ThreadContextLocatorImplementation
     implements ThreadContextLocator  {
 
     private final ThreadLocal m_threadContextThreadLocal = new ThreadLocal();
 
     public ThreadContext get() {
-
       return (ThreadContext)m_threadContextThreadLocal.get();
     }
 

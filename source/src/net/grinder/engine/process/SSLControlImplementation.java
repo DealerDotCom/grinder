@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -184,13 +184,16 @@ final class SSLControlImplementation implements SSLControl {
       return m_sslContext;
     }
 
-    public void beginRun() {
-    }
+    public void beginThread() { }
+
+    public void beginRun() { }
 
     public void endRun() {
       if (!m_shareContextBetweenRuns) {
         m_sslContext = null;
       }
     }
+
+    public void endThread() { }
   }
 }

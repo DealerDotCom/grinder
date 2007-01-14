@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,8 +25,18 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * <p>Plugins must register themselves with the process wide singleton
- * instance of this class.</p>
+ * <p>
+ * Plugins must register themselves with the process wide singleton instance of
+ * this class.
+ * </p>
+ *
+ * <p>
+ * Plugins should register before worker threads start, otherwise thread
+ * listeners will not be created for existing threads. Typically a plugin will
+ * want to initialise itself when a script imports one or more of its classes. A
+ * static initialiser is a good way to achieve this - see the
+ * {@link net.grinder.plugin.http.HTTPPlugin} implementation for an example.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$

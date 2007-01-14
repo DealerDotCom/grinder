@@ -161,7 +161,7 @@ public class TestExternalFilenameFactory extends TestCase {
   private static class TestThread extends Thread {
     private final ExternalFilenameFactory m_externalFilenameFactory;
     private final ThreadContextLocator m_threadContextLocator;
-    private boolean m_ok = false;
+    private volatile boolean m_ok = false;
 
     public TestThread(ExternalFilenameFactory externalFilenameFactory,
                       ThreadContextLocator threadContextLocator) {

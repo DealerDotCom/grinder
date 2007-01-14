@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -112,8 +112,10 @@ final class ThreadContextImplementation
 
     registerThreadLifeCycleListener(
       new ThreadLifeCycleListener() {
+        public void beginThread() { }
         public void beginRun() { }
         public void endRun() { reportPendingDispatchContext(); }
+        public void endThread() { }
       });
   }
 
@@ -150,7 +152,15 @@ final class ThreadContextImplementation
     m_threadLifeCycleListeners.add(listener);
   }
 
-  public void beginRunEvent() {
+  public void fireBeginThreadEvent() {
+    m_threadLifeCycleListeners.apply(new Informer() {
+      public void inform(Object listener) {
+        ((ThreadLifeCycleListener)listener).beginThread();
+      } }
+    );
+  }
+
+  public void fireBeginRunEvent() {
     m_threadLifeCycleListeners.apply(new Informer() {
       public void inform(Object listener) {
         ((ThreadLifeCycleListener)listener).beginRun();
@@ -158,10 +168,18 @@ final class ThreadContextImplementation
     );
   }
 
-  public void endRunEvent() {
+  public void fireEndRunEvent() {
     m_threadLifeCycleListeners.apply(new Informer() {
       public void inform(Object listener) {
         ((ThreadLifeCycleListener)listener).endRun();
+      } }
+    );
+  }
+
+  public void fireEndThreadEvent() {
+    m_threadLifeCycleListeners.apply(new Informer() {
+      public void inform(Object listener) {
+        ((ThreadLifeCycleListener)listener).endThread();
       } }
     );
   }

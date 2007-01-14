@@ -10,6 +10,12 @@ The Grinder 3.0-beta33 <Not yet released>
   Fulfil Feature Request 1185967 - Insert comments while capturing with
   the TCPProxy. Patch implemented by Venelin Mitov.
 
+  Really fix bug 1495428 - Plugin thread context not correctly
+  registered for events. This bug prevented custom plugins from
+  receiving thread lifecycle events but did not affect the HTTP
+  plugin. Thanks to Klaus-Peter Berg for reporting that this was still
+  broken.
+
 
 The Grinder 3.0-beta32
 ----------------------
