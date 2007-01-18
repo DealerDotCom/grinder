@@ -199,7 +199,7 @@ public final class SleeperImplementation implements Sleeper {
     }
   }
 
-  private synchronized void checkShutdown() throws ShutdownException {
+  private void checkShutdown() throws ShutdownException {
 
     synchronized (m_monitor) {
       if (m_shutdown) {

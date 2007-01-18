@@ -16,6 +16,9 @@ The Grinder 3.0-beta33 <Not yet released>
   plugin. Thanks to Klaus-Peter Berg for reporting that this was still
   broken.
 
+  Fix bug 1638659 - Deadlock in SleeperImplementation. Thanks to
+  Bruce Adams for the report.
+
 
 The Grinder 3.0-beta32
 ----------------------
