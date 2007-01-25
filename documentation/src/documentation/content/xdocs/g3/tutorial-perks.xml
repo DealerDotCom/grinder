@@ -139,7 +139,7 @@ for idx in range(len(tests)):
     <title>Forget the Java IO Package when Handling Files</title>
 
 <source>
-file = open("./CAAssets/"+testId+".xml", 'r')  
+file = open("./CAAssets/"+testId+".xml", 'r')
 fileStr = URLEncoder.encode(String(file.read()))
 file.close()
 
@@ -171,7 +171,7 @@ requestString = string.join(requestString.split(), "")
 <source>
 grinder.statistics.delayReports = 1
 request = tests[testId].wrap(HTTPRequest())
-	
+
 log("Sending request %s " % requestString, out)
 result = request.GET(requestString)
 </source>
@@ -202,7 +202,7 @@ result = request.GET(requestString)
 
 <source>
 if string.find(result.getText(), "SUCCESS") &lt; 1:
-    grinder.statistics.setSuccess(0)
+    grinder.statistics.forLastTest.setSuccess(0)
     writeToFile(result.getText(), testId)
 </source>
 
@@ -255,33 +255,33 @@ SERVER     = "http://serverhost:7001"
 URI        = "/myServlet"
 
 class TestRunner:
-    def __call__(self):      
+    def __call__(self):
 
         for idx in range(len(tests)):
-        
+
            testId = random.choice(tests.keys())
-           
+
            log("Reading XML file %s " % testId, out)
-	
-	   file = open("./CAAssets/"+testId+".xml", 'r')  
-	   fileStr = URLEncoder.encode(String(file.read()))
-	   file.close()
-	
-	   # Send the request to the server
-	   requestString = "%s%s%s%s" % (SERVER, URI, "?xmldata=", fileStr)
-	   requestString = string.join(requestString.split(), "")
-	 
-	   grinder.statistics.delayReports = 1
-	   request = tests[testId].wrap(HTTPRequest())
-	
-	   log("Sending request %s " % requestString, out)
-	   result = request.GET(requestString)
-	   
-	   if string.find(result.getText(), "SUCCESS") &lt; 1:
-	      grinder.statistics.setSuccess(0)
-	      writeToFile(result.getText(), testId)
-	     
-	     
+
+           file = open("./CAAssets/"+testId+".xml", 'r')
+           fileStr = URLEncoder.encode(String(file.read()))
+           file.close()
+
+           # Send the request to the server
+           requestString = "%s%s%s%s" % (SERVER, URI, "?xmldata=", fileStr)
+           requestString = string.join(requestString.split(), "")
+
+           grinder.statistics.delayReports = 1
+           request = tests[testId].wrap(HTTPRequest())
+
+           log("Sending request %s " % requestString, out)
+           result = request.GET(requestString)
+
+           if string.find(result.getText(), "SUCCESS") &lt; 1:
+              grinder.statistics.forLastTest.setSuccess(0)
+              writeToFile(result.getText(), testId)
+
+
 # Write the response
 def writeToFile(text, testId):
     filename = grinder.getFilenameFactory().createFilename(
