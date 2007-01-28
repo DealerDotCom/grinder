@@ -223,6 +223,8 @@ public class TestFileStore extends AbstractFileTestCase {
     final Message message2 = new ClearCacheMessage();
 
     FileUtilities.setCanAccess(targetFile, false);
+    // UNIX: Permission to remove a file is set on directory.
+    FileUtilities.setCanAccess(targetFile.getParentFile(), false);
 
     try {
       messageDispatcher.send(message2);
@@ -231,6 +233,7 @@ public class TestFileStore extends AbstractFileTestCase {
     catch (CommunicationException e) {
     }
 
+    FileUtilities.setCanAccess(targetFile.getParentFile(), true);
     FileUtilities.setCanAccess(targetFile, true);
 
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
