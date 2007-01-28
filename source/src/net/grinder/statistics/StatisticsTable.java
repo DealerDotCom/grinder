@@ -46,6 +46,8 @@ public class StatisticsTable {
 
   private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
 
+  private final String m_lineSeparator = System.getProperty("line.separator");
+
   private final FixedWidthFormatter m_headingFormatter =
     new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
                             FixedWidthFormatter.FLOW_WORD_WRAP,
@@ -86,7 +88,7 @@ public class StatisticsTable {
    * @param out The output writer
    */
   public final void print(final PrintWriter out) {
-    final ExpressionView[] expressionViews =
+	final ExpressionView[] expressionViews =
       m_statisticsView.getExpressionViews();
 
     final int numberOfHeaderColumns = expressionViews.length + 1;
@@ -179,7 +181,7 @@ public class StatisticsTable {
       m_freeTextFormatter.transform(buffer, remainder);
 
       if (text.length() > 0) {
-        text.append("\n");
+		text.append(m_lineSeparator);
       }
 
       text.append("  ");
