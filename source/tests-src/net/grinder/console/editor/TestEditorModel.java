@@ -521,7 +521,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     editorModelListenerStubFactory.assertSuccess("bufferStateChanged", buffer);
     editorModelListenerStubFactory.assertNoMoreCalls();
 
-    f1.setLastModified(System.currentTimeMillis() + 1);
+    f1.setLastModified(System.currentTimeMillis() + 1000);
     assertFalse(buffer.isUpToDate());
 
     editorModelListenerStubFactory.assertNoMoreCalls();
@@ -532,7 +532,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     editorModelListenerStubFactory.assertNoMoreCalls();
 
     // Selecting a modified buffer should also fire bufferNotUpToDate.
-    f1.setLastModified(System.currentTimeMillis() + 2);
+    f1.setLastModified(System.currentTimeMillis() + 2000);
     editorModel.selectBufferForFile(f1);
     editorModelListenerStubFactory.assertSuccess("bufferNotUpToDate", buffer);
     editorModelListenerStubFactory.assertNoMoreCalls();
