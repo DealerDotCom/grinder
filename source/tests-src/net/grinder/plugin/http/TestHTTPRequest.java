@@ -41,6 +41,7 @@ import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.StandardTimeAuthority;
 
 
 /**
@@ -86,6 +87,9 @@ public class TestHTTPRequest extends TestCase {
                                               scriptContext);
     pluginProcessContextStubFactory.setResult("getStatisticsServices",
       StatisticsServicesImplementation.getInstance());
+    
+    pluginProcessContextStubFactory.setResult("getTimeAuthority",
+      new StandardTimeAuthority());
 
     final PluginProcessContext pluginProcessContext =
       (PluginProcessContext)pluginProcessContextStubFactory.getStub();

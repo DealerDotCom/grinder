@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
@@ -877,7 +877,8 @@ public class HTTPRequest {
 
       // This will be different to the time the Test was started if
       // the Test wraps several HTTPRequests.
-      final long startTime = System.currentTimeMillis();
+      final long startTime =
+        pluginProcessContext.getTimeAuthority().getTimeInMilliseconds();
 
       final HTTPConnection connection =
         threadState.getConnectionWrapper(m_url).getConnection();
