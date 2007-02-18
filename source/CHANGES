@@ -19,6 +19,10 @@ The Grinder 3.0-beta33 <Not yet released>
   Fix bug 1638659 - Deadlock in SleeperImplementation. Thanks to
   Bruce Adams for the report.
 
+  Change the console's monitoring of changes to files so that it no
+  longer assumes system time matches the file system time. This should
+  fix some subtle bugs, particularly for file systems on shared storage.
+
 
 The Grinder 3.0-beta32
 ----------------------

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import net.grinder.console.communication.DistributionControl;
 import net.grinder.console.distribution.FileChangeWatcher.FileChangedListener;
 import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.Directory;
@@ -69,7 +70,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     // Convince the AgentCacheState that its up to date.
     AgentCacheStateImplementation agentCacheState =
       (AgentCacheStateImplementation)fileDistribution.getAgentCacheState();
-    agentCacheState.updateStarted();
+    agentCacheState.updateStarted(anotherFile.lastModified());
     agentCacheState.updateComplete();
 
     // Test with same directory.
@@ -89,7 +90,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     distributionControlStubFactory.assertSuccess("clearFileCaches");
 
     // Again, convince the AgentCacheState that its up to date.
-    agentCacheState.updateStarted();
+    agentCacheState.updateStarted(anotherFile.lastModified());
     agentCacheState.updateComplete();
 
     // Test with the same directory, but a different pattern, should
@@ -104,7 +105,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     distributionControlStubFactory.assertNoMoreCalls();
 
     // Mark cache as up to date.
-    agentCacheState.updateStarted();
+    agentCacheState.updateStarted(anotherFile.lastModified());
     agentCacheState.updateComplete();
 
     // Test with original directory.
@@ -155,6 +156,14 @@ public class TestFileDistribution extends AbstractFileTestCase {
     fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
     assertEquals(0, agentCacheState.getEarliestFileTime());
 
+    final CallData filesChangedCall =
+      fileListenerStubFactory.assertSuccess("filesChanged", File[].class);
+    final File[] changedFiles = (File[])(filesChangedCall.getParameters()[0]);
+    assertEquals(1, changedFiles.length);
+    assertTrue(changedFiles[0].equals(directory.getFile()));
+
+    fileListenerStubFactory.assertNoMoreCalls();
+    
     final File file1 = new File(getDirectory(), "file1");
     file1.createNewFile();
     final File file2 = new File(getDirectory(), "file2");
@@ -166,31 +175,36 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     fileDistribution.scanDistributionFiles(directory, m_matchAllPattern);
     assertEquals(0, agentCacheState.getEarliestFileTime());
+    fileListenerStubFactory.assertNoMoreCalls();
+    
+    file1.delete();
+    file1.createNewFile();
+    file2.delete();
+    file2.createNewFile();
+    file2.setLastModified(file1.lastModified() + 5000);
+    
     fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
     assertEquals(file1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
-    final CallData filesChangedCall =
+    final CallData filesChangedCall2 =
       fileListenerStubFactory.assertSuccess("filesChanged", File[].class);
-    final File[] changedFiles = (File[])(filesChangedCall.getParameters()[0]);
-    assertEquals(2, changedFiles.length);
-    assertTrue(changedFiles[0].equals(file1) && changedFiles[1].equals(file2) ||
-               changedFiles[0].equals(file2) && changedFiles[1].equals(file1));
+    final File[] changedFiles2 = (File[])(filesChangedCall2.getParameters()[0]);
+    assertEquals(3, changedFiles2.length);
+    AssertUtilities.assertArrayContainsAll(
+      changedFiles2,
+      new File[] { directory.getFile(), file1, file2 } );
 
     fileListenerStubFactory.assertNoMoreCalls();
 
-    agentCacheStateStubFactory.setEarliestFileTime(file2.lastModified() - 10);
-    agentCacheStateStubFactory.resetOutOfDate();
-    fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
-    assertEquals(file2.lastModified(),
-                 agentCacheStateStubFactory.getEarliestOutOfDateTime());
-
     // Even if the cache has older out of date times, we only scan from the
     // last scan time.
+    final File file4 = new File(getDirectory(), "file4");
+    file4.createNewFile();
     agentCacheStateStubFactory.setEarliestFileTime(0);
     agentCacheStateStubFactory.resetOutOfDate();
     fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
-    assertEquals(file1.lastModified(),
+    assertEquals(file4.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
     fileListenerStubFactory.resetCallHistory();
 
@@ -216,11 +230,9 @@ public class TestFileDistribution extends AbstractFileTestCase {
       fileListenerStubFactory.assertSuccess("filesChanged", File[].class);
     final File[] changedDirectories =
       (File[])(directoriesChangedCall.getParameters()[0]);
-    assertEquals(2, changedDirectories.length);
-    assertTrue(changedDirectories[0].equals(directory1) &&
-               changedDirectories[1].equals(directory2) ||
-               changedDirectories[0].equals(directory2) &&
-               changedDirectories[1].equals(directory1));
+    assertEquals(3, changedDirectories.length);
+    AssertUtilities.assertArrayContainsAll(changedDirectories,
+      new File[] { testDirectory, directory1, directory2 } );
 
     fileListenerStubFactory.assertNoMoreCalls();
   }

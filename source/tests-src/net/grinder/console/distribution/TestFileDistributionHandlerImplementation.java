@@ -74,7 +74,8 @@ public class TestFileDistributionHandlerImplementation
     distributionControlStubFactory.assertSuccess("sendFile",
                                                  FileContents.class);
 
-    updateableAgentCacheStateStubFactory.assertSuccess("updateStarted");
+    updateableAgentCacheStateStubFactory.assertSuccess(
+      "updateStarted", Long.class);
     updateableAgentCacheStateStubFactory.assertNoMoreCalls();
 
     final FileDistributionHandler.Result result1 =

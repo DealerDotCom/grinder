@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -44,7 +44,7 @@ final class AgentCacheStateImplementation
   // m_state, m_earliestFileTime, m_updateStartTime are guarded by this.
   private int m_state = OUT_OF_DATE;
   private long m_earliestFileTime = -1;
-  private long m_updateStartTime = -1;
+  private long m_postUpdateEarliestFileTime = -1;
 
   public synchronized long getEarliestFileTime() {
     return m_earliestFileTime;
@@ -59,8 +59,8 @@ final class AgentCacheStateImplementation
   }
 
   public synchronized void setOutOfDate(long invalidAfter) {
-    if (m_updateStartTime > invalidAfter) {
-      m_updateStartTime = invalidAfter;
+    if (m_postUpdateEarliestFileTime > invalidAfter) {
+      m_postUpdateEarliestFileTime = invalidAfter;
     }
 
     if (m_earliestFileTime > invalidAfter) {
@@ -70,8 +70,8 @@ final class AgentCacheStateImplementation
     setState(OUT_OF_DATE);
   }
 
-  public synchronized void updateStarted() {
-    m_updateStartTime = System.currentTimeMillis();
+  public synchronized void updateStarted(long latestFileTime) {
+    m_postUpdateEarliestFileTime = latestFileTime;
     setState(UPDATING);
   }
 
@@ -84,7 +84,7 @@ final class AgentCacheStateImplementation
 
     // Even if we're not up to date, we've at least transfered all
     // files older than this m_updateStartTime.
-    m_earliestFileTime = m_updateStartTime;
+    m_earliestFileTime = m_postUpdateEarliestFileTime;
   }
 
   private void setState(int newState) {

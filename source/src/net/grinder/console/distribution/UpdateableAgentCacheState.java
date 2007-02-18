@@ -27,7 +27,7 @@ interface UpdateableAgentCacheState extends AgentCacheState {
 
   long getEarliestFileTime();
 
-  void updateStarted();
+  void updateStarted(long latestFileTime);
 
   void updateComplete();
 }

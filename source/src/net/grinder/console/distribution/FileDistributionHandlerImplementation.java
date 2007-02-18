@@ -59,7 +59,17 @@ final class FileDistributionHandlerImplementation
 
     if (m_fileIndex < m_files.length) {
       if (m_fileIndex == 0) {
-        m_updateableCacheState.updateStarted();
+        long latestFileTime = 0;
+
+        for (int i = 0; i < m_files.length; ++i) {
+          final long fileTime = m_files[i].lastModified();
+
+          if (fileTime > latestFileTime) {
+            latestFileTime = fileTime;
+          }
+        }
+
+        m_updateableCacheState.updateStarted(latestFileTime);
       }
 
       try {

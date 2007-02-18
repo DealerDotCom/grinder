@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,41 +54,42 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
     assertTrue(cacheState.getOutOfDate());
     propertyChangeListenerStubFactory.assertNoMoreCalls();
 
-    cacheState.updateStarted();
+    final long update1StartTime = System.currentTimeMillis();
+    cacheState.updateStarted(update1StartTime);
     assertEquals(-1, cacheState.getEarliestFileTime());
     assertTrue(cacheState.getOutOfDate());
     propertyChangeListenerStubFactory.assertNoMoreCalls();
 
     cacheState.updateComplete();
     assertFalse(cacheState.getOutOfDate());
-    final long earliestFileTime = cacheState.getEarliestFileTime();
-    assertFalse(earliestFileTime == -1);
+    assertEquals(update1StartTime, cacheState.getEarliestFileTime());
     propertyChangeListenerStubFactory.assertSuccess("propertyChange",
                                                     PropertyChangeEvent.class);
     propertyChangeListenerStubFactory.assertNoMoreCalls();
 
     cacheState.setOutOfDate();
     assertTrue(cacheState.getOutOfDate());
-    assertEquals(earliestFileTime, earliestFileTime);
+    assertEquals(-1, cacheState.getEarliestFileTime());
     propertyChangeListenerStubFactory.assertSuccess("propertyChange",
                                                     PropertyChangeEvent.class);
     propertyChangeListenerStubFactory.assertNoMoreCalls();
 
     Thread.sleep(10);
 
-    cacheState.updateStarted();
+    final long update2StartTime = System.currentTimeMillis();
+    cacheState.updateStarted(update2StartTime);
     assertTrue(cacheState.getOutOfDate());
-    assertEquals(earliestFileTime, earliestFileTime);
+    assertEquals(-1, cacheState.getEarliestFileTime());
     propertyChangeListenerStubFactory.assertNoMoreCalls();
 
     cacheState.setOutOfDate();
     assertTrue(cacheState.getOutOfDate());
-    assertEquals(earliestFileTime, earliestFileTime);
+    assertEquals(-1, cacheState.getEarliestFileTime());
     propertyChangeListenerStubFactory.assertNoMoreCalls();
 
     cacheState.updateComplete();
     assertTrue(cacheState.getOutOfDate());
-    assertFalse(earliestFileTime == cacheState.getEarliestFileTime());
+    assertEquals(-1, cacheState.getEarliestFileTime());
     propertyChangeListenerStubFactory.assertNoMoreCalls();
   }
 }

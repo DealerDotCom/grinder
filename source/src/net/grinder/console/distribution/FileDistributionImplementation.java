@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,7 @@
 package net.grinder.console.distribution;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -64,7 +65,6 @@ public final class FileDistributionImplementation implements FileDistribution {
     m_distributionControl = distributionControl;
     m_cacheState = agentCacheState;
   }
-
 
   /**
    * Accessor for our {@link AgentCacheState}.
@@ -125,6 +125,18 @@ public final class FileDistributionImplementation implements FileDistribution {
    * the agent cache state appropriately. Notify our listeners if changed files
    * are discovered.
    *
+   * <p>
+   * This method is too coupled to the agent cache. Perhaps this and the file
+   * watcher support should be factored out into a separate class. Currently,
+   * the file listeners only get notification for things that match the
+   * distribution filter. This causes some very minor bugs, e.g. the editor file
+   * tree won't refresh for changes to the contents of CVS directories. On the
+   * other hand, if the agent cache was receiving notifications, it would have
+   * to apply the distribution filter itself - to do this right would require
+   * filtering the contents of directories that don't pass the distribution
+   * filter, which is a pain to do efficiently.
+   * </p>
+   *
    * @param directory
    *          The directory to scan.
    * @param distributionFileFilterPattern
@@ -134,19 +146,30 @@ public final class FileDistributionImplementation implements FileDistribution {
     Directory directory,
     Pattern distributionFileFilterPattern) {
 
-    final long now = System.currentTimeMillis();
+    // If the cache has been reset, we scan all time. Otherwise we
+    // just look for changes since the last scan.
+    final long cacheTime = m_cacheState.getEarliestFileTime();
+    final long scanTime = cacheTime < 0 ? cacheTime : m_lastScanTime;
 
-    // We back up a little from m_lastScanTime to protect against
-    // race conditions with processes that are modifying files.
-    final long scanTime =
-      Math.max(m_cacheState.getEarliestFileTime(), m_lastScanTime - 100);
+    // We only work with times obtained from the file system. This avoids
+    // problems due to differences between the system clock and whatever the
+    // (potentially remote) file system uses to generate timestamps. It also
+    // avoids problems due to accuracy of file timestamps.
+    try {
+      final File temporaryFile =
+        File.createTempFile(".scantime", "", directory.getFile());
+      temporaryFile.deleteOnExit();
+      m_lastScanTime = temporaryFile.lastModified();
+      temporaryFile.delete();
+    }
+    catch (IOException e) {
+      m_lastScanTime = System.currentTimeMillis() - 1000;
+    }
 
     final File[] laterFiles =
       directory.listContents(
         new FileDistributionFilter(distributionFileFilterPattern, scanTime),
         true, true);
-
-    m_lastScanTime = now;
 
     if (laterFiles.length > 0) {
       final Set changedFiles = new HashSet(laterFiles.length / 2);
@@ -157,7 +180,7 @@ public final class FileDistributionImplementation implements FileDistribution {
         // We didn't filter directories by time when building up laterFiles,
         // do so now.
         if (laterFile.isDirectory() &&
-            laterFile.lastModified() <= scanTime) {
+            laterFile.lastModified() < scanTime) {
           continue;
         }
 

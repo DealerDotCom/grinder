@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -71,7 +71,7 @@ final class FileDistributionFilter implements FileFilter {
         return false;
       }
 
-      return file.lastModified() > m_earliestTime;
+      return file.lastModified() >= m_earliestTime;
     }
   }
 }
