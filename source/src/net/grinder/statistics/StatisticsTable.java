@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -88,7 +88,7 @@ public class StatisticsTable {
    * @param out The output writer
    */
   public final void print(final PrintWriter out) {
-	final ExpressionView[] expressionViews =
+  final ExpressionView[] expressionViews =
       m_statisticsView.getExpressionViews();
 
     final int numberOfHeaderColumns = expressionViews.length + 1;
@@ -181,7 +181,7 @@ public class StatisticsTable {
       m_freeTextFormatter.transform(buffer, remainder);
 
       if (text.length() > 0) {
-		text.append(m_lineSeparator);
+    text.append(m_lineSeparator);
       }
 
       text.append("  ");

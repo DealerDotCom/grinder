@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -88,7 +88,8 @@ final class DebugThreadWorker implements Worker {
     }
     catch (InstantiationException e) {
       throw new EngineException(
-        "Failed to create IsolateGrinderProcessRunner", e);    }
+        "Failed to create IsolateGrinderProcessRunner", e);
+    }
     catch (IllegalAccessException e) {
       throw new EngineException(
         "Failed to create IsolateGrinderProcessRunner", e);
