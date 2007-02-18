@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,9 @@
 
 package net.grinder.testutility;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,6 +116,11 @@ public class AssertUtilities extends Assert {
         }
       }
     }
+  }
+
+  public static void assertArrayContainsAll(Object[] array1, Object[] array2) {
+    assertTrue(
+      new HashSet(Arrays.asList(array1)).containsAll(Arrays.asList(array2)));
   }
 
   public static void assertNotEquals(Object o1, Object o2) {
