@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -163,8 +163,8 @@ public class TestDirectory extends AbstractFileTestCase {
       FileUtilities.setCanAccess(badDirectories[i], true);
     }
 
-    // Check that listContents() returns the lot.
-    final File[] allFiles = directory.listContents();
+    final File[] allFiles =
+      directory.listContents(Directory.getMatchAllFilesFilter());
     assertEquals(files.length, allFiles.length);
   }
 
@@ -316,7 +316,8 @@ public class TestDirectory extends AbstractFileTestCase {
 
     assertFalse(overwritten.exists());
 
-    final File[] contents = outputDirectory.listContents();
+    final File[] contents =
+      outputDirectory.listContents(Directory.getMatchAllFilesFilter());
 
     for (int i = 0; i < contents.length; ++i) {
       assertTrue("Original contains '" + contents[i] + "'",
@@ -327,7 +328,8 @@ public class TestDirectory extends AbstractFileTestCase {
 
     sourceDirectory.copyTo(outputDirectory, true);
 
-    final File[] contents2 = outputDirectory.listContents();
+    final File[] contents2 =
+      outputDirectory.listContents(Directory.getMatchAllFilesFilter());
 
     for (int i = 0; i < contents2.length; ++i) {
       if (!contents2[i].getPath().startsWith("output")) {
@@ -337,7 +339,8 @@ public class TestDirectory extends AbstractFileTestCase {
     }
 
     final File[] contents3 =
-      new Directory(new File("output/output")).listContents();
+      new Directory(new File("output/output"))
+      .listContents(Directory.getMatchAllFilesFilter());
 
     for (int i = 0; i < contents3.length; ++i) {
       assertTrue("Original contains '" + contents3[i] + "'",

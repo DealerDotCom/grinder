@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,11 +49,21 @@ import net.grinder.util.thread.UncheckedInterruptedException;
  */
 public final class Directory  {
 
-  private static final FileFilter s_nullFileFilter = new NullFileFilter();
+  private static final FileFilter s_matchAllFilesFilter =
+    new MatchAllFilesFilter();
 
   private final File m_directory;
   private final List m_warnings = new ArrayList();
 
+  /**
+   * Returns a filter matching all files.
+   * 
+   * @return A filter matching all files.
+   */
+  public static FileFilter getMatchAllFilesFilter() {
+    return s_matchAllFilesFilter;
+  }
+  
   /**
    * Constructor that builds a Directory for the current working directory.
    */
@@ -110,23 +120,6 @@ public final class Directory  {
    */
   public File getFile(String childName) {
     return new File(getFile(), childName);
-  }
-
-  /**
-   * List the files in the hierarchy below the directory.
-   *
-   * <p>
-   * Equivalent to <code>listContents(filter, false, false), where filter
-   * matches every file</code>.
-   * </p>
-   *
-   * @return The list of files. Files are relative to the directory, not
-   *         absolute. More deeply nested files are later in the list. The list
-   *         is empty if the directory does not exist.
-   * @see #listContents(FileFilter, boolean, boolean)
-   */
-  public File[] listContents() {
-    return listContents(s_nullFileFilter);
   }
 
   /**
@@ -231,7 +224,7 @@ public final class Directory  {
   public void deleteContents() throws DirectoryException {
     // We rely on the order of the listContents result: more deeply
     // nested files are later in the list.
-    final File[] deleteList = listContents(s_nullFileFilter, true, true);
+    final File[] deleteList = listContents(s_matchAllFilesFilter, true, true);
 
     for (int i = deleteList.length - 1; i >= 0; --i) {
       if (!deleteList[i].delete()) {
@@ -265,7 +258,7 @@ public final class Directory  {
    */
   public File getRelativePath(File absoluteFile) {
 
-    final File[] contents = listContents(s_nullFileFilter, false, false);
+    final File[] contents = listContents(s_matchAllFilesFilter, false, false);
 
     for (int i = 0; i < contents.length; ++i) {
       if (getFile(contents[i].getPath()).equals(absoluteFile)) {
@@ -323,7 +316,7 @@ public final class Directory  {
       target.deleteContents();
     }
 
-    final File[] files = listContents(s_nullFileFilter, true, false);
+    final File[] files = listContents(s_matchAllFilesFilter, true, false);
     final StreamCopier streamCopier = new StreamCopier(4096, true);
 
     for (int i = 0; i < files.length; ++i) {
@@ -418,8 +411,7 @@ public final class Directory  {
     return getFile().equals(((Directory)o).getFile());
   }
 
-  private static class NullFileFilter implements FileFilter {
-
+  private static class MatchAllFilesFilter implements FileFilter {
     public boolean accept(File file) {
       return true;
     }
