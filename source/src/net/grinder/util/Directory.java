@@ -57,13 +57,13 @@ public final class Directory  {
 
   /**
    * Returns a filter matching all files.
-   * 
+   *
    * @return A filter matching all files.
    */
   public static FileFilter getMatchAllFilesFilter() {
     return s_matchAllFilesFilter;
   }
-  
+
   /**
    * Constructor that builds a Directory for the current working directory.
    */
@@ -159,8 +159,17 @@ public final class Directory  {
     final Set visited = new HashSet();
     final List directoriesToVisit = new ArrayList();
 
-    if (getFile().exists()) {
+    final File rootFile = getFile();
+
+    if (rootFile.exists() && filter.accept(rootFile)) {
+
+      // We use null here rather than File("") as it helps below. File(File(""),
+      // "blah") is "/blah", but File(null, "blah") is "blah".
       directoriesToVisit.add(null);
+
+      if (includeDirectories) {
+        resultList.add(absolutePaths ? rootFile : new File(""));
+      }
     }
 
     while (directoriesToVisit.size() > 0) {
@@ -227,6 +236,10 @@ public final class Directory  {
     final File[] deleteList = listContents(s_matchAllFilesFilter, true, true);
 
     for (int i = deleteList.length - 1; i >= 0; --i) {
+      if (deleteList[i].equals(getFile())) {
+        continue;
+      }
+
       if (!deleteList[i].delete()) {
         throw new DirectoryException(
           "Could not delete '" + deleteList[i] + "'");
