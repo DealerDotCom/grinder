@@ -26,8 +26,8 @@ The Grinder 3.0-beta33 <Not yet released>
   Fix bug 1639383 - Extra lines added to Content-Disposition. Previously,
   The Grinder relied on the script maintaining line endings for textual
   POST bodies, in particular multipart/form-data. This was brittle, text
-  editors, email, and cross platform tranfer frequently alters line
-  endings; and I'm sure the Jython interpretter also takes a liberal
+  editors, email, and cross platform transfer frequently alters line
+  endings; and I'm sure the Jython interpreter also takes a liberal
   approach where a file has mixed line endings. I've applied a simple
   escaping scheme to fix this. Thanks to Claes T Tenell for the report.
 
