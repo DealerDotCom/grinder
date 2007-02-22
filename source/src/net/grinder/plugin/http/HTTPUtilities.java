@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -169,4 +169,33 @@ public interface HTTPUtilities {
    */
   String valueFromBodyURI(String tokenName, String afterText)
     throws GrinderException;
+
+  /**
+   * <p>
+   * Unescape strings encoded by the HTTP Plugin TCPProxy filter.
+   * </p>
+   *
+   * <p>
+   * The TCPProxy filter does some simple escaping of POST body strings so that
+   * they aren't corrupted if the script line endings change. This converts the
+   * strings back to their original form.
+   * </p>
+   *
+   * @param escaped The encoded string.
+   * @return The un-encoded string.
+   */
+  String unescape(String escaped);
+
+
+  /**
+   * <p>
+   * Escape strings using the same algorithm as the HTTP Plugin TCPProxy filter.
+   * </p>
+   *
+   * @see {{@link #unescape(String)}}
+   * @param unescaped
+   *          The un-encoded string.
+   * @return The escaped string.
+   */
+  String escape(String unescaped);
 }

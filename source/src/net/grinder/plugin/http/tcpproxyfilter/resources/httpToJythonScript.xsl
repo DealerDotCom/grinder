@@ -561,11 +561,13 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:string" mode="request-uri">
+  <xsl:template match="g:body/g:escaped-string" mode="request-uri">
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>httpUtilities.unescape(</xsl:text>
     <xsl:value-of select="helper:quoteForPython(.)"/>
+    <xsl:text>)</xsl:text>
     <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 

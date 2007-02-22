@@ -21,6 +21,7 @@ import net.grinder.common.Logger;
 import net.grinder.tools.tcpproxy.CommentSource;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.util.AttributeStringParser;
+import net.grinder.util.StringEscaper;
 import net.grinder.util.URIParser;
 
 
@@ -38,6 +39,7 @@ public final class ConnectionHandlerFactoryImplementation
   private final RegularExpressions m_regularExpressions;
   private final URIParser m_uriParser;
   private final AttributeStringParser m_attributeStringParser;
+  private final StringEscaper m_postBodyStringEscaper;
   private final CommentSource m_commentSource;
 
   /**
@@ -53,6 +55,8 @@ public final class ConnectionHandlerFactoryImplementation
    *          A URI parser.
    * @param attributeStringParser
    *          An AttributeStringParser.
+   * @param postBodyStringEscaper
+   *          A StringCodec used to escape post body strings.
    * @param commentSource
    *          A CommentSource containing comments inserted by the users
    *          during capture.
@@ -63,6 +67,7 @@ public final class ConnectionHandlerFactoryImplementation
     RegularExpressions regularExpressions,
     URIParser uriParser,
     AttributeStringParser attributeStringParser,
+    StringEscaper postBodyStringEscaper,
     CommentSource commentSource) {
 
     m_logger = logger;
@@ -70,6 +75,7 @@ public final class ConnectionHandlerFactoryImplementation
     m_regularExpressions = regularExpressions;
     m_uriParser = uriParser;
     m_attributeStringParser = attributeStringParser;
+    m_postBodyStringEscaper = postBodyStringEscaper;
     m_commentSource = commentSource;
   }
 
@@ -85,6 +91,7 @@ public final class ConnectionHandlerFactoryImplementation
                                                m_regularExpressions,
                                                m_uriParser,
                                                m_attributeStringParser,
+                                               m_postBodyStringEscaper,
                                                m_commentSource,
                                                connectionDetails);
   }

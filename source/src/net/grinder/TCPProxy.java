@@ -68,6 +68,7 @@ import net.grinder.tools.tcpproxy.UpdatableCommentSource;
 import net.grinder.util.AttributeStringParserImplementation;
 import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
+import net.grinder.util.SimpleStringEscaper;
 import net.grinder.util.URIParserImplementation;
 
 
@@ -290,6 +291,8 @@ public final class TCPProxy {
             RegularExpressionsImplementation.class);
           m_filterContainer.registerComponentImplementation(
             URIParserImplementation.class);
+          m_filterContainer.registerComponentImplementation(
+            SimpleStringEscaper.class);
 
           if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
             m_filterContainer.registerComponentInstance(

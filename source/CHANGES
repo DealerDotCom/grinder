@@ -23,6 +23,14 @@ The Grinder 3.0-beta33 <Not yet released>
   longer assumes system time matches the file system time. This should
   fix some subtle bugs, particularly for file systems on shared storage.
 
+  Fix bug 1639383 - Extra lines added to Content-Disposition. Previously,
+  The Grinder relied on the script maintaining line endings for textual
+  POST bodies, in particular multipart/form-data. This was brittle, text
+  editors, email, and cross platform tranfer frequently alters line
+  endings; and I'm sure the Jython interpretter also takes a liberal
+  approach where a file has mixed line endings. I've applied a simple
+  escaping scheme to fix this. Thanks to Claes T Tenell for the report.
+
 
 The Grinder 3.0-beta32
 ----------------------

@@ -50,6 +50,7 @@ import net.grinder.plugin.http.xml.TokenResponseLocationType;
 import net.grinder.tools.tcpproxy.CommentSource;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.util.AttributeStringParser;
+import net.grinder.util.StringEscaper;
 import net.grinder.util.URIParser;
 import HTTPClient.Codecs;
 import HTTPClient.NVPair;
@@ -102,6 +103,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
   private final URIParser m_uriParser;
   private final AttributeStringParser m_attributeStringParser;
+  private final StringEscaper m_postBodyStringEscaper;
   private final CommentSource m_commentSource;
 
   private final ConnectionDetails m_connectionDetails;
@@ -109,9 +111,14 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
   // Parse data.
   private Request m_request;
 
-  public ConnectionHandlerImplementation(HTTPRecording httpRecording,
-    Logger logger, RegularExpressions regularExpressions, URIParser uriParser,
-    AttributeStringParser attributeStringParser, CommentSource commentSource,
+  public ConnectionHandlerImplementation(
+    HTTPRecording httpRecording,
+    Logger logger,
+    RegularExpressions regularExpressions,
+    URIParser uriParser,
+    AttributeStringParser attributeStringParser,
+    StringEscaper postBodyStringEscaper,
+    CommentSource commentSource,
     ConnectionDetails connectionDetails) {
 
     m_httpRecording = httpRecording;
@@ -119,6 +126,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     m_regularExpressions = regularExpressions;
     m_uriParser = uriParser;
     m_attributeStringParser = attributeStringParser;
+    m_postBodyStringEscaper = postBodyStringEscaper;
     m_commentSource = commentSource;
     m_connectionDetails = connectionDetails;
   }
@@ -541,7 +549,8 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
             }
 
             if (looksLikeAnExtendedASCIIString) {
-              body.setString(iso88591String);
+              body.setEscapedString(
+                m_postBodyStringEscaper.escape(iso88591String));
             }
             else {
               body.setBinary(bytes);
@@ -696,5 +705,4 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       return m_entityBodyByteStream.toByteArray();
     }
   }
-
 }

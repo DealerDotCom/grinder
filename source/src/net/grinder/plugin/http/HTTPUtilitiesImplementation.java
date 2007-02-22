@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,8 @@ import net.grinder.plugin.http.tcpproxyfilter.RegularExpressionsImplementation;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.util.AttributeStringParser;
 import net.grinder.util.AttributeStringParserImplementation;
+import net.grinder.util.SimpleStringEscaper;
+import net.grinder.util.StringEscaper;
 import net.grinder.util.URIParser;
 import net.grinder.util.URIParserImplementation;
 import HTTPClient.Codecs;
@@ -54,6 +56,8 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     new RegularExpressionsImplementation();
   private final AttributeStringParser m_attributeStringParser =
     new AttributeStringParserImplementation();
+  private final StringEscaper m_stringEscaper = new SimpleStringEscaper();
+
   private final ThreadLocal m_parsedBodyThreadLocal = new ThreadLocal();
   private final NameValue[] m_emptyNameValues = new NameValue[0];
 
@@ -411,5 +415,13 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
 
       return (NameValue[]) result.toArray(new NameValue[result.size()]);
     }
+  }
+
+  public String unescape(String escaped) {
+    return m_stringEscaper.unescape(escaped);
+  }
+
+  public String escape(String unescaped) {
+    return m_stringEscaper.escape(unescaped);
   }
 }

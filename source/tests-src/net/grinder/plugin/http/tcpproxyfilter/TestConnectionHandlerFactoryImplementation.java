@@ -76,7 +76,7 @@ public class TestConnectionHandlerFactoryImplementation extends TestCase {
     final ConnectionHandlerFactory factory =
       new ConnectionHandlerFactoryImplementation(m_httpRecording,
         m_loggerStubFactory.getLogger(), m_regularExpressions, m_uriParser,
-        m_attributeStringParser, m_commentSource);
+        m_attributeStringParser, null, m_commentSource);
 
     final ConnectionHandler handler1 = factory.create(m_connectionDetails);
     final ConnectionHandler handler2 = factory.create(m_connectionDetails);
