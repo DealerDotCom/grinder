@@ -178,12 +178,12 @@ public final class ServerReceiver implements Receiver {
 
   /**
    * Obtain reservations from multiple ResourcePools. Delegates reserveNext()
-   * to the next resource ppol
+   * to the next resource pool.
    *
    * @author Philip Aston
    * @version $Revision$
    */
-  private class CombinedResourcePool {
+  private static final class CombinedResourcePool {
     private final ResourcePool[] m_resourcePools;
 
     // Guarded by m_resourcePools.
@@ -331,7 +331,7 @@ public final class ServerReceiver implements Receiver {
    * </p>
    *
    */
-  private final class SenderWithReservation implements Sender {
+  private static final class SenderWithReservation implements Sender {
     private final Sender m_delegateSender;
     private final Reservation m_reservation;
 

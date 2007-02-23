@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -657,35 +657,35 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
       return existing != null && existing.hasAReferenceWithSource(source);
     }
+  }
 
-    private class TokenLastValuePair {
-      private final TokenType m_token;
-      private String m_lastValue;
-      private Set m_sources = new HashSet();
+  private static final class TokenLastValuePair {
+    private final TokenType m_token;
+    private String m_lastValue;
+    private Set m_sources = new HashSet();
 
-      public TokenLastValuePair(TokenType token) {
-        m_token = token;
-      }
+    public TokenLastValuePair(TokenType token) {
+      m_token = token;
+    }
 
-      public TokenType getToken() {
-        return m_token;
-      }
+    public TokenType getToken() {
+      return m_token;
+    }
 
-      public void setLastValue(String lastValue) {
-        m_lastValue = lastValue;
-      }
+    public void setLastValue(String lastValue) {
+      m_lastValue = lastValue;
+    }
 
-      public String getLastValue() {
-        return m_lastValue;
-      }
+    public String getLastValue() {
+      return m_lastValue;
+    }
 
-      public void addSource(String source) {
-        m_sources.add(source);
-      }
+    public void addSource(String source) {
+      m_sources.add(source);
+    }
 
-      public boolean hasAReferenceWithSource(String source) {
-        return m_sources.contains(source);
-      }
+    public boolean hasAReferenceWithSource(String source) {
+      return m_sources.contains(source);
     }
   }
 }
