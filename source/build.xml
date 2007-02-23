@@ -156,6 +156,7 @@ what you want. Currently the conditionally built modules are:
     <include name="${examples.dir}/**"/>
     <exclude name="**/log/**"/>
     <exclude name="**/*.class"/>
+    <include name="${etc.dir}/*.xsl"/>
   </patternset>
 
   <patternset id="contrib.patternset">
