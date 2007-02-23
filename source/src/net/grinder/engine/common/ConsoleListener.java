@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -117,7 +117,7 @@ public final class ConsoleListener {
    * shutdown. <code>false</code> otherwise.
    */
   public boolean checkForMessage(int mask) {
-    synchronized (ConsoleListener.this) {
+    synchronized (this) {
       final int intersection = m_messagesReceived & mask;
 
       try {
@@ -137,7 +137,7 @@ public final class ConsoleListener {
    * @param mask The messages to discard.
    */
   public void discardMessages(int mask) {
-    synchronized (ConsoleListener.this) {
+    synchronized (this) {
       m_lastMessagesReceived &= ~mask;
       m_messagesReceived &= ~mask;
     }
@@ -156,7 +156,7 @@ public final class ConsoleListener {
   }
 
   private void setReceived(int message) {
-    synchronized (ConsoleListener.this) {
+    synchronized (this) {
       m_messagesReceived |= message;
     }
 
@@ -214,7 +214,13 @@ public final class ConsoleListener {
 
   private abstract class AbstractMessageHandler implements Sender {
     public void shutdown() {
-      if ((m_messagesReceived & SHUTDOWN) == 0) {
+      final boolean shutdown;
+
+      synchronized (ConsoleListener.this) {
+        shutdown = (m_messagesReceived & SHUTDOWN) == 0;
+      }
+
+      if (shutdown) {
         m_logger.output("communication shutdown", Logger.LOG);
         setReceived(SHUTDOWN);
       }
