@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -106,7 +107,7 @@ public final class ServerReceiver implements Receiver {
 
     final ThreadPool threadPool =
       new ThreadPool("ServerReceiver (" + acceptor.getPort() + ", " +
-                     connectionTypes + ")",
+                     Arrays.asList(connectionTypes) + ")",
                      numberOfThreads,
                      runnableFactory);
 
