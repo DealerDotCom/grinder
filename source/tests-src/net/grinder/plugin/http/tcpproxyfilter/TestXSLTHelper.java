@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -116,10 +116,26 @@ public class TestXSLTHelper extends TestCase {
   public void testQuoteForPython() throws Exception {
     assertEquals("None", XSLTHelper.quoteForPython(null));
     assertEquals("''", XSLTHelper.quoteForPython(""));
+    assertEquals("\'\\\"\'", XSLTHelper.quoteForPython("\""));
     assertEquals("'foo'", XSLTHelper.quoteForPython("foo"));
     assertEquals("'foo\\''", XSLTHelper.quoteForPython("foo'"));
     assertEquals("' \\\\ '", XSLTHelper.quoteForPython(" \\ "));
     assertEquals("'''foo \n bah'''", XSLTHelper.quoteForPython("foo \n bah"));
+    assertEquals("'foo \\\\n bah'", XSLTHelper.quoteForPython("foo \\n bah"));
+  }
+
+  public void testQuoteEOLEscapedStringForPython() throws Exception {
+    assertEquals("None", XSLTHelper.quoteEOLEscapedStringForPython(null));
+    assertEquals("''", XSLTHelper.quoteEOLEscapedStringForPython(""));
+    assertEquals("\'\\\"\'", XSLTHelper.quoteEOLEscapedStringForPython("\""));
+    assertEquals("'foo'", XSLTHelper.quoteEOLEscapedStringForPython("foo"));
+    assertEquals("'foo\\''", XSLTHelper.quoteEOLEscapedStringForPython("foo'"));
+    assertEquals("' \\\\ '", XSLTHelper.quoteEOLEscapedStringForPython(" \\ "));
+    assertEquals("'''foo \\\n bah'''",
+      XSLTHelper.quoteEOLEscapedStringForPython("foo \n bah"));
+    assertEquals("'foo \\n bah\\\\'",
+      XSLTHelper.quoteEOLEscapedStringForPython("foo \\n bah\\"));
+
   }
 
   public void testEscape() throws Exception {

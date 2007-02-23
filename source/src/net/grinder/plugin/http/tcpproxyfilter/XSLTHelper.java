@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -48,7 +48,7 @@ import HTTPClient.Codecs;
  * @version $Revision$
  */
 public final class XSLTHelper {
-  private static DateFormat s_iso8601DateFormat =
+    private static DateFormat s_iso8601DateFormat =
     new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
   private static int s_indentLevel;
@@ -88,6 +88,28 @@ public final class XSLTHelper {
     final String quotes = value.indexOf("\n") > -1 ? "'''" : "'";
 
     result.append(quotes).append(escape(value)).append(quotes);
+
+    return result.toString();
+  }
+
+  /**
+   * Wrap string in appropriate quotes for Python, passing through existing EOL
+   * escapes {"\n", "\r"}, and quoting real new lines.
+   *
+   * @param value
+   *          The string.
+   * @return The quoted string.
+   */
+  public static String quoteEOLEscapedStringForPython(String value) {
+    if (value == null) {
+      return "None";
+    }
+
+    final StringBuffer result = new StringBuffer();
+
+    final String quotes = value.indexOf("\n") > -1 ? "'''" : "'";
+
+    result.append(quotes).append(escapePreservingEOLs(value)).append(quotes);
 
     return result.toString();
   }
@@ -142,7 +164,7 @@ public final class XSLTHelper {
    * white space and non-printable characters too.
    *
    * @param value The string.
-   * @return The quoted string.
+   * @return The escaped string.
    */
   public static String escape(String value) {
     final StringBuffer result = new StringBuffer(value.length());
@@ -159,6 +181,51 @@ public final class XSLTHelper {
       default:
         result.append(c);
       }
+    }
+
+    return result.toString();
+  }
+
+  /**
+   * Escape quotes and back slashes for Python. One day, this might escape
+   * white space and non-printable characters too.
+   *
+   * @param value The string.
+   * @return The escaped string.
+   */
+  private static String escapePreservingEOLs(String value) {
+    final int valueLength = value.length();
+
+    final StringBuffer result = new StringBuffer(valueLength);
+
+    for (int i = 0; i < valueLength; ++i) {
+      final char c = value.charAt(i);
+
+      switch (c) {
+      case '\\':
+        if (i + 1 < valueLength) {
+          final char nextCharacter = value.charAt(i + 1);
+
+          if (nextCharacter == 'n' ||
+              nextCharacter == 'r') {
+            break;
+          }
+        }
+
+        result.append('\\');
+        break;
+
+      case '\'':
+      case '"':
+      case '\n':
+        result.append('\\');
+        break;
+
+      default:
+        break;
+      }
+
+      result.append(c);
     }
 
     return result.toString();
