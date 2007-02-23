@@ -51,6 +51,7 @@ import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.FileContents;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -107,13 +108,11 @@ public class TestConsoleCommunicationImplementation
     final ServerSocket anotherUsedSocket = new ServerSocket(0);
     m_usedServerSocket.close();
 
-    // ProcessMessagesThread will process next message, then shutdown.
-    m_processMessagesThread.shutdown();
-
     m_properties.setConsolePort(anotherUsedSocket.getLocalPort());
 
     anotherUsedSocket.close();
 
+    m_processMessagesThread.interrupt();
     m_processMessagesThread.join();
 
     m_timer.cancel();
@@ -165,6 +164,8 @@ public class TestConsoleCommunicationImplementation
     final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.AGENT.write(socket.getOutputStream());
+
+    waitForNumberOfConnections(1);
 
     final ProcessControl processControl =
       new ProcessControlImplementation(m_timer, m_consoleCommunication);
@@ -451,7 +452,9 @@ public class TestConsoleCommunicationImplementation
     errorHandlerStubFactory.assertNoMoreCalls();
   }
 
-  private static final class MyMessage implements Message, Serializable { }
+  private static final class MyMessage implements Message, Serializable {
+    private static final long serialVersionUID = 1L;
+  }
 
   private static final class StubTimer extends Timer {
     private TimerTask m_lastScheduledTimerTask;
@@ -482,26 +485,19 @@ public class TestConsoleCommunicationImplementation
   }
 
   private final class ProcessMessagesThread extends Thread {
-    private boolean m_shutdown = false;
-
     public ProcessMessagesThread() {
       super("Process messages");
     }
 
     public void run() {
-      while (true) {
-        m_consoleCommunication.processOneMessage();
-
-        synchronized (this) {
-          if (m_shutdown) {
-            break;
-          }
+      try {
+        while (true) {
+          m_consoleCommunication.processOneMessage();
         }
       }
-    }
-
-    public synchronized void shutdown() {
-      m_shutdown = true;
+      catch (UncheckedInterruptedException e) {
+        // Time to go.
+      }
     }
   }
 }
