@@ -408,7 +408,7 @@ public final class Acceptor {
   /**
    * Indicates the Acceptor has been shut down.
    */
-  public final class ShutdownException extends CommunicationException {
+  public static final class ShutdownException extends CommunicationException {
     private ShutdownException(String s) {
       super(s);
     }
