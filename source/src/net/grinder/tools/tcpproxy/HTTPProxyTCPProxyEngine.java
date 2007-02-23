@@ -263,7 +263,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               new HTTPProxyStreamDemultiplexer(
                 in, localSocket, EndPoint.clientEndPoint(localSocket)),
               "HTTPProxyStreamDemultiplexer for " + localSocket,
-              in);
+              in).start();
 
             break;
           }
@@ -308,7 +308,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               new StreamCopier(4096, true)
                 .getInterruptibleRunnable(in, sslProxySocket.getOutputStream()),
               "Copy to proxy engine for " + remoteEndPoint,
-              in);
+              in).start();
 
             final OutputStream out = localSocket.getOutputStream();
 
@@ -316,7 +316,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               new StreamCopier(4096, true)
                 .getInterruptibleRunnable(sslProxySocket.getInputStream(), out),
               "Copy from proxy engine for " + remoteEndPoint,
-              sslProxySocket.getInputStream());
+              sslProxySocket.getInputStream()).start();
 
             if (m_httpsProxySocketFactory != null) {
               // Chuck the chained proxy's response back as our own.

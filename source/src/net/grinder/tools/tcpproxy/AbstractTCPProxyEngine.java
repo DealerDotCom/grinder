@@ -292,6 +292,12 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       synchronized (m_streamThreads) {
         m_streamThreads.add(this);
       }
+    }
+
+    /**
+     * Start the thread.
+     */
+    public void start() {
       m_thread.start();
     }
 
@@ -392,7 +398,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       new StreamThread(
         this,
         "Filter thread for " + outputStreamFilterTee.getConnectionDetails(),
-        m_in);
+        m_in).start();
     }
 
     /**
