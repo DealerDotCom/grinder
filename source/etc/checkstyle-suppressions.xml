@@ -20,18 +20,9 @@
   <suppress checks="MethodName" files="InstrumentedPyReflectedFunction.java"/>
 
   <!-- Avoid Checkstyle bug 1547726. -->
-  <suppress checks="JavadocMethod" files="CompositeFilter.java"/>
-  <suppress checks="JavadocMethod" files="EchoFilter.java"/>
-  <suppress checks="JavadocMethod" files="FileDistributionHandler.java"/>
-  <suppress checks="JavadocMethod" files="HTTPResponseFilter.java"/>
-  <suppress checks="JavadocMethod" files="HTTPPluginTCPProxyFilter2.java"/>
-  <suppress checks="JavadocMethod" files="HTTPPluginTCPProxyResponseFilter.java"/>
-  <suppress checks="JavadocMethod" files="HTTPPluginTCPProxyResponseFilter2.java"/>
-  <suppress checks="JavadocMethod" files="InsecureSSLContextFactory.java"/>
-  <suppress checks="JavadocMethod" files="Sleeper.java"/>
-  <suppress checks="JavadocMethod" files="SleeperImplementation.java"/>
-  <suppress checks="JavadocMethod" files="SSLContextFactory.java"/>
-  <suppress checks="JavadocMethod" files="SSLControl.java"/>
-  <suppress checks="JavadocMethod" files="TCPProxyFilter.java"/>
+  <suppress checks="JavadocMethod" files="Buffer.java"/>
+  <suppress checks="JavadocMethod" files="HTTPPluginControl.java"/>
+  <suppress checks="JavadocMethod" files="HTTPRequest.java"/>
+  <suppress checks="JavadocMethod" files="Statistics.java"/>
 
 </suppressions>
