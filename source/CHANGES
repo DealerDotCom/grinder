@@ -31,6 +31,10 @@ The Grinder 3.0-beta33 <Not yet released>
   approach where a file has mixed line endings. I've applied a simple
   escaping scheme to fix this. Thanks to Claes T Tenell for the report.
 
+  Fix bug 1228335 - File editing should consider end of line. The console
+  editor now canonicalises line endings on input, and uses the host
+  platform line ending on output.
+
 
 The Grinder 3.0-beta32
 ----------------------

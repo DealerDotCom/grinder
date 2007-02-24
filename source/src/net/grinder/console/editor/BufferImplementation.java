@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,12 +21,13 @@
 
 package net.grinder.console.editor;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.EventListener;
@@ -129,21 +130,24 @@ final class BufferImplementation implements Buffer {
         "Can't load a buffer that has no associated file");
     }
 
-    final char[] buffer = new char[4096];
     final StringWriter stringWriter = new StringWriter();
-    Reader reader = null;
+    FileReader fileReader = null;
 
     try {
-      reader = new FileReader(m_file);
+      fileReader = new FileReader(m_file);
+
+      // We use a BufferedReader to canonicalise line endings
+      final BufferedReader buferredReader = new BufferedReader(fileReader);
 
       while (true) {
-        final int n = reader.read(buffer);
+        final String line = buferredReader.readLine();
 
-        if (n <= 0) {
+        if (line == null) {
           break;
         }
 
-        stringWriter.write(buffer, 0, n);
+        stringWriter.write(line);
+        stringWriter.write('\n');
       }
     }
     catch (IOException e) {
@@ -158,9 +162,9 @@ final class BufferImplementation implements Buffer {
         e);
     }
     finally {
-      if (reader != null) {
+      if (fileReader != null) {
         try {
-          reader.close();
+          fileReader.close();
         }
         catch (IOException e) {
           // Oh well.
@@ -204,15 +208,27 @@ final class BufferImplementation implements Buffer {
 
     final File oldFile = getFile();
 
-    Writer writer = null;
+    Writer fileWriter = null;
 
     try {
-      writer = new FileWriter(file);
       // Calling getText() causes the text source to be set to "clean"
       // and a buffer changed event to be fired by the EditorModel.
-      writer.write(m_textSource.getText());
+      final String text = m_textSource.getText();
+
+      // Line-oriented output using the platform line ending. In the future,
+      // we may try to preserve the predominant line ending of the original
+      // input.
+      final String[] lines = text.split("\n", -1);
+
+      fileWriter = new FileWriter(file);
+      final PrintWriter printWriter = new PrintWriter(fileWriter);
+
+      for (int i = 0; i < lines.length; ++i) {
+        printWriter.println(lines[i]);
+      }
+
       setFile(file);
-      writer.close();           // Close necessary to ensure last
+      printWriter.close();      // Close necessary to ensure last
                                 // modified time is updated?
       m_lastModified = m_file.lastModified();
 
@@ -236,9 +252,9 @@ final class BufferImplementation implements Buffer {
         e);
     }
     finally {
-      if (writer != null) {
+      if (fileWriter != null) {
         try {
-          writer.close();
+          fileWriter.close();
         }
         catch (IOException e) {
           // Oh well.

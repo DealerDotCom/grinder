@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -42,6 +42,8 @@ import net.grinder.testutility.AssertUtilities;
  * @version $Revision$
  */
 public class TestBuffer extends AbstractFileTestCase {
+
+  private static String LINE_SEPARATOR = System.getProperty("line.separator");
 
   private static final Resources s_resources =
       new ResourcesImplementation("net.grinder.console.swingui.resources.Console");
@@ -188,7 +190,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     assertTrue(!buffer.isDirty());
     assertTrue(buffer.isUpToDate());
-    assertEquals(s0, textSource.getText());
+    assertEquals(canonicaliseLineEndings(s0), textSource.getText());
     assertNotSame(s0, textSource.getText());
 
     // Add an error margin, as Linux does not support setting the modification
@@ -201,6 +203,10 @@ public class TestBuffer extends AbstractFileTestCase {
 
     assertTrue(buffer.isUpToDate());
     assertEquals(textSource, buffer.getTextSource());
+  }
+
+  private static String canonicaliseLineEndings(final String s0) {
+    return s0.replace("\n", LINE_SEPARATOR) + LINE_SEPARATOR;
   }
 
   public void testBufferWithLargeFile() throws Exception {
@@ -235,7 +241,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     assertTrue(!buffer.isDirty());
     assertTrue(buffer.isUpToDate());
-    assertEquals(s0, textSource.getText());
+    assertEquals(canonicaliseLineEndings(s0), textSource.getText());
     assertNotSame(s0, textSource.getText());
   }
 
