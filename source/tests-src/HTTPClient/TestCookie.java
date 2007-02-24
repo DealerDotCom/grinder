@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,9 @@
 package HTTPClient;
 
 import java.net.ProtocolException;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
@@ -65,8 +68,12 @@ public class TestCookie extends TestCase {
     assertEquals("foo", cookies2[0].getName());
     assertEquals("bah", cookies2[0].getValue());
     assertEquals("lah", cookies2[0].getPath());
-    // Date.toString() doesn't use a comma after the week day.
-    assertEquals("Sat Mar 25 16:53:28 GMT 2006", cookies2[0].expires().toString());
+
+    final DateFormat df =
+      DateFormat.getDateTimeInstance(
+        DateFormat.SHORT, DateFormat.MEDIUM, Locale.UK);
+    final Date result = df.parse("25/03/06 16:53:28");
+    assertEquals(result, cookies2[0].expires());
   }
 
   public void testWithMartinsBrokenDates() throws Exception {

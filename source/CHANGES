@@ -35,6 +35,9 @@ The Grinder 3.0-beta33 <Not yet released>
   editor now canonicalises line endings on input, and uses the host
   platform line ending on output.
 
+  Fix bug 1619450 - Unit test HTTPClient.TestCookie.testParse fails. Thanks
+  to Bastiaan Bakker for the report.
+
 
 The Grinder 3.0-beta32
 ----------------------
