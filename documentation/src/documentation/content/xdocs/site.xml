@@ -65,7 +65,9 @@ See http://forrest.apache.org/docs/linking.html for more info
     <whats-new label="What's new?" href="whats-new.html"/>
     <features label="Features" href="features.html"/>
     <getting-started label="Getting started" >
-      <getting-started-intro label="Introduction" href="getting-started.html"/>
+      <getting-started-intro label="Introduction" href="getting-started.html">
+         <processes href="#The+Grinder+processes"/>
+      </getting-started-intro>
       <properties label="Properties" href="properties.html"/>
       <console label="The Console" href="console.html">
       <process-controls href="#process-controls"/>

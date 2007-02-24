@@ -825,10 +825,13 @@ grinder.test0.parameter.post=getPostData.dat
     </faq>
     <faq id="grinder-debug">
       <question>
-      How do I setup debugging when using the Grinder?
+      How do I debug worker processes?
       </question>
       <answer>
-      <p>Please start the agent with:</p>
+      <p>Worker processes are separate child processes of agent processes, so
+      they are sometimes a bit fiddly to debug. It is possible to run an agent
+      and its workers in a single process. To do this, please start the agent
+      with:</p>
 
 <source>
     java -Dgrinder.debug.singleprocess=true net.grinder.Grinder
@@ -838,8 +841,59 @@ grinder.test0.parameter.post=getPostData.dat
        easier to take a thread dump of the worker code.</p>
 
       <p>Use the minimum number of threads that cause the problem. When the
-      hang is observed, take a thread dump (press Ctrl-Break in the terminal
-      window) and post the output to the <a href="mailto:grinder-use@lists.sourceforge.net">grinder-use</a> mail list.</p>
+      hang is observed, take a <a href="#thread-dumps">thread dump</a> and post
+      the output to the <a href="mailto:grinder-use@lists.sourceforge.net">grinder-use</a> mail list.</p>
+      </answer>
+    </faq>
+    <faq id="thread-dumps">
+      <question>
+      How do I take a thread dump?
+      </question>
+      <answer>
+      <p>A thread dump is a diagnostic report of the state of a Java process. If
+      you report an unresponsive grinder process to one of the mailing lists, you
+      most likely will be asked to take a thread dump. This answer explains how
+      to do that.
+      </p>
+
+      <p>First identify the relevant <a href="site:g3/getting-started/getting-started-intro/processes">process</a>,
+      and start it from a command line terminal. The output will go to the
+      command line, so either set the terminal up so that it has plenty of lines
+      of scroll-back or redirect the output of the process to a file. For
+      example, you might start an agent process with:
+      </p>
+      <source>
+C:\> java net.grinder.Grinder > output.txt
+</source>
+
+      <p>If you are using a UNIX-like operating system, taking the thread dump
+      is simple. Just use <code>ps</code> to identify the process id, then issue
+      a <code>kill -3 &lt;pid&gt;</code> to send the process a
+      <code>SIGQUIT</code> signal. You will find the thread dump in the
+      terminal window (or the file to which you redirected output).</p>
+
+      <p>On Windows, use one of the following:
+      <ul>
+        <li>If it is an <em>agent</em> or <em>console</em> process you are
+        interested in (not a <em>worker</em> process), type <code>Ctrl-Break</code>
+        in the command line terminal.</li>
+
+        <li>If it is a worker process, things are a little more involved. This is
+      because worker processes are children of agent processes, and Java does
+      not pass on <code>Ctrl-Break</code> signals to child processes.
+      You can work around this problem by running the
+      <a href="#grinder-debug">workers and
+      the agent in the same process</a>, then using <code>Ctrl-Break</code>
+      as above.
+        </li>
+      </ul>
+      </p>
+
+      <p>Alternatively, you can run a recent version of the Sun JVM (J2SE 5 for
+      Linux or Solaris, J2SE 6 for Windows) and use the <code>jstack</code>
+      command line. The alternative to <code>jstack</code> for the BEA
+      JRockit JVM is the powerful <code>jrcmd</code> command.</p>
+
       </answer>
     </faq>
   </faqsection>
