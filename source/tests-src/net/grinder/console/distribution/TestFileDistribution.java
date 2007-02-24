@@ -29,6 +29,7 @@ import net.grinder.console.distribution.FileChangeWatcher.FileChangedListener;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
+import net.grinder.testutility.FileUtilities;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.Directory;
 
@@ -163,7 +164,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     assertTrue(changedFiles[0].equals(directory.getFile()));
 
     fileListenerStubFactory.assertNoMoreCalls();
-    
+
     final File file1 = new File(getDirectory(), "file1");
     file1.createNewFile();
     final File file2 = new File(getDirectory(), "file2");
@@ -176,13 +177,13 @@ public class TestFileDistribution extends AbstractFileTestCase {
     fileDistribution.scanDistributionFiles(directory, m_matchAllPattern);
     assertEquals(0, agentCacheState.getEarliestFileTime());
     fileListenerStubFactory.assertNoMoreCalls();
-    
+
     file1.delete();
     file1.createNewFile();
     file2.delete();
     file2.createNewFile();
     file2.setLastModified(file1.lastModified() + 5000);
-    
+
     fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
     assertEquals(file1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
@@ -235,6 +236,28 @@ public class TestFileDistribution extends AbstractFileTestCase {
       new File[] { testDirectory, directory1, directory2 } );
 
     fileListenerStubFactory.assertNoMoreCalls();
+
+    // If the cache has been reset, we scan the lot.
+    agentCacheStateStubFactory.setEarliestFileTime(-1);
+    fileDistribution.scanDistributionFiles(directory, m_matchNonePattern);
+    assertEquals(0, agentCacheStateStubFactory.getEarliestOutOfDateTime());
+    fileListenerStubFactory.resetCallHistory();
+
+    // Test with r/o directory, just for coverage's sake.
+    final Directory subdirectory =
+      new Directory(new File(getDirectory(), "subdirectory"));
+    subdirectory.create();
+    final File f1 = new File(subdirectory.getFile(), "file");
+    f1.createNewFile();
+
+    FileUtilities.setCanAccess(subdirectory.getFile(), false);
+
+    fileDistribution.scanDistributionFiles(subdirectory, m_matchNonePattern);
+
+    assertEquals(f1.lastModified(),
+                 agentCacheStateStubFactory.getEarliestOutOfDateTime());
+
+    FileUtilities.setCanAccess(subdirectory.getFile(), true);
   }
 
   public static class UpdateableAgentCacheStateStubFactory
