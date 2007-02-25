@@ -195,10 +195,6 @@ final class ProcessContextImplementation implements ProcessContext {
     return m_processLogger;
   }
 
-  public PluginRegistryImplementation getPluginRegistry() {
-    return m_pluginRegistry;
-  }
-
   public TestRegistry getTestRegistry() {
     return m_testRegistry;
   }
