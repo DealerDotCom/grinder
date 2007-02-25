@@ -23,7 +23,6 @@ package net.grinder.engine.process;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.net.ssl.KeyManager;
@@ -36,11 +35,8 @@ import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.CallData;
-import net.grinder.testutility.FileUtilities;
 import net.grinder.testutility.RandomStubFactory;
-import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation;
 import net.grinder.util.StreamCopier;
-import junit.framework.TestCase;
 
 
 /**
