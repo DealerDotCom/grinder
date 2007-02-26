@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // Copyright (C) 2004 Slavik Gnatenko
 // All rights reserved.
@@ -27,7 +27,9 @@ package net.grinder.engine.process;
 import java.io.File;
 import java.io.PrintWriter;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,8 +43,8 @@ import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
-import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.Message;
+import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.QueuedSenderDecorator;
@@ -113,6 +115,8 @@ final class GrinderProcess {
     processLogger.output("The Grinder version " +
                          GrinderBuild.getVersionString());
     processLogger.output(JVM.getInstance().toString());
+    processLogger.output("time zone is " +
+                         new SimpleDateFormat("z (Z)").format(new Date()));
 
     final QueuedSender consoleSender;
 
@@ -237,8 +241,9 @@ final class GrinderProcess {
     }
 
     logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
-
     m_context.setExecutionStartTime();
+    logger.output("start time is " + m_context.getExecutionStartTime() +
+                  " ms since Epoch");
 
     // Start the threads.
     for (int i = 0; i < numberOfThreads; i++) {

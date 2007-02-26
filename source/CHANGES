@@ -38,6 +38,10 @@ The Grinder 3.0-beta33 <Not yet released>
   Fix bug 1619450 - Unit test HTTPClient.TestCookie.testParse fails. Thanks
   to Bastiaan Bakker for the report.
 
+  Fulfil Feature Request 1510072 - Save absolute timestamp somewhere.
+  Log both the current time zone and the start time in milliseconds since
+  the Epoch in the output log. Requested by Vladimir Sitnikov.
+
 
 The Grinder 3.0-beta32
 ----------------------
