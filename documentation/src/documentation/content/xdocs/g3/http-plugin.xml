@@ -17,8 +17,8 @@
   <warning>Draft material follows.</warning>
   <section>
   <title>What's it for?</title>
-  <p>The HTTPPlugin is a mature plug-in for testing HTTP services. 
-  It has a number of utitlies useful for HTTP scripts as well as a 
+  <p>The HTTPPlugin is a mature plug-in for testing HTTP services.
+  It has a number of utitlies useful for HTTP scripts as well as a
   tool, <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a>,
   which allows HTTP scripts to be automatically recorded.</p>
   </section>
@@ -26,7 +26,7 @@
   <title>Controlling the HTTPPlugin</title>
   <p>The HTTPPlugin behaviour can be controlled from within scripts run by The Grinder
   through the use of the HTTPPluginControl facade.</p>
-  
+
   <section>
   <title>Levels of Control</title>
   <p>There are three levels of control of the behaviour of the HTTPPlugin that
@@ -41,7 +41,7 @@
   </li>
   <li><strong>Thread Connection Behaviour</strong>
     <ul>
-      <li><p>Method: <code>getThreadConnection</code></p></li>    
+      <li><p>Method: <code>getThreadConnection</code></p></li>
       <li><p>Returns a <code>HTTPPluginConnection</code> for a particular URL.</p></li>
       <li><p>The resulting <code>HTTPPluginConnection</code> is valid for the current thread
       and the current run. It can be used to set specific authentication details,
@@ -52,28 +52,28 @@
   </li>
   <li><strong>Thread HTTPClient Context Object Behaviour</strong>
     <ul>
-      <li><p>Method: <code>getThreadHTTPClientContext</code></p></li>        
-      <li><p>Returns the HTTPClient context object for the calling worker thread. This is useful when 
+      <li><p>Method: <code>getThreadHTTPClientContext</code></p></li>
+      <li><p>Returns the HTTPClient context object for the calling worker thread. This is useful when
       calling HTTPClient methods directly, e.g. <code>CookieModule.listAllCookies(Object)</code>.</p></li>
       <li><p>This method will throw a <code>GrinderException</code> if not called from a worker thread.</p></li>
     </ul>
   </li>
   </ol>
   </section>
-  
+
   <section>
   <title>Importing the HTTPPluginControl</title>
-  <p>Place the following line at the top of your grinder script along with 
+  <p>Place the following line at the top of your grinder script along with
   your other import statements</p>
 <source>
 from net.grinder.plugin.http import HTTPPluginControl
 </source>
-  </section>  
+  </section>
 
   </section>
   <section>
   <title>Using the HTTPPlugin</title>
-	  	    
+
   <section>
     <title>Setting an HTTP proxy</title>
 
@@ -85,10 +85,10 @@ from net.grinder.plugin.http import HTTPPluginControl
 control = HTTPPluginControl.getConnectionDefaults()
 control.setProxyServer("localhost", 8001)
 </source>
-   
+
     <p>HTTP proxies can also be specified at the thread connection level. This
     is useful to specify proxies on a per URL basis.</p>
-    
+
 <source>
 control = HTTPPluginControl.getThreadConnection()
 proxyURL1 = control("http://<em>(url1)</em>")
@@ -117,13 +117,13 @@ control.setUseAuthorizationModule(1)
 
   <section>
     <title>Setting HTTP Headers</title>
-    <p>The HTTPlugin allows you to set the HTTP Headers sent with requests. 
+    <p>The HTTPlugin allows you to set the HTTP Headers sent with requests.
     The method takes the settings as header-name/value pairs</p>
 <source>
 control = HTTPPluginControl.getConnectionDefaults()
 control.setDefaultHeaders(NVPair("<em>(header-name)</em>", "<em>(value)</em>"),))
-</source>    
-    <p>Typical headers you might want to set here are <code>Accept</code> and its <code>Accept-*</code> 
+</source>
+    <p>Typical headers you might want to set here are <code>Accept</code> and its <code>Accept-*</code>
     relatives, <code>Connection</code>, <code>From</code>, <code>User-Agent</code>, etc.</p>
   <p> For example to disable persistent connections:</p>
 <source>
@@ -141,17 +141,17 @@ control.setUseContentEncoding(0)
 control.setUseTransferEncoding(1)
 </source>
   </section>
-  
+
   <section>
     <title>Setting Redirect Behaviour</title>
-    <p>Setting the HTTPPlugin behaviour with regards to following redirects can 
+    <p>Setting the HTTPPlugin behaviour with regards to following redirects can
     be switched on and off using boolean flags</p>
 <source>
 control = HTTPPluginControl.getConnectionDefaults()
 control.setFollowRedirects(0)
 </source>
-  </section>  
-  
+  </section>
+
   <section>
     <title>Setting Local Address</title>
     <p>Should you be conducting your tests on a server with multiple network interfaces
@@ -160,95 +160,131 @@ control.setFollowRedirects(0)
 control = HTTPPluginControl.getConnectionDefaults()
 control.setLocalAddress("<em>(local IP Address)</em>")
 </source>
-  </section>    
+  </section>
 
   <section>
     <title>Setting Timeout Value</title>
-    <p>The timeout value for used for creating connections and reading responses can be 
+    <p>The timeout value for used for creating connections and reading responses can be
     controlled via the HTTPPlugin.</p>
     <p>The following example sets a default timeout value of 30 seconds for all connections.</p>
 <source>
 control = HTTPPluginControl.getConnectionDefaults()
 control.setTimeout(30)
 </source>
-  </section>    
+  </section>
 
   <section>
     <title>Setting Cookie Behaviour</title>
-    <p>Setting the HTTPPlugin behaviour with regards to whether cookies are used or not can 
+    <p>Setting the HTTPPlugin behaviour with regards to whether cookies are used or not can
     be switched on and off using boolean flags</p>
 <source>
 control = HTTPPluginControl.getConnectionDefaults()
 control.setUseCookies(0)
 </source>
-  </section>  
+  </section>
+
+  <section>
+    <title>Automatic decompression of gzipped responses</title>
+
+    <p>For load testing, its often not practical to decompress the response.
+It's simply too expensive in CPU terms to do all that decompression in the
+client worker process. This doesn't mean you can't test a server that compresses
+its responses, just that you can't parse the responses in the script.</p>
+
+   <p>On the other hand, there are times you may want to do this. The Grinder
+supports decompression which it inherits from the
+<code>HTTPClient</code> library, you just need to enable it. If your server
+encrypts the content and sets a <code>Content-Encoding</code> header that starts
+with one of { <code>gzip</code>, <code>deflate</code>, <code>compress</code>,
+<code>identity</code> }, you can automatically decrypt the responses by adding
+the following lines to the beginning of your script:</p>
+
+<source>
+from net.grinder.plugin.http import HTTPPluginControl
+connectionDefaults = HTTPPluginControl.getConnectionDefaults()
+connectionDefaults.useContentEncoding = 1
+</source>
+
+  <p>Similarly, if your server sets a <code>Transfer-Encoding</code> header
+that starts with one of { <code>gzip</code>, <code>deflate</code>,
+<code>compress</code>, <code>chunked</code>, <code>identity</code> }, you can
+enable the HTTPClient Transfer Encoding Module with
+<code>connectionDefaults.useTransferEncoding&nbsp;=&nbsp;1</code>.</p>
+
+  <p>There is no support for automatically decrypting things based on their
+<code>Content-Type</code> (as opposed to <code>Content-Encoding</code>,
+<code>Transfer-Encoding</code>). Your browser doesn't do this, so neither should
+The Grinder. If you really want to do this, you can use Java or Jython
+decompression libraries from your script.</p>
 
   </section>
-  
+
+  </section>
+
   <section>
     <title>Using HTTPUtilities</title>
 
     <p>The latest incarnation of the HTTPPlugin provides a new class:</p>
 
-<source>net.grinder.plugin.http.HTTPUtilities</source>	  		
-	<p>This new class has several methods which are useful for HTTP scripts.</p>
-	  
-	<section>
-	   <title>Setting Basic Authorization</title>
-	   <p>The HTTPUtilities class can create an NVPair for an HTTP Basic Authorization header using the following method:</p>
+<source>net.grinder.plugin.http.HTTPUtilities</source>
+  <p>This new class has several methods which are useful for HTTP scripts.</p>
+
+  <section>
+     <title>Setting Basic Authorization</title>
+     <p>The HTTPUtilities class can create an NVPair for an HTTP Basic Authorization header using the following method:</p>
 <source>
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
-httpUtilities.basicAuthorizationHeader('<em>username</em>', '<em>password</em>')		
-</source>	
-			
-	   <p>Include the header with each HTTPRequest that requires the authentication.</p>
+httpUtilities.basicAuthorizationHeader('<em>username</em>', '<em>password</em>')
+</source>
+
+     <p>Include the header with each HTTPRequest that requires the authentication.</p>
 
 <source>
 request101.GET('/', (),
-      ( httpUtilities.basicAuthorizationHeader('prelive', 'g3tout'), ))	
-</source>		
-				
-	</section>
-	<section>
-	   <title>Getting the Last Response</title>
-		<p>The HTTPUtilities class can return the response for the last request made by the calling worker thread using the following method:</p>
+      ( httpUtilities.basicAuthorizationHeader('prelive', 'g3tout'), ))
+</source>
+
+  </section>
+  <section>
+     <title>Getting the Last Response</title>
+    <p>The HTTPUtilities class can return the response for the last request made by the calling worker thread using the following method:</p>
 <source>
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
 httpUtilities.getLastResponse()
-</source>			
-		<p>This returns the response, or <code>null</code> if the calling thread has not made any requests.</p>
-		<p>This must be called from a worker thread, if not it throws a GrinderException.</p>
-	</section>	  
-	<section>
-	   <title>Getting a Token Value from a Location URI</title>
-		<p>The HTTPUtilities class can Return the value for a path parameter or query string name-value token with
+</source>
+    <p>This returns the response, or <code>null</code> if the calling thread has not made any requests.</p>
+    <p>This must be called from a worker thread, if not it throws a GrinderException.</p>
+  </section>
+  <section>
+     <title>Getting a Token Value from a Location URI</title>
+    <p>The HTTPUtilities class can return the value for a path parameter or query string name-value token with
         the given <code>tokenName</code> in a Location header from the last response. If there are multiple matches, the first value is returned.
-		This utility can be invoked using the following method:</p>
+    This utility can be invoked using the following method:</p>
 <source>
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
 httpUtilities.valueFromLocationURI(<em>tokenName</em>)
-</source>			
-		<p> If there is no match, an empty string is returned rather than
+</source>
+    <p> If there is no match, an empty string is returned rather than
         <code>null</code>. This makes scripts more robust (as they don't need to
         check the value before using it), but they lose the ability to distinguish
         between a missing token and an empty value.</p>
-		<p>This must be called from a worker thread, if not it throws a GrinderException.</p>		
-	</section>	  	  
-	<section>
-	   <title>Getting a Token Value from a URI in the Body of the Response </title>
-		<p>The HTTPUtilities class can Return the value for a path parameter or query string name-value token with
+    <p>This must be called from a worker thread, if not it throws a GrinderException.</p>
+  </section>
+  <section>
+     <title>Getting a Token Value from a URI in the Body of the Response </title>
+    <p>The HTTPUtilities class can return the value for a path parameter or query string name-value token with
         the given <code>tokenName</code> in a URI in the body of the last
         response. If there are multiple matches, the first value is returned.
-		This utility can be invoked using the following method:</p>
+    This utility can be invoked using the following method:</p>
 <source>
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
 httpUtilities.valueFromBodyURI(<em>tokenName</em>)
-</source>			
-		<p>This returns the first value if one is found, or <code>null</code>.</p>
-		<p>This must be called from a worker thread, if not it throws a GrinderException.</p>
-	</section>	  
+</source>
+    <p>This returns the first value if one is found, or <code>null</code>.</p>
+    <p>This must be called from a worker thread, if not it throws a GrinderException.</p>
   </section>
-		
+  </section>
+
   <section>
     <title>Recording of HTTP status codes</title>
 
