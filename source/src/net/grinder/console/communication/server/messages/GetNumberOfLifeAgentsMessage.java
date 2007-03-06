@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,47 +19,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.client;
+package net.grinder.console.communication.server.messages;
+
+import net.grinder.communication.Message;
 
 
 /**
- * Console API.
- *
- * <p>
- * <b>Warning: </b> This API is under development and not stable. It will
- * change.</p>
+ * Message requesting the number of live agents.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface ConsoleClient {
-
-  /**
-   * Start the console recording.
-   *
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  void startRecording() throws ConsoleClientException;
-
-  /**
-   * Stop the console recording.
-   *
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  void stopRecording() throws ConsoleClientException;
-
-  /**
-   * Reset the console recording.
-   *
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  void resetRecording() throws ConsoleClientException;
-
-  /**
-   * How many agents are live?
-   *
-   * @return The number of agents.
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  int getNumberOfLiveAgents() throws ConsoleClientException;
+public final class GetNumberOfLifeAgentsMessage implements Message {
+  private static final long serialVersionUID = 1;
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,10 @@ package net.grinder.console.communication.server;
 import net.grinder.communication.BlockingSender;
 import net.grinder.communication.BlockingSenderWrapper;
 import net.grinder.communication.MessageDispatchSender;
+import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.server.messages.GetNumberOfLifeAgentsMessage;
 import net.grinder.console.communication.server.messages.ResetRecordingMessage;
+import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
@@ -48,8 +51,13 @@ public class TestDispatchClientCommands extends TestCase {
     final Model model =
       (Model)modelStubFactory.getStub();
 
+    final RandomStubFactory processControlStubFactory =
+      new RandomStubFactory(ProcessControl.class);
+    final ProcessControl processControl =
+      (ProcessControl)processControlStubFactory.getStub();
+
     final DispatchClientCommands dispatchClientCommands =
-      new DispatchClientCommands(model);
+      new DispatchClientCommands(model, processControl);
 
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
 
@@ -73,5 +81,15 @@ public class TestDispatchClientCommands extends TestCase {
     modelStubFactory.assertSuccess("stop");
     modelStubFactory.assertSuccess("start");
     modelStubFactory.assertNoMoreCalls();
+
+    processControlStubFactory.setResult(
+      "getNumberOfLiveAgents", new Integer(3));
+    final ResultMessage message =
+      (ResultMessage)blockingSender.blockingSend(
+        new GetNumberOfLifeAgentsMessage());
+    assertEquals(new Integer(3), message.getResult());
+
+    processControlStubFactory.assertSuccess("getNumberOfLiveAgents");
+    processControlStubFactory.assertNoMoreCalls();
   }
 }

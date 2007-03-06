@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,47 +19,37 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.client;
+package net.grinder.console.communication.server.messages;
+
+import net.grinder.communication.Message;
 
 
 /**
- * Console API.
- *
- * <p>
- * <b>Warning: </b> This API is under development and not stable. It will
- * change.</p>
+ * Response message that contains a result.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface ConsoleClient {
+public final class ResultMessage implements Message {
+  private static final long serialVersionUID = 1;
+
+  private final Object m_result;
 
   /**
-   * Start the console recording.
+   * Constructor.
    *
-   * @throws ConsoleClientException If a communication error occurred.
+   * @param result The result.
    */
-  void startRecording() throws ConsoleClientException;
+  public ResultMessage(Object result) {
+    m_result = result;
+  }
 
   /**
-   * Stop the console recording.
+   * Accessor for the result.
    *
-   * @throws ConsoleClientException If a communication error occurred.
+   * @return The result.
    */
-  void stopRecording() throws ConsoleClientException;
-
-  /**
-   * Reset the console recording.
-   *
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  void resetRecording() throws ConsoleClientException;
-
-  /**
-   * How many agents are live?
-   *
-   * @return The number of agents.
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  int getNumberOfLiveAgents() throws ConsoleClientException;
+  public Object getResult() {
+    return m_result;
+  }
 }

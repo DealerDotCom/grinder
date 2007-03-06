@@ -42,6 +42,9 @@ The Grinder 3.0-beta33 <Not yet released>
   Log both the current time zone and the start time in milliseconds since
   the Epoch in the output log. Requested by Vladimir Sitnikov.
 
+  Add getNumberOfLiveAgents() to console API, and provide a factory for
+  obtaining a ConsoleClient.
+
 
 The Grinder 3.0-beta32
 ----------------------

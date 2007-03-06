@@ -171,7 +171,7 @@ public class Console {
       });
 
     final DispatchClientCommands dispatchClientCommands =
-      new DispatchClientCommands(model);
+      new DispatchClientCommands(model, processControl);
     dispatchClientCommands.registerMessageHandlers(messageDispatchRegistry);
   }
 

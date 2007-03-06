@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,6 +31,15 @@ import net.grinder.common.GrinderException;
  * @version $Revision: 1.10 $
  */
 public class ConsoleClientException extends GrinderException {
+
+  /**
+   * Constructor.
+   *
+   * @param s Exception message.
+   */
+  public ConsoleClientException(String s) {
+    super(s);
+  }
 
   /**
    * Constructor.

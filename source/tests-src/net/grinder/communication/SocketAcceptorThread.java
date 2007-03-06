@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,13 +30,13 @@ import java.net.UnknownHostException;
 /**
  * Active acceptor that accepts a single connection.
  */
-final class SocketAcceptorThread extends Thread {
-    
+public final class SocketAcceptorThread extends Thread {
+
   private final ServerSocket m_serverSocket;
   private final int m_numberOfAccepts;
   private Exception m_exception;
   private Socket m_acceptedSocket;
-  
+
   public SocketAcceptorThread() throws Exception {
     this(1);
   }
@@ -65,7 +65,7 @@ final class SocketAcceptorThread extends Thread {
   public int getPort() {
     return m_serverSocket.getLocalPort();
   }
-  
+
   public Socket getAcceptedSocket() {
     return m_acceptedSocket;
   }

@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,45 +21,38 @@
 
 package net.grinder.console.client;
 
+import net.grinder.communication.ClientSender;
+import net.grinder.communication.CommunicationException;
+import net.grinder.communication.ConnectionType;
+import net.grinder.communication.Connector;
+
 
 /**
- * Console API.
- *
- * <p>
- * <b>Warning: </b> This API is under development and not stable. It will
- * change.</p>
+ * Something that can create {@link ConsoleClient} instances.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface ConsoleClient {
+public class ConsoleClientFactory {
 
   /**
-   * Start the console recording.
+   * Create a {@link ConsoleClient}.
    *
-   * @throws ConsoleClientException If a communication error occurred.
+   * @param host Console host.
+   * @param port Console port.
+   * @return The {@link ConsoleClient}.
+   * @throws ConsoleClientException Failed to establish a connection.
    */
-  void startRecording() throws ConsoleClientException;
+  public ConsoleClient connect(String host, int port)
+    throws ConsoleClientException {
 
-  /**
-   * Stop the console recording.
-   *
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  void stopRecording() throws ConsoleClientException;
-
-  /**
-   * Reset the console recording.
-   *
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  void resetRecording() throws ConsoleClientException;
-
-  /**
-   * How many agents are live?
-   *
-   * @return The number of agents.
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  int getNumberOfLiveAgents() throws ConsoleClientException;
+    try {
+      return new ConsoleClientImplementation(
+        ClientSender.connect(
+          new Connector(host, port, ConnectionType.CONSOLE_CLIENT)));
+    }
+    catch (CommunicationException e) {
+      throw new ConsoleClientException("Failed to connect", e);
+    }
+  }
 }

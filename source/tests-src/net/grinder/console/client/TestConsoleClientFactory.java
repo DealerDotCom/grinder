@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,45 +21,50 @@
 
 package net.grinder.console.client;
 
+import java.io.InputStream;
+import junit.framework.TestCase;
+
+import net.grinder.communication.SocketAcceptorThread;
+
 
 /**
- * Console API.
- *
- * <p>
- * <b>Warning: </b> This API is under development and not stable. It will
- * change.</p>
- *
+ * Unit tests for {@link ConsoleClientFactory}.
+*
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface ConsoleClient {
+public class TestConsoleClientFactory extends TestCase {
 
-  /**
-   * Start the console recording.
-   *
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  void startRecording() throws ConsoleClientException;
+  public void testConnection() throws Exception {
+    final ConsoleClientFactory consoleClientFactory =
+      new ConsoleClientFactory();
 
-  /**
-   * Stop the console recording.
-   *
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  void stopRecording() throws ConsoleClientException;
+    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
 
-  /**
-   * Reset the console recording.
-   *
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  void resetRecording() throws ConsoleClientException;
+    final ConsoleClient consoleClient =
+      consoleClientFactory.connect(
+        socketAcceptor.getHostName(), socketAcceptor.getPort());
 
-  /**
-   * How many agents are live?
-   *
-   * @return The number of agents.
-   * @throws ConsoleClientException If a communication error occurred.
-   */
-  int getNumberOfLiveAgents() throws ConsoleClientException;
+    assertNotNull(consoleClient);
+
+    socketAcceptor.join();
+
+    final InputStream socketInput =
+      socketAcceptor.getAcceptedSocket().getInputStream();
+
+    assertEquals(2, socketInput.read()); // ConnectionType.CONSOLE_CLIENT
+
+    assertEquals(0, socketInput.available());
+
+    socketAcceptor.close();
+
+    try {
+      consoleClientFactory.connect(
+        socketAcceptor.getHostName(), socketAcceptor.getPort());
+
+      fail("Expected ConsoleClientException");
+    }
+    catch (ConsoleClientException e) {
+    }
+  }
 }

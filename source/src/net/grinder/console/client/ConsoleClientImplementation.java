@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,10 @@ package net.grinder.console.client;
 
 import net.grinder.communication.BlockingSender;
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.Message;
+import net.grinder.console.communication.server.messages.GetNumberOfLifeAgentsMessage;
 import net.grinder.console.communication.server.messages.ResetRecordingMessage;
+import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 
@@ -36,7 +39,7 @@ import net.grinder.console.communication.server.messages.StopRecordingMessage;
  * @author Philip Aston
  * @version $Revision:$
  */
-public final class ConsoleClientImplementation implements ConsoleClient {
+final class ConsoleClientImplementation implements ConsoleClient {
 
   private final BlockingSender m_consoleSender;
 
@@ -84,5 +87,33 @@ public final class ConsoleClientImplementation implements ConsoleClient {
     catch (CommunicationException e) {
       throw new ConsoleClientException("Failed to reset recording", e);
     }
+  }
+
+  /**
+   * How many agents are live?
+   *
+   * @return The number of agents.
+   * @throws ConsoleClientException If a communication error occurred.
+   */
+  public int getNumberOfLiveAgents() throws ConsoleClientException {
+    final Message response;
+
+    try {
+      response = m_consoleSender.blockingSend(
+        new GetNumberOfLifeAgentsMessage());
+    }
+    catch (CommunicationException e) {
+      throw new ConsoleClientException("getNumberOfLiveAgents()", e);
+    }
+
+    if (response instanceof ResultMessage) {
+      final Object result = ((ResultMessage)response).getResult();
+
+      if (result instanceof Integer) {
+        return ((Integer)result).intValue();
+      }
+    }
+
+    throw new ConsoleClientException("Unexpected response: " + response);
   }
 }

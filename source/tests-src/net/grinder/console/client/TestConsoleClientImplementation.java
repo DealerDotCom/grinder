@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,11 +22,10 @@
 package net.grinder.console.client;
 
 import net.grinder.communication.BlockingSender;
-import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationException;
-import net.grinder.communication.ConnectionType;
-import net.grinder.communication.Connector;
+import net.grinder.console.communication.server.messages.GetNumberOfLifeAgentsMessage;
 import net.grinder.console.communication.server.messages.ResetRecordingMessage;
+import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.testutility.RandomStubFactory;
@@ -34,40 +33,39 @@ import junit.framework.TestCase;
 
 
 /**
- * Unit tetss for ConsoleClientImplementation.
+ * Unit tests for ConsoleClientImplementation.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
 public class TestConsoleClientImplementation extends TestCase {
 
+  private final RandomStubFactory m_senderStubFactory =
+    new RandomStubFactory(BlockingSender.class);
+  private final BlockingSender m_sender =
+    (BlockingSender)m_senderStubFactory.getStub();
+  private final ConsoleClient m_consoleClient =
+    new ConsoleClientImplementation(m_sender);
+
   public void testRecordingControls() throws Exception {
-    final RandomStubFactory senderStubFactory =
-      new RandomStubFactory(BlockingSender.class);
-    final BlockingSender sender =
-      (BlockingSender)senderStubFactory.getStub();
+    m_consoleClient.startRecording();
+    m_senderStubFactory.assertSuccess("blockingSend", StartRecordingMessage.class);
+    m_senderStubFactory.assertNoMoreCalls();
 
-    final ConsoleClient consoleClient =
-      new ConsoleClientImplementation(sender);
+    m_consoleClient.stopRecording();
+    m_senderStubFactory.assertSuccess("blockingSend", StopRecordingMessage.class);
+    m_senderStubFactory.assertNoMoreCalls();
 
-    consoleClient.startRecording();
-    senderStubFactory.assertSuccess("blockingSend", StartRecordingMessage.class);
-    senderStubFactory.assertNoMoreCalls();
-
-    consoleClient.stopRecording();
-    senderStubFactory.assertSuccess("blockingSend", StopRecordingMessage.class);
-    senderStubFactory.assertNoMoreCalls();
-
-    consoleClient.resetRecording();
-    senderStubFactory.assertSuccess("blockingSend", ResetRecordingMessage.class);
-    senderStubFactory.assertNoMoreCalls();
+    m_consoleClient.resetRecording();
+    m_senderStubFactory.assertSuccess("blockingSend", ResetRecordingMessage.class);
+    m_senderStubFactory.assertNoMoreCalls();
 
     final CommunicationException communicationException =
       new CommunicationException("");
-    senderStubFactory.setThrows("blockingSend", communicationException);
+    m_senderStubFactory.setThrows("blockingSend", communicationException);
 
     try {
-      consoleClient.resetRecording();
+      m_consoleClient.resetRecording();
       fail("Expected ConsoleClientException");
     }
     catch (ConsoleClientException e) {
@@ -75,7 +73,7 @@ public class TestConsoleClientImplementation extends TestCase {
     }
 
     try {
-      consoleClient.stopRecording();
+      m_consoleClient.stopRecording();
       fail("Expected ConsoleClientException");
     }
     catch (ConsoleClientException e) {
@@ -83,7 +81,7 @@ public class TestConsoleClientImplementation extends TestCase {
     }
 
     try {
-      consoleClient.startRecording();
+      m_consoleClient.startRecording();
       fail("Expected ConsoleClientException");
     }
     catch (ConsoleClientException e) {
@@ -91,36 +89,43 @@ public class TestConsoleClientImplementation extends TestCase {
     }
   }
 
+  public void testProcessMessages() throws Exception {
+    m_senderStubFactory.setResult(
+      "blockingSend", new ResultMessage(new Integer(10)));
+    assertEquals(10, m_consoleClient.getNumberOfLiveAgents());
+    m_senderStubFactory.assertSuccess("blockingSend",
+      GetNumberOfLifeAgentsMessage.class);
+    m_senderStubFactory.assertNoMoreCalls();
 
-  /**
-   * Temporary test method.
-   *
-   * @param args Command line arguments.
-   * @throws Exception Something went wrong.
-   */
-  public static void main(String[] args) throws Exception {
+    m_senderStubFactory.setResult("blockingSend", null);
 
-    final BlockingSender sender =
-      ClientSender.connect(new Connector(args[0],
-                                         Integer.parseInt(args[1]),
-                                         ConnectionType.CONSOLE_CLIENT));
-    final String command = args[2];
-
-    final ConsoleClient consoleControl =
-      new ConsoleClientImplementation(sender);
-
-    if (command.equalsIgnoreCase("start")) {
-      consoleControl.startRecording();
+    try {
+      m_consoleClient.getNumberOfLiveAgents();
+      fail("Expected ConsoleClientException");
     }
-    else if (command.equalsIgnoreCase("stop")) {
-      consoleControl.stopRecording();
+    catch (ConsoleClientException e) {
     }
-    else if (command.equalsIgnoreCase("reset")) {
-      consoleControl.resetRecording();
+
+    m_senderStubFactory.setResult(
+      "blockingSend", new ResultMessage(new Object()));
+
+    try {
+      m_consoleClient.getNumberOfLiveAgents();
+      fail("Expected ConsoleClientException");
     }
-    else {
-      throw new IllegalArgumentException(command);
+    catch (ConsoleClientException e) {
+    }
+
+    final CommunicationException communicationException =
+      new CommunicationException("");
+    m_senderStubFactory.setThrows("blockingSend", communicationException);
+
+    try {
+      m_consoleClient.getNumberOfLiveAgents();
+      fail("Expected ConsoleClientException");
+    }
+    catch (ConsoleClientException e) {
+      assertSame(communicationException, e.getCause());
     }
   }
-
 }

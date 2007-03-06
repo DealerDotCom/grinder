@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,10 @@ package net.grinder.console.communication.server;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractBlockingHandler;
+import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.server.messages.GetNumberOfLifeAgentsMessage;
 import net.grinder.console.communication.server.messages.ResetRecordingMessage;
+import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
@@ -41,14 +44,17 @@ import net.grinder.console.model.Model;
 public class DispatchClientCommands {
 
   private final Model m_model;
+  private final ProcessControl m_processControl;
 
   /**
    * Constructor for DispatchClientCommands.
    *
    * @param model The model.
+   * @param processControl Process control interface.
    */
-  public DispatchClientCommands(Model model) {
+  public DispatchClientCommands(Model model, ProcessControl processControl) {
     m_model = model;
+    m_processControl = processControl;
   }
 
   /**
@@ -86,5 +92,13 @@ public class DispatchClientCommands {
         }
       });
 
+    messageDispatcher.set(
+      GetNumberOfLifeAgentsMessage.class,
+      new AbstractBlockingHandler() {
+        public Message blockingSend(Message message) {
+          return new ResultMessage(
+            new Integer(m_processControl.getNumberOfLiveAgents()));
+        }
+      });
   }
 }
