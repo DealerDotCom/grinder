@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,47 +19,37 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.console.communication.server.messages;
 
-import java.io.File;
+import net.grinder.communication.Message;
 
 
 /**
- * Interface for issuing commands to the agent and worker processes.
+ * Message indicating that all worker processes should be started.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public interface ProcessControl {
+public class StartWorkerProcessesMessage implements Message {
+  private static final long serialVersionUID = 1;
+
+  private final String m_script;
 
   /**
-   * Signal the worker processes to start.
+   * Constructor.
    *
-   * @param script The script file to run.
+   * @param script The file name of the script to run.
    */
-  void startWorkerProcesses(File script);
+  public StartWorkerProcessesMessage(String script) {
+    m_script = script;
+  }
 
   /**
-   * Signal the worker processes to reset.
-   */
-  void resetWorkerProcesses();
-
-  /**
-   * Signal the agent and worker processes to stop.
-   */
-  void stopAgentAndWorkerProcesses();
-
-  /**
-   * Add a listener for process status data.
+   * Accessor for the script file.
    *
-   * @param listener The listener.
+   * @return The script file.
    */
-  void addProcessStatusListener(ProcessStatus.Listener listener);
-
-  /**
-   * How many agents are live?
-   *
-   * @return The number of agents.
-   */
-  int getNumberOfLiveAgents();
+  public String getScript() {
+    return m_script;
+  }
 }

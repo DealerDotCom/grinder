@@ -23,11 +23,14 @@ package net.grinder.console.client;
 
 import net.grinder.communication.BlockingSender;
 import net.grinder.communication.CommunicationException;
-import net.grinder.console.communication.server.messages.GetNumberOfLifeAgentsMessage;
+import net.grinder.console.communication.server.messages.GetNumberOfAgentsMessage;
 import net.grinder.console.communication.server.messages.ResetRecordingMessage;
+import net.grinder.console.communication.server.messages.ResetWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
+import net.grinder.console.communication.server.messages.StartWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
 
@@ -92,15 +95,28 @@ public class TestConsoleClientImplementation extends TestCase {
   public void testProcessMessages() throws Exception {
     m_senderStubFactory.setResult(
       "blockingSend", new ResultMessage(new Integer(10)));
-    assertEquals(10, m_consoleClient.getNumberOfLiveAgents());
+    assertEquals(10, m_consoleClient.getNumberOfAgents());
     m_senderStubFactory.assertSuccess("blockingSend",
-      GetNumberOfLifeAgentsMessage.class);
+      GetNumberOfAgentsMessage.class);
+    m_senderStubFactory.assertNoMoreCalls();
+
+    m_consoleClient.startWorkerProcesses("blah");
+    final CallData data =
+      m_senderStubFactory.assertSuccess(
+        "blockingSend", StartWorkerProcessesMessage.class);
+    assertEquals("blah",
+      ((StartWorkerProcessesMessage)data.getParameters()[0]).getScript());
+    m_senderStubFactory.assertNoMoreCalls();
+
+    m_consoleClient.resetWorkerProcesses();
+    m_senderStubFactory.assertSuccess(
+      "blockingSend", ResetWorkerProcessesMessage.class);
     m_senderStubFactory.assertNoMoreCalls();
 
     m_senderStubFactory.setResult("blockingSend", null);
 
     try {
-      m_consoleClient.getNumberOfLiveAgents();
+      m_consoleClient.getNumberOfAgents();
       fail("Expected ConsoleClientException");
     }
     catch (ConsoleClientException e) {
@@ -110,7 +126,7 @@ public class TestConsoleClientImplementation extends TestCase {
       "blockingSend", new ResultMessage(new Object()));
 
     try {
-      m_consoleClient.getNumberOfLiveAgents();
+      m_consoleClient.getNumberOfAgents();
       fail("Expected ConsoleClientException");
     }
     catch (ConsoleClientException e) {
@@ -121,7 +137,23 @@ public class TestConsoleClientImplementation extends TestCase {
     m_senderStubFactory.setThrows("blockingSend", communicationException);
 
     try {
-      m_consoleClient.getNumberOfLiveAgents();
+      m_consoleClient.getNumberOfAgents();
+      fail("Expected ConsoleClientException");
+    }
+    catch (ConsoleClientException e) {
+      assertSame(communicationException, e.getCause());
+    }
+
+    try {
+      m_consoleClient.startWorkerProcesses("blah");
+      fail("Expected ConsoleClientException");
+    }
+    catch (ConsoleClientException e) {
+      assertSame(communicationException, e.getCause());
+    }
+
+    try {
+      m_consoleClient.resetWorkerProcesses();
       fail("Expected ConsoleClientException");
     }
     catch (ConsoleClientException e) {

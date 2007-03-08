@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,47 +19,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.console.communication.server.messages;
 
-import java.io.File;
+import net.grinder.communication.Message;
 
 
 /**
- * Interface for issuing commands to the agent and worker processes.
+ * Message indicating that all worker processes should be reset.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public interface ProcessControl {
-
-  /**
-   * Signal the worker processes to start.
-   *
-   * @param script The script file to run.
-   */
-  void startWorkerProcesses(File script);
-
-  /**
-   * Signal the worker processes to reset.
-   */
-  void resetWorkerProcesses();
-
-  /**
-   * Signal the agent and worker processes to stop.
-   */
-  void stopAgentAndWorkerProcesses();
-
-  /**
-   * Add a listener for process status data.
-   *
-   * @param listener The listener.
-   */
-  void addProcessStatusListener(ProcessStatus.Listener listener);
-
-  /**
-   * How many agents are live?
-   *
-   * @return The number of agents.
-   */
-  int getNumberOfLiveAgents();
+public class ResetWorkerProcessesMessage implements Message {
+  private static final long serialVersionUID = 1;
 }

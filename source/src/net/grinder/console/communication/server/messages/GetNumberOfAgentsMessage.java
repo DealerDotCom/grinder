@@ -30,6 +30,6 @@ import net.grinder.communication.Message;
  * @author Philip Aston
  * @version $Revision:$
  */
-public final class GetNumberOfLifeAgentsMessage implements Message {
+public final class GetNumberOfAgentsMessage implements Message {
   private static final long serialVersionUID = 1;
 }

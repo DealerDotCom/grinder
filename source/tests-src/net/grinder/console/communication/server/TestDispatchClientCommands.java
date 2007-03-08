@@ -21,14 +21,18 @@
 
 package net.grinder.console.communication.server;
 
+import java.io.File;
+
 import net.grinder.communication.BlockingSender;
 import net.grinder.communication.BlockingSenderWrapper;
 import net.grinder.communication.MessageDispatchSender;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.server.messages.GetNumberOfLifeAgentsMessage;
+import net.grinder.console.communication.server.messages.GetNumberOfAgentsMessage;
 import net.grinder.console.communication.server.messages.ResetRecordingMessage;
+import net.grinder.console.communication.server.messages.ResetWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
+import net.grinder.console.communication.server.messages.StartWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
 import net.grinder.console.model.Model;
@@ -86,10 +90,20 @@ public class TestDispatchClientCommands extends TestCase {
       "getNumberOfLiveAgents", new Integer(3));
     final ResultMessage message =
       (ResultMessage)blockingSender.blockingSend(
-        new GetNumberOfLifeAgentsMessage());
+        new GetNumberOfAgentsMessage());
     assertEquals(new Integer(3), message.getResult());
 
+    assertTrue(
+      blockingSender.blockingSend(new StartWorkerProcessesMessage("foo"))
+      instanceof SuccessMessage);
+
+    assertTrue(blockingSender.blockingSend(new ResetWorkerProcessesMessage())
+      instanceof SuccessMessage);
+
     processControlStubFactory.assertSuccess("getNumberOfLiveAgents");
+    processControlStubFactory.assertSuccess("startWorkerProcesses",
+      new File("foo"));
+    processControlStubFactory.assertSuccess("resetWorkerProcesses");
     processControlStubFactory.assertNoMoreCalls();
   }
 }

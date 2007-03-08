@@ -22,6 +22,7 @@
 package net.grinder.console.client;
 
 
+
 /**
  * Console API.
  *
@@ -56,10 +57,29 @@ public interface ConsoleClient {
   void resetRecording() throws ConsoleClientException;
 
   /**
-   * How many agents are live?
+   * How many agents are connected?
    *
    * @return The number of agents.
    * @throws ConsoleClientException If a communication error occurred.
    */
-  int getNumberOfLiveAgents() throws ConsoleClientException;
+  int getNumberOfAgents() throws ConsoleClientException;
+
+  /**
+   * Start all the worker processes.
+   *
+   * @param script
+   *          File name of script. The File should be valid for the console
+   *          process, not necessarily for the caller.
+   * @throws ConsoleClientException
+   *           If a communication error occurred.
+   */
+  void startWorkerProcesses(String script) throws ConsoleClientException;
+
+  /**
+   * Reset all the worker processes.
+   *
+   * @throws ConsoleClientException
+   *           If a communication error occurred.
+   */
+  void resetWorkerProcesses() throws ConsoleClientException;
 }

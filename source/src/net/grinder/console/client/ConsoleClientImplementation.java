@@ -21,15 +21,17 @@
 
 package net.grinder.console.client;
 
+
 import net.grinder.communication.BlockingSender;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-import net.grinder.console.communication.server.messages.GetNumberOfLifeAgentsMessage;
+import net.grinder.console.communication.server.messages.GetNumberOfAgentsMessage;
 import net.grinder.console.communication.server.messages.ResetRecordingMessage;
+import net.grinder.console.communication.server.messages.ResetWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
+import net.grinder.console.communication.server.messages.StartWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
-
 
 
 /**
@@ -90,17 +92,17 @@ final class ConsoleClientImplementation implements ConsoleClient {
   }
 
   /**
-   * How many agents are live?
+   * How many agents are connected?
    *
    * @return The number of agents.
    * @throws ConsoleClientException If a communication error occurred.
    */
-  public int getNumberOfLiveAgents() throws ConsoleClientException {
+  public int getNumberOfAgents() throws ConsoleClientException {
     final Message response;
 
     try {
       response = m_consoleSender.blockingSend(
-        new GetNumberOfLifeAgentsMessage());
+        new GetNumberOfAgentsMessage());
     }
     catch (CommunicationException e) {
       throw new ConsoleClientException("getNumberOfLiveAgents()", e);
@@ -115,5 +117,39 @@ final class ConsoleClientImplementation implements ConsoleClient {
     }
 
     throw new ConsoleClientException("Unexpected response: " + response);
+  }
+
+  /**
+   * Start all the worker processes.
+   *
+   * @param script
+   *          File name of script. The File should be valid for the console
+   *          process, not necessarily for the caller.
+   * @throws ConsoleClientException
+   *           If a communication error occurred.
+   */
+  public void startWorkerProcesses(String script)
+  throws ConsoleClientException {
+    try {
+      m_consoleSender.blockingSend(new StartWorkerProcessesMessage(script));
+    }
+    catch (CommunicationException e) {
+      throw new ConsoleClientException("Failed to start worker processes", e);
+    }
+  }
+
+  /**
+   * Reset all the worker processes.
+   *
+   * @throws ConsoleClientException
+   *           If a communication error occurred.
+   */
+  public void resetWorkerProcesses() throws ConsoleClientException {
+    try {
+      m_consoleSender.blockingSend(new ResetWorkerProcessesMessage());
+    }
+    catch (CommunicationException e) {
+      throw new ConsoleClientException("Failed to reset worker processes", e);
+    }
   }
 }

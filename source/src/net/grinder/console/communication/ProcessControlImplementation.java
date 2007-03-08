@@ -102,9 +102,9 @@ public class ProcessControlImplementation implements ProcessControl {
   }
 
   /**
-   * Signal the worker processes to stop.
+   * Signal the agent and worker processes to stop.
    */
-  public void stopWorkerProcesses() {
+  public void stopAgentAndWorkerProcesses() {
     m_consoleCommunication.sendToAgents(new StopGrinderMessage());
   }
 

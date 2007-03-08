@@ -178,7 +178,7 @@ public class TestConsoleCommunicationImplementation
     processControl.addProcessStatusListener(listener);
 
     processControl.resetWorkerProcesses();
-    processControl.stopWorkerProcesses();
+    processControl.stopAgentAndWorkerProcesses();
 
     assertTrue(readMessage(socket) instanceof ResetGrinderMessage);
     assertTrue(readMessage(socket) instanceof StopGrinderMessage);

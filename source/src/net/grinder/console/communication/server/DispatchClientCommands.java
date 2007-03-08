@@ -21,14 +21,18 @@
 
 package net.grinder.console.communication.server;
 
+import java.io.File;
+
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractBlockingHandler;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.server.messages.GetNumberOfLifeAgentsMessage;
+import net.grinder.console.communication.server.messages.GetNumberOfAgentsMessage;
 import net.grinder.console.communication.server.messages.ResetRecordingMessage;
+import net.grinder.console.communication.server.messages.ResetWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
+import net.grinder.console.communication.server.messages.StartWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
 import net.grinder.console.model.Model;
@@ -93,11 +97,32 @@ public class DispatchClientCommands {
       });
 
     messageDispatcher.set(
-      GetNumberOfLifeAgentsMessage.class,
+      GetNumberOfAgentsMessage.class,
       new AbstractBlockingHandler() {
         public Message blockingSend(Message message) {
           return new ResultMessage(
             new Integer(m_processControl.getNumberOfLiveAgents()));
+        }
+      });
+
+    messageDispatcher.set(
+      StartWorkerProcessesMessage.class,
+      new AbstractBlockingHandler() {
+        public Message blockingSend(Message message) {
+          final StartWorkerProcessesMessage startWorkerProcessesMessage =
+            (StartWorkerProcessesMessage)message;
+          m_processControl.startWorkerProcesses(
+            new File(startWorkerProcessesMessage.getScript()));
+          return new SuccessMessage();
+        }
+      });
+
+    messageDispatcher.set(
+      ResetWorkerProcessesMessage.class,
+      new AbstractBlockingHandler() {
+        public Message blockingSend(Message message) {
+          m_processControl.resetWorkerProcesses();
+          return new SuccessMessage();
         }
       });
   }

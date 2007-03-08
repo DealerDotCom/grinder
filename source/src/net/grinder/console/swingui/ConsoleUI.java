@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -1375,7 +1375,7 @@ public final class ConsoleUI implements ModelListener {
         return;
       }
 
-      m_processControl.stopWorkerProcesses();
+      m_processControl.stopAgentAndWorkerProcesses();
     }
   }
 
