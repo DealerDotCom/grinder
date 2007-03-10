@@ -182,11 +182,7 @@ public final class Agent {
           }
         }
 
-        if (scriptFromConsole != null && m_fileStore.getDirectory() == null) {
-          m_logger.error("Files have not been distributed from the console");
-          scriptFile = null;
-        }
-        else if (scriptFromConsole != null) {
+        if (scriptFromConsole != null) {
           final Directory fileStoreDirectory = m_fileStore.getDirectory();
 
           final File absoluteFile =
