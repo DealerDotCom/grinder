@@ -25,19 +25,19 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * Exception thrown by communication package.
+ * Exception indicating problem related to a console connection.
  *
  * @author Philip Aston
  * @version $Revision: 1.10 $
  */
-public class ConsoleClientException extends GrinderException {
+public class ConsoleConnectionException extends GrinderException {
 
   /**
    * Constructor.
    *
    * @param s Exception message.
    */
-  public ConsoleClientException(String s) {
+  public ConsoleConnectionException(String s) {
     super(s);
   }
 
@@ -47,7 +47,7 @@ public class ConsoleClientException extends GrinderException {
    * @param s Exception message.
    * @param t Chained exception.
    */
-  public ConsoleClientException(String s, Throwable t) {
+  public ConsoleConnectionException(String s, Throwable t) {
     super(s, t);
   }
 }

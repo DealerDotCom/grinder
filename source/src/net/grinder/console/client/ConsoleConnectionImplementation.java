@@ -35,59 +35,66 @@ import net.grinder.console.communication.server.messages.StopRecordingMessage;
 
 
 /**
- * Implementation of {@link ConsoleClient} that uses a {@link BlockingSender} to
- * communicate with the console.
+ * Implementation of {@link ConsoleConnection} that uses a
+ * {@link BlockingSender} to communicate with the console.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-final class ConsoleClientImplementation implements ConsoleClient {
+final class ConsoleConnectionImplementation implements ConsoleConnection {
 
   private final BlockingSender m_consoleSender;
 
-  ConsoleClientImplementation(BlockingSender consoleSender) {
+  ConsoleConnectionImplementation(BlockingSender consoleSender) {
     m_consoleSender = consoleSender;
+  }
+
+  /**
+   * Close the connection.
+   */
+  public void close() {
+    m_consoleSender.shutdown();
   }
 
   /**
    * Start the console recording.
    *
-   * @throws ConsoleClientException If a communication error occurred.
+   * @throws ConsoleConnectionException If a communication error occurred.
    */
-  public void startRecording() throws ConsoleClientException {
+  public void startRecording() throws ConsoleConnectionException {
     try {
       m_consoleSender.blockingSend(new StartRecordingMessage());
     }
     catch (CommunicationException e) {
-      throw new ConsoleClientException("Failed to start recording", e);
+      throw new ConsoleConnectionException("Failed to start recording", e);
     }
   }
 
   /**
    * Stop the console recording.
    *
-   * @throws ConsoleClientException If a communication error occurred.
+   * @throws ConsoleConnectionException If a communication error occurred.
    */
-  public void stopRecording() throws ConsoleClientException {
+  public void stopRecording() throws ConsoleConnectionException {
     try {
       m_consoleSender.blockingSend(new StopRecordingMessage());
     }
     catch (CommunicationException e) {
-      throw new ConsoleClientException("Failed to stop recording", e);
+      throw new ConsoleConnectionException("Failed to stop recording", e);
     }
   }
 
   /**
    * Reset the console recording.
    *
-   * @throws ConsoleClientException If a communication error occurred.
+   * @throws ConsoleConnectionException If a communication error occurred.
    */
-  public void resetRecording() throws ConsoleClientException {
+  public void resetRecording() throws ConsoleConnectionException {
     try {
       m_consoleSender.blockingSend(new ResetRecordingMessage());
     }
     catch (CommunicationException e) {
-      throw new ConsoleClientException("Failed to reset recording", e);
+      throw new ConsoleConnectionException("Failed to reset recording", e);
     }
   }
 
@@ -95,9 +102,9 @@ final class ConsoleClientImplementation implements ConsoleClient {
    * How many agents are connected?
    *
    * @return The number of agents.
-   * @throws ConsoleClientException If a communication error occurred.
+   * @throws ConsoleConnectionException If a communication error occurred.
    */
-  public int getNumberOfAgents() throws ConsoleClientException {
+  public int getNumberOfAgents() throws ConsoleConnectionException {
     final Message response;
 
     try {
@@ -105,7 +112,7 @@ final class ConsoleClientImplementation implements ConsoleClient {
         new GetNumberOfAgentsMessage());
     }
     catch (CommunicationException e) {
-      throw new ConsoleClientException("getNumberOfLiveAgents()", e);
+      throw new ConsoleConnectionException("getNumberOfLiveAgents()", e);
     }
 
     if (response instanceof ResultMessage) {
@@ -116,7 +123,7 @@ final class ConsoleClientImplementation implements ConsoleClient {
       }
     }
 
-    throw new ConsoleClientException("Unexpected response: " + response);
+    throw new ConsoleConnectionException("Unexpected response: " + response);
   }
 
   /**
@@ -125,31 +132,33 @@ final class ConsoleClientImplementation implements ConsoleClient {
    * @param script
    *          File name of script. The File should be valid for the console
    *          process, not necessarily for the caller.
-   * @throws ConsoleClientException
+   * @throws ConsoleConnectionException
    *           If a communication error occurred.
    */
   public void startWorkerProcesses(String script)
-  throws ConsoleClientException {
+  throws ConsoleConnectionException {
     try {
       m_consoleSender.blockingSend(new StartWorkerProcessesMessage(script));
     }
     catch (CommunicationException e) {
-      throw new ConsoleClientException("Failed to start worker processes", e);
+      throw new ConsoleConnectionException(
+        "Failed to start worker processes", e);
     }
   }
 
   /**
    * Reset all the worker processes.
    *
-   * @throws ConsoleClientException
+   * @throws ConsoleConnectionException
    *           If a communication error occurred.
    */
-  public void resetWorkerProcesses() throws ConsoleClientException {
+  public void resetWorkerProcesses() throws ConsoleConnectionException {
     try {
       m_consoleSender.blockingSend(new ResetWorkerProcessesMessage());
     }
     catch (CommunicationException e) {
-      throw new ConsoleClientException("Failed to reset worker processes", e);
+      throw new ConsoleConnectionException(
+        "Failed to reset worker processes", e);
     }
   }
 }

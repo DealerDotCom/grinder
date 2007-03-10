@@ -21,50 +21,38 @@
 
 package net.grinder.console.client;
 
-import java.io.InputStream;
-import junit.framework.TestCase;
-
-import net.grinder.communication.SocketAcceptorThread;
+import net.grinder.communication.ClientSender;
+import net.grinder.communication.CommunicationException;
+import net.grinder.communication.ConnectionType;
+import net.grinder.communication.Connector;
 
 
 /**
- * Unit tests for {@link ConsoleClientFactory}.
-*
+ * Something that can create {@link ConsoleConnection} instances.
+ *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestConsoleClientFactory extends TestCase {
+public class ConsoleConnectionFactory {
 
-  public void testConnection() throws Exception {
-    final ConsoleClientFactory consoleClientFactory =
-      new ConsoleClientFactory();
-
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
-
-    final ConsoleClient consoleClient =
-      consoleClientFactory.connect(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
-
-    assertNotNull(consoleClient);
-
-    socketAcceptor.join();
-
-    final InputStream socketInput =
-      socketAcceptor.getAcceptedSocket().getInputStream();
-
-    assertEquals(2, socketInput.read()); // ConnectionType.CONSOLE_CLIENT
-
-    assertEquals(0, socketInput.available());
-
-    socketAcceptor.close();
+  /**
+   * Create a {@link ConsoleConnection}.
+   *
+   * @param host Console host.
+   * @param port Console port.
+   * @return The {@link ConsoleConnection}.
+   * @throws ConsoleConnectionException Failed to establish a connection.
+   */
+  public ConsoleConnection connect(String host, int port)
+    throws ConsoleConnectionException {
 
     try {
-      consoleClientFactory.connect(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
-
-      fail("Expected ConsoleClientException");
+      return new ConsoleConnectionImplementation(
+        ClientSender.connect(
+          new Connector(host, port, ConnectionType.CONSOLE_CLIENT)));
     }
-    catch (ConsoleClientException e) {
+    catch (CommunicationException e) {
+      throw new ConsoleConnectionException("Failed to connect", e);
     }
   }
 }

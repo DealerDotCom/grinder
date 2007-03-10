@@ -21,38 +21,50 @@
 
 package net.grinder.console.client;
 
-import net.grinder.communication.ClientSender;
-import net.grinder.communication.CommunicationException;
-import net.grinder.communication.ConnectionType;
-import net.grinder.communication.Connector;
+import java.io.InputStream;
+import junit.framework.TestCase;
+
+import net.grinder.communication.SocketAcceptorThread;
 
 
 /**
- * Something that can create {@link ConsoleClient} instances.
- *
+ * Unit tests for {@link ConsoleConnectionFactory}.
+*
  * @author Philip Aston
  * @version $Revision:$
  */
-public class ConsoleClientFactory {
+public class TestConsoleConnectionFactory extends TestCase {
 
-  /**
-   * Create a {@link ConsoleClient}.
-   *
-   * @param host Console host.
-   * @param port Console port.
-   * @return The {@link ConsoleClient}.
-   * @throws ConsoleClientException Failed to establish a connection.
-   */
-  public ConsoleClient connect(String host, int port)
-    throws ConsoleClientException {
+  public void testConnection() throws Exception {
+    final ConsoleConnectionFactory consoleConnectionFactory =
+      new ConsoleConnectionFactory();
+
+    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+
+    final ConsoleConnection consoleConnection =
+      consoleConnectionFactory.connect(
+        socketAcceptor.getHostName(), socketAcceptor.getPort());
+
+    assertNotNull(consoleConnection);
+
+    socketAcceptor.join();
+
+    final InputStream socketInput =
+      socketAcceptor.getAcceptedSocket().getInputStream();
+
+    assertEquals(2, socketInput.read()); // ConnectionType.CONSOLE_CLIENT
+
+    assertEquals(0, socketInput.available());
+
+    socketAcceptor.close();
 
     try {
-      return new ConsoleClientImplementation(
-        ClientSender.connect(
-          new Connector(host, port, ConnectionType.CONSOLE_CLIENT)));
+      consoleConnectionFactory.connect(
+        socketAcceptor.getHostName(), socketAcceptor.getPort());
+
+      fail("Expected ConsoleConnectionException");
     }
-    catch (CommunicationException e) {
-      throw new ConsoleClientException("Failed to connect", e);
+    catch (ConsoleConnectionException e) {
     }
   }
 }

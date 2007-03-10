@@ -33,36 +33,41 @@ package net.grinder.console.client;
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface ConsoleClient {
+public interface ConsoleConnection {
+
+  /**
+   * Close the connection.
+   */
+  void close();
 
   /**
    * Start the console recording.
    *
-   * @throws ConsoleClientException If a communication error occurred.
+   * @throws ConsoleConnectionException If a communication error occurred.
    */
-  void startRecording() throws ConsoleClientException;
+  void startRecording() throws ConsoleConnectionException;
 
   /**
    * Stop the console recording.
    *
-   * @throws ConsoleClientException If a communication error occurred.
+   * @throws ConsoleConnectionException If a communication error occurred.
    */
-  void stopRecording() throws ConsoleClientException;
+  void stopRecording() throws ConsoleConnectionException;
 
   /**
    * Reset the console recording.
    *
-   * @throws ConsoleClientException If a communication error occurred.
+   * @throws ConsoleConnectionException If a communication error occurred.
    */
-  void resetRecording() throws ConsoleClientException;
+  void resetRecording() throws ConsoleConnectionException;
 
   /**
    * How many agents are connected?
    *
    * @return The number of agents.
-   * @throws ConsoleClientException If a communication error occurred.
+   * @throws ConsoleConnectionException If a communication error occurred.
    */
-  int getNumberOfAgents() throws ConsoleClientException;
+  int getNumberOfAgents() throws ConsoleConnectionException;
 
   /**
    * Start all the worker processes.
@@ -70,16 +75,16 @@ public interface ConsoleClient {
    * @param script
    *          File name of script. The File should be valid for the console
    *          process, not necessarily for the caller.
-   * @throws ConsoleClientException
+   * @throws ConsoleConnectionException
    *           If a communication error occurred.
    */
-  void startWorkerProcesses(String script) throws ConsoleClientException;
+  void startWorkerProcesses(String script) throws ConsoleConnectionException;
 
   /**
    * Reset all the worker processes.
    *
-   * @throws ConsoleClientException
+   * @throws ConsoleConnectionException
    *           If a communication error occurred.
    */
-  void resetWorkerProcesses() throws ConsoleClientException;
+  void resetWorkerProcesses() throws ConsoleConnectionException;
 }

@@ -36,31 +36,35 @@ import junit.framework.TestCase;
 
 
 /**
- * Unit tests for ConsoleClientImplementation.
+ * Unit tests for ConsoleConnectionImplementation.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestConsoleClientImplementation extends TestCase {
+public class TestConsoleConnectionImplementation extends TestCase {
 
   private final RandomStubFactory m_senderStubFactory =
     new RandomStubFactory(BlockingSender.class);
   private final BlockingSender m_sender =
     (BlockingSender)m_senderStubFactory.getStub();
-  private final ConsoleClient m_consoleClient =
-    new ConsoleClientImplementation(m_sender);
 
   public void testRecordingControls() throws Exception {
-    m_consoleClient.startRecording();
-    m_senderStubFactory.assertSuccess("blockingSend", StartRecordingMessage.class);
+    final ConsoleConnection consoleConnection =
+      new ConsoleConnectionImplementation(m_sender);
+
+    consoleConnection.startRecording();
+    m_senderStubFactory.assertSuccess("blockingSend",
+                                      StartRecordingMessage.class);
     m_senderStubFactory.assertNoMoreCalls();
 
-    m_consoleClient.stopRecording();
-    m_senderStubFactory.assertSuccess("blockingSend", StopRecordingMessage.class);
+    consoleConnection.stopRecording();
+    m_senderStubFactory.assertSuccess("blockingSend",
+                                      StopRecordingMessage.class);
     m_senderStubFactory.assertNoMoreCalls();
 
-    m_consoleClient.resetRecording();
-    m_senderStubFactory.assertSuccess("blockingSend", ResetRecordingMessage.class);
+    consoleConnection.resetRecording();
+    m_senderStubFactory.assertSuccess("blockingSend",
+                                      ResetRecordingMessage.class);
     m_senderStubFactory.assertNoMoreCalls();
 
     final CommunicationException communicationException =
@@ -68,39 +72,44 @@ public class TestConsoleClientImplementation extends TestCase {
     m_senderStubFactory.setThrows("blockingSend", communicationException);
 
     try {
-      m_consoleClient.resetRecording();
-      fail("Expected ConsoleClientException");
+      consoleConnection.resetRecording();
+      fail("Expected ConsoleConnectionException");
     }
-    catch (ConsoleClientException e) {
+    catch (ConsoleConnectionException e) {
       assertSame(communicationException, e.getCause());
     }
 
     try {
-      m_consoleClient.stopRecording();
-      fail("Expected ConsoleClientException");
+      consoleConnection.stopRecording();
+      fail("Expected ConsoleConnectionException");
     }
-    catch (ConsoleClientException e) {
+    catch (ConsoleConnectionException e) {
       assertSame(communicationException, e.getCause());
     }
 
     try {
-      m_consoleClient.startRecording();
-      fail("Expected ConsoleClientException");
+      consoleConnection.startRecording();
+      fail("Expected ConsoleConnectionException");
     }
-    catch (ConsoleClientException e) {
+    catch (ConsoleConnectionException e) {
       assertSame(communicationException, e.getCause());
     }
+
+    consoleConnection.close();
   }
 
   public void testProcessMessages() throws Exception {
+    final ConsoleConnection consoleConnection =
+      new ConsoleConnectionImplementation(m_sender);
+
     m_senderStubFactory.setResult(
       "blockingSend", new ResultMessage(new Integer(10)));
-    assertEquals(10, m_consoleClient.getNumberOfAgents());
+    assertEquals(10, consoleConnection.getNumberOfAgents());
     m_senderStubFactory.assertSuccess("blockingSend",
       GetNumberOfAgentsMessage.class);
     m_senderStubFactory.assertNoMoreCalls();
 
-    m_consoleClient.startWorkerProcesses("blah");
+    consoleConnection.startWorkerProcesses("blah");
     final CallData data =
       m_senderStubFactory.assertSuccess(
         "blockingSend", StartWorkerProcessesMessage.class);
@@ -108,7 +117,7 @@ public class TestConsoleClientImplementation extends TestCase {
       ((StartWorkerProcessesMessage)data.getParameters()[0]).getScript());
     m_senderStubFactory.assertNoMoreCalls();
 
-    m_consoleClient.resetWorkerProcesses();
+    consoleConnection.resetWorkerProcesses();
     m_senderStubFactory.assertSuccess(
       "blockingSend", ResetWorkerProcessesMessage.class);
     m_senderStubFactory.assertNoMoreCalls();
@@ -116,20 +125,20 @@ public class TestConsoleClientImplementation extends TestCase {
     m_senderStubFactory.setResult("blockingSend", null);
 
     try {
-      m_consoleClient.getNumberOfAgents();
-      fail("Expected ConsoleClientException");
+      consoleConnection.getNumberOfAgents();
+      fail("Expected ConsoleConnectionException");
     }
-    catch (ConsoleClientException e) {
+    catch (ConsoleConnectionException e) {
     }
 
     m_senderStubFactory.setResult(
       "blockingSend", new ResultMessage(new Object()));
 
     try {
-      m_consoleClient.getNumberOfAgents();
-      fail("Expected ConsoleClientException");
+      consoleConnection.getNumberOfAgents();
+      fail("Expected ConsoleConnectionException");
     }
-    catch (ConsoleClientException e) {
+    catch (ConsoleConnectionException e) {
     }
 
     final CommunicationException communicationException =
@@ -137,27 +146,29 @@ public class TestConsoleClientImplementation extends TestCase {
     m_senderStubFactory.setThrows("blockingSend", communicationException);
 
     try {
-      m_consoleClient.getNumberOfAgents();
-      fail("Expected ConsoleClientException");
+      consoleConnection.getNumberOfAgents();
+      fail("Expected ConsoleConnectionException");
     }
-    catch (ConsoleClientException e) {
+    catch (ConsoleConnectionException e) {
       assertSame(communicationException, e.getCause());
     }
 
     try {
-      m_consoleClient.startWorkerProcesses("blah");
-      fail("Expected ConsoleClientException");
+      consoleConnection.startWorkerProcesses("blah");
+      fail("Expected ConsoleConnectionException");
     }
-    catch (ConsoleClientException e) {
+    catch (ConsoleConnectionException e) {
       assertSame(communicationException, e.getCause());
     }
 
     try {
-      m_consoleClient.resetWorkerProcesses();
-      fail("Expected ConsoleClientException");
+      consoleConnection.resetWorkerProcesses();
+      fail("Expected ConsoleConnectionException");
     }
-    catch (ConsoleClientException e) {
+    catch (ConsoleConnectionException e) {
       assertSame(communicationException, e.getCause());
     }
+
+    consoleConnection.close();
   }
 }
