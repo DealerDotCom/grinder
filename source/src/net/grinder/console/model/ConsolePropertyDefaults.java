@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,5 +40,6 @@ final class ConsolePropertyDefaults {
   public static final String DISTRIBUTION_FILE_FILTER_EXPRESSION =
     "^CVS/$|" +
     "^.*~$|" +
-    "^(out_|error_|data_)\\w+-\\d+.log\\d*$";
+    "^(out_|error_|data_)\\w+-\\d+.log\\d*$|" +
+    "^.grinder/$";
 }

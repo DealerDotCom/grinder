@@ -156,8 +156,15 @@ public final class FileDistributionImplementation implements FileDistribution {
     // (potentially remote) file system uses to generate timestamps. It also
     // avoids problems due to accuracy of file timestamps.
     try {
+      // We create our temporary file below the given directory so we can be
+      // fairly sure it's on the same file system. However, we don't want the
+      // root directory timestamp to be constantly changing, so we create
+      // files in a more long-lived working directory.
+      final File privateDirectory = new File(directory.getFile(), ".grinder");
+      privateDirectory.mkdir();
+
       final File temporaryFile =
-        File.createTempFile(".scantime", "", directory.getFile());
+        File.createTempFile(".scantime", "", privateDirectory);
       temporaryFile.deleteOnExit();
       m_lastScanTime = temporaryFile.lastModified();
       temporaryFile.delete();
