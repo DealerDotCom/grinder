@@ -1,6 +1,34 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.0-beta33 &lt;Not yet released&gt;' id='The Grinder 3.0-beta33 &lt;Not yet released&gt;'>
+<p>
+Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1524827&amp;group_id=18598&amp;atid=368598">Request 1524827</a> - Mnemonics needed. Requested by Travis Bear. </p>
+<p>
+Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1484448&amp;group_id=18598&amp;atid=368598">Request 1484448</a> - Console window size doesn't persist. Requested by Travis Bear. </p>
+<p>
+Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1185967&amp;group_id=18598&amp;atid=368598">Request 1185967</a> - Insert comments while capturing with the TCPProxy. Patch implemented by Venelin Mitov. </p>
+<p>
+Really fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1495428&amp;group_id=18598&amp;atid=118598">bug 1495428</a> - Plugin thread context not correctly registered for events. This bug prevented custom plugins from receiving thread lifecycle events but did not affect the HTTP plugin. Thanks to Klaus-Peter Berg for reporting that this was still broken. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1638659&amp;group_id=18598&amp;atid=118598">bug 1638659</a> - Deadlock in SleeperImplementation. Thanks to Bruce Adams for the report. </p>
+<p>
+Change the console's monitoring of changes to files so that it no longer assumes system time matches the file system time. This should fix some subtle bugs, particularly for file systems on shared storage. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1639383&amp;group_id=18598&amp;atid=118598">bug 1639383</a> - Extra lines added to Content-Disposition. Previously, The Grinder relied on the script maintaining line endings for textual POST bodies, in particular multipart/form-data. This was brittle, text editors, email, and cross platform transfer frequently alters line endings; and I'm sure the Jython interpreter also takes a liberal approach where a file has mixed line endings. I've applied a simple escaping scheme to fix this. Thanks to Claes T Tenell for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1228335&amp;group_id=18598&amp;atid=118598">bug 1228335</a> - File editing should consider end of line. The console editor now canonicalises line endings on input, and uses the host platform line ending on output. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1619450&amp;group_id=18598&amp;atid=118598">bug 1619450</a> - Unit test HTTPClient.TestCookie.testParse fails. Thanks to Bastiaan Bakker for the report. </p>
+<p>
+Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1510072&amp;group_id=18598&amp;atid=368598">Request 1510072</a> - Save absolute timestamp somewhere. Log both the current time zone and the start time in milliseconds since the Epoch in the output log. Requested by Vladimir Sitnikov. </p>
+<p>
+Add process control methods to console API, and provide a factory for obtaining a ConsoleClient. </p>
+<p>
+Tentative fix to <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1677087&amp;group_id=18598&amp;atid=118598">bug 1677087</a>. </p>
+<p>
+Remove all support for implicit 'grinder' script context object. It was deprecated in beta 15, and the implementation was broken. </p>
+</section>
 <section name='The Grinder 3.0-beta32' id='The Grinder 3.0-beta32'>
 <p>
 Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1577573&amp;group_id=18598&amp;atid=118598">bug 1577573</a> - valueFromBodyURI() could be optimised. TCPProxy recorded scripts use this method, and its previous inefficiency caused beta 30 and beta 31 to be overly demanding of CPU and memory. Thanks to Andy Kim for the original bug report. </p>
@@ -217,7 +245,7 @@ Scripts can now control the SSL context used by each worker thread. This can be 
 <p>
 Enhancement from Slavik Gnatenko that allows the grinder.threads, grinder.reportToConsole.interval, and grinder.duration properties to be overridden in scripts initialistion section. </p>
 <p>
-Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP URLs. Thanks to Thomas Böhne for reporting problems. </p>
+Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP URLs. Thanks to Thomas BÃ¶hne for reporting problems. </p>
 <p>
 Fix another bug in HTTPClient related to responses with a Content-Length of 0. Thanks to John Lee for the report. </p>
 <p>
@@ -229,7 +257,7 @@ New documentation built with Apache Forrest. </p>
 <p>
 Additional HTTP instrumentation from Calumn Fitzgerald. This adds new statistics measuring time to resolve host names (DNS), time to establish the connection, and time to first byte. </p>
 <p>
-XML-RPC example from Sebastián Fontana. </p>
+XML-RPC example from SebastiÃ¡n Fontana. </p>
 </section>
 <section name='Grinder 3.0-beta22' id='Grinder 3.0-beta22'>
 <p>
@@ -827,7 +855,7 @@ Fix basic authentication property names. Thanks to Andrew Sliwkowski for reporti
 <p>
 Added new file doc/Problems.txt to hold wisdom from Mikael Suokas. Split the documentation of the plugins and the TCPSniffer into separate files. </p>
 <p>
-The HTTP plugin now has experimental support for Ronald Tschalär's excellent HTTPClient library instead of HttpURLConnection. HTTPClient has many more features than HttpURLConnection, see http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html for a comparision. I hope to lever features such as proxy support, connection timeouts and persistent cookies into future versions of The Grinder. Unfortunately experimentation shows HTTPClient sometimes does not perform well in a multithreaded environment. I'm guessing this should be straightforward to fix. See the file doc/HTTPPlugin.txt for details on how to turn on the HTTPClient support. </p>
+The HTTP plugin now has experimental support for Ronald TschalÃ¤r's excellent HTTPClient library instead of HttpURLConnection. HTTPClient has many more features than HttpURLConnection, see http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html for a comparision. I hope to lever features such as proxy support, connection timeouts and persistent cookies into future versions of The Grinder. Unfortunately experimentation shows HTTPClient sometimes does not perform well in a multithreaded environment. I'm guessing this should be straightforward to fix. See the file doc/HTTPPlugin.txt for details on how to turn on the HTTPClient support. </p>
 <p>
 The TCPSniffer echo filter now reports connection open and close events. </p>
 <p>

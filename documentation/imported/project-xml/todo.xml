@@ -89,7 +89,7 @@ Task: Distribution file filter should be dynamically settable. </p>
 Note: Klaus-Peter Berg is currently working on a major refactoring of the console. </p>
 <section name='Stop the recording when last thread terminates' depth='3' id='Stop the recording when last thread terminates'>
 <p>
-Requested by Jürgen Weber </p>
+Requested by JÃ¼rgen Weber </p>
 </section>
 <section name='Refactoring' depth='3' id='Refactoring'>
 <p>
@@ -186,7 +186,7 @@ Remove ParseException, ProtocolNotSuppException from public APIs. </p>
 <p>
 Script support for HTTP "system property" options. </p>
 <p>
-Pablo Estades Fernández says: <br/>&gt; I need to use client cert on TCPProxy to be able to <br/>&gt; record the test case but also I need to configure <br/>&gt; grinder workers to run the test case presenting a <br/>&gt; client cert. </p>
+Pablo Estades FernÃ¡ndez says: <br/>&gt; I need to use client cert on TCPProxy to be able to <br/>&gt; record the test case but also I need to configure <br/>&gt; grinder workers to run the test case presenting a <br/>&gt; client cert. </p>
 </section>
 <section name='Scripting' depth='2' id='Scripting'>
 <p>
