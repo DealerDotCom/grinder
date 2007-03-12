@@ -1457,6 +1457,8 @@ public final class ConsoleUI implements ModelListener {
             return DistributeFilesAction.this.shouldEnable();
           }
         });
+
+      setEnabled(shouldEnable());
     }
 
     private boolean shouldEnable() {
