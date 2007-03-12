@@ -76,15 +76,15 @@ final class AgentCacheStateImplementation
   }
 
   public synchronized void updateComplete() {
+    // Even if we're not up to date, we've at least transfered all
+    // files older than this m_updateStartTime.
+    m_earliestFileTime = m_postUpdateEarliestFileTime;
+
     if (m_state == UPDATING) {
       // Only mark clean if we haven't been marked out of date
       // during the update.
       setState(UP_TO_DATE);
     }
-
-    // Even if we're not up to date, we've at least transfered all
-    // files older than this m_updateStartTime.
-    m_earliestFileTime = m_postUpdateEarliestFileTime;
   }
 
   private void setState(int newState) {
