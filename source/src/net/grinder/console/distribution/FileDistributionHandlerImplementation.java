@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -62,7 +62,8 @@ final class FileDistributionHandlerImplementation
         long latestFileTime = 0;
 
         for (int i = 0; i < m_files.length; ++i) {
-          final long fileTime = m_files[i].lastModified();
+          final long fileTime =
+            new File(m_directory, m_files[i].getPath()).lastModified();
 
           if (fileTime > latestFileTime) {
             latestFileTime = fileTime;

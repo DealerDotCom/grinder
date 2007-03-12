@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -74,8 +74,10 @@ public class TestFileDistributionHandlerImplementation
     distributionControlStubFactory.assertSuccess("sendFile",
                                                  FileContents.class);
 
+    final File earliestFile = new File(getDirectory(), files[0].getPath());
+
     updateableAgentCacheStateStubFactory.assertSuccess(
-      "updateStarted", Long.class);
+      "updateStarted", new Long(earliestFile.lastModified()));
     updateableAgentCacheStateStubFactory.assertNoMoreCalls();
 
     final FileDistributionHandler.Result result1 =
