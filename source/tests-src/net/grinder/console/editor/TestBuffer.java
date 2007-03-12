@@ -206,7 +206,7 @@ public class TestBuffer extends AbstractFileTestCase {
   }
 
   private static String canonicaliseLineEndings(final String s0) {
-    return s0.replace("\n", LINE_SEPARATOR) + LINE_SEPARATOR;
+    return s0.replaceAll("\n", LINE_SEPARATOR) + LINE_SEPARATOR;
   }
 
   public void testBufferWithLargeFile() throws Exception {
