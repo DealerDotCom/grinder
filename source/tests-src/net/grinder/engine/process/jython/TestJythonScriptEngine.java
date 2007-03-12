@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -211,6 +211,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     s_lastCallbackObject = o;
   }
 
+/*
   public void testScriptContextAndImplicitGrinderWarning() throws Exception {
     final RandomStubFactory loggerStubFactory = new RandomStubFactory(
       Logger.class);
@@ -218,8 +219,8 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     m_scriptContextStubFactory.setResult("getLogger", logger);
 
-    final JythonScriptEngine scriptEngine = new JythonScriptEngine(
-      m_scriptContext);
+    final JythonScriptEngine scriptEngine =
+      new JythonScriptEngine(m_scriptContext);
 
     final File scriptFile = new File(getDirectory(), "script");
 
@@ -243,6 +244,8 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_scriptContextStubFactory.assertSuccess("getRunNumber");
     m_scriptContextStubFactory.assertNoMoreCalls();
   }
+*/
+
 
   public void testWorkerRunnable() throws Exception {
     final JythonScriptEngine scriptEngine = new JythonScriptEngine(

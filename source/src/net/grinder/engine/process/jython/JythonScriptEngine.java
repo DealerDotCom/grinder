@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001-2007 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -24,9 +24,6 @@ package net.grinder.engine.process.jython;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 
 import org.python.core.Py;
 import org.python.core.PyClass;
@@ -42,12 +39,10 @@ import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-import net.grinder.common.Logger;
 import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.ScriptEngine;
-import net.grinder.script.Grinder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Grinder.ScriptContext;
 
@@ -84,10 +79,6 @@ public final class JythonScriptEngine implements ScriptEngine {
     m_interpreter = new PythonInterpreter(null, m_systemState);
     m_versionAdapter = new JythonVersionAdapter();
     m_instrumentedProxyFactory = new PyInstrumentedProxyFactory();
-
-    m_interpreter.set(
-      "grinder",
-      new ImplicitGrinderIsDeprecated(scriptContext).getScriptContext());
   }
 
   /**
@@ -389,45 +380,6 @@ public final class JythonScriptEngine implements ScriptEngine {
           m_versionAdapter.disableDel(m_testRunner);
         }
       }
-    }
-  }
-
-  private static final class ImplicitGrinderIsDeprecated
-    implements InvocationHandler {
-
-    private final Grinder.ScriptContext m_delegate;
-    private boolean m_warned = false;
-
-    public ImplicitGrinderIsDeprecated(Grinder.ScriptContext delegate) {
-      m_delegate = delegate;
-    }
-
-    public Object invoke(Object proxy, Method method, Object[] parameters)
-      throws Throwable {
-
-      if (!m_warned) {
-        m_warned = true;
-
-        m_delegate.getLogger().output(
-          "The implicit 'grinder' object is deprecated. Add the following " +
-          "line to the start of your script to ensure it is compatible " +
-          "with future versions of The Grinder:" +
-          "\n\tfrom net.grinder.script.Grinder import grinder",
-          Logger.LOG | Logger.TERMINAL);
-      }
-
-      final Method delegateMethod =
-        m_delegate.getClass().getMethod(method.getName(),
-                                        method.getParameterTypes());
-
-      return delegateMethod.invoke(m_delegate, parameters);
-    }
-
-    public Grinder.ScriptContext getScriptContext() {
-      return (Grinder.ScriptContext)Proxy.newProxyInstance(
-        m_delegate.getClass().getClassLoader(),
-        new Class[] {Grinder.ScriptContext.class},
-        this);
     }
   }
 
