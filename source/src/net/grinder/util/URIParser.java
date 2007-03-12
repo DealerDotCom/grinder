@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -71,7 +71,7 @@ public interface URIParser {
     /**
      * Called with the authority.
      *
-     * @param scheme The authority, without leading '//'.
+     * @param authority The authority, without leading '//'.
      * @return See {ParseListener}.
      */
     boolean authority(String authority);
@@ -117,7 +117,7 @@ public interface URIParser {
     /**
      * Called with fragment.
      *
-     * @param scheme The fragment. The leading '#' is stripped.
+     * @param fragment The fragment. The leading '#' is stripped.
      * @return See {ParseListener}.
      */
     boolean fragment(String fragment);

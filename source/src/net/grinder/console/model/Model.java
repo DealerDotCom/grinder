@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,7 @@ package net.grinder.console.model;
 
 
 /**
- * Interface to {@ModelImplementation}.
+ * Interface to {@link ModelImplementation}.
  *
  * <p>Initially created to provide an abstraction to the console client
  * handler. Will refactor over time so that the model interface is
