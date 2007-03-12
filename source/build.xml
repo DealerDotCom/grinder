@@ -616,7 +616,7 @@ what you want. Currently the conditionally built modules are:
       <classpath>
         <pathelement path="${jython.dir}/${jython.jar}"/>
       </classpath>
-      <arg path="${etc.dir}/scripts2xml.py"/>
+      <arg path="${etc.dir}/scripts2XML.py"/>
       <arg value="examples/helloworld.py"/>
       <arg value="examples/http.py"/>
       <arg value="examples/scenario.py"/>
