@@ -21,6 +21,8 @@
 
 package net.grinder.console.distribution;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -45,6 +47,8 @@ public final class FileDistributionImplementation implements FileDistribution {
 
   private final DistributionControl m_distributionControl;
   private final UpdateableAgentCacheState m_cacheState;
+
+  // Guarded by this.
   private long m_lastScanTime;
 
   private Directory m_lastDirectory;
@@ -64,6 +68,16 @@ public final class FileDistributionImplementation implements FileDistribution {
                                  UpdateableAgentCacheState agentCacheState) {
     m_distributionControl = distributionControl;
     m_cacheState = agentCacheState;
+
+    m_cacheState.addListener(new PropertyChangeListener() {
+      public void propertyChange(PropertyChangeEvent event) {
+        if (m_cacheState.getEarliestFileTime() < 0) {
+          synchronized (this) {
+            m_lastScanTime = -1;
+          }
+        }
+      }
+    });
   }
 
   /**
@@ -104,6 +118,10 @@ public final class FileDistributionImplementation implements FileDistribution {
       m_lastDirectory = directory;
       m_lastFileFilterPattern = distributionFileFilterPattern;
     }
+
+    // Scan to ensure we've seen what we're about to distribute and don't
+    // invalidate the cache immediately after distribution.
+    scanDistributionFiles(directory, distributionFileFilterPattern);
 
     final long earliestFileTime = m_cacheState.getEarliestFileTime();
 
@@ -146,10 +164,11 @@ public final class FileDistributionImplementation implements FileDistribution {
     Directory directory,
     Pattern distributionFileFilterPattern) {
 
-    // If the cache has been reset, we scan all time. Otherwise we
-    // just look for changes since the last scan.
-    final long cacheTime = m_cacheState.getEarliestFileTime();
-    final long scanTime = cacheTime < 0 ? cacheTime : m_lastScanTime;
+    final long scanTime;
+
+    synchronized (this) {
+      scanTime = m_lastScanTime;
+    }
 
     // We only work with times obtained from the file system. This avoids
     // problems due to differences between the system clock and whatever the
@@ -166,11 +185,15 @@ public final class FileDistributionImplementation implements FileDistribution {
       final File temporaryFile =
         File.createTempFile(".scantime", "", privateDirectory);
       temporaryFile.deleteOnExit();
-      m_lastScanTime = temporaryFile.lastModified();
+      synchronized (this) {
+        m_lastScanTime = temporaryFile.lastModified();
+      }
       temporaryFile.delete();
     }
     catch (IOException e) {
-      m_lastScanTime = System.currentTimeMillis() - 1000;
+      synchronized (this) {
+        m_lastScanTime = System.currentTimeMillis() - 1000;
+      }
     }
 
     final File[] laterFiles =
