@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001-2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -69,8 +69,8 @@ final class LoggerImplementation {
     s_stderrWriter = new PrintWriter(System.err);
   }
 
-  private static int s_currentTick = 0;
-  private static int s_lastTick = -1;
+  private static volatile int s_currentTick = 0;
+  private static volatile int s_lastTick = -1;
 
   /** Regularly incremented by GrinderProcess. */
   static void tick() {
@@ -81,10 +81,13 @@ final class LoggerImplementation {
    * Use our DateFormat at most once a tick. Don't synchronise, who
    * cares if its wrong?
    */
-  private static /* synchronized */ String getDateString() {
+  private static String getDateString() {
 
     if (s_lastTick != s_currentTick) {
-      s_dateString = s_dateFormat.format(new Date());
+      synchronized (s_dateFormat) {
+        s_dateString = s_dateFormat.format(new Date());
+      }
+
       s_lastTick = s_currentTick;
     }
 
