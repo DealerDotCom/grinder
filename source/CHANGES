@@ -47,6 +47,9 @@ The Grinder 3.0-beta33 <Not yet released>
 
   Tentative fix to bug 1677087.
 
+  Remove all support for implicit 'grinder' script context object. It was
+  deprecated in beta 15, and the implementation was broken.
+
 
 The Grinder 3.0-beta32
 ----------------------
