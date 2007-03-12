@@ -27,7 +27,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Random;
 
-import net.grinder.common.Logger;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
@@ -40,7 +39,6 @@ import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.thread.UncheckedInterruptedException;
 
