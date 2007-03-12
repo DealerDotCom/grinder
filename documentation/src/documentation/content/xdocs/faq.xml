@@ -872,7 +872,7 @@ C:\> java net.grinder.Grinder > output.txt
       <code>SIGQUIT</code> signal. You will find the thread dump in the
       terminal window (or the file to which you redirected output).</p>
 
-      <p>On Windows, use one of the following:
+      <p>On Windows, use one of the following:</p>
       <ul>
         <li>If it is an <em>agent</em> or <em>console</em> process you are
         interested in (not a <em>worker</em> process), type <code>Ctrl-Break</code>
@@ -887,7 +887,6 @@ C:\> java net.grinder.Grinder > output.txt
       as above.
         </li>
       </ul>
-      </p>
 
       <p>Alternatively, you can run a recent version of the Sun JVM (J2SE 5 for
       Linux or Solaris, J2SE 6 for Windows) and use the <code>jstack</code>
