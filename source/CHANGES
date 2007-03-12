@@ -45,6 +45,8 @@ The Grinder 3.0-beta33 <Not yet released>
   Add process control methods to console API, and provide a factory for
   obtaining a ConsoleClient.
 
+  Tentative fix to bug 1677087.
+
 
 The Grinder 3.0-beta32
 ----------------------
