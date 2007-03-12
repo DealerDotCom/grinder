@@ -81,7 +81,7 @@ for details of other targets.
     </copy>
 
     <!-- Quick hack for now. -->
-    <exec executable="${forrest.home}/bin/forrest.bat">
+    <exec executable="${forrest.home}/bin/forrest">
      <env key="FORREST_HOME" path="${forrest.home}"/>
     </exec>
   </target>
