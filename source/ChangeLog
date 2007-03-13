@@ -1,4 +1,10 @@
-2007-03-13 [r3507-3508]  Philip Aston
+2007-03-13 [r3512]  Philip Aston
+
+	* AUTHORS: New Chinese translation from Hugh Chen.
+
+2007-03-13 [r3507-3509]  Philip Aston
+
+	* ChangeLog: Update for beta 33.
 
 	* src/net/grinder/console/swingui/resources/Console_zh.properties
 	  (added): New Chinese translation from Hugh Chen.
