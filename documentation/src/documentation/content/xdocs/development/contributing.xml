@@ -154,7 +154,8 @@ java -Duser.language="es" net.grinder.Console
     <p>Bertrand Ave produced a translation for French speaking
     users (<code>user.language="fr"</code>), Huibert Alblas
     produced a German translation (<code>user.language="de"</code>),
-    and Italian, Polish, and Russian translations have since followed.</p>
+    and Italian, Polish, Russian, and Chinese translations have since followed.
+    </p>
 
     <section>
       <title>How to provide a translation</title>
