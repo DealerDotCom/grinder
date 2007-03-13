@@ -1,5 +1,5 @@
-The Grinder 3.0-beta33 <Not yet released>
------------------------------------------
+The Grinder 3.0-beta33
+----------------------
 
   Fulfil Feature Request 1524827 - Mnemonics needed. Requested by
   Travis Bear.
@@ -45,7 +45,7 @@ The Grinder 3.0-beta33 <Not yet released>
   Add process control methods to console API, and provide a factory for
   obtaining a ConsoleClient.
 
-  Tentative fix to bug 1677087.
+  Tentative fix to bug 1677087. Thanks to Matt Moran for the report.
 
   Remove all support for implicit 'grinder' script context object. It was
   deprecated in beta 15, and the implementation was broken.
