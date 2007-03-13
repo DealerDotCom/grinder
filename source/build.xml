@@ -775,7 +775,7 @@ what you want. Currently the conditionally built modules are:
     <taskdef resource="svntask.properties" classpathref="svnant.classpath"/>
   </target>
 
-  <target name="svn-diff">
+  <target name="svn-diff" depends="svn-init">
     <tempfile property="temp.file" prefix="svndiff"/>
 
     <svn>
@@ -790,7 +790,7 @@ what you want. Currently the conditionally built modules are:
     <delete file="${temp.file}"/>
   </target>
 
-  <target name="svn-tag">
+  <target name="svn-tag" depends="svn-init">
     <svn>
       <copy srcUrl="${svn.url}/trunk/"
             destUrl="${svn.url}/tags/${release.tag}/"
