@@ -34,11 +34,11 @@
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:jakarta/j2se14">J2SE 1.4 or higher</a></td>
+      <td><a href="ext:javasoft/j2se14">J2SE 1.4 or higher</a></td>
       <td></td>
     </tr>
     <tr>
-      <td><a href="ext:jakarta/j2se15">J2SE 1.5 or higher</a></td>
+      <td><a href="ext:javasoft/j2se15">J2SE 1.5 or higher</a></td>
       <td>To build compile optional J2SE 1.5 specific code</td>
     </tr>
     <tr>
