@@ -1,3 +1,66 @@
+2007-03-13 [r3507-3508]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/Console_zh.properties
+	  (added): New Chinese translation from Hugh Chen.
+
+	* CHANGES: New Chinese translation from Hugh Chen.
+
+2007-03-13 [r3506]  Philip Aston
+
+	* build.xml: Correct dependencies for svn operations.
+
+2007-03-13 [r3503]  Philip Aston
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java,
+	  src/net/grinder/util/StreamCopier.java,
+	  src/net/grinder/util/FileContents.java,
+	  src/net/grinder/console/common/ResourcesImplementation.java,
+	  src/net/grinder/util/thread/Monitor.java,
+	  src/net/grinder/communication/FanOutStreamSender.java,
+	  src/net/grinder/util/Directory.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java,
+	  src/net/grinder/util/thread/ThreadPool.java,
+	  tests-src/net/grinder/communication/TestStreamReceiver.java,
+	  src/net/grinder/tools/tcpproxy/TCPProxyFilter.java,
+	  tests-src/net/grinder/communication/TestResourcePool.java,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/engine/agent/FileStore.java,
+	  src/net/grinder/communication/ServerReceiver.java,
+	  src/net/grinder/common/GrinderBuild.java,
+	  src/net/grinder/util/thread/Kernel.java,
+	  src/net/grinder/util/thread/InterruptibleRunnableAdapter.java,
+	  tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java,
+	  src/net/grinder/communication/ConnectionType.java,
+	  src/net/grinder/console/editor/BufferImplementation.java,
+	  src/net/grinder/console/model/ModelImplementation.java,
+	  src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java,
+	  src/net/grinder/communication/AbstractSender.java,
+	  tests-src/net/grinder/util/thread/TestMonitor.java,
+	  src/net/grinder/engine/agent/DebugThreadWorker.java,
+	  src/net/grinder/engine/agent/ProcessWorker.java,
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java,
+	  src/net/grinder/util/thread/UncheckedInterruptedException.java
+	  (removed), src/net/grinder/communication/StreamReceiver.java,
+	  src/net/grinder/common/UncheckedInterruptedException.java
+	  (added),
+	  src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java,
+	  src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java,
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java,
+	  src/net/grinder/communication/ResourcePoolImplementation.java,
+	  src/net/grinder/engine/agent/WorkerLauncher.java,
+	  src/net/grinder/communication/SocketWrapper.java,
+	  src/net/grinder/common/GrinderProperties.java,
+	  src/net/grinder/communication/Connector.java,
+	  src/net/grinder/util/thread/ThreadSafeQueue.java,
+	  tests-src/net/grinder/communication/TestServerReceiver.java,
+	  src/net/grinder/communication/StreamSender.java,
+	  src/net/grinder/communication/Acceptor.java: Repackage
+	  UncheckedInterruptedException to remove package circularity.
+
+2007-03-13 [r3501]  Philip Aston
+
+	* ChangeLog: Update for beta 33.
+
 2007-03-13 [r3500]  Philip Aston
 
 	* CHANGES: Credit Matt.
