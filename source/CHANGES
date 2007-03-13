@@ -50,6 +50,10 @@ The Grinder 3.0-beta33
   Remove all support for implicit 'grinder' script context object. It was
   deprecated in beta 15, and the implementation was broken.
 
+  New Chinese translation from Hugh Chen. If you use this, you'll also need
+  to set up Java for Chinese fonts. The following blog entry may help:
+  http://blog.lizhao.net/2007/03/java-chinese-fonts-on-ubuntu.html
+
 
 The Grinder 3.0-beta32
 ----------------------
