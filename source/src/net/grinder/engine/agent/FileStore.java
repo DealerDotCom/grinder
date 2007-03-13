@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import net.grinder.common.Logger;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
@@ -36,7 +37,6 @@ import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 import net.grinder.util.StreamCopier;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

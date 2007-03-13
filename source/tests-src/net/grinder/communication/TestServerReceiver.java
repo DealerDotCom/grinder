@@ -25,8 +25,8 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.IsolatedObjectFactory;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 import junit.framework.TestCase;
 

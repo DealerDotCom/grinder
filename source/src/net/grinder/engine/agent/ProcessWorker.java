@@ -26,10 +26,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.StreamCopier;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

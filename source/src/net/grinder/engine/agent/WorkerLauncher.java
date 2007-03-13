@@ -22,11 +22,11 @@
 package net.grinder.engine.agent;
 
 import net.grinder.common.Logger;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.Kernel;
 import net.grinder.util.thread.Monitor;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

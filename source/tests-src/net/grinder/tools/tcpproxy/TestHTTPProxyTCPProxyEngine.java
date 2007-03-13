@@ -39,10 +39,10 @@ import javax.net.ssl.SSLSocket;
 import junit.framework.TestCase;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.util.StreamCopier;
 import net.grinder.util.TerminalColour;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

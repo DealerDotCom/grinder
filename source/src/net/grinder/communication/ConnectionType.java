@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.grinder.util.thread.UncheckedInterruptedException;
+import net.grinder.common.UncheckedInterruptedException;
 
 
 /**

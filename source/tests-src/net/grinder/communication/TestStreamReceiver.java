@@ -26,8 +26,8 @@ import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.IsolatedObjectFactory;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 import junit.framework.TestCase;
 

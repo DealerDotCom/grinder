@@ -34,10 +34,10 @@ import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.util.ListenerSupport;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

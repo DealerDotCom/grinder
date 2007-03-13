@@ -30,6 +30,7 @@ import java.util.Random;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.ScriptEngine.WorkerRunnable;
@@ -40,7 +41,6 @@ import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 import org.python.core.Py;
 import org.python.core.PyException;

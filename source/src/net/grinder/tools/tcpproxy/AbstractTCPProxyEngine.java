@@ -38,10 +38,10 @@ import java.util.List;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.TerminalColour;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.InterruptibleRunnableAdapter;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

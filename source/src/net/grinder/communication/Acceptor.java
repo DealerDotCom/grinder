@@ -28,11 +28,11 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
 import net.grinder.util.thread.ThreadSafeQueue;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

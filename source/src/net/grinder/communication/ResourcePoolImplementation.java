@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.ListenerSupport;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

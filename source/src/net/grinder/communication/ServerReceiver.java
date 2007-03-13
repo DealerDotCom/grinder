@@ -29,11 +29,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.ResourcePool.Reservation;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
 import net.grinder.util.thread.ThreadSafeQueue;
-import net.grinder.util.thread.UncheckedInterruptedException;
 import net.grinder.util.thread.ThreadSafeQueue.ShutdownException;
 
 

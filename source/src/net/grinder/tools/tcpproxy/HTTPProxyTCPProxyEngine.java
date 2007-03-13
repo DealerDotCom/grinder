@@ -43,10 +43,10 @@ import java.util.regex.PatternSyntaxException;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.StreamCopier;
 import net.grinder.util.html.HTMLElement;
 import net.grinder.util.thread.InterruptibleRunnable;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

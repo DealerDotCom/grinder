@@ -26,9 +26,9 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.InterruptibleRunnableAdapter;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

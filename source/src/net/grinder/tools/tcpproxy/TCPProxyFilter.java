@@ -41,7 +41,7 @@ import net.grinder.common.GrinderException;
  * <p>
  * Well behaved filters should not swallow {@link InterruptedException}s.
  * Ideally, they should convert {@link InterruptedException}s to
- * {@link net.grinder.util.thread.UncheckedInterruptedException}s; but
+ * {@link net.grinder.common.UncheckedInterruptedException}s; but
  * alternatively they could reinstantiate the Thread's interrupted status.
  * </p>
  *

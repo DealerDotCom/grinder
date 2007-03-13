@@ -24,8 +24,8 @@ package net.grinder.communication;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.thread.Kernel;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

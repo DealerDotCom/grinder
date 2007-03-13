@@ -21,6 +21,8 @@
 
 package net.grinder.util.thread;
 
+import net.grinder.common.UncheckedInterruptedException;
+
 
 /**
  * A simple thread pool.

@@ -76,6 +76,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -95,7 +96,6 @@ import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

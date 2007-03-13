@@ -19,13 +19,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.util.thread;
+package net.grinder.common;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
-
-import net.grinder.common.UncheckedGrinderException;
 
 
 /**
@@ -44,9 +42,9 @@ import net.grinder.common.UncheckedGrinderException;
  * doesn't know how to handle, it rethrows it in an
  * {@link UncheckedInterruptedException}.</li>
  *
- * <li>{@link InterruptibleRunnable#interruptibleRun()} implementations are
- * carefully reviewed to ensure that they do not ignore the interrupt condition
- * and will exit whenever {@link InterruptedException} and
+ * <li>{@link net.grinder.util.thread.InterruptibleRunnable#interruptibleRun()}
+ * implementations are carefully reviewed to ensure that they do not ignore the
+ * interrupt condition and will exit whenever {@link InterruptedException} and
  * {@link InterruptedIOException}s are received. We only interrupt code that
  * implements {@link InterruptibleRunnable#interruptibleRun()}.</li>
  *

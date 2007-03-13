@@ -26,8 +26,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.RandomStubFactory;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

@@ -31,6 +31,7 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
@@ -51,7 +52,6 @@ import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.FileContents;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

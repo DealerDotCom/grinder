@@ -23,6 +23,7 @@ package net.grinder.util.thread;
 
 import java.util.TimerTask;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.Time;
 
 import junit.framework.Assert;

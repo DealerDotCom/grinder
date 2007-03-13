@@ -26,7 +26,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import net.grinder.util.thread.UncheckedInterruptedException;
+import net.grinder.common.UncheckedInterruptedException;
 
 
 /**

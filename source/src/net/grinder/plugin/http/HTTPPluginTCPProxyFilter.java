@@ -49,9 +49,9 @@ import HTTPClient.ParseException;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

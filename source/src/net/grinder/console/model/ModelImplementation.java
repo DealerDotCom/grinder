@@ -35,6 +35,7 @@ import java.util.TreeSet;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
@@ -47,7 +48,6 @@ import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.statistics.TestStatisticsQueries;
 import net.grinder.util.SignificantFigureFormat;
 import net.grinder.util.ListenerSupport;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

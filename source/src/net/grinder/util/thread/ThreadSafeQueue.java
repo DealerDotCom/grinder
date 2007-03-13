@@ -24,6 +24,7 @@ package net.grinder.util.thread;
 import java.util.LinkedList;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.UncheckedInterruptedException;
 
 
 /**

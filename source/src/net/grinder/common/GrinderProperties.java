@@ -32,7 +32,6 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

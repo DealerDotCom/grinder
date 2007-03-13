@@ -28,10 +28,10 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.URLClassLoader;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.IsolatingClassLoader;
-import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**

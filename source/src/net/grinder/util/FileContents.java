@@ -30,7 +30,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 
 import net.grinder.common.GrinderException;
-import net.grinder.util.thread.UncheckedInterruptedException;
+import net.grinder.common.UncheckedInterruptedException;
 
 
 /**

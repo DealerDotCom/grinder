@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import net.grinder.common.Logger;
-import net.grinder.util.thread.UncheckedInterruptedException;
+import net.grinder.common.UncheckedInterruptedException;
 
 
 /**

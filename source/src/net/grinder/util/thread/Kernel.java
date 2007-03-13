@@ -22,6 +22,7 @@
 package net.grinder.util.thread;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.UncheckedInterruptedException;
 
 
 /**
