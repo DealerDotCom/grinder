@@ -131,16 +131,14 @@ final class BufferImplementation implements Buffer {
     }
 
     final StringWriter stringWriter = new StringWriter();
-    FileReader fileReader = null;
+    BufferedReader reader = null;
 
     try {
-      fileReader = new FileReader(m_file);
-
       // We use a BufferedReader to canonicalise line endings
-      final BufferedReader buferredReader = new BufferedReader(fileReader);
+      reader = new BufferedReader(new FileReader(m_file));
 
       while (true) {
-        final String line = buferredReader.readLine();
+        final String line = reader.readLine();
 
         if (line == null) {
           break;
@@ -162,9 +160,9 @@ final class BufferImplementation implements Buffer {
         e);
     }
     finally {
-      if (fileReader != null) {
+      if (reader != null) {
         try {
-          fileReader.close();
+          reader.close();
         }
         catch (IOException e) {
           // Oh well.
