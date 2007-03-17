@@ -1,3 +1,15 @@
+2007-03-17 [r3514-3515]  Philip Aston
+
+	* src/net/grinder/console/distribution/FileDistributionImplementation.java:
+	  Correct synchronisation - thanks FindBugs.
+
+	* src/net/grinder/console/editor/BufferImplementation.java: Tidy up
+	  stream closing to satisfy FindBugs.
+
+2007-03-13 [r3513]  Philip Aston
+
+	* ChangeLog: Update for beta 33.
+
 2007-03-13 [r3512]  Philip Aston
 
 	* AUTHORS: New Chinese translation from Hugh Chen.
