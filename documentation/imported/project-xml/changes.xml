@@ -1,7 +1,7 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
-<section name='The Grinder 3.0-beta33 &lt;Not yet released&gt;' id='The Grinder 3.0-beta33 &lt;Not yet released&gt;'>
+<section name='The Grinder 3.0-beta33' id='The Grinder 3.0-beta33'>
 <p>
 Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1524827&amp;group_id=18598&amp;atid=368598">Request 1524827</a> - Mnemonics needed. Requested by Travis Bear. </p>
 <p>
@@ -25,9 +25,11 @@ Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp
 <p>
 Add process control methods to console API, and provide a factory for obtaining a ConsoleClient. </p>
 <p>
-Tentative fix to <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1677087&amp;group_id=18598&amp;atid=118598">bug 1677087</a>. </p>
+Tentative fix to <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1677087&amp;group_id=18598&amp;atid=118598">bug 1677087</a>. Thanks to Matt Moran for the report. </p>
 <p>
 Remove all support for implicit 'grinder' script context object. It was deprecated in beta 15, and the implementation was broken. </p>
+<p>
+New Chinese translation from Hugh Chen. If you use this, you'll also need to set up Java for Chinese fonts. The following blog entry may help: http://blog.lizhao.net/2007/03/java-chinese-fonts-on-ubuntu.html </p>
 </section>
 <section name='The Grinder 3.0-beta32' id='The Grinder 3.0-beta32'>
 <p>
