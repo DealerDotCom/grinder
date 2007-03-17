@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
 
@@ -48,7 +48,7 @@
     <section>
       <title>Authors</title>
       <table class="noborder">
-  <tr><td>Paco G�mez</td></tr>
+  <tr><td>Paco Gómez</td></tr>
   <tr><td>Philip Aston</td></tr>
   <tr><td>Phil Dawes</td></tr>
   <tr><td>Paddy Spencer</td></tr>
@@ -74,19 +74,20 @@
   <tr><td>Marc Born</td></tr>
   <tr><td>Andreas Schmidt</td></tr>
   <tr><td>Calum Fitzgerald</td></tr>
-  <tr><td>Sebasti�n Fontana</td></tr>
+  <tr><td>Sebastián Fontana</td></tr>
   <tr><td>KArol Muszynski</td></tr>
   <tr><td>Meo Bogliolo</td></tr>
   <tr><td>Konstantin Ignatyev</td></tr>
   <tr><td>Martin Wagner</td></tr>
   <tr><td>Venelin Mitov</td></tr>
+  <tr><td>陈进芬 (Huifeng Chen)</td></tr>
       </table>
     </section>
 
     <section>
       <title>Credits</title>
 
-      <p>I wish to thank Paco G�mez and Peter Zadrozny for the
+      <p>I wish to thank Paco Gómez and Peter Zadrozny for the
       key ideas embodied in the original version of The Grinder.</p>
 
       <p>I am grateful to VA Software for SourceForge.net.</p>
