@@ -72,7 +72,7 @@ public final class FileDistributionImplementation implements FileDistribution {
     m_cacheState.addListener(new PropertyChangeListener() {
       public void propertyChange(PropertyChangeEvent event) {
         if (m_cacheState.getEarliestFileTime() < 0) {
-          synchronized (this) {
+          synchronized (FileDistributionImplementation.this) {
             m_lastScanTime = -1;
           }
         }
