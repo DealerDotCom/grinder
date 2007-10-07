@@ -6,6 +6,10 @@ The Grinder 3.0-beta34 (Not yet released)
   Fix bug 1808854 - Incorrect synchronisation in TestStatisticsMap.
   Thanks to Ishan Oshadi Jayawardene for the report.
 
+  Partially address feature request in bug 1688988 by translating
+  InterruptedIOExceptions due to timeouts in HTTPClient code to a
+  specific TimeoutException. Thanks to Andrew McGuigan for the report.
+
 
 The Grinder 3.0-beta33
 ----------------------

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2001 - 2007 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
@@ -28,6 +28,7 @@ package net.grinder.plugin.http;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.HttpURLConnection;
 import java.util.HashSet;
 import java.util.Set;
@@ -883,7 +884,16 @@ public class HTTPRequest {
       final HTTPConnection connection =
         threadState.getConnectionWrapper(m_url).getConnection();
 
-      final HTTPResponse httpResponse = doRequest(connection, path);
+      final HTTPResponse httpResponse;
+
+      try {
+        httpResponse = doRequest(connection, path);
+      }
+      catch (InterruptedIOException e) {
+        // We never interrupt worker threads, so we can be sure this is due to
+        // a HTTPClient.
+        throw new TimeoutException(e);
+      }
 
       // Read the entire response.
       final byte[] data = httpResponse.getData();

@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,6 @@ import junit.framework.TestCase;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-
 import HTTPClient.HTTPResponse;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
@@ -87,7 +86,7 @@ public class TestHTTPRequest extends TestCase {
                                               scriptContext);
     pluginProcessContextStubFactory.setResult("getStatisticsServices",
       StatisticsServicesImplementation.getInstance());
-    
+
     pluginProcessContextStubFactory.setResult("getTimeAuthority",
       new StandardTimeAuthority());
 
@@ -105,6 +104,40 @@ public class TestHTTPRequest extends TestCase {
 
   protected void tearDown() throws Exception {
     m_handler.shutdown();
+  }
+
+  public void testTimeout() throws Exception {
+    final HTTPPluginConnectionDefaults connectionDefaults =
+      HTTPPluginConnectionDefaults.getConnectionDefaults();
+
+    final int originalTimeout = connectionDefaults.getTimeout();
+    final String originalProxyHost = connectionDefaults.getProxyHost();
+    final int originalProxyPort = connectionDefaults.getProxyPort();
+
+    try {
+      connectionDefaults.setTimeout(1);
+
+      try {
+        final HTTPRequest request = new HTTPRequest();
+        request.GET("http://idontexist.grinder.sf.net");
+        fail("Expected TimeoutException");
+      }
+      catch (TimeoutException e) {
+      }
+
+      try {
+        connectionDefaults.setProxyServer("idontexist.grinder.sf.net", 8080);
+        final HTTPRequest request2 = new HTTPRequest();
+        request2.GET("http://idontexist.grinder.sf.net");
+        fail("Expected TimeoutException");
+      }
+      catch (TimeoutException e) {
+      }
+    }
+    finally {
+      connectionDefaults.setTimeout(originalTimeout);
+      connectionDefaults.setProxyServer(originalProxyHost, originalProxyPort);
+    }
   }
 
   public void testSetUrl() throws Exception {
