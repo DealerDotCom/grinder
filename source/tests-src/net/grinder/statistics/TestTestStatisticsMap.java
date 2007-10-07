@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -290,5 +290,65 @@ public class TestTestStatisticsMap extends TestCase {
 
     final StatisticsSet nonCompositeTotals = map.nonCompositeStatisticsTotals();
     assertEquals(20, nonCompositeTotals.getValue(m_index));
+  }
+
+  public void testSynchronisation() throws Exception {
+    final TestStatisticsMap map =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
+
+    final Thread[] threads = new Thread[10];
+    final Boolean[] start = { Boolean.FALSE };
+    final Boolean[] sucess = { Boolean.TRUE };
+
+    for (int i=0; i<threads.length; ++i) {
+      final int n = i;
+
+      threads[i] = new Thread() {
+        public void run() {
+          synchronized (start) {
+            while (!start[0].booleanValue()) {
+              try {
+                start.wait();
+              }
+              catch (InterruptedException e) {
+                Thread.interrupted();
+              }
+            }
+          }
+
+          try {
+            for (int i=0; i<100; ++i) {
+              map.reset();
+              map.put(new StubTest(n*100 + i, ""), m_statistics0);
+            }
+          }
+          catch (Exception e) {
+            e.printStackTrace();
+            synchronized (sucess) {
+              sucess[0] = Boolean.FALSE;
+            }
+          }
+        }
+      };
+    }
+
+    for (int i=0; i<threads.length; ++i) {
+      threads[i].start();
+    }
+
+    synchronized (start) {
+      start[0] = Boolean.TRUE;
+      start.notifyAll();
+    }
+
+    for (int i=0; i<threads.length; ++i) {
+      threads[i].join();
+    }
+
+    synchronized (sucess) {
+      assertTrue(sucess[0].booleanValue());
+    }
+
+    assertEquals(1000, map.size());
   }
 }

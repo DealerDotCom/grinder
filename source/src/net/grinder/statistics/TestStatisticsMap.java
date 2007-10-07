@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -44,7 +44,7 @@ import net.grinder.common.Test;
 public final class TestStatisticsMap implements java.io.Externalizable {
 
   // The serialVersionUID should be incremented whenever the default
-  // statistic indicies are changed in StatisticsIndexMap, or
+  // statistic indices are changed in StatisticsIndexMap, or
   // when the StatisticsSet externalisation methods are changed.
   private static final long serialVersionUID = 3L;
 
@@ -432,10 +432,10 @@ public final class TestStatisticsMap implements java.io.Externalizable {
    */
   public abstract class ForEach {
     /**
-     * Runs the iteratation.
+     * Runs the iteration.
      */
     public void iterate() {
-      synchronized (this) {
+      synchronized (TestStatisticsMap.this) {
         final Iterator iterator = new Iterator();
 
         while (iterator.hasNext()) {

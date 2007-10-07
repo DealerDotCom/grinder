@@ -3,6 +3,9 @@ The Grinder 3.0-beta34 (Not yet released)
 
   Updates to the German console translation from Matthias Diller.
 
+  Fix bug 1808854 - Incorrect synchronisation in TestStatisticsMap.
+  Thanks to Oshadi for the report.
+
 
 The Grinder 3.0-beta33
 ----------------------
