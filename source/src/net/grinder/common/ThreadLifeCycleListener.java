@@ -58,7 +58,13 @@ public interface ThreadLifeCycleListener {
   void endRun();
 
   /**
-   * This method is called when the thread is shut down.
+   * This method is called before the thread is shut down. This happens before
+   * any <code>__del__</code> method is called.
+   */
+  void beginShutdown();
+
+  /**
+   * This method is called when the thread has been shut down.
    */
   void endThread();
 }

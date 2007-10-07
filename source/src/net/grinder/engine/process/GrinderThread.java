@@ -156,6 +156,8 @@ class GrinderThread implements java.lang.Runnable {
       logger.output("finished " + currentRun +
                     (currentRun == 1 ? " run" : " runs"));
 
+      m_context.fireBeginShutdownEvent();
+
       try {
         scriptThreadRunnable.shutdown();
       }

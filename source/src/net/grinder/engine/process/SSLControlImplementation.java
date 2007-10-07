@@ -194,6 +194,8 @@ final class SSLControlImplementation implements SSLControl {
       }
     }
 
+    public void beginShutdown() { }
+
     public void endThread() { }
   }
 }

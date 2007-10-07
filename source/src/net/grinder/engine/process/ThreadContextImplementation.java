@@ -67,6 +67,8 @@ final class ThreadContextImplementation
 
   private StatisticsForTest m_statisticsForLastTest;
 
+  private boolean m_shutdownStarted;
+
   public ThreadContextImplementation(ProcessContext processContext,
                                      ThreadLogger threadLogger,
                                      FilenameFactory filenameFactory,
@@ -109,12 +111,12 @@ final class ThreadContextImplementation
       };
     }
 
-
     registerThreadLifeCycleListener(
       new ThreadLifeCycleListener() {
         public void beginThread() { }
         public void beginRun() { }
         public void endRun() { reportPendingDispatchContext(); }
+        public void beginShutdown() { m_shutdownStarted = true; }
         public void endThread() { }
       });
   }
@@ -176,6 +178,14 @@ final class ThreadContextImplementation
     );
   }
 
+  public void fireBeginShutdownEvent() {
+    m_threadLifeCycleListeners.apply(new Informer() {
+      public void inform(Object listener) {
+        ((ThreadLifeCycleListener)listener).beginShutdown();
+      } }
+    );
+  }
+
   public void fireEndThreadEvent() {
     m_threadLifeCycleListeners.apply(new Informer() {
       public void inform(Object listener) {
@@ -187,7 +197,9 @@ final class ThreadContextImplementation
   public void pushDispatchContext(DispatchContext dispatchContext)
     throws ShutdownException {
 
-    m_processContext.checkIfShutdown();
+    if (!m_shutdownStarted) {
+      m_processContext.checkIfShutdown();
+    }
 
     getThreadLogger().setCurrentTestNumber(
       dispatchContext.getTest().getNumber());

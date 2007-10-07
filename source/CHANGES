@@ -10,6 +10,9 @@ The Grinder 3.0-beta34 (Not yet released)
   InterruptedIOExceptions due to timeouts in HTTPClient code to a
   specific TimeoutException. Thanks to Andrew McGuigan for the report.
 
+  Fix bug 1700158 - ShutdownException thrown when using
+  grinder.duration. Thanks to Caroline Rioux for the report.
+
 
 The Grinder 3.0-beta33
 ----------------------

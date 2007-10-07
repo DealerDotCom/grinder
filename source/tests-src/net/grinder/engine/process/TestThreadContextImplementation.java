@@ -73,6 +73,44 @@ public class TestThreadContextImplementation extends TestCase {
       "getStatisticsServices", m_statisticsServices);
   }
 
+  public void testShutdownOnlyOnce() throws Exception {
+
+    // pushDispatchContext() should throw an exception after
+    // the process has been shut down but before the thread
+    // has detected this. Effectively, it will throw a
+    // ShutdownException at most once per thread.
+
+    final ThreadContext threadContext =
+      new ThreadContextImplementation(
+        m_processContext, m_threadLogger, m_filenameFactory, null);
+
+    final Test test = new StubTest(14, "test");
+    m_dispatchContextStubFactory.setResult("getTest", test);
+
+    for (int i = 0; i < 2; ++i) {
+      threadContext.pushDispatchContext(m_dispatchContext);
+    }
+
+    final ShutdownException se = new ShutdownException("test");
+    m_processContextStubFactory.setThrows("checkIfShutdown", se);
+
+    for (int i = 0; i < 2; ++i) {
+      try {
+        threadContext.pushDispatchContext(m_dispatchContext);
+        fail("Expected ShutdownException");
+      }
+      catch (ShutdownException e) {
+        assertSame(se, e);
+      }
+    }
+
+    threadContext.fireBeginShutdownEvent();
+
+    for (int i = 0; i < 2; ++i) {
+      threadContext.pushDispatchContext(m_dispatchContext);
+    }
+  }
+
   public void testBasics() throws Exception {
     m_threadLoggerStubFactory.setResult("getThreadID", new Integer(13));
     m_threadLoggerStubFactory.setResult("getCurrentRunNumber", new Integer(2));
@@ -242,6 +280,8 @@ public class TestThreadContextImplementation extends TestCase {
     anotherDispatchContextStubFactory.assertNoMoreCalls();
     threadContext.fireEndRunEvent();
     anotherDispatchContextStubFactory.assertNoMoreCalls();
+    threadContext.fireBeginShutdownEvent();
+    anotherDispatchContextStubFactory.assertNoMoreCalls();
     threadContext.fireEndThreadEvent();
     anotherDispatchContextStubFactory.assertNoMoreCalls();
 
@@ -273,6 +313,9 @@ public class TestThreadContextImplementation extends TestCase {
 
     threadContext.fireEndRunEvent();
     threadLifeCycleListenerStubFactory.assertSuccess("endRun");
+
+    threadContext.fireBeginShutdownEvent();
+    threadLifeCycleListenerStubFactory.assertSuccess("beginShutdown");
 
     threadContext.fireEndThreadEvent();
     threadLifeCycleListenerStubFactory.assertSuccess("endThread");

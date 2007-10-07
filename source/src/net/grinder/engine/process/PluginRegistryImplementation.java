@@ -129,6 +129,8 @@ final class PluginRegistryImplementation
 
         public void endRun() { }
 
+        public void beginShutdown() { }
+
         public void endThread() { }
       });
   }

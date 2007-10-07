@@ -54,6 +54,8 @@ interface ThreadContext extends PluginThreadContext {
 
   void fireEndRunEvent();
 
+  void fireBeginShutdownEvent();
+
   void fireEndThreadEvent();
 
   void pushDispatchContext(DispatchContext dispatchContext)
