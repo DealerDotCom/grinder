@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -103,7 +103,9 @@ public abstract class AbstractStubFactory extends CallRecorder {
       final String methodName = method.getName();
 
       if (m_throwsMap.containsKey(methodName)) {
-        throw (Throwable)m_throwsMap.get(methodName);
+        final Throwable t = (Throwable)m_throwsMap.get(methodName);
+        t.fillInStackTrace();
+        throw t;
       }
 
       if (m_resultMap.containsKey(methodName)) {
