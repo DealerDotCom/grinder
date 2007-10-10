@@ -11,7 +11,8 @@
 from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest, HTTPPluginControl
-from HTTPClient import CookieModule, CookiePolicyHandler
+from HTTPClient import Cookie, CookieModule, CookiePolicyHandler
+from java.util import Date
 
 log = grinder.logger.output
 
@@ -29,6 +30,20 @@ CookieModule.setCookiePolicyHandler(MyCookiePolicyHandler())
 test1 = Test(1, "Request resource")
 request1 = test1.wrap(HTTPRequest())
 
+
 class TestRunner:
     def __call__(self):
+        result = request1.GET("http://localhost:7001/console")
+
+        # Now let's send a cookie.
+        expiryDate = Date()
+        expiryDate.year = 2008
+        expiryDate.month = 12
+        expiryDate.date = 31
+
+        cookie = Cookie("key", "value","localhost", "/", expiryDate, 0)
+
+        CookieModule.addCookie(cookie,
+                               HTTPPluginControl.getThreadHTTPClientContext())
+
         result = request1.GET("http://localhost:7001/console")

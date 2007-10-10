@@ -13,6 +13,9 @@ The Grinder 3.0-beta34 (Not yet released)
   Fix bug 1700158 - ShutdownException thrown when using
   grinder.duration. Thanks to Caroline Rioux for the report.
 
+  Update the cookie.py example to show how to send a cookie. Thanks to
+  "tz" for prompting me to do this.
+
 
 The Grinder 3.0-beta33
 ----------------------
