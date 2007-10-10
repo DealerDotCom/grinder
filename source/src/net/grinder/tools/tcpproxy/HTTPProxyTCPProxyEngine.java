@@ -43,10 +43,10 @@ import java.util.regex.PatternSyntaxException;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
-import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.StreamCopier;
 import net.grinder.util.html.HTMLElement;
 import net.grinder.util.thread.InterruptibleRunnable;
+import net.grinder.util.thread.UncheckedInterruptedException;
 
 
 /**
@@ -292,18 +292,15 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                 additionalRequestBytes.toByteArray());
             }
 
-            final Socket sslProxySocket;
-            synchronized (m_proxySSLEngine) {
-              // Set our proxy engine up to create connections to the
-              // remoteEndPoint.
-              m_proxySSLEngine.setConnectionDetails(
-                EndPoint.clientEndPoint(localSocket), remoteEndPoint);
+            // Set our proxy engine up to create connections to the
+            // remoteEndPoint.
+            m_proxySSLEngine.setConnectionDetails(
+              EndPoint.clientEndPoint(localSocket), remoteEndPoint);
 
-              // Create a new proxy connection to the proxy engine.
-              sslProxySocket =
-                getSocketFactory().createClientSocket(
-                  m_proxySSLEngine.getListenEndPoint());
-            }
+            // Create a new proxy connection to the proxy engine.
+            final Socket sslProxySocket =
+              getSocketFactory().createClientSocket(
+                m_proxySSLEngine.getListenEndPoint());
 
             // Set up a couple of threads to punt everything we receive
             // over localSocket to sslProxySocket, and vice versa.
