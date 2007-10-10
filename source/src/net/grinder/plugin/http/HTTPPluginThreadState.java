@@ -122,6 +122,8 @@ class HTTPPluginThreadState implements PluginThreadListener {
 
   public void endRun() { }
 
+  public void beginShutdown() { }
+
   public void endThread() { }
 
   public void setLastResponse(HTTPResponse lastResponse) {
