@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,7 @@ public final class UniqueIdentityGenerator {
 
   private final String m_unique;
   private int m_nextNumber = 0;
+  private static final Random s_random = new Random();
 
   /**
    * Constructor.
@@ -41,7 +42,7 @@ public final class UniqueIdentityGenerator {
   public UniqueIdentityGenerator() {
     m_unique = hashCode() + "|" +
                System.currentTimeMillis() + "|" +
-               new Random().nextInt();
+               s_random.nextInt();
   }
 
   /**

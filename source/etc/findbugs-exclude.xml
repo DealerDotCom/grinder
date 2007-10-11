@@ -1,42 +1,63 @@
 <FindBugsFilter>
-     <Match>
-       <Class name="~.*__CLOVER_.*"/>
-     </Match>
+  <Match>
+    <Class name="~.*__CLOVER_.*" />
+  </Match>
 
-     <Match>
-       <Class name="~HTTPClient.*" />
-     </Match>
+  <Match>
+    <Class name="~HTTPClient.*" />
+  </Match>
 
-     <Match>
-       <Class name="~org.syntax.*" />
-     </Match>
+  <Match>
+    <Class name="~org.syntax.*" />
+  </Match>
 
-     <Match>
-       <Or>
-         <Class name="~.*HTTPPluginTCPProxyFilter2.*"/>
-         <Class name="~.*HTTPPluginTCPProxyResponseFilter2.*"/>
-       </Or>
-     </Match>
+  <Match>
+    <Or>
+      <Class name="~.*HTTPPluginTCPProxyFilter2.*" />
+      <Class name="~.*HTTPPluginTCPProxyResponseFilter2.*" />
+    </Or>
+  </Match>
 
-   <Match>
-     <Class name="~.*InstrumentedPy.*"/>
-     <Bug pattern="ES_COMPARING_PARAMETER_STRING_WITH_EQ"/>
-     <Or>
-       <Method name="__findattr__"/>
-       <Method name="invoke"/>
-   </Or>
-   </Match>
+  <Match>
+    <Class name="~.*InstrumentedPy.*" />
+    <Bug pattern="ES_COMPARING_PARAMETER_STRING_WITH_EQ" />
+    <Or>
+      <Method name="__findattr__" />
+      <Method name="invoke" />
+    </Or>
+  </Match>
 
-     <Match>
-       <Class name="net.grinder.statistics.StatisticsSetImplementation" />
-       <Bug pattern="NS_DANGEROUS_NON_SHORT_CIRCUIT"/>
-       <!-- Match all methods because can't specify constructor. :-( -->
-       <!--
-       <Or>
-         <Method name="StatisticsSetImplementation"/>
-         <Method name="addValue"/>
-         <Method name="setValue"/>
-       </Or>
-       -->
-     </Match>
+  <Match>
+    <Class
+      name="net.grinder.statistics.StatisticsSetImplementation" />
+    <Bug pattern="NS_DANGEROUS_NON_SHORT_CIRCUIT" />
+    <!-- Match all methods because can't specify constructor. :-( -->
+    <!--
+      <Or>
+      <Method name="StatisticsSetImplementation"/>
+      <Method name="addValue"/>
+      <Method name="setValue"/>
+      </Or>
+    -->
+  </Match>
+
+  <Match>
+    <Class
+      name="net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine" />
+      <Bug pattern="RR_NOT_CHECKED" />
+  </Match>
+
+  <!-- Swing forces our UI components to be serializable. We don't care. -->
+  <Match>
+    <Or>
+      <Class name="~net.grinder.console.swingui.*"/>
+      <Class name="net.grinder.tools.tcpproxy.TCPProxyConsole"/>
+    </Or>
+    <Or>
+      <Bug pattern="SE_BAD_FIELD"/>
+      <Bug pattern="SE_BAD_FIELD_STORE"/>
+      <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Or>
+  </Match>
+
 </FindBugsFilter>

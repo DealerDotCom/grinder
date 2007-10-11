@@ -438,28 +438,33 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       }
 
       public void write(byte[] bytes, int start, int length) {
-        final int lengthToWrite;
+        // findbugs can't know that we're only called with the
+        // ConnectionHandlerImplementation
+        // synchronised. Help it out by explicitly locking.
+        synchronized (ConnectionHandlerImplementation.this) {
+          final int lengthToWrite;
 
-        if (m_contentLength != -1 &&
-            length > m_contentLength - getSize()) {
+          if (m_contentLength != -1 &&
+              length > m_contentLength - getSize()) {
 
-          m_logger.error("Expected content length exceeded, truncating");
-          lengthToWrite = m_contentLength - getSize();
-        }
-        else {
-          lengthToWrite = length;
-        }
+            m_logger.error("Expected content length exceeded, truncating");
+            lengthToWrite = m_contentLength - getSize();
+          }
+          else {
+            lengthToWrite = length;
+          }
 
-        super.write(bytes, start, lengthToWrite);
+          super.write(bytes, start, lengthToWrite);
 
-        // We mark the request as finished if we've reached the specified
-        // Content-Length. We rely on next message or connection close
-        // event to flush the data, this allows us to parse the response. We
-        // also rely on these events if no Content-Length is specified.
-        if (m_contentLength != -1 &&
-            getSize() >= m_contentLength) {
+          // We mark the request as finished if we've reached the specified
+          // Content-Length. We rely on next message or connection close
+          // event to flush the data, this allows us to parse the response. We
+          // also rely on these events if no Content-Length is specified.
+          if (m_contentLength != -1 &&
+              getSize() >= m_contentLength) {
 
-          m_request.setContentLengthReached();
+            m_request.setContentLengthReached();
+          }
         }
       }
 
