@@ -16,6 +16,10 @@ The Grinder 3.0-beta34 (Not yet released)
   Update the cookie.py example to show how to send a cookie. Thanks to
   "tz" for prompting me to do this.
 
+  The HTTP Plugin filter for the TCPProxy is now just logs if connections
+  are used in unexpected ways. Previously it would throw an exception
+  and break the connection.
+
 
 The Grinder 3.0-beta33
 ----------------------

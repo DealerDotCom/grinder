@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.picocontainer.Disposable;
 
+import net.grinder.common.Logger;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 
 
@@ -37,14 +38,19 @@ public final class ConnectionCache
 
   private final ConnectionHandlerFactory m_connectionHandlerFactory;
   private final Map m_handlers = Collections.synchronizedMap(new HashMap());
+  private final Logger m_logger;
 
   /**
    * Constructor.
    *
    * @param connectionHandlerFactory Factory for connection handlers.
+   * @param logger A logger.
    */
-  public ConnectionCache(ConnectionHandlerFactory connectionHandlerFactory) {
+  public ConnectionCache(
+    ConnectionHandlerFactory connectionHandlerFactory,
+    Logger logger) {
     m_connectionHandlerFactory = connectionHandlerFactory;
+    m_logger = logger;
   }
 
   /**
@@ -55,8 +61,12 @@ public final class ConnectionCache
   public void open(ConnectionDetails connectionDetails) {
     synchronized (m_handlers) {
       if (m_handlers.containsKey(connectionDetails)) {
-        throw new IllegalArgumentException(
-          "Connection " + connectionDetails + " already opened");
+        // IE appears to make repeated attempts to establish an HTTPS proxy
+        // connection over the same TCP connection. We only need one connection
+        // handler.
+
+        m_logger.error("Connection " + connectionDetails + " already opened");
+        return;
       }
 
       m_handlers.put(connectionDetails,
@@ -78,8 +88,8 @@ public final class ConnectionCache
       (ConnectionHandler)m_handlers.get(connectionDetails);
 
     if (handler == null) {
-      throw new IllegalArgumentException(
-        "Unknown connection " + connectionDetails);
+      m_logger.error("Request for unknown connection " + connectionDetails);
+      return;
     }
 
     handler.handleRequest(buffer, bytesRead);
@@ -99,8 +109,8 @@ public final class ConnectionCache
       (ConnectionHandler)m_handlers.get(connectionDetails.getOtherEnd());
 
     if (handler == null) {
-      throw new IllegalArgumentException(
-        "Unknown connection " + connectionDetails);
+      m_logger.error("Response for unknown connection " + connectionDetails);
+      return;
     }
 
     handler.handleResponse(buffer, bytesRead);
@@ -117,8 +127,8 @@ public final class ConnectionCache
       (ConnectionHandler)m_handlers.remove(connectionDetails);
 
     if (handler == null) {
-      throw new IllegalArgumentException(
-        "Unknown connection " + connectionDetails);
+      m_logger.error("Unknown connection " + connectionDetails);
+      return;
     }
 
     handler.requestFinished();
