@@ -23,8 +23,6 @@ package net.grinder.plugin.http.tcpproxyfilter;
 
 import junit.framework.TestCase;
 
-import net.grinder.common.Logger;
-import net.grinder.common.LoggerStubFactory;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
@@ -43,9 +41,6 @@ public class TestConnectionCache extends TestCase {
   final ConnectionHandlerFactory m_connectionHandlerFactory =
     (ConnectionHandlerFactory)m_connectionHandlerFactoryStubFactory.getStub();
 
-  final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
-  final Logger m_logger = m_loggerStubFactory.getLogger();
-
   private final ConnectionDetails m_connectionDetails =
     new ConnectionDetails(
       new EndPoint("hostA", 80),
@@ -60,7 +55,7 @@ public class TestConnectionCache extends TestCase {
 
   public void testConstructAndDispose() throws Exception {
     final ConnectionCache connectionMap =
-      new ConnectionCache(m_connectionHandlerFactory, null);
+      new ConnectionCache(m_connectionHandlerFactory);
 
     connectionMap.dispose();
 
@@ -69,35 +64,46 @@ public class TestConnectionCache extends TestCase {
 
   public void testConnectionCache() throws Exception {
     final ConnectionCache connectionCache =
-      new ConnectionCache(m_connectionHandlerFactory, m_logger);
+      new ConnectionCache(m_connectionHandlerFactory);
 
     connectionCache.open(m_connectionDetails);
     m_connectionHandlerFactoryStubFactory.assertSuccess(
       "create", m_connectionDetails);
 
-    connectionCache.open(m_connectionDetails);
-    m_loggerStubFactory.assertSuccess("error", String.class);
-    m_loggerStubFactory.assertNoMoreCalls();
+    try {
+      connectionCache.open(m_connectionDetails);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
 
     connectionCache.close(m_connectionDetails);
 
-    connectionCache.close(m_connectionDetails);
-    m_loggerStubFactory.assertSuccess("error", String.class);
-    m_loggerStubFactory.assertNoMoreCalls();
+    try {
+      connectionCache.close(m_connectionDetails);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
 
-    connectionCache.request(m_connectionDetails, new byte[100], 56);
-    m_loggerStubFactory.assertSuccess("error", String.class);
-    m_loggerStubFactory.assertNoMoreCalls();
+    try {
+      connectionCache.request(m_connectionDetails, new byte[100], 56);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
 
-    connectionCache.response(m_connectionDetails.getOtherEnd(),
-                             new byte[100], 56);
-    m_loggerStubFactory.assertSuccess("error", String.class);
-    m_loggerStubFactory.assertNoMoreCalls();
+    try {
+      connectionCache.response(m_connectionDetails.getOtherEnd(), new byte[100], 56);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
 
     connectionCache.dispose();
 
     final ConnectionCache connectionCache2 =
-      new ConnectionCache(m_connectionHandlerFactory, m_logger);
+      new ConnectionCache(m_connectionHandlerFactory);
 
     connectionCache2.open(m_connectionDetails);
     m_connectionHandlerFactoryStubFactory.assertSuccess(
@@ -106,27 +112,37 @@ public class TestConnectionCache extends TestCase {
     connectionCache2.request(m_connectionDetails, new byte[10], 0);
     connectionCache2.request(m_connectionDetails, new byte[20], 0);
 
-    connectionCache.request(m_connectionDetails2, new byte[10], 0);
-    m_loggerStubFactory.assertSuccess("error", String.class);
-    m_loggerStubFactory.assertNoMoreCalls();
+    try {
+      connectionCache.request(m_connectionDetails2, new byte[10], 0);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
 
-    connectionCache2.response(m_connectionDetails.getOtherEnd(),
-                              new byte[20], 0);
+    connectionCache2.response(m_connectionDetails.getOtherEnd(), new byte[20], 0);
 
-    connectionCache.response(m_connectionDetails2.getOtherEnd(),
-                             new byte[10], 0);
-    m_loggerStubFactory.assertSuccess("error", String.class);
-    m_loggerStubFactory.assertNoMoreCalls();
+    try {
+      connectionCache.response(m_connectionDetails2.getOtherEnd(), new byte[10], 0);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
 
     connectionCache2.dispose(); // Closes all handlers.
 
-    connectionCache.request(m_connectionDetails, new byte[10], 5);
-    m_loggerStubFactory.assertSuccess("error", String.class);
-    m_loggerStubFactory.assertNoMoreCalls();
+    try {
+      connectionCache.request(m_connectionDetails, new byte[10], 5);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
 
-    connectionCache.response(m_connectionDetails.getOtherEnd(), new byte[10], 5);
-    m_loggerStubFactory.assertSuccess("error", String.class);
-    m_loggerStubFactory.assertNoMoreCalls();
+    try {
+      connectionCache.response(m_connectionDetails.getOtherEnd(), new byte[10], 5);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
 
     m_connectionHandlerFactoryStubFactory.assertNoMoreCalls();
   }
