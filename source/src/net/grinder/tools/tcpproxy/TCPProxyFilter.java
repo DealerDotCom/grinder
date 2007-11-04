@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -41,8 +41,14 @@ import net.grinder.common.GrinderException;
  * <p>
  * Well behaved filters should not swallow {@link InterruptedException}s.
  * Ideally, they should convert {@link InterruptedException}s to
- * {@link net.grinder.common.UncheckedInterruptedException}s; but
- * alternatively they could reinstantiate the Thread's interrupted status.
+ * {@link net.grinder.common.UncheckedInterruptedException}s; but alternatively
+ * they could reinstate the Thread's interrupted status.
+ * </p>
+ *
+ * <p>
+ * The {@link ConnectionDetails#equals equality semantics} of the
+ * <code>ConnectionDetails</code> passed to each method can be used to
+ * uniquely identify a connection.
  * </p>
  *
  * @author Philip Aston

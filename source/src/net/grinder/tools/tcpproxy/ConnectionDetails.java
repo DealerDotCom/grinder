@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,16 +26,18 @@ package net.grinder.tools.tcpproxy;
 /**
  * Class that represents a TCP connection.
  *
+ * @see #equals for identity semantics.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
 public final class ConnectionDetails {
-  private final int m_hashCode;
-
   private final EndPoint m_localEndPoint;
   private final EndPoint m_remoteEndPoint;
   private final boolean m_isSecure;
-  private final String m_connectionIdentity;
+  private final String m_connectionDescription;
+
+  private final ConnectionDetails m_origin;
 
   /**
    * Creates a new <code>ConnectionDetails</code> instance.
@@ -51,12 +53,26 @@ public final class ConnectionDetails {
     m_localEndPoint = localEndPoint;
     m_remoteEndPoint = remoteEndPoint;
     m_isSecure = isSecure;
+    m_origin = this;
 
-    m_hashCode =
-      m_localEndPoint.hashCode() ^
-      m_remoteEndPoint.hashCode() ^
-      (m_isSecure ? 0x55555555 : 0);
+    m_connectionDescription =
+      createConnectionDescription(localEndPoint, remoteEndPoint, isSecure);
+  }
 
+  private ConnectionDetails(EndPoint localEndPoint, EndPoint remoteEndPoint,
+    boolean isSecure, ConnectionDetails origin) {
+
+    m_localEndPoint = localEndPoint;
+    m_remoteEndPoint = remoteEndPoint;
+    m_isSecure = isSecure;
+    m_origin = origin;
+
+    m_connectionDescription =
+      createConnectionDescription(localEndPoint, remoteEndPoint, isSecure);
+  }
+
+  private String createConnectionDescription(EndPoint localEndPoint,
+    EndPoint remoteEndPoint, boolean isSecure) {
     final int c = localEndPoint.compareTo(remoteEndPoint);
 
     if (c == 0) {
@@ -65,12 +81,10 @@ public final class ConnectionDetails {
     }
 
     if (c < 0) {
-      m_connectionIdentity =
-        localEndPoint + "|" + remoteEndPoint + "|" + isSecure;
+      return localEndPoint + "|" + remoteEndPoint + "|" + isSecure;
     }
     else {
-      m_connectionIdentity =
-        remoteEndPoint + "|" + localEndPoint + "|" + isSecure;
+      return remoteEndPoint + "|" + localEndPoint + "|" + isSecure;
     }
   }
 
@@ -111,10 +125,26 @@ public final class ConnectionDetails {
   }
 
   /**
-   * Value based equality.
+   * Two ConnectionDetails are equal if and only if all of the following are
+   * true:
    *
-   * @param other an <code>Object</code> value
-   * @return <code>true</code> => <code>other</code> is equal to this object.
+   * <ul>
+   * <li>they represent the same ordered pair of end points</li>
+   * <li>they are identical, or derived from, the same ConnectionDetails</li>
+   * </ul>
+   *
+   * <p>
+   * It follows that <code>cd.equals(cd.getOtherEnd())</code> is false;
+   * <code>cd.equals(new ConnectionDetails(cd.getLocalEndPoint(),
+   * cd.getRemoteEndPoint(), cd.isSecure)</code>
+   * is false; <code>cd.equals(cd.getOtherEnd().getOtherEnd())</code>
+   * is true.
+   * </p>
+   *
+   * @param other
+   *            an <code>Object</code> value
+   * @return <code>true</code> => <code>other</code> is equal to this
+   *         object.
    */
   public boolean equals(Object other) {
 
@@ -129,11 +159,10 @@ public final class ConnectionDetails {
     final ConnectionDetails otherConnectionDetails =
       (ConnectionDetails)other;
 
-    return
-      hashCode() == otherConnectionDetails.hashCode() &&
-      isSecure() == otherConnectionDetails.isSecure() &&
-      getLocalEndPoint().equals(otherConnectionDetails.getLocalEndPoint()) &&
-      getRemoteEndPoint().equals(otherConnectionDetails.getRemoteEndPoint());
+    // We use the reference identity of m_origin to determine whether we
+    // are derived from the same ConnectionIdentity.
+    return m_origin == otherConnectionDetails.m_origin &&
+           getLocalEndPoint().equals(otherConnectionDetails.getLocalEndPoint());
   }
 
   /**
@@ -142,7 +171,7 @@ public final class ConnectionDetails {
    * @return The hash code.
    */
   public int hashCode() {
-    return m_hashCode;
+    return m_connectionDescription.hashCode();
   }
 
   /**
@@ -153,7 +182,7 @@ public final class ConnectionDetails {
    * @return Represents the connection.
    */
   public String getConnectionIdentity() {
-    return m_connectionIdentity;
+    return m_connectionDescription;
   }
 
   /**
@@ -163,8 +192,7 @@ public final class ConnectionDetails {
    * @return The other end of the connection to this.
    */
   public ConnectionDetails getOtherEnd() {
-
     return new ConnectionDetails(
-      getRemoteEndPoint(), getLocalEndPoint(), isSecure());
+      getRemoteEndPoint(), getLocalEndPoint(), isSecure(), m_origin);
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -80,7 +80,7 @@ public class TestConnectionDetails extends TestCase {
   }
 
   public void testEquality() throws Exception {
-    final ConnectionDetails[] connectionDetails = {
+    final ConnectionDetails[] cd = {
       new ConnectionDetails(new EndPoint("A", 55),
                             new EndPoint("B", 80), false),
       new ConnectionDetails(new EndPoint("a", 55),
@@ -93,14 +93,21 @@ public class TestConnectionDetails extends TestCase {
                             new EndPoint("B", 80), false),
     };
 
-    assertEquals(connectionDetails[0], connectionDetails[0]);
-    assertEquals(connectionDetails[0], connectionDetails[1]);
-    assertEquals(connectionDetails[1], connectionDetails[0]);
-    assertFalse(connectionDetails[0].equals(connectionDetails[2]));
-    assertFalse(connectionDetails[1].equals(connectionDetails[3]));
-    assertFalse(connectionDetails[1].equals(connectionDetails[4]));
+    assertEquals(cd[0], cd[0]);
+    assertFalse(cd[0].equals(cd[1]));
+    assertFalse(cd[1].equals(cd[0]));
+    assertFalse(cd[0].equals(cd[2]));
+    assertFalse(cd[1].equals(cd[3]));
+    assertFalse(cd[1].equals(cd[4]));
 
-    assertFalse(connectionDetails[0].equals(this));
+    assertFalse(cd[0].equals(this));
+
+    assertFalse(cd[0].equals(cd[0].getOtherEnd()));
+    assertFalse(cd[0].equals(
+      new ConnectionDetails(cd[0].getLocalEndPoint(),
+                            cd[0].getRemoteEndPoint(),
+                            cd[0].isSecure())));
+    assertEquals(cd[0], cd[0].getOtherEnd().getOtherEnd());
   }
 
   public void testGetOtherEnd() throws Exception {
