@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -74,13 +74,14 @@ final class JythonScriptExecutionException extends ScriptExecutionException {
       }
 
       m_shortMessage =
-        "Jython exception \"" + pyExceptionMessage + "\" whilst " + doingWhat;
+        "Jython exception: " + pyExceptionMessage +
+        " [" + doingWhat + "]";
       m_message =
         tracebackToMessage(pyExceptionMessage.toString(), e.traceback);
       initCause(null);
     }
     else {
-      m_shortMessage = "Java exception whilst " + doingWhat;
+      m_shortMessage = "Java exception " + doingWhat;
       m_message = tracebackToMessage(m_shortMessage, e.traceback);
       initCause((Throwable)javaError);
     }

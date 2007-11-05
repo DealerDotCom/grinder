@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -83,7 +83,7 @@ public class TestJythonScriptExecutionException extends AbstractFileTestCase {
     e.printStackTrace(new PrintWriter(writer));
     final String stack = writer.toString();
 
-    assertTrue(stack.indexOf("whilst Hello") > 0);
+    assertTrue(stack.indexOf("Hello") > 0);
     assertTrue(stack.indexOf("java.lang.Throwable") > 0);
     assertSame(wrapped, e.getCause());
     assertTrue(e.getShortMessage().indexOf("Java exception") >= 0);

@@ -318,7 +318,7 @@ public final class JythonScriptEngine implements ScriptEngine {
       }
       catch (PyException e) {
         throw new JythonScriptExecutionException(
-          "creating per-thread test runner object", e);
+          "creating per-thread TestRunner object", e);
       }
 
       if (!m_testRunner.isCallable()) {
@@ -334,7 +334,7 @@ public final class JythonScriptEngine implements ScriptEngine {
         m_testRunner.__call__();
       }
       catch (PyException e) {
-        throw new JythonScriptExecutionException("invoking test runner", e);
+        throw new JythonScriptExecutionException("calling TestRunner", e);
       }
     }
 
@@ -372,7 +372,7 @@ public final class JythonScriptEngine implements ScriptEngine {
         }
         catch (PyException e) {
           throw new JythonScriptExecutionException(
-            "deleting test runner object", e);
+            "deleting TestRunner instance", e);
         }
         finally {
           // To avoid the (pretty small) chance of the test runner being

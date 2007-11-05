@@ -20,6 +20,10 @@ The Grinder 3.0-beta34 (Not yet released)
   Fix bug 1825639 - "Connection ... already opened" when recording HTTPS.
   Thanks to Peter Zadrozny and Brian Dols for the report.
 
+  Refine logging so that the first error message is written to the
+  terminal as well as the error log. This is handy for catching script
+  typos. Additionally, don't word wrap log messages from the Agent.
+
 
 The Grinder 3.0-beta33
 ----------------------
