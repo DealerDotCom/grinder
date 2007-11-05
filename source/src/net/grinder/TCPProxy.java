@@ -66,6 +66,7 @@ import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation;
 import net.grinder.tools.tcpproxy.UpdatableCommentSource;
 import net.grinder.util.AttributeStringParserImplementation;
+import net.grinder.util.FixedWidthFormatter;
 import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
 import net.grinder.util.SimpleStringEscaper;
@@ -90,9 +91,14 @@ public final class TCPProxy {
    * @throws GrinderException on a unexpected fatal error.
    */
   public static void main(String[] args) throws GrinderException {
-    final Logger logger = new SimpleLogger("tcpproxy",
-                                           new PrintWriter(System.out),
-                                           new PrintWriter(System.err));
+    final Logger logger =
+      new SimpleLogger("tcpproxy",
+                       new PrintWriter(System.out),
+                       new PrintWriter(System.err),
+                       new FixedWidthFormatter(
+                         FixedWidthFormatter.ALIGN_LEFT,
+                         FixedWidthFormatter.FLOW_WORD_WRAP,
+                         80));
 
     if (!JVM.getInstance().haveRequisites(logger)) {
       return;

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,17 +39,30 @@ import net.grinder.common.Logger;
  */
 public final class SimpleLogger implements Logger {
 
-  private static final FixedWidthFormatter s_formatter =
-    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_WORD_WRAP,
-                            80);
-
-  private static final DateFormat s_dateFormat =
+  private final DateFormat m_dateFormat =
     DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 
   private final String m_identifier;
   private final PrintWriter m_outputWriter;
   private final PrintWriter m_errorWriter;
+  private final MultiLineFormatter m_formatter;
+
+
+  /**
+   * Constructor.
+   *
+   * @param identifier Short description of process that owns the logger.
+   * @param outputWriter Where to write normal output.
+   * @param errorWriter Where to write error output.
+   * @param formatter StringFormatter that will be used to format messages.
+   */
+  public SimpleLogger(String identifier, PrintWriter outputWriter,
+                      PrintWriter errorWriter, MultiLineFormatter formatter) {
+    m_identifier = identifier;
+    m_outputWriter = outputWriter;
+    m_errorWriter = errorWriter;
+    m_formatter = formatter;
+  }
 
   /**
    * Constructor.
@@ -60,9 +73,7 @@ public final class SimpleLogger implements Logger {
    */
   public SimpleLogger(String identifier, PrintWriter outputWriter,
                       PrintWriter errorWriter) {
-    m_identifier = identifier;
-    m_outputWriter = outputWriter;
-    m_errorWriter = errorWriter;
+    this(identifier, outputWriter, errorWriter, new NullMultiLineFormatter());
   }
 
   /**
@@ -123,14 +134,14 @@ public final class SimpleLogger implements Logger {
     if (where != 0) {
       final StringBuffer formattedMessage = new StringBuffer();
 
-      formattedMessage.append(s_dateFormat.format(new Date()));
+      formattedMessage.append(m_dateFormat.format(new Date()));
       formattedMessage.append(" (");
       formattedMessage.append(m_identifier);
       formattedMessage.append("): ");
       formattedMessage.append(message);
 
       if ((where & Logger.TERMINAL) != 0) {
-        writer.println(s_formatter.format(formattedMessage.toString()));
+        writer.println(m_formatter.format(formattedMessage.toString()));
         writer.flush();
       }
     }

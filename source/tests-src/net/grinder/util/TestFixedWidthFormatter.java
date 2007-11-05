@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -68,20 +68,20 @@ public class TestFixedWidthFormatter extends TestCase {
     final String text2 = "Be on my side and I'll be on your side";
 
     for (int width=1; width<20; ++width) {
-      final FixedWidthFormatter leftFormatter =
+      final MultiLineFormatter leftFormatter =
         new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
                                 FixedWidthFormatter.FLOW_TRUNCATE,
                                 width);
-	    
+
       for (int i=0; i<text.length(); ++i) {
         final StringBuffer buffer =
           new StringBuffer(text.substring(0, i));
         final StringBuffer remainder = new StringBuffer(text2);
-		
+
         leftFormatter.transform(buffer, remainder);
-		
+
         final String result = buffer.toString();
-		
+
         assertEquals(width, result.length());
 
         if (i<width) {
@@ -99,7 +99,7 @@ public class TestFixedWidthFormatter extends TestCase {
         assertEquals(text2, remainder.toString());
       }
 
-      final FixedWidthFormatter rightFormatter =
+      final MultiLineFormatter rightFormatter =
         new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
                                 FixedWidthFormatter.FLOW_TRUNCATE,
                                 width);
@@ -127,7 +127,7 @@ public class TestFixedWidthFormatter extends TestCase {
           assertEquals(text.substring(0, width),
                        result.substring(0, width));
         }
-	    
+
         assertEquals(text2, remainder.toString());
       }
     }
@@ -155,19 +155,19 @@ public class TestFixedWidthFormatter extends TestCase {
       "ored under \n" +
       "the chair. ";
 
-    final FixedWidthFormatter formatter1 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT, 
+    final MultiLineFormatter formatter1 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
                               FixedWidthFormatter.FLOW_WRAP,
                               11);
-    
+
     final String answer1 = formatter1.format(text1);
     assertEquals(answerText1, answer1);
 
-    final FixedWidthFormatter formatter2 =
+    final MultiLineFormatter formatter2 =
       new FixedWidthFormatter(FixedWidthFormatter.ALIGN_CENTRE,
                               FixedWidthFormatter.FLOW_WRAP,
                               8);
-    
+
     final String text2 =
       "Simmer, simmer, simmer down. Simmer, simmer, simmer down. " +
       "Don't waste your precious breath explaining that you are worthwhile.";
@@ -200,8 +200,8 @@ public class TestFixedWidthFormatter extends TestCase {
       "E\nm\nb\nr\na\nc\ne\n \nt\nh\ne\n \ns\ne\nn\ni\nl\ne\n \n" +
       "g\ne\nn\ni\nu\ns\n.";
 
-    final FixedWidthFormatter formatter3 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT, 
+    final MultiLineFormatter formatter3 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
                               FixedWidthFormatter.FLOW_WRAP,
                               1);
 
@@ -228,11 +228,11 @@ public class TestFixedWidthFormatter extends TestCase {
       "ever need stored\n" +
       "under the chair.";
 
-    final FixedWidthFormatter formatter1 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT, 
+    final MultiLineFormatter formatter1 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
                               FixedWidthFormatter.FLOW_WORD_WRAP,
                               16);
-    
+
     final String answer1 = formatter1.format(text1);
     assertEquals(answerText1, answer1);
 
@@ -249,11 +249,11 @@ public class TestFixedWidthFormatter extends TestCase {
       "ever need stored\n" +
       "under the chair.";
 
-    final FixedWidthFormatter formatter2 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT, 
+    final MultiLineFormatter formatter2 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
                               FixedWidthFormatter.FLOW_WORD_WRAP,
                               16);
-    
+
     final String answer2 = formatter2.format(text1);
     assertEquals(answerText2, answer2);
 
@@ -266,8 +266,8 @@ public class TestFixedWidthFormatter extends TestCase {
       "genius\n" +
       "     .";
 
-    final FixedWidthFormatter formatter3 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT, 
+    final MultiLineFormatter formatter3 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
                               FixedWidthFormatter.FLOW_WORD_WRAP,
                               6);
 
@@ -278,8 +278,8 @@ public class TestFixedWidthFormatter extends TestCase {
 
     final String answerText4 = "Space  \nlah    ";
 
-    final FixedWidthFormatter formatter4 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT, 
+    final MultiLineFormatter formatter4 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
                               FixedWidthFormatter.FLOW_WORD_WRAP,
                               7);
 

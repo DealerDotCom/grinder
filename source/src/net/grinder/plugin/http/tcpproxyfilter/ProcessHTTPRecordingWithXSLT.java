@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,6 +38,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
+import net.grinder.util.FixedWidthFormatter;
 import net.grinder.util.SimpleLogger;
 
 
@@ -160,7 +161,11 @@ public class ProcessHTTPRecordingWithXSLT
       new ProcessHTTPRecordingWithXSLT(
         new SimpleLogger("test",
                          new PrintWriter(System.out),
-                         new PrintWriter(System.err)));
+                         new PrintWriter(System.err),
+                         new FixedWidthFormatter(
+                           FixedWidthFormatter.ALIGN_LEFT,
+                           FixedWidthFormatter.FLOW_WORD_WRAP,
+                           80)));
 
     processor.process(recording);
   }

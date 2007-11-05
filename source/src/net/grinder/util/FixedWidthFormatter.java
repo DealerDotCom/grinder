@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,7 +33,7 @@ package net.grinder.util;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class FixedWidthFormatter {
+public class FixedWidthFormatter extends AbstractMultiLineFormatter {
 
   /** Constant indicating left alignment. */
   public static final int ALIGN_LEFT = 0;
@@ -150,11 +150,11 @@ public class FixedWidthFormatter {
 
   /**
    * Alter buffer to contain a single line according to the policy of
-   * this <code>FixedWidthFormatter</code>. Insert remaining text at
-   * the start of <code>remainder</code>.
+   * the formatter. Insert remaining text at the start of
+   * <code>remainder</code>.
    *
    * @param buffer Buffer to transform to a single line.
-   * @param remainder Left overs.
+   * @param remainder Leftovers.
    */
   public final void transform(StringBuffer buffer, StringBuffer remainder) {
 
@@ -270,31 +270,5 @@ public class FixedWidthFormatter {
         throw new AssertionError("Invalid alignment: " + m_alignment);
       }
     }
-  }
-
-  /**
-   * Convenience method.
-   *
-   * @param input Input text.
-   * @return Formatted result.
-   */
-  public String format(String input) {
-    final StringBuffer result = new StringBuffer();
-    StringBuffer buffer = new StringBuffer(input);
-
-    while (buffer.length() > 0) {
-      final StringBuffer remainder = new StringBuffer();
-      transform(buffer, remainder);
-
-      if (result.length() > 0) {
-        result.append("\n");
-      }
-
-      result.append(buffer.toString());
-
-      buffer = remainder;
-    }
-
-    return result.toString();
   }
 }
