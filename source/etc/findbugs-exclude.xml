@@ -41,10 +41,10 @@
     -->
   </Match>
 
+  <!-- HTTPProxyTCPProxyEngine drains a stream, ignoring read() result. -->
   <Match>
-    <Class
-      name="net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine" />
-      <Bug pattern="RR_NOT_CHECKED" />
+    <Class name="net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine" />
+    <Bug pattern="RR_NOT_CHECKED" />
   </Match>
 
   <!-- Swing forces our UI components to be serializable. We don't care. -->
@@ -57,6 +57,29 @@
       <Bug pattern="SE_BAD_FIELD"/>
       <Bug pattern="SE_BAD_FIELD_STORE"/>
       <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Or>
+  </Match>
+
+  <!-- Jython forces our engine components that extend PyObject to be
+       serializable. We don't care. -->
+  <Match>
+    <Or>
+      <Class name="~net.grinder.engine.process.jython.*"/>
+    </Or>
+    <Or>
+      <Bug pattern="SE_BAD_FIELD"/>
+      <Bug pattern="SE_NO_SERIALVERSIONID"/>
+      <Bug pattern="SE_NO_SUITABLE_CONSTRUCTOR_FOR_EXTERNALIZATION"/>
+    </Or>
+  </Match>
+
+  <!-- findbugs is understandably confused by the JVM bug that
+       ResourcePoolImplementation has to work around. -->
+  <Match>
+    <Class name="net.grinder.communication.ResourcePoolImplementation$ResourceWrapper"/>
+    <Or>
+      <Bug pattern="BC_VACUOUS_INSTANCEOF"/>
+      <Bug pattern="BC_IMPOSSIBLE_INSTANCEOF"/>
     </Or>
   </Match>
 
