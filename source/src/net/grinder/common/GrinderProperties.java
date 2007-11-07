@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,6 +43,8 @@ import java.util.Properties;
  * @see net.grinder.script.Grinder.ScriptContext#getProperties
  */
 public class GrinderProperties extends Properties {
+  private static final long serialVersionUID = 1;
+
   private static final String DEFAULT_FILENAME = "grinder.properties";
 
   private transient PrintWriter m_errorWriter =
