@@ -206,9 +206,6 @@ public final class TCPProxy {
 
     m_filterContainer.registerComponentInstance(m_logger);
 
-    //Register the CommentSourceImplementation class with the
-    //PicoContainer. The same commentSource object is passed to the
-    //TCPProxyConsole constructor.
     final UpdatableCommentSource commentSource =
       new CommentSourceImplementation();
     m_filterContainer.registerComponentInstance(commentSource);
@@ -237,15 +234,14 @@ public final class TCPProxy {
       for (int i = 0; i < args.length; i++) {
         if (args[i].equalsIgnoreCase("-properties")) {
           final Properties properties = new Properties();
-          properties.load(new FileInputStream(new File(args[++i])));
+          final FileInputStream in = new FileInputStream(new File(args[++i]));
+          try {
+            properties.load(in);
+          }
+          finally {
+            in.close();
+          }
           System.getProperties().putAll(properties);
-        }
-        else if (args[i].equalsIgnoreCase("-initialtest")) {
-          final String argument = i + 1 < args.length ? args[++i] : "123";
-
-          throw barfError("-initialTest is no longer supported. " +
-                          "Use -DHTTPPlugin.initialTest=" + argument +
-                          " or the -properties option instead.");
         }
       }
 
@@ -359,6 +355,12 @@ public final class TCPProxy {
         else if (args[i].equalsIgnoreCase("-debug")) {
           m_filterContainer.changeMonitor(
             new WriterComponentMonitor(logger.getErrorLogWriter()));
+        }
+        else if (args[i].equalsIgnoreCase("-initialtest")) {
+          final String argument = i + 1 < args.length ? args[++i] : "123";
+          throw barfError("-initialTest is no longer supported. " +
+                          "Use -DHTTPPlugin.initialTest=" + argument +
+                          " or the -properties option instead.");
         }
         else {
           throw barfUsage();
