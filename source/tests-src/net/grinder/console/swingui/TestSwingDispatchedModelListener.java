@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,6 +31,7 @@ import javax.swing.SwingUtilities;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsServicesImplementation;
 
 
 /**
@@ -63,14 +64,17 @@ public class TestSwingDispatchedModelListener extends TestCase {
     assertSame(myTests, listener.m_newTests);
     assertSame(myModelTestIndex, listener.m_modelTestIndex);
 
-    final ExpressionView view1 = new ExpressionView("foo", "errors");
+    final ExpressionView view1 =
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory()
+      .createExpressionView("foo", "errors", false);
     listener.newStatisticExpression(view1);
     SwingUtilities.invokeAndWait(m_voidRunnable);
     assertTrue(listener.m_updateCalled);
     assertSame(view1, listener.m_newStaticticExpression);
   }
 
-  private class MyModelListener implements ModelListener {
+  private static class MyModelListener implements ModelListener {
     public boolean m_newTestsCalled = false;
     public Set m_newTests;
     public ModelTestIndex m_modelTestIndex;

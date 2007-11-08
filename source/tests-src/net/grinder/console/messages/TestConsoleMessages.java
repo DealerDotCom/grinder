@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,8 +56,12 @@ public class TestConsoleMessages extends TestCase {
 
   public void testRegisterStatisticsViewMessage() throws Exception {
 
+    final StatisticExpressionFactory statisticExpressionFactory =
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory();
+
     final ExpressionView expressionView =
-      new ExpressionView("One", "userLong0");
+      statisticExpressionFactory.createExpressionView("One", "userLong0", false);
 
     final RegisterExpressionViewMessage original =
       new RegisterExpressionViewMessage(expressionView);
@@ -68,14 +72,10 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(original.getExpressionView(),
                  received.getExpressionView());
 
-    final StatisticExpressionFactory statisticExpressionFactory =
-      StatisticsServicesImplementation.getInstance()
-      .getStatisticExpressionFactory();
-
     final ExpressionView view2 =
-      new ExpressionView("My view2",
-                         statisticExpressionFactory.createExpression(
-                           "userLong0"));
+      statisticExpressionFactory
+        .createExpressionView("My view2",
+          statisticExpressionFactory.createExpression("userLong0"));
     try {
       serialise(new RegisterExpressionViewMessage(view2));
       fail("Expected IOException");

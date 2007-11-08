@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,31 +39,36 @@ public class TestExpressionView extends TestCase {
   }
 
   public void testConstruction() throws Exception {
-    final ExpressionView view =
-      new ExpressionView("My view", "(+ userLong0 userLong1)");
-
-    assertEquals("My view", view.getDisplayName());
-    assertTrue(view.getExpression() != null);
-
     final StatisticExpressionFactory statisticExpressionFactory =
       StatisticsServicesImplementation.getInstance()
       .getStatisticExpressionFactory();
 
+    final ExpressionView view =
+      statisticExpressionFactory.createExpressionView(
+        "My view", "(+ userLong0 userLong1)", false);
+
+    assertEquals("My view", view.getDisplayName());
+    assertTrue(view.getExpression() != null);
+
     final ExpressionView view2 =
-      new ExpressionView("My view2",
-                         statisticExpressionFactory.createExpression(
-                           "userLong0"));
+      statisticExpressionFactory
+        .createExpressionView("My view2", statisticExpressionFactory.createExpression(
+           "userLong0"));
 
     assertEquals("My view2", view2.getDisplayName());
     assertTrue(view.getExpression() != null);
   }
 
   public void testEquality() throws Exception {
+    final StatisticExpressionFactory statisticExpressionFactory =
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory();
+
     final ExpressionView[] views = {
-      new ExpressionView("My view", "(+ userLong0 userLong1)"),
-      new ExpressionView("My view", "(+ userLong0 userLong1)"),
-      new ExpressionView("My view", "(+ userLong0 userLong2)"),
-      new ExpressionView("My View", "(+ userLong0 userLong1)"),
+      statisticExpressionFactory.createExpressionView("My view", "(+ userLong0 userLong1)", false),
+      statisticExpressionFactory.createExpressionView("My view", "(+ userLong0 userLong1)", false),
+      statisticExpressionFactory.createExpressionView("My view", "(+ userLong0 userLong2)", false),
+      statisticExpressionFactory.createExpressionView("My View", "(+ userLong0 userLong1)", false),
     };
 
     assertEquals(views[0], views[0]);
@@ -79,23 +84,23 @@ public class TestExpressionView extends TestCase {
     final String displayName = "My view";
     final String expressionString = "(+ userLong0 userLong1)";
 
+    final StatisticExpressionFactory statisticExpressionFactory =
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory();
+
     final ExpressionView expressionView =
-      new ExpressionView(
-        displayName, expressionString);
+      statisticExpressionFactory
+      .createExpressionView(displayName, expressionString, false);
 
     final String string = expressionView.toString();
 
     assertTrue(string.indexOf(displayName) >= 0);
     assertTrue(string.indexOf(expressionString) >= 0);
 
-    final StatisticExpressionFactory statisticExpressionFactory =
-      StatisticsServicesImplementation.getInstance()
-      .getStatisticExpressionFactory();
-
     final ExpressionView view2 =
-      new ExpressionView("My view2",
-                         statisticExpressionFactory.createExpression(
-                           "userLong0"));
+      statisticExpressionFactory
+        .createExpressionView("My view2",
+          statisticExpressionFactory.createExpression("userLong0"));
 
     final String string2 = view2.toString();
     assertTrue(string2.indexOf(displayName) >= 0);

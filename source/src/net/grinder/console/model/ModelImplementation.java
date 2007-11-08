@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -165,14 +165,16 @@ public final class ModelImplementation implements Model {
       statisticExpressionFactory.createExpression(
         "(* 1000 (/ (+ (count timedTests) untimedTests) period))");
 
-    m_tpsExpressionView = new ExpressionView("TPS", m_tpsExpression);
+    m_tpsExpressionView =
+      statisticExpressionFactory.createExpressionView("TPS", m_tpsExpression);
 
     m_peakTPSExpression =
       statisticExpressionFactory.createPeak(
         indexMap.getDoubleIndex("peakTPS"), m_tpsExpression);
 
     m_peakTPSExpressionView =
-      new ExpressionView("Peak TPS", m_peakTPSExpression);
+      statisticExpressionFactory
+        .createExpressionView("Peak TPS", m_peakTPSExpression);
 
     m_totalSampleAccumulator =
       new SampleAccumulator(m_peakTPSExpression, m_periodIndex,

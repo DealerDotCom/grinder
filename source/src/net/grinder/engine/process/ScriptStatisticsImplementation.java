@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,6 +28,7 @@ import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServices;
+import net.grinder.statistics.StatisticsServicesImplementation;
 
 
 /**
@@ -86,7 +87,9 @@ final class ScriptStatisticsImplementation implements Statistics {
     throws GrinderException {
 
     final ExpressionView expressionView =
-      new ExpressionView(displayName, expression);
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory()
+      .createExpressionView(displayName, expression, false);
 
     m_statisticsServices.getSummaryStatisticsView().add(expressionView);
 
@@ -104,7 +107,9 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
 
     m_statisticsServices.getDetailStatisticsView().add(
-      new ExpressionView(displayName, expression));
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory()
+      .createExpressionView(displayName, expression, false));
   }
 
   public StatisticsForTest getForCurrentTest() throws InvalidContextException {

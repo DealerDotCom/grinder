@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -63,67 +63,10 @@ public class ExpressionView {
 
   private final StatisticExpression m_expression;
 
-  /**
-   * Creates a new <code>ExpressionView</code> instance.
-   *
-   * @param displayName
-   *          A display name. In the console, this is converted to a key for an
-   *          internationalised resource bundle look up by prefixing the string
-   *          with "statistic." and replacing any whitespace with underscores.
-   * @param expressionString
-   *          An expression string, used to create the
-   *          {@link StatisticExpression}.
-   * @exception StatisticsException
-   *              If the expression is invalid.
-   * @see StatisticExpressionFactoryImplementation
-   */
-  public ExpressionView(String displayName, String expressionString)
-    throws StatisticsException {
-    this(
-      displayName,
-      expressionString,
-      StatisticsServicesImplementation.getInstance()
-      .getStatisticExpressionFactory(),
-      false);
-  }
-
   ExpressionView(String displayName,
                  String expressionString,
-                 StatisticExpressionFactory expressionFactory,
-                 boolean showForCompositeStatistics)
-    throws StatisticsException {
-    this(displayName,
-         expressionFactory.normaliseExpressionString(expressionString),
-         expressionFactory.createExpression(expressionString),
-         showForCompositeStatistics);
-  }
-
-  /**
-   * Creates a new <code>ExpressionView</code> instance.
-   *
-   * <p>
-   * This constructor takes a {@link StatisticExpression}, and is used to by
-   * the console to construct a view around expressions that have no string
-   * representation (namely, those involving peak statistics).
-   * </p>
-   *
-   * @param displayName
-   *          A common display name.
-   * @param expression
-   *          A {@link StatisticExpression}.
-   */
-  public ExpressionView(String displayName, StatisticExpression expression) {
-    this(displayName, null, expression, false);
-  }
-
-  private ExpressionView(String displayName,
-                         String expressionString,
-                         StatisticExpression expression,
-                         boolean showForCompositeStatistics) {
-    // Ensure that the standard ExpressionViews are initialised before
-    // any user ExpressionViews.
-    StatisticsServicesImplementation.getInstance();
-
+                 StatisticExpression expression,
+                 boolean showForCompositeStatistics) {
     m_displayName = displayName;
     m_expressionString = expressionString;
     m_showForCompositeStatistics = showForCompositeStatistics;
@@ -133,6 +76,12 @@ public class ExpressionView {
       m_displayName.hashCode() ^
       (expressionString != null ? m_expressionString.hashCode() : 0);
 
+    // Code outside this package can only obtain ExpressionViews through a
+    // StatisticExpressionFactory instance, and in turn this factory must be
+    // obtained from the singleton StatisticServices instance.
+    // StatisticsServicesImplementation creates the common statistics views in
+    // a static block, so we can rely on creation order to ensure that the
+    // standard views are ordered before script defined views.
     synchronized (ExpressionView.class) {
       m_creationOrder = s_creationOrder++;
     }

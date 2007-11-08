@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -177,7 +177,8 @@ public class TestScriptStatisticsImplementation extends TestCase {
         m_queuedSender);
 
     final ExpressionView expressionView =
-      new ExpressionView("display", "errors");
+      m_statisticsServices.getStatisticExpressionFactory()
+      .createExpressionView("display", "errors", false);
     scriptStatistics.registerSummaryExpression("display", "errors");
 
     final CallData callData =
@@ -213,6 +214,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
     final ExpressionView[] detailExpressionViews =
       detailStatisticsView.getExpressionViews();
     assertTrue(Arrays.asList(detailExpressionViews).contains(
-      new ExpressionView("display2", "untimedTests")));
+      m_statisticsServices.getStatisticExpressionFactory()
+      .createExpressionView("display2", "untimedTests", false)));
   }
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,12 +43,16 @@ public class TestStatisticsView extends TestCase {
   private int m_numberOfUniqueViews;
 
   protected void setUp() throws Exception {
+    final StatisticExpressionFactory statisticExpressionFactory =
+      StatisticsServicesImplementation.getInstance().getStatisticExpressionFactory();
+
     m_views = new ExpressionView[] {
-        new ExpressionView("One", "(+ userLong0 userLong1)"),
-        new ExpressionView("Two", "userLong0"),
-        new ExpressionView("Three", "(+ userLong0 userLong1)"),
-        new ExpressionView("Four", "userLong1"),
-        new ExpressionView("One", "(+ userLong0 userLong1)"), };
+      statisticExpressionFactory.createExpressionView("One", "(+ userLong0 userLong1)", false),
+      statisticExpressionFactory.createExpressionView("Two", "userLong0", false),
+      statisticExpressionFactory.createExpressionView("Three", "(+ userLong0 userLong1)", false),
+      statisticExpressionFactory.createExpressionView("Four", "userLong1", false),
+      statisticExpressionFactory.createExpressionView("One", "(+ userLong0 userLong1)", false),
+    };
 
     m_numberOfUniqueViews = 4;
   }

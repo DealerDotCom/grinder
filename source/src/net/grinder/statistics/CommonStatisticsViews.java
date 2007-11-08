@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,14 +37,14 @@ final class CommonStatisticsViews {
   CommonStatisticsViews(StatisticExpressionFactory expressionFactory) {
     try {
       final ExpressionView[] detailExpressionViews = {
-        new ExpressionView("Test time",
-                           "(sum timedTests)",
-                           expressionFactory,
-                           false),
-        new ExpressionView("Errors",
-                           "errors",
-                           expressionFactory,
-                           false),
+        expressionFactory.createExpressionView(
+          "Test time",
+          "(sum timedTests)",
+          false),
+        expressionFactory.createExpressionView(
+          "Errors",
+          "errors",
+          false),
       };
 
       for (int i = 0; i < detailExpressionViews.length; ++i) {
@@ -52,22 +52,22 @@ final class CommonStatisticsViews {
       }
 
       final ExpressionView[] summaryExpressionViews = {
-        new ExpressionView("Tests",
-                           "(+ (count timedTests) untimedTests)",
-                           expressionFactory,
-                           true),
-        new ExpressionView("Errors",
-                           "errors",
-                           expressionFactory,
-                           true),
-        new ExpressionView("Mean Test Time (ms)",
-                           "(/ (sum timedTests) (count timedTests))",
-                           expressionFactory,
-                           false),
-        new ExpressionView("Test Time Standard Deviation (ms)",
-                           "(sqrt (variance timedTests))",
-                           expressionFactory,
-                           false),
+        expressionFactory.createExpressionView(
+          "Tests",
+          "(+ (count timedTests) untimedTests)",
+          true),
+        expressionFactory.createExpressionView(
+          "Errors",
+          "errors",
+          true),
+        expressionFactory.createExpressionView(
+          "Mean Test Time (ms)",
+          "(/ (sum timedTests) (count timedTests))",
+          false),
+        expressionFactory.createExpressionView(
+          "Test Time Standard Deviation (ms)",
+          "(sqrt (variance timedTests))",
+          false),
       };
 
       for (int i = 0; i < summaryExpressionViews.length; ++i) {

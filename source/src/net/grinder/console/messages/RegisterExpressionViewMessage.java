@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +29,7 @@ import java.io.ObjectOutput;
 import net.grinder.communication.Message;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsException;
+import net.grinder.statistics.StatisticsServicesImplementation;
 
 
 /**
@@ -95,7 +96,10 @@ public final class RegisterExpressionViewMessage
   public void readExternal(ObjectInput in) throws IOException {
 
     try {
-      m_expressionView = new ExpressionView(in.readUTF(), in.readUTF());
+      m_expressionView =
+        StatisticsServicesImplementation.getInstance()
+        .getStatisticExpressionFactory()
+        .createExpressionView(in.readUTF(), in.readUTF(), false);
     }
     catch (StatisticsException e) {
       throw new IOException(

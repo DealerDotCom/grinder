@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,12 +23,6 @@ package net.grinder.statistics;
 
 /**
  * <p>Singleton that is the point of entry for {@link StatisticsServices}.</p>
- *
- * <p>
- * We manage a PicoContainer that sets up and provides a scope of components in
- * the statistics package. Currently, dependency injection is little used, and
- * this is just a more testable option than a number of static singletons. This
- * will change over time.</p>
  *
  * @author Philip Aston
  * @version $Revision$

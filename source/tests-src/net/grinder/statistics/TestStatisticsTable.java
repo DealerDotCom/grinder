@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // Copyright (C) 2005 Martin Wagner.
 // All rights reserved.
 //
@@ -65,12 +65,15 @@ public class TestStatisticsTable extends TestCase {
     final StatisticsIndexMap.LongIndex bIndex =
       indexMap.getLongIndex("userLong1");
 
+    final StatisticExpressionFactory statisticExpressionFactory =
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory();
+
     final ExpressionView[] expressionViews = {
-      new ExpressionView("A", "userLong0",       StatisticsServicesImplementation.getInstance()
-        .getStatisticExpressionFactory(), true),
-      new ExpressionView("B", "userLong1"),
-      new ExpressionView("A plus B", "(+ userLong0 userLong1)"),
-      new ExpressionView("A divided by B", "(/ userLong0 userLong1)"),
+        statisticExpressionFactory.createExpressionView("A", "userLong0", true),
+        statisticExpressionFactory.createExpressionView("B", "userLong1", false),
+        statisticExpressionFactory.createExpressionView("A plus B", "(+ userLong0 userLong1)", false),
+        statisticExpressionFactory.createExpressionView("A divided by B", "(/ userLong0 userLong1)", false),
     };
 
     m_statisticsView = new StatisticsView();

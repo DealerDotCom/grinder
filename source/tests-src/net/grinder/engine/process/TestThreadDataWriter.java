@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,6 @@ import java.io.PrintWriter;
 
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
-import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -99,7 +98,8 @@ public class TestThreadDataWriter extends TestCase {
     m_dataOutput.reset();
 
     statisticsServices.getDetailStatisticsView().add(
-      new ExpressionView("foo", "userDouble0"));
+      statisticsServices.getStatisticExpressionFactory()
+      .createExpressionView("foo", "userDouble0", false));
     statistics.reset();
     statistics.addSample(s_timedTestsIndex, 5);
     statistics.addValue(s_userDouble0Index, 1.5);

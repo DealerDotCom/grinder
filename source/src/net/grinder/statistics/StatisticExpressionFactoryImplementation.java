@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -445,6 +445,51 @@ final class StatisticExpressionFactoryImplementation
     createPeak(StatisticsIndexMap.LongIndex peakIndex,
                StatisticExpression monitoredStatistic) {
     return new PeakLongStatistic(peakIndex, monitoredStatistic);
+  }
+
+  /**
+   * Creates a new <code>ExpressionView</code> instance.
+   *
+   * @param displayName
+   *          A display name. In the console, this is converted to a key for an
+   *          internationalised resource bundle look up by prefixing the string
+   *          with "statistic." and replacing any whitespace with underscores.
+   * @param expressionString
+   *          An expression string, used to create the
+   *          {@link StatisticExpression} for the <code>ExpressionView</code>.
+   * @exception StatisticsException
+   *              If the expression is invalid.
+   * @return The ExpressionView.
+   */
+  public ExpressionView createExpressionView(String displayName,
+                                             String expressionString,
+                                             boolean showForCompositeStatistics)
+    throws StatisticsException {
+
+    return new ExpressionView(displayName,
+                              normaliseExpressionString(expressionString),
+                              createExpression(expressionString),
+                              showForCompositeStatistics);
+  }
+
+  /**
+   * Creates a new <code>ExpressionView</code> instance.
+   *
+   * <p>
+   * This method takes a {@link StatisticExpression}, and is used to by
+   * the console to construct a view around expressions that have no string
+   * representation (namely, those involving peak statistics).
+   * </p>
+   *
+   * @param displayName
+   *          A common display name.
+   * @param expression
+   *          A {@link StatisticExpression}.
+   * @return The ExpressionView.
+   */
+  public ExpressionView createExpressionView(String displayName,
+                                             StatisticExpression expression) {
+    return new ExpressionView(displayName, null, expression, false);
   }
 
   private StatisticExpression[] readOperands(ParseContext parseContext,
