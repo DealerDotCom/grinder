@@ -48,9 +48,6 @@ import HTTPClient.Codecs;
  * @version $Revision$
  */
 public final class XSLTHelper {
-    private static DateFormat s_iso8601DateFormat =
-    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
   private static int s_indentLevel;
 
   private XSLTHelper() {
@@ -60,7 +57,6 @@ public final class XSLTHelper {
    * Convert an ISO 8601 date/time string to a more friendly, locale specific
    * string.
    *
-   *
    * @param iso8601
    *          An extended format ISO 8601 date/time string
    * @return The formated date/time.
@@ -68,7 +64,8 @@ public final class XSLTHelper {
    *           If the date could not be parsed.
    */
   public static String formatTime(String iso8601) throws ParseException {
-    final Date date = s_iso8601DateFormat.parse(iso8601);
+    final Date date =
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(iso8601);
     return DateFormat.getDateTimeInstance().format(date);
   }
 
