@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -59,7 +59,7 @@ final class SampleAccumulator {
     m_lastSampleStatistics = m_statisticsSetFactory.create();
   }
 
-  public synchronized void addSampleListener(SampleListener listener) {
+  public void addSampleListener(SampleListener listener) {
     m_listeners.add(listener);
   }
 
@@ -68,7 +68,7 @@ final class SampleAccumulator {
     m_cumulativeStatistics.add(report);
   }
 
-  public synchronized void fireSample(long sampleInterval, long period) {
+  public void fireSample(long sampleInterval, long period) {
 
     m_intervalStatistics.setValue(m_periodIndex, sampleInterval);
     m_cumulativeStatistics.setValue(m_periodIndex, period);
