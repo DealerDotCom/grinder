@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -22,6 +22,7 @@
 
 package net.grinder.util.thread;
 
+import net.grinder.common.UncheckedInterruptedException;
 import junit.framework.TestCase;
 
 /**
@@ -63,6 +64,26 @@ public class TestThreadPool extends TestCase {
     }
   }
 
+  private static final class ChainInterruptRunnable
+    implements InterruptibleRunnable {
+
+    private final Thread m_delegate;
+
+    public ChainInterruptRunnable(Thread delegate) {
+      m_delegate = delegate;
+    }
+
+    public void interruptibleRun() {
+      synchronized (this) {
+        try {
+          wait();
+        }
+        catch (InterruptedException e) {
+          m_delegate.interrupt();
+        }
+      }
+    }
+  }
 
   private abstract class TestRunnableFactory
     implements ThreadPool.InterruptibleRunnableFactory {
@@ -168,6 +189,27 @@ public class TestThreadPool extends TestCase {
 
     // Our runnable ignores interruptions, so count should be 200.
     assertEquals(200, m_count);
+  }
+
+  public void testInterruption() throws Exception {
+
+    final TestRunnableFactory runnableFactory =
+      new TestRunnableFactory() {
+        public InterruptibleRunnable doCreate() {
+          return new ChainInterruptRunnable(Thread.currentThread());
+        }
+      };
+
+    final ThreadPool threadPool = new ThreadPool("Test", 10, runnableFactory);
+
+    threadPool.start();
+
+    try {
+      threadPool.stopAndWait();
+      fail("Expected UncheckedInterruptedException");
+    }
+    catch (UncheckedInterruptedException e) {
+    }
   }
 }
 
