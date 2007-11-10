@@ -11,10 +11,12 @@
     <Class name="~org.syntax.*" />
   </Match>
 
+  <!-- Ignore deprecated code. -->
   <Match>
     <Or>
       <Class name="~.*HTTPPluginTCPProxyFilter2.*" />
       <Class name="~.*HTTPPluginTCPProxyResponseFilter2.*" />
+      <Class name="~.*HTTPPluginTCPProxyResponseFilter.*" />
     </Or>
   </Match>
 
@@ -81,6 +83,20 @@
       <Bug pattern="BC_VACUOUS_INSTANCEOF"/>
       <Bug pattern="BC_IMPOSSIBLE_INSTANCEOF"/>
     </Or>
+  </Match>
+
+  <!-- findbugs erroneously detects a dead store. -->
+  <Match>
+    <Class name="net.grinder.engine.process.GrinderProcess"/>
+    <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+  </Match>
+
+  <!-- The transient field m_registeredTest should be null after
+       deserialisation. I want it to be final, so I'm not implementing
+       readObject(). -->
+  <Match>
+    <Class name="net.grinder.script.Test"/>
+    <Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
   </Match>
 
 </FindBugsFilter>
