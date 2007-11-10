@@ -151,7 +151,7 @@ public final class ConsoleListener {
    * @return <code>true</code> if one or more of the received
    * messages matches <code>mask</code>.
    */
-  public boolean received(int mask) {
+  public synchronized boolean received(int mask) {
     return (m_lastMessagesReceived & mask) != 0;
   }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -116,6 +116,10 @@ public final class TestRegistry {
    */
   public RegisteredTest register(Test test) throws GrinderException {
 
+    if (m_scriptEngine == null) {
+      throw new EngineException("Script Engine not set");
+    }
+
     final TestData newTestData;
 
     synchronized (this) {
@@ -123,10 +127,6 @@ public final class TestRegistry {
 
       if (existing != null) {
         return existing;
-      }
-
-      if (m_scriptEngine == null) {
-        throw new EngineException("Script Engine not set");
       }
 
       newTestData = new TestData(m_threadContextLocator,

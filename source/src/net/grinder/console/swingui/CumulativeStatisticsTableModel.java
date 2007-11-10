@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -61,7 +61,7 @@ final class CumulativeStatisticsTableModel
     return getLastModelTestIndex().getCumulativeStatistics(row);
   }
 
-  public int getRowCount() {
+  public synchronized int getRowCount() {
     return super.getRowCount() + (m_includeTotals ? 1 : 0);
   }
 
