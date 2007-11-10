@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -117,7 +117,7 @@ public final class ThreadPool {
         }
         catch (InterruptedException e) {
           interrupted = e;
-          --i; // Try again.
+          // Try again.
         }
       }
     }
