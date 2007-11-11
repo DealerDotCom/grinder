@@ -23,6 +23,7 @@ package net.grinder.testutility;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -118,8 +119,10 @@ public class AssertUtilities extends Assert {
   }
 
   public static void assertArrayContainsAll(Object[] array1, Object[] array2) {
-    assertTrue(
-      new HashSet(Arrays.asList(array1)).containsAll(Arrays.asList(array2)));
+    final List list1 = Arrays.asList(array1);
+    final List list2 = Arrays.asList(array2);
+    assertTrue("" + list1 + " contains " + list2,
+      new HashSet(list1).containsAll(list2));
   }
 
   public static void assertNotEquals(Object o1, Object o2) {
