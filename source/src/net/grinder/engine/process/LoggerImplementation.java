@@ -50,8 +50,6 @@ import net.grinder.util.DelayedCreationFileWriter;
  * @version $Revision$
  */
 final class LoggerImplementation {
-  private static final PrintWriter s_stdoutWriter;
-  private static final PrintWriter s_stderrWriter;
 
   private static final char[] s_lineSeparator =
     System.getProperty("line.separator").toCharArray();
@@ -63,11 +61,6 @@ final class LoggerImplementation {
     new DecimalFormat("00000");
 
   private static String s_dateString;
-
-  static {
-    s_stdoutWriter = new PrintWriter(System.out);
-    s_stderrWriter = new PrintWriter(System.err);
-  }
 
   private static volatile int s_currentTick = 0;
   private static volatile int s_lastTick = -1;
@@ -93,6 +86,8 @@ final class LoggerImplementation {
     return s_dateString;
   }
 
+  private final PrintWriter m_stdoutWriter = new PrintWriter(System.out);
+  private final PrintWriter m_stderrWriter = new PrintWriter(System.err);
   private final String m_grinderID;
   private final boolean m_logProcessStreams;
   private final File m_logDirectory;
@@ -125,7 +120,7 @@ final class LoggerImplementation {
     m_outputWriter = new PrintWriter(fileManager.getOutWriter(), true);
     m_errorWriter = new PrintWriter(fileManager.getErrorWriter(), true);
 
-    // Don't auto flush, we explictly control flushing of this writer.
+    // Don't auto flush, we explicitly control flushing of this writer.
     m_dataWriter = new PrintWriter(fileManager.getDataWriter(), false);
 
     m_processLogger = createThreadLogger(-1);
@@ -313,16 +308,16 @@ final class LoggerImplementation {
     }
 
     if (w != 0) {
-      final int lineLength = state.formatMessage(message);
+      final char[] formattedMessage = state.formatMessage(message);
 
       if ((w & Logger.LOG) != 0) {
-        m_outputWriter.write(state.m_outputLine, 0, lineLength);
+        m_outputWriter.write(formattedMessage);
         m_outputWriter.flush();
       }
 
       if ((w & Logger.TERMINAL) != 0) {
-        s_stdoutWriter.write(state.m_outputLine, 0, lineLength);
-        s_stdoutWriter.flush();
+        m_stdoutWriter.write(formattedMessage);
+        m_stdoutWriter.flush();
       }
     }
   }
@@ -331,32 +326,33 @@ final class LoggerImplementation {
 
     int w = where;
 
-    if (!m_logProcessStreams) {
-      w &= ~Logger.LOG;
-    }
-
     if (w != 0) {
-      final int lineLength = state.formatMessage(message);
+      if (!m_logProcessStreams) {
+        w &= ~Logger.LOG;
+      }
+
+      final char[] formattedMessage = state.formatMessage(message);
 
       if ((w & Logger.LOG) != 0) {
-        m_errorWriter.write(state.m_outputLine, 0, lineLength);
+        m_errorWriter.write(formattedMessage);
         m_errorWriter.flush();
       }
 
       if ((w & Logger.TERMINAL) != 0) {
-        s_stderrWriter.write(state.m_outputLine, 0, lineLength);
-        s_stderrWriter.flush();
+        m_stderrWriter.write(formattedMessage);
+        m_stderrWriter.flush();
       }
+      else {
+        if (!m_errorOccurred) {
+          m_processLogger.output(
+            "There were errors, see " + m_errorFile + " for full details",
+            Logger.TERMINAL);
 
-      if (!m_errorOccurred && (w & Logger.TERMINAL) == 0) {
-        m_processLogger.output(
-          "There were errors, see " + m_errorFile + " for full details",
-          Logger.TERMINAL);
+          m_stderrWriter.write(formattedMessage);
+          m_stderrWriter.flush();
 
-        s_stderrWriter.write(state.m_outputLine, 0, lineLength);
-        s_stderrWriter.flush();
-
-        m_errorOccurred = true;
+          m_errorOccurred = true;
+        }
       }
 
       final int summaryLength = 20;
@@ -369,7 +365,6 @@ final class LoggerImplementation {
                      "ERROR (\"" + summary +
                      "\"), see error log for details",
                      Logger.LOG);
-
     }
   }
 
@@ -390,7 +385,6 @@ final class LoggerImplementation {
 
     // Scratch space.
     private final StringBuffer m_buffer = new StringBuffer();
-    private final char[] m_outputLine = new char[512];
 
     // Reused for optimisation.
     private final char[] m_processOrThreadIDCharacters;
@@ -470,7 +464,7 @@ final class LoggerImplementation {
       return m_errorWriter;
     }
 
-    int formatMessage(String message) {
+    char[] formatMessage(String message) {
       m_buffer.setLength(0);
 
       m_buffer.append(getDateString());
@@ -504,21 +498,15 @@ final class LoggerImplementation {
 
       m_buffer.append(message);
 
-      // Sadly this is the most efficient way to get something we can
-      // println from the StringBuffer. getString() creates an extra
-      // string, getValue() is package scope.
-      final int bufferLength = m_buffer.length();
-      final int outputLineSpace = m_outputLine.length - s_lineSeparator.length;
+      m_buffer.append(s_lineSeparator);
 
-      final int lineLength =
-        bufferLength > outputLineSpace ? outputLineSpace : bufferLength;
+      // It's a little more efficient to return our result as a char[] instead
+      // of a String.
+      final char[] result = new char[m_buffer.length()];
 
-      m_buffer.getChars(0, lineLength, m_outputLine, 0);
+      m_buffer.getChars(0, result.length, result, 0);
 
-      System.arraycopy(s_lineSeparator, 0, m_outputLine, lineLength,
-                       s_lineSeparator.length);
-
-      return lineLength + s_lineSeparator.length;
+      return result;
     }
   }
 }
