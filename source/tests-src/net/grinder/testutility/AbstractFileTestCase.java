@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,8 +23,10 @@ package net.grinder.testutility;
 
 import junit.framework.TestCase;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Random;
@@ -87,5 +89,45 @@ public abstract class AbstractFileTestCase extends TestCase {
     s_random.nextBytes(bytes);
     out.write(bytes);
     out.close();
+  }
+
+  protected String readLastLine(File file) throws IOException {
+    final BufferedReader reader = new BufferedReader(new FileReader(file));
+
+    try {
+      String last = null;
+
+      while (true) {
+        final String line = reader.readLine();
+        if (line == null) {
+          return last;
+        }
+
+        last = line;
+      }
+    }
+    finally {
+      reader.close();
+    }
+  }
+
+  protected int countLines(File file) throws IOException {
+    final BufferedReader reader = new BufferedReader(new FileReader(file));
+
+    try {
+      int result = 0;
+
+      while (true) {
+        final String line = reader.readLine();
+        if (line == null) {
+          return result;
+        }
+
+        ++result;
+      }
+    }
+    finally {
+      reader.close();
+    }
   }
 }
