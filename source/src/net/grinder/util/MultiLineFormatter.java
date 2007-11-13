@@ -47,5 +47,4 @@ public interface MultiLineFormatter {
    * @return Formatted result.
    */
   String format(String input);
-
 }
