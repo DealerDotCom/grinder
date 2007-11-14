@@ -25,6 +25,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -209,7 +210,6 @@ public final class ConsoleUI implements ModelListener {
     m_actionTable.add(m_startAction);
     m_actionTable.add(m_stopAction);
     m_actionTable.add(m_saveFileAsAction);
-
     m_actionTable.add(new AboutAction(m_resources.getImageIcon("logo.image")));
     m_actionTable.add(new ChooseDirectoryAction());
     m_actionTable.add(new StartProcessesAction());
@@ -329,8 +329,14 @@ public final class ConsoleUI implements ModelListener {
                       processStatusPane,
                       m_resources.getString("processStatusTableTab.tip"));
 
+    final JToolBar editorToolBar = new JToolBar();
+    new ToolBarAssembler(editorToolBar, true).populate("editor.toolbar");
 
-    final Editor editor = new Editor(m_resources, m_editorModel, tabLabelFont);
+    final EditorControls editorControls =
+      new EditorControls(
+        m_resources, m_editorModel, tabLabelFont, editorToolBar);
+
+    final Editor editor = new Editor(m_editorModel);
 
     final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
     fileTreeModel.setRootDirectory(
@@ -359,8 +365,9 @@ public final class ConsoleUI implements ModelListener {
     m_actionTable.add(m_fileTree.getOpenFileAction());
     m_actionTable.add(m_fileTree.getSetScriptAction());
 
-    // Place JEditTextArea in JPanel so border background is correct.
     final JPanel editorPanel = new JPanel();
+    editorPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+    editorPanel.add(editorControls.getComponent());
     editorPanel.add(editor.getComponent());
 
     final JPopupMenu fileTreePopupMenu = new JPopupMenu();
@@ -381,10 +388,10 @@ public final class ConsoleUI implements ModelListener {
       }
     });
 
-    final JToolBar editorToolBar = new JToolBar();
-    new ToolBarAssembler(editorToolBar).populate("editor.toolbar");
-    editorToolBar.setFloatable(false);
-    editorToolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+    final JToolBar fileTreeToolBar = new JToolBar();
+    new ToolBarAssembler(fileTreeToolBar, true).populate("filetree.toolbar");
+    fileTreeToolBar.setFloatable(false);
+    fileTreeToolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     final JComponent fileTreeComponent = m_fileTree.getComponent();
     fileTreeComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -394,7 +401,7 @@ public final class ConsoleUI implements ModelListener {
     editorControlPanel.setLayout(
       new BoxLayout(editorControlPanel, BoxLayout.Y_AXIS));
     editorControlPanel.setBorder(BorderFactory.createEmptyBorder());
-    editorControlPanel.add(editorToolBar);
+    editorControlPanel.add(fileTreeToolBar);
     editorControlPanel.add(fileTreeComponent);
 
     final JSplitPane scriptPane =
@@ -417,7 +424,7 @@ public final class ConsoleUI implements ModelListener {
     // Create a panel to hold the tool bar and the test pane.
     final JPanel toolBarPanel = new JPanel(new BorderLayout());
     final JToolBar mainToolBar = new JToolBar();
-    new ToolBarAssembler(mainToolBar).populate("main.toolbar");
+    new ToolBarAssembler(mainToolBar, false).populate("main.toolbar");
     toolBarPanel.add(mainToolBar, BorderLayout.NORTH);
     toolBarPanel.add(contentPanel, BorderLayout.CENTER);
 
@@ -644,8 +651,11 @@ public final class ConsoleUI implements ModelListener {
 
   private final class ToolBarAssembler extends ListTokeniserTemplate {
 
-    protected ToolBarAssembler(JComponent component) {
+    private final boolean m_small;
+
+    protected ToolBarAssembler(JComponent component, boolean small) {
       super(component);
+      m_small = small;
     }
 
     protected void dash() {
@@ -654,6 +664,11 @@ public final class ConsoleUI implements ModelListener {
 
     protected void token(String key) {
       final JButton button = new CustomJButton();
+
+      if (m_small) {
+        button.setBorder(BorderFactory.createEmptyBorder());
+      }
+
       getComponent().add(button);
 
       // Must set the action _after_ adding to the tool bar or the

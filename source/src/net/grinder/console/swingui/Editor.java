@@ -1,4 +1,4 @@
-// Copyright (C) 2004 2005, 2006 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,14 +23,19 @@ package net.grinder.console.swingui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Insets;
+
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
+
+import net.grinder.console.common.ConsoleException;
+import net.grinder.console.editor.AbstractTextSource;
+import net.grinder.console.editor.Buffer;
+import net.grinder.console.editor.EditorModel;
+import net.grinder.console.editor.TextSource;
 
 import org.syntax.jedit.JEditTextArea;
 import org.syntax.jedit.SyntaxDocument;
@@ -47,13 +52,6 @@ import org.syntax.jedit.tokenmarker.Token;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
-import net.grinder.console.common.ConsoleException;
-import net.grinder.console.common.Resources;
-import net.grinder.console.editor.AbstractTextSource;
-import net.grinder.console.editor.Buffer;
-import net.grinder.console.editor.EditorModel;
-import net.grinder.console.editor.TextSource;
-
 
 /**
  * Text editor.
@@ -65,22 +63,15 @@ final class Editor {
 
   private final EditorModel m_editorModel;
   private final CustomJEditTextArea m_scriptTextArea;
-  private final TitledBorder m_titledBorder;
-  private final Font m_noFileTitleFont;
-  private final Font m_unmodifiedFileTitleFont;
-  private final Font m_modifiedFileTitleFont;
 
   /**
    * Constructor.
    *
-   * @param resources Console resources.
+   * @param model The editor model.
    */
-  public Editor(final Resources resources, EditorModel editorModel,
-                Font tabLabelFont)
-    throws ConsoleException {
+  public Editor(EditorModel editorModel) throws ConsoleException {
 
     m_editorModel = editorModel;
-    m_noFileTitleFont = tabLabelFont;
 
     final TextAreaDefaults textAreaDefaults = TextAreaDefaults.getDefaults();
 
@@ -101,36 +92,17 @@ final class Editor {
 
     m_scriptTextArea = new CustomJEditTextArea(textAreaDefaults);
 
-    m_titledBorder =
-      BorderFactory.createTitledBorder(
-        BorderFactory.createEmptyBorder(0, 1, 3, 1), "x");
-
-    m_unmodifiedFileTitleFont = m_noFileTitleFont.deriveFont(Font.BOLD);
-    m_modifiedFileTitleFont =
-      m_noFileTitleFont.deriveFont(Font.ITALIC | Font.BOLD);
-
-    m_titledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
-    m_titledBorder.setTitleJustification(TitledBorder.RIGHT);
-
-    m_scriptTextArea.setBorder(m_titledBorder);
+    m_scriptTextArea.setBorder(BorderFactory.createEtchedBorder());
 
     m_editorModel.addListener(new EditorModel.AbstractListener() {
         public void bufferStateChanged(Buffer buffer) {
           final Buffer selectedBuffer = m_editorModel.getSelectedBuffer();
 
           if (selectedBuffer == null) {
-            m_titledBorder.setTitle(resources.getString("editor.title"));
-            m_titledBorder.setTitleFont(m_noFileTitleFont);
-
             m_scriptTextArea.setDocument(new SyntaxDocument());
             m_scriptTextArea.setEnabled(false);
           }
           else if (buffer.equals(selectedBuffer)) {
-            m_titledBorder.setTitle(buffer.getDisplayName());
-            m_titledBorder.setTitleFont(
-              buffer.isDirty() ?
-              m_modifiedFileTitleFont : m_unmodifiedFileTitleFont);
-
             final JEditSyntaxTextSource textSource =
               (JEditSyntaxTextSource)buffer.getTextSource();
 
@@ -268,7 +240,7 @@ final class Editor {
       final Insets insets = getParent().getInsets();
 
       return new Dimension(parentSize.width - insets.left - insets.right,
-                           parentSize.height - insets.top - insets.bottom);
+                           parentSize.height - insets.top - insets.bottom - 10);
     }
 
     public void setEnabled(boolean b) {
