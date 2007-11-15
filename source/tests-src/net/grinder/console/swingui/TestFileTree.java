@@ -25,6 +25,8 @@ import java.awt.BorderLayout;
 import java.io.File;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.common.ErrorHandler;
@@ -76,7 +78,8 @@ public class TestFileTree extends AbstractFileTestCase {
     fileTreeModel.setRootDirectory(new File("c:"));
 
     final FileTree fileTree = new FileTree(s_resources,
-      m_errorHandler, editorModel, bufferTreeModel, fileTreeModel);
+      m_errorHandler, editorModel, bufferTreeModel, fileTreeModel,
+      new JLabel().getFont(), new JPopupMenu());
 
     // Simulate L&F change.
     SwingUtilities.updateComponentTreeUI(fileTree.getComponent());
@@ -97,7 +100,7 @@ public class TestFileTree extends AbstractFileTestCase {
     fileTreeModel.setRootDirectory(new File("c:"));
 
     new FileTree(s_resources, m_errorHandler, editorModel, bufferTreeModel,
-                 fileTreeModel);
+                 fileTreeModel, new JLabel().getFont(), new JPopupMenu());
 
     // Exercise the EditorModel listeners.
     editorModel.selectNewBuffer();
@@ -142,7 +145,8 @@ public class TestFileTree extends AbstractFileTestCase {
 
     final FileTree fileTree =
       new FileTree(s_resources, m_errorHandler, editorModel,
-                   bufferTreeModel, fileTreeModel);
+                   bufferTreeModel, fileTreeModel, new JLabel().getFont(),
+                   new JPopupMenu());
 
     final JFrame frame = new JFrame();
 
