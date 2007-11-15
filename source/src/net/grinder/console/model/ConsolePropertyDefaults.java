@@ -40,6 +40,5 @@ final class ConsolePropertyDefaults {
   public static final String DISTRIBUTION_FILE_FILTER_EXPRESSION =
     "^CVS/$|" +
     "^.*~$|" +
-    "^(out_|error_|data_)\\w+-\\d+.log\\d*$|" +
-    "^.grinder/$";
+    "^(out_|error_|data_)\\w+-\\d+.log\\d*$";
 }

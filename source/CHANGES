@@ -26,6 +26,9 @@ The Grinder 3.0-beta34 (Not yet released)
   - Don't word wrap log messages from the Agent.
   - Don't truncate log lines to an arbitrary number of characters.
 
+  Fix bug 1831651 - Some parts of the distribution file filter should be
+  fixed. Thanks to Andrew Stephens for the report.
+
 
 The Grinder 3.0-beta33
 ----------------------

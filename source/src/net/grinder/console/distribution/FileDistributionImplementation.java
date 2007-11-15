@@ -24,6 +24,7 @@ package net.grinder.console.distribution;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,6 +43,8 @@ import net.grinder.util.ListenerSupport.Informer;
  * @version $Revision$
  */
 public final class FileDistributionImplementation implements FileDistribution {
+
+  private static final String PRIVATE_DIRECTORY_NAME = ".grinder";
 
   private final ListenerSupport m_filesChangedListeners = new ListenerSupport();
 
@@ -179,7 +182,8 @@ public final class FileDistributionImplementation implements FileDistribution {
       // fairly sure it's on the same file system. However, we don't want the
       // root directory timestamp to be constantly changing, so we create
       // files in a more long-lived working directory.
-      final File privateDirectory = new File(directory.getFile(), ".grinder");
+      final File privateDirectory =
+        new File(directory.getFile(), PRIVATE_DIRECTORY_NAME);
       privateDirectory.mkdir();
 
       final File temporaryFile =
@@ -239,5 +243,54 @@ public final class FileDistributionImplementation implements FileDistribution {
    */
   public void addFileChangedListener(FileChangedListener listener) {
     m_filesChangedListeners.add(listener);
+  }
+
+
+  /**
+   * File Distribution Filter.
+   *
+   * @author Philip Aston
+   * @version $Revision$
+   */
+  static final class FileDistributionFilter implements FileFilter {
+    private final Pattern m_distributionFileFilterPattern;
+    private final long m_earliestTime;
+
+    public FileDistributionFilter(Pattern distributionFileFilterPattern,
+                                  long earliestTime) {
+      m_distributionFileFilterPattern = distributionFileFilterPattern;
+      m_earliestTime = earliestTime;
+    }
+
+    public boolean accept(File file) {
+      final String name = file.getName();
+
+      if (file.isDirectory()) {
+        if (name.equals(PRIVATE_DIRECTORY_NAME)) {
+          return false;
+        }
+
+        if (name.endsWith("-file-store")) {
+          final File readmeFile = new File(file, "README.txt");
+
+          if (readmeFile.isFile()) {
+            return false;
+          }
+        }
+
+        if (m_distributionFileFilterPattern.matcher(name + "/").matches()) {
+          return false;
+        }
+
+        return true;
+      }
+      else {
+        if (m_distributionFileFilterPattern.matcher(name).matches()) {
+          return false;
+        }
+
+        return file.lastModified() >= m_earliestTime;
+      }
+    }
   }
 }
