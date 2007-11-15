@@ -29,8 +29,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -332,9 +330,13 @@ public final class ConsoleUI implements ModelListener {
     final JToolBar editorToolBar = new JToolBar();
     new ToolBarAssembler(editorToolBar, true).populate("editor.toolbar");
 
+    final Font editorSmallFont =
+      tabLabelFont.deriveFont(Font.PLAIN)
+                  .deriveFont(tabLabelFont.getSize2D() * 0.8f);
+
     final EditorControls editorControls =
       new EditorControls(
-        m_resources, m_editorModel, tabLabelFont, editorToolBar);
+        m_resources, m_editorModel, editorSmallFont, editorToolBar);
 
     final Editor editor = new Editor(m_editorModel);
 
@@ -356,11 +358,17 @@ public final class ConsoleUI implements ModelListener {
     m_fileDistribution.addFileChangedListener(
       fileTreeModel.new RefreshChangedDirectoriesListener());
 
+    final JPopupMenu fileTreePopupMenu = new JPopupMenu();
+    new PopupMenuAssembler(fileTreePopupMenu).populate(
+      "editor.filetree.popupmenu");
+
     m_fileTree = new FileTree(m_resources,
                               getErrorHandler(),
                               m_editorModel,
                               new BufferTreeModel(m_editorModel),
-                              fileTreeModel);
+                              fileTreeModel,
+                              editorSmallFont,
+                              fileTreePopupMenu);
 
     m_actionTable.add(m_fileTree.getOpenFileAction());
     m_actionTable.add(m_fileTree.getSetScriptAction());
@@ -369,24 +377,6 @@ public final class ConsoleUI implements ModelListener {
     editorPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
     editorPanel.add(editorControls.getComponent());
     editorPanel.add(editor.getComponent());
-
-    final JPopupMenu fileTreePopupMenu = new JPopupMenu();
-    new PopupMenuAssembler(fileTreePopupMenu).populate(
-      "editor.filetree.popupmenu");
-
-    m_fileTree.addTreeMouseListener(new MouseAdapter() {
-      public void mousePressed(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-          fileTreePopupMenu.show(e.getComponent(), e.getX(), e.getY());
-        }
-      }
-
-      public void mouseReleased(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-          fileTreePopupMenu.show(e.getComponent(), e.getX(), e.getY());
-        }
-      }
-    });
 
     final JToolBar fileTreeToolBar = new JToolBar();
     new ToolBarAssembler(fileTreeToolBar, true).populate("filetree.toolbar");
@@ -397,17 +387,16 @@ public final class ConsoleUI implements ModelListener {
     fileTreeComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
     fileTreeComponent.setPreferredSize(new Dimension(200, 100));
 
-    final JPanel editorControlPanel = new JPanel();
-    editorControlPanel.setLayout(
-      new BoxLayout(editorControlPanel, BoxLayout.Y_AXIS));
-    editorControlPanel.setBorder(BorderFactory.createEmptyBorder());
-    editorControlPanel.add(fileTreeToolBar);
-    editorControlPanel.add(fileTreeComponent);
+    final JPanel fileTreeControlPanel = new JPanel();
+    fileTreeControlPanel.setLayout(
+      new BoxLayout(fileTreeControlPanel, BoxLayout.Y_AXIS));
+    fileTreeControlPanel.setBorder(BorderFactory.createEmptyBorder());
+    fileTreeControlPanel.add(fileTreeToolBar);
+    fileTreeControlPanel.add(fileTreeComponent);
 
-    final JSplitPane scriptPane =
-      new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                     editorControlPanel,
-                     editorPanel);
+    final JSplitPane scriptPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                                                 fileTreeControlPanel,
+                                                 editorPanel);
 
     scriptPane.setOneTouchExpandable(true);
     scriptPane.setBorder(BorderFactory.createEmptyBorder());

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,14 +29,15 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -84,12 +85,13 @@ final class FileTree {
                   ErrorHandler errorHandler,
                   EditorModel editorModel,
                   BufferTreeModel bufferTreeModel,
-                  FileTreeModel fileTreeModel) {
+                  FileTreeModel fileTreeModel,
+                  Font font,
+                  JPopupMenu popupMenu) {
 
     m_resources = resources;
     m_errorHandler = errorHandler;
     m_editorModel = editorModel;
-
     m_bufferTreeModel = bufferTreeModel;
     m_fileTreeModel = fileTreeModel;
 
@@ -99,11 +101,9 @@ final class FileTree {
     compositeTreeModel.addTreeModel(m_fileTreeModel, true);
 
     m_tree = new JTree(compositeTreeModel) {
-        /**
-         * A new CustomTreeCellRenderer needs to be set whenever the
-         * L&F changes because its superclass constructor reads the
-         * resources.
-         */
+        // A new CustomTreeCellRenderer needs to be set whenever the
+        // L&F changes because its superclass constructor reads the
+        // resources.
         public void updateUI() {
           super.updateUI();
 
@@ -113,64 +113,27 @@ final class FileTree {
           // fully initialised. We hack to prevent this with the
           // following conditional.
           if (!isRootVisible()) {
-            setCellRenderer(new CustomTreeCellRenderer());
+            // Changing LAF to metal gets JTree background wrong without this.
+            setBackground(new JLabel().getBackground());
+
+            setCellRenderer(
+              new CustomTreeCellRenderer(getFont(), getBackground()));
           }
         }
       };
 
+    m_tree.setBackground(new JLabel().getBackground());
+    m_tree.setFont(font);
+
     m_tree.setRootVisible(false);
     m_tree.setShowsRootHandles(true);
 
-    m_tree.setCellRenderer(new CustomTreeCellRenderer());
+    m_tree.setCellRenderer(
+      new CustomTreeCellRenderer(m_tree.getFont(), m_tree.getBackground()));
     m_tree.getSelectionModel().setSelectionMode(
       TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-    addTreeMouseListener(new MouseAdapter() {
-      private boolean m_handledOnPress;
-
-      public void mousePressed(MouseEvent e) {
-        m_handledOnPress = false;
-
-        if (!e.isConsumed() && SwingUtilities.isLeftMouseButton(e)) {
-          final TreePath path =
-            m_tree.getPathForLocation(e.getX(), e.getY());
-
-          if (path == null) {
-            return;
-          }
-
-          final Object selectedNode = path.getLastPathComponent();
-
-          if (selectedNode instanceof Node) {
-            final Node node = (Node)selectedNode;
-            final int clickCount = e.getClickCount();
-
-            final boolean hasBuffer = node.getBuffer() != null;
-
-            if (clickCount == 2 ||
-                clickCount == 1 && hasBuffer) {
-              m_openAction.invoke(node);
-              m_handledOnPress = true;
-              e.consume();
-            }
-
-            if (clickCount == 2 && hasBuffer &&
-                m_setScriptAction.isEnabled()) {
-              m_setScriptAction.invoke();
-              m_handledOnPress = true;
-              e.consume();
-            }
-          }
-        }
-      }
-
-      public void mouseReleased(MouseEvent e) {
-        if (m_handledOnPress) {
-          // Prevent downstream event handlers from overriding our good work.
-          e.consume();
-        }
-      }
-    });
+    m_tree.addMouseListener(new MouseListener(popupMenu));
 
     m_tree.addTreeSelectionListener(new TreeSelectionListener() {
         public void valueChanged(TreeSelectionEvent e) {
@@ -195,14 +158,69 @@ final class FileTree {
                   new TeeAction(actionMap.get("toggle"), m_openAction));
 
     m_scrollPane = new JScrollPane(m_tree);
+    m_scrollPane.setBorder(BorderFactory.createEtchedBorder());
 
     m_editorModel.addListener(new EditorModelListener());
 
     updateActionState();
   }
 
-  public void addTreeMouseListener(MouseListener adapter) {
-    m_tree.addMouseListener(adapter);
+  private final class MouseListener extends MouseAdapter {
+    private final JPopupMenu m_popupMenu;
+
+    private boolean m_handledOnPress;
+
+    private MouseListener(JPopupMenu popupMenu) {
+      m_popupMenu = popupMenu;
+    }
+
+    public void mousePressed(MouseEvent e) {
+      m_handledOnPress = false;
+
+      if (!e.isConsumed() && SwingUtilities.isLeftMouseButton(e)) {
+        final TreePath path = m_tree.getPathForLocation(e.getX(), e.getY());
+
+        if (path == null) {
+          return;
+        }
+
+        final Object selectedNode = path.getLastPathComponent();
+
+        if (selectedNode instanceof Node) {
+          final Node node = (Node)selectedNode;
+          final int clickCount = e.getClickCount();
+
+          final boolean hasBuffer = node.getBuffer() != null;
+
+          if (clickCount == 2 || clickCount == 1 && hasBuffer) {
+            m_openAction.invoke(node);
+            m_handledOnPress = true;
+            e.consume();
+          }
+
+          if (clickCount == 2 && hasBuffer && m_setScriptAction.isEnabled()) {
+            m_setScriptAction.invoke();
+            m_handledOnPress = true;
+            e.consume();
+          }
+        }
+      }
+
+      if (e.isPopupTrigger()) {
+        m_popupMenu.show(e.getComponent(), e.getX(), e.getY());
+      }
+    }
+
+    public void mouseReleased(MouseEvent e) {
+      if (m_handledOnPress) {
+        // Prevent downstream event handlers from overriding our good work.
+        e.consume();
+      }
+
+      if (e.isPopupTrigger()) {
+        m_popupMenu.show(e.getComponent(), e.getX(), e.getY());
+      }
+    }
   }
 
   private class EditorModelListener extends EditorModel.AbstractListener {
@@ -382,9 +400,10 @@ final class FileTree {
 
     private boolean m_active;
 
-    CustomTreeCellRenderer() {
-      m_boldFont = new JLabel().getFont().deriveFont(Font.BOLD);
+    CustomTreeCellRenderer(Font baseFont, Color background) {
+      m_boldFont = baseFont.deriveFont(Font.BOLD);
       m_boldItalicFont = m_boldFont.deriveFont(Font.BOLD | Font.ITALIC);
+      m_defaultRenderer.setBackgroundNonSelectionColor(background);
     }
 
     public Component getTreeCellRendererComponent(
@@ -417,6 +436,7 @@ final class FileTree {
 
         final Buffer buffer = node.getBuffer();
 
+        // See note in paint().
         setTextNonSelectionColor(
           buffer == null && m_editorModel.isBoringFile(file) ?
           Colours.INACTIVE_TEXT : m_defaultRenderer.getTextNonSelectionColor());
@@ -456,17 +476,20 @@ final class FileTree {
 
       final Color backgroundColour;
 
+      // For some reason, setting the text non-selection colour doesn't
+      // work here. I've left the logic in anyway. That's why its set
+      // in getTreeCellRendererComponent().
       if (m_active) {
         backgroundColour = Colours.FAINT_YELLOW;
         setTextSelectionColor(Colours.BLACK);
         setTextNonSelectionColor(Colours.BLACK);
       }
       else if (selected) {
-        backgroundColour = getBackgroundSelectionColor();
+        backgroundColour = m_defaultRenderer.getBackgroundSelectionColor();
         setTextSelectionColor(m_defaultRenderer.getTextSelectionColor());
       }
       else {
-        backgroundColour = getBackgroundNonSelectionColor();
+        backgroundColour = m_defaultRenderer.getBackgroundNonSelectionColor();
         setTextNonSelectionColor(m_defaultRenderer.getTextNonSelectionColor());
       }
 
