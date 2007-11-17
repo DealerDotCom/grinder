@@ -591,7 +591,15 @@ public final class ConsoleUI implements ModelListener {
     }
 
     protected void token(String menuItemKey) {
-      final JMenuItem menuItem = new JMenuItem();
+      final JMenuItem menuItem = new JMenuItem() {
+
+        public Dimension getPreferredSize() {
+          final Dimension d = super.getPreferredSize();
+          d.height = (int) (d.height * 0.9);
+          return d;
+        }
+      };
+
       m_actionTable.setAction(menuItem, menuItemKey);
 
       getComponent().add(menuItem);
