@@ -359,8 +359,6 @@ public final class ConsoleUI implements ModelListener {
       fileTreeModel.new RefreshChangedDirectoriesListener());
 
     final JPopupMenu fileTreePopupMenu = new JPopupMenu();
-    new PopupMenuAssembler(fileTreePopupMenu).populate(
-      "editor.filetree.popupmenu");
 
     m_fileTree = new FileTree(m_resources,
                               getErrorHandler(),
@@ -372,6 +370,9 @@ public final class ConsoleUI implements ModelListener {
 
     m_actionTable.add(m_fileTree.getOpenFileAction());
     m_actionTable.add(m_fileTree.getSetScriptAction());
+
+    new PopupMenuAssembler(fileTreePopupMenu).populate(
+      "editor.filetree.popupmenu");
 
     final JPanel editorPanel = new JPanel();
     editorPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
