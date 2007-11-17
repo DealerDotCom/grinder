@@ -183,14 +183,12 @@ public final class FileDistributionImplementation implements FileDistribution {
    *
    * <p>
    * This method is too coupled to the agent cache. Perhaps this and the file
-   * watcher support should be factored out into a separate class. Currently,
-   * the file listeners only get notification for things that match the
-   * distribution filter. This causes some very minor bugs, e.g. the editor file
-   * tree won't refresh for changes to the contents of CVS directories. On the
-   * other hand, if the agent cache was receiving notifications, it would have
-   * to apply the distribution filter itself - to do this right would require
-   * filtering the contents of directories that don't pass the distribution
-   * filter, which is a pain to do efficiently.
+   * watcher support should be factored out into a separate class.
+   * </p>
+   *
+   * <p>
+   * Currently, the file listeners only get notification for things that match
+   * the distribution filter.
    * </p>
    */
   public void scanDistributionFiles() {
