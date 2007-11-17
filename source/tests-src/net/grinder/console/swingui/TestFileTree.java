@@ -23,6 +23,7 @@ package net.grinder.console.swingui;
 
 import java.awt.BorderLayout;
 import java.io.File;
+import java.io.FileFilter;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -67,6 +68,12 @@ public class TestFileTree extends AbstractFileTestCase {
   private final FileChangeWatcher m_fileChangeWatcher =
     (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
 
+  private final FileFilter m_nullFileFilter = new FileFilter() {
+      public boolean accept(File pathname) {
+        return true;
+      }
+    };
+
   public void testConstruction() throws Exception {
     final EditorModel editorModel = new EditorModel(s_resources,
                                                     m_textSourceFactory,
@@ -74,7 +81,8 @@ public class TestFileTree extends AbstractFileTestCase {
                                                     m_fileChangeWatcher);
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
-    final FileTreeModel fileTreeModel = new FileTreeModel(editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(editorModel, m_nullFileFilter);
     fileTreeModel.setRootDirectory(new File("c:"));
 
     final FileTree fileTree = new FileTree(s_resources,
@@ -95,7 +103,8 @@ public class TestFileTree extends AbstractFileTestCase {
                                                     m_fileChangeWatcher);
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
-    final FileTreeModel fileTreeModel = new FileTreeModel(editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(editorModel, m_nullFileFilter);
 
     fileTreeModel.setRootDirectory(new File("c:"));
 
@@ -139,7 +148,8 @@ public class TestFileTree extends AbstractFileTestCase {
                                                     m_fileChangeWatcher);
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
-    final FileTreeModel fileTreeModel = new FileTreeModel(editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(editorModel, m_nullFileFilter);
 
     fileTreeModel.setRootDirectory(getDirectory());
 

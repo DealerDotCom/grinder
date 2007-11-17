@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,7 @@
 package net.grinder.console.swingui;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 
 import java.util.ArrayList;
@@ -47,8 +48,25 @@ import net.grinder.util.WeakValueHashMap;
  */
 final class FileTreeModel implements TreeModel {
 
-  private final EditorModel m_editorModel;
   private final EventListenerList m_listeners = new EventListenerList();
+  private final EditorModel m_editorModel;
+  private final FileFilter m_distributionFileFilter;
+
+  private final FilenameFilter m_directoryFilter =
+    new FilenameFilter() {
+      public boolean accept(File dir, String name) {
+        final File file = new File(dir, name);
+        return file.isDirectory() && m_distributionFileFilter.accept(file);
+      }
+    };
+
+  private final FilenameFilter m_fileFilter =
+    new FilenameFilter() {
+      public boolean accept(File dir, String name) {
+        final File file = new File(dir, name);
+        return file.isFile() && m_distributionFileFilter.accept(file);
+      }
+    };
 
   /**
    * Map from a File value to the latest Node to be created for the File.
@@ -63,8 +81,9 @@ final class FileTreeModel implements TreeModel {
 
   private RootNode m_rootNode;
 
-  FileTreeModel(EditorModel editorModel) {
+  FileTreeModel(EditorModel editorModel, FileFilter distributionFileFilter) {
     m_editorModel = editorModel;
+    m_distributionFileFilter = distributionFileFilter;
   }
 
   public void setRootDirectory(File rootDirectory) {
@@ -168,20 +187,6 @@ final class FileTreeModel implements TreeModel {
   public void valueForPathChanged(TreePath path, Object newValue) {
     fireTreeNodesChanged(path);
   }
-
-  private static final FilenameFilter s_directoryFilter =
-    new FilenameFilter() {
-      public boolean accept(File dir, String name) {
-        return new File(dir, name).isDirectory();
-      }
-    };
-
-  private static final FilenameFilter s_fileFilter =
-    new FilenameFilter() {
-      public boolean accept(File dir, String name) {
-        return new File(dir, name).isFile();
-      }
-    };
 
   /**
    * Find the {Node} for a file. If a particular part of the file path
@@ -390,11 +395,11 @@ final class FileTreeModel implements TreeModel {
         }
       }
 
-      final File[] directories = getFile().listFiles(s_directoryFilter);
+      final File[] directories = getFile().listFiles(m_directoryFilter);
       m_childDirectories = directories != null ? directories : m_noFiles;
       m_childDirectoryNodes = new DirectoryNode[m_childDirectories.length];
 
-      final File[] files = getFile().listFiles(s_fileFilter);
+      final File[] files = getFile().listFiles(m_fileFilter);
       m_childFiles = files != null ? files : m_noFiles;
       m_childFileNodes = new FileNode[m_childFiles.length];
     }

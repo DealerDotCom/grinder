@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -16,9 +16,8 @@
 
 package net.grinder.console.distribution;
 
-import java.util.regex.Pattern;
+import java.io.FileFilter;
 
-import net.grinder.util.Directory;
 
 
 /**
@@ -26,9 +25,8 @@ import net.grinder.util.Directory;
  * {@link FileDistributionHandler}s.
  *
  * <p>
- * The agent cache state is reset if the parameters passed to
- * {@link #getHandler} change. Client code can actively invalidate the agent
- * cache state by calling .{@link AgentCacheStateImplementation#setOutOfDate()}
+ * Client code can actively invalidate the agent cache state by calling
+ * {@link AgentCacheStateImplementation#setOutOfDate()}
  * on the result of {@link #getAgentCacheState}. They may want to do this, for
  * example, if a parameter they will pass to {@link #getHandler} changes and
  * they are using events from the {@link AgentCacheState} to update a UI.
@@ -56,25 +54,22 @@ public interface FileDistribution extends FileChangeWatcher {
    * Using multiple instances concurrently will result in undefined
    * behaviour.</p>
    *
-   * @param directory The base distribution directory.
-   * @param distributionFileFilterPattern Current filter pattern.
    * @return Handler for new file distribution.
    */
-  FileDistributionHandler getHandler(
-    Directory directory,
-    Pattern distributionFileFilterPattern);
+  FileDistributionHandler getHandler();
 
   /**
    * Scan the given directory for files that have been recently modified. Update
    * the agent cache state appropriately. Notify our listeners if changed files
    * are discovered.
-   *
-   * @param directory
-   *          The directory to scan.
-   * @param distributionFileFilterPattern
-   *          Current filter pattern.
    */
-  void scanDistributionFiles(
-    Directory directory,
-    Pattern distributionFileFilterPattern);
+  void scanDistributionFiles();
+
+  /**
+   * Return a FileFilter that can be used to test  whether the given file is
+   * one that will be distributed.
+   *
+   * @return The filter.
+   */
+  FileFilter getDistributionFileFilter();
 }

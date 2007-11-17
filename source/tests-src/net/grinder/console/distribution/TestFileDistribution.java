@@ -54,19 +54,21 @@ public class TestFileDistribution extends AbstractFileTestCase {
     final DistributionControl distributionControl =
       (DistributionControl)distributionControlStubFactory.getStub();
 
-    final FileDistribution fileDistribution =
-      new FileDistributionImplementation(distributionControl);
+    final Directory directory1 = new Directory(getDirectory());
+
+    final FileDistributionImplementation fileDistribution =
+      new FileDistributionImplementation(distributionControl,
+                                         directory1,
+                                         m_matchIgnoredPattern);
 
     distributionControlStubFactory.assertNoMoreCalls();
-
-    final Directory directory1 = new Directory(getDirectory());
 
     final File anotherFile = new File(getDirectory(), "foo");
     anotherFile.mkdir();
     final Directory directory2 = new Directory(anotherFile);
 
     final FileDistributionHandler fileDistributionHandler1 =
-      fileDistribution.getHandler(directory1, m_matchIgnoredPattern);
+      fileDistribution.getHandler();
 
     distributionControlStubFactory.assertSuccess("clearFileCaches");
     distributionControlStubFactory.assertNoMoreCalls();
@@ -79,15 +81,17 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     // Test with same directory.
     final FileDistributionHandler fileDistributionHandler2 =
-      fileDistribution.getHandler(directory1, m_matchIgnoredPattern);
+      fileDistribution.getHandler();
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler2);
     distributionControlStubFactory.assertNoMoreCalls();
 
     // Test with a different directory, should now need to flush the
     // file caches.
+    fileDistribution.setDirectory(directory2);
+
     final FileDistributionHandler fileDistributionHandler3 =
-      fileDistribution.getHandler(directory2, m_matchIgnoredPattern);
+      fileDistribution.getHandler();
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler3);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler3);
@@ -99,8 +103,10 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     // Test with the same directory, but a different pattern, should
     // need to flush.
+    fileDistribution.setFileFilterPattern(m_matchAllPattern);
+
     final FileDistributionHandler fileDistributionHandler4 =
-      fileDistribution.getHandler(directory2, m_matchAllPattern);
+      fileDistribution.getHandler();
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler4);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler4);
@@ -113,8 +119,10 @@ public class TestFileDistribution extends AbstractFileTestCase {
     agentCacheState.updateComplete();
 
     // Test with original directory.
+    fileDistribution.setDirectory(directory1);
+
     final FileDistributionHandler fileDistributionHandler5 =
-      fileDistribution.getHandler(directory1, m_matchAllPattern);
+      fileDistribution.getHandler();
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler5);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler5);
@@ -125,7 +133,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     agentCacheState.setOutOfDate();
 
     final FileDistributionHandler fileDistributionHandler6 =
-      fileDistribution.getHandler(directory1, m_matchAllPattern);
+      fileDistribution.getHandler();
 
     assertNotSame(fileDistributionHandler5, fileDistributionHandler6);
     distributionControlStubFactory.assertSuccess("clearFileCaches");
@@ -153,11 +161,15 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     final Directory directory = new Directory(getDirectory());
 
-    final FileDistribution fileDistribution =
-      new FileDistributionImplementation(distributionControl, agentCacheState);
+    final FileDistributionImplementation fileDistribution =
+      new FileDistributionImplementation(
+        distributionControl,
+        agentCacheState,
+        directory,
+        m_matchIgnoredPattern);
     fileDistribution.addFileChangedListener(filesChangedListener);
 
-    fileDistribution.scanDistributionFiles(directory, m_matchIgnoredPattern);
+    fileDistribution.scanDistributionFiles();
     assertEquals(0, agentCacheState.getEarliestFileTime());
 
     final CallData filesChangedCall =
@@ -177,7 +189,9 @@ public class TestFileDistribution extends AbstractFileTestCase {
     oldFile.setLastModified(0);
     file2.setLastModified(file1.lastModified() + 5000);
 
-    fileDistribution.scanDistributionFiles(directory, m_matchAllPattern);
+    fileDistribution.setDirectory(directory);
+    fileDistribution.setFileFilterPattern(m_matchAllPattern);
+    fileDistribution.scanDistributionFiles();
     assertEquals(0, agentCacheState.getEarliestFileTime());
     fileListenerStubFactory.assertNoMoreCalls();
 
@@ -187,7 +201,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
     file2.createNewFile();
     file2.setLastModified(file1.lastModified() + 5000);
 
-    fileDistribution.scanDistributionFiles(directory, m_matchIgnoredPattern);
+    fileDistribution.setFileFilterPattern(m_matchIgnoredPattern);
+    fileDistribution.scanDistributionFiles();
     assertEquals(file1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
@@ -207,7 +222,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     file4.createNewFile();
     agentCacheStateStubFactory.setEarliestFileTime(0);
     agentCacheStateStubFactory.resetOutOfDate();
-    fileDistribution.scanDistributionFiles(directory, m_matchIgnoredPattern);
+    fileDistribution.scanDistributionFiles();
     assertEquals(file4.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
     fileListenerStubFactory.resetCallHistory();
@@ -225,8 +240,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
     oldDirectory.setLastModified(0);
     file2.setLastModified(file1.lastModified() + 5000);
 
-    fileDistribution.scanDistributionFiles(
-      new Directory(testDirectory), m_matchIgnoredPattern);
+    fileDistribution.setDirectory(new Directory(testDirectory));
+    fileDistribution.scanDistributionFiles();
     assertEquals(directory1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
@@ -243,7 +258,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
     // If the cache has been reset, we scan the lot.
     agentCacheStateStubFactory.setEarliestFileTime(-1);
     agentCacheStateStubFactory.firePropertyChangeListener();
-    fileDistribution.scanDistributionFiles(directory, m_matchIgnoredPattern);
+    fileDistribution.setDirectory(directory);
+    fileDistribution.scanDistributionFiles();
     assertEquals(0, agentCacheStateStubFactory.getEarliestOutOfDateTime());
     fileListenerStubFactory.resetCallHistory();
 
@@ -256,7 +272,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     FileUtilities.setCanAccess(subdirectory.getFile(), false);
 
-    fileDistribution.scanDistributionFiles(subdirectory, m_matchIgnoredPattern);
+    fileDistribution.setDirectory(subdirectory);
+    fileDistribution.scanDistributionFiles();
 
     assertEquals(f1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
@@ -314,9 +331,9 @@ public class TestFileDistribution extends AbstractFileTestCase {
   public void testFilter() throws Exception {
     final Pattern pattern = Pattern.compile("^a.*[^/]$|.*exclude.*|.*b/$");
 
-    final FileFilter filter =
-      new FileDistributionImplementation.FileDistributionFilter(
-        pattern, 100000L);
+    final FileDistributionImplementation.DistributionFileFilter filter =
+      new FileDistributionImplementation.DistributionFileFilter(pattern);
+    filter.setEarliestTime(100000L);
 
     final String[] acceptableFilenames = new String[] {
       "DoesntStartWithA.acceptable",
@@ -398,5 +415,46 @@ public class TestFileDistribution extends AbstractFileTestCase {
     readMeFile.delete();
     assertTrue(fileStoreDirectory.getPath() + " is acceptable",
                filter.accept(fileStoreDirectory));
+  }
+
+  public void testIsDistributableFile() throws Exception {
+    final Pattern pattern = Pattern.compile("^a.*[^/]$|.*exclude.*|.*b/$");
+
+    final FileDistributionImplementation fileDistribution =
+      new FileDistributionImplementation(null, null, pattern);
+    final FileFilter filter = fileDistribution.getDistributionFileFilter();
+
+    final String[] acceptableFilenames = new String[] {
+      "DoesntStartWithA.acceptable",
+      "blah blah blah",
+      "blah-file-store",
+    };
+
+    for (int i = 0; i < acceptableFilenames.length; ++i) {
+      final File f = new File(getDirectory(), acceptableFilenames[i]);
+      f.createNewFile();
+      assertTrue(f.getPath() + " is distributable", filter.accept(f));
+    }
+
+    final String[] unacceptableFileNames = new String[] {
+      "exclude me",
+      "a file beginning with a",
+      "a directory ending with b",
+    };
+
+    for (int i = 0; i < unacceptableFileNames.length; ++i) {
+      final File f = new File(getDirectory(), unacceptableFileNames[i]);
+      f.createNewFile();
+
+      assertTrue(f.getPath() + " is not distributable", !filter.accept(f));
+    }
+
+    // filter should still be valid if pattern changes.
+    fileDistribution.setFileFilterPattern(Pattern.compile(".*exclude.*"));
+
+    assertTrue(!filter.accept(new File(getDirectory(), "exclude me")));
+    assertTrue(
+      filter.accept(new File(getDirectory(), "a file begining with a")));
+
   }
 }

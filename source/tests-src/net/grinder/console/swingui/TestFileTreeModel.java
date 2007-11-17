@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,7 @@
 package net.grinder.console.swingui;
 
 import java.io.File;
+import java.io.FileFilter;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -72,8 +73,15 @@ public class TestFileTreeModel extends AbstractFileTestCase {
                                                     m_agentCacheState,
                                                     m_fileChangeWatcher);
 
+  private final FileFilter m_nullFileFilter = new FileFilter() {
+      public boolean accept(File pathname) {
+        return true;
+      }
+    };
+
   public void testWithRootNode() throws Exception {
-    final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(m_editorModel, m_nullFileFilter);
     assertNull(fileTreeModel.getRoot());
 
     fileTreeModel.setRootDirectory(getDirectory());
@@ -83,7 +91,8 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     assertEquals(getDirectory(), rootNode.getFile());
     assertEquals(getDirectory().getPath(), rootNode.toString());
 
-    final FileTreeModel fileTreeModel2 = new FileTreeModel(m_editorModel);
+    final FileTreeModel fileTreeModel2 =
+      new FileTreeModel(m_editorModel, m_nullFileFilter);
     assertTrue(rootNode.belongsToModel(fileTreeModel));
     assertFalse(rootNode.belongsToModel(fileTreeModel2));
 
@@ -110,7 +119,8 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     final TreeModelListener listener2 =
       (TreeModelListener)listenerStubFactory2.getStub();
 
-    final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(m_editorModel, m_nullFileFilter);
     fileTreeModel.addTreeModelListener(listener1);
     fileTreeModel.addTreeModelListener(listener2);
 
@@ -172,8 +182,10 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     final File file3 = new File(dir1, "file3");
     file3.createNewFile();
 
-    final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
-    final FileTreeModel fileTreeModel2 = new FileTreeModel(m_editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(m_editorModel, m_nullFileFilter);
+    final FileTreeModel fileTreeModel2 =
+      new FileTreeModel(m_editorModel, m_nullFileFilter);
     fileTreeModel.setRootDirectory(getDirectory());
     final Node rootNode = (Node)fileTreeModel.getRoot();
 
@@ -197,7 +209,8 @@ public class TestFileTreeModel extends AbstractFileTestCase {
   }
 
   public void testRefreshAndFindNode() throws Exception {
-    final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(m_editorModel, m_nullFileFilter);
     fileTreeModel.setRootDirectory(getDirectory());
     final Node rootNode = (Node)fileTreeModel.getRoot();
 
@@ -271,7 +284,8 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     final File file1 = new File(getDirectory(), "file1");
     file1.createNewFile();
 
-    final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(m_editorModel, m_nullFileFilter);
     fileTreeModel.setRootDirectory(getDirectory());
     final FileNode file1Node = (FileNode)fileTreeModel.findNode(file1);
 
@@ -302,7 +316,8 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     final File file3 = new File(dir1, "file3");
     file3.createNewFile();
 
-    final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(m_editorModel, m_nullFileFilter);
     fileTreeModel.setRootDirectory(getDirectory());
 
     final RandomStubFactory listenerStubFactory =

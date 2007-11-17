@@ -54,23 +54,43 @@ public final class FileDistributionImplementation implements FileDistribution {
   // Guarded by this.
   private long m_lastScanTime;
 
-  private Directory m_lastDirectory;
-  private Pattern m_lastFileFilterPattern;
+  // Guarded by this.
+  private Directory m_directory;
+
+  // Guarded by this.
+  private DistributionFileFilter m_distributionFilter;
 
   /**
    * Constructor.
    *
    * @param distributionControl A <code>DistributionControl</code>.
+   * @param directory The base distribution directory.
+   * @param distributionFileFilterPattern -
+   *            The filter. Files with names that match this pattern will be
+   *            filtered out.
    */
   public FileDistributionImplementation(
-    DistributionControl distributionControl) {
-    this(distributionControl, new AgentCacheStateImplementation());
+    DistributionControl distributionControl,
+    Directory directory,
+    Pattern distributionFileFilterPattern) {
+    this(distributionControl,
+         new AgentCacheStateImplementation(),
+         directory,
+         distributionFileFilterPattern);
   }
 
+  /**
+   * <p>Package scope for unit tests.</p>
+   */
   FileDistributionImplementation(DistributionControl distributionControl,
-                                 UpdateableAgentCacheState agentCacheState) {
+                                 UpdateableAgentCacheState agentCacheState,
+                                 Directory directory,
+                                 Pattern distributionFileFilterPattern) {
+
     m_distributionControl = distributionControl;
     m_cacheState = agentCacheState;
+    setDirectory(directory);
+    setFileFilterPattern(distributionFileFilterPattern);
 
     m_cacheState.addListener(new PropertyChangeListener() {
       public void propertyChange(PropertyChangeEvent event) {
@@ -81,6 +101,35 @@ public final class FileDistributionImplementation implements FileDistribution {
         }
       }
     });
+  }
+
+  /**
+   * Update the distribution directory.
+   *
+   * @param directory The base distribution directory.
+   */
+  public void setDirectory(Directory directory) {
+    synchronized (this) {
+      m_directory = directory;
+    }
+
+    m_cacheState.setOutOfDate();
+  }
+
+  /**
+   * Update the pattern used to filter out files that shouldn't be distributed.
+   *
+   * @param distributionFileFilterPattern -
+   *            The filter. Files with names that match this pattern will be
+   *            filtered out.
+   */
+  public void setFileFilterPattern(Pattern distributionFileFilterPattern) {
+    synchronized (this) {
+      m_distributionFilter =
+        new DistributionFileFilter(distributionFileFilterPattern);
+    }
+
+    m_cacheState.setOutOfDate();
   }
 
   /**
@@ -102,29 +151,13 @@ public final class FileDistributionImplementation implements FileDistribution {
    * Using multiple instances concurrently will result in undefined
    * behaviour.</p>
    *
-   * @param directory The base distribution directory.
-   * @param distributionFileFilterPattern Current filter pattern.
    * @return Handler for new file distribution.
    */
-  public FileDistributionHandler getHandler(
-    Directory directory,
-    Pattern distributionFileFilterPattern) {
-
-    if (m_lastDirectory == null ||
-        !m_lastDirectory.equals(directory) ||
-        m_lastFileFilterPattern == null ||
-        !m_lastFileFilterPattern.pattern().equals(
-            distributionFileFilterPattern.pattern())) {
-
-      m_cacheState.setOutOfDate();
-
-      m_lastDirectory = directory;
-      m_lastFileFilterPattern = distributionFileFilterPattern;
-    }
+  public FileDistributionHandler getHandler() {
 
     // Scan to ensure we've seen what we're about to distribute and don't
     // invalidate the cache immediately after distribution.
-    scanDistributionFiles(directory, distributionFileFilterPattern);
+    scanDistributionFiles();
 
     final long earliestFileTime = m_cacheState.getEarliestFileTime();
 
@@ -132,13 +165,15 @@ public final class FileDistributionImplementation implements FileDistribution {
       m_distributionControl.clearFileCaches();
     }
 
-    return new FileDistributionHandlerImplementation(
-      directory.getFile(),
-      directory.listContents(
-        new FileDistributionFilter(distributionFileFilterPattern,
-                                   earliestFileTime)),
-      m_distributionControl,
-      m_cacheState);
+    synchronized (this) {
+      m_distributionFilter.setEarliestTime(earliestFileTime);
+
+      return new FileDistributionHandlerImplementation(
+        m_directory.getFile(),
+        m_directory.listContents(m_distributionFilter),
+        m_distributionControl,
+        m_cacheState);
+    }
   }
 
   /**
@@ -157,20 +192,17 @@ public final class FileDistributionImplementation implements FileDistribution {
    * filtering the contents of directories that don't pass the distribution
    * filter, which is a pain to do efficiently.
    * </p>
-   *
-   * @param directory
-   *          The directory to scan.
-   * @param distributionFileFilterPattern
-   *          Current filter pattern.
    */
-  public void scanDistributionFiles(
-    Directory directory,
-    Pattern distributionFileFilterPattern) {
+  public void scanDistributionFiles() {
 
     final long scanTime;
+    final Directory directory;
+    final DistributionFileFilter filter;
 
     synchronized (this) {
       scanTime = m_lastScanTime;
+      directory = m_directory;
+      filter = m_distributionFilter;
     }
 
     // We only work with times obtained from the file system. This avoids
@@ -200,10 +232,9 @@ public final class FileDistributionImplementation implements FileDistribution {
       }
     }
 
-    final File[] laterFiles =
-      directory.listContents(
-        new FileDistributionFilter(distributionFileFilterPattern, scanTime),
-        true, true);
+    filter.setEarliestTime(scanTime);
+
+    final File[] laterFiles = directory.listContents(filter, true, true);
 
     if (laterFiles.length > 0) {
       final Set changedFiles = new HashSet(laterFiles.length / 2);
@@ -245,20 +276,18 @@ public final class FileDistributionImplementation implements FileDistribution {
     m_filesChangedListeners.add(listener);
   }
 
-
   /**
-   * File Distribution Filter.
-   *
-   * @author Philip Aston
-   * @version $Revision$
+   * Package scope for unit tests.
    */
-  static final class FileDistributionFilter implements FileFilter {
+  static final class DistributionFileFilter implements FileFilter {
     private final Pattern m_distributionFileFilterPattern;
-    private final long m_earliestTime;
+    private long m_earliestTime = -1;
 
-    public FileDistributionFilter(Pattern distributionFileFilterPattern,
-                                  long earliestTime) {
+    public DistributionFileFilter(Pattern distributionFileFilterPattern) {
       m_distributionFileFilterPattern = distributionFileFilterPattern;
+    }
+
+    public void setEarliestTime(long earliestTime) {
       m_earliestTime = earliestTime;
     }
 
@@ -292,5 +321,25 @@ public final class FileDistributionImplementation implements FileDistribution {
         return file.lastModified() >= m_earliestTime;
       }
     }
+  }
+
+
+  /**
+   * Return a FileFilter that can be used to test  whether the given file is
+   * one that will be distributed.
+   *
+   * @return The filter.
+   */
+  public FileFilter getDistributionFileFilter() {
+    // We don't simple return m_distributionFilter, since it can change.
+
+    return new FileFilter() {
+      public boolean accept(File file) {
+        synchronized (FileDistributionImplementation.this) {
+          m_distributionFilter.setEarliestTime(-1);
+          return m_distributionFilter.accept(file);
+        }
+      }
+    };
   }
 }

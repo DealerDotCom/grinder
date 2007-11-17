@@ -27,6 +27,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
@@ -41,7 +42,6 @@ import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessControlImplementation;
 import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.communication.server.DispatchClientCommands;
-import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionImplementation;
 import net.grinder.console.messages.RegisterExpressionViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
@@ -50,6 +50,7 @@ import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.ModelImplementation;
 import net.grinder.console.swingui.ConsoleUI;
 import net.grinder.statistics.StatisticsServicesImplementation;
+import net.grinder.util.Directory;
 
 
 /**
@@ -92,15 +93,15 @@ public class Console {
     m_communication =
       new ConsoleCommunicationImplementation(resources, properties, timer, 500);
 
-    final FileDistribution fileDistribution =
+    final FileDistributionImplementation fileDistribution =
       new FileDistributionImplementation(
-        new DistributionControlImplementation(m_communication));
+        new DistributionControlImplementation(m_communication),
+        properties.getDistributionDirectory(),
+        properties.getDistributionFileFilterPattern());
 
     timer.schedule(new TimerTask() {
         public void run() {
-          fileDistribution.scanDistributionFiles(
-            properties.getDistributionDirectory(),
-            properties.getDistributionFileFilterPattern());
+          fileDistribution.scanDistributionFiles();
         }
       },
       properties.getScanDistributionFilesPeriod(),
@@ -125,11 +126,12 @@ public class Console {
           final String propertyName = e.getPropertyName();
 
           if (propertyName.equals(
-                ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY) ||
-              propertyName.equals(
-                ConsoleProperties.
-                DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY)) {
-            fileDistribution.getAgentCacheState().setOutOfDate();
+            ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY)) {
+            fileDistribution.setDirectory((Directory)e.getNewValue());
+          }
+          else if (propertyName.equals(
+            ConsoleProperties.DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY)) {
+            fileDistribution.setFileFilterPattern((Pattern) e.getNewValue());
           }
         }
       });

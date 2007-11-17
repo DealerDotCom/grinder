@@ -38,7 +38,8 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
   public void testAgentCacheStateImplementation() throws Exception {
 
-    final FileDistribution fileDistribution = new FileDistributionImplementation(null);
+    final FileDistribution fileDistribution =
+      new FileDistributionImplementation(null, null, null);
 
     final AgentCacheStateImplementation cacheState =
       (AgentCacheStateImplementation)fileDistribution.getAgentCacheState();

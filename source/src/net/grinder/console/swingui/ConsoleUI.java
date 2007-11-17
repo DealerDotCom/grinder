@@ -340,7 +340,9 @@ public final class ConsoleUI implements ModelListener {
 
     final Editor editor = new Editor(m_editorModel);
 
-    final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
+    final FileTreeModel fileTreeModel =
+      new FileTreeModel(m_editorModel,
+                        m_fileDistribution.getDistributionFileFilter());
     fileTreeModel.setRootDirectory(
       m_model.getProperties().getDistributionDirectory().getFile());
 
@@ -1474,13 +1476,8 @@ public final class ConsoleUI implements ModelListener {
 
     public void actionPerformed(ActionEvent event) {
 
-      final Directory directory =
-        m_model.getProperties().getDistributionDirectory();
-
       final FileDistributionHandler distributionHandler =
-        m_fileDistribution.getHandler(
-          directory,
-          m_model.getProperties().getDistributionFileFilterPattern());
+        m_fileDistribution.getHandler();
 
       final ProgressMonitor progressMonitor =
         new ProgressMonitor(m_frame, getValue(NAME), "", 0, 100);
