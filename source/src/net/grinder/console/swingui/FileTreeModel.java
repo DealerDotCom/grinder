@@ -26,6 +26,7 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.event.EventListenerList;
@@ -396,11 +397,27 @@ final class FileTreeModel implements TreeModel {
       }
 
       final File[] directories = getFile().listFiles(m_directoryFilter);
-      m_childDirectories = directories != null ? directories : m_noFiles;
+
+      if (directories != null) {
+        Arrays.sort(directories);
+        m_childDirectories = directories;
+      }
+      else {
+        m_childDirectories = m_noFiles;
+      }
+
       m_childDirectoryNodes = new DirectoryNode[m_childDirectories.length];
 
       final File[] files = getFile().listFiles(m_fileFilter);
-      m_childFiles = files != null ? files : m_noFiles;
+
+      if (files != null) {
+        Arrays.sort(files);
+        m_childFiles = files;
+      }
+      else {
+        m_childFiles = m_noFiles;
+      }
+
       m_childFileNodes = new FileNode[m_childFiles.length];
     }
 
