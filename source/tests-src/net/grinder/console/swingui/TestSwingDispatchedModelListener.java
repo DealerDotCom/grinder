@@ -56,22 +56,29 @@ public class TestSwingDispatchedModelListener extends TestCase {
 
     assertTrue(listener.m_updateCalled);
 
+
     final Set myTests = new HashSet();
     final ModelTestIndex myModelTestIndex = new ModelTestIndex();
-    listener.newTests(myTests, myModelTestIndex);
+    swingDispatchedListener.newTests(myTests, myModelTestIndex);
     SwingUtilities.invokeAndWait(m_voidRunnable);
     assertTrue(listener.m_newTestsCalled);
     assertSame(myTests, listener.m_newTests);
     assertSame(myModelTestIndex, listener.m_modelTestIndex);
 
+
     final ExpressionView view1 =
       StatisticsServicesImplementation.getInstance()
       .getStatisticExpressionFactory()
       .createExpressionView("foo", "errors", false);
-    listener.newStatisticExpression(view1);
+    swingDispatchedListener.newStatisticExpression(view1);
     SwingUtilities.invokeAndWait(m_voidRunnable);
-    assertTrue(listener.m_updateCalled);
+    assertTrue(listener.m_newStatisticsViewsCalled);
     assertSame(view1, listener.m_newStaticticExpression);
+
+
+    swingDispatchedListener.resetTestsAndStatisticsViews();
+    SwingUtilities.invokeAndWait(m_voidRunnable);
+    assertTrue(listener.m_resetTestsAndStatisticsViewsCalled);
   }
 
   private static class MyModelListener implements ModelListener {
@@ -96,17 +103,12 @@ public class TestSwingDispatchedModelListener extends TestCase {
     }
 
     public void newStatisticExpression(ExpressionView statisticExpression) {
-
       m_newStatisticsViewsCalled = true;
       m_newStaticticExpression = statisticExpression;
     }
 
     public void resetTestsAndStatisticsViews() {
       m_resetTestsAndStatisticsViewsCalled = true;
-    }
-
-    public boolean getResetTestsAndStatisticsViewsCalled() {
-      return m_resetTestsAndStatisticsViewsCalled;
     }
   }
 }
