@@ -87,6 +87,8 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     fileTreeModel.setRootDirectory(getDirectory());
     final Node rootNode = (Node)fileTreeModel.getRoot();
     assertFalse(rootNode instanceof FileNode);
+    assertFalse(rootNode.canOpen());
+    assertNull(rootNode.getBuffer());
 
     assertEquals(getDirectory(), rootNode.getFile());
     assertEquals(getDirectory().getPath(), rootNode.toString());
@@ -188,11 +190,14 @@ public class TestFileTreeModel extends AbstractFileTestCase {
       new FileTreeModel(m_editorModel, m_nullFileFilter);
     fileTreeModel.setRootDirectory(getDirectory());
     final Node rootNode = (Node)fileTreeModel.getRoot();
+    assertFalse(rootNode.canOpen());
+    assertNull(rootNode.getBuffer());
 
     assertEquals(2, fileTreeModel.getChildCount(rootNode));
     final Node dir1Node = (Node)fileTreeModel.getChild(rootNode, 0);
     final FileNode file1Node = (FileNode)fileTreeModel.getChild(rootNode, 1);
     assertEquals(file1.getName(), file1Node.toString());
+    assertTrue(file1Node.canOpen());
 
     assertNull(fileTreeModel.getChild(file1Node, 0));
     assertEquals(0, fileTreeModel.getChildCount(file1Node));
