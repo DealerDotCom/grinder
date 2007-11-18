@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,7 +27,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import javax.swing.JFrame;
 
-import net.grinder.console.common.DisplayMessageConsoleException;
+import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.ConsoleProperties;
 
 
@@ -107,7 +107,7 @@ final class FrameBounds {
                          bounds.height - 2 * amount);
   }
 
-  public void store() throws DisplayMessageConsoleException {
+  public void store() throws ConsoleException {
     m_properties.setFrameBounds(m_frame.getBounds());
   }
 }

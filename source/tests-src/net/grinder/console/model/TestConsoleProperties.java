@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,7 @@ import java.util.regex.PatternSyntaxException;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
+import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
@@ -73,7 +74,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       }
 
       protected void set(ConsoleProperties properties, int i)
-        throws DisplayMessageConsoleException {
+        throws ConsoleException {
         properties.setCollectSampleCount(i);
       }
     }.doTest();
@@ -89,7 +90,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       }
 
       protected void set(ConsoleProperties properties, int i)
-        throws DisplayMessageConsoleException {
+        throws ConsoleException {
         properties.setIgnoreSampleCount(i);
       }
     }.doTest();
@@ -105,7 +106,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       }
 
       protected void set(ConsoleProperties properties, int i)
-        throws DisplayMessageConsoleException {
+        throws ConsoleException {
         properties.setSampleInterval(i);
       }
     }.doTest();
@@ -121,7 +122,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       }
 
       protected void set(ConsoleProperties properties, int i)
-        throws DisplayMessageConsoleException {
+        throws ConsoleException {
         properties.setSignificantFigures(i);
       }
     }.doTest();
@@ -181,6 +182,9 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }
     catch (DisplayMessageConsoleException e) {
     }
+
+    properties.setConsoleHost("");
+    assertEquals("", properties.getConsoleHost());
   }
 
   public void testConsolePort() throws Exception {
@@ -193,7 +197,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       }
 
       protected void set(ConsoleProperties properties, int i)
-        throws DisplayMessageConsoleException {
+        throws ConsoleException {
         properties.setConsolePort(i);
       }
     }.doTest();
@@ -353,7 +357,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       }
 
       protected void set(ConsoleProperties properties, String expression)
-        throws DisplayMessageConsoleException {
+        throws ConsoleException {
         properties.setDistributionFileFilterExpression(expression);
       }
     }.doTest();
@@ -370,7 +374,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       }
 
       protected void set(ConsoleProperties properties, int i)
-        throws DisplayMessageConsoleException {
+        throws ConsoleException {
         properties.setScanDistributionFilesPeriod(i);
       }
     }.doTest();
@@ -386,6 +390,37 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       protected void set(ConsoleProperties properties, String name) {
         properties.setLookAndFeel(name);
+      }
+    }.doTest();
+  }
+
+  public void testExternalEditorCommand() throws Exception {
+
+    new TestStringTemplate(
+      ConsoleProperties.EXTERNAL_EDITOR_COMMAND_PROPERTY, true) {
+
+      protected String get(ConsoleProperties properties) {
+        return properties.getExternalEditorCommand();
+      }
+
+      protected void set(ConsoleProperties properties, String name) {
+        properties.setExternalEditorCommand(name);
+      }
+    }.doTest();
+  }
+
+
+  public void testExternalEditorArguments() throws Exception {
+
+    new TestStringTemplate(
+      ConsoleProperties.EXTERNAL_EDITOR_ARGUMENTS_PROPERTY, true) {
+
+      protected String get(ConsoleProperties properties) {
+        return properties.getExternalEditorArguments();
+      }
+
+      protected void set(ConsoleProperties properties, String name) {
+        properties.setExternalEditorArguments(name);
       }
     }.doTest();
   }
@@ -693,7 +728,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     protected abstract int get(ConsoleProperties properties);
 
     protected abstract void set(ConsoleProperties properties, int i)
-      throws DisplayMessageConsoleException;
+      throws ConsoleException;
   }
 
   private abstract class TestBooleanTemplate {
@@ -723,7 +758,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       assertTrue(get(properties2));
 
       final PropertyChangeEvent expected = new PropertyChangeEvent(properties2,
-        m_propertyName, new Boolean(true), new Boolean(false));
+        m_propertyName, Boolean.TRUE, Boolean.FALSE);
 
       final ChangeListener listener = new ChangeListener(expected);
       final ChangeListener listener2 = new ChangeListener(expected);
@@ -846,7 +881,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     protected abstract String get(ConsoleProperties properties);
 
     protected abstract void set(ConsoleProperties properties, String i)
-      throws DisplayMessageConsoleException;
+      throws ConsoleException;
   }
 
   private abstract class TestFileTemplate {
@@ -1013,7 +1048,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     protected abstract Pattern get(ConsoleProperties properties);
 
     protected abstract void set(ConsoleProperties properties, String i)
-      throws DisplayMessageConsoleException;
+      throws ConsoleException;
   }
 
   private static class ChangeListener implements PropertyChangeListener {

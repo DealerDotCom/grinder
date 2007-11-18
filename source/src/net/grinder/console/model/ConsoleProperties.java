@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,9 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -34,6 +37,7 @@ import java.util.regex.PatternSyntaxException;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
+import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.util.Directory;
@@ -112,44 +116,81 @@ public final class ConsoleProperties {
     "grinder.console.lookAndFeel";
 
   /** Property name. */
+  public static final String EXTERNAL_EDITOR_COMMAND_PROPERTY =
+    "grinder.console.externalEditorCommand";
+
+  /** Property name. */
+  public static final String EXTERNAL_EDITOR_ARGUMENTS_PROPERTY =
+    "grinder.console.externalEditorArguments";
+
+  /** Property name. */
   public static final String FRAME_BOUNDS_PROPERTY =
     "grinder.console.frameBounds";
 
   private final PropertyChangeSupport m_changeSupport =
     new PropertyChangeSupport(this);
 
-  private int m_collectSampleCount;
-  private int m_ignoreSampleCount;
-  private int m_sampleInterval;
-  private int m_significantFigures;
-  private boolean m_resetConsoleWithProcesses;
-  private File m_scriptFile;
-  private Directory m_distributionDirectory;
-  private Pattern m_distributionFileFilterPattern;
-  private int m_scanDistributionFilesPeriod;
-  private String m_lookAndFeel;
+  private final List m_propertyList = new ArrayList();
+
+  private IntProperty m_collectSampleCount =
+    new IntProperty(COLLECT_SAMPLES_PROPERTY, 0);
+
+  private IntProperty m_ignoreSampleCount =
+    new IntProperty(IGNORE_SAMPLES_PROPERTY, 0);
+
+  private IntProperty m_sampleInterval =
+    new IntProperty(SAMPLE_INTERVAL_PROPERTY, 1000);
+
+  private IntProperty m_significantFigures =
+    new IntProperty(SIG_FIG_PROPERTY, 3);
+
+  private BooleanProperty m_resetConsoleWithProcesses =
+    new BooleanProperty(RESET_CONSOLE_WITH_PROCESSES_PROPERTY, false);
+
+  private FileProperty m_scriptFile =
+    new FileProperty(SCRIPT_FILE_PROPERTY);
+
+  private DirectoryProperty m_distributionDirectory =
+    new DirectoryProperty(DISTRIBUTION_DIRECTORY_PROPERTY);
+
+  private PatternProperty m_distributionFileFilterPattern =
+    new PatternProperty(
+      DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
+      ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION);
+
+  private IntProperty m_scanDistributionFilesPeriod =
+    new IntProperty(SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY, 6000);
+
+  private StringProperty m_lookAndFeel =
+    new StringProperty(LOOK_AND_FEEL_PROPERTY, null);
+
+  private StringProperty m_externalEditorCommand =
+    new StringProperty(EXTERNAL_EDITOR_COMMAND_PROPERTY, null);
+
+  private StringProperty m_externalEditorArguments =
+    new StringProperty(EXTERNAL_EDITOR_ARGUMENTS_PROPERTY, null);
 
   private RectangleProperty m_frameBounds =
     new RectangleProperty(FRAME_BOUNDS_PROPERTY);
 
-  private AskBoolean m_resetConsoleWithProcessesAsk =
-    new AskBoolean(RESET_CONSOLE_WITH_PROCESSES_ASK_PROPERTY);
+  private BooleanProperty m_resetConsoleWithProcessesAsk =
+    new BooleanProperty(RESET_CONSOLE_WITH_PROCESSES_ASK_PROPERTY, true);
 
-  private AskBoolean m_scriptNotSetAsk =
-    new AskBoolean(SCRIPT_NOT_SET_ASK_PROPERTY);
+  private BooleanProperty m_scriptNotSetAsk =
+    new BooleanProperty(SCRIPT_NOT_SET_ASK_PROPERTY, true);
 
-  private AskBoolean m_startWithUnsavedBuffersAsk =
-    new AskBoolean(START_WITH_UNSAVED_BUFFERS_ASK_PROPERTY);
+  private BooleanProperty m_startWithUnsavedBuffersAsk =
+    new BooleanProperty(START_WITH_UNSAVED_BUFFERS_ASK_PROPERTY, true);
 
-  private AskBoolean m_stopProcessesAsk =
-    new AskBoolean(STOP_PROCESSES_ASK_PROPERTY);
+  private BooleanProperty m_stopProcessesAsk =
+    new BooleanProperty(STOP_PROCESSES_ASK_PROPERTY, true);
 
-  /**
-   * We hang onto the host as a string so we can copy and externalise
-   * it reasonably.
-   */
-  private String m_consoleHostString;
-  private int m_consolePort;
+  private StringProperty m_consoleHost =
+    new StringProperty(CONSOLE_HOST_PROPERTY,
+                       CommunicationDefaults.CONSOLE_HOST);
+
+  private IntProperty m_consolePort =
+    new IntProperty(CONSOLE_PORT_PROPERTY, CommunicationDefaults.CONSOLE_PORT);
 
   private final Resources m_resources;
 
@@ -164,12 +205,12 @@ public final class ConsoleProperties {
    *
    * @param resources Console resources.
    * @param file The properties file.
-   * @throws DisplayMessageConsoleException If the properties file
+   * @throws ConsoleException If the properties file
    * cannot be read or the properties file contains invalid data.
    *
    */
   public ConsoleProperties(Resources resources, File file)
-    throws DisplayMessageConsoleException {
+    throws ConsoleException {
 
     m_resources = resources;
 
@@ -181,43 +222,11 @@ public final class ConsoleProperties {
         m_resources, "couldNotLoadOptionsError.text", e);
     }
 
-    setCollectSampleCount(
-      m_properties.getInt(COLLECT_SAMPLES_PROPERTY, 0));
-    setIgnoreSampleCount(m_properties.getInt(IGNORE_SAMPLES_PROPERTY, 0));
-    setSampleInterval(m_properties.getInt(SAMPLE_INTERVAL_PROPERTY, 1000));
-    setSignificantFigures(m_properties.getInt(SIG_FIG_PROPERTY, 3));
+    final Iterator propertyIterator = m_propertyList.iterator();
 
-    setConsoleHost(
-      m_properties.getProperty(CONSOLE_HOST_PROPERTY,
-                               CommunicationDefaults.CONSOLE_HOST));
-
-    setConsolePort(
-      m_properties.getInt(CONSOLE_PORT_PROPERTY,
-                          CommunicationDefaults.CONSOLE_PORT));
-
-    setResetConsoleWithProcesses(
-      m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY, false));
-
-    setScriptFile(m_properties.getFile(SCRIPT_FILE_PROPERTY, null));
-
-    setDistributionDirectory(
-      m_properties.getFile(DISTRIBUTION_DIRECTORY_PROPERTY, null));
-
-    setDistributionFileFilterExpression(
-      m_properties.getProperty(
-        DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY, null));
-
-    setScanDistributionFilesPeriodInternal(
-      m_properties.getInt(SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY, 6000));
-
-    setLookAndFeel(m_properties.getProperty(LOOK_AND_FEEL_PROPERTY, null));
-
-    m_frameBounds.setFromProperties();
-
-    m_resetConsoleWithProcessesAsk.setFromProperties();
-    m_scriptNotSetAsk.setFromProperties();
-    m_startWithUnsavedBuffersAsk.setFromProperties();
-    m_stopProcessesAsk.setFromProperties();
+    while (propertyIterator.hasNext()) {
+      ((Property)propertyIterator.next()).setFromProperties();
+    }
   }
 
   /**
@@ -238,20 +247,22 @@ public final class ConsoleProperties {
    * @param properties The properties to copy.
    */
   public void set(ConsoleProperties properties) {
-    setCollectSampleCountInternal(properties.getCollectSampleCount());
-    setIgnoreSampleCountInternal(properties.getIgnoreSampleCount());
-    setSampleIntervalInternal(properties.getSampleInterval());
-    setSignificantFiguresInternal(properties.getSignificantFigures());
-    setConsoleHostInternal(properties.getConsoleHost());
-    setConsolePortInternal(properties.getConsolePort());
-    setResetConsoleWithProcesses(properties.getResetConsoleWithProcesses());
-    setScriptFile(properties.getScriptFile());
-    setDistributionDirectory(properties.getDistributionDirectory());
-    setDistributionFileFilterPattern(
+    m_collectSampleCount.set(properties.getCollectSampleCount());
+    m_ignoreSampleCount.set(properties.getIgnoreSampleCount());
+    m_sampleInterval.set(properties.getSampleInterval());
+    m_significantFigures.set(properties.getSignificantFigures());
+    m_consoleHost.set(properties.getConsoleHost());
+    m_consolePort.set(properties.getConsolePort());
+    m_resetConsoleWithProcesses.set(properties.getResetConsoleWithProcesses());
+    m_scriptFile.set(properties.getScriptFile());
+    m_distributionDirectory.set(properties.getDistributionDirectory());
+    m_distributionFileFilterPattern.set(
       properties.getDistributionFileFilterPattern());
-    setScanDistributionFilesPeriodInternal(
+    m_scanDistributionFilesPeriod.set(
       properties.getScanDistributionFilesPeriod());
-    setLookAndFeel(properties.getLookAndFeel());
+    m_lookAndFeel.set(properties.getLookAndFeel());
+    m_externalEditorCommand.set(properties.getExternalEditorArguments());
+    m_externalEditorArguments.set(properties.getExternalEditorArguments());
     m_frameBounds.set(properties.getFrameBounds());
     m_resetConsoleWithProcessesAsk.set(
       properties.getResetConsoleWithProcessesAsk());
@@ -285,40 +296,14 @@ public final class ConsoleProperties {
   /**
    * Save to the associated file.
    *
-   * @throws DisplayMessageConsoleException If an error occurs.
+   * @throws ConsoleException If an error occurs.
    */
-  public void save() throws DisplayMessageConsoleException {
-    m_properties.setInt(COLLECT_SAMPLES_PROPERTY, m_collectSampleCount);
-    m_properties.setInt(IGNORE_SAMPLES_PROPERTY, m_ignoreSampleCount);
-    m_properties.setInt(SAMPLE_INTERVAL_PROPERTY, m_sampleInterval);
-    m_properties.setInt(SIG_FIG_PROPERTY, m_significantFigures);
-    m_properties.setProperty(CONSOLE_HOST_PROPERTY, m_consoleHostString);
-    m_properties.setInt(CONSOLE_PORT_PROPERTY, m_consolePort);
-    m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
-                            m_resetConsoleWithProcesses);
-    if (m_scriptFile != null) {
-      m_properties.setFile(SCRIPT_FILE_PROPERTY, m_scriptFile);
+  public void save() throws ConsoleException {
+    final Iterator propertyIterator = m_propertyList.iterator();
+
+    while (propertyIterator.hasNext()) {
+      ((Property)propertyIterator.next()).setToProperties();
     }
-
-    m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
-      m_distributionDirectory.getFile());
-
-    m_properties.setProperty(DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
-      m_distributionFileFilterPattern.pattern());
-
-    m_properties.setInt(SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY,
-      m_scanDistributionFilesPeriod);
-
-    if (m_lookAndFeel != null) {
-      m_properties.setProperty(LOOK_AND_FEEL_PROPERTY, m_lookAndFeel);
-    }
-
-    m_frameBounds.setToProperties();
-
-    m_resetConsoleWithProcessesAsk.setToProperties();
-    m_scriptNotSetAsk.setToProperties();
-    m_startWithUnsavedBuffersAsk.setToProperties();
-    m_stopProcessesAsk.setToProperties();
 
     try {
       m_properties.save();
@@ -335,31 +320,22 @@ public final class ConsoleProperties {
    * @return The number.
    */
   public int getCollectSampleCount() {
-    return m_collectSampleCount;
+    return m_collectSampleCount.get();
   }
 
   /**
    * Set the number of samples to collect.
    *
    * @param n The number. 0 => forever.
-   * @throws DisplayMessageConsoleException If the number is negative.
+   * @throws ConsoleException If the number is negative.
    */
-  public void setCollectSampleCount(int n)
-    throws DisplayMessageConsoleException {
-
+  public void setCollectSampleCount(int n) throws ConsoleException {
     if (n < 0) {
       throw new DisplayMessageConsoleException(
         m_resources, "collectNegativeError.text");
     }
 
-    setCollectSampleCountInternal(n);
-  }
-
-  private void setCollectSampleCountInternal(int n) {
-    final int old = m_collectSampleCount;
-    m_collectSampleCount = n;
-    m_changeSupport.firePropertyChange(COLLECT_SAMPLES_PROPERTY,
-                                       old, m_collectSampleCount);
+    m_collectSampleCount.set(n);
   }
 
   /**
@@ -368,31 +344,22 @@ public final class ConsoleProperties {
    * @return The number.
    */
   public int getIgnoreSampleCount() {
-    return m_ignoreSampleCount;
+    return m_ignoreSampleCount.get();
   }
 
   /**
    * Set the number of samples to collect.
    *
    * @param n The number. Must be positive.
-   * @throws DisplayMessageConsoleException If the number is negative or zero.
+   * @throws ConsoleException If the number is negative or zero.
    */
-  public void setIgnoreSampleCount(int n)
-    throws DisplayMessageConsoleException {
-
+  public void setIgnoreSampleCount(int n) throws ConsoleException {
     if (n < 0) {
       throw new DisplayMessageConsoleException(
         m_resources, "ignoreSamplesNegativeError.text");
     }
 
-    setIgnoreSampleCountInternal(n);
-  }
-
-  private void setIgnoreSampleCountInternal(int n) {
-    final int old = m_ignoreSampleCount;
-    m_ignoreSampleCount = n;
-    m_changeSupport.firePropertyChange(IGNORE_SAMPLES_PROPERTY,
-                                       old, m_ignoreSampleCount);
+    m_ignoreSampleCount.set(n);
   }
 
   /**
@@ -401,31 +368,22 @@ public final class ConsoleProperties {
    * @return The interval in milliseconds.
    */
   public int getSampleInterval() {
-    return m_sampleInterval;
+    return m_sampleInterval.get();
   }
 
   /**
    * Set the sample interval.
    *
    * @param interval The interval in milliseconds.
-   * @throws DisplayMessageConsoleException If the number is negative or zero.
+   * @throws ConsoleException If the number is negative or zero.
    */
-  public void setSampleInterval(int interval)
-    throws DisplayMessageConsoleException {
-
+  public void setSampleInterval(int interval) throws ConsoleException {
     if (interval <= 0) {
       throw new DisplayMessageConsoleException(
         m_resources, "intervalLessThanOneError.text");
     }
 
-    setSampleIntervalInternal(interval);
-  }
-
-  private void setSampleIntervalInternal(int interval) {
-    final int old = m_sampleInterval;
-    m_sampleInterval = interval;
-    m_changeSupport.firePropertyChange(SAMPLE_INTERVAL_PROPERTY,
-                                       old, m_sampleInterval);
+    m_sampleInterval.set(interval);
   }
 
   /**
@@ -434,31 +392,22 @@ public final class ConsoleProperties {
    * @return The number of significant figures.
    */
   public int getSignificantFigures() {
-    return m_significantFigures;
+    return m_significantFigures.get();
   }
 
   /**
    * Set the number of significant figures.
    *
    * @param n The number of significant figures.
-   * @throws DisplayMessageConsoleException If the number is negative.
+   * @throws ConsoleException If the number is negative.
    */
-  public void setSignificantFigures(int n)
-    throws DisplayMessageConsoleException {
-
+  public void setSignificantFigures(int n) throws ConsoleException {
     if (n <= 0) {
       throw new DisplayMessageConsoleException(
         m_resources, "significantFiguresNegativeError.text");
     }
 
-    setSignificantFiguresInternal(n);
-  }
-
-  private void setSignificantFiguresInternal(int n) {
-    final int old = m_significantFigures;
-    m_significantFigures = n;
-    m_changeSupport.firePropertyChange(SIG_FIG_PROPERTY,
-                                       old, m_significantFigures);
+    m_significantFigures.set(n);
   }
 
   /**
@@ -467,17 +416,17 @@ public final class ConsoleProperties {
    * @return The address.
    */
   public String getConsoleHost() {
-    return m_consoleHostString;
+    return m_consoleHost.get();
   }
 
   /**
    * Set the console host.
    *
    * @param s Either a machine name or the IP address.
-   * @throws DisplayMessageConsoleException If the address is not
+   * @throws ConsoleException If the address is not
    * valid.
    */
-  public void setConsoleHost(String s) throws DisplayMessageConsoleException {
+  public void setConsoleHost(String s) throws ConsoleException {
     // We treat any address that we can look up as valid. I guess we
     // could also try binding to it to discover whether it is local,
     // but that could take an indeterminate amount of time.
@@ -499,14 +448,7 @@ public final class ConsoleProperties {
       }
     }
 
-    setConsoleHostInternal(s);
-  }
-
-  private void setConsoleHostInternal(String s) {
-    final String old = m_consoleHostString;
-    m_consoleHostString = s;
-    m_changeSupport.firePropertyChange(CONSOLE_HOST_PROPERTY,
-                                       old, m_consoleHostString);
+    m_consoleHost.set(s);
   }
 
   /**
@@ -515,32 +457,18 @@ public final class ConsoleProperties {
    * @return The port.
    */
   public int getConsolePort() {
-    return m_consolePort;
+    return m_consolePort.get();
   }
 
   /**
    * Set the console port.
    *
    * @param i The port number.
-   * @throws DisplayMessageConsoleException If the port number is not sensible.
+   * @throws ConsoleException If the port number is not sensible.
    */
-  public void setConsolePort(int i) throws DisplayMessageConsoleException {
-    assertValidPort(i);
-    setConsolePortInternal(i);
-  }
-
-  private void setConsolePortInternal(int i) {
-    final int old = m_consolePort;
-    m_consolePort = i;
-    m_changeSupport.firePropertyChange(CONSOLE_PORT_PROPERTY,
-                                       old, m_consolePort);
-  }
-
-  private void assertValidPort(int port)
-    throws DisplayMessageConsoleException {
-
-    if (port < CommunicationDefaults.MIN_PORT ||
-        port > CommunicationDefaults.MAX_PORT) {
+  public void setConsolePort(int i) throws ConsoleException {
+    if (i < CommunicationDefaults.MIN_PORT ||
+        i > CommunicationDefaults.MAX_PORT) {
       throw new DisplayMessageConsoleException(
         m_resources,
         "invalidPortNumberError.text",
@@ -549,6 +477,8 @@ public final class ConsoleProperties {
           new Integer(CommunicationDefaults.MAX_PORT), }
         );
     }
+
+    m_consolePort.set(i);
   }
 
   /**
@@ -559,7 +489,7 @@ public final class ConsoleProperties {
    * worker processes.
    */
   public boolean getResetConsoleWithProcesses() {
-    return m_resetConsoleWithProcesses;
+    return m_resetConsoleWithProcesses.get();
   }
 
   /**
@@ -570,12 +500,7 @@ public final class ConsoleProperties {
    * the worker processes.
    */
   public void setResetConsoleWithProcesses(boolean b) {
-
-    final boolean old = m_resetConsoleWithProcesses;
-    m_resetConsoleWithProcesses = b;
-
-    m_changeSupport.firePropertyChange(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
-                                       old, m_resetConsoleWithProcesses);
+    m_resetConsoleWithProcesses.set(b);
   }
 
   /**
@@ -594,11 +519,11 @@ public final class ConsoleProperties {
    *
    * @param value
    *          <code>true</code> => the user wants to be asked.
-   * @throws DisplayMessageConsoleException
+   * @throws ConsoleException
    *            If the property couldn't be persisted
    */
   public void setResetConsoleWithProcessesAsk(boolean value)
-    throws DisplayMessageConsoleException {
+    throws ConsoleException {
     m_resetConsoleWithProcessesAsk.set(value);
     m_resetConsoleWithProcessesAsk.save();
   }
@@ -619,11 +544,10 @@ public final class ConsoleProperties {
    *
    * @param value
    *          <code>true</code> => the user wants to be asked.
-   * @throws DisplayMessageConsoleException
+   * @throws ConsoleException
    *           If the property couldn't be persisted.
    */
-  public void setScriptNotSetAsk(boolean value)
-    throws DisplayMessageConsoleException {
+  public void setScriptNotSetAsk(boolean value) throws ConsoleException {
     m_scriptNotSetAsk.set(value);
     m_scriptNotSetAsk.save();
   }
@@ -645,11 +569,11 @@ public final class ConsoleProperties {
    *
    * @param value
    *          <code>true</code> => the user wants to be warned.
-   * @throws DisplayMessageConsoleException
+   * @throws ConsoleException
    *           If the property couldn't be persisted.
    */
   public void setStartWithUnsavedBuffersAsk(boolean value)
-    throws DisplayMessageConsoleException {
+    throws ConsoleException {
     m_startWithUnsavedBuffersAsk.set(value);
     m_startWithUnsavedBuffersAsk.save();
   }
@@ -670,11 +594,10 @@ public final class ConsoleProperties {
    *
    * @param value
    *          <code>true</code> => the user wants to be asked.
-   * @throws DisplayMessageConsoleException
-   *           If the property couldn't be persisted.
+   * @throws ConsoleException If the property couldn't be persisted.
    */
   public void setStopProcessesAsk(boolean value)
-    throws DisplayMessageConsoleException {
+    throws ConsoleException {
     m_stopProcessesAsk.set(value);
     m_stopProcessesAsk.save();
   }
@@ -685,7 +608,7 @@ public final class ConsoleProperties {
    * @return The script file. <code>null</code> => No file set.
    */
   public File getScriptFile() {
-    return m_scriptFile;
+    return m_scriptFile.get();
   }
 
   /**
@@ -695,11 +618,7 @@ public final class ConsoleProperties {
    * set.
    */
   public void setScriptFile(File scriptFile) {
-
-    final File old = m_scriptFile;
-    m_scriptFile = scriptFile;
-    m_changeSupport.firePropertyChange(
-      SCRIPT_FILE_PROPERTY, old, m_scriptFile);
+    m_scriptFile.set(scriptFile);
   }
 
   /**
@@ -708,28 +627,7 @@ public final class ConsoleProperties {
    * @return The directory.
    */
   public Directory getDistributionDirectory() {
-    return m_distributionDirectory;
-  }
-
-  /**
-   * Set the script distribution directory from a File.
-   *
-   * @param distributionDirectory The directory. <code>null</code> =>
-   * default to local directory.
-   */
-  private void setDistributionDirectory(File distributionDirectory) {
-
-    if (distributionDirectory == null) {
-      setDistributionDirectory(new Directory());
-    }
-    else {
-      try {
-        setDistributionDirectory(new Directory(distributionDirectory));
-      }
-      catch (Directory.DirectoryException e) {
-        setDistributionDirectory(new Directory());
-      }
-    }
+    return m_distributionDirectory.get();
   }
 
   /**
@@ -738,32 +636,17 @@ public final class ConsoleProperties {
    * @param distributionDirectory The directory.
    */
   public void setDistributionDirectory(Directory distributionDirectory) {
-    final Directory old = m_distributionDirectory;
-    m_distributionDirectory = distributionDirectory;
-
-    m_changeSupport.firePropertyChange(
-      DISTRIBUTION_DIRECTORY_PROPERTY, old, m_distributionDirectory);
+    m_distributionDirectory.set(distributionDirectory);
   }
 
   /**
    * Save the distribution directory property value to the user's preferences
    * file.
    *
-   * @throws DisplayMessageConsoleException
-   *           If the property could not be saved.
+   * @throws ConsoleException If the property could not be saved.
    */
-  public void saveDistributionDirectory()
-    throws DisplayMessageConsoleException {
-    m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
-                         m_distributionDirectory.getFile());
-
-    try {
-      m_properties.saveSingleProperty(DISTRIBUTION_DIRECTORY_PROPERTY);
-    }
-    catch (GrinderProperties.PersistenceException e) {
-      throw new DisplayMessageConsoleException(
-        m_resources, "couldNotSaveOptionsError.text", e);
-    }
+  public void saveDistributionDirectory() throws ConsoleException {
+    m_distributionDirectory.save();
   }
 
   /**
@@ -776,7 +659,7 @@ public final class ConsoleProperties {
    * @see #setDistributionFileFilterExpression
    */
   public Pattern getDistributionFileFilterPattern() {
-    return m_distributionFileFilterPattern;
+    return m_distributionFileFilterPattern.get();
   }
 
   /**
@@ -789,36 +672,11 @@ public final class ConsoleProperties {
    *
    * @param expression A Perl 5 format expression. <code>null</code>
    * => use default pattern.
-   * @throws DisplayMessageConsoleException If the pattern is not
-   * valid.
+   * @throws ConsoleException If the pattern is not valid.
    */
   public void setDistributionFileFilterExpression(String expression)
-    throws DisplayMessageConsoleException {
-
-    try {
-      if (expression == null) {
-        setDistributionFileFilterPattern(
-          Pattern.compile(
-            ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION));
-      }
-      else {
-        setDistributionFileFilterPattern(Pattern.compile(expression));
-      }
-    }
-    catch (PatternSyntaxException e) {
-      throw new DisplayMessageConsoleException(
-        m_resources, "distributionFileFilterExpressionError.text", e);
-    }
-  }
-
-  private void setDistributionFileFilterPattern(Pattern pattern) {
-    final Pattern old = m_distributionFileFilterPattern;
-    m_distributionFileFilterPattern = pattern;
-
-    m_changeSupport.firePropertyChange(
-      DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
-      old,
-      m_distributionFileFilterPattern);
+    throws ConsoleException {
+    m_distributionFileFilterPattern.set(expression);
   }
 
   /**
@@ -827,31 +685,22 @@ public final class ConsoleProperties {
    * @return The period, in milliseconds.
    */
   public int getScanDistributionFilesPeriod() {
-    return m_scanDistributionFilesPeriod;
+    return m_scanDistributionFilesPeriod.get();
   }
 
   /**
    * Set the console port.
    *
    * @param i The port number.
-   * @throws DisplayMessageConsoleException If the port number is not sensible.
+   * @throws ConsoleException If the port number is not sensible.
    */
-  public void setScanDistributionFilesPeriod(int i)
-    throws DisplayMessageConsoleException {
-
+  public void setScanDistributionFilesPeriod(int i) throws ConsoleException {
     if (i < 0) {
       throw new DisplayMessageConsoleException(
         m_resources, "scanDistributionFilesPeriodNegativeError.text");
     }
 
-    setScanDistributionFilesPeriodInternal(i);
-  }
-
-  private void setScanDistributionFilesPeriodInternal(int i) {
-    final int old = m_scanDistributionFilesPeriod;
-    m_scanDistributionFilesPeriod = i;
-    m_changeSupport.firePropertyChange(SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY,
-                                       old, m_scanDistributionFilesPeriod);
+    m_scanDistributionFilesPeriod.set(i);
   }
 
   /**
@@ -861,7 +710,7 @@ public final class ConsoleProperties {
    * @return The Look and Feel name. <code>null</code> => use default.
    */
   public String getLookAndFeel() {
-    return m_lookAndFeel;
+    return m_lookAndFeel.get();
   }
 
   /**
@@ -871,11 +720,45 @@ public final class ConsoleProperties {
    * use default.
    */
   public void setLookAndFeel(String lookAndFeel) {
+    m_lookAndFeel.set(lookAndFeel);
+  }
 
-    final String old = m_lookAndFeel;
-    m_lookAndFeel = lookAndFeel;
-    m_changeSupport.firePropertyChange(
-      LOOK_AND_FEEL_PROPERTY, old, m_lookAndFeel);
+  /**
+   * Get the external editor command.
+   *
+   * @return The path to the process to be used for external editing.
+   * <code>null</code> => no external editor set.
+   */
+  public String getExternalEditorCommand() {
+    return m_externalEditorCommand.get();
+  }
+
+  /**
+   * Set the external editor command.
+   *
+   * @param command The path to the process to be used for external editing.
+   * <code>null</code> => no external editor set.
+   */
+  public void setExternalEditorCommand(String command) {
+    m_externalEditorCommand.set(command);
+  }
+
+  /**
+   * Get the external editor arguments.
+   *
+   * @return The arguments to be used with the external editor.
+   */
+  public String getExternalEditorArguments() {
+    return m_externalEditorArguments.get();
+  }
+
+  /**
+   * Set the external editor arguments.
+   *
+   * @param arguments The arguments to be used with the external editor.
+   */
+  public void setExternalEditorArguments(String arguments) {
+    m_externalEditorArguments.set(arguments);
   }
 
   /**
@@ -891,44 +774,30 @@ public final class ConsoleProperties {
    * Set and save the location and size of the console frame.
    *
    * @param bounds The console frame bounds.
-   * @throws DisplayMessageConsoleException
-   *           If the property couldn't be persisted.
+   * @throws ConsoleException If the property couldn't be persisted.
    */
-  public void setFrameBounds(Rectangle bounds)
-    throws DisplayMessageConsoleException {
-
+  public void setFrameBounds(Rectangle bounds) throws ConsoleException {
     m_frameBounds.set(bounds);
     m_frameBounds.save();
   }
 
-  private final class AskBoolean {
+  private abstract class Property {
     private final String m_propertyName;
-    private boolean m_value = true;
+    private final Object m_defaultValue;
+    private Object m_value;
 
-    public AskBoolean(String propertyName) {
+    Property(String propertyName, Object defaultValue) {
       m_propertyName = propertyName;
+      m_defaultValue = defaultValue;
+      m_value = defaultValue;
+      m_propertyList.add(this);
     }
 
-    public void setFromProperties() {
-      set(m_properties.getBoolean(m_propertyName, true));
-    }
+    abstract void setFromProperties() throws ConsoleException;
 
-    public void setToProperties() {
-      m_properties.setBoolean(m_propertyName, m_value);
-    }
+    abstract void setToProperties();
 
-    public boolean get() {
-      return m_value;
-    }
-
-    public void set(boolean b) {
-      final boolean old = m_value;
-      m_value = b;
-
-      m_changeSupport.firePropertyChange(m_propertyName, old, m_value);
-    }
-
-    public void save() throws DisplayMessageConsoleException {
+    public final void save() throws ConsoleException {
       setToProperties();
 
       try {
@@ -939,19 +808,216 @@ public final class ConsoleProperties {
           m_resources, "couldNotSaveOptionsError.text", e);
       }
     }
+
+    protected final String getPropertyName() {
+      return m_propertyName;
+    }
+
+    protected final Object getDefaultValue() {
+      return m_defaultValue;
+    }
+
+    protected final Object getValue() {
+      return m_value;
+    }
+
+    protected final void setValue(Object value) {
+      final Object old = m_value;
+      m_value = value;
+      m_changeSupport.firePropertyChange(getPropertyName(), old, m_value);
+    }
   }
 
-  private final class RectangleProperty {
-    private final String m_propertyName;
-    private Rectangle m_value = null;
+  private final class StringProperty extends Property {
+    public StringProperty(String propertyName, String defaultValue) {
+      super(propertyName, defaultValue);
+    }
 
+    public void setFromProperties() {
+      set(m_properties.getProperty(getPropertyName(),
+                                   (String) getDefaultValue()));
+    }
+
+    public void setToProperties() {
+      if (get() != getDefaultValue()) {
+        m_properties.setProperty(getPropertyName(), get());
+      }
+      else {
+        m_properties.remove(getPropertyName());
+      }
+    }
+
+    public String get() {
+      return (String) getValue();
+    }
+
+    public void set(String s) {
+      setValue(s);
+    }
+  }
+
+  private final class PatternProperty extends Property {
+    public PatternProperty(String propertyName, String defaultExpression) {
+      super(propertyName, Pattern.compile(defaultExpression));
+    }
+
+    public void setFromProperties() throws ConsoleException {
+      set(m_properties.getProperty(getPropertyName(), null));
+    }
+
+    public void setToProperties() {
+      if (get() != getDefaultValue()) {
+        m_properties.setProperty(getPropertyName(), get().pattern());
+      }
+      else {
+        m_properties.remove(getPropertyName());
+      }
+    }
+
+    public Pattern get() {
+      return (Pattern) getValue();
+    }
+
+    public void set(String expression) throws ConsoleException {
+      if (expression == null) {
+        set((Pattern) getDefaultValue());
+      }
+      else {
+        try {
+          set(Pattern.compile(expression));
+        }
+        catch (PatternSyntaxException e) {
+          throw new DisplayMessageConsoleException(
+            m_resources,
+            "regularExpressionError.text",
+            new Object[] { getPropertyName(), },
+            e);
+        }
+      }
+    }
+
+    public void set(Pattern pattern) {
+      setValue(pattern);
+    }
+  }
+
+  private final class IntProperty extends Property {
+    public IntProperty(String propertyName, int defaultValue) {
+      super(propertyName, new Integer(defaultValue));
+    }
+
+    public void setFromProperties() {
+      set(m_properties.getInt(getPropertyName(),
+                              ((Integer)getDefaultValue()).intValue()));
+    }
+
+    public void setToProperties() {
+      m_properties.setInt(getPropertyName(), get());
+    }
+
+    public int get() {
+      return ((Integer)getValue()).intValue();
+    }
+
+    public void set(int i) {
+      setValue(new Integer(i));
+    }
+  }
+
+  private final class FileProperty extends Property {
+    public FileProperty(String propertyName) {
+      super(propertyName, null);
+    }
+
+    public void setFromProperties() {
+      set(m_properties.getFile(getPropertyName(), null));
+    }
+
+    public void setToProperties() {
+      if (get() != getDefaultValue()) {
+        m_properties.setFile(getPropertyName(), get());
+      }
+      else {
+        m_properties.remove(getPropertyName());
+      }
+    }
+
+    public File get() {
+      return (File) getValue();
+    }
+
+    public void set(File file) {
+      setValue(file);
+    }
+  }
+
+  private final class DirectoryProperty extends Property {
+    public DirectoryProperty(String propertyName) {
+      super(propertyName, new Directory());
+    }
+
+    public void setFromProperties() {
+      set(m_properties.getFile(getPropertyName(), null));
+    }
+
+    public void setToProperties() {
+      m_properties.setFile(getPropertyName(), get().getFile());
+    }
+
+    public Directory get() {
+      return (Directory) getValue();
+    }
+
+    public void set(File file) {
+      if (file == null) {
+        set(new Directory());
+      }
+      else {
+        try {
+          set(new Directory(file));
+        }
+        catch (Directory.DirectoryException e) {
+          set(new Directory());
+        }
+      }
+    }
+
+    public void set(Directory file) {
+      setValue(file);
+    }
+  }
+
+  private final class BooleanProperty extends Property {
+    public BooleanProperty(String propertyName, boolean defaultValue) {
+      super(propertyName, Boolean.valueOf(defaultValue));
+    }
+
+    public void setFromProperties() {
+      set(m_properties.getBoolean(getPropertyName(),
+                                  ((Boolean)getDefaultValue()).booleanValue()));
+    }
+
+    public void setToProperties() {
+      m_properties.setBoolean(getPropertyName(), get());
+    }
+
+    public boolean get() {
+      return ((Boolean)getValue()).booleanValue();
+    }
+
+    public void set(boolean b) {
+      setValue(Boolean.valueOf(b));
+    }
+  }
+
+  private final class RectangleProperty extends Property {
     public RectangleProperty(String propertyName) {
-      m_propertyName = propertyName;
+      super(propertyName, null);
     }
 
     public void setFromProperties() {
       final String property =
-        m_properties.getProperty(m_propertyName, null);
+        m_properties.getProperty(getPropertyName(), null);
 
       if (property == null) {
         set(null);
@@ -976,38 +1042,24 @@ public final class ConsoleProperties {
     }
 
     public void setToProperties() {
-      if (m_value != null) {
+      final Rectangle value = get();
+
+      if (value != getDefaultValue()) {
         m_properties.setProperty(
-          m_propertyName,
-          m_value.x + "," + m_value.y + "," +
-          m_value.width + "," + m_value.height);
+          getPropertyName(),
+          value.x + "," + value.y + "," + value.width + "," + value.height);
       }
       else {
-        m_properties.remove(m_propertyName);
+        m_properties.remove(getPropertyName());
       }
     }
 
     public Rectangle get() {
-      return m_value;
+      return (Rectangle) getValue();
     }
 
     public void set(Rectangle rectangle) {
-      final Rectangle old = m_value;
-      m_value = rectangle;
-
-      m_changeSupport.firePropertyChange(m_propertyName, old, m_value);
-    }
-
-    public void save() throws DisplayMessageConsoleException {
-      setToProperties();
-
-      try {
-        m_properties.saveSingleProperty(m_propertyName);
-      }
-      catch (GrinderProperties.PersistenceException e) {
-        throw new DisplayMessageConsoleException(
-          m_resources, "couldNotSaveOptionsError.text", e);
-      }
+      setValue(rectangle);
     }
   }
 }
