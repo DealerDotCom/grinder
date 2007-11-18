@@ -524,6 +524,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     p2.setDistributionFileFilterExpression(".*");
     p2.setScanDistributionFilesPeriod(100);
     p2.setLookAndFeel("something");
+    p2.setExternalEditorCommand("bah");
+    p2.setExternalEditorArguments("foo");
 
     assertTrue(p1.getCollectSampleCount() != p2.getCollectSampleCount());
     assertTrue(p1.getIgnoreSampleCount() != p2.getIgnoreSampleCount());
@@ -547,6 +549,10 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     AssertUtilities.assertTrue(p1.getScanDistributionFilesPeriod() !=
       p2.getScanDistributionFilesPeriod());
     AssertUtilities.assertNotEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
+    AssertUtilities.assertNotEquals(p1.getExternalEditorCommand(),
+                                    p2.getExternalEditorCommand());
+    AssertUtilities.assertNotEquals(p1.getExternalEditorArguments(),
+                                    p2.getExternalEditorArguments());
 
     p2.set(p1);
 
@@ -571,6 +577,9 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertEquals(p1.getScanDistributionFilesPeriod(),
                  p2.getScanDistributionFilesPeriod());
     assertEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
+    assertEquals(p1.getExternalEditorCommand(), p2.getExternalEditorCommand());
+    assertEquals(p1.getExternalEditorArguments(),
+                 p2.getExternalEditorArguments());
   }
 
   public void testWithBadFile() throws Exception {

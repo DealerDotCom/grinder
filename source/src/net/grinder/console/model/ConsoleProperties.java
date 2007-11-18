@@ -261,7 +261,7 @@ public final class ConsoleProperties {
     m_scanDistributionFilesPeriod.set(
       properties.getScanDistributionFilesPeriod());
     m_lookAndFeel.set(properties.getLookAndFeel());
-    m_externalEditorCommand.set(properties.getExternalEditorArguments());
+    m_externalEditorCommand.set(properties.getExternalEditorCommand());
     m_externalEditorArguments.set(properties.getExternalEditorArguments());
     m_frameBounds.set(properties.getFrameBounds());
     m_resetConsoleWithProcessesAsk.set(
