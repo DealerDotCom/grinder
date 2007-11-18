@@ -396,15 +396,15 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
   public void testExternalEditorCommand() throws Exception {
 
-    new TestStringTemplate(
-      ConsoleProperties.EXTERNAL_EDITOR_COMMAND_PROPERTY, true) {
+    new TestFileTemplate(
+      ConsoleProperties.EXTERNAL_EDITOR_COMMAND_PROPERTY) {
 
-      protected String get(ConsoleProperties properties) {
+      protected File get(ConsoleProperties properties) {
         return properties.getExternalEditorCommand();
       }
 
-      protected void set(ConsoleProperties properties, String name) {
-        properties.setExternalEditorCommand(name);
+      protected void set(ConsoleProperties properties, File file) {
+        properties.setExternalEditorCommand(file);
       }
     }.doTest();
   }
@@ -524,7 +524,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     p2.setDistributionFileFilterExpression(".*");
     p2.setScanDistributionFilesPeriod(100);
     p2.setLookAndFeel("something");
-    p2.setExternalEditorCommand("bah");
+    p2.setExternalEditorCommand(new File("bah"));
     p2.setExternalEditorArguments("foo");
 
     assertTrue(p1.getCollectSampleCount() != p2.getCollectSampleCount());

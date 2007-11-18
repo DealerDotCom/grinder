@@ -24,12 +24,12 @@ class ExternalEditor {
   }
 
   private final AgentCacheState m_agentCacheState;
-  private final String m_command;
+  private final File m_command;
   private final String m_arguments;
 
 
   public ExternalEditor(AgentCacheState agentCacheState,
-                        String command,
+                        File command,
                         String arguments) {
     m_agentCacheState = agentCacheState;
     m_command = command;
@@ -39,7 +39,7 @@ class ExternalEditor {
 
   String[] fileToCommandLine(File file) {
     final List result = new ArrayList();
-    result.add(m_command);
+    result.add(m_command.getAbsolutePath());
 
     boolean fileTemplateFound = false;
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,12 +25,17 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.io.File;
+
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -56,6 +61,9 @@ import net.grinder.console.model.ConsoleProperties;
  */
 abstract class OptionsDialogHandler {
   private final JFrame m_parentFrame;
+  private final LookAndFeel m_lookAndFeel;
+  private final Resources m_resources;
+
   private final LookAndFeelInfo[] m_installedLookAndFeels;
 
   /** A working copy of console properties. */
@@ -70,6 +78,8 @@ abstract class OptionsDialogHandler {
   private final JCheckBox m_resetConsoleWithProcessesCheckBox;
   private final JComboBox m_lookAndFeelComboBox;
   private final JOptionPaneDialog m_dialog;
+  private final JTextField m_externalEditorCommand = new JTextField(20);
+  private final JTextField m_externalEditorArguments = new JTextField(20);
 
   /**
    * Constructor.
@@ -87,25 +97,25 @@ abstract class OptionsDialogHandler {
                               final Resources resources) {
 
     m_parentFrame = parentFrame;
+    m_lookAndFeel = lookAndFeel;
+    m_resources = resources;
     m_installedLookAndFeels = lookAndFeel.getInstalledLookAndFeels();
     m_properties = new ConsoleProperties(properties);
 
     final JPanel addressLabelPanel = new JPanel(new GridLayout(0, 1, 0, 1));
     addressLabelPanel.add(
-      new JLabel(resources.getString("consoleHost.label")));
+      new JLabel(m_resources.getString("consoleHost.label")));
     addressLabelPanel.add(
-      new JLabel(resources.getString("consolePort.label")));
-    addressLabelPanel.add(new JLabel());
+      new JLabel(m_resources.getString("consolePort.label")));
 
     final JPanel addressFieldPanel = new JPanel(new GridLayout(0, 1, 0, 1));
     addressFieldPanel.add(m_consoleHost);
     addressFieldPanel.add(m_consolePort);
-    addressFieldPanel.add(new JLabel());
 
     final JPanel addressPanel = new JPanel();
     addressPanel.setLayout(new BoxLayout(addressPanel, BoxLayout.X_AXIS));
     addressPanel.add(addressLabelPanel);
-    addressPanel.add(Box.createHorizontalGlue());
+    addressPanel.add(Box.createHorizontalStrut(5));
     addressPanel.add(addressFieldPanel);
 
     // Use BorderLayout so the address panel uses its preferred
@@ -115,7 +125,7 @@ abstract class OptionsDialogHandler {
     communicationTab.add(addressPanel, BorderLayout.NORTH);
     communicationTab.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-    m_samplingControlPanel = new SamplingControlPanel(resources);
+    m_samplingControlPanel = new SamplingControlPanel(m_resources);
 
     final JPanel samplingControlTab = new JPanel(new BorderLayout());
     samplingControlTab.add(m_samplingControlPanel, BorderLayout.NORTH);
@@ -129,11 +139,38 @@ abstract class OptionsDialogHandler {
     m_sfSlider.setPreferredSize(d);
 
     final JPanel sfPanel = new JPanel(new GridLayout(0, 2));
-    sfPanel.add(new JLabel(resources.getString("significantFigures.label")));
+    sfPanel.add(new JLabel(m_resources.getString("significantFigures.label")));
     sfPanel.add(m_sfSlider);
 
+    final JPanel editorLabelPanel = new JPanel(new GridLayout(0, 1, 0, 1));
+    editorLabelPanel.add(
+      new JLabel(m_resources.getString("externalEditorCommand.label")));
+    editorLabelPanel.add(
+      new JLabel(m_resources.getString("externalEditorArguments.label")));
+
+    final JPanel editorFieldPanel = new JPanel(new GridLayout(0, 1, 0, 1));
+    final JPanel commandPanel = new JPanel(new BorderLayout());
+    commandPanel.add(m_externalEditorCommand);
+    final JButton chooseExternalEditorButton = new JButton();
+
+    chooseExternalEditorButton.setAction(new ChooseCommandAction());
+
+    commandPanel.add(chooseExternalEditorButton, BorderLayout.EAST);
+    editorFieldPanel.add(commandPanel);
+    editorFieldPanel.add(m_externalEditorArguments);
+
+    final JPanel editorPanel = new JPanel();
+    editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
+    editorPanel.add(editorLabelPanel);
+    editorPanel.add(Box.createHorizontalStrut(5));
+    editorPanel.add(editorFieldPanel);
+
+    final JPanel editorTab = new JPanel(new BorderLayout());
+    editorTab.add(editorPanel, BorderLayout.NORTH);
+    editorTab.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
     m_resetConsoleWithProcessesCheckBox =
-      new JCheckBox(resources.getString("resetConsoleWithProcesses.label"));
+      new JCheckBox(m_resources.getString("resetConsoleWithProcesses.label"));
     final JPanel checkBoxPanel = new JPanel();
     checkBoxPanel.add(m_resetConsoleWithProcessesCheckBox);
 
@@ -147,7 +184,8 @@ abstract class OptionsDialogHandler {
     m_lookAndFeelComboBox = new JComboBox(lookAndFeelLabels);
 
     final JPanel lookAndFeelPanel = new JPanel(new GridLayout(0, 2));
-    lookAndFeelPanel.add(new JLabel(resources.getString("lookAndFeel.label")));
+    lookAndFeelPanel.add(
+      new JLabel(m_resources.getString("lookAndFeel.label")));
     lookAndFeelPanel.add(m_lookAndFeelComboBox);
 
     final JPanel miscellaneousPanel = new JPanel();
@@ -163,22 +201,26 @@ abstract class OptionsDialogHandler {
 
     final JTabbedPane tabbedPane = new JTabbedPane();
 
-    tabbedPane.addTab(resources.getString("options.communicationTab.title"),
+    tabbedPane.addTab(m_resources.getString("options.communicationTab.title"),
                       null, communicationTab,
-                      resources.getString("options.communicationTab.tip"));
+                      m_resources.getString("options.communicationTab.tip"));
 
-    tabbedPane.addTab(resources.getString("options.samplingTab.title"),
+    tabbedPane.addTab(m_resources.getString("options.samplingTab.title"),
                       null, samplingControlTab,
-                      resources.getString("options.samplingTab.tip"));
+                      m_resources.getString("options.samplingTab.tip"));
 
-    tabbedPane.addTab(resources.getString("options.miscellaneousTab.title"),
+    tabbedPane.addTab(m_resources.getString("options.editorTab.title"),
+                      null, editorTab,
+                      m_resources.getString("options.editorTab.tip"));
+
+    tabbedPane.addTab(m_resources.getString("options.miscellaneousTab.title"),
                       null, miscellaneousTab,
-                      resources.getString("options.miscellaneousTab.tip"));
+                      m_resources.getString("options.miscellaneousTab.tip"));
 
     final Object[] options = {
-      resources.getString("options.ok.label"),
-      resources.getString("options.cancel.label"),
-      resources.getString("options.save.label"),
+      m_resources.getString("options.ok.label"),
+      m_resources.getString("options.cancel.label"),
+      m_resources.getString("options.save.label"),
     };
 
     final JOptionPane optionPane =
@@ -188,8 +230,10 @@ abstract class OptionsDialogHandler {
     m_samplingControlPanel.setProperties(m_properties);
 
     m_dialog =
-      new JOptionPaneDialog(
-        m_parentFrame, resources.getString("options.label"), true, optionPane) {
+      new JOptionPaneDialog(m_parentFrame,
+                            m_resources.getString("options.label"),
+                            true,
+                            optionPane) {
 
         protected boolean shouldClose() {
           final Object value = optionPane.getValue();
@@ -202,7 +246,7 @@ abstract class OptionsDialogHandler {
               setProperties(m_properties);
             }
             catch (ConsoleException e) {
-              new ErrorDialogHandler(m_dialog, resources).handleException(e);
+              new ErrorDialogHandler(m_dialog, m_resources).handleException(e);
               return false;
             }
 
@@ -216,9 +260,9 @@ abstract class OptionsDialogHandler {
                 final String messsage =
                   (cause != null ? cause : e).getMessage();
 
-                new ErrorDialogHandler(m_dialog, resources).
+                new ErrorDialogHandler(m_dialog, m_resources).
                   handleErrorMessage(messsage,
-                                     resources.getString("fileError.title"));
+                                     m_resources.getString("fileError.title"));
                 return false;
               }
             }
@@ -230,25 +274,15 @@ abstract class OptionsDialogHandler {
         }
       };
 
-    lookAndFeel.addListener(
+    m_lookAndFeel.addListener(
       new LookAndFeel.ComponentListener(m_dialog) {
         public void lookAndFeelChanged() {
           super.lookAndFeelChanged();
-          packAndSize(m_dialog);
+          m_dialog.pack();
         }
       });
 
-    packAndSize(m_dialog);
-  }
-
-  private void packAndSize(JDialog dialog) {
-    dialog.pack();
-
-    // With J2SE 1.4.2 on W32, the tabs don't fit on a single line.
-    // Increase the width a little.
-    final Dimension dialogSize = dialog.getSize();
-    dialogSize.width += 30;
-    dialog.setSize(dialogSize);
+    m_dialog.pack();
   }
 
   private void setProperties(ConsoleProperties properties)
@@ -256,6 +290,9 @@ abstract class OptionsDialogHandler {
 
     properties.setConsoleHost(m_consoleHost.getText());
     properties.setConsolePort(m_consolePort.getValue());
+    properties.setExternalEditorCommand(
+      new File(m_externalEditorCommand.getText()));
+    properties.setExternalEditorArguments(m_externalEditorArguments.getText());
     properties.setSignificantFigures(m_sfSlider.getValue());
     properties.setResetConsoleWithProcesses(
       m_resetConsoleWithProcessesCheckBox.isSelected());
@@ -280,6 +317,10 @@ abstract class OptionsDialogHandler {
     // Initialise input values.
     m_consoleHost.setText(m_properties.getConsoleHost());
     m_consolePort.setValue(m_properties.getConsolePort());
+    m_externalEditorCommand.setText(
+      m_properties.getExternalEditorCommand().getAbsolutePath());
+    m_externalEditorArguments.setText(
+      m_properties.getExternalEditorArguments());
     m_sfSlider.setValue(m_properties.getSignificantFigures());
     m_resetConsoleWithProcessesCheckBox.setSelected(
       m_properties.getResetConsoleWithProcesses());
@@ -309,4 +350,35 @@ abstract class OptionsDialogHandler {
    * User should override this to handle new options set by the dialog.
    */
   protected abstract void setNewOptions(ConsoleProperties newOptions);
+
+  private final class ChooseCommandAction extends CustomAction {
+    private final JFileChooser m_fileChooser = new JFileChooser(".");
+
+    ChooseCommandAction() {
+      super(m_resources, null, true);
+
+      putValue(Action.NAME, "...");
+
+      m_fileChooser.setDialogTitle(
+        m_resources.getString("choose-external-editor.label"));
+
+      m_fileChooser.setSelectedFile(
+        m_properties.getExternalEditorCommand());
+
+      m_lookAndFeel.addListener(
+        new LookAndFeel.ComponentListener(m_fileChooser));
+    }
+
+    public void actionPerformed(ActionEvent event) {
+      final String buttonText =
+        m_resources.getString("choose-external-editor.label");
+
+      if (m_fileChooser.showDialog(m_parentFrame, buttonText) ==
+          JFileChooser.APPROVE_OPTION) {
+
+        m_externalEditorCommand.setText(
+          m_fileChooser.getSelectedFile().getAbsolutePath());
+      }
+    }
+  }
 }

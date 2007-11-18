@@ -164,8 +164,8 @@ public final class ConsoleProperties {
   private StringProperty m_lookAndFeel =
     new StringProperty(LOOK_AND_FEEL_PROPERTY, null);
 
-  private StringProperty m_externalEditorCommand =
-    new StringProperty(EXTERNAL_EDITOR_COMMAND_PROPERTY, null);
+  private FileProperty m_externalEditorCommand =
+    new FileProperty(EXTERNAL_EDITOR_COMMAND_PROPERTY);
 
   private StringProperty m_externalEditorArguments =
     new StringProperty(EXTERNAL_EDITOR_ARGUMENTS_PROPERTY, null);
@@ -729,7 +729,7 @@ public final class ConsoleProperties {
    * @return The path to the process to be used for external editing.
    * <code>null</code> => no external editor set.
    */
-  public String getExternalEditorCommand() {
+  public File getExternalEditorCommand() {
     return m_externalEditorCommand.get();
   }
 
@@ -739,7 +739,7 @@ public final class ConsoleProperties {
    * @param command The path to the process to be used for external editing.
    * <code>null</code> => no external editor set.
    */
-  public void setExternalEditorCommand(String command) {
+  public void setExternalEditorCommand(File command) {
     m_externalEditorCommand.set(command);
   }
 

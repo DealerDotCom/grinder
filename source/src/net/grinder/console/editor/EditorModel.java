@@ -428,7 +428,6 @@ public final class EditorModel {
     catch (IOException e) {
       throw new DisplayMessageConsoleException(m_resources,
                                                "externalEditError.text",
-                                               new Object[] { file , },
                                                e);
     }
   }
@@ -445,7 +444,7 @@ public final class EditorModel {
    *            If no <code>%f</code> is found, the file path will be appended
    *            to the end of the command line.
    */
-  public void setExternalEditor(String command, String arguments) {
+  public void setExternalEditor(File command, String arguments) {
     if (command == null) {
       m_externalEditor = null;
     }

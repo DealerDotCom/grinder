@@ -43,32 +43,37 @@ public class TestExternalEditor extends AbstractFileTestCase {
     System.getProperty("java.class.path");
 
   public void testFileToCommandLine() throws Exception {
+    final File commandFile = new File("foo");
     final File file = new File("lah");
 
     final ExternalEditor externalEditor1 =
-      new ExternalEditor(null, "foo", "bah dah");
+      new ExternalEditor(null, commandFile, "bah dah");
     final String[] result1 = externalEditor1.fileToCommandLine(file);
 
     AssertUtilities.assertArraysEqual(
-      new String[] { "foo", "bah", "dah", file.getAbsolutePath(), },
+      new String[] { commandFile.getAbsolutePath(),
+                     "bah",
+                     "dah",
+                     file.getAbsolutePath(), },
       result1);
 
 
     final ExternalEditor externalEditor2 =
-      new ExternalEditor(null, "foo", "-f '%f'");
+      new ExternalEditor(null, commandFile, "-f '%f'");
     final String[] result2 = externalEditor2.fileToCommandLine(file);
 
     AssertUtilities.assertArraysEqual(
-      new String[] { "foo", "-f", "'" + file.getAbsolutePath() + "'", },
+      new String[] { commandFile.getAbsolutePath(),
+                     "-f", "'" + file.getAbsolutePath() + "'", },
       result2);
 
 
     final ExternalEditor externalEditor3 =
-      new ExternalEditor(null, "foo", null);
+      new ExternalEditor(null, commandFile, null);
     final String[] result3 = externalEditor3.fileToCommandLine(file);
 
     AssertUtilities.assertArraysEqual(
-      new String[] { "foo", file.getAbsolutePath(), },
+      new String[] { commandFile.getAbsolutePath(), file.getAbsolutePath(), },
       result3);
   }
 
@@ -90,7 +95,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
 
     final ExternalEditor externalEditor1 =
       new ExternalEditor(cacheState,
-                         "/usr/bin/java",
+                         new File("/usr/bin/java"),
                          "-classpath " + s_testClasspath + " " +
                          TouchClass.class.getName() + " " +
                          TouchClass.TOUCH + " %f");
@@ -116,7 +121,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
     // Try again, this time not editing.
     final ExternalEditor externalEditor2 =
       new ExternalEditor(cacheState,
-                         "/usr/bin/java",
+                         new File("/usr/bin/java"),
                          "-classpath " + s_testClasspath + " " +
                          TouchClass.class.getName() + " " +
                          TouchClass.NOOP + " %f");
@@ -140,7 +145,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
 
     final ExternalEditor externalEditor3 =
       new ExternalEditor(cacheState,
-                         "/usr/bin/java",
+                         new File("/usr/bin/java"),
                          "-classpath " + s_testClasspath + " " +
                          TouchClass.class.getName() + " " +
                          TouchClass.SLEEP + " %f");

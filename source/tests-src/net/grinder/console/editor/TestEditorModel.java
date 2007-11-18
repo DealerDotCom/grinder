@@ -555,7 +555,7 @@ public class TestEditorModel extends AbstractFileTestCase {
       assertNull(e.getCause());
     }
 
-    editorModel.setExternalEditor("not a command", "bah");
+    editorModel.setExternalEditor(new File("not a command"), "bah");
 
     try {
       editorModel.openWithExternalEditor(new File("foo"));
