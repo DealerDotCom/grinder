@@ -92,8 +92,7 @@ public class TestFileTree extends AbstractFileTestCase {
     // Simulate L&F change.
     SwingUtilities.updateComponentTreeUI(fileTree.getComponent());
 
-    assertNotNull(fileTree.getOpenFileAction());
-    assertNotNull(fileTree.getSetScriptAction());
+    assertNotNull(fileTree.getActions());
   }
 
   public void testEditorModelListener() throws Exception {

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,7 @@
 package net.grinder.console.editor;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.distribution.AgentCacheState;
 import net.grinder.console.distribution.FileChangeWatcher;
@@ -58,6 +60,7 @@ public final class EditorModel {
 
   private Buffer m_selectedBuffer;
   private File m_markedScript;
+  private ExternalEditor m_externalEditor;
 
   /**
    * Constructor.
@@ -404,6 +407,52 @@ public final class EditorModel {
       name.endsWith(".jpeg") ||
       name.endsWith(".jpg") ||
       name.endsWith(".tiff");
+  }
+
+
+  /**
+   * Open the given file with the external file.
+   *
+   * @param file The file.
+   * @throws ConsoleException If the file could not be opened.
+   */
+  public void openWithExternalEditor(final File file) throws ConsoleException {
+    if (m_externalEditor == null) {
+      throw new DisplayMessageConsoleException(m_resources,
+                                               "externalEditorNotSet.text");
+    }
+
+    try {
+      m_externalEditor.open(file);
+    }
+    catch (IOException e) {
+      throw new DisplayMessageConsoleException(m_resources,
+                                               "externalEditError.text",
+                                               new Object[] { file , },
+                                               e);
+    }
+  }
+
+  /**
+   * Set the external editor command line.
+   *
+   * @param command
+   *            Path to the external editor executable. <code>null</code> =>
+   *            no editor set.
+   * @param arguments
+   *            Arguments to pass to the external editor. Any <code>%f</code>
+   *            will be replaced with the absolute path of the file to edit.
+   *            If no <code>%f</code> is found, the file path will be appended
+   *            to the end of the command line.
+   */
+  public void setExternalEditor(String command, String arguments) {
+    if (command == null) {
+      m_externalEditor = null;
+    }
+    else {
+      m_externalEditor =
+        new ExternalEditor(m_agentCacheState, command, arguments);
+    }
   }
 
   /**

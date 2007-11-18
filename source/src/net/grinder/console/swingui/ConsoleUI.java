@@ -70,7 +70,6 @@ import javax.swing.JToolBar;
 import javax.swing.ProgressMonitor;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
@@ -133,6 +132,7 @@ public final class ConsoleUI implements ModelListener {
   private final FileTree m_fileTree;
   private final ErrorDialogHandler m_errorHandler;
   private final OptionalConfirmDialog m_optionalConfirmDialog;
+  private final Font m_titleLabelFont;
 
   private final CumulativeStatisticsTableModel m_cumulativeTableModel;
 
@@ -165,6 +165,8 @@ public final class ConsoleUI implements ModelListener {
     m_fileDistribution = fileDistribution;
     m_resources = resources;
 
+    final ConsoleProperties properties = m_model.getProperties();
+
     // Create the frame to contain the a menu and the top level pane.
     // Do before actions are constructed as we use the frame to create dialogs.
     m_frame = new JFrame(m_resources.getString("title"));
@@ -175,8 +177,7 @@ public final class ConsoleUI implements ModelListener {
       new SwingDispatcherFactory(m_errorHandler);
 
     // LookAndFeel constructor will set initial Look and Feel from properties.
-    m_lookAndFeel =
-      new LookAndFeel(m_model.getProperties(), swingDispatcherFactory);
+    m_lookAndFeel = new LookAndFeel(properties, swingDispatcherFactory);
 
     m_errorHandler.registerWithLookAndFeel(m_lookAndFeel);
 
@@ -185,8 +186,25 @@ public final class ConsoleUI implements ModelListener {
                                     m_fileDistribution.getAgentCacheState(),
                                     m_fileDistribution);
 
+    m_editorModel.setExternalEditor(properties.getExternalEditorCommand(),
+                                    properties.getExternalEditorArguments());
+
+    properties.addPropertyChangeListener(
+      new PropertyChangeListener()  {
+        public void propertyChange(PropertyChangeEvent e) {
+          if (e.getPropertyName().equals(
+                ConsoleProperties.EXTERNAL_EDITOR_COMMAND_PROPERTY) ||
+              e.getPropertyName().equals(
+                ConsoleProperties.EXTERNAL_EDITOR_ARGUMENTS_PROPERTY)) {
+            m_editorModel.setExternalEditor(
+              properties.getExternalEditorCommand(),
+              properties.getExternalEditorArguments());
+          }
+        }
+      });
+
     m_optionalConfirmDialog =
-      new OptionalConfirmDialog(m_frame, m_resources, m_model.getProperties());
+      new OptionalConfirmDialog(m_frame, m_resources, properties);
 
     m_stateIgnoringString = m_resources.getString("state.ignoring.label") + ' ';
     m_stateWaitingString = m_resources.getString("state.waiting.label");
@@ -224,14 +242,8 @@ public final class ConsoleUI implements ModelListener {
 
     final JPanel controlAndTotalPanel = createControlAndTotalPanel();
 
-    final JPanel hackToFixLayout = new JPanel();
-    hackToFixLayout.add(controlAndTotalPanel);
-
     // Create the tabbed test display.
     final JTabbedPane tabbedPane = new JTabbedPane();
-
-    final Border threePixelBorder =
-      BorderFactory.createEmptyBorder(3, 3, 3, 3);
 
     final TestGraphPanel graphPanel =
       new TestGraphPanel(tabbedPane,
@@ -252,7 +264,7 @@ public final class ConsoleUI implements ModelListener {
                       graphTabPane,
                       m_resources.getString("graphTab.tip"));
 
-    final Font tabLabelFont =
+    m_titleLabelFont =
       new JLabel().getFont().deriveFont(Font.PLAIN | Font.ITALIC);
 
     m_cumulativeTableModel =
@@ -261,38 +273,19 @@ public final class ConsoleUI implements ModelListener {
     final JScrollPane cumulativeTablePane =
       new JScrollPane(new Table(m_cumulativeTableModel));
 
-    final TitledBorder cumulativeTableTitledBorder =
-      BorderFactory.createTitledBorder(
-        threePixelBorder, m_resources.getString("cumulativeTable.label"));
-
-    cumulativeTableTitledBorder.setTitleFont(tabLabelFont);
-    cumulativeTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
-    cumulativeTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
-
-    cumulativeTablePane.setBorder(cumulativeTableTitledBorder);
+    cumulativeTablePane.setBorder(createTitledBorder("cumulativeTable.label"));
     cumulativeTablePane.setMinimumSize(new Dimension(100, 60));
 
     final SampleStatisticsTableModel sampleModel =
       new SampleStatisticsTableModel(m_model, m_resources);
 
-    final JScrollPane sampleTablePane =
-      new JScrollPane(new Table(sampleModel));
-
-    final TitledBorder sampleTableTitledBorder =
-      BorderFactory.createTitledBorder(
-        threePixelBorder, m_resources.getString("sampleTable.label"));
-
-    sampleTableTitledBorder.setTitleFont(tabLabelFont);
-    sampleTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
-    sampleTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
-
-    sampleTablePane.setBorder(sampleTableTitledBorder);
+    final JScrollPane sampleTablePane = new JScrollPane(new Table(sampleModel));
+    sampleTablePane.setBorder(createTitledBorder("sampleTable.label"));
     sampleTablePane.setMinimumSize(new Dimension(100, 60));
 
-    final JSplitPane resultsPane =
-      new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                     cumulativeTablePane,
-                     sampleTablePane);
+    final JSplitPane resultsPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                                  cumulativeTablePane,
+                                                  sampleTablePane);
 
     resultsPane.setOneTouchExpandable(true);
     resultsPane.setResizeWeight(1.0d);
@@ -311,15 +304,8 @@ public final class ConsoleUI implements ModelListener {
     final JScrollPane processStatusPane =
       new JScrollPane(new Table(processStatusModel));
 
-    final TitledBorder processTableTitledBorder =
-      BorderFactory.createTitledBorder(
-        threePixelBorder, m_resources.getString("processStatusTableTab.tip"));
-
-    processTableTitledBorder.setTitleFont(tabLabelFont);
-    processTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
-    processTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
-
-    processStatusPane.setBorder(processTableTitledBorder);
+    processStatusPane.setBorder(
+      createTitledBorder("processStatusTableTab.tip"));
 
     tabbedPane.addTab(m_resources.getString("processStatusTableTab.title"),
                       m_resources.getImageIcon(
@@ -331,8 +317,8 @@ public final class ConsoleUI implements ModelListener {
     new ToolBarAssembler(editorToolBar, true).populate("editor.toolbar");
 
     final Font editorSmallFont =
-      tabLabelFont.deriveFont(Font.PLAIN)
-                  .deriveFont(tabLabelFont.getSize2D() * 0.8f);
+      m_titleLabelFont.deriveFont(Font.PLAIN)
+        .deriveFont(m_titleLabelFont.getSize2D() * 0.8f);
 
     final EditorControls editorControls =
       new EditorControls(
@@ -344,15 +330,15 @@ public final class ConsoleUI implements ModelListener {
       new FileTreeModel(m_editorModel,
                         m_fileDistribution.getDistributionFileFilter());
     fileTreeModel.setRootDirectory(
-      m_model.getProperties().getDistributionDirectory().getFile());
+      properties.getDistributionDirectory().getFile());
 
-    m_model.getProperties().addPropertyChangeListener(
+    properties.addPropertyChangeListener(
       new PropertyChangeListener()  {
         public void propertyChange(PropertyChangeEvent e) {
           if (e.getPropertyName().equals(
                 ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY)) {
             fileTreeModel.setRootDirectory(
-              m_model.getProperties().getDistributionDirectory().getFile());
+              properties.getDistributionDirectory().getFile());
           }
         }
       });
@@ -370,8 +356,11 @@ public final class ConsoleUI implements ModelListener {
                               editorSmallFont,
                               fileTreePopupMenu);
 
-    m_actionTable.add(m_fileTree.getOpenFileAction());
-    m_actionTable.add(m_fileTree.getSetScriptAction());
+    final CustomAction[] fileTreeActions = m_fileTree.getActions();
+
+    for (int i = 0; i < fileTreeActions.length; ++i) {
+      m_actionTable.add(fileTreeActions[i]);
+    }
 
     new PopupMenuAssembler(fileTreePopupMenu).populate(
       "editor.filetree.popupmenu");
@@ -410,7 +399,7 @@ public final class ConsoleUI implements ModelListener {
                       m_resources.getString("scriptTab.tip"));
 
     final JPanel contentPanel = new JPanel(new BorderLayout());
-    contentPanel.add(hackToFixLayout, BorderLayout.WEST);
+    contentPanel.add(controlAndTotalPanel, BorderLayout.WEST);
     contentPanel.add(tabbedPane, BorderLayout.CENTER);
 
     // Create a panel to hold the tool bar and the test pane.
@@ -442,15 +431,27 @@ public final class ConsoleUI implements ModelListener {
     m_model.addModelListener(new SwingDispatchedModelListener(this));
     update();
 
-    final LookAndFeelListener lookAndFeelListener = new LookAndFeelListener();
-    m_lookAndFeel.addListener(lookAndFeelListener);
+    m_lookAndFeel.addListener(new LookAndFeelListener());
 
-    m_frameBounds = new FrameBounds(m_model.getProperties(), m_frame);
+    m_frameBounds = new FrameBounds(properties, m_frame);
     m_frameBounds.restore();
 
     resultsPane.setDividerLocation(resultsPane.getMaximumDividerLocation());
 
     m_frame.setVisible(true);
+  }
+
+  private TitledBorder createTitledBorder(String titleResource) {
+    final TitledBorder border =
+      BorderFactory.createTitledBorder(
+        BorderFactory.createEmptyBorder(3, 3, 3, 3),
+        m_resources.getString(titleResource));
+
+    border.setTitleFont(m_titleLabelFont);
+    border.setTitleColor(Colours.HIGHLIGHT_TEXT);
+    border.setTitleJustification(TitledBorder.RIGHT);
+
+    return border;
   }
 
   private JPanel createControlAndTotalPanel() {
@@ -519,7 +520,10 @@ public final class ConsoleUI implements ModelListener {
     controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 20)));
     controlAndTotalPanel.add(totalGraph);
 
-    return controlAndTotalPanel;
+    final JPanel hackToFixLayout = new JPanel();
+    hackToFixLayout.add(controlAndTotalPanel);
+
+    return hackToFixLayout;
   }
 
   private final class LookAndFeelListener

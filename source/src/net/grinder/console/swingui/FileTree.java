@@ -78,6 +78,7 @@ final class FileTree {
 
   private final JTree m_tree;
   private final OpenAction m_openAction;
+  private final OpenExternalAction m_openExternalAction;
   private final SetScriptAction m_setScriptAction;
   private final JScrollPane m_scrollPane;
 
@@ -142,6 +143,7 @@ final class FileTree {
       });
 
     m_openAction = new OpenAction();
+    m_openExternalAction = new OpenExternalAction();
     m_setScriptAction = new SetScriptAction();
 
     // J2SE 1.4 drops the mapping from "ENTER" -> "toggle"
@@ -287,12 +289,9 @@ final class FileTree {
     return m_scrollPane;
   }
 
-  public CustomAction getOpenFileAction() {
-    return m_openAction;
-  }
-
-  public CustomAction getSetScriptAction() {
-    return m_setScriptAction;
+  public CustomAction[] getActions() {
+    return new CustomAction[] {
+        m_openAction, m_openExternalAction, m_setScriptAction, };
   }
 
   /**
@@ -325,6 +324,33 @@ final class FileTree {
           // reselect the original node so our actions are enabled
           // correctly.
           m_tree.setSelectionPath(treePathForFileNode(fileNode));
+        }
+        catch (ConsoleException e) {
+          m_errorHandler.handleException(
+            e, m_resources.getString("fileError.title"));
+        }
+      }
+    }
+  }
+
+
+  /**
+   * Action for opening the currently selected file in the tree in an external
+   * editor.
+   */
+  private final class OpenExternalAction extends CustomAction {
+    public OpenExternalAction() {
+      super(m_resources, "open-file-external");
+    }
+
+    public void actionPerformed(ActionEvent event) {
+      final Object selectedNode = m_tree.getLastSelectedPathComponent();
+
+      if (selectedNode instanceof FileTreeModel.FileNode) {
+        final FileNode fileNode = (FileTreeModel.FileNode)selectedNode;
+
+        try {
+          m_editorModel.openWithExternalEditor(fileNode.getFile());
         }
         catch (ConsoleException e) {
           m_errorHandler.handleException(
@@ -371,6 +397,8 @@ final class FileTree {
           node.canOpen() &&
           (buffer == null ||
            !buffer.equals(m_editorModel.getSelectedBuffer())));
+
+        m_openExternalAction.setEnabled(file != null && file.isFile());
 
         m_setScriptAction.setEnabled(
           m_editorModel.isPythonFile(file) &&

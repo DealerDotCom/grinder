@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,9 @@ package net.grinder.console.editor;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 
+import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.distribution.AgentCacheState;
@@ -536,5 +538,41 @@ public class TestEditorModel extends AbstractFileTestCase {
     editorModel.selectBufferForFile(f1);
     editorModelListenerStubFactory.assertSuccess("bufferNotUpToDate", buffer);
     editorModelListenerStubFactory.assertNoMoreCalls();
+  }
+
+  public void testOpenWithExternalEditor() throws Exception {
+    final EditorModel editorModel =
+      new EditorModel(s_resources,
+                      new StringTextSource.Factory(),
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
+
+    try {
+      editorModel.openWithExternalEditor(null);
+      fail("Expected DisplayMessageConsoleException");
+    }
+    catch (DisplayMessageConsoleException e) {
+      assertNull(e.getCause());
+    }
+
+    editorModel.setExternalEditor("not a command", "bah");
+
+    try {
+      editorModel.openWithExternalEditor(new File("foo"));
+      fail("Expected DisplayMessageConsoleException");
+    }
+    catch (DisplayMessageConsoleException e) {
+      assertTrue(e.getCause() instanceof IOException);
+    }
+
+    editorModel.setExternalEditor(null, "bah");
+
+    try {
+      editorModel.openWithExternalEditor(new File("foo"));
+      fail("Expected DisplayMessageConsoleException");
+    }
+    catch (DisplayMessageConsoleException e) {
+      assertNull(e.getCause());
+    }
   }
 }
