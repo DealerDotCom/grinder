@@ -24,9 +24,13 @@ package net.grinder.console.editor;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 
+import net.grinder.console.common.Resources;
+import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.distribution.AgentCacheState;
+import net.grinder.console.distribution.FileChangeWatcher;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
+import net.grinder.testutility.RandomStubFactory;
 
 import junit.framework.TestCase;
 
@@ -42,12 +46,21 @@ public class TestExternalEditor extends AbstractFileTestCase {
   private static final String s_testClasspath =
     System.getProperty("java.class.path");
 
+  private static final Resources s_resources =
+    new ResourcesImplementation(
+      "net.grinder.console.swingui.resources.Console");
+
+  private final RandomStubFactory m_fileChangeWatcherStubFactory =
+    new RandomStubFactory(FileChangeWatcher.class);
+  private final FileChangeWatcher m_fileChangeWatcher =
+    (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
+
   public void testFileToCommandLine() throws Exception {
     final File commandFile = new File("foo");
     final File file = new File("lah");
 
     final ExternalEditor externalEditor1 =
-      new ExternalEditor(null, commandFile, "bah dah");
+      new ExternalEditor(null, null, commandFile, "bah dah");
     final String[] result1 = externalEditor1.fileToCommandLine(file);
 
     AssertUtilities.assertArraysEqual(
@@ -59,7 +72,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
 
 
     final ExternalEditor externalEditor2 =
-      new ExternalEditor(null, commandFile, "-f '%f'");
+      new ExternalEditor(null, null, commandFile, "-f '%f'");
     final String[] result2 = externalEditor2.fileToCommandLine(file);
 
     AssertUtilities.assertArraysEqual(
@@ -69,7 +82,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
 
 
     final ExternalEditor externalEditor3 =
-      new ExternalEditor(null, commandFile, null);
+      new ExternalEditor(null, null, commandFile, null);
     final String[] result3 = externalEditor3.fileToCommandLine(file);
 
     AssertUtilities.assertArraysEqual(
@@ -93,8 +106,18 @@ public class TestExternalEditor extends AbstractFileTestCase {
         }};
 
 
+    final StringTextSource.Factory stringTextSourceFactory =
+      new StringTextSource.Factory();
+
+    final EditorModel editorModel = new EditorModel(s_resources,
+                                                    stringTextSourceFactory,
+                                                    cacheState,
+                                                    m_fileChangeWatcher);
+
+
     final ExternalEditor externalEditor1 =
       new ExternalEditor(cacheState,
+                         editorModel,
                          new File("/usr/bin/java"),
                          "-classpath " + s_testClasspath + " " +
                          TouchClass.class.getName() + " " +
@@ -114,13 +137,52 @@ public class TestExternalEditor extends AbstractFileTestCase {
     }
 
     final long firstModification = file.lastModified();
-    assertTrue(firstModification!= 0);
+    assertTrue(firstModification != 0);
     assertEquals(firstModification, lastInvalidAfter[0]);
+
+
+    // Clean buffers get reloaded.
+    final Buffer buffer = editorModel.selectBufferForFile(file);
+    file.setLastModified(0);
+
+    externalEditor1.open(file);
+
+    for (int i = 0;
+         i < 20 && ExternalEditor.getThreadGroup().activeCount() > 0;
+         ++i) {
+      Thread.sleep(i * 10);
+    }
+
+    final long secondModification = file.lastModified();
+    assertTrue(secondModification != 0);
+    assertEquals(secondModification, lastInvalidAfter[0]);
+    assertTrue(buffer.isUpToDate());
+
+
+    // Dirty buffers don't get reloaded.
+    file.setLastModified(0);
+    buffer.load();
+    ((StringTextSource)buffer.getTextSource()).markDirty();
+    assertTrue(buffer.isDirty());
+
+    externalEditor1.open(file);
+
+    for (int i = 0;
+         i < 20 && ExternalEditor.getThreadGroup().activeCount() > 0;
+         ++i) {
+      Thread.sleep(i * 10);
+    }
+
+    final long thirdModification = file.lastModified();
+    assertTrue(thirdModification != 0);
+    assertEquals(thirdModification, lastInvalidAfter[0]);
+    assertTrue(!buffer.isUpToDate());
 
 
     // Try again, this time not editing.
     final ExternalEditor externalEditor2 =
       new ExternalEditor(cacheState,
+                         editorModel,
                          new File("/usr/bin/java"),
                          "-classpath " + s_testClasspath + " " +
                          TouchClass.class.getName() + " " +
@@ -138,13 +200,14 @@ public class TestExternalEditor extends AbstractFileTestCase {
     }
 
     assertEquals(0, file.lastModified());
-    assertEquals(firstModification, lastInvalidAfter[0]);
+    assertEquals(thirdModification, lastInvalidAfter[0]);
 
 
     // Once more, this time interrupting the process.
 
     final ExternalEditor externalEditor3 =
       new ExternalEditor(cacheState,
+                         editorModel,
                          new File("/usr/bin/java"),
                          "-classpath " + s_testClasspath + " " +
                          TouchClass.class.getName() + " " +
@@ -158,6 +221,6 @@ public class TestExternalEditor extends AbstractFileTestCase {
     ExternalEditor.getThreadGroup().interrupt();
 
     assertEquals(0, file.lastModified());
-    assertEquals(firstModification, lastInvalidAfter[0]);
+    assertEquals(thirdModification, lastInvalidAfter[0]);
   }
 }

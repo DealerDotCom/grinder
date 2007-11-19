@@ -450,7 +450,7 @@ public final class EditorModel {
     }
     else {
       m_externalEditor =
-        new ExternalEditor(m_agentCacheState, command, arguments);
+        new ExternalEditor(m_agentCacheState, this, command, arguments);
     }
   }
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import net.grinder.common.GrinderException;
 import net.grinder.console.distribution.AgentCacheState;
 
 /**
@@ -24,14 +25,16 @@ class ExternalEditor {
   }
 
   private final AgentCacheState m_agentCacheState;
+  private final EditorModel m_editorModel;
   private final File m_command;
   private final String m_arguments;
 
-
   public ExternalEditor(AgentCacheState agentCacheState,
+                        EditorModel editorModel,
                         File command,
                         String arguments) {
     m_agentCacheState = agentCacheState;
+    m_editorModel = editorModel;
     m_command = command;
     m_arguments = arguments;
   }
@@ -74,6 +77,9 @@ class ExternalEditor {
     final Runnable handleCompletion = new Runnable() {
       public void run() {
         try {
+          // We ignore the process result when figuring out whether the
+          // editor changed the file. I don't trust all editors to return
+          // 0 on success.
           exec.waitFor();
         }
         catch (InterruptedException e) {
@@ -86,6 +92,18 @@ class ExternalEditor {
 
         if (lastModified > originalModificationTime) {
           m_agentCacheState.setOutOfDate(lastModified);
+
+          // If there is an existing, clean buffer refresh it from the file.
+          final Buffer buffer = m_editorModel.getBufferForFile(file);
+
+          if (buffer != null && !buffer.isDirty()) {
+            try {
+              buffer.load();
+            }
+            catch (GrinderException e) {
+              // Ignore.
+            }
+          }
         }
       }
     };
