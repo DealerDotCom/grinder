@@ -37,6 +37,7 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -346,15 +347,31 @@ final class FileTree {
     public void actionPerformed(ActionEvent event) {
       final Object selectedNode = m_tree.getLastSelectedPathComponent();
 
-      if (selectedNode instanceof FileTreeModel.FileNode) {
-        final FileNode fileNode = (FileTreeModel.FileNode)selectedNode;
+      if (selectedNode instanceof Node) {
+        final Node node = (Node)selectedNode;
 
-        try {
-          m_editorModel.openWithExternalEditor(fileNode.getFile());
-        }
-        catch (ConsoleException e) {
-          m_errorHandler.handleException(
-            e, m_resources.getString("fileError.title"));
+        final File file = node.getFile();
+
+        if (file != null) {
+          final Buffer buffer = node.getBuffer();
+
+          if (buffer != null && buffer.isDirty() &&
+                JOptionPane.showConfirmDialog(
+                  getComponent(),
+                  m_resources.getString(
+                    "externalEditModifiedBufferConfirmation.text"),
+                  file.toString(),
+                  JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+              return;
+          }
+
+          try {
+            m_editorModel.openWithExternalEditor(file);
+          }
+          catch (ConsoleException e) {
+            m_errorHandler.handleException(
+              e, m_resources.getString("fileError.title"));
+          }
         }
       }
     }
@@ -409,6 +426,7 @@ final class FileTree {
     }
 
     m_openAction.setEnabled(false);
+    m_openExternalAction.setEnabled(false);
     m_setScriptAction.setEnabled(false);
   }
 
