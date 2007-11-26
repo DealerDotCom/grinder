@@ -317,8 +317,11 @@ abstract class OptionsDialogHandler {
     // Initialise input values.
     m_consoleHost.setText(m_properties.getConsoleHost());
     m_consolePort.setValue(m_properties.getConsolePort());
+
+    final File externalEditor = m_properties.getExternalEditorCommand();
     m_externalEditorCommand.setText(
-      m_properties.getExternalEditorCommand().getAbsolutePath());
+      externalEditor != null ? externalEditor.getAbsolutePath() : "");
+
     m_externalEditorArguments.setText(
       m_properties.getExternalEditorArguments());
     m_sfSlider.setValue(m_properties.getSignificantFigures());
