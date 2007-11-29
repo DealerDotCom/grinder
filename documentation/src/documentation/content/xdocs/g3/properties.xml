@@ -71,7 +71,8 @@
 
           <td>If set, the agent will <em>ramp up</em> the number of
           worker processes, starting the number specified every
-          <code>grinder.processesIncrementInterval</code> milliseconds.
+          <code>grinder.processesIncrementInterval</code> milliseconds. The
+          upper limit is set by <code>grinder.processes</code>.
           </td>
 
           <td>Start all worker processes together.</td>
