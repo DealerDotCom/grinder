@@ -606,7 +606,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
     final String message =
       "POST /something HTTP/1.0\r\n" +
-      "Content-Type: application/x-www-form-urlencoded\r\n" +
+      "Content-Type: application/x-www-form-urlencoded; blah\r\n" +
       "\r\n" +
       "red=5&blue=10";
 

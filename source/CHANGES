@@ -31,6 +31,10 @@ The Grinder 3.0-beta34 (Not yet released)
   need to delete .grinder_console from your home directory/profile to
   pick up this change. Thanks to Andrew Stephens for the report.
 
+  Fix TCPProxy filter bug which would cause some form data not to be
+  identified and tokenised. Increase the size of form data that will be
+  in-lined in the script. Thanks to Brian Dols for the prompt and testing.
+
 
 The Grinder 3.0-beta33
 ----------------------

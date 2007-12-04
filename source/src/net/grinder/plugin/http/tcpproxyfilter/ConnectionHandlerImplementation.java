@@ -471,13 +471,21 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       public void end() {
         final BodyType body = m_requestXML.addNewBody();
 
+        final boolean isFormData;
+
         if (m_contentType != null) {
           body.setContentType(m_contentType);
+          isFormData =
+            m_contentType.startsWith("application/x-www-form-urlencoded");
+        }
+        else {
+          isFormData = false;
         }
 
         final byte[] bytes = toByteArray();
 
-        if (bytes.length > 0x4000) {
+        if (bytes.length > 0x4000 && !isFormData ||
+            bytes.length > 0x40000) {
           // Large amount of data, use a file.
           final File file = m_httpRecording.createBodyDataFileName();
 
@@ -505,7 +513,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
             throw new AssertionError(e);
           }
 
-          if ("application/x-www-form-urlencoded".equals(m_contentType)) {
+          if (isFormData) {
             try {
               final NVPair[] formNameValuePairs =
                 Codecs.query2nv(iso88591String);
