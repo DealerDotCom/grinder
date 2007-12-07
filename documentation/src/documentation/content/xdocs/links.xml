@@ -8,6 +8,28 @@
 </header>
 
 <body>
+
+<section>
+  <title>Related Software Projects</title>
+
+  <table class="noborder">
+    <tr>
+      <td>
+        <a href="http://code.google.com/p/grinderstone/">Grinderstone</a>
+      </td>
+
+      <td></td>
+
+      <td>
+        <em>GrinderStone Eclipse plug-in is Grinder development
+        environment (debugger for Grinder scripts is
+        included).GrinderStone is extension for PyDev plug-in for
+        developing Grinder scripts.</em>
+      </td>
+    </tr>
+  </table>
+</section>
+
 <section>
   <title>Articles</title>
 
