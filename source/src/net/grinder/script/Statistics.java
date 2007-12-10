@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 2005, 2006 Philip Aston
+// Copyright (C) 2003, 2004 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -437,7 +437,8 @@ public interface Statistics  {
    * With this set to <code>true</code> the statistics for a completed test
    * will be reported at the following times:
    * <ol>
-   * <li>When the next test is invoked.</li>
+   * <li>When the next test begins.</li>
+   * <li>When an enclosing test ends.</li>
    * <li>When the current run completes.</li>
    * <li>When the script calls {@link #report}.</li>
    * <li>When the script calls <code>setDelayReports(false)</code>.</li>

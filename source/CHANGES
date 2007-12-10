@@ -35,6 +35,8 @@ The Grinder 3.0-beta34 (Not yet released)
   identified and tokenised. Increase the size of form data that will be
   in-lined in the script. Thanks to Brian Dols for the prompt and testing.
 
+  Fix bug 1846218 - Delayed statistics are not flushed on next test.
+
 
 The Grinder 3.0-beta33
 ----------------------

@@ -201,6 +201,8 @@ final class ThreadContextImplementation
       m_processContext.checkIfShutdown();
     }
 
+    reportPendingDispatchContext();
+
     getThreadLogger().setCurrentTestNumber(
       dispatchContext.getTest().getNumber());
 
@@ -230,8 +232,10 @@ final class ThreadContextImplementation
 
     m_statisticsForLastTest = dispatchContext.getStatisticsForTest();
 
+    // Flush any pending report created by an inner test.
+    reportPendingDispatchContext();
+
     if (m_delayReports) {
-      reportPendingDispatchContext();
       m_pendingDispatchContext = dispatchContext;
     }
     else {

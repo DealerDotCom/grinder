@@ -34,6 +34,7 @@ import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
+import net.grinder.testutility.AbstractStubFactory;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
@@ -360,6 +361,35 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.reportPendingDispatchContext();
     m_dispatchContextStubFactory.assertNoMoreCalls();
 
+    // Test flush at beginning of next test (same test)
+    threadContext.pushDispatchContext(m_dispatchContext);
+    m_dispatchContextStubFactory.assertSuccess("getTest");
+    threadContext.popDispatchContext();
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
+    threadContext.pushDispatchContext(m_dispatchContext);
+    m_dispatchContextStubFactory.assertSuccess("report");
+    m_dispatchContextStubFactory.assertSuccess("getTest");
+    threadContext.popDispatchContext();
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
+    threadContext.reportPendingDispatchContext();
+    m_dispatchContextStubFactory.assertSuccess("report");
+    m_dispatchContextStubFactory.assertNoMoreCalls();
+
+    // Test flush at beginning of next test (different test).
+    threadContext.pushDispatchContext(m_dispatchContext);
+    m_dispatchContextStubFactory.assertSuccess("getTest");
+    threadContext.popDispatchContext();
+    m_dispatchContextStubFactory.setResult("getTest", new StubTest(16, "abc"));
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
+    threadContext.pushDispatchContext(m_dispatchContext);
+    m_dispatchContextStubFactory.assertSuccess("report");
+    m_dispatchContextStubFactory.assertSuccess("getTest");
+    threadContext.popDispatchContext();
+    m_dispatchContextStubFactory.assertSuccess("getStatisticsForTest");
+    threadContext.reportPendingDispatchContext();
+    m_dispatchContextStubFactory.assertSuccess("report");
+    m_dispatchContextStubFactory.assertNoMoreCalls();
+
     // Test flushed at end of run.
     threadContext.pushDispatchContext(m_dispatchContext);
     m_dispatchContextStubFactory.assertSuccess("getTest");
@@ -379,6 +409,64 @@ public class TestThreadContextImplementation extends TestCase {
     m_dispatchContextStubFactory.assertNoMoreCalls();
     threadContext.setDelayReports(false);
     m_dispatchContextStubFactory.assertSuccess("report");
+    m_dispatchContextStubFactory.assertNoMoreCalls();
+  }
+
+  public void testWithBadDispatchContext() throws Exception {
+    final ThreadContext threadContext =
+      new ThreadContextImplementation(
+        m_processContext, m_threadLogger, m_filenameFactory, null);
+
+    m_dispatchContextStubFactory.setIgnoreMethod("getStatisticsForTest");
+
+    final Test test = new StubTest(14, "test");
+    m_dispatchContextStubFactory.setResult("getTest", test);
+
+    final Throwable t = new DispatchContext.DispatchStateException("foo");
+    m_dispatchContextStubFactory.setThrows("report", t);
+
+    threadContext.pushDispatchContext(m_dispatchContext);
+    m_dispatchContextStubFactory.resetCallHistory();
+
+    try {
+      threadContext.popDispatchContext();
+      fail("Expected AssertionError");
+    }
+    catch (AssertionError e) {
+      assertSame(t, e.getCause());
+    }
+
+    m_dispatchContextStubFactory.assertException("report", new Class[0], t);
+    m_dispatchContextStubFactory.assertNoMoreCalls();
+  }
+
+  public void testWithBadPendingDispatchContext() throws Exception {
+    final ThreadContext threadContext =
+      new ThreadContextImplementation(
+        m_processContext, m_threadLogger, m_filenameFactory, null);
+
+    final Test test = new StubTest(14, "test");
+    m_dispatchContextStubFactory.setResult("getTest", test);
+
+    threadContext.setDelayReports(true);
+
+    final Throwable t = new DispatchContext.DispatchStateException("foo");
+    m_dispatchContextStubFactory.setThrows("report", t);
+
+    threadContext.pushDispatchContext(m_dispatchContext);
+    threadContext.popDispatchContext();
+
+    m_dispatchContextStubFactory.resetCallHistory();
+
+    try {
+      threadContext.reportPendingDispatchContext();
+      fail("Expected AssertionError");
+    }
+    catch (AssertionError e) {
+      assertSame(t, e.getCause());
+    }
+
+    m_dispatchContextStubFactory.assertException("report", new Class[0], t);
     m_dispatchContextStubFactory.assertNoMoreCalls();
   }
 
