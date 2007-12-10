@@ -66,7 +66,7 @@ public class TestPluginRegistryImplementation extends TestCase {
     (GrinderPlugin)m_grinderPluginStubFactory.getStub();
 
   public void setUp() {
-    m_grinderPluginStubFactory.setIgnoreObjectMethods(true);
+    m_grinderPluginStubFactory.setIgnoreObjectMethods();
   }
 
   public void testConstructorAndSingleton() throws Exception {

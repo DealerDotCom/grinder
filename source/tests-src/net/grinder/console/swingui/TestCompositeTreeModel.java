@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -140,7 +140,7 @@ public class TestCompositeTreeModel extends TestCase {
 
     final RandomStubFactory listener1StubFactory =
       new RandomStubFactory(TreeModelListener.class);
-    listener1StubFactory.setIgnoreObjectMethods(true);
+    listener1StubFactory.setIgnoreObjectMethods();
     final TreeModelListener listener1 =
       (TreeModelListener)listener1StubFactory.getStub();
 
@@ -157,7 +157,7 @@ public class TestCompositeTreeModel extends TestCase {
 
     final RandomStubFactory listener2StubFactory =
       new RandomStubFactory(TreeModelListener.class);
-    listener2StubFactory.setIgnoreObjectMethods(true);
+    listener2StubFactory.setIgnoreObjectMethods();
     final TreeModelListener listener2 =
       (TreeModelListener)listener2StubFactory.getStub();
 
@@ -218,13 +218,11 @@ public class TestCompositeTreeModel extends TestCase {
   public class ListenerStubFactory extends RandomStubFactory {
     ListenerStubFactory() {
       super(TreeModelListener.class);
-      setIgnoreObjectMethods(true);
+      setIgnoreObjectMethods();
     }
 
     public TreeModelListener getListener() {
       return (TreeModelListener)getStub();
     }
-
-
   }
 }

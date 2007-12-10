@@ -21,8 +21,11 @@
 
 package net.grinder.testutility;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import net.grinder.util.thread.Monitor;
@@ -42,7 +45,7 @@ public class CallRecorder extends Assert implements CallAssertions {
 
   private final Monitor m_callDataListMonitor = new Monitor();
   private final LinkedList m_callDataList = new LinkedList();
-  private boolean m_ignoreObjectMethods = false;
+  private List m_methodFilters = new ArrayList();
   private boolean m_ignoreCallOrder = false;
 
   /**
@@ -118,19 +121,39 @@ public class CallRecorder extends Assert implements CallAssertions {
     }
   }
 
-
-  public void setIgnoreObjectMethods(boolean b) {
-    m_ignoreObjectMethods = b;
-  }
-
   public void setIgnoreCallOrder(boolean b) {
     m_ignoreCallOrder = b;
   }
 
+  public void setIgnoreObjectMethods() {
+    m_methodFilters.add(
+      new MethodFilter() {
+        public boolean matches(Method m) {
+          return m.getDeclaringClass() == Object.class;
+        }
+      });
+  }
+
+  public void setIgnoreMethod(final String methodName) {
+    m_methodFilters.add(
+      new MethodFilter() {
+        public boolean matches(Method m) {
+          return m.getName().equals(methodName);
+        }
+      });
+  }
+
   public final void record(CallData callData) {
-    if (s_threadRecording.isEnabled() &&
-        (!m_ignoreObjectMethods ||
-         callData.getMethod().getDeclaringClass() != Object.class)) {
+    if (s_threadRecording.isEnabled()) {
+      final Iterator iterator = m_methodFilters.iterator();
+      while (iterator.hasNext()) {
+        final MethodFilter filter = (MethodFilter)iterator.next();
+
+        if (filter.matches(callData.getMethod())) {
+          return;
+        }
+      }
+
       synchronized (m_callDataListMonitor) {
         m_callDataList.add(callData);
         m_callDataListMonitor.notifyAll();
@@ -351,5 +374,9 @@ public class CallRecorder extends Assert implements CallAssertions {
     public boolean isEnabled() {
       return m_threadLocal.get() == null;
     }
+  }
+
+  public interface MethodFilter {
+    boolean matches(Method m);
   }
 }

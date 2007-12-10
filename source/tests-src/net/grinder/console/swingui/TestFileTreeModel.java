@@ -153,8 +153,8 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     // remove causes, the next assertNoMoreCalls fails with a
     // ConcurrentModificationException. Seems bogus to me, but its not
     // pertinent to the test.
-    listenerStubFactory1.setIgnoreObjectMethods(true);
-    listenerStubFactory2.setIgnoreObjectMethods(true);
+    listenerStubFactory1.setIgnoreObjectMethods();
+    listenerStubFactory2.setIgnoreObjectMethods();
     fileTreeModel.removeTreeModelListener(listener1);
     fileTreeModel.refresh();
 
