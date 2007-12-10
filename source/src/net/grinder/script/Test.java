@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,7 +39,10 @@ import net.grinder.engine.process.TestRegistry;
  * Grinder will aggregate the results.</p>
  *
  * <p>Creating a <code>Test</code> will automatically update The
- * Grinder console.</p>
+ * Grinder console with the test number and the description. If
+ * two <code>Tests</code> are created with the same number but a
+ * different description, the console will show the first
+ * description.</p>
  *
  * @author Philip Aston
  * @version $Revision$
