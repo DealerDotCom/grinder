@@ -41,7 +41,7 @@ Recording control (done).
 *** sample log file
 
 *** feedback from travis
-Commnents on the API: -
+Comments on the API: -
 
  * For sure there will need to be an ability to retrieve stats, as you
 mentioned.
@@ -131,8 +131,9 @@ Task: Warnings for buffers whose file is modified outside of editor.
 ***** Release 6
 
 Task: External editor integration.
-Task: The agent should pick up secondary grinder.properties from file
-cache.
+
+Task: The agent should pick up secondary grinder.properties from start
+message.
 Task: Console to optionally auto broadcast on play. Need some way of
 synchronising before starting run.
 
@@ -152,9 +153,6 @@ skip sync. Can't rely on remote timestamps as clocks are not sync'd.
 Task: Distribution file filter should be dynamically settable.
 
 ** Console
-
-Note: Klaus-Peter Berg is currently working on a major refactoring of
-the console.
 
 *** Stop the recording when last thread terminates
 Requested by Jürgen Weber
