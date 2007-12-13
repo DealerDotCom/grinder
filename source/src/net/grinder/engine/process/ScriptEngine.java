@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -16,10 +16,9 @@
 
 package net.grinder.engine.process;
 
-import java.io.File;
-
 import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.script.NotWrappableTypeException;
 
 
@@ -35,12 +34,10 @@ public interface ScriptEngine {
    * Run any process initialisation required by the script. Called once
    * per ScriptEngine instance, before any of the other methods.
    *
-   * @param scriptFile Absolute path to file containing script.
-   * @param scriptDirectory Root directory. May not be script's immediate
-   * parent.
+   * @param script The script.
    * @throws EngineException If process initialisation failed.
    */
-  void initialise(File scriptFile, File scriptDirectory)
+  void initialise(ScriptLocation script)
     throws EngineException;
 
   /**

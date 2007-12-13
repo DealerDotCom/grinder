@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000-2006 Philip Aston
+// Copyright (C) 2000-2007 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
 //
@@ -46,6 +46,7 @@ import net.grinder.communication.TeeSender;
 import net.grinder.console.messages.AgentProcessReportMessage;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.JVM;
@@ -241,7 +242,8 @@ public final class Agent {
           workerFactory =
             new ProcessWorkerFactory(
               workerCommandLine, m_agentIdentity, m_fanOutStreamSender,
-              m_consoleCommunication != null, scriptFile, scriptDirectory,
+              m_consoleCommunication != null,
+              new ScriptLocation(scriptDirectory, scriptFile),
               properties);
         }
         else {
@@ -255,7 +257,8 @@ public final class Agent {
           workerFactory =
             new DebugThreadWorkerFactory(
               m_agentIdentity, m_fanOutStreamSender,
-              m_consoleCommunication != null, scriptFile, scriptDirectory,
+              m_consoleCommunication != null,
+              new ScriptLocation(scriptDirectory, scriptFile),
               properties);
         }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
 import net.grinder.util.FileContents;
@@ -47,8 +48,8 @@ public class TestEngineMessages extends AbstractFileTestCase {
 
   public void testInitialiseGrinderMessage() throws Exception {
 
-    final File file0 = new File("/foo");
-    final File file1 = new File("d:/foo/bah");
+    final ScriptLocation script =
+      new ScriptLocation(new File("d:/foo/bah"), new File("/foo"));
 
     final PublicAgentIdentityImplementation agentIdentity =
       new PublicAgentIdentityImplementation("Agent");
@@ -58,26 +59,22 @@ public class TestEngineMessages extends AbstractFileTestCase {
     final GrinderProperties properties = new GrinderProperties();
 
     final InitialiseGrinderMessage original =
-      new InitialiseGrinderMessage(workerIdentity, false, file0, file1,
-                                   properties);
+      new InitialiseGrinderMessage(workerIdentity, false, script, properties);
 
     final InitialiseGrinderMessage received =
       (InitialiseGrinderMessage) serialise(original);
 
     assertEquals(workerIdentity, received.getWorkerIdentity());
     assertTrue(!received.getReportToConsole());
-    assertEquals(file0, received.getScriptFile());
-    assertEquals(file1, received.getScriptDirectory());
+    assertEquals(script, received.getScript());
     assertEquals(properties, received.getProperties());
 
     final InitialiseGrinderMessage another =
-      new InitialiseGrinderMessage(workerIdentity, true, file1, file0,
-                                   properties);
+      new InitialiseGrinderMessage(workerIdentity, true, script, properties);
 
     assertEquals(workerIdentity, another.getWorkerIdentity());
     assertTrue(another.getReportToConsole());
-    assertEquals(file1, another.getScriptFile());
-    assertEquals(file0, another.getScriptDirectory());
+    assertEquals(script, another.getScript());
   }
 
   public void testResetGrinderMessage() throws Exception {

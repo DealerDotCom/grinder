@@ -24,7 +24,6 @@
 
 package net.grinder.engine.process;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -196,12 +195,10 @@ final class GrinderProcess {
 
     m_context.getTestRegistry().setScriptEngine(scriptEngine);
 
-    final File scriptFile = m_initialisationMessage.getScriptFile();
-    logger.output("executing \"" + scriptFile.getPath() + "\" using " +
-                  scriptEngine.getDescription());
+    logger.output("executing \"" + m_initialisationMessage.getScript() +
+                  "\" using " + scriptEngine.getDescription());
 
-    scriptEngine.initialise(scriptFile,
-                            m_initialisationMessage.getScriptDirectory());
+    scriptEngine.initialise(m_initialisationMessage.getScript());
 
     final GrinderProperties properties = m_context.getProperties();
     final short numberOfThreads =

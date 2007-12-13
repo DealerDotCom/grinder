@@ -22,7 +22,6 @@
 
 package net.grinder.engine.process.jython;
 
-import java.io.File;
 import java.lang.reflect.Field;
 
 import org.python.core.Py;
@@ -42,6 +41,7 @@ import org.python.util.PythonInterpreter;
 import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.process.ScriptEngine;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Grinder.ScriptContext;
@@ -85,21 +85,17 @@ public final class JythonScriptEngine implements ScriptEngine {
    * Run any process initialisation required by the script. Called once
    * per ScriptEngine instance.
    *
-   * @param scriptFile Absolute path to file containing script.
-   * @param scriptDirectory Root directory. May not be script's immediate
-   * parent.
+   * @param script The script.
    * @throws EngineException If process initialisation failed.
    */
-  public void initialise(File scriptFile, File scriptDirectory)
+  public void initialise(ScriptLocation script)
     throws EngineException {
 
-    if (scriptDirectory != null) {
-      m_systemState.path.insert(0, new PyString(scriptDirectory.getPath()));
-    }
+    m_systemState.path.insert(0, new PyString(script.getDirectory().getPath()));
 
     try {
       // Run the test script, script does global set up here.
-      m_interpreter.execfile(scriptFile.getPath());
+      m_interpreter.execfile(script.getFile().getPath());
     }
     catch (PyException e) {
       throw new JythonScriptExecutionException("initialising test script", e);
@@ -111,7 +107,7 @@ public final class JythonScriptEngine implements ScriptEngine {
     if (m_testRunnerFactory == null || !m_testRunnerFactory.isCallable()) {
       throw new EngineException(
         "There is no callable (class or function) named '" +
-        TEST_RUNNER_CALLABLE_NAME + "' in " + scriptFile);
+        TEST_RUNNER_CALLABLE_NAME + "' in " + script);
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,13 @@
 
 package net.grinder.engine.agent;
 
-import java.io.File;
 import java.io.OutputStream;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 
 
 /**
@@ -42,14 +42,12 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
   public DebugThreadWorkerFactory(AgentIdentityImplementation agentIdentity,
                                   FanOutStreamSender fanOutStreamSender,
                                   boolean reportToConsole,
-                                  File scriptFile,
-                                  File scriptDirectory,
+                                  ScriptLocation script,
                                   GrinderProperties properties) {
     super(agentIdentity,
           fanOutStreamSender,
           reportToConsole,
-          scriptFile,
-          scriptDirectory,
+          script,
           properties);
   }
 

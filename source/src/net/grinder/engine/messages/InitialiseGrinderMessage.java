@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000 - 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,10 @@
 
 package net.grinder.engine.messages;
 
-import java.io.File;
-
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
+import net.grinder.engine.common.ScriptLocation;
 
 
 /**
@@ -36,12 +35,11 @@ import net.grinder.communication.Message;
  */
 public final class InitialiseGrinderMessage implements Message {
 
-  private static final long serialVersionUID = 3L;
+  private static final long serialVersionUID = 4L;
 
   private final WorkerIdentity m_workerID;
   private final boolean m_reportToConsole;
-  private final File m_scriptFile;
-  private final File m_scriptDirectory;
+  private final ScriptLocation m_script;
   private final GrinderProperties m_properties;
 
   /**
@@ -50,19 +48,16 @@ public final class InitialiseGrinderMessage implements Message {
    * @param workerID Worker process ID.
    * @param reportToConsole Whether or not the worker process should
    * report to the console.
-   * @param scriptFile The script file to run.
-   * @param scriptDirectory The script root directory.
+   * @param script The script to run.
    * @param properties Properties from the agent.
    */
   public InitialiseGrinderMessage(WorkerIdentity workerID,
                                   boolean reportToConsole,
-                                  File scriptFile,
-                                  File scriptDirectory,
+                                  ScriptLocation script,
                                   GrinderProperties properties) {
     m_workerID = workerID;
     m_reportToConsole = reportToConsole;
-    m_scriptFile = scriptFile;
-    m_scriptDirectory = scriptDirectory;
+    m_script = script;
     m_properties = properties;
   }
 
@@ -90,17 +85,8 @@ public final class InitialiseGrinderMessage implements Message {
    *
    * @return The script file to run.
    */
-  public File getScriptFile() {
-    return m_scriptFile;
-  }
-
-  /**
-   * Accessor.
-   *
-   * @return The script root directory.
-   */
-  public File getScriptDirectory() {
-    return m_scriptDirectory;
+  public ScriptLocation getScript() {
+    return m_script;
   }
 
   /**

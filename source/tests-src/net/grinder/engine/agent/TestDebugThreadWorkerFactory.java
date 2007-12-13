@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -48,7 +48,6 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
       new DebugThreadWorkerFactory(agentIdentity,
                                    new FanOutStreamSender(0),
                                    false,
-                                   null,
                                    null,
                                    properties);
 

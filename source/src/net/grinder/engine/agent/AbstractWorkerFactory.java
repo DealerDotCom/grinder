@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,6 @@
 
 package net.grinder.engine.agent;
 
-import java.io.File;
 import java.io.OutputStream;
 
 import net.grinder.common.GrinderProperties;
@@ -31,6 +30,7 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.StreamSender;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 
 
@@ -45,21 +45,18 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
   private final AgentIdentityImplementation m_agentIdentity;
   private final FanOutStreamSender m_fanOutStreamSender;
   private final boolean m_reportToConsole;
-  private final File m_scriptFile;
-  private final File m_scriptDirectory;
+  private final ScriptLocation m_script;
   private final GrinderProperties m_properties;
 
   protected AbstractWorkerFactory(AgentIdentityImplementation agentIdentity,
                                   FanOutStreamSender fanOutStreamSender,
                                   boolean reportToConsole,
-                                  File scriptFile,
-                                  File scriptDirectory,
+                                  ScriptLocation script,
                                   GrinderProperties properties) {
     m_agentIdentity = agentIdentity;
     m_fanOutStreamSender = fanOutStreamSender;
     m_reportToConsole = reportToConsole;
-    m_scriptFile = scriptFile;
-    m_scriptDirectory = scriptDirectory;
+    m_script = script;
     m_properties = properties;
   }
 
@@ -78,8 +75,7 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
       final InitialiseGrinderMessage initialisationMessage =
         new InitialiseGrinderMessage(workerIdentity,
                                      m_reportToConsole,
-                                     m_scriptFile,
-                                     m_scriptDirectory,
+                                     m_script,
                                      m_properties);
 
       new StreamSender(processStdin).send(initialisationMessage);

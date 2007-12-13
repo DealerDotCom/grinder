@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +37,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.WorkerProcessEntryPoint;
 
@@ -73,8 +74,8 @@ public class TestProcessWorkerFactory extends TestCase {
       commandList.indexOf(WorkerProcessEntryPoint.class.getName()),
       ReadMessageEchoClass.class.getName());
 
-    final File scriptFile = new File("a");
-    final File scriptDirectory = new File("b");
+    final ScriptLocation script =
+      new ScriptLocation(new File("b"), new File("a"));
     final boolean reportToConsole = false;
 
     final AgentIdentityImplementation agentIdentityImplementation =
@@ -85,8 +86,7 @@ public class TestProcessWorkerFactory extends TestCase {
                                agentIdentityImplementation,
                                fanOutStreamSender,
                                reportToConsole,
-                               scriptFile,
-                               scriptDirectory,
+                               script,
                                grinderProperties);
 
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -110,10 +110,7 @@ public class TestProcessWorkerFactory extends TestCase {
 
     assertEquals(reportToConsole,
                  echoedInitialiseGrinderMessage.getReportToConsole());
-    assertEquals(scriptDirectory,
-                 echoedInitialiseGrinderMessage.getScriptDirectory());
-    assertEquals(scriptFile,
-                 echoedInitialiseGrinderMessage.getScriptFile());
+    assertEquals(script, echoedInitialiseGrinderMessage.getScript());
     assertEquals(
       agentIdentityImplementation,
       echoedInitialiseGrinderMessage.getWorkerIdentity().getAgentIdentity());
@@ -134,7 +131,7 @@ public class TestProcessWorkerFactory extends TestCase {
 
     final AbstractWorkerFactory myWorkerFactory =
       new AbstractWorkerFactory(agentIdentityImplementation,
-                                null, false, null, null, null) {
+                                null, false, null, null) {
 
         protected Worker createWorker(WorkerIdentity workerIdentity,
                                       OutputStream outputStream,

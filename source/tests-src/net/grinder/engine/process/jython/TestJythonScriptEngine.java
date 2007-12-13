@@ -32,6 +32,8 @@ import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
+import net.grinder.engine.process.ScriptEngine;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.ScriptEngine.WorkerRunnable;
 import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
@@ -90,8 +92,12 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     final File scriptFile = new File(getDirectory(), "script");
 
+    // ScriptLocation with incorrect root directory, so import fails below.
+    final ScriptLocation scriptWithIncorrectRoot =
+      new ScriptLocation(new File(""), scriptFile);
+
     try {
-      scriptEngine.initialise(scriptFile, null);
+      scriptEngine.initialise(scriptWithIncorrectRoot);
       fail("Expected JythonScriptExecutionException");
     }
     catch (JythonScriptExecutionException e) {
@@ -101,7 +107,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     scriptFile.createNewFile();
 
     try {
-      scriptEngine.initialise(scriptFile, null);
+      scriptEngine.initialise(scriptWithIncorrectRoot);
       fail("Expected EngineException");
     }
     catch (EngineException e) {
@@ -113,7 +119,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     w1.close();
 
     try {
-      scriptEngine.initialise(scriptFile, null);
+      scriptEngine.initialise(scriptWithIncorrectRoot);
       fail("Expected EngineException");
     }
     catch (EngineException e) {
@@ -124,7 +130,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     w2.println("class TestRunner:pass");
     w2.close();
 
-    scriptEngine.initialise(scriptFile, null);
+    scriptEngine.initialise(scriptWithIncorrectRoot);
     scriptEngine.shutdown();
 
     final File directory = new File(getDirectory(), "foo");
@@ -136,37 +142,42 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     w3.close();
 
     try {
-      scriptEngine.initialise(scriptFile, null);
+      scriptEngine.initialise(scriptWithIncorrectRoot);
       fail("Expected JythonScriptExecutionException");
     }
     catch (JythonScriptExecutionException e) {
       AssertUtilities.assertContains(e.getShortMessage(), "ImportError");
     }
 
+    // Script with correct root directory.
+    final ScriptLocation script2 =
+      new ScriptLocation(getDirectory(), scriptFile);
+
     // Jython caches modules, so we need to use a fresh interpreter to
     // avoid a repeated import error.
-    new JythonScriptEngine(m_scriptContext).initialise(scriptFile,
-      getDirectory());
+    final ScriptEngine scriptEngine2 = new JythonScriptEngine(m_scriptContext);
+    scriptEngine2.initialise(script2);
+    scriptEngine2.shutdown();
   }
 
   public void testShutdown() throws Exception {
     final JythonScriptEngine scriptEngine = new JythonScriptEngine(
       m_scriptContext);
 
-    final File scriptFile = new File(getDirectory(), "script");
+    final ScriptLocation script =
+      new ScriptLocation(getDirectory(), new File(getDirectory(), "script"));
 
-    final PrintWriter w1 = new PrintWriter(new FileWriter(scriptFile));
+    final PrintWriter w1 = new PrintWriter(new FileWriter(script.getFile()));
     w1.println("class TestRunner:pass");
     w1.close();
 
-    scriptEngine.initialise(scriptFile, null);
+    scriptEngine.initialise(script);
     scriptEngine.shutdown();
 
     s_lastCallbackObject = null;
 
-    final PrintWriter w2 = new PrintWriter(new FileWriter(scriptFile));
-    w2
-        .println("from net.grinder.engine.process.jython import TestJythonScriptEngine");
+    final PrintWriter w2 = new PrintWriter(new FileWriter(script.getFile()));
+    w2.println("from net.grinder.engine.process.jython import TestJythonScriptEngine");
     w2.println("import sys");
 
     w2.println("def f():");
@@ -176,14 +187,14 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     w2.println("class TestRunner:pass");
     w2.close();
 
-    scriptEngine.initialise(scriptFile, null);
+    scriptEngine.initialise(script);
     scriptEngine.shutdown();
 
     assertSame(TestJythonScriptEngine.class, s_lastCallbackObject);
 
     s_lastCallbackObject = null;
 
-    final PrintWriter w3 = new PrintWriter(new FileWriter(scriptFile));
+    final PrintWriter w3 = new PrintWriter(new FileWriter(script.getFile()));
     w3.println("import sys");
 
     w3.println("def f(): raise 'a problem'");
@@ -192,7 +203,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     w3.println("class TestRunner:pass");
     w3.close();
 
-    scriptEngine.initialise(scriptFile, null);
+    scriptEngine.initialise(script);
 
     try {
       scriptEngine.shutdown();
@@ -249,13 +260,14 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final JythonScriptEngine scriptEngine = new JythonScriptEngine(
       m_scriptContext);
 
-    final File scriptFile = new File(getDirectory(), "script");
+    final ScriptLocation script =
+      new ScriptLocation(getDirectory(), new File(getDirectory(), "script"));
 
-    final PrintWriter w1 = new PrintWriter(new FileWriter(scriptFile));
+    final PrintWriter w1 = new PrintWriter(new FileWriter(script.getFile()));
     w1.println("class TestRunner:pass");
     w1.close();
 
-    scriptEngine.initialise(scriptFile, null);
+    scriptEngine.initialise(script);
 
     try {
       scriptEngine.createWorkerRunnable();
@@ -265,12 +277,12 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       AssertUtilities.assertContains(e.getMessage(), "is not callable");
     }
 
-    final PrintWriter w2 = new PrintWriter(new FileWriter(scriptFile));
+    final PrintWriter w2 = new PrintWriter(new FileWriter(script.getFile()));
     w2.println("class TestRunner:");
     w2.println(" def __init__(self): raise 'a problem'");
     w2.close();
 
-    scriptEngine.initialise(scriptFile, null);
+    scriptEngine.initialise(script);
 
     try {
       scriptEngine.createWorkerRunnable();
@@ -280,12 +292,12 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       AssertUtilities.assertContains(e.getShortMessage(), "a problem");
     }
 
-    final PrintWriter w3 = new PrintWriter(new FileWriter(scriptFile));
+    final PrintWriter w3 = new PrintWriter(new FileWriter(script.getFile()));
     w3.println("class TestRunner:");
     w3.println(" def __call__(self): pass");
     w3.close();
 
-    scriptEngine.initialise(scriptFile, null);
+    scriptEngine.initialise(script);
     final WorkerRunnable runnable3a = scriptEngine.createWorkerRunnable();
     final WorkerRunnable runnable3b = scriptEngine.createWorkerRunnable();
     assertNotSame(runnable3a, runnable3b);
@@ -294,12 +306,12 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     runnable3a.shutdown();
 
-    final PrintWriter w4 = new PrintWriter(new FileWriter(scriptFile));
+    final PrintWriter w4 = new PrintWriter(new FileWriter(script.getFile()));
     w4.println("class TestRunner:");
     w4.println(" def __call__(self): raise 'a problem'");
     w4.close();
 
-    scriptEngine.initialise(scriptFile, null);
+    scriptEngine.initialise(script);
     final WorkerRunnable runnable4 = scriptEngine.createWorkerRunnable();
 
     try {
@@ -310,13 +322,13 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       AssertUtilities.assertContains(e.getShortMessage(), "a problem");
     }
 
-    final PrintWriter w5 = new PrintWriter(new FileWriter(scriptFile));
+    final PrintWriter w5 = new PrintWriter(new FileWriter(script.getFile()));
     w5.println("class TestRunner:");
     w5.println(" def __call__(self): pass");
     w5.println(" def __del__(self): raise 'a problem'");
     w5.close();
 
-    scriptEngine.initialise(scriptFile, null);
+    scriptEngine.initialise(script);
     final WorkerRunnable runnable5 = scriptEngine.createWorkerRunnable();
 
     try {
