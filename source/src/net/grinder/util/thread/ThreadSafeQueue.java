@@ -37,7 +37,7 @@ public final class ThreadSafeQueue {
 
   private final LinkedList m_messages = new LinkedList();
   private final Monitor m_monitor = new Monitor();
-  private boolean m_shutdown = false;
+  private volatile boolean m_shutdown = false;
 
   /**
    * Constructor.
@@ -137,7 +137,9 @@ public final class ThreadSafeQueue {
    * @return The size of the queue.
    */
   public int getSize() {
-    return m_messages.size();
+    synchronized (getMonitor()) {
+      return m_messages.size();
+    }
   }
 
   /**
