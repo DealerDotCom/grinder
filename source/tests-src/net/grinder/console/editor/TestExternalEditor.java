@@ -32,8 +32,6 @@ import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 
-import junit.framework.TestCase;
-
 
 /**
  * Unit tests for {@link ExternalEditor}.
