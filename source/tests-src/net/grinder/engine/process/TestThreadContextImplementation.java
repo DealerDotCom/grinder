@@ -34,7 +34,6 @@ import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
-import net.grinder.testutility.AbstractStubFactory;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
