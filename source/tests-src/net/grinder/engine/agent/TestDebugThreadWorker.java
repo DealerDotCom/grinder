@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005-2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,10 +21,10 @@
 
 package net.grinder.engine.agent;
 
+import junit.framework.TestCase;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.StreamSender;
 import net.grinder.testutility.RedirectStandardStreams;
-import junit.framework.TestCase;
 
 
 /**
@@ -71,5 +71,7 @@ public class TestDebugThreadWorker extends TestCase {
     assertEquals(-2, resultHolder[0]);
     final String output = new String(streams.getStderrBytes());
     assertTrue(output.indexOf("No control stream from agent") > 0);
+
+    worker.destroy();
   }
 }
