@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001-2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,11 @@
 
 package net.grinder.engine.common;
 
-import java.io.File;
 import java.io.Serializable;
 
 import junit.framework.TestCase;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.CommunicationException;
@@ -87,7 +87,7 @@ public class TestConsoleListener extends TestCase {
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
     listener.registerMessageHandlers(messageDispatcher);
 
-    messageDispatcher.send(new StartGrinderMessage(new File("foo")));
+    messageDispatcher.send(new StartGrinderMessage(new GrinderProperties()));
     messageDispatcher.send(new MyMessage());
     messageDispatcher.send(new ResetGrinderMessage());
 
@@ -120,7 +120,7 @@ public class TestConsoleListener extends TestCase {
     assertFalse(listener.checkForMessage(ConsoleListener.RESET));
     assertFalse(listener.received(ConsoleListener.RESET));
 
-    messageDispatcher.send(new StartGrinderMessage(new File("bah")));
+    messageDispatcher.send(new StartGrinderMessage(new GrinderProperties()));
     messageDispatcher.send(new ResetGrinderMessage());
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
@@ -162,7 +162,7 @@ public class TestConsoleListener extends TestCase {
 
     listener.discardMessages(ConsoleListener.ANY);
 
-    messageDispatcher.send(new StartGrinderMessage(new File("x")));
+    messageDispatcher.send(new StartGrinderMessage(new GrinderProperties()));
     messageDispatcher.send(new MyMessage());
     messageDispatcher.send(new ResetGrinderMessage());
 
@@ -206,7 +206,8 @@ public class TestConsoleListener extends TestCase {
         public void run() {
           synchronized (myMonitor) {} // Wait until we're listening.
           try {
-            messageDispatcher.send(new StartGrinderMessage(new File("lah")));
+            messageDispatcher.send(
+              new StartGrinderMessage(new GrinderProperties()));
           }
           catch (CommunicationException e) {
             e.printStackTrace();
@@ -298,8 +299,8 @@ public class TestConsoleListener extends TestCase {
     final ConsoleListener listener =
       new ConsoleListener(new Monitor(), m_logger);
 
-    final Message m1 = new StartGrinderMessage(new File("a"));
-    final Message m2 = new StartGrinderMessage(new File("a"));
+    final Message m1 = new StartGrinderMessage(new GrinderProperties());
+    final Message m2 = new StartGrinderMessage(new GrinderProperties());
     final Message m3 = new MyMessage();
 
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();

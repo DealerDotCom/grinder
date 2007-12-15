@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,40 +19,41 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.messages;
+package net.grinder.engine.common;
 
-import net.grinder.common.GrinderProperties;
-import net.grinder.communication.Message;
+import java.io.File;
+
+import net.grinder.testutility.Serializer;
+
+import junit.framework.TestCase;
 
 
 /**
- * Message used to start the Grinder processes.
+ * Unit tests for {@link  ScriptLocation}.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public final class StartGrinderMessage implements Message {
+public class TestScriptLocation extends TestCase {
 
-  private static final long serialVersionUID = 2L;
+  public void testScriptLocation() throws Exception {
 
-  private final GrinderProperties m_properties;
+    final File f1 = new File("abc");
+    final File f2 = new File("def");
+    final File f3 = new File("blah");
 
-  /**
-   * Constructor.
-   *
-   * @param properties A set of properties that override values in
-   * the Agents' local files.
-   */
-  public StartGrinderMessage(GrinderProperties properties) {
-    m_properties = properties;
-  }
+    final ScriptLocation sl1 = new ScriptLocation(f1, f2);
+    final ScriptLocation sl2 = new ScriptLocation(f1, f2);
+    final ScriptLocation sl3 = new ScriptLocation(f1, f3);
 
-  /**
-   * A set of properties that override values in the Agents' local files.
-   *
-   * @return The properties.
-   */
-  public GrinderProperties getProperties() {
-    return m_properties;
+    assertEquals(sl1, sl1);
+    assertEquals(sl1, sl2);
+    assertTrue(!sl1.equals(sl3));
+    assertTrue(!sl1.equals(this));
+    assertEquals(sl1.hashCode(), sl2.hashCode());
+    assertTrue(sl1.hashCode() != sl3.hashCode());
+
+    final ScriptLocation sl4 = (ScriptLocation)Serializer.serialize(sl1);
+    assertEquals(sl1, sl4);
   }
 }

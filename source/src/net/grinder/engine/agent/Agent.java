@@ -48,7 +48,6 @@ import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.util.Directory;
 import net.grinder.util.JVM;
 import net.grinder.util.thread.Monitor;
 
@@ -71,7 +70,6 @@ public final class Agent {
   private final ConsoleListener m_consoleListener;
   private final FanOutStreamSender m_fanOutStreamSender =
     new FanOutStreamSender(3);
-  private ConsoleCommunication m_consoleCommunication = null;
 
   /**
    * We use an most one file store throughout an agent's life, but can't
@@ -107,123 +105,106 @@ public final class Agent {
    */
   public void run() throws GrinderException {
 
-    StartGrinderMessage nextStartMessage = null;
-    Connector lastConnector = null;
+    ConsoleCommunication consoleCommunication = null;
+    StartGrinderMessage startMessage = null;
 
     while (true) {
       m_logger.output(GrinderBuild.getName());
 
-      final GrinderProperties properties =
-        new GrinderProperties(m_alternateFile);
+      ScriptLocation script = null;
+      GrinderProperties properties = null;
 
-      final String newHostName =
-        properties.getProperty("grinder.hostID", getHostName());
+      do {
+        properties = new GrinderProperties(m_alternateFile);
 
-      if (!newHostName.equals(m_agentIdentity.getName())) {
-        m_agentIdentity.setName(newHostName);
-      }
+        if (startMessage != null) {
+          properties.putAll(startMessage.getProperties());
+        }
 
-      if (properties.getBoolean("grinder.useConsole", true)) {
-        final Connector connector = new Connector(
-            properties.getProperty("grinder.consoleHost",
-                                   CommunicationDefaults.CONSOLE_HOST),
-            properties.getInt("grinder.consolePort",
-                              CommunicationDefaults.CONSOLE_PORT),
-            ConnectionType.AGENT);
+        m_agentIdentity.setName(
+          properties.getProperty("grinder.hostID", getHostName()));
 
-        if (!connector.equals(lastConnector)) {
-          // We only reconnect if the connection details have changed.
-          if (m_consoleCommunication != null) {
-            m_consoleCommunication.shutdown();
-          }
+        final Connector connector;
 
+        if (properties.getBoolean("grinder.useConsole", true)) {
+          connector = new Connector(
+              properties.getProperty("grinder.consoleHost",
+                                     CommunicationDefaults.CONSOLE_HOST),
+              properties.getInt("grinder.consolePort",
+                                CommunicationDefaults.CONSOLE_PORT),
+              ConnectionType.AGENT);
+        }
+        else {
+          connector = null;
+        }
+
+        // We only reconnect if the connection details have changed.
+        if (consoleCommunication != null &&
+            !consoleCommunication.getConnector().equals(connector)) {
+          consoleCommunication.shutdown();
+
+          m_consoleListener.discardMessages(ConsoleListener.ANY);
+          consoleCommunication = null;
+          startMessage = null;
+        }
+
+        if (consoleCommunication == null && connector != null) {
           try {
-            m_consoleCommunication = new ConsoleCommunication(connector);
-            lastConnector = connector;
+            consoleCommunication = new ConsoleCommunication(connector);
           }
           catch (CommunicationException e) {
             m_logger.error(
               e.getMessage() + ", proceeding without the console; set " +
               "grinder.useConsole=false to disable this warning.");
-            m_consoleCommunication = null;
           }
         }
 
-        if (m_consoleCommunication != null && nextStartMessage == null) {
+        if (consoleCommunication != null && startMessage == null) {
           m_logger.output("waiting for console signal");
           m_consoleListener.waitForMessage();
-        }
-      }
-      else {
-        if (m_consoleCommunication != null) {
-          m_consoleCommunication.shutdown();
-        }
-        m_consoleCommunication = null;
-      }
 
-      // final to ensure we only take one path through the following.
-      final File scriptFile;
-      File scriptDirectory = null;
-
-      if (m_consoleCommunication == null ||
-          nextStartMessage != null ||
-          m_consoleListener.received(ConsoleListener.START)) {
-
-        File scriptFromConsole = null;
-
-        if (nextStartMessage != null) {
-          scriptFromConsole = nextStartMessage.getScriptFile();
-        }
-        else {
-          final StartGrinderMessage lastStartMessage =
-            m_consoleListener.getLastStartGrinderMessage();
-
-          if (lastStartMessage != null) {
-            scriptFromConsole = lastStartMessage.getScriptFile();
-          }
-        }
-
-        if (scriptFromConsole != null) {
-          final Directory fileStoreDirectory = m_fileStore.getDirectory();
-
-          final File absoluteFile =
-            fileStoreDirectory.getFile(scriptFromConsole.getPath());
-
-          if (absoluteFile.canRead()) {
-            scriptFile = absoluteFile;
-            scriptDirectory = fileStoreDirectory.getFile();
+          if (m_consoleListener.received(ConsoleListener.START)) {
+            startMessage = m_consoleListener.getLastStartGrinderMessage();
+            continue; // Loop to handle new properties.
           }
           else {
-            m_logger.error("The script file '" + scriptFromConsole +
-                         "' requested by the console does not exist " +
-                         "or is not readable.");
-
-            scriptFile = null;
+            // Some other message, we check what this at the end of the
+            // outer while loop.
+            break;
           }
         }
-        else {
-          final File scriptFromProperties =
+
+        if (startMessage != null) {
+          // If the start message doesn't specify a script in the cache,
+          // we'll fall back to the agent properties, and then to "grinder.py".
+          final File scriptFromConsole =
+            startMessage.getProperties().getFile("grinder.script", null);
+
+          if (scriptFromConsole != null) {
+            // The script directory may not be the file's direct parent.
+            script = new ScriptLocation(
+              m_fileStore.getDirectory().getFile(),
+              m_fileStore.getDirectory().getFile(scriptFromConsole.getPath()));
+          }
+        }
+
+        if (script == null) {
+          final File scriptFile =
             new File(properties.getProperty("grinder.script", "grinder.py"));
+          script = new ScriptLocation(
+            scriptFile.getAbsoluteFile().getParentFile(), scriptFile);
+        }
 
-          if (scriptFromProperties.canRead()) {
-            scriptFile = scriptFromProperties;
-            scriptDirectory =
-              scriptFromProperties.getAbsoluteFile().getParentFile();
-          }
-          else {
-            m_logger.error("The script file '" + scriptFromProperties +
-                           "' does not exist or is not readable. " +
-                           "Check grinder.properties.");
-
-            scriptFile = null;
-          }
+        if (!script.getFile().canRead()) {
+          m_logger.error("The script file '" + script +
+                         "' does not exist or is not readable.");
+          script = null;
+          break;
         }
       }
-      else {
-        scriptFile = null;
-      }
+      while (script == null);
 
-      if (scriptFile != null) {
+      if (script != null) {
         final boolean singleProcess =
           properties.getBoolean("grinder.debug.singleprocess", false);
         final String jvmArguments =
@@ -242,9 +223,7 @@ public final class Agent {
           workerFactory =
             new ProcessWorkerFactory(
               workerCommandLine, m_agentIdentity, m_fanOutStreamSender,
-              m_consoleCommunication != null,
-              new ScriptLocation(scriptDirectory, scriptFile),
-              properties);
+              consoleCommunication != null, script, properties);
         }
         else {
           m_logger.output("DEBUG MODE: Spawning threads rather than processes");
@@ -257,9 +236,7 @@ public final class Agent {
           workerFactory =
             new DebugThreadWorkerFactory(
               m_agentIdentity, m_fanOutStreamSender,
-              m_consoleCommunication != null,
-              new ScriptLocation(scriptDirectory, scriptFile),
-              properties);
+              consoleCommunication != null, script, properties);
         }
 
         final WorkerLauncher workerLauncher =
@@ -318,7 +295,7 @@ public final class Agent {
         workerLauncher.shutdown();
       }
 
-      if (m_consoleCommunication == null) {
+      if (consoleCommunication == null) {
         break;
       }
       else {
@@ -332,7 +309,7 @@ public final class Agent {
         }
 
         if (m_consoleListener.received(ConsoleListener.START)) {
-          nextStartMessage = m_consoleListener.getLastStartGrinderMessage();
+          startMessage = m_consoleListener.getLastStartGrinderMessage();
         }
         else if (m_consoleListener.received(ConsoleListener.STOP |
                                             ConsoleListener.SHUTDOWN)) {
@@ -340,7 +317,7 @@ public final class Agent {
         }
         else {
           // ConsoleListener.RESET or natural death.
-          nextStartMessage = null;
+          startMessage = null;
         }
       }
     }
@@ -351,10 +328,6 @@ public final class Agent {
    */
   public void shutdown() {
     m_timer.cancel();
-
-    if (m_consoleCommunication != null) {
-      m_consoleCommunication.shutdown();
-    }
 
     m_fanOutStreamSender.shutdown();
 
@@ -401,6 +374,7 @@ public final class Agent {
   private final class ConsoleCommunication {
     private final ClientReceiver m_receiver;
     private final ClientSender m_sender;
+    private final Connector m_connector;
     private final TimerTask m_reportRunningTask;
 
     public ConsoleCommunication(Connector connector)
@@ -408,6 +382,7 @@ public final class Agent {
 
       m_receiver = ClientReceiver.connect(connector);
       m_sender = ClientSender.connect(m_receiver);
+      m_connector = connector;
 
       m_sender.send(
         new AgentProcessReportMessage(
@@ -452,6 +427,10 @@ public final class Agent {
       };
 
       m_timer.schedule(m_reportRunningTask, 1000, 1000);
+    }
+
+    public Connector getConnector() {
+      return m_connector;
     }
 
     public void shutdown() {

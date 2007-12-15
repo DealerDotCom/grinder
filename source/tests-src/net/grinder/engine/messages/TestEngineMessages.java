@@ -82,12 +82,14 @@ public class TestEngineMessages extends AbstractFileTestCase {
   }
 
   public void testStartGrinderMessage() throws Exception {
-    final File file = new File("blah/blah");
+    final GrinderProperties properties = new GrinderProperties();
+    properties.setProperty("foo", "bah");
+    properties.setInt("lah", 123);
 
     final StartGrinderMessage received =
-      (StartGrinderMessage)serialise(new StartGrinderMessage(file));
+      (StartGrinderMessage)serialise(new StartGrinderMessage(properties));
 
-    assertEquals(file, received.getScriptFile());
+    assertEquals(properties, received.getProperties());
   }
 
   public void testStopGrinderMessage() throws Exception {

@@ -24,6 +24,7 @@ package net.grinder.console.communication;
 import java.io.File;
 import java.util.Timer;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
@@ -91,7 +92,11 @@ public class ProcessControlImplementation implements ProcessControl {
    * @param script The script file to run.
    */
   public void startWorkerProcesses(File script) {
-    m_consoleCommunication.sendToAgents(new StartGrinderMessage(script));
+    final GrinderProperties properties = new GrinderProperties();
+    properties.setFile("grinder.script", script);
+
+    m_consoleCommunication.sendToAgents(
+      new StartGrinderMessage(properties));
   }
 
   /**

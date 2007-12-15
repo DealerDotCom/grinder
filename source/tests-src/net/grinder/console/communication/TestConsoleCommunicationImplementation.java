@@ -189,7 +189,8 @@ public class TestConsoleCommunicationImplementation
     final StartGrinderMessage startGrinderMessage =
       (StartGrinderMessage)readMessage(socket);
 
-    assertEquals(file, startGrinderMessage.getScriptFile());
+    assertEquals(file,
+      startGrinderMessage.getProperties().getFile("grinder.script", null));
 
     // This shouldn't call reset. If it does, we'll block because
     // nothing's processing the messages.

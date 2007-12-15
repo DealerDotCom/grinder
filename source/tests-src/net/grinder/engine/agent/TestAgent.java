@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,22 +22,27 @@
 package net.grinder.engine.agent;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionIdentity;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
+import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
+import net.grinder.communication.StreamReceiver;
+import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -49,9 +54,18 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestAgent extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_loggerStubFactory =
-    new RandomStubFactory(Logger.class);
-  private final Logger m_logger = (Logger)m_loggerStubFactory.getStub();
+  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
+  private final Logger m_logger = m_loggerStubFactory.getLogger();
+
+  protected void setUp() {
+    System.setProperty(IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY,
+                       TestRunnner.class.getName());
+  }
+
+  protected void tearDown() {
+    System.getProperties().remove(
+      IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY);
+  }
 
   public void testConstruction() throws Exception {
     final File propertyFile = new File(getDirectory(), "properties");
@@ -132,74 +146,94 @@ public class TestAgent extends AbstractFileTestCase {
   }
 
   public void testWithConsole() throws Exception {
+    final ConsoleStub console = new ConsoleStub() {
+      public void onConnect() throws Exception {
+        // After we accept an agent connection...
+        m_loggerStubFactory.assertSuccess("output", String.class);
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "waiting");
+
+        // ...send a start message...
+        getSender().send(
+          new StartGrinderMessage(new GrinderProperties()));
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertSuccess("output",
+                                          "received a start message");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("error", String.class)
+          .getParameters()[0].toString(),
+          "grinder.py");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "waiting");
+
+        // ...send another start message...
+        getSender().send(
+          new StartGrinderMessage(new GrinderProperties()));
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertSuccess("output",
+                                          "received a start message");
+
+        // Version string.
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertSuccess("output", String.class);
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("error", String.class)
+          .getParameters()[0].toString(),
+          "grinder.py");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "waiting");
+
+        // ..then a reset message.
+        getSender().send(new ResetGrinderMessage());
+
+        // Received a reset message.
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertSuccess("output", String.class);
+
+        // Version string.
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertSuccess("output", String.class);
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "waiting");
+
+        // ..then a stop message.
+        getSender().send(new StopGrinderMessage());
+      }
+    };
+
     final File propertyFile = new File(getDirectory(), "properties");
     final GrinderProperties properties = new GrinderProperties(propertyFile);
 
     final Agent agent = new Agent(m_logger, propertyFile);
 
-    // Figure out a free local port.
-    final ServerSocket serverSocket = new ServerSocket(0);
-    final int port = serverSocket.getLocalPort();
-    serverSocket.close();
-
-    final Acceptor acceptor = new Acceptor("", port, 1);
-    final ServerReceiver receiver = new ServerReceiver();
-    receiver.receiveFrom(
-      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 1, 10);
-    final Sender sender =
-      new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
-
-    acceptor.addListener(ConnectionType.AGENT, new Acceptor.Listener() {
-
-      public void connectionAccepted(ConnectionType connectionType,
-                                     ConnectionIdentity connection) {
-        try {
-          // After we accept an agent connection...
-          m_loggerStubFactory.assertSuccess("output", String.class);
-
-          m_loggerStubFactory.waitUntilCalled(5000);
-          AssertUtilities.assertContains(
-            m_loggerStubFactory.assertSuccess("output", String.class)
-            .getParameters()[0].toString(),
-            "waiting");
-
-          // ...send a start message...
-          sender.send(new StartGrinderMessage(null));
-
-          m_loggerStubFactory.waitUntilCalled(5000);
-          m_loggerStubFactory.assertSuccess("output",
-                                            "received a start message");
-
-          m_loggerStubFactory.waitUntilCalled(5000);
-          AssertUtilities.assertContains(
-            m_loggerStubFactory.assertSuccess("error", String.class)
-            .getParameters()[0].toString(),
-            "grinder.py");
-
-          m_loggerStubFactory.waitUntilCalled(5000);
-          AssertUtilities.assertContains(
-            m_loggerStubFactory.assertSuccess("output", String.class)
-            .getParameters()[0].toString(),
-            "waiting");
-
-          // ..then a stop message.
-          sender.send(new StopGrinderMessage());
-        }
-        catch (CommunicationException e) {
-          e.printStackTrace();
-        }
-      }
-
-      public void connectionClosed(ConnectionType connectionType,
-                                   ConnectionIdentity connection) {
-      }});
-
-    properties.setInt("grinder.consolePort", acceptor.getPort());
+    properties.setInt("grinder.consolePort", console.getPort());
     properties.save();
 
     agent.run();
 
-    acceptor.shutdown();
+    console.shutdown();
 
     m_loggerStubFactory.assertSuccess("output", "received a stop message");
 
@@ -212,8 +246,245 @@ public class TestAgent extends AbstractFileTestCase {
     agent.shutdown();
     m_loggerStubFactory.assertSuccess("output", String.class);
     m_loggerStubFactory.assertNoMoreCalls();
+  }
 
-    sender.shutdown();
-    receiver.shutdown();
+  public void testRampUp() throws Exception {
+
+    final ConsoleStub console = new ConsoleStub() {
+      public void onConnect() throws Exception {
+        // After we accept an agent connection...
+        m_loggerStubFactory.assertSuccess("output", String.class);
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "waiting");
+
+        // ...send a start message...
+        final GrinderProperties grinderProperties = new GrinderProperties();
+        getSender().send(new StartGrinderMessage(grinderProperties));
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertSuccess("output",
+                                          "received a start message");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "DEBUG MODE");
+
+        // 10 workers started.
+        for (int i =  0; i < 10; ++i) {
+          m_loggerStubFactory.waitUntilCalled(5000);
+
+          AssertUtilities.assertContains(
+            m_loggerStubFactory.assertSuccess("output", String.class)
+            .getParameters()[0].toString(),
+            "started");
+        }
+
+        // Interrupt our workers.
+        getSender().send(new ResetGrinderMessage());
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "reset");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "The Grinder");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "waiting");
+
+        // Now try again, with no ramp up.
+        grinderProperties.setInt("grinder.initialProcesses", 10);
+
+        getSender().send(new StartGrinderMessage(grinderProperties));
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertSuccess("output",
+                                          "received a start message");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
+          "DEBUG MODE");
+
+        // 10 workers started.
+        for (int i = 0; i < 10; ++i) {
+          m_loggerStubFactory.waitUntilCalled(5000);
+
+          AssertUtilities.assertContains(
+            m_loggerStubFactory.assertSuccess("output", String.class)
+            .getParameters()[0].toString(),
+            "started");
+        }
+
+        // Shut down our workers.
+        getSender().send(new StopGrinderMessage());
+      }
+    };
+
+    final File propertyFile = new File(getDirectory(), "properties");
+    final GrinderProperties properties = new GrinderProperties(propertyFile);
+
+    final Agent agent = new Agent(m_logger, propertyFile);
+
+    final File script = new File(getDirectory(), "grinder.py");
+    script.createNewFile();
+
+    properties.setInt("grinder.consolePort", console.getPort());
+    properties.setInt("grinder.initialProcesses", 0);
+    properties.setInt("grinder.processes", 10);
+    properties.setInt("grinder.processIncrement", 1);
+    properties.setInt("grinder.processIncrementInterval", 10);
+    properties.setBoolean("grinder.debug.singleprocess", true);
+    properties.setFile("grinder.script", script);
+    properties.save();
+
+    agent.run();
+
+    console.shutdown();
+  }
+
+  public void testReconnect() throws Exception {
+    final File propertyFile = new File(getDirectory(), "properties");
+    final GrinderProperties properties = new GrinderProperties(propertyFile);
+
+    final boolean[] secondConsoleContacted = new boolean[1];
+
+    final GrinderProperties startProperties = new GrinderProperties();
+
+    final ConsoleStub console2 = new ConsoleStub() {
+      public void onConnect() throws Exception {
+
+        startProperties.setFile("grinder.script", new File("not there"));
+
+        getSender().send(new StartGrinderMessage(startProperties));
+
+        synchronized (secondConsoleContacted) {
+          secondConsoleContacted[0] = true;
+          secondConsoleContacted.notifyAll();
+        }
+
+        getSender().send(new StopGrinderMessage());
+      }
+    };
+
+    final ConsoleStub console1 = new ConsoleStub() {
+      public void onConnect() throws Exception {
+        startProperties.setInt("grinder.consolePort", console2.getPort());
+
+        getSender().send(new StartGrinderMessage(startProperties));
+      }
+    };
+
+    properties.setInt("grinder.consolePort", console1.getPort());
+    properties.save();
+
+    final Agent agent = new Agent(m_logger, propertyFile);
+
+    agent.run();
+
+    synchronized (secondConsoleContacted) {
+      final long start = System.currentTimeMillis();
+
+      while (!secondConsoleContacted[0] &&
+             System.currentTimeMillis() < start + 5000) {
+        Thread.sleep(5000);
+      }
+    }
+
+    assertTrue(secondConsoleContacted[0]);
+
+    console1.shutdown();
+    console2.shutdown();
+  }
+
+  private abstract class ConsoleStub {
+    private final Acceptor m_acceptor;
+    private final ServerReceiver m_receiver;
+    private final Sender m_sender;
+
+    public ConsoleStub() throws CommunicationException, IOException {
+      // Figure out a free local port.
+      final ServerSocket serverSocket = new ServerSocket(0);
+      final int port = serverSocket.getLocalPort();
+      serverSocket.close();
+
+      m_acceptor = new Acceptor("", port, 1);
+      m_receiver = new ServerReceiver();
+      m_receiver.receiveFrom(
+        m_acceptor, new ConnectionType[] { ConnectionType.AGENT }, 1, 10);
+      m_sender = new FanOutServerSender(m_acceptor, ConnectionType.AGENT, 3);
+
+      m_acceptor.addListener(ConnectionType.AGENT, new Acceptor.Listener() {
+        public void connectionAccepted(ConnectionType connectionType,
+                                       ConnectionIdentity connection) {
+          try {
+            onConnect();
+          }
+          catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+
+        public void connectionClosed(ConnectionType connectionType,
+                                     ConnectionIdentity connection) { }
+      });
+    }
+
+    public int getPort() {
+      return m_acceptor.getPort();
+    }
+
+    public final void shutdown() throws CommunicationException {
+      m_acceptor.shutdown();
+      m_receiver.shutdown();
+      getSender().shutdown();
+    }
+
+    public final Sender getSender() {
+      return m_sender;
+    }
+
+    public abstract void onConnect() throws Exception;
+  }
+
+  public static class TestRunnner {
+
+    public int run(InputStream in) {
+      try {
+        final StreamReceiver receiver = new StreamReceiver(in);
+        while (true) {
+          final Message message = receiver.waitForMessage();
+          if (message == null ||
+              message instanceof ResetGrinderMessage ||
+              message instanceof StopGrinderMessage) {
+            return 0;
+          }
+        }
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+        return -1;
+      }
+    }
   }
 }
