@@ -24,6 +24,7 @@ package net.grinder.engine.agent;
 import junit.framework.TestCase;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.StreamSender;
+import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.RedirectStandardStreams;
 
 
@@ -73,5 +74,29 @@ public class TestDebugThreadWorker extends TestCase {
     assertTrue(output.indexOf("No control stream from agent") > 0);
 
     worker.destroy();
+  }
+
+  public void testWIthBadWorker() throws Exception {
+    try {
+      System.setProperty(IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY,
+        "blah");
+
+      try {
+        new DebugThreadWorker(null);
+        fail("Expected EngineException");
+      }
+      catch (EngineException e) {
+        assertTrue(e.getCause() instanceof ClassNotFoundException);
+      }
+
+      // Not bothering to test other reflection exceptions. This is partly
+      // due to the JDK bug where we get a NoSuchMethodException if the
+      // IsolatedGrinderProcessRunner constructor throws it. (We should get
+      // a InstantiationException).
+    }
+    finally {
+      System.getProperties().remove(
+        IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY);
+    }
   }
 }
