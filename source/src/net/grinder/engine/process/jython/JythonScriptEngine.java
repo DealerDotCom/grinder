@@ -91,7 +91,8 @@ public final class JythonScriptEngine implements ScriptEngine {
   public void initialise(ScriptLocation script)
     throws EngineException {
 
-    m_systemState.path.insert(0, new PyString(script.getDirectory().getPath()));
+    m_systemState.path.insert(0,
+      new PyString(script.getDirectory().getFile().getPath()));
 
     try {
       // Run the test script, script does global set up here.

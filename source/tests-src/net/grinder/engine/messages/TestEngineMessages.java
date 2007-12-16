@@ -30,6 +30,7 @@ import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
+import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 
 
@@ -49,7 +50,8 @@ public class TestEngineMessages extends AbstractFileTestCase {
   public void testInitialiseGrinderMessage() throws Exception {
 
     final ScriptLocation script =
-      new ScriptLocation(new File("d:/foo/bah"), new File("/foo"));
+      new ScriptLocation(new Directory(new File("d:/foo/bah")),
+                         new File("/foo"));
 
     final PublicAgentIdentityImplementation agentIdentity =
       new PublicAgentIdentityImplementation("Agent");

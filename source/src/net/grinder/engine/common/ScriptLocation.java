@@ -24,6 +24,8 @@ package net.grinder.engine.common;
 import java.io.File;
 import java.io.Serializable;
 
+import net.grinder.util.Directory;
+
 
 /**
  * Pairing of a script file and its root directory. The directory is not
@@ -33,36 +35,58 @@ import java.io.Serializable;
  * @version $Revision:$
  */
 public final class ScriptLocation implements Serializable {
-  private final File m_directory;
-  private final File m_file;
+  private final Directory m_directory;
+  private final File m_shortFile;
+  private final File m_absoluteFile;
 
   /**
    * Constructor for ScriptLocation.
    *
-   * @param directory Script root directory.
-   * @param file The script file.
+   * @param directory
+   *            Script working directory. May be relative (to the CWD).
+   * @param file
+   *            The script file. May be relative (to <code>directory</code>).
+   *            If absolute, it needn't be below the root directory.
    */
-  public ScriptLocation(File directory, File file) {
+  public ScriptLocation(Directory directory, File file) {
+
     m_directory = directory;
-    m_file = file;
+
+    // Try to shorten the name.
+    final File relativeFile = directory.getRelativePath(file);
+
+    if (relativeFile != null) {
+      m_shortFile = relativeFile;
+    }
+    else {
+      m_shortFile = file;
+    }
+
+    if (file.isAbsolute()) {
+      m_absoluteFile = file;
+    }
+    else {
+      m_absoluteFile = directory.getFile(file.getPath());
+    }
   }
 
   /**
-   * Accessor for the script root directory.
+   * Accessor for the script working directory.
    *
    * @return The directory.
    */
-  public File getDirectory() {
+  public Directory getDirectory() {
     return m_directory;
   }
 
   /**
-   * Accessor for the script file.
+   * Accessor for the script file. The returned <code>File</code> always
+   * represents an absolute path.
    *
    * @return The file.
    */
   public File getFile() {
-    return m_file;
+    return m_absoluteFile;
   }
 
   /**
@@ -71,7 +95,7 @@ public final class ScriptLocation implements Serializable {
    * @return The string.
    */
   public String toString() {
-    return m_file.getPath();
+    return m_shortFile.getPath();
   }
 
   /**

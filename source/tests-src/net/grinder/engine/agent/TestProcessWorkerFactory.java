@@ -40,6 +40,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.WorkerProcessEntryPoint;
+import net.grinder.util.Directory;
 
 
 /**
@@ -75,7 +76,7 @@ public class TestProcessWorkerFactory extends TestCase {
       ReadMessageEchoClass.class.getName());
 
     final ScriptLocation script =
-      new ScriptLocation(new File("b"), new File("a"));
+      new ScriptLocation(new Directory(new File("b")), new File("a"));
     final boolean reportToConsole = false;
 
     final AgentIdentityImplementation agentIdentityImplementation =

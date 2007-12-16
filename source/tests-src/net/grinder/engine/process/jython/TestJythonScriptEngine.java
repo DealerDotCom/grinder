@@ -43,6 +43,7 @@ import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.Directory;
 
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -94,7 +95,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     // ScriptLocation with incorrect root directory, so import fails below.
     final ScriptLocation scriptWithIncorrectRoot =
-      new ScriptLocation(new File(""), scriptFile);
+      new ScriptLocation(new Directory(new File("")), scriptFile);
 
     try {
       scriptEngine.initialise(scriptWithIncorrectRoot);
@@ -151,7 +152,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     // Script with correct root directory.
     final ScriptLocation script2 =
-      new ScriptLocation(getDirectory(), scriptFile);
+      new ScriptLocation(new Directory(getDirectory()), scriptFile);
 
     // Jython caches modules, so we need to use a fresh interpreter to
     // avoid a repeated import error.
@@ -165,7 +166,8 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       m_scriptContext);
 
     final ScriptLocation script =
-      new ScriptLocation(getDirectory(), new File(getDirectory(), "script"));
+      new ScriptLocation(new Directory(getDirectory()),
+                         new File(getDirectory(), "script"));
 
     final PrintWriter w1 = new PrintWriter(new FileWriter(script.getFile()));
     w1.println("class TestRunner:pass");
@@ -261,7 +263,8 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       m_scriptContext);
 
     final ScriptLocation script =
-      new ScriptLocation(getDirectory(), new File(getDirectory(), "script"));
+      new ScriptLocation(new Directory(getDirectory()),
+                         new File(getDirectory(), "script"));
 
     final PrintWriter w1 = new PrintWriter(new FileWriter(script.getFile()));
     w1.println("class TestRunner:pass");

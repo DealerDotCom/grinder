@@ -48,7 +48,9 @@ import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.util.Directory;
 import net.grinder.util.JVM;
+import net.grinder.util.Directory.DirectoryException;
 import net.grinder.util.thread.Monitor;
 
 
@@ -183,7 +185,7 @@ public final class Agent {
           if (scriptFromConsole != null) {
             // The script directory may not be the file's direct parent.
             script = new ScriptLocation(
-              m_fileStore.getDirectory().getFile(),
+              m_fileStore.getDirectory(),
               m_fileStore.getDirectory().getFile(scriptFromConsole.getPath()));
           }
         }
@@ -191,8 +193,16 @@ public final class Agent {
         if (script == null) {
           final File scriptFile =
             new File(properties.getProperty("grinder.script", "grinder.py"));
-          script = new ScriptLocation(
-            scriptFile.getAbsoluteFile().getParentFile(), scriptFile);
+
+          try {
+            script = new ScriptLocation(
+              new Directory(scriptFile.getAbsoluteFile().getParentFile()),
+              scriptFile);
+          }
+          catch (DirectoryException e) {
+            m_logger.error("The script '" + scriptFile + "' does not exist.");
+            break;
+          }
         }
 
         if (!script.getFile().canRead()) {

@@ -23,9 +23,9 @@ package net.grinder.engine.common;
 
 import java.io.File;
 
+import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
-
-import junit.framework.TestCase;
+import net.grinder.util.Directory;
 
 
 /**
@@ -34,17 +34,17 @@ import junit.framework.TestCase;
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestScriptLocation extends TestCase {
+public class TestScriptLocation extends AbstractFileTestCase {
 
   public void testScriptLocation() throws Exception {
 
-    final File f1 = new File("abc");
-    final File f2 = new File("def");
-    final File f3 = new File("blah");
+    final Directory directory = new Directory(new File("abc"));
+    final File file1 = new File("def");
+    final File file2 = new File("blah");
 
-    final ScriptLocation sl1 = new ScriptLocation(f1, f2);
-    final ScriptLocation sl2 = new ScriptLocation(f1, f2);
-    final ScriptLocation sl3 = new ScriptLocation(f1, f3);
+    final ScriptLocation sl1 = new ScriptLocation(directory, file1);
+    final ScriptLocation sl2 = new ScriptLocation(directory, file1);
+    final ScriptLocation sl3 = new ScriptLocation(directory, file2);
 
     assertEquals(sl1, sl1);
     assertEquals(sl1, sl2);
@@ -55,5 +55,18 @@ public class TestScriptLocation extends TestCase {
 
     final ScriptLocation sl4 = (ScriptLocation)Serializer.serialize(sl1);
     assertEquals(sl1, sl4);
+  }
+
+  public void testNameShortening() throws Exception {
+    final Directory directory = new Directory(getDirectory());
+    final File existentFile = new File(getDirectory(), "hello");
+    existentFile.createNewFile();
+    final File nonExistentFile = new File(getDirectory(), "world");
+
+    final ScriptLocation s1 = new ScriptLocation(directory, existentFile);
+    assertEquals("hello", s1.toString());
+
+    final ScriptLocation s2 = new ScriptLocation(directory, nonExistentFile);
+    assertEquals(nonExistentFile.getPath(), s2.toString());
   }
 }
