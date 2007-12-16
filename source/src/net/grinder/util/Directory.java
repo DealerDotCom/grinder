@@ -26,6 +26,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,7 +48,8 @@ import net.grinder.common.UncheckedInterruptedException;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class Directory  {
+public final class Directory implements Serializable {
+  private static final long serialVersionUID = 1;
 
   private static final FileFilter s_matchAllFilesFilter =
     new MatchAllFilesFilter();

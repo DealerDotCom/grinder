@@ -30,6 +30,7 @@ import java.util.Set;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.FileUtilities;
+import net.grinder.testutility.Serializer;
 
 
 /**
@@ -367,5 +368,11 @@ public class TestDirectory extends AbstractFileTestCase {
 
     assertFalse(missingSourceDirectory.getFile().exists());
     assertFalse(missingOutputDirectory.getFile().exists());
+  }
+
+  public void testSerialization() throws Exception {
+    final Directory original = new Directory(getDirectory());
+
+    assertEquals(original, (Directory)Serializer.serialize(original));
   }
 }
