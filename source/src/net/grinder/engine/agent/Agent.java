@@ -184,9 +184,8 @@ public final class Agent {
 
           if (scriptFromConsole != null) {
             // The script directory may not be the file's direct parent.
-            script = new ScriptLocation(
-              m_fileStore.getDirectory(),
-              m_fileStore.getDirectory().getFile(scriptFromConsole.getPath()));
+            script =
+              new ScriptLocation(m_fileStore.getDirectory(), scriptFromConsole);
           }
         }
 
