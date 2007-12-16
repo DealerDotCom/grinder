@@ -42,8 +42,8 @@ import javax.swing.SwingUtilities;
  * heuristics suggested by Ethan Nichols</a>.
  *
  * <p>
- * A mnemonic can be explictly indicated for a button by prefixing the character
- * in the button's text with an underscore.
+ * A mnemonic can be explicitly indicated for a button by prefixing the
+ * character in the button's text with an underscore.
  * </p>
  *
  * @author Philip Aston
