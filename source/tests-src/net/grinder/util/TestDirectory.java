@@ -258,16 +258,31 @@ public class TestDirectory extends AbstractFileTestCase {
     final Directory directory = new Directory(getDirectory());
 
     for (int i = 0; i < files.length; ++i) {
-      final File file = new File(getDirectory(), files[i]);
-      file.getParentFile().mkdirs();
-      file.createNewFile();
+      final File absoluteFile = new File(getDirectory(), files[i]);
+      absoluteFile.getParentFile().mkdirs();
+      absoluteFile.createNewFile();
 
-      final File result = directory.getRelativePath(file);
+      final File result = directory.getRelativePath(absoluteFile);
       assertFalse(result.isAbsolute());
-      assertEquals(file, new File(getDirectory(), result.getPath()));
+      assertEquals(absoluteFile, new File(getDirectory(), result.getPath()));
+
+      final File relativeFile = new File(files[i]);
+
+      final File result2 = directory.getRelativePath(relativeFile);
+      assertFalse(result2.isAbsolute());
+      assertEquals(relativeFile, result2);
+
+      absoluteFile.delete();
+
+      assertNull(directory.getRelativePath(absoluteFile));
+      assertNull(directory.getRelativePath(relativeFile));
+
+      absoluteFile.mkdirs();
+
+      assertNull(directory.getRelativePath(absoluteFile));
+      assertNull(directory.getRelativePath(relativeFile));
     }
 
-    assertNull(directory.getRelativePath(null));
     assertNull(directory.getRelativePath(new File(getDirectory(), "foo")));
   }
 

@@ -267,23 +267,32 @@ public final class Directory implements Serializable {
    * representing its path relative to the root of the directory.
    *
    * <p>
-   * The implementation scans the files below the directory. Converting the
-   * paths to a canonical form and then using <code>String.startsWith()</code>
-   * would be system dependent.
+   * If the supplied file is absolute, the implementation scans the files below
+   * the directory. Converting the paths to a canonical form and then using
+   * <code>String.startsWith()</code> would be system dependent.
    * </p>
    *
-   * @param absoluteFile
+   * @param file
    *            The file to search for.
    * @return The relative file, or <code>null</code> if the directory does not
    *         exist of <code>absoluteFile</code> was not found.
    */
-  public File getRelativePath(File absoluteFile) {
+  public File getRelativePath(File file) {
 
-    final File[] contents = listContents(s_matchAllFilesFilter, false, false);
+    if (file.isAbsolute()) {
+      final File[] contents = listContents(s_matchAllFilesFilter, false, false);
 
-    for (int i = 0; i < contents.length; ++i) {
-      if (getFile(contents[i].getPath()).equals(absoluteFile)) {
-        return contents[i];
+      for (int i = 0; i < contents.length; ++i) {
+        if (getFile(contents[i].getPath()).equals(file)) {
+          return contents[i];
+        }
+      }
+    }
+    else {
+      final File absoluteFile = getFile(file.getPath());
+
+      if (absoluteFile.isFile()) {
+        return file;
       }
     }
 
