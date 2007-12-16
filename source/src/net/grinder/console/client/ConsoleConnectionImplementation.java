@@ -131,7 +131,7 @@ final class ConsoleConnectionImplementation implements ConsoleConnection {
    * Start all the worker processes.
    *
    * @param properties
-   *            Properties that override the agent's local properties.
+   *            Properties that override the agents' local properties.
    * @throws ConsoleConnectionException
    *            If a communication error occurred.
    */

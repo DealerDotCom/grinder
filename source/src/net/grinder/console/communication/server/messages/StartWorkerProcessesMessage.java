@@ -40,7 +40,7 @@ public class StartWorkerProcessesMessage implements Message {
    * Constructor.
    *
    * @param properties
-   *            Properties that override the agent's local properties.
+   *            Properties that override the agents' local properties.
    */
   public StartWorkerProcessesMessage(GrinderProperties properties) {
     m_properties = properties;
