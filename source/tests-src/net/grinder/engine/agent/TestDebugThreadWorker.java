@@ -21,6 +21,8 @@
 
 package net.grinder.engine.agent;
 
+import java.io.InputStream;
+
 import junit.framework.TestCase;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.StreamSender;
@@ -76,13 +78,18 @@ public class TestDebugThreadWorker extends TestCase {
     worker.destroy();
   }
 
-  public void testWIthBadWorker() throws Exception {
+  public void testWithBadWorker() throws Exception {
+
+    final WorkerIdentity workerIdentity =
+      new AgentIdentityImplementation(getClass().getName())
+      .createWorkerIdentity();
+
     try {
       System.setProperty(IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY,
         "blah");
 
       try {
-        new DebugThreadWorker(null);
+        new DebugThreadWorker(workerIdentity);
         fail("Expected EngineException");
       }
       catch (EngineException e) {
@@ -97,6 +104,33 @@ public class TestDebugThreadWorker extends TestCase {
     finally {
       System.getProperties().remove(
         IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY);
+    }
+  }
+
+  public void testIsolatedGrinderProcessRunner() throws Exception {
+    try {
+      System.setProperty(IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY,
+        BadWorker.class.getName());
+
+      final IsolatedGrinderProcessRunner isolatedGrinderProcessRunner =
+        new IsolatedGrinderProcessRunner();
+
+      try {
+        isolatedGrinderProcessRunner.run(null);
+        fail("Expected AssertionError");
+      }
+      catch (AssertionError e) {
+      }
+    }
+    finally {
+      System.getProperties().remove(
+        IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY);
+    }
+  }
+
+  public static class BadWorker {
+    public String run(InputStream in) {
+      return "wrong return type";
     }
   }
 }
