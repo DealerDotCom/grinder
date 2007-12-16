@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -132,6 +132,10 @@ final class MnemonicHeuristics {
     }
 
     final String text = button.getText();
+
+    if (text == null) {
+      return;
+    }
 
     // Remove our text changed listener whilst changing text to prevent
     // recursion.
