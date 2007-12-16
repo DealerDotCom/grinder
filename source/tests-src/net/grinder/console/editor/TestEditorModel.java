@@ -475,13 +475,13 @@ public class TestEditorModel extends AbstractFileTestCase {
                       m_agentCacheState,
                       m_fileChangeWatcher);
 
-    assertNull(editorModel.getMarkedScript());
+    assertNull(editorModel.getSelectedProperties());
 
     final File f = new File(".");
-    editorModel.setMarkedScript(f);
-    assertSame(f, editorModel.getMarkedScript());
-    editorModel.setMarkedScript(null);
-    assertNull(editorModel.getMarkedScript());
+    editorModel.setSelectedProperties(f);
+    assertSame(f, editorModel.getSelectedProperties());
+    editorModel.setSelectedProperties(null);
+    assertNull(editorModel.getSelectedProperties());
   }
 
   public void testAbstractListener() throws Exception {

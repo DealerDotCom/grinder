@@ -21,6 +21,7 @@
 
 package net.grinder.console.communication.server.messages;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.communication.Message;
 
 
@@ -33,23 +34,24 @@ import net.grinder.communication.Message;
 public class StartWorkerProcessesMessage implements Message {
   private static final long serialVersionUID = 1;
 
-  private final String m_script;
+  private final GrinderProperties m_properties;
 
   /**
    * Constructor.
    *
-   * @param script The file name of the script to run.
+   * @param properties
+   *            Properties that override the agent's local properties.
    */
-  public StartWorkerProcessesMessage(String script) {
-    m_script = script;
+  public StartWorkerProcessesMessage(GrinderProperties properties) {
+    m_properties = properties;
   }
 
   /**
-   * Accessor for the script file.
+   * Accessor for the properties.
    *
-   * @return The script file.
+   * @return The properties.
    */
-  public String getScript() {
-    return m_script;
+  public GrinderProperties getProperties() {
+    return m_properties;
   }
 }

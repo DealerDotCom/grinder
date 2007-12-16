@@ -21,8 +21,6 @@
 
 package net.grinder.console.communication.server;
 
-import java.io.File;
-
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractBlockingHandler;
@@ -112,7 +110,7 @@ public class DispatchClientCommands {
           final StartWorkerProcessesMessage startWorkerProcessesMessage =
             (StartWorkerProcessesMessage)message;
           m_processControl.startWorkerProcesses(
-            new File(startWorkerProcessesMessage.getScript()));
+            startWorkerProcessesMessage.getProperties());
           return new SuccessMessage();
         }
       });

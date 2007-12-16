@@ -236,15 +236,15 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
   public void testSetScriptNotSetAsk() throws Exception {
 
-    new TestBooleanTemplate(ConsoleProperties.SCRIPT_NOT_SET_ASK_PROPERTY) {
+    new TestBooleanTemplate(ConsoleProperties.PROPERTIES_NOT_SET_ASK_PROPERTY) {
 
       protected boolean get(ConsoleProperties properties) {
-        return properties.getScriptNotSetAsk();
+        return properties.getPropertiesNotSetAsk();
       }
 
       protected void set(ConsoleProperties properties, boolean b)
         throws Exception {
-        properties.setScriptNotSetAsk(b);
+        properties.setPropertiesNotSetAsk(b);
       }
     }.doTest();
   }
@@ -282,14 +282,14 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
   public void testScriptFile() throws Exception {
 
-    new TestFileTemplate(ConsoleProperties.SCRIPT_FILE_PROPERTY) {
+    new TestFileTemplate(ConsoleProperties.PROPERTIES_FILE_PROPERTY) {
 
       protected File get(ConsoleProperties properties) {
-        return properties.getScriptFile();
+        return properties.getPropertiesFile();
       }
 
       protected void set(ConsoleProperties properties, File file) {
-        properties.setScriptFile(file);
+        properties.setPropertiesFile(file);
       }
     }.doTest();
   }
@@ -492,11 +492,11 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       p2.getResetConsoleWithProcesses());
     assertEquals(p1.getResetConsoleWithProcessesAsk(),
       p2.getResetConsoleWithProcessesAsk());
-    assertEquals(p1.getScriptNotSetAsk(), p2.getScriptNotSetAsk());
+    assertEquals(p1.getPropertiesNotSetAsk(), p2.getPropertiesNotSetAsk());
     assertEquals(p1.getStartWithUnsavedBuffersAsk(),
       p2.getStartWithUnsavedBuffersAsk());
     assertEquals(p1.getStopProcessesAsk(), p2.getStopProcessesAsk());
-    assertEquals(p1.getScriptFile(), p2.getScriptFile());
+    assertEquals(p1.getPropertiesFile(), p2.getPropertiesFile());
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
     assertEquals(p1.getDistributionFileFilterPattern(),
       p2.getDistributionFileFilterPattern());
@@ -516,10 +516,10 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     p2.setConsolePort(99);
     p2.setResetConsoleWithProcesses(true);
     p2.setResetConsoleWithProcessesAsk(false);
-    p2.setScriptNotSetAsk(false);
+    p2.setPropertiesNotSetAsk(false);
     p2.setStartWithUnsavedBuffersAsk(false);
     p2.setStopProcessesAsk(false);
-    p2.setScriptFile(new File("foo"));
+    p2.setPropertiesFile(new File("foo"));
     p2.setDistributionDirectory(new Directory(new File("bah")));
     p2.setDistributionFileFilterExpression(".*");
     p2.setScanDistributionFilesPeriod(100);
@@ -537,11 +537,11 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       p2.getResetConsoleWithProcesses());
     assertTrue(p1.getResetConsoleWithProcessesAsk() !=
       p2.getResetConsoleWithProcessesAsk());
-    assertTrue(p1.getScriptNotSetAsk() != p2.getScriptNotSetAsk());
+    assertTrue(p1.getPropertiesNotSetAsk() != p2.getPropertiesNotSetAsk());
     assertTrue(p1.getStartWithUnsavedBuffersAsk() !=
       p2.getStartWithUnsavedBuffersAsk());
     assertTrue(p1.getStopProcessesAsk() != p2.getStopProcessesAsk());
-    AssertUtilities.assertNotEquals(p1.getScriptFile(), p2.getScriptFile());
+    AssertUtilities.assertNotEquals(p1.getPropertiesFile(), p2.getPropertiesFile());
     AssertUtilities.assertNotEquals(p1.getDistributionDirectory(),
       p2.getDistributionDirectory());
     AssertUtilities.assertNotEquals(p1.getDistributionFileFilterPattern(),
@@ -566,11 +566,11 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       p2.getResetConsoleWithProcesses());
     assertTrue(p1.getResetConsoleWithProcessesAsk() ==
       p2.getResetConsoleWithProcessesAsk());
-    assertTrue(p1.getScriptNotSetAsk() == p2.getScriptNotSetAsk());
+    assertTrue(p1.getPropertiesNotSetAsk() == p2.getPropertiesNotSetAsk());
     assertTrue(p1.getStartWithUnsavedBuffersAsk() ==
       p2.getStartWithUnsavedBuffersAsk());
     assertTrue(p1.getStopProcessesAsk() == p2.getStopProcessesAsk());
-    assertEquals(p1.getScriptFile(), p2.getScriptFile());
+    assertEquals(p1.getPropertiesFile(), p2.getPropertiesFile());
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
     assertEquals(p1.getDistributionFileFilterPattern(),
                  p2.getDistributionFileFilterPattern());

@@ -74,6 +74,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
@@ -1252,16 +1253,15 @@ public final class ConsoleUI implements ModelListener {
 
     public void actionPerformed(ActionEvent event) {
       try {
-        final File script = m_editorModel.getMarkedScript();
+        final File propertiesFile = m_editorModel.getSelectedProperties();
 
-        if (script == null) {
+        if (propertiesFile == null) {
           final int chosen =
             m_optionalConfirmDialog.show(
-              m_resources.getString(
-                "scriptNotSetConfirmation.text"),
+              m_resources.getString("propertiesNotSetConfirmation.text"),
               (String) getValue(NAME),
               JOptionPane.OK_CANCEL_OPTION,
-              "scriptNotSetAsk");
+              "propertiesNotSetAsk");
 
           if (chosen != JOptionPane.OK_OPTION &&
               chosen != OptionalConfirmDialog.DONT_ASK_OPTION) {
@@ -1295,20 +1295,32 @@ public final class ConsoleUI implements ModelListener {
             }
           }
 
-          final Directory directory =
-            m_model.getProperties().getDistributionDirectory();
-          final File relativeScript = directory.getRelativePath(script);
+          final GrinderProperties properties =
+            new GrinderProperties(propertiesFile);
 
-          if (relativeScript == null) {
+          final File scriptFile = properties.getFile("grinder.script", null);
+
+          if (scriptFile == null) {
             getErrorHandler().handleErrorMessage(
-              m_resources.getString(
-                "scriptNotInDirectoryError.text"),
+              m_resources.getString("propertiesDoNotSpecifyScriptError.text"),
               (String) getValue(NAME));
 
             return;
           }
+          else {
+            final Directory directory =
+              m_model.getProperties().getDistributionDirectory();
 
-          m_processControl.startWorkerProcesses(relativeScript);
+            if (directory.getRelativePath(scriptFile) == null) {
+              getErrorHandler().handleErrorMessage(
+                m_resources.getString("scriptNotInDirectoryError.text"),
+                (String) getValue(NAME));
+
+              return;
+            }
+          }
+
+          m_processControl.startWorkerProcesses(properties);
         }
       }
       catch (GrinderException e) {

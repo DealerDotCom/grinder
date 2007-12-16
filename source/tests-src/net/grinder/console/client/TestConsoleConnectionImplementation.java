@@ -21,6 +21,7 @@
 
 package net.grinder.console.client;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.communication.BlockingSender;
 import net.grinder.communication.CommunicationException;
 import net.grinder.console.communication.server.messages.GetNumberOfAgentsMessage;
@@ -109,12 +110,13 @@ public class TestConsoleConnectionImplementation extends TestCase {
       GetNumberOfAgentsMessage.class);
     m_senderStubFactory.assertNoMoreCalls();
 
-    consoleConnection.startWorkerProcesses("blah");
+    final GrinderProperties properties = new GrinderProperties();
+    consoleConnection.startWorkerProcesses(properties);
     final CallData data =
       m_senderStubFactory.assertSuccess(
         "blockingSend", StartWorkerProcessesMessage.class);
-    assertEquals("blah",
-      ((StartWorkerProcessesMessage)data.getParameters()[0]).getScript());
+    assertSame(properties,
+      ((StartWorkerProcessesMessage)data.getParameters()[0]).getProperties());
     m_senderStubFactory.assertNoMoreCalls();
 
     consoleConnection.resetWorkerProcesses();
@@ -154,7 +156,7 @@ public class TestConsoleConnectionImplementation extends TestCase {
     }
 
     try {
-      consoleConnection.startWorkerProcesses("blah");
+      consoleConnection.startWorkerProcesses(new GrinderProperties());
       fail("Expected ConsoleConnectionException");
     }
     catch (ConsoleConnectionException e) {

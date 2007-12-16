@@ -21,7 +21,6 @@
 
 package net.grinder.console.communication;
 
-import java.io.File;
 import java.util.Timer;
 
 import net.grinder.common.GrinderProperties;
@@ -89,14 +88,13 @@ public class ProcessControlImplementation implements ProcessControl {
   /**
    * Signal the worker processes to start.
    *
-   * @param script The script file to run.
+   * @param properties
+   *            Properties that override the agent's local properties.
    */
-  public void startWorkerProcesses(File script) {
-    final GrinderProperties properties = new GrinderProperties();
-    properties.setFile("grinder.script", script);
-
+  public void startWorkerProcesses(GrinderProperties properties) {
     m_consoleCommunication.sendToAgents(
-      new StartGrinderMessage(properties));
+      new StartGrinderMessage(
+        properties != null ? properties : new GrinderProperties()));
   }
 
   /**

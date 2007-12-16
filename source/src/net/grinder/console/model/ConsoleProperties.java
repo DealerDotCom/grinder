@@ -84,8 +84,8 @@ public final class ConsoleProperties {
     "grinder.console.resetConsoleWithProcessesAsk";
 
   /** Property name. */
-  public static final String SCRIPT_NOT_SET_ASK_PROPERTY =
-    "grinder.console.scriptNotSetAsk";
+  public static final String PROPERTIES_NOT_SET_ASK_PROPERTY =
+    "grinder.console.propertiesNotSetAsk";
 
   /** Property name. */
   public static final String START_WITH_UNSAVED_BUFFERS_ASK_PROPERTY =
@@ -96,8 +96,8 @@ public final class ConsoleProperties {
     "grinder.console.stopProcessesAsk";
 
   /** Property name. */
-  public static final String SCRIPT_FILE_PROPERTY =
-    "grinder.console.scriptFile";
+  public static final String PROPERTIES_FILE_PROPERTY =
+    "grinder.console.propertiesFile";
 
   /** Property name. */
   public static final String DISTRIBUTION_DIRECTORY_PROPERTY =
@@ -147,8 +147,8 @@ public final class ConsoleProperties {
   private BooleanProperty m_resetConsoleWithProcesses =
     new BooleanProperty(RESET_CONSOLE_WITH_PROCESSES_PROPERTY, false);
 
-  private FileProperty m_scriptFile =
-    new FileProperty(SCRIPT_FILE_PROPERTY);
+  private FileProperty m_propertiesFile =
+    new FileProperty(PROPERTIES_FILE_PROPERTY);
 
   private DirectoryProperty m_distributionDirectory =
     new DirectoryProperty(DISTRIBUTION_DIRECTORY_PROPERTY);
@@ -176,8 +176,8 @@ public final class ConsoleProperties {
   private BooleanProperty m_resetConsoleWithProcessesAsk =
     new BooleanProperty(RESET_CONSOLE_WITH_PROCESSES_ASK_PROPERTY, true);
 
-  private BooleanProperty m_scriptNotSetAsk =
-    new BooleanProperty(SCRIPT_NOT_SET_ASK_PROPERTY, true);
+  private BooleanProperty m_propertiesNotSetAsk =
+    new BooleanProperty(PROPERTIES_NOT_SET_ASK_PROPERTY, true);
 
   private BooleanProperty m_startWithUnsavedBuffersAsk =
     new BooleanProperty(START_WITH_UNSAVED_BUFFERS_ASK_PROPERTY, true);
@@ -254,7 +254,7 @@ public final class ConsoleProperties {
     m_consoleHost.set(properties.getConsoleHost());
     m_consolePort.set(properties.getConsolePort());
     m_resetConsoleWithProcesses.set(properties.getResetConsoleWithProcesses());
-    m_scriptFile.set(properties.getScriptFile());
+    m_propertiesFile.set(properties.getPropertiesFile());
     m_distributionDirectory.set(properties.getDistributionDirectory());
     m_distributionFileFilterPattern.set(
       properties.getDistributionFileFilterPattern());
@@ -266,7 +266,7 @@ public final class ConsoleProperties {
     m_frameBounds.set(properties.getFrameBounds());
     m_resetConsoleWithProcessesAsk.set(
       properties.getResetConsoleWithProcessesAsk());
-    m_scriptNotSetAsk.set(properties.getScriptNotSetAsk());
+    m_propertiesNotSetAsk.set(properties.getPropertiesNotSetAsk());
     m_startWithUnsavedBuffersAsk.set(
       properties.getStartWithUnsavedBuffersAsk());
     m_stopProcessesAsk.set(properties.getStopProcessesAsk());
@@ -534,8 +534,8 @@ public final class ConsoleProperties {
    *
    * @return <code>true</code> => the user wants to be asked.
    */
-  public boolean getScriptNotSetAsk() {
-    return m_scriptNotSetAsk.get();
+  public boolean getPropertiesNotSetAsk() {
+    return m_propertiesNotSetAsk.get();
   }
 
   /**
@@ -547,9 +547,9 @@ public final class ConsoleProperties {
    * @throws ConsoleException
    *           If the property couldn't be persisted.
    */
-  public void setScriptNotSetAsk(boolean value) throws ConsoleException {
-    m_scriptNotSetAsk.set(value);
-    m_scriptNotSetAsk.save();
+  public void setPropertiesNotSetAsk(boolean value) throws ConsoleException {
+    m_propertiesNotSetAsk.set(value);
+    m_propertiesNotSetAsk.save();
   }
 
 
@@ -603,22 +603,22 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Get the script file.
+   * Get the properties file.
    *
-   * @return The script file. <code>null</code> => No file set.
+   * @return The properties file. <code>null</code> => No file set.
    */
-  public File getScriptFile() {
-    return m_scriptFile.get();
+  public File getPropertiesFile() {
+    return m_propertiesFile.get();
   }
 
   /**
-   * Set the script file.
+   * Set the properties file.
    *
-   * @param scriptFile The script file. <code>null</code> => No file
+   * @param propertiesFile The properties file. <code>null</code> => No file
    * set.
    */
-  public void setScriptFile(File scriptFile) {
-    m_scriptFile.set(scriptFile);
+  public void setPropertiesFile(File propertiesFile) {
+    m_propertiesFile.set(propertiesFile);
   }
 
   /**

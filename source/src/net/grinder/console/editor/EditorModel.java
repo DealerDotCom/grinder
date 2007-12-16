@@ -59,7 +59,7 @@ public final class EditorModel {
   private int m_nextNewBufferNameIndex = 0;
 
   private Buffer m_selectedBuffer;
-  private File m_markedScript;
+  private File m_selectedProperties;
   private ExternalEditor m_externalEditor;
 
   /**
@@ -263,21 +263,21 @@ public final class EditorModel {
   }
 
   /**
-   * Get the currently marked script.
+   * Get the currently selected properties.
    *
-   * @return The active buffer.
+   * @return The selected properties.
    */
-  public File getMarkedScript() {
-    return m_markedScript;
+  public File getSelectedProperties() {
+    return m_selectedProperties;
   }
 
   /**
-   * Get the currently marked script.
+   * Set the currently selected properties.
    *
-   * @param markedScript The marked script.
+   * @param selectedProperties The selected properties.
    */
-  public void setMarkedScript(File markedScript) {
-    m_markedScript = markedScript;
+  public void setSelectedProperties(File selectedProperties) {
+    m_selectedProperties = selectedProperties;
   }
 
   private void addBuffer(final Buffer buffer) {
@@ -381,6 +381,20 @@ public final class EditorModel {
       f != null &&
       (!f.exists() || f.isFile()) &&
       f.getName().toLowerCase().endsWith(".py");
+  }
+
+  /**
+   * Return whether the given file should be considered to be a grinder
+   * properties file. For now this is just based on name.
+   *
+   * @param f The file.
+   * @return <code>true</code> => its a properties file.
+   */
+  public boolean isPropertiesFile(File f) {
+    return
+      f != null &&
+      (!f.exists() || f.isFile()) &&
+      f.getName().toLowerCase().endsWith(".properties");
   }
 
   /**

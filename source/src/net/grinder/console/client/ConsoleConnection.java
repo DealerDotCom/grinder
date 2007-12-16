@@ -21,6 +21,7 @@
 
 package net.grinder.console.client;
 
+import net.grinder.common.GrinderProperties;
 
 
 /**
@@ -72,13 +73,13 @@ public interface ConsoleConnection {
   /**
    * Start all the worker processes.
    *
-   * @param script
-   *          File name of script. The File should be valid for the console
-   *          process, not necessarily for the caller.
+   * @param properties
+   *            Properties that override the agent's local properties.
    * @throws ConsoleConnectionException
    *           If a communication error occurred.
    */
-  void startWorkerProcesses(String script) throws ConsoleConnectionException;
+  void startWorkerProcesses(GrinderProperties properties)
+    throws ConsoleConnectionException;
 
   /**
    * Reset all the worker processes.

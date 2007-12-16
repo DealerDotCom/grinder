@@ -131,9 +131,9 @@ Task: Warnings for buffers whose file is modified outside of editor.
 ***** Release 6
 
 Task: External editor integration.
-
 Task: The agent should pick up secondary grinder.properties from start
 message.
+
 Task: Console to optionally auto broadcast on play. Need some way of
 synchronising before starting run.
 

@@ -21,8 +21,7 @@
 
 package net.grinder.console.communication.server;
 
-import java.io.File;
-
+import net.grinder.common.GrinderProperties;
 import net.grinder.communication.BlockingSender;
 import net.grinder.communication.BlockingSenderWrapper;
 import net.grinder.communication.MessageDispatchSender;
@@ -93,8 +92,10 @@ public class TestDispatchClientCommands extends TestCase {
         new GetNumberOfAgentsMessage());
     assertEquals(new Integer(3), message.getResult());
 
+    final GrinderProperties grinderProperties = new GrinderProperties();
     assertTrue(
-      blockingSender.blockingSend(new StartWorkerProcessesMessage("foo"))
+      blockingSender.blockingSend(
+        new StartWorkerProcessesMessage(grinderProperties))
       instanceof SuccessMessage);
 
     assertTrue(blockingSender.blockingSend(new ResetWorkerProcessesMessage())
@@ -102,7 +103,7 @@ public class TestDispatchClientCommands extends TestCase {
 
     processControlStubFactory.assertSuccess("getNumberOfLiveAgents");
     processControlStubFactory.assertSuccess("startWorkerProcesses",
-      new File("foo"));
+      grinderProperties);
     processControlStubFactory.assertSuccess("resetWorkerProcesses");
     processControlStubFactory.assertNoMoreCalls();
   }

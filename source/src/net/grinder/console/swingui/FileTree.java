@@ -80,7 +80,7 @@ final class FileTree {
   private final JTree m_tree;
   private final OpenAction m_openAction;
   private final OpenExternalAction m_openExternalAction;
-  private final SetScriptAction m_setScriptAction;
+  private final SelectPropertiesAction m_selectPropertiesAction;
   private final JScrollPane m_scrollPane;
 
   public FileTree(Resources resources,
@@ -145,7 +145,7 @@ final class FileTree {
 
     m_openAction = new OpenAction();
     m_openExternalAction = new OpenExternalAction();
-    m_setScriptAction = new SetScriptAction();
+    m_selectPropertiesAction = new SelectPropertiesAction();
 
     // J2SE 1.4 drops the mapping from "ENTER" -> "toggle"
     // (expand/collapse) that J2SE 1.3 has. I like this mapping, so
@@ -201,8 +201,10 @@ final class FileTree {
             e.consume();
           }
 
-          if (clickCount == 2 && hasBuffer && m_setScriptAction.isEnabled()) {
-            m_setScriptAction.invoke();
+          if (clickCount == 2 &&
+              hasBuffer &&
+              m_selectPropertiesAction.isEnabled()) {
+            m_selectPropertiesAction.invoke();
             m_handledOnPress = true;
             e.consume();
           }
@@ -292,7 +294,7 @@ final class FileTree {
 
   public CustomAction[] getActions() {
     return new CustomAction[] {
-        m_openAction, m_openExternalAction, m_setScriptAction, };
+        m_openAction, m_openExternalAction, m_selectPropertiesAction, };
   }
 
   /**
@@ -377,9 +379,9 @@ final class FileTree {
     }
   }
 
-  private final class SetScriptAction extends CustomAction {
-    public SetScriptAction() {
-      super(m_resources, "set-script");
+  private final class SelectPropertiesAction extends CustomAction {
+    public SelectPropertiesAction() {
+      super(m_resources, "select-properties");
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -393,7 +395,7 @@ final class FileTree {
         final Node node = (Node)selectedNode;
 
         if (node.getFile().isFile()) {
-          m_editorModel.setMarkedScript(node.getFile());
+          m_editorModel.setSelectedProperties(node.getFile());
           m_bufferTreeModel.valueForPathChanged(node.getPath(), node);
           updateActionState();
         }
@@ -417,9 +419,9 @@ final class FileTree {
 
         m_openExternalAction.setEnabled(file != null && file.isFile());
 
-        m_setScriptAction.setEnabled(
-          m_editorModel.isPythonFile(file) &&
-          !file.equals(m_editorModel.getMarkedScript()));
+        m_selectPropertiesAction.setEnabled(
+          m_editorModel.isPropertiesFile(file) &&
+          !file.equals(m_editorModel.getSelectedProperties()));
 
         return;
       }
@@ -427,7 +429,7 @@ final class FileTree {
 
     m_openAction.setEnabled(false);
     m_openExternalAction.setEnabled(false);
-    m_setScriptAction.setEnabled(false);
+    m_selectPropertiesAction.setEnabled(false);
   }
 
   /**
@@ -439,10 +441,12 @@ final class FileTree {
 
     private final Font m_boldFont;
     private final Font m_boldItalicFont;
-    private final ImageIcon m_markedScriptIcon =
-      m_resources.getImageIcon("script.markedscript.image");
+    private final ImageIcon m_propertiesIcon =
+      m_resources.getImageIcon("file.properties.image");
+    private final ImageIcon m_markedPropertiesIcon =
+      m_resources.getImageIcon("file.markedproperties.image");
     private final ImageIcon m_pythonIcon =
-      m_resources.getImageIcon("script.pythonfile.image");
+      m_resources.getImageIcon("file.python.image");
 
     private boolean m_active;
 
@@ -468,11 +472,15 @@ final class FileTree {
 
         final Icon icon;
 
-        if (file != null && file.equals(m_editorModel.getMarkedScript())) {
-          icon = m_markedScriptIcon;
+        if (file != null &&
+            file.equals(m_editorModel.getSelectedProperties())) {
+          icon = m_markedPropertiesIcon;
         }
         else if (m_editorModel.isPythonFile(file)) {
           icon = m_pythonIcon;
+        }
+        else if (m_editorModel.isPropertiesFile(file)) {
+          icon = m_propertiesIcon;
         }
         else {
           icon = m_defaultRenderer.getLeafIcon();

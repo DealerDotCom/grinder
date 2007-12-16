@@ -21,7 +21,7 @@
 
 package net.grinder.console.communication;
 
-import java.io.File;
+import net.grinder.common.GrinderProperties;
 
 
 /**
@@ -35,9 +35,10 @@ public interface ProcessControl {
   /**
    * Signal the worker processes to start.
    *
-   * @param script The script file to run.
+   * @param properties
+   *            Properties that override the agent's local properties.
    */
-  void startWorkerProcesses(File script);
+  void startWorkerProcesses(GrinderProperties properties);
 
   /**
    * Signal the worker processes to reset.

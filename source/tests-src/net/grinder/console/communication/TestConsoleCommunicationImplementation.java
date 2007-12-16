@@ -31,6 +31,7 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
@@ -183,14 +184,14 @@ public class TestConsoleCommunicationImplementation
     assertTrue(readMessage(socket) instanceof ResetGrinderMessage);
     assertTrue(readMessage(socket) instanceof StopGrinderMessage);
 
-    final File file = new File("foo");
+    final GrinderProperties properties = new GrinderProperties();
+    properties.setProperty("foo", "bah");
 
-    processControl.startWorkerProcesses(file);
+    processControl.startWorkerProcesses(properties);
     final StartGrinderMessage startGrinderMessage =
       (StartGrinderMessage)readMessage(socket);
 
-    assertEquals(file,
-      startGrinderMessage.getProperties().getFile("grinder.script", null));
+    assertEquals(properties, startGrinderMessage.getProperties());
 
     // This shouldn't call reset. If it does, we'll block because
     // nothing's processing the messages.

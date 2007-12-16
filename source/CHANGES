@@ -1,6 +1,12 @@
 The Grinder 3.0-beta34 (Not yet released)
 -----------------------------------------
 
+  The console now expects a properties file to be selected, rather than a
+  script. The properties file determines the script to run through the
+  grinder.script property. Other properties override the values in the
+  agents' local grinder.properties file. This provides much better
+  centralised from the console.
+
   Updates to the German console translation from Matthias Diller.
 
   Fix bug 1808854 - Incorrect synchronisation in TestStatisticsMap.

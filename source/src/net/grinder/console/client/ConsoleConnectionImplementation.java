@@ -22,6 +22,7 @@
 package net.grinder.console.client;
 
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.communication.BlockingSender;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
@@ -129,16 +130,16 @@ final class ConsoleConnectionImplementation implements ConsoleConnection {
   /**
    * Start all the worker processes.
    *
-   * @param script
-   *          File name of script. The File should be valid for the console
-   *          process, not necessarily for the caller.
+   * @param properties
+   *            Properties that override the agent's local properties.
    * @throws ConsoleConnectionException
-   *           If a communication error occurred.
+   *            If a communication error occurred.
    */
-  public void startWorkerProcesses(String script)
-  throws ConsoleConnectionException {
+  public void startWorkerProcesses(GrinderProperties properties)
+    throws ConsoleConnectionException {
+
     try {
-      m_consoleSender.blockingSend(new StartWorkerProcessesMessage(script));
+      m_consoleSender.blockingSend(new StartWorkerProcessesMessage(properties));
     }
     catch (CommunicationException e) {
       throw new ConsoleConnectionException(
