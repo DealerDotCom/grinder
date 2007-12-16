@@ -261,13 +261,19 @@ public final class Directory  {
   }
 
   /**
-   * Find the given file in the directory and return a
-   * <code>File</code> representing its path relative to the root of
-   * the directory.
+   * Find the given file in the directory and return a <code>File</code>
+   * representing its path relative to the root of the directory.
    *
-   * @param absoluteFile The file to search for.
-   * @return The relative file, or <code>null</code> if the directory
-   * does not exist of <code>absoluteFile</code> was not found.
+   * <p>
+   * The implementation scans the files below the directory. Converting the
+   * paths to a canonical form and then using <code>String.startsWith()</code>
+   * would be system dependent.
+   * </p>
+   *
+   * @param absoluteFile
+   *            The file to search for.
+   * @return The relative file, or <code>null</code> if the directory does not
+   *         exist of <code>absoluteFile</code> was not found.
    */
   public File getRelativePath(File absoluteFile) {
 
@@ -283,11 +289,11 @@ public final class Directory  {
   }
 
   /**
-   * Test whether a File represents the name of a file that is a descendent of
+   * Test whether a File represents the name of a file that is a descendant of
    * the directory.
    *
    * @param file File to test.
-   * @return <code>boolean</code> => file is a descendent.
+   * @return <code>boolean</code> => file is a descendant.
    */
   public boolean isParentOf(File file) {
     final File thisFile = getFile();
