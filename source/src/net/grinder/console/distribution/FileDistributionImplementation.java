@@ -215,6 +215,7 @@ public final class FileDistributionImplementation implements FileDistribution {
       final File privateDirectory =
         new File(directory.getFile(), PRIVATE_DIRECTORY_NAME);
       privateDirectory.mkdir();
+      privateDirectory.deleteOnExit();
 
       final File temporaryFile =
         File.createTempFile(".scantime", "", privateDirectory);
