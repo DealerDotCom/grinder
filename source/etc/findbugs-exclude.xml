@@ -104,12 +104,15 @@
     <Bug pattern="SF_SWITCH_FALLTHROUGH"/>
   </Match>
 
-  <!-- We ignore return value of mkdirs(), since we don't care whether we
-       actually created the directory. -->
+  <!-- We ignore return value of delete(), mkdir(), mkdirs()... since in these
+       cases we don't care whether the operation was successful. -->
   <Match>
     <Or>
       <Class name="net.grinder.engine.process.LoggerImplementation$FileManager"/>
       <Class name="net.grinder.util.Directory"/>
+      <Class name="net.grinder.util.DelayedCreationFileWriter"/>
+      <Class name="net.grinder.util.FileContents"/>
+      <Class name="net.grinder.console.distribution.FileDistributionImplementation"/>
   </Or>
     <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
   </Match>
