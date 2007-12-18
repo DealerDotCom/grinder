@@ -293,6 +293,9 @@ public final class Agent {
                 maximumShutdownTime) {
 
               m_logger.output("forcibly terminating unresponsive processes");
+
+              // destroyAllWorkers() also prevents any more workers from
+              // starting.
               workerLauncher.destroyAllWorkers();
             }
 
