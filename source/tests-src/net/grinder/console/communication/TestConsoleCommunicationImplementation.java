@@ -193,6 +193,11 @@ public class TestConsoleCommunicationImplementation
 
     assertEquals(properties, startGrinderMessage.getProperties());
 
+    processControl.startWorkerProcesses(null);
+    final StartGrinderMessage startGrinderMessage2 =
+      (StartGrinderMessage)readMessage(socket);
+    assertEquals(0, startGrinderMessage2.getProperties().size());
+
     // This shouldn't call reset. If it does, we'll block because
     // nothing's processing the messages.
     m_properties.setIgnoreSampleCount(99);
