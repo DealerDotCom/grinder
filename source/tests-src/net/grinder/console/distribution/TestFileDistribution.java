@@ -242,7 +242,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     fileDistribution.setDirectory(new Directory(testDirectory));
     fileDistribution.scanDistributionFiles();
-    assertEquals(directory1.lastModified(),
+    // Directories no longer affect cache.
+    assertEquals(Long.MAX_VALUE,
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
     final CallData directoriesChangedCall =

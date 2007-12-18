@@ -165,6 +165,11 @@ public final class FileDistributionImplementation implements FileDistribution {
       m_distributionControl.clearFileCaches();
     }
 
+    // Change the cache state to "updating" in case there are no files to
+    // transfer. This can happen for the first transfer if the  distribution
+    // directory contains no files.
+    m_cacheState.updateStarted(earliestFileTime);
+
     synchronized (this) {
       m_distributionFilter.setEarliestTime(earliestFileTime);
 
@@ -233,6 +238,8 @@ public final class FileDistributionImplementation implements FileDistribution {
 
     filter.setEarliestTime(scanTime);
 
+    // Include directories because our listeners want to know about changes
+    // to them too.
     final File[] laterFiles = directory.listContents(filter, true, true);
 
     if (laterFiles.length > 0) {
@@ -248,7 +255,12 @@ public final class FileDistributionImplementation implements FileDistribution {
           continue;
         }
 
-        m_cacheState.setOutOfDate(laterFile.lastModified());
+        if (laterFile.isFile()) {
+          // Only mark the cache invalid for changes to files,
+          // since we don't distribute directories.
+          m_cacheState.setOutOfDate(laterFile.lastModified());
+        }
+
         changedFiles.add(laterFile);
       }
 
