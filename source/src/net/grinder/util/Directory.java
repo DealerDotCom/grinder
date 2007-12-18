@@ -207,7 +207,11 @@ public final class Directory implements Serializable {
           final File absoluteChild = new File(absoluteDirectory, children[j]);
 
           if (filter.accept(absoluteChild)) {
-            if (includeDirectories || !absoluteChild.isDirectory()) {
+            // Links (hard or symbolic) are transparent to isFile(),
+            // isDirectory(); but we're careful to filter things that are
+            // neither (e.g. FIFOs).
+            if (includeDirectories && absoluteChild.isDirectory() ||
+                absoluteChild.isFile()) {
               resultList.add(absolutePaths ? absoluteChild : relativeChild);
             }
 
