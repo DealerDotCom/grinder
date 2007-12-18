@@ -395,7 +395,7 @@ final class FileTree {
         final Node node = (Node)selectedNode;
 
         if (node.getFile().isFile()) {
-          m_editorModel.setSelectedProperties(node.getFile());
+          m_editorModel.setSelectedPropertiesFile(node.getFile());
           m_bufferTreeModel.valueForPathChanged(node.getPath(), node);
           updateActionState();
         }
@@ -421,7 +421,7 @@ final class FileTree {
 
         m_selectPropertiesAction.setEnabled(
           m_editorModel.isPropertiesFile(file) &&
-          !file.equals(m_editorModel.getSelectedProperties()));
+          !file.equals(m_editorModel.getSelectedPropertiesFile()));
 
         return;
       }
@@ -444,9 +444,11 @@ final class FileTree {
     private final ImageIcon m_propertiesIcon =
       m_resources.getImageIcon("file.properties.image");
     private final ImageIcon m_markedPropertiesIcon =
-      m_resources.getImageIcon("file.markedproperties.image");
+      m_resources.getImageIcon("file.selectedproperties.image");
     private final ImageIcon m_pythonIcon =
       m_resources.getImageIcon("file.python.image");
+    private final ImageIcon m_selectedPythonIcon =
+      m_resources.getImageIcon("file.selectedpython.image");
 
     private boolean m_active;
 
@@ -473,14 +475,17 @@ final class FileTree {
         final Icon icon;
 
         if (file != null &&
-            file.equals(m_editorModel.getSelectedProperties())) {
+            file.equals(m_editorModel.getSelectedPropertiesFile())) {
           icon = m_markedPropertiesIcon;
         }
-        else if (m_editorModel.isPythonFile(file)) {
-          icon = m_pythonIcon;
+        else if (m_editorModel.isSelectedScript(file)) {
+          icon = m_selectedPythonIcon;
         }
         else if (m_editorModel.isPropertiesFile(file)) {
           icon = m_propertiesIcon;
+        }
+        else if (m_editorModel.isPythonFile(file)) {
+          icon = m_pythonIcon;
         }
         else {
           icon = m_defaultRenderer.getLeafIcon();

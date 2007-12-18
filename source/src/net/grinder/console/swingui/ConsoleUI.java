@@ -1253,7 +1253,7 @@ public final class ConsoleUI implements ModelListener {
 
     public void actionPerformed(ActionEvent event) {
       try {
-        final File propertiesFile = m_editorModel.getSelectedProperties();
+        final File propertiesFile = m_editorModel.getSelectedPropertiesFile();
 
         if (propertiesFile == null) {
           final int chosen =

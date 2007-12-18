@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
@@ -346,6 +347,39 @@ public class TestEditorModel extends AbstractFileTestCase {
     }
   }
 
+  public void testIsPropertiesFile() throws Exception {
+    final EditorModel editorModel =
+      new EditorModel(s_resources,
+                      new StringTextSource.Factory(),
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
+
+    final File[] properties = {
+      new File("my file.properties"),
+      new File(".blah.properties"),
+      new File("python.PROPERTIES"),
+      new File("~python.properties"),
+    };
+
+    for (int i = 0; i < properties.length; ++i) {
+      assertTrue("Is properties: " + properties[i],
+                 editorModel.isPropertiesFile(properties[i]));
+    }
+
+    final File[] notProperties = {
+      null,
+      new File("script.props"),
+      new File("script.properties "),
+      new File("foo.bah"),
+      new File("x.text"),
+    };
+
+    for (int i = 0; i < notProperties.length; ++i) {
+      assertTrue("Isn't properties: " + notProperties[i],
+                 !editorModel.isPropertiesFile(notProperties[i]));
+    }
+  }
+
   public void testCloseBufferAndIsABufferDirty() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources,
@@ -468,20 +502,44 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertEquals(buffer, editorModel.getBufferForFile(file2));
   }
 
-  public void testGetAndSetMarkedScript() throws Exception {
+  public void testGetAndSelectProperties() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
                       m_agentCacheState,
                       m_fileChangeWatcher);
 
-    assertNull(editorModel.getSelectedProperties());
+    assertNull(editorModel.getSelectedPropertiesFile());
 
-    final File f = new File(".");
-    editorModel.setSelectedProperties(f);
-    assertSame(f, editorModel.getSelectedProperties());
-    editorModel.setSelectedProperties(null);
-    assertNull(editorModel.getSelectedProperties());
+    final File script = new File(getDirectory(), "lah");
+
+    final File f1 = new File(".");
+    editorModel.setSelectedPropertiesFile(f1);
+    assertSame(f1, editorModel.getSelectedPropertiesFile());
+    editorModel.setSelectedPropertiesFile(null);
+    assertFalse(editorModel.isSelectedScript(script));
+    assertNull(editorModel.getSelectedPropertiesFile());
+    assertFalse(editorModel.isSelectedScript(script));
+
+    final File f2 = new File(getDirectory(), "foo.properties");
+    editorModel.setSelectedPropertiesFile(f2);
+    assertFalse(editorModel.isSelectedScript(script));
+
+    final GrinderProperties properties = new GrinderProperties(f2);
+    properties.setFile("grinder.script", script);
+    properties.save();
+    assertFalse(editorModel.isSelectedScript(script));
+    editorModel.setSelectedPropertiesFile(f2);
+    assertTrue(editorModel.isSelectedScript(script));
+
+    // Again with relative path.
+    editorModel.setSelectedPropertiesFile(f1);
+    assertFalse(editorModel.isSelectedScript(script));
+    properties.setFile("grinder.script", new File(script.getName()));
+    properties.save();
+    assertFalse(editorModel.isSelectedScript(script));
+    editorModel.setSelectedPropertiesFile(f2);
+    assertTrue(editorModel.isSelectedScript(script));
   }
 
   public void testAbstractListener() throws Exception {

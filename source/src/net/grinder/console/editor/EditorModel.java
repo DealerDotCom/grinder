@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import net.grinder.common.GrinderProperties;
+import net.grinder.common.GrinderProperties.PersistenceException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
@@ -53,14 +55,26 @@ public final class EditorModel {
 
   private final ListenerSupport m_listeners = new ListenerSupport();
 
+  // Guarded by itself.
   private final LinkedList m_bufferList = new LinkedList();
+
+  // Guarded by itself.
   private final Map m_fileBuffers = Collections.synchronizedMap(new HashMap());
 
+  // Guarded by this.
   private int m_nextNewBufferNameIndex = 0;
 
+  // Guarded by this.
   private Buffer m_selectedBuffer;
+
+  // Guarded by this.
   private File m_selectedProperties;
+
+  // Guarded by this.
   private ExternalEditor m_externalEditor;
+
+  // Guarded by this.
+  private File m_selectedFile;
 
   /**
    * Constructor.
@@ -88,14 +102,16 @@ public final class EditorModel {
         "scriptSupportUnderConstruction.text", true));
 
     fileChangeWatcher.addFileChangedListener(new FileChangedListener() {
-      public void filesChanged(File[] file) {
+      public void filesChanged(File[] files) {
         synchronized (m_fileBuffers) {
-          for (int i = 0; i < file.length; ++i) {
-            final Buffer buffer = getBufferForFile(file[i]);
+          for (int i = 0; i < files.length; ++i) {
+            final Buffer buffer = getBufferForFile(files[i]);
 
             if (buffer != null && !buffer.isUpToDate()) {
               fireBufferNotUpToDate(buffer);
             }
+
+            parseSelectedProperties(files[i]);
           }
         }
       }
@@ -108,7 +124,9 @@ public final class EditorModel {
    * @return The active buffer.
    */
   public Buffer getSelectedBuffer() {
-    return m_selectedBuffer;
+    synchronized (this) {
+      return m_selectedBuffer;
+    }
   }
 
   /**
@@ -187,7 +205,9 @@ public final class EditorModel {
    * @return The buffer list.
    */
   public Buffer[] getBuffers() {
-    return (Buffer[])m_bufferList.toArray(new Buffer[m_bufferList.size()]);
+    synchronized (m_bufferList) {
+      return (Buffer[])m_bufferList.toArray(new Buffer[m_bufferList.size()]);
+    }
   }
 
   /**
@@ -213,11 +233,15 @@ public final class EditorModel {
    * @param buffer The buffer.
    */
   public void selectBuffer(Buffer buffer) {
-    if (buffer == null || !buffer.equals(m_selectedBuffer)) {
+    final Buffer selectedBuffer = getSelectedBuffer();
 
-      final Buffer oldBuffer = m_selectedBuffer;
+    if (buffer == null || !buffer.equals(selectedBuffer)) {
 
-      m_selectedBuffer = buffer;
+      final Buffer oldBuffer = selectedBuffer;
+
+      synchronized (this) {
+        m_selectedBuffer = buffer;
+      }
 
       if (oldBuffer != null) {
         fireBufferStateChanged(oldBuffer);
@@ -235,7 +259,13 @@ public final class EditorModel {
    * @param buffer The buffer.
    */
   public void closeBuffer(final Buffer buffer) {
-    if (m_bufferList.remove(buffer)) {
+    final boolean removed;
+
+    synchronized (m_bufferList) {
+      removed = m_bufferList.remove(buffer);
+    }
+
+    if (removed) {
       final File file = buffer.getFile();
 
       if (buffer.equals(getBufferForFile(file))) {
@@ -243,14 +273,16 @@ public final class EditorModel {
       }
 
       if (buffer.equals(getSelectedBuffer())) {
-        final int numberOfBuffers = m_bufferList.size();
+        final Buffer bufferToSelect;
 
-        if (numberOfBuffers > 0) {
-          selectBuffer((Buffer)m_bufferList.get(numberOfBuffers - 1));
+        synchronized (m_bufferList) {
+          final int numberOfBuffers = m_bufferList.size();
+
+          bufferToSelect = numberOfBuffers > 0 ?
+              (Buffer)m_bufferList.get(numberOfBuffers - 1) : null;
         }
-        else {
-          selectBuffer(null);
-        }
+
+        selectBuffer(bufferToSelect);
       }
 
       m_listeners.apply(
@@ -267,8 +299,10 @@ public final class EditorModel {
    *
    * @return The selected properties.
    */
-  public File getSelectedProperties() {
-    return m_selectedProperties;
+  public File getSelectedPropertiesFile() {
+    synchronized (this) {
+      return m_selectedProperties;
+    }
   }
 
   /**
@@ -276,8 +310,12 @@ public final class EditorModel {
    *
    * @param selectedProperties The selected properties.
    */
-  public void setSelectedProperties(File selectedProperties) {
-    m_selectedProperties = selectedProperties;
+  public void setSelectedPropertiesFile(File selectedProperties) {
+    synchronized (this) {
+      m_selectedProperties = selectedProperties;
+    }
+
+    parseSelectedProperties(selectedProperties);
   }
 
   private void addBuffer(final Buffer buffer) {
@@ -307,11 +345,15 @@ public final class EditorModel {
             // file.
             fireBufferStateChanged(buffer);
           }
+
+          parseSelectedProperties(newFile);
         }
       }
       );
 
-    m_bufferList.add(buffer);
+    synchronized (m_bufferList) {
+      m_bufferList.add(buffer);
+    }
 
     m_listeners.apply(
       new ListenerSupport.Informer() {
@@ -347,16 +389,43 @@ public final class EditorModel {
 
     final String prefix = m_resources.getString("newBuffer.text");
 
-    try {
-      if (m_nextNewBufferNameIndex == 0) {
-        return prefix;
+    synchronized (this) {
+      try {
+        if (m_nextNewBufferNameIndex == 0) {
+          return prefix;
+        }
+        else {
+          return prefix + " " + m_nextNewBufferNameIndex;
+        }
       }
-      else {
-        return prefix + " " + m_nextNewBufferNameIndex;
+      finally {
+        ++m_nextNewBufferNameIndex;
       }
     }
-    finally {
-      ++m_nextNewBufferNameIndex;
+  }
+
+  private void parseSelectedProperties(File file) {
+
+    if (file != null && file.equals(getSelectedPropertiesFile())) {
+      File selectedFile = null;
+
+      try {
+        final GrinderProperties properties = new GrinderProperties(file);
+
+        selectedFile = properties.getFile("grinder.script", null);
+      }
+      catch (PersistenceException e) {
+        selectedFile = null;
+      }
+
+      if (selectedFile != null && !selectedFile.isAbsolute()) {
+        selectedFile = new File(file.getParentFile(), selectedFile.getPath());
+      }
+
+      synchronized (this) {
+        m_selectedFile = selectedFile;
+      }
+
     }
   }
 
@@ -398,6 +467,21 @@ public final class EditorModel {
   }
 
   /**
+   * Return whether the given file is the script file specified in the
+   * currently selected properties file.
+   *
+   * @param f The file.
+   * @return <code>true</code> => its the selected script.
+   */
+  public boolean isSelectedScript(File f) {
+    // We don't constrain selection to have a .py extension. If the
+    // user really wants to use something else, so be it.
+    synchronized (this) {
+      return f != null && f.equals(m_selectedFile);
+    }
+  }
+
+  /**
    * Return whether the given file should be marked as boring.
    *
    * @param f The file.
@@ -431,13 +515,19 @@ public final class EditorModel {
    * @throws ConsoleException If the file could not be opened.
    */
   public void openWithExternalEditor(final File file) throws ConsoleException {
-    if (m_externalEditor == null) {
+    final ExternalEditor externalEditor;
+
+    synchronized (this) {
+      externalEditor = m_externalEditor;
+    }
+
+    if (externalEditor == null) {
       throw new DisplayMessageConsoleException(m_resources,
                                                "externalEditorNotSet.text");
     }
 
     try {
-      m_externalEditor.open(file);
+      externalEditor.open(file);
     }
     catch (IOException e) {
       throw new DisplayMessageConsoleException(m_resources,
@@ -459,12 +549,17 @@ public final class EditorModel {
    *            to the end of the command line.
    */
   public void setExternalEditor(File command, String arguments) {
+    final ExternalEditor externalEditor;
     if (command == null) {
-      m_externalEditor = null;
+      externalEditor = null;
     }
     else {
-      m_externalEditor =
+      externalEditor =
         new ExternalEditor(m_agentCacheState, this, command, arguments);
+    }
+
+    synchronized (this) {
+      m_externalEditor = externalEditor;
     }
   }
 
