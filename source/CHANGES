@@ -43,6 +43,8 @@ The Grinder 3.0-beta34 (Not yet released)
 
   Fix bug 1846218 - Delayed statistics are not flushed on next test.
 
+  Add an editor keyboard shortcut for "Save-File" (Ctrl-S).
+
 
 The Grinder 3.0-beta33
 ----------------------

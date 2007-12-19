@@ -118,6 +118,7 @@ public final class ConsoleUI implements ModelListener {
   private final CustomAction m_startAction;
   private final ExitAction m_exitAction;
   private final StopAction m_stopAction;
+  private final SaveFileAction m_saveFileAction;
   private final SaveFileAsAction m_saveFileAsAction;
 
   private final ModelImplementation m_model;
@@ -226,6 +227,7 @@ public final class ConsoleUI implements ModelListener {
     m_exitAction = new ExitAction();
     m_startAction = new StartAction();
     m_stopAction = new StopAction();
+    m_saveFileAction = new SaveFileAction();
     m_saveFileAsAction = new SaveFileAsAction();
 
     m_actionTable.add(m_closeFileAction);
@@ -331,7 +333,7 @@ public final class ConsoleUI implements ModelListener {
       new EditorControls(
         m_resources, m_editorModel, editorSmallFont, editorToolBar);
 
-    final Editor editor = new Editor(m_editorModel);
+    final Editor editor = new Editor(m_editorModel, m_saveFileAction);
 
     final FileTreeModel fileTreeModel =
       new FileTreeModel(m_editorModel,

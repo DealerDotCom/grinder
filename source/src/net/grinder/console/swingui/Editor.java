@@ -25,6 +25,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
 
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.event.DocumentEvent;
@@ -66,10 +67,12 @@ final class Editor {
 
   /**
    * Constructor.
+   * @param saveFileAsAction
    *
    * @param model The editor model.
    */
-  public Editor(EditorModel editorModel) throws ConsoleException {
+  public Editor(EditorModel editorModel,
+                Action saveFileAsAction) throws ConsoleException {
 
     m_editorModel = editorModel;
 
@@ -89,6 +92,7 @@ final class Editor {
     textAreaDefaults.bracketHighlightColor = Colours.GREY;
     textAreaDefaults.selectionColor = Colours.GREY;
     textAreaDefaults.cols = 1;
+    textAreaDefaults.inputHandler.addKeyBinding("C+S", saveFileAsAction);
 
     m_scriptTextArea = new CustomJEditTextArea(textAreaDefaults);
 
