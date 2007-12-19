@@ -87,7 +87,7 @@ public class TestFileTree extends AbstractFileTestCase {
 
     final FileTree fileTree = new FileTree(s_resources,
       m_errorHandler, editorModel, bufferTreeModel, fileTreeModel,
-      new JLabel().getFont(), new JPopupMenu());
+      new JLabel().getFont(), new JPopupMenu(), null);
 
     // Simulate L&F change.
     SwingUtilities.updateComponentTreeUI(fileTree.getComponent());
@@ -108,7 +108,7 @@ public class TestFileTree extends AbstractFileTestCase {
     fileTreeModel.setRootDirectory(new File("c:"));
 
     new FileTree(s_resources, m_errorHandler, editorModel, bufferTreeModel,
-                 fileTreeModel, new JLabel().getFont(), new JPopupMenu());
+                 fileTreeModel, new JLabel().getFont(), new JPopupMenu(), null);
 
     // Exercise the EditorModel listeners.
     editorModel.selectNewBuffer();
@@ -155,7 +155,7 @@ public class TestFileTree extends AbstractFileTestCase {
     final FileTree fileTree =
       new FileTree(s_resources, m_errorHandler, editorModel,
                    bufferTreeModel, fileTreeModel, new JLabel().getFont(),
-                   new JPopupMenu());
+                   new JPopupMenu(), null);
 
     final JFrame frame = new JFrame();
 

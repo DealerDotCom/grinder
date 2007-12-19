@@ -71,10 +71,10 @@ public final class EditorModel {
   private File m_selectedProperties;
 
   // Guarded by this.
-  private ExternalEditor m_externalEditor;
+  private File m_selectedFile;
 
   // Guarded by this.
-  private File m_selectedFile;
+  private ExternalEditor m_externalEditor;
 
   /**
    * Constructor.
@@ -310,7 +310,7 @@ public final class EditorModel {
    *
    * @param selectedProperties The selected properties.
    */
-  public void setSelectedPropertiesFile(File selectedProperties) {
+  public void setSelectedPropertiesFile(final File selectedProperties) {
     synchronized (this) {
       m_selectedProperties = selectedProperties;
     }
@@ -425,7 +425,6 @@ public final class EditorModel {
       synchronized (this) {
         m_selectedFile = selectedFile;
       }
-
     }
   }
 

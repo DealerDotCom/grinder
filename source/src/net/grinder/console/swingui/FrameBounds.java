@@ -108,6 +108,6 @@ final class FrameBounds {
   }
 
   public void store() throws ConsoleException {
-    m_properties.setFrameBounds(m_frame.getBounds());
+    m_properties.setAndSaveFrameBounds(m_frame.getBounds());
   }
 }

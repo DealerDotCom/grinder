@@ -612,13 +612,17 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Set the properties file.
+   * Set and save the properties file.
    *
    * @param propertiesFile The properties file. <code>null</code> => No file
    * set.
+   * @throws ConsoleException
+   * @throws ConsoleException If the property could not be saved.
    */
-  public void setPropertiesFile(File propertiesFile) {
+  public void setAndSavePropertiesFile(File propertiesFile)
+    throws ConsoleException {
     m_propertiesFile.set(propertiesFile);
+    m_propertiesFile.save();
   }
 
   /**
@@ -631,21 +635,14 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Set the script distribution directory.
+   * Set and save the script distribution directory.
    *
    * @param distributionDirectory The directory.
-   */
-  public void setDistributionDirectory(Directory distributionDirectory) {
-    m_distributionDirectory.set(distributionDirectory);
-  }
-
-  /**
-   * Save the distribution directory property value to the user's preferences
-   * file.
-   *
    * @throws ConsoleException If the property could not be saved.
    */
-  public void saveDistributionDirectory() throws ConsoleException {
+  public void setAndSaveDistributionDirectory(Directory distributionDirectory)
+    throws ConsoleException {
+    m_distributionDirectory.set(distributionDirectory);
     m_distributionDirectory.save();
   }
 
@@ -776,7 +773,7 @@ public final class ConsoleProperties {
    * @param bounds The console frame bounds.
    * @throws ConsoleException If the property couldn't be persisted.
    */
-  public void setFrameBounds(Rectangle bounds) throws ConsoleException {
+  public void setAndSaveFrameBounds(Rectangle bounds) throws ConsoleException {
     m_frameBounds.set(bounds);
     m_frameBounds.save();
   }

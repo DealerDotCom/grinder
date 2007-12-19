@@ -55,6 +55,7 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
+import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.swingui.FileTreeModel.FileNode;
 
 
@@ -76,6 +77,7 @@ final class FileTree {
   private final EditorModel m_editorModel;
   private final BufferTreeModel m_bufferTreeModel;
   private final FileTreeModel m_fileTreeModel;
+  private final ConsoleProperties m_properties;
 
   private final JTree m_tree;
   private final OpenAction m_openAction;
@@ -89,13 +91,15 @@ final class FileTree {
                   BufferTreeModel bufferTreeModel,
                   FileTreeModel fileTreeModel,
                   Font font,
-                  JPopupMenu popupMenu) {
+                  JPopupMenu popupMenu,
+                  ConsoleProperties properties) {
 
     m_resources = resources;
     m_errorHandler = errorHandler;
     m_editorModel = editorModel;
     m_bufferTreeModel = bufferTreeModel;
     m_fileTreeModel = fileTreeModel;
+    m_properties = properties;
 
     final CompositeTreeModel compositeTreeModel = new CompositeTreeModel();
 
@@ -394,8 +398,18 @@ final class FileTree {
       if (selectedNode instanceof Node) {
         final Node node = (Node)selectedNode;
 
-        if (node.getFile().isFile()) {
-          m_editorModel.setSelectedPropertiesFile(node.getFile());
+        final File file = node.getFile();
+
+        if (file.isFile()) {
+          try {
+            // Editor model learns of selection through a properties listener.
+            m_properties.setAndSavePropertiesFile(file);
+          }
+          catch (ConsoleException e) {
+            m_errorHandler.handleException(e);
+            return;
+          }
+
           m_bufferTreeModel.valueForPathChanged(node.getPath(), node);
           updateActionState();
         }

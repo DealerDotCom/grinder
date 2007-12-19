@@ -189,6 +189,7 @@ public final class ConsoleUI implements ModelListener {
 
     m_editorModel.setExternalEditor(properties.getExternalEditorCommand(),
                                     properties.getExternalEditorArguments());
+    m_editorModel.setSelectedPropertiesFile(properties.getPropertiesFile());
 
     properties.addPropertyChangeListener(
       new PropertyChangeListener()  {
@@ -200,6 +201,11 @@ public final class ConsoleUI implements ModelListener {
             m_editorModel.setExternalEditor(
               properties.getExternalEditorCommand(),
               properties.getExternalEditorArguments());
+          }
+          else if (e.getPropertyName().equals(
+                ConsoleProperties.PROPERTIES_FILE_PROPERTY)) {
+            m_editorModel.setSelectedPropertiesFile(
+              properties.getPropertiesFile());
           }
         }
       });
@@ -355,7 +361,8 @@ public final class ConsoleUI implements ModelListener {
                               new BufferTreeModel(m_editorModel),
                               fileTreeModel,
                               editorSmallFont,
-                              fileTreePopupMenu);
+                              fileTreePopupMenu,
+                              properties);
 
     final CustomAction[] fileTreeActions = m_fileTree.getActions();
 
@@ -1454,8 +1461,7 @@ public final class ConsoleUI implements ModelListener {
           }
 
           final ConsoleProperties properties = m_model.getProperties();
-          properties.setDistributionDirectory(directory);
-          properties.saveDistributionDirectory();
+          properties.setAndSaveDistributionDirectory(directory);
         }
       }
       catch (IOException e) {

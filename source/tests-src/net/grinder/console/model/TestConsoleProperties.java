@@ -280,7 +280,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testScriptFile() throws Exception {
+  public void testPropertiesFile() throws Exception {
 
     new TestFileTemplate(ConsoleProperties.PROPERTIES_FILE_PROPERTY) {
 
@@ -288,15 +288,32 @@ public class TestConsoleProperties extends AbstractFileTestCase {
         return properties.getPropertiesFile();
       }
 
-      protected void set(ConsoleProperties properties, File file) {
-        properties.setPropertiesFile(file);
+      protected void set(ConsoleProperties properties, File file)
+        throws ConsoleException {
+        properties.setAndSavePropertiesFile(file);
       }
     }.doTest();
+
+    final File file = new File(getDirectory(), "testing");
+
+    final ConsoleProperties properties =
+      new ConsoleProperties(s_resources, file);
+
+    assertNull(properties.getPropertiesFile());
+
+    final File propertiesFile = new File(getDirectory(), "foo");
+    properties.setAndSavePropertiesFile(propertiesFile);
+
+    assertEquals(propertiesFile, properties.getPropertiesFile());
+
+    properties.setAndSavePropertiesFile(null);
+    assertNull(properties.getPropertiesFile());
   }
 
   public void testDistributionDirectory() throws Exception {
 
-    new TestDirectoryTemplate(ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY) {
+    new TestDirectoryTemplate(
+      ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY) {
 
       protected Directory getDirectory(ConsoleProperties properties) {
         return properties.getDistributionDirectory();
@@ -304,7 +321,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
       protected void setDirectory(ConsoleProperties properties,
         Directory directory) throws Exception {
-        properties.setDistributionDirectory(directory);
+        properties.setAndSaveDistributionDirectory(directory);
       }
     }.doTest();
 
@@ -317,7 +334,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertNotNull(properties.getDistributionDirectory());
     final Directory defaultDirectory = properties.getDistributionDirectory();
 
-    properties.saveDistributionDirectory();
+    final Directory directory = new Directory(new File("getDirectory()", "d"));
+    properties.setAndSaveDistributionDirectory(directory);
 
     final Properties rawProperties = new Properties();
     final FileInputStream in = new FileInputStream(file);
@@ -326,12 +344,11 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertEquals(1, rawProperties.size());
     assertEquals(rawProperties
         .getProperty(ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY),
-      properties.getDistributionDirectory().getFile().getPath());
+      directory.getFile().getPath());
 
     // Check load a non-directory, should give default.
     final File file2 = new File(getDirectory(), "testing2");
-    properties.setDistributionDirectory(new Directory(file2));
-    properties.saveDistributionDirectory();
+    properties.setAndSaveDistributionDirectory(new Directory(file2));
     file2.createNewFile();
 
     final ConsoleProperties p2 =
@@ -340,7 +357,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
     FileUtilities.setCanAccess(file, false);
     try {
-      properties.saveDistributionDirectory();
+      properties.setAndSaveDistributionDirectory(directory);
       fail("Expected DisplayMessageConsoleException");
     }
     catch (DisplayMessageConsoleException e) {
@@ -434,13 +451,13 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
     final Rectangle rectangle = new Rectangle(12, 42, 311, 1322);
 
-    properties.setFrameBounds(rectangle);
+    properties.setAndSaveFrameBounds(rectangle);
     assertEquals(rectangle, properties.getFrameBounds());
 
     final ConsoleProperties properties2 =
       new ConsoleProperties(s_resources, m_file);
 
-    properties.setFrameBounds(null);
+    properties.setAndSaveFrameBounds(null);
     assertNull(properties.getFrameBounds());
 
     assertEquals(rectangle, properties2.getFrameBounds());
@@ -448,7 +465,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     FileUtilities.setCanAccess(m_file, false);
 
     try {
-      properties.setFrameBounds(rectangle);
+      properties.setAndSaveFrameBounds(rectangle);
       fail("Expected DisplayMessageConsoleException");
     }
     catch (DisplayMessageConsoleException e) {
@@ -519,8 +536,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     p2.setPropertiesNotSetAsk(false);
     p2.setStartWithUnsavedBuffersAsk(false);
     p2.setStopProcessesAsk(false);
-    p2.setPropertiesFile(new File("foo"));
-    p2.setDistributionDirectory(new Directory(new File("bah")));
+    p2.setAndSavePropertiesFile(new File("foo"));
+    p2.setAndSaveDistributionDirectory(new Directory(new File("bah")));
     p2.setDistributionFileFilterExpression(".*");
     p2.setScanDistributionFilesPeriod(100);
     p2.setLookAndFeel("something");
