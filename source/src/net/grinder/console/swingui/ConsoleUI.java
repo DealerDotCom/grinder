@@ -29,6 +29,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.awt.event.ContainerAdapter;
+import java.awt.event.ContainerEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -45,6 +47,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -71,6 +74,8 @@ import javax.swing.ProgressMonitor;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import net.grinder.common.GrinderException;
@@ -635,6 +640,23 @@ public final class ConsoleUI implements ModelListener {
 
     protected PopupMenuAssembler(JPopupMenu component) {
       super(component);
+
+      component.addContainerListener(new ContainerAdapter() {
+        public void componentAdded(ContainerEvent e) {
+          if (e.getChild() instanceof JMenuItem) {
+            final JMenuItem addedMenuItem = (JMenuItem)e.getChild();
+
+            addedMenuItem.setVisible(addedMenuItem.isEnabled());
+
+            addedMenuItem.addChangeListener(
+              new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                  addedMenuItem.setVisible(addedMenuItem.isEnabled());
+                }
+            });
+          }
+        }
+      });
     }
 
     protected void dash() {
