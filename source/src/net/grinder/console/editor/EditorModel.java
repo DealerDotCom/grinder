@@ -406,24 +406,31 @@ public final class EditorModel {
 
   private void parseSelectedProperties(File file) {
 
-    if (file != null && file.equals(getSelectedPropertiesFile())) {
-      File selectedFile = null;
+    if (file != null) {
+      if (file.equals(getSelectedPropertiesFile())) {
+        File selectedFile = null;
 
-      try {
-        final GrinderProperties properties = new GrinderProperties(file);
+        try {
+          final GrinderProperties properties = new GrinderProperties(file);
 
-        selectedFile = properties.getFile("grinder.script", null);
+          selectedFile = properties.getFile("grinder.script", null);
+        }
+        catch (PersistenceException e) {
+          selectedFile = null;
+        }
+
+        if (selectedFile != null && !selectedFile.isAbsolute()) {
+          selectedFile = new File(file.getParentFile(), selectedFile.getPath());
+        }
+
+        synchronized (this) {
+          m_selectedFile = selectedFile;
+        }
       }
-      catch (PersistenceException e) {
-        selectedFile = null;
-      }
-
-      if (selectedFile != null && !selectedFile.isAbsolute()) {
-        selectedFile = new File(file.getParentFile(), selectedFile.getPath());
-      }
-
+    }
+    else if (getSelectedPropertiesFile() == null) {
       synchronized (this) {
-        m_selectedFile = selectedFile;
+        m_selectedFile = null;
       }
     }
   }

@@ -83,6 +83,7 @@ final class FileTree {
   private final OpenAction m_openAction;
   private final OpenExternalAction m_openExternalAction;
   private final SelectPropertiesAction m_selectPropertiesAction;
+  private final DeselectPropertiesAction m_deselectPropertiesAction;
   private final JScrollPane m_scrollPane;
 
   public FileTree(Resources resources,
@@ -150,6 +151,7 @@ final class FileTree {
     m_openAction = new OpenAction();
     m_openExternalAction = new OpenExternalAction();
     m_selectPropertiesAction = new SelectPropertiesAction();
+    m_deselectPropertiesAction = new DeselectPropertiesAction();
 
     // J2SE 1.4 drops the mapping from "ENTER" -> "toggle"
     // (expand/collapse) that J2SE 1.3 has. I like this mapping, so
@@ -298,7 +300,11 @@ final class FileTree {
 
   public CustomAction[] getActions() {
     return new CustomAction[] {
-        m_openAction, m_openExternalAction, m_selectPropertiesAction, };
+        m_openAction,
+        m_openExternalAction,
+        m_selectPropertiesAction,
+        m_deselectPropertiesAction,
+    };
   }
 
   /**
@@ -417,7 +423,44 @@ final class FileTree {
     }
   }
 
+  private final class DeselectPropertiesAction extends CustomAction {
+    public DeselectPropertiesAction() {
+      super(m_resources, "deselect-properties");
+    }
+
+    public void actionPerformed(ActionEvent event) {
+      invoke();
+    }
+
+    public void invoke() {
+      try {
+        final File previousProperties = m_properties.getPropertiesFile();
+
+        m_properties.setAndSavePropertiesFile(null);
+        updateActionState();
+
+        if (previousProperties != null) {
+          final FileTreeModel.Node fileNode =
+            m_fileTreeModel.findNode(previousProperties);
+
+          if (fileNode != null) {
+            m_fileTreeModel.valueForPathChanged(fileNode.getPath(), fileNode);
+
+            m_bufferTreeModel.bufferChanged(fileNode.getBuffer());
+          }
+        }
+      }
+      catch (ConsoleException e) {
+        m_errorHandler.handleException(e);
+        return;
+      }
+    }
+  }
+
   private void updateActionState() {
+    m_deselectPropertiesAction.setEnabled(
+      m_editorModel.getSelectedPropertiesFile() != null);
+
     if (m_tree.isEnabled()) {
       final Object selectedNode = m_tree.getLastSelectedPathComponent();
       if (selectedNode instanceof Node) {
@@ -440,15 +483,23 @@ final class FileTree {
           !file.equals(m_editorModel.getSelectedPropertiesFile()));
 
         m_selectPropertiesAction.setRelevantToSelection(
-          m_editorModel.isPropertiesFile(file));
+          m_selectPropertiesAction.isEnabled());
+
+        m_deselectPropertiesAction.setRelevantToSelection(
+          m_editorModel.isPropertiesFile(file) &&
+          !m_selectPropertiesAction.isEnabled());
 
         return;
       }
     }
 
     m_openAction.setEnabled(false);
+    m_openAction.setRelevantToSelection(false);
     m_openExternalAction.setEnabled(false);
+    m_openExternalAction.setRelevantToSelection(false);
     m_selectPropertiesAction.setEnabled(false);
+    m_selectPropertiesAction.setRelevantToSelection(false);
+    m_deselectPropertiesAction.setRelevantToSelection(false);
   }
 
   /**
