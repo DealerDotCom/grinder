@@ -53,6 +53,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -620,6 +621,17 @@ public final class ConsoleUI implements ModelListener {
       };
 
       m_actionTable.setAction(menuItem, menuItemKey);
+
+      final Icon icon = menuItem.getIcon();
+
+      final Icon rolloverIcon =
+        (Icon) menuItem.getAction().getValue(CustomJButton.ROLLOVER_ICON);
+
+      menuItem.addChangeListener(new ChangeListener() {
+        public void stateChanged(ChangeEvent e) {
+          menuItem.setIcon(menuItem.isArmed() ? rolloverIcon : icon);
+        }
+      });
 
       getComponent().add(menuItem);
     }
