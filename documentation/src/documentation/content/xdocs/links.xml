@@ -15,6 +15,20 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="http://sourceforge.net/projects/webflange/">webFlange</a>
+      </td>
+
+      <td></td>
+
+      <td>
+        <em>webFlange is a continuous load testing web application written
+        in Java. It leverages The Grinder for running tests, automatically
+        creates reports and allows the creation of charts from the test
+        results.</em>
+      </td>
+    </tr>
+    <tr>
+      <td>
         <a href="http://code.google.com/p/grinderstone/">Grinderstone</a>
       </td>
 
