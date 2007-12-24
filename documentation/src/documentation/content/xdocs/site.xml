@@ -252,7 +252,9 @@ See http://forrest.apache.org/docs/linking.html for more info
       <extra-line href="tracker/index.php?func=detail&amp;aid=1081136&amp;group_id=18598&amp;atid=118598"/>
       <grinder-mail href="mail/?group_id=18598"/>
       <svn href="svn/?group_id=18598"/>
-      <vcview href="http://grinder.svn.sourceforge.net/viewvc/grinder/trunk/source"/>
+      <vcview href="http://grinder.svn.sourceforge.net/viewvc/grinder/trunk/source/">
+        <console-resources href="src/net/grinder/console/swingui/resources/"/>
+      </vcview>
     </sourceforge>
 
     <svn href="http://subversion.tigris.org/"/>

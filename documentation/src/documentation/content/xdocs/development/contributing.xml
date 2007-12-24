@@ -187,6 +187,15 @@ java -Duser.language="es" net.grinder.Console
       may need to set <code>user.language</code> as described
       above.</p>
 
+      <p>The console is under actively development. Please check
+      the latest version of the file
+      <a href="ext:sourceforge/vcview/console-resources">
+      in the source repository</a> so that your translation is as up
+      to date as possible. You may not be able to test new translation
+      properties without building the latest source. If you can't find
+      the time for this, an untested translation is better than no
+      translation.</p>
+
       <p>Post your translation to <a
       href="ext:mail/grinder-development">grinder-development
       list</a>. Please also include a statement that you are happy for
