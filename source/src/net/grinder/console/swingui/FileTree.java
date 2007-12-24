@@ -430,12 +430,17 @@ final class FileTree {
           node.canOpen() &&
           (buffer == null ||
            !buffer.equals(m_editorModel.getSelectedBuffer())));
+        m_openAction.setRelevantToSelection(node.canOpen());
 
         m_openExternalAction.setEnabled(file != null && file.isFile());
+        m_openExternalAction.setRelevantToSelection(node.canOpen());
 
         m_selectPropertiesAction.setEnabled(
           m_editorModel.isPropertiesFile(file) &&
           !file.equals(m_editorModel.getSelectedPropertiesFile()));
+
+        m_selectPropertiesAction.setRelevantToSelection(
+          m_editorModel.isPropertiesFile(file));
 
         return;
       }

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,9 +35,6 @@ import javax.swing.JButton;
  */
 class CustomJButton extends JButton {
 
-  /** Property key for rollover icon. */
-  public static final String ROLLOVER_ICON = "RolloverIcon";
-
   CustomJButton() {
     putClientProperty("hideActionText", Boolean.TRUE);
     setContentAreaFilled(false);
@@ -48,7 +45,8 @@ class CustomJButton extends JButton {
   public void setAction(Action a) {
     super.setAction(a);
 
-    final ImageIcon rolloverImageIcon = (ImageIcon)a.getValue(ROLLOVER_ICON);
+    final ImageIcon rolloverImageIcon =
+      (ImageIcon)a.getValue(CustomAction.ROLLOVER_ICON);
 
     if (rolloverImageIcon != null) {
       setRolloverIcon(rolloverImageIcon);

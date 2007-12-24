@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,8 +41,17 @@ import net.grinder.console.common.Resources;
  */
 abstract class CustomAction extends AbstractAction {
 
-  /** Property name used to indicate a set action event. */
+  /** Property key used to indicate a set action event. */
   protected static final String SET_ACTION_PROPERTY = "setAction";
+
+  /** Property key for rollover icon value. */
+  public static final String ROLLOVER_ICON = "RolloverIcon";
+
+  /**
+   * Property key for Boolean value indicating whether action is relevant
+   * to the selected context.
+   */
+  public static final String RELEVANT_TO_SELECTION = "RelevantToSelection";
 
   private final String m_key;
   private final Set m_propertyChangeListenersByButton = new HashSet();
@@ -84,7 +93,7 @@ abstract class CustomAction extends AbstractAction {
       resources.getImageIcon(m_key + ".rollover-image");
 
     if (rolloverImageIcon != null) {
-      putValue(CustomJButton.ROLLOVER_ICON, rolloverImageIcon);
+      putValue(CustomAction.ROLLOVER_ICON, rolloverImageIcon);
     }
   }
 
@@ -110,5 +119,14 @@ abstract class CustomAction extends AbstractAction {
 
       m_propertyChangeListenersByButton.add(button);
     }
+  }
+
+  public void setRelevantToSelection(boolean b) {
+    putValue(RELEVANT_TO_SELECTION, Boolean.valueOf(b));
+  }
+
+  public boolean isRelevantToSelection() {
+    final Boolean b = (Boolean) getValue(RELEVANT_TO_SELECTION);
+    return b != null && b.booleanValue();
   }
 }

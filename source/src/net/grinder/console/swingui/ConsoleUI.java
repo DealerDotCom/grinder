@@ -625,7 +625,7 @@ public final class ConsoleUI implements ModelListener {
       final Icon icon = menuItem.getIcon();
 
       final Icon rolloverIcon =
-        (Icon) menuItem.getAction().getValue(CustomJButton.ROLLOVER_ICON);
+        (Icon) menuItem.getAction().getValue(CustomAction.ROLLOVER_ICON);
 
       menuItem.addChangeListener(new ChangeListener() {
         public void stateChanged(ChangeEvent e) {
@@ -656,16 +656,23 @@ public final class ConsoleUI implements ModelListener {
       component.addContainerListener(new ContainerAdapter() {
         public void componentAdded(ContainerEvent e) {
           if (e.getChild() instanceof JMenuItem) {
-            final JMenuItem addedMenuItem = (JMenuItem)e.getChild();
+            final JMenuItem menuItem = (JMenuItem)e.getChild();
 
-            addedMenuItem.setVisible(addedMenuItem.isEnabled());
+            menuItem.setVisible(
+              ((CustomAction)menuItem.getAction()).isRelevantToSelection());
 
-            addedMenuItem.addChangeListener(
-              new ChangeListener() {
-                public void stateChanged(ChangeEvent e) {
-                  addedMenuItem.setVisible(addedMenuItem.isEnabled());
+            menuItem.getAction().addPropertyChangeListener(
+              new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {
+                  if (evt.getPropertyName().equals(
+                    CustomAction.RELEVANT_TO_SELECTION)) {
+                    menuItem.setVisible(
+                      ((CustomAction)menuItem.getAction())
+                      .isRelevantToSelection());
+                  }
                 }
-            });
+              }
+            );
           }
         }
       });
