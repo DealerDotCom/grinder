@@ -109,17 +109,20 @@ final class OptionalConfirmDialog {
     final int chosen =
       JOptionPane.showConfirmDialog(m_frame, messageArray, title, optionType);
 
-    try {
-      askProperty.set(!dontAskMeAgainCheckBox.isSelected());
-    }
-    catch (BooleanProperty.PropertyException e) {
-      final Throwable cause = e.getCause();
-
-      if (cause instanceof DisplayMessageConsoleException) {
-        throw (DisplayMessageConsoleException)cause;
+    if (chosen != JOptionPane.CANCEL_OPTION &&
+        chosen != JOptionPane.CLOSED_OPTION) {
+      try {
+        askProperty.set(!dontAskMeAgainCheckBox.isSelected());
       }
+      catch (BooleanProperty.PropertyException e) {
+        final Throwable cause = e.getCause();
 
-      throw e;
+        if (cause instanceof DisplayMessageConsoleException) {
+          throw (DisplayMessageConsoleException)cause;
+        }
+
+        throw e;
+      }
     }
 
     return chosen;
