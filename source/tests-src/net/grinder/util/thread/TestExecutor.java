@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,12 +25,12 @@ import junit.framework.TestCase;
 
 
 /**
- *  Unit tests for <code>Kernel</code>.
+ *  Unit tests for <code>Executor</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestKernel extends TestCase {
+public class TestExecutor extends TestCase {
 
   private int m_counter = 0;
 
@@ -43,7 +43,7 @@ public class TestKernel extends TestCase {
     }
 
     public void interruptibleRun() {
-      synchronized (TestKernel.this) {
+      synchronized (TestExecutor.this) {
         ++m_counter;
         try {
           Thread.sleep(m_sleep);
@@ -56,13 +56,13 @@ public class TestKernel extends TestCase {
   }
 
   public void testExecuteAndGracefulShutdown() throws Exception {
-    final Kernel kernel = new Kernel(5);
+    final Executor executor = new Executor(5);
 
     for (int i=0; i<50; ++i) {
-      kernel.execute(new IncrementCounter(1));
+      executor.execute(new IncrementCounter(1));
     }
 
-    kernel.gracefulShutdown();
+    executor.gracefulShutdown();
 
     assertEquals(50, m_counter);
   }
@@ -76,39 +76,39 @@ public class TestKernel extends TestCase {
 
     final ThreadSafeQueue myQueue = new ThreadSafeQueue();
 
-    final Kernel kernel = new Kernel(myQueue, 5);
+    final Executor executor = new Executor(myQueue, 5);
 
-    kernel.execute(new IncrementCounter(1));
+    executor.execute(new IncrementCounter(1));
 
     myQueue.shutdown();
 
     try {
-      kernel.execute(new IncrementCounter(1));
+      executor.execute(new IncrementCounter(1));
       fail("Expected ShutdownException");
     }
-    catch (Kernel.ShutdownException e) {
+    catch (Executor.ShutdownException e) {
     }
 
-    kernel.forceShutdown();
+    executor.forceShutdown();
   }
 
   public void testForceShutdown() throws Exception {
-    final Kernel kernel = new Kernel(2);
+    final Executor executor = new Executor(2);
 
     for (int i=0; i<50; ++i) {
-      kernel.execute(new IncrementCounter(10));
+      executor.execute(new IncrementCounter(10));
     }
     Thread.sleep(20);
 
-    kernel.forceShutdown();
+    executor.forceShutdown();
 
     assertTrue(m_counter != 50);
 
     try {
-      kernel.execute(new IncrementCounter(10));
+      executor.execute(new IncrementCounter(10));
       fail("Expected ShutdownException");
     }
-    catch (Kernel.ShutdownException e) {
+    catch (Executor.ShutdownException e) {
     }
   }
 }

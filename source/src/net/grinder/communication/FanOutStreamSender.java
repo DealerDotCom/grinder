@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import net.grinder.common.UncheckedInterruptedException;
-import net.grinder.util.thread.Kernel;
+import net.grinder.util.thread.Executor;
 
 
 /**
@@ -42,16 +42,16 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
    * @param numberOfThreads Number of sender threads to use.
    */
   public FanOutStreamSender(int numberOfThreads) {
-    this(new Kernel(numberOfThreads));
+    this(new Executor(numberOfThreads));
   }
 
   /**
    * Constructor.
    *
-   * @param kernel Kernel to use.
+   * @param executor Executor to use.
    */
-  private FanOutStreamSender(Kernel kernel) {
-    super(kernel, new ResourcePoolImplementation());
+  private FanOutStreamSender(Executor executor) {
+    super(executor, new ResourcePoolImplementation());
   }
 
   /**

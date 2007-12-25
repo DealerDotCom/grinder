@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,7 @@ package net.grinder.communication;
 import java.io.OutputStream;
 import java.util.Iterator;
 
-import net.grinder.util.thread.Kernel;
+import net.grinder.util.thread.Executor;
 
 
 /**
@@ -48,20 +48,20 @@ public final class FanOutServerSender
                             int numberOfThreads)
     throws Acceptor.ShutdownException {
 
-    this(acceptor.getSocketSet(connectionType), new Kernel(numberOfThreads));
+    this(acceptor.getSocketSet(connectionType), new Executor(numberOfThreads));
   }
 
   /**
    * Constructor.
    *
-   * @param acceptedSocketSet Socket set.
-   * @param kernel A kernel to use.
+   * @param acceptedSockets Socket set.
+   * @param executor A kernel to use.
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  private FanOutServerSender(ResourcePool acceptedSocketSet, Kernel kernel) {
+  private FanOutServerSender(ResourcePool acceptedSockets, Executor executor) {
 
-    super(kernel, acceptedSocketSet);
+    super(executor, acceptedSockets);
   }
 
   /**

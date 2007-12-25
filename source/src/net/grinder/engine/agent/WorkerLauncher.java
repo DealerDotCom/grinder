@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,7 @@ import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.thread.InterruptibleRunnable;
-import net.grinder.util.thread.Kernel;
+import net.grinder.util.thread.Executor;
 import net.grinder.util.thread.Monitor;
 
 
@@ -37,7 +37,7 @@ import net.grinder.util.thread.Monitor;
  */
 final class WorkerLauncher {
 
-  private final Kernel m_kernel = new Kernel(1);
+  private final Executor m_executor = new Executor(1);
   private final WorkerFactory m_workerFactory;
   private final Monitor m_notifyOnFinish;
   private final Logger m_logger;
@@ -89,10 +89,10 @@ final class WorkerLauncher {
                       " started");
 
       try {
-        m_kernel.execute(new WaitForWorkerTask(workerIndex));
+        m_executor.execute(new WaitForWorkerTask(workerIndex));
       }
-      catch (Kernel.ShutdownException e) {
-        m_logger.error("Kernel unexpectedly shutdown");
+      catch (Executor.ShutdownException e) {
+        m_logger.error("Executor unexpectedly shutdown");
         e.printStackTrace(m_logger.getErrorLogWriter());
         return false;
       }
@@ -173,7 +173,7 @@ final class WorkerLauncher {
    * </p>
    */
   public void shutdown() {
-    m_kernel.gracefulShutdown();
+    m_executor.gracefulShutdown();
   }
 
   public void dontStartAnyMore() {

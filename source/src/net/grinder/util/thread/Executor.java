@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,7 @@ import net.grinder.common.UncheckedInterruptedException;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class Kernel {
+public final class Executor {
 
   private final ThreadSafeQueue m_workQueue;
   private final ThreadPool m_threadPool;
@@ -41,7 +41,7 @@ public final class Kernel {
    *
    * @param numberOfThreads Number of worker threads to use.
    */
-  public Kernel(int numberOfThreads) {
+  public Executor(int numberOfThreads) {
 
     this(new ThreadSafeQueue(), numberOfThreads);
   }
@@ -53,7 +53,7 @@ public final class Kernel {
    * @param workQueue Queue to use.
    * @param numberOfThreads Number of worker threads to use.
    */
-  Kernel(ThreadSafeQueue workQueue, int numberOfThreads) {
+  Executor(ThreadSafeQueue workQueue, int numberOfThreads) {
 
     m_workQueue = workQueue;
 
@@ -64,7 +64,7 @@ public final class Kernel {
         }
       };
 
-    m_threadPool = new ThreadPool("Kernel", numberOfThreads, runnableFactory);
+    m_threadPool = new ThreadPool("Executor", numberOfThreads, runnableFactory);
     m_threadPool.start();
   }
 
@@ -74,18 +74,18 @@ public final class Kernel {
    * @param work
    *          The work
    * @throws ShutdownException
-   *           If the Kernel has been stopped.
+   *           If the Executor has been stopped.
    */
   public void execute(InterruptibleRunnable work) throws ShutdownException {
     if (m_threadPool.isStopped()) {
-      throw new ShutdownException("Kernel is stopped");
+      throw new ShutdownException("Executor is stopped");
     }
 
     try {
       m_workQueue.queue(work);
     }
     catch (ThreadSafeQueue.ShutdownException e) {
-      throw new ShutdownException("Kernel is stopped", e);
+      throw new ShutdownException("Executor is stopped", e);
     }
   }
 
@@ -135,7 +135,7 @@ public final class Kernel {
   }
 
   /**
-   * Exception that indicates <code>Kernel</code> has been shutdown.
+   * Exception that indicates <code>Executor</code> has been shutdown.
    */
   public static final class ShutdownException extends GrinderException {
 

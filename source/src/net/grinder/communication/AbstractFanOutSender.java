@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 
 import net.grinder.util.thread.InterruptibleRunnable;
-import net.grinder.util.thread.Kernel;
+import net.grinder.util.thread.Executor;
 
 
 /**
@@ -37,18 +37,18 @@ import net.grinder.util.thread.Kernel;
  */
 abstract class AbstractFanOutSender extends AbstractSender {
 
-  private final Kernel m_kernel;
+  private final Executor m_executor;
   private final ResourcePool m_resourcePool;
 
   /**
    * Constructor.
    *
-   * @param kernel Kernel to use.
+   * @param executor Executor to use.
    * @param resourcePool Pool of resources from which the output
    * streams can be reserved.
    */
-  protected AbstractFanOutSender(Kernel kernel, ResourcePool resourcePool) {
-    m_kernel = kernel;
+  protected AbstractFanOutSender(Executor executor, ResourcePool resourcePool) {
+    m_executor = executor;
     m_resourcePool = resourcePool;
   }
 
@@ -78,11 +78,11 @@ abstract class AbstractFanOutSender extends AbstractSender {
         // We don't need to synchronise access to the SocketWrapper
         // stream; access is protected through the socket set and only we
         // hold the reservation.
-        m_kernel.execute(
+        m_executor.execute(
           new WriteMessageToStream(message, outputStream, reservation));
       }
     }
-    catch (Kernel.ShutdownException e) {
+    catch (Executor.ShutdownException e) {
       throw new AssertionError(e);
     }
   }
@@ -115,7 +115,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
   public void shutdown() {
     super.shutdown();
 
-    m_kernel.gracefulShutdown();
+    m_executor.gracefulShutdown();
   }
 
   private static final class WriteMessageToStream
