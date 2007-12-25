@@ -128,14 +128,13 @@ Task: Regularly update the tree to match file system.
 Task: Write some tests for FileTree.
 Task: Warnings for buffers whose file is modified outside of editor.
 
-***** Release 6
+***** Release 6 (done)
 
 Task: External editor integration.
 Task: The agent should pick up secondary grinder.properties from start
 message.
+Task: Console to optionally auto broadcast on play.
 
-Task: Console to optionally auto broadcast on play. Need some way of
-synchronising before starting run.
 
 ***** Release 7
 
@@ -165,20 +164,17 @@ model. Needs some kind of command pattern to represent choices.
 *** Add log panel
 
 Report log messages that currently go to terminal, plus start, stop
-test runs etc. Logs should be timestamped. Use log to replace use of
+test runs etc. Logs should be time stamped. Use log to replace use of
 System.err for warnings.
 
 *** Future editor features
 
-Crtl-S -> save.
 Revert file.
 Status bar.
 Undo.
 Copy and Paste menu items.
-File tree popup menu.
 
-Allow grinder properties to be set remotely.
-- This could just be another view in the editor?
+Specialised grinder properties editor.
 
 **** jEdit
 
@@ -251,7 +247,7 @@ console but not in the process logs.
 
 (Requested by Venelin Mitov).
 
-Should store max, min values agains SampleStatistics, and add max(),
+Should store max, min values against SampleStatistics, and add max(),
 min() to expressions.
 
 
@@ -333,7 +329,7 @@ Perhaps JasperReports?
 
 ** Code
 
-Review use of Kernel. Probably want to share them.
+Review use of Executor. Probably want to share them.
 
 Remove ThreadLocal from RegisteredPlugin.
 
@@ -360,10 +356,6 @@ Justin Spears writes:
  > It uses nekohtml to parse malformed HTML documents into
  > valid XML then exposes a useful DOM based on these results.
  >
- > It also handles HTTPS connections, forms, links and other
- > useful things in an easy to use easy to understand
- > manner, (no more NVPAIRS or regex's, or patching HTTPClient!).
- >
  > ...
 
 OK, this amounts to a campaign against HTTPClient!
@@ -387,19 +379,6 @@ Reasons for HttpUnit:
 
 I prefer HttpClient, HTTPClient over HttpUnit for The Grinder as they
 are "closer to the wire".
-
-*** Specific responses to Justin:
- >(no more NVPAIRS
-
-NameValuePair = NVPair # More readable alias
-
- > or regex's,
-
-But they're lovely!
-
- > or patching HTTPClient!
-
-In the next beta I'll supply HTTPClient pre-patched for JSSE.
 
 *** Summary
 On balance, yes HttpClient looks good and we should use it if it
@@ -444,8 +423,6 @@ Include Clover history?
 grinder.debug.singleprocess
 
 HTTP plug-in.
-
-Document G2 adapter.
 
 ** Examples
 
