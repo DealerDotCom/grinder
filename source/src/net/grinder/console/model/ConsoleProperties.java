@@ -96,6 +96,10 @@ public final class ConsoleProperties {
     "grinder.console.stopProcessesAsk";
 
   /** Property name. */
+  public static final String DISTRIBUTE_ON_START_ASK_PROPERTY =
+    "grinder.console.distributeAutomaticallyAsk";
+
+  /** Property name. */
   public static final String PROPERTIES_FILE_PROPERTY =
     "grinder.console.propertiesFile";
 
@@ -185,6 +189,9 @@ public final class ConsoleProperties {
   private BooleanProperty m_stopProcessesAsk =
     new BooleanProperty(STOP_PROCESSES_ASK_PROPERTY, true);
 
+  private BooleanProperty m_distributeOnStartAsk =
+    new BooleanProperty(DISTRIBUTE_ON_START_ASK_PROPERTY, true);
+
   private StringProperty m_consoleHost =
     new StringProperty(CONSOLE_HOST_PROPERTY,
                        CommunicationDefaults.CONSOLE_HOST);
@@ -270,6 +277,7 @@ public final class ConsoleProperties {
     m_startWithUnsavedBuffersAsk.set(
       properties.getStartWithUnsavedBuffersAsk());
     m_stopProcessesAsk.set(properties.getStopProcessesAsk());
+    m_distributeOnStartAsk.set(properties.getDistributeOnStartAsk());
   }
 
   /**
@@ -600,6 +608,30 @@ public final class ConsoleProperties {
     throws ConsoleException {
     m_stopProcessesAsk.set(value);
     m_stopProcessesAsk.save();
+  }
+
+  /**
+   * Get whether the user wants to distribute files automatically when starting
+   * processes.
+   *
+   * @return <code>true</code> => the user wants automatic distribution.
+   */
+  public boolean getDistributeOnStartAsk() {
+    return m_distributeOnStartAsk.get();
+  }
+
+  /**
+   * Set and save whether the user wants to distribute files automatically when
+   * starting processes.
+   *
+   * @param value
+   *          <code>true</code> => the user wants automatic distribution.
+   * @throws ConsoleException If the property couldn't be persisted.
+   */
+  public void setDistributeOnStartAsk(boolean value)
+    throws ConsoleException {
+    m_distributeOnStartAsk.set(value);
+    m_distributeOnStartAsk.save();
   }
 
   /**

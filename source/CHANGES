@@ -5,7 +5,7 @@ The Grinder 3.0-beta34 (Not yet released)
   script. The properties file determines the script to run through the
   grinder.script property. Other properties override the values in the
   agents' local grinder.properties file. This provides much better
-  centralised from the console.
+  centralised control from the console.
 
   Updates to the German console translation from Matthias Diller.
 
@@ -44,6 +44,11 @@ The Grinder 3.0-beta34 (Not yet released)
   Fix bug 1846218 - Delayed statistics are not flushed on next test.
 
   Add an editor keyboard shortcut for "Save-File" (Ctrl-S).
+
+  The console allows files to be opened in a configurable external editor.
+
+  The console optionally automatically distributes changed files when
+  processes are started.
 
 
 The Grinder 3.0-beta33

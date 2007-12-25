@@ -280,6 +280,22 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
+  public void testDistributeAutomaticallyAsk() throws Exception {
+
+    new TestBooleanTemplate(
+      ConsoleProperties.DISTRIBUTE_ON_START_ASK_PROPERTY) {
+
+      protected boolean get(ConsoleProperties properties) {
+        return properties.getDistributeOnStartAsk();
+      }
+
+      protected void set(ConsoleProperties properties, boolean b)
+        throws Exception {
+        properties.setDistributeOnStartAsk(b);
+      }
+    }.doTest();
+  }
+
   public void testPropertiesFile() throws Exception {
 
     new TestFileTemplate(ConsoleProperties.PROPERTIES_FILE_PROPERTY) {

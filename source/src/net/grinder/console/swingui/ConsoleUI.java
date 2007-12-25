@@ -121,11 +121,12 @@ public final class ConsoleUI implements ModelListener {
 
   private final ActionTable m_actionTable = new ActionTable();
   private final CloseFileAction m_closeFileAction;
-  private final CustomAction m_startAction;
+  private final StartAction m_startAction;
   private final ExitAction m_exitAction;
   private final StopAction m_stopAction;
   private final SaveFileAction m_saveFileAction;
   private final SaveFileAsAction m_saveFileAsAction;
+  private final DistributeFilesAction m_distributeFilesAction;
 
   private final ModelImplementation m_model;
   private final ProcessControl m_processControl;
@@ -235,16 +236,17 @@ public final class ConsoleUI implements ModelListener {
     m_stopAction = new StopAction();
     m_saveFileAction = new SaveFileAction();
     m_saveFileAsAction = new SaveFileAsAction();
+    m_distributeFilesAction = new DistributeFilesAction();
 
     m_actionTable.add(m_closeFileAction);
     m_actionTable.add(m_exitAction);
     m_actionTable.add(m_startAction);
     m_actionTable.add(m_stopAction);
     m_actionTable.add(m_saveFileAsAction);
+    m_actionTable.add(m_distributeFilesAction);
     m_actionTable.add(new AboutAction(m_resources.getImageIcon("logo.image")));
     m_actionTable.add(new ChooseDirectoryAction());
     m_actionTable.add(new StartProcessesAction());
-    m_actionTable.add(new DistributeFilesAction());
     m_actionTable.add(new NewFileAction());
     m_actionTable.add(new OptionsAction());
     m_actionTable.add(new ResetProcessesAction());
@@ -1321,15 +1323,6 @@ public final class ConsoleUI implements ModelListener {
           m_processControl.startWorkerProcesses(null);
         }
         else {
-          if (m_fileDistribution.getAgentCacheState().getOutOfDate()) {
-            JOptionPane.showMessageDialog(
-              m_frame,
-              m_resources.getString("cachesOutOfDateWarning.text"),
-              (String) getValue(NAME),
-              JOptionPane.WARNING_MESSAGE);
-            return;
-          }
-
           if (m_editorModel.isABufferDirty()) {
             final int chosen =
               m_optionalConfirmDialog.show(
@@ -1343,6 +1336,22 @@ public final class ConsoleUI implements ModelListener {
                 chosen != OptionalConfirmDialog.DONT_ASK_OPTION) {
               return;
             }
+          }
+
+          if (m_fileDistribution.getAgentCacheState().getOutOfDate()) {
+            final int chosen =
+              m_optionalConfirmDialog.show(
+                m_resources.getString("cachesOutOfDateConfirmation.text"),
+                (String) getValue(NAME),
+                JOptionPane.OK_CANCEL_OPTION,
+                "distributeOnStartAsk");
+
+            if (chosen != JOptionPane.OK_OPTION &&
+                chosen != OptionalConfirmDialog.DONT_ASK_OPTION) {
+              return;
+            }
+
+            m_distributeFilesAction.distribute();
           }
 
           final GrinderProperties properties =
@@ -1449,7 +1458,7 @@ public final class ConsoleUI implements ModelListener {
         if (chosen != JOptionPane.OK_OPTION &&
             chosen != OptionalConfirmDialog.DONT_ASK_OPTION) {
           return;
-          }
+        }
       }
       catch (GrinderException e) {
         getErrorHandler().handleException(e);
@@ -1548,7 +1557,10 @@ public final class ConsoleUI implements ModelListener {
     }
 
     public void actionPerformed(ActionEvent event) {
+      distribute();
+    }
 
+    public void distribute() {
       final FileDistributionHandler distributionHandler =
         m_fileDistribution.getHandler();
 
