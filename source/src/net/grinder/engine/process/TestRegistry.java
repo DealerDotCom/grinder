@@ -26,9 +26,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
-import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.statistics.TestStatisticsMap;
@@ -88,7 +86,7 @@ public final class TestRegistry {
    */
   private Collection m_newTests = null;
 
-  private ScriptEngine m_scriptEngine;
+  private Instrumenter m_instrumenter;
 
   /**
    * Constructor.
@@ -111,13 +109,11 @@ public final class TestRegistry {
    *          The test.
    * @return A ProxyFactory that can be used to create proxies instrumented for
    *         the test.
-   * @exception GrinderException
-   *              if an error occurs
    */
-  public RegisteredTest register(Test test) throws GrinderException {
+  public RegisteredTest register(Test test) {
 
-    if (m_scriptEngine == null) {
-      throw new EngineException("Script Engine not set");
+    if (m_instrumenter == null) {
+      throw new AssertionError("Instrumenter not set");
     }
 
     final TestData newTestData;
@@ -133,7 +129,7 @@ public final class TestRegistry {
                                  m_statisticsSetFactory,
                                  m_testStatisticsHelper,
                                  m_timeAuthority,
-                                 m_scriptEngine,
+                                 m_instrumenter,
                                  test);
 
       m_testMap.put(test, newTestData);
@@ -152,8 +148,8 @@ public final class TestRegistry {
     return newTestData;
   }
 
-  void setScriptEngine(ScriptEngine scriptEngine) {
-    m_scriptEngine = scriptEngine;
+  void setInstrumenter(Instrumenter instrumenter) {
+    m_instrumenter = instrumenter;
   }
 
   TestStatisticsMap getTestStatisticsMap() {

@@ -49,10 +49,10 @@ public class StubTestRegistry {
 
     final RandomStubFactory scriptEngineStubFactory =
       new RandomStubFactory(ScriptEngine.class);
-    final ScriptEngine scriptEngine =
-      (ScriptEngine)scriptEngineStubFactory.getStub();
+    final Instrumenter scriptEngine =
+      (Instrumenter)scriptEngineStubFactory.getStub();
 
-    testRegistry.setScriptEngine(scriptEngine);
+    testRegistry.setInstrumenter(scriptEngine);
 
     TestRegistry.setInstance(testRegistry);
   }

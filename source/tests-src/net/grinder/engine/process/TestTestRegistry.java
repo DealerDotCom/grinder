@@ -95,17 +95,17 @@ public class TestTestRegistry extends TestCase {
 
     try {
       testRegistry.register(test1);
-      fail("Expected EngineException");
+      fail("Expected AssertionError");
     }
-    catch (EngineException e) {
+    catch (AssertionError e) {
     }
 
     final RandomStubFactory scriptEngineStubFactory =
       new RandomStubFactory(ScriptEngine.class);
-    final ScriptEngine scriptEngine =
-      (ScriptEngine)scriptEngineStubFactory.getStub();
+    final Instrumenter scriptEngine =
+      (Instrumenter)scriptEngineStubFactory.getStub();
 
-    testRegistry.setScriptEngine(scriptEngine);
+    testRegistry.setInstrumenter(scriptEngine);
 
     final TestRegistry.RegisteredTest registeredTest1a =
       testRegistry.register(test1);

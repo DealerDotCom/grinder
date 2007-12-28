@@ -193,7 +193,7 @@ final class GrinderProcess {
     final JythonScriptEngine scriptEngine =
       new JythonScriptEngine(m_context.getScriptContext());
 
-    m_context.getTestRegistry().setScriptEngine(scriptEngine);
+    m_context.getTestRegistry().setInstrumenter(scriptEngine);
 
     logger.output("executing \"" + m_initialisationMessage.getScript() +
                   "\" using " + scriptEngine.getDescription());

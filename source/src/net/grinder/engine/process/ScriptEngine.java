@@ -16,10 +16,8 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
-import net.grinder.script.NotWrappableTypeException;
 
 
 /**
@@ -28,7 +26,7 @@ import net.grinder.script.NotWrappableTypeException;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ScriptEngine {
+public interface ScriptEngine extends Instrumenter {
 
   /**
    * Run any process initialisation required by the script. Called once
@@ -48,18 +46,6 @@ public interface ScriptEngine {
    * @throws EngineException If the runnable could not be created.
    */
   WorkerRunnable createWorkerRunnable() throws EngineException;
-
-  /**
-   * Create a proxy object that wraps an target object for a test.
-   *
-   * @param test The test.
-   * @param dispatcher The proxy should use this to dispatch the work.
-   * @param o Object to wrap.
-   * @return The instrumented proxy.
-   * @throws NotWrappableTypeException If the target cannot be wrapped.
-   */
-  Object createInstrumentedProxy(Test test, Dispatcher dispatcher, Object o)
-    throws NotWrappableTypeException;
 
   /**
    * Shut down the engine.

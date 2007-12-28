@@ -48,7 +48,7 @@ final class TestData
   private final StatisticsSetFactory m_statisticsSetFactory;
   private final TestStatisticsHelper m_testStatisticsHelper;
   private final TimeAuthority m_timeAuthority;
-  private final ScriptEngine m_scriptEngine;
+  private final Instrumenter m_instrumenter;
   private final ThreadContextLocator m_threadContextLocator;
   private final Test m_test;
 
@@ -65,12 +65,12 @@ final class TestData
            StatisticsSetFactory statisticsSetFactory,
            TestStatisticsHelper testStatisticsHelper,
            TimeAuthority timeAuthority,
-           ScriptEngine scriptEngine,
+           Instrumenter instrumenter,
            Test testDefinition) {
     m_statisticsSetFactory = statisticsSetFactory;
     m_testStatisticsHelper = testStatisticsHelper;
     m_timeAuthority = timeAuthority;
-    m_scriptEngine = scriptEngine;
+    m_instrumenter = instrumenter;
     m_threadContextLocator = threadContextLocator;
     m_test = testDefinition;
     m_testStatistics = m_statisticsSetFactory.create();
@@ -92,7 +92,7 @@ final class TestData
    * @throws NotWrappableTypeException If the target could not be wrapped.
    */
   public Object createProxy(Object o) throws NotWrappableTypeException {
-    return m_scriptEngine.createInstrumentedProxy(getTest(), this, o);
+    return m_instrumenter.createInstrumentedProxy(getTest(), this, o);
   }
 
   public Object dispatch(Callable callable) throws EngineException {

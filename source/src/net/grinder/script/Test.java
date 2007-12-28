@@ -24,7 +24,6 @@ package net.grinder.script;
 import java.io.Serializable;
 
 import net.grinder.common.AbstractTestSemantics;
-import net.grinder.common.GrinderException;
 import net.grinder.engine.process.TestRegistry;
 
 
@@ -60,9 +59,8 @@ public class Test extends AbstractTestSemantics implements Serializable {
    *
    * @param number Test number.
    * @param description Test description.
-   * @exception GrinderException If an error occurs.
    */
-  public Test(int number, String description) throws GrinderException {
+  public Test(int number, String description) {
     m_number = number;
     m_description = description;
     m_registeredTest = TestRegistry.getInstance().register(this);

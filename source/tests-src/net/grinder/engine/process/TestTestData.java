@@ -66,8 +66,8 @@ public class TestTestData extends TestCase {
 
   private final RandomStubFactory m_scriptEngineStubFactory =
     new RandomStubFactory(ScriptEngine.class);
-  private final ScriptEngine m_scriptEngine =
-    (ScriptEngine)m_scriptEngineStubFactory.getStub();
+  private final Instrumenter m_scriptEngine =
+    (Instrumenter)m_scriptEngineStubFactory.getStub();
 
   private final RandomStubFactory m_testStatisticsHelperStubFactory =
     new RandomStubFactory(TestStatisticsHelper.class);
