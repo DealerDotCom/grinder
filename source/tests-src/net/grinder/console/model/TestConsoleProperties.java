@@ -319,11 +319,18 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
     final File propertiesFile = new File(getDirectory(), "foo");
     properties.setAndSavePropertiesFile(propertiesFile);
-
     assertEquals(propertiesFile, properties.getPropertiesFile());
+
+    final ConsoleProperties properties2 =
+      new ConsoleProperties(s_resources, file);
+    assertEquals(propertiesFile, properties2.getPropertiesFile());
 
     properties.setAndSavePropertiesFile(null);
     assertNull(properties.getPropertiesFile());
+
+    final ConsoleProperties properties3 =
+      new ConsoleProperties(s_resources, file);
+    assertNull(properties3.getPropertiesFile());
   }
 
   public void testDistributionDirectory() throws Exception {

@@ -164,6 +164,9 @@ public class GrinderProperties extends Properties {
       if (value != null) {
         properties.setProperty(name, value);
       }
+      else {
+        properties.remove(name);
+      }
 
       properties.store(outputStream, generateFileHeader());
       outputStream.close();
