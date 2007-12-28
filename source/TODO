@@ -303,8 +303,16 @@ Script access to global statistics.
 
 *** Alternate test languages
 
-Should use AOP proxies (probably with CGLIB) to do test instrumentation.
 Should support Java, Groovy scripts.
+
+Should use AOP proxies to do test instrumentation. CGLib, or raw ASM?
+
+Blocker: Can't wrap around an existing instance that doesn't have a
+default constructor. This is a general problem. How to create a new proxy
+that supports all the methods + interfaces - it clearly needs to extend
+the target. What if we don't care about implementing the interfaces -
+just create a proxy that supports the same methods as its delegate? CGLib
+doesn't appear to support this.
 
 *** Events
 Idea from Nurul Choudhury:
