@@ -88,13 +88,18 @@
     <section>
       <title>Credits</title>
 
-      <p>I wish to thank Paco Gómez and Peter Zadrozny for the
+      <p>I thank Paco Gómez and Peter Zadrozny for the
       key ideas embodied in the original version of The Grinder.</p>
 
-      <p>I am grateful to VA Software for SourceForge.net.</p>
+      <p>I am grateful to <a href="ext:sourceforge-inc">SourceForge, Inc.</a>
+      for The Grinder's home on the Internet.</p>
 
-      <p>This site was put together with <code>txt2html</code>, <a
-      href="ext:xemacs" class="external">XEmacs</a> and <a
+      <p>I thank
+      <a href="ext:atlassian">Atlassian</a> for the free
+      <a href="ext:atlassian/clover">Clover</a> and
+      <a href="ext:fisheye">FishEye</a> licenses.</p>
+
+      <p>This site is built with <a
       href="ext:forrest">Apache Forrest</a>.</p>
 
       <p><strong>Philip Aston</strong></p>

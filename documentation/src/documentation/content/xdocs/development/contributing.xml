@@ -20,7 +20,8 @@
   $ svn co https://grinder.svn.sourceforge.net/svnroot/grinder/trunk/source grinder
   </source>
 
-  <p>You can <a href="ext:sourceforge/vcview">browse this repository</a>, and monitor
+  <p>You can browse this repository with <a href="ext:sourceforge/vcview">VCView</a>
+  or <a href="ext:fisheye">FishEye</a>, and monitor
   changes to the repository via <a href="ext:cia/grinder">CIA</a>. Note, the
   published documentation refers to the latest released version of The Grinder,
   and so can lag Subversion by a month or two.</p>
@@ -114,7 +115,7 @@ tests, reports, and release process.</p>
   makes unit testing more powerful, and forces the developer to think
   primarily about the purpose and contract of each class. I actively
   track code coverage, and would expect full JUnit tests for new code.
-  I use <a href="ext:cenqua/clover">Clover</a>; you can get a free
+  I use <a href="ext:atlassian/clover">Clover</a>; you can get a free
   Clover license for development of The Grinder.</p>
 
   </section>

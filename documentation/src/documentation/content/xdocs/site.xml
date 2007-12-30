@@ -138,9 +138,9 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <apache href="http://www.apache.org/"/>
 
-    <cenqua href="http://www.cenqua.com/">
+    <atlassian href="http://www.atlassian.com/">
       <clover href="clover"/>
-    </cenqua>
+    </atlassian>
 
     <checkstyle href="http://checkstyle.sourceforge.net/"/>
 
@@ -149,6 +149,8 @@ See http://forrest.apache.org/docs/linking.html for more info
     </cia>
 
     <cygwin href="http://cygwin.com/"/>
+
+    <fisheye href="http://fisheye3.cenqua.com/browse/grinder/"/>
 
     <forrest href="http://forrest.apache.org/">
       <linking href="docs/linking.html"/>
@@ -256,6 +258,8 @@ See http://forrest.apache.org/docs/linking.html for more info
         <console-resources href="src/net/grinder/console/swingui/resources/"/>
       </vcview>
     </sourceforge>
+
+    <sourceforge-inc href="http://www.sourceforge.com/"/>
 
     <svn href="http://subversion.tigris.org/"/>
 
