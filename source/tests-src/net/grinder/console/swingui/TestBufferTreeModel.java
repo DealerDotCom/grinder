@@ -70,7 +70,7 @@ public class TestBufferTreeModel extends TestCase {
                                                     m_agentCacheState,
                                                     m_fileChangeWatcher);
 
-    editorModel.selectDefaultBuffer();
+    editorModel.selectNewBuffer();
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
 
@@ -119,6 +119,8 @@ public class TestBufferTreeModel extends TestCase {
                                                     stringTextSourceFactory,
                                                     m_agentCacheState,
                                                     m_fileChangeWatcher);
+    editorModel.selectNewBuffer();
+    final Buffer buffer2 = editorModel.getSelectedBuffer();
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
 
@@ -157,7 +159,7 @@ public class TestBufferTreeModel extends TestCase {
     listener1StubFactory.resetCallHistory();
     listener2StubFactory.resetCallHistory();
 
-    editorModel.selectDefaultBuffer();
+    editorModel.selectBuffer(buffer2);
 
     listener1StubFactory.assertNoMoreCalls();
     listener2StubFactory.assertNoMoreCalls();

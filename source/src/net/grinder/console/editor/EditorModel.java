@@ -51,7 +51,7 @@ public final class EditorModel {
   private final Resources m_resources;
   private final TextSource.Factory m_textSourceFactory;
   private final AgentCacheState m_agentCacheState;
-  private final Buffer m_defaultBuffer;
+  //private final Buffer m_defaultBuffer;
 
   private final ListenerSupport m_listeners = new ListenerSupport();
 
@@ -92,15 +92,6 @@ public final class EditorModel {
     m_textSourceFactory = textSourceFactory;
     m_agentCacheState = agentCacheState;
 
-    m_defaultBuffer = new BufferImplementation(m_resources,
-                                               m_textSourceFactory.create(),
-                                               createNewBufferName());
-    addBuffer(m_defaultBuffer);
-
-    m_defaultBuffer.getTextSource().setText(
-      m_resources.getStringFromFile(
-        "scriptSupportUnderConstruction.text", true));
-
     fileChangeWatcher.addFileChangedListener(new FileChangedListener() {
       public void filesChanged(File[] files) {
         synchronized (m_fileBuffers) {
@@ -127,13 +118,6 @@ public final class EditorModel {
     synchronized (this) {
       return m_selectedBuffer;
     }
-  }
-
-  /**
-   * Select the default buffer.
-   */
-  public void selectDefaultBuffer() {
-    selectBuffer(m_defaultBuffer);
   }
 
   /**

@@ -74,53 +74,9 @@ public class TestEditorModel extends AbstractFileTestCase {
                                                     m_agentCacheState,
                                                     m_fileChangeWatcher);
 
-    textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
-    assertNotNull(stringTextSourceFactory.getLast().getText());
     assertNull(editorModel.getSelectedBuffer());
-    assertEquals(1, editorModel.getBuffers().length);
-    editorModel.selectDefaultBuffer();
-    final Buffer defaultBuffer = editorModel.getSelectedBuffer();
-    assertEquals(defaultBuffer, editorModel.getBuffers()[0]);
-  }
-
-  public void testSelectDefaultBuffer() throws Exception {
-
-    final EditorModel editorModel =
-      new EditorModel(s_resources,
-                      new StringTextSource.Factory(),
-                      m_agentCacheState,
-                      m_fileChangeWatcher);
-
-    final RandomStubFactory listener1StubFactory =
-      new RandomStubFactory(EditorModel.Listener.class);
-    final EditorModel.Listener listener1 =
-      (EditorModel.Listener)listener1StubFactory.getStub();
-
-    final RandomStubFactory listener2StubFactory =
-      new RandomStubFactory(EditorModel.Listener.class);
-    final EditorModel.Listener listener2 =
-      (EditorModel.Listener)listener2StubFactory.getStub();
-
-    editorModel.addListener(listener1);
-    editorModel.addListener(listener2);
-
-    editorModel.selectDefaultBuffer();
-
-    assertNotNull(editorModel.getSelectedBuffer());
-    assertNull(editorModel.getSelectedBuffer().getFile());
-    listener1StubFactory.assertSuccess("bufferStateChanged",
-                                       BufferImplementation.class);
-    listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("bufferStateChanged",
-                                       BufferImplementation.class);
-    listener2StubFactory.assertNoMoreCalls();
-
-    // Select same buffer is a no-op.
-    editorModel.selectDefaultBuffer();
-
-    listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertNoMoreCalls();
+    assertEquals(0, editorModel.getBuffers().length);
   }
 
   public void testSelectBufferForFile() throws Exception {
@@ -237,8 +193,8 @@ public class TestEditorModel extends AbstractFileTestCase {
                                                     m_agentCacheState,
                                                     m_fileChangeWatcher);
 
-    editorModel.selectDefaultBuffer();
     final Buffer defaultBuffer = editorModel.getSelectedBuffer();
+    assertNull(defaultBuffer);
 
     editorModel.addListener(listener1);
 
@@ -252,7 +208,6 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertNotSame(buffer1, defaultBuffer);
 
     listener1StubFactory.assertSuccess("bufferAdded", buffer1);
-    listener1StubFactory.assertSuccess("bufferStateChanged", defaultBuffer);
     listener1StubFactory.assertSuccess("bufferStateChanged", buffer1);
     listener1StubFactory.assertNoMoreCalls();
 
@@ -401,8 +356,8 @@ public class TestEditorModel extends AbstractFileTestCase {
     editorModel.selectBufferForFile(file2);
     final Buffer buffer2 = editorModel.getSelectedBuffer();
 
-    editorModel.selectDefaultBuffer();
-    final Buffer defaultBuffer = editorModel.getSelectedBuffer();
+    editorModel.selectBufferForFile(createFile("blah", "blah"));
+    final Buffer buffer3 = editorModel.getSelectedBuffer();
 
     assertEquals(3, editorModel.getBuffers().length);
 
@@ -410,11 +365,11 @@ public class TestEditorModel extends AbstractFileTestCase {
 
     editorModel.addListener(listener);
 
-    editorModel.closeBuffer(defaultBuffer);
+    editorModel.closeBuffer(buffer3);
 
-    listenerStubFactory.assertSuccess("bufferStateChanged", defaultBuffer);
+    listenerStubFactory.assertSuccess("bufferStateChanged", buffer3);
     listenerStubFactory.assertSuccess("bufferStateChanged", buffer2);
-    listenerStubFactory.assertSuccess("bufferRemoved", defaultBuffer);
+    listenerStubFactory.assertSuccess("bufferRemoved", buffer3);
     listenerStubFactory.assertNoMoreCalls();
 
     assertEquals(2, editorModel.getBuffers().length);
@@ -436,7 +391,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     listenerStubFactory.assertNoMoreCalls();
 
     editorModel.closeBuffer(buffer1);
-    editorModel.closeBuffer(defaultBuffer);
+    editorModel.closeBuffer(buffer3);
     listenerStubFactory.assertNoMoreCalls();
 
     editorModel.closeBuffer(buffer2);

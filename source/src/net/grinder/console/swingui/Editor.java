@@ -121,7 +121,7 @@ final class Editor {
         }
       });
 
-    m_editorModel.selectDefaultBuffer();
+    m_scriptTextArea.setEnabled(false);
   }
 
   /**
