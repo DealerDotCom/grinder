@@ -297,6 +297,10 @@ public final class EditorModel {
   public void setSelectedPropertiesFile(final File selectedProperties) {
     synchronized (this) {
       m_selectedProperties = selectedProperties;
+
+      if (selectedProperties == null) {
+        m_selectedFile = null;
+      }
     }
 
     parseSelectedProperties(selectedProperties);
@@ -390,31 +394,24 @@ public final class EditorModel {
 
   private void parseSelectedProperties(File file) {
 
-    if (file != null) {
-      if (file.equals(getSelectedPropertiesFile())) {
-        File selectedFile = null;
+    if (file != null && file.equals(getSelectedPropertiesFile())) {
+      File selectedFile = null;
 
-        try {
-          final GrinderProperties properties = new GrinderProperties(file);
+      try {
+        final GrinderProperties properties = new GrinderProperties(file);
 
-          selectedFile = properties.getFile("grinder.script", null);
-        }
-        catch (PersistenceException e) {
-          selectedFile = null;
-        }
-
-        if (selectedFile != null && !selectedFile.isAbsolute()) {
-          selectedFile = new File(file.getParentFile(), selectedFile.getPath());
-        }
-
-        synchronized (this) {
-          m_selectedFile = selectedFile;
-        }
+        selectedFile = properties.getFile("grinder.script", null);
       }
-    }
-    else if (getSelectedPropertiesFile() == null) {
+      catch (PersistenceException e) {
+        selectedFile = null;
+      }
+
+      if (selectedFile != null && !selectedFile.isAbsolute()) {
+        selectedFile = new File(file.getParentFile(), selectedFile.getPath());
+      }
+
       synchronized (this) {
-        m_selectedFile = null;
+        m_selectedFile = selectedFile;
       }
     }
   }
