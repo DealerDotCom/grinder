@@ -13,19 +13,12 @@ ownership of the code and reworked it to create The Grinder 2. Philip
 continues to enhance and maintain The Grinder.
 
 This documentation source is publicly available through the
-SourceForge CVS repository.
+SourceForge SVN repository.
 
-  https://sourceforge.net/cvs/?group_id=18598
+  https://grinder.svn.sourceforge.net/svnroot/grinder/trunk/documentation
 
 If you wish to contribute to the documentation, you need to be
 registered as a developer. Please request this via the grinder-use
 mailing list: https://sourceforge.net/mail/?group_id=18598
 
-
-
-The source code to The Grinder itself is currently not available via
-CVS. If you are looking for the source code to The Grinder, please
-download a "-src" distribution from
-
-  http://sourceforge.net/project/showfiles.php?group_id=18598&package_id=22338
 
