@@ -31,14 +31,13 @@ See http://forrest.apache.org/docs/linking.html for more info
     </contributing>
     <changes label="Changes" href="changes.html"/>
     <todo label="To Do" href="todo.html"/>
-    <timing label="Timing" href="timing.html"/>
   </development>
 
   <!-- The href must be wholesite.html/pdf You can change the labels
   and node names -->
   <all label="All documentation" tab="project">
-    <g2-manual label="G2 Manual" href="ext:grinder/g2/manual"/>
     <g3-manual label="G3 Manual" href="ext:grinder/g3/manual"/>
+    <g2-manual label="G2 Manual" href="ext:grinder/g2/manual"/>
     <whole_site_html label="Wholesite HTML" href="wholesite.html"/>
     <whole_site_pdf label="Wholesite PDF" href="wholesite.pdf"/>
   </all>
