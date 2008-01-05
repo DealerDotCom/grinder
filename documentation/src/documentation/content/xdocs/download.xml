@@ -11,14 +11,14 @@
 <section>
   <title>Download</title>
 
-  <p>The Grinder 2 and The Grinder 3 can be downloaded from <a
-  href="ext:sourceforge/grinder">SourceForge.net</a>. The files are
-  packaged as <code>zip</code> format files which you should expand
-  using <code>unzip</code>, <a href="ext:winzip">WinZip</a> or
-  similar.</p>
+  <p>The Grinder can be downloaded from <a
+  href="ext:sourceforge/grinder">SourceForge.net</a>. New users are
+    <a href="site:gfaq/common/g2vsg3">advised</a> to start with The Grinder 3.
+  </p>
 
-  <p>The Grinder 3 is distributed as two zip files. Everything required to
-  run The Grinder is in the zip file labelled
+  <p>The Grinder 3 is distributed as two zip files which you should expand
+  using <code>unzip</code>, <a href="ext:winzip">WinZip</a> or
+  similar. Everything required to run The Grinder is in the zip file labelled
   <code>grinder-3.0-version.zip</code>. The remaining
   files that are needed to build The Grinder are distributed in the zip file
   labelled <code>grinder-3.0-version-src.zip</code>; these are mainly of
@@ -33,12 +33,12 @@
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:javasoft/j2se13">Java 2 Standard Edition
-      1.3</a>, equivalent, or later</td><td>For The Grinder 2</td>
-    </tr>
-    <tr>
       <td><a href="ext:javasoft/j2se14">Java 2 Standard Edition
       1.4</a>, equivalent, or later</td><td>For The Grinder 3</td>
+    </tr>
+    <tr>
+      <td><a href="ext:javasoft/j2se13">Java 2 Standard Edition
+      1.3</a>, equivalent, or later</td><td>For The Grinder 2</td>
     </tr>
   </table>
 

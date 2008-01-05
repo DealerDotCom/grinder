@@ -40,7 +40,7 @@
     </tr>
     <tr>
       <td><a href="ext:javasoft/j2se15">J2SE 1.5 or higher</a></td>
-      <td>To build compile optional J2SE 1.5 specific code</td>
+      <td>To compile optional J2SE 1.5 specific code</td>
     </tr>
     <tr>
       <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.6.2</a></td>
@@ -97,6 +97,25 @@ tests, reports, and release process.</p>
   employer, are happy for your work to be distributed under the terms of <a
   href="site:license">The Grinder license</a>.</p>
 
+  <section>
+  <title>Coding Standards</title>
+
+  <p>Contributions of Java code should be checked with the
+  <a href="ext:findbugs">FindBugs</a> static analysis tool, and pass with no
+  warnings. A FindBugs filter file for The Grinder can be found in the
+  <code>etc</code> directory.</p>
+
+  <p>I actively track code coverage, and expect full JUnit tests for
+  new code. I use <a href="ext:atlassian/clover">Clover</a>; you can get a
+  free Clover license for development of The Grinder.</p>
+
+  <p>I have a strong preference for classes that take all the things
+  they need as parameters to their constructors (like <a
+  href="ext:fowler/constructor-injection">constructor injection</a>),
+  and for contracts to be specified in terms of Java interfaces. This
+  makes unit testing easier, and forces the developer to think
+  primarily about the purpose and contract of each class.</p>
+
   <p>Please pay attention to the existing coding style of The Grinder.
   There is a <a href="ext:checkstyle">Checkstyle</a> configuration
   file for The Grinder in <code>etc</code> which you should use to
@@ -108,15 +127,7 @@ tests, reports, and release process.</p>
   style, please note that Philip considers abbreviated variable names
   to be evil.</p>
 
-  <p>I have a strong preference for classes that take all the things
-  they need as parameters to their constructors (like <a
-  href="ext:fowler/constructor-injection">constructor injection</a>),
-  and for contracts to be specified in terms of Java interfaces. This
-  makes unit testing more powerful, and forces the developer to think
-  primarily about the purpose and contract of each class. I actively
-  track code coverage, and would expect full JUnit tests for new code.
-  I use <a href="ext:atlassian/clover">Clover</a>; you can get a free
-  Clover license for development of The Grinder.</p>
+  </section>
 
   </section>
 
@@ -128,7 +139,7 @@ tests, reports, and release process.</p>
     corrections, and improvements to the <a href="ext:mail/grinder-development">
     grinder-development@lists.sourceforge.net</a> mailing list.</p>
 
-    <p>The CVS repository for The Grinder documentation is public. Authors who
+    <p>The Subversion repository for The Grinder documentation is public. Authors who
     have made valuable contributions can ask for check-in rights via the
     <a href="ext:mail/grinder-development">grinder-development@lists.sourceforge.net</a>
     mailing list.</p>
@@ -192,7 +203,8 @@ java -Duser.language="es" net.grinder.Console
       the latest version of the file
       <a href="ext:sourceforge/vcview/console-resources">
       in the source repository</a> so that your translation is as up
-      to date as possible. You may not be able to test new translation
+      to date as possible and you avoid duplicating effort. You may not
+      be able to test new translation
       properties without building the latest source. If you can't find
       the time for this, an untested translation is better than no
       translation.</p>

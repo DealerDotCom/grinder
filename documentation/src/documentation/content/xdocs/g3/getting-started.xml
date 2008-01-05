@@ -323,8 +323,8 @@ java -cp $CLASSPATH net.grinder.TCPProxy -console -http > grinder.py
     |   `-- startProxy.sh/cmd
     |
     |-- <strong>engine</strong>
-    |   |-- grinder-3.0-beta25
-    |   |-- grinder-3.0-beta26
+    |   |-- grinder-3.0-beta32
+    |   |-- grinder-3.0
     |   `-- ...
     |
     |-- <strong>etc</strong>

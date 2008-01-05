@@ -35,25 +35,6 @@
       </answer>
     </faq>
 
-    <faq id="g3beta">
-      <question>
-  Why is The Grinder 3 still labelled <em>beta</em>?
-      </question>
-
-      <answer>
-  <p>The following features need to be completed before I will
-  remove the <em>beta</em> label from The Grinder 3:</p>
-
-  <ul>
-  <li>Script editing and distribution.</li>
-  <li>Documentation.</li>
-  </ul>
-
-  <p>These feature aside, The Grinder 3 is stable and
-  usable.</p>
-      </answer>
-    </faq>
-
     <faq id="grinder-vs-loadrunner">
       <question>
   How does The Grinder stack up against a commercial tool like

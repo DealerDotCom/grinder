@@ -11,77 +11,100 @@
     <section>
     <title>What is The Grinder?</title>
 
-    <p>The Grinder is a Java<sup>TM</sup> load-testing framework. It
+    <p>The Grinder is a Java<sup>TM</sup> load testing framework that makes it
+    easy to run a distributed test using many load injector machines. It
     is freely available under a BSD-style open-source <a
     href="site:license">license</a>.</p>
-
-    <p>The Grinder makes it easy to orchestrate the activities of a
-    test script in many processes across many machines, using a
-    graphical console application. Test scripts make use of client
-    code embodied in Java <em>plug-ins</em>. Most users of The Grinder
-    do not write plug-ins themselves, instead they use one of the
-    supplied plug-ins. The Grinder comes with a mature plug-in for
-    testing HTTP services, as well as a tool which allows HTTP scripts
-    to be automatically recorded.</p>
-
-    <p>The next major version of The Grinder, <a
-    href="site:g3/whats-new">The Grinder 3</a> is currently available
-    as a beta quality release. The Grinder 3 uses the powerful
-    scripting language Jython, and allows any Java code to be tested
-    without the need to write a plug-in. New users are
-    <a href="site:gfaq/common/g2vsg3">advised</a> to start with The Grinder 3.</p>
-
-    <p>The Grinder was originally developed for the book
-    <em>Professional Java 2 Enterprise Edition with BEA WebLogic
-    Server</em> by Paco G&#xf3;mez and Peter Zadrozny. Philip Aston
-    took ownership of the code and reworked it to create The
-    Grinder 2. Philip continues to enhance and maintain The
-    Grinder, and welcomes all contributions. Peter, Philip
-    and Ted Osborne published the book <a href="site:links/book">
-    J2EE Performance Testing</a> which makes extensive use of The Grinder.</p>
 
     <p>The latest news, downloads, and mailing list archives can be
     found on <a href="ext:sourceforge/grinder">SourceForge.net</a>.
     </p>
+
+  <section>
+  <title>Key features</title>
+    <ul>
+    <li><strong>Generic Approach</strong> Load test anything that has a Java API. This
+    includes common cases such as HTTP web servers, SOAP and REST web services,
+    and application servers (CORBA, RMI, JMS, EJBs), as well as custom
+    protocols.</li>
+    <li><strong>Flexible Scripting</strong> Tests are written in the powerful Jython
+    scripting language.</li>
+    <li><strong>Distributed Framework</strong> A graphical console allows multiple
+      load injectors to be monitored and controlled, and provides centralised script editing
+      and distribution.</li>
+    <li><strong>Mature HTTP Support</strong> Automatic management of client
+      connections and cookies. SSL. Proxy aware. Connection throttling.
+      Sophisticated record and replay of the interaction between a browser and
+      a web site.</li>
+
+    </ul>
+
+    <p>See the longer <a href="site:g3/features">features list</a> for further
+    details.</p>
+  </section>
+
+    <section>
+      <title>History</title>
+
+    <p>The Grinder was originally developed for the book
+    <em>Professional Java 2 Enterprise Edition with BEA WebLogic
+    Server</em> by Paco G&#xf3;mez and Peter Zadrozny. Philip Aston
+    took ownership of the code, reworked it to create The
+    Grinder 2, and shortly after began work on The Grinder 3. The Grinder 3
+    provides <a href="site:g3/whats-new">many new features</a>, the most
+    significant of which is Jython scripting.
+    Philip continues to enhance and maintain The Grinder.</p>
+
+    <p>In 2003, Peter, Philip
+    and Ted Osborne published the book <a href="site:links/book">
+    J2EE Performance Testing</a> which makes extensive use of The Grinder 2.
+    </p>
+
     </section>
+    </section>
+
 
     <section>
       <title>Authors</title>
+
+    <p>Over the years, many users have contributed features, bug fixes,
+    and translations to The Grinder.</p>
+
       <table class="noborder">
-  <tr><td>Paco Gómez</td></tr>
-  <tr><td>Philip Aston</td></tr>
-  <tr><td>Phil Dawes</td></tr>
-  <tr><td>Paddy Spencer</td></tr>
-  <tr><td>Richard Wallace</td></tr>
-  <tr><td>Stuart Tily</td></tr>
-  <tr><td>Phillip Burgess</td></tr>
-  <tr><td>Christian Nedregard</td></tr>
-  <tr><td>Mikael Suokas</td></tr>
-  <tr><td>David Freels</td></tr>
-  <tr><td>Kalle Burbeck</td></tr>
-  <tr><td>Dirk Feufel</td></tr>
-  <tr><td>Kjetil JD</td></tr>
-  <tr><td>Todd Wasson</td></tr>
+  <tr><td>Paco Gómez</td>
+      <td>Kalyanaraman Venkatasubramaniy</td></tr>
+  <tr><td>Philip Aston</td>
+      <td>John Stanford White</td></tr>
+  <tr><td>Phil Dawes</td>
+      <td>Slavik Gnatenko</td></tr>
+  <tr><td>Paddy Spencer</td>
+      <td>Marc Born</td></tr>
+  <tr><td>Richard Wallace</td>
+      <td>Andreas Schmidt</td></tr>
+  <tr><td>Stuart Tily</td>
+      <td>Calum Fitzgerald</td></tr>
+  <tr><td>Phillip Burgess</td>
+      <td>Sebastián Fontana</td></tr>
+  <tr><td>Christian Nedregard</td>
+      <td>KArol Muszynski</td></tr>
+  <tr><td>Mikael Suokas</td>
+      <td>Meo Bogliolo</td></tr>
+  <tr><td>David Freels</td>
+      <td>Konstantin Ignatyev</td></tr>
+  <tr><td>Kalle Burbeck</td>
+      <td>Martin Wagner</td></tr>
+  <tr><td>Dirk Feufel</td>
+      <td>Venelin Mitov</td></tr>
+  <tr><td>Kjetil JD</td>
+      <td>陈进芬 (Huifeng Chen)</td></tr>
+  <tr><td>Todd Wasson</td>
+      <td>Matthias Dillier</td></tr>
   <tr><td>Jose Antonio Zapata Rey</td></tr>
   <tr><td>Richard Perks</td></tr>
   <tr><td>Manuel Silva</td></tr>
   <tr><td>Bill Schnellinger</td></tr>
   <tr><td>Bertrand Ave</td></tr>
   <tr><td>Huibert Alblas</td></tr>
-  <tr><td>Kalyanaraman Venkatasubramaniy</td></tr>
-  <tr><td>John Stanford White</td></tr>
-  <tr><td>Slavik Gnatenko</td></tr>
-  <tr><td>Marc Born</td></tr>
-  <tr><td>Andreas Schmidt</td></tr>
-  <tr><td>Calum Fitzgerald</td></tr>
-  <tr><td>Sebastián Fontana</td></tr>
-  <tr><td>KArol Muszynski</td></tr>
-  <tr><td>Meo Bogliolo</td></tr>
-  <tr><td>Konstantin Ignatyev</td></tr>
-  <tr><td>Martin Wagner</td></tr>
-  <tr><td>Venelin Mitov</td></tr>
-  <tr><td>陈进芬 (Huifeng Chen)</td></tr>
-  <tr><td>Matthias Dillier</td></tr>
       </table>
     </section>
 

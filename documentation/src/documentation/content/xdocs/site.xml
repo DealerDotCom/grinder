@@ -26,11 +26,11 @@ See http://forrest.apache.org/docs/linking.html for more info
   </project>
 
   <development label="Development" tab="project" href="development/">
-    <changes label="Changes" href="changes.html"/>
-    <todo label="To Do" href="todo.html"/>
     <contributing label="Contributing" href="contributing.html">
       <translating href="#translating"/>
     </contributing>
+    <changes label="Changes" href="changes.html"/>
+    <todo label="To Do" href="todo.html"/>
     <timing label="Timing" href="timing.html"/>
   </development>
 
@@ -149,6 +149,8 @@ See http://forrest.apache.org/docs/linking.html for more info
     </cia>
 
     <cygwin href="http://cygwin.com/"/>
+
+    <findbugs href="http://findbugs.sourceforge.net"/>
 
     <fisheye href="http://fisheye3.cenqua.com/browse/grinder/"/>
 

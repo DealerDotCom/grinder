@@ -19,7 +19,7 @@
   in the <code>examples</code> directory of the distribution. To use
   one of these scripts, you'll need to set up a <a
   href="site:getting-started/properties"><code>grinder.properties</code></a>
-  file. Please also make sure you are using the latest beta version of
+  file. Please also make sure you are using the latest version of
   The Grinder 3.</p>
 
   <p>If you're new to Python, it might help to know that that blocks
