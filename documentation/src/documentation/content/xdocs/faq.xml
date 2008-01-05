@@ -523,8 +523,8 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
       </answer>
      </faq>
 
-    <faq>
-      <question id="ten-cps">
+    <faq id="ten-cps">
+      <question>
         Why can't I create more than ten connections per second on Windows XP?
       </question>
       <answer>
@@ -537,8 +537,8 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
       </answer>
      </faq>
 
-    <faq>
-      <question id="timing">What are the limits to accurate timing?</question>
+    <faq id="timing">
+      <question>What are the limits to accurate timing?</question>
 
       <answer>
 

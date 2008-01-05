@@ -303,7 +303,7 @@
           </td>
 
           <td>Set to <code>false</code> to disable reporting of <a
-          href="site:development/timing">timing information</a> to the
+          href="site:faq/timing">timing information</a> to the
           console; other statistics are still reported.</td>
 
           <td>true</td>

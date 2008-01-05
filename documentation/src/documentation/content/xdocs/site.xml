@@ -170,7 +170,9 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <!-- Cheating here to be able to link between tabs from left to right -->
     <grinder href="./">
-      <faq href="faq.html"/>
+      <faq href="faq.html">
+        <timing href="#timing"/>
+      </faq>
       <g2faq href="faq.html#g2"/>
       <g3faq href="faq.html#g3"/>
       <g2>
