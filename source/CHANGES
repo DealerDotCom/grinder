@@ -1,5 +1,5 @@
-The Grinder 3.0-beta34 (Not yet released)
------------------------------------------
+The Grinder 3.0
+---------------
 
   The console now expects a properties file to be selected, rather than a
   script. The properties file determines the script to run through the
