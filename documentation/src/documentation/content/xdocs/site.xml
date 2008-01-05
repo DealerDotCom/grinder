@@ -77,7 +77,6 @@ See http://forrest.apache.org/docs/linking.html for more info
     <ssl label="SSL support" href="ssl-support.html">
       <ssl-keymanager href="#own-key-manager"/>
     </ssl>
-    <faq label="FAQ" href="ext:grinder/g3faq"/>
   </g3>
 
   <g2 label="The Grinder 2" href="g2/" tab="manual">
@@ -95,7 +94,6 @@ See http://forrest.apache.org/docs/linking.html for more info
       </http-plugin>
       <junit-plugin label="JUnit plug-in" href="junit-plugin.html"/>
     </plugins>
-    <faq label="FAQ" href="ext:grinder/g2faq"/>
   </g2>
 
   <gfaq label="Questions" tab="faq-tab">
