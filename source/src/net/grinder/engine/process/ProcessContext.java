@@ -1,6 +1,11 @@
 // Copyright (C) 2006, 2007 Philip Aston
 // All rights reserved.
 //
+// This file is part of The Grinder software distribution. Refer to
+// the file LICENSE which is part of The Grinder distribution for
+// licensing details. The Grinder distribution is available on the
+// Internet at http://grinder.sourceforge.net/
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
