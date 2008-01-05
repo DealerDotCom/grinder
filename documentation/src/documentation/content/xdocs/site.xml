@@ -42,24 +42,6 @@ See http://forrest.apache.org/docs/linking.html for more info
     <whole_site_pdf label="Wholesite PDF" href="wholesite.pdf"/>
   </all>
 
-  <g2 label="The Grinder 2" href="g2/" tab="manual">
-    <getting-started label="Getting started" >
-       <getting-started-intro  label="Introduction" href="getting-started.html"/>
-       <properties label="Properties" href="properties.html"/>
-       <console label="The Console" href="console.html"/>
-       <tcpsniffer label="The TCPSniffer" href="tcpsniffer.html">
-         <HttpPluginSnifferFilter href="#HttpPluginSnifferFilter"/>
-       </tcpsniffer>
-    </getting-started>
-    <plugins label="Plug-ins">
-      <http-plugin label="HTTP plug-in" href="http-plugin.html">
-          <string-bean href="#string-bean"/>
-      </http-plugin>
-      <junit-plugin label="JUnit plug-in" href="junit-plugin.html"/>
-    </plugins>
-    <faq label="FAQ" href="ext:grinder/g2faq"/>
-  </g2>
-
   <g3 label="The Grinder 3" href="g3/" tab="manual">
     <whats-new label="What's new?" href="whats-new.html"/>
     <features label="Features" href="features.html"/>
@@ -97,6 +79,24 @@ See http://forrest.apache.org/docs/linking.html for more info
     </ssl>
     <faq label="FAQ" href="ext:grinder/g3faq"/>
   </g3>
+
+  <g2 label="The Grinder 2" href="g2/" tab="manual">
+    <getting-started label="Getting started" >
+       <getting-started-intro  label="Introduction" href="getting-started.html"/>
+       <properties label="Properties" href="properties.html"/>
+       <console label="The Console" href="console.html"/>
+       <tcpsniffer label="The TCPSniffer" href="tcpsniffer.html">
+         <HttpPluginSnifferFilter href="#HttpPluginSnifferFilter"/>
+       </tcpsniffer>
+    </getting-started>
+    <plugins label="Plug-ins">
+      <http-plugin label="HTTP plug-in" href="http-plugin.html">
+          <string-bean href="#string-bean"/>
+      </http-plugin>
+      <junit-plugin label="JUnit plug-in" href="junit-plugin.html"/>
+    </plugins>
+    <faq label="FAQ" href="ext:grinder/g2faq"/>
+  </g2>
 
   <gfaq label="Questions" tab="faq-tab">
     <contents label="Contents" href="faq.html"/>
