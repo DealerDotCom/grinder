@@ -10,7 +10,7 @@
 
 <body>
   <p>Thanks to <strong>Edwin DeSouza</strong> for his help in
-  compiling this feature list.<br/>Last updated: 6 October 2003</p>
+  compiling this feature list.<br/>Last updated: 5 January 2008</p>
 
   <section>
     <title>Capabilities of The Grinder</title>
@@ -59,32 +59,28 @@
       </tr>
 
       <tr>
-        <td>Jython</td>
+        <td>Dependencies</td>
 
-        <td>The Grinder uses <a href="ext:jython">Jython</a> (a Java
-        Python implementation) for scripting.</td>
+        <td>The Grinder depends on a number of other open source products
+        including
+
+        <ul>
+
+        <li><a href="ext:jython">Jython</a></li>
+
+        <li><a href="ext:innovation/httpclient">HTTPClient</a></li>
+
+        <li><a href="ext:jedit-syntax">JEdit Syntax</a></li>
+
+        <li><a href="ext:xmlbeans">Apache XMLBeans</a></li>
+
+        <li><a href="ext:picocontainer">PicoContainer</a></li>
+
+        </ul>
+
+        </td>
       </tr>
 
-      <tr>
-        <td>Jakarta ORO</td>
-
-        <td>The Grinder uses <a href="ext:jakarta/oro">Jakarta ORO</a>
-        for regular expressions.</td>
-      </tr>
-
-      <tr>
-        <td>HTTPClient</td>
-
-        <td>The Grinder uses <a
-        href="ext:innovation/httpclient">HTTPClient</a> for HTTP
-        support.</td>
-      </tr>
-
-      <tr>
-        <td>jEdit Syntax</td>
-
-        <td>The Grinder uses jEdit Syntax for script editing.</td>
-      </tr>
     </table>
   </section>
 
@@ -95,7 +91,7 @@
         <td>100% Pure Java</td>
 
         <td>The Grinder works on any hardware platform and any
-        operating system that supports J2SE 1.3 and above.</td>
+        operating system that supports J2SE 1.4 and above.</td>
       </tr>
 
       <tr>
@@ -207,8 +203,7 @@
       <tr>
         <td>Script editing</td>
 
-        <td>Central editing and management of test scripts.
-        <em>(Future)</em></td>
+        <td>Central editing and management of test scripts.</td>
       </tr>
     </table>
   </section>
@@ -353,6 +348,12 @@
 
         <td>The Grinder supports multi-part forms.</td>
       </tr>
+
+      <tr>
+        <td>Connection throttling</td>
+
+        <td>Low bandwidth client connections can be simulated.</td>
+      </tr>
     </table>
   </section>
 
@@ -424,7 +425,7 @@
         <td>Articles</td>
 
         <td><a
-        href="site:links">http://grinder.sourceforge.net/press.html</a></td>
+        href="site:links">http://grinder.sourceforge.net/links.html</a></td>
       </tr>
 
       <tr>
