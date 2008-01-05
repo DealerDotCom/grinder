@@ -124,23 +124,11 @@
       <li>The JUnit and Socket plug-ins have been removed. Their
       functionality can be achieved directly by using the appropriate
       Java objects in scripts.</li>
+
+      <li>From the console you can edit test scripts and distribute them to
+      the worker processes. It is no longer be necessary to copy
+      grinder.properties files around or to use a shared disk.</li>
     </ul>
-  </section>
-
-  <section>
-    <title>Roadmap</title>
-
-    <p>This section documents things that are planned for The Grinder
-    3. There are no current release dates for these features.</p>
-
-    <section>
-      <title>Test script distribution</title>
-
-      <p>From the Grinder 3 console you will be able to edit test
-      scripts and then distribute them to the worker processes. It
-      will no longer be necessary to copy grinder.properties files
-      around or to use a shared disk.</p>
-    </section>
   </section>
 
 </body>
