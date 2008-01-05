@@ -193,6 +193,11 @@ which will be used to configure the chosen Forrest skin.
       background: #ffffff;
     }
 
+    .codefrag {
+     font-weight: bolder;
+      color: #303030;
+    }
+
     td {
       padding: .3em !important;
     }
