@@ -26,49 +26,49 @@ import java.util.TimerTask;
 
 import junit.framework.TestCase;
 
-public class TestWakeableCondition extends TestCase {
+public class TestBooleanCondition extends TestCase {
 
   public void testWithSingleThread() throws Exception {
-    final WakeableCondition wakeableCondition = new WakeableCondition();
+    final BooleanCondition booleanCondition = new BooleanCondition();
 
     // State is initially false, so we shouldn't block here.
-    assertFalse(wakeableCondition.await(false));
-    assertFalse(wakeableCondition.await(false));
+    assertFalse(booleanCondition.await(false));
+    assertFalse(booleanCondition.await(false));
 
-    wakeableCondition.set(true);
-    assertTrue(wakeableCondition.await(true));
+    booleanCondition.set(true);
+    assertTrue(booleanCondition.await(true));
 
-    wakeableCondition.set(false);
-    assertFalse(wakeableCondition.await(false));
+    booleanCondition.set(false);
+    assertFalse(booleanCondition.await(false));
   }
 
   public void testWithMultipleThreads() throws Exception {
     final Timer timer = new Timer();
 
-    final WakeableCondition wakeableCondition = new WakeableCondition();
+    final BooleanCondition booleanCondition = new BooleanCondition();
 
     final TimerTask setTrueTask = new TimerTask() {
-      public void run() { wakeableCondition.set(true); }
+      public void run() { booleanCondition.set(true); }
     };
 
     timer.schedule(setTrueTask, 0, 1);
 
-    assertTrue(wakeableCondition.await(true));
-    assertTrue(wakeableCondition.await(true));
+    assertTrue(booleanCondition.await(true));
+    assertTrue(booleanCondition.await(true));
 
     setTrueTask.cancel();
 
     final TimerTask wakeUpAllWaitersTask = new TimerTask() {
-      public void run() { wakeableCondition.wakeUpAllWaiters(); }
+      public void run() { booleanCondition.wakeUpAllWaiters(); }
     };
 
     timer.schedule(wakeUpAllWaitersTask, 0, 1);
 
     // Will return true, because state is false but interrupted.
-    assertTrue(wakeableCondition.await(false));
+    assertTrue(booleanCondition.await(false));
 
     // State should still be true.
-    assertTrue(wakeableCondition.await(true));
+    assertTrue(booleanCondition.await(true));
 
     wakeUpAllWaitersTask.cancel();
 
