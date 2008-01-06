@@ -28,8 +28,8 @@ supports:
 The following addtional packages are necessary to build and run The Grinder.
 They are bundled in the lib directory:
 
-  - Jython 2.1
   - Apache XMLBeans 2.1.0
+  - Jython 2.1
   - PicoContainer 1.3
 
 The following optional packages are necessary to run The Grinder unit
@@ -111,6 +111,7 @@ what you want. Currently the conditionally built modules are:
   <property name="build.dir" value="${basedir}/build"/>
   <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
   <property name="j2se5-classes.dir" value="${build.dir}/j2se5-classes"/>
+  <property name="junit-report.dir" value="${build.dir}/junit"/>
   <property name="lib.dir" value="lib"/>
   <property name="dist.root" value="${build.dir}/distribution"/>
   <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
@@ -215,6 +216,10 @@ what you want. Currently the conditionally built modules are:
       <pathelement path="${xmlbeans.jar}"/>
     </path>
 
+    <path id="clover.classpath">
+      <pathelement path="${clover.home}/lib/clover.jar"/>
+    </path>
+
     <path id="svnant.classpath">
       <pathelement path="${svnant.home}/lib/svnant.jar"/>
       <pathelement path="${svnant.home}/lib/svnClientAdapter.jar"/>
@@ -261,11 +266,11 @@ what you want. Currently the conditionally built modules are:
     <fail message="Install the Ant optional.jar to build this target"/>
   </target>
 
-  <target name="assert-have-grinder-doc-build" unless="have.grinder-doc-build">
+  <target name="assert-have-grinder-doc-build" depends="init" unless="have.grinder-doc-build">
     <fail message="To build this target, edit etc/localpaths.properties and set grinder-doc.dir to a valid grinder documentation build"/>
   </target>
 
-  <target name="assert-have-svnant" unless="have.svnant">
+  <target name="assert-have-svnant" depends="init" unless="have.svnant">
     <fail message="To build this target, edit etc/localpaths.properties and set svnant.home to a valid svnant installation"/>
   </target>
 
@@ -275,7 +280,7 @@ what you want. Currently the conditionally built modules are:
 
   <target name="bundle-libraries">
     <copy todir="${lib.dir}" failonerror="false" verbose="true">
-      <fileset dir="${jython.dir}" includes="${jython.jar}"/>
+      <fileset dir="${jython.dir}" includes="jython.jar"/>
 
       <fileset dir="${picocontainer.dir}">
         <include name="picocontainer-*.jar"/>
@@ -494,9 +499,11 @@ what you want. Currently the conditionally built modules are:
 
     <path id="test.classpath">
       <pathelement path="${test-classes.dir}"/>
-      <pathelement path="${clover.home}/lib/clover.jar"/>
+      <path refid="clover.classpath"/>
       <path refid="build.classpath"/>
     </path>
+
+    <mkdir dir="${junit-report.dir}"/>
 
     <junit printsummary="false" haltonfailure="true">
       <classpath>
@@ -518,22 +525,25 @@ what you want. Currently the conditionally built modules are:
 
       <!-- Fork separate JVM's for tests to avoid OOMEs when running
       with Clover. -->
-      <batchtest fork="true">
+      <batchtest fork="true" todir="${junit-report.dir}">
         <formatter type="plain" usefile="false"/>
+        <formatter type="xml" usefile="true"/>
 
         <fileset dir="${test-src.dir}">
           <depend targetdir="${build.dir}">
             <mapper type="merge" to="${lasttest.timestamp}"/>
           </depend>
           <include name="**/Test*.java"/>
+
           <exclude name="**/TestSleeper.java"/>
         </fileset>
       </batchtest>
 
       <!-- Fork a separate JVM for the Sleeper test to make the timings
       more consistent. -->
-      <batchtest fork="true">
+      <batchtest fork="true" todir="${junit-report.dir}">
         <formatter type="plain" usefile="false"/>
+        <formatter type="xml" usefile="true"/>
 
         <fileset dir="${test-src.dir}">
           <depend targetdir="${build.dir}">
@@ -548,19 +558,26 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="clover">
-    <taskdef resource="clovertasks"/>
+    <taskdef resource="cloverlib.xml" classpathref="clover.classpath"/>
 
     <clover-setup initstring="${clover.dir}/coverage.db">
       <fileset dir="${src.dir}">
        <include name="net/grinder/**"/>
       </fileset>
+      <fileset dir="${test-src.dir}"/>
     </clover-setup>
 
     <property name="with.clover" value="true"/>
   </target>
 
-  <target name="clover.swing" depends="clover">
-    <clover-view/>
+  <target name="clover-html" depends="clover">
+    <clover-report>
+      <current outfile="${doc.dir}/clover">
+        <format type="html"/>
+        <testsources dir="${test-src.dir}"/>
+        <testresults dir="${junit-report.dir}"/>
+      </current>
+    </clover-report>
   </target>
 
   <!-- =================================================================== -->
@@ -585,10 +602,8 @@ what you want. Currently the conditionally built modules are:
       output="${xml-output.dir}/changes.xml">
 
       <sysproperty key="python.home" path="${jython.dir}"/>
+      <classpath refid="jython.classpath"/>
 
-      <classpath>
-        <pathelement path="${jython.dir}/${jython.jar}"/>
-      </classpath>
       <arg path="${etc.dir}/changes2xml.py"/>
       <arg value="CHANGES"/>
     </java>
@@ -597,10 +612,8 @@ what you want. Currently the conditionally built modules are:
       output="${xml-output.dir}/todo.xml">
 
       <sysproperty key="python.home" path="${jython.dir}"/>
+      <classpath refid="jython.classpath"/>
 
-      <classpath>
-        <pathelement path="${jython.dir}/${jython.jar}"/>
-      </classpath>
       <arg path="${etc.dir}/outline2xml.py"/>
       <arg value="TODO"/>
     </java>
@@ -609,10 +622,8 @@ what you want. Currently the conditionally built modules are:
       output="${xml-output.dir}/scripts.xml">
 
       <sysproperty key="python.home" path="${jython.dir}"/>
+      <classpath refid="jython.classpath"/>
 
-      <classpath>
-        <pathelement path="${jython.dir}/${jython.jar}"/>
-      </classpath>
       <arg path="${etc.dir}/scripts2XML.py"/>
       <arg value="examples/helloworld.py"/>
       <arg value="examples/http.py"/>
