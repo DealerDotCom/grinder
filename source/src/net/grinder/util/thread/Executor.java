@@ -60,7 +60,7 @@ public final class Executor {
     final ThreadPool.InterruptibleRunnableFactory runnableFactory =
       new ThreadPool.InterruptibleRunnableFactory() {
         public InterruptibleRunnable create() {
-          return new KernelRunnable();
+          return new ExecutorRunnable();
         }
       };
 
@@ -90,7 +90,7 @@ public final class Executor {
   }
 
   /**
-   * Shut down this kernel, waiting for work to complete.
+   * Shut down this executor, waiting for work to complete.
    *
    */
   public void gracefulShutdown() {
@@ -103,14 +103,14 @@ public final class Executor {
   }
 
   /**
-   * Shut down this kernel, discarding any outstanding work.
+   * Shut down this executor, discarding any outstanding work.
    */
   public void forceShutdown() {
     m_workQueue.shutdown();
     m_threadPool.stop();
   }
 
-  private class KernelRunnable implements InterruptibleRunnable {
+  private class ExecutorRunnable implements InterruptibleRunnable {
 
     public void interruptibleRun() {
       while (true) {
