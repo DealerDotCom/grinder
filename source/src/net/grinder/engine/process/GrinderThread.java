@@ -39,15 +39,7 @@ import net.grinder.util.Sleeper;
  */
 class GrinderThread implements java.lang.Runnable {
 
-  /**
-   * m_numberOfThreads is incremented in constructor
-   * rather than in run to avoid pathological race conditions. Hence
-   * it really means "the number of GrinderThread's that have been
-   * created but not run to completion"
-   */
-  private static volatile short s_numberOfThreads = 0;
-
-  private final Object m_notifyOnCompletion;
+  private final WorkerThreadSynchronisation m_threadSynchronisation;
   private final ProcessContext m_processContext;
   private final ScriptEngine m_scriptEngine;
   private final ThreadContext m_context;
@@ -58,14 +50,14 @@ class GrinderThread implements java.lang.Runnable {
   /**
    * The constructor.
    */
-  public GrinderThread(Object notifyOnCompletion,
+  public GrinderThread(WorkerThreadSynchronisation threadSynchronisation,
                        ProcessContext processContext,
                        LoggerImplementation loggerImplementation,
                        ScriptEngine scriptEngine,
                        int threadID)
     throws EngineException {
 
-    m_notifyOnCompletion = notifyOnCompletion;
+    m_threadSynchronisation = threadSynchronisation;
     m_processContext = processContext;
     m_scriptEngine = scriptEngine;
 
@@ -83,8 +75,6 @@ class GrinderThread implements java.lang.Runnable {
 
     m_numberOfRuns = properties.getInt("grinder.runs", 1);
 
-    s_numberOfThreads++;    // See s_numberOfThreads javadoc.
-
     // Dispatch the process context callback in the main thread.
     m_processContext.fireThreadCreatedEvent(m_context);
   }
@@ -93,7 +83,6 @@ class GrinderThread implements java.lang.Runnable {
    * The thread's main loop.
    */
   public void run() {
-
     m_processContext.getThreadContextLocator().set(m_context);
 
     final ThreadLogger logger = m_context.getThreadLogger();
@@ -118,6 +107,8 @@ class GrinderThread implements java.lang.Runnable {
         logger.output("about to do " + m_numberOfRuns + " run" +
                       (m_numberOfRuns == 1 ? "" : "s"));
       }
+
+      m_threadSynchronisation.awaitStart();
 
       int currentRun;
 
@@ -186,15 +177,8 @@ class GrinderThread implements java.lang.Runnable {
     }
     finally {
       logger.setCurrentRunNumber(-1);
-      --s_numberOfThreads;
 
-      synchronized (m_notifyOnCompletion) {
-        m_notifyOnCompletion.notifyAll();
-      }
+      m_threadSynchronisation.threadFinished();
     }
-  }
-
-  public static final short getNumberOfThreads() {
-    return s_numberOfThreads;
   }
 }

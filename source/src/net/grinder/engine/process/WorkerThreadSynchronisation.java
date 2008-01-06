@@ -35,11 +35,10 @@ interface WorkerThreadSynchronisation {
    * The worker thread should call this when it is ready to run. The call
    * blocks until the main process thread signals for all threads to start.
    */
-  public void awaitStart();
+  void awaitStart();
 
   /**
    * The worker thread should call this to indicate it has finished.
    */
-  public void threadFinished();
-
+  void threadFinished();
 }

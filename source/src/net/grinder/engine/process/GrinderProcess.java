@@ -58,6 +58,7 @@ import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.JVM;
+import net.grinder.util.thread.BooleanCondition;
 import net.grinder.util.thread.Condition;
 
 
@@ -229,28 +230,30 @@ final class GrinderProcess {
       m_context.createStatusMessage(
         WorkerProcessReport.STATE_STARTED, (short)0, numberOfThreads));
 
+    logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
+
     final GrinderThread[] runnable = new GrinderThread[numberOfThreads];
+    final ThreadSynchronisation threadSynchronisation =
+      new ThreadSynchronisation(m_eventSynchronisation, numberOfThreads);
 
     for (int i = 0; i < numberOfThreads; i++) {
       runnable[i] =
-        new GrinderThread(m_eventSynchronisation, m_context,
+        new GrinderThread(threadSynchronisation, m_context,
                           m_loggerImplementation, scriptEngine, i);
-    }
 
-    logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
-    m_context.setExecutionStartTime();
-    logger.output("start time is " + m_context.getExecutionStartTime() +
-                  " ms since Epoch");
-
-    // Start the threads.
-    for (int i = 0; i < numberOfThreads; i++) {
       final Thread t = new Thread(runnable[i], "Grinder thread " + i);
       t.setDaemon(true);
       t.start();
     }
 
+    threadSynchronisation.startThreads();
+
+    m_context.setExecutionStartTime();
+    logger.output("start time is " + m_context.getExecutionStartTime() +
+                  " ms since Epoch");
+
     final TimerTask reportTimerTask =
-      new ReportToConsoleTimerTask(numberOfThreads);
+      new ReportToConsoleTimerTask(threadSynchronisation);
     final TimerTask shutdownTimerTask = new ShutdownTimerTask();
 
     // Schedule a regular statistics report to the console. We don't
@@ -274,7 +277,7 @@ final class GrinderProcess {
 
       // Wait for a termination event.
       synchronized (m_eventSynchronisation) {
-        while (GrinderThread.getNumberOfThreads() > 0) {
+        while (threadSynchronisation.getNumberOfRunningThreads() > 0) {
 
           if (m_consoleListener.checkForMessage(ConsoleListener.ANY ^
                                                 ConsoleListener.START)) {
@@ -292,7 +295,7 @@ final class GrinderProcess {
       }
 
       synchronized (m_eventSynchronisation) {
-        if (GrinderThread.getNumberOfThreads() > 0) {
+        if (threadSynchronisation.getNumberOfRunningThreads() > 0) {
 
           logger.output("waiting for threads to terminate",
                         Logger.LOG | Logger.TERMINAL);
@@ -302,7 +305,7 @@ final class GrinderProcess {
           final long time = System.currentTimeMillis();
           final long maximumShutdownTime = 10000;
 
-          while (GrinderThread.getNumberOfThreads() > 0) {
+          while (threadSynchronisation.getNumberOfRunningThreads() > 0) {
             if (System.currentTimeMillis() - time > maximumShutdownTime) {
               logger.output("ignoring unresponsive threads",
                             Logger.LOG | Logger.TERMINAL);
@@ -366,10 +369,10 @@ final class GrinderProcess {
   }
 
   private class ReportToConsoleTimerTask extends TimerTask {
-    private final short m_totalThreads;
+    private final ThreadSynchronisation m_threads;;
 
-    public ReportToConsoleTimerTask(short totalThreads) {
-      m_totalThreads = totalThreads;
+    public ReportToConsoleTimerTask(ThreadSynchronisation threads) {
+      m_threads = threads;
     }
 
     public void run() {
@@ -399,8 +402,8 @@ final class GrinderProcess {
 
           consoleSender.send(
             m_context.createStatusMessage(WorkerProcessReport.STATE_RUNNING,
-                                          GrinderThread.getNumberOfThreads(),
-                                          m_totalThreads));
+                                          m_threads.getNumberOfRunningThreads(),
+                                          m_threads.getTotalNumberOfThreads()));
         }
         catch (CommunicationException e) {
           final Logger logger = m_context.getProcessLogger();
@@ -428,6 +431,78 @@ final class GrinderProcess {
   private static class TickLoggerTimerTask extends TimerTask {
     public void run() {
       LoggerImplementation.tick();
+    }
+  }
+
+  /**
+   * Implement {@link WorkerThreadSynchronisation}. I looked hard at JSR 166's
+   * <code>CountDownLatch</code> and <code>CyclicBarrier</code>, but neither
+   * of them allow for the waiting thread to be interrupted by other events.
+   *
+   * <p>Package scope for unit tests.</p>
+   *
+   * @author Philip Aston
+   * @version $Revision$
+   */
+  static class ThreadSynchronisation implements WorkerThreadSynchronisation {
+    private final BooleanCondition m_started = new BooleanCondition();
+    private final Condition m_threadEventCondition;
+
+    private final short m_totalNumberOfThreads;
+    private short m_numberOfRunningThreads;
+
+    ThreadSynchronisation(Condition condition, short numberOfThreads) {
+      m_threadEventCondition = condition;
+      m_totalNumberOfThreads = numberOfThreads;
+      m_numberOfRunningThreads = 0;
+    }
+
+    /**
+     * The number of worker threads that have been started but not run to
+     * completion.
+     */
+    public short getNumberOfRunningThreads() {
+      synchronized (m_threadEventCondition) {
+        return m_numberOfRunningThreads;
+      }
+    }
+
+    /**
+     * The number of worker threads that have been created.
+     */
+    public short getTotalNumberOfThreads() {
+      return m_totalNumberOfThreads;
+    }
+
+    public void startThreads() {
+      synchronized (m_threadEventCondition) {
+        while (m_numberOfRunningThreads < m_totalNumberOfThreads) {
+          m_threadEventCondition.waitNoInterrruptException();
+        }
+      }
+
+      m_started.set(true);
+    }
+
+    public void awaitStart() {
+      synchronized (m_threadEventCondition) {
+        ++m_numberOfRunningThreads;
+        if (m_numberOfRunningThreads >= m_totalNumberOfThreads) {
+          m_threadEventCondition.notifyAll();
+        }
+      }
+
+      m_started.await(true);
+    }
+
+    public void threadFinished() {
+      synchronized (m_threadEventCondition) {
+        --m_numberOfRunningThreads;
+
+        if (m_numberOfRunningThreads <= 0) {
+          m_threadEventCondition.notifyAll();
+        }
+      }
     }
   }
 }
