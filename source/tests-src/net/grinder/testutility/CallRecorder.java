@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import net.grinder.util.thread.Monitor;
+import net.grinder.util.thread.Condition;
 
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
@@ -43,7 +43,7 @@ public class CallRecorder extends Assert implements CallAssertions {
 
   private static ThreadRecording s_threadRecording = new ThreadRecording();
 
-  private final Monitor m_callDataListMonitor = new Monitor();
+  private final Condition m_callDataListCondition = new Condition();
   private final LinkedList m_callDataList = new LinkedList();
   private List m_methodFilters = new ArrayList();
   private boolean m_ignoreCallOrder = false;
@@ -52,9 +52,9 @@ public class CallRecorder extends Assert implements CallAssertions {
    *  Reset the call data.
    */
   public final void resetCallHistory() {
-    synchronized (m_callDataListMonitor) {
+    synchronized (m_callDataListCondition) {
       m_callDataList.clear();
-      m_callDataListMonitor.notifyAll();
+      m_callDataListCondition.notifyAll();
     }
   }
 
@@ -68,9 +68,9 @@ public class CallRecorder extends Assert implements CallAssertions {
   public void waitUntilCalled(int timeout) {
     final long expires = System.currentTimeMillis() + timeout;
 
-    synchronized (m_callDataListMonitor) {
+    synchronized (m_callDataListCondition) {
       while (m_callDataList.size() == 0) {
-        m_callDataListMonitor.waitNoInterrruptException(timeout);
+        m_callDataListCondition.waitNoInterrruptException(timeout);
 
         if (System.currentTimeMillis() > expires) {
           fail("Timed out waiting to be called after " + timeout + " ms");
@@ -85,7 +85,7 @@ public class CallRecorder extends Assert implements CallAssertions {
     try {
       s_threadRecording.disable();
 
-      synchronized (m_callDataListMonitor) {
+      synchronized (m_callDataListCondition) {
         final Iterator iterator = m_callDataList.iterator();
 
         while(iterator.hasNext()) {
@@ -102,7 +102,7 @@ public class CallRecorder extends Assert implements CallAssertions {
   }
 
   public CallData peekFirst() {
-    synchronized (m_callDataListMonitor) {
+    synchronized (m_callDataListCondition) {
       if (m_callDataList.size() > 0) {
         return (CallData)m_callDataList.getFirst();
       }
@@ -115,7 +115,7 @@ public class CallRecorder extends Assert implements CallAssertions {
    *  Check that no methods have been called.
    */
   public final void assertNoMoreCalls() {
-    synchronized (m_callDataListMonitor) {
+    synchronized (m_callDataListCondition) {
       assertEquals("Call history:\n" + getCallHistory(),
                    0, m_callDataList.size());
     }
@@ -154,9 +154,9 @@ public class CallRecorder extends Assert implements CallAssertions {
         }
       }
 
-      synchronized (m_callDataListMonitor) {
+      synchronized (m_callDataListCondition) {
         m_callDataList.add(callData);
-        m_callDataListMonitor.notifyAll();
+        m_callDataListCondition.notifyAll();
       }
     }
   }
@@ -308,7 +308,7 @@ public class CallRecorder extends Assert implements CallAssertions {
         s_threadRecording.disable();
 
         if (m_ignoreCallOrder) {
-          synchronized (m_callDataListMonitor) {
+          synchronized (m_callDataListCondition) {
             // Check the earliest call first.
             final Iterator iterator = m_callDataList.iterator();
 
@@ -318,7 +318,7 @@ public class CallRecorder extends Assert implements CallAssertions {
 
                 test(callData);
                 iterator.remove();
-                m_callDataListMonitor.notifyAll();
+                m_callDataListCondition.notifyAll();
 
                 return callData;
               }
@@ -332,10 +332,10 @@ public class CallRecorder extends Assert implements CallAssertions {
         }
         else {
           // Check the earliest call.
-          synchronized (m_callDataListMonitor) {
+          synchronized (m_callDataListCondition) {
             try {
               final CallData callData = (CallData)m_callDataList.removeFirst();
-              m_callDataListMonitor.notifyAll();
+              m_callDataListCondition.notifyAll();
               test(callData);
               return callData;
             }

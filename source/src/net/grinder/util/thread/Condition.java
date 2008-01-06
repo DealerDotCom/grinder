@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,7 @@ import net.grinder.common.UncheckedInterruptedException;
  * @version $Revision$
  * @see UncheckedInterruptedException
  */
-public class Monitor {
+public class Condition {
 
   /**
    * Wait until we are notified, or receive an {@link InterruptedException}.

@@ -30,7 +30,7 @@ package net.grinder.util.thread;
  * @version $Revision$
  */
 public final class WakeableCondition {
-  private final Monitor m_monitor = new Monitor();
+  private final Condition m_monitor = new Condition();
   private boolean m_state = false;
   private int m_waiters = 0;
   private boolean m_wakeUp;

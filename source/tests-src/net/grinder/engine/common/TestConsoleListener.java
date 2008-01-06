@@ -34,7 +34,7 @@ import net.grinder.communication.MessageDispatchSender;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
-import net.grinder.util.thread.Monitor;
+import net.grinder.util.thread.Condition;
 
 
 /**
@@ -53,21 +53,21 @@ public class TestConsoleListener extends TestCase {
   }
 
   public void testConstruction() throws Exception {
-    final Monitor myMonitor = new Monitor();
+    final Condition myCondition = new Condition();
 
-    new ConsoleListener(myMonitor, m_logger);
+    new ConsoleListener(myCondition, m_logger);
 
     m_loggerFactory.assertNoMoreCalls();
   }
 
   public void testSendNotification() throws Exception {
-    final Monitor myMonitor = new Monitor();
-    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
+    final Condition myCondition = new Condition();
+    final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
 
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
     listener.registerMessageHandlers(messageDispatcher);
 
-    final WaitForNotification notified = new WaitForNotification(myMonitor);
+    final WaitForNotification notified = new WaitForNotification(myCondition);
 
     messageDispatcher.send(new StopGrinderMessage());
 
@@ -76,8 +76,8 @@ public class TestConsoleListener extends TestCase {
 
   public void testCheckForMessageAndReceive() throws Exception {
 
-    final Monitor myMonitor = new Monitor();
-    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
+    final Condition myCondition = new Condition();
+    final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY));
     assertFalse(listener.checkForMessage(ConsoleListener.RESET |
@@ -149,8 +149,8 @@ public class TestConsoleListener extends TestCase {
   }
 
   public void testDiscardMessages() throws Exception {
-    final Monitor myMonitor = new Monitor();
-    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
+    final Condition myCondition = new Condition();
+    final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY));
     assertFalse(listener.checkForMessage(ConsoleListener.RESET |
@@ -197,14 +197,14 @@ public class TestConsoleListener extends TestCase {
   }
 
   public void testWaitForMessage() throws Exception {
-    final Monitor myMonitor = new Monitor();
-    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
+    final Condition myCondition = new Condition();
+    final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
     listener.registerMessageHandlers(messageDispatcher);
 
     final Thread t = new Thread() {
         public void run() {
-          synchronized (myMonitor) {} // Wait until we're listening.
+          synchronized (myCondition) {} // Wait until we're listening.
           try {
             messageDispatcher.send(
               new StartGrinderMessage(new GrinderProperties()));
@@ -215,7 +215,7 @@ public class TestConsoleListener extends TestCase {
         }
     };
 
-    synchronized (myMonitor) {
+    synchronized (myCondition) {
       t.start();
       listener.waitForMessage();
     }
@@ -228,12 +228,12 @@ public class TestConsoleListener extends TestCase {
 
   public void testShutdown() throws Exception {
 
-    final Monitor myMonitor = new Monitor();
-    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
+    final Condition myCondition = new Condition();
+    final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
     listener.registerMessageHandlers(messageDispatcher);
 
-    final WaitForNotification notified = new WaitForNotification(myMonitor);
+    final WaitForNotification notified = new WaitForNotification(myCondition);
 
     messageDispatcher.shutdown();
 
@@ -251,19 +251,19 @@ public class TestConsoleListener extends TestCase {
 
   private static class WaitForNotification implements Runnable {
     private final Thread m_thread;
-    private final Object m_monitor;
+    private final Object m_condition;
     private boolean m_started = false;
     private boolean m_notified = false;
 
-    public WaitForNotification(Object monitor) throws InterruptedException {
-      m_monitor = monitor;
+    public WaitForNotification(Object condition) throws InterruptedException {
+      m_condition = condition;
 
       m_thread = new Thread(this);
       m_thread.start();
 
-      synchronized (m_monitor) {
+      synchronized (m_condition) {
         while (!m_started) {
-          m_monitor.wait();
+          m_condition.wait();
         }
       }
     }
@@ -275,14 +275,14 @@ public class TestConsoleListener extends TestCase {
     }
 
     public final void run() {
-      synchronized(m_monitor) {
+      synchronized(m_condition) {
         final long startTime = System.currentTimeMillis();
         final long maximumTime = 10000;
         m_started = true;
-        m_monitor.notifyAll();
+        m_condition.notifyAll();
 
         try {
-          m_monitor.wait(maximumTime);
+          m_condition.wait(maximumTime);
 
           if (System.currentTimeMillis() - startTime < maximumTime) {
             m_notified = true;
@@ -297,7 +297,7 @@ public class TestConsoleListener extends TestCase {
   public void testGetLastStartGrinderMessage() throws Exception {
 
     final ConsoleListener listener =
-      new ConsoleListener(new Monitor(), m_logger);
+      new ConsoleListener(new Condition(), m_logger);
 
     final Message m1 = new StartGrinderMessage(new GrinderProperties());
     final Message m2 = new StartGrinderMessage(new GrinderProperties());

@@ -58,7 +58,7 @@ import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.JVM;
-import net.grinder.util.thread.Monitor;
+import net.grinder.util.thread.Condition;
 
 
 /**
@@ -78,7 +78,7 @@ final class GrinderProcess {
   private final InitialiseGrinderMessage m_initialisationMessage;
   private final ConsoleListener m_consoleListener;
   private final TestStatisticsMap m_accumulatedStatistics;
-  private final Monitor m_eventSynchronisation = new Monitor();
+  private final Condition m_eventSynchronisation = new Condition();
   private final MessagePump m_messagePump;
 
   private boolean m_shutdownTriggered;

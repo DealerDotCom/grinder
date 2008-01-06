@@ -29,7 +29,7 @@ import net.grinder.communication.Sender;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
-import net.grinder.util.thread.Monitor;
+import net.grinder.util.thread.Condition;
 
 
 /**
@@ -70,7 +70,7 @@ public final class ConsoleListener {
    */
   public static final int ANY = START | RESET | STOP | SHUTDOWN;
 
-  private final Monitor m_notifyOnMessage;
+  private final Condition m_notifyOnMessage;
   private final Logger m_logger;
   private int m_messagesReceived = 0;
   private int m_lastMessagesReceived = 0;
@@ -84,7 +84,7 @@ public final class ConsoleListener {
    * @param logger A {@link net.grinder.common.Logger} to log received
    * event messages to.
    */
-  public ConsoleListener(Monitor notifyOnMessage, Logger logger) {
+  public ConsoleListener(Condition notifyOnMessage, Logger logger) {
     m_notifyOnMessage = notifyOnMessage;
     m_logger = logger;
   }

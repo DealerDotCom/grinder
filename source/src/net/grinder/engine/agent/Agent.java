@@ -51,7 +51,7 @@ import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.JVM;
 import net.grinder.util.Directory.DirectoryException;
-import net.grinder.util.thread.Monitor;
+import net.grinder.util.thread.Condition;
 
 
 /**
@@ -67,7 +67,7 @@ public final class Agent {
   private final File m_alternateFile;
   private final Logger m_logger;
   private final Timer m_timer;
-  private final Monitor m_eventSynchronisation = new Monitor();
+  private final Condition m_eventSynchronisation = new Condition();
   private final AgentIdentityImplementation m_agentIdentity;
   private final ConsoleListener m_consoleListener;
   private final FanOutStreamSender m_fanOutStreamSender =

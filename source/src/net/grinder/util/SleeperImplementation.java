@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Random;
 
 import net.grinder.common.Logger;
-import net.grinder.util.thread.Monitor;
+import net.grinder.util.thread.Condition;
 
 
 /**
@@ -49,7 +49,7 @@ public final class SleeperImplementation implements Sleeper {
   private final double m_factor;
   private final double m_limit9975Factor;
   private final Logger m_logger;
-  private final Monitor m_monitor = new Monitor();
+  private final Condition m_condition = new Condition();
 
   private boolean m_shutdown = false;
 
@@ -107,9 +107,9 @@ public final class SleeperImplementation implements Sleeper {
    */
   public void shutdown() {
 
-    synchronized (m_monitor) {
+    synchronized (m_condition) {
       m_shutdown = true;
-      m_monitor.notifyAll();
+      m_condition.notifyAll();
     }
   }
 
@@ -189,9 +189,9 @@ public final class SleeperImplementation implements Sleeper {
       final long wakeUpTime = currentTime + factoredTime;
 
       while (currentTime < wakeUpTime) {
-        synchronized (m_monitor) {
+        synchronized (m_condition) {
           checkShutdown();
-          m_monitor.waitNoInterrruptException(wakeUpTime - currentTime);
+          m_condition.waitNoInterrruptException(wakeUpTime - currentTime);
         }
 
         currentTime = m_timeAuthority.getTimeInMilliseconds();
@@ -201,7 +201,7 @@ public final class SleeperImplementation implements Sleeper {
 
   private void checkShutdown() throws ShutdownException {
 
-    synchronized (m_monitor) {
+    synchronized (m_condition) {
       if (m_shutdown) {
         throw new ShutdownException("Shut down");
       }

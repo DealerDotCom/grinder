@@ -36,7 +36,7 @@ import net.grinder.common.UncheckedInterruptedException;
 public final class ThreadSafeQueue {
 
   private final LinkedList m_messages = new LinkedList();
-  private final Monitor m_monitor = new Monitor();
+  private final Condition m_condition = new Condition();
   private volatile boolean m_shutdown = false;
 
   /**
@@ -54,10 +54,10 @@ public final class ThreadSafeQueue {
    * @see #shutdown
    */
   public void queue(Object item) throws ShutdownException {
-    synchronized (getMonitor()) {
+    synchronized (getCondition()) {
       checkIfShutdown();
       m_messages.add(item);
-      getMonitor().notifyAll();
+      getCondition().notifyAll();
     }
   }
 
@@ -72,10 +72,10 @@ public final class ThreadSafeQueue {
    * @see #shutdown
    */
   public Object dequeue(boolean block) throws ShutdownException {
-    synchronized (getMonitor()) {
+    synchronized (getCondition()) {
       while (!m_shutdown && block && m_messages.size() == 0) {
         try {
-          getMonitor().wait();
+          getCondition().wait();
         }
         catch (InterruptedException e) {
           // Don't leave other threads dangling.
@@ -90,7 +90,7 @@ public final class ThreadSafeQueue {
         return null;
       }
       else {
-        getMonitor().notifyAll();
+        getCondition().notifyAll();
         return m_messages.removeFirst();
       }
     }
@@ -101,10 +101,10 @@ public final class ThreadSafeQueue {
    * in the queue are discarded.
    */
   public void shutdown() {
-    synchronized (getMonitor()) {
+    synchronized (getCondition()) {
       m_shutdown = true;
       m_messages.clear();
-      getMonitor().notifyAll();
+      getCondition().notifyAll();
     }
   }
 
@@ -112,9 +112,9 @@ public final class ThreadSafeQueue {
    * Wait until the queue is empty.
    */
   public void gracefulShutdown() {
-    synchronized (getMonitor()) {
+    synchronized (getCondition()) {
       while (getSize() > 0) {
-        getMonitor().waitNoInterrruptException();
+        getCondition().waitNoInterrruptException();
       }
 
       shutdown();
@@ -127,8 +127,8 @@ public final class ThreadSafeQueue {
    *
    * @return The lock object.
    */
-  public Monitor getMonitor() {
-    return m_monitor;
+  public Condition getCondition() {
+    return m_condition;
   }
 
   /**
@@ -137,7 +137,7 @@ public final class ThreadSafeQueue {
    * @return The size of the queue.
    */
   public int getSize() {
-    synchronized (getMonitor()) {
+    synchronized (getCondition()) {
       return m_messages.size();
     }
   }

@@ -32,7 +32,7 @@ import net.grinder.common.LoggerStubFactory;
 import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
-import net.grinder.util.thread.Monitor;
+import net.grinder.util.thread.Condition;
 
 
 /**
@@ -66,14 +66,14 @@ public class TestWorkerLauncher extends TestCase {
 
     final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     final Logger logger = loggerStubFactory.getLogger();
-    final MyMonitor monitor = new MyMonitor();
+    final MyCondition condition = new MyCondition();
     final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
     final WorkerLauncher workerLauncher =
-      new WorkerLauncher(5, myProcessFactory, monitor, logger);
+      new WorkerLauncher(5, myProcessFactory, condition, logger);
 
-    monitor.waitFor(workerLauncher);
-    assertFalse(monitor.isFinished());
+    condition.waitFor(workerLauncher);
+    assertFalse(condition.isFinished());
 
     assertEquals(-1, myProcessFactory.getNumberOfProcesses());
 
@@ -116,7 +116,7 @@ public class TestWorkerLauncher extends TestCase {
     sendTerminationMessage(processes[2]);
 
     assertFalse(workerLauncher.allFinished());
-    assertFalse(monitor.isFinished());
+    assertFalse(condition.isFinished());
 
     sendTerminationMessage(processes[1]);
     sendTerminationMessage(processes[3]);
@@ -124,7 +124,7 @@ public class TestWorkerLauncher extends TestCase {
 
     // Can't be bothered to add another layer of synchronisation, just
     // spin.
-    while (!monitor.isFinished()) {
+    while (!condition.isFinished()) {
       Thread.sleep(20);
     }
 
@@ -144,14 +144,14 @@ public class TestWorkerLauncher extends TestCase {
 
     final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     final Logger logger = loggerStubFactory.getLogger();
-    final MyMonitor monitor = new MyMonitor();
+    final MyCondition condition = new MyCondition();
     final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
     final WorkerLauncher workerLauncher =
-      new WorkerLauncher(9, myProcessFactory, monitor, logger);
+      new WorkerLauncher(9, myProcessFactory, condition, logger);
 
-    monitor.waitFor(workerLauncher);
-    assertFalse(monitor.isFinished());
+    condition.waitFor(workerLauncher);
+    assertFalse(condition.isFinished());
 
     assertEquals(-1, myProcessFactory.getNumberOfProcesses());
 
@@ -176,7 +176,7 @@ public class TestWorkerLauncher extends TestCase {
     sendTerminationMessage(processes[7]);
 
     assertFalse(workerLauncher.allFinished());
-    assertFalse(monitor.isFinished());
+    assertFalse(condition.isFinished());
 
     sendTerminationMessage(processes[8]);
     sendTerminationMessage(processes[1]);
@@ -185,7 +185,7 @@ public class TestWorkerLauncher extends TestCase {
 
     // Can't be bothered to add another layer of synchronisation, just
     // spin.
-    while (!monitor.isFinished()) {
+    while (!condition.isFinished()) {
       Thread.sleep(20);
     }
 
@@ -197,14 +197,14 @@ public class TestWorkerLauncher extends TestCase {
 
     final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     final Logger logger = loggerStubFactory.getLogger();
-    final MyMonitor monitor = new MyMonitor();
+    final MyCondition conditon = new MyCondition();
     final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
     final WorkerLauncher workerLauncher =
-      new WorkerLauncher(4, myProcessFactory, monitor, logger);
+      new WorkerLauncher(4, myProcessFactory, conditon, logger);
 
-    monitor.waitFor(workerLauncher);
-    assertFalse(monitor.isFinished());
+    conditon.waitFor(workerLauncher);
+    assertFalse(conditon.isFinished());
 
     assertEquals(-1, myProcessFactory.getNumberOfProcesses());
 
@@ -223,13 +223,13 @@ public class TestWorkerLauncher extends TestCase {
     sendTerminationMessage(processes[3]);
 
     assertFalse(workerLauncher.allFinished());
-    assertFalse(monitor.isFinished());
+    assertFalse(conditon.isFinished());
 
     workerLauncher.destroyAllWorkers();
 
     // Can't be bothered to add another layer of synchronisation, just
     // spin.
-    while (!monitor.isFinished()) {
+    while (!conditon.isFinished()) {
       Thread.sleep(20);
     }
 
@@ -237,7 +237,7 @@ public class TestWorkerLauncher extends TestCase {
     workerLauncher.shutdown();
   }
 
-  private static class MyMonitor extends Monitor {
+  private static class MyCondition extends Condition {
     private boolean m_finished;
 
     public synchronized void waitFor(final WorkerLauncher workerLauncher) {
@@ -247,9 +247,9 @@ public class TestWorkerLauncher extends TestCase {
       new Thread() {
         public void run() {
           try {
-            synchronized (MyMonitor.this) {
+            synchronized (MyCondition.this) {
               while (!workerLauncher.allFinished()) {
-                MyMonitor.this.wait();
+                MyCondition.this.wait();
               }
             }
 

@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 
 
 /**
- * Unit tests for {@link Monitor}.
+ * Unit tests for {@link Condition}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 public class TestMonitor extends TestCase {
 
   public void testWaitNoInterruptException() throws Exception {
-    final Monitor monitor = new Monitor();
+    final Condition monitor = new Condition();
 
     final DoWait wait1 = new DoWait(monitor);
 
@@ -89,16 +89,16 @@ public class TestMonitor extends TestCase {
   }
 
   private static final class DoWait extends TimerTask {
-    private final Monitor m_monitor;
+    private final Condition m_monitor;
     private final long m_time;
     private Throwable m_threw;
     private boolean m_waiting;
 
-    public DoWait(Monitor monitor) {
+    public DoWait(Condition monitor) {
       this(monitor, -1);
     }
 
-    private DoWait(Monitor monitor, long time) {
+    private DoWait(Condition monitor, long time) {
       super();
       m_monitor = monitor;
       m_time = time;
