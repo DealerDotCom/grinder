@@ -131,6 +131,6 @@ final class MessageQueue {
    * @return The object.
    */
   public Object getMonitor() {
-    return m_queue.getMonitor();
+    return m_queue.getCondition();
   }
 }
