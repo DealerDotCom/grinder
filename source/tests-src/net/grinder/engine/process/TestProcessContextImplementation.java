@@ -153,7 +153,7 @@ public class TestProcessContextImplementation extends TestCase {
         m_queuedSender,
         StatisticsServicesTestFactory.createTestInstance());
 
-    processContext.fireBeginThreadEvent(m_threadContext);
+    processContext.fireThreadCreatedEvent(m_threadContext);
 
     m_threadContextStubFactory.assertSuccess(
       "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
