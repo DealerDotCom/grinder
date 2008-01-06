@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,8 +29,8 @@ package net.grinder.util.thread;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class WakeableCondition {
-  private final Condition m_monitor = new Condition();
+public final class BooleanCondition {
+  private final Condition m_condition = new Condition();
   private boolean m_state = false;
   private int m_waiters = 0;
   private boolean m_wakeUp;
@@ -44,17 +44,17 @@ public final class WakeableCondition {
    *         woken by another thread calling {@link #wakeUpAllWaiters()}.
    */
   public boolean await(boolean state) {
-    synchronized (m_monitor) {
+    synchronized (m_condition) {
       ++m_waiters;
 
       try {
         while (m_state != state && !m_wakeUp) {
-          m_monitor.waitNoInterrruptException();
+          m_condition.waitNoInterrruptException();
         }
       }
       finally {
         --m_waiters;
-        m_monitor.notifyAll();
+        m_condition.notifyAll();
       }
 
       return m_state;
@@ -67,9 +67,9 @@ public final class WakeableCondition {
    * @param state The new state.
    */
   public void set(boolean state) {
-    synchronized (m_monitor) {
+    synchronized (m_condition) {
       m_state = state;
-      m_monitor.notifyAll();
+      m_condition.notifyAll();
     }
   }
 
@@ -77,22 +77,22 @@ public final class WakeableCondition {
    * Wake up other threads that are waiting in {@link #await(boolean)}.
    */
   public void wakeUpAllWaiters() {
-    synchronized (m_monitor) {
+    synchronized (m_condition) {
       if (m_waiters == 0) {
         return;
       }
 
       m_wakeUp = true;
-      m_monitor.notifyAll();
+      m_condition.notifyAll();
 
       try {
         while (m_waiters > 0) {
-          m_monitor.waitNoInterrruptException();
+          m_condition.waitNoInterrruptException();
         }
       }
       finally {
         m_wakeUp = false;
-        m_monitor.notifyAll();
+        m_condition.notifyAll();
       }
     }
   }

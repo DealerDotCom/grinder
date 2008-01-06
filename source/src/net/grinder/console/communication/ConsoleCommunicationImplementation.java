@@ -39,7 +39,7 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.util.thread.WakeableCondition;
+import net.grinder.util.thread.BooleanCondition;
 
 
 /**
@@ -62,7 +62,7 @@ public final class ConsoleCommunicationImplementation
   private final MessageDispatchSender m_messageDispatcher =
     new MessageDispatchSender();
 
-  private final WakeableCondition m_processing = new WakeableCondition();
+  private final BooleanCondition m_processing = new BooleanCondition();
 
   private Acceptor m_acceptor = null;
   private ServerReceiver m_receiver = null;
