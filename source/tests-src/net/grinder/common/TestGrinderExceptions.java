@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,6 +39,13 @@ import net.grinder.testutility.RedirectStandardStreams;
  */
 public class TestGrinderExceptions extends TestCase {
 
+  // Calculate the callers method name. This is so the tests still work when
+  // this class is instrumented by Clover.
+  private static final String getMethodName() {
+    final StackTraceElement callersFrame = new Exception().getStackTrace()[1];
+    return callersFrame.toString().replaceAll("\\(.*", "");
+  }
+
   public void testPrintStackTrace() throws Exception {
     final StringWriter stringWriter = new StringWriter();
     final PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -51,7 +58,7 @@ public class TestGrinderExceptions extends TestCase {
 
     assertEquals(1, countOccurrences("createException", s));
     assertEquals(1, countOccurrences("createDeeperException", s));
-    assertEquals(2, countOccurrences("testPrintStackTrace", s));
+    assertEquals(2, countOccurrences(getMethodName(), s));
     assertEquals(1, countOccurrences("Method.invoke", s));
   }
 
@@ -68,8 +75,7 @@ public class TestGrinderExceptions extends TestCase {
     final String s = stringWriter.toString();
 
     assertEquals(1, countOccurrences("RuntimeException", s));
-    assertEquals(2, countOccurrences(
-                   "testPrintStackTraceWithNestedNonGrinderException", s));
+    assertEquals(2, countOccurrences(getMethodName(), s));
     assertEquals(1, countOccurrences("Method.invoke", s));
   }
 
@@ -92,8 +98,7 @@ public class TestGrinderExceptions extends TestCase {
     e2.printStackTrace(printWriter);
     final String s = stringWriter.toString();
 
-    assertEquals(2, countOccurrences(
-                   "testPrintStackTraceWithNestedUnconventionalException", s));
+    assertEquals(2, countOccurrences(getMethodName(), s));
     assertEquals(1, countOccurrences("Method.invoke", s));
     assertEquals(1, countOccurrences("...", s));
   }
@@ -111,7 +116,7 @@ public class TestGrinderExceptions extends TestCase {
 
     assertEquals(1, countOccurrences("createException", s));
     assertEquals(1, countOccurrences("createDeeperException", s));
-    assertEquals(2, countOccurrences("testPrintStackTrace", s));
+    assertEquals(2, countOccurrences(getMethodName(), s));
     assertEquals(1, countOccurrences("Method.invoke", s));
   }
 
@@ -132,7 +137,7 @@ public class TestGrinderExceptions extends TestCase {
 
     assertEquals(1, countOccurrences("createException", s));
     assertEquals(1, countOccurrences("createDeeperException", s));
-    assertEquals(2, countOccurrences("testPrintStackTrace", s));
+    assertEquals(2, countOccurrences(getMethodName(), s));
     assertEquals(1, countOccurrences("Method.invoke", s));
   }
 
