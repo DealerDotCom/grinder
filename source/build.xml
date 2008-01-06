@@ -284,6 +284,7 @@ what you want. Currently the conditionally built modules are:
 
       <fileset dir="${picocontainer.dir}">
         <include name="picocontainer-*.jar"/>
+        <exclude name="*sources.jar"/>
       </fileset>
 
       <fileset dir="${xmlbeans.dir}/lib">
