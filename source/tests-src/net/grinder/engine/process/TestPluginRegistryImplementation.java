@@ -136,7 +136,7 @@ public class TestPluginRegistryImplementation extends TestCase {
     final ThreadContext threadContext =
       (ThreadContext)threadContextStubFactory.getStub();
 
-    pluginRegistry.beginThread(threadContext);
+    pluginRegistry.threadCreated(threadContext);
 
     final CallData callData =
       threadContextStubFactory.assertSuccess(

@@ -86,7 +86,7 @@ class GrinderThread implements java.lang.Runnable {
     s_numberOfThreads++;    // See s_numberOfThreads javadoc.
 
     // Dispatch the process context callback in the main thread.
-    m_processContext.fireBeginThreadEvent(m_context);
+    m_processContext.fireThreadCreatedEvent(m_context);
   }
 
   /**

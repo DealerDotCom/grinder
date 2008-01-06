@@ -98,8 +98,8 @@ final class PluginRegistryImplementation
     }
   }
 
-  public void beginThread(final ThreadContext threadContext) {
-    // A new thread has been started. Create a thread listener for each plugin.
+  public void threadCreated(final ThreadContext threadContext) {
+    // A new thread has been created. Create a thread listener for each plugin.
     // We use a ThreadLifeCycleListener so the thread listener is created in the
     // worker thread.
 

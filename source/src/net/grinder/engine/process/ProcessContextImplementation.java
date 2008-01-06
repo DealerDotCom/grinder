@@ -241,10 +241,10 @@ final class ProcessContextImplementation implements ProcessContext {
     return m_statisticsServices;
   }
 
-  public void fireBeginThreadEvent(final ThreadContext threadContext) {
+  public void fireThreadCreatedEvent(final ThreadContext threadContext) {
     m_processLifeCycleListeners.apply(new Informer() {
       public void inform(Object listener) {
-        ((ProcessLifeCycleListener)listener).beginThread(threadContext);
+        ((ProcessLifeCycleListener)listener).threadCreated(threadContext);
       } }
     );
   }

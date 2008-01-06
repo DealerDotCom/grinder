@@ -83,5 +83,5 @@ interface ProcessContext {
 
   StatisticsServices getStatisticsServices();
 
-  void fireBeginThreadEvent(ThreadContext threadContext);
+  void fireThreadCreatedEvent(ThreadContext threadContext);
 }

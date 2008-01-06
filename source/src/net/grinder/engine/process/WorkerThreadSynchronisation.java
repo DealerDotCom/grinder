@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,14 +23,23 @@ package net.grinder.engine.process;
 
 
 /**
- * Process life cycle callbacks.
- *
- * <p>Package scope</p>
+ * Synchronisation contract between {@link GrinderThread} and
+ * {@link GrinderProcess}.
  *
  * @author Philip Aston
- * @version $Revision: 2664 $
+ * @version $Revision:$
  */
-interface ProcessLifeCycleListener {
+interface WorkerThreadSynchronisation {
 
-  void threadCreated(ThreadContext threadContext);
+  /**
+   * The worker thread should call this when it is ready to run. The call
+   * blocks until the main process thread signals for all threads to start.
+   */
+  public void awaitStart();
+
+  /**
+   * The worker thread should call this to indicate it has finished.
+   */
+  public void threadFinished();
+
 }
