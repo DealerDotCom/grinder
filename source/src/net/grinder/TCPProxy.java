@@ -40,10 +40,6 @@ import org.picocontainer.monitors.WriterComponentMonitor;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
-import net.grinder.plugin.http.HTTPPluginTCPProxyFilter;
-import net.grinder.plugin.http.HTTPPluginTCPProxyFilter2;
-import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
-import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter2;
 import net.grinder.plugin.http.tcpproxyfilter.ConnectionCache;
 import net.grinder.plugin.http.tcpproxyfilter.ConnectionHandlerFactoryImplementation;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRecordingImplementation;
@@ -263,18 +259,6 @@ public final class TCPProxy {
             throw barfError("class '" + args[i] + "' not found.");
           }
           m_filterContainer.registerComponentImplementation(componentClass);
-        }
-        else if (args[i].equalsIgnoreCase("-httpplugin")) {
-          m_logger.error(
-            "The -httpplugin switch is deprecated, please use -http instead.");
-          requestFilterChain.add(HTTPPluginTCPProxyFilter.class);
-          responseFilterChain.add(HTTPPluginTCPProxyResponseFilter.class);
-        }
-        else if (args[i].equalsIgnoreCase("-newhttpplugin")) {
-          m_logger.error(
-          "The -newhttpplugin switch is deprecated, please use -http instead.");
-          requestFilterChain.add(HTTPPluginTCPProxyFilter2.class);
-          responseFilterChain.add(HTTPPluginTCPProxyResponseFilter2.class);
         }
         else if (args[i].equalsIgnoreCase("-http")) {
           requestFilterChain.add(HTTPRequestFilter.class);

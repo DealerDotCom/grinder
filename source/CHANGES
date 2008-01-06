@@ -50,6 +50,10 @@ The Grinder 3.0
   The console optionally automatically distributes changed files when
   processes are started.
 
+  The -httpplugin and -newhttpplugin TCPProxy filter options have been
+  removed. They were deprecated in 3.0-beta29. The new -http filter should
+  be used instead.
+
 
 The Grinder 3.0-beta33
 ----------------------
