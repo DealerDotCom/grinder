@@ -1,12 +1,11 @@
 export ANT_HOME=/opt/ant/apache-ant-1.6.2
 export JAVA_HOME=/opt/bea-816/jdk142_11
-export JAVAHL_HOME=/work/opt/eclipse/3.2/eclipse/plugins/org.tigris.subversion.javahl.win32_1.0.4/
-export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:${JAVAHL_HOME}:$PATH
+#export JAVAHL_HOME=/opt/eclipse/3.2/eclipse/plugins/org.tigris.subversion.javahl.win32_1.0.4/
+export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
-JUNIT=/work/opt/junit/junit3.8.1/junit.jar
+JUNIT=/opt/junit/junit3.8.1/junit.jar
 # Clover home also needs to be set in localpaths.properties.
-CLOVER=/work/opt/clover/clover-1.3.5/lib/clover.jar
-XALAN=/work/opt/xalan/xalan-j_2_3_1/bin/xalan.jar:/work/opt/xalan/xalan-j_2_3_1/bin/xml-apis.jar
+CLOVER=/opt/clover/clover-ant-2.0.3/lib/clover.jar
+XALAN=/opt/xalan/xalan-j_2_3_1/bin/xalan.jar:/opt/xalan/xalan-j_2_3_1/bin/xml-apis.jar
 
-# Ant now handles cygpath -w if necessary.
-export CLASSPATH="${JUNIT}:${CLOVER}:${JSSE}:${XALAN}"
+export CLASSPATH="${JUNIT}:${CLOVER}:${XALAN}"
