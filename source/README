@@ -1,22 +1,14 @@
 Please refer to the file LICENSE for license and copyright
 information.
 
-The Grinder is a pure Java load-testing framework that is freely
-available under a BSD style open-source license. It was originally
-developed for the book Professional Java 2 Enterprise Edition with BEA
-WebLogic Server by Paco Gómez and Peter Zadrozny.
-
-Philip Aston took ownership of the code and reworked it to create The
-Grinder 2. Philip continues to enhance and maintain The Grinder.
-
-The Grinder 3 introduces a Jython scripting engine enabling powerful,
-expressive test scripts to be executed.
+The Grinder is a Java load testing framework that makes it easy to run
+a distributed test using many load injector machines. It is freely
+available under a BSD-style open-source license
 
 The Grinder's home page is http://grinder.sourceforge.net. This site
-contains the latest version of the user manual for The Grinder. A copy
-of the user manual is shipped with the standard distribution and can
-be found in the docs directory.
+contains the latest version of the user manual for The Grinder.
 
 The site also contains details of mailing lists that you might like to
 join. In particular, if you have questions that are not answered by
-the documentation, try asking at grinder-use@lists.sourceforge.net
+the documentation, please try asking on thee grinder-use mail list
+(http://grinder.sourceforge.net/support.html).
