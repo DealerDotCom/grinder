@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -152,7 +152,7 @@ public final class ConnectionDetails {
       return true;
     }
 
-    if (!(other instanceof ConnectionDetails)) {
+    if (other == null || other.getClass() != ConnectionDetails.class) {
       return false;
     }
 

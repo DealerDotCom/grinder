@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -69,6 +69,8 @@ public abstract class AbstractTestSemantics implements Test {
       return true;
     }
 
+    // instanceof does not break symmetry since equals() is final
+    // and all Tests inherit from AbstractTestSemantics.
     if (!(o instanceof Test)) {
       return false;
     }

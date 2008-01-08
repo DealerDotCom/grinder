@@ -81,6 +81,7 @@ abstract class AbstractProcessIdentityImplementation implements Serializable {
       return true;
     }
 
+    // instanceof does not break symmetry since equals() is final.
     if (!(o instanceof AbstractProcessIdentityImplementation)) {
       return false;
     }

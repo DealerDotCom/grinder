@@ -467,7 +467,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
       return true;
     }
 
-    if (!(o instanceof StatisticsSetImplementation)) {
+    if (o == null || o.getClass() != StatisticsSetImplementation.class) {
       return false;
     }
 

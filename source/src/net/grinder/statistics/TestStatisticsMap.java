@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -219,7 +219,7 @@ public final class TestStatisticsMap implements java.io.Externalizable {
       return true;
     }
 
-    if (!(o instanceof TestStatisticsMap)) {
+    if (o == null || o.getClass() != TestStatisticsMap.class) {
       return false;
     }
 

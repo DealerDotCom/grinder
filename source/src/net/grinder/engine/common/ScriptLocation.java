@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007, 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -118,7 +118,7 @@ public final class ScriptLocation implements Serializable {
       return true;
     }
 
-    if (!(other instanceof ScriptLocation)) {
+    if (other == null || other.getClass() != ScriptLocation.class) {
       return false;
     }
 

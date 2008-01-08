@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -51,7 +51,7 @@ package net.grinder.statistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ExpressionView {
+public final class ExpressionView {
 
   private static int s_creationOrder;
 
@@ -92,7 +92,7 @@ public class ExpressionView {
    *
    * @return The display name.
    */
-  public final String getDisplayName() {
+  public String getDisplayName() {
     return m_displayName;
   }
 
@@ -101,7 +101,7 @@ public class ExpressionView {
    *
    * @return The {@link StatisticExpression}.
    */
-  public final StatisticExpression getExpression() {
+  public StatisticExpression getExpression() {
     return m_expression;
   }
 
@@ -111,7 +111,7 @@ public class ExpressionView {
    * @return The string, or <code>null</code> if this view was built directly
    *         from a {@link StatisticExpression}.
    */
-  public final String getExpressionString() {
+  public String getExpressionString() {
     return m_expressionString;
   }
 
@@ -122,7 +122,7 @@ public class ExpressionView {
    *
    * @return <code>true</code> => show this view for composite statistics.
    */
-  public final boolean getShowForCompositeStatistics() {
+  public boolean getShowForCompositeStatistics() {
     return m_showForCompositeStatistics;
   }
 
@@ -137,7 +137,7 @@ public class ExpressionView {
       return true;
     }
 
-    if (!(other instanceof ExpressionView)) {
+    if (other == null || other.getClass() != ExpressionView.class) {
       return false;
     }
 
@@ -148,7 +148,7 @@ public class ExpressionView {
       m_displayName.equals(otherView.m_displayName) &&
 
       // If either expression string is null, one of the views
-      // is not externalisable. We then only compare on the
+      // is not externalisable. If so, we only compare on the
       // display names.
       (m_expressionString == null ||
        otherView.m_expressionString == null ||
@@ -160,7 +160,7 @@ public class ExpressionView {
    *
    * @return an <code>int</code> value
    */
-  public final int hashCode() {
+  public int hashCode() {
     return m_hashCode;
   }
 
@@ -170,7 +170,7 @@ public class ExpressionView {
    *
    * @return The <code>String</code>
    */
-  public final String toString() {
+  public String toString() {
     final StringBuffer result = new StringBuffer(32);
     result.append("ExpressionView(");
     result.append(m_displayName);
@@ -185,7 +185,7 @@ public class ExpressionView {
     return result.toString();
   }
 
-  final int getCreationOrder() {
+  int getCreationOrder() {
     return m_creationOrder;
   }
 }
