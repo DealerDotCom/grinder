@@ -217,5 +217,18 @@ java -Duser.language="es" net.grinder.Console
     </section>
   </section>
 
+  <section id="dependees">
+    <title>Writing software that depends on The Grinder</title>
+
+    <p>There are several projects that build upon, or otherwise complement,
+    the features provided by The Grinder. Some of these are referenced from
+    the <a href="site:links">links page</a>.
+    </p>
+
+    <p>One such project, <a href="ext:webflange">webFlange</a>, hosts a
+    <a href="ext:webflange/maven">Maven repository</a> for The Grinder that you
+    might find useful.</p>
+
+  </section>
 </body>
 </document>

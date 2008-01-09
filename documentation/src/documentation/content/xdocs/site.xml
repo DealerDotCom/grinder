@@ -280,5 +280,9 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <xmlbeans href="http://xmlbeans.apache.org/"/>
 
+    <webflange href="http://webflange.sourceforge.net/">
+      <maven href="maven"/>
+    </webflange>
+
   </external-refs>
 </site>
