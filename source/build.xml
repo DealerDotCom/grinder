@@ -29,7 +29,7 @@ The following addtional packages are necessary to build and run The Grinder.
 They are bundled in the lib directory:
 
   - Apache XMLBeans 2.1.0
-  - Jython 2.1
+  - Jython 2.2.1
   - PicoContainer 1.3
 
 The following optional packages are necessary to run The Grinder unit
