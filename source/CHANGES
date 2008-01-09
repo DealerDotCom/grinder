@@ -43,7 +43,7 @@ The Grinder 3.0
 
   Fix bug 1846218 - Delayed statistics are not flushed on next test.
 
-  Add an editor keyboard shortcut for "Save-File" (Ctrl-S).
+  Console script editor keyboard shortcut for "Save-File" (Ctrl-S).
 
   The console allows files to be opened in a configurable external editor.
 
@@ -53,6 +53,8 @@ The Grinder 3.0
   The -httpplugin and -newhttpplugin TCPProxy filter options have been
   removed. They were deprecated in 3.0-beta29. The new -http filter should
   be used instead.
+
+  Upgrade embedded version of Jython from Jython 2.1 to Jython 2.2.1.
 
 
 The Grinder 3.0-beta33
