@@ -155,7 +155,7 @@ public final class TCPProxy {
       "\n  [-colour]                    Be pretty on ANSI terminals." +
       "\n  [-component <class>]         Register a component class with" +
       "\n                               the filter PicoContainer." +
-      "\n  [-debug]                     Make filter PicoContainer chatty." +
+      "\n  [-debug]                     Make PicoContainer chatty." +
       "\n\n" +
       "<filter> is the name of a class that implements " +
       TCPProxyFilter.class.getName() + " or one of NONE, ECHO. The default " +
