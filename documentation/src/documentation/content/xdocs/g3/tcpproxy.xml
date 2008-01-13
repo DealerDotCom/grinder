@@ -155,18 +155,11 @@ GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F
     <title>Using the HTTPPluginTCPProxyFilters</title>
 
     <p>You can use the TCPProxy to generate an HTTP script
-    suitable for use with The Grinder. The Grinder provides a number
-    of HTTP filters for this purpose. These filters are controlled by command
-    line options:</p>
-  <p>-http <strong>(recommended)</strong><br />
-  -httpplugin <em>(deprecated)</em><br />
-  -newhttpplugin <em>(deprecated)</em></p>
-
-    <p>What follows is a HOWTO detailing the use of the recommended HTTP filter.</p>
-
-  <p>The first step is to start the TCPProxy with an HTTP filter. A command like
-    the following should be used to start the TCPProxy with the
-  recommended HTTP filter:</p>
+    suitable for use with The Grinder. The Grinder provides a pair
+    of HTTP filters for this purpose. These filters are enabled by the
+    <code>-http</code> command line option.</p>
+  
+  <p>The first step is to start the TCPProxy with an HTTP filter:</p>
 
 <source>
 java net.grinder.TCPProxy -console -http > grinder.py
@@ -175,7 +168,7 @@ java net.grinder.TCPProxy -console -http > grinder.py
   <p>The <code>&gt; grinder.py</code> part of the line sends the script to a
   file called <code>grinder.py</code>.</p>
 
-    <p>The terminal output of the HTTPPluginTCPProxyFilter looks like:</p>
+  <p>The terminal output of the TCPProxy looks like:</p>
 
 <source>
 14/03/06 17:04:25 (tcpproxy): Initialising as an HTTP/HTTPS proxy with the
@@ -666,31 +659,8 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
     <tr>
       <td><code>-debug</code></td>
 
-      <td>Make filter PicoContainer chatty.</td>
+      <td>Make PicoContainer chatty.</td>
     </tr>
-
-    <tr>
-      <td><strong>Deprecated</strong></td>
-
-      <td></td>
-    </tr>
-
-    <tr>
-      <td><code>-httpplugin</code></td>
-
-      <td>Adds a deprecated request filter and a response filter to produce a
-      script for The Grinder suitable for use with the HTTP
-      plugin. Use <code>-http</code> instead.</td>
-    </tr>
-
-    <tr>
-      <td><code>-newhttpplugin</code></td>
-
-      <td>Adds a deprecated request filter and a response filter to produce a
-      script for The Grinder suitable for use with the HTTP
-      plugin. Use <code>-http</code> instead.</td>
-    </tr>
-
 
     </table>
   </section>
