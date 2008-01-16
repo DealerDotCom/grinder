@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -1357,7 +1357,9 @@ public final class ConsoleUI implements ModelListener {
           final GrinderProperties properties =
             new GrinderProperties(propertiesFile);
 
-          final File scriptFile = properties.getFile("grinder.script", null);
+          final File scriptFile =
+            properties.getFile("grinder.script",
+                               GrinderProperties.DEFAULT_SCRIPT);
 
           if (scriptFile == null) {
             getErrorHandler().handleErrorMessage(

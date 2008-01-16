@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -483,9 +483,8 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     catch (GrinderException e) {
     }
 
-    // Construct with null => default file.
     final GrinderProperties defaultFileProperties =
-      new GrinderProperties(null);
+      new GrinderProperties(GrinderProperties.DEFAULT_PROPERTIES);
     assertEquals(new File("grinder.properties"),
                  defaultFileProperties.getAssociatedFile());
 

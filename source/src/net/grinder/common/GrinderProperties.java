@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,7 +45,15 @@ import java.util.Properties;
 public class GrinderProperties extends Properties {
   private static final long serialVersionUID = 1;
 
-  private static final String DEFAULT_FILENAME = "grinder.properties";
+  /**
+   * Default file name for properties.
+   */
+  public static final File DEFAULT_PROPERTIES = new File("grinder.properties");
+
+  /**
+   * Default script file name.
+   */
+  public static final File DEFAULT_SCRIPT = new File("grinder.py");
 
   private transient PrintWriter m_errorWriter =
     new PrintWriter(System.err, true);
@@ -64,13 +72,13 @@ public class GrinderProperties extends Properties {
    * "<code>grinder.</code>"are also added to allow values to be
    * overridden on the command line.
    * @param file The file to read the properties from.
-   * <code>null</code> => use grinder.properties.
    *
    * @exception PersistenceException If an error occurs reading from
    * the file.
+   * @see #DEFAULT_PROPERTIES
    */
   public GrinderProperties(File file) throws PersistenceException {
-    m_file = file != null ? file : new File(DEFAULT_FILENAME);
+    m_file = file;
 
     if (m_file.exists()) {
       try {

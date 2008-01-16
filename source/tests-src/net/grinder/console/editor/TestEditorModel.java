@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -479,6 +479,9 @@ public class TestEditorModel extends AbstractFileTestCase {
     final File f2 = new File(getDirectory(), "foo.properties");
     editorModel.setSelectedPropertiesFile(f2);
     assertFalse(editorModel.isSelectedScript(script));
+    final File defaultScript =
+      new File(getDirectory(), GrinderProperties.DEFAULT_SCRIPT.getPath());
+    assertTrue(editorModel.isSelectedScript(defaultScript));
 
     final GrinderProperties properties = new GrinderProperties(f2);
     properties.setFile("grinder.script", script);
@@ -486,6 +489,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertFalse(editorModel.isSelectedScript(script));
     editorModel.setSelectedPropertiesFile(f2);
     assertTrue(editorModel.isSelectedScript(script));
+    assertFalse(editorModel.isSelectedScript(defaultScript));
 
     // Again with relative path.
     editorModel.setSelectedPropertiesFile(f1);

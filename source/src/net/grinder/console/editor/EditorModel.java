@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -400,7 +400,8 @@ public final class EditorModel {
       try {
         final GrinderProperties properties = new GrinderProperties(file);
 
-        selectedFile = properties.getFile("grinder.script", null);
+        selectedFile = properties.getFile("grinder.script",
+                                          GrinderProperties.DEFAULT_SCRIPT);
       }
       catch (PersistenceException e) {
         selectedFile = null;

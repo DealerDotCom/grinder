@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -76,6 +76,48 @@ public class TestAgent extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
+  public void testRunDefaultProperties() throws Exception {
+    // Default file is in cwd.
+    final File propertyFile = new File("grinder.properties");
+    propertyFile.deleteOnExit();
+
+    try {
+      final GrinderProperties properties = new GrinderProperties(propertyFile);
+
+      final Agent agent = new Agent(m_logger, null);
+
+      m_loggerStubFactory.assertNoMoreCalls();
+
+      agent.run();
+
+      m_loggerStubFactory.assertSuccess("output", String.class);
+      // Cannot contact console.
+      m_loggerStubFactory.assertSuccess("error", String.class);
+      // grinder.py not readable.
+      m_loggerStubFactory.assertSuccess("error", String.class);
+      m_loggerStubFactory.assertNoMoreCalls();
+
+      properties.setBoolean("grinder.useConsole", false);
+      properties.save();
+
+      final File scriptFile = new File(getDirectory(), "script");
+      scriptFile.createNewFile();
+      properties.setFile("grinder.script", scriptFile);
+      properties.setInt("grinder.processes", 0);
+      properties.save();
+
+      agent.run();
+
+      m_loggerStubFactory.assertSuccess("output", String.class);
+      // Command line.
+      m_loggerStubFactory.assertSuccess("output", String.class);
+      m_loggerStubFactory.assertNoMoreCalls();
+    }
+    finally {
+      propertyFile.delete();
+    }
+  }
+
   public void testRun() throws Exception {
     final File propertyFile = new File(getDirectory(), "properties");
     final GrinderProperties properties = new GrinderProperties(propertyFile);
@@ -105,6 +147,17 @@ public class TestAgent extends AbstractFileTestCase {
 
     final File scriptFile = new File(getDirectory(), "script");
     scriptFile.createNewFile();
+
+    final File badFile = new File(scriptFile.getAbsoluteFile(), "blah");
+    properties.setFile("grinder.script", badFile);
+    properties.save();
+
+    agent.run();
+
+    m_loggerStubFactory.assertSuccess("output", String.class);
+    // grinder.py not readable.
+    m_loggerStubFactory.assertSuccess("error", String.class);
+    m_loggerStubFactory.assertNoMoreCalls();
 
     properties.setFile("grinder.script", scriptFile);
     properties.setInt("grinder.processes", 0);

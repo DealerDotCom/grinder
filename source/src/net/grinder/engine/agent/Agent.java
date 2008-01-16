@@ -117,7 +117,10 @@ public final class Agent {
       GrinderProperties properties = null;
 
       do {
-        properties = new GrinderProperties(m_alternateFile);
+        properties =
+          new GrinderProperties(
+            m_alternateFile != null ?
+                m_alternateFile : GrinderProperties.DEFAULT_PROPERTIES);
 
         if (startMessage != null) {
           properties.putAll(startMessage.getProperties());
@@ -177,8 +180,9 @@ public final class Agent {
         }
 
         if (startMessage != null) {
-          // If the start message doesn't specify a script in the cache,
-          // we'll fall back to the agent properties, and then to "grinder.py".
+          // If the start message doesn't specify a script, we look for a
+          // default "grinder.py" script in the cache, then fallback to
+          // the agent properties.
           final File scriptFromConsole =
             startMessage.getProperties().getFile("grinder.script", null);
 
@@ -187,11 +191,21 @@ public final class Agent {
             script =
               new ScriptLocation(m_fileStore.getDirectory(), scriptFromConsole);
           }
+          else {
+            final ScriptLocation s =
+              new ScriptLocation(m_fileStore.getDirectory(),
+                                 GrinderProperties.DEFAULT_SCRIPT);
+
+            if (s.getFile().canRead()) {
+              script = s;
+            }
+          }
         }
 
         if (script == null) {
           final File scriptFile =
-            new File(properties.getProperty("grinder.script", "grinder.py"));
+            properties.getFile("grinder.script",
+                               GrinderProperties.DEFAULT_SCRIPT);
 
           try {
             script = new ScriptLocation(
