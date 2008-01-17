@@ -27,11 +27,9 @@
   href="site:g3/whats-new">enhancements</a> over The Grinder 2.
   The Grinder 3 is in active development.</p>
 
-  <p>If you wish, you can continue to use The Grinder 2. You may
-  find it initially easier to get use for simple HTTP test
-  scenarios. Be aware that defects in The Grinder 2 (including
-  <a href="#premature-eof">this one</a> and <a
-  href="#extra-line">this one</a>) will not be fixed.</p>
+  <p>If you continue to use The Grinder 2, be aware that it has
+  defects (including <a href="#premature-eof">this one</a> and <a
+  href="#extra-line">this one</a>) that will not be fixed.</p>
       </answer>
     </faq>
 
