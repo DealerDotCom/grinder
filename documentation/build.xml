@@ -9,6 +9,8 @@ What do I need?
 Jakarta Ant 1.6.2
 J2SE 1.4.1 or later
 Apache Forrest 0.8
+Jimi installed as per the Forrest FAQ
+(http://forrest.apache.org/docs_0_70/faq.html#pdf_images).
 
 (You might not need these exact versions).
 
@@ -29,7 +31,7 @@ Do the following:
 Say
    ant -projecthelp
 
-for details of other targets. 
+for details of other targets.
 -->
 
 <project name="The Grinder Documentation" default="all" basedir=".">
