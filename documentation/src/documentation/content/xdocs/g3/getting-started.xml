@@ -28,7 +28,7 @@
       <li>
         <strong>Worker processes</strong>
         <ul>
-          <li>Interpret Jython test scripts and performs tests using a
+          <li>Interpret Jython test scripts and perform tests using a
           number of <em>worker threads</em></li>
         </ul>
       </li>
@@ -43,8 +43,9 @@
       <li>
         <strong>The console</strong>
         <ul>
-          <li>Coordinates the other processes</li>
-          <li>Collates and displays statistics</li>
+          <li>Coordinate the other processes</li>
+          <li>Collate and display statistics</li>
+          <li>Script editing and distribution</li>
         </ul>
       </li>
     </ul>
@@ -52,10 +53,13 @@
     <p>As The Grinder is written in Java, each of these processes is a
     Java Virtual Machine (JVM).</p>
 
+    <figure src="../images/processes.png" width="600" height="507"
+    alt="The Grinder processes"/>
+
     <p>For heavy duty testing, you start an agent process on each of
-    several client machines. The worker processes they launch can be
+    several load injector machines. The worker processes they launch can be
     controlled and monitored using the console. There is little reason
-    to run more than one agent on a single machine, but if you can if
+    to run more than one agent on each load injector, but if you can if
     you wish.</p>
   </section>
 
@@ -63,9 +67,10 @@
     <title>Tests and test scripts</title>
 
     <p>A <em>test</em> is a unit of work against which statistics are
-    recorded. Users specify which tests to run using a Jython <a
-    href="site:scripts-intro">test script</a>. Tests are uniquely defined by
+    recorded. Tests are uniquely defined by
     a <em>test number</em> and also have a <em>description</em>.
+    Users specify which tests to run using a Jython <a
+    href="site:scripts-intro">test script</a>.
     If you wish your scripts can report many different actions (e.g.
     different web page requests) against the same test, The Grinder
     will aggregate the results.</p>
@@ -74,6 +79,17 @@
     scenario. Each worker process has a number of worker threads, and
     each worker thread calls the script a number of times. A single
     execution of a test script is called a <em>run</em>.</p>
+
+    <p>You can write scripts for use with the Grinder by hand. There are a
+    number of examples of how to do this in the
+    <a href="site:script-gallery">Script Gallery</a>. See the
+    <a href="site:scripts/scripts-intro">Scripts</a> section for more details
+    on how to create scripts.</p>
+
+    <p>If you are creating a script to test a web site or web application, you
+    can use the
+    <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">
+    TCPProxy</a> to record a browser session as a script.</p>
   </section>
 
   <section>
@@ -291,14 +307,6 @@ java -cp $CLASSPATH net.grinder.TCPProxy -console -http > grinder.py
      </ul>
   </section>
 
-  <section id="howtorecord">
-  <title>How do I create a script?</title>
-  <p>You can manully create scripts for use with the Grinder and there are a number of examples of how to do this in the <a href="site:script-gallery">Script Gallery</a>.
-  See the <a href="site:scripts/scripts-intro">Scripts</a> section for more details on how to create scripts.</p>
-  <p>If you are creating a script for a website or web application, you can use the <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a> to generate an HTTPPlugin script
-    suitable for use with The Grinder.</p>
-  </section>
-
   <section id="howtosetup">
     <title>How should I set up a project structure for The Grinder?</title>
     <p>Well the short answer is however works best for you. Many people will already know how they want to set up
@@ -397,6 +405,7 @@ java -cp $CLASSPATH net.grinder.TCPProxy -console -http > grinder.py
         |
         |-- db_project
 </source>
+
    <p>Once this has been done the environment can be set to use the engine, jvm and libraries required by a particular project, rather
    than setting the environment for all the projects (as would happen in the simple implementation). This allows you, for example, to
    retain projects which were run using legacy versions of libraries and/or engine and re-run them at a later date with the same setup.
