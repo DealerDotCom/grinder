@@ -28,19 +28,19 @@
     directory (ends in '/'), in which case /index.html will be added
     If @id's are present, site.xml entries with a matching @tab will be in that tab.
 
-   Tabs can be embedded to a depth of two. The second level of tabs will only 
-    be displayed when their parent tab is selected.    
+   Tabs can be embedded to a depth of two. The second level of tabs will only
+    be displayed when their parent tab is selected.
   -->
 
   <tab id="project" label="Project" dir=""/>
 
-  <tab id="manual" label="Manual" dir="g3" indexfile="whats-new.html"/>
+  <tab id="manual" label="User Guide" dir="g3" indexfile="whats-new.html"/>
 
   <tab id="faq-tab" label="FAQ" dir="" indexfile="faq.html"/>
 
-  <!-- ext: links are broken here under Forrest 0.7, use absolute link instead.
-     Related in some way to FOR-284. -->
-  <tab id="sourceforge" label="SourceForge"
+  <!-- Using ext: links here causes all sorts of breakage,
+  	   use absolute link instead. Related in some way to FOR-284. -->
+  <tab id="sourceforge" label="SourceForge.net"
        href="http://sourceforge.net/projects/grinder"/>
 
 </tabs>
