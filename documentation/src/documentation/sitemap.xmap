@@ -47,11 +47,19 @@
 		  <map:parameter name="title" value="The Grinder 3"/>
 		</map:transform>
 		<map:transform type="cinclude"/>
+		<!-- doc-to-doc-uniqueids appears broken to me. It messes up all our
+			 site: and ext: links by adding a "#" to the front of them; and
+			 our fragment links end up having two '#'s, and no unique ID.
+			 The only affect of not applying this is that the internal links
+			 are to the individual pages. Not really a bad thing.
 		<map:transform src="{forrest:forrest.stylesheets}/aggregates/doc-to-doc-uniqueids.xsl"/>
+		-->
+
 		<map:transform src="{forrest:forrest.stylesheets}/aggregates/docs-to-document.xsl"/>
 
 		<map:serialize type="xml"/>
       </map:match>
+
     </map:pipeline>
 
   </map:pipelines>
