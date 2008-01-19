@@ -57,6 +57,8 @@
 
 		<map:transform src="{forrest:forrest.stylesheets}/aggregates/docs-to-document.xsl"/>
 
+		<map:transform src="add-image-to-title.xsl"/>
+
 		<map:serialize type="xml"/>
       </map:match>
 
