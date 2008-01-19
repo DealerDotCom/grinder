@@ -33,14 +33,15 @@ See http://forrest.apache.org/docs/linking.html for more info
     <todo label="To Do" href="todo.html"/>
   </development>
 
-  <!-- The href must be wholesite.html/pdf You can change the labels
-  and node names -->
+  <!-- Sadly "Whole Site" support is broken in Forrest 0.8:
+	   http://issues.apache.org/jira/browse/FOR-733
   <all label="All documentation" tab="project">
     <g3-manual label="G3 Manual" href="ext:grinder/g3/manual"/>
     <g2-manual label="G2 Manual" href="ext:grinder/g2/manual"/>
-    <whole_site_html label="Wholesite HTML" href="wholesite.html"/>
-    <whole_site_pdf label="Wholesite PDF" href="wholesite.pdf"/>
+    <all_site label="Whole Site HTML" href="site.html"/>
+    <all_site_pdf label="Whole Site PDF" href="site.pdf"/>
   </all>
+  -->
 
   <g3 label="The Grinder 3" href="g3/" tab="manual">
     <whats-new label="What's new?" href="whats-new.html"/>
