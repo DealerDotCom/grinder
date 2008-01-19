@@ -15,16 +15,36 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="ext:grinder-analyzer">Grinder Analyzer</a>
+      </td>
+
+      <td></td>
+
+      <td>
+          Grinder Analyzer is a tool that parses log data from The Grinder and
+          generates client-side performance graphs. These graphs include
+          response time, transactions per second, and network bandwidth used.
+          Like The Grinder itself, Grinder Analyzer uses Jython, and the
+          excellent JFreechart graphing library.
+
+  		  <figure src="images/grinder-analyzer.png" alt="Grinder Analyzer"
+  		  		  width="328" height="230" />
+
+      </td>
+    </tr>
+
+    <tr>
+      <td>
         <a href="ext:webflange">webFlange</a>
       </td>
 
       <td></td>
 
       <td>
-        <em>webFlange is a continuous load testing web application written
+        webFlange is a continuous load testing web application written
         in Java. It leverages The Grinder for running tests, automatically
         creates reports and allows the creation of charts from the test
-        results.</em>
+        results.
       </td>
     </tr>
     <tr>
@@ -35,10 +55,10 @@
       <td></td>
 
       <td>
-        <em>GrinderStone Eclipse plug-in is Grinder development
+        GrinderStone Eclipse plug-in is Grinder development
         environment (debugger for Grinder scripts is
         included).GrinderStone is extension for PyDev plug-in for
-        developing Grinder scripts.</em>
+        developing Grinder scripts.
       </td>
     </tr>
   </table>
