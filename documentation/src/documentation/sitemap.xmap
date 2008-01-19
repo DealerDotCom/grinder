@@ -8,7 +8,7 @@
   <map:pipelines>
 
     <map:pipeline>
-      <map:match pattern="**changes.xml">
+      <map:match pattern="development/changes.xml">
         <map:generate type="file" src="../../imported/project-xml/changes.xml"/>
         <map:transform src="changes2doc.xsl"/>
         <map:serialize type="xml"/>
@@ -16,7 +16,7 @@
     </map:pipeline>
 
     <map:pipeline>
-      <map:match pattern="**todo.xml">
+      <map:match pattern="development/todo.xml">
         <map:generate type="file" src="../../imported/project-xml/todo.xml"/>
         <map:transform src="todo2doc.xsl"/>
         <map:serialize type="xml"/>
@@ -24,10 +24,33 @@
     </map:pipeline>
 
     <map:pipeline>
-      <map:match pattern="**script-gallery.xml">
+      <map:match pattern="g3/script-gallery.xml">
         <map:generate type="file" src="../../imported/project-xml/scripts.xml"/>
         <map:transform src="scripts2doc.xsl"/>
         <map:serialize type="xml"/>
+      </map:match>
+    </map:pipeline>
+
+    <map:pipeline>
+      <map:match pattern="g3/manual.xml">
+        <map:generate src="cocoon://abs-linkmap"/>
+
+		<map:transform type="xpath">
+		  	<map:parameter name="include" value="//g3|//project"/>
+			<map:parameter name="exclude" value="//g3/manual"/>
+		</map:transform>
+
+		<!-- Can't use {lm:foo.xsl} to resolve resource, its broken. -->
+
+		<map:transform src="{forrest:forrest.stylesheets}/site-to-book.xsl" />
+		<map:transform src="{forrest:forrest.stylesheets}/aggregates/book-to-cinclude.xsl">
+		  <map:parameter name="title" value="The Grinder 3"/>
+		</map:transform>
+		<map:transform type="cinclude"/>
+		<map:transform src="{forrest:forrest.stylesheets}/aggregates/doc-to-doc-uniqueids.xsl"/>
+		<map:transform src="{forrest:forrest.stylesheets}/aggregates/docs-to-document.xsl"/>
+
+		<map:serialize type="xml"/>
       </map:match>
     </map:pipeline>
 

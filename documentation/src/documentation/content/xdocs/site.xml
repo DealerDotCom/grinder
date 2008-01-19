@@ -33,16 +33,6 @@ See http://forrest.apache.org/docs/linking.html for more info
     <todo label="To Do" href="todo.html"/>
   </development>
 
-  <!-- Sadly "Whole Site" support is broken in Forrest 0.8:
-	   http://issues.apache.org/jira/browse/FOR-733
-  <all label="All documentation" tab="project">
-    <g3-manual label="G3 Manual" href="ext:grinder/g3/manual"/>
-    <g2-manual label="G2 Manual" href="ext:grinder/g2/manual"/>
-    <all_site label="Whole Site HTML" href="site.html"/>
-    <all_site_pdf label="Whole Site PDF" href="site.pdf"/>
-  </all>
-  -->
-
   <g3 label="The Grinder 3" href="g3/" tab="manual">
     <whats-new label="What's new?" href="whats-new.html"/>
     <features label="Features" href="features.html"/>
@@ -78,6 +68,7 @@ See http://forrest.apache.org/docs/linking.html for more info
     <ssl label="SSL support" href="ssl-support.html">
       <ssl-keymanager href="#own-key-manager"/>
     </ssl>
+    <manual href="manual.html" label="Complete User Guide" />
   </g3>
 
   <g2 label="The Grinder 2" href="g2/" tab="manual">
@@ -175,11 +166,11 @@ See http://forrest.apache.org/docs/linking.html for more info
       <g2faq href="faq.html#g2"/>
       <g3faq href="faq.html#g3"/>
       <g2>
-  <manual href="g2/getting-started.html"/>
+  		<manual href="g2/getting-started.html"/>
       </g2>
       <g3>
-  <api href="g3/script-javadoc/index.html"/>
-  <manual href="g3/getting-started.html"/>
+ 		<api href="g3/script-javadoc/index.html"/>
+  		<manual href="g3/getting-started.html"/>
       </g3>
     </grinder>
 
