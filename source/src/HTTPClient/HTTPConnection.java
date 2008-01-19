@@ -26,7 +26,7 @@
  *
  *  The HTTPClient's home page is located at:
  *
- *  http://www.innovation.ch/java/HTTPClient/ 
+ *  http://www.innovation.ch/java/HTTPClient/
  *
  * This file contains modifications for use with "The Grinder"
  * (http://grinder.sourceforge.net) under the terms of the LGPL. They
@@ -2813,18 +2813,28 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
     /** GRINDER MODIFICATION++ **/
     private boolean check_certificates = true;
+    private boolean test_connnection_health_with_blocking_read = false;
 
     public final void setCheckCertificates(boolean b)
     {
-	check_certificates = b;
+        check_certificates = b;
     }
 
-    public final boolean getCheckCertificates() 
+    public final boolean getCheckCertificates()
     {
-	return check_certificates;
+        return check_certificates;
     }
 
-    
+    public final void setTestConnectionHealthWithBlockingRead(boolean b)
+    {
+        test_connnection_health_with_blocking_read = b;
+    }
+
+    public final boolean getTestConnectionHealthWithBlockingRead()
+    {
+        return test_connnection_health_with_blocking_read;
+    }
+
      /**
       * Allow local address and port to be modified after
       * HTTPConnection has been created. Will only affect new socket
@@ -2833,10 +2843,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
       * @param localAddress an <code>InetAddress</code> value
       * @param localPort an <code>int</code> value
       */
-    public final void setLocalAddress(InetAddress localAddress,
-				      int localPort) {
-      LocalAddr = localAddress;
-      LocalPort = localPort;
+    public final void setLocalAddress(InetAddress localAddress, int localPort) {
+        LocalAddr = localAddress;
+        LocalPort = localPort;
+    }
+
+    final InetAddress getLocalAddress() {
+      return LocalAddr;
     }
     /** --GRINDER MODIFICATION **/
 
@@ -3097,7 +3110,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			//sock_out.write(req.getData());
             writeData(sock_out, req.getData());
             /** GRINDER MODIFICATION-- **/
-            
+
 		}
 
 		if (req.getStream() != null)
@@ -3110,33 +3123,34 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		// Note: this does not do a read on the socket.
 
 		if (resp == null)
-                  /** GRINDER MODIFICATION++ **/
-                {
-                  // If the server decides to close the socket we may
-                  // not learn about it until we read from the input
-                  // stream. Previously this was done by the
-                  // ResponseHandler: too late for our connection
-                  // re-establishment logic (see "what a hack!" above)
-                  // to have control. This modification performs a
-                  // physical read on the socket, forcing an
-                  // IOException if the connection now stinks and
-                  // hence kicking off connection re-establishment.
-                  // This breaks pipelining, but The Grinder doesn't
-                  // use that.
+        /** GRINDER MODIFICATION++ **/
+        {
+          final Response r = new Response(req, (Proxy_Host != null &&
+                                                Protocol != HTTPS),
+                                          input_demux);
 
-		    final Response r =
-                      new Response(req, (Proxy_Host != null &&
-                                         Protocol != HTTPS),
-                                   input_demux);
-                    r.getVersion();
+          // If the server decides to close the socket we may
+          // not learn about it until we read from the input
+          // stream. Previously this was done by the
+          // ResponseHandler: too late for our connection
+          // re-establishment logic (see "what a hack!" above)
+          // to have control. This modification performs a
+          // physical read on the socket, forcing an
+          // IOException if the connection now stinks and
+          // hence kicking off connection re-establishment.
+          // This breaks pipelining, but The Grinder doesn't
+          // use that.
+          if (getTestConnectionHealthWithBlockingRead()) {
+		      r.getVersion();
+		  }
 
-                    resp = r;
+		  resp = r;
+        }
+            //resp = new Response(req, (Proxy_Host != null &&
+            //                         Protocol != HTTPS),
+            // 					input_demux);
 
-                    //resp = new Response(req, (Proxy_Host != null &&
-                    //                                              Protocol != HTTPS),
-                    // 					input_demux);
-                }
-                  /** --GRINDER MODIFICATION **/
+        /** --GRINDER MODIFICATION **/
 	    }
 	    catch (IOException ioe)
 	    {
@@ -3145,8 +3159,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		closeDemux(ioe, true);
 
 		if (try_count == 0  ||  ioe instanceof UnknownHostException  ||
-		    ioe instanceof ConnectException  ||  
-		    ioe instanceof NoRouteToHostException  ||  
+		    ioe instanceof ConnectException  ||
+		    ioe instanceof NoRouteToHostException  ||
 		    ioe instanceof InterruptedIOException  ||  req.aborted)
 		    throw ioe;
 
@@ -3227,16 +3241,16 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
       final BandwidthLimiter bandwidthLimiter =
         getBandwidthLimiterFactory().create();
-      
+
       int position = 0;
-      
+
       do {
         final int bytesToSend =
           Math.min(buffer.length - position,
                    bandwidthLimiter.maximumBytes(position));
-        
+
         out.write(buffer, position, bytesToSend);
-        
+
         position += bytesToSend;
       }
       while (position < buffer.length);
@@ -4024,36 +4038,36 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    out.write(b, off, len);
 	}
     }
-    
+
     /** ++GRINDER MODIFICATION **/
     /**
      * Something that can restrict data transfer bandwidth.
      */
     public static interface BandwidthLimiter {
-      
+
       /**
        * Return an upper limit on the number of bytes that should be transfered
        * at this point in time.
-       * 
+       *
        * @param position
        *          Number of bytes into the current transfer. Starts at 0.
-       * 
+       *
        * @return The maximum number of bytes that should be transfered.
        */
       int maximumBytes(int position);
     }
-    
+
     public static interface BandwidthLimiterFactory {
       BandwidthLimiter create();
     }
-    
+
     private static BandwidthLimiterFactory
       s_defaultBandwidthLimiterFactory =
         new DefaultBandwidthLimiterFactory();
-    
+
     private BandwidthLimiterFactory m_bandwidthLimiterFactory =
       s_defaultBandwidthLimiterFactory;
-    
+
     public void setBufferGrowthStrategyFactory(BandwidthLimiterFactory f) {
       if (f == null) {
         m_bandwidthLimiterFactory = s_defaultBandwidthLimiterFactory;
@@ -4062,11 +4076,11 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
         m_bandwidthLimiterFactory = f;
       }
     }
-    
+
     BandwidthLimiterFactory getBandwidthLimiterFactory() {
       return m_bandwidthLimiterFactory;
     }
-    
+
     private static final class UnlimitedBandwidthLimiter
       implements BandwidthLimiter {
 
@@ -4074,10 +4088,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
         return Integer.MAX_VALUE;
       }
     }
-    
+
     private static final class DefaultBandwidthLimiterFactory
       implements BandwidthLimiterFactory {
-      
+
       final BandwidthLimiter m_unlimitedBandwidthLimiter =
         new UnlimitedBandwidthLimiter();
 
@@ -4086,6 +4100,6 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
         return m_unlimitedBandwidthLimiter;
       }
     }
-    
+
     /** --GRINDER MODIFICATION **/
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
@@ -75,6 +75,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     m_httpConnection = httpConnection;
     m_slowClientSleeper = slowClientSleeper;
     m_httpConnection.setAllowUserInteraction(false);
+    m_httpConnection.setTestConnectionHealthWithBlockingRead(true);
 
     synchronized (defaults) {
       setFollowRedirects(defaults.getFollowRedirects());
