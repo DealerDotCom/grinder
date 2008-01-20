@@ -59,7 +59,7 @@
     <p>For heavy duty testing, you start an agent process on each of
     several load injector machines. The worker processes they launch can be
     controlled and monitored using the console. There is little reason
-    to run more than one agent on each load injector, but if you can if
+    to run more than one agent on each load injector, but you can if
     you wish.</p>
   </section>
 
