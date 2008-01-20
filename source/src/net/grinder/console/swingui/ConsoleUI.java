@@ -72,6 +72,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.ProgressMonitor;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
@@ -1303,7 +1304,7 @@ public final class ConsoleUI implements ModelListener {
         new EnableIfAgentsConnected(this));
     }
 
-    public void actionPerformed(ActionEvent event) {
+    public void actionPerformed(final ActionEvent event) {
       try {
         final File propertiesFile = m_editorModel.getSelectedPropertiesFile();
 
@@ -1351,7 +1352,16 @@ public final class ConsoleUI implements ModelListener {
               return;
             }
 
-            m_distributeFilesAction.distribute();
+            // The distribution is done in a background thread. When it
+            // completes, it dispatches our callback in the Swing thread.
+            m_distributeFilesAction.distribute(
+              new Runnable() {
+                public void run() {
+                  StartProcessesAction.this.actionPerformed(event);
+                }
+              });
+
+            return;
           }
 
           final GrinderProperties properties =
@@ -1559,10 +1569,10 @@ public final class ConsoleUI implements ModelListener {
     }
 
     public void actionPerformed(ActionEvent event) {
-      distribute();
+      distribute(null);
     }
 
-    public void distribute() {
+    public void distribute(final Runnable onCompletionCallback) {
       final FileDistributionHandler distributionHandler =
         m_fileDistribution.getHandler();
 
@@ -1578,14 +1588,13 @@ public final class ConsoleUI implements ModelListener {
                 final FileDistributionHandler.Result result =
                   distributionHandler.sendNextFile();
 
-                if (result != null) {
-                  progressMonitor.setProgress(result.getProgressInCents());
-                  progressMonitor.setNote(result.getFileName());
-                }
-                else {
-                  progressMonitor.close();
+
+                if (result == null) {
                   break;
                 }
+
+                progressMonitor.setProgress(result.getProgressInCents());
+                progressMonitor.setNote(result.getFileName());
               }
               catch (FileContents.FileContentsException e) {
                 // We don't want to put a dialog in the user's face
@@ -1593,6 +1602,12 @@ public final class ConsoleUI implements ModelListener {
                 // until we have a proper console log.
                 e.printStackTrace();
               }
+            }
+
+            progressMonitor.close();
+
+            if (onCompletionCallback != null) {
+              SwingUtilities.invokeLater(onCompletionCallback);
             }
           }
         };
