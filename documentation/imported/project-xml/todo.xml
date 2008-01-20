@@ -33,7 +33,7 @@ void startRecording() void stopRecording() void resetRecording() </p>
 </section>
 <section name='feedback from travis' depth='3' id='feedback from travis'>
 <p>
-Commnents on the API: - </p>
+Comments on the API: - </p>
 <p>
 * For sure there will need to be an ability to retrieve stats, as you mentioned. </p>
 <p>
@@ -69,9 +69,9 @@ Task: Merge worker and agent process status models. Update process tab to show b
 <p>
 Task: Add warning if saving outside of distribution. Task: Console to watch local file system for edits, trigger need to distribute. Task: Regularly update the tree to match file system. Task: Write some tests for FileTree. Task: Warnings for buffers whose file is modified outside of editor. </p>
 </section>
-<section name='Release 6' depth='5' id='Release 6'>
+<section name='Release 6 (done)' depth='5' id='Release 6 (done)'>
 <p>
-Task: External editor integration. Task: The agent should pick up secondary grinder.properties from file cache. Task: Console to optionally auto broadcast on play. Need some way of synchronising before starting run. </p>
+Task: External editor integration. Task: The agent should pick up secondary grinder.properties from start message. Task: Console to optionally auto broadcast on play. </p>
 </section>
 <section name='Release 7' depth='5' id='Release 7'>
 <p>
@@ -85,11 +85,9 @@ Task: Distribution file filter should be dynamically settable. </p>
 </section>
 </section>
 <section name='Console' depth='2' id='Console'>
-<p>
-Note: Klaus-Peter Berg is currently working on a major refactoring of the console. </p>
 <section name='Stop the recording when last thread terminates' depth='3' id='Stop the recording when last thread terminates'>
 <p>
-Requested by Jürgen Weber </p>
+Requested by J�rgen Weber </p>
 </section>
 <section name='Refactoring' depth='3' id='Refactoring'>
 <p>
@@ -97,17 +95,13 @@ Consider moving overwrite / save before close / ... handling to the model. Needs
 </section>
 <section name='Add log panel' depth='3' id='Add log panel'>
 <p>
-Report log messages that currently go to terminal, plus start, stop test runs etc. Logs should be timestamped. Use log to replace use of System.err for warnings. </p>
+Report log messages that currently go to terminal, plus start, stop test runs etc. Logs should be time stamped. Use log to replace use of System.err for warnings. </p>
 </section>
 <section name='Future editor features' depth='3' id='Future editor features'>
 <p>
-Crtl-S -&gt; save. Revert file. Status bar. Undo. Copy and Paste menu items. File tree popup menu. </p>
+Revert file. Status bar. Undo. Copy and Paste menu items. </p>
 <p>
-Allow grinder properties to be set remotely. </p>
-<ul>
-<li>
- This could just be another view in the editor? </li>
-</ul>
+Specialised grinder properties editor. </p>
 <section name='jEdit' depth='4' id='jEdit'>
 <p>
 Replace jEdit-syntax with new jEdit syntax package when available, if its license terms are acceptable. Apparently now available. </p>
@@ -123,8 +117,6 @@ b) You must cause any work that you distribute or publish, that in whole or in p
 <section name='Engine' depth='2' id='Engine'>
 <p>
 There should be an ExternalFilenameFactory, cf ExternalLogger. </p>
-<p>
-Log lines should not be truncated. </p>
 <section name='Interactive mode' depth='3' id='Interactive mode'>
 <p>
 Possible to have an interactive mode for debugging? E.g. a simple UI that can be launched from a thread which drops the user into a console? Would need to launch with grinder.debug.singleprocess=true. </p>
@@ -161,7 +153,7 @@ Needed for custom statistics that use 'period' so are valid in the console but n
 <p>
 (Requested by Venelin Mitov). </p>
 <p>
-Should store max, min values agains SampleStatistics, and add max(), min() to expressions. </p>
+Should store max, min values against SampleStatistics, and add max(), min() to expressions. </p>
 </section>
 </section>
 <section name='TCPProxy' depth='2' id='TCPProxy'>
@@ -186,7 +178,7 @@ Remove ParseException, ProtocolNotSuppException from public APIs. </p>
 <p>
 Script support for HTTP "system property" options. </p>
 <p>
-Pablo Estades Fernández says: <br/>&gt; I need to use client cert on TCPProxy to be able to <br/>&gt; record the test case but also I need to configure <br/>&gt; grinder workers to run the test case presenting a <br/>&gt; client cert. </p>
+Pablo Estades Fern�ndez says: <br/>&gt; I need to use client cert on TCPProxy to be able to <br/>&gt; record the test case but also I need to configure <br/>&gt; grinder workers to run the test case presenting a <br/>&gt; client cert. </p>
 </section>
 <section name='Scripting' depth='2' id='Scripting'>
 <p>
@@ -197,7 +189,11 @@ Add per-run statistics. This would also allow number of aborted runs to be recor
 Script access to global statistics. </p>
 <section name='Alternate test languages' depth='3' id='Alternate test languages'>
 <p>
-Should use AOP proxies (probably with CGLIB) to do test instrumentation. Should support Java, Groovy scripts. </p>
+Should support Java, Groovy scripts. </p>
+<p>
+Should use AOP proxies to do test instrumentation. CGLib, or raw ASM? </p>
+<p>
+Blocker: Can't wrap around an existing instance that doesn't have a default constructor. This is a general problem. How to create a new proxy that supports all the methods + interfaces - it clearly needs to extend the target. What if we don't care about implementing the interfaces - just create a proxy that supports the same methods as its delegate? CGLib doesn't appear to support this. </p>
 </section>
 <section name='Events' depth='3' id='Events'>
 <p>
@@ -216,7 +212,7 @@ Perhaps JasperReports? </p>
 </section>
 <section name='Code' depth='2' id='Code'>
 <p>
-Review use of Kernel. Probably want to share them. </p>
+Review use of Executor. Probably want to share them. </p>
 <p>
 Remove ThreadLocal from RegisteredPlugin. </p>
 </section>
@@ -224,7 +220,7 @@ Remove ThreadLocal from RegisteredPlugin. </p>
 <p>
 DeSouza, Edwin writes: <br/>&gt; Instead of using: <br/>&gt; http://www.innovation.ch/java/HTTPClient/index.html <br/>&gt; &lt;http://www.innovation.ch/java/HTTPClient/FAQ.html&gt; <br/>&gt; <br/>&gt; How about using Jakarta Commons HttpClient (more popular and Apache <br/>&gt; License): <br/>&gt; http://jakarta.apache.org/commons/httpclient/index.html </p>
 <p>
-Justin Spears writes: <br/>&gt; I am new to grinder, however I found the built in HTTPClient a <br/>&gt; little lacking in functionality.  I might suggest using <br/>&gt; httpunit (http://httpunit.sourceforge.net) instead.  It <br/>&gt; works well with jython, and has extremely powerful methods <br/>&gt; for handling links, posts, gets, etc. <br/>&gt; <br/>&gt; It uses nekohtml to parse malformed HTML documents into <br/>&gt; valid XML then exposes a useful DOM based on these results. <br/>&gt; <br/>&gt; It also handles HTTPS connections, forms, links and other <br/>&gt; useful things in an easy to use easy to understand <br/>&gt; manner, (no more NVPAIRS or regex's, or patching HTTPClient!). <br/>&gt; <br/>&gt; ... </p>
+Justin Spears writes: <br/>&gt; I am new to grinder, however I found the built in HTTPClient a <br/>&gt; little lacking in functionality.  I might suggest using <br/>&gt; httpunit (http://httpunit.sourceforge.net) instead.  It <br/>&gt; works well with jython, and has extremely powerful methods <br/>&gt; for handling links, posts, gets, etc. <br/>&gt; <br/>&gt; It uses nekohtml to parse malformed HTML documents into <br/>&gt; valid XML then exposes a useful DOM based on these results. <br/>&gt; <br/>&gt; ... </p>
 <p>
 OK, this amounts to a campaign against HTTPClient! </p>
 <p>
@@ -259,20 +255,6 @@ Reasons for HttpUnit: </p>
 </ul>
 <p>
 I prefer HttpClient, HTTPClient over HttpUnit for The Grinder as they are "closer to the wire". </p>
-<section name='Specific responses to Justin:' depth='3' id='Specific responses to Justin:'>
-<p>
-<br/>&gt;(no more NVPAIRS </p>
-<p>
-NameValuePair = NVPair # More readable alias </p>
-<p>
-<br/>&gt; or regex's, </p>
-<p>
-But they're lovely! </p>
-<p>
-<br/>&gt; or patching HTTPClient! </p>
-<p>
-In the next beta I'll supply HTTPClient pre-patched for JSSE. </p>
-</section>
 <section name='Summary' depth='3' id='Summary'>
 <p>
 On balance, yes HttpClient looks good and we should use it if it proves to be efficient. I'll add it to the TODO, but its a significant change =&gt; low priority. </p>
@@ -318,8 +300,6 @@ Include Clover history? </p>
 grinder.debug.singleprocess </p>
 <p>
 HTTP plug-in. </p>
-<p>
-Document G2 adapter. </p>
 <section name='Examples' depth='2' id='Examples'>
 <p>
 HTTPS. </p>

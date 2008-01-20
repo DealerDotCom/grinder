@@ -1,6 +1,50 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.0' id='The Grinder 3.0'>
+<p>
+The console now expects a properties file to be selected, rather than a script. The properties file determines the script to run through the grinder.script property. Other properties override the values in the agents' local grinder.properties file. This provides much better centralised control from the console. </p>
+<p>
+Updates to the German console translation from Matthias Diller. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1808854&amp;group_id=18598&amp;atid=118598">bug 1808854</a> - Incorrect synchronisation in TestStatisticsMap. Thanks to Ishan Oshadi Jayawardene for the report. </p>
+<p>
+Partially address feature request in <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1688988&amp;group_id=18598&amp;atid=118598">bug 1688988</a> by translating InterruptedIOExceptions due to timeouts in HTTPClient code to a specific TimeoutException. Thanks to Andrew McGuigan for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1700158&amp;group_id=18598&amp;atid=118598">bug 1700158</a> - ShutdownException thrown when using grinder.duration. Thanks to Caroline Rioux for the report. </p>
+<p>
+Update the cookie.py example to show how to send a cookie, and to retrieve and modify the cookies for the current thread. Thanks to "tz" and Ying Moy for prompting me to do this. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1825639&amp;group_id=18598&amp;atid=118598">bug 1825639</a> - "Connection ... already opened" when recording HTTPS. Thanks to Peter Zadrozny and Brian Dols for the report. </p>
+<p>
+Refine logging: </p>
+<ul>
+<li>
+ The first error message is written to the terminal as well as the error log. This is handy for catching script typos. </li>
+<li>
+ Don't word wrap log messages from the Agent. </li>
+<li>
+ Don't truncate log lines to an arbitrary number of characters. </li>
+</ul>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1831651&amp;group_id=18598&amp;atid=118598">bug 1831651</a> - Some parts of the distribution file filter should be fixed. Also, added ".svn" directories to the default filter - you will need to delete .grinder_console from your home directory/profile to pick up this change. Thanks to Andrew Stephens for the report. </p>
+<p>
+Fix TCPProxy filter bug which would cause some form data not to be identified and tokenised. Increase the size of form data that will be in-lined in the script. Thanks to Brian Dols for the prompt and testing. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1846218&amp;group_id=18598&amp;atid=118598">bug 1846218</a> - Delayed statistics are not flushed on next test. </p>
+<p>
+Console script editor keyboard shortcut for "Save-File" (Ctrl-S). </p>
+<p>
+The console allows files to be opened in a configurable external editor. </p>
+<p>
+The console optionally automatically distributes changed files when processes are started. </p>
+<p>
+The -httpplugin and -newhttpplugin TCPProxy filter options have been removed. They were deprecated in 3.0-beta29. The new -http filter should be used instead. </p>
+<p>
+Upgrade embedded version of Jython from Jython 2.1 to Jython 2.2.1. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1874815&amp;group_id=18598&amp;atid=118598">bug 1874815</a> - '-' does not work in statistics expressions. Also, relax '+' and '*' so they are defined for zero or one argument. Thanks to Heidi Thompson for the report. </p>
+</section>
 <section name='The Grinder 3.0-beta33' id='The Grinder 3.0-beta33'>
 <p>
 Fulfil Feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1524827&amp;group_id=18598&amp;atid=368598">Request 1524827</a> - Mnemonics needed. Requested by Travis Bear. </p>
@@ -247,7 +291,7 @@ Scripts can now control the SSL context used by each worker thread. This can be 
 <p>
 Enhancement from Slavik Gnatenko that allows the grinder.threads, grinder.reportToConsole.interval, and grinder.duration properties to be overridden in scripts initialistion section. </p>
 <p>
-Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP URLs. Thanks to Thomas Böhne for reporting problems. </p>
+Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP URLs. Thanks to Thomas B�hne for reporting problems. </p>
 <p>
 Fix another bug in HTTPClient related to responses with a Content-Length of 0. Thanks to John Lee for the report. </p>
 <p>
@@ -259,7 +303,7 @@ New documentation built with Apache Forrest. </p>
 <p>
 Additional HTTP instrumentation from Calumn Fitzgerald. This adds new statistics measuring time to resolve host names (DNS), time to establish the connection, and time to first byte. </p>
 <p>
-XML-RPC example from Sebastián Fontana. </p>
+XML-RPC example from Sebasti�n Fontana. </p>
 </section>
 <section name='Grinder 3.0-beta22' id='Grinder 3.0-beta22'>
 <p>
@@ -857,7 +901,7 @@ Fix basic authentication property names. Thanks to Andrew Sliwkowski for reporti
 <p>
 Added new file doc/Problems.txt to hold wisdom from Mikael Suokas. Split the documentation of the plugins and the TCPSniffer into separate files. </p>
 <p>
-The HTTP plugin now has experimental support for Ronald Tschalär's excellent HTTPClient library instead of HttpURLConnection. HTTPClient has many more features than HttpURLConnection, see http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html for a comparision. I hope to lever features such as proxy support, connection timeouts and persistent cookies into future versions of The Grinder. Unfortunately experimentation shows HTTPClient sometimes does not perform well in a multithreaded environment. I'm guessing this should be straightforward to fix. See the file doc/HTTPPlugin.txt for details on how to turn on the HTTPClient support. </p>
+The HTTP plugin now has experimental support for Ronald Tschal�r's excellent HTTPClient library instead of HttpURLConnection. HTTPClient has many more features than HttpURLConnection, see http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html for a comparision. I hope to lever features such as proxy support, connection timeouts and persistent cookies into future versions of The Grinder. Unfortunately experimentation shows HTTPClient sometimes does not perform well in a multithreaded environment. I'm guessing this should be straightforward to fix. See the file doc/HTTPPlugin.txt for details on how to turn on the HTTPClient support. </p>
 <p>
 The TCPSniffer echo filter now reports connection open and close events. </p>
 <p>
