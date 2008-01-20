@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // Copyright (C) 2004 Slavik Gnatenko
 // All rights reserved.
@@ -277,7 +277,7 @@ final class GrinderProcess {
 
       // Wait for a termination event.
       synchronized (m_eventSynchronisation) {
-        while (threadSynchronisation.getNumberOfRunningThreads() > 0) {
+        while (!threadSynchronisation.isFinished()) {
 
           if (m_consoleListener.checkForMessage(ConsoleListener.ANY ^
                                                 ConsoleListener.START)) {
@@ -295,7 +295,7 @@ final class GrinderProcess {
       }
 
       synchronized (m_eventSynchronisation) {
-        if (threadSynchronisation.getNumberOfRunningThreads() > 0) {
+        if (!threadSynchronisation.isFinished()) {
 
           logger.output("waiting for threads to terminate",
                         Logger.LOG | Logger.TERMINAL);
@@ -305,7 +305,7 @@ final class GrinderProcess {
           final long time = System.currentTimeMillis();
           final long maximumShutdownTime = 10000;
 
-          while (threadSynchronisation.getNumberOfRunningThreads() > 0) {
+          while (!threadSynchronisation.isFinished()) {
             if (System.currentTimeMillis() - time > maximumShutdownTime) {
               logger.output("ignoring unresponsive threads",
                             Logger.LOG | Logger.TERMINAL);
@@ -449,12 +449,13 @@ final class GrinderProcess {
     private final Condition m_threadEventCondition;
 
     private final short m_totalNumberOfThreads;
-    private short m_numberOfRunningThreads;
+    private short m_numberAwaitingStart;
+    private short m_numberFinished;
 
     ThreadSynchronisation(Condition condition, short numberOfThreads) {
       m_threadEventCondition = condition;
       m_totalNumberOfThreads = numberOfThreads;
-      m_numberOfRunningThreads = 0;
+      m_numberAwaitingStart = 0;
     }
 
     /**
@@ -463,8 +464,18 @@ final class GrinderProcess {
      */
     public short getNumberOfRunningThreads() {
       synchronized (m_threadEventCondition) {
-        return m_numberOfRunningThreads;
+        return (short)(m_totalNumberOfThreads - m_numberFinished);
       }
+    }
+
+    public boolean isReadyToStart() {
+      synchronized (m_threadEventCondition) {
+        return m_numberAwaitingStart >= getNumberOfRunningThreads();
+      }
+    }
+
+    public boolean isFinished() {
+      return getNumberOfRunningThreads() <= 0;
     }
 
     /**
@@ -476,9 +487,11 @@ final class GrinderProcess {
 
     public void startThreads() {
       synchronized (m_threadEventCondition) {
-        while (m_numberOfRunningThreads < m_totalNumberOfThreads) {
+        while (!isReadyToStart()) {
           m_threadEventCondition.waitNoInterrruptException();
         }
+
+        m_numberAwaitingStart = 0;
       }
 
       m_started.set(true);
@@ -486,8 +499,9 @@ final class GrinderProcess {
 
     public void awaitStart() {
       synchronized (m_threadEventCondition) {
-        ++m_numberOfRunningThreads;
-        if (m_numberOfRunningThreads >= m_totalNumberOfThreads) {
+        ++m_numberAwaitingStart;
+
+        if (isReadyToStart()) {
           m_threadEventCondition.notifyAll();
         }
       }
@@ -497,9 +511,9 @@ final class GrinderProcess {
 
     public void threadFinished() {
       synchronized (m_threadEventCondition) {
-        --m_numberOfRunningThreads;
+        ++m_numberFinished;
 
-        if (m_numberOfRunningThreads <= 0) {
+        if (isReadyToStart() || isFinished()) {
           m_threadEventCondition.notifyAll();
         }
       }
