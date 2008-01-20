@@ -1,3 +1,1623 @@
+2008-01-20 [r3714-3715]  Philip Aston
+
+	* etc/svn2log.sh: Correct path.
+
+	* build.xml: Don't distribute cachedir.
+
+2008-01-20 [r3710]  Philip Aston
+
+	* src/net/grinder/engine/process/GrinderProcess.java,
+	  tests-src/net/grinder/engine/process/TestGrinderProcess.java
+	  (added): Correct thread start synchronisation to cope with
+	  threads that fail to initialise.
+
+2008-01-20 [r3708]  Philip Aston
+
+	* src/net/grinder/console/swingui/ConsoleUI.java: Wait until the
+	  distribution has completed before starting processes.
+
+2008-01-20 [r3704-3705]  Philip Aston
+
+	* src/net/grinder/script/Statistics.java: Doc sqrt.
+
+	* src/net/grinder/statistics/package.html: net.grinder.statistics
+	  is no longer the API for scripts.
+
+2008-01-20 [r3702-3703]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/grinder.jpg (removed):
+	  Dead.
+
+	* src/net/grinder/statistics/StatisticExpressionFactory.java,
+	  tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java,
+	  src/net/grinder/statistics/StatisticExpressionFactoryImplementation.java,
+	  CHANGES: Fix bug 1874815 - '-' does not work in statistics
+	  expressions. Also, relax '+' and '*' so they are defined for zero
+	  or one argument.
+
+2008-01-19 [r3696]  Philip Aston
+
+	* tests-src/HTTPClient/StubHTTPConnection.java (added),
+	  src/HTTPClient/HTTPConnection.java,
+	  src/net/grinder/plugin/http/HTTPConnectionWrapper.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPConnectionWrapper.java
+	  (added),
+	  tests-src/net/grinder/plugin/http/TestHTTPPluginConnectionDefaults.java
+	  (added): Only modify HTTPConnection behaviour so it tests the
+	  connection health with a blocking read when its used from the
+	  HTTP plug-in. This allows HTTPClient's support for streaming and
+	  pipelining to be used (directly, not via The Grinder APIs).
+
+2008-01-16 [r3688-3689]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties,
+	  src/net/grinder/console/swingui/resources/Console_pl.properties,
+	  src/net/grinder/console/swingui/resources/Console_it.properties,
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/swingui/resources/Console_zh.properties,
+	  src/net/grinder/console/swingui/resources/Console_ru.properties,
+	  src/net/grinder/console/swingui/resources/Console_es.properties,
+	  src/net/grinder/console/swingui/resources/Console_fr.properties:
+	  Make "grinder.py" default script name work with console
+	  distribution.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/common/GrinderProperties.java,
+	  src/net/grinder/console/editor/EditorModel.java,
+	  tests-src/net/grinder/common/TestGrinderProperties.java,
+	  tests-src/net/grinder/console/editor/TestEditorModel.java,
+	  src/net/grinder/engine/agent/Agent.java,
+	  tests-src/net/grinder/engine/agent/TestAgent.java: Make
+	  "grinder.py" default script name work with console distribution.
+
+2008-01-16 [r3687]  Philip Aston
+
+	* src/net/grinder/engine/process/WorkerThreadSynchronisation.java,
+	  src/net/grinder/console/editor/ExternalEditor.java,
+	  src/net/grinder/engine/process/Instrumenter.java: Checkstyle.
+
+2008-01-13 [r3681]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/grinder.svg (added),
+	  src/net/grinder/console/swingui/resources/grinder.xcf,
+	  src/net/grinder/console/swingui/resources/logo-large.png,
+	  src/net/grinder/console/swingui/resources/logo.png: Simpler,
+	  non-version specific logo.
+
+2008-01-13 [r3678]  Philip Aston
+
+	* src/net/grinder/TCPProxy.java: Minor correction for -debug help
+	  text.
+
+2008-01-09 [r3673-3674]  Philip Aston
+
+	* build.xml: Bundle Jython 2.2.1.
+
+	* etc/localpaths.properties, CHANGES, LICENSE-Jython: Bundle Jython
+	  2.2.1.
+
+2008-01-08 [r3672]  Philip Aston
+
+	* src/net/grinder/communication/ConnectionType.java,
+	  src/net/grinder/statistics/StatisticsSetImplementation.java,
+	  src/net/grinder/tools/tcpproxy/EndPoint.java,
+	  src/net/grinder/engine/common/ScriptLocation.java,
+	  src/net/grinder/tools/tcpproxy/ConnectionDetails.java,
+	  src/net/grinder/communication/ConnectionIdentity.java,
+	  src/net/grinder/communication/Connector.java,
+	  src/net/grinder/util/Directory.java,
+	  src/net/grinder/common/AbstractTestSemantics.java,
+	  src/net/grinder/statistics/TestStatisticsMap.java,
+	  src/net/grinder/statistics/ExpressionView.java,
+	  src/net/grinder/engine/agent/AbstractProcessIdentityImplementation.java:
+	  Don't use instanceof in equals() for final classes. Where
+	  instanceof is used in equals(), add comment to indicate why it's
+	  correct.
+
+2008-01-06 [r3671]  Philip Aston
+
+	* src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/WorkerThreadSynchronisation.java,
+	  src/net/grinder/engine/process/ThreadSynchronisation.java
+	  (removed), src/net/grinder/engine/process/GrinderThread.java:
+	  Tighten up synchronisation of thread start and stop.
+
+2008-01-06 [r3669-3670]  Philip Aston
+
+	* tests-src/net/grinder/util/thread/TestThreadSafeQueue.java:
+	  Condition is a more conventional/correct name than Monitor.
+
+	* tests-src/net/grinder/engine/process/TestProcessContextImplementation.java:
+	  Rename ProcessLifeCycleListener event.
+
+2008-01-06 [r3668]  Philip Aston
+
+	* src/net/grinder/communication/MessageQueue.java: Condition is a
+	  more conventional/correct name than Monitor.
+
+2008-01-06 [r3667]  Philip Aston
+
+	* src/net/grinder/engine/process/ProcessContext.java,
+	  src/net/grinder/engine/process/ProcessLifeCycleListener.java,
+	  src/net/grinder/engine/process/ProcessContextImplementation.java,
+	  src/net/grinder/engine/process/WorkerThreadSynchronisation.java
+	  (added),
+	  src/net/grinder/engine/process/PluginRegistryImplementation.java,
+	  tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java,
+	  src/net/grinder/engine/process/GrinderThread.java,
+	  src/net/grinder/engine/process/ThreadSynchronisation.java
+	  (added): Rename ProcessLifeCycleListener event.
+
+2008-01-06 [r3666]  Philip Aston
+
+	* tests-src/net/grinder/util/thread/TestWakeableCondition.java
+	  (removed),
+	  tests-src/net/grinder/util/thread/TestBooleanCondition.java
+	  (added): Rename WakeableCondition to BooleanCondition.
+
+2008-01-06 [r3665]  Philip Aston
+
+	* src/net/grinder/util/thread/WakeableCondition.java (removed),
+	  src/net/grinder/util/thread/BooleanCondition.java (added),
+	  src/net/grinder/console/communication/ConsoleCommunicationImplementation.java:
+	  Rename WakeableCondition to BooleanCondition.
+
+2008-01-06 [r3664]  Philip Aston
+
+	* src/net/grinder/util/thread/WakeableCondition.java,
+	  src/net/grinder/util/thread/Condition.java (added),
+	  src/net/grinder/util/thread/Monitor.java (removed),
+	  tests-src/net/grinder/util/thread/TestMonitor.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/agent/WorkerLauncher.java,
+	  tests-src/net/grinder/engine/agent/TestWorkerLauncher.java,
+	  src/net/grinder/util/thread/ThreadSafeQueue.java,
+	  src/net/grinder/engine/agent/Agent.java,
+	  src/net/grinder/util/SleeperImplementation.java,
+	  tests-src/net/grinder/testutility/CallRecorder.java,
+	  src/net/grinder/engine/common/ConsoleListener.java,
+	  tests-src/net/grinder/engine/common/TestConsoleListener.java:
+	  Condition is a more conventional/correct name than Monitor.
+
+2008-01-06 [r3663]  Philip Aston
+
+	* build.xml: Don't bundle PicoContainer sources.
+
+2008-01-06 [r3660-3662]  Philip Aston
+
+	* build.xml, etc/localpaths.properties, docs: Update for Clover
+	  2.0.3.
+
+	* etc/buildenv.sh: Fix for local machine.
+
+	* etc/setenv.sh (removed): Remove since I don't use this anymore.
+
+2008-01-06 [r3659]  Philip Aston
+
+	* tests-src/net/grinder/common/TestGrinderExceptions.java: Make
+	  test work when it is clover instrumented.
+
+2008-01-06 [r3658]  Philip Aston
+
+	* .settings/org.eclipse.jdt.ui.prefs: Update.
+
+2008-01-06 [r3657]  Philip Aston
+
+	* build.xml, etc/localpaths.properties: PicoContainer 1.3.
+
+2008-01-06 [r3656]  Philip Aston
+
+	* contrib/httpplugin (removed), src/net/grinder/TCPProxy.java,
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java
+	  (removed),
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java
+	  (removed),
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter2.java
+	  (removed),
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java
+	  (removed), CHANGES: Remove the -httpplugin and -newhttpplugin
+	  TCPProxy filter options.
+
+2008-01-06 [r3655]  Philip Aston
+
+	* README: Update.
+
+2008-01-06 [r3654]  Philip Aston
+
+	* src/net/grinder/util/thread/package.html: Should be using JSR
+	  166.
+
+2008-01-06 [r3653]  Philip Aston
+
+	* src/net/grinder/util/thread/Executor.java: Complete renaming.
+
+2008-01-05 [r3643]  Philip Aston
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactoryImplementation.java,
+	  src/net/grinder/engine/process/ProcessContext.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPFilterEventListener.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandler.java,
+	  src/net/grinder/statistics/StatisticExpressionFactory.java,
+	  src/net/grinder/util/Sleeper.java,
+	  src/net/grinder/engine/agent/Worker.java,
+	  src/net/grinder/engine/process/ScriptEngine.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressions.java,
+	  src/net/grinder/console/editor/ExternalEditor.java,
+	  src/net/grinder/util/AttributeStringParser.java,
+	  src/net/grinder/console/distribution/FileChangeWatcher.java,
+	  tests-src/net/grinder/testutility/IsolatedObjectFactory.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java,
+	  src/net/grinder/engine/process/DispatchContext.java,
+	  src/net/grinder/plugin/http/HTTPUtilities.java,
+	  src/net/grinder/util/AttributeStringParserImplementation.java,
+	  src/net/grinder/console/distribution/UpdateableAgentCacheState.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionCache.java,
+	  src/net/grinder/engine/process/StopWatch.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactory.java,
+	  src/net/grinder/console/distribution/FileDistribution.java,
+	  src/net/grinder/common/FilenameFactory.java,
+	  src/net/grinder/statistics/ImmutableStatisticsSet.java,
+	  src/net/grinder/console/editor/Buffer.java,
+	  tests-src/net/grinder/plugin/http/HTTPRequestHandler.java,
+	  src/net/grinder/console/common/Resources.java: Fix up file
+	  headers.
+
+2008-01-05 [r3642]  Philip Aston
+
+	* src/net/grinder/common/Logger.java,
+	  tests-src/net/grinder/testutility/CallData.java,
+	  src/net/grinder/util/StreamCopier.java,
+	  src/net/grinder/engine/agent/IsolatedGrinderProcessRunner.java,
+	  tests-src/net/grinder/testutility/FileUtilities.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java,
+	  src/net/grinder/communication/TeeSender.java,
+	  tests-src/net/grinder/plugininterface/StubGrinderPlugin.java,
+	  tests-src/net/grinder/engine/process/TestTestData.java,
+	  tests-src/net/grinder/common/LoggerStubFactory.java,
+	  src/net/grinder/communication/BlockingSender.java,
+	  src/net/grinder/communication/MessageQueue.java,
+	  src/net/grinder/console/editor/EditorModel.java,
+	  src/net/grinder/engine/process/ThreadContext.java,
+	  tests-src/net/grinder/communication/TestCommunicationDefaults.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestTCPProxyConsole.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPluginThreadState.java,
+	  src/net/grinder/console/communication/server/messages/ResultMessage.java,
+	  src/net/grinder/console/messages/AgentProcessReportMessage.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPFilterEventListener.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPRequestFilter.java,
+	  tests-src/net/grinder/util/thread/TestExecutor.java,
+	  src/net/grinder/communication/StreamReceiver.java,
+	  tests-src/net/grinder/console/swingui/TestFileTree.java,
+	  src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java,
+	  src/net/grinder/engine/agent/AbstractWorkerFactory.java,
+	  src/net/grinder/statistics/StatisticsServices.java,
+	  tests-src/net/grinder/console/swingui/TestGraph.java,
+	  src/net/grinder/console/communication/ProcessStatus.java,
+	  src/net/grinder/Grinder.java,
+	  tests-src/net/grinder/util/TestAttributeStringParserImplementation.java,
+	  src/net/grinder/console/communication/ProcessStatusImplementation.java,
+	  src/net/grinder/common/GrinderProperties.java,
+	  src/net/grinder/communication/Connector.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestCompositeFilter.java,
+	  src/net/grinder/communication/StreamSender.java,
+	  tests-src/net/grinder/testutility/CallRecorder.java,
+	  tests-src/net/grinder/engine/agent/ReadMessageEchoClass.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRequestFilter.java,
+	  tests-src/net/grinder/console/distribution/TestAgentCacheStateImplementation.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestEchoFilter.java,
+	  tests-src/net/grinder/console/model/TestConsoleProperties.java,
+	  src/net/grinder/statistics/StatisticExpression.java,
+	  tests-src/net/grinder/console/common/TestErrorQueue.java,
+	  src/net/grinder/engine/process/SSLControlImplementation.java,
+	  src/net/grinder/Console.java,
+	  src/net/grinder/console/distribution/FileDistributionHandlerImplementation.java,
+	  src/net/grinder/engine/agent/WorkerFactory.java,
+	  src/net/grinder/engine/process/DispatchResultReporter.java,
+	  src/net/grinder/console/swingui/FileTreeModel.java,
+	  tests-src/net/grinder/communication/TestClientReceiver.java,
+	  src/net/grinder/engine/process/LoggerImplementation.java,
+	  src/net/grinder/plugininterface/PluginThreadListener.java,
+	  tests-src/net/grinder/util/thread/TestMonitor.java,
+	  tests-src/net/grinder/testutility/OverrideInvocationHandlerDecorator.java,
+	  tests-src/net/grinder/util/TestDirectory.java,
+	  tests-src/net/grinder/communication/TestClientSenderAndServerReceiver.java,
+	  tests-src/net/grinder/util/thread/TestThreadPool.java,
+	  src/net/grinder/communication/ResourcePool.java,
+	  tests-src/net/grinder/engine/process/TestSSLControlImplementation.java,
+	  src/net/grinder/plugin/http/HTTPPluginConnection.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestHTTPMethodRelativeURIFilterDecorator.java,
+	  src/net/grinder/tools/tcpproxy/ConnectionDetails.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java,
+	  src/net/grinder/engine/messages/DistributeFileMessage.java,
+	  src/net/grinder/common/FilenameFactory.java,
+	  src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java,
+	  tests-src/net/grinder/communication/TestServerReceiver.java,
+	  tests-src/net/grinder/testutility/AbstractFileTestCase.java,
+	  src/net/grinder/engine/process/GrinderThread.java,
+	  src/net/grinder/console/communication/ConsoleCommunicationImplementation.java,
+	  src/net/grinder/util/DelayedCreationFileWriter.java,
+	  tests-src/net/grinder/engine/agent/EchoClass.java,
+	  src/net/grinder/console/swingui/TestGraphPanel.java,
+	  src/net/grinder/console/client/ConsoleConnectionImplementation.java,
+	  tests-src/net/grinder/engine/process/TestLoggerImplementation.java,
+	  src/net/grinder/script/NoSuchStatisticException.java,
+	  src/net/grinder/console/swingui/OptionalConfirmDialog.java,
+	  tests-src/net/grinder/communication/TestMessageDispatchSender.java,
+	  src/net/grinder/console/swingui/Editor.java,
+	  src/net/grinder/script/InvalidContextException.java,
+	  src/net/grinder/communication/FanOutStreamSender.java,
+	  src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java,
+	  src/net/grinder/communication/ConnectionType.java,
+	  src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java,
+	  src/net/grinder/tools/tcpproxy/NullFilter.java,
+	  src/net/grinder/engine/agent/ProcessWorker.java,
+	  src/net/grinder/engine/messages/StopGrinderMessage.java,
+	  src/net/grinder/console/model/ConsoleProperties.java,
+	  tests-src/net/grinder/util/html/TestHTML.java,
+	  tests-src/net/grinder/util/AnIsolatedClass.java,
+	  src/net/grinder/console/common/ErrorQueue.java,
+	  tests-src/net/grinder/statistics/TestStatisticsSetFactory.java,
+	  src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java,
+	  src/net/grinder/script/Statistics.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptExecutionException.java,
+	  src/net/grinder/engine/process/ScriptContextImplementation.java,
+	  src/net/grinder/console/client/ConsoleConnection.java,
+	  src/net/grinder/engine/process/ScriptStatisticsImplementation.java,
+	  tests-src/net/grinder/util/TestInsecureSSLContextFactory.java,
+	  src/net/grinder/util/JVM.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorker.java,
+	  src/net/grinder/engine/process/TestStatisticsHelper.java,
+	  src/net/grinder/engine/messages/ResetGrinderMessage.java,
+	  tests-src/net/grinder/statistics/TestTestStatisticsQueries.java,
+	  src/net/grinder/communication/Sender.java,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/communication/Message.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestTCPProxySocketFactories.java,
+	  src/net/grinder/console/swingui/JOptionPaneDialog.java,
+	  src/net/grinder/console/communication/server/DispatchClientCommands.java,
+	  tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java,
+	  src/net/grinder/common/GrinderException.java,
+	  src/net/grinder/console/swingui/BufferTreeModel.java,
+	  tests-src/net/grinder/engine/process/TestScriptContextImplementation.java,
+	  tests-src/net/grinder/communication/SimpleMessage.java,
+	  src/net/grinder/console/Console.java,
+	  src/net/grinder/util/UniqueIdentityGenerator.java,
+	  src/net/grinder/console/model/ModelImplementation.java,
+	  tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java,
+	  src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java,
+	  tests-src/net/grinder/tools/tcpproxy/MyFilterStubFactory.java,
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  tests-src/net/grinder/communication/TestConnectionIdentity.java,
+	  src/net/grinder/util/TimeAuthority.java,
+	  src/net/grinder/common/ThreadLifeCycleListener.java,
+	  src/net/grinder/tools/tcpproxy/HTTPResponse.java,
+	  src/net/grinder/communication/FanOutServerSender.java,
+	  src/net/grinder/common/WorkerProcessReport.java,
+	  src/net/grinder/common/AbstractTestSemantics.java,
+	  src/net/grinder/engine/agent/ProcessWorkerFactory.java,
+	  tests-src/net/grinder/console/common/TestDisplayMessageConsoleException.java,
+	  src/net/grinder/util/Sleeper.java,
+	  src/net/grinder/engine/process/ShutdownException.java,
+	  src/net/grinder/plugin/http/HTTPConnectionWrapper.java,
+	  tests-src/net/grinder/util/TestSerialiser.java,
+	  src/net/grinder/tools/tcpproxy/TCPProxySocketFactory.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java,
+	  src/net/grinder/tools/tcpproxy/TCPProxyFilter.java,
+	  src/net/grinder/statistics/StatisticsSetFactory.java,
+	  src/net/grinder/console/distribution/UpdateableAgentCacheState.java,
+	  tests-src/net/grinder/console/swingui/TestFrameBounds.java,
+	  src/net/grinder/console/model/Model.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java,
+	  tests-src/net/grinder/console/messages/TestConsoleMessages.java,
+	  src/net/grinder/communication/AbstractSender.java,
+	  src/net/grinder/console/distribution/AgentCacheStateImplementation.java,
+	  src/net/grinder/plugin/http/HTTPPluginControl.java,
+	  src/net/grinder/util/html/AbstractHTMLNode.java,
+	  src/net/grinder/statistics/TestStatisticsQueries.java,
+	  src/net/grinder/console/messages/WorkerProcessReportMessage.java,
+	  tests-src/net/grinder/communication/TestTeeSender.java,
+	  tests-src/net/grinder/common/TestGrinderExceptions.java,
+	  tests-src/net/grinder/common/TestSSLContextFactory.java,
+	  src/net/grinder/console/communication/ProcessControl.java,
+	  tests-src/net/grinder/engine/process/StubTestRegistry.java,
+	  tests-src/net/grinder/console/swingui/TestCompositeTreeModel.java,
+	  src/net/grinder/console/client/ConsoleConnectionFactory.java,
+	  tests-src/net/grinder/communication/TestMessageQueue.java,
+	  src/net/grinder/util/NullMultiLineFormatter.java,
+	  src/net/grinder/console/model/ModelListener.java,
+	  tests-src/net/grinder/testutility/RandomStubFactory.java,
+	  src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java,
+	  src/net/grinder/util/FileContents.java,
+	  src/net/grinder/common/UncheckedGrinderException.java,
+	  tests-src/net/grinder/statistics/TestStatisticsView.java,
+	  src/net/grinder/console/swingui/resources/Console_ru.properties,
+	  tests-src/net/grinder/communication/TestStreamReceiver.java,
+	  src/net/grinder/util/AbstractMultiLineFormatter.java,
+	  src/net/grinder/console/communication/DistributionControl.java,
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter2.java,
+	  src/net/grinder/console/swingui/ErrorDialogHandler.java,
+	  tests-src/net/grinder/communication/TestConnector.java,
+	  src/net/grinder/util/ListenerSupport.java,
+	  tests-src/net/grinder/communication/TestFanOutServerSenderAndClientReceiver.java,
+	  tests-src/net/grinder/communication/TestStreamSender.java,
+	  tests-src/net/grinder/console/swingui/TestTeeAction.java,
+	  src/net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java,
+	  src/net/grinder/plugin/http/SlowClientBandwidthLimiterFactory.java,
+	  src/net/grinder/tools/tcpproxy/TCPProxyEngine.java,
+	  src/net/grinder/console/common/DisplayMessageConsoleException.java,
+	  src/net/grinder/console/editor/BufferImplementation.java,
+	  src/net/grinder/engine/agent/DebugThreadWorker.java,
+	  tests-src/net/grinder/testutility/SimpleEqualityDecoration.java,
+	  tests-src/net/grinder/statistics/TestTestStatisticsMap.java,
+	  src/net/grinder/script/NotWrappableTypeException.java,
+	  tests-src/net/grinder/statistics/TestExpressionView.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java,
+	  src/net/grinder/tools/tcpproxy/TCPProxyConsole.java,
+	  tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java,
+	  tests-src/net/grinder/engine/messages/TestEngineMessages.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorker.java,
+	  src/net/grinder/console/swingui/SwingDispatcherFactory.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyInstance.java,
+	  tests-src/net/grinder/console/editor/TestExternalEditor.java,
+	  tests-src/net/grinder/communication/TestResourcePool.java,
+	  src/net/grinder/util/html/HTMLText.java,
+	  src/net/grinder/engine/process/ThreadLogger.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestProcessHTTPRecordingWithXSLT.java,
+	  src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java,
+	  src/net/grinder/tools/tcpproxy/CompositeFilter.java,
+	  src/net/grinder/communication/MessageDispatchRegistry.java,
+	  src/net/grinder/util/WeakValueHashMap.java,
+	  tests-src/net/grinder/util/TestDelayedCreationFileWriter.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandler.java,
+	  tests-src/net/grinder/testutility/StubPrintStream.java,
+	  src/net/grinder/util/TerminalColour.java,
+	  src/net/grinder/tools/tcpproxy/EchoFilter.java,
+	  tests-src/net/grinder/communication/TestFanOutStreamSender.java,
+	  src/net/grinder/statistics/StatisticsView.java,
+	  src/net/grinder/statistics/PeakStatisticExpression.java,
+	  src/net/grinder/TCPProxy.java,
+	  tests-src/net/grinder/testutility/CallAssertions.java,
+	  src/net/grinder/console/model/SampleListener.java,
+	  src/net/grinder/engine/process/TestRegistry.java,
+	  src/net/grinder/communication/MessageRequiringResponse.java,
+	  src/net/grinder/communication/SocketWrapper.java,
+	  src/net/grinder/console/swingui/MnemonicHeuristics.java,
+	  tests-src/net/grinder/console/distribution/TestFileDistribution.java,
+	  src/net/grinder/communication/QueuedSenderDecorator.java,
+	  src/net/grinder/engine/agent/DebugThreadWorkerFactory.java,
+	  tests-src/net/grinder/communication/TestConnectionType.java,
+	  src/net/grinder/util/thread/WakeableCondition.java,
+	  src/net/grinder/communication/Receiver.java,
+	  tests-src/net/grinder/engine/agent/PublicAgentIdentityImplementation.java,
+	  src/net/grinder/statistics/TestStatisticsMap.java,
+	  tests-src/net/grinder/communication/BlockingActionThread.java,
+	  src/net/grinder/util/IsolatingClassLoader.java,
+	  src/net/grinder/statistics/ExpressionView.java,
+	  tests-src/net/grinder/engine/process/TestTestRegistry.java,
+	  src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java,
+	  src/net/grinder/console/editor/EditorException.java,
+	  src/net/grinder/console/communication/DistributionControlImplementation.java,
+	  src/net/grinder/script/Grinder.java,
+	  tests-src/net/grinder/console/editor/TouchClass.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorkerFactory.java,
+	  src/net/grinder/util/thread/InterruptibleRunnableAdapter.java,
+	  src/net/grinder/console/distribution/AgentCacheState.java,
+	  src/net/grinder/console/swingui/CustomJButton.java,
+	  src/net/grinder/statistics/StatisticExpressionFactory.java,
+	  src/net/grinder/communication/CheckIfPeerShutdown.java,
+	  src/net/grinder/console/swingui/resources/Console_pl.properties,
+	  tests-src/net/grinder/util/TestJVM.java,
+	  src/net/grinder/console/communication/server/messages/StopRecordingMessage.java,
+	  src/net/grinder/statistics/StatisticExpressionFactoryImplementation.java,
+	  src/net/grinder/util/SignificantFigureFormat.java,
+	  src/net/grinder/console/swingui/IntegerField.java,
+	  tests-src/net/grinder/console/communication/server/TestDispatchClientCommands.java,
+	  tests-src/HTTPClient/TestDefaultBandwidthLimiter.java,
+	  src/net/grinder/engine/process/ExternalFilenameFactory.java,
+	  src/net/grinder/console/communication/ConsoleCommunication.java,
+	  tests-src/net/grinder/console/editor/TestBuffer.java,
+	  tests-src/net/grinder/common/TestGrinderBuild.java,
+	  tests-src/net/grinder/util/TestUniqueIdentityGenerator.java,
+	  src/net/grinder/engine/process/StopWatchImplementation.java,
+	  src/net/grinder/communication/NoResponseMessage.java,
+	  contrib/mq/LICENSE,
+	  tests-src/net/grinder/testutility/XMLBeansUtilities.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestCommentSourceImplementation.java,
+	  src/net/grinder/console/swingui/SamplingControlPanel.java,
+	  src/net/grinder/console/swingui/FileTree.java,
+	  src/net/grinder/console/swingui/Graph.java,
+	  tests-src/net/grinder/communication/TestFanOutServerSender.java,
+	  src/net/grinder/communication/MessagePump.java,
+	  tests-src/net/grinder/plugininterface/TestPluginException.java,
+	  src/net/grinder/tools/tcpproxy/UpdatableCommentSource.java,
+	  tests-src/net/grinder/engine/process/TestExternalFilenameFactory.java,
+	  src/net/grinder/engine/process/RegisteredPlugin.java,
+	  src/net/grinder/plugin/http/HTTPRequest.java,
+	  tests-src/net/grinder/common/StubTest.java,
+	  tests-src/net/grinder/engine/process/TestStopWatchImplementation.java,
+	  src/net/grinder/common/Test.java,
+	  src/net/grinder/common/WorkerIdentity.java,
+	  tests-src/net/grinder/util/TestSleeper.java,
+	  tests-src/net/grinder/testutility/StubRelationshipsInvocationHandlerDecorator.java,
+	  tests-src/net/grinder/util/TestAbstractParseListener.java,
+	  src/net/grinder/script/Test.java,
+	  src/net/grinder/util/html/HTMLDocument.java,
+	  src/net/grinder/console/swingui/resources/Console_de.properties,
+	  src/net/grinder/common/UncheckedInterruptedException.java,
+	  src/net/grinder/engine/messages/StartGrinderMessage.java,
+	  tests-src/net/grinder/engine/process/TestRegisteredPlugin.java,
+	  tests-src/net/grinder/testutility/AssertUtilities.java,
+	  tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java,
+	  src/net/grinder/communication/Acceptor.java,
+	  src/net/grinder/script/SSLControl.java,
+	  tests-src/net/grinder/statistics/TestStatisticsSetImplementation.java,
+	  src/net/grinder/console/communication/server/messages/GetNumberOfAgentsMessage.java,
+	  src/net/grinder/console/communication/server/messages/ResetRecordingMessage.java,
+	  src/net/grinder/engine/process/ProcessContextImplementation.java,
+	  src/net/grinder/console/client/ConsoleConnectionException.java,
+	  src/net/grinder/util/SleeperImplementation.java,
+	  src/net/grinder/console/messages/RegisterTestsMessage.java,
+	  src/net/grinder/util/StringEscaper.java,
+	  src/net/grinder/engine/process/StatisticsForTestImplementation.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionCache.java,
+	  tests-src/net/grinder/console/communication/TestProcessStatusImplementation.java,
+	  src/net/grinder/statistics/StatisticsSet.java,
+	  src/net/grinder/util/FixedWidthFormatter.java,
+	  src/net/grinder/engine/agent/Agent.java,
+	  tests-src/net/grinder/util/thread/TestWakeableCondition.java,
+	  tests-src/HTTPClient/TestCookie.java,
+	  tests-src/net/grinder/util/TestFileContents.java,
+	  src/net/grinder/console/swingui/resources/Console_it.properties,
+	  tests-src/net/grinder/engine/process/TestProcessContextImplementation.java,
+	  src/net/grinder/console/swingui/Colours.java,
+	  src/net/grinder/engine/process/ThreadContextLocator.java,
+	  src/net/grinder/console/communication/server/messages/StartRecordingMessage.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressionsImplementation.java,
+	  src/net/grinder/communication/CommunicationException.java,
+	  src/net/grinder/engine/common/ScriptLocation.java,
+	  tests-src/net/grinder/engine/process/TestStatisticsForTestImplementation.java,
+	  LICENSE, src/net/grinder/console/swingui/resources/about.html,
+	  src/net/grinder/statistics/StatisticsServicesImplementation.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionCache.java,
+	  tests-src/net/grinder/util/TestListenerSupport.java,
+	  src/net/grinder/util/SimpleStringEscaper.java,
+	  tests-src/net/grinder/engine/agent/TestAgent.java,
+	  tests-src/net/grinder/testutility/Time.java,
+	  tests-src/net/grinder/communication/TestFanOutStreamSenderAndStreamReceiver.java,
+	  src/net/grinder/engine/common/ConsoleListener.java,
+	  src/net/grinder/util/SimpleLogger.java,
+	  tests-src/net/grinder/console/swingui/TestFileTreeModel.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestEndPoint.java,
+	  src/net/grinder/console/common/ConsoleException.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl,
+	  src/net/grinder/console/swingui/LabelledGraph.java,
+	  tests-src/net/grinder/console/editor/TestAbstractTextSource.java,
+	  src/net/grinder/engine/process/Instrumenter.java,
+	  src/net/grinder/communication/ClientSender.java,
+	  tests-src/net/grinder/communication/TestStreamSenderAndStreamReceiver.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestRegularExpressionsImplementation.java,
+	  src/net/grinder/common/SSLContextFactory.java,
+	  src/net/grinder/util/URIParser.java,
+	  src/net/grinder/engine/messages/ClearCacheMessage.java,
+	  src/net/grinder/console/editor/TextSource.java,
+	  src/net/grinder/util/URIParserImplementation.java,
+	  src/net/grinder/console/distribution/FileDistribution.java,
+	  src/net/grinder/console/swingui/ProcessStatusTableModel.java,
+	  src/net/grinder/engine/process/ThreadContextImplementation.java,
+	  tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java,
+	  src/net/grinder/statistics/StatisticsSetImplementation.java,
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java,
+	  src/net/grinder/engine/agent/WorkerProcessCommandLine.java,
+	  src/net/grinder/communication/AbstractFanOutSender.java,
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java,
+	  tests-src/net/grinder/testutility/StubPrintWriter.java,
+	  tests-src/net/grinder/statistics/TestStatisticsTable.java,
+	  src/net/grinder/engine/agent/WorkerLauncher.java,
+	  src/net/grinder/console/swingui/SwingDispatchedModelListener.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java,
+	  tests-src/net/grinder/console/editor/TestEditorModel.java,
+	  src/net/grinder/util/BooleanProperty.java,
+	  tests-src/net/grinder/util/TestWeakValueHashMap.java,
+	  src/net/grinder/console/messages/ReportStatisticsMessage.java,
+	  tests-src/net/grinder/communication/TestResponseSender.java,
+	  tests-src/net/grinder/engine/process/TestThreadContextImplementation.java,
+	  src/net/grinder/plugininterface/PluginRegistry.java,
+	  tests-src/net/grinder/communication/TestInternalMessages.java,
+	  src/net/grinder/plugininterface/PluginThreadContext.java,
+	  src/net/grinder/plugin/http/HTTPPlugin.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java,
+	  src/net/grinder/console/common/ErrorHandler.java,
+	  tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java,
+	  tests-src/net/grinder/script/TestTest.java,
+	  src/net/grinder/engine/agent/AbstractProcessIdentityImplementation.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java,
+	  src/net/grinder/plugininterface/GrinderPlugin.java,
+	  tests-src/net/grinder/testutility/AbstractStubFactory.java,
+	  tests-src/net/grinder/communication/TestSocketWrapper.java,
+	  tests-src/net/grinder/engine/agent/TestWorkerLauncher.java,
+	  tests-src/net/grinder/common/TestGrinderProperties.java,
+	  tests-src/net/grinder/communication/TestQueuedSenderDecorator.java,
+	  src/net/grinder/statistics/StatisticsException.java,
+	  src/net/grinder/tools/tcpproxy/AbstractFilterDecorator.java,
+	  src/net/grinder/console/distribution/FileDistributionImplementation.java,
+	  tests-src/net/grinder/util/TimeAuthorityStubFactory.java,
+	  src/net/grinder/console/messages/RegisterExpressionViewMessage.java,
+	  tests-src/net/grinder/util/TestIsolatingClassLoader.java,
+	  tests-src/net/grinder/console/editor/StringTextSource.java,
+	  src/net/grinder/engine/messages/InitialiseGrinderMessage.java,
+	  src/net/grinder/tools/tcpproxy/VerboseConnectException.java,
+	  src/net/grinder/console/swingui/FrameBounds.java,
+	  src/net/grinder/communication/QueuedSender.java,
+	  src/net/grinder/statistics/ImmutableStatisticsSet.java,
+	  src/net/grinder/engine/process/FilenameFactoryImplementation.java,
+	  tests-src/net/grinder/console/swingui/TestBufferTreeModel.java,
+	  src/net/grinder/communication/CommunicationDefaults.java,
+	  src/net/grinder/util/MultiLineFormatter.java,
+	  src/net/grinder/plugin/http/HTTPPluginThreadState.java,
+	  src/net/grinder/console/swingui/resources/Console_es.properties,
+	  src-j2se5/net/grinder/util/NanoTimeTimeAuthority.java,
+	  tests-src/net/grinder/communication/SocketAcceptorThread.java,
+	  src/net/grinder/console/swingui/DynamicStatisticsTableModel.java,
+	  tests-src/net/grinder/statistics/StatisticsServicesTestFactory.java,
+	  src/net/grinder/console/model/SampleAccumulator.java,
+	  tests-src/net/grinder/util/TestSignificantFigureFormat.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingResultProcessor.java,
+	  src/net/grinder/engine/process/ProcessLifeCycleListener.java,
+	  src/net/grinder/tools/tcpproxy/TCPProxySocketFactoryImplementation.java,
+	  src/net/grinder/console/swingui/CompositeTreeModel.java,
+	  src/net/grinder/util/AttributeStringParserImplementation.java,
+	  src/net/grinder/statistics/StatisticsTable.java,
+	  tests-src/net/grinder/testutility/DelegatingStubFactory.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestHTTPMethodAbsoluteURIFilterDecorator.java,
+	  src/net/grinder/engine/process/jython/JythonScriptExecutionException.java,
+	  src/net/grinder/console/communication/server/messages/SuccessMessage.java,
+	  tests-src/net/grinder/engine/process/TestFilenameFactoryImplementation.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java,
+	  src/net/grinder/console/swingui/resources/Console_fr.properties,
+	  tests-src/net/grinder/console/client/TestConsoleConnectionImplementation.java,
+	  src/net/grinder/console/swingui/LookAndFeel.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/IntGenerator.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/agent/Worker.java,
+	  src/net/grinder/engine/process/DispatchContext.java,
+	  tests-src/net/grinder/communication/TestMessagePump.java,
+	  src/net/grinder/communication/ResourcePoolImplementation.java,
+	  src/net/grinder/console/swingui/CustomAction.java,
+	  src/net/grinder/util/thread/ThreadSafeQueue.java,
+	  src/net/grinder/console/swingui/OptionsDialogHandler.java,
+	  src/net/grinder/console/swingui/TeeAction.java,
+	  src/net/grinder/common/ProcessReport.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestXSLTHelper.java,
+	  src/net/grinder/communication/ClientReceiver.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestNullFilter.java,
+	  src/net/grinder/console/common/ResourcesImplementation.java,
+	  tests-src/net/grinder/statistics/TestStatisticsIndexMap.java,
+	  tests-src/net/grinder/statistics/TestCommonStatisticsViews.java,
+	  src/net/grinder/engine/process/PluginRegistryImplementation.java,
+	  src/net/grinder/engine/common/EngineException.java,
+	  src/net/grinder/util/Directory.java,
+	  src/net/grinder/plugin/http/HTTPUtilities.java,
+	  src/net/grinder/util/html/HTMLElement.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactory.java,
+	  src/net/grinder/communication/ServerReceiver.java,
+	  src/net/grinder/console/editor/Buffer.java,
+	  src/net/grinder/common/GrinderBuild.java,
+	  src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java,
+	  tests-src/net/grinder/communication/TestAcceptor.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java,
+	  src/net/grinder/communication/MessageDispatchSender.java,
+	  src/net/grinder/console/swingui/resources/Console_zh.properties,
+	  tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java,
+	  src/net/grinder/tools/tcpproxy/CommentSourceImplementation.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/testutility/RedirectStandardStreams.java,
+	  src/net/grinder/console/communication/server/messages/ResetWorkerProcessesMessage.java,
+	  src/net/grinder/engine/process/StopWatch.java,
+	  tests-src/net/grinder/util/TestFixedWidthFormatter.java,
+	  tests-src/net/grinder/console/distribution/TestFileDistributionHandlerImplementation.java,
+	  src/net/grinder/communication/CloseCommunicationMessage.java,
+	  src/net/grinder/engine/process/ProcessContext.java,
+	  src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java,
+	  tests-src/net/grinder/testutility/Serializer.java,
+	  src/org/python/core/ClonePyInstance.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPResponseFilter.java,
+	  src/net/grinder/plugininterface/PluginProcessContext.java,
+	  src/net/grinder/plugin/http/TimeoutException.java,
+	  src/net/grinder/util/thread/Executor.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestHTTPResponse.java,
+	  tests-src/net/grinder/engine/common/TestScriptLocation.java,
+	  src/net/grinder/console/distribution/FileDistributionHandler.java,
+	  src/net/grinder/engine/agent/FileStore.java,
+	  tests-src/net/grinder/communication/BlockingSenderWrapper.java,
+	  tests-src/net/grinder/util/TestSimpleStringEscaper.java,
+	  src/net/grinder/console/model/ConsolePropertyDefaults.java,
+	  tests-src/net/grinder/common/TestAbstractTestSemantics.java,
+	  tests-src/net/grinder/console/common/TestResources.java,
+	  src/net/grinder/util/StandardTimeAuthority.java,
+	  tests-src/net/grinder/engine/common/TestConsoleListener.java,
+	  tests-src/net/grinder/util/TestSimpleLogger.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerFactoryImplementation.java,
+	  src/net/grinder/util/InsecureSSLContextFactory.java,
+	  src/net/grinder/statistics/StatisticsIndexMap.java,
+	  src/net/grinder/statistics/CommonStatisticsViews.java,
+	  src/net/grinder/console/swingui/SampleStatisticsTableModel.java,
+	  tests-src/net/grinder/console/swingui/TestSwingDispatcherFactory.java,
+	  src/net/grinder/console/swingui/Table.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPResponseFilter.java,
+	  src/net/grinder/engine/process/ThreadDataWriter.java,
+	  src/net/grinder/engine/agent/AgentIdentityImplementation.java,
+	  src/net/grinder/common/AgentProcessReport.java,
+	  tests-src/net/grinder/communication/TestClientSender.java,
+	  src/net/grinder/engine/process/WorkerProcessEntryPoint.java,
+	  src/net/grinder/console/model/ModelTestIndex.java,
+	  src/net/grinder/plugin/http/URLException.java,
+	  tests-src/net/grinder/util/TestURIParserImplementation.java,
+	  tests-src/net/grinder/engine/agent/TestFileStore.java,
+	  src/net/grinder/common/AgentIdentity.java,
+	  tests-src/net/grinder/testutility/RandomObjectFactory.java,
+	  src/net/grinder/util/thread/InterruptibleRunnable.java,
+	  src/net/grinder/engine/process/ExternalLogger.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerFactoryImplementation.java,
+	  src/net/grinder/util/thread/Monitor.java,
+	  src/net/grinder/engine/process/ScriptEngine.java,
+	  src/net/grinder/communication/ConnectionIdentity.java,
+	  tests-src/net/grinder/engine/process/ThreadLoggerStubFactory.java,
+	  tests-src/net/grinder/engine/agent/TestAgentIdentityImplementation.java,
+	  tests-src/net/grinder/engine/process/TestThreadDataWriter.java,
+	  src/net/grinder/engine/process/TestStatisticsHelperImplementation.java,
+	  src/net/grinder/util/AttributeStringParser.java,
+	  src/net/grinder/util/thread/ThreadPool.java,
+	  tests-src/net/grinder/testutility/CountingInputStream.java,
+	  tests-src/net/grinder/console/client/TestConsoleConnectionFactory.java,
+	  tests-src/net/grinder/console/swingui/TestMnemonicHeuristics.java,
+	  tests-src/net/grinder/util/thread/TestThreadSafeQueue.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java,
+	  tests-src/net/grinder/util/TestBooleanProperty.java,
+	  tests-src/net/grinder/engine/process/TestExternalLogger.java,
+	  src/net/grinder/console/communication/server/messages/StartWorkerProcessesMessage.java,
+	  src/net/grinder/tools/tcpproxy/EndPoint.java,
+	  src/net/grinder/tools/tcpproxy/CommentSource.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java,
+	  src/net/grinder/util/Serialiser.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressions.java,
+	  tests-src/net/grinder/engine/process/StubThreadContextLocator.java,
+	  src/net/grinder/console/editor/AbstractTextSource.java,
+	  tests-src/net/grinder/engine/process/TestTestStatisticsHelperImplementation.java,
+	  src/net/grinder/console/distribution/FileChangeWatcher.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecording.java,
+	  src/net/grinder/console/communication/ProcessControlImplementation.java,
+	  src/net/grinder/engine/process/TestData.java,
+	  src/net/grinder/plugininterface/PluginException.java,
+	  src/net/grinder/console/swingui/EditorControls.java,
+	  src/net/grinder/console/common/Resources.java: Correct BSD
+	  license ("REGENTS" -> "COPYRIGHT HOLDERS").
+
+2008-01-05 [r3641]  Philip Aston
+
+	* build.xml, CHANGES: Next is 3.0.
+
+2008-01-04 [r3640]  Philip Aston
+
+	* build.xml: Update build instructions.
+
+2008-01-02 [r3639]  Philip Aston
+
+	* build.xml, LICENSE,
+	  src/net/grinder/console/swingui/resources/about.html: Happy New
+	  Year.
+
+2007-12-31 [r3637]  Philip Aston
+
+	* src/net/grinder/console/editor/EditorModel.java: Minor refactor
+	  to improve test coverage.
+
+2007-12-31 [r3636]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/scriptSupportUnderConstruction.txt
+	  (removed), src/net/grinder/console/swingui/Editor.java,
+	  src/net/grinder/console/editor/EditorModel.java,
+	  tests-src/net/grinder/console/editor/TestEditorModel.java,
+	  tests-src/net/grinder/console/swingui/TestBufferTreeModel.java:
+	  Remove default buffer / "under construction" message.
+
+2007-12-28 [r3634]  Philip Aston
+
+	* src/net/grinder/common/GrinderProperties.java,
+	  tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	  Fix saveSingleProperty to remove property if value is null.
+
+2007-12-28 [r3633]  Philip Aston
+
+	* TODO: Results of thinking about cglib.
+
+2007-12-28 [r3632]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/StubTestRegistry.java,
+	  src/net/grinder/engine/process/TestRegistry.java,
+	  tests-src/net/grinder/engine/process/TestTestRegistry.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/TestData.java,
+	  tests-src/net/grinder/engine/process/TestTestData.java,
+	  src/net/grinder/engine/process/ScriptEngine.java,
+	  src/net/grinder/engine/process/Instrumenter.java (added),
+	  src/net/grinder/script/Test.java: Test() now longer throws any
+	  checked exceptions. Extract Instrumenter interface from
+	  ScriptEngine.
+
+2007-12-25 [r3630-3631]  Philip Aston
+
+	* TODO: Progress.
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/resources/Console_pl.properties,
+	  src/net/grinder/console/swingui/resources/Console_it.properties,
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/swingui/resources/Console_zh.properties,
+	  CHANGES, src/net/grinder/console/model/ConsoleProperties.java,
+	  tests-src/net/grinder/console/model/TestConsoleProperties.java,
+	  src/net/grinder/console/swingui/resources/Console_ru.properties,
+	  src/net/grinder/console/swingui/resources/Console_es.properties,
+	  src/net/grinder/console/swingui/resources/Console_fr.properties:
+	  The console optionally automatically distributes changed files
+	  when processes are started.
+
+2007-12-25 [r3629]  Philip Aston
+
+	* src/net/grinder/console/swingui/OptionalConfirmDialog.java: Don't
+	  set "don't ask" on cancel or close.
+
+2007-12-25 [r3628]  Philip Aston
+
+	* src/net/grinder/communication/AbstractFanOutSender.java,
+	  src/net/grinder/communication/FanOutServerSender.java,
+	  src/net/grinder/communication/FanOutStreamSender.java,
+	  src/net/grinder/engine/agent/WorkerLauncher.java,
+	  src/net/grinder/util/thread/Executor.java (added),
+	  tests-src/net/grinder/util/thread/TestExecutor.java (added),
+	  src/net/grinder/util/thread/Kernel.java (removed),
+	  tests-src/net/grinder/util/thread/TestKernel.java (removed):
+	  Rename Kernel to Executor to match java.util.concurrent.
+
+2007-12-24 [r3627]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/files-small.xcf,
+	  src/net/grinder/console/swingui/resources/Console_pl.properties,
+	  src/net/grinder/console/swingui/resources/Console_it.properties,
+	  src/net/grinder/console/swingui/resources/icons.xcf,
+	  src/net/grinder/console/swingui/resources/select-properties.png
+	  (added),
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/swingui/resources/select-properties-rollover.png
+	  (added),
+	  src/net/grinder/console/swingui/resources/Console_zh.properties,
+	  src/net/grinder/console/swingui/resources/Console_ru.properties,
+	  src/net/grinder/console/swingui/FileTree.java,
+	  src/net/grinder/console/swingui/resources/Console_de.properties,
+	  src/net/grinder/console/swingui/resources/deselect-properties.png
+	  (added),
+	  src/net/grinder/console/swingui/resources/deselect-properties-rollover.png
+	  (added), src/net/grinder/console/editor/EditorModel.java,
+	  src/net/grinder/console/swingui/resources/marked-properties.png
+	  (removed),
+	  src/net/grinder/console/swingui/resources/marked-properties-rollover.png
+	  (removed),
+	  src/net/grinder/console/swingui/resources/Console_fr.properties,
+	  src/net/grinder/console/swingui/resources/Console_es.properties:
+	  Allow selected properties to be deselected.
+
+2007-12-24 [r3626]  Philip Aston
+
+	* src/net/grinder/console/swingui/FileTree.java,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/CustomJButton.java,
+	  src/net/grinder/console/swingui/CustomAction.java: Build popup
+	  menu contents based on relevance of actions to selection.
+
+2007-12-24 [r3625]  Philip Aston
+
+	* src/net/grinder/console/swingui/ConsoleUI.java: Add rollover
+	  icons to menu items.
+
+2007-12-24 [r3624]  Philip Aston
+
+	* src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/resources/Console.properties:
+	  Hide disabled pop-up menu items.
+
+2007-12-19 [r3621]  Philip Aston
+
+	* src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/Editor.java, CHANGES: Add an
+	  editor keyboard shortcut for "Save-File" (Ctrl-S).
+
+2007-12-19 [r3620]  Philip Aston
+
+	* src/net/grinder/console/swingui/FileTree.java,
+	  tests-src/net/grinder/console/swingui/TestFileTree.java,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/FrameBounds.java,
+	  src/net/grinder/console/editor/EditorModel.java,
+	  src/net/grinder/console/model/ConsoleProperties.java,
+	  tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	  Persist selected properties file.
+
+2007-12-18 [r3619]  Philip Aston
+
+	* src/net/grinder/console/swingui/FileTree.java,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/resources/files-small.xcf,
+	  src/net/grinder/console/swingui/resources/marked-python-small.png
+	  (added),
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/editor/EditorModel.java,
+	  tests-src/net/grinder/console/editor/TestEditorModel.java:
+	  Indicate the script file specified by the selected properties.
+
+2007-12-18 [r3618]  Philip Aston
+
+	* .settings/de.mvmsoft.checkclipse.prefs: Latest.
+
+2007-12-18 [r3617]  Philip Aston
+
+	* src/net/grinder/engine/agent/Agent.java: Comment where the ramp
+	  up task is cancelled.
+
+2007-12-18 [r3616]  Philip Aston
+
+	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
+	  Coverage.
+
+2007-12-18 [r3613-3615]  Philip Aston
+
+	* src/net/grinder/console/distribution/FileDistributionImplementation.java,
+	  tests-src/net/grinder/console/distribution/TestFileDistribution.java:
+	  Don't invalidate the cache if only directories have changed. Set
+	  the cache to clean after distribution if the directory was empty.
+
+	* src/net/grinder/util/Directory.java: listContents() now doesn't
+	  return things that aren't files or directories.
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties,
+	  src/net/grinder/console/swingui/resources/Console_pl.properties,
+	  src/net/grinder/console/swingui/resources/Console_it.properties,
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/swingui/resources/Console_zh.properties,
+	  src/net/grinder/console/swingui/resources/Console_ru.properties,
+	  src/net/grinder/console/swingui/resources/Console_es.properties,
+	  src/net/grinder/console/swingui/resources/Console_fr.properties:
+	  "set properties" -> "select properties".
+
+2007-12-17 [r3612]  Philip Aston
+
+	* etc/findbugs-exclude.xml: Ignore more file operation results.
+
+2007-12-17 [r3611]  Philip Aston
+
+	* src/net/grinder/console/distribution/FileDistributionImplementation.java:
+	  I don't like leaving litter, so delete .grinder directory if we
+	  exit cleanly. Not sure there's anything better we can do here.
+
+2007-12-16 [r3610]  Philip Aston
+
+	* src/net/grinder/console/communication/server/messages/StartWorkerProcessesMessage.java,
+	  src/net/grinder/console/client/ConsoleConnectionImplementation.java,
+	  src/net/grinder/console/client/ConsoleConnection.java: Correct
+	  Javadoc.
+
+2007-12-16 [r3609]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/properties-small.png
+	  (added),
+	  src/net/grinder/console/swingui/resources/save-all-files.png
+	  (removed),
+	  src/net/grinder/console/client/ConsoleConnectionImplementation.java,
+	  src/net/grinder/console/swingui/resources/files-small.xcf
+	  (added), src/net/grinder/console/swingui/resources/script.png,
+	  src/net/grinder/console/swingui/resources/save-all-files-rollover.png
+	  (removed),
+	  src/net/grinder/console/swingui/resources/new-file.png,
+	  src/net/grinder/console/swingui/resources/marked-script-rollover.png
+	  (removed),
+	  src/net/grinder/console/swingui/resources/new-file-rollover.png,
+	  src/net/grinder/console/swingui/resources/script-small.png
+	  (removed), TODO,
+	  src/net/grinder/console/swingui/resources/save-file.png,
+	  tests-src/net/grinder/console/model/TestConsoleProperties.java,
+	  src/net/grinder/console/swingui/resources/Console_ru.properties,
+	  src/net/grinder/console/swingui/FileTree.java,
+	  src/net/grinder/console/swingui/resources/close-file.png,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/resources/close-file-rollover.png,
+	  src/net/grinder/console/communication/server/DispatchClientCommands.java,
+	  src/net/grinder/console/editor/EditorModel.java,
+	  src/net/grinder/console/swingui/resources/marked-properties.png
+	  (added), src/net/grinder/console/swingui/resources/save.png
+	  (removed),
+	  src/net/grinder/console/swingui/resources/save-rollover.png
+	  (removed),
+	  tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java,
+	  src/net/grinder/console/swingui/resources/Console_fr.properties,
+	  src/net/grinder/console/swingui/resources/marked-properties-small.png
+	  (added),
+	  src/net/grinder/console/communication/server/messages/StartWorkerProcessesMessage.java,
+	  tests-src/net/grinder/console/client/TestConsoleConnectionImplementation.java,
+	  src/net/grinder/console/swingui/resources/marked-script.png
+	  (removed),
+	  src/net/grinder/console/swingui/resources/Console_pl.properties,
+	  src/net/grinder/console/swingui/resources/script-small.xcf
+	  (removed),
+	  src/net/grinder/console/swingui/resources/Console_it.properties,
+	  src/net/grinder/console/swingui/resources/icons.xcf,
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/swingui/resources/Console_zh.properties,
+	  src/net/grinder/console/swingui/resources/marked-script-small.png
+	  (removed),
+	  src/net/grinder/console/swingui/resources/save-file-as.png,
+	  src/net/grinder/console/model/ConsoleProperties.java, CHANGES,
+	  src/net/grinder/console/swingui/resources/save-file-rollover.png,
+	  src/net/grinder/console/swingui/resources/save-file-as-rollover.png,
+	  src/net/grinder/console/swingui/resources/Console_de.properties,
+	  src/net/grinder/console/communication/ProcessControl.java,
+	  src/net/grinder/console/communication/ProcessControlImplementation.java,
+	  src/net/grinder/console/swingui/resources/python-script-small.png
+	  (added),
+	  tests-src/net/grinder/console/communication/server/TestDispatchClientCommands.java,
+	  tests-src/net/grinder/console/editor/TestEditorModel.java,
+	  src/net/grinder/console/client/ConsoleConnection.java,
+	  src/net/grinder/console/swingui/resources/marked-properties-rollover.png
+	  (added),
+	  src/net/grinder/console/swingui/resources/Console_es.properties:
+	  The console now sends a set of overriding properties to the
+	  agents, rather than just a script.
+
+2007-12-16 [r3607-3608]  Philip Aston
+
+	* src/net/grinder/util/Directory.java,
+	  tests-src/net/grinder/util/TestDirectory.java: getRelativePath()
+	  now works for relative files too.
+
+	* src/net/grinder/engine/agent/Agent.java: Create the
+	  ScriptLocation with relative paths so error messages are
+	  prettier.
+
+2007-12-16 [r3604-3606]  Philip Aston
+
+	* tests-src/net/grinder/engine/messages/TestEngineMessages.java,
+	  src/net/grinder/engine/common/ScriptLocation.java,
+	  tests-src/net/grinder/engine/common/TestScriptLocation.java,
+	  src/net/grinder/engine/agent/Agent.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	  ScriptLocation now expects the working directory to be a
+	  Directory rather than a File. Clarify absolute vs relative path
+	  expectations in ScriptLocation.
+
+	* tests-src/net/grinder/engine/agent/TestDebugThreadWorker.java:
+	  Coverage.
+
+	* src/net/grinder/util/Directory.java,
+	  tests-src/net/grinder/util/TestDirectory.java: Make Directory
+	  serializable.
+
+2007-12-16 [r3602-3603]  Philip Aston
+
+	* etc/findbugs-exclude.xml: Ignore another mkdirs() result.
+
+	* src/net/grinder/util/Directory.java: Javadoc.
+
+2007-12-16 [r3600-3601]  Philip Aston
+
+	* src/net/grinder/console/swingui/MnemonicHeuristics.java: Fix
+	  Javadoc typo.
+
+	* src/net/grinder/console/swingui/MnemonicHeuristics.java,
+	  tests-src/net/grinder/console/swingui/TestMnemonicHeuristics.java:
+	  Cope with null text.
+
+2007-12-15 [r3597-3599]  Philip Aston
+
+	* src/net/grinder/engine/messages/StartGrinderMessage.java,
+	  tests-src/net/grinder/engine/messages/TestEngineMessages.java,
+	  tests-src/net/grinder/engine/common/TestScriptLocation.java
+	  (added),
+	  src/net/grinder/console/communication/ProcessControlImplementation.java,
+	  src/net/grinder/engine/agent/Agent.java,
+	  tests-src/net/grinder/engine/agent/TestAgent.java,
+	  tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java,
+	  tests-src/net/grinder/engine/common/TestConsoleListener.java:
+	  Agent now accepts overriding properties in start message.
+
+	* tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	  Remove unused import.
+
+	* tests-src/net/grinder/console/editor/TestExternalEditor.java:
+	  Remove unused import.
+
+2007-12-15 [r3596]  Philip Aston
+
+	* src/net/grinder/engine/agent/IsolatedGrinderProcessRunner.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorker.java:
+	  Allow unit tests to override the worker implementation.
+
+2007-12-15 [r3595]  Philip Aston
+
+	* tests-src/net/grinder/engine/agent/TestDebugThreadWorker.java:
+	  Coverage.
+
+2007-12-13 [r3594]  Philip Aston
+
+	* src/net/grinder/engine/messages/InitialiseGrinderMessage.java,
+	  src/net/grinder/engine/agent/AbstractWorkerFactory.java,
+	  tests-src/net/grinder/engine/messages/TestEngineMessages.java,
+	  src/net/grinder/engine/common/ScriptLocation.java (added),
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/ScriptEngine.java,
+	  src/net/grinder/engine/agent/Agent.java,
+	  src/net/grinder/engine/agent/DebugThreadWorkerFactory.java,
+	  src/net/grinder/engine/agent/ProcessWorkerFactory.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorkerFactory.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	  Introduce ScriptLocation - a pair of the script file and its root
+	  directory.
+
+2007-12-13 [r3592-3593]  Philip Aston
+
+	* TODO: Progress.
+
+	* src/net/grinder/util/thread/ThreadSafeQueue.java: Thread safety.
+
+2007-12-10 [r3591]  Philip Aston
+
+	* src/net/grinder/script/Statistics.java, CHANGES,
+	  src/net/grinder/engine/process/ThreadContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	  Fix bug 1846218 - Delayed statistics are not flushed on next
+	  test.
+
+2007-12-10 [r3590]  Philip Aston
+
+	* tests-src/net/grinder/console/swingui/TestFileTreeModel.java,
+	  tests-src/net/grinder/console/swingui/TestCompositeTreeModel.java,
+	  tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java,
+	  tests-src/net/grinder/testutility/CallRecorder.java: Add
+	  setIgnoreMethod(). setIgnoreObjectMethods() now takes no
+	  parameter.
+
+2007-12-10 [r3589]  Philip Aston
+
+	* src/net/grinder/script/Test.java: Javadoc.
+
+2007-12-04 [r3587]  Philip Aston
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java,
+	  CHANGES: Fix TCPProxy filter bug which would cause some form data
+	  not to be identified and tokenised. Increase the size of form
+	  data that will be in-lined in the script.
+
+2007-11-26 [r3583-3584]  Philip Aston
+
+	* src/net/grinder/console/swingui/FileTree.java,
+	  src/net/grinder/console/swingui/resources/Console_de.properties,
+	  src/net/grinder/console/swingui/resources/Console_pl.properties,
+	  src/net/grinder/console/swingui/resources/Console_it.properties,
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/swingui/resources/Console_zh.properties,
+	  src/net/grinder/console/swingui/resources/Console_ru.properties,
+	  src/net/grinder/console/swingui/resources/Console_es.properties,
+	  src/net/grinder/console/swingui/resources/Console_fr.properties:
+	  Correct enabling of external edit action. Warn if externally
+	  editing a file with a dirty buffer.
+
+	* src/net/grinder/console/swingui/OptionsDialogHandler.java: Don't
+	  NPE if no external editor is set.
+
+2007-11-20 [r3582]  Philip Aston
+
+	* CHANGES,
+	  src/net/grinder/console/model/ConsolePropertyDefaults.java: Add
+	  .svn directories to default filter.
+
+2007-11-19 [r3581]  Philip Aston
+
+	* src/net/grinder/console/editor/EditorModel.java,
+	  src/net/grinder/console/editor/ExternalEditor.java,
+	  tests-src/net/grinder/console/editor/TestExternalEditor.java:
+	  Auto refresh clean buffers after successful external edit.
+
+2007-11-18 [r3580]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties,
+	  src/net/grinder/console/swingui/resources/Console_pl.properties,
+	  src/net/grinder/console/swingui/resources/Console_it.properties,
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/editor/EditorModel.java,
+	  src/net/grinder/console/swingui/resources/Console_zh.properties,
+	  tests-src/net/grinder/console/editor/TestEditorModel.java,
+	  src/net/grinder/console/swingui/OptionsDialogHandler.java,
+	  src/net/grinder/console/editor/ExternalEditor.java,
+	  src/net/grinder/console/model/ConsoleProperties.java,
+	  tests-src/net/grinder/console/editor/TestExternalEditor.java,
+	  tests-src/net/grinder/console/model/TestConsoleProperties.java,
+	  src/net/grinder/console/swingui/resources/Console_ru.properties,
+	  src/net/grinder/console/swingui/resources/Console_es.properties,
+	  src/net/grinder/console/swingui/resources/Console_fr.properties:
+	  Add external editor settings to options dialog.
+
+2007-11-18 [r3579]  Philip Aston
+
+	* src/net/grinder/console/model/ConsoleProperties.java,
+	  tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	  Fix assignment of editor command.
+
+2007-11-18 [r3578]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/Console_pl.properties,
+	  src/net/grinder/console/swingui/resources/Console_it.properties,
+	  src/net/grinder/console/swingui/resources/icons.xcf,
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/swingui/resources/Console_zh.properties,
+	  tests-src/net/grinder/console/editor/TestExternalEditor.java
+	  (added), src/net/grinder/console/editor/ExternalEditor.java
+	  (added),
+	  src/net/grinder/console/swingui/resources/Console_ru.properties,
+	  tests-src/net/grinder/console/swingui/TestFileTree.java,
+	  src/net/grinder/console/swingui/FileTree.java,
+	  src/net/grinder/console/swingui/resources/Console_de.properties,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/editor/EditorModel.java,
+	  tests-src/net/grinder/console/editor/TestEditorModel.java,
+	  tests-src/net/grinder/console/editor/TouchClass.java (added),
+	  src/net/grinder/console/swingui/resources/open-file-external.png
+	  (added),
+	  src/net/grinder/console/swingui/resources/open-file-external-rollover.png
+	  (added),
+	  src/net/grinder/console/swingui/resources/Console_fr.properties,
+	  src/net/grinder/console/swingui/resources/Console_es.properties:
+	  External editor support.
+
+2007-11-18 [r3576-3577]  Philip Aston
+
+	* tests-src/net/grinder/console/swingui/TestGraph.java: Coverage.
+
+	* tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java:
+	  Coverage.
+
+2007-11-18 [r3575]  Philip Aston
+
+	* tests-src/net/grinder/console/swingui/TestFileTreeModel.java:
+	  Coverage.
+
+2007-11-18 [r3574]  Philip Aston
+
+	* src/net/grinder/console/swingui/FrameBounds.java,
+	  src/net/grinder/console/model/ConsoleProperties.java,
+	  tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	  Refactor common code in ConsoleProperties to internal Property
+	  classes. Declare that ConsoleExceptions are thrown rather than
+	  DisplayMessageConsoleExceptions. Add properties for external
+	  editor configuration.
+
+2007-11-18 [r3573]  Philip Aston
+
+	* src/net/grinder/console/swingui/OptionalConfirmDialog.java:
+	  Correct JavaDoc spelling.
+
+2007-11-17 [r3572]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/close-file.png,
+	  src/net/grinder/console/swingui/resources/close-file-rollover.png,
+	  src/net/grinder/console/swingui/resources/icons.xcf: Improve
+	  close file icon.
+
+2007-11-17 [r3571]  Philip Aston
+
+	* src/net/grinder/console/swingui/ConsoleUI.java: Reduce the
+	  vertical spacing between menu items.
+
+2007-11-17 [r3569]  Philip Aston
+
+	* src/net/grinder/debug (removed), native (removed): Remove native
+	  thread dumper. Modern JVMs have alternative options.
+
+2007-11-17 [r3568]  Philip Aston
+
+	* src/net/grinder/console/distribution/FileDistributionImplementation.java:
+	  Correct JavaDoc.
+
+2007-11-17 [r3567]  Philip Aston
+
+	* src/net/grinder/console/swingui/FileTreeModel.java: Sort files
+	  and directories alphabetically.
+
+2007-11-17 [r3566]  Philip Aston
+
+	* src/net/grinder/console/distribution/FileDistributionImplementation.java,
+	  tests-src/net/grinder/console/swingui/TestFileTree.java,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/FileTreeModel.java,
+	  tests-src/net/grinder/console/swingui/TestFileTreeModel.java,
+	  tests-src/net/grinder/console/distribution/TestAgentCacheStateImplementation.java,
+	  src/net/grinder/console/distribution/FileDistribution.java,
+	  tests-src/net/grinder/console/distribution/TestFileDistribution.java,
+	  src/net/grinder/console/Console.java: Only show files that will
+	  be distributed in the file tree.
+
+2007-11-17 [r3565]  Philip Aston
+
+	* src/net/grinder/console/swingui/ConsoleUI.java: Correct order of
+	  file tree popup menu creation.
+
+2007-11-15 [r3564]  Philip Aston
+
+	* src/net/grinder/console/distribution/FileDistributionFilter.java
+	  (removed),
+	  tests-src/net/grinder/console/distribution/TestFileDistributionFilter.java
+	  (removed),
+	  src/net/grinder/console/distribution/FileDistributionImplementation.java,
+	  tests-src/net/grinder/console/distribution/TestFileDistribution.java,
+	  CHANGES,
+	  src/net/grinder/console/model/ConsolePropertyDefaults.java: Fix
+	  bug 1831651 - Some parts of the distribution file filter should
+	  be fixed. Thanks to Andrew Stephens for the report.
+
+2007-11-15 [r3563]  Philip Aston
+
+	* tests-src/net/grinder/console/swingui/TestFileTree.java: Improve
+	  file tree look.
+
+2007-11-15 [r3562]  Philip Aston
+
+	* src/net/grinder/console/swingui/FileTree.java,
+	  src/net/grinder/console/swingui/ConsoleUI.java: Improve file tree
+	  look.
+
+2007-11-14 [r3561]  Philip Aston
+
+	* src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/Editor.java,
+	  src/net/grinder/console/swingui/resources/Console.properties,
+	  src/net/grinder/console/swingui/EditorControls.java (added):
+	  Rejig the layout of the editor controls.
+
+2007-11-13 [r3560]  Philip Aston
+
+	* src/net/grinder/util/AbstractMultiLineFormatter.java,
+	  src/net/grinder/util/MultiLineFormatter.java: Checkstyle.
+
+2007-11-11 [r3556-3559]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/TestLoggerImplementation.java
+	  (added), tests-src/net/grinder/testutility/StubPrintStream.java
+	  (added),
+	  tests-src/net/grinder/testutility/AbstractFileTestCase.java: Test
+	  LoggerImplementation.
+
+	* src/net/grinder/engine/process/LoggerImplementation.java, TODO,
+	  CHANGES: Don't truncate log lines to an arbitrary number of
+	  characters. Warn on first error to terminal, even if process
+	  logging is disabled.
+
+	* tests-src/net/grinder/testutility/AssertUtilities.java:
+	  assertArrayContainsAll() now produces a useful failure message.
+
+	* etc/findbugs-exclude.xml: Ignore things I think are OK.
+
+2007-11-10 [r3555]  Philip Aston
+
+	* src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java,
+	  src/net/grinder/engine/process/TestRegistry.java,
+	  src/net/grinder/console/swingui/DynamicStatisticsTableModel.java,
+	  src/net/grinder/engine/common/ConsoleListener.java: Fix
+	  inconsistent synchronisation errors.
+
+2007-11-10 [r3554]  Philip Aston
+
+	* src/net/grinder/console/model/SampleAccumulator.java: Remove
+	  redundant synchronisation.
+
+2007-11-10 [r3550-3553]  Philip Aston
+
+	* tests-src/net/grinder/util/thread/TestThreadPool.java: Coverage.
+
+	* src/net/grinder/util/thread/ThreadPool.java: Fix array bounds bug
+	  in stopAndWait().
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/XSLTHelper.java:
+	  Synchronise access to DateFormat.
+
+	* etc/findbugs-exclude.xml: Exclude more false positives.
+
+2007-11-08 [r3549]  Philip Aston
+
+	* src/net/grinder/console/model/ModelImplementation.java,
+	  src/net/grinder/engine/process/ScriptStatisticsImplementation.java,
+	  tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java,
+	  src/net/grinder/statistics/StatisticExpressionFactory.java,
+	  src/net/grinder/statistics/CommonStatisticsViews.java,
+	  tests-src/net/grinder/statistics/TestCommonStatisticsViews.java,
+	  src/net/grinder/console/messages/RegisterExpressionViewMessage.java,
+	  src/net/grinder/statistics/StatisticExpressionFactoryImplementation.java,
+	  tests-src/net/grinder/statistics/TestStatisticsView.java,
+	  tests-src/net/grinder/engine/process/TestThreadDataWriter.java,
+	  src/net/grinder/statistics/ExpressionView.java,
+	  tests-src/net/grinder/statistics/TestExpressionView.java,
+	  tests-src/net/grinder/statistics/TestStatisticsTable.java,
+	  src/net/grinder/statistics/StatisticsServicesImplementation.java,
+	  tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java,
+	  tests-src/net/grinder/console/messages/TestConsoleMessages.java:
+	  Refactor ExpressionView constructors to remove circular class
+	  references.
+
+2007-11-07 [r3547-3548]  Philip Aston
+
+	* etc/findbugs-exclude.xml: Remove some false positives.
+
+	* src/net/grinder/common/GrinderProperties.java: Add a
+	  serialVersionUID.
+
+2007-11-07 [r3546]  Philip Aston
+
+	* src/net/grinder/TCPProxy.java: Close properties file after
+	  reading from it.
+
+2007-11-05 [r3544-3545]  Philip Aston
+
+	* src/net/grinder/engine/process/LoggerImplementation.java,
+	  CHANGES,
+	  src/net/grinder/engine/process/jython/JythonScriptExecutionException.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptExecutionException.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java:
+	  Refine logging so that the first error message is written to the
+	  terminal as well as the error log.
+
+	* src/net/grinder/util/SimpleLogger.java,
+	  src/net/grinder/util/AbstractMultiLineFormatter.java (added),
+	  src/net/grinder/TCPProxy.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java,
+	  src/net/grinder/util/NullMultiLineFormatter.java (added),
+	  src/net/grinder/util/FixedWidthFormatter.java,
+	  tests-src/net/grinder/util/TestFixedWidthFormatter.java,
+	  src/net/grinder/util/MultiLineFormatter.java (added): Change the
+	  agent logger so it doesn't word wrap.
+
+2007-11-05 [r3543]  Philip Aston
+
+	* examples/cookies.py, CHANGES: Further cookie munching.
+
+2007-11-04 [r3541-3542]  Philip Aston
+
+	* etc/localpaths.properties: Fix for current environment.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxyFilter.java,
+	  src/net/grinder/tools/tcpproxy/ConnectionDetails.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java,
+	  CHANGES: Fix bug 1825639 - "Connection ... already opened" when
+	  recording HTTPS.
+
+2007-11-04 [r3537-3540]  Philip Aston
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	  Synchronise to address unlikely race condition when creating
+	  proxy HTTPS connections.
+
+	* docs (added), docs/HTTPS and TCPProxyEngine.svg (added): Diagram
+	  useful for diagnosing Bug 1825639.
+
+	* .settings/org.eclipse.jdt.core.prefs, .classpath,
+	  .settings/org.eclipse.jdt.ui.prefs: Eclipse cruft.
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ConnectionCache.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionCache.java,
+	  CHANGES: Revert 3536 (relax handling of unexpected connection
+	  events) since I've found the real culprit. See Bug 1825639.
+
+2007-10-11 [r3536]  Philip Aston
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/ConnectionCache.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionCache.java,
+	  CHANGES: The HTTP Plugin filter for the TCPProxy is now just logs
+	  if connections are used in unexpected ways. Previously it would
+	  throw an exception and break the connection.
+
+2007-10-11 [r3535]  Philip Aston
+
+	* etc/findbugs-exclude.xml,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java,
+	  src/net/grinder/util/UniqueIdentityGenerator.java: Code Police
+
+2007-10-10 [r3534]  Philip Aston
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	  Sigh, *really* revert.
+
+2007-10-10 [r3533]  Philip Aston
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	  Whoops, this wasn't part of the fix to bug 1700158. Revert.
+
+2007-10-10 [r3532]  Philip Aston
+
+	* src/net/grinder/plugin/http/HTTPPluginThreadState.java: Fix bug
+	  1700158 - ShutdownException thrown when using grinder.duration.
+
+2007-10-10 [r3531]  Philip Aston
+
+	* examples/cookies.py, CHANGES: Update the cookie.py example to
+	  show how to send a cookie.
+
+2007-10-07 [r3530]  Philip Aston
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java,
+	  src/net/grinder/engine/process/SSLControlImplementation.java,
+	  src/net/grinder/engine/process/ThreadContext.java,
+	  src/net/grinder/engine/process/PluginRegistryImplementation.java,
+	  CHANGES, src/net/grinder/common/ThreadLifeCycleListener.java,
+	  src/net/grinder/engine/process/GrinderThread.java,
+	  src/net/grinder/engine/process/ThreadContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	  Fix bug 1700158 - ShutdownException thrown when using
+	  grinder.duration.
+
+2007-10-07 [r3529]  Philip Aston
+
+	* tests-src/net/grinder/testutility/AbstractStubFactory.java: Fill
+	  in more appropriate stack trace for throwables.
+
+2007-10-07 [r3528]  Philip Aston
+
+	* CHANGES, src/net/grinder/plugin/http/TimeoutException.java
+	  (added), src/net/grinder/plugin/http/HTTPRequest.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java: Partially
+	  address feature request in bug 1688988 by translating
+	  InterruptedIOExceptions due to timeouts in HTTPClient code to a
+	  specific TimeoutException. Thanks to Andrew McGuigan for the
+	  report.
+
+2007-10-07 [r3527]  Philip Aston
+
+	* CHANGES: Complete - task 1808854: Incorrect synchronisation Full
+	  name.
+
+2007-10-07 [r3526]  Philip Aston
+
+	* CHANGES, src/net/grinder/statistics/TestStatisticsMap.java,
+	  tests-src/net/grinder/statistics/TestTestStatisticsMap.java: Fix
+	  bug 1808854 - Incorrect synchronisation in TestStatisticsMap.
+
+2007-10-07 [r3525]  Philip Aston
+
+	* .fbprefs: Update.
+
+2007-10-07 [r3524]  Philip Aston
+
+	* etc/findbugs-exclude.xml: Remove some false positives.
+
+2007-10-07 [r3522-3523]  Philip Aston
+
+	* etc/findbugs-exclude.xml: Update format for current version of
+	  FindBugs.
+
+	* .settings/org.eclipse.mylyn.tasks.ui.prefs (added): Mylyn.
+
+2007-04-21 [r3521]  Philip Aston
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties,
+	  AUTHORS, CHANGES: Updates to the German console translation from
+	  Matthias Diller.
+
+2007-03-17 [r3516]  Philip Aston
+
+	* ChangeLog: Update for beta 33.
+
 2007-03-17 [r3514-3515]  Philip Aston
 
 	* src/net/grinder/console/distribution/FileDistributionImplementation.java:
