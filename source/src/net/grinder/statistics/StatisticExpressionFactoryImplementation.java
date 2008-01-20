@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,12 @@ package net.grinder.statistics;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext.ParseException;
+import net.grinder.statistics.StatisticsIndexMap.DoubleIndex;
+import net.grinder.statistics.StatisticsIndexMap.DoubleSampleIndex;
+import net.grinder.statistics.StatisticsIndexMap.LongIndex;
+import net.grinder.statistics.StatisticsIndexMap.LongSampleIndex;
 
 
 /**
@@ -94,7 +100,7 @@ final class StatisticExpressionFactoryImplementation
 
     final ParseContext parseContext = new ParseContext(expression);
 
-    final StatisticExpression result = createExpression(parseContext);
+    final StatisticExpression result = readExpression(parseContext);
 
     if (parseContext.hasMoreCharacters()) {
       throw parseContext.new ParseException(
@@ -104,7 +110,7 @@ final class StatisticExpressionFactoryImplementation
     return result;
   }
 
-  private StatisticExpression createExpression(ParseContext parseContext)
+  private StatisticExpression readExpression(ParseContext parseContext)
     throws ParseContext.ParseException {
 
     if (parseContext.peekCharacter() == '(') {
@@ -114,14 +120,26 @@ final class StatisticExpressionFactoryImplementation
       final StatisticExpression result;
 
       if ("+".equals(operation)) {
-        result = createSum(readOperands(parseContext, 2));
+        result = createSum(readOperands(parseContext));
+      }
+      else if ("-".equals(operation)) {
+
+        final StatisticExpression firstOperand = readExpression(parseContext);
+        final StatisticExpression[] others = readOperands(parseContext);
+
+        if (others.length == 0) {
+          result = createNegation(firstOperand);
+        }
+        else {
+          result = createMinus(firstOperand, others);
+        }
       }
       else if ("*".equals(operation)) {
-        result = createProduct(readOperands(parseContext, 2));
+        result = createProduct(readOperands(parseContext));
       }
       else if ("/".equals(operation)) {
-        result = createDivision(createExpression(parseContext),
-                                createExpression(parseContext));
+        result = createDivision(readExpression(parseContext),
+                                readExpression(parseContext));
       }
       else if ("sum".equals(operation)) {
         result = createSampleSum(parseContext);
@@ -133,7 +151,7 @@ final class StatisticExpressionFactoryImplementation
         result = createSampleVariance(parseContext);
       }
       else if ("sqrt".equals(operation)) {
-        result = createSquareRoot(createExpression(parseContext));
+        result = createSquareRoot(readExpression(parseContext));
       }
       else {
         throw parseContext.new ParseException(
@@ -157,15 +175,13 @@ final class StatisticExpressionFactoryImplementation
           return createConstant(Double.parseDouble(token));
         }
         catch (NumberFormatException e2) {
-          final StatisticsIndexMap.LongIndex longIndex =
-            m_indexMap.getLongIndex(token);
+          final LongIndex longIndex = m_indexMap.getLongIndex(token);
 
           if (longIndex != null) {
             return createPrimitive(longIndex);
           }
 
-          final StatisticsIndexMap.DoubleIndex doubleIndex =
-            m_indexMap.getDoubleIndex(token);
+          final DoubleIndex doubleIndex = m_indexMap.getDoubleIndex(token);
 
           if (doubleIndex != null) {
             return createPrimitive(doubleIndex);
@@ -211,8 +227,7 @@ final class StatisticExpressionFactoryImplementation
    * @param index The expression index.
    * @return The <code>StatisticExpression</code>.
    */
-  public StatisticExpression
-    createPrimitive(StatisticsIndexMap.DoubleIndex index) {
+  public StatisticExpression createPrimitive(DoubleIndex index) {
     return new PrimitiveDoubleStatistic(index);
   }
 
@@ -222,8 +237,7 @@ final class StatisticExpressionFactoryImplementation
    * @param index The expression index.
    * @return The <code>StatisticExpression</code>.
    */
-  public StatisticExpression
-    createPrimitive(StatisticsIndexMap.LongIndex index) {
+  public StatisticExpression createPrimitive(LongIndex index) {
     return new PrimitiveLongStatistic(index);
   }
 
@@ -233,10 +247,9 @@ final class StatisticExpressionFactoryImplementation
    * @param operands The things to add.
    * @return The resulting expression.
    */
-  public StatisticExpression
-    createSum(final StatisticExpression[] operands) {
+  public StatisticExpression createSum(final StatisticExpression[] operands) {
 
-    return new VariableArgumentsExpression(0, operands) {
+    return new FoldArgumentsExpressionFactory(0, operands) {
         public double doDoubleOperation(
           double result, StatisticExpression operand,
           StatisticsSet statisticsSet) {
@@ -253,6 +266,59 @@ final class StatisticExpressionFactoryImplementation
   }
 
   /**
+   * Create a negation.
+   *
+   * @param operand The thing to negate.
+   * @return The resulting expression.
+   */
+  public StatisticExpression createNegation(final StatisticExpression operand) {
+
+    if (operand.isDouble()) {
+      return new DoubleStatistic() {
+        protected double getValue(StatisticsSet statisticsSet) {
+          return -operand.getDoubleValue(statisticsSet);
+        }
+      };
+    }
+    else {
+      return new LongStatistic() {
+        protected long getValue(StatisticsSet statisticsSet) {
+          return -operand.getLongValue(statisticsSet);
+        }
+      };
+    }
+  }
+
+  /**
+   * Create a minus expression. The result is the first argument less the
+   * sum of the remaining arguments.
+   *
+   * @param firstOperand The first argument.
+   * @param otherOperands The remaining arguments.
+   * @return The resulting expression.
+   */
+  public StatisticExpression createMinus(
+    final StatisticExpression firstOperand,
+    final StatisticExpression[] otherOperands) {
+
+    return new FoldArgumentsExpressionFactory(firstOperand, otherOperands) {
+      public double doDoubleOperation(double result,
+                                      StatisticExpression operand,
+                                      StatisticsSet statisticsSet) {
+        return result - operand.getDoubleValue(statisticsSet);
+      }
+
+      public long doLongOperation(long result,
+                                  StatisticExpression operand,
+                                  StatisticsSet statisticsSet) {
+        return result - operand.getLongValue(statisticsSet);
+      }
+    }
+    .getExpression();
+  }
+
+
+  /**
    * Create a product.
    *
    * @param operands The things to multiply.
@@ -261,7 +327,7 @@ final class StatisticExpressionFactoryImplementation
   public StatisticExpression
     createProduct(final StatisticExpression[] operands) {
 
-    return new VariableArgumentsExpression(1, operands) {
+    return new FoldArgumentsExpressionFactory(1, operands) {
         public double doDoubleOperation(
           double result, StatisticExpression operand,
           StatisticsSet statisticsSet) {
@@ -300,9 +366,19 @@ final class StatisticExpressionFactoryImplementation
   /**
    * Create an accessor for a sample's sum attribute.
    *
-   * @param parseContext The parse context.
+   * <p>
+   * It might look like there's an easy abstraction across createSampleSum(),
+   * createSampleCount(), and createSampleVariance(); but it isn't so because of
+   * type issues. The count is a long for both DoubleSampleStatistics and
+   * LongSampleStatistics; the variance is a double, and the sum is a double for
+   * a DoubleStatistics and a long for a LongSampleStatistics.
+   * </p>
+   *
+   * @param parseContext
+   *            The parse context.
    * @return The resulting expression.
-   * @throws ParseException If the parse failed.
+   * @throws ParseException
+   *             If the parse failed.
    */
   private StatisticExpression createSampleSum(ParseContext parseContext)
     throws ParseContext.ParseException {
@@ -311,14 +387,14 @@ final class StatisticExpressionFactoryImplementation
 
     final String token = parseContext.readToken();
 
-    final StatisticsIndexMap.DoubleSampleIndex doubleSampleIndex =
+    final DoubleSampleIndex doubleSampleIndex =
       m_indexMap.getDoubleSampleIndex(token);
 
     if (doubleSampleIndex != null) {
       result = createPrimitive(doubleSampleIndex.getSumIndex());
     }
     else {
-      final StatisticsIndexMap.LongSampleIndex longSampleIndex =
+      final LongSampleIndex longSampleIndex =
         m_indexMap.getLongSampleIndex(token);
 
       if (longSampleIndex != null) {
@@ -326,7 +402,7 @@ final class StatisticExpressionFactoryImplementation
       }
       else {
         throw parseContext.new ParseException(
-            "Can't apply sum to unknown sample index '" + token + "'");
+          "Can't apply sum to unknown sample index '" + token + "'");
       }
     }
 
@@ -347,14 +423,14 @@ final class StatisticExpressionFactoryImplementation
 
     final String token = parseContext.readToken();
 
-    final StatisticsIndexMap.DoubleSampleIndex doubleSampleIndex =
+    final DoubleSampleIndex doubleSampleIndex =
       m_indexMap.getDoubleSampleIndex(token);
 
     if (doubleSampleIndex != null) {
       result = createPrimitive(doubleSampleIndex.getCountIndex());
     }
     else {
-      final StatisticsIndexMap.LongSampleIndex longSampleIndex =
+      final LongSampleIndex longSampleIndex =
         m_indexMap.getLongSampleIndex(token);
 
       if (longSampleIndex != null) {
@@ -362,7 +438,7 @@ final class StatisticExpressionFactoryImplementation
       }
       else {
         throw parseContext.new ParseException(
-            "Can't apply count to unknown sample index '" + token + "'");
+          "Can't apply count to unknown sample index '" + token + "'");
       }
     }
 
@@ -429,7 +505,7 @@ final class StatisticExpressionFactoryImplementation
    * @return The resulting expression.
    */
   public PeakStatisticExpression
-    createPeak(StatisticsIndexMap.DoubleIndex peakIndex,
+    createPeak(DoubleIndex peakIndex,
                StatisticExpression monitoredStatistic) {
     return new PeakDoubleStatistic(peakIndex, monitoredStatistic);
   }
@@ -442,7 +518,7 @@ final class StatisticExpressionFactoryImplementation
    * @return The resulting expression.
    */
   public PeakStatisticExpression
-    createPeak(StatisticsIndexMap.LongIndex peakIndex,
+    createPeak(LongIndex peakIndex,
                StatisticExpression monitoredStatistic) {
     return new PeakLongStatistic(peakIndex, monitoredStatistic);
   }
@@ -492,18 +568,12 @@ final class StatisticExpressionFactoryImplementation
     return new ExpressionView(displayName, null, expression, false);
   }
 
-  private StatisticExpression[] readOperands(ParseContext parseContext,
-                                             int minimumSize)
+  private StatisticExpression[] readOperands(ParseContext parseContext)
     throws ParseContext.ParseException {
     final List arrayList = new ArrayList();
 
     while (parseContext.peekCharacter() != ')') {
-      arrayList.add(createExpression(parseContext));
-    }
-
-    if (arrayList.size() < minimumSize) {
-      throw parseContext.new ParseException(
-        "Operation must have at least two operands");
+      arrayList.add(readExpression(parseContext));
     }
 
     return (StatisticExpression[])
@@ -529,9 +599,9 @@ final class StatisticExpressionFactoryImplementation
 
   private static class PrimitiveDoubleStatistic extends DoubleStatistic {
 
-    private final StatisticsIndexMap.DoubleIndex m_index;
+    private final DoubleIndex m_index;
 
-    public PrimitiveDoubleStatistic(StatisticsIndexMap.DoubleIndex index) {
+    public PrimitiveDoubleStatistic(DoubleIndex index) {
       m_index = index;
     }
 
@@ -549,7 +619,7 @@ final class StatisticExpressionFactoryImplementation
 
     private final StatisticExpression m_monitoredStatistic;
 
-    public PeakDoubleStatistic(StatisticsIndexMap.DoubleIndex peakIndex,
+    public PeakDoubleStatistic(DoubleIndex peakIndex,
                                StatisticExpression monitoredStatistic) {
       super(peakIndex);
       m_monitoredStatistic = monitoredStatistic;
@@ -583,9 +653,9 @@ final class StatisticExpressionFactoryImplementation
 
   private static class PrimitiveLongStatistic extends LongStatistic {
 
-    private final StatisticsIndexMap.LongIndex m_index;
+    private final LongIndex m_index;
 
-    public PrimitiveLongStatistic(StatisticsIndexMap.LongIndex index) {
+    public PrimitiveLongStatistic(LongIndex index) {
       m_index = index;
     }
 
@@ -602,7 +672,7 @@ final class StatisticExpressionFactoryImplementation
     extends PrimitiveLongStatistic implements PeakStatisticExpression {
     private final StatisticExpression m_monitoredStatistic;
 
-    public PeakLongStatistic(StatisticsIndexMap.LongIndex peakIndex,
+    public PeakLongStatistic(LongIndex peakIndex,
                              StatisticExpression monitoredStatistic) {
       super(peakIndex);
       m_monitoredStatistic = monitoredStatistic;
@@ -617,12 +687,18 @@ final class StatisticExpressionFactoryImplementation
     }
   }
 
-  private abstract static class VariableArgumentsExpression {
+  private abstract class FoldArgumentsExpressionFactory {
 
     private final StatisticExpression m_expression;
 
-    public VariableArgumentsExpression(
-      final double initialValue, final StatisticExpression[] operands) {
+    public FoldArgumentsExpressionFactory(
+      double initialValue, final StatisticExpression[] operands) {
+      this(createConstant(initialValue), operands);
+    }
+
+    public FoldArgumentsExpressionFactory(
+      final StatisticExpression initialValue,
+      final StatisticExpression[] operands) {
 
       boolean doubleResult = false;
 
@@ -636,7 +712,7 @@ final class StatisticExpressionFactoryImplementation
         m_expression = new DoubleStatistic() {
             public final double getValue(
               StatisticsSet statisticsSet) {
-              double result = initialValue;
+              double result = initialValue.getDoubleValue(statisticsSet);
 
               for (int i = 0; i < operands.length; ++i) {
                 result = doDoubleOperation(result, operands[i], statisticsSet);
@@ -650,7 +726,7 @@ final class StatisticExpressionFactoryImplementation
         m_expression = new LongStatistic() {
             public final long getValue(
               StatisticsSet statisticsSet) {
-              long result = (long)initialValue;
+              long result = initialValue.getLongValue(statisticsSet);
 
               for (int i = 0; i < operands.length; ++i) {
                 result = doLongOperation(result, operands[i], statisticsSet);

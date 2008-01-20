@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.statistics;
 
+import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext.ParseException;
 import junit.framework.TestCase;
 
 
@@ -138,25 +139,74 @@ public class TestStatisticExpressionFactory extends TestCase {
     myAssertEquals(5, m_factory
         .createExpression("(+ userLong0 (+ userLong0 userLong1) userLong0)"));
 
-    try {
-      m_factory.createExpression("(+)");
-      fail("Expected a ParseException");
-    }
-    catch (StatisticExpressionFactoryImplementation.ParseContext.ParseException e) {
-    }
+    myAssertEquals(0, m_factory.createExpression("(+)"));
 
-    try {
-      m_factory.createExpression("(+ userLong0)");
-      fail("Expected a ParseException");
-    }
-    catch (StatisticExpressionFactoryImplementation.ParseContext.ParseException e) {
-    }
+    myAssertEquals(1, m_factory.createExpression("(+ userLong0)"));
 
     try {
       m_factory.createExpression("(+ userLong0 timedTests)");
       fail("Expected a ParseException");
     }
-    catch (StatisticExpressionFactoryImplementation.ParseContext.ParseException e) {
+    catch (ParseException e) {
+    }
+  }
+
+  public void testNegation() throws Exception {
+    myAssertEquals(-2,
+      m_factory.createNegation(m_factory.createExpression("userLong1")));
+
+    myAssertEquals(0.0,
+                   m_factory.createNegation(m_factory.createConstant(0.0)));
+
+    myAssertEquals(100,
+                   m_factory.createNegation(m_factory.createConstant(-100)));
+
+    myAssertEquals(-1, m_factory.createExpression("(- 1)"));
+
+    try {
+      m_factory.createExpression("(-)");
+      fail("Expected a ParseException");
+    }
+    catch (ParseException e) {
+    }
+
+    try {
+      m_factory.createExpression("(-1)");
+      fail("Expected a ParseException");
+    }
+    catch (ParseException e) {
+    }
+  }
+
+  public void testMinus() throws Exception {
+    final StatisticExpression[] expressions = {
+        m_factory.createExpression("userLong0"),
+        m_factory.createExpression("userLong1"),
+        m_factory.createExpression("userLong1"), };
+
+    final StatisticExpression expression =
+      m_factory.createMinus(m_factory.createConstant(10), expressions);
+
+    myAssertEquals(5, expression);
+    assertTrue(!expression.isDouble());
+
+    myAssertEquals(1, m_factory.createExpression("(- userLong1 userLong0)"));
+
+    myAssertEquals(-3, m_factory
+        .createExpression("(- userLong0 userLong1 userLong1)"));
+
+    myAssertEquals(0, m_factory
+        .createExpression("(- userLong0 (- userLong0 userLong0) userLong0)"));
+
+
+    myAssertEquals(-1.0, m_factory
+        .createExpression("(- userLong0 (- userLong0 userDouble0) userLong0)"));
+
+    try {
+      m_factory.createExpression("(- userLong0 timedTests)");
+      fail("Expected a ParseException");
+    }
+    catch (ParseException e) {
     }
   }
 
@@ -179,25 +229,15 @@ public class TestStatisticExpressionFactory extends TestCase {
     myAssertEquals(8, m_factory
         .createExpression("(* userLong1 (* userLong1 userLong1) userLong0)"));
 
-    try {
-      m_factory.createExpression("(*)");
-      fail("Expected a ParseException");
-    }
-    catch (StatisticExpressionFactoryImplementation.ParseContext.ParseException e) {
-    }
+    myAssertEquals(1, m_factory.createExpression("(*)"));
 
-    try {
-      m_factory.createExpression("(* userLong0)");
-      fail("Expected a ParseException");
-    }
-    catch (StatisticExpressionFactoryImplementation.ParseContext.ParseException e) {
-    }
+    myAssertEquals(2, m_factory.createExpression("(* userLong1)"));
 
     try {
       m_factory.createExpression("(* timedTests timedTests)");
       fail("Expected a ParseException");
     }
-    catch (StatisticExpressionFactoryImplementation.ParseContext.ParseException e) {
+    catch (ParseException e) {
     }
   }
 

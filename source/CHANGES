@@ -56,6 +56,10 @@ The Grinder 3.0
 
   Upgrade embedded version of Jython from Jython 2.1 to Jython 2.2.1.
 
+  Fix bug 1874815 - '-' does not work in statistics expressions. Also,
+  relax '+' and '*' so they are defined for zero or one argument.
+  Thanks to Heidi Thompson for the report.
+
 
 The Grinder 3.0-beta33
 ----------------------

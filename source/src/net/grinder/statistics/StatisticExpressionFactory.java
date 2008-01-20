@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,7 +56,7 @@ public interface StatisticExpressionFactory {
    * @param value The value.
    * @return The <code>StatisticExpression</code>.
    */
-  StatisticExpression createConstant(final long value);
+  StatisticExpression createConstant(long value);
 
   /**
    *  Create a constant float expression.
@@ -64,7 +64,7 @@ public interface StatisticExpressionFactory {
    * @param value The value.
    * @return The <code>StatisticExpression</code>.
    */
-  StatisticExpression createConstant(final double value);
+  StatisticExpression createConstant(double value);
 
   /**
    * Create a primitive double expression.
@@ -88,7 +88,26 @@ public interface StatisticExpressionFactory {
    * @param operands The things to add.
    * @return The resulting expression.
    */
-  StatisticExpression createSum(final StatisticExpression[] operands);
+  StatisticExpression createSum(StatisticExpression[] operands);
+
+  /**
+   * Create a negation.
+   *
+   * @param operand The thing to negate.
+   * @return The resulting expression.
+   */
+  StatisticExpression createNegation(StatisticExpression operand);
+
+  /**
+   * Create a minus expression. The result is the first argument less the
+   * sum of the remaining arguments.
+   *
+   * @param firstOperand The first argument.
+   * @param otherOperands The remaining arguments.
+   * @return The resulting expression.
+   */
+  StatisticExpression createMinus(StatisticExpression firstOperand,
+                                  StatisticExpression[] otherOperands);
 
   /**
    * Create a product.
@@ -96,7 +115,7 @@ public interface StatisticExpressionFactory {
    * @param operands The things to multiply.
    * @return The resulting expression.
    */
-  StatisticExpression createProduct(final StatisticExpression[] operands);
+  StatisticExpression createProduct(StatisticExpression[] operands);
 
   /**
    * Create a division.
@@ -105,8 +124,8 @@ public interface StatisticExpressionFactory {
    * @param denominator The denominator.
    * @return The resulting expression.
    */
-  StatisticExpression createDivision(final StatisticExpression numerator,
-    final StatisticExpression denominator);
+  StatisticExpression createDivision(StatisticExpression numerator,
+                                     StatisticExpression denominator);
 
   /**
    * Create a square root.
@@ -114,7 +133,7 @@ public interface StatisticExpressionFactory {
    * @param operand The operand.
    * @return The resulting expression.
    */
-  StatisticExpression createSquareRoot(final StatisticExpression operand);
+  StatisticExpression createSquareRoot(StatisticExpression operand);
 
   /**
    * Create a peak double statistic.
@@ -124,7 +143,7 @@ public interface StatisticExpressionFactory {
    * @return The resulting expression.
    */
   PeakStatisticExpression createPeak(StatisticsIndexMap.DoubleIndex peakIndex,
-    StatisticExpression monitoredStatistic);
+                                     StatisticExpression monitoredStatistic);
 
   /**
    * Create a peak long statistic.
@@ -134,7 +153,7 @@ public interface StatisticExpressionFactory {
    * @return The resulting expression.
    */
   PeakStatisticExpression createPeak(StatisticsIndexMap.LongIndex peakIndex,
-    StatisticExpression monitoredStatistic);
+                                     StatisticExpression monitoredStatistic);
 
   /**
    * Creates a new <code>ExpressionView</code> instance.
