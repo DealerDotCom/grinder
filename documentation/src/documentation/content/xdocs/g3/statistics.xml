@@ -88,9 +88,11 @@
     <a href="script-javadoc/net/grinder/script/Statistics.html">Statistics</a>)
     in a simple post-fix format using the symbols +, -, / and *, which have
     their usual meanings, in conjunction with simple statistic names or
-    sub-expressions. Precedence can be controlled by grouping expressions in
+    sub-expressions. Precedence is controlled by grouping expressions in
     parentheses. For example, the error rate is
-    <code>(* (/ errors period) 1000)</code> errors per second.</p>
+    <code>(* (/ errors period) 1000)</code> errors per second. The symbol
+    <code>sqrt</code> can be used to calculate the square root of an
+    expression.</p>
 
     <p>Sample statistics, such as <code>timedTests</code>, must be introduced
     with one of <code>sum</code>, <code>count</code>, or <code>variance</code>,

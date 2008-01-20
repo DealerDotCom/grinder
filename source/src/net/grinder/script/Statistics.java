@@ -483,10 +483,11 @@ public interface Statistics  {
    * {@link Statistics}) in a simple post-fix format using the symbols
    * <code>+</code>, <code>-</code>, <code>/</code> and <code>*</code>,
    * which have their usual meanings, in conjunction with simple statistic names
-   * or sub-expressions. Precedence can be controlled by grouping expressions in
+   * or sub-expressions. Precedence is controlled by grouping expressions in
    * parentheses. For example, the error rate is
-   * <code>(* (/ errors period) 1000)</code> errors per second.
-   * </p>
+   * <code>(* (/ errors period) 1000)</code> errors per second. The symbol
+   * <code>sqrt</code> can be used to calculate the square root of an
+   * expression.</p>
    *
    * <p>
    * Sample statistics, such as <em>timedTests</em>, must be introduced with
