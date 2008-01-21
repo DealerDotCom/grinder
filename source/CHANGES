@@ -1,3 +1,9 @@
+The Grinder 3.0.1
+-----------------
+
+  Fix bug 1876273 - grinder.jar has incorrect manifest classpath.
+
+
 The Grinder 3.0
 ---------------
 
