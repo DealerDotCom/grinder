@@ -1,3 +1,20 @@
+2008-01-21 [r3722]  Philip Aston
+
+	* build.xml, CHANGES, etc/grinder-manifest.mf: Fix bug 1876273 -
+	  grinder.jar has incorrect manifest classpath.
+
+2008-01-20 [r3721]  Philip Aston
+
+	* AUTHORS: Tabs to spaces.
+
+2008-01-20 [r3719]  Philip Aston
+
+	* README: Align with SourceForge description. Fix typos.
+
+2008-01-20 [r3716]  Philip Aston
+
+	* ChangeLog: Update for 3.0.
+
 2008-01-20 [r3714-3715]  Philip Aston
 
 	* etc/svn2log.sh: Correct path.
