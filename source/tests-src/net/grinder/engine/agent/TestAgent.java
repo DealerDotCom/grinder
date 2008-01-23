@@ -208,6 +208,12 @@ public class TestAgent extends AbstractFileTestCase {
         AssertUtilities.assertContains(
           m_loggerStubFactory.assertSuccess("output", String.class)
           .getParameters()[0].toString(),
+          "connected");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        AssertUtilities.assertContains(
+          m_loggerStubFactory.assertSuccess("output", String.class)
+          .getParameters()[0].toString(),
           "waiting");
 
         // ...send a start message...

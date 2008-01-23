@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -109,5 +109,18 @@ public class TestConnector extends TestCase {
     for (int i = 0; i < notEqual.length; ++i) {
       AssertUtilities.assertNotEquals(connector, notEqual[i]);
     }
+  }
+
+  public void testGetEndpointAsString() throws Exception {
+    assertEquals(
+      "a:1234",
+      new Connector("a", 1234, ConnectionType.WORKER).getEndpointAsString());
+
+    final String description =
+      new Connector("", 1234, ConnectionType.WORKER).getEndpointAsString();
+
+    AssertUtilities.assertContains(description, "localhost");
+    AssertUtilities.assertContains(description, "1234");
+
   }
 }

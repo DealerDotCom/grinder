@@ -122,4 +122,22 @@ public final class Connector {
       m_connectionType.equals(other.m_connectionType) &&
       m_hostString.equals(other.m_hostString);
   }
+
+  /**
+   * Return a description of the connection address.
+   *
+   * @return The description.
+   */
+  public String getEndpointAsString() {
+    String host;
+
+    try {
+      host = InetAddress.getByName(m_hostString).toString();
+    }
+    catch (UnknownHostException e) {
+      host = m_hostString;
+    }
+
+    return host + ":" + m_port;
+  }
 }

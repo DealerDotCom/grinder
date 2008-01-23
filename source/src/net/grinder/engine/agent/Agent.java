@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000-2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
 //
@@ -156,6 +156,8 @@ public final class Agent {
         if (consoleCommunication == null && connector != null) {
           try {
             consoleCommunication = new ConsoleCommunication(connector);
+            m_logger.output(
+              "connected to console at " + connector.getEndpointAsString());
           }
           catch (CommunicationException e) {
             m_logger.error(
