@@ -29,7 +29,7 @@ import javax.swing.table.AbstractTableModel;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.ModelImplementation;
+import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.statistics.ExpressionView;
@@ -47,7 +47,7 @@ import net.grinder.statistics.StatisticsView;
 abstract class DynamicStatisticsTableModel
   extends AbstractTableModel implements ModelListener, Table.TableModel {
 
-  private final ModelImplementation m_model;
+  private final Model m_model;
   private final Resources m_resources;
 
   private final String m_testString;
@@ -59,8 +59,7 @@ abstract class DynamicStatisticsTableModel
   private ExpressionView[] m_columnViews;
   private String[] m_columnLabels;
 
-  protected DynamicStatisticsTableModel(
-    ModelImplementation model, Resources resources)
+  protected DynamicStatisticsTableModel(Model model, Resources resources)
     throws ConsoleException {
 
     m_model = model;
@@ -78,7 +77,7 @@ abstract class DynamicStatisticsTableModel
 
   protected abstract StatisticsSet getStatistics(int row);
 
-  protected final ModelImplementation getModel() {
+  protected final Model getModel() {
     return m_model;
   }
 

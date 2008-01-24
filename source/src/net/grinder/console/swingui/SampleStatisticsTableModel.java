@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,7 @@ package net.grinder.console.swingui;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.ModelImplementation;
+import net.grinder.console.model.Model;
 import net.grinder.statistics.StatisticsSet;
 
 
@@ -35,8 +35,7 @@ import net.grinder.statistics.StatisticsSet;
  */
 final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
 
-  public SampleStatisticsTableModel(
-    ModelImplementation model, Resources resources)
+  public SampleStatisticsTableModel(Model model, Resources resources)
     throws ConsoleException {
     super(model, resources);
   }

@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -64,27 +64,6 @@ import net.grinder.util.ListenerSupport;
  */
 public final class ModelImplementation implements Model {
 
-  /**
-   * Constant that represents the model state of <em>waiting for a
-   * trigger</em>.
-   * @see #getState
-   */
-  public static final int STATE_WAITING_FOR_TRIGGER = 0;
-
-  /**
-   * Constant that represents the model state of <em>stopped statistics
-   * capture</em>.
-   * @see #getState
-   */
-  public static final int STATE_STOPPED = 1;
-
-  /**
-   * Constant that represents the model state of <em>statistics capture
-   * in progress</em>.
-   * @see #getState
-   */
-  public static final int STATE_CAPTURING = 2;
-
   /** Time statistics capture was last started. */
   private long m_startTime;
 
@@ -143,7 +122,7 @@ public final class ModelImplementation implements Model {
    * @exception GrinderException if an error occurs
    */
   public ModelImplementation(ConsoleProperties properties,
-               StatisticsServices statisticsServices)
+                             StatisticsServices statisticsServices)
     throws GrinderException {
 
     m_properties = properties;
@@ -485,7 +464,7 @@ public final class ModelImplementation implements Model {
    * I've thought a couple of times about replacing this with a
    * java.util.TimerTask, and giving ModelImplementation a Timer thread.
    * It's not as nice as it first seems though because you have to deal with
-   * canceling and rescheduling the TimerTask when the sample period
+   * cancelling and rescheduling the TimerTask when the sample period
    * is changed.
    */
   private final class Sampler implements Runnable {
@@ -568,16 +547,7 @@ public final class ModelImplementation implements Model {
   }
 
   /**
-   * Return the console properties for this model.
-   *
-   * @return The properties.
-   */
-  public ConsoleProperties getProperties() {
-    return m_properties;
-  }
-
-  /**
-   * Get the number format for this model.
+   * Returns a NumberFormat which corresponds to the user's preference.
    *
    * @return The number format.
    */
@@ -598,7 +568,7 @@ public final class ModelImplementation implements Model {
    * Whether or not a report was received in the last interval.
    * @return <code>true</code> => yes there was a report.
    */
-  public boolean getReceivedReport() {
+  public boolean getReportsRecentlyReceived() {
     return m_receivedReportInLastInterval;
   }
 

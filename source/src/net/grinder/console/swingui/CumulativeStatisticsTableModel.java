@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,7 +27,7 @@ import java.io.Writer;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.ModelImplementation;
+import net.grinder.console.model.Model;
 import net.grinder.statistics.StatisticsSet;
 
 
@@ -43,8 +43,7 @@ final class CumulativeStatisticsTableModel
   private boolean m_includeTotals = true;
   private final String m_totalString;
 
-  public CumulativeStatisticsTableModel(
-    ModelImplementation model, Resources resources)
+  public CumulativeStatisticsTableModel(Model model, Resources resources)
     throws ConsoleException {
 
     super(model, resources);
