@@ -106,42 +106,6 @@ public final class ErrorQueue implements ErrorHandler {
   }
 
   /**
-   * Method that handles error messages.
-   *
-   * @param resourceKey Resource key that specifies message.
-   * @param defaultMessage Default message to use if
-   * <code>resourceKey</code> not found.
-   */
-  public void handleResourceErrorMessage(final String resourceKey,
-                                         final String defaultMessage) {
-    queue(new DelayedError() {
-        public void apply(ErrorHandler errorHandler) {
-          errorHandler.handleResourceErrorMessage(resourceKey, defaultMessage);
-        }
-      });
-  }
-
-  /**
-   * Method that handles error messages.
-   *
-   * @param resourceKey Resource key that specifies message.
-   * @param defaultMessage Default message to use if
-   * <code>resourceKey</code> not found.
-   * @param title A title to use.
-   */
-  public void handleResourceErrorMessage(final String resourceKey,
-                                         final String defaultMessage,
-                                         final String title) {
-    queue(new DelayedError() {
-        public void apply(ErrorHandler errorHandler) {
-          errorHandler.handleResourceErrorMessage(resourceKey,
-                                                  defaultMessage,
-                                                  title);
-        }
-      });
-  }
-
-  /**
    * Method that handles exceptions.
    *
    * @param throwable The exception.

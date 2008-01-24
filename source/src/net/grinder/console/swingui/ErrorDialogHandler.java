@@ -1,4 +1,4 @@
-// Copyright (C)  2003 Philip Aston
+// Copyright (C)  2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,7 +54,6 @@ final class ErrorDialogHandler implements ErrorHandler {
   private final String m_errorTitle;
   private final String m_unexpectedErrorTitle;
   private final String m_errorDetailsTitle;
-  private final Resources m_resources;
   private final Object[] m_okOptions;
   private final Object[] m_okDetailsOptions;
   private final Object[] m_detailsOptions;
@@ -98,9 +97,6 @@ final class ErrorDialogHandler implements ErrorHandler {
   }
 
   private ErrorDialogHandler(Resources resources) {
-
-    m_resources = resources;
-
     m_errorTitle = resources.getString("error.title");
     m_unexpectedErrorTitle = resources.getString("unexpectedError.title");
     m_errorDetailsTitle = resources.getString("errorDetails.title");
@@ -228,39 +224,6 @@ final class ErrorDialogHandler implements ErrorHandler {
     m_optionPane.setOptions(m_okOptions);
 
     showDialog(title);
-  }
-
-
-  /**
-   * Method that handles error messages.
-   *
-   * @param resourceKey Resource key that specifies message.
-   * @param defaultMessage Default message to use if
-   * <code>resourceKey</code> not found.
-   */
-  public void handleResourceErrorMessage(String resourceKey,
-                                         String defaultMessage) {
-    handleErrorMessage(getResourceString(resourceKey, defaultMessage));
-  }
-
-  /**
-   * Method that handles error messages.
-   *
-   * @param resourceKey Resource key that specifies message.
-   * @param defaultMessage Default message to use if
-   * <code>resourceKey</code> not found.
-   * @param title A title to use.
-   */
-  public void handleResourceErrorMessage(String resourceKey,
-                                         String defaultMessage,
-                                         String title) {
-    handleErrorMessage(getResourceString(resourceKey, defaultMessage), title);
-  }
-
-  private String getResourceString(String resourceKey, String defaultMessage) {
-    final String resourceValue = m_resources.getString(resourceKey, false);
-
-    return resourceValue != null ? resourceValue : defaultMessage;
   }
 
   /**
