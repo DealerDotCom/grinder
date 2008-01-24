@@ -69,6 +69,25 @@ public final class ConsoleCommunicationImplementation
   private FanOutServerSender m_sender = null;
 
   /**
+   * Constructor that uses a default idlePollDelay.
+   *
+   * @param resources
+   *          Resources.
+   * @param properties
+   *          Console properties.
+   * @param timer
+   *          Timer that can be used to schedule housekeeping tasks.
+   * @throws DisplayMessageConsoleException
+   *           If properties are invalid.
+   */
+  public ConsoleCommunicationImplementation(Resources resources,
+                                            ConsoleProperties properties,
+                                            Timer timer)
+    throws DisplayMessageConsoleException {
+    this(resources, properties, timer, 500);
+  }
+
+  /**
    * Constructor.
    *
    * @param resources
@@ -289,8 +308,7 @@ public final class ConsoleCommunicationImplementation
    */
   public void sendToAgents(Message message) {
     if (m_sender == null) {
-      m_errorQueue.handleResourceErrorMessage(
-        "sendError.text", "Failed to send message");
+      m_errorQueue.handleErrorMessage(m_resources.getString("sendError.text"));
     }
     else {
       try {
