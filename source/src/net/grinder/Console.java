@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,8 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder;
+
+import net.grinder.console.swingui.ConsoleUI;
 
 
 /**
@@ -46,7 +48,12 @@ public final class Console {
     }
 
     try {
-      new net.grinder.console.Console().run();
+      final net.grinder.console.ConsoleFoundation consoleFoundation =
+        new net.grinder.console.ConsoleFoundation();
+
+	  consoleFoundation.createUI(ConsoleUI.class);
+
+      consoleFoundation.run();
     }
     catch (Throwable t) {
       t.printStackTrace();

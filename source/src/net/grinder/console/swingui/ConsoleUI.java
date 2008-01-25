@@ -83,6 +83,7 @@ import javax.swing.filechooser.FileFilter;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.console.ConsoleFoundation;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -94,6 +95,7 @@ import net.grinder.console.distribution.FileDistributionHandler;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.model.ConsoleProperties;
+import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelImplementation;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
@@ -113,7 +115,7 @@ import net.grinder.util.FileContents;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ConsoleUI implements ModelListener {
+public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
 
   // Do not initialise any Swing components before the constructor has
   // set the Look and Feel to avoid loading the default Look and Feel
@@ -129,18 +131,19 @@ public final class ConsoleUI implements ModelListener {
   private final SaveFileAsAction m_saveFileAsAction;
   private final DistributeFilesAction m_distributeFilesAction;
 
-  private final ModelImplementation m_model;
+  private final Resources m_resources;
+  private final ConsoleProperties m_properties;
+  private final Model m_model;
   private final ProcessControl m_processControl;
   private final FileDistribution m_fileDistribution;
   private final EditorModel m_editorModel;
-  private final Resources m_resources;
 
   private final JFrame m_frame;
   private final FrameBounds m_frameBounds;
   private final JLabel m_stateLabel;
   private final SamplingControlPanel m_samplingControlPanel;
   private final FileTree m_fileTree;
-  private final ErrorDialogHandler m_errorHandler;
+  private final ErrorHandler m_errorHandler;
   private final OptionalConfirmDialog m_optionalConfirmDialog;
   private final Font m_titleLabelFont;
 
@@ -158,49 +161,54 @@ public final class ConsoleUI implements ModelListener {
   /**
    * Creates a new <code>ConsoleUI</code> instance.
    *
+   * @param resources Resources.
+   * @param consoleProperties Console properties.
    * @param model The console model.
    * @param processControl ProcessReport control.
    * @param fileDistribution File distribution.
-   * @param resources Resources.
    * @exception ConsoleException if an error occurs
    */
-  public ConsoleUI(ModelImplementation model,
+  public ConsoleUI(Resources resources,
+                   ConsoleProperties consoleProperties,
+                   Model model,
                    ProcessControl processControl,
-                   FileDistribution fileDistribution,
-                   Resources resources)
+                   FileDistribution fileDistribution)
     throws ConsoleException {
 
+    m_resources = resources;
+    m_properties = consoleProperties;
     m_model = model;
     m_processControl = processControl;
     m_fileDistribution = fileDistribution;
-    m_resources = resources;
-
-    final ConsoleProperties properties = m_model.getProperties();
 
     // Create the frame to contain the a menu and the top level pane.
     // Do before actions are constructed as we use the frame to create dialogs.
     m_frame = new JFrame(m_resources.getString("title"));
 
-    m_errorHandler = new ErrorDialogHandler(m_frame, m_resources);
+    final ErrorDialogHandler errorDialogHandler =
+      new ErrorDialogHandler(m_frame, m_resources);
+
+    m_errorHandler =
+      (ErrorHandler)new SwingDispatcherFactory(null).create(errorDialogHandler);
 
     final SwingDispatcherFactory swingDispatcherFactory =
       new SwingDispatcherFactory(m_errorHandler);
 
     // LookAndFeel constructor will set initial Look and Feel from properties.
-    m_lookAndFeel = new LookAndFeel(properties, swingDispatcherFactory);
+    m_lookAndFeel = new LookAndFeel(m_properties, swingDispatcherFactory);
 
-    m_errorHandler.registerWithLookAndFeel(m_lookAndFeel);
+    errorDialogHandler.registerWithLookAndFeel(m_lookAndFeel);
 
     m_editorModel = new EditorModel(m_resources,
                                     new Editor.TextSourceFactory(),
                                     m_fileDistribution.getAgentCacheState(),
                                     m_fileDistribution);
 
-    m_editorModel.setExternalEditor(properties.getExternalEditorCommand(),
-                                    properties.getExternalEditorArguments());
-    m_editorModel.setSelectedPropertiesFile(properties.getPropertiesFile());
+    m_editorModel.setExternalEditor(m_properties.getExternalEditorCommand(),
+                                    m_properties.getExternalEditorArguments());
+    m_editorModel.setSelectedPropertiesFile(m_properties.getPropertiesFile());
 
-    properties.addPropertyChangeListener(
+    m_properties.addPropertyChangeListener(
       new PropertyChangeListener()  {
         public void propertyChange(PropertyChangeEvent e) {
           if (e.getPropertyName().equals(
@@ -208,19 +216,19 @@ public final class ConsoleUI implements ModelListener {
               e.getPropertyName().equals(
                 ConsoleProperties.EXTERNAL_EDITOR_ARGUMENTS_PROPERTY)) {
             m_editorModel.setExternalEditor(
-              properties.getExternalEditorCommand(),
-              properties.getExternalEditorArguments());
+              m_properties.getExternalEditorCommand(),
+              m_properties.getExternalEditorArguments());
           }
           else if (e.getPropertyName().equals(
                 ConsoleProperties.PROPERTIES_FILE_PROPERTY)) {
             m_editorModel.setSelectedPropertiesFile(
-              properties.getPropertiesFile());
+              m_properties.getPropertiesFile());
           }
         }
       });
 
     m_optionalConfirmDialog =
-      new OptionalConfirmDialog(m_frame, m_resources, properties);
+      new OptionalConfirmDialog(m_frame, m_resources, m_properties);
 
     m_stateIgnoringString = m_resources.getString("state.ignoring.label") + ' ';
     m_stateWaitingString = m_resources.getString("state.waiting.label");
@@ -348,15 +356,15 @@ public final class ConsoleUI implements ModelListener {
       new FileTreeModel(m_editorModel,
                         m_fileDistribution.getDistributionFileFilter());
     fileTreeModel.setRootDirectory(
-      properties.getDistributionDirectory().getFile());
+      m_properties.getDistributionDirectory().getFile());
 
-    properties.addPropertyChangeListener(
+    m_properties.addPropertyChangeListener(
       new PropertyChangeListener()  {
         public void propertyChange(PropertyChangeEvent e) {
           if (e.getPropertyName().equals(
                 ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY)) {
             fileTreeModel.setRootDirectory(
-              properties.getDistributionDirectory().getFile());
+              m_properties.getDistributionDirectory().getFile());
           }
         }
       });
@@ -373,7 +381,7 @@ public final class ConsoleUI implements ModelListener {
                               fileTreeModel,
                               editorSmallFont,
                               fileTreePopupMenu,
-                              properties);
+                              m_properties);
 
     final CustomAction[] fileTreeActions = m_fileTree.getActions();
 
@@ -447,12 +455,13 @@ public final class ConsoleUI implements ModelListener {
       }
     }
 
-    m_model.addModelListener(new SwingDispatchedModelListener(this));
+    m_model.addModelListener(
+      (ModelListener) swingDispatcherFactory.create(this));
     update();
 
     m_lookAndFeel.addListener(new LookAndFeelListener());
 
-    m_frameBounds = new FrameBounds(properties, m_frame);
+    m_frameBounds = new FrameBounds(m_properties, m_frame);
     m_frameBounds.restore();
 
     resultsPane.setDividerLocation(resultsPane.getMaximumDividerLocation());
@@ -523,7 +532,7 @@ public final class ConsoleUI implements ModelListener {
 
     m_samplingControlPanel.setBorder(
       BorderFactory.createEmptyBorder(10, 10, 0, 10));
-    m_samplingControlPanel.setProperties(m_model.getProperties());
+    m_samplingControlPanel.setProperties(m_properties);
 
     final JPanel controlAndTotalPanel = new JPanel();
     controlAndTotalPanel.setLayout(
@@ -759,7 +768,7 @@ public final class ConsoleUI implements ModelListener {
   private int updateStateLabel() {
 
     final int state = m_model.getState();
-    final boolean receivedReport = m_model.getReceivedReport();
+    final boolean receivedReport = m_model.getReportsRecentlyReceived();
     final long sampleCount = m_model.getSampleCount();
 
     if (state == ModelImplementation.STATE_WAITING_FOR_TRIGGER) {
@@ -898,17 +907,17 @@ public final class ConsoleUI implements ModelListener {
 
       m_optionsDialogHandler =
         new OptionsDialogHandler(m_frame, m_lookAndFeel,
-                                 m_model.getProperties(),
+                                 m_properties,
                                  m_resources) {
           protected void setNewOptions(ConsoleProperties newOptions) {
-            m_model.getProperties().set(newOptions);
+            m_properties.set(newOptions);
             m_samplingControlPanel.refresh();
           }
         };
     }
 
     public void actionPerformed(ActionEvent event) {
-      m_optionsDialogHandler.showDialog(m_model.getProperties());
+      m_optionsDialogHandler.showDialog(m_properties);
     }
   }
 
@@ -1116,7 +1125,7 @@ public final class ConsoleUI implements ModelListener {
     void saveBufferAs(Buffer buffer) throws ConsoleException {
       final File currentFile = buffer.getFile();
       final Directory distributionDirectory =
-        m_model.getProperties().getDistributionDirectory();
+        m_properties.getDistributionDirectory();
 
       if (currentFile != null) {
         m_fileChooser.setSelectedFile(currentFile);
@@ -1380,7 +1389,7 @@ public final class ConsoleUI implements ModelListener {
           }
           else {
             final Directory directory =
-              m_model.getProperties().getDistributionDirectory();
+              m_properties.getDistributionDirectory();
 
             if (directory.getRelativePath(scriptFile) == null) {
               getErrorHandler().handleErrorMessage(
@@ -1410,7 +1419,7 @@ public final class ConsoleUI implements ModelListener {
 
     public void actionPerformed(ActionEvent event) {
 
-      final ConsoleProperties properties = m_model.getProperties();
+      final ConsoleProperties properties = m_properties;
 
       try {
         final int chosen =
@@ -1493,7 +1502,7 @@ public final class ConsoleUI implements ModelListener {
       m_fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
       m_fileChooser.setSelectedFile(
-        m_model.getProperties().getDistributionDirectory().getFile());
+        m_properties.getDistributionDirectory().getFile());
 
       m_lookAndFeel.addListener(
         new LookAndFeel.ComponentListener(m_fileChooser));
@@ -1524,7 +1533,7 @@ public final class ConsoleUI implements ModelListener {
             directory.create();
           }
 
-          final ConsoleProperties properties = m_model.getProperties();
+          final ConsoleProperties properties = m_properties;
           properties.setAndSaveDistributionDirectory(directory);
         }
       }
@@ -1618,7 +1627,7 @@ public final class ConsoleUI implements ModelListener {
 
   /**
    * Return an error handler that other classes can use to report
-   * problems through the UI. Should be called from a Swing Thread.
+   * problems through the UI.
    *
    * @return The exception handler.
    */
