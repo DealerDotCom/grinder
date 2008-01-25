@@ -21,7 +21,6 @@
 
 package net.grinder.console.swingui;
 
-import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.Model;
 import net.grinder.statistics.StatisticsSet;
@@ -35,8 +34,7 @@ import net.grinder.statistics.StatisticsSet;
  */
 final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
 
-  public SampleStatisticsTableModel(Model model, Resources resources)
-    throws ConsoleException {
+  public SampleStatisticsTableModel(Model model, Resources resources) {
     super(model, resources);
   }
 

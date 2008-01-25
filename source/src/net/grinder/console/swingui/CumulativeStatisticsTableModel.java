@@ -25,7 +25,6 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.Writer;
 
-import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.Model;
 import net.grinder.statistics.StatisticsSet;
@@ -43,9 +42,7 @@ final class CumulativeStatisticsTableModel
   private boolean m_includeTotals = true;
   private final String m_totalString;
 
-  public CumulativeStatisticsTableModel(Model model, Resources resources)
-    throws ConsoleException {
-
+  public CumulativeStatisticsTableModel(Model model, Resources resources) {
     super(model, resources);
 
     m_totalString = resources.getString("table.total.label");

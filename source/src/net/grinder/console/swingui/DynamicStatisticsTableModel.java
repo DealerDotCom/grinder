@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,7 +27,6 @@ import java.io.Writer;
 import java.util.Set;
 import javax.swing.table.AbstractTableModel;
 
-import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
@@ -59,9 +58,7 @@ abstract class DynamicStatisticsTableModel
   private ExpressionView[] m_columnViews;
   private String[] m_columnLabels;
 
-  protected DynamicStatisticsTableModel(Model model, Resources resources)
-    throws ConsoleException {
-
+  protected DynamicStatisticsTableModel(Model model, Resources resources) {
     m_model = model;
     m_resources = resources;
 
