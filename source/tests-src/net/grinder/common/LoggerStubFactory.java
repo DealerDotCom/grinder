@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,8 @@ package net.grinder.common;
 
 import java.io.PrintWriter;
 
+import net.grinder.testutility.AssertUtilities;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.StubPrintWriter;
 import net.grinder.testutility.RandomStubFactory;
 
@@ -58,6 +60,32 @@ public class LoggerStubFactory extends RandomStubFactory {
 
   public PrintWriter override_getErrorLogWriter(Object proxy) {
     return getErrorLogWriter();
+  }
+
+  public CallData assertOutputMessage(String message) {
+    final CallData callData = assertSuccess("output", String.class);
+    assertEquals(message, callData.getParameters()[0]);
+    return callData;
+  }
+
+  public CallData assertOutputMessageContains(String message) {
+    final CallData callData = assertSuccess("output", String.class);
+    AssertUtilities.assertContains(
+      callData.getParameters()[0].toString(), message);
+    return callData;
+  }
+
+  public CallData assertErrorMessage(String message) {
+    final CallData callData = assertSuccess("error", String.class);
+    assertEquals(message, callData.getParameters()[0]);
+    return callData;
+  }
+
+  public CallData assertErrorMessageContains(String message) {
+    final CallData callData = assertSuccess("error", String.class);
+    AssertUtilities.assertContains(
+      callData.getParameters()[0].toString(), message);
+    return callData;
   }
 }
 
