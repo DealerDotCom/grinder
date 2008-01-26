@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003, 2004, 2005 Bertrand Ave
 // Copyright (C) 2007 Venelin Mitov
@@ -38,7 +38,6 @@ import org.picocontainer.ComponentAdapter;
 import org.picocontainer.defaults.DefaultPicoContainer;
 import org.picocontainer.monitors.WriterComponentMonitor;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.plugin.http.tcpproxyfilter.ConnectionCache;
 import net.grinder.plugin.http.tcpproxyfilter.ConnectionHandlerFactoryImplementation;
@@ -61,9 +60,9 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation;
 import net.grinder.tools.tcpproxy.UpdatableCommentSource;
+import net.grinder.util.AbstractMainClass;
 import net.grinder.util.AttributeStringParserImplementation;
 import net.grinder.util.FixedWidthFormatter;
-import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
 import net.grinder.util.SimpleStringEscaper;
 import net.grinder.util.URIParserImplementation;
@@ -78,15 +77,74 @@ import net.grinder.util.URIParserImplementation;
  * @author Venelin Mitov
  * @version $Revision$
  */
-public final class TCPProxy {
+public final class TCPProxy extends AbstractMainClass {
+
+  private static final String USAGE =
+    "\n  java " + TCPProxy.class + " <options>" +
+    "\n\n" +
+    "Commonly used options:" +
+    "\n  [-http [<stylesheet>]]       See below." +
+    "\n  [-console]                   Display the console." +
+    "\n  [-requestfilter <filter>]    Add a request filter." +
+    "\n  [-responsefilter <filter>]   Add a response filter." +
+    "\n  [-localhost <host name/ip>]  Default is localhost." +
+    "\n  [-localport <port>]          Default is 8001." +
+    "\n  [-keystore <file>]           Key store details for" +
+    "\n  [-keystorepassword <pass>]   SSL certificates." +
+    "\n  [-keystoretype <type>]       Default is JSSE dependent." +
+    "\n\n" +
+    "Other options:" +
+    "\n  [-properties <file>]         Properties to pass to the filters." +
+    "\n  [-remotehost <host name>]    Default is localhost." +
+    "\n  [-remoteport <port>]         Default is 7001." +
+    "\n  [-timeout <seconds>]         Proxy engine timeout." +
+    "\n  [-httpproxy <host> <port>]   Route via HTTP/HTTPS proxy." +
+    "\n  [-httpsproxy <host> <port>]  Override -httpproxy settings for" +
+    "\n                               HTTPS." +
+    "\n  [-ssl]                       Use SSL when port forwarding." +
+    "\n  [-colour]                    Be pretty on ANSI terminals." +
+    "\n  [-component <class>]         Register a component class with" +
+    "\n                               the filter PicoContainer." +
+    "\n  [-debug]                     Make PicoContainer chatty." +
+    "\n\n" +
+    "<filter> is the name of a class that implements " +
+    TCPProxyFilter.class.getName() + " or one of NONE, ECHO. The default " +
+    "is ECHO. Multiple filters can be specified for each stream." +
+    "\n\n" +
+    "By default, the TCPProxy listens as an HTTP/HTTPS Proxy on " +
+    "<localhost:localport>." +
+    "\n\n" +
+    "If either -remotehost or -remoteport is specified, the TCPProxy " +
+    "acts a simple port forwarder between <localhost:localport> and " +
+    "<remotehost:remoteport>. Specify -ssl for SSL support." +
+    "\n\n" +
+    "-http sets up request and response filters to produce a test script " +
+    "suitable for use with the HTTP plugin. The output can be customised " +
+    "by specifying the file name of an alternative XSLT style sheet." +
+    "\n\n" +
+    "-timeout is how long the TCPProxy will wait for a request " +
+    "before timing out and freeing the local port. The TCPProxy will " +
+    "not time out if there are active connections." +
+    "\n\n" +
+    "-console displays a simple control window that allows the TCPProxy " +
+    "to be shutdown cleanly. This is needed because some shells, e.g. " +
+    "Cygwin bash, do not allow Java processes to be interrupted cleanly, " +
+    "so filters cannot rely on standard shutdown hooks. " +
+    "\n\n" +
+    "-httpproxy and -httpsproxy allow output to be directed through " +
+    "another HTTP/HTTPS proxy; this may help you reach the Internet. " +
+    "These options are not supported in port forwarding mode." +
+    "\n\n" +
+    "Typical usage: " +
+    "\n  java " + TCPProxy.class + " -http -console > grinder.py" +
+    "\n\n";
 
   /**
    * Entry point.
    *
    * @param args Command line arguments.
-   * @throws GrinderException on a unexpected fatal error.
    */
-  public static void main(String[] args) throws GrinderException {
+  public static void main(String[] args) {
     final Logger logger =
       new SimpleLogger("tcpproxy",
                        new PrintWriter(System.out),
@@ -96,10 +154,6 @@ public final class TCPProxy {
                          FixedWidthFormatter.FLOW_WORD_WRAP,
                          80));
 
-    if (!JVM.getInstance().haveRequisites(logger)) {
-      return;
-    }
-
     try {
       final TCPProxy tcpProxy = new TCPProxy(args, logger);
       tcpProxy.run();
@@ -108,99 +162,25 @@ public final class TCPProxy {
       System.exit(1);
     }
     catch (Throwable e) {
-      logger.error("Could not initialise engine:");
+      logger.error("Could not initialise:");
       final PrintWriter errorWriter = logger.getErrorLogWriter();
       e.printStackTrace(errorWriter);
       errorWriter.flush();
       System.exit(2);
     }
 
-    // Write to stderr - only filter output should go to stdout.
-    logger.error("Engine exited");
     System.exit(0);
-  }
-
-  private LoggedInitialisationException barfError(String message) {
-    m_logger.error("Error: " + message);
-    return new LoggedInitialisationException(message);
-  }
-
-  private LoggedInitialisationException barfUsage() {
-    return barfError(
-      "unrecognised or invalid option." +
-      "\n\n" +
-      "Usage: " +
-      "\n  java " + TCPProxy.class + " <options>" +
-      "\n\n" +
-      "Commonly used options:" +
-      "\n  [-http [<stylesheet>]]       See below." +
-      "\n  [-console]                   Display the console." +
-      "\n  [-requestfilter <filter>]    Add a request filter." +
-      "\n  [-responsefilter <filter>]   Add a response filter." +
-      "\n  [-localhost <host name/ip>]  Default is localhost." +
-      "\n  [-localport <port>]          Default is 8001." +
-      "\n  [-keystore <file>]           Key store details for" +
-      "\n  [-keystorepassword <pass>]   SSL certificates." +
-      "\n  [-keystoretype <type>]       Default is JSSE dependent." +
-      "\n\n" +
-      "Other options:" +
-      "\n  [-properties <file>]         Properties to pass to the filters." +
-      "\n  [-remotehost <host name>]    Default is localhost." +
-      "\n  [-remoteport <port>]         Default is 7001." +
-      "\n  [-timeout <seconds>]         Proxy engine timeout." +
-      "\n  [-httpproxy <host> <port>]   Route via HTTP/HTTPS proxy." +
-      "\n  [-httpsproxy <host> <port>]  Override -httpproxy settings for" +
-      "\n                               HTTPS." +
-      "\n  [-ssl]                       Use SSL when port forwarding." +
-      "\n  [-colour]                    Be pretty on ANSI terminals." +
-      "\n  [-component <class>]         Register a component class with" +
-      "\n                               the filter PicoContainer." +
-      "\n  [-debug]                     Make PicoContainer chatty." +
-      "\n\n" +
-      "<filter> is the name of a class that implements " +
-      TCPProxyFilter.class.getName() + " or one of NONE, ECHO. The default " +
-      "is ECHO. Multiple filters can be specified for each stream." +
-      "\n\n" +
-      "By default, the TCPProxy listens as an HTTP/HTTPS Proxy on " +
-      "<localhost:localport>." +
-      "\n\n" +
-      "If either -remotehost or -remoteport is specified, the TCPProxy " +
-      "acts a simple port forwarder between <localhost:localport> and " +
-      "<remotehost:remoteport>. Specify -ssl for SSL support." +
-      "\n\n" +
-      "-http sets up request and response filters to produce a test script " +
-      "suitable for use with the HTTP plugin. The output can be customised " +
-      "by specifying the file name of an alternative XSLT style sheet." +
-      "\n\n" +
-      "-timeout is how long the TCPProxy will wait for a request " +
-      "before timing out and freeing the local port. The TCPProxy will " +
-      "not time out if there are active connections." +
-      "\n\n" +
-      "-console displays a simple control window that allows the TCPProxy " +
-      "to be shutdown cleanly. This is needed because some shells, e.g. " +
-      "Cygwin bash, do not allow Java processes to be interrupted cleanly, " +
-      "so filters cannot rely on standard shutdown hooks. " +
-      "\n\n" +
-      "-httpproxy and -httpsproxy allow output to be directed through " +
-      "another HTTP/HTTPS proxy; this may help you reach the Internet. " +
-      "These options are not supported in port forwarding mode." +
-      "\n\n" +
-      "Typical usage: " +
-      "\n  java " + TCPProxy.class + " -http -console > grinder.py" +
-      "\n\n"
-      );
   }
 
   private final DefaultPicoContainer m_filterContainer =
     new DefaultPicoContainer();
 
   private final TCPProxyEngine m_proxyEngine;
-  private final Logger m_logger;
 
   private TCPProxy(String[] args, Logger logger) throws Exception {
-    m_logger = logger;
+    super(logger, USAGE);
 
-    m_filterContainer.registerComponentInstance(m_logger);
+    m_filterContainer.registerComponentInstance(logger);
 
     final UpdatableCommentSource commentSource =
       new CommentSourceImplementation();
@@ -435,7 +415,7 @@ public final class TCPProxy {
       }
     }
 
-    m_logger.error(startMessage.toString());
+    logger.error(startMessage.toString());
 
     final TCPProxySSLSocketFactory sslSocketFactory =
       keyStoreFile != null ?
@@ -483,7 +463,7 @@ public final class TCPProxy {
       new TCPProxyConsole(m_proxyEngine, commentSource);
     }
 
-    m_logger.error("Engine initialised, listening on port " + localPort);
+    logger.error("Engine initialised, listening on port " + localPort);
   }
 
   private void run() {
@@ -504,12 +484,9 @@ public final class TCPProxy {
 
     m_proxyEngine.run();
     shutdown.run();
-  }
 
-  private static class LoggedInitialisationException extends GrinderException {
-    public LoggedInitialisationException(String message) {
-      super(message);
-    }
+    // Write to stderr - only filter output should go to stdout.
+    getLogger().error("Engine exited");
   }
 
   private final class FilterChain {
