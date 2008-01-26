@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,9 +30,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.grinder.common.AgentIdentity;
 import net.grinder.common.AgentProcessReport;
 import net.grinder.common.ProcessReport;
+import net.grinder.common.StubAgentProcessReport;
+import net.grinder.common.StubWorkerProcessReport;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.common.WorkerProcessReport;
 import net.grinder.console.communication.ProcessStatusImplementation.AgentAndWorkers;
@@ -56,7 +57,7 @@ public class TestProcessStatusImplementation extends TestCase {
     new ProcessReportsComparator();
 
   private final MyTimer m_timer = new MyTimer();
-  
+
   protected void tearDown() {
     m_timer.cancel();
   }
@@ -90,10 +91,10 @@ public class TestProcessStatusImplementation extends TestCase {
       agentIdentity.createWorkerIdentity();
 
     final WorkerProcessReport workerProcessReport =
-      new WorkerProcessReportImplementation(workerIdentity,
-                                            WorkerProcessReport.STATE_RUNNING,
-                                            3,
-                                            5);
+      new StubWorkerProcessReport(workerIdentity,
+                                  WorkerProcessReport.STATE_RUNNING,
+                                  3,
+                                  5);
 
     processStatusSet.addWorkerStatusReport(workerProcessReport);
 
@@ -152,17 +153,17 @@ public class TestProcessStatusImplementation extends TestCase {
       agentIdentityB.createWorkerIdentity();
 
     final WorkerProcessReport[] workerProcessReportArray = {
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA3, WorkerProcessReport.STATE_STARTED, 1, 1),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA4, WorkerProcessReport.STATE_STARTED, 1, 1),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA3, WorkerProcessReport.STATE_RUNNING, 5, 10),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityB1, WorkerProcessReport.STATE_RUNNING, 1, 1),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA2, WorkerProcessReport.STATE_FINISHED, 1, 1),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA1, WorkerProcessReport.STATE_FINISHED, 3, 10),
     };
 
@@ -189,13 +190,13 @@ public class TestProcessStatusImplementation extends TestCase {
     Arrays.sort(agent1WorkerReports, m_processReportComparator);
 
     final WorkerProcessReport[] expectedAgent1WorkerProcessReports = {
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA4, WorkerProcessReport.STATE_STARTED, 1, 1),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA3, WorkerProcessReport.STATE_RUNNING, 5, 10),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA1, WorkerProcessReport.STATE_FINISHED, 3, 10),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA2, WorkerProcessReport.STATE_FINISHED, 1, 1),
     };
 
@@ -207,7 +208,7 @@ public class TestProcessStatusImplementation extends TestCase {
     Arrays.sort(agent2WorkerReports, m_processReportComparator);
 
     final WorkerProcessReport[] expectedAgent2WorkerProcessReports = {
-        new WorkerProcessReportImplementation(
+        new StubWorkerProcessReport(
           workerIdentityB1, WorkerProcessReport.STATE_RUNNING, 1, 1),
       };
 
@@ -230,11 +231,11 @@ public class TestProcessStatusImplementation extends TestCase {
       agentIdentityC.createWorkerIdentity();
 
     final WorkerProcessReport[] processStatusArray2 = {
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityB1, WorkerProcessReport.STATE_RUNNING, 1, 1),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA1, WorkerProcessReport.STATE_RUNNING, 5, 10),
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityC1, WorkerProcessReport.STATE_FINISHED, 1, 1),
     };
 
@@ -243,11 +244,11 @@ public class TestProcessStatusImplementation extends TestCase {
     }
 
     processStatus.addAgentStatusReport(
-      new AgentProcessReportImplementation(agentIdentityA,
-                                           AgentProcessReport.STATE_RUNNING));
+      new StubAgentProcessReport(agentIdentityA,
+                                 AgentProcessReport.STATE_RUNNING));
     processStatus.addAgentStatusReport(
-      new AgentProcessReportImplementation(agentIdentityB,
-                                           AgentProcessReport.STATE_RUNNING));
+      new StubAgentProcessReport(agentIdentityB,
+                                 AgentProcessReport.STATE_RUNNING));
 
     // Second flush will remove processes that haven't reported.
     flushTask.run();
@@ -266,7 +267,7 @@ public class TestProcessStatusImplementation extends TestCase {
     assertEquals(3, processReports2.length);
 
     final WorkerProcessReport[] expectedAgent1WorkerProcessReports2 = {
-      new WorkerProcessReportImplementation(
+      new StubWorkerProcessReport(
         workerIdentityA1, WorkerProcessReport.STATE_RUNNING, 5, 10),
     };
 
@@ -275,18 +276,18 @@ public class TestProcessStatusImplementation extends TestCase {
       processReports2[0].getWorkerProcessReports());
 
     final WorkerProcessReport[] expectedAgent2WorkerProcessReports2 = {
-        new WorkerProcessReportImplementation(
-          workerIdentityB1, WorkerProcessReport.STATE_RUNNING, 1, 1),
-      };
+      new StubWorkerProcessReport(
+        workerIdentityB1, WorkerProcessReport.STATE_RUNNING, 1, 1),
+    };
 
     AssertUtilities.assertArraysEqual(
       expectedAgent2WorkerProcessReports2,
       processReports2[1].getWorkerProcessReports());
 
     final WorkerProcessReport[] expectedAgent3WorkerProcessReports2 = {
-        new WorkerProcessReportImplementation(
-          workerIdentityC1, WorkerProcessReport.STATE_FINISHED, 1, 1),
-      };
+      new StubWorkerProcessReport(
+        workerIdentityC1, WorkerProcessReport.STATE_FINISHED, 1, 1),
+    };
 
     AssertUtilities.assertArraysEqual(
       expectedAgent3WorkerProcessReports2,
@@ -297,116 +298,21 @@ public class TestProcessStatusImplementation extends TestCase {
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
   }
-  
+
   public void testAgentAndWorkers() throws Exception {
     final ProcessStatusImplementation processStatusSet =
       new ProcessStatusImplementation(m_timer);
-    
+
     final PublicAgentIdentityImplementation agentIdentity =
       new PublicAgentIdentityImplementation("agent");
-    
+
     final AgentAndWorkers agentAndWorkers =
       processStatusSet.new AgentAndWorkers(agentIdentity);
-    
+
     final AgentProcessReport initialReport =
       agentAndWorkers.getAgentProcessReport();
-    
+
     assertEquals(agentIdentity, initialReport.getAgentIdentity());
-  }
-
-  private static final class AgentProcessReportImplementation
-    implements AgentProcessReport {
-
-    private final AgentIdentity m_identity;
-    private final short m_state;
-
-    public AgentProcessReportImplementation(AgentIdentity identity,
-                                            short state) {
-      m_identity = identity;
-      m_state = state;
-    }
-
-    public AgentIdentity getAgentIdentity() {
-      return m_identity;
-    }
-
-    public ProcessIdentity getIdentity() {
-      return m_identity;
-    }
-
-    public short getState() {
-      return m_state;
-    }
-  }
-
-  private static final class WorkerProcessReportImplementation
-    implements WorkerProcessReport {
-
-    private final WorkerIdentity m_workerIdentity;
-    private final short m_state;
-    private final short m_totalNumberOfThreads;
-    private final short m_numberOfRunningThreads;
-
-    public WorkerProcessReportImplementation(WorkerIdentity workerIdentity,
-                                             short state,
-                                             int runningThreads,
-                                             int totalThreads) {
-      m_workerIdentity = workerIdentity;
-      m_state = state;
-      m_numberOfRunningThreads = (short)runningThreads;
-      m_totalNumberOfThreads = (short)totalThreads;
-    }
-
-    public ProcessIdentity getIdentity() {
-      return m_workerIdentity;
-    }
-
-    public WorkerIdentity getWorkerIdentity() {
-      return m_workerIdentity;
-    }
-
-    public short getState() {
-      return m_state;
-    }
-
-    public short getNumberOfRunningThreads() {
-      return m_numberOfRunningThreads;
-    }
-
-    public short getMaximumNumberOfThreads() {
-      return m_totalNumberOfThreads;
-    }
-
-    public int hashCode() {
-      return m_workerIdentity.hashCode();
-    }
-
-    public boolean equals(Object o) {
-      if (o == this) {
-        return true;
-      }
-
-      if (!(o instanceof WorkerProcessReport)) {
-        return false;
-      }
-
-      final WorkerProcessReport other = (WorkerProcessReport)o;
-
-      return
-        this.getState() == other.getState() &&
-        this.getNumberOfRunningThreads() == other.getNumberOfRunningThreads() &&
-        this.getMaximumNumberOfThreads() == other.getMaximumNumberOfThreads() &&
-        this.getWorkerIdentity().equals(other.getWorkerIdentity());
-    }
-
-    public String toString() {
-      return
-        "WorkerProcessReportImplementation(" +
-        getWorkerIdentity() + ", " +
-        getState() + ", " +
-        getNumberOfRunningThreads() + ", " +
-        getMaximumNumberOfThreads() + ")";
-    }
   }
 
   private final class MyTimer extends Timer {
