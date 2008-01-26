@@ -25,6 +25,7 @@ import java.util.Comparator;
 
 import net.grinder.common.AgentIdentity;
 import net.grinder.common.AgentProcessReport;
+import net.grinder.common.StubAgentProcessReport;
 import net.grinder.console.communication.ProcessStatus.ProcessReports;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.testutility.RandomStubFactory;
@@ -45,14 +46,9 @@ public class TestProcessStatus extends TestCase {
     final AgentIdentity agentIdentity1 =
       new PublicAgentIdentityImplementation("my agent");
 
-    final RandomStubFactory agentProcessReportStubFactory1 =
-      new RandomStubFactory(AgentProcessReport.class);
     final AgentProcessReport agentProcessReport1 =
-      (AgentProcessReport)agentProcessReportStubFactory1.getStub();
-    agentProcessReportStubFactory1.setResult("getIdentity", agentIdentity1);
-    agentProcessReportStubFactory1.setResult("getAgentIdentity", agentIdentity1);
-    agentProcessReportStubFactory1.setResult(
-      "getState", new Short(AgentProcessReport.STATE_RUNNING));
+      new StubAgentProcessReport(agentIdentity1,
+                                 AgentProcessReport.STATE_RUNNING);
 
     final RandomStubFactory processReportsStubFactory1 =
       new RandomStubFactory(ProcessReports.class);
@@ -63,14 +59,9 @@ public class TestProcessStatus extends TestCase {
 
     assertEquals(0, comparator.compare(processReports1, processReports1));
 
-    final RandomStubFactory agentProcessReportStubFactory2 =
-      new RandomStubFactory(AgentProcessReport.class);
     final AgentProcessReport agentProcessReport2 =
-      (AgentProcessReport)agentProcessReportStubFactory2.getStub();
-    agentProcessReportStubFactory2.setResult("getIdentity", agentIdentity1);
-    agentProcessReportStubFactory2.setResult("getAgentIdentity", agentIdentity1);
-    agentProcessReportStubFactory2.setResult(
-      "getState", new Short(AgentProcessReport.STATE_FINISHED));
+      new StubAgentProcessReport(agentIdentity1,
+                                 AgentProcessReport.STATE_FINISHED);
 
     final RandomStubFactory processReportsStubFactory2 =
       new RandomStubFactory(ProcessReports.class);
