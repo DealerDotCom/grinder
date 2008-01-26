@@ -23,7 +23,7 @@ package net.grinder.common;
 
 import java.util.Comparator;
 
-import net.grinder.engine.agent.PublicAgentIdentityImplementation;
+import net.grinder.engine.agent.StubAgentIdentity;
 
 import junit.framework.TestCase;
 
@@ -41,7 +41,7 @@ public class TestProcessReport extends TestCase {
       new ProcessReport.StateThenNameComparator();
 
     final AgentIdentity agentIdentity1 =
-      new PublicAgentIdentityImplementation("my agent");
+      new StubAgentIdentity("my agent");
 
     final AgentProcessReport agentProcessReport1 =
       new StubAgentProcessReport(agentIdentity1,
@@ -61,7 +61,7 @@ public class TestProcessReport extends TestCase {
       comparator.compare(agentProcessReport2, agentProcessReport1) > 0);
 
     final AgentIdentity agentIdentity2 =
-      new PublicAgentIdentityImplementation("zzzagent");
+      new StubAgentIdentity("zzzagent");
 
     final AgentProcessReport agentProcessReport3 =
       new StubAgentProcessReport(agentIdentity2,

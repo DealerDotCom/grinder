@@ -33,7 +33,7 @@ import java.util.HashSet;
 
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
-import net.grinder.engine.agent.PublicAgentIdentityImplementation;
+import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -137,8 +137,8 @@ public class TestConsoleMessages extends TestCase {
 
   public void testWorkerReportMessage() throws Exception {
 
-    final PublicAgentIdentityImplementation agentIdentity =
-      new PublicAgentIdentityImplementation("Agent");
+    final StubAgentIdentity agentIdentity =
+      new StubAgentIdentity("Agent");
     final WorkerIdentity workerIdentity =
       agentIdentity.createWorkerIdentity();
 
@@ -164,8 +164,8 @@ public class TestConsoleMessages extends TestCase {
 
   public void testAgentReportMessage() throws Exception {
 
-    final PublicAgentIdentityImplementation agentIdentity =
-      new PublicAgentIdentityImplementation("Agent");
+    final StubAgentIdentity agentIdentity =
+      new StubAgentIdentity("Agent");
 
     final AgentProcessReportMessage original =
       new AgentProcessReportMessage(agentIdentity, (short)1);

@@ -27,7 +27,7 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.WorkerIdentity;
-import net.grinder.engine.agent.PublicAgentIdentityImplementation;
+import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
 import net.grinder.testutility.RandomStubFactory;
@@ -88,8 +88,8 @@ public class TestScriptContextImplementation extends TestCase {
       new RandomStubFactory(SSLControl.class);
     final SSLControl sslControl = (SSLControl)sslControlStubFactory.getStub();
 
-    final PublicAgentIdentityImplementation agentIdentity =
-      new PublicAgentIdentityImplementation("Agent");
+    final StubAgentIdentity agentIdentity =
+      new StubAgentIdentity("Agent");
     final WorkerIdentity workerIdentity =
       agentIdentity.createWorkerIdentity();
 

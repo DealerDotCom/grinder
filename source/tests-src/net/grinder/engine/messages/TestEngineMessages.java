@@ -26,7 +26,7 @@ import java.io.File;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
-import net.grinder.engine.agent.PublicAgentIdentityImplementation;
+import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
@@ -53,8 +53,8 @@ public class TestEngineMessages extends AbstractFileTestCase {
       new ScriptLocation(new Directory(new File("d:/foo/bah")),
                          new File("/foo"));
 
-    final PublicAgentIdentityImplementation agentIdentity =
-      new PublicAgentIdentityImplementation("Agent");
+    final StubAgentIdentity agentIdentity =
+      new StubAgentIdentity("Agent");
     final WorkerIdentity workerIdentity =
       agentIdentity.createWorkerIdentity();
 

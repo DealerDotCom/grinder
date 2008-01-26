@@ -44,7 +44,7 @@ import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.messages.AgentProcessReportMessage;
 import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.engine.agent.PublicAgentIdentityImplementation;
+import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.engine.messages.ResetGrinderMessage;
@@ -335,8 +335,8 @@ public class TestConsoleCommunicationImplementation
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.WORKER.write(socket.getOutputStream());
 
-    final PublicAgentIdentityImplementation agentIdentity =
-      new PublicAgentIdentityImplementation("agent");
+    final StubAgentIdentity agentIdentity =
+      new StubAgentIdentity("agent");
 
     // We can currently send agent messages over a worker channel.
     sendMessage(socket, new AgentProcessReportMessage(agentIdentity, (short)0));

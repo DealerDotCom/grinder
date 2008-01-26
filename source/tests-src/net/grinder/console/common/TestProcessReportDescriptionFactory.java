@@ -29,7 +29,7 @@ import net.grinder.common.AgentProcessReport;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.common.WorkerProcessReport;
 import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
-import net.grinder.engine.agent.PublicAgentIdentityImplementation;
+import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.testutility.RandomStubFactory;
 
 import junit.framework.TestCase;
@@ -60,7 +60,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
 
   public void testWithAgentProcessReport() throws Exception {
     final AgentIdentity agentIdentity =
-      new PublicAgentIdentityImplementation("my agent");
+      new StubAgentIdentity("my agent");
 
     final RandomStubFactory agentProcessReportStubFactory =
       new RandomStubFactory(AgentProcessReport.class);
@@ -115,8 +115,8 @@ public class TestProcessReportDescriptionFactory extends TestCase {
   }
 
   public void testWithWorkerProcessReport() throws Exception {
-    final PublicAgentIdentityImplementation agentIdentity =
-      new PublicAgentIdentityImplementation("agent");
+    final StubAgentIdentity agentIdentity =
+      new StubAgentIdentity("agent");
 
     final WorkerIdentity workerIdentity =
       agentIdentity.createWorkerIdentity();

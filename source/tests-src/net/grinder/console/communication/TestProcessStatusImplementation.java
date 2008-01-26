@@ -37,7 +37,7 @@ import net.grinder.common.StubWorkerProcessReport;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.common.WorkerProcessReport;
 import net.grinder.console.communication.ProcessStatusImplementation.AgentAndWorkers;
-import net.grinder.engine.agent.PublicAgentIdentityImplementation;
+import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -85,8 +85,8 @@ public class TestProcessStatusImplementation extends TestCase {
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
-    final PublicAgentIdentityImplementation agentIdentity =
-      new PublicAgentIdentityImplementation("agent");
+    final StubAgentIdentity agentIdentity =
+      new StubAgentIdentity("agent");
     final WorkerIdentity workerIdentity =
       agentIdentity.createWorkerIdentity();
 
@@ -136,8 +136,8 @@ public class TestProcessStatusImplementation extends TestCase {
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
-    final PublicAgentIdentityImplementation agentIdentityA =
-      new PublicAgentIdentityImplementation("Agent A");
+    final StubAgentIdentity agentIdentityA =
+      new StubAgentIdentity("Agent A");
     final WorkerIdentity workerIdentityA1 =
       agentIdentityA.createWorkerIdentity();
     final WorkerIdentity workerIdentityA2 =
@@ -147,8 +147,8 @@ public class TestProcessStatusImplementation extends TestCase {
     final WorkerIdentity workerIdentityA4 =
         agentIdentityA.createWorkerIdentity();
 
-    final PublicAgentIdentityImplementation agentIdentityB =
-      new PublicAgentIdentityImplementation("Agent B");
+    final StubAgentIdentity agentIdentityB =
+      new StubAgentIdentity("Agent B");
     final WorkerIdentity workerIdentityB1 =
       agentIdentityB.createWorkerIdentity();
 
@@ -225,8 +225,8 @@ public class TestProcessStatusImplementation extends TestCase {
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
-    final PublicAgentIdentityImplementation agentIdentityC =
-      new PublicAgentIdentityImplementation("Agent C");
+    final StubAgentIdentity agentIdentityC =
+      new StubAgentIdentity("Agent C");
     final WorkerIdentity workerIdentityC1 =
       agentIdentityC.createWorkerIdentity();
 
@@ -303,8 +303,8 @@ public class TestProcessStatusImplementation extends TestCase {
     final ProcessStatusImplementation processStatusSet =
       new ProcessStatusImplementation(m_timer);
 
-    final PublicAgentIdentityImplementation agentIdentity =
-      new PublicAgentIdentityImplementation("agent");
+    final StubAgentIdentity agentIdentity =
+      new StubAgentIdentity("agent");
 
     final AgentAndWorkers agentAndWorkers =
       processStatusSet.new AgentAndWorkers(agentIdentity);

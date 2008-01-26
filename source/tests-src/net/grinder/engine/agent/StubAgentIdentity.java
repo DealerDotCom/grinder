@@ -29,12 +29,11 @@ import net.grinder.common.WorkerIdentity;
  * packages can use it.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 3642 $
  */
-public final class PublicAgentIdentityImplementation
-  extends AgentIdentityImplementation {
+public final class StubAgentIdentity extends AgentIdentityImplementation {
 
-  public PublicAgentIdentityImplementation(String name) {
+  public StubAgentIdentity(String name) {
     super(name);
   }
 

@@ -43,8 +43,8 @@ public class TestProcessWorker extends TestCase {
 
   private ByteArrayOutputStream m_outputStream = new ByteArrayOutputStream();
   private ByteArrayOutputStream m_errorStream = new ByteArrayOutputStream();
-  private final PublicAgentIdentityImplementation m_agentIdentity =
-    new PublicAgentIdentityImplementation("test");
+  private final StubAgentIdentity m_agentIdentity =
+    new StubAgentIdentity("test");
 
   public void testWithInvalidProcess() throws Exception {
     final String[] commandArray = {

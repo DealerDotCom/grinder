@@ -27,7 +27,7 @@ import net.grinder.common.AgentIdentity;
 import net.grinder.common.AgentProcessReport;
 import net.grinder.common.StubAgentProcessReport;
 import net.grinder.console.communication.ProcessStatus.ProcessReports;
-import net.grinder.engine.agent.PublicAgentIdentityImplementation;
+import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.testutility.RandomStubFactory;
 
 import junit.framework.TestCase;
@@ -44,7 +44,7 @@ public class TestProcessStatus extends TestCase {
     final Comparator comparator = new ProcessStatus.ProcessReportsComparator();
 
     final AgentIdentity agentIdentity1 =
-      new PublicAgentIdentityImplementation("my agent");
+      new StubAgentIdentity("my agent");
 
     final AgentProcessReport agentProcessReport1 =
       new StubAgentProcessReport(agentIdentity1,

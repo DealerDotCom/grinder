@@ -272,8 +272,8 @@ public class TestWorkerLauncher extends TestCase {
     private OutputStream m_lastOutputStream;
     private OutputStream m_lastErrorStream;
     private ArrayList m_childProcesses = new ArrayList();
-    private PublicAgentIdentityImplementation m_agentIdentity =
-      new PublicAgentIdentityImplementation("process");
+    private StubAgentIdentity m_agentIdentity =
+      new StubAgentIdentity("process");
 
     public Worker create(OutputStream outputStream,
                          OutputStream errorStream)
