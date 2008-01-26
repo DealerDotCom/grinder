@@ -144,6 +144,17 @@ public class TestConsoleCommunicationImplementation
     timerTask2.run();
 
     assertEquals(0, consoleCommunication.getNumberOfConnections());
+
+    final ConsoleCommunicationImplementation consoleCommunication2 =
+      new ConsoleCommunicationImplementation(s_resources,
+                                             m_properties,
+                                             m_timer);
+
+    final TimerTask timerTask3 = m_timer.getLastScheduledTimerTask();
+    assertNotSame(timerTask, timerTask3);
+    timerTask3.run();
+
+    assertEquals(0, consoleCommunication2.getNumberOfConnections());
   }
 
   private Message readMessage(Socket socket) throws Exception {
