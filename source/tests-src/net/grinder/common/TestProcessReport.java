@@ -24,7 +24,6 @@ package net.grinder.common;
 import java.util.Comparator;
 
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
-import net.grinder.testutility.RandomStubFactory;
 
 import junit.framework.TestCase;
 
@@ -44,26 +43,16 @@ public class TestProcessReport extends TestCase {
     final AgentIdentity agentIdentity1 =
       new PublicAgentIdentityImplementation("my agent");
 
-    final RandomStubFactory agentProcessReportStubFactory1 =
-      new RandomStubFactory(AgentProcessReport.class);
     final AgentProcessReport agentProcessReport1 =
-      (AgentProcessReport)agentProcessReportStubFactory1.getStub();
-    agentProcessReportStubFactory1.setResult("getIdentity", agentIdentity1);
-    agentProcessReportStubFactory1.setResult("getAgentIdentity", agentIdentity1);
-    agentProcessReportStubFactory1.setResult(
-      "getState", new Short(AgentProcessReport.STATE_RUNNING));
+      new StubAgentProcessReport(agentIdentity1,
+                                 AgentProcessReport.STATE_RUNNING);
 
     assertEquals(0,
       comparator.compare(agentProcessReport1, agentProcessReport1));
 
-    final RandomStubFactory agentProcessReportStubFactory2 =
-      new RandomStubFactory(AgentProcessReport.class);
     final AgentProcessReport agentProcessReport2 =
-      (AgentProcessReport)agentProcessReportStubFactory2.getStub();
-    agentProcessReportStubFactory2.setResult("getIdentity", agentIdentity1);
-    agentProcessReportStubFactory2.setResult("getAgentIdentity", agentIdentity1);
-    agentProcessReportStubFactory2.setResult(
-      "getState", new Short(AgentProcessReport.STATE_FINISHED));
+      new StubAgentProcessReport(agentIdentity1,
+                                 AgentProcessReport.STATE_FINISHED);
 
     assertTrue(
       comparator.compare(agentProcessReport1, agentProcessReport2) < 0);
@@ -74,14 +63,9 @@ public class TestProcessReport extends TestCase {
     final AgentIdentity agentIdentity2 =
       new PublicAgentIdentityImplementation("zzzagent");
 
-    final RandomStubFactory agentProcessReportStubFactory3 =
-      new RandomStubFactory(AgentProcessReport.class);
     final AgentProcessReport agentProcessReport3 =
-      (AgentProcessReport)agentProcessReportStubFactory3.getStub();
-    agentProcessReportStubFactory3.setResult("getIdentity", agentIdentity2);
-    agentProcessReportStubFactory3.setResult("getAgentIdentity", agentIdentity2);
-    agentProcessReportStubFactory3.setResult(
-      "getState", new Short(AgentProcessReport.STATE_FINISHED));
+      new StubAgentProcessReport(agentIdentity2,
+                                 AgentProcessReport.STATE_FINISHED);
 
     assertTrue(
       comparator.compare(agentProcessReport3, agentProcessReport2) > 0);
