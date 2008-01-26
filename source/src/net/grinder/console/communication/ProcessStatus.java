@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,9 +21,11 @@
 
 package net.grinder.console.communication;
 
+import java.util.Comparator;
 import java.util.EventListener;
 
 import net.grinder.common.AgentProcessReport;
+import net.grinder.common.ProcessReport;
 import net.grinder.common.WorkerProcessReport;
 
 
@@ -87,5 +89,20 @@ public interface ProcessStatus {
      * @return The worker process reports.
      */
     WorkerProcessReport[] getWorkerProcessReports();
+  }
+
+  /**
+   * Comparator for {@link ProcessReports} that sorts according to
+   * the agent report.
+   */
+  final class ProcessReportsComparator implements Comparator {
+    private final Comparator m_processReportComparator =
+      new ProcessReport.StateThenNameComparator();
+
+    public int compare(Object o1, Object o2) {
+      return m_processReportComparator.compare(
+        ((ProcessStatus.ProcessReports)o1).getAgentProcessReport(),
+        ((ProcessStatus.ProcessReports)o2).getAgentProcessReport());
+    }
   }
 }

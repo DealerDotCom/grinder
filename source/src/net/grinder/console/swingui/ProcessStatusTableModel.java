@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -34,7 +34,9 @@ import net.grinder.common.AgentProcessReport;
 import net.grinder.common.ProcessReport;
 import net.grinder.common.WorkerProcessReport;
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.ProcessReportDescriptionFactory;
 import net.grinder.console.common.Resources;
+import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessStatus;
 
@@ -55,30 +57,27 @@ class ProcessStatusTableModel
   private static final int TYPE_COLUMN_INDEX = 1;
   private static final int STATE_COLUMN_INDEX = 2;
 
-  private final ProcessReportComparator m_processReportComparator =
-    new ProcessReportComparator();
+  private final Comparator m_processReportComparator =
+    new ProcessReport.StateThenNameComparator();
 
-  private final ProcessReportsComparator m_processReportsComparator =
-    new ProcessReportsComparator();
+  private final Comparator m_processReportsComparator =
+    new ProcessStatus.ProcessReportsComparator();
+
+  private final ProcessReportDescriptionFactory m_descriptionFactory;
 
   private final String[] m_columnHeadings;
   private final String m_workerProcessesString;
   private final String m_threadsString;
-  private final String m_agentString;
-  private final String m_workerString;
-  private final String m_stateStartedString;
-  private final String m_stateRunningString;
-  private final String m_stateFinishedString;
-  private final String m_stateConnectedString;
-  private final String m_stateDisconnectedString;
-  private final String m_stateUnknownString;
 
-  private RowData[] m_data = new RowData[0];
+  private Row[] m_data = new Row[0];
 
   public ProcessStatusTableModel(Resources resources,
                                  ProcessControl processControl,
                                  SwingDispatcherFactory swingDispatcherFactory)
     throws ConsoleException {
+
+    m_descriptionFactory =
+      new ProcessReportDescriptionFactory(resources);
 
     m_columnHeadings = new String[3];
     m_columnHeadings[NAME_COLUMN_INDEX] =
@@ -91,18 +90,6 @@ class ProcessStatusTableModel
     m_workerProcessesString =
       resources.getString("processTable.processes.label");
     m_threadsString = resources.getString("processTable.threads.label");
-
-    m_agentString = resources.getString("processTable.agentProcess.label");
-    m_workerString = resources.getString("processTable.workerProcess.label");
-
-    m_stateStartedString = resources.getString("processState.started.label");
-    m_stateRunningString = resources.getString("processState.running.label");
-    m_stateFinishedString = resources.getString("processState.finished.label");
-    m_stateConnectedString =
-      resources.getString("processState.connected.label");
-    m_stateDisconnectedString =
-      resources.getString("processState.connected.label");
-    m_stateUnknownString = resources.getString("processState.unknown.label");
 
     processControl.addProcessStatusListener(
       (ProcessStatus.Listener)swingDispatcherFactory.create(
@@ -119,7 +106,8 @@ class ProcessStatusTableModel
             for (int i = 0; i < processReports.length; ++i) {
               final AgentProcessReport agentProcessStatus =
                 processReports[i].getAgentProcessReport();
-              rows.add(new RowData(agentProcessStatus));
+              rows.add(new ProcessDescriptionRow(
+                m_descriptionFactory.create(agentProcessStatus)));
 
               final WorkerProcessReport[] workerProcessStatuses =
                 processReports[i].getWorkerProcessReports();
@@ -131,17 +119,20 @@ class ProcessStatusTableModel
                   workerProcessStatuses[j].getNumberOfRunningThreads();
                 totalThreads +=
                   workerProcessStatuses[j].getMaximumNumberOfThreads();
-                rows.add(new RowData(workerProcessStatuses[j]));
+                rows.add(
+                  new IndentedNameRow(
+                    "  ",
+                    new ProcessDescriptionRow(
+                      m_descriptionFactory.create(workerProcessStatuses[j]))));
               }
 
               workerProcesses += workerProcessStatuses.length;
             }
 
             rows.add(
-              new RowData(runningThreads, totalThreads, workerProcesses));
+              new TotalRow(runningThreads, totalThreads, workerProcesses));
 
-            m_data = (RowData[])rows.toArray(new RowData[rows.size()]);
-
+            m_data = (Row[])rows.toArray(new Row[rows.size()]);
 
             fireTableDataChanged();
           }
@@ -166,7 +157,6 @@ class ProcessStatusTableModel
 
     if (row < m_data.length) {
       return m_data[row].getValueForColumn(column);
-
     }
     else {
       return "";
@@ -185,75 +175,21 @@ class ProcessStatusTableModel
     return null;
   }
 
-  private final class RowData {
-    private final String m_name;
-    private final String m_processType;
-    private final String m_state;
-
-    public RowData(AgentProcessReport agentProcessStatus) {
-      m_name = agentProcessStatus.getAgentIdentity().getName();
-      m_processType = m_agentString;
-
-      switch (agentProcessStatus.getState()) {
-      case AgentProcessReport.STATE_STARTED:
-      case AgentProcessReport.STATE_RUNNING:
-        m_state = m_stateConnectedString;
-        break;
-
-      case AgentProcessReport.STATE_FINISHED:
-        m_state = m_stateDisconnectedString;
-        break;
-
-      case AgentProcessReport.STATE_UNKNOWN:
-      default:
-        m_state = m_stateUnknownString;
-        break;
-      }
-    }
-
-    public RowData(WorkerProcessReport workerProcessStatus) {
-      m_name = "  " + workerProcessStatus.getWorkerIdentity().getName();
-      m_processType = m_workerString;
-
-      switch (workerProcessStatus.getState()) {
-      case WorkerProcessReport.STATE_STARTED:
-        m_state = m_stateStartedString;
-        break;
-
-      case WorkerProcessReport.STATE_RUNNING:
-        m_state = m_stateRunningString + " (" +
-                  workerProcessStatus.getNumberOfRunningThreads() + "/" +
-                  workerProcessStatus.getMaximumNumberOfThreads() + " " +
-                  m_threadsString + ")";
-        break;
-
-      case WorkerProcessReport.STATE_FINISHED:
-        m_state = m_stateFinishedString;
-        break;
-
-      default:
-        m_state = m_stateUnknownString;
-        break;
-      }
-    }
-
-    public RowData(int runningThreads, int totalThreads, int workerProcesses) {
-      m_name = "";
-      m_processType = "" + workerProcesses + " " + m_workerProcessesString;
-      m_state =
-        "" + runningThreads + "/" + totalThreads + " " + m_threadsString;
-    }
+  private abstract class Row {
+    abstract String getName();
+    abstract String getProcessType();
+    abstract String getState();
 
     public String getValueForColumn(int column) {
       switch (column) {
       case NAME_COLUMN_INDEX:
-        return m_name;
+        return getName();
 
       case TYPE_COLUMN_INDEX:
-        return m_processType;
+        return getProcessType();
 
       case STATE_COLUMN_INDEX:
-        return m_state;
+        return getState();
 
       default:
         return "?";
@@ -261,29 +197,70 @@ class ProcessStatusTableModel
     }
   }
 
-  private static final class ProcessReportComparator implements Comparator {
-    public int compare(Object o1, Object o2) {
-      final ProcessReport processReport1 = (ProcessReport)o1;
-      final ProcessReport processReport2 = (ProcessReport)o2;
+  private class ProcessDescriptionRow extends Row {
+    private final ProcessDescription m_description;
 
-      final int compareState =
-        processReport1.getState() - processReport2.getState();
+    public ProcessDescriptionRow(ProcessDescription description) {
+      m_description = description;
+    }
 
-      if (compareState == 0) {
-        return processReport1.getIdentity().getName().compareTo(
-               processReport2.getIdentity().getName());
-      }
-      else {
-        return compareState;
-      }
+    public String getName() {
+      return m_description.getName();
+    }
+
+    public String getProcessType() {
+      return m_description.getProcessType();
+    }
+
+    public String getState() {
+      return m_description.getState();
     }
   }
 
-  private final class ProcessReportsComparator implements Comparator {
-    public int compare(Object o1, Object o2) {
-      return m_processReportComparator.compare(
-        ((ProcessStatus.ProcessReports)o1).getAgentProcessReport(),
-        ((ProcessStatus.ProcessReports)o2).getAgentProcessReport());
+  private class IndentedNameRow extends Row {
+    private final String m_indent;
+    private final Row m_delegate;
+
+    public IndentedNameRow(String indent, Row row) {
+      m_indent = indent;
+      m_delegate = row;
+    }
+
+    public String getName() {
+      return m_indent + m_delegate.getName();
+    }
+
+    public String getProcessType() {
+      return m_delegate.getProcessType();
+    }
+
+    public String getState() {
+      return m_delegate.getState();
+    }
+  }
+
+  private final class TotalRow extends Row {
+    private final int m_runningThreads;
+    private final int m_totalThreads;
+    private final int m_workerProcesses;
+
+    public TotalRow(int runningThreads, int totalThreads, int workerProcesses) {
+      m_runningThreads = runningThreads;
+      m_totalThreads = totalThreads;
+      m_workerProcesses = workerProcesses;
+    }
+
+    public String getName() {
+      return "";
+    }
+
+    public String getProcessType() {
+      return "" + m_workerProcesses + " " + m_workerProcessesString;
+    }
+
+    public String getState() {
+      return
+        "" + m_runningThreads + "/" + m_totalThreads + " " + m_threadsString;
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,7 @@
 package net.grinder.common;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 
 /**
@@ -84,5 +85,26 @@ public interface ProcessReport {
      * @return The process name.
      */
     String getName();
+  }
+
+  /**
+   * Comparator that compares ProcessReports by state, then by name.
+   */
+  final class StateThenNameComparator implements Comparator {
+    public int compare(Object o1, Object o2) {
+      final ProcessReport processReport1 = (ProcessReport)o1;
+      final ProcessReport processReport2 = (ProcessReport)o2;
+
+      final int compareState =
+        processReport1.getState() - processReport2.getState();
+
+      if (compareState == 0) {
+        return processReport1.getIdentity().getName().compareTo(
+               processReport2.getIdentity().getName());
+      }
+      else {
+        return compareState;
+      }
+    }
   }
 }
