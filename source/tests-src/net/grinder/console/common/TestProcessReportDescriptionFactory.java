@@ -22,9 +22,7 @@
 package net.grinder.console.common;
 
 import java.util.HashMap;
-import java.util.Map;
 
-import javax.swing.ImageIcon;
 
 import net.grinder.common.AgentIdentity;
 import net.grinder.common.AgentProcessReport;
@@ -176,34 +174,5 @@ public class TestProcessReportDescriptionFactory extends TestCase {
       processReportDescriptionFactory.create(workerProcessReport);
 
     assertEquals("huh", description5.getState());
-
-  }
-
-  private static class StubResources implements Resources {
-    private final Map m_strings;
-
-    public StubResources(Map strings) {
-      m_strings = strings;
-    }
-
-    public ImageIcon getImageIcon(String key) {
-      throw new AssertionError("not implemented");
-    }
-
-    public ImageIcon getImageIcon(String key, boolean warnIfMissing) {
-      throw new AssertionError("not implemented");
-    }
-
-    public String getString(String key) {
-      return (String) m_strings.get(key);
-    }
-
-    public String getString(String key, boolean warnIfMissing) {
-      throw new AssertionError("not implemented");
-    }
-
-    public String getStringFromFile(String key, boolean warnIfMissing) {
-      throw new AssertionError("not implemented");
-    }
   }
 }
