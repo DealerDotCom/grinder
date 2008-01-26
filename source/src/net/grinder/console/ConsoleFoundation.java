@@ -30,12 +30,12 @@ import java.util.TimerTask;
 import java.util.regex.Pattern;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.Logger;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
-import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.communication.DistributionControlImplementation;
@@ -74,16 +74,18 @@ public final class ConsoleFoundation {
   /**
    * Constructor.
    *
+   * @param resources Console resources
+   * @param logger Logger.
+   *
    * @exception GrinderException If an error occurs.
    */
-  public ConsoleFoundation() throws GrinderException {
+  public ConsoleFoundation(Resources resources, Logger logger)
+    throws GrinderException {
 
     // Some platforms do not have user home directories.
     final String homeDirectory =
       System.getProperty("user.home", System.getProperty("java.home"));
 
-    final Resources resources = new ResourcesImplementation(
-      "net.grinder.console.swingui.resources.Console");
     final ConsoleProperties properties =
       new ConsoleProperties(resources,
                             new File(homeDirectory, ".grinder_console"));
@@ -91,6 +93,7 @@ public final class ConsoleFoundation {
     final Timer timer = new Timer(true);
 
     m_container = new DefaultPicoContainer();
+    m_container.registerComponentInstance(logger);
     m_container.registerComponentInstance(resources);
     m_container.registerComponentInstance(properties);
     m_container.registerComponentInstance(timer);

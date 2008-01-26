@@ -22,7 +22,17 @@
 
 package net.grinder;
 
+import java.io.PrintWriter;
+
+import net.grinder.common.GrinderException;
+import net.grinder.common.Logger;
+import net.grinder.console.ConsoleFoundation;
+import net.grinder.console.common.Resources;
+import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.swingui.ConsoleUI;
+import net.grinder.console.textui.TextUI;
+import net.grinder.util.AbstractMainClass;
+import net.grinder.util.SimpleLogger;
 
 
 /**
@@ -31,33 +41,68 @@ import net.grinder.console.swingui.ConsoleUI;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class Console {
+public final class Console extends AbstractMainClass {
 
-  private Console() {
+  private static final String USAGE =
+    "\n  java " + TCPProxy.class + " [-headless]" +
+    "\n" +
+    "\n  -headless                    Don't use a graphical user interface.";
+
+  private final ConsoleFoundation m_consoleFoundation;
+
+  private Console(String[] args, Resources resources, Logger logger)
+    throws GrinderException {
+
+    super(logger, USAGE);
+
+    Class ui = ConsoleUI.class;
+
+    for (int i = 0; i < args.length; i++) {
+      if (args[i].equalsIgnoreCase("-headless")) {
+        ui = TextUI.class;
+      }
+      else {
+        throw barfUsage();
+      }
+    }
+
+    m_consoleFoundation = new ConsoleFoundation(resources, logger);
+    m_consoleFoundation.createUI(ui);
+  }
+
+  private void run() {
+    m_consoleFoundation.run();
   }
 
   /**
-   * Entry point for console.
+   * Entry point.
    *
    * @param args Command line arguments.
    */
   public static void main(String[] args)  {
-    if (args.length > 0) {
-      System.err.println("Usage: java " + Console.class.getName());
-      System.exit(1);
-    }
+    final Resources resources = new ResourcesImplementation(
+      "net.grinder.console.swingui.resources.Console");
+
+    final Logger logger =
+      new SimpleLogger(resources.getString("shortTitle"),
+                       new PrintWriter(System.out),
+                       new PrintWriter(System.err));
 
     try {
-      final net.grinder.console.ConsoleFoundation consoleFoundation =
-        new net.grinder.console.ConsoleFoundation();
-
-	  consoleFoundation.createUI(ConsoleUI.class);
-
-      consoleFoundation.run();
+      final Console console = new Console(args, resources, logger);
+      console.run();
     }
-    catch (Throwable t) {
-      t.printStackTrace();
+    catch (LoggedInitialisationException e) {
+      System.exit(1);
+    }
+    catch (GrinderException e) {
+      logger.error("Could not initialise:");
+      final PrintWriter errorWriter = logger.getErrorLogWriter();
+      e.printStackTrace(errorWriter);
+      errorWriter.flush();
       System.exit(2);
     }
+
+    System.exit(0);
   }
 }
