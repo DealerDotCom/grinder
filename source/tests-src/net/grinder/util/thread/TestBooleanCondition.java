@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +26,13 @@ import java.util.TimerTask;
 
 import junit.framework.TestCase;
 
+
+/**
+ * Unit tests for {@link BooleanCondition}.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public class TestBooleanCondition extends TestCase {
 
   public void testWithSingleThread() throws Exception {
@@ -34,11 +41,14 @@ public class TestBooleanCondition extends TestCase {
     // State is initially false, so we shouldn't block here.
     assertFalse(booleanCondition.await(false));
     assertFalse(booleanCondition.await(false));
+    assertFalse(booleanCondition.get());
 
     booleanCondition.set(true);
+    assertTrue(booleanCondition.get());
     assertTrue(booleanCondition.await(true));
 
     booleanCondition.set(false);
+    assertFalse(booleanCondition.get());
     assertFalse(booleanCondition.await(false));
   }
 
@@ -55,6 +65,7 @@ public class TestBooleanCondition extends TestCase {
 
     assertTrue(booleanCondition.await(true));
     assertTrue(booleanCondition.await(true));
+    assertTrue(booleanCondition.get());
 
     setTrueTask.cancel();
 

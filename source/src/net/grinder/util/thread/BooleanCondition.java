@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -70,6 +70,17 @@ public final class BooleanCondition {
     synchronized (m_condition) {
       m_state = state;
       m_condition.notifyAll();
+    }
+  }
+
+  /**
+   * Query the state without blocking.
+   *
+   * @return The state.
+   */
+  public boolean get() {
+    synchronized (m_condition) {
+      return m_state;
     }
   }
 
