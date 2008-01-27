@@ -277,24 +277,17 @@ public final class ConsoleCommunicationImplementation
    */
   public boolean processOneMessage() {
     while (true) {
-      if (!m_processing.await(true)) {
-        // await() interrupted before we were listening.
-
-        if (m_shutdown.get()) {
-          return false;
-        }
+      if (m_shutdown.get()) {
+        return false;
       }
-      else {
+
+      if (m_processing.await(true)) {
         try {
           final Message message = m_receiver.waitForMessage();
 
           if (message == null) {
             // Current receiver has been shut down.
             m_processing.set(false);
-
-            if (m_shutdown.get()) {
-              return false;
-            }
           }
           else {
             m_messageDispatcher.send(message);
