@@ -27,8 +27,8 @@
           Like The Grinder itself, Grinder Analyzer uses Jython, and the
           excellent JFreechart graphing library.
 
-  		  <figure src="images/grinder-analyzer.png" alt="Grinder Analyzer"
-  		  		  width="328" height="230" />
+        <figure src="images/grinder-analyzer.png" alt="Grinder Analyzer"
+              width="328" height="230" />
 
       </td>
     </tr>
@@ -68,6 +68,28 @@
   <title>Articles</title>
 
   <table class="noborder">
+    <tr>
+      <td>
+        <a href="http://tech.puredanger.com/2008/01/25/the-grinder-30-released/">Pure Danger Tech: The Grinder 3.0 Released</a>
+      </td>
+
+      <td>Alex Miller says some very nice things about The Grinder.
+
+       <p class="quote">"...I was really pleasantly surprised by everything
+       that I found. The Grinder has a fairly clean aesthetic that is hard to
+       quantify but makes getting started a pleasant experience. What I found
+       the most enjoyable about it was the use of Jython to script the actual
+       test activity. <br/>
+
+       ...It is trivial to start up the console and your agents, then have very
+       fast modify / run cycles as nothing needs to be restarted. You just
+       modify the test in your editor and hit play on the console. This allows
+       you to very rapidly whip your test into shape.
+       Kind of reminds me of Rails..."</p>
+
+       </td>
+    </tr>
+
     <tr>
       <td>
         <a href="http://blackanvil.blogspot.com/2006/06/shootout-load-runner-vs-grinder-vs.html#links">The Black Anvil: Shootout: Load Runner vs The Grinder vs Apache JMeter</a>
