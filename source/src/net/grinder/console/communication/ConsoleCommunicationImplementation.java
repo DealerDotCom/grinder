@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -63,6 +63,7 @@ public final class ConsoleCommunicationImplementation
     new MessageDispatchSender();
 
   private final BooleanCondition m_processing = new BooleanCondition();
+  private final BooleanCondition  m_shutdown = new BooleanCondition();
 
   private Acceptor m_acceptor = null;
   private ServerReceiver m_receiver = null;
@@ -173,6 +174,10 @@ public final class ConsoleCommunicationImplementation
       m_processing.await(false);
     }
 
+    if (m_shutdown.get()) {
+      return;
+    }
+
     try {
       m_acceptor = new Acceptor(m_properties.getConsoleHost(),
                                 m_properties.getConsolePort(),
@@ -255,34 +260,52 @@ public final class ConsoleCommunicationImplementation
   }
 
   /**
-   * Wait to receive a message, then process it.
+   * Shut down communication.
    */
-  public void processOneMessage() {
+  public void shutdown() {
+    m_shutdown.set(true);
+    m_processing.set(false);
+    reset();
+  }
+
+  /**
+   * Wait to receive a message, then process it.
+   *
+   * @return <code>true</code> if we processed a message successfully;
+   *         <code>false</code> if we've been shut down.
+   * @see #shutdown()
+   */
+  public boolean processOneMessage() {
     while (true) {
       if (!m_processing.await(true)) {
         // await() interrupted before we were listening.
-        return;
-      }
 
-      try {
-        final Message message = m_receiver.waitForMessage();
-
-        if (message == null) {
-          // Current receiver has been shut down.
-          m_processing.set(false);
-
-          // We return, to give our caller a chance to handle any shut down.
+        if (m_shutdown.get()) {
+          return false;
         }
-        else {
-          m_messageDispatcher.send(message);
-        }
-
-        break;
       }
-      catch (CommunicationException e) {
-        // The receive or send failed. We only set m_processing to false when
-        // our receiver has been shut down.
-        m_errorQueue.handleException(e);
+      else {
+        try {
+          final Message message = m_receiver.waitForMessage();
+
+          if (message == null) {
+            // Current receiver has been shut down.
+            m_processing.set(false);
+
+            if (m_shutdown.get()) {
+              return false;
+            }
+          }
+          else {
+            m_messageDispatcher.send(message);
+            return true;
+          }
+        }
+        catch (CommunicationException e) {
+          // The receive or send failed. We only set m_processing to false when
+          // our receiver has been shut down.
+          m_errorQueue.handleException(e);
+        }
       }
     }
   }

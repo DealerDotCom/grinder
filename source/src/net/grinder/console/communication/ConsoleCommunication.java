@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,9 +43,18 @@ public interface ConsoleCommunication {
   MessageDispatchRegistry getMessageDispatchRegistry();
 
   /**
-   * Wait to receive a message, then process it.
+   * Shut down communication.
    */
-  void processOneMessage();
+  void shutdown();
+
+  /**
+   * Wait to receive a message, then process it.
+   *
+   * @return <code>true</code> if we processed a message successfully;
+   *         <code>false</code> if we've been shut down.
+   * @see #shutdown()
+   */
+  boolean processOneMessage();
 
   /**
    * Send the given message to the agent processes (which may pass it on to

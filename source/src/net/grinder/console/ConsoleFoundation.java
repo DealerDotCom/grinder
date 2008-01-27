@@ -72,7 +72,7 @@ public final class ConsoleFoundation {
   private final MutablePicoContainer m_container;
 
   /**
-   * Constructor.
+   * Constructor. Locates the console properties in the user's home directory.
    *
    * @param resources Console resources
    * @param logger Logger.
@@ -82,15 +82,33 @@ public final class ConsoleFoundation {
   public ConsoleFoundation(Resources resources, Logger logger)
     throws GrinderException {
 
-    // Some platforms do not have user home directories.
-    final String homeDirectory =
-      System.getProperty("user.home", System.getProperty("java.home"));
+    this(resources,
+         logger,
+         new Timer(true),
+         new ConsoleProperties(
+            resources,
+            // Some platforms do not have user home directories, fall back
+            // to java.home.
+            new File(System.getProperty("user.home",
+                       System.getProperty("java.home")),
+                     ".grinder_console")));
+  }
 
-    final ConsoleProperties properties =
-      new ConsoleProperties(resources,
-                            new File(homeDirectory, ".grinder_console"));
-
-    final Timer timer = new Timer(true);
+  /**
+   * Constructor. Allows properties to be specified.
+   *
+   * @param resources Console resources
+   * @param logger Logger.
+   * @param timer A timer.
+   * @param properties The properties.
+   *
+   * @exception GrinderException If an error occurs.
+   */
+  public ConsoleFoundation(Resources resources,
+                           Logger logger,
+                           Timer timer,
+                           ConsoleProperties properties)
+    throws GrinderException {
 
     m_container = new DefaultPicoContainer();
     m_container.registerComponentInstance(logger);
@@ -152,8 +170,20 @@ public final class ConsoleFoundation {
   }
 
   /**
+   * Shut down the console.
+   *
+   */
+  public void shutdown() {
+    final ConsoleCommunication communication =
+      (ConsoleCommunication)m_container.getComponentInstanceOfType(
+        ConsoleCommunication.class);
+
+    communication.shutdown();
+  }
+
+  /**
    * Console message event loop. Dispatches communication messages
-   * appropriately.
+   * appropriately. Blocks until we are {@link #shutdown()}.
    */
   public void run() {
     m_container.start();
@@ -166,8 +196,8 @@ public final class ConsoleFoundation {
     m_container.getComponentInstanceOfType(WireMessageDispatch.class);
     m_container.getComponentInstanceOfType(WireFileDistribution.class);
 
-    while (true) {
-      communication.processOneMessage();
+    while (communication.processOneMessage()) {
+      // Process until communication is shut down.
     }
   }
 

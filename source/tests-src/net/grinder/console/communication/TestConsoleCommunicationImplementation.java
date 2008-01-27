@@ -80,14 +80,16 @@ public class TestConsoleCommunicationImplementation
     super.setUp();
 
     // Figure out a used and free local port.
-    m_usedServerSocket = new ServerSocket(0);
-    final ServerSocket freeServerSocket = new ServerSocket(0);
-    freeServerSocket.close();
+    m_usedServerSocket = new ServerSocket(0, 50, InetAddress.getByName(null));
+    final ServerSocket freeSocket =
+      new ServerSocket(0, 50, InetAddress.getByName(null));
+    freeSocket.close();
+
 
     final File file = new File(getDirectory(), "properties");
     m_properties = new ConsoleProperties(s_resources, file);
 
-    m_properties.setConsolePort(freeServerSocket.getLocalPort());
+    m_properties.setConsolePort(freeSocket.getLocalPort());
 
     m_consoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
@@ -99,24 +101,14 @@ public class TestConsoleCommunicationImplementation
   protected void tearDown() throws Exception {
     super.tearDown();
 
-    // Force existing communications objects to shut down.
-    if (!m_processMessagesThread.isAlive()) {
-      m_processMessagesThread.start();
-    }
-
-    // We need another server socket to ensure setting the console port is not
-    // a no-op.
-    final ServerSocket anotherUsedSocket = new ServerSocket(0);
-    m_usedServerSocket.close();
-
-    m_properties.setConsolePort(anotherUsedSocket.getLocalPort());
-
-    anotherUsedSocket.close();
+    m_consoleCommunication.shutdown();
 
     m_processMessagesThread.interrupt();
     m_processMessagesThread.join();
 
     m_timer.cancel();
+
+    m_usedServerSocket.close();
 
     waitForNumberOfConnections(0);
   }
@@ -155,6 +147,21 @@ public class TestConsoleCommunicationImplementation
     timerTask3.run();
 
     assertEquals(0, consoleCommunication2.getNumberOfConnections());
+  }
+
+  public void testShutdown() throws Exception {
+
+    m_processMessagesThread.start();
+
+    final Socket socket =
+      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
+    ConnectionType.AGENT.write(socket.getOutputStream());
+
+    waitForNumberOfConnections(1);
+
+    m_consoleCommunication.shutdown();
+
+    waitForNumberOfConnections(0);
   }
 
   private Message readMessage(Socket socket) throws Exception {
@@ -238,15 +245,15 @@ public class TestConsoleCommunicationImplementation
   }
 
   public void testDistributionControl() throws Exception {
-    final Socket socket = new Socket(InetAddress.getByName(null), m_properties
-        .getConsolePort());
+    final Socket socket =
+      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.AGENT.write(socket.getOutputStream());
 
     final DistributionControl distributionControl =
       new DistributionControlImplementation(m_consoleCommunication);
 
-    final Socket socket2 = new Socket(InetAddress.getByName(null), m_properties
-        .getConsolePort());
+    final Socket socket2 =
+      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.AGENT.write(socket2.getOutputStream());
 
     waitForNumberOfConnections(2);
@@ -508,9 +515,7 @@ public class TestConsoleCommunicationImplementation
 
     public void run() {
       try {
-        while (true) {
-          m_consoleCommunication.processOneMessage();
-        }
+        while (m_consoleCommunication.processOneMessage()) { }
       }
       catch (UncheckedInterruptedException e) {
         // Time to go.

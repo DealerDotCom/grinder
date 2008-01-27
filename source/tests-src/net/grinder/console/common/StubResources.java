@@ -46,7 +46,7 @@ public class StubResources implements Resources {
   }
 
   public String getString(String key, boolean warnIfMissing) {
-    throw new AssertionError("not implemented");
+    return (String) m_strings.get(key);
   }
 
   public String getStringFromFile(String key, boolean warnIfMissing) {
