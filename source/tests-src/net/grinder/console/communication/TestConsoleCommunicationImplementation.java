@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Timer;
 import java.util.TimerTask;
 
 import net.grinder.common.GrinderProperties;
@@ -52,6 +51,7 @@ import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.testutility.StubTimer;
 import net.grinder.util.FileContents;
 
 
@@ -478,18 +478,6 @@ public class TestConsoleCommunicationImplementation
 
   private static final class MyMessage implements Message, Serializable {
     private static final long serialVersionUID = 1L;
-  }
-
-  private static final class StubTimer extends Timer {
-    private TimerTask m_lastScheduledTimerTask;
-
-    public void schedule(TimerTask timerTask, long delay, long period) {
-      m_lastScheduledTimerTask = timerTask;
-    }
-
-    public TimerTask getLastScheduledTimerTask() {
-      return m_lastScheduledTimerTask;
-    }
   }
 
   public static final class MessageHandlerStubFactory
