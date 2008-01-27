@@ -311,7 +311,7 @@ public class TestConsoleCommunicationImplementation
 
   /**
    * Connections are accepted by separate threads so we need to spin a while.
-   * @param n - Wait until there are this numnber of accepted connections.
+   * @param n - Wait until there are this number of accepted connections.
    * @throws InterruptedException
    */
   private void waitForNumberOfConnections(int n) throws InterruptedException {
