@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,7 +47,7 @@ import net.grinder.testutility.RandomStubFactory;
 public class TestFileTree extends AbstractFileTestCase {
   private static final Resources s_resources =
     new ResourcesImplementation(
-      "net.grinder.console.swingui.resources.Console");
+      "net.grinder.console.common.resources.Console");
   private final RandomStubFactory m_errorHandlerStubFactory =
     new RandomStubFactory(ErrorHandler.class);
   private final ErrorHandler m_errorHandler =

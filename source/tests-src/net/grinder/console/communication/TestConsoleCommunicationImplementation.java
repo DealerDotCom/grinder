@@ -67,7 +67,8 @@ public class TestConsoleCommunicationImplementation
   extends AbstractFileTestCase {
 
   private static final Resources s_resources =
-      new ResourcesImplementation("net.grinder.console.swingui.resources.Console");
+      new ResourcesImplementation(
+        "net.grinder.console.common.resources.Console");
 
   private ConsoleCommunication m_consoleCommunication;
   private ConsoleProperties m_properties;

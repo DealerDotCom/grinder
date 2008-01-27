@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,7 +49,7 @@ public class TestBufferTreeModel extends TestCase {
 
   private static final Resources s_resources =
       new ResourcesImplementation(
-        "net.grinder.console.swingui.resources.Console");
+        "net.grinder.console.common.resources.Console");
 
   private final RandomStubFactory m_agentCacheStateStubFactory =
     new RandomStubFactory(AgentCacheState.class);

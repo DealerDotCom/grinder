@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -46,7 +46,8 @@ public class TestBuffer extends AbstractFileTestCase {
   private static String LINE_SEPARATOR = System.getProperty("line.separator");
 
   private static final Resources s_resources =
-      new ResourcesImplementation("net.grinder.console.swingui.resources.Console");
+      new ResourcesImplementation(
+        "net.grinder.console.common.resources.Console");
 
   public void testBufferWithNoFile() throws Exception {
     final String text = "Some text for testing with";

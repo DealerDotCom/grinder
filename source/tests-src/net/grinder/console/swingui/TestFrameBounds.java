@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -44,7 +44,7 @@ import net.grinder.testutility.AssertUtilities;
 public class TestFrameBounds extends AbstractFileTestCase {
   private static final Resources s_resources =
     new ResourcesImplementation(
-      "net.grinder.console.swingui.resources.Console");
+      "net.grinder.console.common.resources.Console");
 
   private File m_file;
 

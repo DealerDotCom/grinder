@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,7 +46,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
 
   private static final Resources s_resources =
     new ResourcesImplementation(
-      "net.grinder.console.swingui.resources.Console");
+      "net.grinder.console.common.resources.Console");
 
   private final RandomStubFactory m_fileChangeWatcherStubFactory =
     new RandomStubFactory(FileChangeWatcher.class);

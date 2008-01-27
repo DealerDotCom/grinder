@@ -81,7 +81,7 @@ public final class Console extends AbstractMainClass {
    */
   public static void main(String[] args)  {
     final Resources resources = new ResourcesImplementation(
-      "net.grinder.console.swingui.resources.Console");
+      "net.grinder.console.common.resources.Console");
 
     final Logger logger =
       new SimpleLogger(resources.getString("shortTitle"),

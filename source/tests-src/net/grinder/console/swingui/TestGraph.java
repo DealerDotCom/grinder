@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -129,7 +129,8 @@ public class TestGraph extends TestCase {
     final LabelledGraph labelledGraph =
       new LabelledGraph(
         "Test",
-        new ResourcesImplementation("net.grinder.console.swingui.resources.Console"),
+        new ResourcesImplementation(
+          "net.grinder.console.common.resources.Console"),
         tpsExpression,
         peakTPSExpression,
         statisticsServices.getTestStatisticsQueries());

@@ -48,7 +48,7 @@ public class TestEditorModel extends AbstractFileTestCase {
 
   private static final Resources s_resources =
       new ResourcesImplementation(
-        "net.grinder.console.swingui.resources.Console");
+        "net.grinder.console.common.resources.Console");
 
   private final RandomStubFactory m_agentCacheStateStubFactory =
     new RandomStubFactory(AgentCacheState.class);
