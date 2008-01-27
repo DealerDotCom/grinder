@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,9 @@
 package net.grinder.console.distribution;
 
 import java.io.FileFilter;
+import java.util.regex.Pattern;
+
+import net.grinder.util.Directory;
 
 
 
@@ -77,4 +80,21 @@ public interface FileDistribution extends FileChangeWatcher {
    * @return The filter.
    */
   FileFilter getDistributionFileFilter();
+
+
+  /**
+   * Update the distribution directory.
+   *
+   * @param directory The base distribution directory.
+   */
+  void setDirectory(Directory directory);
+
+  /**
+   * Update the pattern used to filter out files that shouldn't be distributed.
+   *
+   * @param distributionFileFilterPattern -
+   *            The filter. Files with names that match this pattern will be
+   *            filtered out.
+   */
+  void setFileFilterPattern(Pattern distributionFileFilterPattern);
 }

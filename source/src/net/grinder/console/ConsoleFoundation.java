@@ -43,6 +43,7 @@ import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessControlImplementation;
 import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.communication.server.DispatchClientCommands;
+import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionImplementation;
 import net.grinder.console.messages.RegisterExpressionViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
@@ -235,11 +236,10 @@ public final class ConsoleFoundation {
      * @param timer A timer.
      * @param processControl A process control
      */
-    public WireFileDistribution(
-      final FileDistributionImplementation fileDistribution,
-      ConsoleProperties properties,
-      Timer timer,
-      ProcessControl processControl) {
+    public WireFileDistribution(final FileDistribution fileDistribution,
+                                ConsoleProperties properties,
+                                Timer timer,
+                                ProcessControl processControl) {
 
       timer.schedule(new TimerTask() {
           public void run() {
