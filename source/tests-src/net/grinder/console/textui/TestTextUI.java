@@ -55,6 +55,7 @@ public class TestTextUI extends TestCase {
   private final Resources m_resources = new StubResources(
     new HashMap() {{
       put("finished.text", "done");
+      put("noConnectedAgents.text", "no agents!");
       put("processTable.threads.label", "strings");
       put("processTable.agentProcess.label", "AG");
       put("processTable.workerProcess.label", "WK");
@@ -132,7 +133,7 @@ public class TestTextUI extends TestCase {
 
     final ProcessReports[] reports1 = new ProcessReports[0];
     processListener.update(reports1, false);
-    m_loggerStubFactory.assertOutputMessage("");
+    m_loggerStubFactory.assertOutputMessage("no agents!");
     m_loggerStubFactory.assertNoMoreCalls();
 
     processListener.update(reports1, false);

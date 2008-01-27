@@ -105,51 +105,62 @@ public class TextUI implements UI {
 
     private final ProcessReportDescriptionFactory m_descriptionFactory;
 
+    private final String m_noConnectedAgents;
     private String m_lastReport = null;
 
     public ProcessListener(Resources resources) {
       m_descriptionFactory = new ProcessReportDescriptionFactory(resources);
+      m_noConnectedAgents = resources.getString("noConnectedAgents.text");
     }
 
     public void update(ProcessStatus.ProcessReports[] processReports,
                        boolean newAgent) {
-      final StringBuffer report =
-        new StringBuffer(processReports.length * 128);
 
-      Arrays.sort(processReports, m_processReportsComparator);
+      final String reportString;
 
-      for (int i = 0; i < processReports.length; ++i) {
-        if (i > 0) {
-          report.append(", ");
-        }
+      if (processReports.length == 0) {
+        reportString = m_noConnectedAgents;
+      }
+      else {
+        final StringBuffer report =
+          new StringBuffer(processReports.length * 128);
 
-        final AgentProcessReport agentProcessStatus =
-          processReports[i].getAgentProcessReport();
-        report.append(
-          m_descriptionFactory.create(agentProcessStatus).toString());
+        Arrays.sort(processReports, m_processReportsComparator);
 
-        final WorkerProcessReport[] workerProcessStatuses =
-          processReports[i].getWorkerProcessReports();
-
-        if (workerProcessStatuses.length > 0) {
-          report.append(" { ");
-
-          Arrays.sort(workerProcessStatuses, m_processReportComparator);
-
-          for (int j = 0; j < workerProcessStatuses.length; ++j) {
-            if (j > 0) {
-              report.append(", ");
-            }
-
-            report.append(
-              m_descriptionFactory.create(workerProcessStatuses[j]).toString());
+        for (int i = 0; i < processReports.length; ++i) {
+          if (i > 0) {
+            report.append(", ");
           }
 
-          report.append(" }");
-        }
-      }
+          final AgentProcessReport agentProcessStatus =
+            processReports[i].getAgentProcessReport();
+          report.append(
+            m_descriptionFactory.create(agentProcessStatus).toString());
 
-      final String reportString = report.toString();
+          final WorkerProcessReport[] workerProcessStatuses =
+            processReports[i].getWorkerProcessReports();
+
+          if (workerProcessStatuses.length > 0) {
+            report.append(" { ");
+
+            Arrays.sort(workerProcessStatuses, m_processReportComparator);
+
+            for (int j = 0; j < workerProcessStatuses.length; ++j) {
+              if (j > 0) {
+                report.append(", ");
+              }
+
+              report.append(
+                m_descriptionFactory.create(
+                  workerProcessStatuses[j]).toString());
+            }
+
+            report.append(" }");
+          }
+        }
+
+        reportString = report.toString();
+      }
 
       if (!reportString.equals(m_lastReport)) {
         m_logger.output(reportString);
