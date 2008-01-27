@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,7 @@ import net.grinder.communication.Message;
 
 
 /**
- * Message used to start the Grinder processes.
+ * Message used to stop the Grinder processes.
  *
  * @author Philip Aston
  * @version $Revision$
