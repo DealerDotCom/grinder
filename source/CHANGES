@@ -1,3 +1,13 @@
+The Grinder 3.0.2 (not yet released).
+-----------------
+
+  The console now has a "-headless" option which causes it to start without
+  the graphical user interface. This is useful when used with the console
+  client API.
+
+  Add ConsoleConnection.stopAgents(), requested by Andreas Spall.
+
+
 The Grinder 3.0.1
 -----------------
 

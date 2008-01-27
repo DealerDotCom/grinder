@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,6 +32,7 @@ import net.grinder.console.communication.server.messages.ResetWorkerProcessesMes
 import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StartWorkerProcessesMessage;
+import net.grinder.console.communication.server.messages.StopAgentAndWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 
 
@@ -125,6 +126,22 @@ final class ConsoleConnectionImplementation implements ConsoleConnection {
     }
 
     throw new ConsoleConnectionException("Unexpected response: " + response);
+  }
+
+  /**
+   * Stop all agent processes and their worker processes.
+   *
+   * @throws ConsoleConnectionException
+   *           If a communication error occurred.
+   */
+  public void stopAgents() throws ConsoleConnectionException {
+
+    try {
+      m_consoleSender.blockingSend(new StopAgentAndWorkerProcessesMessage());
+    }
+    catch (CommunicationException e) {
+      throw new ConsoleConnectionException("Failed to stop agent processes", e);
+    }
   }
 
   /**

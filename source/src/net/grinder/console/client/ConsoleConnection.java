@@ -71,6 +71,14 @@ public interface ConsoleConnection {
   int getNumberOfAgents() throws ConsoleConnectionException;
 
   /**
+   * Stop all agent processes.
+   *
+   * @throws ConsoleConnectionException
+   *           If a communication error occurred.
+   */
+  void stopAgents() throws ConsoleConnectionException;
+
+  /**
    * Start all the worker processes.
    *
    * @param properties

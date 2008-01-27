@@ -31,6 +31,7 @@ import net.grinder.console.communication.server.messages.ResetWorkerProcessesMes
 import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StartWorkerProcessesMessage;
+import net.grinder.console.communication.server.messages.StopAgentAndWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
 import net.grinder.console.model.Model;
@@ -100,6 +101,15 @@ public class DispatchClientCommands {
         public Message blockingSend(Message message) {
           return new ResultMessage(
             new Integer(m_processControl.getNumberOfLiveAgents()));
+        }
+      });
+
+    messageDispatcher.set(
+      StopAgentAndWorkerProcessesMessage.class,
+      new AbstractBlockingHandler() {
+        public Message blockingSend(Message message) {
+          m_processControl.stopAgentAndWorkerProcesses();
+          return new SuccessMessage();
         }
       });
 

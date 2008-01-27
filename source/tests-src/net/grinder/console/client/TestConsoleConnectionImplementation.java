@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,6 +30,7 @@ import net.grinder.console.communication.server.messages.ResetWorkerProcessesMes
 import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StartWorkerProcessesMessage;
+import net.grinder.console.communication.server.messages.StopAgentAndWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -124,6 +125,11 @@ public class TestConsoleConnectionImplementation extends TestCase {
       "blockingSend", ResetWorkerProcessesMessage.class);
     m_senderStubFactory.assertNoMoreCalls();
 
+    consoleConnection.stopAgents();
+    m_senderStubFactory.assertSuccess(
+      "blockingSend", StopAgentAndWorkerProcessesMessage.class);
+    m_senderStubFactory.assertNoMoreCalls();
+
     m_senderStubFactory.setResult("blockingSend", null);
 
     try {
@@ -165,6 +171,14 @@ public class TestConsoleConnectionImplementation extends TestCase {
 
     try {
       consoleConnection.resetWorkerProcesses();
+      fail("Expected ConsoleConnectionException");
+    }
+    catch (ConsoleConnectionException e) {
+      assertSame(communicationException, e.getCause());
+    }
+
+    try {
+      consoleConnection.stopAgents();
       fail("Expected ConsoleConnectionException");
     }
     catch (ConsoleConnectionException e) {
