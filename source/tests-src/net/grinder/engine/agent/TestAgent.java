@@ -42,7 +42,6 @@ import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.AssertUtilities;
 
 
 /**
@@ -205,60 +204,40 @@ public class TestAgent extends AbstractFileTestCase {
         m_loggerStubFactory.assertSuccess("output", String.class);
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "connected");
+        m_loggerStubFactory.assertOutputMessageContains("connected");
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "waiting");
+        m_loggerStubFactory.assertOutputMessageContains("waiting");
 
         // ...send a start message...
         getSender().send(
           new StartGrinderMessage(new GrinderProperties()));
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertSuccess("output",
-                                          "received a start message");
+        m_loggerStubFactory.assertOutputMessage("received a start message");
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("error", String.class)
-          .getParameters()[0].toString(),
-          "grinder.py");
+        m_loggerStubFactory.assertErrorMessageContains("grinder.py");
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "waiting");
+        m_loggerStubFactory.assertOutputMessageContains("waiting");
 
         // ...send another start message...
         getSender().send(
           new StartGrinderMessage(new GrinderProperties()));
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertSuccess("output",
-                                          "received a start message");
+        m_loggerStubFactory.assertOutputMessage("received a start message");
 
         // Version string.
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertSuccess("output", String.class);
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("error", String.class)
-          .getParameters()[0].toString(),
-          "grinder.py");
+        m_loggerStubFactory.assertErrorMessageContains("grinder.py");
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "waiting");
+        m_loggerStubFactory.assertOutputMessageContains("waiting");
 
         // ..then a reset message.
         getSender().send(new ResetGrinderMessage());
@@ -272,10 +251,7 @@ public class TestAgent extends AbstractFileTestCase {
         m_loggerStubFactory.assertSuccess("output", String.class);
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "waiting");
+        m_loggerStubFactory.assertOutputMessageContains("waiting");
 
         // ..then a stop message.
         getSender().send(new StopGrinderMessage());
@@ -315,59 +291,39 @@ public class TestAgent extends AbstractFileTestCase {
         m_loggerStubFactory.assertSuccess("output", String.class);
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "waiting");
+        m_loggerStubFactory.assertOutputMessageContains("connected");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertOutputMessageContains("waiting");
 
         // ...send a start message...
         final GrinderProperties grinderProperties = new GrinderProperties();
         getSender().send(new StartGrinderMessage(grinderProperties));
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertSuccess("output",
-                                          "received a start message");
+        m_loggerStubFactory.assertOutputMessage("received a start message");
 
         m_loggerStubFactory.waitUntilCalled(5000);
 
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "DEBUG MODE");
+        m_loggerStubFactory.assertOutputMessageContains("DEBUG MODE");
 
         // 10 workers started.
         for (int i =  0; i < 10; ++i) {
           m_loggerStubFactory.waitUntilCalled(5000);
-
-          AssertUtilities.assertContains(
-            m_loggerStubFactory.assertSuccess("output", String.class)
-            .getParameters()[0].toString(),
-            "started");
+          m_loggerStubFactory.assertOutputMessageContains("started");
         }
 
         // Interrupt our workers.
         getSender().send(new ResetGrinderMessage());
 
         m_loggerStubFactory.waitUntilCalled(5000);
-
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "reset");
+        m_loggerStubFactory.assertOutputMessageContains("reset");
 
         m_loggerStubFactory.waitUntilCalled(5000);
-
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "The Grinder");
+        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
 
         m_loggerStubFactory.waitUntilCalled(5000);
-
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "waiting");
+        m_loggerStubFactory.assertOutputMessageContains("waiting");
 
         // Now try again, with no ramp up.
         grinderProperties.setInt("grinder.initialProcesses", 10);
@@ -375,24 +331,15 @@ public class TestAgent extends AbstractFileTestCase {
         getSender().send(new StartGrinderMessage(grinderProperties));
 
         m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertSuccess("output",
-                                          "received a start message");
+        m_loggerStubFactory.assertOutputMessage("received a start message");
 
         m_loggerStubFactory.waitUntilCalled(5000);
-
-        AssertUtilities.assertContains(
-          m_loggerStubFactory.assertSuccess("output", String.class)
-          .getParameters()[0].toString(),
-          "DEBUG MODE");
+        m_loggerStubFactory.assertOutputMessageContains("DEBUG MODE");
 
         // 10 workers started.
         for (int i = 0; i < 10; ++i) {
           m_loggerStubFactory.waitUntilCalled(5000);
-
-          AssertUtilities.assertContains(
-            m_loggerStubFactory.assertSuccess("output", String.class)
-            .getParameters()[0].toString(),
-            "started");
+          m_loggerStubFactory.assertOutputMessageContains("started");
         }
 
         // Shut down our workers.
