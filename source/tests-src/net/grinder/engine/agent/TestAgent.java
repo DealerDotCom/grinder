@@ -412,8 +412,8 @@ public class TestAgent extends AbstractFileTestCase {
       final long start = System.currentTimeMillis();
 
       while (!secondConsoleContacted[0] &&
-             System.currentTimeMillis() < start + 5000) {
-        Thread.sleep(5000);
+             System.currentTimeMillis() < start + 10000) {
+        Thread.sleep(500);
       }
     }
 
