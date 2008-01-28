@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.engine.process;
 
 import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
+import net.grinder.common.TestRegistry.RegisteredTest;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.script.NotWrappableTypeException;
@@ -42,8 +43,7 @@ import net.grinder.util.TimeAuthority;
  * @author Philip Aston
  * @version $Revision$
  */
-final class TestData
-  implements TestRegistry.RegisteredTest, ScriptEngine.Dispatcher {
+final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
 
   private final StatisticsSetFactory m_statisticsSetFactory;
   private final TestStatisticsHelper m_testStatisticsHelper;

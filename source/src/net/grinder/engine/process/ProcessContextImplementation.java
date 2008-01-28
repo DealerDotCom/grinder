@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,6 +32,7 @@ import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.Grinder;
+import net.grinder.script.InternalScriptContext;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsServices;
@@ -61,8 +62,8 @@ final class ProcessContextImplementation implements ProcessContext {
   private final QueuedSender m_consoleSender;
   private final ThreadContextLocator m_threadContextLocator;
   private final PluginRegistryImplementation m_pluginRegistry;
-  private final TestRegistry m_testRegistry;
-  private final Grinder.ScriptContext m_scriptContext;
+  private final TestRegistryImplementation m_testRegistryImplementation;
+  private final InternalScriptContext m_scriptContext;
   private final Sleeper m_sleeper;
   private final StatisticsServices m_statisticsServices;
   private final TestStatisticsHelper m_testStatisticsHelper;
@@ -136,6 +137,12 @@ final class ProcessContextImplementation implements ProcessContext {
                                          statisticsServices,
                                          consoleSender);
 
+    m_testRegistryImplementation =
+      new TestRegistryImplementation(m_threadContextLocator,
+                       statisticsServices.getStatisticsSetFactory(),
+                       m_testStatisticsHelper,
+                       m_timeAuthority);
+
     m_scriptContext = new ScriptContextImplementation(
       m_workerIdentity,
       m_threadContextLocator,
@@ -144,7 +151,8 @@ final class ProcessContextImplementation implements ProcessContext {
       externalFilenameFactory,
       m_sleeper,
       sslControl,
-      scriptStatistics);
+      scriptStatistics,
+      m_testRegistryImplementation);
 
     m_pluginRegistry =
       new PluginRegistryImplementation(externalLogger, m_scriptContext,
@@ -153,16 +161,8 @@ final class ProcessContextImplementation implements ProcessContext {
 
     m_processLifeCycleListeners.add(m_pluginRegistry);
 
-    m_testRegistry =
-      new TestRegistry(m_threadContextLocator,
-                       statisticsServices.getStatisticsSetFactory(),
-                       m_testStatisticsHelper,
-                       m_timeAuthority);
-
     m_reportTimesToConsole =
       properties.getBoolean("grinder.reportTimesToConsole", true);
-
-    TestRegistry.setInstance(m_testRegistry);
 
     Grinder.grinder = m_scriptContext;
     m_shutdown = false;
@@ -195,15 +195,15 @@ final class ProcessContextImplementation implements ProcessContext {
     return m_processLogger;
   }
 
-  public TestRegistry getTestRegistry() {
-    return m_testRegistry;
+  public TestRegistryImplementation getTestRegistry() {
+    return m_testRegistryImplementation;
   }
 
   public GrinderProperties getProperties() {
     return m_properties;
   }
 
-  public Grinder.ScriptContext getScriptContext() {
+  public InternalScriptContext getScriptContext() {
     return m_scriptContext;
   }
 

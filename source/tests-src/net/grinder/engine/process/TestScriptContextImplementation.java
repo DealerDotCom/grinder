@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.TestRegistry;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.script.SSLControl;
@@ -93,19 +94,25 @@ public class TestScriptContextImplementation extends TestCase {
     final WorkerIdentity workerIdentity =
       agentIdentity.createWorkerIdentity();
 
+    final RandomStubFactory testRegistryStubFactory =
+      new RandomStubFactory(TestRegistry.class);
+    final TestRegistry testRegistry =
+      (TestRegistry)testRegistryStubFactory.getStub();
+
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         workerIdentity, threadContextLocator, properties, logger,
-        filenameFactory, sleeper, sslControl, statistics);
+        filenameFactory, sleeper, sslControl, statistics, testRegistry);
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
     assertEquals(threadID, scriptContext.getThreadID());
     assertEquals(runNumber, scriptContext.getRunNumber());
-    assertEquals(logger, scriptContext.getLogger());
-    assertEquals(filenameFactory, scriptContext.getFilenameFactory());
-    assertEquals(properties, scriptContext.getProperties());
-    assertEquals(statistics, scriptContext.getStatistics());
-    assertEquals(sslControl, scriptContext.getSSLControl());
+    assertSame(logger, scriptContext.getLogger());
+    assertSame(filenameFactory, scriptContext.getFilenameFactory());
+    assertSame(properties, scriptContext.getProperties());
+    assertSame(statistics, scriptContext.getStatistics());
+    assertSame(sslControl, scriptContext.getSSLControl());
+    assertSame(testRegistry, scriptContext.getTestRegistry());
 
     threadContextLocator.set(null);
     assertEquals(-1, scriptContext.getThreadID());
@@ -124,7 +131,7 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        null, null, null, null, null, sleeper, null, null);
+        null, null, null, null, null, sleeper, null, null, null);
 
     assertTrue(
       new Time(50, 70) {

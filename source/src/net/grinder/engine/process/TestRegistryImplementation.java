@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.grinder.common.Test;
-import net.grinder.script.NotWrappableTypeException;
+import net.grinder.common.TestRegistry;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.TimeAuthority;
@@ -39,29 +39,7 @@ import net.grinder.util.TimeAuthority;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class TestRegistry {
-
-  private static TestRegistry s_instance;
-
-  /**
-   * Singleton accessor.
-   *
-   * <p>This is called by net.grinder.script.Test. In future I may
-   * create an API package to avoid the circular package
-   * dependencies.</p>
-   *
-   * @return The singleton.
-   */
-  public static TestRegistry getInstance() {
-    return s_instance;
-  }
-
-  /**
-   * Set the singleton.
-   */
-  static void setInstance(TestRegistry testRegistry) {
-    s_instance = testRegistry;
-  }
+public final class TestRegistryImplementation implements TestRegistry {
 
   private final ThreadContextLocator m_threadContextLocator;
   private final StatisticsSetFactory m_statisticsSetFactory;
@@ -82,7 +60,8 @@ public final class TestRegistry {
 
   /**
    * Tests received since {@link #getNewTests} was last called.
-   * Synchronise on this <code>TestRegistry</code> before accessing.
+   * Synchronise on this <code>TestRegistryImplementation</code> before
+   * accessing.
    */
   private Collection m_newTests = null;
 
@@ -91,7 +70,7 @@ public final class TestRegistry {
   /**
    * Constructor.
    */
-  TestRegistry(ThreadContextLocator threadContextLocator,
+  TestRegistryImplementation(ThreadContextLocator threadContextLocator,
                StatisticsSetFactory statisticsSetFactory,
                TestStatisticsHelper testStatisticsHelper,
                TimeAuthority timeAuthority) {
@@ -167,20 +146,5 @@ public final class TestRegistry {
     finally {
       m_newTests = null;
     }
-  }
-
-
-  /**
-   * Interface for test handles.
-   */
-  public interface RegisteredTest {
-    /**
-     * Create a proxy object that wraps an target object for this test.
-     *
-     * @param o Object to wrap.
-     * @return The proxy.
-     * @throws NotWrappableTypeException If the target could not be wrapped.
-     */
-    Object createProxy(Object o) throws NotWrappableTypeException;
   }
 }

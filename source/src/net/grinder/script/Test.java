@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,7 @@ package net.grinder.script;
 import java.io.Serializable;
 
 import net.grinder.common.AbstractTestSemantics;
-import net.grinder.engine.process.TestRegistry;
+import net.grinder.common.TestRegistry;
 
 
 /**
@@ -63,7 +63,8 @@ public class Test extends AbstractTestSemantics implements Serializable {
   public Test(int number, String description) {
     m_number = number;
     m_description = description;
-    m_registeredTest = TestRegistry.getInstance().register(this);
+    m_registeredTest =
+      ((InternalScriptContext)Grinder.grinder).getTestRegistry().register(this);
   }
 
   /**

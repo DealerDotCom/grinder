@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,7 @@ import net.grinder.common.Logger;
 import net.grinder.communication.QueuedSender;
 import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.messages.WorkerProcessReportMessage;
-import net.grinder.script.Grinder;
+import net.grinder.script.InternalScriptContext;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.Sleeper;
@@ -50,11 +50,11 @@ interface ProcessContext {
 
   Logger getProcessLogger();
 
-  TestRegistry getTestRegistry();
+  TestRegistryImplementation getTestRegistry();
 
   GrinderProperties getProperties();
 
-  Grinder.ScriptContext getScriptContext();
+  InternalScriptContext getScriptContext();
 
   ThreadContextLocator getThreadContextLocator();
 

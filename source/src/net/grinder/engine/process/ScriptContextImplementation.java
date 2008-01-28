@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,8 +25,9 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.TestRegistry;
 import net.grinder.common.WorkerIdentity;
-import net.grinder.script.Grinder.ScriptContext;
+import net.grinder.script.InternalScriptContext;
 import net.grinder.script.Statistics;
 import net.grinder.script.SSLControl;
 import net.grinder.util.Sleeper;
@@ -38,7 +39,7 @@ import net.grinder.util.Sleeper;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ScriptContextImplementation implements ScriptContext {
+final class ScriptContextImplementation implements InternalScriptContext {
 
   private final WorkerIdentity m_workerIdentity;
   private final ThreadContextLocator m_threadContextLocator;
@@ -48,6 +49,7 @@ final class ScriptContextImplementation implements ScriptContext {
   private final Sleeper m_sleeper;
   private final SSLControl m_sslControl;
   private final Statistics m_scriptStatistics;
+  private final TestRegistry m_testRegistry;
 
   public ScriptContextImplementation(WorkerIdentity workerIdentity,
                                      ThreadContextLocator threadContextLocator,
@@ -56,7 +58,8 @@ final class ScriptContextImplementation implements ScriptContext {
                                      FilenameFactory filenameFactory,
                                      Sleeper sleeper,
                                      SSLControl sslControl,
-                                     Statistics scriptStatistics) {
+                                     Statistics scriptStatistics,
+                                     TestRegistry testRegistry) {
     m_workerIdentity = workerIdentity;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
@@ -65,6 +68,7 @@ final class ScriptContextImplementation implements ScriptContext {
     m_sleeper = sleeper;
     m_sslControl = sslControl;
     m_scriptStatistics = scriptStatistics;
+    m_testRegistry = testRegistry;
   }
 
   public String getProcessName() {
@@ -117,5 +121,9 @@ final class ScriptContextImplementation implements ScriptContext {
 
   public SSLControl getSSLControl() {
     return m_sslControl;
+  }
+
+  public TestRegistry getTestRegistry() {
+    return m_testRegistry;
   }
 }

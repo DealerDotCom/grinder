@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,15 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.script.Grinder;
+import net.grinder.script.InternalScriptContext;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.RandomStubFactory;
 
 
 /**
- * Test utility that allows TestRegistry to be set from outside
+ * Test utility that allows TestRegistryImplementation to be set from outside
  * package.
  *
  * @author Philip Aston
@@ -44,8 +46,9 @@ public class StubTestRegistry {
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
-    final TestRegistry testRegistry =
-      new TestRegistry(null, statisticsSetFactory, s_testStatisticsHelper, null);
+    final TestRegistryImplementation testRegistry =
+      new TestRegistryImplementation(
+        null, statisticsSetFactory, s_testStatisticsHelper, null);
 
     final RandomStubFactory scriptEngineStubFactory =
       new RandomStubFactory(ScriptEngine.class);
@@ -54,6 +57,12 @@ public class StubTestRegistry {
 
     testRegistry.setInstrumenter(scriptEngine);
 
-    TestRegistry.setInstance(testRegistry);
+    final RandomStubFactory scriptContextStubFactory =
+      new RandomStubFactory(InternalScriptContext.class);
+    final InternalScriptContext scriptContext =
+      (InternalScriptContext)scriptContextStubFactory.getStub();
+    scriptContextStubFactory.setResult("getTestRegistry", testRegistry);
+
+    Grinder.grinder = scriptContext;
   }
 }

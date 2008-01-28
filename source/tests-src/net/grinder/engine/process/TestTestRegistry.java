@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,6 @@ import junit.framework.TestCase;
 
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
-import net.grinder.engine.common.EngineException;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.RandomStubFactory;
@@ -34,7 +33,7 @@ import net.grinder.util.TimeAuthorityStubFactory;
 
 
 /**
- * Unit test case for <code>TestRegistry</code>.
+ * Unit test case for <code>TestRegistryImplementation</code>.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -54,24 +53,18 @@ public class TestTestRegistry extends TestCase {
     super(name);
   }
 
-  public void testConstructorAndSingleton() throws Exception {
+  public void testConstructor() throws Exception {
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
-    final TestRegistry testRegistry =
-      new TestRegistry(
+    final TestRegistryImplementation testRegistryImplementation =
+      new TestRegistryImplementation(
         threadContextLocator, statisticsSetFactory, m_testStatisticsHelper,
         m_timeAuthority);
 
-    assertNotNull(testRegistry.getTestStatisticsMap());
-
-    TestRegistry.setInstance(testRegistry);
-    assertEquals(testRegistry, TestRegistry.getInstance());
-
-    TestRegistry.setInstance(null);
-    assertNull(TestRegistry.getInstance());
+    assertNotNull(testRegistryImplementation.getTestStatisticsMap());
 
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
     m_timeAuthorityStubFactory.assertNoMoreCalls();
@@ -83,18 +76,18 @@ public class TestTestRegistry extends TestCase {
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
-    final TestRegistry testRegistry =
-      new TestRegistry(
+    final TestRegistryImplementation testRegistryImplementation =
+      new TestRegistryImplementation(
         threadContextLocator, statisticsSetFactory, m_testStatisticsHelper,
         m_timeAuthority);
 
-    assertNull(testRegistry.getNewTests());
+    assertNull(testRegistryImplementation.getNewTests());
 
     final Test test1 = new StubTest(1, "Test 1");
     final Test test2 = new StubTest(2, "Test 2");
 
     try {
-      testRegistry.register(test1);
+      testRegistryImplementation.register(test1);
       fail("Expected AssertionError");
     }
     catch (AssertionError e) {
@@ -105,22 +98,22 @@ public class TestTestRegistry extends TestCase {
     final Instrumenter scriptEngine =
       (Instrumenter)scriptEngineStubFactory.getStub();
 
-    testRegistry.setInstrumenter(scriptEngine);
+    testRegistryImplementation.setInstrumenter(scriptEngine);
 
-    final TestRegistry.RegisteredTest registeredTest1a =
-      testRegistry.register(test1);
+    final TestRegistryImplementation.RegisteredTest registeredTest1a =
+      testRegistryImplementation.register(test1);
 
-    final TestRegistry.RegisteredTest registeredTest1b =
-      testRegistry.register(test1);
+    final TestRegistryImplementation.RegisteredTest registeredTest1b =
+      testRegistryImplementation.register(test1);
 
-    final TestRegistry.RegisteredTest registeredTest2 =
-      testRegistry.register(test2);
+    final TestRegistryImplementation.RegisteredTest registeredTest2 =
+      testRegistryImplementation.register(test2);
 
     assertSame(registeredTest1a, registeredTest1b);
     assertNotSame(registeredTest2, registeredTest1a);
 
-    assertTrue(testRegistry.getNewTests().contains(test1));
-    assertNull(testRegistry.getNewTests());
+    assertTrue(testRegistryImplementation.getNewTests().contains(test1));
+    assertNull(testRegistryImplementation.getNewTests());
 
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
     m_timeAuthorityStubFactory.assertNoMoreCalls();

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,7 +28,7 @@ import net.grinder.common.Logger;
 
 
 /**
- * Namespace for <code>grinder</code> script context object.
+ * Name space for <code>grinder</code> script context object.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -38,7 +38,7 @@ public class Grinder {
   /**
    * Object that provides context services to scripts.
    */
-  public static ScriptContext grinder;
+  public static InternalScriptContext grinder;
 
   /**
    * Scripts can get contextual information through a global

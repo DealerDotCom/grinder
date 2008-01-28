@@ -704,6 +704,7 @@ what you want. Currently the conditionally built modules are:
         <exclude name="net/grinder/plugin/http/HTTPPluginThreadState.java"/>
         <exclude name="net/grinder/plugin/http/HTTPPluginTCPProxy*.java"/>
         <include name="net/grinder/script/*.java"/>
+        <exclude name="net/grinder/script/InternalScriptContext.java"/>
         <include name="**/*.html"/>
       </fileset>
     </copy>
