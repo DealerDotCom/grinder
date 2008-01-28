@@ -25,7 +25,7 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * Thrown when an attempt is made to wrap a type that is not wrappable.
+ * Thrown when an attempt is made to wrap a type that is not wrapable.
  *
  * @author Philip Aston
  * @version $Revision$

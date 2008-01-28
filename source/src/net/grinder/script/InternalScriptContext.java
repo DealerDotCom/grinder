@@ -21,7 +21,6 @@
 
 package net.grinder.script;
 
-import net.grinder.common.TestRegistry;
 import net.grinder.script.Grinder.ScriptContext;
 
 

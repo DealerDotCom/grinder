@@ -25,11 +25,11 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.common.TestRegistry;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.script.InternalScriptContext;
 import net.grinder.script.Statistics;
 import net.grinder.script.SSLControl;
+import net.grinder.script.TestRegistry;
 import net.grinder.util.Sleeper;
 
 

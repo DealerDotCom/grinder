@@ -19,9 +19,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.script;
 
-import net.grinder.script.NotWrappableTypeException;
+import net.grinder.common.Test;
 
 
 /**

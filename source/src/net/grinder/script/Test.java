@@ -24,7 +24,6 @@ package net.grinder.script;
 import java.io.Serializable;
 
 import net.grinder.common.AbstractTestSemantics;
-import net.grinder.common.TestRegistry;
 
 
 /**

@@ -24,11 +24,11 @@ package net.grinder.engine.process;
 
 import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
-import net.grinder.common.TestRegistry.RegisteredTest;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Statistics.StatisticsForTest;
+import net.grinder.script.TestRegistry.RegisteredTest;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.util.TimeAuthority;
