@@ -51,6 +51,8 @@ import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelImplementation;
+import net.grinder.console.model.SampleModelViews;
+import net.grinder.console.model.SampleModelViewsImplementation;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.util.Directory;
 
@@ -120,6 +122,9 @@ public final class ConsoleFoundation {
       StatisticsServicesImplementation.getInstance());
 
     m_container.registerComponentImplementation(ModelImplementation.class);
+
+    m_container.registerComponentImplementation(
+      SampleModelViewsImplementation.class);
 
     m_container.registerComponentImplementation(
       ConsoleCommunicationImplementation.class);
@@ -291,11 +296,13 @@ public final class ConsoleFoundation {
      * Constructor for WireFileDistribution.
      *
      * @param communication Console communication.
-     * @param model Console model
+     * @param model Console sample model.
+     * @param sampleModelViews Console sample model views
      * @param dispatchClientCommands Client command dispatcher.
      */
     public WireMessageDispatch(ConsoleCommunication communication,
                                final Model model,
+                               final SampleModelViews sampleModelViews,
                                DispatchClientCommands dispatchClientCommands) {
 
       final MessageDispatchRegistry messageDispatchRegistry =
@@ -322,7 +329,7 @@ public final class ConsoleFoundation {
         RegisterExpressionViewMessage.class,
         new AbstractHandler() {
           public void send(Message message) {
-            model.registerStatisticExpression(
+            sampleModelViews.registerStatisticExpression(
               ((RegisterExpressionViewMessage)message).getExpressionView());
           }
         });

@@ -23,7 +23,6 @@ package net.grinder.console.model;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,17 +35,14 @@ import java.util.TreeSet;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.common.UncheckedInterruptedException;
-import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.statistics.TestStatisticsQueries;
-import net.grinder.util.SignificantFigureFormat;
 import net.grinder.util.ListenerSupport;
 
 
@@ -62,7 +58,7 @@ import net.grinder.util.ListenerSupport;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ModelImplementation implements Model {
+public class ModelImplementation implements Model {
 
   /** Time statistics capture was last started. */
   private long m_startTime;
@@ -89,8 +85,6 @@ public final class ModelImplementation implements Model {
   private final StatisticsServices m_statisticsServices;
 
   private int m_sampleInterval;
-  private NumberFormat m_numberFormat;
-
   private int m_state = 0;
   private long m_sampleCount = 0;
   private boolean m_receivedReport = false;
@@ -100,12 +94,7 @@ public final class ModelImplementation implements Model {
 
   private final StatisticsIndexMap.LongIndex m_periodIndex;
   private final StatisticExpression m_tpsExpression;
-  private final ExpressionView m_tpsExpressionView;
   private final PeakStatisticExpression m_peakTPSExpression;
-  private final ExpressionView m_peakTPSExpressionView;
-  private StatisticsView m_intervalStatisticsView;
-  private StatisticsView m_cumulativeStatisticsView;
-
   private final Sampler m_sampler = new Sampler();
 
   /**
@@ -129,8 +118,6 @@ public final class ModelImplementation implements Model {
     m_statisticsServices = statisticsServices;
 
     m_sampleInterval = m_properties.getSampleInterval();
-    m_numberFormat =
-      new SignificantFigureFormat(m_properties.getSignificantFigures());
 
     final StatisticsIndexMap indexMap =
       statisticsServices.getStatisticsIndexMap();
@@ -144,36 +131,17 @@ public final class ModelImplementation implements Model {
       statisticExpressionFactory.createExpression(
         "(* 1000 (/ (+ (count timedTests) untimedTests) period))");
 
-    m_tpsExpressionView =
-      statisticExpressionFactory.createExpressionView("TPS", m_tpsExpression);
-
     m_peakTPSExpression =
       statisticExpressionFactory.createPeak(
         indexMap.getDoubleIndex("peakTPS"), m_tpsExpression);
-
-    m_peakTPSExpressionView =
-      statisticExpressionFactory
-        .createExpressionView("Peak TPS", m_peakTPSExpression);
 
     m_totalSampleAccumulator =
       new SampleAccumulator(m_peakTPSExpression, m_periodIndex,
                             m_statisticsServices.getStatisticsSetFactory());
 
-    createStatisticsViews();
-
     setState(STATE_WAITING_FOR_TRIGGER);
 
     new Thread(m_sampler).start();
-
-    m_properties.addPropertyChangeListener(
-      ConsoleProperties.SIG_FIG_PROPERTY,
-      new PropertyChangeListener() {
-        public void propertyChange(PropertyChangeEvent event) {
-          m_numberFormat =
-            new SignificantFigureFormat(
-              ((Integer)event.getNewValue()).intValue());
-        }
-      });
 
     m_properties.addPropertyChangeListener(
       ConsoleProperties.SAMPLE_INTERVAL_PROPERTY,
@@ -184,30 +152,6 @@ public final class ModelImplementation implements Model {
       });
   }
 
-  private void createStatisticsViews() {
-
-    final StatisticsView summaryStatisticsView =
-      m_statisticsServices.getSummaryStatisticsView();
-
-    m_intervalStatisticsView = new StatisticsView();
-    m_intervalStatisticsView.add(summaryStatisticsView);
-    m_intervalStatisticsView.add(m_tpsExpressionView);
-
-    m_cumulativeStatisticsView = new StatisticsView();
-    m_cumulativeStatisticsView.add(summaryStatisticsView);
-    m_cumulativeStatisticsView.add(m_tpsExpressionView);
-    m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
-  }
-
-  /**
-   * Get the expression view for TPS.
-   *
-   * @return The TPS expression view for this model.
-   */
-  public ExpressionView getTPSExpressionView() {
-    return m_tpsExpressionView;
-  }
-
   /**
    * Get the expression for TPS.
    *
@@ -215,15 +159,6 @@ public final class ModelImplementation implements Model {
    */
   public StatisticExpression getTPSExpression() {
     return m_tpsExpression;
-  }
-
-  /**
-   * Get the expression view for peak TPS.
-   *
-   * @return The peak TPS expression view for this model.
-   */
-  public ExpressionView getPeakTPSExpressionView() {
-    return m_peakTPSExpressionView;
   }
 
   /**
@@ -301,52 +236,12 @@ public final class ModelImplementation implements Model {
   }
 
   /**
-   * Register new statistic expression.
-   *
-   * @param statisticExpression The expression.
-   */
-  public void registerStatisticExpression(
-    final ExpressionView statisticExpression) {
-
-    // The StatisticsView objects are responsible for synchronisation.
-    m_intervalStatisticsView.add(statisticExpression);
-    m_cumulativeStatisticsView.add(statisticExpression);
-
-    m_modelListeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          final ModelListener modelListener = (ModelListener)listener;
-
-          modelListener.newStatisticExpression(statisticExpression);
-        }
-      });
-  }
-
-  /**
    * Get the cumulative statistics for this model.
    *
    * @return The cumulative statistics.
    */
   public StatisticsSet getTotalCumulativeStatistics() {
     return m_totalSampleAccumulator.getCumulativeStatistics();
-  }
-
-  /**
-   * Get the cumulative statistics view for this model.
-   *
-   * @return The cumulative statistics view.
-   */
-  public StatisticsView getCumulativeStatisticsView() {
-    return m_cumulativeStatisticsView;
-  }
-
-  /**
-   * Get the interval statistics view for this model.
-   *
-   * @return The interval statistics view.
-   */
-  public StatisticsView getIntervalStatisticsView() {
-    return m_intervalStatisticsView;
   }
 
   /**
@@ -398,12 +293,10 @@ public final class ModelImplementation implements Model {
     m_accumulators.clear();
     m_totalSampleAccumulator.zero();
 
-    createStatisticsViews();
-
     m_modelListeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
-          ((ModelListener)listener).resetTestsAndStatisticsViews();
+          ((ModelListener)listener).resetTests();
         }
       });
   }
@@ -544,15 +437,6 @@ public final class ModelImplementation implements Model {
         m_receivedReport = false;
       }
     }
-  }
-
-  /**
-   * Returns a NumberFormat which corresponds to the user's preference.
-   *
-   * @return The number format.
-   */
-  public NumberFormat getNumberFormat() {
-    return m_numberFormat;
   }
 
   /**

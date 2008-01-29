@@ -23,6 +23,7 @@ package net.grinder.console.swingui;
 
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.StatisticsSet;
 
 
@@ -34,13 +35,18 @@ import net.grinder.statistics.StatisticsSet;
  */
 final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
 
-  public SampleStatisticsTableModel(Model model, Resources resources) {
-    super(model, resources);
+  public SampleStatisticsTableModel(
+    Model model,
+    SampleModelViews sampleModelViews,
+    Resources resources,
+    SwingDispatcherFactory swingDispatcherFactory) {
+
+    super(model, sampleModelViews, resources, swingDispatcherFactory);
   }
 
-  public synchronized void resetTestsAndStatisticsViews() {
-    super.resetTestsAndStatisticsViews();
-    addColumns(getModel().getIntervalStatisticsView());
+  public synchronized void resetStatisticsViews() {
+    super.resetStatisticsViews();
+    addColumns(getModelViews().getIntervalStatisticsView());
   }
 
   protected StatisticsSet getStatistics(int row) {

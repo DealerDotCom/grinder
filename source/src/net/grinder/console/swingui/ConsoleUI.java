@@ -100,6 +100,7 @@ import net.grinder.console.model.ModelImplementation;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
+import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.Directory;
@@ -134,6 +135,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
   private final Model m_model;
+  private final SampleModelViews m_sampleModelViews;
   private final ProcessControl m_processControl;
   private final FileDistribution m_fileDistribution;
   private final EditorModel m_editorModel;
@@ -164,6 +166,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
    * @param resources Resources.
    * @param consoleProperties Console properties.
    * @param model The console model.
+   * @param sampleModelViews Console sample model views.
    * @param processControl ProcessReport control.
    * @param fileDistribution File distribution.
    * @exception ConsoleException if an error occurs
@@ -171,6 +174,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
   public ConsoleUI(Resources resources,
                    ConsoleProperties consoleProperties,
                    Model model,
+                   SampleModelViews sampleModelViews,
                    ProcessControl processControl,
                    FileDistribution fileDistribution)
     throws ConsoleException {
@@ -178,6 +182,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     m_resources = resources;
     m_properties = consoleProperties;
     m_model = model;
+    m_sampleModelViews = sampleModelViews;
     m_processControl = processControl;
     m_fileDistribution = fileDistribution;
 
@@ -274,9 +279,10 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     final TestGraphPanel graphPanel =
       new TestGraphPanel(tabbedPane,
                          m_model,
+                         m_sampleModelViews,
                          m_resources,
                          swingDispatcherFactory);
-    graphPanel.resetTestsAndStatisticsViews(); // Show logo.
+    graphPanel.resetTests(); // Show logo.
 
     final JScrollPane graphTabPane =
       new JScrollPane(graphPanel,
@@ -294,7 +300,8 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
       new JLabel().getFont().deriveFont(Font.PLAIN | Font.ITALIC);
 
     m_cumulativeTableModel =
-      new CumulativeStatisticsTableModel(m_model, m_resources);
+      new CumulativeStatisticsTableModel(
+        m_model, m_sampleModelViews, m_resources, swingDispatcherFactory);
 
     final JScrollPane cumulativeTablePane =
       new JScrollPane(new Table(m_cumulativeTableModel));
@@ -303,7 +310,8 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     cumulativeTablePane.setMinimumSize(new Dimension(100, 60));
 
     final SampleStatisticsTableModel sampleModel =
-      new SampleStatisticsTableModel(m_model, m_resources);
+      new SampleStatisticsTableModel(
+        m_model, m_sampleModelViews, m_resources, swingDispatcherFactory);
 
     final JScrollPane sampleTablePane = new JScrollPane(new Table(sampleModel));
     sampleTablePane.setBorder(createTitledBorder("sampleTable.label"));
@@ -502,7 +510,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
 
         public void update(StatisticsSet intervalStatistics,
                            StatisticsSet cumulativeStatistics) {
-          final NumberFormat format = m_model.getNumberFormat();
+          final NumberFormat format = m_sampleModelViews.getNumberFormat();
 
           tpsLabel.setText(
             format.format(
@@ -838,11 +846,10 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
   }
 
   /**
-   * {@link net.grinder.console.model.ModelListener} interface.
-   * Existing <code>Test</code>s and <code>StatisticsView</code>s have
-   * been discarded. We need do nothing.
+   * {@link net.grinder.console.model.ModelListener} interface. Existing
+   * <code>Test</code>s have been discarded. We need do nothing.
    */
-  public void resetTestsAndStatisticsViews() {
+  public void resetTests() {
   }
 
   private final class WindowCloseAdapter extends WindowAdapter {
@@ -1453,6 +1460,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
 
       if (properties.getResetConsoleWithProcesses()) {
         m_model.reset();
+        m_sampleModelViews.resetStatisticsViews();
       }
 
       m_processControl.resetWorkerProcesses();

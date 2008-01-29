@@ -35,6 +35,7 @@ import net.grinder.console.communication.server.messages.StartWorkerProcessesMes
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
 import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModelViews;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
 
@@ -54,13 +55,18 @@ public class TestDispatchClientCommands extends TestCase {
     final Model model =
       (Model)modelStubFactory.getStub();
 
+    final RandomStubFactory sampleModelViewsStubFactory =
+      new RandomStubFactory(SampleModelViews.class);
+    final SampleModelViews sampleModelViews =
+      (SampleModelViews)sampleModelViewsStubFactory.getStub();
+
     final RandomStubFactory processControlStubFactory =
       new RandomStubFactory(ProcessControl.class);
     final ProcessControl processControl =
       (ProcessControl)processControlStubFactory.getStub();
 
     final DispatchClientCommands dispatchClientCommands =
-      new DispatchClientCommands(model, processControl);
+      new DispatchClientCommands(model, sampleModelViews, processControl);
 
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
 
@@ -74,6 +80,9 @@ public class TestDispatchClientCommands extends TestCase {
 
     modelStubFactory.assertSuccess("reset");
     modelStubFactory.assertNoMoreCalls();
+
+    sampleModelViewsStubFactory.assertSuccess("resetStatisticsViews");
+    sampleModelViewsStubFactory.assertNoMoreCalls();
 
     assertTrue(blockingSender.blockingSend(new StopRecordingMessage())
       instanceof SuccessMessage);

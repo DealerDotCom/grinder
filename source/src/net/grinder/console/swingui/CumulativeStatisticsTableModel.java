@@ -27,6 +27,7 @@ import java.io.Writer;
 
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.StatisticsSet;
 
 
@@ -42,15 +43,20 @@ final class CumulativeStatisticsTableModel
   private boolean m_includeTotals = true;
   private final String m_totalString;
 
-  public CumulativeStatisticsTableModel(Model model, Resources resources) {
-    super(model, resources);
+  public CumulativeStatisticsTableModel(
+    Model model,
+    SampleModelViews sampleModelViews,
+    Resources resources,
+    SwingDispatcherFactory swingDispatcherFactory) {
+
+    super(model, sampleModelViews, resources, swingDispatcherFactory);
 
     m_totalString = resources.getString("table.total.label");
   }
 
-  public synchronized void resetTestsAndStatisticsViews() {
-    super.resetTestsAndStatisticsViews();
-    addColumns(getModel().getCumulativeStatisticsView());
+  public synchronized void resetStatisticsViews() {
+    super.resetStatisticsViews();
+    addColumns(getModelViews().getCumulativeStatisticsView());
   }
 
   protected StatisticsSet getStatistics(int row) {

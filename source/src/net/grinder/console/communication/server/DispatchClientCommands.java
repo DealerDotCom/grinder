@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,6 +35,7 @@ import net.grinder.console.communication.server.messages.StopAgentAndWorkerProce
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
 import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModelViews;
 
 
 
@@ -47,16 +48,22 @@ import net.grinder.console.model.Model;
 public class DispatchClientCommands {
 
   private final Model m_model;
+  private final SampleModelViews m_sampleModelViews;
   private final ProcessControl m_processControl;
+
 
   /**
    * Constructor for DispatchClientCommands.
    *
    * @param model The model.
+   * @param sampleModelViews Console sample model views.
    * @param processControl Process control interface.
    */
-  public DispatchClientCommands(Model model, ProcessControl processControl) {
+  public DispatchClientCommands(Model model,
+                                SampleModelViews sampleModelViews,
+                                ProcessControl processControl) {
     m_model = model;
+    m_sampleModelViews = sampleModelViews;
     m_processControl = processControl;
   }
 
@@ -91,6 +98,7 @@ public class DispatchClientCommands {
       new AbstractBlockingHandler() {
         public Message blockingSend(Message message) {
           m_model.reset();
+          m_sampleModelViews.resetStatisticsViews();
           return new SuccessMessage();
         }
       });

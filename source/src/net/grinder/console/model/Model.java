@@ -21,14 +21,11 @@
 
 package net.grinder.console.model;
 
-import java.text.NumberFormat;
 import java.util.Collection;
 
 import net.grinder.common.Test;
-import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsSet;
-import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.statistics.TestStatisticsQueries;
 
@@ -102,13 +99,6 @@ public interface Model {
   long getSampleCount();
 
   /**
-   * Returns a NumberFormat which corresponds to the user's preference.
-   *
-   * @return The number format.
-   */
-  NumberFormat getNumberFormat();
-
-  /**
    * Get the statistics expression for TPS.
    *
    * @return The TPS expression for this model.
@@ -130,32 +120,11 @@ public interface Model {
   TestStatisticsQueries getTestStatisticsQueries();
 
   /**
-   * Get the interval statistics view for this model.
-   *
-   * @return The interval statistics view.
-   */
-  StatisticsView getIntervalStatisticsView();
-
-  /**
-   * Get the cumulative statistics view for this model.
-   *
-   * @return The cumulative statistics view.
-   */
-  StatisticsView getCumulativeStatisticsView();
-
-  /**
    * Get the cumulative statistics for this model.
    *
    * @return The cumulative statistics.
    */
   StatisticsSet getTotalCumulativeStatistics();
-
-  /**
-   * Register new statistic expression.
-   *
-   * @param statisticExpression The expression.
-   */
-  void registerStatisticExpression(ExpressionView statisticExpression);
 
   /**
    * Add a new model listener.

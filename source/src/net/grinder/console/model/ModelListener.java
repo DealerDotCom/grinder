@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,8 +24,6 @@ package net.grinder.console.model;
 import java.util.EventListener;
 import java.util.Set;
 
-import net.grinder.statistics.ExpressionView;
-
 
 /**
  * Interface for listeners to {@link ModelImplementation}.
@@ -49,15 +47,8 @@ public interface ModelListener extends EventListener {
   void newTests(Set newTests, ModelTestIndex modelTestIndex);
 
   /**
-   * Called when a new statistic expression has been added to the model.
-   *
-   * @param statisticExpression The new statistic expression.
-   */
-  void newStatisticExpression(ExpressionView statisticExpression);
-
-  /**
    * Called when existing tests and statistics views should be
    * discarded.
    */
-  void resetTestsAndStatisticsViews();
+  void resetTests();
 }

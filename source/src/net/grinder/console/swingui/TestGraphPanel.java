@@ -39,6 +39,7 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
+import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsSet;
 
@@ -59,6 +60,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   private final Dimension m_preferredSize = new Dimension();
 
   private final Model m_model;
+  private final SampleModelViews m_sampleModelViews;
   private final Resources m_resources;
   private final SwingDispatcherFactory m_swingDispatcherFactory;
   private final String m_testLabel;
@@ -71,17 +73,20 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 
   TestGraphPanel(JComponent parentComponent,
                  Model model,
+                 SampleModelViews sampleModelViews,
                  Resources resources,
                  SwingDispatcherFactory swingDispatcherFactory) {
 
     m_parentComponent = parentComponent;
     m_model = model;
+    m_sampleModelViews = sampleModelViews;
     m_resources = resources;
     m_swingDispatcherFactory = swingDispatcherFactory;
 
     m_testLabel = m_resources.getString("graph.test.label") + " ";
 
-    m_model.addModelListener(new SwingDispatchedModelListener(this));
+    m_model.addModelListener(
+      (ModelListener) swingDispatcherFactory.create(this));
 
     m_model.addTotalSampleListener(
       new SampleListener() {
@@ -134,7 +139,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
             public void update(final StatisticsSet intervalStatistics,
                                final StatisticsSet cumulativeStatistics) {
               testGraph.add(intervalStatistics, cumulativeStatistics,
-                            m_model.getNumberFormat());
+                            m_sampleModelViews.getNumberFormat());
             }
           }));
 
@@ -244,7 +249,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
    * Existing <code>Test</code>s and <code>StatisticsView</code>s have
    * been discarded.
    */
-  public final void resetTestsAndStatisticsViews() {
+  public final void resetTests() {
     m_components.clear();
     removeAll();
     setLayout(m_borderLayout);

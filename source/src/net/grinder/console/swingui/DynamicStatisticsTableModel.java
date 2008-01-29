@@ -31,6 +31,8 @@ import net.grinder.console.common.Resources;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
+import net.grinder.console.model.SampleModelViews;
+import net.grinder.console.model.SampleModelViews.Listener;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
@@ -44,22 +46,37 @@ import net.grinder.statistics.StatisticsView;
  * @version $Revision$
  */
 abstract class DynamicStatisticsTableModel
-  extends AbstractTableModel implements ModelListener, Table.TableModel {
+  extends AbstractTableModel
+  implements ModelListener, Table.TableModel, Listener {
 
   private final Model m_model;
+  private final SampleModelViews m_modelViews;
   private final Resources m_resources;
 
   private final String m_testString;
   private final String m_testColumnString;
   private final String m_testDescriptionColumnString;
 
+  // Guarded by this.
   private ModelTestIndex m_lastModelTestIndex;
+
+  // Guarded by this.
   private StatisticsView m_statisticsView;
+
+  // Guarded by this.
   private ExpressionView[] m_columnViews;
+
+  // Guarded by this.
   private String[] m_columnLabels;
 
-  protected DynamicStatisticsTableModel(Model model, Resources resources) {
+  protected DynamicStatisticsTableModel(
+    Model model,
+    SampleModelViews modelViews,
+    Resources resources,
+    SwingDispatcherFactory swingDispatcherFactory) {
+
     m_model = model;
+    m_modelViews = modelViews;
     m_resources = resources;
 
     m_testString = m_resources.getString("table.test.label") + ' ';
@@ -67,15 +84,22 @@ abstract class DynamicStatisticsTableModel
     m_testDescriptionColumnString =
       m_resources.getString("table.descriptionColumn.label");
 
-    resetTestsAndStatisticsViews();
+    resetTests();
+    resetStatisticsViews();
 
-    m_model.addModelListener(new SwingDispatchedModelListener(this));
+    m_model.addModelListener(
+      (ModelListener) swingDispatcherFactory.create(this));
+    m_modelViews.addListener((Listener) swingDispatcherFactory.create(this));
   }
 
   protected abstract StatisticsSet getStatistics(int row);
 
   protected final Model getModel() {
     return m_model;
+  }
+
+  protected final SampleModelViews getModelViews() {
+    return m_modelViews;
   }
 
   protected final synchronized ModelTestIndex getLastModelTestIndex() {
@@ -138,8 +162,11 @@ abstract class DynamicStatisticsTableModel
     fireTableRowsUpdated(0, getRowCount());
   }
 
-  public synchronized void resetTestsAndStatisticsViews() {
+  public final synchronized void resetTests() {
     m_lastModelTestIndex = new ModelTestIndex();
+  }
+
+  public synchronized void resetStatisticsViews() {
     m_statisticsView = new StatisticsView();
     m_columnViews = new ExpressionView[0];
     m_columnLabels = new String[0];
@@ -192,7 +219,7 @@ abstract class DynamicStatisticsTableModel
           return "";
         }
         else {
-          return m_model.getNumberFormat().format(value);
+          return getModelViews().getNumberFormat().format(value);
         }
       }
       else {

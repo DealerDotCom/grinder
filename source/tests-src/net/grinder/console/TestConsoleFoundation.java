@@ -53,6 +53,7 @@ import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -225,11 +226,16 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
       new RandomStubFactory(Model.class);
     final Model model = (Model)modelStubFactory.getStub();
 
+    final RandomStubFactory sampleModelViewsStubFactory =
+      new RandomStubFactory(SampleModelViews.class);
+    final SampleModelViews sampleModelViews =
+      (SampleModelViews)sampleModelViewsStubFactory.getStub();
+
     final DispatchClientCommands dispatchClientCommands =
-      new DispatchClientCommands(null, null);
+      new DispatchClientCommands(null, null, null);
 
     new ConsoleFoundation.WireMessageDispatch(
-      consoleCommunication, model, dispatchClientCommands);
+      consoleCommunication, model, sampleModelViews, dispatchClientCommands);
 
     consoleCommunicationStubFactory.assertSuccess("getMessageDispatchRegistry");
     consoleCommunicationStubFactory.assertNoMoreCalls();
@@ -267,10 +273,9 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
       .getStatisticExpressionFactory().createExpressionView(
         "blah", "userLong0", false);
     sender3.send(new RegisterExpressionViewMessage(expressionView));
-    modelStubFactory.assertSuccess(
+    sampleModelViewsStubFactory.assertSuccess(
       "registerStatisticExpression", expressionView);
-    modelStubFactory.assertNoMoreCalls();
-
+    sampleModelViewsStubFactory.assertNoMoreCalls();
   }
 
   public static class MyUI implements UI {
