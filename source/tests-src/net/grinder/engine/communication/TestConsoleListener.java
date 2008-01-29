@@ -1,4 +1,4 @@
-// Copyright (C) 2001-2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.common;
+package net.grinder.engine.communication;
 
 import java.io.Serializable;
 
@@ -204,7 +204,7 @@ public class TestConsoleListener extends TestCase {
 
     final Thread t = new Thread() {
         public void run() {
-          synchronized (myCondition) {} // Wait until we're listening.
+          synchronized (myCondition) { } // Wait until we're listening.
           try {
             messageDispatcher.send(
               new StartGrinderMessage(new GrinderProperties()));

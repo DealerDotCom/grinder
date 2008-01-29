@@ -49,8 +49,8 @@ import net.grinder.communication.QueuedSender;
 import net.grinder.communication.QueuedSenderDecorator;
 import net.grinder.communication.Receiver;
 import net.grinder.console.messages.RegisterTestsMessage;
-import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.statistics.ExpressionView;
@@ -191,7 +191,7 @@ final class GrinderProcess {
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
 
-    final JythonScriptEngine scriptEngine =
+    final ScriptEngine scriptEngine =
       new JythonScriptEngine(m_context.getScriptContext());
 
     m_context.getTestRegistry().setInstrumenter(scriptEngine);
