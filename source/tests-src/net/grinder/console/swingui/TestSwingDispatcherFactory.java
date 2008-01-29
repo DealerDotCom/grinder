@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,8 @@ import net.grinder.testutility.RandomStubFactory;
 
 
 /**
+ * Unit tests for {@link SwingDispatcherFactory}.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -94,7 +96,22 @@ public class TestSwingDispatcherFactory extends TestCase {
     assertTrue(proxy instanceof Serializable);
   }
 
-  private final class MyPropertyChangeListener
+  public void testDelegateWithDuplicateInterfaces() throws Exception {
+    final RandomStubFactory errorHandlerStubFactory =
+      new RandomStubFactory(ErrorHandler.class);
+    final ErrorHandler errorHandler =
+      (ErrorHandler)errorHandlerStubFactory.getStub();
+
+    final SwingDispatcherFactory swingDispatcherFactory =
+      new SwingDispatcherFactory(errorHandler);
+
+    final Object proxy = swingDispatcherFactory.create(new FooFoo());
+
+    assertTrue(proxy instanceof Foo);
+    assertTrue(proxy instanceof PropertyChangeListener);
+  }
+
+  private static final class MyPropertyChangeListener
     implements PropertyChangeListener {
 
     private PropertyChangeEvent m_propertyChangeEvent;
@@ -132,6 +149,12 @@ public class TestSwingDispatcherFactory extends TestCase {
   public static class FooBase { }
 
   public static class FooImpl extends FooBase implements Foo, Serializable {
+    public void propertyChange(PropertyChangeEvent e) { }
+  }
+
+  public static abstract class Foo2 implements Foo { }
+
+  public static class FooFoo extends Foo2 implements Foo {
     public void propertyChange(PropertyChangeEvent e) { }
   }
 }

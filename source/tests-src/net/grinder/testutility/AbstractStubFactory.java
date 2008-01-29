@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,11 +25,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -129,7 +129,7 @@ public abstract class AbstractStubFactory extends CallRecorder {
   }
 
   public static Class[] getAllInterfaces(Class c) {
-    final List interfaces = new ArrayList();
+    final Set interfaces = new HashSet();
 
     if (c.isInterface()) {
       interfaces.add(c);
