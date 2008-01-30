@@ -835,16 +835,6 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
   }
 
   /**
-   * Called when a new statistic expression has been added to the model. We need
-   * do nothing. {@link net.grinder.console.model.ModelListener} interface.
-   *
-   * @param statisticExpression
-   *          The new statistic expression.
-   */
-  public void newStatisticExpression(ExpressionView statisticExpression) {
-  }
-
-  /**
    * {@link net.grinder.console.model.ModelListener} interface. Existing
    * <code>Test</code>s have been discarded. We need do nothing.
    */
