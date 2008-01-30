@@ -136,7 +136,7 @@ public final class ProcessReportDescriptionFactory {
   /**
    * Various descriptions of the attributes of a process report.
    */
-  public final class ProcessDescription {
+  public static final class ProcessDescription {
     private final String m_name;
     private final String m_processType;
     private final String m_state;
