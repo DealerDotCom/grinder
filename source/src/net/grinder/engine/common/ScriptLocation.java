@@ -35,6 +35,8 @@ import net.grinder.util.Directory;
  * @version $Revision:$
  */
 public final class ScriptLocation implements Serializable {
+  private static final long serialVersionUID = 771173195260716872L;
+
   private final Directory m_directory;
   private final File m_shortFile;
   private final File m_absoluteFile;
