@@ -95,8 +95,7 @@ import net.grinder.console.distribution.FileDistributionHandler;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.console.model.Model;
-import net.grinder.console.model.ModelImplementation;
+import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
@@ -134,7 +133,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
 
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
-  private final Model m_model;
+  private final SampleModel m_model;
   private final SampleModelViews m_sampleModelViews;
   private final ProcessControl m_processControl;
   private final FileDistribution m_fileDistribution;
@@ -173,7 +172,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
    */
   public ConsoleUI(Resources resources,
                    ConsoleProperties consoleProperties,
-                   Model model,
+                   SampleModel model,
                    SampleModelViews sampleModelViews,
                    ProcessControl processControl,
                    FileDistribution fileDistribution)
@@ -779,7 +778,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     final boolean receivedReport = m_model.getReportsRecentlyReceived();
     final long sampleCount = m_model.getSampleCount();
 
-    if (state == ModelImplementation.STATE_WAITING_FOR_TRIGGER) {
+    if (state == SampleModel.STATE_WAITING_FOR_TRIGGER) {
       if (receivedReport) {
         m_stateLabel.setText(m_stateIgnoringString + sampleCount);
       }
@@ -788,7 +787,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
       }
       m_stateLabel.setForeground(UIManager.getColor("Label.foreground"));
     }
-    else if (state == ModelImplementation.STATE_STOPPED) {
+    else if (state == SampleModel.STATE_STOPPED) {
       if (receivedReport) {
         m_stateLabel.setText(m_stateStoppedAndIgnoringString +
                              sampleCount);
@@ -799,7 +798,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
 
       m_stateLabel.setForeground(Colours.DARK_RED);
     }
-    else if (state == ModelImplementation.STATE_CAPTURING) {
+    else if (state == SampleModel.STATE_CAPTURING) {
       m_stateLabel.setText(m_stateCapturingString + sampleCount);
       m_stateLabel.setForeground(Colours.DARK_GREEN);
     }
@@ -828,7 +827,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     final int newState = updateStateLabel();
 
     if (newState != m_lastState &&
-        newState == ModelImplementation.STATE_STOPPED) {
+        newState == SampleModel.STATE_STOPPED) {
       m_stopAction.stopped();
     }
 

@@ -34,7 +34,7 @@ import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StartWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
-import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.SampleModelViews;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
@@ -51,9 +51,9 @@ public class TestDispatchClientCommands extends TestCase {
   public void testRegisterMessageHandlers() throws Exception {
 
     final RandomStubFactory modelStubFactory =
-      new RandomStubFactory(Model.class);
-    final Model model =
-      (Model)modelStubFactory.getStub();
+      new RandomStubFactory(SampleModel.class);
+    final SampleModel model =
+      (SampleModel)modelStubFactory.getStub();
 
     final RandomStubFactory sampleModelViewsStubFactory =
       new RandomStubFactory(SampleModelViews.class);

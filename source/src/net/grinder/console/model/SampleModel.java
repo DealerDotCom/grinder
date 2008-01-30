@@ -31,12 +31,12 @@ import net.grinder.statistics.TestStatisticsQueries;
 
 
 /**
- * Interface to {@link ModelImplementation}.
+ * Interface to {@link SampleModelImplementation}.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface Model {
+public interface SampleModel {
 
   /**
    * Constant that represents the model state of <em>waiting for a

@@ -58,7 +58,7 @@ import net.grinder.util.ListenerSupport;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ModelImplementation implements Model {
+public final class SampleModelImplementation implements SampleModel {
 
   /** Time statistics capture was last started. */
   private long m_startTime;
@@ -104,13 +104,13 @@ public class ModelImplementation implements Model {
   private long m_currentTime;
 
   /**
-   * Creates a new <code>ModelImplementation</code> instance.
+   * Creates a new <code>SampleModelImplementation</code> instance.
    *
    * @param properties The console properties.
    * @param statisticsServices Statistics services.
    * @exception GrinderException if an error occurs
    */
-  public ModelImplementation(ConsoleProperties properties,
+  public SampleModelImplementation(ConsoleProperties properties,
                              StatisticsServices statisticsServices)
     throws GrinderException {
 
@@ -355,7 +355,7 @@ public class ModelImplementation implements Model {
 
   /**
    * I've thought a couple of times about replacing this with a
-   * java.util.TimerTask, and giving ModelImplementation a Timer thread.
+   * java.util.TimerTask, and giving SampleModelImplementation a Timer thread.
    * It's not as nice as it first seems though because you have to deal with
    * cancelling and rescheduling the TimerTask when the sample period
    * is changed.

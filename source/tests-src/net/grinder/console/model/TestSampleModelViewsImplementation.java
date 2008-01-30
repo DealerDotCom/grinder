@@ -45,8 +45,8 @@ import net.grinder.testutility.RandomStubFactory;
 public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
 
   private final RandomStubFactory m_modelStubFactory =
-    new RandomStubFactory(Model.class);
-  private final Model m_model = (Model)m_modelStubFactory.getStub();
+    new RandomStubFactory(SampleModel.class);
+  private final SampleModel m_model = (SampleModel)m_modelStubFactory.getStub();
 
   private ConsoleProperties m_consoleProperties;
 

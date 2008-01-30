@@ -29,7 +29,7 @@ import net.grinder.statistics.StatisticsView;
 
 
 /**
- * Statistics views to use with the statistics from the Sample Model.
+ * Statistics views to use with the statistics from the {@link SampleModel}.
  *
  * @author Philip Aston
  * @version $Revision:$

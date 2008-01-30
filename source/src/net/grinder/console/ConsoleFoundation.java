@@ -49,8 +49,8 @@ import net.grinder.console.messages.RegisterExpressionViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.console.model.Model;
-import net.grinder.console.model.ModelImplementation;
+import net.grinder.console.model.SampleModel;
+import net.grinder.console.model.SampleModelImplementation;
 import net.grinder.console.model.SampleModelViews;
 import net.grinder.console.model.SampleModelViewsImplementation;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -121,7 +121,8 @@ public final class ConsoleFoundation {
     m_container.registerComponentInstance(
       StatisticsServicesImplementation.getInstance());
 
-    m_container.registerComponentImplementation(ModelImplementation.class);
+    m_container.registerComponentImplementation(
+      SampleModelImplementation.class);
 
     m_container.registerComponentImplementation(
       SampleModelViewsImplementation.class);
@@ -301,7 +302,7 @@ public final class ConsoleFoundation {
      * @param dispatchClientCommands Client command dispatcher.
      */
     public WireMessageDispatch(ConsoleCommunication communication,
-                               final Model model,
+                               final SampleModel model,
                                final SampleModelViews sampleModelViews,
                                DispatchClientCommands dispatchClientCommands) {
 

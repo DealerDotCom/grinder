@@ -26,7 +26,7 @@ import java.util.Set;
 
 
 /**
- * Interface for listeners to {@link ModelImplementation}.
+ * Interface for listeners to {@link SampleModelImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$

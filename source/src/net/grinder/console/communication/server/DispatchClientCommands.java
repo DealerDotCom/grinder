@@ -34,7 +34,7 @@ import net.grinder.console.communication.server.messages.StartWorkerProcessesMes
 import net.grinder.console.communication.server.messages.StopAgentAndWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
-import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.SampleModelViews;
 
 
@@ -47,7 +47,7 @@ import net.grinder.console.model.SampleModelViews;
  */
 public class DispatchClientCommands {
 
-  private final Model m_model;
+  private final SampleModel m_model;
   private final SampleModelViews m_sampleModelViews;
   private final ProcessControl m_processControl;
 
@@ -59,7 +59,7 @@ public class DispatchClientCommands {
    * @param sampleModelViews Console sample model views.
    * @param processControl Process control interface.
    */
-  public DispatchClientCommands(Model model,
+  public DispatchClientCommands(SampleModel model,
                                 SampleModelViews sampleModelViews,
                                 ProcessControl processControl) {
     m_model = model;

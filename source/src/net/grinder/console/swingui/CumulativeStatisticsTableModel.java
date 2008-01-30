@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.StatisticsSet;
 
@@ -44,7 +44,7 @@ final class CumulativeStatisticsTableModel
   private final String m_totalString;
 
   public CumulativeStatisticsTableModel(
-    Model model,
+    SampleModel model,
     SampleModelViews sampleModelViews,
     Resources resources,
     SwingDispatcherFactory swingDispatcherFactory) {

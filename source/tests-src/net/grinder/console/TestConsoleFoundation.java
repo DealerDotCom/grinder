@@ -52,7 +52,7 @@ import net.grinder.console.messages.RegisterExpressionViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServices;
@@ -223,8 +223,8 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
       "getMessageDispatchRegistry", messageDispatchRegistry);
 
     final RandomStubFactory modelStubFactory =
-      new RandomStubFactory(Model.class);
-    final Model model = (Model)modelStubFactory.getStub();
+      new RandomStubFactory(SampleModel.class);
+    final SampleModel model = (SampleModel)modelStubFactory.getStub();
 
     final RandomStubFactory sampleModelViewsStubFactory =
       new RandomStubFactory(SampleModelViews.class);
@@ -283,7 +283,7 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
                 Resources resources,
                 ConsoleProperties properties,
                 StatisticsServices statisticsServices,
-                Model model,
+                SampleModel model,
                 ConsoleCommunication consoleCommunication,
                 DistributionControl distributionControl,
                 FileDistribution fileDistribution,

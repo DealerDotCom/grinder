@@ -28,7 +28,7 @@ import java.util.Set;
 import javax.swing.table.AbstractTableModel;
 
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.Model;
+import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleModelViews;
@@ -49,7 +49,7 @@ abstract class DynamicStatisticsTableModel
   extends AbstractTableModel
   implements ModelListener, Table.TableModel, Listener {
 
-  private final Model m_model;
+  private final SampleModel m_model;
   private final SampleModelViews m_modelViews;
   private final Resources m_resources;
 
@@ -70,7 +70,7 @@ abstract class DynamicStatisticsTableModel
   private String[] m_columnLabels;
 
   protected DynamicStatisticsTableModel(
-    Model model,
+    SampleModel model,
     SampleModelViews modelViews,
     Resources resources,
     SwingDispatcherFactory swingDispatcherFactory) {
@@ -94,7 +94,7 @@ abstract class DynamicStatisticsTableModel
 
   protected abstract StatisticsSet getStatistics(int row);
 
-  protected final Model getModel() {
+  protected final SampleModel getModel() {
     return m_model;
   }
 
