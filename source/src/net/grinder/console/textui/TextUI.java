@@ -35,7 +35,6 @@ import net.grinder.console.common.ProcessReportDescriptionFactory;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessStatus;
-import net.grinder.console.model.Model;
 
 
 /**
@@ -58,12 +57,10 @@ public class TextUI implements UI {
    * Constructor.
    *
    * @param resources Console resources.
-   * @param model Console model.
    * @param processControl Console process control.
    * @param logger Logger.
    */
   public TextUI(Resources resources,
-                Model model,
                 ProcessControl processControl,
                 Logger logger) {
 
