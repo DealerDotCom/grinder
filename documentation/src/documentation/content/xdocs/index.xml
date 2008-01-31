@@ -11,12 +11,10 @@
     <section>
     <title>What is The Grinder?</title>
 
-    <p>The Grinder is a load testing framework that makes it easy to run a
-  distributed test using many load injector machines. Test scripts are
-  written in Jython. The Grinder is a powerful, generic framework, but has
-  special support for web testing, allowing browser sessions to be
-  recorded and replayed. The Grinder is freely available under a BSD-style
-  open-source <a href="site:license">license</a>.</p>
+    <p>The Grinder is a Java<sup>TM</sup> load testing framework that makes it
+    easy to run a distributed test using many load injector machines. It
+    is freely available under a BSD-style open-source <a
+    href="site:license">license</a>.</p>
 
     <p>The latest news, downloads, and mailing list archives can be
     found on <a href="ext:sourceforge/grinder">SourceForge.net</a>.
@@ -122,7 +120,9 @@
       <p>I thank
       <a href="ext:atlassian">Atlassian</a> for the free
       <a href="ext:atlassian/clover">Clover</a> and
-      <a href="ext:fisheye">FishEye</a> licenses.</p>
+      <a href="ext:fisheye">FishEye</a> licenses, and to
+      <a href="ext:headwaysoftware">Headway Software</a> for the free
+      <a href="ext:headwaysoftware/s101">Structure 101</a> license.</p>
 
       <p>This site is built with <a
       href="ext:forrest">Apache Forrest</a>.</p>
