@@ -95,12 +95,11 @@ import net.grinder.console.distribution.FileDistributionHandler;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
+import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.SampleModelViews;
-import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
@@ -149,15 +148,6 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
   private final Font m_titleLabelFont;
 
   private final CumulativeStatisticsTableModel m_cumulativeTableModel;
-
-  private final String m_stateIgnoringString;
-  private final String m_stateWaitingString;
-  private final String m_stateStoppedString;
-  private final String m_stateStoppedAndIgnoringString;
-  private final String m_stateCapturingString;
-  private final String m_stateUnknownString;
-
-  private int m_lastState = -1;
 
   /**
    * Creates a new <code>ConsoleUI</code> instance.
@@ -234,15 +224,6 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     m_optionalConfirmDialog =
       new OptionalConfirmDialog(m_frame, m_resources, m_properties);
 
-    m_stateIgnoringString = m_resources.getString("state.ignoring.label") + ' ';
-    m_stateWaitingString = m_resources.getString("state.waiting.label");
-    m_stateStoppedString = m_resources.getString("state.stopped.label");
-    m_stateStoppedAndIgnoringString =
-      m_resources.getString("state.stoppedAndIgnoring.label") + ' ';
-    m_stateCapturingString =
-      m_resources.getString("state.capturing.label") + ' ';
-    m_stateUnknownString = m_resources.getString("state.unknown.label");
-
     m_closeFileAction = new CloseFileAction();
     m_exitAction = new ExitAction();
     m_startAction = new StartAction();
@@ -268,6 +249,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     m_actionTable.add(new StopProcessesAction());
 
     m_stateLabel = new JLabel();
+    stateChanged();
     m_samplingControlPanel = new SamplingControlPanel(m_resources);
 
     final JPanel controlAndTotalPanel = createControlAndTotalPanel();
@@ -464,7 +446,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
 
     m_model.addModelListener(
       (ModelListener) swingDispatcherFactory.create(this));
-    update();
+    newSample();
 
     m_lookAndFeel.addListener(new LookAndFeelListener());
 
@@ -772,41 +754,30 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     }
   }
 
-  private int updateStateLabel() {
+  /**
+   * {@link net.grinder.console.model.ModelListener} interface.
+   */
+  public void stateChanged() {
+    final SampleModel.State state = m_model.getState();
 
-    final int state = m_model.getState();
-    final boolean receivedReport = m_model.getReportsRecentlyReceived();
-    final long sampleCount = m_model.getSampleCount();
+    m_stateLabel.setText(state.getDescription());
 
-    if (state == SampleModel.STATE_WAITING_FOR_TRIGGER) {
-      if (receivedReport) {
-        m_stateLabel.setText(m_stateIgnoringString + sampleCount);
-      }
-      else {
-        m_stateLabel.setText(m_stateWaitingString);
-      }
-      m_stateLabel.setForeground(UIManager.getColor("Label.foreground"));
-    }
-    else if (state == SampleModel.STATE_STOPPED) {
-      if (receivedReport) {
-        m_stateLabel.setText(m_stateStoppedAndIgnoringString +
-                             sampleCount);
-      }
-      else {
-        m_stateLabel.setText(m_stateStoppedString);
-      }
-
-      m_stateLabel.setForeground(Colours.DARK_RED);
-    }
-    else if (state == SampleModel.STATE_CAPTURING) {
-      m_stateLabel.setText(m_stateCapturingString + sampleCount);
+    if (state.isCapturing()) {
       m_stateLabel.setForeground(Colours.DARK_GREEN);
     }
-    else {
-      m_stateLabel.setText(m_stateUnknownString);
+    else if (state.isStopped()) {
+      m_stateLabel.setForeground(Colours.DARK_RED);
+      m_stopAction.stopped();
     }
+    else {
+      m_stateLabel.setForeground(UIManager.getColor("Label.foreground"));
+    }
+  }
 
-    return state;
+  /**
+   * {@link net.grinder.console.model.ModelListener} interface.
+   */
+  public void newSample() {
   }
 
   /**
@@ -817,21 +788,6 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
    * @param modelTestIndex New model test index.
    */
   public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
-  }
-
-  /**
-   * {@link net.grinder.console.model.ModelListener} interface.
-   **/
-  public void update() {
-
-    final int newState = updateStateLabel();
-
-    if (newState != m_lastState &&
-        newState == SampleModel.STATE_STOPPED) {
-      m_stopAction.stopped();
-    }
-
-    m_lastState = newState;
   }
 
   /**
@@ -996,13 +952,11 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-
       m_model.start();
 
       //  putValue() won't work here as the event won't fire if
       //  the value doesn't change.
       firePropertyChange(SET_ACTION_PROPERTY, null, m_stopAction);
-      updateStateLabel();
     }
   }
 
@@ -1020,7 +974,6 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
       //  putValue() won't work here as the event won't fire if
       //  the value doesn't change.
       firePropertyChange(SET_ACTION_PROPERTY, null, m_startAction);
-      updateStateLabel();
     }
   }
 

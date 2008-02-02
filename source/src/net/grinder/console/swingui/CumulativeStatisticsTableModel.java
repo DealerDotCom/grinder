@@ -37,8 +37,7 @@ import net.grinder.statistics.StatisticsSet;
  * @author Philip Aston
  * @version $Revision$
  */
-final class CumulativeStatisticsTableModel
-  extends DynamicStatisticsTableModel {
+final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel {
 
   private boolean m_includeTotals = true;
   private final String m_totalString;

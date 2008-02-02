@@ -100,6 +100,33 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   }
 
   /**
+   * {@link net.grinder.console.model.ModelListener} interface.
+   * Called when the model state has changed.
+   */
+  public void stateChanged() {
+  }
+
+  /**
+   * {@link net.grinder.console.model.ModelListener} interface.
+   * Called when the model has a new sample.
+   */
+  public final void newSample() {
+  }
+
+  /**
+   * {@link net.grinder.console.model.ModelListener} interface.
+   * Existing <code>Test</code>s and <code>StatisticsView</code>s have
+   * been discarded.
+   */
+  public final void resetTests() {
+    m_components.clear();
+    removeAll();
+    setLayout(m_borderLayout);
+    add(m_logoLabel, BorderLayout.CENTER);
+    invalidate();
+  }
+
+  /**
    * ModelImplementation listener interface called when new tests have been
    * registered.
    *
@@ -225,24 +252,5 @@ public class TestGraphPanel extends JPanel implements ModelListener {
     }
 
     return m_preferredSize;
-  }
-
-  /**
-   * Called when the model has new information.
-   **/
-  public final void update() {
-  }
-
-  /**
-   * {@link net.grinder.console.model.ModelListener} interface.
-   * Existing <code>Test</code>s and <code>StatisticsView</code>s have
-   * been discarded.
-   */
-  public final void resetTests() {
-    m_components.clear();
-    removeAll();
-    setLayout(m_borderLayout);
-    add(m_logoLabel, BorderLayout.CENTER);
-    invalidate();
   }
 }

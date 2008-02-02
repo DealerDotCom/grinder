@@ -34,9 +34,14 @@ import java.util.Set;
 public interface ModelListener extends EventListener {
 
   /**
-   * Called when the model has new information.
-   **/
-  void update();
+   * Called when the model state has changed.
+   */
+  void stateChanged();
+
+  /**
+   * Called when the model has a new sample.
+   */
+  void newSample();
 
   /**
    * Called when new tests have been added to the model.

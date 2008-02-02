@@ -21,8 +21,6 @@
 
 package net.grinder.console.model;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,94 +28,94 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeSet;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
-import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.console.common.Resources;
 import net.grinder.statistics.PeakStatisticExpression;
+import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
+import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
-import net.grinder.statistics.StatisticExpression;
-import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.statistics.TestStatisticsQueries;
 import net.grinder.util.ListenerSupport;
 
 
 /**
- * The console model.
+ * Collate test reports into samples and distribute to listeners.
  *
- * <p>This class uses synchronisation sparingly. In particular, when
- * notifying listeners of changes to the number of tests it sends
- * copies of the new index arrays. This helps because most listeners
- * are Swing dispatched and so can't guarantee the model is in a
- * reasonable state when they call back.</p>
+ * <p>
+ * When notifying listeners of changes to the number of tests we send copies of
+ * the new index arrays. This helps because most listeners are Swing dispatched
+ * and so can't guarantee the model is in a reasonable state when they call
+ * back.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public final class SampleModelImplementation implements SampleModel {
 
-  /** Time statistics capture was last started. */
-  private long m_startTime;
+  private final ConsoleProperties m_properties;
+  private final StatisticsServices m_statisticsServices;
+  private final Timer m_timer;
 
-  /** Time statistics capture was last stopped. */
-  private long m_stopTime;
+  private final String m_stateIgnoringString;
+  private final String m_stateWaitingString;
+  private final String m_stateStoppedString;
+  private final String m_stateCapturingString;
 
   /**
    * The current test set. A TreeSet is used to maintain the test
-   * order. Should synchronise on <code>m_test</code> before
-   * accessing it.
+   * order. Guarded by itself.
    */
   private final Set m_tests = new TreeSet();
 
-  /**
-   * A {@link SampleAccumulator} for each test.
-   */
-  private final Map m_accumulators =
-    Collections.synchronizedMap(new HashMap());
-
-  private final SampleAccumulator m_totalSampleAccumulator;
-
-  private final ConsoleProperties m_properties;
-  private final StatisticsServices m_statisticsServices;
-
-  private int m_sampleInterval;
-  private int m_state = 0;
-  private long m_sampleCount = 0;
-  private boolean m_receivedReport = false;
-  private boolean m_receivedReportInLastInterval = false;
-
-  private final ListenerSupport m_modelListeners = new ListenerSupport();
+  private final ListenerSupport m_listeners = new ListenerSupport();
 
   private final StatisticsIndexMap.LongIndex m_periodIndex;
   private final StatisticExpression m_tpsExpression;
   private final PeakStatisticExpression m_peakTPSExpression;
-  private final Sampler m_sampler = new Sampler();
+
+  private final SampleAccumulator m_totalSampleAccumulator;
 
   /**
-   * System.currentTimeMillis() is expensive. This is accurate to one
-   * sample interval.
+   * A {@link SampleAccumulator} for each test. Guarded by itself.
    */
-  private long m_currentTime;
+  private final Map m_accumulators = Collections.synchronizedMap(new HashMap());
+
+  // Guarded by this.
+  private InternalState m_state;
 
   /**
    * Creates a new <code>SampleModelImplementation</code> instance.
    *
    * @param properties The console properties.
    * @param statisticsServices Statistics services.
+   * @param timer A timer.
+   * @param resources Console resources.
+   *
    * @exception GrinderException if an error occurs
    */
   public SampleModelImplementation(ConsoleProperties properties,
-                             StatisticsServices statisticsServices)
+                                   StatisticsServices statisticsServices,
+                                   Timer timer,
+                                   Resources resources)
     throws GrinderException {
 
     m_properties = properties;
     m_statisticsServices = statisticsServices;
+    m_timer = timer;
 
-    m_sampleInterval = m_properties.getSampleInterval();
+    m_stateIgnoringString = resources.getString("state.ignoring.label") + ' ';
+    m_stateWaitingString = resources.getString("state.waiting.label");
+    m_stateStoppedString = resources.getString("state.stopped.label");
+    m_stateCapturingString = resources.getString("state.capturing.label") + ' ';
 
     final StatisticsIndexMap indexMap =
       statisticsServices.getStatisticsIndexMap();
@@ -139,17 +137,7 @@ public final class SampleModelImplementation implements SampleModel {
       new SampleAccumulator(m_peakTPSExpression, m_periodIndex,
                             m_statisticsServices.getStatisticsSetFactory());
 
-    setState(STATE_WAITING_FOR_TRIGGER);
-
-    new Thread(m_sampler).start();
-
-    m_properties.addPropertyChangeListener(
-      ConsoleProperties.SAMPLE_INTERVAL_PROPERTY,
-      new PropertyChangeListener() {
-        public void propertyChange(PropertyChangeEvent event) {
-          m_sampleInterval = ((Integer)event.getNewValue()).intValue();
-        }
-      });
+    start();
   }
 
   /**
@@ -200,7 +188,7 @@ public final class SampleModelImplementation implements SampleModel {
 
       m_tests.addAll(newTests);
 
-      // Create a index of m_tests sorted by test number.
+      // Create an index of m_tests sorted by test number.
       testArray = (Test[])m_tests.toArray(new Test[0]);
     }
 
@@ -227,7 +215,7 @@ public final class SampleModelImplementation implements SampleModel {
     final ModelTestIndex modelTestIndex =
       new ModelTestIndex(testArray, accumulatorArray);
 
-    m_modelListeners.apply(
+    m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
           ((ModelListener)listener).newTests(newTests, modelTestIndex);
@@ -250,7 +238,7 @@ public final class SampleModelImplementation implements SampleModel {
    * @param listener The listener.
    */
   public void addModelListener(ModelListener listener) {
-    m_modelListeners.add(listener);
+    m_listeners.add(listener);
   }
 
   /**
@@ -260,7 +248,12 @@ public final class SampleModelImplementation implements SampleModel {
    * @param listener The sample listener.
    */
   public void addSampleListener(Test test, SampleListener listener) {
-    ((SampleAccumulator)m_accumulators.get(test)).addSampleListener(listener);
+    final SampleAccumulator sampleAccumulator =
+      (SampleAccumulator)m_accumulators.get(test);
+
+    if (sampleAccumulator != null) {
+      sampleAccumulator.addSampleListener(listener);
+    }
   }
 
   /**
@@ -270,15 +263,6 @@ public final class SampleModelImplementation implements SampleModel {
    */
   public void addTotalSampleListener(SampleListener listener) {
     m_totalSampleAccumulator.addSampleListener(listener);
-  }
-
-  private void fireModelUpdate() {
-    m_modelListeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((ModelListener)listener).update();
-        }
-      });
   }
 
   /**
@@ -293,7 +277,7 @@ public final class SampleModelImplementation implements SampleModel {
     m_accumulators.clear();
     m_totalSampleAccumulator.zero();
 
-    m_modelListeners.apply(
+    m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
           ((ModelListener)listener).resetTests();
@@ -302,30 +286,139 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Start  the model.
+   * Start the model.
    */
   public void start() {
-    setState(STATE_WAITING_FOR_TRIGGER);
-    fireModelUpdate();
+    setInternalState(new WaitingForTriggerState());
   }
 
   /**
    * Stop the model.
    */
   public void stop() {
-    setState(STATE_STOPPED);
-    fireModelUpdate();
+    setInternalState(new StoppedState());
   }
 
   /**
    * Add a new test report.
+   *
    * @param testStatisticsMap The new test statistics.
    */
   public void addTestReport(TestStatisticsMap testStatisticsMap) {
+    getInternalState().newTestReport(testStatisticsMap);
+  }
 
-    m_receivedReport = true;
+  /**
+   * Get the current model state.
+   *
+   * @return The model state.
+   */
+  public State getState() {
+    return getInternalState().toExternalState();
+  }
 
-    if (getState() == STATE_CAPTURING) {
+  private void zero() {
+    synchronized (m_accumulators) {
+      final Iterator iterator = m_accumulators.values().iterator();
+
+      while (iterator.hasNext()) {
+        final SampleAccumulator sampleAccumulator =
+          (SampleAccumulator)iterator.next();
+        sampleAccumulator.zero();
+      }
+    }
+
+    m_totalSampleAccumulator.zero();
+  }
+
+  private InternalState getInternalState() {
+    synchronized (this) {
+      return m_state;
+    }
+  }
+
+  private void setInternalState(InternalState newState) {
+    synchronized (this) {
+      m_state = newState;
+    }
+
+    m_listeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((ModelListener)listener).stateChanged();
+        }
+      });
+  }
+
+  private interface InternalState {
+    State toExternalState();
+
+    void newTestReport(TestStatisticsMap testStatisticsMap);
+  }
+
+  private abstract class AbstractInternalState
+    implements InternalState, State {
+
+    protected final boolean isActiveState() {
+      return getInternalState() == this;
+    }
+
+    public State toExternalState() {
+      // We don't bother cloning the state, only the description varies.
+      return this;
+    }
+
+    public boolean isCapturing() {
+      return false;
+    }
+
+    public boolean isStopped() {
+      return false;
+    }
+  }
+
+  private final class WaitingForTriggerState extends AbstractInternalState {
+    public WaitingForTriggerState() {
+      zero();
+    }
+
+    public void newTestReport(TestStatisticsMap testStatisticsMap) {
+      if (m_properties.getIgnoreSampleCount() == 0) {
+        setInternalState(new CapturingState());
+
+        // Ensure the the first sample is recorded.
+        getInternalState().newTestReport(testStatisticsMap);
+      }
+      else {
+        setInternalState(new TriggeredState());
+      }
+    }
+
+    public String getDescription() {
+      return m_stateWaitingString;
+    }
+  }
+
+  private final class StoppedState extends AbstractInternalState {
+    public void newTestReport(TestStatisticsMap testStatisticsMap) {
+    }
+
+    public String getDescription() {
+      return m_stateStoppedString;
+    }
+
+    public boolean isStopped() {
+      return true;
+    }
+  }
+
+  private abstract class SamplingState extends AbstractInternalState {
+    // Guarded by this.
+    private long m_lastTime = 0;
+
+    private volatile long m_sampleCount = 1;
+
+    public void newTestReport(TestStatisticsMap testStatisticsMap) {
       testStatisticsMap.new ForEach() {
         public void next(Test test, StatisticsSet statistics) {
           final SampleAccumulator sampleAccumulator =
@@ -335,64 +428,52 @@ public final class SampleModelImplementation implements SampleModel {
             System.err.println("Ignoring unknown test: " + test);
           }
           else {
-            sampleAccumulator.add(statistics);
+            sampleAccumulator.addIntervalStatistics(statistics);
+
+            if (shouldAccumulateSamples()) {
+              sampleAccumulator.addCumulativeStaticstics(statistics);
+            }
 
             if (!statistics.isComposite()) {
-              m_totalSampleAccumulator.add(statistics);
+              m_totalSampleAccumulator.addIntervalStatistics(statistics);
+
+              if (shouldAccumulateSamples()) {
+                m_totalSampleAccumulator.addCumulativeStaticstics(statistics);
+              }
             }
           }
         }
       }
       .iterate();
     }
-    else if (getState() == STATE_WAITING_FOR_TRIGGER &&
-             m_properties.getIgnoreSampleCount() == 0) {
-      synchronized (m_sampler) {
-        m_sampler.notifyAll();
+
+    protected void schedule() {
+      synchronized (this) {
+        if (m_lastTime == 0) {
+          m_lastTime = System.currentTimeMillis();
+        }
       }
+
+      m_timer.schedule(
+        new TimerTask() {
+          public void run() { sample(); }
+        },
+        m_properties.getSampleInterval());
     }
-  }
 
-  /**
-   * I've thought a couple of times about replacing this with a
-   * java.util.TimerTask, and giving SampleModelImplementation a Timer thread.
-   * It's not as nice as it first seems though because you have to deal with
-   * cancelling and rescheduling the TimerTask when the sample period
-   * is changed.
-   */
-  private final class Sampler implements Runnable {
-    public void run() {
-      while (true) {
-        m_currentTime = System.currentTimeMillis();
+    public final void sample() {
+      if (!isActiveState()) {
+        return;
+      }
 
-        final long sampleInterval = m_sampleInterval;
+      try {
+        final long period;
 
-        final long wakeUpTime = m_currentTime + sampleInterval;
-
-        while (m_currentTime < wakeUpTime) {
-          try {
-            synchronized (this) {
-              wait(wakeUpTime - m_currentTime);
-
-              if (getState() == STATE_WAITING_FOR_TRIGGER &&
-                  m_properties.getIgnoreSampleCount() == 0 &&
-                  m_receivedReport) {
-                m_currentTime = System.currentTimeMillis();
-                break;
-              }
-            }
-
-            m_currentTime = wakeUpTime;
-          }
-          catch (InterruptedException e) {
-            throw new UncheckedInterruptedException(e);
-          }
+        synchronized (this) {
+          period = System.currentTimeMillis() - m_lastTime;
         }
 
-        final int state = getState();
-
-        final long period =
-          (state == STATE_STOPPED ? m_stopTime : m_currentTime) - m_startTime;
+        final long sampleInterval = m_properties.getSampleInterval();
 
         synchronized (m_accumulators) {
           final Iterator iterator = m_accumulators.values().iterator();
@@ -406,105 +487,87 @@ public final class SampleModelImplementation implements SampleModel {
 
         m_totalSampleAccumulator.fireSample(sampleInterval, period);
 
-        if (m_receivedReport) {
-          ++m_sampleCount;
-          m_receivedReportInLastInterval = true;
-        }
-        else {
-          m_receivedReportInLastInterval = false;
-        }
+        ++m_sampleCount;
 
-        if (state == STATE_CAPTURING) {
-          if (m_receivedReport) {
-            final int collectSampleCount =
-              m_properties.getCollectSampleCount();
+        // I'm ignoring a minor race here: the model could have been stopped
+        // after the task was started.
+        // We call setInternalState() even if the InternalState hasn't
+        // changed since we've altered the sample count.
+        setInternalState(nextState());
 
-            if (collectSampleCount != 0 &&
-                m_sampleCount >= collectSampleCount) {
-              setState(STATE_STOPPED);
+        m_listeners.apply(
+          new ListenerSupport.Informer() {
+            public void inform(Object listener) {
+              ((ModelListener)listener).newSample();
             }
-          }
-        }
-        else if (state == STATE_WAITING_FOR_TRIGGER) {
-          if (m_receivedReport &&
-              m_sampleCount >= m_properties.getIgnoreSampleCount()) {
-            setState(STATE_CAPTURING);
-          }
-        }
-
-        fireModelUpdate();
-
-        m_receivedReport = false;
+          });
       }
-    }
-  }
-
-  /**
-   * Get the current sample count.
-   *
-   * @return The sample count.
-   */
-  public long getSampleCount() {
-    return m_sampleCount;
-  }
-
-  /**
-   * Whether or not a report was received in the last interval.
-   * @return <code>true</code> => yes there was a report.
-   */
-  public boolean getReportsRecentlyReceived() {
-    return m_receivedReportInLastInterval;
-  }
-
-  /**
-   * Get the current model state.
-   *
-   * @return The model state.
-   */
-  public int getState() {
-    return m_state;
-  }
-
-  private void zero() {
-
-    synchronized (m_accumulators) {
-      final Iterator iterator = m_accumulators.values().iterator();
-
-      while (iterator.hasNext()) {
-        final SampleAccumulator sampleAccumulator =
-          (SampleAccumulator)iterator.next();
-        sampleAccumulator.zero();
+      finally {
+        synchronized (this) {
+          if (isActiveState()) {
+            schedule();
+          }
+        }
       }
     }
 
-    m_totalSampleAccumulator.zero();
+    public final long getSampleCount() {
+      return m_sampleCount;
+    }
 
-    m_startTime = m_currentTime;
+    protected abstract boolean shouldAccumulateSamples();
 
-    fireModelUpdate();
+    protected abstract InternalState nextState();
   }
 
-  private void setState(int i) {
-    if (i != STATE_WAITING_FOR_TRIGGER &&
-        i != STATE_STOPPED &&
-        i != STATE_CAPTURING) {
-      throw new IllegalArgumentException("Unknown state: " + i);
+  private final class TriggeredState extends SamplingState {
+    public TriggeredState() {
+      schedule();
     }
 
-    if (i == STATE_WAITING_FOR_TRIGGER) {
-      // Zero everything because it looks pretty.
+    protected boolean shouldAccumulateSamples() {
+      return false;
+    }
+
+    protected InternalState nextState() {
+      if (getSampleCount() > m_properties.getIgnoreSampleCount()) {
+        return new CapturingState();
+      }
+
+      return this;
+    }
+
+    public String getDescription() {
+      return m_stateIgnoringString + getSampleCount();
+    }
+  }
+
+  private final class CapturingState extends SamplingState {
+    public CapturingState() {
       zero();
+      schedule();
     }
 
-    if (i == STATE_CAPTURING) {
-      zero();
+    protected boolean shouldAccumulateSamples() {
+      return true;
     }
 
-    if (m_state != STATE_STOPPED && i == STATE_STOPPED) {
-      m_stopTime = m_currentTime;
+    protected InternalState nextState() {
+      final int collectSampleCount = m_properties.getCollectSampleCount();
+
+      if (collectSampleCount != 0 && getSampleCount() > collectSampleCount) {
+        return new StoppedState();
+      }
+
+      return this;
     }
 
-    m_sampleCount = 0;
-    m_state = i;
+    public String getDescription() {
+      return m_stateCapturingString + getSampleCount();
+    }
+
+    public boolean isCapturing() {
+      return true;
+    }
   }
 }

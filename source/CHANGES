@@ -7,6 +7,12 @@ The Grinder 3.0.2 (not yet released).
 
   Add ConsoleConnection.stopAgents(), requested by Andreas Spall.
 
+  Refine console sampling model:
+  - Fix bug 1618759 - Console should not discard first sample.
+  - Count empty samples when deciding when to stop recording.
+  - Count empty samples when triggered and ignoring samples.
+  - Display sample data when triggered and ignoring samples.
+
 
 The Grinder 3.0.1
 -----------------

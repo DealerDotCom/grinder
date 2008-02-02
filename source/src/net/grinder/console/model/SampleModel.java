@@ -39,34 +39,12 @@ import net.grinder.statistics.TestStatisticsQueries;
 public interface SampleModel {
 
   /**
-   * Constant that represents the model state of <em>waiting for a
-   * trigger</em>.
-   * @see #getState
-   */
-  int STATE_WAITING_FOR_TRIGGER = 0;
-
-  /**
-   * Constant that represents the model state of <em>stopped statistics
-   * capture</em>.
-   * @see #getState
-   */
-  int STATE_STOPPED = 1;
-
-  /**
-   * Constant that represents the model state of <em>statistics capture
-   * in progress</em>.
-   * @see #getState
-   */
-  int STATE_CAPTURING = 2;
-
-
-  /**
    * Reset the model.
    */
   void reset();
 
   /**
-   * Start  the model.
+   * Start the model.
    */
   void start();
 
@@ -79,24 +57,37 @@ public interface SampleModel {
    * Get the current model state.
    *
    * @return The model state.
-   * @see #STATE_WAITING_FOR_TRIGGER
-   * @see #STATE_CAPTURING
-   * @see #STATE_STOPPED
    */
-  int getState();
+  State getState();
 
   /**
-   * Whether or not a report was received in the last interval.
-   * @return <code>true</code> => yes there was a report.
-   */
-  boolean getReportsRecentlyReceived();
-
-  /**
-   * Get the current sample count.
+   * A snapshot of the model state.
    *
-   * @return The sample count.
+   * @see SampleModel#getState()
    */
-  long getSampleCount();
+  interface State {
+
+    /**
+     * A presentable description of the state.
+     *
+     * @return The description.
+     */
+    String getDescription();
+
+    /**
+     * Whether the model is capturing samples.
+     *
+     * @return <code>true</code> if and only if the model is capturing samples.
+     */
+    boolean isCapturing();
+
+    /**
+     * Whether the model is stopped.
+     *
+     * @return <code>true</code> if and only if the model is stopped.
+     */
+    boolean isStopped();
+  }
 
   /**
    * Get the statistics expression for TPS.

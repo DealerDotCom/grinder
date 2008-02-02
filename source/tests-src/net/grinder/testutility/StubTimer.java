@@ -42,6 +42,13 @@ public final class StubTimer extends Timer {
     m_lastPeriod = period;
   }
 
+  public void schedule(TimerTask timerTask, long delay) {
+    m_lastScheduledTimerTask = timerTask;
+    m_lastDelay = delay;
+    m_lastPeriod = 0;
+  }
+
+
   public TimerTask getLastScheduledTimerTask() {
     return m_lastScheduledTimerTask;
   }

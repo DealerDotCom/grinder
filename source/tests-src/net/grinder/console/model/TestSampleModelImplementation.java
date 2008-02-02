@@ -1,0 +1,410 @@
+// Copyright (C) 2008 Philip Aston
+// All rights reserved.
+//
+// This file is part of The Grinder software distribution. Refer to
+// the file LICENSE which is part of The Grinder distribution for
+// licensing details. The Grinder distribution is available on the
+// Internet at http://grinder.sourceforge.net/
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+// OF THE POSSIBILITY OF SUCH DAMAGE.
+
+package net.grinder.console.model;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TimerTask;
+
+import net.grinder.common.StubTest;
+import net.grinder.common.Test;
+import net.grinder.console.common.Resources;
+import net.grinder.console.common.StubResources;
+import net.grinder.console.model.SampleModel.State;
+import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.StatisticsServices;
+import net.grinder.statistics.StatisticsServicesImplementation;
+import net.grinder.statistics.StatisticsSet;
+import net.grinder.statistics.TestStatisticsMap;
+import net.grinder.statistics.TestStatisticsQueries;
+import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.RandomStubFactory;
+import net.grinder.testutility.StubTimer;
+
+
+/**
+ * Unit tests for {@link SampleModelImplementation}.
+ *
+ * @author Philip Aston
+ * @version $Revision:$
+ */
+public class TestSampleModelImplementation extends AbstractFileTestCase {
+
+  private final Resources m_resources = new StubResources(
+    new HashMap() {{
+      put("state.ignoring.label", "whatever");
+      put("state.waiting.label", "waiting, waiting, waiting");
+      put("state.stopped.label", "done");
+      put("state.capturing.label", "running");
+    }}
+  );
+
+  private ConsoleProperties m_consoleProperties;
+
+  private StatisticsServices m_statisticsServices =
+    StatisticsServicesImplementation.getInstance();
+
+  private final StubTimer m_timer = new StubTimer();
+
+  private final RandomStubFactory m_listenerStubFactory =
+    new RandomStubFactory(ModelListener.class);
+  private final ModelListener m_listener =
+    (ModelListener)m_listenerStubFactory.getStub();
+
+  protected void setUp() throws Exception {
+    super.setUp();
+    m_consoleProperties =
+      new ConsoleProperties(null, new File(getDirectory(), "props"));
+  }
+
+  public void testConstruction() throws Exception {
+    final SampleModelImplementation sampleModelImplementation =
+      new SampleModelImplementation(
+        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+
+    final StatisticExpression tpsExpression =
+      sampleModelImplementation.getTPSExpression();
+    assertNotNull(tpsExpression);
+    assertSame(tpsExpression, sampleModelImplementation.getTPSExpression());
+
+    final StatisticExpression peakTPSExpression =
+      sampleModelImplementation.getPeakTPSExpression();
+    assertNotNull(peakTPSExpression);
+    assertSame(
+      peakTPSExpression, sampleModelImplementation.getPeakTPSExpression());
+    assertNotSame(tpsExpression, peakTPSExpression);
+
+    final TestStatisticsQueries statisticsQueries =
+      sampleModelImplementation.getTestStatisticsQueries();
+    assertNotNull(statisticsQueries);
+    assertSame(statisticsQueries,
+               m_statisticsServices.getTestStatisticsQueries());
+
+    final StatisticsSet totalCumulativeStatistics =
+      sampleModelImplementation.getTotalCumulativeStatistics();
+    assertNotNull(totalCumulativeStatistics);
+    assertSame(totalCumulativeStatistics,
+               sampleModelImplementation.getTotalCumulativeStatistics());
+
+    final State state = sampleModelImplementation.getState();
+    assertFalse(state.isStopped());
+    assertFalse(state.isCapturing());
+    assertEquals("waiting, waiting, waiting", state.getDescription());
+    assertNull(m_timer.getLastScheduledTimerTask());
+  }
+
+  public void testRegisterTests() throws Exception {
+    final SampleModelImplementation sampleModelImplementation =
+      new SampleModelImplementation(
+        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+
+    sampleModelImplementation.addModelListener(m_listener);
+
+    sampleModelImplementation.registerTests(Collections.EMPTY_SET);
+    m_listenerStubFactory.assertNoMoreCalls();
+
+    final Test test1 = new StubTest(1, "test 1");
+    final Test test2 = new StubTest(2, "test 2");
+    final Test test3 = new StubTest(3, "test 3");
+    final Test test4 = new StubTest(4, "test 4");
+
+    final List testList = new ArrayList() { {
+      add(test2);
+      add(test1);
+      add(test3);
+    } };
+
+    sampleModelImplementation.registerTests(testList);
+
+    Object[] callbackParameters = m_listenerStubFactory.assertSuccess(
+      "newTests", Set.class, ModelTestIndex.class).getParameters();
+    m_listenerStubFactory.assertNoMoreCalls();
+
+    Collections.sort(testList);
+
+    final Set callbackTestSet = (Set)callbackParameters[0];
+    assertTrue(testList.containsAll(callbackTestSet));
+    assertTrue(callbackTestSet.containsAll(testList));
+
+    final ModelTestIndex modelIndex = (ModelTestIndex)callbackParameters[1];
+    assertEquals(testList.size(), modelIndex.getNumberOfTests());
+    assertEquals(testList.size(), modelIndex.getAccumulatorArray().length);
+
+    for (int i = 0; i < modelIndex.getNumberOfTests(); ++i) {
+      assertEquals(testList.get(i), modelIndex.getTest(i));
+    }
+
+    final List testList2 = new ArrayList() { {
+      add(test2);
+      add(test4);
+    } };
+
+    sampleModelImplementation.registerTests(testList2);
+
+    Object[] callbackParameters2 = m_listenerStubFactory.assertSuccess(
+      "newTests", Set.class, ModelTestIndex.class).getParameters();
+    m_listenerStubFactory.assertNoMoreCalls();
+
+    final Set expectedNewTests = new HashSet() { {
+      add(test4);
+    } };
+
+    final Set callbackTestSet2 = (Set)callbackParameters2[0];
+    assertTrue(expectedNewTests.containsAll(callbackTestSet2));
+    assertTrue(callbackTestSet2.containsAll(expectedNewTests));
+
+    final ModelTestIndex modelIndex2 = (ModelTestIndex)callbackParameters2[1];
+    assertEquals(4, modelIndex2.getNumberOfTests());
+    assertEquals(4, modelIndex2.getAccumulatorArray().length);
+
+    sampleModelImplementation.registerTests(testList2);
+    m_listenerStubFactory.assertNoMoreCalls();
+  }
+
+  public void testWaitingToStopped() throws Exception {
+    final SampleModelImplementation sampleModelImplementation =
+      new SampleModelImplementation(
+        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+
+    sampleModelImplementation.addModelListener(m_listener);
+
+    final State state = sampleModelImplementation.getState();
+    assertFalse(state.isStopped());
+    assertFalse(state.isCapturing());
+    assertEquals("waiting, waiting, waiting", state.getDescription());
+
+    m_listenerStubFactory.assertNoMoreCalls();
+
+
+    sampleModelImplementation.stop();
+
+    m_listenerStubFactory.assertSuccess("stateChanged");
+
+    final State stoppedState = sampleModelImplementation.getState();
+    assertTrue(stoppedState.isStopped());
+    assertFalse(stoppedState.isCapturing());
+    assertEquals("done", stoppedState.getDescription());
+
+
+    sampleModelImplementation.addTestReport(new TestStatisticsMap());
+
+    final State stoppedState2 = sampleModelImplementation.getState();
+    assertTrue(stoppedState2.isStopped());
+    assertFalse(stoppedState2.isCapturing());
+    assertEquals("done", stoppedState2.getDescription());
+
+
+    assertNull(m_timer.getLastScheduledTimerTask());
+  }
+
+  public void testWaitingToTriggeredToCapturingToStopped() throws Exception {
+    final SampleModelImplementation sampleModelImplementation =
+      new SampleModelImplementation(
+        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+
+    final TestStatisticsMap testStatisticsMap = new TestStatisticsMap();
+
+
+    sampleModelImplementation.addModelListener(m_listener);
+
+    final State waitingState = sampleModelImplementation.getState();
+    assertFalse(waitingState.isStopped());
+    assertFalse(waitingState.isCapturing());
+    assertEquals("waiting, waiting, waiting", waitingState.getDescription());
+
+    m_listenerStubFactory.assertNoMoreCalls();
+
+
+    m_consoleProperties.setIgnoreSampleCount(10);
+
+    sampleModelImplementation.addTestReport(testStatisticsMap);
+
+    final State triggeredState = sampleModelImplementation.getState();
+    assertFalse(triggeredState.isStopped());
+    assertFalse(triggeredState.isCapturing());
+    assertEquals("whatever 1", triggeredState.getDescription());
+
+
+    final TimerTask triggeredSampleTask = m_timer.getLastScheduledTimerTask();
+    triggeredSampleTask.run();
+
+    assertEquals("whatever 2", triggeredState.getDescription());
+
+
+    sampleModelImplementation.addTestReport(testStatisticsMap);
+    sampleModelImplementation.addTestReport(testStatisticsMap);
+    sampleModelImplementation.addTestReport(testStatisticsMap);
+    triggeredSampleTask.run();
+
+    assertEquals("whatever 3",
+                 sampleModelImplementation.getState().getDescription());
+
+
+    for (int i = 0; i < 4; ++i) {
+      triggeredSampleTask.run();
+    }
+
+    assertEquals("whatever 7",
+      sampleModelImplementation.getState().getDescription());
+
+
+    triggeredSampleTask.run();
+
+    assertEquals("whatever 8",
+      sampleModelImplementation.getState().getDescription());
+    assertFalse(sampleModelImplementation.getState().isCapturing());
+
+    for (int i = 0; i < 3; ++i) {
+      sampleModelImplementation.addTestReport(testStatisticsMap);
+      triggeredSampleTask.run();
+    }
+
+    final State capturingStart = sampleModelImplementation.getState();
+    assertFalse(capturingStart.isStopped());
+    assertTrue(capturingStart.isCapturing());
+    assertEquals("running 1", capturingStart.getDescription());
+
+
+    sampleModelImplementation.addTestReport(testStatisticsMap);
+
+    assertEquals("running 1",
+      sampleModelImplementation.getState().getDescription());
+
+
+    final TimerTask capturingSampleTask = m_timer.getLastScheduledTimerTask();
+    assertNotSame(triggeredSampleTask, capturingSampleTask);
+    capturingSampleTask.run();
+
+    assertEquals("running 2",
+      sampleModelImplementation.getState().getDescription());
+
+
+    sampleModelImplementation.addTestReport(testStatisticsMap);
+    capturingSampleTask.run();
+
+    assertEquals("running 3",
+      sampleModelImplementation.getState().getDescription());
+
+
+    m_consoleProperties.setCollectSampleCount(2);
+    capturingSampleTask.run();
+
+    assertEquals("done", sampleModelImplementation.getState().getDescription());
+  }
+
+  public void testReset() throws Exception {
+    final SampleModelImplementation sampleModelImplementation =
+      new SampleModelImplementation(
+        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+    sampleModelImplementation.addModelListener(m_listener);
+
+    sampleModelImplementation.reset();
+
+    m_listenerStubFactory.assertSuccess("resetTests");
+  }
+
+  public void testSampleListeners() throws Exception {
+    final SampleModelImplementation sampleModelImplementation =
+      new SampleModelImplementation(
+        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+
+    final RandomStubFactory totalSampleListenerStubFactory =
+      new RandomStubFactory(SampleListener.class);
+    final SampleListener totalSampleListener =
+      (SampleListener)totalSampleListenerStubFactory.getStub();
+
+    sampleModelImplementation.addTotalSampleListener(totalSampleListener);
+
+    final Test test1 = new StubTest(1, "test 1");
+    final Test test2 = new StubTest(2, "test 2");
+    final Test test3 = new StubTest(3, "test 3");
+    final Test test4 = new StubTest(4, "test 4");
+
+    final RandomStubFactory sampleListenerStubFactory =
+      new RandomStubFactory(SampleListener.class);
+    final SampleListener sampleListener =
+      (SampleListener)sampleListenerStubFactory.getStub();
+
+    // Adding a listener for a test that isn't registered is a no-op.
+    sampleModelImplementation.addSampleListener(test1, sampleListener);
+
+
+    final Set testSet = new HashSet() { {
+      add(test2);
+      add(test4);
+    } };
+
+    sampleModelImplementation.registerTests(testSet);
+    sampleModelImplementation.addSampleListener(test2, sampleListener);
+
+
+    sampleModelImplementation.reset();
+    sampleListenerStubFactory.assertNoMoreCalls();
+
+
+    final TestStatisticsMap testReports = new TestStatisticsMap();
+    final StatisticsSet statistics1 =
+      m_statisticsServices.getStatisticsSetFactory().create();
+    final StatisticsSet statistics2 =
+      m_statisticsServices.getStatisticsSetFactory().create();
+    statistics2.setIsComposite();
+    testReports.put(test2, statistics1);
+    testReports.put(test3, statistics2);
+    testReports.put(test4, statistics2);
+
+
+    sampleModelImplementation.registerTests(testSet);
+    sampleModelImplementation.addSampleListener(test2, sampleListener);
+    sampleModelImplementation.addTestReport(testReports);
+
+    totalSampleListenerStubFactory.assertNoMoreCalls();
+    sampleListenerStubFactory.assertNoMoreCalls();
+
+
+    final TimerTask capturingTask = m_timer.getLastScheduledTimerTask();
+    capturingTask.run();
+
+    sampleListenerStubFactory.assertSuccess(
+      "update", StatisticsSet.class, StatisticsSet.class);
+    sampleListenerStubFactory.assertNoMoreCalls();
+
+    totalSampleListenerStubFactory.assertSuccess(
+      "update", StatisticsSet.class, StatisticsSet.class);
+    totalSampleListenerStubFactory.assertNoMoreCalls();
+
+
+    capturingTask.run();
+
+    sampleListenerStubFactory.assertSuccess(
+      "update", StatisticsSet.class, StatisticsSet.class);
+    sampleListenerStubFactory.assertNoMoreCalls();
+
+    totalSampleListenerStubFactory.assertSuccess(
+      "update", StatisticsSet.class, StatisticsSet.class);
+    totalSampleListenerStubFactory.assertNoMoreCalls();
+  }
+}

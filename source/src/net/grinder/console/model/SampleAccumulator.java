@@ -63,8 +63,11 @@ final class SampleAccumulator {
     m_listeners.add(listener);
   }
 
-  public void add(StatisticsSet report) {
+  public void addIntervalStatistics(StatisticsSet report) {
     m_intervalStatistics.add(report);
+  }
+
+  public void addCumulativeStaticstics(StatisticsSet report) {
     m_cumulativeStatistics.add(report);
   }
 

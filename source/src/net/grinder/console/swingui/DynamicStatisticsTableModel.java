@@ -149,6 +149,14 @@ abstract class DynamicStatisticsTableModel
     addColumns(statisticsView);
   }
 
+  public final void stateChanged() {
+    fireTableRowsUpdated(0, getRowCount());
+  }
+
+  public final synchronized void newSample() {
+    fireTableRowsUpdated(0, getRowCount());
+  }
+
   public final synchronized void newTests(Set newTests,
                                           ModelTestIndex modelTestIndex) {
 
@@ -156,10 +164,6 @@ abstract class DynamicStatisticsTableModel
 
     // We've been reset, number of rows may have changed.
     fireTableDataChanged();
-  }
-
-  public final synchronized void update() {
-    fireTableRowsUpdated(0, getRowCount());
   }
 
   public final synchronized void resetTests() {
