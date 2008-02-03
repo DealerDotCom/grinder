@@ -389,20 +389,20 @@ filter doesn't directly support
 off-setting test numbers. However, its simple to do in the script.</p>
 
 <p>Edit the recorded script to replace:
-	<pre>
-    from net.grinder.script import Test
-    </pre>
+<source>
+from net.grinder.script import Test
+</source>
 
 with:
 
-<pre>
-    from net.grinder.script import Test as StandardTest
+<source>
+from net.grinder.script import Test as StandardTest
 
-    class Test(StandardTest):
-        def __init__(self, number, description):
-            # Adjust the 1000 to the appropriate offset.
-            StandardTest.__init__(self, number + 1000, description)
-</pre>
+class Test(StandardTest):
+    def __init__(self, number, description):
+        # Adjust the 1000 to the appropriate offset.
+        StandardTest.__init__(self, number + 1000, description)
+</source>
 
 <p>This technique doesn't allow different test scripts to be merged together
 into one. If you want to do this, you might consider a <a href="#Stylesheets">
