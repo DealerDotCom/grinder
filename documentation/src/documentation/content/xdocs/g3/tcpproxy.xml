@@ -388,12 +388,12 @@ number uniquely identifies the test in the console and the data logs.</p>
 filter doesn't directly support
 off-setting test numbers. However, its simple to do in the script.</p>
 
-<p>Edit the recorded script to replace:
+<p>Edit the recorded script to replace:</p>
 <source>
 from net.grinder.script import Test
 </source>
 
-with:
+<p>with:</p>
 
 <source>
 from net.grinder.script import Test as StandardTest
@@ -403,14 +403,13 @@ class Test(StandardTest):
         # Adjust the 1000 to the appropriate offset.
         StandardTest.__init__(self, number + 1000, description)
 </source>
-</p>
+
 
 <p>This technique doesn't allow different test scripts to be merged together
 into one. If you want to do this, you might consider a <a href="#Stylesheets">
 custom stylesheet</a>; but be aware that you might also have to alter the
 identifiers used for headers, URLs, pages, tokens, and so on.</p>
 
-   </p>
   </section>
 
   </section>
