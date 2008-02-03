@@ -62,6 +62,8 @@ See http://forrest.apache.org/docs/linking.html for more info
       <script-gallery label="Script Gallery" href="script-gallery.html">
         <helloworldfunctions href="#helloworldfunctions"/>
         <statistics href="#statistics"/>
+        <sequence href="#sequence"/>
+        <parallel href="#parallel"/>
       </script-gallery>
       <script-api label="Script API" href="ext:grinder/g3/api"/>
     </scripts>

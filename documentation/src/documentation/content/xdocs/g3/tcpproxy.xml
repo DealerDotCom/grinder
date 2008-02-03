@@ -152,13 +152,13 @@ GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F
   </section>
 
   <section id="HTTPPluginTCPProxyFilter">
-    <title>Using the HTTPPluginTCPProxyFilters</title>
+    <title>Using the HTTP TCPProxy filters</title>
 
     <p>You can use the TCPProxy to generate an HTTP script
     suitable for use with The Grinder. The Grinder provides a pair
     of HTTP filters for this purpose. These filters are enabled by the
     <code>-http</code> command line option.</p>
-  
+
   <p>The first step is to start the TCPProxy with an HTTP filter:</p>
 
 <source>
@@ -182,9 +182,10 @@ parameters:
   <p>The console (initiated by <em>-console</em>) displays a simple control window that allows the TCPProxy
    to be shut down cleanly. This is needed because some terminal shells, e.g. Cygwin bash,
    do not allow Java processes to be interrupted cleanly, so filters cannot rely
-   on standard shutdown hooks. The console looks like this:</p>
+   on standard shutdown hooks. The console also allows a user to add ad-hoc commentary to the script
+   during the recording. The console looks like this:</p>
 
-  <figure src="../images/tcpproxy-console.png" width="175" height="63"
+  <figure src="../images/tcpproxy-console.png" width="503" height="60"
     alt="TCPProxy Console"/>
 
   <p>The TCPProxy console will be incorporated into the main <a href="site:console">console</a> in
@@ -370,6 +371,45 @@ instrumentMethod(Test(200, 'Page 2'), 'page2')
 <source>java net.grinder.TCPProxy -http etc/httpToXML.xsl -console</source>
 
   <p>The model confirms to the XML schema <code>etc/tcpproxy-http.xsd</code>.</p>
+  </section>
+
+  <section id="offset-test-numbers">
+  	<title>How to offset test numbers</title>
+   <p>
+   If sometimes useful to offset test numbers for a test script when
+running several different scripts together, perhaps using the
+<a href="site:script-gallery/sequence">sequence</a>, or
+<a href="site:script-gallery/parallel">parallel</a> examples
+from the script gallery. This gives the tests contributed by each script
+a distinct range of test numbers, which is important because the test
+number uniquely identifies the test in the console and the data logs.</p>
+
+<p>The HTTP TCPProxy
+filter doesn't directly support
+off-setting test numbers. However, its simple to do in the script.</p>
+
+<p>Edit the recorded script to replace:
+	<pre>
+    from net.grinder.script import Test
+    </pre>
+
+with:
+
+<pre>
+    from net.grinder.script import Test as StandardTest
+
+    class Test(StandardTest):
+        def __init__(self, number, description):
+            # Adjust the 1000 to the appropriate offset.
+            StandardTest.__init__(self, number + 1000, description)
+</pre>
+
+<p>This technique doesn't allow different test scripts to be merged together
+into one. If you want to do this, you might consider a <a href="#Stylesheets">
+custom stylesheet</a>; but be aware that you might also have to alter the
+identifiers used for headers, URLs, pages, tokens, and so on.</p>
+
+   </p>
   </section>
 
   </section>
