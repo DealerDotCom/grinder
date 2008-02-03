@@ -1373,33 +1373,6 @@ class TestRunner:
   <faqsection id="tcpproxy">
     <title>The TCPProxy</title>
 
-    <faq id="choice-of-filters">
-      <question>
-      Which of the three HTTP TCPProxy filters should I use?
-      </question>
-
-      <answer>
-      <p>The correct HTTP TCPProxy filter to use is: </p>
-      <p><strong>-http</strong></p>
-      <p>This is the latest incarnation of the HTTP TCPProxy filter and
-      combines the best of both old filters as well as providing some new features.</p>
-
-      <p>Key new features over the previous filters (which are deprecated):</p>
-   <p>- Records to a single script.<br />
-   - Basic Authorization is recorded.<br />
-   - Modular implementation based on an XSLT style sheet.<br />
-   - Requests are grouped together into pages, using simple rules that
-     guess the resources belonging to a page based on the resource type.
-     Pages are instrumented as separate tests.<br />
-   - Name value tokens are identified in URL path parameters and query
-     strings and mapped to script variables. Most session tokens that encoded
-     in URLs will now be handled automatically.</p>
-      <p>The deprecated filters are:</p>
-      <p><em>-httpplugin</em><br/>
-      <em>-newhttpplugin</em></p>
-      </answer>
-    </faq>
-
     <faq id="what-happened-to-the-tcpsniffer">
       <question>
   What happened to the TCPSniffer?
@@ -1505,29 +1478,6 @@ class TestRunner:
   -Djavax.net.debug=ssl
 </source>
       <note>This will generate verbose output.</note>
-      </answer>
-    </faq>
-    <faq id="tcpproxy-initialtestnumbers">
-      <question>
-      How to I set different test numbers for httpscript.py and
-      httpscript_tests.py without manually editing the scripts?
-      </question>
-      <answer>
-      <p>To do this you need to pass the following parameter to the
-      TCPProxy at invokation when recording your scripts:</p>
-<source>
-  -DHTTPPlugin.initialTest=<em>(integer)</em>
-</source>
-      <p>The setting of the initial test number allows you to set different
-      test ranges for scripts with different functions. This is useful if
-      you are running these different scripts concurrently and collating the
-      results in the same console window.</p>
-
-      <p>For example you could set sales.py to have an initial test number of 2000
-      and purchases.py to have an initial test number of 3000 (this assumes that
-      sales.py has less than 1000 tests). When you run these scripts concurrently
-      all results in the console window with a test number of 2xxx relate to
-      sales.py and those beginning with 3xxx relate to purchases.py.</p>
       </answer>
     </faq>
 
