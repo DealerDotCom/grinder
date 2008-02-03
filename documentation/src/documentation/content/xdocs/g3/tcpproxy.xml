@@ -403,6 +403,7 @@ class Test(StandardTest):
         # Adjust the 1000 to the appropriate offset.
         StandardTest.__init__(self, number + 1000, description)
 </source>
+</p>
 
 <p>This technique doesn't allow different test scripts to be merged together
 into one. If you want to do this, you might consider a <a href="#Stylesheets">
