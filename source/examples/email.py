@@ -9,7 +9,7 @@
 # very long time.
 #
 # Copyright (C) 2004 Tom Pittard
-# Copyright (C) 2004 Philip Aston
+# Copyright (C) 2004-2008 Philip Aston
 # Distributed under the terms of The Grinder license.
 
 from net.grinder.script.Grinder import grinder
@@ -46,5 +46,6 @@ class TestRunner:
 
         transport = emailSendTest1.wrap(transport)
         transport.connect(smtpHost, "username", "password")
-        transport.send(message)
+        transport.sendMessage(message,
+                              message.getRecipients(Message.RecipientType.TO))
         transport.close()
