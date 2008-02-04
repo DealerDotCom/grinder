@@ -845,6 +845,8 @@ class TestRunner:
 
 </script>
 <script title='Email' id='email'>
+# Email
+#
 # Send email using Java Mail (http://java.sun.com/products/javamail/)
 #
 # This Grinder Jython script should only be used for legal email test
@@ -854,7 +856,7 @@ class TestRunner:
 # very long time.
 #
 # Copyright (C) 2004 Tom Pittard
-# Copyright (C) 2004 Philip Aston
+# Copyright (C) 2004-2008 Philip Aston
 # Distributed under the terms of The Grinder license.
 
 from net.grinder.script.Grinder import grinder
@@ -891,7 +893,8 @@ class TestRunner:
 
         transport = emailSendTest1.wrap(transport)
         transport.connect(smtpHost, "username", "password")
-        transport.send(message)
+        transport.sendMessage(message,
+                              message.getRecipients(Message.RecipientType.TO))
         transport.close()
 </script>
 <script title='Run test scripts in sequence' id='sequence'>
