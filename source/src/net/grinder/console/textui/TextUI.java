@@ -23,6 +23,7 @@ package net.grinder.console.textui;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Set;
 
 import net.grinder.common.AgentProcessReport;
 import net.grinder.common.GrinderBuild;
@@ -35,6 +36,9 @@ import net.grinder.console.common.ProcessReportDescriptionFactory;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessStatus;
+import net.grinder.console.model.ModelListener;
+import net.grinder.console.model.ModelTestIndex;
+import net.grinder.console.model.SampleModel;
 
 
 /**
@@ -52,16 +56,19 @@ public class TextUI implements UI {
   private final Logger m_logger;
   private final ErrorHandler m_errorHandler;
   private final Thread m_shutdownHook;
+  private final SampleModel m_sampleModel;
 
   /**
    * Constructor.
    *
    * @param resources Console resources.
    * @param processControl Console process control.
+   * @param sampleModel Console sample model.
    * @param logger Logger.
    */
   public TextUI(Resources resources,
                 ProcessControl processControl,
+                SampleModel sampleModel,
                 Logger logger) {
 
     m_logger = logger;
@@ -73,6 +80,9 @@ public class TextUI implements UI {
     m_errorHandler = new ErrorHandlerImplementation();
 
     processControl.addProcessStatusListener(new ProcessListener(resources));
+
+    m_sampleModel = sampleModel;
+    m_sampleModel.addModelListener(new SampleModelListener());
   }
 
   /**
@@ -201,6 +211,19 @@ public class TextUI implements UI {
         m_stopped = true;
         m_logger.output(m_shutdownMessage);
       }
+    }
+  }
+
+  private class SampleModelListener implements ModelListener {
+
+    public void newSample() { }
+
+    public void newTests(Set newTests, ModelTestIndex modelTestIndex) { }
+
+    public void resetTests() { }
+
+    public void stateChanged() {
+      m_logger.output(m_sampleModel.getState().getDescription());
     }
   }
 }
