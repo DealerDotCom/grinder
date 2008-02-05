@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,6 +32,7 @@ import net.grinder.console.communication.server.messages.ResetWorkerProcessesMes
 import net.grinder.console.communication.server.messages.ResultMessage;
 import net.grinder.console.communication.server.messages.StartRecordingMessage;
 import net.grinder.console.communication.server.messages.StartWorkerProcessesMessage;
+import net.grinder.console.communication.server.messages.StopAgentAndWorkerProcessesMessage;
 import net.grinder.console.communication.server.messages.StopRecordingMessage;
 import net.grinder.console.communication.server.messages.SuccessMessage;
 import net.grinder.console.model.SampleModel;
@@ -110,10 +111,15 @@ public class TestDispatchClientCommands extends TestCase {
     assertTrue(blockingSender.blockingSend(new ResetWorkerProcessesMessage())
       instanceof SuccessMessage);
 
+    assertTrue(
+      blockingSender.blockingSend(new StopAgentAndWorkerProcessesMessage())
+      instanceof SuccessMessage);
+
     processControlStubFactory.assertSuccess("getNumberOfLiveAgents");
     processControlStubFactory.assertSuccess("startWorkerProcesses",
       grinderProperties);
     processControlStubFactory.assertSuccess("resetWorkerProcesses");
+    processControlStubFactory.assertSuccess("stopAgentAndWorkerProcesses");
     processControlStubFactory.assertNoMoreCalls();
   }
 }
