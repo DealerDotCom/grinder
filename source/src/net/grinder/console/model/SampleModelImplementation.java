@@ -137,7 +137,7 @@ public final class SampleModelImplementation implements SampleModel {
       new SampleAccumulator(m_peakTPSExpression, m_periodIndex,
                             m_statisticsServices.getStatisticsSetFactory());
 
-    start();
+    setInternalState(new WaitingForTriggerState());
   }
 
   /**
@@ -267,6 +267,9 @@ public final class SampleModelImplementation implements SampleModel {
 
   /**
    * Reset the model.
+   *
+   * <p>This doesn't affect our internal state, just the statistics and
+   * the listeners.</p>
    */
   public void reset() {
 
@@ -289,14 +292,14 @@ public final class SampleModelImplementation implements SampleModel {
    * Start the model.
    */
   public void start() {
-    setInternalState(new WaitingForTriggerState());
+    getInternalState().start();
   }
 
   /**
    * Stop the model.
    */
   public void stop() {
-    setInternalState(new StoppedState());
+    getInternalState().stop();
   }
 
   /**
@@ -353,6 +356,10 @@ public final class SampleModelImplementation implements SampleModel {
   private interface InternalState {
     State toExternalState();
 
+    void start();
+
+    void stop();
+
     void newTestReport(TestStatisticsMap testStatisticsMap);
   }
 
@@ -366,6 +373,16 @@ public final class SampleModelImplementation implements SampleModel {
     public State toExternalState() {
       // We don't bother cloning the state, only the description varies.
       return this;
+    }
+
+    public void start() {
+      // Valid transition for all states.
+      setInternalState(new WaitingForTriggerState());
+    }
+
+    public void stop() {
+      // Valid transition for all states.
+      setInternalState(new StoppedState());
     }
 
     public boolean isCapturing() {
@@ -385,13 +402,13 @@ public final class SampleModelImplementation implements SampleModel {
     public void newTestReport(TestStatisticsMap testStatisticsMap) {
       if (m_properties.getIgnoreSampleCount() == 0) {
         setInternalState(new CapturingState());
-
-        // Ensure the the first sample is recorded.
-        getInternalState().newTestReport(testStatisticsMap);
       }
       else {
         setInternalState(new TriggeredState());
       }
+
+      // Ensure the the first sample is recorded.
+      getInternalState().newTestReport(testStatisticsMap);
     }
 
     public String getDescription() {
