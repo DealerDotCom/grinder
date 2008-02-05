@@ -41,6 +41,7 @@ import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.statistics.TestStatisticsQueries;
+import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.StubTimer;
@@ -314,6 +315,10 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     capturingSampleTask.run();
 
     assertEquals("done", sampleModelImplementation.getState().getDescription());
+
+
+    capturingSampleTask.run();
+    assertEquals("done", sampleModelImplementation.getState().getDescription());
   }
 
   public void testReset() throws Exception {
@@ -369,8 +374,12 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     final TestStatisticsMap testReports = new TestStatisticsMap();
     final StatisticsSet statistics1 =
       m_statisticsServices.getStatisticsSetFactory().create();
+    final LongIndex userLong0 =
+      m_statisticsServices.getStatisticsIndexMap().getLongIndex("userLong0");
     final StatisticsSet statistics2 =
       m_statisticsServices.getStatisticsSetFactory().create();
+    statistics1.setValue(userLong0, 99);
+    statistics2.setValue(userLong0, 1);
     statistics2.setIsComposite();
     testReports.put(test2, statistics1);
     testReports.put(test3, statistics2);
@@ -388,23 +397,66 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     final TimerTask capturingTask = m_timer.getLastScheduledTimerTask();
     capturingTask.run();
 
-    sampleListenerStubFactory.assertSuccess(
-      "update", StatisticsSet.class, StatisticsSet.class);
+    final Object[] updateParameters =
+      sampleListenerStubFactory.assertSuccess(
+        "update", StatisticsSet.class, StatisticsSet.class).getParameters();
     sampleListenerStubFactory.assertNoMoreCalls();
 
-    totalSampleListenerStubFactory.assertSuccess(
-      "update", StatisticsSet.class, StatisticsSet.class);
+    assertEquals(99, ((StatisticsSet)updateParameters[0]).getValue(userLong0));
+    assertEquals(99, ((StatisticsSet)updateParameters[1]).getValue(userLong0));
+
+    final Object[] totalParameters =
+      totalSampleListenerStubFactory.assertSuccess(
+        "update", StatisticsSet.class, StatisticsSet.class).getParameters();
     totalSampleListenerStubFactory.assertNoMoreCalls();
+
+    assertEquals(99, ((StatisticsSet)totalParameters[0]).getValue(userLong0));
+    assertEquals(99, ((StatisticsSet)totalParameters[1]).getValue(userLong0));
 
 
     capturingTask.run();
 
-    sampleListenerStubFactory.assertSuccess(
-      "update", StatisticsSet.class, StatisticsSet.class);
+    final Object[] updateParameters2 =
+      sampleListenerStubFactory.assertSuccess(
+        "update", StatisticsSet.class, StatisticsSet.class).getParameters();
     sampleListenerStubFactory.assertNoMoreCalls();
 
-    totalSampleListenerStubFactory.assertSuccess(
-      "update", StatisticsSet.class, StatisticsSet.class);
+    assertEquals(0, ((StatisticsSet)updateParameters2[0]).getValue(userLong0));
+    assertEquals(99, ((StatisticsSet)updateParameters2[1]).getValue(userLong0));
+
+    final Object[] totalParameters2 =
+      totalSampleListenerStubFactory.assertSuccess(
+        "update", StatisticsSet.class, StatisticsSet.class).getParameters();
     totalSampleListenerStubFactory.assertNoMoreCalls();
+
+    assertEquals(0, ((StatisticsSet)totalParameters2[0]).getValue(userLong0));
+    assertEquals(99, ((StatisticsSet)totalParameters2[1]).getValue(userLong0));
+
+
+    // Now put into the triggered state.
+    sampleModelImplementation.start();
+    m_consoleProperties.setIgnoreSampleCount(10);
+    statistics1.setValue(userLong0, 3);
+
+    sampleModelImplementation.addTestReport(testReports);
+
+    final TimerTask triggeredTask = m_timer.getLastScheduledTimerTask();
+    triggeredTask.run();
+
+    final Object[] updateParameters3 =
+      sampleListenerStubFactory.assertSuccess(
+        "update", StatisticsSet.class, StatisticsSet.class).getParameters();
+    sampleListenerStubFactory.assertNoMoreCalls();
+
+    assertEquals(3, ((StatisticsSet)updateParameters3[0]).getValue(userLong0));
+    assertEquals(0, ((StatisticsSet)updateParameters3[1]).getValue(userLong0));
+
+    final Object[] totalParameters3 =
+      totalSampleListenerStubFactory.assertSuccess(
+        "update", StatisticsSet.class, StatisticsSet.class).getParameters();
+    totalSampleListenerStubFactory.assertNoMoreCalls();
+
+    assertEquals(3, ((StatisticsSet)totalParameters3[0]).getValue(userLong0));
+    assertEquals(0, ((StatisticsSet)totalParameters3[1]).getValue(userLong0));
   }
 }
