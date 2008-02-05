@@ -446,7 +446,6 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
 
     m_model.addModelListener(
       (ModelListener) swingDispatcherFactory.create(this));
-    newSample();
 
     m_lookAndFeel.addListener(new LookAndFeelListener());
 
