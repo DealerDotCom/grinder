@@ -497,6 +497,43 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
       </answer>
     </faq>
 
+    <faq id="linux-address-in-use">
+      <question>
+  What can I do about <em>address in use</em> exceptions on
+  Linux machines?
+      </question>
+
+      <answer>
+  <p>Prabhat Jha writes:</p>
+
+  <dl>
+    <dt/>
+    <dd class="quote">
+      <ol>
+      <li>Increase the ephemeral port range:
+<source>
+echo "32768 65535" > proc/sys/net/ipv4/ip_local_port_range
+</source>
+	  </li>
+
+	  <li>Enable Port Recycling
+<source>
+echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
+</source>
+	  </li>
+
+	  <li>Reduce the timeout (default is 60 seconds)
+<source>
+echo "10" >  /proc/sys/net/ipv4/tcp_fin_timeout
+</source>
+	  </li>
+	  </ol>
+    </dd>
+  </dl>
+      </answer>
+    </faq>
+
+
     <faq>
       <question>
     How do I specify the ephemeral port range?
