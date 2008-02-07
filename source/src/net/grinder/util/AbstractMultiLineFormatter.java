@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,16 +29,6 @@ package net.grinder.util;
  * @version $Revision:$
  */
 public abstract class AbstractMultiLineFormatter implements MultiLineFormatter {
-
-  /**
-   * Alter buffer to contain a single line according to the policy of
-   * the formatter. Insert remaining text at the start of
-   * <code>remainder</code>.
-   *
-   * @param buffer Buffer to transform to a single line.
-   * @param remainder Leftovers.
-   */
-  public abstract void transform(StringBuffer buffer, StringBuffer remainder);
 
   /**
    * Convenience method.
