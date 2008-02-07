@@ -74,7 +74,7 @@ public class TestTextUI extends TestCase {
 
   private final RandomStubFactory m_processControlStubFactory =
     new RandomStubFactory(ProcessControl.class);
-  private final ProcessControl processControl =
+  private final ProcessControl m_processControl =
     (ProcessControl)m_processControlStubFactory.getStub();
 
   final RandomStubFactory m_sampleModelStubFactory =
@@ -84,7 +84,7 @@ public class TestTextUI extends TestCase {
 
   public void testErrorHandler() throws Exception {
     final TextUI textUI =
-      new TextUI(m_resources, processControl, m_sampleModel, m_logger);
+      new TextUI(m_resources, m_processControl, m_sampleModel, m_logger);
     m_loggerStubFactory.assertOutputMessageContains("The Grinder");
     m_loggerStubFactory.assertNoMoreCalls();
 
@@ -123,7 +123,7 @@ public class TestTextUI extends TestCase {
 
   public void testProcessStatusListener() throws Exception {
     final TextUI textUI =
-      new TextUI(m_resources, processControl, m_sampleModel, m_logger);
+      new TextUI(m_resources, m_processControl, m_sampleModel, m_logger);
     m_loggerStubFactory.assertOutputMessageContains("The Grinder");
     m_loggerStubFactory.assertNoMoreCalls();
 
@@ -210,7 +210,7 @@ public class TestTextUI extends TestCase {
 
   public void testSampleModelListener() throws Exception {
     final TextUI textUI =
-      new TextUI(m_resources, processControl, m_sampleModel, m_logger);
+      new TextUI(m_resources, m_processControl, m_sampleModel, m_logger);
     m_loggerStubFactory.assertOutputMessageContains("The Grinder");
     m_loggerStubFactory.assertNoMoreCalls();
 
@@ -270,7 +270,7 @@ public class TestTextUI extends TestCase {
 
   public void testShutdownHook() throws Exception {
     final TextUI textUI =
-      new TextUI(m_resources, processControl, m_sampleModel, m_logger);
+      new TextUI(m_resources, m_processControl, m_sampleModel, m_logger);
 
     m_loggerStubFactory.assertOutputMessageContains("The Grinder");
     m_loggerStubFactory.assertNoMoreCalls();
