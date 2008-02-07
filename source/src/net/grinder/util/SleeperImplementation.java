@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,8 +42,8 @@ import net.grinder.util.thread.Condition;
  */
 public final class SleeperImplementation implements Sleeper {
 
-  private static Random s_random = new Random();
-  private static List s_allSleepers = new ArrayList();
+  private static final Random s_random = new Random();
+  private static final List s_allSleepers = new ArrayList();
 
   private final TimeAuthority m_timeAuthority;
   private final double m_factor;

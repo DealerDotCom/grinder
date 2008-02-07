@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -185,7 +185,7 @@ final class BufferTreeModel implements TreeModel {
   public final class BufferNode implements FileTree.Node {
 
     private final Buffer m_buffer;
-    private TreePath m_path;
+    private final TreePath m_path;
 
     protected BufferNode(Buffer buffer) {
       m_buffer = buffer;

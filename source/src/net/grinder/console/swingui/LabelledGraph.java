@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,7 +56,7 @@ class LabelledGraph extends JPanel {
 
   private static Border s_thinBevelBorder;
 
-  private Color[] m_colors = {
+  private static final Color[] s_colors = {
     new Color(0xF0, 0xFF, 0x00),
     new Color(0xF0, 0xF0, 0x00),
     new Color(0xF0, 0xE0, 0x00),
@@ -286,13 +286,13 @@ class LabelledGraph extends JPanel {
         s_peak = time;
       }
 
-      final int colorIndex = (int)(m_colors.length * (time / s_lastPeak));
+      final int colorIndex = (int)(s_colors.length * (time / s_lastPeak));
 
-      if (colorIndex >= m_colors.length) {
-        return m_colors[m_colors.length - 1];
+      if (colorIndex >= s_colors.length) {
+        return s_colors[s_colors.length - 1];
       }
 
-      return m_colors[colorIndex];
+      return s_colors[colorIndex];
     }
   }
 

@@ -114,7 +114,7 @@ public final class Agent {
       m_logger.output(GrinderBuild.getName());
 
       ScriptLocation script = null;
-      GrinderProperties properties = null;
+      GrinderProperties properties;
 
       do {
         properties =

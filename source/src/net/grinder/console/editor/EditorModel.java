@@ -217,11 +217,9 @@ public final class EditorModel {
    * @param buffer The buffer.
    */
   public void selectBuffer(Buffer buffer) {
-    final Buffer selectedBuffer = getSelectedBuffer();
+    final Buffer oldBuffer = getSelectedBuffer();
 
-    if (buffer == null || !buffer.equals(selectedBuffer)) {
-
-      final Buffer oldBuffer = selectedBuffer;
+    if (buffer == null || !buffer.equals(oldBuffer)) {
 
       synchronized (this) {
         m_selectedBuffer = buffer;
@@ -395,7 +393,7 @@ public final class EditorModel {
   private void parseSelectedProperties(File file) {
 
     if (file != null && file.equals(getSelectedPropertiesFile())) {
-      File selectedFile = null;
+      File selectedFile;
 
       try {
         final GrinderProperties properties = new GrinderProperties(file);

@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,16 +47,16 @@ final class StatisticsForTestImplementation implements StatisticsForTest {
   private final Test m_test;
 
   /* Class invariant:
-   *    if m_dispatchContext != null:
+   *    if  m_dispatchContext != null:
    *        m_mutableStatistics != null
    *        m_immutableStatistics == m_mutableStatistics
    *    else:
    *        m_mutableStatistics == null
    *        m_immutableStatistics != null
    */
+  private final ImmutableStatisticsSet m_immutableStatistics;
   private DispatchContext m_dispatchContext;
   private StatisticsSet m_statistics;
-  private ImmutableStatisticsSet m_immutableStatistics;
 
   public StatisticsForTestImplementation(
     DispatchContext dispatchContext,

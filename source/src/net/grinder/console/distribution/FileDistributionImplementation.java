@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -318,11 +318,7 @@ public final class FileDistributionImplementation implements FileDistribution {
           }
         }
 
-        if (m_distributionFileFilterPattern.matcher(name + "/").matches()) {
-          return false;
-        }
-
-        return true;
+        return !m_distributionFileFilterPattern.matcher(name + "/").matches();
       }
       else {
         if (m_distributionFileFilterPattern.matcher(name).matches()) {

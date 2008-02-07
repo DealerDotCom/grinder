@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,7 +46,7 @@ final class Colours {
   public static final Color DARK_GREY = Color.darkGray;
 
   /** Colour constant. */
-  public static final Color DARK_RED = new Color(0xE0, 0, 00);
+  public static final Color DARK_RED = new Color(0xE0, 0, 0);
 
   /** Colour constant. */
   public static final Color FAINT_YELLOW = new Color(0xFF, 0xFF, 0xD0);

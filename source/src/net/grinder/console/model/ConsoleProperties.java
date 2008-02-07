@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -136,67 +136,67 @@ public final class ConsoleProperties {
 
   private final List m_propertyList = new ArrayList();
 
-  private IntProperty m_collectSampleCount =
+  private final IntProperty m_collectSampleCount =
     new IntProperty(COLLECT_SAMPLES_PROPERTY, 0);
 
-  private IntProperty m_ignoreSampleCount =
+  private final IntProperty m_ignoreSampleCount =
     new IntProperty(IGNORE_SAMPLES_PROPERTY, 0);
 
-  private IntProperty m_sampleInterval =
+  private final IntProperty m_sampleInterval =
     new IntProperty(SAMPLE_INTERVAL_PROPERTY, 1000);
 
-  private IntProperty m_significantFigures =
+  private final IntProperty m_significantFigures =
     new IntProperty(SIG_FIG_PROPERTY, 3);
 
-  private BooleanProperty m_resetConsoleWithProcesses =
+  private final BooleanProperty m_resetConsoleWithProcesses =
     new BooleanProperty(RESET_CONSOLE_WITH_PROCESSES_PROPERTY, false);
 
-  private FileProperty m_propertiesFile =
+  private final FileProperty m_propertiesFile =
     new FileProperty(PROPERTIES_FILE_PROPERTY);
 
-  private DirectoryProperty m_distributionDirectory =
+  private final DirectoryProperty m_distributionDirectory =
     new DirectoryProperty(DISTRIBUTION_DIRECTORY_PROPERTY);
 
-  private PatternProperty m_distributionFileFilterPattern =
+  private final PatternProperty m_distributionFileFilterPattern =
     new PatternProperty(
       DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
       ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION);
 
-  private IntProperty m_scanDistributionFilesPeriod =
+  private final IntProperty m_scanDistributionFilesPeriod =
     new IntProperty(SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY, 6000);
 
-  private StringProperty m_lookAndFeel =
+  private final StringProperty m_lookAndFeel =
     new StringProperty(LOOK_AND_FEEL_PROPERTY, null);
 
-  private FileProperty m_externalEditorCommand =
+  private final FileProperty m_externalEditorCommand =
     new FileProperty(EXTERNAL_EDITOR_COMMAND_PROPERTY);
 
-  private StringProperty m_externalEditorArguments =
+  private final StringProperty m_externalEditorArguments =
     new StringProperty(EXTERNAL_EDITOR_ARGUMENTS_PROPERTY, null);
 
-  private RectangleProperty m_frameBounds =
+  private final RectangleProperty m_frameBounds =
     new RectangleProperty(FRAME_BOUNDS_PROPERTY);
 
-  private BooleanProperty m_resetConsoleWithProcessesAsk =
+  private final BooleanProperty m_resetConsoleWithProcessesAsk =
     new BooleanProperty(RESET_CONSOLE_WITH_PROCESSES_ASK_PROPERTY, true);
 
-  private BooleanProperty m_propertiesNotSetAsk =
+  private final BooleanProperty m_propertiesNotSetAsk =
     new BooleanProperty(PROPERTIES_NOT_SET_ASK_PROPERTY, true);
 
-  private BooleanProperty m_startWithUnsavedBuffersAsk =
+  private final BooleanProperty m_startWithUnsavedBuffersAsk =
     new BooleanProperty(START_WITH_UNSAVED_BUFFERS_ASK_PROPERTY, true);
 
-  private BooleanProperty m_stopProcessesAsk =
+  private final BooleanProperty m_stopProcessesAsk =
     new BooleanProperty(STOP_PROCESSES_ASK_PROPERTY, true);
 
-  private BooleanProperty m_distributeOnStartAsk =
+  private final BooleanProperty m_distributeOnStartAsk =
     new BooleanProperty(DISTRIBUTE_ON_START_ASK_PROPERTY, true);
 
-  private StringProperty m_consoleHost =
+  private final StringProperty m_consoleHost =
     new StringProperty(CONSOLE_HOST_PROPERTY,
                        CommunicationDefaults.CONSOLE_HOST);
 
-  private IntProperty m_consolePort =
+  private final IntProperty m_consolePort =
     new IntProperty(CONSOLE_PORT_PROPERTY, CommunicationDefaults.CONSOLE_PORT);
 
   private final Resources m_resources;

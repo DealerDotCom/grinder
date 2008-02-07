@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
@@ -398,13 +398,9 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
       final int status = m_requestXML.getResponse().getStatusCode();
 
-      if (status < 200 ||
-          status == HttpURLConnection.HTTP_NO_CONTENT ||
-          status == HttpURLConnection.HTTP_NOT_MODIFIED) {
-        return false;
-      }
-
-      return true;
+      return status >= 200 &&
+             status != HttpURLConnection.HTTP_NO_CONTENT &&
+             status != HttpURLConnection.HTTP_NOT_MODIFIED;
     }
 
     public void setContentType(String contentType) {

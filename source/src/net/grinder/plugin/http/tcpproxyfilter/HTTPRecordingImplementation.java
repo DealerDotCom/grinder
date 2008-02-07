@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -411,8 +411,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   private final class BaseURLMap {
-    private Map m_map = new HashMap();
-    private IntGenerator m_idGenerator = new IntGenerator();
+    private final Map m_map = new HashMap();
+    private final IntGenerator m_idGenerator = new IntGenerator();
 
     public BaseURIType getBaseURL(
       BaseURIType.Scheme.Enum scheme, EndPoint endPoint) {
@@ -445,8 +445,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   private static final class CommonHeadersMap {
-    private Map m_map = new HashMap();
-    private IntGenerator m_idGenerator = new IntGenerator();
+    private final Map m_map = new HashMap();
+    private final IntGenerator m_idGenerator = new IntGenerator();
 
     public void extractCommonHeaders(
       HTTPRecordingType httpRecording, RequestType request) {
@@ -661,8 +661,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
   private static final class TokenLastValuePair {
     private final TokenType m_token;
+    private final Set m_sources = new HashSet();
     private String m_lastValue;
-    private Set m_sources = new HashSet();
 
     public TokenLastValuePair(TokenType token) {
       m_token = token;

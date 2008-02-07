@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -300,7 +300,7 @@ final class ThreadContextImplementation
   }
 
   private static final class DispatchContextStack {
-    private List m_stack = new ArrayList();
+    private final List m_stack = new ArrayList();
 
     public void push(DispatchContext dispatchContext) {
       m_stack.add(dispatchContext);

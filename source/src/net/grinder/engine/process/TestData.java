@@ -107,7 +107,7 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
    * thread that has ever used this test.
    */
   private final class DispatcherHolderThreadLocal {
-    private ThreadLocal m_threadLocal = new ThreadLocal() {
+    private final ThreadLocal m_threadLocal = new ThreadLocal() {
       public Object initialValue() {
         final ThreadContext threadContext = m_threadContextLocator.get();
 

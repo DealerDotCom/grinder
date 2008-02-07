@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -51,7 +51,7 @@ class HTTPPluginThreadState implements PluginThreadListener {
   private final PluginThreadContext m_threadContext;
   private final SSLContextFactory m_sslContextFactory;
 
-  private Map m_httpConnectionWrappers = new HashMap();
+  private final Map m_httpConnectionWrappers = new HashMap();
   private HTTPResponse m_lastResponse;
   private final Sleeper m_slowClientSleeper;
 

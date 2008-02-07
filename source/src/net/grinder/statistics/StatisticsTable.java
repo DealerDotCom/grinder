@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -103,7 +103,7 @@ public class StatisticsTable {
       remainders[i] = new StringBuffer();
     }
 
-    boolean wrapped = false;
+    boolean wrapped;
 
     do {
       wrapped = false;

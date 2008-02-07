@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
@@ -73,7 +73,7 @@ public class HTTPRequest {
     HTTPPlugin.getPlugin();
   }
 
-  private static Pattern s_pathParser =
+  private static final Pattern s_pathParser =
     Pattern.compile("([^?#]*)(\\?([^#]*))?(#(.*))?");
 
   private static final Pattern s_absoluteURIPattern =
@@ -189,12 +189,15 @@ public class HTTPRequest {
       result.append("<Undefined URL>\n");
     }
     else {
-      result.append(m_defaultURL.toString() + "\n");
+      result.append(m_defaultURL.toString());
+      result.append("\n");
     }
 
     for (int i = 0; i < m_defaultHeaders.length; i++) {
-      result.append(m_defaultHeaders[i].getName() + ": " +
-                    m_defaultHeaders[i].getValue() + "\n");
+      result.append(m_defaultHeaders[i].getName());
+      result.append(": ");
+      result.append(m_defaultHeaders[i].getValue());
+      result.append("\n");
     }
 
     return result.toString();

@@ -61,7 +61,6 @@ final class ProcessContextImplementation implements ProcessContext {
   private final Logger m_processLogger;
   private final QueuedSender m_consoleSender;
   private final ThreadContextLocator m_threadContextLocator;
-  private final PluginRegistryImplementation m_pluginRegistry;
   private final TestRegistryImplementation m_testRegistryImplementation;
   private final InternalScriptContext m_scriptContext;
   private final Sleeper m_sleeper;
@@ -154,12 +153,12 @@ final class ProcessContextImplementation implements ProcessContext {
       scriptStatistics,
       m_testRegistryImplementation);
 
-    m_pluginRegistry =
+    final PluginRegistryImplementation pluginRegistry =
       new PluginRegistryImplementation(externalLogger, m_scriptContext,
                                        m_threadContextLocator,
                                        statisticsServices, m_timeAuthority);
 
-    m_processLifeCycleListeners.add(m_pluginRegistry);
+    m_processLifeCycleListeners.add(pluginRegistry);
 
     m_reportTimesToConsole =
       properties.getBoolean("grinder.reportTimesToConsole", true);

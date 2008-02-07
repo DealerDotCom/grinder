@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,7 +35,7 @@ import java.util.List;
 public class HTMLElement extends AbstractHTMLNode {
 
   private final String m_name;
-  private List m_children = new ArrayList();
+  private final List m_children = new ArrayList();
 
   /**
    * Constructor.

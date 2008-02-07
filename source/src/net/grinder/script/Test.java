@@ -62,8 +62,7 @@ public class Test extends AbstractTestSemantics implements Serializable {
   public Test(int number, String description) {
     m_number = number;
     m_description = description;
-    m_registeredTest =
-      ((InternalScriptContext)Grinder.grinder).getTestRegistry().register(this);
+    m_registeredTest = Grinder.grinder.getTestRegistry().register(this);
   }
 
   /**

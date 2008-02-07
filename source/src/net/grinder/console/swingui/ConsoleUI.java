@@ -142,7 +142,6 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
   private final FrameBounds m_frameBounds;
   private final JLabel m_stateLabel;
   private final SamplingControlPanel m_samplingControlPanel;
-  private final FileTree m_fileTree;
   private final ErrorHandler m_errorHandler;
   private final OptionalConfirmDialog m_optionalConfirmDialog;
   private final Font m_titleLabelFont;
@@ -363,16 +362,16 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
 
     final JPopupMenu fileTreePopupMenu = new JPopupMenu();
 
-    m_fileTree = new FileTree(m_resources,
-                              getErrorHandler(),
-                              m_editorModel,
-                              new BufferTreeModel(m_editorModel),
-                              fileTreeModel,
-                              editorSmallFont,
-                              fileTreePopupMenu,
-                              m_properties);
+    final FileTree fileTree = new FileTree(m_resources,
+                                           getErrorHandler(),
+                                           m_editorModel,
+                                           new BufferTreeModel(m_editorModel),
+                                           fileTreeModel,
+                                           editorSmallFont,
+                                           fileTreePopupMenu,
+                                           m_properties);
 
-    final CustomAction[] fileTreeActions = m_fileTree.getActions();
+    final CustomAction[] fileTreeActions = fileTree.getActions();
 
     for (int i = 0; i < fileTreeActions.length; ++i) {
       m_actionTable.add(fileTreeActions[i]);
@@ -391,7 +390,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     fileTreeToolBar.setFloatable(false);
     fileTreeToolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-    final JComponent fileTreeComponent = m_fileTree.getComponent();
+    final JComponent fileTreeComponent = fileTree.getComponent();
     fileTreeComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
     fileTreeComponent.setPreferredSize(new Dimension(200, 100));
 
@@ -1353,7 +1352,6 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
       }
       catch (GrinderException e) {
         getErrorHandler().handleException(e);
-        return;
       }
     }
   }

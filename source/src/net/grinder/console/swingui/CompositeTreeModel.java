@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,7 +49,7 @@ final class CompositeTreeModel implements TreeModel {
   private final List m_wrappers = new ArrayList();
   private final EventListenerList m_listeners = new EventListenerList();
 
-  private Object m_rootNode = new Object();
+  private final Object m_rootNode = new Object();
 
   CompositeTreeModel() {
   }

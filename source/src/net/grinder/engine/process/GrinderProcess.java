@@ -369,7 +369,7 @@ final class GrinderProcess {
   }
 
   private class ReportToConsoleTimerTask extends TimerTask {
-    private final ThreadSynchronisation m_threads;;
+    private final ThreadSynchronisation m_threads;
 
     public ReportToConsoleTimerTask(ThreadSynchronisation threads) {
       m_threads = threads;
