@@ -11,15 +11,6 @@
     <Class name="~org.syntax.*" />
   </Match>
 
-  <!-- Ignore deprecated code. -->
-  <Match>
-    <Or>
-      <Class name="~.*HTTPPluginTCPProxyFilter2.*" />
-      <Class name="~.*HTTPPluginTCPProxyResponseFilter2.*" />
-      <Class name="~.*HTTPPluginTCPProxyResponseFilter.*" />
-    </Or>
-  </Match>
-
   <Match>
     <Class name="~.*InstrumentedPy.*" />
     <Bug pattern="ES_COMPARING_PARAMETER_STRING_WITH_EQ" />
@@ -75,16 +66,6 @@
     </Or>
   </Match>
 
-  <!-- findbugs is understandably confused by the JVM bug that
-       ResourcePoolImplementation has to work around. -->
-  <Match>
-    <Class name="net.grinder.communication.ResourcePoolImplementation$ResourceWrapper"/>
-    <Or>
-      <Bug pattern="BC_VACUOUS_INSTANCEOF"/>
-      <Bug pattern="BC_IMPOSSIBLE_INSTANCEOF"/>
-    </Or>
-  </Match>
-
   <!-- findbugs erroneously detects a dead store. -->
   <Match>
     <Class name="net.grinder.engine.process.GrinderProcess"/>
@@ -113,8 +94,13 @@
       <Class name="net.grinder.util.DelayedCreationFileWriter"/>
       <Class name="net.grinder.util.FileContents"/>
       <Class name="net.grinder.console.distribution.FileDistributionImplementation"/>
-  </Or>
+    </Or>
     <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+  </Match>
+
+  <!-- The following are low priority rules which I disagree with. -->
+  <Match>
+    <Bug pattern="IMA_INEFFICIENT_MEMBER_ACCESS"/>
   </Match>
 
 </FindBugsFilter>
