@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -102,6 +102,8 @@ public class TestHTTPPluginThreadState extends TestCase {
     pluginThreadState.endRun();
 
     pluginThreadState.endThread();
+
+    pluginThreadState.beginShutdown();
 
     m_sslContextFactoryStubFactory.assertNoMoreCalls();
   }
