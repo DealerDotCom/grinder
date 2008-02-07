@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -36,6 +36,7 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.grinder.common.Closer;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
@@ -305,13 +306,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
      * Close the associated input stream and thus stop the thread.
      */
     public void stop() {
-      try {
-        m_inputStream.close();
-      }
-      catch (IOException e) {
-        // Ignore.
-        UncheckedInterruptedException.ioException(e);
-      }
+      Closer.close(m_inputStream);
 
       // We can interrupt our thread because its executing an
       // InterruptibleRunnable.
@@ -433,13 +428,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       }
 
       // Tidy up.
-      try {
-        m_in.close();
-      }
-      catch (IOException e) {
-        // Ignore.
-        UncheckedInterruptedException.ioException(e);
-      }
+      Closer.close(m_in);
     }
   }
 
@@ -591,13 +580,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
       // Close our output stream. This will cause any
       // FilteredStreamThread managing the paired stream to exit.
-      try {
-        m_out.close();
-      }
-      catch (IOException e) {
-        // Ignore.
-        UncheckedInterruptedException.ioException(e);
-      }
+      Closer.close(m_out);
     }
 
     /**

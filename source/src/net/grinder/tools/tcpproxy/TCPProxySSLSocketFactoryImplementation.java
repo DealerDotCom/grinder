@@ -38,6 +38,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import net.grinder.common.Closer;
 import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
 import net.grinder.util.InsecureSSLContextFactory;
 
@@ -114,16 +115,20 @@ public final class TCPProxySSLSocketFactoryImplementation
     char[] keyStorePassword)
     throws IOException, GeneralSecurityException, SSLContextFactoryException {
 
-    final InsecureSSLContextFactory sslContextFactory =
-      new InsecureSSLContextFactory(keyStoreInputStream, keyStorePassword,
-                                    keyStoreType);
+    try {
+      final InsecureSSLContextFactory sslContextFactory =
+        new InsecureSSLContextFactory(keyStoreInputStream,
+                                      keyStorePassword,
+                                      keyStoreType);
 
-    keyStoreInputStream.close();
+      final SSLContext sslContext = sslContextFactory.getSSLContext();
 
-    final SSLContext sslContext = sslContextFactory.getSSLContext();
-
-    m_clientSocketFactory = sslContext.getSocketFactory();
-    m_serverSocketFactory = sslContext.getServerSocketFactory();
+      m_clientSocketFactory = sslContext.getSocketFactory();
+      m_serverSocketFactory = sslContext.getServerSocketFactory();
+    }
+    finally {
+      Closer.close(keyStoreInputStream);
+    }
   }
 
   /**

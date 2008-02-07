@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import net.grinder.common.Closer;
 import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.BasicAuthorizationHeaderType;
 import net.grinder.plugin.http.xml.BodyType;
@@ -485,17 +486,20 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           // Large amount of data, use a file.
           final File file = m_httpRecording.createBodyDataFileName();
 
+          FileOutputStream dataStream = null;
+
           try {
-            final FileOutputStream dataStream =
-              new FileOutputStream(file);
+            dataStream = new FileOutputStream(file);
             dataStream.write(bytes, 0, bytes.length);
-            dataStream.close();
 
             body.setFile(file.getPath());
           }
           catch (IOException e) {
             m_logger.error("Failed to write body data to '" + file + "'");
             e.printStackTrace(m_logger.getErrorLogWriter());
+          }
+          finally {
+            Closer.close(dataStream);
           }
         }
         else {

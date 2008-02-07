@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007, 2008 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.common.Closer;
 
 
 /**
@@ -351,7 +351,7 @@ public final class Directory implements Serializable {
     }
 
     final File[] files = listContents(s_matchAllFilesFilter, true, false);
-    final StreamCopier streamCopier = new StreamCopier(4096, true);
+    final StreamCopier streamCopier = new StreamCopier(4096, false);
 
     for (int i = 0; i < files.length; ++i) {
       final String relativePath = files[i].getPath();
@@ -367,25 +367,18 @@ public final class Directory implements Serializable {
             !destination.exists() ||
             source.lastModified() > destination.lastModified()) {
 
-          final FileInputStream in = new FileInputStream(source);
-          final FileOutputStream out;
+          FileInputStream in = null;
+          FileOutputStream out = null;
 
           try {
+            in = new FileInputStream(source);
             out = new FileOutputStream(destination);
+            streamCopier.copy(in, out);
           }
-          catch (IOException e) {
-            try {
-              in.close();
-            }
-            catch (IOException closeException) {
-              // Ignore.
-              UncheckedInterruptedException.ioException(e);
-            }
-
-            throw e;
+          finally {
+            Closer.close(in);
+            Closer.close(out);
           }
-
-          streamCopier.copy(in, out);
         }
       }
     }

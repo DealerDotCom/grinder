@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,6 +31,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
 
+import net.grinder.common.Closer;
 import net.grinder.common.UncheckedInterruptedException;
 
 
@@ -148,8 +149,10 @@ public final class ResourcesImplementation implements Resources {
     final URL resource = get(key, warnIfMissing);
 
     if (resource != null) {
+      Reader in = null;
+
       try {
-        final Reader in = new InputStreamReader(resource.openStream());
+        in = new InputStreamReader(resource.openStream());
 
         final StringWriter out = new StringWriter();
 
@@ -165,7 +168,6 @@ public final class ResourcesImplementation implements Resources {
           out.write(buffer, 0, n);
         }
 
-        in.close();
         out.close();
 
         return out.toString();
@@ -173,6 +175,9 @@ public final class ResourcesImplementation implements Resources {
       catch (IOException e) {
         UncheckedInterruptedException.ioException(e);
         m_errorWriter.println("Warning - could not read " + resource);
+      }
+      finally {
+        Closer.close(in);
       }
     }
 

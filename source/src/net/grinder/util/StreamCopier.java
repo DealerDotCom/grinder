@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import net.grinder.common.Closer;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.InterruptibleRunnableAdapter;
@@ -83,21 +84,8 @@ public class StreamCopier {
     }
     finally {
       if (m_closeStreams) {
-        try {
-          out.close();
-        }
-        catch (IOException e) {
-          // Ignore.
-          UncheckedInterruptedException.ioException(e);
-        }
-
-        try {
-          in.close();
-        }
-        catch (IOException e) {
-          // Ignore.
-          UncheckedInterruptedException.ioException(e);
-        }
+        Closer.close(out);
+        Closer.close(in);
       }
     }
   }

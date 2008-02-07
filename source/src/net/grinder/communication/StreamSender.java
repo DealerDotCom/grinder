@@ -1,4 +1,4 @@
-// Copyright (C) 2000-2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.common.Closer;
 
 
 /**
@@ -79,13 +79,7 @@ public class StreamSender extends AbstractSender {
 
     super.shutdown();
 
-    try {
-      m_outputStream.close();
-    }
-    catch (IOException e) {
-      // Ignore.
-      UncheckedInterruptedException.ioException(e);
-    }
+    Closer.close(m_outputStream);
   }
 }
 

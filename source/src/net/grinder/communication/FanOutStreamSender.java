@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,10 +21,9 @@
 
 package net.grinder.communication;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
-import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.common.Closer;
 import net.grinder.util.thread.Executor;
 
 
@@ -97,13 +96,7 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
     }
 
     public void close() {
-      try {
-        m_outputStream.close();
-      }
-      catch (IOException e) {
-        // Ignore.
-        UncheckedInterruptedException.ioException(e);
-      }
+      Closer.close(m_outputStream);
     }
   }
 }

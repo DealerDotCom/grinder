@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import net.grinder.common.Closer;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.ListenerSupport;
 
@@ -94,13 +95,7 @@ final class SocketWrapper
                                System.currentTimeMillis());
     }
     catch (IOException e) {
-      try {
-        m_socket.close();
-      }
-      catch (IOException ignore) {
-        // Ignore.
-        UncheckedInterruptedException.ioException(e);
-      }
+      Closer.close(m_socket);
 
       throw new CommunicationException("Could not establish communication", e);
     }
@@ -154,13 +149,7 @@ final class SocketWrapper
         new StreamSender(m_outputStream).shutdown();
       }
 
-      try {
-        m_socket.close();
-      }
-      catch (IOException e) {
-        // Ignore errors, connection has probably been reset by peer.
-        UncheckedInterruptedException.ioException(e);
-      }
+      Closer.close(m_socket);
 
       // Close before informing listeners to prevent recursion.
       m_closedListeners.apply(m_closedInformer);

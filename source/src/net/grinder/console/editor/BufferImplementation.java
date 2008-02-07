@@ -34,6 +34,7 @@ import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.grinder.common.Closer;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
@@ -160,15 +161,7 @@ final class BufferImplementation implements Buffer {
         e);
     }
     finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        }
-        catch (IOException e) {
-          // Oh well.
-          UncheckedInterruptedException.ioException(e);
-        }
-      }
+      Closer.close(reader);
     }
 
     m_textSource.setText(stringWriter.toString());
@@ -250,15 +243,7 @@ final class BufferImplementation implements Buffer {
         e);
     }
     finally {
-      if (fileWriter != null) {
-        try {
-          fileWriter.close();
-        }
-        catch (IOException e) {
-          // Oh well.
-          UncheckedInterruptedException.ioException(e);
-        }
-      }
+      Closer.close(fileWriter);
     }
   }
 

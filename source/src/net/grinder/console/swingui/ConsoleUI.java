@@ -80,6 +80,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import net.grinder.common.Closer;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
@@ -833,17 +834,20 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
           return;
         }
 
+        FileWriter writer = null;
         try {
-          final FileWriter writer = new FileWriter(file);
+          writer = new FileWriter(file);
           m_cumulativeTableModel.write(writer, "\t",
                                        System.getProperty("line.separator"));
-          writer.close();
         }
         catch (IOException e) {
           UncheckedInterruptedException.ioException(e);
           getErrorHandler().handleErrorMessage(
             e.getMessage(),
             m_resources.getString("fileError.title"));
+        }
+        finally {
+          Closer.close(writer);
         }
       }
     }

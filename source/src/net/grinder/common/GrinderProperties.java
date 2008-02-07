@@ -81,17 +81,18 @@ public class GrinderProperties extends Properties {
     m_file = file;
 
     if (m_file.exists()) {
+      InputStream propertiesInputStream = null;
       try {
-        final InputStream propertiesInputStream = new FileInputStream(m_file);
-
+        propertiesInputStream = new FileInputStream(m_file);
         load(propertiesInputStream);
-
-        propertiesInputStream.close();
       }
       catch (IOException e) {
         UncheckedInterruptedException.ioException(e);
         throw new PersistenceException(
           "Error loading properties file '" + m_file.getPath() + '\'', e);
+      }
+      finally {
+        Closer.close(propertiesInputStream);
       }
     }
 
@@ -126,15 +127,19 @@ public class GrinderProperties extends Properties {
       throw new PersistenceException("No associated file");
     }
 
+    OutputStream outputStream = null;
+
     try {
-      final OutputStream outputStream = new FileOutputStream(m_file);
+      outputStream = new FileOutputStream(m_file);
       store(outputStream, generateFileHeader());
-      outputStream.close();
     }
     catch (IOException e) {
       UncheckedInterruptedException.ioException(e);
       throw new PersistenceException(
         "Error writing properties file '" + m_file.getPath() + '\'', e);
+    }
+    finally {
+      Closer.close(outputStream);
     }
   }
 
@@ -155,29 +160,39 @@ public class GrinderProperties extends Properties {
     try {
       final Properties properties = new Properties();
 
+      InputStream inputStream = null;
+
       try {
-        final InputStream inputStream = new FileInputStream(m_file);
+        inputStream = new FileInputStream(m_file);
         properties.load(inputStream);
-        inputStream.close();
       }
       catch (IOException e) {
         // Can't read the file, maybe its not there. Ignore.
         UncheckedInterruptedException.ioException(e);
       }
-
-      final OutputStream outputStream = new FileOutputStream(m_file);
-
-      final String value = getProperty(name);
-
-      if (value != null) {
-        properties.setProperty(name, value);
-      }
-      else {
-        properties.remove(name);
+      finally {
+        Closer.close(inputStream);
       }
 
-      properties.store(outputStream, generateFileHeader());
-      outputStream.close();
+      OutputStream outputStream = null;
+
+      try {
+        outputStream = new FileOutputStream(m_file);
+
+        final String value = getProperty(name);
+
+        if (value != null) {
+          properties.setProperty(name, value);
+        }
+        else {
+          properties.remove(name);
+        }
+
+        properties.store(outputStream, generateFileHeader());
+      }
+      finally {
+        Closer.close(outputStream);
+      }
     }
     catch (IOException e) {
       UncheckedInterruptedException.ioException(e);

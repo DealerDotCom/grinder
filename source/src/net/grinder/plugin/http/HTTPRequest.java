@@ -43,6 +43,7 @@ import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
 
+import net.grinder.common.Closer;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginException;
@@ -233,9 +234,15 @@ public class HTTPRequest {
     final File file = new File(filename);
     m_defaultData = new byte[(int)file.length()];
 
-    final FileInputStream fileInputStream = new FileInputStream(file);
-    fileInputStream.read(m_defaultData);
-    fileInputStream.close();
+    FileInputStream fileInputStream = null;
+
+    try {
+      fileInputStream = new FileInputStream(file);
+      fileInputStream.read(m_defaultData);
+    }
+    finally {
+      Closer.close(fileInputStream);
+    }
 
     return m_defaultData;
   }

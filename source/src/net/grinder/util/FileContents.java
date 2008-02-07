@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 
+import net.grinder.common.Closer;
 import net.grinder.common.GrinderException;
 import net.grinder.common.UncheckedInterruptedException;
 
@@ -112,15 +113,19 @@ public final class FileContents implements Serializable {
 
     localFile.getParentFile().mkdirs();
 
+    OutputStream outputStream = null;
+
     try {
-      final OutputStream outputStream = new FileOutputStream(localFile);
+      outputStream = new FileOutputStream(localFile);
       outputStream.write(getContents());
-      outputStream.close();
     }
     catch (IOException e) {
       UncheckedInterruptedException.ioException(e);
       throw new FileContentsException(
         "Failed to create file: " + e.getMessage(), e);
+    }
+    finally {
+      Closer.close(outputStream);
     }
   }
 
