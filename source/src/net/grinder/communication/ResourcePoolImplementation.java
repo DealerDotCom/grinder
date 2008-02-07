@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -383,14 +383,17 @@ final class ResourcePoolImplementation implements ResourcePool {
           // but not with JRockit). We have to catch Exception, since
           // InterruptedException is a checked exception.
 
-          if (e instanceof RuntimeException) {
-            throw (RuntimeException)e;
+          try {
+            throw e;
           }
-          else if (e instanceof InterruptedException) {
-            throw new UncheckedInterruptedException((InterruptedException)e);
+          catch (RuntimeException runtimeException) {
+            throw runtimeException;
           }
-          else {
-            throw new AssertionError(e);
+          catch (InterruptedException interruptedException) {
+            throw new UncheckedInterruptedException(interruptedException);
+          }
+          catch (Exception exception) {
+            throw new AssertionError(exception);
           }
         }
 
