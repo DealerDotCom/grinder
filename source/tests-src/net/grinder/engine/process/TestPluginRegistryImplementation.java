@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -167,6 +167,7 @@ public class TestPluginRegistryImplementation extends TestCase {
     threadListener.beginRun();
     threadListener.endRun();
     threadListener.endThread();
+    threadListener.beginShutdown();
 
     threadContextStubFactory.assertNoMoreCalls();
   }
