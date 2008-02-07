@@ -41,7 +41,7 @@ public final class RandomObjectFactory {
   public Object generateParameter(Class type) {
 
     if (Boolean.TYPE == type || Boolean.class == type) {
-      return new Boolean(m_random.nextBoolean());
+      return Boolean.valueOf(m_random.nextBoolean());
     }
 
     if (Character.TYPE == type || Character.class == type) {
@@ -77,14 +77,14 @@ public final class RandomObjectFactory {
     }
 
     if (String.class == type) {
-      final byte[] bytes = new byte[Math.abs(m_random.nextInt()) % 50];
+      final byte[] bytes = new byte[Math.abs(m_random.nextInt() % 50)];
       m_random.nextBytes(bytes);
 
       return new String(bytes);
     }
 
     if (Map.class == type) {
-      final int size = Math.abs(m_random.nextInt()) % 10;
+      final int size = Math.abs(m_random.nextInt() % 10);
       final Map result = new HashMap(size);
 
       for (int i = 0; i < size; ++i) {
@@ -100,10 +100,10 @@ public final class RandomObjectFactory {
 
       if (Byte.TYPE == componentType) {
         // Handle byte[] as special case for optimisation and larger arrays.
-        return new byte[Math.abs(m_random.nextInt()) % 1000];
+        return new byte[Math.abs(m_random.nextInt() % 1000)];
       }
 
-      final int size = Math.abs(m_random.nextInt()) % 10;
+      final int size = Math.abs(m_random.nextInt() % 10);
       final Object result = Array.newInstance(componentType, size);
 
       for (int i = 0; i < size; ++i) {
