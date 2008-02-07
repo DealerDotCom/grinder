@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 
 import net.grinder.common.Logger;
 import net.grinder.engine.agent.Agent;
+import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
 
 
@@ -59,6 +60,10 @@ public final class Grinder {
     final Logger logger = new SimpleLogger("agent",
                                            new PrintWriter(System.out),
                                            new PrintWriter(System.err));
+
+    if (!JVM.getInstance().haveRequisites(logger)) {
+      return;
+    }
 
     final Agent agent =
       new Agent(logger, args.length == 1 ? new File(args[0]) : null);

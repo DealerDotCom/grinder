@@ -49,7 +49,6 @@ import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.util.Directory;
-import net.grinder.util.JVM;
 import net.grinder.util.Directory.DirectoryException;
 import net.grinder.util.thread.Condition;
 
@@ -94,10 +93,6 @@ public final class Agent {
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, m_logger);
     m_agentIdentity = new AgentIdentityImplementation(getHostName());
-
-    if (!JVM.getInstance().haveRequisites(m_logger)) {
-      return;
-    }
   }
 
   /**
