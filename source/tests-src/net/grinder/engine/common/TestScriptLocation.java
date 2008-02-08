@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,6 +41,7 @@ public class TestScriptLocation extends AbstractFileTestCase {
     final Directory directory = new Directory(new File("abc"));
     final File file1 = new File("def");
     final File file2 = new File("blah");
+    final File file3 = new File("lah/dah");
 
     final ScriptLocation sl1 = new ScriptLocation(directory, file1);
     final ScriptLocation sl2 = new ScriptLocation(directory, file1);
@@ -55,6 +56,16 @@ public class TestScriptLocation extends AbstractFileTestCase {
 
     final ScriptLocation sl4 = (ScriptLocation)Serializer.serialize(sl1);
     assertEquals(sl1, sl4);
+
+    final ScriptLocation sl5 = new ScriptLocation(file1);
+    assertEquals(new File("").getAbsoluteFile(),
+                 sl5.getDirectory().getFile());
+    assertEquals(file1.getAbsoluteFile(), sl5.getFile());
+
+    final ScriptLocation sl6 = new ScriptLocation(file3);
+    assertEquals(new File("lah").getAbsoluteFile(),
+                 sl6.getDirectory().getFile());
+    assertEquals(file3.getAbsoluteFile(), sl6.getFile());
   }
 
   public void testNameShortening() throws Exception {

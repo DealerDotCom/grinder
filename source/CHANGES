@@ -13,6 +13,9 @@ The Grinder 3.0.2 (not yet released).
   - Count empty samples when triggered and ignoring samples.
   - Display sample data when triggered and ignoring samples.
 
+  Fix bug 1889281 - grinder.script relative path bug. Thanks to Ross
+  Nicholson for the report, and the suggested fix.
+
 
 The Grinder 3.0.1
 -----------------

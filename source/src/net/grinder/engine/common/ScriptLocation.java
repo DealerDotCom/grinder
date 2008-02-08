@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.Serializable;
 
 import net.grinder.util.Directory;
+import net.grinder.util.Directory.DirectoryException;
 
 
 /**
@@ -70,6 +71,20 @@ public final class ScriptLocation implements Serializable {
     else {
       m_absoluteFile = directory.getFile(file.getPath());
     }
+  }
+
+  /**
+   * Constructor for ScriptLocation that sets the directory to the parent of the
+   * passed file.
+   *
+   * @param file
+   *            The script file.
+   * @throws DirectoryException
+   *             if the parent directory is invalid.
+   */
+  public ScriptLocation(File file) throws DirectoryException {
+    this(new Directory(file.getAbsoluteFile().getParentFile()),
+         new File(file.getName()));
   }
 
   /**

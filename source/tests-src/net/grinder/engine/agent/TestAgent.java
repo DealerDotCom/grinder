@@ -76,9 +76,15 @@ public class TestAgent extends AbstractFileTestCase {
   }
 
   public void testRunDefaultProperties() throws Exception {
-    // Default file is in cwd.
+    // Files in cwd.
     final File propertyFile = new File("grinder.properties");
     propertyFile.deleteOnExit();
+
+    final File relativeScriptFile = new File("script/blah");
+    relativeScriptFile.deleteOnExit();
+    relativeScriptFile.getParentFile().mkdirs();
+    relativeScriptFile.getParentFile().deleteOnExit();
+    relativeScriptFile.createNewFile();
 
     try {
       final GrinderProperties properties = new GrinderProperties(propertyFile);
@@ -99,9 +105,7 @@ public class TestAgent extends AbstractFileTestCase {
       properties.setBoolean("grinder.useConsole", false);
       properties.save();
 
-      final File scriptFile = new File(getDirectory(), "script");
-      scriptFile.createNewFile();
-      properties.setFile("grinder.script", scriptFile);
+      properties.setFile("grinder.script", relativeScriptFile);
       properties.setInt("grinder.processes", 0);
       properties.save();
 
@@ -114,6 +118,8 @@ public class TestAgent extends AbstractFileTestCase {
     }
     finally {
       propertyFile.delete();
+      relativeScriptFile.delete();
+      relativeScriptFile.getParentFile().delete();
     }
   }
 

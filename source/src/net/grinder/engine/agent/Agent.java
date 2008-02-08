@@ -48,7 +48,6 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.util.Directory;
 import net.grinder.util.Directory.DirectoryException;
 import net.grinder.util.thread.Condition;
 
@@ -205,9 +204,7 @@ public final class Agent {
                                GrinderProperties.DEFAULT_SCRIPT);
 
           try {
-            script = new ScriptLocation(
-              new Directory(scriptFile.getAbsoluteFile().getParentFile()),
-              scriptFile);
+            script = new ScriptLocation(scriptFile);
           }
           catch (DirectoryException e) {
             m_logger.error("The script '" + scriptFile + "' does not exist.");
