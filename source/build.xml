@@ -631,6 +631,7 @@ what you want. Currently the conditionally built modules are:
       <arg value="examples/http.py"/>
       <arg value="examples/scenario.py"/>
       <arg value="examples/fba.py"/>
+      <arg value="examples/digestauthentication.py"/>
       <arg value="examples/cookies.py"/>
       <arg value="examples/form.py"/>
       <arg value="examples/ejb.py"/>

@@ -16,6 +16,8 @@ The Grinder 3.0.2 (not yet released).
   Fix bug 1889281 - grinder.script relative path bug. Thanks to Ross
   Nicholson for the report, and the suggested fix.
 
+  HTTP Digest Authentication example from Matt Moran.
+
 
 The Grinder 3.0.1
 -----------------
