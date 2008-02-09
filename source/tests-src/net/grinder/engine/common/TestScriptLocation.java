@@ -78,6 +78,6 @@ public class TestScriptLocation extends AbstractFileTestCase {
     assertEquals("hello", s1.toString());
 
     final ScriptLocation s2 = new ScriptLocation(directory, nonExistentFile);
-    assertEquals(nonExistentFile.getPath(), s2.toString());
+    assertEquals("world", s2.toString());
   }
 }

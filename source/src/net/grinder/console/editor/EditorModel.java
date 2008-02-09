@@ -398,15 +398,17 @@ public final class EditorModel {
       try {
         final GrinderProperties properties = new GrinderProperties(file);
 
-        selectedFile = properties.getFile("grinder.script",
-                                          GrinderProperties.DEFAULT_SCRIPT);
+        selectedFile =
+          properties.resolveRelativeFile(
+            properties.getFile(GrinderProperties.SCRIPT,
+                               GrinderProperties.DEFAULT_SCRIPT))
+          .getCanonicalFile();
       }
       catch (PersistenceException e) {
         selectedFile = null;
       }
-
-      if (selectedFile != null && !selectedFile.isAbsolute()) {
-        selectedFile = new File(file.getParentFile(), selectedFile.getPath());
+      catch (IOException e) {
+        selectedFile = null;
       }
 
       synchronized (this) {
@@ -463,7 +465,10 @@ public final class EditorModel {
     // We don't constrain selection to have a .py extension. If the
     // user really wants to use something else, so be it.
     synchronized (this) {
-      return f != null && f.equals(m_selectedFile);
+      final boolean result = f != null && f.equals(m_selectedFile);
+
+      System.err.println("" + f + " == " + m_selectedFile + ": " + result);
+      return result;
     }
   }
 

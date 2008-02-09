@@ -1328,28 +1328,30 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
             new GrinderProperties(propertiesFile);
 
           final File scriptFile =
-            properties.getFile("grinder.script",
-                               GrinderProperties.DEFAULT_SCRIPT);
+            properties.resolveRelativeFile(
+              properties.getFile(GrinderProperties.SCRIPT,
+                                 GrinderProperties.DEFAULT_SCRIPT));
 
-          if (scriptFile == null) {
+          final Directory directory = m_properties.getDistributionDirectory();
+
+          final File relativePath = directory.getRelativePath(scriptFile);
+
+          // relativePath == null <=> absolute path that is outside of the
+          // directory. We allow this, since it is fairly obvious to the user
+          // what is going on.
+          if (relativePath != null &&
+              !directory.getFile(relativePath.getPath()).isFile()) {
             getErrorHandler().handleErrorMessage(
-              m_resources.getString("propertiesDoNotSpecifyScriptError.text"),
+              m_resources.getString("scriptNotInDirectoryError.text"),
               (String) getValue(NAME));
 
             return;
           }
-          else {
-            final Directory directory =
-              m_properties.getDistributionDirectory();
 
-            if (directory.getRelativePath(scriptFile) == null) {
-              getErrorHandler().handleErrorMessage(
-                m_resources.getString("scriptNotInDirectoryError.text"),
-                (String) getValue(NAME));
-
-              return;
-            }
-          }
+          // Ensure the properties passed to the agent has a relative
+          // associated path.
+          properties.setAssociatedFile(
+            directory.getRelativePath(propertiesFile));
 
           m_processControl.startWorkerProcesses(properties);
         }

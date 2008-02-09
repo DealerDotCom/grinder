@@ -61,7 +61,8 @@ public class TestAgent extends AbstractFileTestCase {
                        TestRunnner.class.getName());
   }
 
-  protected void tearDown() {
+  protected void tearDown() throws Exception {
+    super.tearDown();
     System.getProperties().remove(
       IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY);
   }
@@ -71,7 +72,7 @@ public class TestAgent extends AbstractFileTestCase {
     final Agent agent = new Agent(m_logger, propertyFile);
     agent.shutdown();
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertOutputMessageContains("finished");
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
@@ -95,11 +96,9 @@ public class TestAgent extends AbstractFileTestCase {
 
       agent.run();
 
-      m_loggerStubFactory.assertSuccess("output", String.class);
-      // Cannot contact console.
-      m_loggerStubFactory.assertSuccess("error", String.class);
-      // grinder.py not readable.
-      m_loggerStubFactory.assertSuccess("error", String.class);
+      m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+      m_loggerStubFactory.assertErrorMessageContains("Failed to connect");
+      m_loggerStubFactory.assertErrorMessageContains("does not exist");
       m_loggerStubFactory.assertNoMoreCalls();
 
       properties.setBoolean("grinder.useConsole", false);
@@ -111,9 +110,8 @@ public class TestAgent extends AbstractFileTestCase {
 
       agent.run();
 
-      m_loggerStubFactory.assertSuccess("output", String.class);
-      // Command line.
-      m_loggerStubFactory.assertSuccess("output", String.class);
+      m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+      m_loggerStubFactory.assertOutputMessageContains("command line");
       m_loggerStubFactory.assertNoMoreCalls();
     }
     finally {
@@ -133,11 +131,9 @@ public class TestAgent extends AbstractFileTestCase {
 
     agent.run();
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    // Cannot contact console.
-    m_loggerStubFactory.assertSuccess("error", String.class);
-    // grinder.py not readable.
-    m_loggerStubFactory.assertSuccess("error", String.class);
+    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+    m_loggerStubFactory.assertErrorMessageContains("Failed to connect");
+    m_loggerStubFactory.assertErrorMessageContains("does not exist");
     m_loggerStubFactory.assertNoMoreCalls();
 
     properties.setBoolean("grinder.useConsole", false);
@@ -145,9 +141,8 @@ public class TestAgent extends AbstractFileTestCase {
 
     agent.run();
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    // grinder.py not readable.
-    m_loggerStubFactory.assertSuccess("error", String.class);
+    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+    m_loggerStubFactory.assertErrorMessageContains("does not exist");
     m_loggerStubFactory.assertNoMoreCalls();
 
     final File scriptFile = new File(getDirectory(), "script");
@@ -159,9 +154,8 @@ public class TestAgent extends AbstractFileTestCase {
 
     agent.run();
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    // grinder.py not readable.
-    m_loggerStubFactory.assertSuccess("error", String.class);
+    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+    m_loggerStubFactory.assertErrorMessageContains("does not exist");
     m_loggerStubFactory.assertNoMoreCalls();
 
     properties.setFile("grinder.script", scriptFile);
@@ -170,9 +164,8 @@ public class TestAgent extends AbstractFileTestCase {
 
     agent.run();
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    // Command line.
-    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+    m_loggerStubFactory.assertOutputMessageContains("command line");
     m_loggerStubFactory.assertNoMoreCalls();
 
     properties.setBoolean("grinder.debug.singleprocess", true);
@@ -180,9 +173,9 @@ public class TestAgent extends AbstractFileTestCase {
 
     agent.run();
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    // Spawning threads message.
-    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+    m_loggerStubFactory.assertOutputMessageContains(
+      "threads rather than processes");
     m_loggerStubFactory.assertNoMoreCalls();
 
     properties.setProperty("grinder.jvm.arguments", "-Dsome_stuff=blah");
@@ -190,16 +183,15 @@ public class TestAgent extends AbstractFileTestCase {
 
     agent.run();
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    // Spawning threads message.
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    // Warning about JVM arguments.
-    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+    m_loggerStubFactory.assertOutputMessageContains(
+    "threads rather than processes");
+    m_loggerStubFactory.assertOutputMessageContains("grinder.jvm.arguments");
     m_loggerStubFactory.assertNoMoreCalls();
 
     agent.shutdown();
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertOutputMessageContains("finished");
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
@@ -207,7 +199,7 @@ public class TestAgent extends AbstractFileTestCase {
     final ConsoleStub console = new ConsoleStub() {
       public void onConnect() throws Exception {
         // After we accept an agent connection...
-        m_loggerStubFactory.assertSuccess("output", String.class);
+        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessageContains("connected");
@@ -216,8 +208,8 @@ public class TestAgent extends AbstractFileTestCase {
         m_loggerStubFactory.assertOutputMessageContains("waiting");
 
         // ...send a start message...
-        getSender().send(
-          new StartGrinderMessage(new GrinderProperties()));
+        final GrinderProperties grinderProperties = new GrinderProperties();
+        getSender().send(new StartGrinderMessage(grinderProperties));
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessage("received a start message");
@@ -229,15 +221,13 @@ public class TestAgent extends AbstractFileTestCase {
         m_loggerStubFactory.assertOutputMessageContains("waiting");
 
         // ...send another start message...
-        getSender().send(
-          new StartGrinderMessage(new GrinderProperties()));
+        getSender().send(new StartGrinderMessage(grinderProperties));
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessage("received a start message");
 
-        // Version string.
         m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertSuccess("output", String.class);
+        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertErrorMessageContains("grinder.py");
@@ -245,16 +235,28 @@ public class TestAgent extends AbstractFileTestCase {
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessageContains("waiting");
 
-        // ..then a reset message.
+        // ...then a reset message...
         getSender().send(new ResetGrinderMessage());
 
-        // Received a reset message.
         m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertSuccess("output", String.class);
+        m_loggerStubFactory.assertOutputMessage("received a reset message");
 
         // Version string.
         m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertSuccess("output", String.class);
+        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertOutputMessageContains("waiting");
+
+        // ...now try specifying the script...
+        grinderProperties.setFile(GrinderProperties.SCRIPT, new File("foo.py"));
+        getSender().send(new StartGrinderMessage(grinderProperties));
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertOutputMessage("received a start message");
+
+        m_loggerStubFactory.waitUntilCalled(5000);
+        m_loggerStubFactory.assertErrorMessageContains("foo.py");
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessageContains("waiting");
@@ -276,7 +278,7 @@ public class TestAgent extends AbstractFileTestCase {
 
     console.shutdown();
 
-    m_loggerStubFactory.assertSuccess("output", "received a stop message");
+    m_loggerStubFactory.assertOutputMessage("received a stop message");
 
     // communication shutdown.
     m_loggerStubFactory.waitUntilCalled(5000);
@@ -285,7 +287,7 @@ public class TestAgent extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
 
     agent.shutdown();
-    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertOutputMessage("finished");
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
@@ -294,7 +296,7 @@ public class TestAgent extends AbstractFileTestCase {
     final ConsoleStub console = new ConsoleStub() {
       public void onConnect() throws Exception {
         // After we accept an agent connection...
-        m_loggerStubFactory.assertSuccess("output", String.class);
+        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessageContains("connected");
@@ -419,7 +421,7 @@ public class TestAgent extends AbstractFileTestCase {
 
       while (!secondConsoleContacted[0] &&
              System.currentTimeMillis() < start + 10000) {
-        Thread.sleep(500);
+        secondConsoleContacted.wait(500);
       }
     }
 

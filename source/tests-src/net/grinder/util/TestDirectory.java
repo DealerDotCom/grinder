@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -57,6 +57,8 @@ public class TestDirectory extends AbstractFileTestCase {
     assertEquals(0, directory.getWarnings().length);
 
     assertEquals(getDirectory(), directory.getFile());
+
+    assertEquals(new File("."), new Directory(null).getFile());
   }
 
   public void testDefaultConstructor() throws Exception {
@@ -259,8 +261,6 @@ public class TestDirectory extends AbstractFileTestCase {
 
     for (int i = 0; i < files.length; ++i) {
       final File absoluteFile = new File(getDirectory(), files[i]);
-      absoluteFile.getParentFile().mkdirs();
-      absoluteFile.createNewFile();
 
       final File result = directory.getRelativePath(absoluteFile);
       assertFalse(result.isAbsolute());
@@ -271,19 +271,10 @@ public class TestDirectory extends AbstractFileTestCase {
       final File result2 = directory.getRelativePath(relativeFile);
       assertFalse(result2.isAbsolute());
       assertEquals(relativeFile, result2);
-
-      absoluteFile.delete();
-
-      assertNull(directory.getRelativePath(absoluteFile));
-      assertNull(directory.getRelativePath(relativeFile));
-
-      absoluteFile.mkdirs();
-
-      assertNull(directory.getRelativePath(absoluteFile));
-      assertNull(directory.getRelativePath(relativeFile));
     }
 
-    assertNull(directory.getRelativePath(new File(getDirectory(), "foo")));
+    // Absolute file outside of directory.
+    assertNull(directory.getRelativePath(new File("blah").getAbsoluteFile()));
   }
 
   public void testIsParentOf() throws Exception {

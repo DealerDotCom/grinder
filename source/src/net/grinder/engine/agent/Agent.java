@@ -48,6 +48,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.util.Directory;
 import net.grinder.util.Directory.DirectoryException;
 import net.grinder.util.thread.Condition;
 
@@ -176,32 +177,40 @@ public final class Agent {
         }
 
         if (startMessage != null) {
-          // If the start message doesn't specify a script, we look for a
-          // default "grinder.py" script in the cache, then fallback to
-          // the agent properties.
-          final File scriptFromConsole =
-            startMessage.getProperties().getFile("grinder.script", null);
+          final GrinderProperties messageProperties =
+            startMessage.getProperties();
+          final Directory fileStoreDirectory = m_fileStore.getDirectory();
 
-          if (scriptFromConsole != null) {
-            // The script directory may not be the file's direct parent.
-            script =
-              new ScriptLocation(m_fileStore.getDirectory(), scriptFromConsole);
+          // Convert relative path to absolute path.
+          if (messageProperties.getAssociatedFile() != null) {
+            messageProperties.setAssociatedFile(
+              fileStoreDirectory.getFile(
+                messageProperties.getAssociatedFile().getPath()));
           }
           else {
-            final ScriptLocation s =
-              new ScriptLocation(m_fileStore.getDirectory(),
-                                 GrinderProperties.DEFAULT_SCRIPT);
+            messageProperties.setAssociatedFile(fileStoreDirectory.getFile());
+          }
 
-            if (s.getFile().canRead()) {
-              script = s;
-            }
+          final File scriptFromConsole =
+            messageProperties.resolveRelativeFile(
+              messageProperties.getFile(GrinderProperties.SCRIPT,
+                                        GrinderProperties.DEFAULT_SCRIPT));
+
+          // We only fall back to the agent properties if the start message
+          // doesn't specify a script and there is no default script.
+          if (messageProperties.containsKey(GrinderProperties.SCRIPT) ||
+              scriptFromConsole.canRead()) {
+            // The script directory may not be the file's direct parent.
+            script =
+              new ScriptLocation(fileStoreDirectory, scriptFromConsole);
           }
         }
 
         if (script == null) {
           final File scriptFile =
-            properties.getFile("grinder.script",
-                               GrinderProperties.DEFAULT_SCRIPT);
+            properties.resolveRelativeFile(
+              properties.getFile(GrinderProperties.SCRIPT,
+                                 GrinderProperties.DEFAULT_SCRIPT));
 
           try {
             script = new ScriptLocation(scriptFile);

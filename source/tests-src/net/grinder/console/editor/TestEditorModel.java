@@ -24,6 +24,7 @@ package net.grinder.console.editor;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.console.common.DisplayMessageConsoleException;
@@ -499,6 +500,17 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertFalse(editorModel.isSelectedScript(script));
     editorModel.setSelectedPropertiesFile(f2);
     assertTrue(editorModel.isSelectedScript(script));
+
+    // Again with bogus path.
+    final char[] manyChars = new char[65536];
+    Arrays.fill(manyChars, 'x');
+    final File bogusFile = new File(new String(manyChars));
+    properties.setFile("grinder.script", bogusFile);
+    properties.save();
+    assertTrue(editorModel.isSelectedScript(script));
+    editorModel.setSelectedPropertiesFile(f2);
+    assertFalse(editorModel.isSelectedScript(bogusFile));
+    assertFalse(editorModel.isSelectedScript(script));
   }
 
   public void testAbstractListener() throws Exception {

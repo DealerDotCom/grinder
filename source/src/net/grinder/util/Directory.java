@@ -82,12 +82,17 @@ public final class Directory implements Serializable {
    * represents a file that exists but is not a directory.
    */
   public Directory(File directory) throws DirectoryException {
-    if (directory.exists() && !directory.isDirectory()) {
-      throw new DirectoryException(
-        "'" + directory.getPath() + "' is not a directory");
+    if (directory == null) {
+      m_directory = new File(".");
     }
+    else {
+      if (directory.exists() && !directory.isDirectory()) {
+        throw new DirectoryException(
+          "'" + directory.getPath() + "' is not a directory");
+      }
 
-    m_directory = directory;
+      m_directory = directory;
+    }
   }
 
   /**
@@ -121,6 +126,7 @@ public final class Directory implements Serializable {
    * @return The <code>File</code>.
    */
   public File getFile(String childName) {
+    // TODO produce a version that takes a File(). Handle null.
     return new File(getFile(), childName);
   }
 
@@ -270,37 +276,41 @@ public final class Directory implements Serializable {
    * Find the given file in the directory and return a <code>File</code>
    * representing its path relative to the root of the directory.
    *
-   * <p>
-   * If the supplied file is absolute, the implementation scans the files below
-   * the directory. Converting the paths to a canonical form and then using
-   * <code>String.startsWith()</code> would be system dependent.
-   * </p>
-   *
    * @param file
    *            The file to search for.
    * @return The relative file, or <code>null</code> if the directory does not
-   *         exist of <code>absoluteFile</code> was not found.
+   *         exist or <code>absoluteFile</code> was not found.
    */
   public File getRelativePath(File file) {
+    return getRelative(getFile(), file, null);
+  }
 
-    if (file.isAbsolute()) {
-      final File[] contents = listContents(s_matchAllFilesFilter, false, false);
+  private static File getRelative(File parent, File child, File result) {
+    final File immediateParent = child.getParentFile();
 
-      for (int i = 0; i < contents.length; ++i) {
-        if (getFile(contents[i].getPath()).equals(file)) {
-          return contents[i];
-        }
-      }
+    final File nextResult;
+
+    if (result == null) {
+      nextResult = new File(child.getName());
     }
     else {
-      final File absoluteFile = getFile(file.getPath());
+      nextResult = new File(child.getName(), result.getPath());
+    }
 
-      if (absoluteFile.isFile()) {
-        return file;
+    if (parent.equals(immediateParent)) {
+      return nextResult;
+    }
+
+    if (immediateParent == null) {
+      if (child.isAbsolute()) {
+        return null;
+      }
+      else {
+        return nextResult;
       }
     }
 
-    return null;
+    return getRelative(parent, immediateParent, nextResult);
   }
 
   /**

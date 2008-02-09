@@ -46,6 +46,11 @@ public class GrinderProperties extends Properties {
   private static final long serialVersionUID = 1;
 
   /**
+   * Key to use for the script property.
+   */
+  public static final String SCRIPT = "grinder.script";
+
+  /**
    * Default file name for properties.
    */
   public static final File DEFAULT_PROPERTIES = new File("grinder.properties");
@@ -57,7 +62,8 @@ public class GrinderProperties extends Properties {
 
   private transient PrintWriter m_errorWriter =
     new PrintWriter(System.err, true);
-  private final File m_file;
+
+  private File m_file;
 
   /**
    * Construct an empty GrinderProperties with no associated file.
@@ -78,7 +84,7 @@ public class GrinderProperties extends Properties {
    * @see #DEFAULT_PROPERTIES
    */
   public GrinderProperties(File file) throws PersistenceException {
-    m_file = file;
+    setAssociatedFile(file);
 
     if (m_file.exists()) {
       InputStream propertiesInputStream = null;
@@ -109,10 +115,23 @@ public class GrinderProperties extends Properties {
   }
 
   /**
-   * Accessor for unit tests.
+   * Get the associated file.
+   *
+   * @return The associated file, or <code>null</code> if none.
    */
-  File getAssociatedFile() {
+  public final File getAssociatedFile() {
     return m_file;
+  }
+
+  /**
+   * Set the associated file. Does not cause the properties to be re-read from
+   * the new file.
+   *
+   * @param file
+   *            The associated file, or <code>null</code> if none.
+   */
+  public final void setAssociatedFile(File file) {
+    m_file = file;
   }
 
   /**
@@ -410,12 +429,14 @@ public class GrinderProperties extends Properties {
   }
 
   /**
-   * Get the value of the property with the given name, return the
-   * value as a <code>File</code>.
-   * @param propertyName The property name.
-   * @param defaultValue The value to return if a property with the
-   * given name does not exist.
+   * Get the value of the property with the given name, return the value as a
+   * <code>File</code>.
    *
+   * @param propertyName
+   *            The property name.
+   * @param defaultValue
+   *            The value to return if a property with the given name does not
+   *            exist.
    * @return The value.
    */
   public final File getFile(String propertyName, File defaultValue) {
@@ -426,6 +447,29 @@ public class GrinderProperties extends Properties {
     }
 
     return defaultValue;
+  }
+
+  /**
+   * Returns a {@link File} representing the combined path of our associated
+   * property file directory and the passed <code>file</code>.
+   *
+   * <p>
+   * If <code>file</code> is absolute, or this <code>GrinderProperties</code>
+   * has no associated property file, return <code>file</code>.
+   * </p>
+   *
+   * @param file
+   *            The file.
+   * @return If possible, <code>file</code> resolved relative to the directory
+   *         of our associated properties file, or <code>file</code>.
+   */
+  public final File resolveRelativeFile(File file) {
+
+    if (m_file != null && file != null && !file.isAbsolute()) {
+      return new File(m_file.getParentFile(), file.getPath());
+    }
+
+    return file;
   }
 
   /**

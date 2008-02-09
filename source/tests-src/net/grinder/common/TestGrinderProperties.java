@@ -380,7 +380,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
           properties.setBoolean(key,
                                 Boolean.valueOf(value).
                                 booleanValue());
-          assertEquals(new Boolean(value).toString(),
+          assertEquals(Boolean.valueOf(value).toString(),
                        properties.getProperty(key, null));
         }
       }
@@ -626,6 +626,38 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       (GrinderProperties)Serializer.serialize(properties);
 
     assertEquals(properties, properties2);
+  }
+
+  public void testResolveRelativeFile() throws Exception {
+    final File relativeDirectory = new File("d");
+    final File absoluteDirectory = relativeDirectory.getCanonicalFile();
+    final File absolute1 = new File(absoluteDirectory, "blah");
+    final File relative1 = new File("winterlong");
+    final File relative2 = new File(relative1, "i wait for you");
+
+    final GrinderProperties properties = new GrinderProperties();
+
+    assertNull(properties.resolveRelativeFile(null));
+    assertEquals(relative1, properties.resolveRelativeFile(relative1));
+    assertEquals(absolute1, properties.resolveRelativeFile(absolute1));
+
+    properties.setAssociatedFile(new File(relativeDirectory, "my.properties"));
+
+    assertEquals(new File(relativeDirectory, relative1.getPath()),
+                 properties.resolveRelativeFile(relative1));
+    assertEquals(new File(relativeDirectory, relative2.getPath()),
+      properties.resolveRelativeFile(relative2));
+    assertEquals(absolute1, properties.resolveRelativeFile(absolute1));
+    assertNull(properties.resolveRelativeFile(null));
+
+    properties.setAssociatedFile(new File(absoluteDirectory, "my.properties"));
+
+    assertEquals(new File(absoluteDirectory, relative1.getPath()),
+      properties.resolveRelativeFile(relative1));
+    assertEquals(new File(absoluteDirectory, relative2.getPath()),
+      properties.resolveRelativeFile(relative2));
+    assertEquals(absolute1, properties.resolveRelativeFile(absolute1));
+    assertNull(properties.resolveRelativeFile(null));
   }
 }
 

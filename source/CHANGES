@@ -13,8 +13,12 @@ The Grinder 3.0.2 (not yet released).
   - Count empty samples when triggered and ignoring samples.
   - Display sample data when triggered and ignoring samples.
 
-  Fix bug 1889281 - grinder.script relative path bug. Thanks to Ross
-  Nicholson for the report, and the suggested fix.
+  Relative paths set for grinder.script are resolved relative to the
+  location of the properties file. This fixes two bugs.
+  - Bug 1889281 - grinder.script relative path bug. Thanks to Ross
+    Nicholson for the report, and the suggested fix.
+  - Bug 1875880 - Script validation wrong for properties file in sub
+    directory.
 
   HTTP Digest Authentication example from Matt Moran.
 
