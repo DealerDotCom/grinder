@@ -69,7 +69,7 @@ public final class ScriptLocation implements Serializable {
       m_absoluteFile = file;
     }
     else {
-      m_absoluteFile = directory.getFile(file.getPath());
+      m_absoluteFile = directory.getFile(file);
     }
   }
 

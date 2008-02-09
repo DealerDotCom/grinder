@@ -182,14 +182,8 @@ public final class Agent {
           final Directory fileStoreDirectory = m_fileStore.getDirectory();
 
           // Convert relative path to absolute path.
-          if (messageProperties.getAssociatedFile() != null) {
-            messageProperties.setAssociatedFile(
-              fileStoreDirectory.getFile(
-                messageProperties.getAssociatedFile().getPath()));
-          }
-          else {
-            messageProperties.setAssociatedFile(fileStoreDirectory.getFile());
-          }
+          messageProperties.setAssociatedFile(
+            fileStoreDirectory.getFile(messageProperties.getAssociatedFile()));
 
           final File scriptFromConsole =
             messageProperties.resolveRelativeFile(

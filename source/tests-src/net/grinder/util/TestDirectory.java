@@ -357,10 +357,10 @@ public class TestDirectory extends AbstractFileTestCase {
     assertEquals(files.size() * 2, contents2.length);
 
     final Directory missingSourceDirectory =
-      new Directory(sourceDirectory.getFile("missing"));
+      new Directory(sourceDirectory.getFile(new File("missing")));
 
     final Directory missingOutputDirectory =
-      new Directory(outputDirectory.getFile("notthere"));
+      new Directory(outputDirectory.getFile(new File("notthere")));
 
     assertFalse(missingSourceDirectory.getFile().exists());
     assertFalse(missingOutputDirectory.getFile().exists());

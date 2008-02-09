@@ -109,7 +109,7 @@ public final class FileContents implements Serializable {
    */
   public void create(Directory baseDirectory) throws FileContentsException {
 
-    final File localFile = baseDirectory.getFile(getFilename().getPath());
+    final File localFile = baseDirectory.getFile(getFilename());
 
     localFile.getParentFile().mkdirs();
 

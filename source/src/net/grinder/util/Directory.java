@@ -110,7 +110,7 @@ public final class Directory implements Serializable {
   }
 
   /**
-   * Get as a <code>java.io.File</code>.
+   * Get as a {@link File}.
    *
    * @return The <code>File</code>.
    */
@@ -119,15 +119,21 @@ public final class Directory implements Serializable {
   }
 
   /**
-   * Return a <code>java.io.File</code> representing the absolute path
-   * of a file in this directory.
+   * Return a {@link File} representing the absolute path of a file in this
+   * directory.
    *
-   * @param childName Relative filename in this directory.
+   * @param child
+   *            Relative file in this directory. If <code>null</code>, the
+   *            result is equivalent to {@link #getFile()}.
    * @return The <code>File</code>.
    */
-  public File getFile(String childName) {
-    // TODO produce a version that takes a File(). Handle null.
-    return new File(getFile(), childName);
+  public File getFile(File child) {
+    if (child == null) {
+      return getFile();
+    }
+    else {
+      return new File(getFile(), child.getPath());
+    }
   }
 
   /**
@@ -189,9 +195,7 @@ public final class Directory implements Serializable {
 
       for (int i = 0; i < directories.length; ++i) {
         final File relativeDirectory = directories[i];
-        final File absoluteDirectory =
-          relativeDirectory != null ?
-          getFile(relativeDirectory.getPath()) : getFile();
+        final File absoluteDirectory = getFile(relativeDirectory);
 
         visited.add(relativeDirectory);
 
@@ -364,9 +368,8 @@ public final class Directory implements Serializable {
     final StreamCopier streamCopier = new StreamCopier(4096, false);
 
     for (int i = 0; i < files.length; ++i) {
-      final String relativePath = files[i].getPath();
-      final File source = getFile(relativePath);
-      final File destination = target.getFile(relativePath);
+      final File source = getFile(files[i]);
+      final File destination = target.getFile(files[i]);
 
       if (source.isDirectory()) {
         destination.mkdirs();

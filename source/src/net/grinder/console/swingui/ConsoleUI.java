@@ -1340,7 +1340,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
           // directory. We allow this, since it is fairly obvious to the user
           // what is going on.
           if (relativePath != null &&
-              !directory.getFile(relativePath.getPath()).isFile()) {
+              !directory.getFile(relativePath).isFile()) {
             getErrorHandler().handleErrorMessage(
               m_resources.getString("scriptNotInDirectoryError.text"),
               (String) getValue(NAME));
