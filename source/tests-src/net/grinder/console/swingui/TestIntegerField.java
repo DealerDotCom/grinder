@@ -21,6 +21,8 @@
 
 package net.grinder.console.swingui;
 
+import java.util.Enumeration;
+
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.AttributeSet;
@@ -166,11 +168,19 @@ public class TestIntegerField extends TestCase {
     field2.addChangeListener(listener);
     listenerStubFactory.assertNoMoreCalls();
 
+    final RandomStubFactory attributeSetStubFactory =
+      new RandomStubFactory(AttributeSet.class);
     final AttributeSet attributeSet =
-      (AttributeSet)new RandomStubFactory(AttributeSet.class).getStub();
+      (AttributeSet)attributeSetStubFactory.getStub();
+    attributeSetStubFactory.setResult("getAttributeNames",
+      new Enumeration() {
+        public boolean hasMoreElements() { return false; }
+        public Object nextElement() { return null; }
+      } );
 
-    styledDocument.setCharacterAttributes(0, 0, attributeSet, false);
+    styledDocument.setCharacterAttributes(0, 1, attributeSet, false);
     listenerStubFactory.assertSuccess("stateChanged", ChangeEvent.class);
+
     listenerStubFactory.assertNoMoreCalls();
   }
 }
