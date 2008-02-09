@@ -465,10 +465,7 @@ public final class EditorModel {
     // We don't constrain selection to have a .py extension. If the
     // user really wants to use something else, so be it.
     synchronized (this) {
-      final boolean result = f != null && f.equals(m_selectedFile);
-
-      System.err.println("" + f + " == " + m_selectedFile + ": " + result);
-      return result;
+      return f != null && f.equals(m_selectedFile);
     }
   }
 
