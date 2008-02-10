@@ -277,7 +277,10 @@ class LabelledGraph extends JPanel {
     m_errorsLabel.setHighlight(errors > 0);
   }
 
-  private Color calculateColour(double time) {
+  /**
+   * Package scope for unit tests.
+   */
+  Color calculateColour(double time) {
     if (m_color != null) {
       return m_color;
     }

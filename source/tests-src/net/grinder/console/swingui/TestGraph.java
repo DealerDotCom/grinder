@@ -25,6 +25,7 @@ package net.grinder.console.swingui;
 import junit.framework.TestCase;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.text.DecimalFormat;
 import java.util.Random;
 import javax.swing.JComponent;
@@ -172,6 +173,32 @@ public class TestGraph extends TestCase {
       labelledGraph.add(intervalStatistics, cumulativeStatistics, format);
       pause();
     }
+
+    LabelledGraph.resetPeak();
+    labelledGraph.calculateColour(100);
+    LabelledGraph.resetPeak();
+
+    final Color colour1 = labelledGraph.calculateColour(100);
+    assertFalse(colour1.equals(labelledGraph.calculateColour(50)));
+    assertEquals(colour1, labelledGraph.calculateColour(100));
+    assertEquals(colour1, labelledGraph.calculateColour(150));
+    assertEquals(colour1, labelledGraph.calculateColour(100));
+
+    LabelledGraph.resetPeak();
+    assertFalse(colour1.equals(labelledGraph.calculateColour(100)));
+    assertEquals(colour1, labelledGraph.calculateColour(150));
+
+    final LabelledGraph labelledGraph2 =
+      new LabelledGraph(
+        "Test",
+        new ResourcesImplementation(
+          "net.grinder.console.common.resources.Console"),
+        Colours.DARK_GREEN,
+        tpsExpression,
+        peakTPSExpression,
+        statisticsServices.getTestStatisticsQueries());
+    assertEquals(Colours.DARK_GREEN, labelledGraph2.calculateColour(100));
+    assertEquals(Colours.DARK_GREEN, labelledGraph2.calculateColour(0));
   }
 
   private void pause() throws Exception {
