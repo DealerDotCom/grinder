@@ -103,4 +103,8 @@
     <Bug pattern="IMA_INEFFICIENT_MEMBER_ACCESS"/>
   </Match>
 
+  <Match>
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/> <!-- Roll on closures -->
+  </Match>
+
 </FindBugsFilter>
