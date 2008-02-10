@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,7 +33,7 @@ package net.grinder.util;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class FixedWidthFormatter extends AbstractMultiLineFormatter {
+public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
 
   /** Constant indicating left alignment. */
   public static final int ALIGN_LEFT = 0;
@@ -156,7 +156,7 @@ public class FixedWidthFormatter extends AbstractMultiLineFormatter {
    * @param buffer Buffer to transform to a single line.
    * @param remainder Leftovers.
    */
-  public final void transform(StringBuffer buffer, StringBuffer remainder) {
+  public void transform(StringBuffer buffer, StringBuffer remainder) {
 
     int length = buffer.length();
 

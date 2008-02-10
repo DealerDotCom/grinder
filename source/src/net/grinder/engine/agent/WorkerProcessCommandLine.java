@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -90,7 +90,7 @@ final class WorkerProcessCommandLine {
   }
 
   public String[] getCommandArray() {
-    return (String[])m_command.toArray(new String[0]);
+    return (String[])m_command.toArray(new String[m_command.size()]);
   }
 
   /**

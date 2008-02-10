@@ -82,7 +82,7 @@ class LabelledGraph extends JPanel {
   private final StatisticExpression m_peakTPSExpression;
   private final TestStatisticsQueries m_testStatisticsQueries;
 
-  private static class Label extends JLabel {
+  private static final class Label extends JLabel {
 
     private static final Font s_plainFont;
     private static final Font s_boldFont;

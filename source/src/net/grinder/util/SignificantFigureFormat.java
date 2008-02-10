@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,8 @@ import java.text.FieldPosition;
  * @version $Revision$
  */
 public class SignificantFigureFormat extends DecimalFormat {
+
+  private static final long serialVersionUID = 1;
 
   private static final int s_decimalPlaces = 40;
 

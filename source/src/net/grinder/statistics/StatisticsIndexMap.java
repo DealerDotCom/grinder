@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
 // All rights reserved.
@@ -59,6 +59,8 @@ import java.util.Map;
  * @version $Revision$
  */
 public final class StatisticsIndexMap implements Serializable {
+
+  private static final long serialVersionUID = 1;
 
   private final Map m_doubleMap = new HashMap();
   private final Map m_longMap = new HashMap();

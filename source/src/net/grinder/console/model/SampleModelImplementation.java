@@ -189,7 +189,7 @@ public final class SampleModelImplementation implements SampleModel {
       m_tests.addAll(newTests);
 
       // Create an index of m_tests sorted by test number.
-      testArray = (Test[])m_tests.toArray(new Test[0]);
+      testArray = (Test[])m_tests.toArray(new Test[m_tests.size()]);
     }
 
     final SampleAccumulator[] accumulatorArray =

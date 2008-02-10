@@ -577,7 +577,7 @@ final class StatisticExpressionFactoryImplementation
     }
 
     return (StatisticExpression[])
-      arrayList.toArray(new StatisticExpression[0]);
+      arrayList.toArray(new StatisticExpression[arrayList.size()]);
   }
 
   private abstract static class DoubleStatistic

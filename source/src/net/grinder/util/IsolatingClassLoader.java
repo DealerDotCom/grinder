@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -81,7 +81,7 @@ public class IsolatingClassLoader extends URLClassLoader {
       }
     }
 
-    m_sharedPrefixes = (String[])prefixes.toArray(new String[0]);
+    m_sharedPrefixes = (String[])prefixes.toArray(new String[prefixes.size()]);
 
     m_isolateParentOnly = isolateParentOnly;
   }

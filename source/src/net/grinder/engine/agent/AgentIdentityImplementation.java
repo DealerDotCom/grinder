@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -66,6 +66,8 @@ class AgentIdentityImplementation
   private final class WorkerIdentityImplementation
     extends AbstractProcessIdentityImplementation
     implements WorkerIdentity {
+
+    private static final long serialVersionUID = 1;
 
     private WorkerIdentityImplementation(String name) {
       super(s_identityGenerator.createUniqueString(name), name);

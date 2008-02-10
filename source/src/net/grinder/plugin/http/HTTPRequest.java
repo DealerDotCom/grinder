@@ -25,6 +25,7 @@
 
 package net.grinder.plugin.http;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,7 +44,6 @@ import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
 
-import net.grinder.common.Closer;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginException;
@@ -54,6 +54,7 @@ import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.util.StreamCopier;
 
 
 /**
@@ -232,17 +233,14 @@ public class HTTPRequest {
   public final byte[] setDataFromFile(String filename) throws IOException {
 
     final File file = new File(filename);
-    m_defaultData = new byte[(int)file.length()];
 
-    FileInputStream fileInputStream = null;
+    final ByteArrayOutputStream byteArrayStream =
+      new ByteArrayOutputStream((int)file.length());
 
-    try {
-      fileInputStream = new FileInputStream(file);
-      fileInputStream.read(m_defaultData);
-    }
-    finally {
-      Closer.close(fileInputStream);
-    }
+    new StreamCopier(4096, true).copy(
+      new FileInputStream(file), byteArrayStream);
+
+    m_defaultData = byteArrayStream.toByteArray();
 
     return m_defaultData;
   }

@@ -1,5 +1,5 @@
 // Copyright (C) 2007 Venelin Mitov
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -57,7 +57,8 @@ public class CommentSourceImplementation implements UpdatableCommentSource {
    *         array is returned.
    */
   public synchronized String[] getComments() {
-    final String[] res = (String[]) m_commentQueue.toArray(new String[0]);
+    final String[] res =
+      (String[]) m_commentQueue.toArray(new String[m_commentQueue.size()]);
     m_commentQueue.clear();
     return res;
   }
