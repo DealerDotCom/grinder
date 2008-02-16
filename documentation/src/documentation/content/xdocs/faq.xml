@@ -1381,6 +1381,45 @@ class TestRunner:
 
       </answer>
     </faq>
+
+    <faq>
+    <question>
+    What does "java.lang.ClassFormatError: Invalid method Code length" mean?
+    </question>
+    <answer>
+	<p>The short answer is that a function in your script is too long and is
+tripping over a Java limitation on the length of a method inherited by
+Jython. Java methods are limited to 65535 characters or less.</p>
+
+	<p>You'll need to break the script up into smaller pieces. E.g. if you
+	have a script that looks like</p>
+	<source>
+#...
+class TestRunner:
+  def __call__(self):
+  	# Lots of code - more than 65535 characters
+</source>
+	<p>you might break it up into smaller methods (functions belonging to
+	<code>TestRunner</code>) as follows:</p>
+	<source>
+#...
+class TestRunner:
+  def part1(self):
+  	# some of the code - less than 65535 characters
+
+  def part2(self):
+  	# more of the code
+
+  def part3(self):
+  	# the rest of the code
+
+  def __call__(self):
+  	self.part1()
+  	self.part2()
+  	self.part3()
+</source>
+    </answer>
+    </faq>
   </faqsection>
   <faqsection id="g3-ssl">
     <title>SSL</title>
