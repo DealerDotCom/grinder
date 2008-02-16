@@ -398,10 +398,9 @@ from net.grinder.script import Test
 <source>
 from net.grinder.script import Test as StandardTest
 
-class Test(StandardTest):
-    def __init__(self, number, description):
-        # Adjust the 1000 to the appropriate offset.
-        StandardTest.__init__(self, number + 1000, description)
+def Test(number, description):
+    # Adjust the 1000 to the appropriate offset.
+    return StandardTest(number + 1000, description)
 </source>
 
 
