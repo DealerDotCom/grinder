@@ -220,6 +220,10 @@ See http://forrest.apache.org/docs/linking.html for more info
       <registry href="docs/registry.html"/>
     </jython>
 
+    <jython-wiki href="http://wiki.python.org/">
+    	<package-scanning href="jython/PackageScanning"/>
+    </jython-wiki>
+
     <mail>
       <grinder-announce href="mailto:grinder-announce@lists.sourceforge.net"/>
       <grinder-development href="mailto:grinder-development@lists.sourceforge.net"/>
@@ -255,6 +259,9 @@ See http://forrest.apache.org/docs/linking.html for more info
       <junit href="projects/junit"/>
       <extra-line href="tracker/index.php?func=detail&amp;aid=1081136&amp;group_id=18598&amp;atid=118598"/>
       <grinder-mail href="mail/?group_id=18598"/>
+      <jython>
+        <cachedir-bug href="tracker/index.php?func=detail&amp;aid=1894900&amp;group_id=12867&amp;atid=112867"/>
+      </jython>
       <svn href="svn/?group_id=18598"/>
       <vcview href="http://grinder.svn.sourceforge.net/viewvc/grinder/trunk/source/">
         <console-resources href="src/net/grinder/console/common/resources/"/>

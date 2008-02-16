@@ -1024,6 +1024,31 @@ C:\> java net.grinder.Grinder > output.txt
 
       </answer>
     </faq>
+
+    <faq id="cachedir">
+      <question>
+      Should I be concerned about the "can't create package cache dir" message?
+      </question>
+      <answer>
+      <p>At start up, the agent may log a message about not being able to create
+      a package cache directory:</p>
+      <source>
+2/14/08 2:20:00 PM (agent): worker deep-0 started *sys-package-mgr*: can't create package cache dir 'D:\grinder-3.0.1\lib\jython.jar\cachedir\packages'
+</source>
+
+	  <p>This is due to a <a href="ext:sourceforge/jython/cachedir-bug">
+	  Jython 2.2.1 bug</a>.</p>
+
+	  <p>You can ignore the warning if you don't rely on Jython <a href="ext:jython-wiki/package-scanning">package scanning</a>
+(this is likely).</p>
+
+	  <p>Alternatively, you can specify a cache directory by adding the following
+	  to grinder.properties (adjusting <code>/tmp</code> accordingly):</p>
+	  <source>
+grinder.jvm.arguments: -Dpython.cachedir=/tmp
+</source>
+      </answer>
+    </faq>
   </faqsection>
   <faqsection id="g3-scripts">
     <title>Scripts</title>
