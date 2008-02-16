@@ -35,7 +35,6 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.communication.ClientReceiver;
 import net.grinder.communication.ClientSender;
-import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
@@ -44,6 +43,7 @@ import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.TeeSender;
 import net.grinder.console.messages.AgentProcessReportMessage;
+import net.grinder.engine.common.ConnectorFactory;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
@@ -71,6 +71,8 @@ public final class Agent {
   private final ConsoleListener m_consoleListener;
   private final FanOutStreamSender m_fanOutStreamSender =
     new FanOutStreamSender(3);
+  private final ConnectorFactory m_connectorFactory =
+    new ConnectorFactory(ConnectionType.AGENT);
 
   /**
    * We use an most one file store throughout an agent's life, but can't
@@ -110,6 +112,7 @@ public final class Agent {
 
       ScriptLocation script = null;
       GrinderProperties properties;
+      int agentID = -1;
 
       do {
         properties =
@@ -124,19 +127,9 @@ public final class Agent {
         m_agentIdentity.setName(
           properties.getProperty("grinder.hostID", getHostName()));
 
-        final Connector connector;
-
-        if (properties.getBoolean("grinder.useConsole", true)) {
-          connector = new Connector(
-              properties.getProperty("grinder.consoleHost",
-                                     CommunicationDefaults.CONSOLE_HOST),
-              properties.getInt("grinder.consolePort",
-                                CommunicationDefaults.CONSOLE_PORT),
-              ConnectionType.AGENT);
-        }
-        else {
-          connector = null;
-        }
+        final Connector connector =
+          properties.getBoolean("grinder.useConsole", true) ?
+          m_connectorFactory.create(properties) : null;
 
         // We only reconnect if the connection details have changed.
         if (consoleCommunication != null &&
@@ -170,8 +163,7 @@ public final class Agent {
             continue; // Loop to handle new properties.
           }
           else {
-            // Some other message, we check what this at the end of the
-            // outer while loop.
+            // Another message, we check at the end of the outer while loop.
             break;
           }
         }
@@ -185,7 +177,7 @@ public final class Agent {
           messageProperties.setAssociatedFile(
             fileStoreDirectory.getFile(messageProperties.getAssociatedFile()));
 
-          final File scriptFromConsole =
+          final File consoleScript =
             messageProperties.resolveRelativeFile(
               messageProperties.getFile(GrinderProperties.SCRIPT,
                                         GrinderProperties.DEFAULT_SCRIPT));
@@ -193,11 +185,15 @@ public final class Agent {
           // We only fall back to the agent properties if the start message
           // doesn't specify a script and there is no default script.
           if (messageProperties.containsKey(GrinderProperties.SCRIPT) ||
-              scriptFromConsole.canRead()) {
+              consoleScript.canRead()) {
             // The script directory may not be the file's direct parent.
-            script =
-              new ScriptLocation(fileStoreDirectory, scriptFromConsole);
+            script = new ScriptLocation(fileStoreDirectory, consoleScript);
           }
+
+          agentID = startMessage.getAgentNumberMap().get(m_agentIdentity);
+        }
+        else {
+          agentID = -1;
         }
 
         if (script == null) {
@@ -225,14 +221,12 @@ public final class Agent {
       while (script == null);
 
       if (script != null) {
-        final boolean singleProcess =
-          properties.getBoolean("grinder.debug.singleprocess", false);
         final String jvmArguments =
           properties.getProperty("grinder.jvm.arguments");
 
         final WorkerFactory workerFactory;
 
-        if (!singleProcess) {
+        if (!properties.getBoolean("grinder.debug.singleprocess", false)) {
           final WorkerProcessCommandLine workerCommandLine =
             new WorkerProcessCommandLine(properties,
                                          System.getProperties(),
@@ -261,7 +255,10 @@ public final class Agent {
 
         final WorkerLauncher workerLauncher =
           new WorkerLauncher(properties.getInt("grinder.processes", 1),
-                             workerFactory, m_eventSynchronisation, m_logger);
+                             workerFactory,
+                             m_eventSynchronisation,
+                             m_logger,
+                             agentID);
 
         final int processIncrement =
           properties.getInt("grinder.processIncrement", 0);

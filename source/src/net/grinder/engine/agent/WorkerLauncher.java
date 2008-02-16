@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,6 +41,7 @@ final class WorkerLauncher {
   private final WorkerFactory m_workerFactory;
   private final Condition m_notifyOnFinish;
   private final Logger m_logger;
+  private final int m_agentID;
 
   /**
    * Fixed size array with a slot for all potential workers. Synchronise on
@@ -58,11 +59,13 @@ final class WorkerLauncher {
   public WorkerLauncher(int numberOfWorkers,
                         WorkerFactory workerFactory,
                         Condition notifyOnFinish,
-                        Logger logger) {
+                        Logger logger,
+                        int agentID) {
 
     m_workerFactory = workerFactory;
     m_notifyOnFinish = notifyOnFinish;
     m_logger = logger;
+    m_agentID = agentID;
 
     m_workers = new Worker[numberOfWorkers];
   }
@@ -81,7 +84,8 @@ final class WorkerLauncher {
       final int workerIndex = m_nextWorkerIndex;
 
       synchronized (m_workers) {
-        m_workers[workerIndex] = m_workerFactory.create(System.out, System.err);
+        m_workers[workerIndex] =
+          m_workerFactory.create(System.out, System.err, m_agentID);
       }
 
       m_logger.output("worker " +

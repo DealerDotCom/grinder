@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -60,11 +60,12 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
     m_properties = properties;
   }
 
-  public Worker create(OutputStream outputStream, OutputStream errorStream)
+  public Worker create(
+    OutputStream outputStream, OutputStream errorStream, int agentID)
     throws EngineException {
 
     final WorkerIdentity workerIdentity =
-      m_agentIdentity.createWorkerIdentity();
+      m_agentIdentity.createWorkerIdentity(agentID);
 
     final Worker worker =
       createWorker(workerIdentity, outputStream, errorStream);

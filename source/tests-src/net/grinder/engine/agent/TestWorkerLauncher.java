@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -48,13 +48,13 @@ public class TestWorkerLauncher extends TestCase {
 
   public void testConstructor() throws Exception {
     final WorkerLauncher workerLauncher1 =
-      new WorkerLauncher(0, null, null, null);
+      new WorkerLauncher(0, null, null, null, 0);
 
     assertTrue(workerLauncher1.allFinished());
     workerLauncher1.shutdown();
 
     final WorkerLauncher workerLauncher2 =
-      new WorkerLauncher(10, null, null, null);
+      new WorkerLauncher(10, null, null, null, 0);
 
     assertFalse(workerLauncher2.allFinished());
 
@@ -70,7 +70,7 @@ public class TestWorkerLauncher extends TestCase {
     final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
     final WorkerLauncher workerLauncher =
-      new WorkerLauncher(5, myProcessFactory, condition, logger);
+      new WorkerLauncher(5, myProcessFactory, condition, logger, 22);
 
     condition.waitFor(workerLauncher);
     assertFalse(condition.isFinished());
@@ -148,7 +148,7 @@ public class TestWorkerLauncher extends TestCase {
     final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
     final WorkerLauncher workerLauncher =
-      new WorkerLauncher(9, myProcessFactory, condition, logger);
+      new WorkerLauncher(9, myProcessFactory, condition, logger, 92);
 
     condition.waitFor(workerLauncher);
     assertFalse(condition.isFinished());
@@ -201,7 +201,7 @@ public class TestWorkerLauncher extends TestCase {
     final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
     final WorkerLauncher workerLauncher =
-      new WorkerLauncher(4, myProcessFactory, conditon, logger);
+      new WorkerLauncher(4, myProcessFactory, conditon, logger, 32);
 
     conditon.waitFor(workerLauncher);
     assertFalse(conditon.isFinished());
@@ -276,7 +276,8 @@ public class TestWorkerLauncher extends TestCase {
       new StubAgentIdentity("process");
 
     public Worker create(OutputStream outputStream,
-                         OutputStream errorStream)
+                         OutputStream errorStream,
+                         int agentID)
       throws EngineException {
 
       m_lastOutputStream = outputStream;
@@ -290,7 +291,7 @@ public class TestWorkerLauncher extends TestCase {
       };
 
       final Worker childProcess =
-        new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+        new ProcessWorker(m_agentIdentity.createWorkerIdentity(agentID),
                           commandArray,
                           outputStream,
                           errorStream);

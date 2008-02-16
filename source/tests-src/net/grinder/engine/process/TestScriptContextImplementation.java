@@ -92,7 +92,7 @@ public class TestScriptContextImplementation extends TestCase {
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
     final WorkerIdentity workerIdentity =
-      agentIdentity.createWorkerIdentity();
+      agentIdentity.createWorkerIdentity(22);
 
     final RandomStubFactory testRegistryStubFactory =
       new RandomStubFactory(TestRegistry.class);

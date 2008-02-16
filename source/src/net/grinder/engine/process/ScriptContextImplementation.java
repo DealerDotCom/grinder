@@ -75,6 +75,10 @@ final class ScriptContextImplementation implements InternalScriptContext {
     return m_workerIdentity.getName();
   }
 
+  public int getAgentID() {
+    return m_workerIdentity.getAgentID();
+  }
+
   public int getThreadID() {
     final ThreadContext threadContext = m_threadContextLocator.get();
 

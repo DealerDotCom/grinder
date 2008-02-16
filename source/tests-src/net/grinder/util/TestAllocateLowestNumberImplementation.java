@@ -19,45 +19,48 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.common;
+package net.grinder.util;
 
-import net.grinder.common.GrinderProperties;
-import net.grinder.communication.CommunicationDefaults;
-import net.grinder.communication.ConnectionType;
-import net.grinder.communication.Connector;
+import net.grinder.util.ObjectToNumber.NoSuchObjectException;
+import junit.framework.TestCase;
 
 
 /**
- * ConnectorFactory.
+ * Unit tests for {@link AllocateLowestNumberImplementation}.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class ConnectorFactory {
+public class TestAllocateLowestNumberImplementation extends TestCase {
 
-  private final ConnectionType m_connectionType;
+  public void testAllocateLowestNumber() throws Exception {
+    final AllocateLowestNumber set = new AllocateLowestNumberImplementation();
 
-  /**
-   * Constructor.
-   *
-   * @param connectionType The connection type.
-   */
-  public ConnectorFactory(ConnectionType connectionType) {
-    m_connectionType = connectionType;
-  }
+    final Integer object1 = new Integer(121);
+    final Integer object2 = new Integer(1);
+    final Integer object3 = new Integer(3);
+    final Integer object4 = new Integer(31);
 
-  /**
-   * Factory method.
-   *
-   * @param properties Properties.
-   * @return A connector which can be used to contact the console.
-   */
-  public Connector create(GrinderProperties properties) {
-    return new Connector(
-      properties.getProperty(GrinderProperties.CONSOLE_HOST,
-                             CommunicationDefaults.CONSOLE_HOST),
-      properties.getInt(GrinderProperties.CONSOLE_PORT,
-                        CommunicationDefaults.CONSOLE_PORT),
-      m_connectionType);
+    assertEquals(0, set.add(object1));
+    assertEquals(0, set.add(object1));
+    assertEquals(1, set.add(object2));
+    assertEquals(2, set.add(object3));
+
+    set.remove(object2);
+    assertEquals(1, set.add(object4));
+
+    assertEquals(1, set.get(object4));
+
+    try {
+      set.get(object2);
+      fail("Expected NoSuchObjectException");
+    }
+    catch (NoSuchObjectException e) {
+    }
+
+    set.remove(object1);
+    set.remove(object4);
+    set.remove(object4);
+    assertEquals(0, set.add(object1));
   }
 }

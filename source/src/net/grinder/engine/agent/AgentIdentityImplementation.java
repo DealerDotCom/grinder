@@ -56,25 +56,32 @@ class AgentIdentityImplementation
   /**
    * Create a worker identity.
    *
+   * @param agentID The console allocated agent ID.
    * @return The worker identity.
    */
-  WorkerIdentity createWorkerIdentity() {
+  WorkerIdentity createWorkerIdentity(int agentID) {
     return new WorkerIdentityImplementation(
-      getName() + "-" + m_nextWorkerNumber++);
+      getName() + "-" + m_nextWorkerNumber++, agentID);
   }
 
   private final class WorkerIdentityImplementation
     extends AbstractProcessIdentityImplementation
     implements WorkerIdentity {
 
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 2;
+    private final int m_agentID;
 
-    private WorkerIdentityImplementation(String name) {
+    private WorkerIdentityImplementation(String name, int agentID) {
       super(s_identityGenerator.createUniqueString(name), name);
+      m_agentID = agentID;
     }
 
     public AgentIdentity getAgentIdentity() {
       return AgentIdentityImplementation.this;
+    }
+
+    public int getAgentID() {
+      return m_agentID;
     }
   }
 }

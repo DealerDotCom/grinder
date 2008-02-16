@@ -1,4 +1,4 @@
-// Copyright (C) 2005-2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,7 +42,7 @@ public class TestDebugThreadWorker extends TestCase {
 
     final WorkerIdentity workerIdentity =
       new AgentIdentityImplementation(getClass().getName())
-      .createWorkerIdentity();
+      .createWorkerIdentity(22);
 
     final Worker worker = new DebugThreadWorker(workerIdentity);
 
@@ -82,7 +82,7 @@ public class TestDebugThreadWorker extends TestCase {
 
     final WorkerIdentity workerIdentity =
       new AgentIdentityImplementation(getClass().getName())
-      .createWorkerIdentity();
+      .createWorkerIdentity(22);
 
     try {
       System.setProperty(IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY,

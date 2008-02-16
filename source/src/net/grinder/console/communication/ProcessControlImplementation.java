@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,6 +32,8 @@ import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
+import net.grinder.util.AllocateLowestNumber;
+import net.grinder.util.AllocateLowestNumberImplementation;
 
 
 /**
@@ -46,6 +48,9 @@ public class ProcessControlImplementation implements ProcessControl {
 
   private final ProcessStatusImplementation m_processStatusSet;
 
+  private final AllocateLowestNumber m_agentIDMap =
+    new AllocateLowestNumberImplementation();
+
   /**
    * Constructor.
    *
@@ -59,7 +64,7 @@ public class ProcessControlImplementation implements ProcessControl {
     ConsoleCommunication consoleCommunication) {
 
     m_consoleCommunication = consoleCommunication;
-    m_processStatusSet = new ProcessStatusImplementation(timer);
+    m_processStatusSet = new ProcessStatusImplementation(timer, m_agentIDMap);
 
     final MessageDispatchRegistry messageDispatchRegistry =
       consoleCommunication.getMessageDispatchRegistry();
@@ -94,7 +99,8 @@ public class ProcessControlImplementation implements ProcessControl {
   public void startWorkerProcesses(GrinderProperties properties) {
     m_consoleCommunication.sendToAgents(
       new StartGrinderMessage(
-        properties != null ? properties : new GrinderProperties()));
+        properties != null ? properties : new GrinderProperties(),
+        m_agentIDMap));
   }
 
   /**

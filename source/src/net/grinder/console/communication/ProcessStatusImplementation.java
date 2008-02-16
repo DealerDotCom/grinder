@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -33,6 +33,7 @@ import java.util.TimerTask;
 import net.grinder.common.AgentIdentity;
 import net.grinder.common.AgentProcessReport;
 import net.grinder.common.WorkerProcessReport;
+import net.grinder.util.AllocateLowestNumber;
 import net.grinder.util.ListenerSupport;
 
 
@@ -60,23 +61,34 @@ final class ProcessStatusImplementation implements ProcessStatus {
    */
   private static final long FLUSH_PERIOD = 2000;
 
-  // Map of agent identities to AgentAndWorkers instances. Access is
-  // synchronised on the map itself.
+  /**
+   * Map of agent identities to AgentAndWorkers instances. Access is
+   * synchronised on the map itself.
+   */
   private final Map m_agentIdentityToAgentAndWorkers = new HashMap();
+
+  /**
+   * We have exclusive write access to m_agentIDMap.We rely on our
+   * synchronisation on m_agentIdentityToAgentAndWorkers to avoid
+   * race conditions where the timer might otherwise remove an agent
+   * immediately after a new report has just arrived.
+   */
+  private final AllocateLowestNumber m_agentIDMap;
 
   private final ListenerSupport m_listeners = new ListenerSupport();
 
-  // No need to synchronise access to these; operations are atomic on
-  // primitives.
-  private boolean m_newData = false;
-  private boolean m_newAgent = false;
+  private volatile boolean m_newData = false;
+  private volatile boolean m_newAgent = false;
 
   /**
    * Constructor.
    *
    * @param timer Timer which can be used to schedule housekeeping tasks.
+   * @param agentIDMap Map of {@link AgentIdentity}s to integers.
    */
-  public ProcessStatusImplementation(Timer timer) {
+  public ProcessStatusImplementation(Timer timer,
+                                     AllocateLowestNumber agentIDMap) {
+    m_agentIDMap = agentIDMap;
     timer.schedule(
       new TimerTask() {
         public void run() { update(); }
@@ -132,14 +144,12 @@ final class ProcessStatusImplementation implements ProcessStatus {
     m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
-          ((ProcessStatus.Listener)listener).update(processStatuses,
-                                                    newAgent);
+          ((ProcessStatus.Listener)listener).update(processStatuses, newAgent);
         }
       });
   }
 
-  private AgentAndWorkers getAgentAndWorkers(
-    AgentIdentity agentIdentity) {
+  private AgentAndWorkers getAgentAndWorkers(AgentIdentity agentIdentity) {
 
     synchronized (m_agentIdentityToAgentAndWorkers) {
       final AgentAndWorkers existing =
@@ -152,6 +162,9 @@ final class ProcessStatusImplementation implements ProcessStatus {
       final AgentAndWorkers created = new AgentAndWorkers(agentIdentity);
       m_agentIdentityToAgentAndWorkers.put(agentIdentity, created);
       m_newAgent = true;
+
+      m_agentIDMap.add(agentIdentity);
+
       return created;
     }
   }
@@ -241,6 +254,19 @@ final class ProcessStatusImplementation implements ProcessStatus {
     public AgentProcessReport getAgentProcessReport() {
       return m_agentProcessReport;
     }
+
+    public boolean shouldPurge() {
+      final boolean purge = super.shouldPurge();
+
+      if (purge) {
+        // Protected against race with add since the caller holds
+        // m_agentIdentityToAgentAndWorkers, and we are about to be
+        // removed from m_agentIdentityToAgentAndWorkers.
+        m_agentIDMap.remove(m_agentProcessReport.getAgentIdentity());
+      }
+
+      return purge;
+    }
   }
 
   private final class WorkerReference extends AbstractTimedReference {
@@ -285,8 +311,7 @@ final class ProcessStatusImplementation implements ProcessStatus {
   final class AgentAndWorkers
     implements ProcessStatus.ProcessReports, Purgable {
 
-    // Unsynchronised - changing the reference is atomic.
-    private AgentReference m_agentReportReference;
+    private volatile AgentReference m_agentReportReference;
 
     // Synchronise on map before accessing.
     private final Map m_workerReportReferences = new HashMap();

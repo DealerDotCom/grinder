@@ -506,7 +506,11 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
     public RequestType add() {
       final RequestType request = RequestType.Factory.newInstance();
-      m_requests.add(request);
+
+      synchronized (m_requests) {
+        m_requests.add(request);
+      }
+
       return request;
     }
 

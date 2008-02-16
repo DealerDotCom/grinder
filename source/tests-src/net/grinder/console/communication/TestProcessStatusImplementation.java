@@ -41,6 +41,7 @@ import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.AllocateLowestNumber;
 
 
 /**
@@ -58,14 +59,21 @@ public class TestProcessStatusImplementation extends TestCase {
 
   private final MyTimer m_timer = new MyTimer();
 
+  private final RandomStubFactory m_allocateLowestNumberStubFactory =
+    new RandomStubFactory(AllocateLowestNumber.class);
+  private final AllocateLowestNumber m_allocateLowestNumber =
+    (AllocateLowestNumber)m_allocateLowestNumberStubFactory.getStub();
+
   protected void tearDown() {
     m_timer.cancel();
   }
 
   public void testConstruction() throws Exception {
-    new ProcessStatusImplementation(m_timer);
+    new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
 
     assertEquals(2, m_timer.getNumberOfScheduledTasks());
+
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
   }
 
   public void testUpdate() throws Exception {
@@ -76,7 +84,7 @@ public class TestProcessStatusImplementation extends TestCase {
       (ProcessStatus.Listener)listenerStubFactory.getStub();
 
     final ProcessStatusImplementation processStatusSet =
-      new ProcessStatusImplementation(m_timer);
+      new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
 
     final TimerTask updateTask = m_timer.getTaskByPeriod(500L);
 
@@ -84,11 +92,15 @@ public class TestProcessStatusImplementation extends TestCase {
 
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
 
-    final StubAgentIdentity agentIdentity =
-      new StubAgentIdentity("agent");
+    updateTask.run();
+    listenerStubFactory.assertNoMoreCalls();
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
+
+    final StubAgentIdentity agentIdentity = new StubAgentIdentity("agent");
     final WorkerIdentity workerIdentity =
-      agentIdentity.createWorkerIdentity();
+      agentIdentity.createWorkerIdentity(10);
 
     final WorkerProcessReport workerProcessReport =
       new StubWorkerProcessReport(workerIdentity,
@@ -97,6 +109,8 @@ public class TestProcessStatusImplementation extends TestCase {
                                   5);
 
     processStatusSet.addWorkerStatusReport(workerProcessReport);
+    m_allocateLowestNumberStubFactory.assertSuccess("add", Object.class);
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
 
     updateTask.run();
     final CallData callData =
@@ -117,6 +131,7 @@ public class TestProcessStatusImplementation extends TestCase {
 
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
   }
 
   public void testUpdateWithManyProcessStatusesAndFlush() throws Exception {
@@ -126,7 +141,7 @@ public class TestProcessStatusImplementation extends TestCase {
       (ProcessStatus.Listener)listenerStubFactory.getStub();
 
     final ProcessStatusImplementation processStatus =
-      new ProcessStatusImplementation(m_timer);
+      new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
 
     final TimerTask updateTask = m_timer.getTaskByPeriod(500L);
     final TimerTask flushTask = m_timer.getTaskByPeriod(2000L);
@@ -135,22 +150,25 @@ public class TestProcessStatusImplementation extends TestCase {
 
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
 
     final StubAgentIdentity agentIdentityA =
       new StubAgentIdentity("Agent A");
     final WorkerIdentity workerIdentityA1 =
-      agentIdentityA.createWorkerIdentity();
+      agentIdentityA.createWorkerIdentity(9);
     final WorkerIdentity workerIdentityA2 =
-      agentIdentityA.createWorkerIdentity();
+      agentIdentityA.createWorkerIdentity(9);
     final WorkerIdentity workerIdentityA3 =
-      agentIdentityA.createWorkerIdentity();
+      agentIdentityA.createWorkerIdentity(9);
     final WorkerIdentity workerIdentityA4 =
-        agentIdentityA.createWorkerIdentity();
+        agentIdentityA.createWorkerIdentity(9);
+    assertEquals(9, workerIdentityA4.getAgentID());
 
     final StubAgentIdentity agentIdentityB =
       new StubAgentIdentity("Agent B");
     final WorkerIdentity workerIdentityB1 =
-      agentIdentityB.createWorkerIdentity();
+      agentIdentityB.createWorkerIdentity(19);
+    assertEquals(19, workerIdentityB1.getAgentID());
 
     final WorkerProcessReport[] workerProcessReportArray = {
       new StubWorkerProcessReport(
@@ -170,6 +188,11 @@ public class TestProcessStatusImplementation extends TestCase {
     for (int i = 0; i < workerProcessReportArray.length; ++i) {
       processStatus.addWorkerStatusReport(workerProcessReportArray[i]);
     }
+
+    assertEquals(2, processStatus.getNumberOfLiveAgents());
+    m_allocateLowestNumberStubFactory.assertSuccess("add", Object.class);
+    m_allocateLowestNumberStubFactory.assertSuccess("add", Object.class);
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
 
     updateTask.run();
 
@@ -224,11 +247,12 @@ public class TestProcessStatusImplementation extends TestCase {
     flushTask.run();
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
 
     final StubAgentIdentity agentIdentityC =
       new StubAgentIdentity("Agent C");
     final WorkerIdentity workerIdentityC1 =
-      agentIdentityC.createWorkerIdentity();
+      agentIdentityC.createWorkerIdentity(22);
 
     final WorkerProcessReport[] processStatusArray2 = {
       new StubWorkerProcessReport(
@@ -243,6 +267,10 @@ public class TestProcessStatusImplementation extends TestCase {
       processStatus.addWorkerStatusReport(processStatusArray2[i]);
     }
 
+    assertEquals(3, processStatus.getNumberOfLiveAgents());
+    m_allocateLowestNumberStubFactory.assertSuccess("add", Object.class);
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
+
     processStatus.addAgentStatusReport(
       new StubAgentProcessReport(agentIdentityA,
                                  AgentProcessReport.STATE_RUNNING));
@@ -250,7 +278,12 @@ public class TestProcessStatusImplementation extends TestCase {
       new StubAgentProcessReport(agentIdentityB,
                                  AgentProcessReport.STATE_RUNNING));
 
+    assertEquals(3, processStatus.getNumberOfLiveAgents());
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
+
     // Second flush will remove processes that haven't reported.
+    // It won't remove any agents, because there's been at least one
+    // report for each.
     flushTask.run();
     updateTask.run();
 
@@ -265,6 +298,7 @@ public class TestProcessStatusImplementation extends TestCase {
     Arrays.sort(processReports2, m_processReportsComparator);
 
     assertEquals(3, processReports2.length);
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
 
     final WorkerProcessReport[] expectedAgent1WorkerProcessReports2 = {
       new StubWorkerProcessReport(
@@ -297,11 +331,20 @@ public class TestProcessStatusImplementation extends TestCase {
 
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
+
+    // Third flush.
+    flushTask.run();
+
+    assertEquals(0, processStatus.getNumberOfLiveAgents());
+    m_allocateLowestNumberStubFactory.assertSuccess("remove", Object.class);
+    m_allocateLowestNumberStubFactory.assertSuccess("remove", Object.class);
+    m_allocateLowestNumberStubFactory.assertSuccess("remove", Object.class);
+    m_allocateLowestNumberStubFactory.assertNoMoreCalls();
   }
 
   public void testAgentAndWorkers() throws Exception {
     final ProcessStatusImplementation processStatusSet =
-      new ProcessStatusImplementation(m_timer);
+      new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
 
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("agent");
@@ -315,7 +358,7 @@ public class TestProcessStatusImplementation extends TestCase {
     assertEquals(agentIdentity, initialReport.getAgentIdentity());
   }
 
-  private final class MyTimer extends Timer {
+  private static final class MyTimer extends Timer {
     private final Map m_taskByPeriod = new HashMap();
     private int m_numberOfScheduledTasks;
 

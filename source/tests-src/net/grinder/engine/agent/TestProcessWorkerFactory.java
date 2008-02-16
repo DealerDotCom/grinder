@@ -94,7 +94,7 @@ public class TestProcessWorkerFactory extends TestCase {
     final ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
     final Worker worker =
-      processWorkerFactory.create(outputStream, errorStream);
+      processWorkerFactory.create(outputStream, errorStream, 22);
 
     assertTrue(worker.getIdentity().getName().endsWith("-0"));
 
@@ -163,7 +163,7 @@ public class TestProcessWorkerFactory extends TestCase {
     };
 
     try {
-      myWorkerFactory.create(null, null);
+      myWorkerFactory.create(null, null, -1);
       fail("Expected EngineException");
     }
     catch (EngineException e) {

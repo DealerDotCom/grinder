@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,8 +56,8 @@ public class TestAgentIdentityImplementation extends TestCase {
     assertTrue(!a1Copy.toString().equals(a1.toString()));
     assertTrue(!a1Copy.toString().equals(a2.toString()));
 
-    final WorkerIdentity w1 = a1.createWorkerIdentity();
-    final WorkerIdentity w2 = a1.createWorkerIdentity();
+    final WorkerIdentity w1 = a1.createWorkerIdentity(22);
+    final WorkerIdentity w2 = a1.createWorkerIdentity(22);
 
     assertEquals(w1, w1);
     assertTrue(!w1.equals(null));

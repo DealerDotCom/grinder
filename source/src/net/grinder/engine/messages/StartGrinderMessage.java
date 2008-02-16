@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.engine.messages;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.Message;
+import net.grinder.util.ObjectToNumber;
 
 
 /**
@@ -34,18 +35,25 @@ import net.grinder.communication.Message;
  */
 public final class StartGrinderMessage implements Message {
 
-  private static final long serialVersionUID = 2L;
+  private static final long serialVersionUID = 3L;
 
   private final GrinderProperties m_properties;
+
+  private final ObjectToNumber m_agentNumberMap;
 
   /**
    * Constructor.
    *
-   * @param properties A set of properties that override values in
-   * the Agents' local files.
+   * @param properties
+   *            A set of properties that override values in the Agents' local
+   *            files.
+   * @param agentNumberMap
+   *            Map of {@link net.grinder.common.AgentIdentity}s to integers.
    */
-  public StartGrinderMessage(GrinderProperties properties) {
+  public StartGrinderMessage(GrinderProperties properties,
+                             ObjectToNumber agentNumberMap) {
     m_properties = properties;
+    m_agentNumberMap = agentNumberMap;
   }
 
   /**
@@ -55,5 +63,14 @@ public final class StartGrinderMessage implements Message {
    */
   public GrinderProperties getProperties() {
     return m_properties;
+  }
+
+  /**
+   * The current map of numbers allocated to each agent by the console.
+   *
+   * @return Map of {@link net.grinder.common.AgentIdentity}s to integers.
+   */
+  public ObjectToNumber getAgentNumberMap() {
+    return m_agentNumberMap;
   }
 }

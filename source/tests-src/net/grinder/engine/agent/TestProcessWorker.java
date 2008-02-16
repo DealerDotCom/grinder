@@ -53,7 +53,7 @@ public class TestProcessWorker extends TestCase {
     };
 
     try {
-      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(21),
                         commandArray,
                         m_outputStream,
                         m_errorStream);
@@ -74,7 +74,7 @@ public class TestProcessWorker extends TestCase {
     };
 
     final ProcessWorker childProcess =
-      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(6),
         commandArray,
         m_outputStream,
         m_errorStream);
@@ -98,7 +98,7 @@ public class TestProcessWorker extends TestCase {
     };
 
     final ProcessWorker childProcess =
-      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(12),
         commandArray,
         m_outputStream,
         m_errorStream);
@@ -134,7 +134,7 @@ public class TestProcessWorker extends TestCase {
     };
 
     final ProcessWorker childProcess =
-      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(3),
         commandArray,
         m_outputStream,
         m_errorStream);
@@ -174,7 +174,7 @@ public class TestProcessWorker extends TestCase {
     };
 
     final ProcessWorker childProcess =
-      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(3),
         commandArray,
         m_outputStream,
         m_errorStream);

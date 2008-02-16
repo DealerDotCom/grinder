@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,7 +56,7 @@ public class TestEngineMessages extends AbstractFileTestCase {
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
     final WorkerIdentity workerIdentity =
-      agentIdentity.createWorkerIdentity();
+      agentIdentity.createWorkerIdentity(1);
 
     final GrinderProperties properties = new GrinderProperties();
 
@@ -89,7 +89,7 @@ public class TestEngineMessages extends AbstractFileTestCase {
     properties.setInt("lah", 123);
 
     final StartGrinderMessage received =
-      (StartGrinderMessage)serialise(new StartGrinderMessage(properties));
+      (StartGrinderMessage)serialise(new StartGrinderMessage(properties, null));
 
     assertEquals(properties, received.getProperties());
   }

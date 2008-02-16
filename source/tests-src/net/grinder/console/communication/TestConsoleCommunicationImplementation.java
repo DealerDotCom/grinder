@@ -351,7 +351,7 @@ public class TestConsoleCommunicationImplementation
 
     sendMessage(
       socket,
-      new WorkerProcessReportMessage(agentIdentity.createWorkerIdentity(),
+      new WorkerProcessReportMessage(agentIdentity.createWorkerIdentity(11),
                                      (short)0,
                                      (short)0,
                                      (short)0));

@@ -58,7 +58,22 @@ public class Grinder {
     String getProcessName();
 
     /**
+     * Return the agent ID. The console allocates a unique number to that each
+     * connected agent, and the agent passes this on to the worker process.
+     *
+     * <p>
+     * The lowest possible number is allocated. When an agent disconnects, its
+     * number will be reused. Script authors can assume that the agent ID lies
+     * between 0 and the number of currently connected agents.
+     * </p>
+     *
+     * @return The agent ID, or -1 if not launched from the console.
+     */
+    int getAgentID();
+
+    /**
      * Return the thread ID, or -1 if not called from a worker thread.
+     *
      * @return The thread ID.
      */
     int getThreadID();

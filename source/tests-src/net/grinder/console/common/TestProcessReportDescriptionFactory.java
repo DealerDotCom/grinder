@@ -119,7 +119,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
       new StubAgentIdentity("agent");
 
     final WorkerIdentity workerIdentity =
-      agentIdentity.createWorkerIdentity();
+      agentIdentity.createWorkerIdentity(12);
 
     final RandomStubFactory workerProcessReportStubFactory =
       new RandomStubFactory(WorkerProcessReport.class);

@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -53,7 +53,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
 
     new RedirectStandardStreams() {
       protected void runWithRedirectedStreams() throws Exception {
-        final Worker worker = factory.create(null, null);
+        final Worker worker = factory.create(null, null, -1);
         worker.waitFor();
       }
     }.run();

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,25 +19,42 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.agent;
+package net.grinder.util;
 
-import net.grinder.common.WorkerIdentity;
+import java.io.Serializable;
+
+import net.grinder.common.GrinderException;
 
 
 /**
- * An AgentIdentityImplementation that is public so unit tests from other
- * packages can use it.
+ * Interface to something that can return a number associated with an object.
  *
  * @author Philip Aston
- * @version $Revision: 3642 $
+ * @version $Revision:$
  */
-public final class StubAgentIdentity extends AgentIdentityImplementation {
+public interface ObjectToNumber extends Serializable {
 
-  public StubAgentIdentity(String name) {
-    super(name);
-  }
+  /**
+   * Get the number associated with the given object.
+   *
+   * @param o The object.
+   * @return The number.
+   * @throws NoSuchObjectException if the object could not be found.
+   */
+  int get(Object o) throws NoSuchObjectException;
 
-  public WorkerIdentity createWorkerIdentity(int agentID) {
-    return super.createWorkerIdentity(agentID);
+  /**
+   * Exception indicating the object could not be found.
+   */
+  public static class NoSuchObjectException extends GrinderException {
+
+    /**
+     * Constructor.
+     *
+     * @param message Description.
+     */
+    public NoSuchObjectException(String message) {
+      super(message);
+    }
   }
 }
