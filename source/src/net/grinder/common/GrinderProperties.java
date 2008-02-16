@@ -51,6 +51,16 @@ public class GrinderProperties extends Properties {
   public static final String SCRIPT = "grinder.script";
 
   /**
+   * Key to use for the console host property.
+   */
+  public static final String CONSOLE_HOST = "grinder.consoleHost";
+
+  /**
+   * Key to use for the console host property.
+   */
+  public static final String CONSOLE_PORT = "grinder.consolePort";
+
+  /**
    * Default file name for properties.
    */
   public static final File DEFAULT_PROPERTIES = new File("grinder.properties");

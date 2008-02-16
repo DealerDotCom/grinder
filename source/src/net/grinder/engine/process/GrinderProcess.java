@@ -38,10 +38,8 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.WorkerProcessReport;
 import net.grinder.communication.ClientSender;
-import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
-import net.grinder.communication.Connector;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.MessagePump;
@@ -49,6 +47,7 @@ import net.grinder.communication.QueuedSender;
 import net.grinder.communication.QueuedSenderDecorator;
 import net.grinder.communication.Receiver;
 import net.grinder.console.messages.RegisterTestsMessage;
+import net.grinder.engine.common.ConnectorFactory;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
@@ -121,16 +120,10 @@ final class GrinderProcess {
     final QueuedSender consoleSender;
 
     if (m_initialisationMessage.getReportToConsole()) {
-      final Connector connector =
-        new Connector(
-          properties.getProperty("grinder.consoleHost",
-                                 CommunicationDefaults.CONSOLE_HOST),
-          properties.getInt("grinder.consolePort",
-                            CommunicationDefaults.CONSOLE_PORT),
-          ConnectionType.WORKER);
-
       consoleSender =
-        new QueuedSenderDecorator(ClientSender.connect(connector));
+        new QueuedSenderDecorator(
+          ClientSender.connect(
+            new ConnectorFactory(ConnectionType.WORKER).create(properties)));
     }
     else {
       // Null Sender implementation.
