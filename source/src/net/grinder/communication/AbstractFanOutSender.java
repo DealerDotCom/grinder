@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 
+import net.grinder.communication.ResourcePool.Resource;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.Executor;
 
@@ -58,8 +59,19 @@ abstract class AbstractFanOutSender extends AbstractSender {
    * @param message The message.
    * @exception IOException If an error occurs.
    */
-  protected final void writeMessage(Message message)
-    throws CommunicationException, IOException {
+  protected final void writeMessage(final Message message)
+    throws CommunicationException {
+    writeAddressedMessage(new SendToEveryoneAddressedMessage(message));
+  }
+
+  /**
+   * Send a message.
+   *
+   * @param message The message.
+   * @exception IOException If an error occurs.
+   */
+  protected final void writeAddressedMessage(AddressedMessage addressedMessage)
+    throws CommunicationException {
 
     try {
       // We reserve all the resources here and hand off the
@@ -72,14 +84,19 @@ abstract class AbstractFanOutSender extends AbstractSender {
         final ResourcePool.Reservation reservation =
           (ResourcePool.Reservation) iterator.next();
 
-        final OutputStream outputStream =
-          resourceToOutputStream(reservation.getResource());
+        final Resource resource = reservation.getResource();
 
-        // We don't need to synchronise access to the SocketWrapper
-        // stream; access is protected through the socket set and only we
-        // hold the reservation.
+        if (!addressedMessage.isRecipient(getAddress(resource))) {
+          reservation.free();
+          continue;
+        }
+
+        // We don't need to synchronise access to the stream; access is
+        // protected through the socket set and only we hold the reservation.
         m_executor.execute(
-          new WriteMessageToStream(message, outputStream, reservation));
+          new WriteMessageToStream(addressedMessage.getPayload(),
+                                   resourceToOutputStream(resource),
+                                   reservation));
       }
     }
     catch (Executor.ShutdownException e) {
@@ -101,6 +118,16 @@ abstract class AbstractFanOutSender extends AbstractSender {
     throws CommunicationException;
 
   /**
+   * Subclasses must implement this to return the address associated with
+   * a resource.
+   *
+   * @param resource The resource.
+   * @return The address, or <code>null</code> if the resource has no address.
+   * @see AddressedMessage
+   */
+  protected abstract Object getAddress(Resource resource);
+
+  /**
    * Allow subclasses to access the resource pool.
    *
    * @return The resource pool.
@@ -116,6 +143,24 @@ abstract class AbstractFanOutSender extends AbstractSender {
     super.shutdown();
 
     m_executor.gracefulShutdown();
+  }
+
+  private static final class SendToEveryoneAddressedMessage
+    implements AddressedMessage {
+
+    private final Message m_message;
+
+    private SendToEveryoneAddressedMessage(Message message) {
+      m_message = message;
+    }
+
+    public Message getPayload() {
+      return m_message;
+    }
+
+    public boolean isRecipient(Object address) {
+      return true;
+    }
   }
 
   private static final class WriteMessageToStream

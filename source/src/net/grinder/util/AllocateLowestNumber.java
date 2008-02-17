@@ -29,7 +29,7 @@ package net.grinder.util;
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface AllocateLowestNumber extends ObjectToNumber {
+public interface AllocateLowestNumber {
 
   /**
    * Add a new object. If the object already belongs to the set, the existing
@@ -48,4 +48,24 @@ public interface AllocateLowestNumber extends ObjectToNumber {
    * @param o The object.
    */
   void remove(Object o);
+
+  /**
+   * Call <code>iteratorCallback</code> for each member of the set.
+   *
+   * @param iteratorCallback Called for each member of the set.
+   */
+  void forEach(IteratorCallback iteratorCallback);
+
+  /**
+   * Iteration callback, see {@link AllocateLowestNumber#forEach}.
+   */
+  interface IteratorCallback {
+    /**
+     * Called for a member of the set.
+     *
+     * @param object The object.
+     * @param number The associated number.
+     */
+    void objectAndNumber(Object object, int number);
+  }
 }

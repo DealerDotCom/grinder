@@ -88,7 +88,7 @@ public class TestConsoleListener extends TestCase {
     listener.registerMessageHandlers(messageDispatcher);
 
     messageDispatcher.send(
-      new StartGrinderMessage(new GrinderProperties(), null));
+      new StartGrinderMessage(new GrinderProperties(), -1));
     messageDispatcher.send(new MyMessage());
     messageDispatcher.send(new ResetGrinderMessage());
 
@@ -122,7 +122,7 @@ public class TestConsoleListener extends TestCase {
     assertFalse(listener.received(ConsoleListener.RESET));
 
     messageDispatcher.send(
-      new StartGrinderMessage(new GrinderProperties(), null));
+      new StartGrinderMessage(new GrinderProperties(), -1));
     messageDispatcher.send(new ResetGrinderMessage());
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
@@ -165,7 +165,7 @@ public class TestConsoleListener extends TestCase {
     listener.discardMessages(ConsoleListener.ANY);
 
     messageDispatcher.send(
-      new StartGrinderMessage(new GrinderProperties(), null));
+      new StartGrinderMessage(new GrinderProperties(), -1));
     messageDispatcher.send(new MyMessage());
     messageDispatcher.send(new ResetGrinderMessage());
 
@@ -210,7 +210,7 @@ public class TestConsoleListener extends TestCase {
           synchronized (myCondition) { } // Wait until we're listening.
           try {
             messageDispatcher.send(
-              new StartGrinderMessage(new GrinderProperties(), null));
+              new StartGrinderMessage(new GrinderProperties(), -1));
           }
           catch (CommunicationException e) {
             e.printStackTrace();
@@ -302,8 +302,8 @@ public class TestConsoleListener extends TestCase {
     final ConsoleListener listener =
       new ConsoleListener(new Condition(), m_logger);
 
-    final Message m1 = new StartGrinderMessage(new GrinderProperties(), null);
-    final Message m2 = new StartGrinderMessage(new GrinderProperties(), null);
+    final Message m1 = new StartGrinderMessage(new GrinderProperties(), -1);
+    final Message m2 = new StartGrinderMessage(new GrinderProperties(), -1);
     final Message m3 = new MyMessage();
 
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();

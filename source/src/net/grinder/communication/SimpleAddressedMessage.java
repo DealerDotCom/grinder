@@ -19,53 +19,48 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.testutility;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+package net.grinder.communication;
 
 
 /**
- * Stub implementation of {@link Timer}.
+ * An {@link AddressedMessage} that targets a single recipient.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public final class StubTimer extends Timer {
-  private final Map m_taskByPeriod = new HashMap();
-  private TimerTask m_lastScheduledTimerTask;
-  private long m_lastDelay;
-  private long m_lastPeriod;
+public final class SimpleAddressedMessage implements AddressedMessage {
 
-  public void schedule(TimerTask timerTask, long delay, long period) {
-    m_lastScheduledTimerTask = timerTask;
-    m_lastDelay = delay;
-    m_lastPeriod = period;
-    m_taskByPeriod.put(new Long(period), timerTask);
+  private final Object m_address;
+  private final Message m_payload;
+
+  /**
+   * Constructor.
+   *
+   * @param address The recipient.
+   * @param payload The real message to send.
+   */
+  public SimpleAddressedMessage(Object address, Message payload) {
+    m_address = address;
+    m_payload = payload;
   }
 
-  public void schedule(TimerTask timerTask, long delay) {
-    m_lastScheduledTimerTask = timerTask;
-    m_lastDelay = delay;
-    m_lastPeriod = 0;
+  /**
+   * Get the real message to send to the recipient.
+   *
+   * @return The message.
+   */
+  public Message getPayload() {
+    return m_payload;
   }
 
-
-  public TimerTask getLastScheduledTimerTask() {
-    return m_lastScheduledTimerTask;
-  }
-
-  public long getLastDelay() {
-    return m_lastDelay;
-  }
-
-  public long getLastPeriod() {
-    return m_lastPeriod;
-  }
-
-  public TimerTask getTaskByPeriod(long period) {
-    return (TimerTask)m_taskByPeriod.get(new Long(period));
+  /**
+   * Returns whether an address is that of our recipient.
+   *
+   * @param address The address to check.
+   * @return <code>true</code> if and only if <code>address</code> is our
+   *         recipient.
+   */
+  public boolean isRecipient(Object address) {
+    return m_address.equals(address);
   }
 }

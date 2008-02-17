@@ -89,7 +89,7 @@ public class TestEngineMessages extends AbstractFileTestCase {
     properties.setInt("lah", 123);
 
     final StartGrinderMessage received =
-      (StartGrinderMessage)serialise(new StartGrinderMessage(properties, null));
+      (StartGrinderMessage)serialise(new StartGrinderMessage(properties, -1));
 
     assertEquals(properties, received.getProperties());
   }

@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.communication;
 import java.io.OutputStream;
 import java.util.Iterator;
 
+import net.grinder.communication.ResourcePool.Resource;
 import net.grinder.util.thread.Executor;
 
 
@@ -65,6 +66,22 @@ public final class FanOutServerSender
   }
 
   /**
+   * Send the given addressed message.
+   *
+   * @param addressedMessage An addressed message.
+   * @exception CommunicationException If an error occurs.
+   */
+  public void send(AddressedMessage addressedMessage)
+    throws CommunicationException {
+
+    if (isShutdown()) {
+      throw new CommunicationException("Shut down");
+    }
+
+    writeAddressedMessage(addressedMessage);
+  }
+
+  /**
    * Return an output stream from a socket resource.
    *
    * @param resource The resource.
@@ -79,6 +96,21 @@ public final class FanOutServerSender
     // access is protected through the socket set and only we hold
     // the reservation.
     return ((SocketWrapper)resource).getOutputStream();
+  }
+
+  /**
+   * Return the address of a socket.
+   *
+   * @param resource The resource.
+   * @return The address, or <code>null</code> if the socket has no address.
+   * @see AddressedMessage
+   */
+  protected Object getAddress(Resource resource) {
+
+    // We don't need to synchronise access to the SocketWrapper;
+    // access is protected through the socket set and only we hold
+    // the reservation.
+    return ((SocketWrapper)resource).getAddress();
   }
 
   /**

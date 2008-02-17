@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,16 @@
 
 package net.grinder.communication;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
+import net.grinder.communication.ResourcePool.Reservation;
 
 
 /**
@@ -85,16 +88,11 @@ public class TestFanOutServerSender extends TestCase {
     for (int i=0; i<socket.length; ++i) {
       final InputStream socketInput = socket[i].getInputStream();
 
-      final ObjectInputStream inputStream1 =
-        new ObjectInputStream(socketInput);
-      final Object o1 = inputStream1.readObject();
+      final Message m1 = readMessage(socketInput);
+      final Message m2 = readMessage(socketInput);
 
-      final ObjectInputStream inputStream2 =
-        new ObjectInputStream(socketInput);
-      final Object o2 = inputStream2.readObject();
-
-      assertEquals(message1, o1);
-      assertEquals(message2, o2);
+      assertEquals(message1, m1);
+      assertEquals(message2, m2);
 
       assertEquals(0, socketInput.available());
 
@@ -102,6 +100,84 @@ public class TestFanOutServerSender extends TestCase {
     }
 
     serverSender.shutdown();
+    acceptor.shutdown();
+  }
+
+  private static Message readMessage(final InputStream socketInput)
+    throws IOException, ClassNotFoundException {
+    final ObjectInputStream inputStream =
+      new ObjectInputStream(socketInput);
+    return (Message)inputStream.readObject();
+  }
+
+  public void testSendAddressedMessage() throws Exception {
+
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+
+    final FanOutServerSender serverSender =
+      new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
+
+    final Socket[] socket = new Socket[5];
+
+    for (int i = 0; i < socket.length; ++i) {
+      socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
+      ConnectionType.AGENT.write(socket[i].getOutputStream());
+    }
+
+    // Sleep until we've accepted all connections. Give up after a few
+    // seconds.
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.AGENT);
+
+    for (int i = 0; socketSet.countActive() != 5 && i < 10; ++i) {
+      Thread.sleep(i * i * 10);
+    }
+
+    final Iterator iterator = socketSet.reserveAll().iterator();
+
+    while (iterator.hasNext()) {
+      final Reservation reservation = (Reservation)iterator.next();
+      final SocketWrapper socketWrapper =
+        (SocketWrapper)reservation.getResource();
+      socketWrapper.setAddress(
+        socketWrapper.getSocket().getRemoteSocketAddress());
+      reservation.free();
+    }
+
+    final SimpleMessage message1 = new SimpleMessage();
+    final SimpleMessage message2 = new SimpleMessage();
+
+    serverSender.send(
+      new SimpleAddressedMessage(socket[1].getLocalSocketAddress(), message1));
+    serverSender.send(
+      new SimpleAddressedMessage(socket[2].getLocalSocketAddress(), message2));
+
+    for (int i = 0; i < socket.length; ++i) {
+      final InputStream socketInput = socket[i].getInputStream();
+
+      if (i == 1) {
+        final Message m = readMessage(socketInput);
+        assertEquals(message1, m);
+      }
+      else if (i == 2) {
+        final Message m = readMessage(socketInput);
+        assertEquals(message2, m);
+      }
+
+      assertEquals(0, socketInput.available());
+
+      socket[i].close();
+    }
+
+    serverSender.shutdown();
+
+    try {
+      serverSender.send(new SimpleAddressedMessage(message1, message1));
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
     acceptor.shutdown();
   }
 
@@ -133,9 +209,7 @@ public class TestFanOutServerSender extends TestCase {
 
     final InputStream socketStream = socket.getInputStream();
 
-    final ObjectInputStream inputStream1 =
-      new ObjectInputStream(socketStream);
-    final Object o1 = inputStream1.readObject();
+    final Object o1 = readMessage(socketStream);
     assertNotNull(o1);
 
     serverSender.shutdown();
@@ -148,9 +222,7 @@ public class TestFanOutServerSender extends TestCase {
     }
 
     try {
-      final ObjectInputStream inputStream2 =
-        new ObjectInputStream(socketStream);
-      final Object o2 = inputStream2.readObject();
+      final Object o2 = readMessage(socketStream);
 
       assertTrue(o2 instanceof CloseCommunicationMessage);
     }

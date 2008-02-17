@@ -24,6 +24,7 @@ package net.grinder.communication;
 import java.io.OutputStream;
 
 import net.grinder.common.Closer;
+import net.grinder.communication.ResourcePool.Resource;
 import net.grinder.util.thread.Executor;
 
 
@@ -80,6 +81,17 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
     ResourcePool.Resource resource) {
 
     return ((OutputStreamResource)resource).getOutputStream();
+  }
+
+  /**
+   * We don't support addressing individual streams.
+   *
+   * @param resource The resource.
+   * @return The address, or <code>null</code> if the resource has no address.
+   * @see AddressedMessage
+   */
+  protected Object getAddress(Resource resource) {
+    return null;
   }
 
   private static final class OutputStreamResource

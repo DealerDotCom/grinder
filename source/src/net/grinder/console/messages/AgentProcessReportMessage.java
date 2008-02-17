@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,7 @@ package net.grinder.console.messages;
 
 import net.grinder.common.AgentIdentity;
 import net.grinder.common.AgentProcessReport;
-import net.grinder.communication.Message;
+import net.grinder.communication.AddressNotificationMessage;
 
 
 /**
@@ -33,7 +33,7 @@ import net.grinder.communication.Message;
  * @version $Revision$
  */
 public final class AgentProcessReportMessage
-  implements Message, AgentProcessReport {
+  implements AddressNotificationMessage, AgentProcessReport {
 
   private static final long serialVersionUID = -2073574340466531680L;
 
@@ -77,5 +77,15 @@ public final class AgentProcessReportMessage
    */
   public short getState() {
     return m_state;
+  }
+
+  /**
+   * Allow this message to be used by the communication package to identify the
+   * socket over which it was received.
+   *
+   * @return The address.
+   */
+  public Object getAddress() {
+    return m_identity;
   }
 }

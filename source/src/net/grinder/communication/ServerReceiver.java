@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -265,6 +265,11 @@ public final class ServerReceiver implements Receiver {
                 if (message instanceof CloseCommunicationMessage) {
                   reservation.close();
                   continue;
+                }
+
+                if (message instanceof AddressNotificationMessage) {
+                  socketWrapper.setAddress(
+                    ((AddressNotificationMessage)message).getAddress());
                 }
 
                 if (message instanceof MessageRequiringResponse) {

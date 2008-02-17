@@ -22,7 +22,9 @@
 package net.grinder.util;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 
 /**
@@ -93,22 +95,23 @@ public final class AllocateLowestNumberImplementation
   }
 
   /**
-   * Get the number associated with the given object.
+   * Call <code>iteratorCallback</code> for each member of the set.
    *
-   * @param o The object.
-   * @return The number.
-   * @throws NoSuchObjectException if the obejct could not be found.
+   * @param iteratorCallback Called for each member of the set.
    */
-  public int get(Object o) throws NoSuchObjectException {
-    final Integer result;
+  public void forEach(IteratorCallback iteratorCallback) {
+    final Map clonedMap;
     synchronized (m_map) {
-      result = (Integer)m_map.get(o);
+      clonedMap = new HashMap(m_map);
     }
 
-    if (result == null) {
-      throw new NoSuchObjectException("Could not find '" + o);
-    }
+    final Iterator iterator = clonedMap.entrySet().iterator();
 
-    return result.intValue();
+    while (iterator.hasNext()) {
+      final Entry entry = (Entry) iterator.next();
+      final Integer n = (Integer) entry.getValue();
+
+      iteratorCallback.objectAndNumber(entry.getKey(), n.intValue());
+    }
   }
 }

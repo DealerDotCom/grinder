@@ -19,42 +19,22 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.util;
-
-import java.io.Serializable;
-
-import net.grinder.common.GrinderException;
+package net.grinder.communication;
 
 
 /**
- * Interface to something that can return a number associated with an object.
+ * Optional interface a {@link Message} can implement to provide an "address"
+ * that can later be used in an {@link AddressedMessage}.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface ObjectToNumber extends Serializable {
+public interface AddressNotificationMessage extends Message {
 
   /**
-   * Get the number associated with the given object.
+   * The address. We only care about its equality semantics.
    *
-   * @param o The object.
-   * @return The number.
-   * @throws NoSuchObjectException if the object could not be found.
+   * @return The address.
    */
-  int get(Object o) throws NoSuchObjectException;
-
-  /**
-   * Exception indicating the object could not be found.
-   */
-  public static class NoSuchObjectException extends GrinderException {
-
-    /**
-     * Constructor.
-     *
-     * @param message Description.
-     */
-    public NoSuchObjectException(String message) {
-      super(message);
-    }
-  }
+  Object getAddress();
 }

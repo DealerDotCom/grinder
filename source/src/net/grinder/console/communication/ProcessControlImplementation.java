@@ -23,6 +23,7 @@ package net.grinder.console.communication;
 
 import java.util.Timer;
 
+import net.grinder.common.AgentIdentity;
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
@@ -97,10 +98,16 @@ public class ProcessControlImplementation implements ProcessControl {
    *            Properties that override the agent's local properties.
    */
   public void startWorkerProcesses(GrinderProperties properties) {
-    m_consoleCommunication.sendToAgents(
-      new StartGrinderMessage(
-        properties != null ? properties : new GrinderProperties(),
-        m_agentIDMap));
+    final GrinderProperties propertiesToSend =
+      properties != null ? properties : new GrinderProperties();
+
+    m_agentIDMap.forEach(new AllocateLowestNumber.IteratorCallback() {
+      public void objectAndNumber(Object object, int number) {
+        m_consoleCommunication.sendToAgent(
+          (AgentIdentity)object,
+          new StartGrinderMessage(propertiesToSend, number));
+        }
+      });
   }
 
   /**

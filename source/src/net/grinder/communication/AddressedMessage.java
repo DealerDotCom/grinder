@@ -19,53 +19,34 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.testutility;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+package net.grinder.communication;
 
 
 /**
- * Stub implementation of {@link Timer}.
+ * A {@link Message} that can be used in conjunction with a
+ * {@link FanOutServerSender} to address a particular set of recipients.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public final class StubTimer extends Timer {
-  private final Map m_taskByPeriod = new HashMap();
-  private TimerTask m_lastScheduledTimerTask;
-  private long m_lastDelay;
-  private long m_lastPeriod;
+public interface AddressedMessage {
 
-  public void schedule(TimerTask timerTask, long delay, long period) {
-    m_lastScheduledTimerTask = timerTask;
-    m_lastDelay = delay;
-    m_lastPeriod = period;
-    m_taskByPeriod.put(new Long(period), timerTask);
-  }
+  /**
+   * Access the real message to send to the addressees.
+   *
+   * @return The real message.
+   */
+  Message getPayload();
 
-  public void schedule(TimerTask timerTask, long delay) {
-    m_lastScheduledTimerTask = timerTask;
-    m_lastDelay = delay;
-    m_lastPeriod = 0;
-  }
-
-
-  public TimerTask getLastScheduledTimerTask() {
-    return m_lastScheduledTimerTask;
-  }
-
-  public long getLastDelay() {
-    return m_lastDelay;
-  }
-
-  public long getLastPeriod() {
-    return m_lastPeriod;
-  }
-
-  public TimerTask getTaskByPeriod(long period) {
-    return (TimerTask)m_taskByPeriod.get(new Long(period));
-  }
+  /**
+   * Returns whether the message should be sent to the given
+   * <code>address</code>.
+   *
+   * @param address
+   *            Address to check. See {@link AddressNotificationMessage}. Can
+   *            be <code>null</code> if the recepient doesn't have an address.
+   * @return <code>true</code> if and only if the message should be sent to
+   *         <code>address</code>.
+   */
+  boolean isRecipient(Object address);
 }

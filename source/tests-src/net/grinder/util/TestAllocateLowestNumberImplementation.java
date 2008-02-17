@@ -21,8 +21,11 @@
 
 package net.grinder.util;
 
-import net.grinder.util.ObjectToNumber.NoSuchObjectException;
+import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.TestCase;
+import net.grinder.util.AllocateLowestNumber.IteratorCallback;
 
 
 /**
@@ -49,14 +52,19 @@ public class TestAllocateLowestNumberImplementation extends TestCase {
     set.remove(object2);
     assertEquals(1, set.add(object4));
 
-    assertEquals(1, set.get(object4));
+    final Map expectation = new HashMap() {{
+      put(object1, new Integer(0));
+      put(object4, new Integer(1));
+      put(object3, new Integer(2));
+    }};
 
-    try {
-      set.get(object2);
-      fail("Expected NoSuchObjectException");
-    }
-    catch (NoSuchObjectException e) {
-    }
+    set.forEach(new IteratorCallback() {
+      public void objectAndNumber(Object object, int number) {
+        assertEquals(expectation.remove(object), new Integer(number));
+      }
+    });
+
+    assertEquals(0, expectation.size());
 
     set.remove(object1);
     set.remove(object4);

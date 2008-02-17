@@ -26,6 +26,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.common.AgentIdentity;
 import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
@@ -34,6 +35,7 @@ import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.ServerReceiver;
+import net.grinder.communication.SimpleAddressedMessage;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
@@ -329,12 +331,40 @@ public final class ConsoleCommunicationImplementation
     else {
       try {
         m_sender.send(message);
-     }
-     catch (CommunicationException e) {
-       m_errorQueue.handleException(
-         new DisplayMessageConsoleException(
-           m_resources, "sendError.text", e));
-     }
-   }
+      }
+      catch (CommunicationException e) {
+        m_errorQueue.handleException(
+          new DisplayMessageConsoleException(m_resources, "sendError.text", e));
+      }
+    }
+  }
+
+  /**
+   * Send the given message to the given agent processes (which may pass it on
+   * to its workers).
+   *
+   * <p>
+   * Any errors that occur will be handled with the error handler, see
+   * {@link #setErrorHandler(ErrorHandler)}.
+   * </p>
+   *
+   * @param agent
+   *            The agent to which the message should be sent.
+   * @param message
+   *            The message to send.
+   */
+  public void sendToAgent(AgentIdentity agent, Message message) {
+    if (m_sender == null || m_sender.isShutdown()) {
+      m_errorQueue.handleErrorMessage(m_resources.getString("sendError.text"));
+    }
+    else {
+      try {
+        m_sender.send(new SimpleAddressedMessage(agent, message));
+      }
+      catch (CommunicationException e) {
+        m_errorQueue.handleException(
+          new DisplayMessageConsoleException(m_resources, "sendError.text", e));
+      }
+    }
   }
 }

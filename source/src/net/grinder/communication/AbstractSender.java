@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,7 +36,7 @@ import net.grinder.common.UncheckedInterruptedException;
  */
 abstract class AbstractSender implements Sender {
 
-  private boolean m_shutdown = false;
+  private volatile boolean m_shutdown = false;
 
   /**
    * Send the given message.
@@ -106,5 +106,14 @@ abstract class AbstractSender implements Sender {
     // as some implementations don't do anything with close(), e.g.
     // ByteArrayOutputStream.
     m_shutdown = true;
+  }
+
+  /**
+   * Return whether we are shutdown.
+   *
+   * @return <code>true</code> if and only if we are shut down.
+   */
+  public boolean isShutdown() {
+    return m_shutdown;
   }
 }

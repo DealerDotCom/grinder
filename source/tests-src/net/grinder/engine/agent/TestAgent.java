@@ -42,7 +42,6 @@ import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.util.ObjectToNumber;
 
 
 /**
@@ -196,15 +195,7 @@ public class TestAgent extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
-  private static final class MyObjectToNumber implements ObjectToNumber {
-    public int get(Object o) throws NoSuchObjectException {
-      return 99;
-    }
-  }
-
   public void testWithConsole() throws Exception {
-    final MyObjectToNumber allocateLowestNumber = new MyObjectToNumber();
-
     final ConsoleStub console = new ConsoleStub() {
       public void onConnect() throws Exception {
         // After we accept an agent connection...
@@ -218,8 +209,7 @@ public class TestAgent extends AbstractFileTestCase {
 
         // ...send a start message...
         final GrinderProperties grinderProperties = new GrinderProperties();
-        getSender().send
-        (new StartGrinderMessage(grinderProperties, allocateLowestNumber));
+        getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessage("received a start message");
@@ -231,8 +221,7 @@ public class TestAgent extends AbstractFileTestCase {
         m_loggerStubFactory.assertOutputMessageContains("waiting");
 
         // ...send another start message...
-        getSender().send(
-          new StartGrinderMessage(grinderProperties, allocateLowestNumber));
+        getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessage("received a start message");
@@ -261,8 +250,7 @@ public class TestAgent extends AbstractFileTestCase {
 
         // ...now try specifying the script...
         grinderProperties.setFile(GrinderProperties.SCRIPT, new File("foo.py"));
-        getSender().send(
-          new StartGrinderMessage(grinderProperties, allocateLowestNumber));
+        getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessage("received a start message");
@@ -304,8 +292,6 @@ public class TestAgent extends AbstractFileTestCase {
   }
 
   public void testRampUp() throws Exception {
-    final MyObjectToNumber allocateLowestNumber = new MyObjectToNumber();
-
     final ConsoleStub console = new ConsoleStub() {
       public void onConnect() throws Exception {
         // After we accept an agent connection...
@@ -319,8 +305,7 @@ public class TestAgent extends AbstractFileTestCase {
 
         // ...send a start message...
         final GrinderProperties grinderProperties = new GrinderProperties();
-        getSender().send(
-          new StartGrinderMessage(grinderProperties, allocateLowestNumber));
+        getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessage("received a start message");
@@ -350,8 +335,7 @@ public class TestAgent extends AbstractFileTestCase {
         // Now try again, with no ramp up.
         grinderProperties.setInt("grinder.initialProcesses", 10);
 
-        getSender().send(
-          new StartGrinderMessage(grinderProperties, allocateLowestNumber));
+        getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
         m_loggerStubFactory.waitUntilCalled(5000);
         m_loggerStubFactory.assertOutputMessage("received a start message");
@@ -400,15 +384,12 @@ public class TestAgent extends AbstractFileTestCase {
 
     final GrinderProperties startProperties = new GrinderProperties();
 
-    final MyObjectToNumber allocateLowestNumber = new MyObjectToNumber();
-
     final ConsoleStub console2 = new ConsoleStub() {
       public void onConnect() throws Exception {
 
         startProperties.setFile("grinder.script", new File("not there"));
 
-        getSender().send(
-          new StartGrinderMessage(startProperties, allocateLowestNumber));
+        getSender().send(new StartGrinderMessage(startProperties, 99));
 
         synchronized (secondConsoleContacted) {
           secondConsoleContacted[0] = true;
@@ -423,7 +404,7 @@ public class TestAgent extends AbstractFileTestCase {
       public void onConnect() throws Exception {
         startProperties.setInt("grinder.consolePort", console2.getPort());
 
-        getSender().send(new StartGrinderMessage(startProperties, null));
+        getSender().send(new StartGrinderMessage(startProperties, 22));
       }
     };
 

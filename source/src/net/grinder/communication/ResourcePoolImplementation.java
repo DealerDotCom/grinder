@@ -307,7 +307,6 @@ final class ResourcePoolImplementation implements ResourcePool {
 
     public boolean reserve() {
       // Perhaps assert !m_busy.
-
       synchronized (this) {
         if (m_busy || m_closed) {
           return false;
@@ -321,7 +320,6 @@ final class ResourcePoolImplementation implements ResourcePool {
 
     public void free() {
       // Perhaps assert m_busy.
-
       final boolean stateChanged;
 
       synchronized (this) {

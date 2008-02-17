@@ -24,7 +24,6 @@ package net.grinder.engine.messages;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.Message;
-import net.grinder.util.ObjectToNumber;
 
 
 /**
@@ -35,11 +34,11 @@ import net.grinder.util.ObjectToNumber;
  */
 public final class StartGrinderMessage implements Message {
 
-  private static final long serialVersionUID = 3L;
+  private static final long serialVersionUID = 4L;
 
   private final GrinderProperties m_properties;
 
-  private final ObjectToNumber m_agentNumberMap;
+  private final int m_agentID;
 
   /**
    * Constructor.
@@ -47,13 +46,12 @@ public final class StartGrinderMessage implements Message {
    * @param properties
    *            A set of properties that override values in the Agents' local
    *            files.
-   * @param agentNumberMap
-   *            Map of {@link net.grinder.common.AgentIdentity}s to integers.
+   * @param agentNumberID
+   *            The console allocated agent id.
    */
-  public StartGrinderMessage(GrinderProperties properties,
-                             ObjectToNumber agentNumberMap) {
+  public StartGrinderMessage(GrinderProperties properties, int agentNumberID) {
     m_properties = properties;
-    m_agentNumberMap = agentNumberMap;
+    m_agentID = agentNumberID;
   }
 
   /**
@@ -70,7 +68,7 @@ public final class StartGrinderMessage implements Message {
    *
    * @return Map of {@link net.grinder.common.AgentIdentity}s to integers.
    */
-  public ObjectToNumber getAgentNumberMap() {
-    return m_agentNumberMap;
+  public int getAgentID() {
+    return m_agentID;
   }
 }

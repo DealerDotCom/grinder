@@ -30,16 +30,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.TimerTask;
 
+import net.grinder.common.AgentIdentity;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
+import net.grinder.communication.StreamSender;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
+import net.grinder.console.communication.ProcessStatus.ProcessReports;
 import net.grinder.console.messages.AgentProcessReportMessage;
 import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.console.model.ConsoleProperties;
@@ -206,11 +209,34 @@ public class TestConsoleCommunicationImplementation
     final GrinderProperties properties = new GrinderProperties();
     properties.setProperty("foo", "bah");
 
+    // Need a thread to be attempting to process messages.
+    m_processMessagesThread.start();
+
+    // We need to associate the agent id with the connection or we'll never
+    // get a start message.
+    final AgentIdentity agentIdentity = new StubAgentIdentity("foo");
+
+    new StreamSender(socket.getOutputStream()).send(
+      new AgentProcessReportMessage(
+        agentIdentity,
+        AgentProcessReportMessage.STATE_RUNNING));
+
+    // Wait until the message has been received.
+    do {
+      final TimerTask timerTask = m_timer.getTaskByPeriod(500L);
+      timerTask.run();
+      Thread.sleep(10);
+    }
+    while (listenerStubFactory.peekFirst() == null);
+    listenerStubFactory.assertSuccess("update", ProcessReports[].class, Boolean.class);
+    listenerStubFactory.assertNoMoreCalls();
+
     processControl.startWorkerProcesses(properties);
     final StartGrinderMessage startGrinderMessage =
       (StartGrinderMessage)readMessage(socket);
 
     assertEquals(properties, startGrinderMessage.getProperties());
+    assertEquals(0, startGrinderMessage.getAgentID());
 
     processControl.startWorkerProcesses(null);
     final StartGrinderMessage startGrinderMessage2 =
@@ -220,10 +246,6 @@ public class TestConsoleCommunicationImplementation
     // This shouldn't call reset. If it does, we'll block because
     // nothing's processing the messages.
     m_properties.setIgnoreSampleCount(99);
-
-    // Need a thread to be attempting to process messages or
-    // ConsoleCommunicationImplementation.reset() will not complete.
-    m_processMessagesThread.start();
 
     // Reset by changing properties and do another test.
     final ServerSocket freeServerSocket = new ServerSocket(0);
@@ -343,8 +365,7 @@ public class TestConsoleCommunicationImplementation
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.WORKER.write(socket.getOutputStream());
 
-    final StubAgentIdentity agentIdentity =
-      new StubAgentIdentity("agent");
+    final StubAgentIdentity agentIdentity = new StubAgentIdentity("agent");
 
     // We can currently send agent messages over a worker channel.
     sendMessage(socket, new AgentProcessReportMessage(agentIdentity, (short)0));

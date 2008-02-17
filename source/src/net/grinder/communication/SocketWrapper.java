@@ -70,6 +70,8 @@ final class SocketWrapper
       }
     };
 
+  private Object m_address;
+
   /**
    * Constructor.
    *
@@ -189,5 +191,34 @@ final class SocketWrapper
 
   public void addClosedListener(ClosedListener listener) {
     m_closedListeners.add(listener);
+  }
+
+  /**
+   * Set an external object that identifies this socket. This can be used in
+   * conjunction with {@link AddressedMessage} to address a particular target.
+   *
+   * @param address
+   *            The address. We only care about its equality semantics.
+   */
+  public void setAddress(Object address) {
+    m_address = address;
+  }
+
+  /**
+   * Return the address for this socket.
+   *
+   * @return The address, or <code>null</code> if no address has been set.
+   */
+  public Object getAddress() {
+    return m_address;
+  }
+
+  /**
+   * For unit tests only.
+   *
+   * @return Out socket.
+   */
+  Socket getSocket() {
+    return m_socket;
   }
 }

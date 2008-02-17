@@ -190,7 +190,7 @@ public final class Agent {
             script = new ScriptLocation(fileStoreDirectory, consoleScript);
           }
 
-          agentID = startMessage.getAgentNumberMap().get(m_agentIdentity);
+          agentID = startMessage.getAgentID();
         }
         else {
           agentID = -1;
