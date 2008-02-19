@@ -73,6 +73,7 @@ import org.picocontainer.defaults.DefaultPicoContainer;
 public final class ConsoleFoundation {
 
   private final MutablePicoContainer m_container;
+  private final Timer m_timer;
 
   /**
    * Constructor. Locates the console properties in the user's home directory.
@@ -112,6 +113,8 @@ public final class ConsoleFoundation {
                            Timer timer,
                            ConsoleProperties properties)
     throws GrinderException {
+
+    m_timer = timer;
 
     m_container = new DefaultPicoContainer();
     m_container.registerComponentInstance(logger);
@@ -186,6 +189,8 @@ public final class ConsoleFoundation {
         ConsoleCommunication.class);
 
     communication.shutdown();
+
+    m_timer.cancel();
   }
 
   /**
