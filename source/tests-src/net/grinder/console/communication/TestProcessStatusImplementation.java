@@ -362,6 +362,10 @@ public class TestProcessStatusImplementation extends TestCase {
     private final Map m_taskByPeriod = new HashMap();
     private int m_numberOfScheduledTasks;
 
+    MyTimer() {
+      super(true);
+    }
+
     public void schedule(TimerTask timerTask, long delay, long period) {
       assertEquals(0, delay);
 
