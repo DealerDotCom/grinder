@@ -23,7 +23,7 @@ package net.grinder.engine.agent;
 
 import java.io.OutputStream;
 
-import net.grinder.common.WorkerIdentity;
+import net.grinder.messages.console.WorkerIdentity;
 
 
 /**

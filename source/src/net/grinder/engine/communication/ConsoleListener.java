@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,9 +26,9 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
-import net.grinder.engine.messages.ResetGrinderMessage;
-import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.engine.messages.StopGrinderMessage;
+import net.grinder.messages.agent.ResetGrinderMessage;
+import net.grinder.messages.agent.StartGrinderMessage;
+import net.grinder.messages.agent.StopGrinderMessage;
 import net.grinder.util.thread.Condition;
 
 

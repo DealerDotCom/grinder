@@ -31,9 +31,9 @@ import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchSender;
-import net.grinder.engine.messages.ResetGrinderMessage;
-import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.engine.messages.StopGrinderMessage;
+import net.grinder.messages.agent.ResetGrinderMessage;
+import net.grinder.messages.agent.StartGrinderMessage;
+import net.grinder.messages.agent.StopGrinderMessage;
 import net.grinder.util.thread.Condition;
 
 

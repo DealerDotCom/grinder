@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,11 +25,11 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.StubTest;
 import net.grinder.common.ThreadLifeCycleListener;
-import net.grinder.common.WorkerIdentity;
-import net.grinder.common.WorkerProcessReport;
 import net.grinder.communication.QueuedSender;
-import net.grinder.console.messages.ReportStatisticsMessage;
-import net.grinder.console.messages.WorkerProcessReportMessage;
+import net.grinder.messages.console.ReportStatisticsMessage;
+import net.grinder.messages.console.WorkerIdentity;
+import net.grinder.messages.console.WorkerProcessReport;
+import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesTestFactory;
 import net.grinder.statistics.StatisticsSet;

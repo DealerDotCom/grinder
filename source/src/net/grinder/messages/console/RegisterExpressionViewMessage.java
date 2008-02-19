@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.messages;
+package net.grinder.messages.console;
 
 import java.io.Externalizable;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,8 +32,8 @@ import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.messages.ClearCacheMessage;
-import net.grinder.engine.messages.DistributeFileMessage;
+import net.grinder.messages.agent.ClearCacheMessage;
+import net.grinder.messages.agent.DistributeFileMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 import net.grinder.util.StreamCopier;

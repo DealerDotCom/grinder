@@ -30,15 +30,15 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import net.grinder.common.AgentProcessReport;
-import net.grinder.common.ProcessReport;
-import net.grinder.common.WorkerProcessReport;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ProcessReportDescriptionFactory;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessStatus;
+import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.messages.console.ProcessReport;
+import net.grinder.messages.console.WorkerProcessReport;
 
 
 /**

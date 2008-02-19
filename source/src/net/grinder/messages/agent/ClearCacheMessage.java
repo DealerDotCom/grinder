@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,22 +19,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.messages.agent;
+
+import net.grinder.communication.Message;
 
 
 /**
- * Optional interface a {@link Message} can implement to provide an "address"
- * that can later be used in an {@link AddressedMessage}.
+ * Message that instructs the agent to clear its file cache.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
-public interface AddressNotificationMessage extends Message {
+public final class ClearCacheMessage implements Message {
+
+  private static final long serialVersionUID = 6451850661282525463L;
 
   /**
-   * The address. We only care about its equality semantics.
-   *
-   * @return The address.
+   * Constructor.
    */
-  Object getAddress();
+  public ClearCacheMessage() {
+  }
 }

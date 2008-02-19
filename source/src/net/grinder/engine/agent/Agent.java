@@ -42,12 +42,12 @@ import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.TeeSender;
-import net.grinder.console.messages.AgentProcessReportMessage;
 import net.grinder.engine.common.ConnectorFactory;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
-import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.messages.agent.StartGrinderMessage;
+import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.Directory.DirectoryException;
 import net.grinder.util.thread.Condition;
@@ -400,7 +400,7 @@ public final class Agent {
     public ConsoleCommunication(Connector connector)
         throws CommunicationException, FileStore.FileStoreException {
 
-      m_receiver = ClientReceiver.connect(connector);
+      m_receiver = ClientReceiver.connect(connector, m_agentIdentity);
       m_sender = ClientSender.connect(m_receiver);
       m_connector = connector;
 

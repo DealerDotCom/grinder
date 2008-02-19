@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,40 +19,22 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.messages;
-
-import net.grinder.communication.Message;
-import net.grinder.util.FileContents;
+package net.grinder.messages.console;
 
 
 /**
- * Message used to distribute a file from the console to the agent
- * processes.
+ * Interface for enquiring about an agent process.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class DistributeFileMessage implements Message {
-
-  private static final long serialVersionUID = -4338519775293350257L;
-
-  private final FileContents m_fileContents;
+public interface AgentProcessReport extends ProcessReport {
 
   /**
-   * Constructor.
+   * Return the unique process identity.
    *
-   * @param fileContents The file contents to distribute.
+   * @return The process identity.
    */
-  public DistributeFileMessage(FileContents fileContents) {
-    m_fileContents = fileContents;
-  }
-
-  /**
-   * Return the file contents.
-   *
-   * @return The file contents.
-   */
-  public FileContents getFileContents() {
-    return m_fileContents;
-  }
+  AgentIdentity getAgentIdentity();
 }
+

@@ -21,8 +21,8 @@
 
 package net.grinder.communication;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import net.grinder.common.UncheckedInterruptedException;
@@ -57,8 +57,7 @@ public final class ConnectionType {
    * @param in The stream.
    * @return The ConnectionType.
    */
-  static ConnectionType read(InputStream in)
-    throws CommunicationException {
+  static ConnectionType read(InputStream in) throws CommunicationException {
 
     final int i;
 
@@ -100,7 +99,7 @@ public final class ConnectionType {
    * @param out The stream.
    * @throws CommunicationException If write failed.
    */
-  public void write(OutputStream out) throws CommunicationException {
+  void write(OutputStream out) throws CommunicationException {
     try {
       out.write(m_identity);
       out.flush();

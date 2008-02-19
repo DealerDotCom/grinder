@@ -38,9 +38,9 @@ import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.communication.StreamReceiver;
-import net.grinder.engine.messages.ResetGrinderMessage;
-import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.engine.messages.StopGrinderMessage;
+import net.grinder.messages.agent.ResetGrinderMessage;
+import net.grinder.messages.agent.StartGrinderMessage;
+import net.grinder.messages.agent.StopGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 
 

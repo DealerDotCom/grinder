@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.messages.console;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -73,9 +73,6 @@ public interface ProcessReport {
    *
    * <p>Implementations should define equality so that instances are equal if
    * and only they represent the same process.</p>
-   *
-   * @author Philip Aston
-   * @version $Revision$
    */
   interface ProcessIdentity extends Serializable {
 

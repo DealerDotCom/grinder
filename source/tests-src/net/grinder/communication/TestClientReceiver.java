@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,23 +21,23 @@
 
 package net.grinder.communication;
 
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.Socket;
+
+import net.grinder.communication.Connector.ConnectDetails;
 
 import junit.framework.TestCase;
 
 
 /**
- *  Unit test case for <code>ClientReceiver</code>.
+ *  Unit tests for {@link ClientReceiver}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class TestClientReceiver extends TestCase {
-
-  public TestClientReceiver(String name) {
-    super(name);
-  }
 
   public void testReceive() throws Exception {
 
@@ -47,12 +47,18 @@ public class TestClientReceiver extends TestCase {
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
                     ConnectionType.AGENT);
 
-    final Receiver clientReceiver = ClientReceiver.connect(connector);
+    final Address address = new StubAddress();
+
+    final Receiver clientReceiver = ClientReceiver.connect(connector, address);
 
     socketAcceptor.join();
 
-    final OutputStream socketOutput =
-      socketAcceptor.getAcceptedSocket().getOutputStream();
+    final Socket acceptedSocket = socketAcceptor.getAcceptedSocket();
+
+    assertConnection(
+      acceptedSocket.getInputStream(), ConnectionType.AGENT, address);
+
+    final OutputStream socketOutput = acceptedSocket.getOutputStream();
 
     final SimpleMessage message1 = new SimpleMessage();
 
@@ -77,11 +83,19 @@ public class TestClientReceiver extends TestCase {
     socketAcceptor.close();
 
     try {
-      ClientReceiver.connect(connector);
+      ClientReceiver.connect(connector, address);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
     }
+  }
+
+  private void assertConnection(InputStream in,
+                                ConnectionType type,
+                                Address address) throws Exception {
+    final ConnectDetails details = Connector.read(in);
+    assertEquals(type, details.getConnectionType());
+    assertEquals(address, details.getAddress());
   }
 
   public void testShutdown() throws Exception {
@@ -92,12 +106,17 @@ public class TestClientReceiver extends TestCase {
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
                     ConnectionType.AGENT);
 
-    final Receiver clientReceiver = ClientReceiver.connect(connector);
+    final Address address = new StubAddress();
+
+    final Receiver clientReceiver = ClientReceiver.connect(connector, address);
 
     socketAcceptor.join();
 
-    final OutputStream socketOutput =
-      socketAcceptor.getAcceptedSocket().getOutputStream();
+    final Socket acceptedSocket = socketAcceptor.getAcceptedSocket();
+    assertConnection(
+      acceptedSocket.getInputStream(), ConnectionType.AGENT, address);
+
+    final OutputStream socketOutput = acceptedSocket.getOutputStream();
 
     final SimpleMessage message1 = new SimpleMessage();
 
@@ -124,12 +143,18 @@ public class TestClientReceiver extends TestCase {
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
                     ConnectionType.AGENT);
 
-    final Receiver clientReceiver = ClientReceiver.connect(connector);
+    final Address address = new StubAddress();
+
+    final Receiver clientReceiver = ClientReceiver.connect(connector, address);
 
     socketAcceptor.join();
 
-    final OutputStream socketOutput =
-      socketAcceptor.getAcceptedSocket().getOutputStream();
+    final Socket acceptedSocket = socketAcceptor.getAcceptedSocket();
+
+    assertConnection(
+      acceptedSocket.getInputStream(), ConnectionType.AGENT, address);
+
+    final OutputStream socketOutput = acceptedSocket.getOutputStream();
 
     final SimpleMessage message1 = new SimpleMessage();
 

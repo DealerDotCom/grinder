@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,7 @@ package net.grinder.engine.process;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.QueuedSender;
-import net.grinder.console.messages.RegisterExpressionViewMessage;
+import net.grinder.messages.console.RegisterExpressionViewMessage;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.ExpressionView;

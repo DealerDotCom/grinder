@@ -66,19 +66,20 @@ public final class FanOutServerSender
   }
 
   /**
-   * Send the given addressed message.
+   * Send a message to a particular address.
    *
-   * @param addressedMessage An addressed message.
+   * @param address Address to send message to.
+   * @param message The message.
    * @exception CommunicationException If an error occurs.
    */
-  public void send(AddressedMessage addressedMessage)
+  public void send(Address address, Message message)
     throws CommunicationException {
 
     if (isShutdown()) {
       throw new CommunicationException("Shut down");
     }
 
-    writeAddressedMessage(addressedMessage);
+    writeAddressedMessage(address, message);
   }
 
   /**
@@ -105,7 +106,7 @@ public final class FanOutServerSender
    * @return The address, or <code>null</code> if the socket has no address.
    * @see AddressedMessage
    */
-  protected Object getAddress(Resource resource) {
+  protected Address getAddress(Resource resource) {
 
     // We don't need to synchronise access to the SocketWrapper;
     // access is protected through the socket set and only we hold

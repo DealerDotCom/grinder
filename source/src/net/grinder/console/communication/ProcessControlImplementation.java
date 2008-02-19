@@ -23,16 +23,16 @@ package net.grinder.console.communication;
 
 import java.util.Timer;
 
-import net.grinder.common.AgentIdentity;
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
-import net.grinder.console.messages.AgentProcessReportMessage;
-import net.grinder.console.messages.WorkerProcessReportMessage;
-import net.grinder.engine.messages.ResetGrinderMessage;
-import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.engine.messages.StopGrinderMessage;
+import net.grinder.messages.agent.ResetGrinderMessage;
+import net.grinder.messages.agent.StartGrinderMessage;
+import net.grinder.messages.agent.StopGrinderMessage;
+import net.grinder.messages.console.AgentIdentity;
+import net.grinder.messages.console.AgentProcessReportMessage;
+import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.util.AllocateLowestNumber;
 import net.grinder.util.AllocateLowestNumberImplementation;
 

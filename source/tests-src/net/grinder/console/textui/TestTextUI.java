@@ -23,13 +23,8 @@ package net.grinder.console.textui;
 
 import java.util.HashMap;
 
-import net.grinder.common.AgentProcessReport;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
-import net.grinder.common.ProcessReport;
-import net.grinder.common.StubAgentProcessReport;
-import net.grinder.common.StubWorkerProcessReport;
-import net.grinder.common.WorkerProcessReport;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.StubResources;
@@ -39,6 +34,11 @@ import net.grinder.console.communication.ProcessStatus.ProcessReports;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleModel;
 import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.messages.console.ProcessReport;
+import net.grinder.messages.console.StubAgentProcessReport;
+import net.grinder.messages.console.StubWorkerProcessReport;
+import net.grinder.messages.console.WorkerProcessReport;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;

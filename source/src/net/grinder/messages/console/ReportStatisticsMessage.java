@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,29 +19,39 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.messages.console;
+
+import net.grinder.communication.Message;
+import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
- * Worker process identity.
+ * Message used to report test statistics to the console.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface WorkerIdentity extends ProcessReport.ProcessIdentity {
+public final class ReportStatisticsMessage implements Message {
+
+  private static final long serialVersionUID = 5659643598627115683L;
+
+  private final TestStatisticsMap m_statisticsDelta;
 
   /**
-   * Get the identity of the worker's agent process.
+   * Constructor.
    *
-   * @return The agent identity.
+   * @param statisticsDelta The test statistics.
    */
-  AgentIdentity getAgentIdentity();
+  public ReportStatisticsMessage(TestStatisticsMap statisticsDelta) {
+    m_statisticsDelta = statisticsDelta;
+  }
 
   /**
-   * Get the console allocated agent ID.
+   * Get the test statistics.
    *
-   * @return The agent ID.
-   * @see net.grinder.script.Grinder.ScriptContext#getAgentID()
+   * @return The test statistics.
    */
-  int getAgentID();
+  public TestStatisticsMap getStatisticsDelta() {
+    return m_statisticsDelta;
+  }
 }

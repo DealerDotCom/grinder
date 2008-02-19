@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,31 +19,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.messages.console;
 
-import net.grinder.common.AgentIdentity;
-import net.grinder.common.AgentProcessReport;
+import java.util.Collection;
+
+import net.grinder.communication.Message;
 
 
-public final class StubAgentProcessReport implements AgentProcessReport {
+/**
+ * Message used to register tests with Console.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
+public final class RegisterTestsMessage implements Message {
 
-  private final AgentIdentity m_identity;
-  private final short m_state;
+  private static final long serialVersionUID = -4005260033024209616L;
 
-  public StubAgentProcessReport(AgentIdentity identity, short state) {
-    m_identity = identity;
-    m_state = state;
+  private final Collection m_tests;
+
+  /**
+   * Constructor.
+   *
+   * @param tests The test set to register.
+   */
+  public RegisterTestsMessage(Collection tests) {
+    m_tests = tests;
   }
 
-  public AgentIdentity getAgentIdentity() {
-    return m_identity;
-  }
-
-  public ProcessIdentity getIdentity() {
-    return m_identity;
-  }
-
-  public short getState() {
-    return m_state;
+  /**
+   * Get the test set.
+   *
+   * @return The test set.
+   */
+  public Collection getTests() {
+    return m_tests;
   }
 }

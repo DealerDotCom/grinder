@@ -24,9 +24,9 @@ package net.grinder.console.communication;
 import java.util.Comparator;
 import java.util.EventListener;
 
-import net.grinder.common.AgentProcessReport;
-import net.grinder.common.ProcessReport;
-import net.grinder.common.WorkerProcessReport;
+import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.messages.console.ProcessReport;
+import net.grinder.messages.console.WorkerProcessReport;
 
 
 /**

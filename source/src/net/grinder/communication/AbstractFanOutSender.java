@@ -61,7 +61,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
    */
   protected final void writeMessage(final Message message)
     throws CommunicationException {
-    writeAddressedMessage(new SendToEveryoneAddressedMessage(message));
+    writeAddressedMessage(new SendToEveryoneAddress(), message);
   }
 
   /**
@@ -70,7 +70,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
    * @param message The message.
    * @exception IOException If an error occurs.
    */
-  protected final void writeAddressedMessage(AddressedMessage addressedMessage)
+  protected final void writeAddressedMessage(Address address, Message message)
     throws CommunicationException {
 
     try {
@@ -86,7 +86,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
 
         final Resource resource = reservation.getResource();
 
-        if (!addressedMessage.isRecipient(getAddress(resource))) {
+        if (!address.includes(getAddress(resource))) {
           reservation.free();
           continue;
         }
@@ -94,7 +94,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
         // We don't need to synchronise access to the stream; access is
         // protected through the socket set and only we hold the reservation.
         m_executor.execute(
-          new WriteMessageToStream(addressedMessage.getPayload(),
+          new WriteMessageToStream(message,
                                    resourceToOutputStream(resource),
                                    reservation));
       }
@@ -125,7 +125,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
    * @return The address, or <code>null</code> if the resource has no address.
    * @see AddressedMessage
    */
-  protected abstract Object getAddress(Resource resource);
+  protected abstract Address getAddress(Resource resource);
 
   /**
    * Allow subclasses to access the resource pool.
@@ -145,20 +145,8 @@ abstract class AbstractFanOutSender extends AbstractSender {
     m_executor.gracefulShutdown();
   }
 
-  private static final class SendToEveryoneAddressedMessage
-    implements AddressedMessage {
-
-    private final Message m_message;
-
-    private SendToEveryoneAddressedMessage(Message message) {
-      m_message = message;
-    }
-
-    public Message getPayload() {
-      return m_message;
-    }
-
-    public boolean isRecipient(Object address) {
+  private static final class SendToEveryoneAddress implements Address {
+    public boolean includes(Address address) {
       return true;
     }
   }

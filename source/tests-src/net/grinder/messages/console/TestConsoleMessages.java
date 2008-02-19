@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,9 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.messages;
-
-import junit.framework.TestCase;
+package net.grinder.messages.console;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,7 +29,7 @@ import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 
-import net.grinder.common.WorkerIdentity;
+import junit.framework.TestCase;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.statistics.ExpressionView;

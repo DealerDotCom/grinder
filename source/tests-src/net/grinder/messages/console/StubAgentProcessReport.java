@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,22 +19,28 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.messages.console;
 
 
-/**
- * Interface for enquiring about an agent process.
- *
- * @author Philip Aston
- * @version $Revision$
- */
-public interface AgentProcessReport extends ProcessReport {
+public final class StubAgentProcessReport implements AgentProcessReport {
 
-  /**
-   * Return the unique process identity.
-   *
-   * @return The process identity.
-   */
-  AgentIdentity getAgentIdentity();
+  private final AgentIdentity m_identity;
+  private final short m_state;
+
+  public StubAgentProcessReport(AgentIdentity identity, short state) {
+    m_identity = identity;
+    m_state = state;
+  }
+
+  public AgentIdentity getAgentIdentity() {
+    return m_identity;
+  }
+
+  public ProcessIdentity getIdentity() {
+    return m_identity;
+  }
+
+  public short getState() {
+    return m_state;
+  }
 }
-

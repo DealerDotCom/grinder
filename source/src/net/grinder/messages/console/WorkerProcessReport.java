@@ -1,4 +1,5 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,17 +20,36 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.messages;
-
-import net.grinder.communication.Message;
+package net.grinder.messages.console;
 
 
 /**
- * Message used to reset the Grinder processes.
+ * Interface for enquiring about a worker process.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ResetGrinderMessage implements Message {
-  private static final long serialVersionUID = 7654366493026824236L;
+public interface WorkerProcessReport extends ProcessReport {
+
+  /**
+   * Return the unique process identity.
+   *
+   * @return The process identity.
+   */
+  WorkerIdentity getWorkerIdentity();
+
+  /**
+   * Get the number of running threads.
+   *
+   * @return The number of threads that are running.
+   */
+  short getNumberOfRunningThreads();
+
+  /**
+   * Get the maximum number of threads.
+   *
+   * @return The maximum number of threads.
+   */
+  short getMaximumNumberOfThreads();
 }
+

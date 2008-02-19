@@ -27,8 +27,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import net.grinder.common.UncheckedInterruptedException;
-import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
+import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.util.StreamCopier;
 
 

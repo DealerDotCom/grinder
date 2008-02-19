@@ -24,28 +24,22 @@ package net.grinder.engine.messages;
 import java.io.File;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.engine.common.ScriptLocation;
+import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
 import net.grinder.util.Directory;
-import net.grinder.util.FileContents;
 
 
 /**
- *  Unit test case for messages that are sent to the agent and worker
- *  processes.
+ * Unit test case for messages that are sent to the worker processes.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 3823 $
  */
-public class TestEngineMessages extends AbstractFileTestCase {
-
-  private static Message serialise(Message original) throws Exception {
-    return (Message) Serializer.serialize(original);
-  }
+public class TestWorkerMessages extends AbstractFileTestCase {
 
   public void testInitialiseGrinderMessage() throws Exception {
 
@@ -64,7 +58,7 @@ public class TestEngineMessages extends AbstractFileTestCase {
       new InitialiseGrinderMessage(workerIdentity, false, script, properties);
 
     final InitialiseGrinderMessage received =
-      (InitialiseGrinderMessage) serialise(original);
+      (InitialiseGrinderMessage) ((Message) Serializer.serialize(original));
 
     assertEquals(workerIdentity, received.getWorkerIdentity());
     assertTrue(!received.getReportToConsole());
@@ -77,42 +71,5 @@ public class TestEngineMessages extends AbstractFileTestCase {
     assertEquals(workerIdentity, another.getWorkerIdentity());
     assertTrue(another.getReportToConsole());
     assertEquals(script, another.getScript());
-  }
-
-  public void testResetGrinderMessage() throws Exception {
-    serialise(new ResetGrinderMessage());
-  }
-
-  public void testStartGrinderMessage() throws Exception {
-    final GrinderProperties properties = new GrinderProperties();
-    properties.setProperty("foo", "bah");
-    properties.setInt("lah", 123);
-
-    final StartGrinderMessage received =
-      (StartGrinderMessage)serialise(new StartGrinderMessage(properties, -1));
-
-    assertEquals(properties, received.getProperties());
-  }
-
-  public void testStopGrinderMessage() throws Exception {
-    serialise(new StopGrinderMessage());
-  }
-
-  public void testDistributeFileMessage() throws Exception {
-    final File file = new File("test");
-    new File(getDirectory(), file.getPath()).createNewFile();
-
-    final FileContents fileContents = new FileContents(getDirectory(), file);
-
-    final DistributeFileMessage received =
-      (DistributeFileMessage)
-      serialise(new DistributeFileMessage(fileContents));
-
-    assertEquals(fileContents.toString(),
-                 received.getFileContents().toString());
-  }
-
-  public void testClearCacheMessage() throws Exception {
-    serialise(new ClearCacheMessage());
   }
 }

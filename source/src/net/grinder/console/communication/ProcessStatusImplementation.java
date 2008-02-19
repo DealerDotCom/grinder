@@ -30,9 +30,9 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.grinder.common.AgentIdentity;
-import net.grinder.common.AgentProcessReport;
-import net.grinder.common.WorkerProcessReport;
+import net.grinder.messages.console.AgentIdentity;
+import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.messages.console.WorkerProcessReport;
 import net.grinder.util.AllocateLowestNumber;
 import net.grinder.util.ListenerSupport;
 

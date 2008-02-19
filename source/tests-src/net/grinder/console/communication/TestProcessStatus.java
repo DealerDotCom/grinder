@@ -23,11 +23,11 @@ package net.grinder.console.communication;
 
 import java.util.Comparator;
 
-import net.grinder.common.AgentIdentity;
-import net.grinder.common.AgentProcessReport;
-import net.grinder.common.StubAgentProcessReport;
 import net.grinder.console.communication.ProcessStatus.ProcessReports;
 import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.messages.console.AgentIdentity;
+import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.messages.console.StubAgentProcessReport;
 import net.grinder.testutility.RandomStubFactory;
 
 import junit.framework.TestCase;

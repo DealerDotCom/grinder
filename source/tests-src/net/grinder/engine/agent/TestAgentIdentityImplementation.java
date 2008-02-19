@@ -21,8 +21,8 @@
 
 package net.grinder.engine.agent;
 
-import net.grinder.common.AgentIdentity;
-import net.grinder.common.WorkerIdentity;
+import net.grinder.messages.console.AgentIdentity;
+import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.testutility.Serializer;
 import junit.framework.TestCase;
 

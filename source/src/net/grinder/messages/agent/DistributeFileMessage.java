@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,55 +19,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.messages;
+package net.grinder.messages.agent;
 
-import net.grinder.common.GrinderProperties;
 import net.grinder.communication.Message;
+import net.grinder.util.FileContents;
 
 
 /**
- * Message used to start the Grinder processes.
+ * Message used to distribute a file from the console to the agent
+ * processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class StartGrinderMessage implements Message {
+public final class DistributeFileMessage implements Message {
 
-  private static final long serialVersionUID = 4L;
+  private static final long serialVersionUID = -4338519775293350257L;
 
-  private final GrinderProperties m_properties;
-
-  private final int m_agentID;
+  private final FileContents m_fileContents;
 
   /**
    * Constructor.
    *
-   * @param properties
-   *            A set of properties that override values in the Agents' local
-   *            files.
-   * @param agentNumberID
-   *            The console allocated agent id.
+   * @param fileContents The file contents to distribute.
    */
-  public StartGrinderMessage(GrinderProperties properties, int agentNumberID) {
-    m_properties = properties;
-    m_agentID = agentNumberID;
+  public DistributeFileMessage(FileContents fileContents) {
+    m_fileContents = fileContents;
   }
 
   /**
-   * A set of properties that override values in the Agents' local files.
+   * Return the file contents.
    *
-   * @return The properties.
+   * @return The file contents.
    */
-  public GrinderProperties getProperties() {
-    return m_properties;
-  }
-
-  /**
-   * The current map of numbers allocated to each agent by the console.
-   *
-   * @return Map of {@link net.grinder.common.AgentIdentity}s to integers.
-   */
-  public int getAgentID() {
-    return m_agentID;
+  public FileContents getFileContents() {
+    return m_fileContents;
   }
 }

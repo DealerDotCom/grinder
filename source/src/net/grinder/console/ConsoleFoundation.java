@@ -45,14 +45,14 @@ import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.communication.server.DispatchClientCommands;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionImplementation;
-import net.grinder.console.messages.RegisterExpressionViewMessage;
-import net.grinder.console.messages.RegisterTestsMessage;
-import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.SampleModelImplementation;
 import net.grinder.console.model.SampleModelViews;
 import net.grinder.console.model.SampleModelViewsImplementation;
+import net.grinder.messages.console.RegisterExpressionViewMessage;
+import net.grinder.messages.console.RegisterTestsMessage;
+import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.util.Directory;
 

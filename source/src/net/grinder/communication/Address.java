@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,14 +19,31 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.communication;
+
+import java.io.Serializable;
 
 
 /**
- * Agent process identity.
+ * Interface implemented by addresses.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 3762 $
  */
-public interface AgentIdentity extends ProcessReport.ProcessIdentity {
+public interface Address extends Serializable {
+
+  /**
+   * Whether this address includes the given address.
+   *
+   * <p>
+   * The general <code>includes</code> relationship is transitive, reflexive,
+   * and asymmetric. Simple implementations of "physical addresses" should just
+   * delegate to equals().
+   * </p>
+   *
+   * @param address
+   *            The address to check.
+   * @return <code>true</code> if and only if we include <code>address</code>.
+   */
+  boolean includes(Address address);
 }

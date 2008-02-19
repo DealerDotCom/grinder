@@ -24,9 +24,9 @@ package net.grinder.engine.agent;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
-import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.StreamSender;
 import net.grinder.engine.common.EngineException;
+import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.testutility.RedirectStandardStreams;
 
 

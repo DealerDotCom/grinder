@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,8 @@
 package net.grinder.console.client;
 
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+
 import junit.framework.TestCase;
 
 import net.grinder.communication.SocketAcceptorThread;
@@ -53,6 +55,8 @@ public class TestConsoleConnectionFactory extends TestCase {
       socketAcceptor.getAcceptedSocket().getInputStream();
 
     assertEquals(2, socketInput.read()); // ConnectionType.CONSOLE_CLIENT
+
+    assertNull(new ObjectInputStream(socketInput).readObject());
 
     assertEquals(0, socketInput.available());
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2000-2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,18 +31,22 @@ package net.grinder.communication;
 public final class ClientReceiver extends StreamReceiver {
 
   /**
-   * Factory method that makes a TCP connection and returns a
-   * corresponding <code>Receiver</code>.
+   * Factory method that makes a TCP connection and returns a corresponding
+   * <code>Receiver</code>.
    *
-   * @param connector Connector to use to make the connection to the
-   * server.
+   * @param connector
+   *            Connector to use to make the connection to the server.
+   * @param address
+   *            The address of this ClientReceiver - can be used with
+   *            {@link FanOutServerSender#send(AddressedMessage)}.
    * @return The ClientReceiver.
-   * @throws CommunicationException If failed to connect.
+   * @throws CommunicationException
+   *             If failed to connect.
    */
-  public static ClientReceiver connect(Connector connector)
+  public static ClientReceiver connect(Connector connector, Address address)
     throws CommunicationException {
 
-    return new ClientReceiver(new SocketWrapper(connector.connect()));
+    return new ClientReceiver(new SocketWrapper(connector.connect(address)));
   }
 
   private final SocketWrapper m_socketWrapper;

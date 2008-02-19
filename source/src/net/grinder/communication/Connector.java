@@ -22,6 +22,10 @@
 package net.grinder.communication;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -48,7 +52,8 @@ public final class Connector {
    * @param port TCP port to connect to.
    * @param connectionType Connection type.
    */
-  public Connector(String hostString, int port,
+  public Connector(String hostString,
+                   int port,
                    ConnectionType connectionType) {
     m_hostString = hostString;
     m_port = port;
@@ -64,7 +69,10 @@ public final class Connector {
    * establish.
    */
   Socket connect() throws CommunicationException {
+    return connect(null);
+  }
 
+  Socket connect(Address address) throws CommunicationException {
     final InetAddress inetAddress;
 
     try {
@@ -79,8 +87,13 @@ public final class Connector {
       // Bind to any local port.
       final Socket socket = new Socket(inetAddress, m_port);
 
-      m_connectionType.write(socket.getOutputStream());
+      final OutputStream outputStream = socket.getOutputStream();
+      m_connectionType.write(outputStream);
 
+      final ObjectOutputStream objectStream =
+        new ObjectOutputStream(outputStream);
+      objectStream.writeObject(address);
+      objectStream.flush();
       return socket;
     }
     catch (IOException e) {
@@ -139,5 +152,49 @@ public final class Connector {
     }
 
     return host + ":" + m_port;
+  }
+
+  /**
+   * Connection details read from a stream.
+   * @see Connector#read
+   */
+  static final class ConnectDetails {
+    private final ConnectionType m_connectionType;
+    private final Address m_address;
+
+    private ConnectDetails(ConnectionType connectionType, Address address) {
+      m_connectionType = connectionType;
+      m_address = address;
+    }
+
+    public ConnectionType getConnectionType() {
+      return m_connectionType;
+    }
+
+    public Address getAddress() {
+      return m_address;
+    }
+  }
+
+  /**
+   * Read connection details from a stream.
+   *
+   * @param in The stream.
+   * @return The details.
+   * @throws CommunicationException If the details could not be read.
+   */
+  static ConnectDetails read(InputStream in) throws CommunicationException {
+    final ConnectionType type = ConnectionType.read(in);
+
+    try {
+      final Address address = (Address) new ObjectInputStream(in).readObject();
+      return new ConnectDetails(type, address);
+    }
+    catch (IOException e) {
+      throw new CommunicationException("Could not read address details", e);
+    }
+    catch (ClassNotFoundException e) {
+      throw new CommunicationException("Could not read address details", e);
+    }
   }
 }

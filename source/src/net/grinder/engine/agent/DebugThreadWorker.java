@@ -29,8 +29,8 @@ import java.io.PipedOutputStream;
 import java.net.URLClassLoader;
 
 import net.grinder.common.UncheckedInterruptedException;
-import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
+import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.util.IsolatingClassLoader;
 
 

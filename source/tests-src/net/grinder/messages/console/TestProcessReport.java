@@ -19,13 +19,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.messages.console;
 
 import java.util.Comparator;
 
-import net.grinder.engine.agent.StubAgentIdentity;
-
 import junit.framework.TestCase;
+import net.grinder.engine.agent.StubAgentIdentity;
 
 
 /**

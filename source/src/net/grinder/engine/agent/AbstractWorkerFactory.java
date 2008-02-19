@@ -25,13 +25,13 @@ import java.io.OutputStream;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedGrinderException;
-import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.StreamSender;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
+import net.grinder.messages.console.WorkerIdentity;
 
 
 /**

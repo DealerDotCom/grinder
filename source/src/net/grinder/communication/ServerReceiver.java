@@ -267,11 +267,6 @@ public final class ServerReceiver implements Receiver {
                   continue;
                 }
 
-                if (message instanceof AddressNotificationMessage) {
-                  socketWrapper.setAddress(
-                    ((AddressNotificationMessage)message).getAddress());
-                }
-
                 if (message instanceof MessageRequiringResponse) {
 
                   final MessageRequiringResponse messageRequiringResponse =

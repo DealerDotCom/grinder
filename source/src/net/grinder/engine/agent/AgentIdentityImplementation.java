@@ -21,8 +21,9 @@
 
 package net.grinder.engine.agent;
 
-import net.grinder.common.AgentIdentity;
-import net.grinder.common.WorkerIdentity;
+import net.grinder.communication.Address;
+import net.grinder.messages.console.AgentIdentity;
+import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.util.UniqueIdentityGenerator;
 
 
@@ -83,5 +84,17 @@ class AgentIdentityImplementation
     public int getAgentID() {
       return m_agentID;
     }
+  }
+
+  /**
+   * Address ourself.
+   *
+   * @param address
+   *            Address to compare.
+   * @return <code>true</code> if and only if <code>address</code> is this
+   *         object.
+   */
+  public boolean includes(Address address) {
+    return equals(address);
   }
 }

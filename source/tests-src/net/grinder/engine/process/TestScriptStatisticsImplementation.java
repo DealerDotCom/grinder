@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,7 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import net.grinder.communication.QueuedSender;
-import net.grinder.console.messages.RegisterExpressionViewMessage;
+import net.grinder.messages.console.RegisterExpressionViewMessage;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.Statistics.StatisticsForTest;

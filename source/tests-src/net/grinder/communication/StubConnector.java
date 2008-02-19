@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,17 +19,26 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.messages;
+package net.grinder.communication;
 
-import net.grinder.communication.Message;
+import java.net.Socket;
 
 
-/**
- * Message used to stop the Grinder processes.
- *
- * @author Philip Aston
- * @version $Revision$
- */
-public final class StopGrinderMessage implements Message {
-  private static final long serialVersionUID = -8016761595308568610L;
+public class StubConnector {
+  private final Connector m_connector;
+
+  public StubConnector(String hostString,
+                       int port,
+                       ConnectionType connectionType) {
+    m_connector = new Connector(hostString, port, connectionType);
+  }
+
+  public Socket connect() throws CommunicationException {
+    return m_connector.connect();
+  }
+
+  public Socket connect(Address address) throws CommunicationException {
+    return m_connector.connect(address);
+  }
+
 }

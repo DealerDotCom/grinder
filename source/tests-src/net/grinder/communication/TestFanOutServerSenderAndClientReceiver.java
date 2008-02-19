@@ -46,11 +46,11 @@ public class TestFanOutServerSenderAndClientReceiver
 
     m_sender = new FanOutServerSender(getAcceptor(), getConnectionType(), 3);
 
-    m_receiver = ClientReceiver.connect(getConnector());
+    m_receiver = ClientReceiver.connect(getConnector(), new StubAddress());
 
     final ResourcePool socketSet =
       getAcceptor().getSocketSet(getConnectionType());
-    
+
     while (socketSet.countActive() != 1) {
       Thread.sleep(10);
     }

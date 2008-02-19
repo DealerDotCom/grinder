@@ -1,4 +1,5 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2000 Paco Gomez
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,49 +20,55 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.messages.agent;
 
-import net.grinder.messages.agent.ClearCacheMessage;
-import net.grinder.messages.agent.DistributeFileMessage;
-import net.grinder.util.FileContents;
+import net.grinder.common.GrinderProperties;
+import net.grinder.communication.Message;
 
 
 /**
- * Implementation of {@link DistributionControl}.
+ * Message used to start the Grinder processes.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
-public class DistributionControlImplementation
-  implements DistributionControl {
+public final class StartGrinderMessage implements Message {
 
-  private final ConsoleCommunication m_consoleCommunication;
+  private static final long serialVersionUID = 4L;
+
+  private final GrinderProperties m_properties;
+
+  private final int m_agentID;
 
   /**
    * Constructor.
    *
-   * @param consoleCommunication
-   *          The console communication handler.
+   * @param properties
+   *            A set of properties that override values in the Agents' local
+   *            files.
+   * @param agentNumberID
+   *            The console allocated agent id.
    */
-  public DistributionControlImplementation(
-    ConsoleCommunication consoleCommunication) {
-      m_consoleCommunication = consoleCommunication;
+  public StartGrinderMessage(GrinderProperties properties, int agentNumberID) {
+    m_properties = properties;
+    m_agentID = agentNumberID;
   }
 
   /**
-   * Signal the agent processes to clear their file caches.
-   */
-  public void clearFileCaches() {
-    m_consoleCommunication.sendToAgents(new ClearCacheMessage());
-  }
-
-  /**
-   * Send a file to the file caches.
+   * A set of properties that override values in the Agents' local files.
    *
-   * @param fileContents The file contents.
+   * @return The properties.
    */
-  public void sendFile(FileContents fileContents) {
-    m_consoleCommunication.sendToAgents(
-      new DistributeFileMessage(fileContents));
+  public GrinderProperties getProperties() {
+    return m_properties;
+  }
+
+  /**
+   * The console allocated agent ID.
+   *
+   * @return The agent ID.
+   */
+  public int getAgentID() {
+    return m_agentID;
   }
 }

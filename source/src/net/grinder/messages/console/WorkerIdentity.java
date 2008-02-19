@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,34 +19,29 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.messages.console;
 
 
 /**
- * A {@link Message} that can be used in conjunction with a
- * {@link FanOutServerSender} to address a particular set of recipients.
+ * Worker process identity.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
-public interface AddressedMessage {
+public interface WorkerIdentity extends ProcessReport.ProcessIdentity {
 
   /**
-   * Access the real message to send to the addressees.
+   * Get the identity of the worker's agent process.
    *
-   * @return The real message.
+   * @return The agent identity.
    */
-  Message getPayload();
+  AgentIdentity getAgentIdentity();
 
   /**
-   * Returns whether the message should be sent to the given
-   * <code>address</code>.
+   * Get the console allocated agent ID.
    *
-   * @param address
-   *            Address to check. See {@link AddressNotificationMessage}. Can
-   *            be <code>null</code> if the recepient doesn't have an address.
-   * @return <code>true</code> if and only if the message should be sent to
-   *         <code>address</code>.
+   * @return The agent ID.
+   * @see net.grinder.script.Grinder.ScriptContext#getAgentID()
    */
-  boolean isRecipient(Object address);
+  int getAgentID();
 }

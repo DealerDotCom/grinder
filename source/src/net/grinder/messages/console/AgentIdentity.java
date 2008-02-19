@@ -1,5 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
-// Copyright (C) 2001, 2002 Dirk Feufel
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,36 +19,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.messages.console;
+
+import net.grinder.communication.Address;
 
 
 /**
- * Interface for enquiring about a worker process.
+ * Agent process identity.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface WorkerProcessReport extends ProcessReport {
-
-  /**
-   * Return the unique process identity.
-   *
-   * @return The process identity.
-   */
-  WorkerIdentity getWorkerIdentity();
-
-  /**
-   * Get the number of running threads.
-   *
-   * @return The number of threads that are running.
-   */
-  short getNumberOfRunningThreads();
-
-  /**
-   * Get the maximum number of threads.
-   *
-   * @return The maximum number of threads.
-   */
-  short getMaximumNumberOfThreads();
+public interface AgentIdentity extends ProcessReport.ProcessIdentity, Address {
 }
-

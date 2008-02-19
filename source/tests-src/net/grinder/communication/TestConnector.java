@@ -22,11 +22,15 @@
 package net.grinder.communication;
 
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.Socket;
 
 import junit.framework.TestCase;
 
 import net.grinder.testutility.AssertUtilities;
+import net.grinder.testutility.IsolatedObjectFactory;
 
 
 /**
@@ -51,7 +55,8 @@ public class TestConnector extends TestCase {
     final Socket serverSocket = socketAcceptor.getAcceptedSocket();
     final InputStream inputStream = serverSocket.getInputStream();
 
-    assertEquals(ConnectionType.WORKER, ConnectionType.read(inputStream));
+    assertEquals(ConnectionType.WORKER,
+                 Connector.read(inputStream).getConnectionType());
 
     final byte[] text = "Hello".getBytes();
 
@@ -76,6 +81,46 @@ public class TestConnector extends TestCase {
 
     try {
       badConnector.connect();
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+  }
+
+  public void testBadRead() throws Exception {
+    final PipedOutputStream out = new PipedOutputStream();
+    final PipedInputStream in = new PipedInputStream(out);
+
+    out.write(99);
+
+    try {
+      Connector.read(in);
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
+    ConnectionType.WORKER.write(out);
+    out.write(99);
+    new ObjectOutputStream(out).writeObject(null);
+
+    try {
+      Connector.read(in);
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
+    while (in.available() > 0) {
+      in.read();
+    }
+
+    ConnectionType.WORKER.write(out);
+    new ObjectOutputStream(out).writeObject(
+      IsolatedObjectFactory.getIsolatedObject());
+
+    try {
+      Connector.read(in);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {

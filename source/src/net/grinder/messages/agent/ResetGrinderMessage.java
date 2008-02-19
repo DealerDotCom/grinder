@@ -19,39 +19,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.messages;
+package net.grinder.messages.agent;
 
 import net.grinder.communication.Message;
-import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
- * Message used to report test statistics to the console.
+ * Message used to reset the Grinder processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ReportStatisticsMessage implements Message {
-
-  private static final long serialVersionUID = 5659643598627115683L;
-
-  private final TestStatisticsMap m_statisticsDelta;
-
-  /**
-   * Constructor.
-   *
-   * @param statisticsDelta The test statistics.
-   */
-  public ReportStatisticsMessage(TestStatisticsMap statisticsDelta) {
-    m_statisticsDelta = statisticsDelta;
-  }
-
-  /**
-   * Get the test statistics.
-   *
-   * @return The test statistics.
-   */
-  public TestStatisticsMap getStatisticsDelta() {
-    return m_statisticsDelta;
-  }
+public final class ResetGrinderMessage implements Message {
+  private static final long serialVersionUID = 7654366493026824236L;
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -70,9 +70,11 @@ public class TestServerReceiver extends TestCase {
     final Socket[] socket = new Socket[5];
 
     for (int i=0; i<socket.length; ++i) {
-      socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
-
-      ConnectionType.AGENT.write(socket[i].getOutputStream());
+      socket[i] =
+        new Connector(InetAddress.getByName(null).getHostName(),
+                      acceptor.getPort(),
+                      ConnectionType.AGENT)
+        .connect();
     }
 
     // Sleep until we've accepted all connections. Give up after a few
@@ -146,8 +148,10 @@ public class TestServerReceiver extends TestCase {
       acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
 
     final Socket socket =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
-    ConnectionType.AGENT.write(socket.getOutputStream());
+      new Connector(InetAddress.getByName(null).getHostName(),
+                    acceptor.getPort(),
+                    ConnectionType.AGENT)
+      .connect();
 
     // Sleep until we've accepted the connections. Give up after a few
     // seconds.
@@ -189,9 +193,10 @@ public class TestServerReceiver extends TestCase {
     assertEquals(3, serverReceiver.getActveThreadCount());
 
     final Socket socket =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
-
-    ConnectionType.AGENT.write(socket.getOutputStream());
+      new Connector(InetAddress.getByName(null).getHostName(),
+                    acceptor.getPort(),
+                    ConnectionType.AGENT)
+      .connect();
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
@@ -239,9 +244,10 @@ public class TestServerReceiver extends TestCase {
     assertEquals(5, serverReceiver.getActveThreadCount());
 
     final Socket socket =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
-
-    ConnectionType.AGENT.write(socket.getOutputStream());
+      new Connector(InetAddress.getByName(null).getHostName(),
+                    acceptor.getPort(),
+                    ConnectionType.AGENT)
+      .connect();
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
@@ -292,8 +298,10 @@ public class TestServerReceiver extends TestCase {
       acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
 
     final Socket socket =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
-    ConnectionType.AGENT.write(socket.getOutputStream());
+      new Connector(InetAddress.getByName(null).getHostName(),
+                    acceptor.getPort(),
+                    ConnectionType.AGENT)
+      .connect();
 
     // Sleep until we've accepted the connections. Give up after a few
     // seconds.

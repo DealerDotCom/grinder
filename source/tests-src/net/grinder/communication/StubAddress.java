@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,40 +19,46 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.messages;
+package net.grinder.communication;
 
-import java.util.Collection;
-
-import net.grinder.communication.Message;
-
+import java.util.Random;
 
 /**
- * Message used to register tests with Console.
+ * Stub implementation of {@link Address}.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public final class RegisterTestsMessage implements Message {
+final class StubAddress implements Address {
+  private static final Random s_random = new Random();
 
-  private static final long serialVersionUID = -4005260033024209616L;
+  private final Object m_identity;
 
-  private final Collection m_tests;
-
-  /**
-   * Constructor.
-   *
-   * @param tests The test set to register.
-   */
-  public RegisterTestsMessage(Collection tests) {
-    m_tests = tests;
+  public StubAddress() {
+    this(new Integer(s_random.nextInt()));
   }
 
-  /**
-   * Get the test set.
-   *
-   * @return The test set.
-   */
-  public Collection getTests() {
-    return m_tests;
+  public StubAddress(Object identity) {
+    m_identity = identity;
+  }
+
+  public int hashCode() {
+    return m_identity.hashCode();
+  }
+
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+
+    if (o == null || o.getClass() != this.getClass()) {
+      return false;
+    }
+
+    return m_identity.equals(((StubAddress)o).m_identity);
+  }
+
+  public boolean includes(Address address) {
+    return equals(address);
   }
 }

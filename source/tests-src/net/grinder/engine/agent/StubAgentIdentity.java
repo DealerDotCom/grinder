@@ -21,7 +21,7 @@
 
 package net.grinder.engine.agent;
 
-import net.grinder.common.WorkerIdentity;
+import net.grinder.messages.console.WorkerIdentity;
 
 
 /**

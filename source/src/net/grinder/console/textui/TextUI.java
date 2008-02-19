@@ -25,11 +25,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 
-import net.grinder.common.AgentProcessReport;
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
-import net.grinder.common.ProcessReport;
-import net.grinder.common.WorkerProcessReport;
 import net.grinder.console.ConsoleFoundation.UI;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ProcessReportDescriptionFactory;
@@ -39,6 +36,9 @@ import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleModel;
+import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.messages.console.ProcessReport;
+import net.grinder.messages.console.WorkerProcessReport;
 
 
 /**

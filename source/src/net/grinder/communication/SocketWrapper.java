@@ -70,7 +70,7 @@ final class SocketWrapper
       }
     };
 
-  private Object m_address;
+  private Address m_address;
 
   /**
    * Constructor.
@@ -200,7 +200,7 @@ final class SocketWrapper
    * @param address
    *            The address. We only care about its equality semantics.
    */
-  public void setAddress(Object address) {
+  public void setAddress(Address address) {
     m_address = address;
   }
 
@@ -209,16 +209,7 @@ final class SocketWrapper
    *
    * @return The address, or <code>null</code> if no address has been set.
    */
-  public Object getAddress() {
+  public Address getAddress() {
     return m_address;
-  }
-
-  /**
-   * For unit tests only.
-   *
-   * @return Out socket.
-   */
-  Socket getSocket() {
-    return m_socket;
   }
 }

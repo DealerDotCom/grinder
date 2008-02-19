@@ -30,7 +30,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.TimerTask;
 
-import net.grinder.common.AgentIdentity;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
@@ -38,20 +37,22 @@ import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StreamSender;
+import net.grinder.communication.StubConnector;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.communication.ProcessStatus.ProcessReports;
-import net.grinder.console.messages.AgentProcessReportMessage;
-import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.engine.agent.StubAgentIdentity;
-import net.grinder.engine.messages.ClearCacheMessage;
-import net.grinder.engine.messages.DistributeFileMessage;
-import net.grinder.engine.messages.ResetGrinderMessage;
-import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.engine.messages.StopGrinderMessage;
+import net.grinder.messages.agent.ClearCacheMessage;
+import net.grinder.messages.agent.DistributeFileMessage;
+import net.grinder.messages.agent.ResetGrinderMessage;
+import net.grinder.messages.agent.StartGrinderMessage;
+import net.grinder.messages.agent.StopGrinderMessage;
+import net.grinder.messages.console.AgentIdentity;
+import net.grinder.messages.console.AgentProcessReportMessage;
+import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.StubTimer;
@@ -157,9 +158,10 @@ public class TestConsoleCommunicationImplementation
 
     m_processMessagesThread.start();
 
-    final Socket socket =
-      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.AGENT.write(socket.getOutputStream());
+    new StubConnector(InetAddress.getByName(null).getHostName(),
+                      m_properties.getConsolePort(),
+                      ConnectionType.AGENT)
+      .connect();
 
     waitForNumberOfConnections(1);
 
@@ -184,9 +186,15 @@ public class TestConsoleCommunicationImplementation
   }
 
   public void testWithProcessControl() throws Exception {
+    // We need to associate the agent id with the connection or we'll never
+    // get a start message.
+    final AgentIdentity agentIdentity = new StubAgentIdentity("foo");
+
     final Socket socket =
-      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.AGENT.write(socket.getOutputStream());
+      new StubConnector(InetAddress.getByName(null).getHostName(),
+                        m_properties.getConsolePort(),
+                        ConnectionType.AGENT)
+      .connect(agentIdentity);
 
     waitForNumberOfConnections(1);
 
@@ -211,10 +219,6 @@ public class TestConsoleCommunicationImplementation
 
     // Need a thread to be attempting to process messages.
     m_processMessagesThread.start();
-
-    // We need to associate the agent id with the connection or we'll never
-    // get a start message.
-    final AgentIdentity agentIdentity = new StubAgentIdentity("foo");
 
     new StreamSender(socket.getOutputStream()).send(
       new AgentProcessReportMessage(
@@ -256,8 +260,10 @@ public class TestConsoleCommunicationImplementation
     waitForNumberOfConnections(0);
 
     final Socket socket2 =
-      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.AGENT.write(socket2.getOutputStream());
+      new StubConnector(InetAddress.getByName(null).getHostName(),
+                        m_properties.getConsolePort(),
+                        ConnectionType.AGENT)
+      .connect();
 
     // Make sure something is listening to our new connection.
     waitForNumberOfConnections(1);
@@ -269,15 +275,19 @@ public class TestConsoleCommunicationImplementation
 
   public void testDistributionControl() throws Exception {
     final Socket socket =
-      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.AGENT.write(socket.getOutputStream());
+      new StubConnector(InetAddress.getByName(null).getHostName(),
+                        m_properties.getConsolePort(),
+                        ConnectionType.AGENT)
+      .connect();
 
     final DistributionControl distributionControl =
       new DistributionControlImplementation(m_consoleCommunication);
 
     final Socket socket2 =
-      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.AGENT.write(socket2.getOutputStream());
+      new StubConnector(InetAddress.getByName(null).getHostName(),
+                        m_properties.getConsolePort(),
+                        ConnectionType.AGENT)
+      .connect();
 
     waitForNumberOfConnections(2);
 
@@ -322,9 +332,11 @@ public class TestConsoleCommunicationImplementation
     // Reseting the properties should ditch the existing connections.
     waitForNumberOfConnections(0);
 
-    final Socket socket3 = new Socket(InetAddress.getByName(null), m_properties
-        .getConsolePort());
-    ConnectionType.AGENT.write(socket3.getOutputStream());
+    final Socket socket3 =
+      new StubConnector(InetAddress.getByName(null).getHostName(),
+                        m_properties.getConsolePort(),
+                        ConnectionType.AGENT)
+      .connect();
 
     waitForNumberOfConnections(1);
 
@@ -362,8 +374,10 @@ public class TestConsoleCommunicationImplementation
     assertEquals(0, processControl.getNumberOfLiveAgents());
 
     final Socket socket =
-      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.WORKER.write(socket.getOutputStream());
+      new StubConnector(InetAddress.getByName(null).getHostName(),
+                        m_properties.getConsolePort(),
+                        ConnectionType.AGENT)
+      .connect();
 
     final StubAgentIdentity agentIdentity = new StubAgentIdentity("agent");
 
@@ -396,6 +410,52 @@ public class TestConsoleCommunicationImplementation
 
     messageHandlerStubFactory.assertSuccess("send",
                                             StopGrinderMessage.class);
+  }
+
+  public void testSendToAgentExceptions() throws Exception {
+    // Need a thread to be attempting to process messages or
+    // ConsoleCommunicationImplementation.reset() will not complete.
+    m_processMessagesThread.start();
+
+    // Cause the sender to be invalid.
+    m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
+
+    final RandomStubFactory errorHandlerStubFactory =
+      new RandomStubFactory(ErrorHandler.class);
+    final ErrorHandler errorHandler =
+      (ErrorHandler)errorHandlerStubFactory.getStub();
+
+    m_consoleCommunication.setErrorHandler(errorHandler);
+
+    errorHandlerStubFactory.assertSuccess(
+      "handleException", DisplayMessageConsoleException.class);
+    errorHandlerStubFactory.assertNoMoreCalls();
+
+    m_consoleCommunication.sendToAgent(
+      new StubAgentIdentity("agent"), new MyMessage());
+
+    errorHandlerStubFactory.assertSuccess(
+      "handleException", DisplayMessageConsoleException.class);
+    errorHandlerStubFactory.assertNoMoreCalls();
+
+    m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
+    final ConsoleCommunication brokenConsoleCommunication =
+      new ConsoleCommunicationImplementation(s_resources,
+                                             m_properties,
+                                             m_timer,
+                                             100);
+
+    errorHandlerStubFactory.assertNoMoreCalls();
+    brokenConsoleCommunication.setErrorHandler(errorHandler);
+
+    errorHandlerStubFactory.assertSuccess(
+      "handleException", DisplayMessageConsoleException.class);
+
+    brokenConsoleCommunication.sendToAgent(
+      new StubAgentIdentity("agent"), new MyMessage());
+
+    errorHandlerStubFactory.assertSuccess("handleErrorMessage", String.class);
+    errorHandlerStubFactory.assertNoMoreCalls();
   }
 
   public void testErrorHandling() throws Exception {
@@ -482,9 +542,11 @@ public class TestConsoleCommunicationImplementation
                                           CommunicationException.class);
     errorHandlerStubFactory.assertNoMoreCalls();
 
-    final Socket socket2 = new Socket(freeServerSocket.getInetAddress(),
-                                      freeServerSocket.getLocalPort());
-    ConnectionType.AGENT.write(socket2.getOutputStream());
+    final Socket socket2 =
+      new StubConnector(InetAddress.getByName(null).getHostName(),
+                        m_properties.getConsolePort(),
+                        ConnectionType.AGENT)
+      .connect();
 
     socket2.getOutputStream().write(new byte[100]);
 

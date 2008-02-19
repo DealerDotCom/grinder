@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,48 +19,61 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.messages.console;
+
+import net.grinder.communication.Message;
 
 
 /**
- * An {@link AddressedMessage} that targets a single recipient.
+ * Message for informing the console of agent process status.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
-public final class SimpleAddressedMessage implements AddressedMessage {
+public final class AgentProcessReportMessage
+  implements AgentProcessReport, Message {
 
-  private final Object m_address;
-  private final Message m_payload;
+  private static final long serialVersionUID = 2L;
+
+  private final AgentIdentity m_identity;
+  private final short m_state;
 
   /**
-   * Constructor.
+   * Creates a new <code>AgentProcessReportMessage</code> instance.
    *
-   * @param address The recipient.
-   * @param payload The real message to send.
+   * @param identity Process identity.
+   * @param state The process state. See {@link
+   * net.grinder.messages.console.AgentProcessReport}.
    */
-  public SimpleAddressedMessage(Object address, Message payload) {
-    m_address = address;
-    m_payload = payload;
+  public AgentProcessReportMessage(AgentIdentity identity, short state) {
+    m_identity = identity;
+    m_state = state;
   }
 
   /**
-   * Get the real message to send to the recipient.
+   * Accessor for the process identity.
    *
-   * @return The message.
+   * @return The process identity.
    */
-  public Message getPayload() {
-    return m_payload;
+  public ProcessIdentity getIdentity() {
+    return m_identity;
   }
 
   /**
-   * Returns whether an address is that of our recipient.
+   * Accessor for the process identity.
    *
-   * @param address The address to check.
-   * @return <code>true</code> if and only if <code>address</code> is our
-   *         recipient.
+   * @return The process identity.
    */
-  public boolean isRecipient(Object address) {
-    return m_address.equals(address);
+  public AgentIdentity getAgentIdentity() {
+    return m_identity;
+  }
+
+  /**
+   * Accessor for the process state.
+   *
+   * @return The process state.
+   */
+  public short getState() {
+    return m_state;
   }
 }

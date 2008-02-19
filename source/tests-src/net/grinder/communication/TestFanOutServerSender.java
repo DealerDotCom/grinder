@@ -21,16 +21,13 @@
 
 package net.grinder.communication;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Iterator;
 
 import junit.framework.TestCase;
-import net.grinder.communication.ResourcePool.Reservation;
 
 
 /**
@@ -66,14 +63,14 @@ public class TestFanOutServerSender extends TestCase {
     final Socket[] socket = new Socket[5];
 
     for (int i=0; i<socket.length; ++i) {
-      socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
-      ConnectionType.AGENT.write(socket[i].getOutputStream());
+      socket[i] = new Connector(InetAddress.getByName(null).getHostName(),
+                                acceptor.getPort(),
+                                ConnectionType.AGENT).connect();
     }
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
-    final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.AGENT);
+    final ResourcePool socketSet = acceptor.getSocketSet(ConnectionType.AGENT);
 
     for (int i=0; socketSet.countActive() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
@@ -104,10 +101,17 @@ public class TestFanOutServerSender extends TestCase {
   }
 
   private static Message readMessage(final InputStream socketInput)
-    throws IOException, ClassNotFoundException {
-    final ObjectInputStream inputStream =
-      new ObjectInputStream(socketInput);
-    return (Message)inputStream.readObject();
+    throws Exception {
+
+    for (int i = 0; socketInput.available() == 0 && i < 5; ++i) {
+      Thread.sleep(i * i * 10);
+    }
+
+    if (socketInput.available() == 0) {
+      return null;
+    }
+
+    return (Message)new ObjectInputStream(socketInput).readObject();
   }
 
   public void testSendAddressedMessage() throws Exception {
@@ -120,37 +124,26 @@ public class TestFanOutServerSender extends TestCase {
     final Socket[] socket = new Socket[5];
 
     for (int i = 0; i < socket.length; ++i) {
-      socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
-      ConnectionType.AGENT.write(socket[i].getOutputStream());
+      socket[i] =
+        new Connector(InetAddress.getByName(null).getHostName(),
+                      acceptor.getPort(),
+                      ConnectionType.AGENT)
+        .connect(new StubAddress(new Integer(i)));
     }
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
-    final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.AGENT);
+    final ResourcePool socketSet = acceptor.getSocketSet(ConnectionType.AGENT);
 
     for (int i = 0; socketSet.countActive() != 5 && i < 10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
-    final Iterator iterator = socketSet.reserveAll().iterator();
-
-    while (iterator.hasNext()) {
-      final Reservation reservation = (Reservation)iterator.next();
-      final SocketWrapper socketWrapper =
-        (SocketWrapper)reservation.getResource();
-      socketWrapper.setAddress(
-        socketWrapper.getSocket().getRemoteSocketAddress());
-      reservation.free();
-    }
-
     final SimpleMessage message1 = new SimpleMessage();
     final SimpleMessage message2 = new SimpleMessage();
 
-    serverSender.send(
-      new SimpleAddressedMessage(socket[1].getLocalSocketAddress(), message1));
-    serverSender.send(
-      new SimpleAddressedMessage(socket[2].getLocalSocketAddress(), message2));
+    serverSender.send(new StubAddress(new Integer(1)), message1);
+    serverSender.send(new StubAddress(new Integer(2)), message2);
 
     for (int i = 0; i < socket.length; ++i) {
       final InputStream socketInput = socket[i].getInputStream();
@@ -172,7 +165,10 @@ public class TestFanOutServerSender extends TestCase {
     serverSender.shutdown();
 
     try {
-      serverSender.send(new SimpleAddressedMessage(message1, message1));
+      serverSender.send(new Address() {
+        public boolean includes(Address address) { return false; }
+        },
+        message1);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
@@ -191,9 +187,9 @@ public class TestFanOutServerSender extends TestCase {
     assertEquals(1, acceptor.getThreadGroup().activeCount());
 
     final Socket socket =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
-
-    ConnectionType.AGENT.write(socket.getOutputStream());
+      new Connector(InetAddress.getByName(null).getHostName(),
+        acceptor.getPort(),
+        ConnectionType.AGENT).connect();
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
@@ -242,16 +238,16 @@ public class TestFanOutServerSender extends TestCase {
       new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
 
     final Socket socket =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
-
-    ConnectionType.AGENT.write(socket.getOutputStream());
+      new Connector(InetAddress.getByName(null).getHostName(),
+        acceptor.getPort(),
+        ConnectionType.AGENT).connect();
 
     // Use a second socket to get cover freeing of other Reservations in
     // isPeerShutdown.
     final Socket socket2 =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
-
-    ConnectionType.AGENT.write(socket2.getOutputStream());
+      new Connector(InetAddress.getByName(null).getHostName(),
+        acceptor.getPort(),
+        ConnectionType.AGENT).connect();
 
     // Sleep until we've accepted the connections. Give up after a few
     // seconds.

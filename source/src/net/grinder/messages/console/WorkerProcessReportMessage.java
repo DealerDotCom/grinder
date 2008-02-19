@@ -1,5 +1,5 @@
 // Copyright (C) 2001, 2002 Dirk Feufel
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,10 +20,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.messages;
+package net.grinder.messages.console;
 
-import net.grinder.common.WorkerIdentity;
-import net.grinder.common.WorkerProcessReport;
 import net.grinder.communication.Message;
 
 
@@ -49,7 +47,7 @@ public final class WorkerProcessReportMessage
    *
    * @param identity Process identity.
    * @param state The process state. See {@link
-   * net.grinder.common.WorkerProcessReport}.
+   * net.grinder.messages.console.WorkerProcessReport}.
    * @param totalThreads The total number of threads.
    * @param runningThreads The number of threads that are still running.
    */

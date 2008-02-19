@@ -21,10 +21,10 @@
 
 package net.grinder.console.communication;
 
-import net.grinder.common.AgentIdentity;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.console.common.ErrorHandler;
+import net.grinder.messages.console.AgentIdentity;
 
 
 /**

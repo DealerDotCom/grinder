@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -65,7 +65,8 @@ public class TestClientSender extends TestCase {
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
 
-    assertEquals(ConnectionType.AGENT, ConnectionType.read(socketInput));
+    assertEquals(ConnectionType.AGENT,
+                 Connector.read(socketInput).getConnectionType());
 
     // Need an ObjectInputStream for every message. See note in
     // ClientSender.writeMessage.
@@ -83,7 +84,7 @@ public class TestClientSender extends TestCase {
     socketAcceptor.close();
 
     try {
-      ClientReceiver.connect(connector);
+      ClientReceiver.connect(connector, new StubAddress());
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
@@ -118,7 +119,8 @@ public class TestClientSender extends TestCase {
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
 
-    assertEquals(ConnectionType.AGENT, ConnectionType.read(socketInput));
+    assertEquals(ConnectionType.AGENT,
+                 Connector.read(socketInput).getConnectionType());
 
     final ObjectInputStream inputStream1 = new ObjectInputStream(socketInput);
     final Object o1 = inputStream1.readObject();
@@ -185,18 +187,20 @@ public class TestClientSender extends TestCase {
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
                     ConnectionType.AGENT);
 
-    final ClientReceiver clientReceiver = ClientReceiver.connect(connector);
+    final ClientReceiver clientReceiver =
+      ClientReceiver.connect(connector, new StubAddress());
     final ClientSender clientSender = ClientSender.connect(clientReceiver);
 
     socketAcceptor.join();
 
     // Wire up the remote end to simply copy the bytes back to us.
     final Socket remoteSocket = socketAcceptor.getAcceptedSocket();
+    final InputStream inputStream = remoteSocket.getInputStream();
     assertEquals(ConnectionType.AGENT,
-                 ConnectionType.read(remoteSocket.getInputStream()));
+                 Connector.read(inputStream).getConnectionType());
 
     new Thread(
-      new StreamCopier(1000, true).getRunnable(remoteSocket.getInputStream(),
+      new StreamCopier(1000, true).getRunnable(inputStream,
                                                remoteSocket.getOutputStream()),
       "Echo stream").start();
 
@@ -220,7 +224,8 @@ public class TestClientSender extends TestCase {
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
                     ConnectionType.AGENT);
 
-    final ClientReceiver clientReceiver = ClientReceiver.connect(connector);
+    final ClientReceiver clientReceiver =
+      ClientReceiver.connect(connector, new StubAddress());
     clientReceiver.shutdown();
 
     // The connection health is not checked on connect().
@@ -250,7 +255,8 @@ public class TestClientSender extends TestCase {
     final InputStream socketInput = acceptedSocket.getInputStream();
     final OutputStream socketOutput = acceptedSocket.getOutputStream();
 
-    assertEquals(ConnectionType.AGENT, ConnectionType.read(socketInput));
+    assertEquals(ConnectionType.AGENT,
+                 Connector.read(socketInput).getConnectionType());
 
     final SimpleMessage message1 = new SimpleMessage();
 
