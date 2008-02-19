@@ -113,6 +113,8 @@ public class TestAgent extends AbstractFileTestCase {
       m_loggerStubFactory.assertOutputMessageContains("The Grinder");
       m_loggerStubFactory.assertOutputMessageContains("command line");
       m_loggerStubFactory.assertNoMoreCalls();
+
+      agent.shutdown();
     }
     finally {
       propertyFile.delete();
@@ -374,6 +376,7 @@ public class TestAgent extends AbstractFileTestCase {
     agent.run();
 
     console.shutdown();
+    agent.shutdown();
   }
 
   public void testReconnect() throws Exception {
@@ -428,6 +431,8 @@ public class TestAgent extends AbstractFileTestCase {
 
     console1.shutdown();
     console2.shutdown();
+
+    agent.shutdown();
   }
 
   private abstract class ConsoleStub {
