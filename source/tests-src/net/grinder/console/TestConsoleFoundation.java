@@ -94,7 +94,14 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     assertNotNull(ui);
 
     final Thread runConsole = new Thread(new Runnable() {
-      public void run() { foundation.run(); }
+      public void run() {
+        try {
+          foundation.run();
+        }
+        catch (Exception e) {
+          // Ignore.
+        }
+      }
     });
 
     runConsole.start();
