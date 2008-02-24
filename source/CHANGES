@@ -34,6 +34,9 @@ The Grinder 3.0.2 (not yet released).
   Fix bug 1897988 - grinder.initialSleepTime issue. The initialSleepTime
   property was broken. Thanks to whoever reported this.
 
+  Fix bug 1893027 - ArrayIndexOutOfBoundsException in TCPProxy. Thanks to
+  Brian Dols for reporting this.
+
 
 The Grinder 3.0.1
 -----------------
