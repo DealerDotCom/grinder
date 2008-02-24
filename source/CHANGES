@@ -31,6 +31,9 @@ The Grinder 3.0.2 (not yet released).
   been renamed to getThreadNumber() for consistency. Thanks to Ross Nicholson
   for requesting this feature.
 
+  Fix bug 1897988 - grinder.initialSleepTime issue. The initialSleepTime
+  property was broken. Thanks to whoever reported this.
+
 
 The Grinder 3.0.1
 -----------------

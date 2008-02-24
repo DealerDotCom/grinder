@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -44,9 +44,6 @@ class GrinderThread implements java.lang.Runnable {
   private final ScriptEngine m_scriptEngine;
   private final ThreadContext m_context;
 
-  private final long m_initialSleepTime;
-  private final int m_numberOfRuns;
-
   /**
    * The constructor.
    */
@@ -69,12 +66,6 @@ class GrinderThread implements java.lang.Runnable {
         createSubContextFilenameFactory(Integer.toString(threadID)),
         loggerImplementation.getDataWriter());
 
-    final GrinderProperties properties = processContext.getProperties();
-
-    m_initialSleepTime = properties.getLong("grinder.initialSleepTime", 0);
-
-    m_numberOfRuns = properties.getInt("grinder.runs", 1);
-
     // Dispatch the process context callback in the main thread.
     m_processContext.fireThreadCreatedEvent(m_context);
   }
@@ -91,29 +82,33 @@ class GrinderThread implements java.lang.Runnable {
     logger.setCurrentRunNumber(-1);
 
     // Fire begin thread event before creating the worker runnable to allow
-    // plugins to do per-thread initialisation required by the script code.
+    // plug-ins to do per-thread initialisation required by the script code.
     m_context.fireBeginThreadEvent();
 
     try {
       final ScriptEngine.WorkerRunnable scriptThreadRunnable =
         m_scriptEngine.createWorkerRunnable();
 
-      m_processContext.getSleeper().sleepFlat(m_initialSleepTime);
+      final GrinderProperties properties = m_processContext.getProperties();
+      final int numberOfRuns = properties.getInt("grinder.runs", 1);
 
-      if (m_numberOfRuns == 0) {
+      if (numberOfRuns == 0) {
         logger.output("about to run forever");
       }
       else {
-        logger.output("about to do " + m_numberOfRuns + " run" +
-                      (m_numberOfRuns == 1 ? "" : "s"));
+        logger.output("about to do " + numberOfRuns + " run" +
+                      (numberOfRuns == 1 ? "" : "s"));
       }
 
       m_threadSynchronisation.awaitStart();
 
+      m_processContext.getSleeper().sleepFlat(
+        properties.getLong("grinder.initialSleepTime", 0));
+
       int currentRun;
 
       for (currentRun = 0;
-           m_numberOfRuns == 0 || currentRun < m_numberOfRuns;
+           numberOfRuns == 0 || currentRun < numberOfRuns;
            currentRun++) {
 
         logger.setCurrentRunNumber(currentRun);
