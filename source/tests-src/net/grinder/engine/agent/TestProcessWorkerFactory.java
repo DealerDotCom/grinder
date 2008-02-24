@@ -35,11 +35,14 @@ import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
+import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.WorkerProcessEntryPoint;
 import net.grinder.messages.console.WorkerIdentity;
+import net.grinder.util.AllocateLowestNumber;
+import net.grinder.util.AllocateLowestNumberImplementation;
 import net.grinder.util.Directory;
 
 
@@ -79,8 +82,11 @@ public class TestProcessWorkerFactory extends TestCase {
       new ScriptLocation(new Directory(new File("b")), new File("a"));
     final boolean reportToConsole = false;
 
+    final AllocateLowestNumber workerNumberMap =
+      new AllocateLowestNumberImplementation();
+
     final AgentIdentityImplementation agentIdentityImplementation =
-      new AgentIdentityImplementation(getClass().getName());
+      new AgentIdentityImplementation(getClass().getName(), workerNumberMap);
 
     final ProcessWorkerFactory processWorkerFactory =
       new ProcessWorkerFactory(commandLine,
@@ -94,7 +100,7 @@ public class TestProcessWorkerFactory extends TestCase {
     final ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
     final Worker worker =
-      processWorkerFactory.create(outputStream, errorStream, 22);
+      processWorkerFactory.create(outputStream, errorStream);
 
     assertTrue(worker.getIdentity().getName().endsWith("-0"));
 
@@ -125,18 +131,22 @@ public class TestProcessWorkerFactory extends TestCase {
   }
 
   public void testBadWorker() throws Exception {
+    final AllocateLowestNumber workerNumberMap =
+      new AllocateLowestNumberImplementation();
+
     // Test a dusty code path through AbstractWorkerFactory where
     // the Worker communication stream doesn't work.
     final AgentIdentityImplementation agentIdentityImplementation =
-      new AgentIdentityImplementation(getClass().getName());
+      new AgentIdentityImplementation(getClass().getName(), workerNumberMap);
 
     final AbstractWorkerFactory myWorkerFactory =
       new AbstractWorkerFactory(agentIdentityImplementation,
                                 null, false, null, null) {
 
-        protected Worker createWorker(WorkerIdentity workerIdentity,
-                                      OutputStream outputStream,
-                                      OutputStream errorStream)
+        protected Worker
+          createWorker(WorkerIdentityImplementation workerIdentity,
+                       OutputStream outputStream,
+                       OutputStream errorStream)
         throws EngineException {
           return new Worker() {
 
@@ -163,7 +173,7 @@ public class TestProcessWorkerFactory extends TestCase {
     };
 
     try {
-      myWorkerFactory.create(null, null, -1);
+      myWorkerFactory.create(null, null);
       fail("Expected EngineException");
     }
     catch (EngineException e) {

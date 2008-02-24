@@ -23,7 +23,7 @@ package net.grinder.console.common;
 
 import java.util.HashMap;
 
-
+import junit.framework.TestCase;
 import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.console.AgentIdentity;
@@ -31,8 +31,6 @@ import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.messages.console.WorkerProcessReport;
 import net.grinder.testutility.RandomStubFactory;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -59,7 +57,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     );
 
   public void testWithAgentProcessReport() throws Exception {
-    final AgentIdentity agentIdentity =
+    final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("my agent");
 
     final RandomStubFactory agentProcessReportStubFactory =
@@ -112,6 +110,11 @@ public class TestProcessReportDescriptionFactory extends TestCase {
       processReportDescriptionFactory.create(agentProcessReport);
 
     assertEquals("huh", description5.getState());
+
+    agentIdentity.setNumber(10);
+    final ProcessDescription description6 =
+      processReportDescriptionFactory.create(agentProcessReport);
+    assertEquals("my agent (AG 10)", description6.getName());
   }
 
   public void testWithWorkerProcessReport() throws Exception {
@@ -119,7 +122,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
       new StubAgentIdentity("agent");
 
     final WorkerIdentity workerIdentity =
-      agentIdentity.createWorkerIdentity(12);
+      agentIdentity.createWorkerIdentity();
 
     final RandomStubFactory workerProcessReportStubFactory =
       new RandomStubFactory(WorkerProcessReport.class);

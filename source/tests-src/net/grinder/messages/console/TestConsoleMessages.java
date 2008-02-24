@@ -137,8 +137,7 @@ public class TestConsoleMessages extends TestCase {
 
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
-    final WorkerIdentity workerIdentity =
-      agentIdentity.createWorkerIdentity(21);
+    final WorkerIdentity workerIdentity = agentIdentity.createWorkerIdentity();
 
     final WorkerProcessReportMessage original =
       new WorkerProcessReportMessage(

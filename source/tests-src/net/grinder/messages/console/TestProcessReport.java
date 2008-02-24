@@ -37,7 +37,7 @@ public class TestProcessReport extends TestCase {
 
   public void testStateThenNameComparator() throws Exception {
     final Comparator comparator =
-      new ProcessReport.StateThenNameComparator();
+      new ProcessReport.StateThenNameThenNumberComparator();
 
     final AgentIdentity agentIdentity1 =
       new StubAgentIdentity("my agent");

@@ -32,9 +32,9 @@ import net.grinder.common.Logger;
  */
 interface ThreadLogger extends Logger {
   /**
-   * @return The thread ID.
+   * @return The thread number.
    */
-  int getThreadID();
+  int getThreadNumber();
 
   /**
    * @return The current run number. -1 indicates that there is

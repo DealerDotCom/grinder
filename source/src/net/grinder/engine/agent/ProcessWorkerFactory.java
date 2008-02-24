@@ -25,9 +25,9 @@ import java.io.OutputStream;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
+import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
-import net.grinder.messages.console.WorkerIdentity;
 
 
 /**
@@ -55,7 +55,7 @@ final class ProcessWorkerFactory extends AbstractWorkerFactory {
     m_commandLine = commandLine;
   }
 
-  protected Worker createWorker(WorkerIdentity workerIdentity,
+  protected Worker createWorker(WorkerIdentityImplementation workerIdentity,
                                 OutputStream outputStream,
                                 OutputStream errorStream)
     throws EngineException {

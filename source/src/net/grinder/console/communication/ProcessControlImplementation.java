@@ -49,7 +49,7 @@ public class ProcessControlImplementation implements ProcessControl {
 
   private final ProcessStatusImplementation m_processStatusSet;
 
-  private final AllocateLowestNumber m_agentIDMap =
+  private final AllocateLowestNumber m_agentNumberMap =
     new AllocateLowestNumberImplementation();
 
   /**
@@ -65,7 +65,8 @@ public class ProcessControlImplementation implements ProcessControl {
     ConsoleCommunication consoleCommunication) {
 
     m_consoleCommunication = consoleCommunication;
-    m_processStatusSet = new ProcessStatusImplementation(timer, m_agentIDMap);
+    m_processStatusSet =
+      new ProcessStatusImplementation(timer, m_agentNumberMap);
 
     final MessageDispatchRegistry messageDispatchRegistry =
       consoleCommunication.getMessageDispatchRegistry();
@@ -101,7 +102,7 @@ public class ProcessControlImplementation implements ProcessControl {
     final GrinderProperties propertiesToSend =
       properties != null ? properties : new GrinderProperties();
 
-    m_agentIDMap.forEach(new AllocateLowestNumber.IteratorCallback() {
+    m_agentNumberMap.forEach(new AllocateLowestNumber.IteratorCallback() {
       public void objectAndNumber(Object object, int number) {
         m_consoleCommunication.sendToAgent(
           (AgentIdentity)object,

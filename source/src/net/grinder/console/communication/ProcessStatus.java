@@ -97,7 +97,7 @@ public interface ProcessStatus {
    */
   final class ProcessReportsComparator implements Comparator {
     private final Comparator m_processReportComparator =
-      new ProcessReport.StateThenNameComparator();
+      new ProcessReport.StateThenNameThenNumberComparator();
 
     public int compare(Object o1, Object o2) {
       return m_processReportComparator.compare(

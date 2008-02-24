@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,7 +37,7 @@ public final class InitialiseGrinderMessage implements Message {
 
   private static final long serialVersionUID = 4L;
 
-  private final WorkerIdentity m_workerID;
+  private final WorkerIdentity m_workerIdentity;
   private final boolean m_reportToConsole;
   private final ScriptLocation m_script;
   private final GrinderProperties m_properties;
@@ -45,29 +45,30 @@ public final class InitialiseGrinderMessage implements Message {
   /**
    * Constructor.
    *
-   * @param workerID Worker process ID.
+   * @param workerIdentity Worker process identity
+   * .
    * @param reportToConsole Whether or not the worker process should
    * report to the console.
    * @param script The script to run.
    * @param properties Properties from the agent.
    */
-  public InitialiseGrinderMessage(WorkerIdentity workerID,
+  public InitialiseGrinderMessage(WorkerIdentity workerIdentity,
                                   boolean reportToConsole,
                                   ScriptLocation script,
                                   GrinderProperties properties) {
-    m_workerID = workerID;
+    m_workerIdentity = workerIdentity;
     m_reportToConsole = reportToConsole;
     m_script = script;
     m_properties = properties;
   }
 
   /**
-   * Accessor for the worker ID.
+   * Accessor for the worker identity.
    *
-   * @return The worker ID.
+   * @return The worker identity.
    */
   public WorkerIdentity getWorkerIdentity() {
-    return m_workerID;
+    return m_workerIdentity;
   }
 
   /**

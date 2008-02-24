@@ -58,7 +58,7 @@ class ProcessStatusTableModel
   private static final int STATE_COLUMN_INDEX = 2;
 
   private final Comparator m_processReportComparator =
-    new ProcessReport.StateThenNameComparator();
+    new ProcessReport.StateThenNameThenNumberComparator();
 
   private final Comparator m_processReportsComparator =
     new ProcessStatus.ProcessReportsComparator();

@@ -189,8 +189,22 @@ final class GrinderProcess {
 
     m_context.getTestRegistry().setInstrumenter(scriptEngine);
 
+    final StringBuffer numbers = new StringBuffer("worker process ");
+    numbers.append(m_initialisationMessage.getWorkerIdentity().getNumber());
+
+    final int agentNumber =
+      m_initialisationMessage
+      .getWorkerIdentity().getAgentIdentity().getNumber();
+
+    if (agentNumber >= 0) {
+      numbers.append(" of agent number ");
+      numbers.append(agentNumber);
+    }
+
+    logger.output(numbers.toString());
+
     logger.output("executing \"" + m_initialisationMessage.getScript() +
-                  "\" using " + scriptEngine.getDescription());
+      "\" using " + scriptEngine.getDescription());
 
     scriptEngine.initialise(m_initialisationMessage.getScript());
 

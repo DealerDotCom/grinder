@@ -28,10 +28,10 @@ import net.grinder.common.UncheckedGrinderException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.StreamSender;
+import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
-import net.grinder.messages.console.WorkerIdentity;
 
 
 /**
@@ -41,7 +41,6 @@ import net.grinder.messages.console.WorkerIdentity;
  * @version $Revision$
  */
 abstract class AbstractWorkerFactory implements WorkerFactory {
-
   private final AgentIdentityImplementation m_agentIdentity;
   private final FanOutStreamSender m_fanOutStreamSender;
   private final boolean m_reportToConsole;
@@ -61,11 +60,11 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
   }
 
   public Worker create(
-    OutputStream outputStream, OutputStream errorStream, int agentID)
+    OutputStream outputStream, OutputStream errorStream)
     throws EngineException {
 
-    final WorkerIdentity workerIdentity =
-      m_agentIdentity.createWorkerIdentity(agentID);
+    final WorkerIdentityImplementation workerIdentity =
+      m_agentIdentity.createWorkerIdentity();
 
     final Worker worker =
       createWorker(workerIdentity, outputStream, errorStream);
@@ -95,8 +94,8 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
     return worker;
   }
 
-  protected abstract Worker createWorker(WorkerIdentity workerIdentity,
-                                         OutputStream outputStream,
-                                         OutputStream errorStream)
-    throws EngineException;
+  protected abstract Worker createWorker(
+    WorkerIdentityImplementation workerIdentity,
+    OutputStream outputStream,
+    OutputStream errorStream) throws EngineException;
 }

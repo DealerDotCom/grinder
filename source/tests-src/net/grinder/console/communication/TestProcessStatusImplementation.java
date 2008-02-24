@@ -100,7 +100,7 @@ public class TestProcessStatusImplementation extends TestCase {
 
     final StubAgentIdentity agentIdentity = new StubAgentIdentity("agent");
     final WorkerIdentity workerIdentity =
-      agentIdentity.createWorkerIdentity(10);
+      agentIdentity.createWorkerIdentity();
 
     final WorkerProcessReport workerProcessReport =
       new StubWorkerProcessReport(workerIdentity,
@@ -155,20 +155,20 @@ public class TestProcessStatusImplementation extends TestCase {
     final StubAgentIdentity agentIdentityA =
       new StubAgentIdentity("Agent A");
     final WorkerIdentity workerIdentityA1 =
-      agentIdentityA.createWorkerIdentity(9);
+      agentIdentityA.createWorkerIdentity();
     final WorkerIdentity workerIdentityA2 =
-      agentIdentityA.createWorkerIdentity(9);
+      agentIdentityA.createWorkerIdentity();
     final WorkerIdentity workerIdentityA3 =
-      agentIdentityA.createWorkerIdentity(9);
+      agentIdentityA.createWorkerIdentity();
     final WorkerIdentity workerIdentityA4 =
-        agentIdentityA.createWorkerIdentity(9);
-    assertEquals(9, workerIdentityA4.getAgentID());
+        agentIdentityA.createWorkerIdentity();
+    assertEquals(3, workerIdentityA4.getNumber());
 
     final StubAgentIdentity agentIdentityB =
       new StubAgentIdentity("Agent B");
     final WorkerIdentity workerIdentityB1 =
-      agentIdentityB.createWorkerIdentity(19);
-    assertEquals(19, workerIdentityB1.getAgentID());
+      agentIdentityB.createWorkerIdentity();
+    assertEquals(0, workerIdentityB1.getNumber());
 
     final WorkerProcessReport[] workerProcessReportArray = {
       new StubWorkerProcessReport(
@@ -252,7 +252,7 @@ public class TestProcessStatusImplementation extends TestCase {
     final StubAgentIdentity agentIdentityC =
       new StubAgentIdentity("Agent C");
     final WorkerIdentity workerIdentityC1 =
-      agentIdentityC.createWorkerIdentity(22);
+      agentIdentityC.createWorkerIdentity();
 
     final WorkerProcessReport[] processStatusArray2 = {
       new StubWorkerProcessReport(

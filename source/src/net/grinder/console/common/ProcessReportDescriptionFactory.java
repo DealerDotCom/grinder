@@ -21,6 +21,7 @@
 
 package net.grinder.console.common;
 
+import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.messages.console.WorkerProcessReport;
 
@@ -90,10 +91,19 @@ public final class ProcessReportDescriptionFactory {
         break;
     }
 
-    return new ProcessDescription(
-      agentProcessReport.getAgentIdentity().getName(),
-      m_agentString,
-      state);
+    final AgentIdentity agentIdentity = agentProcessReport.getAgentIdentity();
+
+    final StringBuffer name = new StringBuffer(agentIdentity.getName());
+
+    if (agentIdentity.getNumber() >= 0) {
+      name.append(" (");
+      name.append(m_agentString);
+      name.append(" ");
+      name.append(agentIdentity.getNumber());
+      name.append(")");
+    }
+
+    return new ProcessDescription(name.toString(), m_agentString, state);
   }
 
   /**

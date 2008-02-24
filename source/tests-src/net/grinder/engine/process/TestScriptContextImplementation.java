@@ -69,13 +69,13 @@ public class TestScriptContextImplementation extends TestCase {
     final FilenameFactory filenameFactory =
       (FilenameFactory)filenameFactoryStubFactory.getStub();
 
-    final int threadID = 99;
+    final int threadNumber = 99;
     final int runNumber = 3;
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
     threadContextLocator.set(m_threadContext);
 
-    m_threadContextStubFactory.setResult("getThreadID", new Integer(threadID));
+    m_threadContextStubFactory.setResult("getThreadNumber", new Integer(threadNumber));
     m_threadContextStubFactory.setResult("getRunNumber", new Integer(runNumber));
 
     final RandomStubFactory statisticsStubFactory =
@@ -91,8 +91,7 @@ public class TestScriptContextImplementation extends TestCase {
 
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
-    final WorkerIdentity workerIdentity =
-      agentIdentity.createWorkerIdentity(22);
+    final WorkerIdentity workerIdentity = agentIdentity.createWorkerIdentity();
 
     final RandomStubFactory testRegistryStubFactory =
       new RandomStubFactory(TestRegistry.class);
@@ -105,7 +104,7 @@ public class TestScriptContextImplementation extends TestCase {
         filenameFactory, sleeper, sslControl, statistics, testRegistry);
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
-    assertEquals(threadID, scriptContext.getThreadID());
+    assertEquals(threadNumber, scriptContext.getThreadNumber());
     assertEquals(runNumber, scriptContext.getRunNumber());
     assertSame(logger, scriptContext.getLogger());
     assertSame(filenameFactory, scriptContext.getFilenameFactory());
@@ -115,9 +114,16 @@ public class TestScriptContextImplementation extends TestCase {
     assertSame(testRegistry, scriptContext.getTestRegistry());
 
     threadContextLocator.set(null);
-    assertEquals(-1, scriptContext.getThreadID());
+    assertEquals(-1, scriptContext.getThreadNumber());
     assertEquals(-1, scriptContext.getRunNumber());
     assertEquals(statistics, scriptContext.getStatistics());
+
+    assertEquals(0, scriptContext.getProcessNumber());
+    assertEquals(-1, scriptContext.getAgentNumber());
+
+    agentIdentity.setNumber(10);
+    assertEquals(0, scriptContext.getProcessNumber());
+    assertEquals(10, scriptContext.getAgentNumber());
   }
 
   public void testSleep() throws Exception {

@@ -24,6 +24,8 @@ package net.grinder.engine.agent;
 import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.testutility.Serializer;
+import net.grinder.util.AllocateLowestNumber;
+import net.grinder.util.AllocateLowestNumberImplementation;
 import junit.framework.TestCase;
 
 /**
@@ -36,9 +38,13 @@ public class TestAgentIdentityImplementation extends TestCase {
 
   public void testAgentIdentityImplementation() throws Exception {
 
+    final AllocateLowestNumber workerNumberMap =
+      new AllocateLowestNumberImplementation();
+
     final AgentIdentityImplementation a1 =
-      new AgentIdentityImplementation("foo");
-    final AgentIdentity a2 = new AgentIdentityImplementation("foo");
+      new AgentIdentityImplementation("foo", workerNumberMap);
+    final AgentIdentity a2 =
+      new AgentIdentityImplementation("foo", workerNumberMap);
 
     assertEquals(a1, a1);
     assertTrue(!a1.equals(null));
@@ -56,8 +62,13 @@ public class TestAgentIdentityImplementation extends TestCase {
     assertTrue(!a1Copy.toString().equals(a1.toString()));
     assertTrue(!a1Copy.toString().equals(a2.toString()));
 
-    final WorkerIdentity w1 = a1.createWorkerIdentity(22);
-    final WorkerIdentity w2 = a1.createWorkerIdentity(22);
+    a1.setNumber(10);
+    assertEquals(10, a1.getNumber());
+    assertEquals(-1, a1Copy.getNumber());
+    assertEquals(a1, a1Copy);
+
+    final WorkerIdentity w1 = a1.createWorkerIdentity();
+    final WorkerIdentity w2 = a1.createWorkerIdentity();
 
     assertEquals(w1, w1);
     assertTrue(!w1.equals(null));

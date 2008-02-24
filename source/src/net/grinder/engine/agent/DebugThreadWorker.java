@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +29,7 @@ import java.io.PipedOutputStream;
 import java.net.URLClassLoader;
 
 import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
 import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.util.IsolatingClassLoader;
@@ -47,12 +48,12 @@ final class DebugThreadWorker implements Worker {
     IsolateGrinderProcessRunner.class.getName(),
   };
 
-  private final WorkerIdentity m_workerIdentity;
+  private final WorkerIdentityImplementation m_workerIdentity;
   private final Thread m_thread;
   private final PipedOutputStream m_communicationStream;
   private int m_result;
 
-  public DebugThreadWorker(WorkerIdentity workerIdentity)
+  public DebugThreadWorker(WorkerIdentityImplementation workerIdentity)
     throws EngineException {
     m_workerIdentity = workerIdentity;
 
@@ -125,6 +126,7 @@ final class DebugThreadWorker implements Worker {
 
   public void destroy() {
     m_thread.interrupt();
+    m_workerIdentity.destroy();
   }
 
   /**

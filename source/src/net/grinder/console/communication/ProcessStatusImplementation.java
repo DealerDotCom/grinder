@@ -68,12 +68,12 @@ final class ProcessStatusImplementation implements ProcessStatus {
   private final Map m_agentIdentityToAgentAndWorkers = new HashMap();
 
   /**
-   * We have exclusive write access to m_agentIDMap.We rely on our
+   * We have exclusive write access to m_agentNumberMap.We rely on our
    * synchronisation on m_agentIdentityToAgentAndWorkers to avoid
    * race conditions where the timer might otherwise remove an agent
    * immediately after a new report has just arrived.
    */
-  private final AllocateLowestNumber m_agentIDMap;
+  private final AllocateLowestNumber m_agentNumberMap;
 
   private final ListenerSupport m_listeners = new ListenerSupport();
 
@@ -84,11 +84,11 @@ final class ProcessStatusImplementation implements ProcessStatus {
    * Constructor.
    *
    * @param timer Timer which can be used to schedule housekeeping tasks.
-   * @param agentIDMap Map of {@link AgentIdentity}s to integers.
+   * @param agentNumberMap Map of {@link AgentIdentity}s to integers.
    */
   public ProcessStatusImplementation(Timer timer,
-                                     AllocateLowestNumber agentIDMap) {
-    m_agentIDMap = agentIDMap;
+                                     AllocateLowestNumber agentNumberMap) {
+    m_agentNumberMap = agentNumberMap;
     timer.schedule(
       new TimerTask() {
         public void run() { update(); }
@@ -163,7 +163,7 @@ final class ProcessStatusImplementation implements ProcessStatus {
       m_agentIdentityToAgentAndWorkers.put(agentIdentity, created);
       m_newAgent = true;
 
-      m_agentIDMap.add(agentIdentity);
+      m_agentNumberMap.add(agentIdentity);
 
       return created;
     }
@@ -262,7 +262,7 @@ final class ProcessStatusImplementation implements ProcessStatus {
         // Protected against race with add since the caller holds
         // m_agentIdentityToAgentAndWorkers, and we are about to be
         // removed from m_agentIdentityToAgentAndWorkers.
-        m_agentIDMap.remove(m_agentProcessReport.getAgentIdentity());
+        m_agentNumberMap.remove(m_agentProcessReport.getAgentIdentity());
       }
 
       return purge;

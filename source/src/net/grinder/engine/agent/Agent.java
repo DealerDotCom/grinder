@@ -48,6 +48,7 @@ import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.console.AgentProcessReportMessage;
+import net.grinder.util.AllocateLowestNumberImplementation;
 import net.grinder.util.Directory;
 import net.grinder.util.Directory.DirectoryException;
 import net.grinder.util.thread.Condition;
@@ -94,7 +95,9 @@ public final class Agent {
     m_logger = logger;
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, m_logger);
-    m_agentIdentity = new AgentIdentityImplementation(getHostName());
+    m_agentIdentity =
+      new AgentIdentityImplementation(getHostName(),
+                                      new AllocateLowestNumberImplementation());
   }
 
   /**
@@ -112,7 +115,6 @@ public final class Agent {
 
       ScriptLocation script = null;
       GrinderProperties properties;
-      int agentID = -1;
 
       do {
         properties =
@@ -190,10 +192,10 @@ public final class Agent {
             script = new ScriptLocation(fileStoreDirectory, consoleScript);
           }
 
-          agentID = startMessage.getAgentID();
+          m_agentIdentity.setNumber(startMessage.getAgentNumber());
         }
         else {
-          agentID = -1;
+          m_agentIdentity.setNumber(-1);
         }
 
         if (script == null) {
@@ -257,8 +259,7 @@ public final class Agent {
           new WorkerLauncher(properties.getInt("grinder.processes", 1),
                              workerFactory,
                              m_eventSynchronisation,
-                             m_logger,
-                             agentID);
+                             m_logger);
 
         final int processIncrement =
           properties.getInt("grinder.processIncrement", 0);

@@ -112,7 +112,7 @@ public class TestThreadContextImplementation extends TestCase {
   }
 
   public void testBasics() throws Exception {
-    m_threadLoggerStubFactory.setResult("getThreadID", new Integer(13));
+    m_threadLoggerStubFactory.setResult("getThreadNumber", new Integer(13));
     m_threadLoggerStubFactory.setResult("getCurrentRunNumber", new Integer(2));
 
     final ThreadContext threadContext =
@@ -121,7 +121,7 @@ public class TestThreadContextImplementation extends TestCase {
 
     assertSame(m_threadLogger, threadContext.getThreadLogger());
     assertSame(m_filenameFactory, threadContext.getFilenameFactory());
-    assertEquals(13, threadContext.getThreadID());
+    assertEquals(13, threadContext.getThreadNumber());
     assertEquals(2, threadContext.getRunNumber());
 
     assertNull(threadContext.getThreadSSLContextFactory());

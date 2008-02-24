@@ -38,7 +38,7 @@ public final class StartGrinderMessage implements Message {
 
   private final GrinderProperties m_properties;
 
-  private final int m_agentID;
+  private final int m_agentNumber;
 
   /**
    * Constructor.
@@ -46,12 +46,12 @@ public final class StartGrinderMessage implements Message {
    * @param properties
    *            A set of properties that override values in the Agents' local
    *            files.
-   * @param agentNumberID
-   *            The console allocated agent id.
+   * @param agentNumber
+   *            The console allocated agent number.
    */
-  public StartGrinderMessage(GrinderProperties properties, int agentNumberID) {
+  public StartGrinderMessage(GrinderProperties properties, int agentNumber) {
     m_properties = properties;
-    m_agentID = agentNumberID;
+    m_agentNumber = agentNumber;
   }
 
   /**
@@ -64,11 +64,11 @@ public final class StartGrinderMessage implements Message {
   }
 
   /**
-   * The console allocated agent ID.
+   * The console allocated agent number.
    *
-   * @return The agent ID.
+   * @return The agent number.
    */
-  public int getAgentID() {
-    return m_agentID;
+  public int getAgentNumber() {
+    return m_agentNumber;
   }
 }

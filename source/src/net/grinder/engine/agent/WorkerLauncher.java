@@ -24,9 +24,9 @@ package net.grinder.engine.agent;
 import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.common.EngineException;
-import net.grinder.util.thread.InterruptibleRunnable;
-import net.grinder.util.thread.Executor;
 import net.grinder.util.thread.Condition;
+import net.grinder.util.thread.Executor;
+import net.grinder.util.thread.InterruptibleRunnable;
 
 
 /**
@@ -37,11 +37,10 @@ import net.grinder.util.thread.Condition;
  */
 final class WorkerLauncher {
 
-  private final Executor m_executor = new Executor(1);
+  private final Executor m_executor;
   private final WorkerFactory m_workerFactory;
   private final Condition m_notifyOnFinish;
   private final Logger m_logger;
-  private final int m_agentID;
 
   /**
    * Fixed size array with a slot for all potential workers. Synchronise on
@@ -59,13 +58,27 @@ final class WorkerLauncher {
   public WorkerLauncher(int numberOfWorkers,
                         WorkerFactory workerFactory,
                         Condition notifyOnFinish,
-                        Logger logger,
-                        int agentID) {
+                        Logger logger) {
 
+    this(new Executor(1),
+         numberOfWorkers,
+         workerFactory,
+         notifyOnFinish,
+         logger);
+  }
+
+  /**
+   * Package scope for unit tests.
+   */
+  WorkerLauncher(Executor executor,
+                 int numberOfWorkers,
+                 WorkerFactory workerFactory,
+                 Condition notifyOnFinish,
+                 Logger logger) {
+    m_executor = executor;
     m_workerFactory = workerFactory;
     m_notifyOnFinish = notifyOnFinish;
     m_logger = logger;
-    m_agentID = agentID;
 
     m_workers = new Worker[numberOfWorkers];
   }
@@ -83,14 +96,11 @@ final class WorkerLauncher {
     for (int i = 0; i < numberToStart; ++i) {
       final int workerIndex = m_nextWorkerIndex;
 
-      synchronized (m_workers) {
-        m_workers[workerIndex] =
-          m_workerFactory.create(System.out, System.err, m_agentID);
-      }
+      final Worker worker = m_workerFactory.create(System.out, System.err);
 
-      m_logger.output("worker " +
-                      m_workers[workerIndex].getIdentity().getName() +
-                      " started");
+      synchronized (m_workers) {
+        m_workers[workerIndex] = worker;
+      }
 
       try {
         m_executor.execute(new WaitForWorkerTask(workerIndex));
@@ -98,8 +108,11 @@ final class WorkerLauncher {
       catch (Executor.ShutdownException e) {
         m_logger.error("Executor unexpectedly shutdown");
         e.printStackTrace(m_logger.getErrorLogWriter());
+        worker.destroy();
         return false;
       }
+
+      m_logger.output("worker " + worker.getIdentity().getName() + " started");
 
       ++m_nextWorkerIndex;
     }
@@ -122,18 +135,18 @@ final class WorkerLauncher {
         worker = m_workers[m_workerIndex];
       }
 
-      if (worker != null) {
-        try {
-          worker.waitFor();
-        }
-        catch (UncheckedInterruptedException e) {
-          // We're taking our worker down with us.
-          worker.destroy();
-        }
+      assert worker != null;
 
-        synchronized (m_workers) {
-          m_workers[m_workerIndex] = null;
-        }
+      try {
+        worker.waitFor();
+      }
+      catch (UncheckedInterruptedException e) {
+        // We're taking our worker down with us.
+        worker.destroy();
+      }
+
+      synchronized (m_workers) {
+        m_workers[m_workerIndex] = null;
       }
 
       if (allFinished()) {

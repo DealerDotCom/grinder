@@ -79,10 +79,12 @@ public class TestConsoleCommunicationImplementation
   private ServerSocket m_usedServerSocket;
   private final ProcessMessagesThread m_processMessagesThread =
     new ProcessMessagesThread();
-  private final StubTimer m_timer = new StubTimer();
+  private StubTimer m_timer;
 
   protected void setUp() throws Exception {
     super.setUp();
+
+    m_timer = new StubTimer();
 
     // Figure out a used and free local port.
     m_usedServerSocket = new ServerSocket(0, 50, InetAddress.getByName(null));
@@ -240,7 +242,7 @@ public class TestConsoleCommunicationImplementation
       (StartGrinderMessage)readMessage(socket);
 
     assertEquals(properties, startGrinderMessage.getProperties());
-    assertEquals(0, startGrinderMessage.getAgentID());
+    assertEquals(0, startGrinderMessage.getAgentNumber());
 
     processControl.startWorkerProcesses(null);
     final StartGrinderMessage startGrinderMessage2 =
@@ -386,7 +388,7 @@ public class TestConsoleCommunicationImplementation
 
     sendMessage(
       socket,
-      new WorkerProcessReportMessage(agentIdentity.createWorkerIdentity(11),
+      new WorkerProcessReportMessage(agentIdentity.createWorkerIdentity(),
                                      (short)0,
                                      (short)0,
                                      (short)0));

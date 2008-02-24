@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -379,7 +379,7 @@ final class LoggerImplementation {
    */
   private final class ThreadState implements Logger, ThreadLogger {
 
-    private final int m_threadID;
+    private final int m_threadNumber;
     private int m_currentRunNumber = -1;
     private int m_currentTestNumber = -1;
 
@@ -390,19 +390,19 @@ final class LoggerImplementation {
     private final char[] m_processOrThreadIDCharacters;
     private char[] m_currentRunNumberCharacters = null;
 
-    public ThreadState(int threadID) {
-      m_threadID = threadID;
+    public ThreadState(int threadNumber) {
+      m_threadNumber = threadNumber;
 
       m_buffer.setLength(0);
 
-      if (m_threadID == -1) {
+      if (m_threadNumber == -1) {
         m_buffer.append(" (process ");
         m_buffer.append(m_grinderID);
         m_buffer.append("): ");
       }
       else {
         m_buffer.append(" (thread ");
-        m_buffer.append(m_threadID);
+        m_buffer.append(m_threadNumber);
       }
 
       m_processOrThreadIDCharacters = getBufferCharacters(0);
@@ -416,8 +416,8 @@ final class LoggerImplementation {
       return result;
     }
 
-    public int getThreadID() {
-      return m_threadID;
+    public int getThreadNumber() {
+      return m_threadNumber;
     }
 
     public int getCurrentRunNumber() {
@@ -471,7 +471,7 @@ final class LoggerImplementation {
 
       m_buffer.append(m_processOrThreadIDCharacters);
 
-      if (m_threadID != -1) {
+      if (m_threadNumber != -1) {
         // We're a real thread, bolt on the rest of the context.
 
         if (m_currentRunNumber >= 0) {

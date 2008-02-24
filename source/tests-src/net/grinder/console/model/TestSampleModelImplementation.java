@@ -69,7 +69,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
   private StatisticsServices m_statisticsServices =
     StatisticsServicesImplementation.getInstance();
 
-  private final StubTimer m_timer = new StubTimer();
+  private StubTimer m_timer;
 
   private final RandomStubFactory m_listenerStubFactory =
     new RandomStubFactory(ModelListener.class);
@@ -78,8 +78,14 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
   protected void setUp() throws Exception {
     super.setUp();
+    m_timer = new StubTimer();
     m_consoleProperties =
       new ConsoleProperties(null, new File(getDirectory(), "props"));
+  }
+
+  protected void tearDown() throws Exception {
+    super.tearDown();
+    m_timer.cancel();
   }
 
   public void testConstruction() throws Exception {

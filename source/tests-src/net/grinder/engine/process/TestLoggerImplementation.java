@@ -241,8 +241,8 @@ public class TestLoggerImplementation extends AbstractFileTestCase {
     final ThreadLogger threadLogger2= logger.createThreadLogger(2);
     assertNotSame(threadLogger1, threadLogger2);
 
-    assertEquals(1, threadLogger1.getThreadID());
-    assertEquals(2, threadLogger2.getThreadID());
+    assertEquals(1, threadLogger1.getThreadNumber());
+    assertEquals(2, threadLogger2.getThreadNumber());
     assertEquals(-1, threadLogger1.getCurrentRunNumber());
     assertEquals(-1, threadLogger1.getCurrentTestNumber());
     assertNotNull(threadLogger1.getOutputLogWriter());

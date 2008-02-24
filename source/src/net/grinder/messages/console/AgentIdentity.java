@@ -31,4 +31,16 @@ import net.grinder.communication.Address;
  * @version $Revision$
  */
 public interface AgentIdentity extends ProcessReport.ProcessIdentity, Address {
+
+  /**
+   * Get the console allocated agent number.
+   *
+   * <p>
+   * This is initially <code>-1</code> until the console has allocated a
+   * number. It does not influence <code>AgentIdentity</code> equality
+   * semantics.
+   *
+   * @return The agent number.
+   */
+  int getNumber();
 }

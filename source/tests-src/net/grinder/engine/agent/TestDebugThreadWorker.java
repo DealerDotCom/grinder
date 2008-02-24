@@ -25,9 +25,11 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 import net.grinder.communication.StreamSender;
+import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
-import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.testutility.RedirectStandardStreams;
+import net.grinder.util.AllocateLowestNumber;
+import net.grinder.util.AllocateLowestNumberImplementation;
 
 
 /**
@@ -40,9 +42,12 @@ public class TestDebugThreadWorker extends TestCase {
 
   public void testDebugThreadWorker() throws Exception {
 
-    final WorkerIdentity workerIdentity =
-      new AgentIdentityImplementation(getClass().getName())
-      .createWorkerIdentity(22);
+    final AllocateLowestNumber workerNumberMap =
+      new AllocateLowestNumberImplementation();
+
+    final WorkerIdentityImplementation workerIdentity =
+      new AgentIdentityImplementation(getClass().getName(), workerNumberMap)
+      .createWorkerIdentity();
 
     final Worker worker = new DebugThreadWorker(workerIdentity);
 
@@ -80,9 +85,12 @@ public class TestDebugThreadWorker extends TestCase {
 
   public void testWithBadWorker() throws Exception {
 
-    final WorkerIdentity workerIdentity =
-      new AgentIdentityImplementation(getClass().getName())
-      .createWorkerIdentity(22);
+    final AllocateLowestNumber workerNumberMap =
+      new AllocateLowestNumberImplementation();
+
+    final WorkerIdentityImplementation workerIdentity =
+      new AgentIdentityImplementation(getClass().getName(), workerNumberMap)
+      .createWorkerIdentity();
 
     try {
       System.setProperty(IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY,

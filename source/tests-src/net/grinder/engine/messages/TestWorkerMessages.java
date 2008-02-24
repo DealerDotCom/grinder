@@ -49,8 +49,7 @@ public class TestWorkerMessages extends AbstractFileTestCase {
 
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
-    final WorkerIdentity workerIdentity =
-      agentIdentity.createWorkerIdentity(1);
+    final WorkerIdentity workerIdentity = agentIdentity.createWorkerIdentity();
 
     final GrinderProperties properties = new GrinderProperties();
 

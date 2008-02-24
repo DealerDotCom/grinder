@@ -38,10 +38,10 @@ public interface WorkerIdentity extends ProcessReport.ProcessIdentity {
   AgentIdentity getAgentIdentity();
 
   /**
-   * Get the console allocated agent ID.
+   * Get the agent allocated worker process number.
    *
-   * @return The agent ID.
-   * @see net.grinder.script.Grinder.ScriptContext#getAgentID()
+   * @return The worker process number.
+   * @see net.grinder.script.Grinder.ScriptContext#getProcessNumber()
    */
-  int getAgentID();
+  int getNumber();
 }

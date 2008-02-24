@@ -105,7 +105,7 @@ public class TextUI implements UI {
 
   private final class ProcessListener implements ProcessStatus.Listener {
     private final Comparator m_processReportComparator =
-      new ProcessReport.StateThenNameComparator();
+      new ProcessReport.StateThenNameThenNumberComparator();
 
     private final Comparator m_processReportsComparator =
       new ProcessStatus.ProcessReportsComparator();

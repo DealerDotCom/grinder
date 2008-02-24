@@ -49,37 +49,62 @@ public class Grinder {
    * @version $Revision$
    */
   public static interface ScriptContext {
+    /**
+     * Return the agent number. The console allocates a unique number to that
+     * each connected agent, and the agent passes this on to the worker process.
+     *
+     * <p>
+     * The lowest possible number is allocated. When an agent disconnects, its
+     * number will be reused. Script authors can assume that the agent number
+     * lies between <code>0</code> and the number of currently connected
+     * agents.
+     * </p>
+     *
+     * @return The agent number, or <code>-1</code> if not launched from the
+     *         console.
+     * @see #getProcessNumber()
+     * @see #getThreadNumber()
+     */
+    int getAgentNumber();
+
 
     /**
-     * Get an unique name for this worker process.
+     * Return the process number. The agent allocates a unique number to that
+     * each worker process it starts.
      *
-     * @return The id.
+     * <p>
+     * The lowest possible number is allocated. When an worker process stops,
+     * its number will be reused. Script authors can assume that the worker
+     * number lies between <code>0</code> and the number of currently
+     * connected agents.
+     * </p>
+     *
+     * @return The process number.
+     * @see #getAgentNumber()
+     * @see #getThreadNumber()
+     */
+    int getProcessNumber();
+
+    /**
+     * Get a unique name for this worker process.
+     *
+     * @return The process name.
+     * @see #getProcessNumber()
      */
     String getProcessName();
 
     /**
-     * Return the agent ID. The console allocates a unique number to that each
-     * connected agent, and the agent passes this on to the worker process.
+     * Return the thread number, or <code>-1</code> if not called from a
+     * worker thread.
      *
-     * <p>
-     * The lowest possible number is allocated. When an agent disconnects, its
-     * number will be reused. Script authors can assume that the agent ID lies
-     * between 0 and the number of currently connected agents.
-     * </p>
-     *
-     * @return The agent ID, or -1 if not launched from the console.
+     * @return The thread number.
+     * @see #getAgentNumber()
+     * @see #getProcessNumber()
      */
-    int getAgentID();
+    int getThreadNumber();
 
     /**
-     * Return the thread ID, or -1 if not called from a worker thread.
-     *
-     * @return The thread ID.
-     */
-    int getThreadID();
-
-    /**
-     * Return the current run number, or -1 if not called from a
+     * Return the current run number, or <code>-1</code> if not called from a
      * worker thread.
      *
      * @return An <code>int</code> value.

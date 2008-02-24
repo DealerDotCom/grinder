@@ -82,25 +82,42 @@ public interface ProcessReport {
      * @return The process name.
      */
     String getName();
+
+    /**
+     * Return the process number. This is not necessarily set when
+     * the process is started.
+     *
+     * @return The number.
+     */
+    int getNumber();
   }
 
   /**
    * Comparator that compares ProcessReports by state, then by name.
    */
-  final class StateThenNameComparator implements Comparator {
+  final class StateThenNameThenNumberComparator implements Comparator {
     public int compare(Object o1, Object o2) {
       final ProcessReport processReport1 = (ProcessReport)o1;
       final ProcessReport processReport2 = (ProcessReport)o2;
 
-      final int compareState =
+      final int stateComparison =
         processReport1.getState() - processReport2.getState();
 
-      if (compareState == 0) {
-        return processReport1.getIdentity().getName().compareTo(
+      if (stateComparison == 0) {
+        final int nameComparison =
+          processReport1.getIdentity().getName().compareTo(
                processReport2.getIdentity().getName());
+
+        if (nameComparison == 0) {
+          return processReport1.getIdentity().getNumber() -
+                 processReport2.getIdentity().getNumber();
+        }
+        else {
+          return nameComparison;
+        }
       }
       else {
-        return compareState;
+        return stateComparison;
       }
     }
   }

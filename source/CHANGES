@@ -26,6 +26,11 @@ The Grinder 3.0.2 (not yet released).
 
   Italian console translation updates from Meo Bogliolo.
 
+  Fulfil Feature Request 1891023 - Worker and Agent id's. The script context
+  has new getAgentNumber() and getProcessNumber() methods. getThreadID() has
+  been renamed to getThreadNumber() for consistency. Thanks to Ross Nicholson
+  for requesting this feature.
+
 
 The Grinder 3.0.1
 -----------------

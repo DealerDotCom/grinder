@@ -87,7 +87,7 @@ final class ThreadContextImplementation
           dataWriter,
           processContext.getStatisticsServices()
           .getDetailStatisticsView().getExpressionViews(),
-          m_threadLogger.getThreadID());
+          m_threadLogger.getThreadNumber());
 
       m_dispatchResultReporter = new DispatchResultReporter() {
         public void report(Test test,
@@ -125,8 +125,8 @@ final class ThreadContextImplementation
     return m_filenameFactory;
   }
 
-  public int getThreadID() {
-    return m_threadLogger.getThreadID();
+  public int getThreadNumber() {
+    return m_threadLogger.getThreadNumber();
   }
 
   public int getRunNumber() {

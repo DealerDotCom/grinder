@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,11 +34,11 @@ package net.grinder.plugininterface;
 public interface PluginThreadContext {
 
   /**
-   * Return the thread ID.
+   * Return the thread number.
    *
-   * @return The thread ID.
+   * @return The thread number.
    */
-  int getThreadID();
+  int getThreadNumber();
 
   /**
    * Return the current run number.

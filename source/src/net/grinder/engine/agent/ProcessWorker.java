@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
 import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.util.StreamCopier;
@@ -44,7 +45,7 @@ import net.grinder.util.StreamCopier;
  */
 final class ProcessWorker implements Worker {
 
-  private final WorkerIdentity m_workerIdentity;
+  private final WorkerIdentityImplementation m_workerIdentity;
   private final Process m_process;
   private final Redirector m_stdoutRedirector;
   private final Redirector m_stderrRedirector;
@@ -60,7 +61,7 @@ final class ProcessWorker implements Worker {
    * should be redirected. Will not be closed by this class.
    * @throws EngineException If an error occurs.
    */
-  public ProcessWorker(WorkerIdentity workerIdentity,
+  public ProcessWorker(WorkerIdentityImplementation workerIdentity,
                        String[] commandArray,
                        OutputStream outputStream,
                        OutputStream errorStream)
@@ -150,6 +151,7 @@ final class ProcessWorker implements Worker {
     }
 
     m_process.destroy();
+    m_workerIdentity.destroy();
   }
 
   private class Redirector {

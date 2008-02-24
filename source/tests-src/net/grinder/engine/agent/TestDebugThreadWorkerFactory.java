@@ -25,6 +25,8 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RedirectStandardStreams;
+import net.grinder.util.AllocateLowestNumber;
+import net.grinder.util.AllocateLowestNumberImplementation;
 
 
 /**
@@ -37,8 +39,11 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
 
   public void testFactory() throws Exception {
 
+    final AllocateLowestNumber workerNumberMap =
+      new AllocateLowestNumberImplementation();
+
     final AgentIdentityImplementation agentIdentity =
-      new AgentIdentityImplementation(getClass().getName());
+      new AgentIdentityImplementation(getClass().getName(), workerNumberMap);
 
     final GrinderProperties properties = new GrinderProperties();
     properties.setProperty("grinder.logDirectory",
@@ -53,7 +58,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
 
     new RedirectStandardStreams() {
       protected void runWithRedirectedStreams() throws Exception {
-        final Worker worker = factory.create(null, null, -1);
+        final Worker worker = factory.create(null, null);
         worker.waitFor();
       }
     }.run();

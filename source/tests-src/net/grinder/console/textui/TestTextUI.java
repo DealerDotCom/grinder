@@ -152,11 +152,11 @@ public class TestTextUI extends TestCase {
       new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
 
     final WorkerProcessReport workerProcessReport1 =
-      new StubWorkerProcessReport(agentIdentity1.createWorkerIdentity(88),
+      new StubWorkerProcessReport(agentIdentity1.createWorkerIdentity(),
                                   ProcessReport.STATE_RUNNING, 3, 6);
 
     final WorkerProcessReport workerProcessReport2 =
-      new StubWorkerProcessReport(agentIdentity1.createWorkerIdentity(33),
+      new StubWorkerProcessReport(agentIdentity1.createWorkerIdentity(),
                                   ProcessReport.STATE_FINISHED, 0, 6);
 
     processListener.update(
