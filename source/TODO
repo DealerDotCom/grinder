@@ -59,12 +59,6 @@ available.
 
 ** Script Distribution
 
-Task: Addressed messaging. Every Acceptor.SocketResource to know its
-remote EndPoint. Add FilteredFanOutServerSender (Extend
-FanOutServerSender, allow resourceToOutputStream to return null
-indicating the resource shouldn't be sent anything. Supplied Filter
-method is given a SocketResource and the Message and can then veto.)
-
 Task: Add agent initiation channel so agent can send a checksum across
 file names/sizes. Console compares with its cache and generates a good
 last update time for the agent. Thus agents starting with a good cache
