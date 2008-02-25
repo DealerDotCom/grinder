@@ -36,6 +36,18 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.grinder.common.GrinderException;
+import net.grinder.common.Logger;
+import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.script.InvalidContextException;
+import net.grinder.script.Statistics;
+import net.grinder.script.Grinder.ScriptContext;
+import net.grinder.script.Statistics.StatisticsForTest;
+import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.util.StreamCopier;
+
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
 import HTTPClient.ModuleException;
@@ -43,18 +55,6 @@ import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
-
-import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
-import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.script.Grinder.ScriptContext;
-import net.grinder.script.Statistics.StatisticsForTest;
-import net.grinder.script.InvalidContextException;
-import net.grinder.script.Statistics;
-import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.util.StreamCopier;
 
 
 /**
@@ -884,13 +884,13 @@ public class HTTPRequest {
       final String path =
         fragment != null ? pathAndQuery + '#' + fragment : pathAndQuery;
 
+      final HTTPConnection connection =
+        threadState.getConnectionWrapper(m_url).getConnection();
+
       // This will be different to the time the Test was started if
       // the Test wraps several HTTPRequests.
       final long startTime =
-        pluginProcessContext.getTimeAuthority().getTimeInMilliseconds();
-
-      final HTTPConnection connection =
-        threadState.getConnectionWrapper(m_url).getConnection();
+        connection.getTimeAuthority().getTimeInMilliseconds();
 
       final HTTPResponse httpResponse;
 
@@ -906,8 +906,9 @@ public class HTTPRequest {
       // Read the entire response.
       final byte[] data = httpResponse.getData();
 
-      // Data will be null if and only if Content-Length is 0.
-      final int responseLength = data != null ? data.length : 0;
+      // With standard HTTPClient, data is null <=> if Content-Length is 0.
+      // We've modified HTTPClient to avoid this.
+      final int responseLength = data.length;
       httpResponse.getInputStream().close();
 
       // Stop the clock whilst we do potentially expensive result processing.

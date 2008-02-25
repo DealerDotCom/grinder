@@ -37,6 +37,9 @@ The Grinder 3.0.2 (not yet released).
   Fix bug 1893027 - ArrayIndexOutOfBoundsException in TCPProxy. Thanks to
   Brian Dols for reporting this.
 
+  Fix bug 1709285 - HTTP plug-in records wrong times with
+  grinder.useNanoTime=true. Thanks to liaoya for the report.
+
 
 The Grinder 3.0.1
 -----------------

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
@@ -45,7 +45,7 @@ import net.grinder.util.SleeperImplementation;
 
 
 /**
- * HTTP plugin.
+ * HTTP plug-in.
  *
  * @author Paco Gomez
  * @author Philip Aston
@@ -57,24 +57,19 @@ public class HTTPPlugin implements GrinderPlugin {
   private static final HTTPPlugin s_singleton = new HTTPPlugin();
 
   static {
-    final PluginRegistry registry = PluginRegistry.getInstance();
-
-    // Registry might be null for unit tests.
-    if (registry != null) {
-      try {
-        registry.register(s_singleton);
-      }
-      catch (GrinderException e) {
-        throw new ExceptionInInitializerError(e);
-      }
+    try {
+      PluginRegistry.getInstance().register(s_singleton);
+    }
+    catch (GrinderException e) {
+      throw new ExceptionInInitializerError(e);
     }
   }
 
   /**
    * Static package scope accessor for the initialised instance of the
-   * Plugin.
+   * plug0in.
    *
-   * @return The plugin instance.
+   * @return The plug-in instance.
    */
   static final HTTPPlugin getPlugin() {
     return s_singleton;
@@ -89,9 +84,9 @@ public class HTTPPlugin implements GrinderPlugin {
   }
 
   /**
-   * Called by the PluginRegistry when the plugin is first registered.
+   * Called by the PluginRegistry when the plug-in is first registered.
    *
-   * @param processContext The plugin process context.
+   * @param processContext The plug-in process context.
    * @exception PluginException if an error occurs.
    */
   public void initialize(PluginProcessContext processContext)
@@ -191,8 +186,8 @@ public class HTTPPlugin implements GrinderPlugin {
   /**
    * Called by the engine to obtain a new PluginThreadListener.
    *
-   * @param threadContext The plugin thread context.
-   * @return The new plugin thread listener.
+   * @param threadContext The plug-in thread context.
+   * @return The new plug-in thread listener.
    * @exception PluginException if an error occurs.
    */
   public PluginThreadListener createThreadListener(
@@ -200,6 +195,7 @@ public class HTTPPlugin implements GrinderPlugin {
 
     return new HTTPPluginThreadState(threadContext,
                                      m_sslContextFactory,
-                                     m_slowClientSleeper);
+                                     m_slowClientSleeper,
+                                     m_pluginProcessContext.getTimeAuthority());
   }
 }

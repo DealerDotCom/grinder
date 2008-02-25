@@ -305,16 +305,33 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     /** ++GRINDER MODIFICATION **/
     /** hack to disable trailers */
     private static boolean       noTrailers = false;
-    /** --GRINDER MODIFICATION **/
 
-    /** ++GRINDER MODIFICATION **/
     /** hack to capture DNS lookup time */
     private        long          DNS_time = 0;
-    /** --GRINDER MODIFICATION **/
 
-    /** ++GRINDER MODIFICATION **/
     /** hack to capture Initial Connection time */
     private        long          con_time = 0;
+
+    public interface TimeAuthority {
+      long getTimeInMilliseconds();
+    }
+
+    private static TimeAuthority standardTimeAuthority =
+      new TimeAuthority() {
+        public long getTimeInMilliseconds() {
+          return System.currentTimeMillis();
+        }
+      };
+
+    private TimeAuthority timeAuthority = standardTimeAuthority;
+
+    public void setTimeAuthority(TimeAuthority timeAuthority) {
+      this.timeAuthority = timeAuthority;
+    }
+
+    public TimeAuthority getTimeAuthority() {
+      return timeAuthority;
+    }
     /** --GRINDER MODIFICATION **/
 
     /** the default timeout to use for new connections */
@@ -3296,7 +3313,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		InetAddress[] addr_list = InetAddress.getAllByName(actual_host);
                 /** ++GRINDER MODIFICATION **/
                 // capture time for DNS Lookup
-                DNS_time = System.currentTimeMillis();
+                DNS_time = getTimeAuthority().getTimeInMilliseconds();
                 /** --GRINDER MODIFICATION **/
 		for (int idx=0; idx<addr_list.length; idx++)
 		{
@@ -3309,7 +3326,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 					      LocalAddr, LocalPort);
                         /** ++GRINDER MODIFICATION **/
 			// capture time for initial connection
-			con_time = System.currentTimeMillis();
+			con_time = getTimeAuthority().getTimeInMilliseconds();
 			/** --GRINDER MODIFICATION **/
 			break;		// success
 		    }
@@ -3953,7 +3970,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		    InetAddress[] addr_list = InetAddress.getAllByName(actual_host);
                     /** ++GRINDER MODIFICATION **/
                     // capture time for DNS Lookup
-                    DNS_time = System.currentTimeMillis();
+                    DNS_time = getTimeAuthority().getTimeInMilliseconds();
                     /** --GRINDER MODIFICATION **/
 		    for (int idx=0; idx<addr_list.length; idx++)
 		    {
@@ -3966,7 +3983,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 						  LocalAddr, LocalPort);
                             /** ++GRINDER MODIFICATION */
                             // capture time for initial connection
-                            con_time = System.currentTimeMillis();
+                            con_time =
+                              getTimeAuthority().getTimeInMilliseconds();
                             /** --GRINDER MODIFICATION */
 			    break;		// success
 			}

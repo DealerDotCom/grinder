@@ -60,7 +60,8 @@ public class TestHTTPPluginThreadState extends TestCase {
     final HTTPPluginThreadState pluginThreadState =
       new HTTPPluginThreadState(m_threadContext,
                                 m_sslContextFactory,
-                                m_sleeper);
+                                m_sleeper,
+                                null);
 
     assertSame(m_threadContext, pluginThreadState.getThreadContext());
 
@@ -118,7 +119,8 @@ public class TestHTTPPluginThreadState extends TestCase {
       final HTTPPluginThreadState pluginThreadState =
         new HTTPPluginThreadState(m_threadContext,
                                   m_sslContextFactory,
-                                  m_sleeper);
+                                  m_sleeper,
+                                  null);
 
       final HTTPResponse response = connection.Get("foo");
 

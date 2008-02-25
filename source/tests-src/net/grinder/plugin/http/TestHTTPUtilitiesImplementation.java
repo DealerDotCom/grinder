@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +29,7 @@ import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.StandardTimeAuthority;
+import net.grinder.util.TimeAuthority;
 import HTTPClient.HTTPResponse;
 import HTTPClient.NVPair;
 import junit.framework.TestCase;
@@ -62,8 +63,13 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
       (SSLContextFactory)
       new RandomStubFactory(SSLContextFactory.class).getStub();
 
+    final TimeAuthority timeAuthority = new StandardTimeAuthority();
+
     final HTTPPluginThreadState threadState =
-      new HTTPPluginThreadState(threadContext, sslContextFactory, null);
+      new HTTPPluginThreadState(threadContext,
+                                sslContextFactory,
+                                null,
+                                timeAuthority);
 
     m_statisticsStubFactory.setResult("availableForUpdate", Boolean.FALSE);
     final Statistics statistics =
@@ -78,9 +84,10 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     m_pluginProcessContextStubFactory.setResult("getScriptContext",
                                                 scriptContext);
     m_pluginProcessContextStubFactory.setResult("getStatisticsServices",
-      StatisticsServicesImplementation.getInstance());    
+      StatisticsServicesImplementation.getInstance());
+
     m_pluginProcessContextStubFactory.setResult("getTimeAuthority",
-      new StandardTimeAuthority());
+      timeAuthority);
 
     HTTPPlugin.getPlugin().initialize(m_pluginProcessContext);
   }

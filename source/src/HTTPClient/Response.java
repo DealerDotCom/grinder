@@ -26,7 +26,7 @@
  *
  *  The HTTPClient's home page is located at:
  *
- *  http://www.innovation.ch/java/HTTPClient/ 
+ *  http://www.innovation.ch/java/HTTPClient/
  *
  * This file contains modifications for use with "The Grinder"
  * (http://grinder.sourceforge.net) under the terms of the LGPL. They
@@ -389,7 +389,7 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable
      * date; if this fails it is parsed as a long representing the number
      * of seconds since 12:00 AM, Jan 1st, 1970. If this also fails an
      * IllegalArgumentException is thrown.
-     * 
+     *
      * <P>Note: When sending dates use Util.httpDate().
      *
      * @param  hdr the header name.
@@ -983,7 +983,8 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable
 			/** ++GRINDER MODIFICATION **/
 			    if (!gotFirstByte) {
 				    gotFirstByte = true;
-				    ttfb = System.currentTimeMillis();
+				    ttfb =
+				      connection.getTimeAuthority().getTimeInMilliseconds();
 			    }
 			/** --GRINDER MODIFICATION **/
 		    } while (Character.isWhitespace((char) c)) ;

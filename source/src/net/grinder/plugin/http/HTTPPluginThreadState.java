@@ -25,6 +25,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.grinder.common.SSLContextFactory;
+import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
+import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.plugininterface.PluginThreadListener;
+import net.grinder.util.Sleeper;
+import net.grinder.util.TimeAuthority;
+
 import HTTPClient.CookieModule;
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
@@ -32,16 +40,9 @@ import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
 
-import net.grinder.common.SSLContextFactory;
-import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
-import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.plugininterface.PluginThreadListener;
-import net.grinder.util.Sleeper;
-
 
 /**
- * HTTP plugin thread state.
+ * HTTP plug-in thread state.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -54,14 +55,17 @@ class HTTPPluginThreadState implements PluginThreadListener {
   private final Map m_httpConnectionWrappers = new HashMap();
   private HTTPResponse m_lastResponse;
   private final Sleeper m_slowClientSleeper;
+  private final TimeAuthorityAdapter m_timeAuthority;
 
   HTTPPluginThreadState(PluginThreadContext threadContext,
                         SSLContextFactory sslContextFactory,
-                        Sleeper slowClientSleeper)
+                        Sleeper slowClientSleeper,
+                        TimeAuthority timeAuthority)
     throws PluginException {
     m_threadContext = threadContext;
     m_sslContextFactory = sslContextFactory;
     m_slowClientSleeper = slowClientSleeper;
+    m_timeAuthority = new TimeAuthorityAdapter(timeAuthority);
   }
 
   public PluginThreadContext getThreadContext() {
@@ -93,6 +97,8 @@ class HTTPPluginThreadState implements PluginThreadListener {
       httpConnection.setSSLSocketFactory(
         m_sslContextFactory.getSSLContext().getSocketFactory());
     }
+
+    httpConnection.setTimeAuthority(m_timeAuthority);
 
     final HTTPConnectionWrapper newConnectionWrapper =
       new HTTPConnectionWrapper(httpConnection,
@@ -132,6 +138,20 @@ class HTTPPluginThreadState implements PluginThreadListener {
 
   public HTTPResponse getLastResponse() {
     return m_lastResponse;
+  }
+
+  private static final class TimeAuthorityAdapter implements
+      HTTPClient.HTTPConnection.TimeAuthority {
+
+    private final TimeAuthority m_timeAuthority;
+
+    public TimeAuthorityAdapter(TimeAuthority timeAuthority) {
+      m_timeAuthority = timeAuthority;
+    }
+
+    public long getTimeInMilliseconds() {
+      return m_timeAuthority.getTimeInMilliseconds();
+    }
   }
 }
 
