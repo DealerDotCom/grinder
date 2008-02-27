@@ -31,7 +31,6 @@ import net.grinder.console.common.StubResources;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.communication.ProcessStatus.ProcessReports;
-import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleModel;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.console.AgentProcessReport;
@@ -118,7 +117,7 @@ public class TestTextUI extends TestCase {
     m_loggerStubFactory.assertNoMoreCalls();
 
     m_sampleModelStubFactory.assertSuccess(
-      "addModelListener", ModelListener.class);
+      "addModelListener", SampleModel.Listener.class);
   }
 
   public void testProcessStatusListener() throws Exception {
@@ -216,9 +215,10 @@ public class TestTextUI extends TestCase {
 
     final Object[] addListenerParameters =
       m_sampleModelStubFactory.assertSuccess(
-        "addModelListener", ModelListener.class).getParameters();
+        "addModelListener", SampleModel.Listener.class).getParameters();
 
-    final ModelListener listener = (ModelListener)addListenerParameters[0];
+    final SampleModel.Listener listener =
+      (SampleModel.Listener)addListenerParameters[0];
 
     m_sampleModelStubFactory.setResult(
       "getState",

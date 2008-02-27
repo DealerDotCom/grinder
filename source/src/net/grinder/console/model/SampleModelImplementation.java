@@ -218,7 +218,7 @@ public final class SampleModelImplementation implements SampleModel {
     m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
-          ((ModelListener)listener).newTests(newTests, modelTestIndex);
+          ((Listener)listener).newTests(newTests, modelTestIndex);
         }
       });
   }
@@ -237,7 +237,7 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @param listener The listener.
    */
-  public void addModelListener(ModelListener listener) {
+  public void addModelListener(Listener listener) {
     m_listeners.add(listener);
   }
 
@@ -283,7 +283,7 @@ public final class SampleModelImplementation implements SampleModel {
     m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
-          ((ModelListener)listener).resetTests();
+          ((Listener)listener).resetTests();
         }
       });
   }
@@ -348,7 +348,7 @@ public final class SampleModelImplementation implements SampleModel {
     m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
-          ((ModelListener)listener).stateChanged();
+          ((Listener)listener).stateChanged();
         }
       });
   }
@@ -515,7 +515,7 @@ public final class SampleModelImplementation implements SampleModel {
         m_listeners.apply(
           new ListenerSupport.Informer() {
             public void inform(Object listener) {
-              ((ModelListener)listener).newSample();
+              ((Listener)listener).newSample();
             }
           });
       }

@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.swing.AbstractButton;
@@ -96,8 +95,6 @@ import net.grinder.console.distribution.FileDistributionHandler;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.console.model.ModelListener;
-import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
 import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.SampleModelViews;
@@ -115,7 +112,7 @@ import net.grinder.util.FileContents;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
+public final class ConsoleUI implements ConsoleFoundation.UI {
 
   // Do not initialise any Swing components before the constructor has
   // set the Look and Feel to avoid loading the default Look and Feel
@@ -445,7 +442,12 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     }
 
     m_model.addModelListener(
-      (ModelListener) swingDispatcherFactory.create(this));
+      (SampleModel.Listener)
+      swingDispatcherFactory.create(
+        new SampleModel.AbstractListener() {
+          public void stateChanged() { ConsoleUI.this.stateChanged(); }
+        }
+      ));
 
     m_lookAndFeel.addListener(new LookAndFeelListener());
 
@@ -753,10 +755,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     }
   }
 
-  /**
-   * {@link net.grinder.console.model.ModelListener} interface.
-   */
-  public void stateChanged() {
+  private void stateChanged() {
     final SampleModel.State state = m_model.getState();
 
     m_stateLabel.setText(state.getDescription());
@@ -771,29 +770,6 @@ public final class ConsoleUI implements ConsoleFoundation.UI, ModelListener {
     else {
       m_stateLabel.setForeground(UIManager.getColor("Label.foreground"));
     }
-  }
-
-  /**
-   * {@link net.grinder.console.model.ModelListener} interface.
-   */
-  public void newSample() {
-  }
-
-  /**
-   * {@link net.grinder.console.model.ModelListener} interface. The
-   * test set has probably changed. We need do nothing.
-   *
-   * @param newTests New tests.
-   * @param modelTestIndex New model test index.
-   */
-  public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
-  }
-
-  /**
-   * {@link net.grinder.console.model.ModelListener} interface. Existing
-   * <code>Test</code>s have been discarded. We need do nothing.
-   */
-  public void resetTests() {
   }
 
   private final class WindowCloseAdapter extends WindowAdapter {

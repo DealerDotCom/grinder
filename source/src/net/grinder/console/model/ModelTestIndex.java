@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,7 +35,7 @@ import net.grinder.statistics.StatisticsSet;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see ModelListener#newTests
+ * @see SampleModel.Listener#newTests
  */
 public final class ModelTestIndex {
 

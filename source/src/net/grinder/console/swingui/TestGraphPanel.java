@@ -36,7 +36,6 @@ import javax.swing.JPanel;
 import net.grinder.common.Test;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.SampleModel;
-import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
 import net.grinder.console.model.SampleModelViews;
@@ -49,7 +48,7 @@ import net.grinder.statistics.StatisticsSet;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestGraphPanel extends JPanel implements ModelListener {
+public class TestGraphPanel extends JPanel implements SampleModel.Listener {
 
   private final JComponent m_parentComponent;
   private final BorderLayout m_borderLayout = new BorderLayout();
@@ -85,7 +84,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
     m_testLabel = m_resources.getString("graph.test.label") + " ";
 
     m_model.addModelListener(
-      (ModelListener) swingDispatcherFactory.create(this));
+      (SampleModel.Listener) swingDispatcherFactory.create(this));
 
     m_model.addTotalSampleListener(
       new SampleListener() {
@@ -100,21 +99,21 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   }
 
   /**
-   * {@link net.grinder.console.model.ModelListener} interface.
+   * {@link net.grinder.console.model.SampleModel.Listener} interface.
    * Called when the model state has changed.
    */
   public void stateChanged() {
   }
 
   /**
-   * {@link net.grinder.console.model.ModelListener} interface.
+   * {@link net.grinder.console.model.SampleModel.Listener} interface.
    * Called when the model has a new sample.
    */
   public final void newSample() {
   }
 
   /**
-   * {@link net.grinder.console.model.ModelListener} interface.
+   * {@link net.grinder.console.model.SampleModel.Listener} interface.
    * Existing <code>Test</code>s and <code>StatisticsView</code>s have
    * been discarded.
    */
@@ -127,8 +126,8 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   }
 
   /**
-   * ModelImplementation listener interface called when new tests have been
-   * registered.
+   * {@link net.grinder.console.model.SampleModel.Listener} interface.
+   * Called when new tests have been registered.
    *
    * @param newTests
    *          The new tests.

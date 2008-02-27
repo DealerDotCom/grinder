@@ -29,7 +29,6 @@ import javax.swing.table.AbstractTableModel;
 
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.SampleModel;
-import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleModelViews;
 import net.grinder.console.model.SampleModelViews.Listener;
@@ -47,7 +46,7 @@ import net.grinder.statistics.StatisticsView;
  */
 abstract class DynamicStatisticsTableModel
   extends AbstractTableModel
-  implements ModelListener, Table.TableModel, Listener {
+  implements SampleModel.Listener, Table.TableModel, Listener {
 
   private final SampleModel m_model;
   private final SampleModelViews m_modelViews;
@@ -88,7 +87,7 @@ abstract class DynamicStatisticsTableModel
     resetStatisticsViews();
 
     m_model.addModelListener(
-      (ModelListener) swingDispatcherFactory.create(this));
+      (SampleModel.Listener) swingDispatcherFactory.create(this));
     m_modelViews.addListener((Listener) swingDispatcherFactory.create(this));
   }
 
@@ -136,7 +135,7 @@ abstract class DynamicStatisticsTableModel
 
   /**
    * Called when a new statistic expression has been added to the model.
-   * {@link net.grinder.console.model.ModelListener} interface.
+   * {@link net.grinder.console.model.SampleModel.Listener} interface.
    *
    * @param statisticExpression
    *          The new statistic expression.

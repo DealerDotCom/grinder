@@ -22,6 +22,8 @@
 package net.grinder.console.model;
 
 import java.util.Collection;
+import java.util.EventListener;
+import java.util.Set;
 
 import net.grinder.common.Test;
 import net.grinder.statistics.StatisticExpression;
@@ -122,7 +124,7 @@ public interface SampleModel {
    *
    * @param listener The listener.
    */
-  void addModelListener(ModelListener listener);
+  void addModelListener(Listener listener);
 
   /**
    * Add a new total sample listener.
@@ -151,4 +153,49 @@ public interface SampleModel {
    * @param statisticsDelta The new test statistics.
    */
   void addTestReport(TestStatisticsMap statisticsDelta);
+
+
+  /**
+   * Interface for listeners to {@link SampleModelImplementation}.
+   */
+  interface Listener extends EventListener {
+
+    /**
+     * Called when the model state has changed.
+     */
+    void stateChanged();
+
+    /**
+     * Called when the model has a new sample.
+     */
+    void newSample();
+
+    /**
+     * Called when new tests have been added to the model.
+     *
+     * @param newTests The new tests.
+     * @param modelTestIndex New index structure for the model's tests.
+     */
+    void newTests(Set newTests, ModelTestIndex modelTestIndex);
+
+    /**
+     * Called when existing tests and statistics views should be
+     * discarded.
+     */
+    void resetTests();
+  }
+
+  /**
+   * Null implementation of {@link Listener}.
+   */
+  abstract class AbstractListener implements Listener {
+
+    public void newSample() { }
+
+    public void newTests(Set newTests, ModelTestIndex modelTestIndex) { }
+
+    public void resetTests() { }
+
+    public void stateChanged() { }
+  }
 }

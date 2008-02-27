@@ -34,6 +34,7 @@ import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.StubResources;
+import net.grinder.console.model.SampleModel.AbstractListener;
 import net.grinder.console.model.SampleModel.State;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsServices;
@@ -72,9 +73,9 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
   private StubTimer m_timer;
 
   private final RandomStubFactory m_listenerStubFactory =
-    new RandomStubFactory(ModelListener.class);
-  private final ModelListener m_listener =
-    (ModelListener)m_listenerStubFactory.getStub();
+    new RandomStubFactory(SampleModel.Listener.class);
+  private final SampleModel.Listener m_listener =
+    (SampleModel.Listener)m_listenerStubFactory.getStub();
 
   protected void setUp() throws Exception {
     super.setUp();
@@ -464,5 +465,15 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
     assertEquals(3, ((StatisticsSet)totalParameters3[0]).getValue(userLong0));
     assertEquals(0, ((StatisticsSet)totalParameters3[1]).getValue(userLong0));
+  }
+
+  public void testAbstractListener() {
+    // An exercise in coverage.
+    final AbstractListener listener = new AbstractListener() {};
+
+    listener.newTests(null, null);
+    listener.resetTests();
+    listener.newSample();
+    listener.stateChanged();
   }
 }
