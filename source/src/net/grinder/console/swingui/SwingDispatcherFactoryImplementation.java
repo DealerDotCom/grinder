@@ -41,7 +41,7 @@ import net.grinder.console.common.ErrorHandler;
  * @version $Revision$
  */
 final class SwingDispatcherFactoryImplementation
-  implements SwingDistatcherFactory {
+  implements SwingDispatcherFactory {
 
   private final ErrorHandler m_errorHandler;
 

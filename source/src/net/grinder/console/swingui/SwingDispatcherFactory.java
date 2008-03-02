@@ -28,6 +28,6 @@ package net.grinder.console.swingui;
  * @author Philip Aston
  * @version $Revision: 3764 $
  */
-interface SwingDistatcherFactory {
+interface SwingDispatcherFactory {
   Object create(final Object delegate);
 }

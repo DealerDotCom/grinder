@@ -73,7 +73,7 @@ class ProcessStatusTableModel
 
   public ProcessStatusTableModel(Resources resources,
                                  ProcessControl processControl,
-                                 SwingDistatcherFactory swingDispatcherFactory)
+                                 SwingDispatcherFactory swingDispatcherFactory)
     throws ConsoleException {
 
     m_descriptionFactory =

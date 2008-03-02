@@ -72,7 +72,7 @@ abstract class DynamicStatisticsTableModel
     SampleModel model,
     SampleModelViews modelViews,
     Resources resources,
-    SwingDistatcherFactory swingDispatcherFactory) {
+    SwingDispatcherFactory swingDispatcherFactory) {
 
     m_model = model;
     m_modelViews = modelViews;
