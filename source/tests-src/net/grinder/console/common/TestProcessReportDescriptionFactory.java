@@ -26,7 +26,6 @@ import java.util.HashMap;
 import junit.framework.TestCase;
 import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
 import net.grinder.engine.agent.StubAgentIdentity;
-import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.messages.console.WorkerProcessReport;
