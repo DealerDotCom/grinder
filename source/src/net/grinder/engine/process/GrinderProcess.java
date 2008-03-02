@@ -219,7 +219,7 @@ final class GrinderProcess {
     // declare new statistics.
     final PrintWriter dataWriter = m_loggerImplementation.getDataWriter();
 
-    dataWriter.print("Thread, Run, Test, Milliseconds since start");
+    dataWriter.print("Thread, Run, Test, Start time (ms since Epoch)");
 
     final ExpressionView[] detailExpressionViews =
       m_context.getStatisticsServices()

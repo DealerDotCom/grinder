@@ -96,7 +96,7 @@ final class ThreadContextImplementation
           threadDataWriter.report(
             getRunNumber(),
             test,
-            startTime - m_processContext.getExecutionStartTime(),
+            startTime,
             statistics);
         }
       };

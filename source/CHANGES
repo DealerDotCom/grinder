@@ -40,6 +40,11 @@ The Grinder 3.0.2 (not yet released).
   Fix bug 1709285 - HTTP plug-in records wrong times with
   grinder.useNanoTime=true. Thanks to liaoya for the report.
 
+  Fulfil Feature Request 1902280 - Use absolute start times in the data log.
+  This allows the logs from different workers to be merged, so long as their
+  machine clocks are synchronised. Thanks to Olivier Merlin for requesting
+  this feature.
+
 
 The Grinder 3.0.1
 -----------------

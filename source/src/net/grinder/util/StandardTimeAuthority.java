@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.util;
 
+
 /**
  * The standard {@link TimeAuthority} implementation.
  *
@@ -32,13 +33,7 @@ public final class StandardTimeAuthority implements TimeAuthority {
   /**
    * Return the current time in milliseconds.
    *
-   * <p>
-   * This is an abstraction over {@link System#currentTimeMillis()} and the J2SE
-   * 5 <code>System.nanoTime()</code> method.
-   * </p>
-   *
-   * @return The time. The base time is arbitrary, in a similar fashion to that
-   *         of <code>nanoTime</code>.
+   * @return The time. The base time is the Epoch.
    */
   public long getTimeInMilliseconds() {
     return System.currentTimeMillis();

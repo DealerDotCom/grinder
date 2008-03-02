@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -152,6 +152,7 @@ public class TestThreadContextImplementation extends TestCase {
 
     final String output = dataStringWriter.toString();
     AssertUtilities.assertContains(output, "22");
+    AssertUtilities.assertContains(output, "123456");
   }
 
   public void testNullDispatchResultReporter() throws Exception {

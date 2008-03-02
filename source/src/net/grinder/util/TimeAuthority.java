@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.util;
 
+
 /**
  * Something that knows the time.
  *
@@ -37,9 +38,8 @@ public interface TimeAuthority {
    * 5 <code>System.nanoTime()</code> method.
    * </p>
    *
-   * @return The time. The base time is arbitrary but constant for a given
-   *         TimeAuthority, in a similar fashion to that of
-   *         <code>nanoTime</code>.
+   * @return The time. The base time is the Epoch, even if the implementation
+   * uses <code>System.nanoTime()</code>.
    */
   long getTimeInMilliseconds();
 }

@@ -59,19 +59,16 @@ interface ProcessContext {
   ThreadContextLocator getThreadContextLocator();
 
   /**
-   * Unsynchronised for efficiency. {@link GrinderProcess} calls
-   * {@link #setExecutionStartTime} just before launching threads,
-   * after which it is never called again.
+   * {@link GrinderProcess} calls {@link #setExecutionStartTime} just
+   * before launching threads, after which it is never called again.
    */
   void setExecutionStartTime();
 
   /**
-   * Unsynchronised for efficiency. {@link GrinderProcess} calls
-   * {@link #setExecutionStartTime} just before launching threads,
-   * after which it is never called again.
+   * {@link GrinderProcess} calls {@link #setExecutionStartTime} just before
+   * launching threads, after which it is never called again.
    *
-   * @return Start of execution, in milliseconds. Basis time depends
-   * on the time authority in use by the process context.
+   * @return Start of execution, in milliseconds since the Epoch.
    */
   long getExecutionStartTime();
 
