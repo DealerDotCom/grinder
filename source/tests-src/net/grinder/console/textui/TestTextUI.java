@@ -30,10 +30,10 @@ import net.grinder.console.common.Resources;
 import net.grinder.console.common.StubResources;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessStatus;
+import net.grinder.console.communication.StubProcessReports;
 import net.grinder.console.communication.ProcessStatus.ProcessReports;
 import net.grinder.console.model.SampleModel;
 import net.grinder.engine.agent.StubAgentIdentity;
-import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.messages.console.ProcessReport;
 import net.grinder.messages.console.StubAgentProcessReport;
 import net.grinder.messages.console.StubWorkerProcessReport;
@@ -246,26 +246,6 @@ public class TestTextUI extends TestCase {
     listener.stateChanged();
     m_loggerStubFactory.assertOutputMessage("no pressure son");
     m_loggerStubFactory.assertNoMoreCalls();
-  }
-
-  public static class StubProcessReports implements ProcessReports {
-
-    private final AgentProcessReport m_agentProcessReport;
-    private final WorkerProcessReport[] m_workerProcessReports;
-
-    public StubProcessReports(AgentProcessReport agentProcessReport,
-                              WorkerProcessReport[] workerProcessReports) {
-      m_agentProcessReport = agentProcessReport;
-      m_workerProcessReports = workerProcessReports;
-    }
-
-    public AgentProcessReport getAgentProcessReport() {
-      return m_agentProcessReport;
-    }
-
-    public WorkerProcessReport[] getWorkerProcessReports() {
-      return m_workerProcessReports;
-    }
   }
 
   public void testShutdownHook() throws Exception {
