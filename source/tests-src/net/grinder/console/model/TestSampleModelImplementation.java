@@ -41,7 +41,6 @@ import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.statistics.TestStatisticsQueries;
 import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
@@ -105,12 +104,6 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     assertSame(
       peakTPSExpression, sampleModelImplementation.getPeakTPSExpression());
     assertNotSame(tpsExpression, peakTPSExpression);
-
-    final TestStatisticsQueries statisticsQueries =
-      sampleModelImplementation.getTestStatisticsQueries();
-    assertNotNull(statisticsQueries);
-    assertSame(statisticsQueries,
-               m_statisticsServices.getTestStatisticsQueries());
 
     final StatisticsSet totalCumulativeStatistics =
       sampleModelImplementation.getTotalCumulativeStatistics();

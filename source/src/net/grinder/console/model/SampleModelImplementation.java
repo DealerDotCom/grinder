@@ -42,7 +42,6 @@ import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.statistics.TestStatisticsQueries;
 import net.grinder.util.ListenerSupport;
 
 
@@ -156,15 +155,6 @@ public final class SampleModelImplementation implements SampleModel {
    */
   public StatisticExpression getPeakTPSExpression() {
     return m_peakTPSExpression;
-  }
-
-  /**
-   * Return an object allowing access to common functions of test statistics.
-   *
-   * @return The {@link TestStatisticsQueries}.
-   */
-  public TestStatisticsQueries getTestStatisticsQueries() {
-    return m_statisticsServices.getTestStatisticsQueries();
   }
 
   /**

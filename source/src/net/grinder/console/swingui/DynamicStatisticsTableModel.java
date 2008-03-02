@@ -237,7 +237,7 @@ abstract class DynamicStatisticsTableModel
   public boolean isBold(int row, int column) {
     return
     column == 3 &&
-    getModel().getTestStatisticsQueries().getNumberOfErrors(
+    getModelViews().getTestStatisticsQueries().getNumberOfErrors(
         getStatistics(row)) > 0;
   }
 

@@ -26,6 +26,7 @@ import java.util.EventListener;
 
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatisticsQueries;
 
 
 /**
@@ -68,6 +69,13 @@ public interface SampleModelViews {
    * Reset the views.
    */
   void resetStatisticsViews();
+
+  /**
+   * Return an object allowing access to common functions of test statistics.
+   *
+   * @return The {@link TestStatisticsQueries}.
+   */
+  TestStatisticsQueries getTestStatisticsQueries();
 
   /**
    * Add a new listener.

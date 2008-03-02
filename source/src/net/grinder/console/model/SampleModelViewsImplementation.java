@@ -29,6 +29,7 @@ import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatisticsQueries;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.SignificantFigureFormat;
 
@@ -177,6 +178,15 @@ public class SampleModelViewsImplementation implements SampleModelViews {
     synchronized (this) {
       return m_intervalStatisticsView;
     }
+  }
+
+  /**
+   * Return an object allowing access to common functions of test statistics.
+   *
+   * @return The {@link TestStatisticsQueries}.
+   */
+  public TestStatisticsQueries getTestStatisticsQueries() {
+    return m_statisticsServices.getTestStatisticsQueries();
   }
 
   /**

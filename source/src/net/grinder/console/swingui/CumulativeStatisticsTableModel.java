@@ -103,7 +103,7 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel {
     }
     else {
       if (column == 3 &&
-          getModel().getTestStatisticsQueries().getNumberOfErrors(
+          getModelViews().getTestStatisticsQueries().getNumberOfErrors(
               getModel().getTotalCumulativeStatistics()) > 0) {
         return Colours.RED;
       }

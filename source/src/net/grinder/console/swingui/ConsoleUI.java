@@ -478,7 +478,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
                         m_resources, Colours.DARK_GREY,
                         m_model.getTPSExpression(),
                         m_model.getPeakTPSExpression(),
-                        m_model.getTestStatisticsQueries());
+                        m_sampleModelViews.getTestStatisticsQueries());
 
     final JLabel tpsLabel = new JLabel();
     tpsLabel.setForeground(Colours.BLACK);

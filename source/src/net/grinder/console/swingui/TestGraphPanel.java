@@ -155,7 +155,7 @@ public class TestGraphPanel extends JPanel implements SampleModel.Listener {
                           m_resources,
                           m_model.getTPSExpression(),
                           m_model.getPeakTPSExpression(),
-                          m_model.getTestStatisticsQueries());
+                          m_sampleModelViews.getTestStatisticsQueries());
 
       m_model.addSampleListener(
         test,

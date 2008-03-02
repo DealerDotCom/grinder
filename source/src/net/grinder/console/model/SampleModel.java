@@ -29,7 +29,6 @@ import net.grinder.common.Test;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.statistics.TestStatisticsQueries;
 
 
 /**
@@ -104,13 +103,6 @@ public interface SampleModel {
    * @return The peak TPS expression for this model.
    */
   StatisticExpression getPeakTPSExpression();
-
-  /**
-   * Return an object allowing access to common functions of test statistics.
-   *
-   * @return The {@link TestStatisticsQueries}.
-   */
-  TestStatisticsQueries getTestStatisticsQueries();
 
   /**
    * Get the cumulative statistics for this model.

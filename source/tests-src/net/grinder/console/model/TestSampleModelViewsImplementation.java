@@ -32,6 +32,7 @@ import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatisticsQueries;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 
@@ -113,6 +114,12 @@ public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
       expressionViewsSet(sampleModelViews.getIntervalStatisticsView())
       .contains(expressionView));
 
+    final TestStatisticsQueries statisticsQueries =
+      sampleModelViews.getTestStatisticsQueries();
+    assertNotNull(statisticsQueries);
+    assertSame(statisticsQueries,
+               statisticsServices.getTestStatisticsQueries());
+
     m_modelStubFactory.assertNoMoreCalls();
   }
 
@@ -170,5 +177,4 @@ public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
     assertNotSame(numberFormat, numberFormat4sf);
     assertEquals("1.234", numberFormat4sf.format(1.234));
   }
-
 }
