@@ -34,7 +34,7 @@ import net.grinder.testutility.RandomStubFactory;
 
 
 /**
- * Unit tests for {@link SwingDispatcherFactory}.
+ * Unit tests for {@link SwingDispatcherFactoryImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -52,7 +52,7 @@ public class TestSwingDispatcherFactory extends TestCase {
       (ErrorHandler)errorHandlerStubFactory.getStub();
 
     final SwingDispatcherFactory swingDispatcherFactory =
-      new SwingDispatcherFactory(errorHandler);
+      new SwingDispatcherFactoryImplementation(errorHandler);
 
     final PropertyChangeListener swingDispatchedListener =
       (PropertyChangeListener)swingDispatcherFactory.create(listener);
@@ -88,7 +88,7 @@ public class TestSwingDispatcherFactory extends TestCase {
       (ErrorHandler)errorHandlerStubFactory.getStub();
 
     final SwingDispatcherFactory swingDispatcherFactory =
-      new SwingDispatcherFactory(errorHandler);
+      new SwingDispatcherFactoryImplementation(errorHandler);
 
     final Object proxy = swingDispatcherFactory.create(new FooImpl());
 
@@ -103,7 +103,7 @@ public class TestSwingDispatcherFactory extends TestCase {
       (ErrorHandler)errorHandlerStubFactory.getStub();
 
     final SwingDispatcherFactory swingDispatcherFactory =
-      new SwingDispatcherFactory(errorHandler);
+      new SwingDispatcherFactoryImplementation(errorHandler);
 
     final Object proxy = swingDispatcherFactory.create(new FooFoo());
 
