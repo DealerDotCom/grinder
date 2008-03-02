@@ -180,10 +180,11 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
       new ErrorDialogHandler(m_frame, m_resources);
 
     m_errorHandler =
-      (ErrorHandler)new SwingDispatcherFactory(null).create(errorDialogHandler);
+      (ErrorHandler)
+      new SwingDispatcherFactoryImplementation(null).create(errorDialogHandler);
 
-    final SwingDispatcherFactory swingDispatcherFactory =
-      new SwingDispatcherFactory(m_errorHandler);
+    final SwingDistatcherFactory swingDispatcherFactory =
+      new SwingDispatcherFactoryImplementation(m_errorHandler);
 
     // LookAndFeel constructor will set initial Look and Feel from properties.
     m_lookAndFeel = new LookAndFeel(m_properties, swingDispatcherFactory);

@@ -49,7 +49,7 @@ final class LookAndFeel {
     UIManager.getInstalledLookAndFeels();
 
   public LookAndFeel(ConsoleProperties properties,
-                     SwingDispatcherFactory swingDispatcherFactory) {
+                     SwingDistatcherFactory swingDispatcherFactory) {
 
     properties.addPropertyChangeListener(
       ConsoleProperties.LOOK_AND_FEEL_PROPERTY,

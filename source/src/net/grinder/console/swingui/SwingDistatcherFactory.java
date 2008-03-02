@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,35 +21,13 @@
 
 package net.grinder.console.swingui;
 
-import net.grinder.console.common.Resources;
-import net.grinder.console.model.SampleModel;
-import net.grinder.console.model.SampleModelViews;
-import net.grinder.statistics.StatisticsSet;
-
 
 /**
- * <code>TableModel</code> for the sample statistics table.
+ * Factory for dynamic proxies that dispatch work in the Swing thread.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 3764 $
  */
-final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
-
-  public SampleStatisticsTableModel(
-    SampleModel model,
-    SampleModelViews sampleModelViews,
-    Resources resources,
-    SwingDistatcherFactory swingDispatcherFactory) {
-
-    super(model, sampleModelViews, resources, swingDispatcherFactory);
-  }
-
-  public synchronized void resetStatisticsViews() {
-    super.resetStatisticsViews();
-    addColumns(getModelViews().getIntervalStatisticsView());
-  }
-
-  protected StatisticsSet getStatistics(int row) {
-    return getLastModelTestIndex().getLastSampleStatistics(row);
-  }
+interface SwingDistatcherFactory {
+  Object create(final Object delegate);
 }

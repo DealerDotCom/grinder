@@ -60,7 +60,7 @@ public class TestGraphPanel extends JPanel implements SampleModel.Listener {
   private final SampleModel m_model;
   private final SampleModelViews m_sampleModelViews;
   private final Resources m_resources;
-  private final SwingDispatcherFactory m_swingDispatcherFactory;
+  private final SwingDistatcherFactory m_swingDispatcherFactory;
   private final String m_testLabel;
 
   /**
@@ -73,7 +73,7 @@ public class TestGraphPanel extends JPanel implements SampleModel.Listener {
                  SampleModel model,
                  SampleModelViews sampleModelViews,
                  Resources resources,
-                 SwingDispatcherFactory swingDispatcherFactory) {
+                 SwingDistatcherFactory swingDispatcherFactory) {
 
     m_parentComponent = parentComponent;
     m_model = model;

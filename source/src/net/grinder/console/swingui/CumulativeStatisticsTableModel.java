@@ -46,7 +46,7 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel {
     SampleModel model,
     SampleModelViews sampleModelViews,
     Resources resources,
-    SwingDispatcherFactory swingDispatcherFactory) {
+    SwingDistatcherFactory swingDispatcherFactory) {
 
     super(model, sampleModelViews, resources, swingDispatcherFactory);
 
