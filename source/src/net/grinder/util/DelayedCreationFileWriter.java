@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,9 +30,15 @@ import java.io.Writer;
 /**
  * FileWriter that doesn't create a file until a write occurs.
  *
+ * <p>
+ * <strong>Unsynchronised</strong>. In practice, each
+ * <code>DelayedCreationFileWriter</code> is wrapped in a {@link PrintWritter}
+ * that provides adequate synchronisation.
+ * </p>
+ *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 public final class DelayedCreationFileWriter extends Writer {
 
   private final File m_file;
@@ -64,10 +70,8 @@ public final class DelayedCreationFileWriter extends Writer {
    * @exception IOException If an error occurs.
    */
   public void close() throws IOException {
-    synchronized (this) {
-      if (m_delegate == null) {
-        return;
-      }
+    if (m_delegate == null) {
+      return;
     }
 
     m_delegate.close();
@@ -79,10 +83,8 @@ public final class DelayedCreationFileWriter extends Writer {
    * @exception IOException If an error occurs.
    */
   public void flush() throws IOException {
-    synchronized (this) {
-      if (m_delegate == null) {
-        return;
-      }
+    if (m_delegate == null) {
+      return;
     }
 
     m_delegate.flush();
@@ -97,7 +99,6 @@ public final class DelayedCreationFileWriter extends Writer {
    * @exception IOException If an error occurs.
    */
   public void write(char[] bytes, int offset, int length) throws IOException {
-
     if (m_delegate == null) {
       m_delegate = new FileWriter(m_file.getPath(), m_append);
     }
