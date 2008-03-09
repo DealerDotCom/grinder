@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -246,7 +246,8 @@ abstract class OptionsDialogHandler {
               setProperties(m_properties);
             }
             catch (ConsoleException e) {
-              new ErrorDialogHandler(m_dialog, m_resources).handleException(e);
+              new ErrorDialogHandler(m_dialog, m_resources, null)
+              .handleException(e);
               return false;
             }
 
@@ -260,9 +261,9 @@ abstract class OptionsDialogHandler {
                 final String messsage =
                   (cause != null ? cause : e).getMessage();
 
-                new ErrorDialogHandler(m_dialog, m_resources).
-                  handleErrorMessage(messsage,
-                                     m_resources.getString("fileError.title"));
+                new ErrorDialogHandler(m_dialog, m_resources, null)
+                .handleErrorMessage(messsage,
+                                    m_resources.getString("fileError.title"));
                 return false;
               }
             }

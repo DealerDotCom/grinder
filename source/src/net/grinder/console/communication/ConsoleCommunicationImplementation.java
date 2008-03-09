@@ -36,7 +36,6 @@ import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
-import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.messages.console.AgentIdentity;
@@ -57,8 +56,7 @@ public final class ConsoleCommunicationImplementation
   private final int m_idlePollDelay;
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
-
-  private final ErrorQueue m_errorQueue = new ErrorQueue();
+  private final ErrorHandler m_errorHandler;
 
   private final MessageDispatchSender m_messageDispatcher =
     new MessageDispatchSender();
@@ -79,14 +77,17 @@ public final class ConsoleCommunicationImplementation
    *          Console properties.
    * @param timer
    *          Timer that can be used to schedule housekeeping tasks.
+   * @param errorHandler
+   *          Error handler.
    * @throws DisplayMessageConsoleException
    *           If properties are invalid.
    */
   public ConsoleCommunicationImplementation(Resources resources,
                                             ConsoleProperties properties,
-                                            Timer timer)
+                                            Timer timer,
+                                            ErrorHandler errorHandler)
     throws DisplayMessageConsoleException {
-    this(resources, properties, timer, 500);
+    this(resources, properties, timer, errorHandler, 500);
   }
 
   /**
@@ -98,6 +99,8 @@ public final class ConsoleCommunicationImplementation
    *          Console properties.
    * @param timer
    *          Timer that can be used to schedule housekeeping tasks.
+   * @param errorHandler
+   *          Error handler.
    * @param idlePollDelay
    *          Time in milliseconds that our ServerReceiver threads should sleep
    *          for if there's no incoming messages.
@@ -107,12 +110,14 @@ public final class ConsoleCommunicationImplementation
   public ConsoleCommunicationImplementation(Resources resources,
                                             ConsoleProperties properties,
                                             Timer timer,
+                                            ErrorHandler errorHandler,
                                             int idlePollDelay)
     throws DisplayMessageConsoleException {
 
     m_resources = resources;
     m_properties = properties;
     m_idlePollDelay = idlePollDelay;
+    m_errorHandler = errorHandler;
 
     properties.addPropertyChangeListener(
       new PropertyChangeListener() {
@@ -139,17 +144,6 @@ public final class ConsoleCommunicationImplementation
       CHECK_PEER_STATUS_PERIOD);
   }
 
-  /**
-   * Set the error handler. Any errors the
-   * <code>ConsoleCommunication</code> has queued up will be reported
-   * immediately.
-   *
-   * @param errorHandler Where to report errors.
-   */
-  public void setErrorHandler(ErrorHandler errorHandler) {
-    m_errorQueue.setErrorHandler(errorHandler);
-  }
-
   private void reset() {
     try {
       if (m_acceptor != null) {
@@ -157,7 +151,7 @@ public final class ConsoleCommunicationImplementation
       }
     }
     catch (CommunicationException e) {
-      m_errorQueue.handleException(e);
+      m_errorHandler.handleException(e);
       return;
     }
 
@@ -185,7 +179,7 @@ public final class ConsoleCommunicationImplementation
                                 1);
     }
     catch (CommunicationException e) {
-      m_errorQueue.handleException(
+      m_errorHandler.handleException(
         new DisplayMessageConsoleException(
           m_resources, "localBindError.text", e));
 
@@ -206,7 +200,7 @@ public final class ConsoleCommunicationImplementation
               break;
             }
 
-            m_errorQueue.handleException(exception);
+            m_errorHandler.handleException(exception);
           }
         }
       };
@@ -243,7 +237,7 @@ public final class ConsoleCommunicationImplementation
       // reseting new console address info, but most likely they'll just restart
       // the console.
       m_processing.wakeUpAllWaiters();
-      m_errorQueue.handleException(e);
+      m_errorHandler.handleException(e);
       return;
     }
 
@@ -298,7 +292,7 @@ public final class ConsoleCommunicationImplementation
         catch (CommunicationException e) {
           // The receive or send failed. We only set m_processing to false when
           // our receiver has been shut down.
-          m_errorQueue.handleException(e);
+          m_errorHandler.handleException(e);
         }
       }
     }
@@ -325,14 +319,15 @@ public final class ConsoleCommunicationImplementation
    */
   public void sendToAgents(Message message) {
     if (m_sender == null) {
-      m_errorQueue.handleErrorMessage(m_resources.getString("sendError.text"));
+      m_errorHandler.handleErrorMessage(
+        m_resources.getString("sendError.text"));
     }
     else {
       try {
         m_sender.send(message);
       }
       catch (CommunicationException e) {
-        m_errorQueue.handleException(
+        m_errorHandler.handleException(
           new DisplayMessageConsoleException(m_resources, "sendError.text", e));
       }
     }
@@ -354,14 +349,15 @@ public final class ConsoleCommunicationImplementation
    */
   public void sendToAgent(AgentIdentity agent, Message message) {
     if (m_sender == null) {
-      m_errorQueue.handleErrorMessage(m_resources.getString("sendError.text"));
+      m_errorHandler.handleErrorMessage(
+        m_resources.getString("sendError.text"));
     }
     else {
       try {
         m_sender.send(agent, message);
       }
       catch (CommunicationException e) {
-        m_errorQueue.handleException(
+        m_errorHandler.handleException(
           new DisplayMessageConsoleException(m_resources, "sendError.text", e));
       }
     }

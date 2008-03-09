@@ -32,6 +32,7 @@ import java.util.TimerTask;
 
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
+import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.StubResources;
 import net.grinder.console.model.SampleModel.AbstractListener;
@@ -76,6 +77,11 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
   private final SampleModel.Listener m_listener =
     (SampleModel.Listener)m_listenerStubFactory.getStub();
 
+  final RandomStubFactory m_errorHandlerStubFactory =
+    new RandomStubFactory(ErrorHandler.class);
+  final ErrorHandler m_errorHandler =
+    (ErrorHandler)m_errorHandlerStubFactory.getStub();
+
   protected void setUp() throws Exception {
     super.setUp();
     m_timer = new StubTimer();
@@ -90,8 +96,11 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
   public void testConstruction() throws Exception {
     final SampleModelImplementation sampleModelImplementation =
-      new SampleModelImplementation(
-        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+      new SampleModelImplementation(m_consoleProperties,
+                                    m_statisticsServices,
+                                    m_timer,
+                                    m_resources,
+                                    m_errorHandler);
 
     final StatisticExpression tpsExpression =
       sampleModelImplementation.getTPSExpression();
@@ -120,8 +129,11 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
   public void testRegisterTests() throws Exception {
     final SampleModelImplementation sampleModelImplementation =
-      new SampleModelImplementation(
-        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+      new SampleModelImplementation(m_consoleProperties,
+                                    m_statisticsServices,
+                                    m_timer,
+                                    m_resources,
+                                    m_errorHandler);
 
     sampleModelImplementation.addModelListener(m_listener);
 
@@ -188,8 +200,11 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
   public void testWaitingToStopped() throws Exception {
     final SampleModelImplementation sampleModelImplementation =
-      new SampleModelImplementation(
-        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+      new SampleModelImplementation(m_consoleProperties,
+                                    m_statisticsServices,
+                                    m_timer,
+                                    m_resources,
+                                    m_errorHandler);
 
     sampleModelImplementation.addModelListener(m_listener);
 
@@ -224,8 +239,11 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
   public void testWaitingToTriggeredToCapturingToStopped() throws Exception {
     final SampleModelImplementation sampleModelImplementation =
-      new SampleModelImplementation(
-        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+      new SampleModelImplementation(m_consoleProperties,
+                                    m_statisticsServices,
+                                    m_timer,
+                                    m_resources,
+                                    m_errorHandler);
 
     final TestStatisticsMap testStatisticsMap = new TestStatisticsMap();
 
@@ -323,10 +341,13 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
   public void testReset() throws Exception {
     final SampleModelImplementation sampleModelImplementation =
-      new SampleModelImplementation(
-        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
-    sampleModelImplementation.addModelListener(m_listener);
+      new SampleModelImplementation(m_consoleProperties,
+                                    m_statisticsServices,
+                                    m_timer,
+                                    m_resources,
+                                    m_errorHandler);
 
+    sampleModelImplementation.addModelListener(m_listener);
     sampleModelImplementation.reset();
 
     m_listenerStubFactory.assertSuccess("resetTests");
@@ -334,8 +355,11 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
   public void testSampleListeners() throws Exception {
     final SampleModelImplementation sampleModelImplementation =
-      new SampleModelImplementation(
-        m_consoleProperties, m_statisticsServices, m_timer, m_resources);
+      new SampleModelImplementation(m_consoleProperties,
+                                    m_statisticsServices,
+                                    m_timer,
+                                    m_resources,
+                                    m_errorHandler);
 
     final RandomStubFactory totalSampleListenerStubFactory =
       new RandomStubFactory(SampleListener.class);

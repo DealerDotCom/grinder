@@ -35,6 +35,7 @@ import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.console.common.ErrorHandler;
+import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
@@ -153,6 +154,8 @@ public final class ConsoleFoundation {
 
     m_container.registerComponentImplementation(
       ProcessControlImplementation.class);
+
+    m_container.registerComponentImplementation(ErrorQueue.class);
   }
 
   /**
@@ -170,11 +173,10 @@ public final class ConsoleFoundation {
 
     final UI ui = (UI) m_container.getComponentInstanceOfType(uiClass);
 
-    final ConsoleCommunication communication =
-      (ConsoleCommunication)m_container.getComponentInstanceOfType(
-        ConsoleCommunication.class);
+    final ErrorQueue errorQueue =
+      (ErrorQueue)m_container.getComponentInstanceOfType(ErrorQueue.class);
 
-    communication.setErrorHandler(ui.getErrorHandler());
+    errorQueue.setErrorHandler(ui.getErrorHandler());
 
     return ui;
   }

@@ -198,6 +198,10 @@ public class TextUI implements UI {
       throwable.printStackTrace(m_logger.getErrorLogWriter());
       m_logger.getErrorLogWriter().flush();
     }
+
+    public void handleInformationMessage(String informationMessage) {
+      m_logger.output(informationMessage);
+    }
   }
 
   private final class ShutdownHook implements Runnable {

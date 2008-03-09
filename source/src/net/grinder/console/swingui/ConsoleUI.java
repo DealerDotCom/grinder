@@ -82,6 +82,7 @@ import javax.swing.filechooser.FileFilter;
 import net.grinder.common.Closer;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.console.ConsoleFoundation;
 import net.grinder.console.common.ConsoleException;
@@ -155,6 +156,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
    * @param sampleModelViews Console sample model views.
    * @param processControl ProcessReport control.
    * @param fileDistribution File distribution.
+   * @param logger Logger to use.
    * @exception ConsoleException if an error occurs
    */
   public ConsoleUI(Resources resources,
@@ -162,7 +164,8 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
                    SampleModel model,
                    SampleModelViews sampleModelViews,
                    ProcessControl processControl,
-                   FileDistribution fileDistribution)
+                   FileDistribution fileDistribution,
+                   Logger logger)
     throws ConsoleException {
 
     m_resources = resources;
@@ -177,7 +180,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
     m_frame = new JFrame(m_resources.getString("title"));
 
     final ErrorDialogHandler errorDialogHandler =
-      new ErrorDialogHandler(m_frame, m_resources);
+      new ErrorDialogHandler(m_frame, m_resources, logger);
 
     m_errorHandler =
       (ErrorHandler)

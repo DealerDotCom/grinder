@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -130,5 +130,18 @@ public final class ErrorQueue implements ErrorHandler {
           errorHandler.handleException(throwable, title);
         }
       });
+  }
+
+  /**
+   * Method that handles information messages.
+   *
+   * @param informationMessage The information message.
+   */
+  public void handleInformationMessage(final String informationMessage) {
+    queue(new DelayedError() {
+      public void apply(ErrorHandler errorHandler) {
+        errorHandler.handleInformationMessage(informationMessage);
+      }
+    });
   }
 }

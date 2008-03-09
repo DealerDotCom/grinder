@@ -81,6 +81,11 @@ public class TestConsoleCommunicationImplementation
     new ProcessMessagesThread();
   private StubTimer m_timer;
 
+  private final RandomStubFactory m_errorHandlerStubFactory =
+    new RandomStubFactory(ErrorHandler.class);
+  private final ErrorHandler m_errorHandler =
+    (ErrorHandler)m_errorHandlerStubFactory.getStub();
+
   protected void setUp() throws Exception {
     super.setUp();
 
@@ -102,6 +107,7 @@ public class TestConsoleCommunicationImplementation
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
                                              m_timer,
+                                             m_errorHandler,
                                              10);
   }
 
@@ -136,6 +142,7 @@ public class TestConsoleCommunicationImplementation
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
                                              m_timer,
+                                             m_errorHandler,
                                              500);
 
     final TimerTask timerTask2 = m_timer.getLastScheduledTimerTask();
@@ -147,7 +154,8 @@ public class TestConsoleCommunicationImplementation
     final ConsoleCommunicationImplementation consoleCommunication2 =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             m_timer);
+                                             m_timer,
+                                             m_errorHandler);
 
     final TimerTask timerTask3 = m_timer.getLastScheduledTimerTask();
     assertNotSame(timerTask, timerTask3);
@@ -422,70 +430,55 @@ public class TestConsoleCommunicationImplementation
     // Cause the sender to be invalid.
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
 
-    final RandomStubFactory errorHandlerStubFactory =
-      new RandomStubFactory(ErrorHandler.class);
-    final ErrorHandler errorHandler =
-      (ErrorHandler)errorHandlerStubFactory.getStub();
-
-    m_consoleCommunication.setErrorHandler(errorHandler);
-
-    errorHandlerStubFactory.assertSuccess(
+    m_errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
-    errorHandlerStubFactory.assertNoMoreCalls();
+    m_errorHandlerStubFactory.assertNoMoreCalls();
 
     m_consoleCommunication.sendToAgent(
       new StubAgentIdentity("agent"), new MyMessage());
 
-    errorHandlerStubFactory.assertSuccess(
+    m_errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
-    errorHandlerStubFactory.assertNoMoreCalls();
+    m_errorHandlerStubFactory.assertNoMoreCalls();
 
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
     final ConsoleCommunication brokenConsoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
                                              m_timer,
+                                             m_errorHandler,
                                              100);
 
-    errorHandlerStubFactory.assertNoMoreCalls();
-    brokenConsoleCommunication.setErrorHandler(errorHandler);
-
-    errorHandlerStubFactory.assertSuccess(
+    m_errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
+    m_errorHandlerStubFactory.assertNoMoreCalls();
 
     brokenConsoleCommunication.sendToAgent(
       new StubAgentIdentity("agent"), new MyMessage());
 
-    errorHandlerStubFactory.assertSuccess("handleErrorMessage", String.class);
-    errorHandlerStubFactory.assertNoMoreCalls();
+    m_errorHandlerStubFactory.assertSuccess("handleErrorMessage", String.class);
+    m_errorHandlerStubFactory.assertNoMoreCalls();
   }
 
   public void testErrorHandling() throws Exception {
-    final RandomStubFactory errorHandlerStubFactory =
-      new RandomStubFactory(ErrorHandler.class);
-    final ErrorHandler errorHandler =
-      (ErrorHandler)errorHandlerStubFactory.getStub();
-
-    m_consoleCommunication.setErrorHandler(errorHandler);
-
     // Need a thread to be attempting to process messages or the
     // receiver will never be shutdown correctly.
     m_processMessagesThread.start();
 
-    errorHandlerStubFactory.assertNoMoreCalls();
+    m_errorHandlerStubFactory.assertNoMoreCalls();
 
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
 
-    errorHandlerStubFactory.assertSuccess(
+    m_errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
-    errorHandlerStubFactory.assertNoMoreCalls();
+    m_errorHandlerStubFactory.assertNoMoreCalls();
 
     new DistributionControlImplementation(m_consoleCommunication)
     .clearFileCaches();
 
-    errorHandlerStubFactory.assertSuccess(
+    m_errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
-    errorHandlerStubFactory.assertNoMoreCalls();
+    m_errorHandlerStubFactory.assertNoMoreCalls();
 
     final RandomStubFactory errorHandlerStubFactory2 =
       new RandomStubFactory(ErrorHandler.class);
@@ -498,13 +491,12 @@ public class TestConsoleCommunicationImplementation
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
                                              m_timer,
+                                             errorHandler2,
                                              100);
-
-    errorHandlerStubFactory2.assertNoMoreCalls();
-    brokenConsoleCommunication.setErrorHandler(errorHandler2);
 
     errorHandlerStubFactory2.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
+    errorHandlerStubFactory2.assertNoMoreCalls();
 
     new DistributionControlImplementation(brokenConsoleCommunication)
     .clearFileCaches();
@@ -515,13 +507,6 @@ public class TestConsoleCommunicationImplementation
 
   public void testErrorHandlingWithFurtherCommunicationProblems()
     throws Exception {
-
-    final RandomStubFactory errorHandlerStubFactory =
-      new RandomStubFactory(ErrorHandler.class);
-    final ErrorHandler errorHandler =
-      (ErrorHandler)errorHandlerStubFactory.getStub();
-
-    m_consoleCommunication.setErrorHandler(errorHandler);
 
     final ServerSocket freeServerSocket = new ServerSocket(0);
     freeServerSocket.close();
@@ -538,11 +523,11 @@ public class TestConsoleCommunicationImplementation
     socket.getOutputStream().close();
 
     // Will be called via the Acceptor problem listener.
-    errorHandlerStubFactory.waitUntilCalled(1000);
+    m_errorHandlerStubFactory.waitUntilCalled(1000);
 
-    errorHandlerStubFactory.assertSuccess("handleException",
+    m_errorHandlerStubFactory.assertSuccess("handleException",
                                           CommunicationException.class);
-    errorHandlerStubFactory.assertNoMoreCalls();
+    m_errorHandlerStubFactory.assertNoMoreCalls();
 
     final Socket socket2 =
       new StubConnector(InetAddress.getByName(null).getHostName(),
@@ -552,14 +537,14 @@ public class TestConsoleCommunicationImplementation
 
     socket2.getOutputStream().write(new byte[100]);
 
-    errorHandlerStubFactory.waitUntilCalled(1000);
+    m_errorHandlerStubFactory.waitUntilCalled(1000);
 
-    errorHandlerStubFactory.assertSuccess("handleException",
+    m_errorHandlerStubFactory.assertSuccess("handleException",
                                           CommunicationException.class);
     socket.close();
     socket2.close();
 
-    errorHandlerStubFactory.assertNoMoreCalls();
+    m_errorHandlerStubFactory.assertNoMoreCalls();
   }
 
   private static final class MyMessage implements Message, Serializable {

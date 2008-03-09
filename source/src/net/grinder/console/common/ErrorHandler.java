@@ -35,6 +35,8 @@ public interface ErrorHandler {
    * Method that handles error messages.
    *
    * @param errorMessage The error message.
+   * @see #handleErrorMessage(String, String)
+   * @see #handleInformationMessage(String)
    */
   void handleErrorMessage(String errorMessage);
 
@@ -43,6 +45,7 @@ public interface ErrorHandler {
    *
    * @param errorMessage The error message.
    * @param title A title to use.
+   * @see #handleErrorMessage(String)
    */
   void handleErrorMessage(String errorMessage, String title);
 
@@ -60,4 +63,16 @@ public interface ErrorHandler {
    * @param title A title to use.
    */
   void handleException(Throwable throwable, String title);
+
+  /**
+   * Method that handles information messages. Information messages are lower
+   * priority than error messages. In general, error messages should interrupt
+   * the user (e.g. use a modal dialog), but information messages should just be
+   * logged.
+   *
+   * @param informationMessage
+   *            The information message.
+   * @see #handleErrorMessage(String)
+   */
+  void handleInformationMessage(String informationMessage);
 }

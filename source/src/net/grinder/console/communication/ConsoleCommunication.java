@@ -23,7 +23,6 @@ package net.grinder.console.communication;
 
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
-import net.grinder.console.common.ErrorHandler;
 import net.grinder.messages.console.AgentIdentity;
 
 
@@ -61,9 +60,6 @@ public interface ConsoleCommunication {
    * Send the given message to the agent processes (which may pass it on to
    * their workers).
    *
-   * <p>Any errors that occur will be handled with the error handler, see
-   * {@link #setErrorHandler(ErrorHandler)}.</p>
-   *
    * @param message The message to send.
    */
   void sendToAgents(Message message);
@@ -72,26 +68,12 @@ public interface ConsoleCommunication {
    * Send the given message to the given agent processes (which may pass it on
    * to its workers).
    *
-   * <p>
-   * Any errors that occur will be handled with the error handler, see
-   * {@link #setErrorHandler(ErrorHandler)}.
-   * </p>
-   *
    * @param agent
    *            The agent to which the message should be sent.
    * @param message
    *            The message to send.
    */
   void sendToAgent(AgentIdentity agent, Message message);
-
-  /**
-   * Set the error handler. Any errors the
-   * <code>ConsoleCommunication</code> has queued up will be reported
-   * immediately.
-   *
-   * @param errorHandler Where to report errors.
-   */
-  void setErrorHandler(ErrorHandler errorHandler);
 
   /**
    * How many connections have been accepted? Used by the unit tests.

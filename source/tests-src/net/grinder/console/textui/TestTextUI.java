@@ -113,6 +113,10 @@ public class TestTextUI extends TestCase {
     m_loggerStubFactory.assertSuccess("getErrorLogWriter");
     m_loggerStubFactory.assertNoMoreCalls();
 
+    errorHandler.handleInformationMessage("austin maxi");
+    m_loggerStubFactory.assertOutputMessageContains("austin maxi");
+    m_loggerStubFactory.assertNoMoreCalls();
+
     Runtime.getRuntime().removeShutdownHook(textUI.getShutdownHook());
     m_loggerStubFactory.assertNoMoreCalls();
 

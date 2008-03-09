@@ -34,6 +34,7 @@ import java.util.TreeSet;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
+import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpression;
@@ -63,11 +64,13 @@ public final class SampleModelImplementation implements SampleModel {
   private final ConsoleProperties m_properties;
   private final StatisticsServices m_statisticsServices;
   private final Timer m_timer;
+  private final ErrorHandler m_errorHandler;
 
   private final String m_stateIgnoringString;
   private final String m_stateWaitingString;
   private final String m_stateStoppedString;
   private final String m_stateCapturingString;
+  private final String m_unknownTestString;
 
   /**
    * The current test set. A TreeSet is used to maintain the test
@@ -98,23 +101,27 @@ public final class SampleModelImplementation implements SampleModel {
    * @param statisticsServices Statistics services.
    * @param timer A timer.
    * @param resources Console resources.
+   * @param errorHandler Error handler
    *
    * @exception GrinderException if an error occurs
    */
   public SampleModelImplementation(ConsoleProperties properties,
                                    StatisticsServices statisticsServices,
                                    Timer timer,
-                                   Resources resources)
+                                   Resources resources,
+                                   ErrorHandler errorHandler)
     throws GrinderException {
 
     m_properties = properties;
     m_statisticsServices = statisticsServices;
     m_timer = timer;
+    m_errorHandler = errorHandler;
 
     m_stateIgnoringString = resources.getString("state.ignoring.label") + ' ';
     m_stateWaitingString = resources.getString("state.waiting.label");
     m_stateStoppedString = resources.getString("state.stopped.label");
     m_stateCapturingString = resources.getString("state.capturing.label") + ' ';
+    m_unknownTestString = resources.getString("ignoringUnknownTest.text");
 
     final StatisticsIndexMap indexMap =
       statisticsServices.getStatisticsIndexMap();
@@ -432,7 +439,8 @@ public final class SampleModelImplementation implements SampleModel {
             (SampleAccumulator)m_accumulators.get(test);
 
           if (sampleAccumulator == null) {
-            System.err.println("Ignoring unknown test: " + test);
+            m_errorHandler.handleInformationMessage(
+              m_unknownTestString + " " + test);
           }
           else {
             sampleAccumulator.addIntervalStatistics(statistics);

@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
+import net.grinder.common.Logger;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -59,15 +60,17 @@ final class ErrorDialogHandler implements ErrorHandler {
   private final Object[] m_detailsOptions;
 
   private Throwable m_throwable;
+  private final Logger m_logger;
 
   /**
    * Constructor.
    *
    * @param frame Parent frame.
    * @param resources Resources object to use for strings and things.
+   * @param logger Logger to use for information messages.
    */
-  public ErrorDialogHandler(JFrame frame, Resources resources) {
-    this(resources);
+  public ErrorDialogHandler(JFrame frame, Resources resources, Logger logger) {
+    this(resources, logger);
 
     m_dialog = new JOptionPaneDialog(frame, null, true, m_optionPane) {
         protected boolean shouldClose() {
@@ -81,9 +84,12 @@ final class ErrorDialogHandler implements ErrorHandler {
    *
    * @param dialog Parent frame.
    * @param resources Resources object to use for strings and things.
+   * @param logger Logger to use for information messages.XS
    */
-  public ErrorDialogHandler(JDialog dialog, Resources resources) {
-    this(resources);
+  public ErrorDialogHandler(JDialog dialog,
+                            Resources resources,
+                            Logger logger) {
+    this(resources, logger);
 
     m_dialog = new JOptionPaneDialog(dialog, null, true, m_optionPane) {
         protected boolean shouldClose() {
@@ -96,7 +102,9 @@ final class ErrorDialogHandler implements ErrorHandler {
     lookAndFeel.addListener(new LookAndFeel.ComponentListener(m_dialog));
   }
 
-  private ErrorDialogHandler(Resources resources) {
+  private ErrorDialogHandler(Resources resources, Logger logger) {
+    m_logger = logger;
+
     m_errorTitle = resources.getString("error.title");
     m_unexpectedErrorTitle = resources.getString("unexpectedError.title");
     m_errorDetailsTitle = resources.getString("errorDetails.title");
@@ -254,6 +262,15 @@ final class ErrorDialogHandler implements ErrorHandler {
     m_optionPane.setOptions(m_okDetailsOptions);
 
     showDialog(title);
+  }
+
+  /**
+   * Method that handles information messages.
+   *
+   * @param informationMessage The information message.
+   */
+  public void handleInformationMessage(String informationMessage) {
+    m_logger.output(informationMessage);
   }
 
   private void showDialog(String title) {
