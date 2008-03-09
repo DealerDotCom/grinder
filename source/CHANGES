@@ -45,6 +45,11 @@ The Grinder 3.0.2 (not yet released).
   machine clocks are synchronised. Thanks to Olivier Merlin for requesting
   this feature.
 
+  Fix bug 1549708 - HTTPRequest.setDataFromFile() is not thread safe. The
+  HTTPRequest methods that set defaults are now thread safe, and the Javadoc
+  has been updated to warn that the default setters are not intended to be
+  used by multiple worker threads. Thanks to Huifeng Shen for the report.
+
 
 The Grinder 3.0.1
 -----------------

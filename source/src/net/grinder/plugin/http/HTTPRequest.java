@@ -65,6 +65,12 @@ import HTTPClient.URI;
  * method (GET, POST, ...) that allow specific values to override the
  * defaults.</p>
  *
+ * <p><strong>WARNING:</strong> The default values set with the various
+ * <code>set</code> methods, and apply to all users of the
+ * <code>HTTPRequest</code>. If a worker thread needs to set a thread specific
+ * value, it should either use its own <code>HTTPRequest</code>, or not use the
+ * defaults and pass the value as an argument to the HTTP method.</p>
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -81,10 +87,10 @@ public class HTTPRequest {
   private static final Pattern s_absoluteURIPattern =
     Pattern.compile("^[^:/?#]*:.*");
 
-  private URI m_defaultURL;
-  private NVPair[] m_defaultHeaders = new NVPair[0];
-  private byte[] m_defaultData;
-  private NVPair[] m_defaultFormData;
+  private volatile URI m_defaultURL;
+  private volatile NVPair[] m_defaultHeaders = new NVPair[0];
+  private volatile byte[] m_defaultData;
+  private volatile NVPair[] m_defaultFormData;
 
   /**
    * Creates a new <code>HTTPRequest</code> instance.
@@ -99,12 +105,18 @@ public class HTTPRequest {
    * <code>null</code> if the default URL has not been set.
    */
   public final String getUrl() {
-    return m_defaultURL != null ? m_defaultURL.toString() : null;
+    final URI url = m_defaultURL;
+    return url != null ? url.toString() : null;
   }
 
   /**
    * Sets the default URL. The value given must be an absolute URL,
    * including protocol and the server information.
+   *
+   * <p>See the {@link HTTPRequest warning above} regarding thread safety.
+   * Multiple worker threads that need to set a specific URL should either not
+   * share the same <code>HTTPRequest</code>, or pass the URL as an argument
+   * to the call to the HTTP method.</p>
    *
    * @param url The URL to be used for this request.
    * @throws ParseException If the URL cannot be parsed.
@@ -173,6 +185,11 @@ public class HTTPRequest {
   /**
    * Sets the default headers.
    *
+   * <p>See the {@link HTTPRequest warning above} regarding thread safety.
+   * Multiple worker threads that need to set specific headers should either not
+   * share the same <code>HTTPRequest</code>, or pass the headers as an argument
+   * to the call to the HTTP method.</p>
+   *
    * @param headers The default headers to be used for this request.
    */
   public final void setHeaders(NVPair[] headers) {
@@ -187,18 +204,22 @@ public class HTTPRequest {
   public String toString() {
     final StringBuffer result = new StringBuffer("");
 
-    if (m_defaultURL == null) {
+    final URI url = m_defaultURL;
+
+    if (url == null) {
       result.append("<Undefined URL>\n");
     }
     else {
-      result.append(m_defaultURL.toString());
+      result.append(url.toString());
       result.append("\n");
     }
 
-    for (int i = 0; i < m_defaultHeaders.length; i++) {
-      result.append(m_defaultHeaders[i].getName());
+    final NVPair[] defaultHeaders = m_defaultHeaders;
+
+    for (int i = 0; i < defaultHeaders.length; i++) {
+      result.append(defaultHeaders[i].getName());
       result.append(": ");
-      result.append(m_defaultHeaders[i].getValue());
+      result.append(defaultHeaders[i].getValue());
       result.append("\n");
     }
 
@@ -217,6 +238,11 @@ public class HTTPRequest {
   /**
    * Sets the default data.
    *
+   * <p>See the {@link HTTPRequest warning above} regarding thread safety.
+   * Multiple worker threads that need to set specific data should either not
+   * share the same <code>HTTPRequest</code>, or pass the data as an argument
+   * to the call to <code>POST</code>, or <code>PUT</code>.</p>
+   *
    * @param data The default data to be used for this request.
    */
   public final void setData(byte[] data) {
@@ -225,6 +251,12 @@ public class HTTPRequest {
 
   /**
    * Sets the default data from a file.
+   *
+   * <p>See the {@link HTTPRequest warning above} regarding thread safety.
+   * Multiple worker threads that need to set specific data should either not
+   * share the same <code>HTTPRequest</code>, or pass the data as an argument
+   * to the call to <code>POST</code>, or <code>PUT</code>. If the later is
+   * done, this method can still be used to read data from a file.</p>
    *
    * @param filename Path name of data file.
    * @return The data read from the file.
@@ -240,9 +272,11 @@ public class HTTPRequest {
     new StreamCopier(4096, true).copy(
       new FileInputStream(file), byteArrayStream);
 
-    m_defaultData = byteArrayStream.toByteArray();
+    final byte[] defaultData = byteArrayStream.toByteArray();
 
-    return m_defaultData;
+    m_defaultData = defaultData;
+
+    return defaultData;
   }
 
   /**
@@ -826,19 +860,20 @@ public class HTTPRequest {
     private final URI m_url;
 
     public AbstractRequest(String uri) throws ParseException, URLException {
+      final URI defaultURL = m_defaultURL;
 
       if (uri == null) {
-        if (m_defaultURL == null) {
+        if (defaultURL == null) {
           throw new URLException("URL not specified");
         }
 
-        m_url = m_defaultURL;
+        m_url = defaultURL;
       }
       else if (isAbsolute(uri)) {
         m_url = new URI(uri);
       }
       else {
-        if (m_defaultURL == null) {
+        if (defaultURL == null) {
           throw new URLException("URL must be absolute");
         }
 
@@ -852,14 +887,14 @@ public class HTTPRequest {
           final String query = matcher.group(2);
           final String fragment = matcher.group(3);
 
-          m_url = new URI(m_defaultURL.getScheme(),
-                          m_defaultURL.getUserinfo(),
-                          m_defaultURL.getHost(),
-                          m_defaultURL.getPort(),
+          m_url = new URI(defaultURL.getScheme(),
+                          defaultURL.getUserinfo(),
+                          defaultURL.getHost(),
+                          defaultURL.getPort(),
                           path, query, fragment);
         }
         else {
-          m_url = new URI(m_defaultURL, uri);
+          m_url = new URI(defaultURL, uri);
         }
       }
     }
