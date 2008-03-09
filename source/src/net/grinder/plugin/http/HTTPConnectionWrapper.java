@@ -180,9 +180,11 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     }
     else {
       m_httpConnection.setBufferGrowthStrategyFactory(
-        new SlowClientBandwidthLimiterFactory(m_slowClientSleeper,
-                                                  targetBPS));
+        new SlowClientBandwidthLimiterFactory(m_slowClientSleeper, targetBPS));
     }
   }
-}
 
+  public void close() {
+    m_httpConnection.stop();
+  }
+}

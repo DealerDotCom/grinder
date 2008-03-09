@@ -923,6 +923,21 @@ public class TestHTTPRequest extends TestCase {
     }
   }
 
+  public void testConnectionClose() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPResponse response = request.GET(m_handler.getURL());
+    assertEquals(200, response.getStatusCode());
+    assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
+
+    HTTPPluginControl.getThreadConnection(m_handler.getURL()).close();
+
+    final HTTPResponse response2 = request.GET(m_handler.getURL());
+    assertEquals(200, response2.getStatusCode());
+    assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
+
+  }
+
   private static class ListTimeAuthority implements TimeAuthority {
 
     private long[] m_times;

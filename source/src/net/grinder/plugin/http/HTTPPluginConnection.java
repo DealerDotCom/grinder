@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
@@ -230,4 +230,11 @@ public interface HTTPPluginConnection {
    *          disable bandwidth limiting.
    */
   void setBandwidthLimit(int targetBPS);
+
+  /**
+   * Explicitly closes physical connection to the server. A new connection will
+   * be created if this {@link HTTPPluginConnection} is used again. You
+   * shouldn't normally need to call this.
+   */
+  void close();
 }

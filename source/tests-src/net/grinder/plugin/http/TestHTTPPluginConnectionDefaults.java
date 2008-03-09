@@ -94,6 +94,9 @@ public class TestHTTPPluginConnectionDefaults extends TestCase {
     assertEquals(0, defaults.getBandwidthLimit());
     defaults.setBandwidthLimit(99);
     assertEquals(99, defaults.getBandwidthLimit());
+
+    // Cover no-op.
+    defaults.close();
   }
 
   public void testSingleton() {

@@ -26,7 +26,7 @@ The Grinder 3.0.2 (not yet released).
 
   Italian console translation updates from Meo Bogliolo.
 
-  Fulfil Feature Request 1891023 - Worker and Agent id's. The script context
+  Fulfil feature request 1891023 - Worker and Agent id's. The script context
   has new getAgentNumber() and getProcessNumber() methods. getThreadID() has
   been renamed to getThreadNumber() for consistency. Thanks to Ross Nicholson
   for requesting this feature.
@@ -40,7 +40,7 @@ The Grinder 3.0.2 (not yet released).
   Fix bug 1709285 - HTTP plug-in records wrong times with
   grinder.useNanoTime=true. Thanks to liaoya for the report.
 
-  Fulfil Feature Request 1902280 - Use absolute start times in the data log.
+  Fulfil feature request 1902280 - Use absolute start times in the data log.
   This allows the logs from different workers to be merged, so long as their
   machine clocks are synchronised. Thanks to Olivier Merlin for requesting
   this feature.
@@ -49,6 +49,9 @@ The Grinder 3.0.2 (not yet released).
   HTTPRequest methods that set defaults are now thread safe, and the Javadoc
   has been updated to warn that the default setters are not intended to be
   used by multiple worker threads. Thanks to Huifeng Shen for the report.
+
+  Fulfill feature request 1731843 - Ability to close explicitly the
+  HTTPconnection. Thanks to whoever requested this feature.
 
 
 The Grinder 3.0.1

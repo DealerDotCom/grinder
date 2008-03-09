@@ -120,7 +120,7 @@ class HTTPPluginThreadState implements PluginThreadListener {
     final Iterator i = m_httpConnectionWrappers.values().iterator();
 
     while (i.hasNext()) {
-      ((HTTPConnectionWrapper)i.next()).getConnection().stop();
+      ((HTTPConnectionWrapper)i.next()).close();
     }
 
     m_httpConnectionWrappers.clear();

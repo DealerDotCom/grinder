@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
@@ -158,5 +158,9 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 
   public static HTTPPluginConnectionDefaults getConnectionDefaults() {
     return s_defaultConnectionDefaults;
+  }
+
+  public void close() {
+    // A no-op.
   }
 }
