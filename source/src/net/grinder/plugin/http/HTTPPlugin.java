@@ -67,7 +67,7 @@ public class HTTPPlugin implements GrinderPlugin {
 
   /**
    * Static package scope accessor for the initialised instance of the
-   * plug0in.
+   * plug-in.
    *
    * @return The plug-in instance.
    */
