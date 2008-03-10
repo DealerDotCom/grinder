@@ -27,14 +27,14 @@ import javax.swing.ImageIcon;
 
 
 public class StubResources implements Resources {
-  private final Map m_strings;
+  private final Map m_results;
 
-  public StubResources(Map strings) {
-    m_strings = strings;
+  public StubResources(Map results) {
+    m_results = results;
   }
 
   public ImageIcon getImageIcon(String key) {
-    throw new AssertionError("not implemented");
+    return (ImageIcon) m_results.get(key);
   }
 
   public ImageIcon getImageIcon(String key, boolean warnIfMissing) {
@@ -42,11 +42,11 @@ public class StubResources implements Resources {
   }
 
   public String getString(String key) {
-    return (String) m_strings.get(key);
+    return (String) m_results.get(key);
   }
 
   public String getString(String key, boolean warnIfMissing) {
-    return (String) m_strings.get(key);
+    return (String) m_results.get(key);
   }
 
   public String getStringFromFile(String key, boolean warnIfMissing) {
