@@ -373,7 +373,7 @@ void doit() { Thread.sleep(10000); // 10 seconds }
         MS Internet Explorer typically uses 3. Therefore the browser should complete requesting
         the complete list of elements from a web page before the Grinder.</p>
         <p>If you are concerned over page download times rather than application behaviour under
-        load then <a href="mailto:pbooth@marketaxess.com">Peter Booth</a> writes:</p>
+        load then <a href="mailto:pbooth at marketaxess.com">Peter Booth</a> writes:</p>
   <dl>
           <dt/>
     <dd class="quote">
@@ -1079,6 +1079,170 @@ grinder.jvm.arguments: -Dpython.cachedir=/tmp
       </answer>
     </faq>
 
+    <faq id="distribution-directory">
+      <question>When using the script distribution feature, how can my scripts refer to other distributed files?</question>
+
+      <answer>
+  <p>The directory of the distributed script is prepended to the
+  Jython system path. You can do something like:</p>
+<source>
+  import sys
+  f = open("%s/myresources.properties" % sys.path[0])
+  # ...
+</source>
+      </answer>
+    </faq>
+
+    <faq id="re-problems">
+      <question>Why does the Jython <code>re</code> module raise a
+      <code>ValueError</code> when I compile a regular expression?
+      </question>
+
+      <answer>
+      <p>
+      Each thread that you use to compile regular expressions must import the
+      <code>re</code> module. If you fail to do this you'll get a
+      <code>ValueError</code> like:</p>
+
+      <source>
+ValueError: ('unsupported operand type', 'in')
+  File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 141, in _compile
+  File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 61, in _compile
+  File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 352, in _code
+  File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 368, in compile
+  File "D:\opt\jython\jython-2.1\Lib\sre.py", line 134, in _compile
+  File "D:\opt\jython\jython-2.1\Lib\sre.py", line 90, in compile
+  File "helloworld.py", line 24, in matchAll
+  File "helloworld.py", line 39, in __call__
+      </source>
+
+      <p>The best (most efficient) way to use regular
+      expressions is to compile them in the main part of your script. For
+      example:
+      </p>
+
+      <source>
+import re
+
+# Compile once in initialisation thread
+p = re.compile('a.b', re.IGNORECASE)
+
+class TestRunner:
+  def __call__(self):
+    # use p
+      </source>
+
+      <p>Occasionally, the regular expression must be dynamically generated
+      by a worker thread, so this technique doesn't work. In this case, you can
+      import <code>re</code> in every worker thread:</p>
+
+      <source>
+class TestRunner:
+  def __init__(self):
+    import re
+
+  def __call__(self):
+    # __call__ is executed by worker threads
+    p = re.compile('a.b', re.IGNORECASE)
+    # use p
+      </source>
+
+      <p>Or equivalently:</p>
+      <source>
+from net.grinder.script.Grinder import grinder
+
+def getRE()
+  import re
+  return re.compile('a.b', re.IGNORECASE)
+
+class TestRunner:
+  def __call__(self):
+    # __call__ is executed by worker threads
+    p = getRE()
+    # use p
+      </source>
+      </answer>
+    </faq>
+    <faq id="jython-indentation">
+      <question>
+      Why do I get syntax errors when editing my Jython scripts, even when the code looks correct?
+      </question>
+      <answer>
+      <p>Python and Jython use indentation to delimit blocks. You need to indent your script consistently.</p>
+      <p>Check out these links for more information:</p>
+      <p><a href="http://diveintopython.org/getting_to_know_python/indenting_code.html">http://diveintopython.org/getting_to_know_python/indenting_code.html</a><br></br>
+       <a href="http://www.python.org/doc/current/ref/indentation.html">http://www.python.org/doc/current/ref/indentation.html</a></p>
+      </answer>
+    </faq>
+    <faq id="set-script">
+      <question>
+      Whenever I try to run scripts I get "the script file 'grinder.py' does not exist or is not readable"?
+      </question>
+      <answer>
+      <p>You need to define which script should be used. If you do not define it the default script name is "grinder.py".</p>
+      <p>If your script is not called "grinder.py", either add a line to grinder.properties that specifies its name, e.g.:</p>
+
+<source>
+  grinder.script: http.py
+</source>
+
+      <p>or specify it on the command line, e.g.:</p>
+
+<source>
+  java -Dgrinder.script=http.py net.grinder.Grinder
+</source>
+
+      <p>or set it in the console. Go to the script tab, navigate to the location of your script. Select it and then click
+      on the "Set script to run" button.</p>
+      <p>Finally, it could simply be that the script file is unreadable. Check the file permissions of the script and/or
+      attempt to open it in an editor to check if its readable.</p>
+
+      </answer>
+    </faq>
+
+    <faq>
+    <question>
+    What does "java.lang.ClassFormatError: Invalid method Code length" mean?
+    </question>
+    <answer>
+	<p>The short answer is that a function in your script is too long and is
+tripping over a Java limitation on the length of a method inherited by
+Jython. Java methods are limited to 65535 characters or less.</p>
+
+	<p>You'll need to break the script up into smaller pieces. E.g. if you
+	have a script that looks like</p>
+	<source>
+#...
+class TestRunner:
+  def __call__(self):
+  	# Lots of code - more than 65535 characters
+</source>
+	<p>you might break it up into smaller methods (functions belonging to
+	<code>TestRunner</code>) as follows:</p>
+	<source>
+#...
+class TestRunner:
+  def part1(self):
+  	# some of the code - less than 65535 characters
+
+  def part2(self):
+  	# more of the code
+
+  def part3(self):
+  	# the rest of the code
+
+  def __call__(self):
+  	self.part1()
+  	self.part2()
+  	self.part3()
+</source>
+    </answer>
+    </faq>
+  </faqsection>
+
+  <faqsection id="g3-http">
+    <title>HTTP</title>
+
     <faq id="simulating-users">
       <question>
   How do I simulate different users with The Grinder 3?
@@ -1261,166 +1425,32 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
       </answer>
     </faq>
 
-    <faq id="distribution-directory">
-      <question>When using the script distribution feature, how can my scripts refer to other distributed files?</question>
-
+    <faq id="spnego">
+      <question>How do I use NTLM?</question>
       <answer>
-  <p>The directory of the distributed script is prepended to the
-  Jython system path. You can do something like:</p>
-<source>
-  import sys
-  f = open("%s/myresources.properties" % sys.path[0])
-  # ...
-</source>
+      <p>Huifeng Shen writes:</p>p>
+
+  <dl>
+    <dt/>
+    <dd class="quote">
+	<p>The HTTPClient library does not support NTLM authentication. I have written
+a simple sample to demonstrate how to check the HTTP response and send
+the NTLM authentication request in my
+<a href="http://yaekees.spaces.live.com/blog/cns!1955EE8C6707277A!247.entry">blog</a>.</p>
+
+<p>But you have to use Firefox as the browser to record the script. The first
+time do not use the TCPProxy and use Firefox to visit the web site.
+Firefox will remember your user name and password. Then use the TCPProxy,
+Firefox will send the NTLM authentication now. But please
+modify your script to remove duplicate requests.</p>
+
+<p>One word, making The Grinder support NTLM is not easy, but it can.</p>
+    </dd>
+  </dl>
       </answer>
-    </faq>
-
-    <faq id="re-problems">
-      <question>Why does the Jython <code>re</code> module raise a
-      <code>ValueError</code> when I compile a regular expression?
-      </question>
-
-      <answer>
-      <p>
-      Each thread that you use to compile regular expressions must import the
-      <code>re</code> module. If you fail to do this you'll get a
-      <code>ValueError</code> like:</p>
-
-      <source>
-ValueError: ('unsupported operand type', 'in')
-  File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 141, in _compile
-  File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 61, in _compile
-  File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 352, in _code
-  File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 368, in compile
-  File "D:\opt\jython\jython-2.1\Lib\sre.py", line 134, in _compile
-  File "D:\opt\jython\jython-2.1\Lib\sre.py", line 90, in compile
-  File "helloworld.py", line 24, in matchAll
-  File "helloworld.py", line 39, in __call__
-      </source>
-
-      <p>The best (most efficient) way to use regular
-      expressions is to compile them in the main part of your script. For
-      example:
-      </p>
-
-      <source>
-import re
-
-# Compile once in initialisation thread
-p = re.compile('a.b', re.IGNORECASE)
-
-class TestRunner:
-  def __call__(self):
-    # use p
-      </source>
-
-      <p>Occasionally, the regular expression must be dynamically generated
-      by a worker thread, so this technique doesn't work. In this case, you can
-      import <code>re</code> in every worker thread:</p>
-
-      <source>
-class TestRunner:
-  def __init__(self):
-    import re
-
-  def __call__(self):
-    # __call__ is executed by worker threads
-    p = re.compile('a.b', re.IGNORECASE)
-    # use p
-      </source>
-
-      <p>Or equivalently:</p>
-      <source>
-from net.grinder.script.Grinder import grinder
-
-def getRE()
-  import re
-  return re.compile('a.b', re.IGNORECASE)
-
-class TestRunner:
-  def __call__(self):
-    # __call__ is executed by worker threads
-    p = getRE()
-    # use p
-      </source>
-      </answer>
-    </faq>
-    <faq id="jython-indentation">
-      <question>
-      Why do I get syntax errors when editing my Jython scripts, even when the code looks correct?
-      </question>
-      <answer>
-      <p>Python and Jython use indentation to delimit blocks. You need to indent your script consistently.</p>
-      <p>Check out these links for more information:</p>
-      <p><a href="http://diveintopython.org/getting_to_know_python/indenting_code.html">http://diveintopython.org/getting_to_know_python/indenting_code.html</a><br></br>
-       <a href="http://www.python.org/doc/current/ref/indentation.html">http://www.python.org/doc/current/ref/indentation.html</a></p>
-      </answer>
-    </faq>
-    <faq id="set-script">
-      <question>
-      Whenever I try to run scripts I get "the script file 'grinder.py' does not exist or is not readable"?
-      </question>
-      <answer>
-      <p>You need to define which script should be used. If you do not define it the default script name is "grinder.py".</p>
-      <p>If your script is not called "grinder.py", either add a line to grinder.properties that specifies its name, e.g.:</p>
-
-<source>
-  grinder.script: http.py
-</source>
-
-      <p>or specify it on the command line, e.g.:</p>
-
-<source>
-  java -Dgrinder.script=http.py net.grinder.Grinder
-</source>
-
-      <p>or set it in the console. Go to the script tab, navigate to the location of your script. Select it and then click
-      on the "Set script to run" button.</p>
-      <p>Finally, it could simply be that the script file is unreadable. Check the file permissions of the script and/or
-      attempt to open it in an editor to check if its readable.</p>
-
-      </answer>
-    </faq>
-
-    <faq>
-    <question>
-    What does "java.lang.ClassFormatError: Invalid method Code length" mean?
-    </question>
-    <answer>
-	<p>The short answer is that a function in your script is too long and is
-tripping over a Java limitation on the length of a method inherited by
-Jython. Java methods are limited to 65535 characters or less.</p>
-
-	<p>You'll need to break the script up into smaller pieces. E.g. if you
-	have a script that looks like</p>
-	<source>
-#...
-class TestRunner:
-  def __call__(self):
-  	# Lots of code - more than 65535 characters
-</source>
-	<p>you might break it up into smaller methods (functions belonging to
-	<code>TestRunner</code>) as follows:</p>
-	<source>
-#...
-class TestRunner:
-  def part1(self):
-  	# some of the code - less than 65535 characters
-
-  def part2(self):
-  	# more of the code
-
-  def part3(self):
-  	# the rest of the code
-
-  def __call__(self):
-  	self.part1()
-  	self.part2()
-  	self.part3()
-</source>
-    </answer>
-    </faq>
+	</faq>
   </faqsection>
+
   <faqsection id="g3-ssl">
     <title>SSL</title>
     <faq id="ssl-certificate-choice">
