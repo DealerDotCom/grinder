@@ -25,8 +25,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import com.bea.jvm.ThreadSnapshot.Monitor;
-
 import junit.framework.TestCase;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
