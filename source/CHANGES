@@ -53,6 +53,9 @@ The Grinder 3.0.2 (not yet released).
   Fulfill feature request 1731843 - Ability to close explicitly the
   HTTPconnection. Thanks to whoever requested this feature.
 
+  Fix bug 1913049 - dist build target fails due to syntax issues. Thanks to
+  Travis Swicegood for the report.
+
 
 The Grinder 3.0.1
 -----------------
