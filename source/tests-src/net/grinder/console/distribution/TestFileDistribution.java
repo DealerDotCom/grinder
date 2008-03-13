@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -332,9 +332,12 @@ public class TestFileDistribution extends AbstractFileTestCase {
   public void testFilter() throws Exception {
     final Pattern pattern = Pattern.compile("^a.*[^/]$|.*exclude.*|.*b/$");
 
-    final FileDistributionImplementation.DistributionFileFilter filter =
-      new FileDistributionImplementation.DistributionFileFilter(pattern);
-    filter.setEarliestTime(100000L);
+    final FileDistributionImplementation fileDistribution =
+      new FileDistributionImplementation(null,
+                                         null,
+                                         pattern);
+
+    final FileFilter filter = fileDistribution.createFileFilter(100000L);
 
     final String[] acceptableFilenames = new String[] {
       "DoesntStartWithA.acceptable",

@@ -57,8 +57,7 @@ public final class FileDistributionImplementation implements FileDistribution {
   // Guarded by this.
   private Directory m_directory;
 
-  // Guarded by this.
-  private DistributionFileFilter m_distributionFilter;
+  private volatile Pattern m_distributionFileFilterPattern;
 
   /**
    * Constructor.
@@ -124,10 +123,7 @@ public final class FileDistributionImplementation implements FileDistribution {
    *            filtered out.
    */
   public void setFileFilterPattern(Pattern distributionFileFilterPattern) {
-    synchronized (this) {
-      m_distributionFilter =
-        new DistributionFileFilter(distributionFileFilterPattern);
-    }
+    m_distributionFileFilterPattern = distributionFileFilterPattern;
 
     m_cacheState.setOutOfDate();
   }
@@ -170,15 +166,11 @@ public final class FileDistributionImplementation implements FileDistribution {
     // directory contains no files.
     m_cacheState.updateStarted(earliestFileTime);
 
-    synchronized (this) {
-      m_distributionFilter.setEarliestTime(earliestFileTime);
-
-      return new FileDistributionHandlerImplementation(
-        m_directory.getFile(),
-        m_directory.listContents(m_distributionFilter),
-        m_distributionControl,
-        m_cacheState);
-    }
+    return new FileDistributionHandlerImplementation(
+      m_directory.getFile(),
+      m_directory.listContents(createFileFilter(earliestFileTime)),
+      m_distributionControl,
+      m_cacheState);
   }
 
   /**
@@ -200,12 +192,10 @@ public final class FileDistributionImplementation implements FileDistribution {
 
     final long scanTime;
     final Directory directory;
-    final DistributionFileFilter filter;
 
     synchronized (this) {
       scanTime = m_lastScanTime;
       directory = m_directory;
-      filter = m_distributionFilter;
     }
 
     // We only work with times obtained from the file system. This avoids
@@ -236,11 +226,10 @@ public final class FileDistributionImplementation implements FileDistribution {
       }
     }
 
-    filter.setEarliestTime(scanTime);
-
     // Include directories because our listeners want to know about changes
     // to them too.
-    final File[] laterFiles = directory.listContents(filter, true, true);
+    final File[] laterFiles =
+      directory.listContents(createFileFilter(scanTime), true, true);
 
     if (laterFiles.length > 0) {
       final Set changedFiles = new HashSet(laterFiles.length / 2);
@@ -287,23 +276,17 @@ public final class FileDistributionImplementation implements FileDistribution {
     m_filesChangedListeners.add(listener);
   }
 
-  /**
-   * Package scope for unit tests.
-   */
-  static final class DistributionFileFilter implements FileFilter {
-    private final Pattern m_distributionFileFilterPattern;
-    private long m_earliestTime = -1;
+  private abstract static class AbstractFileFilter implements FileFilter {
 
-    public DistributionFileFilter(Pattern distributionFileFilterPattern) {
-      m_distributionFileFilterPattern = distributionFileFilterPattern;
-    }
+    private final long m_earliestTime;
 
-    public void setEarliestTime(long earliestTime) {
+    protected AbstractFileFilter(long earliestTime) {
       m_earliestTime = earliestTime;
     }
 
-    public boolean accept(File file) {
+    public final boolean accept(File file) {
       final String name = file.getName();
+      final Pattern pattern = getFileFilterPattern();
 
       if (file.isDirectory()) {
         if (name.equals(PRIVATE_DIRECTORY_NAME)) {
@@ -318,34 +301,57 @@ public final class FileDistributionImplementation implements FileDistribution {
           }
         }
 
-        return !m_distributionFileFilterPattern.matcher(name + "/").matches();
+        return !pattern.matcher(name + "/").matches();
       }
       else {
-        if (m_distributionFileFilterPattern.matcher(name).matches()) {
+        if (pattern.matcher(name).matches()) {
           return false;
         }
 
         return file.lastModified() >= m_earliestTime;
       }
     }
+
+    protected abstract Pattern getFileFilterPattern();
   }
 
+  private static final class FixedPatternFileFilter extends AbstractFileFilter {
+    private final Pattern m_distributionFileFilterPattern;
+
+    private FixedPatternFileFilter(long earliestTime,
+      Pattern distributionFileFilterPattern) {
+      super(earliestTime);
+      m_distributionFileFilterPattern = distributionFileFilterPattern;
+    }
+
+    protected Pattern getFileFilterPattern() {
+      return m_distributionFileFilterPattern;
+    }
+  }
 
   /**
-   * Return a FileFilter that can be used to test  whether the given file is
+   * Package scope for unit tests.
+   */
+  FileFilter createFileFilter(long earliestFileTime) {
+    final Pattern distributionFileFilterPattern =
+      m_distributionFileFilterPattern;
+
+    return new FixedPatternFileFilter(earliestFileTime,
+                                      distributionFileFilterPattern);
+  }
+
+  /**
+   * Return a FileFilter that can be used to test whether the given file is
    * one that will be distributed.
    *
-   * @return The filter.
+   * @return The filter. Its behaviour will change according to the current
+   * filter pattern.
+   * @see #setFileFilterPattern(Pattern)
    */
   public FileFilter getDistributionFileFilter() {
-    // We don't simple return m_distributionFilter, since it can change.
-
-    return new FileFilter() {
-      public boolean accept(File file) {
-        synchronized (FileDistributionImplementation.this) {
-          m_distributionFilter.setEarliestTime(-1);
-          return m_distributionFilter.accept(file);
-        }
+    return new AbstractFileFilter(-1) {
+      protected Pattern getFileFilterPattern() {
+        return m_distributionFileFilterPattern;
       }
     };
   }
