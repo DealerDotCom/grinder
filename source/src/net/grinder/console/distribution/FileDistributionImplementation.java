@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
+import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
 import net.grinder.util.Directory;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.ListenerSupport.Informer;
@@ -166,11 +167,53 @@ public final class FileDistributionImplementation implements FileDistribution {
     // directory contains no files.
     m_cacheState.updateStarted(earliestFileTime);
 
+    final Directory directory;
+
+    synchronized (this) {
+      directory = m_directory;
+    }
+
+    final Pattern pattern = m_distributionFileFilterPattern;
+
     return new FileDistributionHandlerImplementation(
-      m_directory.getFile(),
-      m_directory.listContents(createFileFilter(earliestFileTime)),
+      new CacheIdentityImplementation(directory, pattern),
+      directory.getFile(),
+      directory.listContents(
+        new FixedPatternFileFilter(earliestFileTime, pattern)),
       m_distributionControl,
       m_cacheState);
+  }
+
+  /**
+   * Package scope for unit tests.
+   */
+  static final class CacheIdentityImplementation implements CacheIdentity {
+
+    private final String m_identity;
+
+    public CacheIdentityImplementation(Directory directory,
+                                       Pattern fileFilterPattern) {
+      m_identity = directory.getFile().getPath() + "|" + fileFilterPattern;
+    }
+
+    public int hashCode() {
+      return m_identity.hashCode();
+    }
+
+    public boolean equals(Object o) {
+      if (o == this) {
+        return true;
+      }
+
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      final CacheIdentityImplementation other = (CacheIdentityImplementation)o;
+
+      return m_identity.equals(other.m_identity);
+    }
+
   }
 
   /**
@@ -229,7 +272,10 @@ public final class FileDistributionImplementation implements FileDistribution {
     // Include directories because our listeners want to know about changes
     // to them too.
     final File[] laterFiles =
-      directory.listContents(createFileFilter(scanTime), true, true);
+      directory.listContents(
+        new FixedPatternFileFilter(scanTime, m_distributionFileFilterPattern),
+        true,
+        true);
 
     if (laterFiles.length > 0) {
       final Set changedFiles = new HashSet(laterFiles.length / 2);
@@ -315,29 +361,20 @@ public final class FileDistributionImplementation implements FileDistribution {
     protected abstract Pattern getFileFilterPattern();
   }
 
-  private static final class FixedPatternFileFilter extends AbstractFileFilter {
-    private final Pattern m_distributionFileFilterPattern;
-
-    private FixedPatternFileFilter(long earliestTime,
-      Pattern distributionFileFilterPattern) {
-      super(earliestTime);
-      m_distributionFileFilterPattern = distributionFileFilterPattern;
-    }
-
-    protected Pattern getFileFilterPattern() {
-      return m_distributionFileFilterPattern;
-    }
-  }
-
   /**
    * Package scope for unit tests.
    */
-  FileFilter createFileFilter(long earliestFileTime) {
-    final Pattern distributionFileFilterPattern =
-      m_distributionFileFilterPattern;
+  static final class FixedPatternFileFilter extends AbstractFileFilter {
+    private final Pattern m_pattern;
 
-    return new FixedPatternFileFilter(earliestFileTime,
-                                      distributionFileFilterPattern);
+    public FixedPatternFileFilter(long earliestTime, Pattern pattern) {
+      super(earliestTime);
+      m_pattern = pattern;
+    }
+
+    protected Pattern getFileFilterPattern() {
+      return m_pattern;
+    }
   }
 
   /**

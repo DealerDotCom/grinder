@@ -21,8 +21,10 @@
 
 package net.grinder.console.communication;
 
+import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.agent.ClearCacheMessage;
 import net.grinder.messages.agent.DistributeFileMessage;
+import net.grinder.messages.agent.DistributionCacheCheckpointMessage;
 import net.grinder.util.FileContents;
 
 
@@ -63,5 +65,16 @@ public class DistributionControlImplementation
   public void sendFile(FileContents fileContents) {
     m_consoleCommunication.sendToAgents(
       new DistributeFileMessage(fileContents));
+  }
+
+  /**
+   * Inform agent processes of a checkpoint of the cache state.
+   *
+   * @param highWaterMark
+   *            A checkpoint of the cache state.
+   */
+  public void setHighWaterMark(CacheHighWaterMark highWaterMark) {
+    m_consoleCommunication.sendToAgents(
+      new DistributionCacheCheckpointMessage(highWaterMark));
   }
 }

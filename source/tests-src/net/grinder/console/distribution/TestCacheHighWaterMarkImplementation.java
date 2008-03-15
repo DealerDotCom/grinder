@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,40 +19,41 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.console.distribution;
 
-
+import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
 import net.grinder.messages.agent.CacheHighWaterMark;
-import net.grinder.util.FileContents;
+import junit.framework.TestCase;
 
 
 /**
- * Interface for sending files to the agent process caches.
+ * Unit tests for {@link CacheHighWaterMarkImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public interface DistributionControl {
+public class TestCacheHighWaterMarkImplementation extends TestCase {
 
-  /**
-   * Signal the agent processes to clear their file caches.
-   */
-  void clearFileCaches();
+  public void testCacheHighWaterMark() throws Exception {
+    final CacheIdentity cache1 = new CacheIdentity() {};
+    final CacheIdentity cache2 = new CacheIdentity() {};
 
-  /**
-   * Send a file to the file caches.
-   *
-   * @param fileContents The file contents.
-   */
-  void sendFile(FileContents fileContents);
+    final CacheHighWaterMark a =
+      new CacheHighWaterMarkImplementation(cache1, 100);
+    final CacheHighWaterMark b =
+      new CacheHighWaterMarkImplementation(cache1, 100);
+    final CacheHighWaterMark c =
+      new CacheHighWaterMarkImplementation(cache1, 120);
+    final CacheHighWaterMark d =
+      new CacheHighWaterMarkImplementation(cache2, 120);
 
-  /**
-   * Inform agent processes of a checkpoint of the cache state. Each agent
-   * should maintain this (perhaps persistently), and report it in status
-   * reports.
-   *
-   * @param highWaterMark
-   *            A checkpoint of the cache state.
-   */
-  void setHighWaterMark(CacheHighWaterMark highWaterMark);
+    assertTrue(a.isSameOrAfter(b));
+    assertTrue(a.isSameOrAfter(a));
+    assertTrue(b.isSameOrAfter(a));
+    assertFalse(a.isSameOrAfter(c));
+    assertTrue(c.isSameOrAfter(a));
+    assertFalse(d.isSameOrAfter(a));
+    assertFalse(a.isSameOrAfter(d));
+  }
+
 }

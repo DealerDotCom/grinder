@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -61,9 +61,10 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
     assertTrue(cacheState.getOutOfDate());
     propertyChangeListenerStubFactory.assertNoMoreCalls();
 
-    cacheState.updateComplete();
+    final long updateCompleteTime = cacheState.updateComplete();
     assertFalse(cacheState.getOutOfDate());
     assertEquals(update1StartTime, cacheState.getEarliestFileTime());
+    assertEquals(update1StartTime, updateCompleteTime);
     propertyChangeListenerStubFactory.assertSuccess("propertyChange",
                                                     PropertyChangeEvent.class);
     propertyChangeListenerStubFactory.assertNoMoreCalls();

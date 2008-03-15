@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,8 @@ package net.grinder.console.distribution;
 import java.io.File;
 
 import net.grinder.console.communication.DistributionControl;
+import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
+import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.FileContents;
@@ -60,10 +62,12 @@ public class TestFileDistributionHandlerImplementation
     }
 
     final FileDistributionHandlerImplementation fileDistributionHandler =
-      new FileDistributionHandlerImplementation(getDirectory(),
-                                                files,
-                                                distributionControl,
-                                                updateableAgentCacheState);
+      new FileDistributionHandlerImplementation(
+        new CacheIdentity() {},
+        getDirectory(),
+        files,
+        distributionControl,
+        updateableAgentCacheState);
 
     final FileDistributionHandler.Result result0 =
       fileDistributionHandler.sendNextFile();
@@ -96,6 +100,8 @@ public class TestFileDistributionHandlerImplementation
 
     assertNull(result2);
 
+    distributionControlStubFactory.assertSuccess(
+      "setHighWaterMark", CacheHighWaterMark.class);
     distributionControlStubFactory.assertNoMoreCalls();
 
     updateableAgentCacheStateStubFactory.assertSuccess("updateComplete");

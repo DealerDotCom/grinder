@@ -27,7 +27,9 @@ import java.io.FileFilter;
 import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
+import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
 import net.grinder.console.distribution.FileChangeWatcher.FileChangedListener;
+import net.grinder.console.distribution.FileDistributionImplementation.CacheIdentityImplementation;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
@@ -332,12 +334,9 @@ public class TestFileDistribution extends AbstractFileTestCase {
   public void testFilter() throws Exception {
     final Pattern pattern = Pattern.compile("^a.*[^/]$|.*exclude.*|.*b/$");
 
-    final FileDistributionImplementation fileDistribution =
-      new FileDistributionImplementation(null,
-                                         null,
-                                         pattern);
-
-    final FileFilter filter = fileDistribution.createFileFilter(100000L);
+    final FileFilter filter =
+      new FileDistributionImplementation.FixedPatternFileFilter(10000L,
+                                                                pattern);
 
     final String[] acceptableFilenames = new String[] {
       "DoesntStartWithA.acceptable",
@@ -460,5 +459,31 @@ public class TestFileDistribution extends AbstractFileTestCase {
     assertTrue(
       filter.accept(new File(getDirectory(), "a file begining with a")));
 
+  }
+
+  public void testCacheIdentityImplementation() throws Exception {
+    final Directory d1 = new Directory();
+    final Directory d2 = new Directory(new File("blah"));
+
+    final CacheIdentity i0 =
+      new CacheIdentityImplementation(d1, m_matchAllPattern);
+    final CacheIdentity i1 =
+      new CacheIdentityImplementation(d1, m_matchAllPattern);
+    final CacheIdentity i2 =
+      new CacheIdentityImplementation(d2, m_matchAllPattern);
+    final CacheIdentity i3 =
+      new CacheIdentityImplementation(d2, m_matchIgnoredPattern);
+
+    assertEquals(i0, i0);
+    assertEquals(i0, i1);
+    assertEquals(i1, i0);
+    assertEquals(i0.hashCode(), i1.hashCode());
+    assertTrue(!i1.equals(i2));
+    assertTrue(!i2.equals(i1));
+    assertTrue(!i2.equals(i3));
+    assertTrue(!i3.equals(i2));
+    assertEquals(i3, i3);
+    assertFalse(i2.equals(null));
+    assertFalse(i1.equals(this));
   }
 }

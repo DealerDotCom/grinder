@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.console.distribution;
 import java.io.File;
 
 import net.grinder.console.communication.DistributionControl;
+import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
 import net.grinder.util.FileContents;
 
 
@@ -36,6 +37,7 @@ import net.grinder.util.FileContents;
 final class FileDistributionHandlerImplementation
   implements FileDistributionHandler {
 
+  private final CacheIdentity m_cacheIdentity;
   private final File m_directory;
   private final File[] m_files;
   private final DistributionControl m_distributionControl;
@@ -44,11 +46,13 @@ final class FileDistributionHandlerImplementation
   private int m_fileIndex = 0;
 
   FileDistributionHandlerImplementation(
+    CacheIdentity cacheIdentity,
     File directory,
     File[] files,
     DistributionControl distributionControl,
     UpdateableAgentCacheState updateableCacheState) {
 
+    m_cacheIdentity = cacheIdentity;
     m_directory = directory;
     m_files = files;
     m_distributionControl = distributionControl;
@@ -58,9 +62,9 @@ final class FileDistributionHandlerImplementation
   public Result sendNextFile() throws FileContents.FileContentsException {
 
     if (m_fileIndex < m_files.length) {
+
       if (m_fileIndex == 0) {
         long latestFileTime = 0;
-
         for (int i = 0; i < m_files.length; ++i) {
           final long fileTime =
             new File(m_directory, m_files[i].getPath()).lastModified();
@@ -93,9 +97,13 @@ final class FileDistributionHandlerImplementation
         ++m_fileIndex;
       }
     }
+    else {
+      final long highWaterMark = m_updateableCacheState.updateComplete();
 
-    m_updateableCacheState.updateComplete();
+      m_distributionControl.setHighWaterMark(
+        new CacheHighWaterMarkImplementation(m_cacheIdentity, highWaterMark));
 
-    return null;
+      return null;
+    }
   }
 }

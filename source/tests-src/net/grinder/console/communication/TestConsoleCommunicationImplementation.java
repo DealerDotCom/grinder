@@ -45,8 +45,10 @@ import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.communication.ProcessStatus.ProcessReports;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.agent.ClearCacheMessage;
 import net.grinder.messages.agent.DistributeFileMessage;
+import net.grinder.messages.agent.DistributionCacheCheckpointMessage;
 import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
@@ -352,6 +354,18 @@ public class TestConsoleCommunicationImplementation
 
     distributionControl.clearFileCaches();
     assertTrue(readMessage(socket3) instanceof ClearCacheMessage);
+
+    final CacheHighWaterMark cacheHighWaterMark = new MyCacheHighWaterMark();
+
+    distributionControl.setHighWaterMark(cacheHighWaterMark);
+    assertTrue(
+      readMessage(socket3) instanceof DistributionCacheCheckpointMessage);
+  }
+
+  public static class MyCacheHighWaterMark implements CacheHighWaterMark {
+    public boolean isSameOrAfter(CacheHighWaterMark other) {
+      return false;
+    }
   }
 
   /**

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,40 +19,38 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.messages.agent;
 
-
-import net.grinder.messages.agent.CacheHighWaterMark;
-import net.grinder.util.FileContents;
+import net.grinder.communication.Message;
 
 
 /**
- * Interface for sending files to the agent process caches.
+ * Pass a cache checkpoint to the agent.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public interface DistributionControl {
+public class DistributionCacheCheckpointMessage implements Message {
+
+  private static final long serialVersionUID = 1L;
+
+  private final CacheHighWaterMark m_highWaterMark;
 
   /**
-   * Signal the agent processes to clear their file caches.
-   */
-  void clearFileCaches();
-
-  /**
-   * Send a file to the file caches.
+   * Constructor.
    *
-   * @param fileContents The file contents.
+   * @param highWaterMark The cache state.
    */
-  void sendFile(FileContents fileContents);
+  public DistributionCacheCheckpointMessage(CacheHighWaterMark highWaterMark) {
+    m_highWaterMark = highWaterMark;
+  }
 
   /**
-   * Inform agent processes of a checkpoint of the cache state. Each agent
-   * should maintain this (perhaps persistently), and report it in status
-   * reports.
+   * Return the cache checkpoint.
    *
-   * @param highWaterMark
-   *            A checkpoint of the cache state.
+   * @return The cache checkpoint.
    */
-  void setHighWaterMark(CacheHighWaterMark highWaterMark);
+  public CacheHighWaterMark getCacheCheckpoint() {
+    return m_highWaterMark;
+  }
 }

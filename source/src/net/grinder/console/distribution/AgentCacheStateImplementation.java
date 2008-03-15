@@ -59,6 +59,10 @@ final class AgentCacheStateImplementation
   }
 
   public synchronized void setOutOfDate(long invalidAfter) {
+    // Currently setOutOfDate() isn't safe to be called when UPDATING.
+    // Its effects will be wholly or partly overridden by the next call to
+    // updateStarted()/updateComplete().
+
     if (m_postUpdateEarliestFileTime > invalidAfter) {
       m_postUpdateEarliestFileTime = invalidAfter;
     }
@@ -75,7 +79,7 @@ final class AgentCacheStateImplementation
     setState(UPDATING);
   }
 
-  public synchronized void updateComplete() {
+  public synchronized long updateComplete() {
     // Even if we're not up to date, we've at least transfered all
     // files older than this m_updateStartTime.
     m_earliestFileTime = m_postUpdateEarliestFileTime;
@@ -85,6 +89,8 @@ final class AgentCacheStateImplementation
       // during the update.
       setState(UP_TO_DATE);
     }
+
+    return m_postUpdateEarliestFileTime;
   }
 
   private void setState(int newState) {

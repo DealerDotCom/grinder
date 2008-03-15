@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,40 +19,46 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.console.distribution;
 
+import java.io.Serializable;
 
 import net.grinder.messages.agent.CacheHighWaterMark;
-import net.grinder.util.FileContents;
 
 
 /**
- * Interface for sending files to the agent process caches.
+ * Implementation of {@link CacheHighWaterMark}.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public interface DistributionControl {
+final class CacheHighWaterMarkImplementation
+  implements CacheHighWaterMark, Serializable {
+
+  private static final long serialVersionUID = 1L;
+
+  private final CacheIdentity m_cacheIdentity;
+  private final long m_highWaterMark;
+
+  public CacheHighWaterMarkImplementation(CacheIdentity cacheIdentity,
+                                          long highWaterMark) {
+    m_cacheIdentity = cacheIdentity;
+    m_highWaterMark = highWaterMark;
+  }
+
+  public boolean isSameOrAfter(CacheHighWaterMark other) {
+    // For now, we only support comparison with other
+    // CacheHighWaterMarkImplementations.
+    final CacheHighWaterMarkImplementation otherHighWater =
+      (CacheHighWaterMarkImplementation)other;
+
+    return m_cacheIdentity.equals(otherHighWater.m_cacheIdentity) &&
+           m_highWaterMark >= otherHighWater.m_highWaterMark;
+  }
 
   /**
-   * Signal the agent processes to clear their file caches.
+   * Opaque object representing the cache parameters.
    */
-  void clearFileCaches();
-
-  /**
-   * Send a file to the file caches.
-   *
-   * @param fileContents The file contents.
-   */
-  void sendFile(FileContents fileContents);
-
-  /**
-   * Inform agent processes of a checkpoint of the cache state. Each agent
-   * should maintain this (perhaps persistently), and report it in status
-   * reports.
-   *
-   * @param highWaterMark
-   *            A checkpoint of the cache state.
-   */
-  void setHighWaterMark(CacheHighWaterMark highWaterMark);
+  interface CacheIdentity extends Serializable {
+  }
 }

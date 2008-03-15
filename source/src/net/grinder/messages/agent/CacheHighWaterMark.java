@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,40 +19,36 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.messages.agent;
 
-
-import net.grinder.messages.agent.CacheHighWaterMark;
-import net.grinder.util.FileContents;
+import java.io.Serializable;
 
 
 /**
- * Interface for sending files to the agent process caches.
+ * A checkpoint of the agent cache state. The implementation is opaque to
+ * agents.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public interface DistributionControl {
+public interface CacheHighWaterMark extends Serializable {
 
   /**
-   * Signal the agent processes to clear their file caches.
-   */
-  void clearFileCaches();
-
-  /**
-   * Send a file to the file caches.
+   * Compare this cache state with another.
    *
-   * @param fileContents The file contents.
-   */
-  void sendFile(FileContents fileContents);
-
-  /**
-   * Inform agent processes of a checkpoint of the cache state. Each agent
-   * should maintain this (perhaps persistently), and report it in status
-   * reports.
+   * <p>
+   * We don't use {@link Comparable} since this is not a strict ordering. Two
+   * <code>CacheHighWaterMark</code>s for different caches (perhaps the key
+   * information about the cache has changed) <code>x</code> and
+   * <code>y</code>, will return <code>false</code> for both
+   * <code>x.isSameOrAfter(y)</code> and <code>y.isSameOrAfter(x)</code>.
+   * </p>
    *
-   * @param highWaterMark
-   *            A checkpoint of the cache state.
+   *
+   * @param other
+   *            The state to compare.
+   * @return <code>true</code> if and only if this cache state is for the same
+   *         cache and is at least as up to date as the other cache state.
    */
-  void setHighWaterMark(CacheHighWaterMark highWaterMark);
+  boolean isSameOrAfter(CacheHighWaterMark other);
 }
