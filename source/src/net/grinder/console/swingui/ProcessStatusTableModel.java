@@ -35,7 +35,6 @@ import net.grinder.console.common.ProcessReportDescriptionFactory;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.ProcessStatus;
 import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.messages.console.ProcessReport;
 import net.grinder.messages.console.WorkerProcessReport;
@@ -61,7 +60,7 @@ class ProcessStatusTableModel
     new ProcessReport.StateThenNameThenNumberComparator();
 
   private final Comparator m_processReportsComparator =
-    new ProcessStatus.ProcessReportsComparator();
+    new ProcessControl.ProcessReportsComparator();
 
   private final ProcessReportDescriptionFactory m_descriptionFactory;
 
@@ -92,9 +91,9 @@ class ProcessStatusTableModel
     m_threadsString = resources.getString("processTable.threads.label");
 
     processControl.addProcessStatusListener(
-      (ProcessStatus.Listener)swingDispatcherFactory.create(
-        new ProcessStatus.Listener() {
-          public void update(ProcessStatus.ProcessReports[] processReports,
+      (ProcessControl.Listener)swingDispatcherFactory.create(
+        new ProcessControl.Listener() {
+          public void update(ProcessControl.ProcessReports[] processReports,
                              boolean newAgent) {
             final List rows = new ArrayList();
             int runningThreads = 0;

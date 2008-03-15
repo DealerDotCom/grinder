@@ -44,8 +44,7 @@ import net.grinder.console.common.StubResources;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.DistributionControl;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.ProcessStatus;
-import net.grinder.console.communication.ProcessStatus.Listener;
+import net.grinder.console.communication.ProcessControl.Listener;
 import net.grinder.console.communication.server.DispatchClientCommands;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.model.ConsoleProperties;
@@ -188,8 +187,8 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     final Listener listener =
       (Listener) addListenerCall.getParameters()[0];
 
-    final ProcessStatus.ProcessReports[] reports =
-      new ProcessStatus.ProcessReports[0];
+    final ProcessControl.ProcessReports[] reports =
+      new ProcessControl.ProcessReports[0];
     listener.update(reports, false);
     fileDistributionStubFactory.assertNoMoreCalls();
 

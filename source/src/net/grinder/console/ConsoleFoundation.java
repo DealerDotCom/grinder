@@ -42,7 +42,6 @@ import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.communication.DistributionControlImplementation;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessControlImplementation;
-import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.communication.server.DispatchClientCommands;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionImplementation;
@@ -264,8 +263,8 @@ public final class ConsoleFoundation {
 
 
       processControl.addProcessStatusListener(
-        new ProcessStatus.Listener() {
-          public void update(ProcessStatus.ProcessReports[] processStatuses,
+        new ProcessControl.Listener() {
+          public void update(ProcessControl.ProcessReports[] processStatuses,
                              boolean newAgent) {
             if (newAgent) {
               fileDistribution.getAgentCacheState().setOutOfDate();

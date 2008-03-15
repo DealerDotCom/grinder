@@ -21,13 +21,20 @@
 
 package net.grinder.console.communication;
 
+import java.util.Comparator;
+import java.util.EventListener;
+
 import net.grinder.common.GrinderProperties;
+import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.messages.console.ProcessReport;
+import net.grinder.messages.console.WorkerProcessReport;
 
 
 /**
  * Interface for issuing commands to the agent and worker processes.
  *
  * @author Philip Aston
+ * @author Dirk Feufel
  * @version $Revision$
  */
 public interface ProcessControl {
@@ -55,7 +62,7 @@ public interface ProcessControl {
    *
    * @param listener The listener.
    */
-  void addProcessStatusListener(ProcessStatus.Listener listener);
+  void addProcessStatusListener(Listener listener);
 
   /**
    * How many agents are live?
@@ -63,4 +70,58 @@ public interface ProcessControl {
    * @return The number of agents.
    */
   int getNumberOfLiveAgents();
+
+  /**
+   * Listener interface for receiving updates about process status.
+   */
+  public interface Listener extends EventListener {
+
+    /**
+     * Called with regular updates on process status.
+     *
+     * @param processReports
+     *          Process status information.
+     * @param newAgent
+     *          A new agent has connected since the last update. This is used to
+     *          invalidate the cache distribution status; it will go away when
+     *          we have per-agent cache updates.
+     */
+    void update(ProcessReports[] processReports, boolean newAgent);
+  }
+
+  /**
+   * Interface to the information the console has about an agent and its
+   * worker processes.
+   */
+  interface ProcessReports {
+
+    /**
+     * Returns the latest agent process report.
+     *
+     * @return The agent process report.
+     */
+    AgentProcessReport getAgentProcessReport();
+
+    /**
+     * Returns the latest worker process reports.
+     *
+     * @return The worker process reports.
+     */
+    WorkerProcessReport[] getWorkerProcessReports();
+  }
+
+  /**
+   * Comparator for {@link ProcessReports} that sorts according to
+   * the agent report.
+   */
+  final class ProcessReportsComparator implements Comparator {
+    private final Comparator m_processReportComparator =
+      new ProcessReport.StateThenNameThenNumberComparator();
+
+    public int compare(Object o1, Object o2) {
+      return m_processReportComparator.compare(
+        ((ProcessReports)o1).getAgentProcessReport(),
+        ((ProcessReports)o2).getAgentProcessReport());
+    }
+  }
 }

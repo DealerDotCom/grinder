@@ -89,7 +89,6 @@ import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.distribution.AgentCacheState;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionHandler;
@@ -1203,7 +1202,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
   }
 
   private abstract class AbstractEnableIfAgentsConnected
-    implements ProcessStatus.Listener {
+    implements ProcessControl.Listener {
 
     private final Action m_action;
 
@@ -1211,7 +1210,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
       m_action = action;
     }
 
-    public final void update(ProcessStatus.ProcessReports[] processStatuses,
+    public final void update(ProcessControl.ProcessReports[] processStatuses,
                              boolean newAgent) {
       enableOrDisable();
     }

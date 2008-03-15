@@ -29,9 +29,8 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.StubResources;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.communication.StubProcessReports;
-import net.grinder.console.communication.ProcessStatus.ProcessReports;
+import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.console.model.SampleModel;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.console.ProcessReport;
@@ -132,9 +131,9 @@ public class TestTextUI extends TestCase {
 
     final CallData processsControlCall =
       m_processControlStubFactory.assertSuccess(
-        "addProcessStatusListener", ProcessStatus.Listener.class);
-    final ProcessStatus.Listener processListener =
-      (ProcessStatus.Listener)processsControlCall.getParameters()[0];
+        "addProcessStatusListener", ProcessControl.Listener.class);
+    final ProcessControl.Listener processListener =
+      (ProcessControl.Listener)processsControlCall.getParameters()[0];
 
     Runtime.getRuntime().removeShutdownHook(textUI.getShutdownHook());
     m_loggerStubFactory.assertNoMoreCalls();
@@ -212,8 +211,7 @@ public class TestTextUI extends TestCase {
   }
 
   public void testSampleModelListener() throws Exception {
-    final TextUI textUI =
-      new TextUI(m_resources, m_processControl, m_sampleModel, m_logger);
+    new TextUI(m_resources, m_processControl, m_sampleModel, m_logger);
     m_loggerStubFactory.assertOutputMessageContains("The Grinder");
     m_loggerStubFactory.assertNoMoreCalls();
 

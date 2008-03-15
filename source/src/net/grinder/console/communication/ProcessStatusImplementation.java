@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.messages.console.WorkerProcessReport;
@@ -44,7 +45,7 @@ import net.grinder.util.ListenerSupport;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ProcessStatusImplementation implements ProcessStatus {
+final class ProcessStatusImplementation {
 
   /**
    * Period at which to update the listeners.
@@ -111,7 +112,7 @@ final class ProcessStatusImplementation implements ProcessStatus {
    *
    * @param listener A listener.
    */
-  public void addListener(ProcessStatus.Listener listener) {
+  public void addListener(ProcessControl.Listener listener) {
     m_listeners.add(listener);
   }
 
@@ -144,7 +145,7 @@ final class ProcessStatusImplementation implements ProcessStatus {
     m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
-          ((ProcessStatus.Listener)listener).update(processStatuses, newAgent);
+          ((ProcessControl.Listener)listener).update(processStatuses, newAgent);
         }
       });
   }
@@ -301,6 +302,10 @@ final class ProcessStatusImplementation implements ProcessStatus {
     public short getState() {
       return STATE_UNKNOWN;
     }
+
+    public CacheHighWaterMark getCacheHighWaterMark() {
+      return null;
+    }
   }
 
   /**
@@ -309,7 +314,7 @@ final class ProcessStatusImplementation implements ProcessStatus {
    * Package scope for unit tests.
    */
   final class AgentAndWorkers
-    implements ProcessStatus.ProcessReports, Purgable {
+    implements ProcessControl.ProcessReports, Purgable {
 
     private volatile AgentReference m_agentReportReference;
 

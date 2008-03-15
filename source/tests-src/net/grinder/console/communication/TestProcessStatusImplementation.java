@@ -79,9 +79,9 @@ public class TestProcessStatusImplementation extends TestCase {
   public void testUpdate() throws Exception {
 
     final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ProcessStatus.Listener.class);
-    final ProcessStatus.Listener listener =
-      (ProcessStatus.Listener)listenerStubFactory.getStub();
+      new RandomStubFactory(ProcessControl.Listener.class);
+    final ProcessControl.Listener listener =
+      (ProcessControl.Listener)listenerStubFactory.getStub();
 
     final ProcessStatusImplementation processStatusSet =
       new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
@@ -116,11 +116,11 @@ public class TestProcessStatusImplementation extends TestCase {
     final CallData callData =
       listenerStubFactory.assertSuccess(
         "update",
-        new ProcessStatus.ProcessReports[0].getClass(),
+        new ProcessControl.ProcessReports[0].getClass(),
         Boolean.class);
 
-    final ProcessStatus.ProcessReports[] processReportsArray =
-      (ProcessStatus.ProcessReports[])callData.getParameters()[0];
+    final ProcessControl.ProcessReports[] processReportsArray =
+      (ProcessControl.ProcessReports[])callData.getParameters()[0];
 
     assertEquals(1, processReportsArray.length);
     final WorkerProcessReport[] workerProcessReports =
@@ -136,9 +136,9 @@ public class TestProcessStatusImplementation extends TestCase {
 
   public void testUpdateWithManyProcessStatusesAndFlush() throws Exception {
     final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ProcessStatus.Listener.class);
-    final ProcessStatus.Listener listener =
-      (ProcessStatus.Listener)listenerStubFactory.getStub();
+      new RandomStubFactory(ProcessControl.Listener.class);
+    final ProcessControl.Listener listener =
+      (ProcessControl.Listener)listenerStubFactory.getStub();
 
     final ProcessStatusImplementation processStatus =
       new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
@@ -199,11 +199,11 @@ public class TestProcessStatusImplementation extends TestCase {
     final CallData callData =
       listenerStubFactory.assertSuccess(
         "update",
-        new ProcessStatus.ProcessReports[0].getClass(),
+        new ProcessControl.ProcessReports[0].getClass(),
         Boolean.class);
 
-    final ProcessStatus.ProcessReports[] processReports =
-      (ProcessStatus.ProcessReports[])callData.getParameters()[0];
+    final ProcessControl.ProcessReports[] processReports =
+      (ProcessControl.ProcessReports[])callData.getParameters()[0];
     Arrays.sort(processReports, m_processReportsComparator);
 
     assertEquals(2, processReports.length);
@@ -290,11 +290,11 @@ public class TestProcessStatusImplementation extends TestCase {
     final CallData callData2 =
       listenerStubFactory.assertSuccess(
         "update",
-        new ProcessStatus.ProcessReports[0].getClass(),
+        new ProcessControl.ProcessReports[0].getClass(),
         Boolean.class);
 
-    final ProcessStatus.ProcessReports[] processReports2 =
-      (ProcessStatus.ProcessReports[])callData2.getParameters()[0];
+    final ProcessControl.ProcessReports[] processReports2 =
+      (ProcessControl.ProcessReports[])callData2.getParameters()[0];
     Arrays.sort(processReports2, m_processReportsComparator);
 
     assertEquals(3, processReports2.length);
@@ -404,8 +404,8 @@ public class TestProcessStatusImplementation extends TestCase {
   private final class ProcessReportsComparator implements Comparator {
     public int compare(Object o1, Object o2) {
       return m_processReportComparator.compare(
-        ((ProcessStatus.ProcessReports)o1).getAgentProcessReport(),
-        ((ProcessStatus.ProcessReports)o2).getAgentProcessReport());
+        ((ProcessControl.ProcessReports)o1).getAgentProcessReport(),
+        ((ProcessControl.ProcessReports)o2).getAgentProcessReport());
     }
   }
 }

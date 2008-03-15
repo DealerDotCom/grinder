@@ -21,7 +21,7 @@
 
 package net.grinder.console.communication;
 
-import net.grinder.console.communication.ProcessStatus.ProcessReports;
+import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.messages.console.WorkerProcessReport;
 

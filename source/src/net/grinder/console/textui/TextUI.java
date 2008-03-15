@@ -31,7 +31,6 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ProcessReportDescriptionFactory;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.model.SampleModel;
 import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.messages.console.ProcessReport;
@@ -105,12 +104,12 @@ public class TextUI implements UI {
     return m_errorHandler;
   }
 
-  private final class ProcessListener implements ProcessStatus.Listener {
+  private final class ProcessListener implements ProcessControl.Listener {
     private final Comparator m_processReportComparator =
       new ProcessReport.StateThenNameThenNumberComparator();
 
     private final Comparator m_processReportsComparator =
-      new ProcessStatus.ProcessReportsComparator();
+      new ProcessControl.ProcessReportsComparator();
 
     private final ProcessReportDescriptionFactory m_descriptionFactory;
 
@@ -122,7 +121,7 @@ public class TextUI implements UI {
       m_noConnectedAgents = resources.getString("noConnectedAgents.text");
     }
 
-    public void update(ProcessStatus.ProcessReports[] processReports,
+    public void update(ProcessControl.ProcessReports[] processReports,
                        boolean newAgent) {
 
       final String reportString;

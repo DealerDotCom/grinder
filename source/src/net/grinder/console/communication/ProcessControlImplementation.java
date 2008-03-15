@@ -130,7 +130,7 @@ public class ProcessControlImplementation implements ProcessControl {
    *
    * @param listener The listener.
    */
-  public void addProcessStatusListener(ProcessStatus.Listener listener) {
+  public void addProcessStatusListener(Listener listener) {
     m_processStatusSet.addListener(listener);
   }
 

@@ -26,9 +26,8 @@ import java.util.HashMap;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.StubResources;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.communication.StubProcessReports;
-import net.grinder.console.communication.ProcessStatus.ProcessReports;
+import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.console.ProcessReport;
 import net.grinder.messages.console.StubAgentProcessReport;
@@ -85,7 +84,7 @@ public class TestProcessStatusTableModel extends TestCase {
                                   swingDispatcherFactory);
 
     m_processControlStubFactory.assertSuccess(
-      "addProcessStatusListener", ProcessStatus.Listener.class);
+      "addProcessStatusListener", ProcessControl.Listener.class);
     m_processControlStubFactory.assertNoMoreCalls();
 
     assertEquals(3, processStatusTableModel.getColumnCount());
@@ -113,10 +112,10 @@ public class TestProcessStatusTableModel extends TestCase {
                                   m_processControl,
                                   swingDispatcherFactory);
 
-    final ProcessStatus.Listener listener =
-      (ProcessStatus.Listener)
+    final ProcessControl.Listener listener =
+      (ProcessControl.Listener)
       m_processControlStubFactory.assertSuccess("addProcessStatusListener",
-                                                ProcessStatus.Listener.class)
+                                                ProcessControl.Listener.class)
      .getParameters()[0];
 
     assertEquals(0, processStatusTableModel.getRowCount());
