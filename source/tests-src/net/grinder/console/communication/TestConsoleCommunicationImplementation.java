@@ -42,7 +42,7 @@ import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
-import net.grinder.console.communication.ProcessStatus.ProcessReports;
+import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.agent.CacheHighWaterMark;
@@ -214,9 +214,9 @@ public class TestConsoleCommunicationImplementation
       new ProcessControlImplementation(m_timer, m_consoleCommunication);
 
     final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ProcessStatus.Listener.class);
-    final ProcessStatus.Listener listener =
-      (ProcessStatus.Listener)listenerStubFactory.getStub();
+      new RandomStubFactory(ProcessControl.Listener.class);
+    final ProcessControl.Listener listener =
+      (ProcessControl.Listener)listenerStubFactory.getStub();
 
     processControl.addProcessStatusListener(listener);
 
