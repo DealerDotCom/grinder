@@ -23,8 +23,6 @@ package net.grinder.console.communication;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
@@ -51,8 +49,6 @@ import net.grinder.util.thread.BooleanCondition;
 public final class ConsoleCommunicationImplementation
   implements ConsoleCommunication {
 
-  private static final long CHECK_PEER_STATUS_PERIOD = 1000;
-
   private final int m_idlePollDelay;
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
@@ -75,8 +71,6 @@ public final class ConsoleCommunicationImplementation
    *          Resources.
    * @param properties
    *          Console properties.
-   * @param timer
-   *          Timer that can be used to schedule housekeeping tasks.
    * @param errorHandler
    *          Error handler.
    * @throws DisplayMessageConsoleException
@@ -84,10 +78,9 @@ public final class ConsoleCommunicationImplementation
    */
   public ConsoleCommunicationImplementation(Resources resources,
                                             ConsoleProperties properties,
-                                            Timer timer,
                                             ErrorHandler errorHandler)
     throws DisplayMessageConsoleException {
-    this(resources, properties, timer, errorHandler, 500);
+    this(resources, properties, errorHandler, 500);
   }
 
   /**
@@ -97,8 +90,6 @@ public final class ConsoleCommunicationImplementation
    *          Resources.
    * @param properties
    *          Console properties.
-   * @param timer
-   *          Timer that can be used to schedule housekeeping tasks.
    * @param errorHandler
    *          Error handler.
    * @param idlePollDelay
@@ -109,7 +100,6 @@ public final class ConsoleCommunicationImplementation
    */
   public ConsoleCommunicationImplementation(Resources resources,
                                             ConsoleProperties properties,
-                                            Timer timer,
                                             ErrorHandler errorHandler,
                                             int idlePollDelay)
     throws DisplayMessageConsoleException {
@@ -132,16 +122,6 @@ public final class ConsoleCommunicationImplementation
       });
 
     reset();
-
-    timer.schedule(new TimerTask() {
-        public void run() {
-          if (m_sender != null) {
-            m_sender.isPeerShutdown();
-          }
-        }
-      },
-      CHECK_PEER_STATUS_PERIOD,
-      CHECK_PEER_STATUS_PERIOD);
   }
 
   private void reset() {

@@ -108,7 +108,6 @@ public class TestConsoleCommunicationImplementation
     m_consoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             m_timer,
                                              m_errorHandler,
                                              10);
   }
@@ -129,39 +128,25 @@ public class TestConsoleCommunicationImplementation
   }
 
   public void testConstruction() throws Exception {
-    final TimerTask timerTask = m_timer.getLastScheduledTimerTask();
-    timerTask.run();
-
     // Need a thread to be attempting to process messages or
     // ConsoleCommunicationImplementation.reset() will not complete.
     m_processMessagesThread.start();
 
     // Cause the sender to be invalid.
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
-    timerTask.run();
 
     final ConsoleCommunicationImplementation consoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             m_timer,
                                              m_errorHandler,
                                              500);
-
-    final TimerTask timerTask2 = m_timer.getLastScheduledTimerTask();
-    assertNotSame(timerTask, timerTask2);
-    timerTask2.run();
 
     assertEquals(0, consoleCommunication.getNumberOfConnections());
 
     final ConsoleCommunicationImplementation consoleCommunication2 =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             m_timer,
                                              m_errorHandler);
-
-    final TimerTask timerTask3 = m_timer.getLastScheduledTimerTask();
-    assertNotSame(timerTask, timerTask3);
-    timerTask3.run();
 
     assertEquals(0, consoleCommunication2.getNumberOfConnections());
   }
@@ -459,7 +444,6 @@ public class TestConsoleCommunicationImplementation
     final ConsoleCommunication brokenConsoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             m_timer,
                                              m_errorHandler,
                                              100);
 
@@ -504,7 +488,6 @@ public class TestConsoleCommunicationImplementation
     final ConsoleCommunication brokenConsoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             m_timer,
                                              errorHandler2,
                                              100);
 
