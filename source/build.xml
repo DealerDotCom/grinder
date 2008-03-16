@@ -444,7 +444,8 @@ what you want. Currently the conditionally built modules are:
            destdir="${test-classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
-     deprecation="${deprecation}">
+           source="1.4"
+           deprecation="${deprecation}">
        <classpath refid="build.classpath"/>
    </javac>
   </target>
