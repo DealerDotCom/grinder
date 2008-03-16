@@ -21,8 +21,11 @@
 
 package net.grinder.plugin.http;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.SSLContextFactory;
+import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics;
 import net.grinder.script.Grinder.ScriptContext;
@@ -88,6 +91,16 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
 
     m_pluginProcessContextStubFactory.setResult("getTimeAuthority",
       timeAuthority);
+
+    new PluginRegistry() {
+      {
+        setInstance(this);
+      }
+
+      public void register(GrinderPlugin plugin) throws GrinderException {
+        plugin.initialize(m_pluginProcessContext);
+      }
+    };
 
     HTTPPlugin.getPlugin().initialize(m_pluginProcessContext);
   }
