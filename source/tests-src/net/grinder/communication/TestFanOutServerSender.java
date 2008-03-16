@@ -229,47 +229,4 @@ public class TestFanOutServerSender extends TestCase {
 
     acceptor.shutdown();
   }
-
-  public void testIsPeerShutdown() throws Exception {
-
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
-
-    final FanOutServerSender serverSender =
-      new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
-
-    final Socket socket =
-      new Connector(InetAddress.getByName(null).getHostName(),
-        acceptor.getPort(),
-        ConnectionType.AGENT).connect();
-
-    // Use a second socket to get cover freeing of other Reservations in
-    // isPeerShutdown.
-    final Socket socket2 =
-      new Connector(InetAddress.getByName(null).getHostName(),
-        acceptor.getPort(),
-        ConnectionType.AGENT).connect();
-
-    // Sleep until we've accepted the connections. Give up after a few
-    // seconds.
-    final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.AGENT);
-
-    for (int i=0; socketSet.countActive() != 2 && i<10; ++i) {
-      Thread.sleep(i * i * 10);
-    }
-
-    assertTrue(!serverSender.isPeerShutdown());
-
-    final Message message = new SimpleMessage();
-    serverSender.send(message);
-
-    assertTrue(!serverSender.isPeerShutdown());
-
-    new SocketWrapper(socket2).close();
-
-    assertTrue(serverSender.isPeerShutdown());
-
-    serverSender.shutdown();
-    acceptor.shutdown();
-  }
-}
+ }

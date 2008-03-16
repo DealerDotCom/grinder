@@ -21,14 +21,12 @@
 
 package net.grinder.communication;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
 import net.grinder.common.Closer;
-import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.ListenerSupport;
 
 
@@ -46,19 +44,11 @@ import net.grinder.util.ListenerSupport;
  * @author Philip Aston
  * @version $Revision$
  */
-final class SocketWrapper
-  implements CheckIfPeerShutdown, ResourcePool.Resource {
-
-  /**
-   * As large as the largest message we may receive when calling
-   * {@link #isPeerShutdown}. Currently this means as large as a {@link
-   * CloseCommunicationMessage}.
-   */
-  private static final int BUFFER_SIZE = 512;
+final class SocketWrapper implements ResourcePool.Resource {
 
   private final Socket m_socket;
   private final ConnectionIdentity m_connectionIdentity;
-  private final BufferedInputStream m_inputStream;
+  private final InputStream m_inputStream;
   private final OutputStream m_outputStream;
 
   private final ListenerSupport m_closedListeners = new ListenerSupport();
@@ -86,9 +76,7 @@ final class SocketWrapper
     m_socket = socket;
 
     try {
-      m_inputStream =
-        new BufferedInputStream(m_socket.getInputStream(), BUFFER_SIZE);
-
+      m_inputStream = m_socket.getInputStream();
       m_outputStream = m_socket.getOutputStream();
 
       m_connectionIdentity =
@@ -101,38 +89,6 @@ final class SocketWrapper
 
       throw new CommunicationException("Could not establish communication", e);
     }
-  }
-
-  public boolean isPeerShutdown() {
-
-    try {
-      synchronized (m_inputStream) {
-        if (m_inputStream.available() > 0) {
-          m_inputStream.mark(BUFFER_SIZE);
-
-          try {
-            if (new StreamReceiver(m_inputStream).waitForMessage() == null) {
-              close();
-              return true;
-            }
-          }
-          finally {
-            m_inputStream.reset();
-          }
-        }
-      }
-    }
-    catch (CommunicationException e) {
-      close();
-      return true;
-    }
-    catch (IOException e) {
-      UncheckedInterruptedException.ioException(e);
-      close();
-      return true;
-    }
-
-    return false;
   }
 
   /**

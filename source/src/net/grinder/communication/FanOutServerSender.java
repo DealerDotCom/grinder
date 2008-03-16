@@ -22,7 +22,6 @@
 package net.grinder.communication;
 
 import java.io.OutputStream;
-import java.util.Iterator;
 
 import net.grinder.communication.ResourcePool.Resource;
 import net.grinder.util.thread.Executor;
@@ -34,8 +33,7 @@ import net.grinder.util.thread.Executor;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class FanOutServerSender
-  extends AbstractFanOutSender implements CheckIfPeerShutdown {
+public final class FanOutServerSender extends AbstractFanOutSender {
 
   /**
    * Constructor.
@@ -112,43 +110,5 @@ public final class FanOutServerSender
     // access is protected through the socket set and only we hold
     // the reservation.
     return ((SocketWrapper)resource).getAddress();
-  }
-
-  /**
-   * Check whether any peer connection has been shut down. If so,
-   * clean it up and return <code>true</code>.
-   *
-   * @return boolean <code>true</code> => at least one peer has been shut
-   * down.
-   */
-  public boolean isPeerShutdown() {
-    boolean result = false;
-
-    // Reserve the lot.
-    final Iterator iterator = getResourcePool().reserveAll().iterator();
-
-    try {
-      while (iterator.hasNext()) {
-        final ResourcePool.Reservation reservation =
-          (ResourcePool.Reservation) iterator.next();
-
-        try {
-          if (((SocketWrapper)reservation.getResource()).isPeerShutdown()) {
-            result = true;
-            // Don't break, we want to clean them all up.
-          }
-        }
-        finally {
-          reservation.free();
-        }
-      }
-    }
-    finally {
-      while (iterator.hasNext()) {
-        ((ResourcePool.Reservation) iterator.next()).free();
-      }
-    }
-
-    return result;
   }
 }

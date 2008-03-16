@@ -49,38 +49,4 @@ public class TestSocketWrapper extends TestCase {
     catch (CommunicationException e) {
     }
   }
-
-  public void testIsPeerShutdown() throws Exception {
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
-
-    final Connector connector =
-      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.AGENT);
-
-    final ClientSender clientSender = ClientSender.connect(connector);
-
-    socketAcceptor.join();
-
-    final Socket socket = socketAcceptor.getAcceptedSocket();
-
-    Connector.read(socket.getInputStream());
-
-    final SocketWrapper wrapper = new SocketWrapper(socket);
-
-    assertTrue(!wrapper.isPeerShutdown());
-
-    clientSender.send(new SimpleMessage());
-
-    assertTrue(!wrapper.isPeerShutdown());
-
-    while (wrapper.getInputStream().read() > 0) {
-      // Discard pending bytes.
-    }
-
-    clientSender.send(new CloseCommunicationMessage());
-
-    assertTrue(wrapper.isPeerShutdown());
-
-    socketAcceptor.close();
-  }
 }

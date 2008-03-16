@@ -1,4 +1,4 @@
-// Copyright (C) 2000-2006 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,9 +28,7 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  **/
-public final class ClientSender
-  extends StreamSender
-  implements BlockingSender, CheckIfPeerShutdown {
+public final class ClientSender extends StreamSender implements BlockingSender {
 
   /**
    * Factory method that makes a TCP connection and returns a
@@ -79,17 +77,6 @@ public final class ClientSender
     m_socketWrapper.close();
 
     super.shutdown();
-  }
-
-  /**
-   * Check whether the peer connection has been shut down. If so,
-   * shut down ourselves and return <code>true</code>.
-   *
-   * @return boolean <code>true</code> => yes, the peer has been shut
-   * down.
-   */
-  public boolean isPeerShutdown() {
-    return m_socketWrapper.isPeerShutdown();
   }
 
   /**

@@ -134,26 +134,6 @@ public class TestClientSender extends TestCase {
     socketAcceptor.close();
   }
 
-  public void testIsPeerShutdown() throws Exception {
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
-
-    final Connector connector =
-      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.AGENT);
-
-    final ClientSender clientSender = ClientSender.connect(connector);
-
-    socketAcceptor.join();
-
-    assertTrue(!clientSender.isPeerShutdown());
-
-    new SocketWrapper(socketAcceptor.getAcceptedSocket()).close();
-
-    assertTrue(clientSender.isPeerShutdown());
-
-    socketAcceptor.close();
-  }
-
   public void testShutdownPeerDifferently() throws Exception {
     final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
 
@@ -164,8 +144,6 @@ public class TestClientSender extends TestCase {
     final ClientSender clientSender = ClientSender.connect(connector);
 
     socketAcceptor.join();
-
-    assertTrue(!clientSender.isPeerShutdown());
 
     new StreamSender(socketAcceptor.getAcceptedSocket().getOutputStream())
       .writeMessage(new CloseCommunicationMessage());
@@ -210,11 +188,7 @@ public class TestClientSender extends TestCase {
 
     assertEquals(receivedMessage, message);
 
-    assertFalse(clientSender.isPeerShutdown());
-
     clientReceiver.shutdown();
-    assertTrue(clientSender.isPeerShutdown());
-
   }
 
   public void testWithBadPairedClientReceiver() throws Exception {
@@ -309,7 +283,7 @@ public class TestClientSender extends TestCase {
         final MessageRequiringResponse responseSender =
           (MessageRequiringResponse)inputStream.readObject();
 
-        assertEquals(0, m_inputStream.available());
+        assert m_inputStream.available() == 0;
 
         final ObjectOutputStream outputStream =
           new ObjectOutputStream(m_outputStream);
