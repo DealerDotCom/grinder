@@ -32,6 +32,7 @@ import java.util.TimerTask;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.communication.Address;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
@@ -52,6 +53,7 @@ import net.grinder.messages.agent.DistributionCacheCheckpointMessage;
 import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
+import net.grinder.messages.agent.StubCacheHighWaterMark;
 import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
@@ -87,6 +89,11 @@ public class TestConsoleCommunicationImplementation
     new RandomStubFactory(ErrorHandler.class);
   private final ErrorHandler m_errorHandler =
     (ErrorHandler)m_errorHandlerStubFactory.getStub();
+
+  final RandomStubFactory m_agentFileCacheStateStubFactory =
+    new RandomStubFactory(AgentFileCacheState.class);
+  final AgentFileCacheState m_agentFileCacheState =
+    (AgentFileCacheState)m_agentFileCacheStateStubFactory.getStub();
 
   protected void setUp() throws Exception {
     super.setUp();
@@ -203,6 +210,9 @@ public class TestConsoleCommunicationImplementation
     final ProcessControl.Listener listener =
       (ProcessControl.Listener)listenerStubFactory.getStub();
 
+    final CacheHighWaterMark cacheHighWaterMark =
+      new StubCacheHighWaterMark(100);
+
     processControl.addProcessStatusListener(listener);
 
     processControl.resetWorkerProcesses();
@@ -220,7 +230,8 @@ public class TestConsoleCommunicationImplementation
     new StreamSender(socket.getOutputStream()).send(
       new AgentProcessReportMessage(
         agentIdentity,
-        AgentProcessReportMessage.STATE_RUNNING));
+        AgentProcessReportMessage.STATE_RUNNING,
+        cacheHighWaterMark));
 
     // Wait until the message has been received.
     do {
@@ -278,7 +289,12 @@ public class TestConsoleCommunicationImplementation
       .connect();
 
     final DistributionControl distributionControl =
-      new DistributionControlImplementation(m_consoleCommunication);
+      new DistributionControlImplementation(m_consoleCommunication,
+                                            m_agentFileCacheState);
+    m_agentFileCacheStateStubFactory.setResult(
+      "agentsWithOutOfDateCaches", new Address() {
+        public boolean includes(Address address) { return true; }
+      });
 
     final Socket socket2 =
       new StubConnector(InetAddress.getByName(null).getHostName(),
@@ -290,6 +306,8 @@ public class TestConsoleCommunicationImplementation
 
     socket2.close();
 
+    final CacheHighWaterMark cacheHighWaterMark = new StubCacheHighWaterMark(0);
+
     // Closing the socket isn't enough for the ConsoleCommunication's Sender to
     // know we've gone (and so close its end of the connection); we need to send
     // something too.
@@ -298,7 +316,7 @@ public class TestConsoleCommunicationImplementation
     int n = 0;
 
     while (m_consoleCommunication.getNumberOfConnections() != 1) {
-      distributionControl.clearFileCaches();
+      distributionControl.clearFileCaches(cacheHighWaterMark);
       ++n;
       assertTrue(n < 10);
     }
@@ -314,7 +332,7 @@ public class TestConsoleCommunicationImplementation
     final FileContents fileContents = new FileContents(getDirectory(),
       relativePath);
 
-    distributionControl.sendFile(fileContents);
+    distributionControl.sendFile(fileContents, cacheHighWaterMark);
 
     assertTrue(readMessage(socket) instanceof DistributeFileMessage);
     socket.close();
@@ -337,20 +355,15 @@ public class TestConsoleCommunicationImplementation
 
     waitForNumberOfConnections(1);
 
-    distributionControl.clearFileCaches();
-    assertTrue(readMessage(socket3) instanceof ClearCacheMessage);
+    final CacheHighWaterMark cacheHighWaterMark2 =
+      new StubCacheHighWaterMark(100);
 
-    final CacheHighWaterMark cacheHighWaterMark = new MyCacheHighWaterMark();
+    distributionControl.clearFileCaches(cacheHighWaterMark2);
+    assertTrue(readMessage(socket3) instanceof ClearCacheMessage);
 
     distributionControl.setHighWaterMark(cacheHighWaterMark);
     assertTrue(
       readMessage(socket3) instanceof DistributionCacheCheckpointMessage);
-  }
-
-  public static class MyCacheHighWaterMark implements CacheHighWaterMark {
-    public boolean isSameOrAfter(CacheHighWaterMark other) {
-      return false;
-    }
   }
 
   /**
@@ -391,7 +404,8 @@ public class TestConsoleCommunicationImplementation
     final StubAgentIdentity agentIdentity = new StubAgentIdentity("agent");
 
     // We can currently send agent messages over a worker channel.
-    sendMessage(socket, new AgentProcessReportMessage(agentIdentity, (short)0));
+    sendMessage(socket,
+      new AgentProcessReportMessage(agentIdentity, (short)0, null));
 
     sendMessage(
       socket,
@@ -421,7 +435,7 @@ public class TestConsoleCommunicationImplementation
                                             StopGrinderMessage.class);
   }
 
-  public void testSendToAgentExceptions() throws Exception {
+  public void testSendExceptions() throws Exception {
     // Need a thread to be attempting to process messages or
     // ConsoleCommunicationImplementation.reset() will not complete.
     m_processMessagesThread.start();
@@ -433,12 +447,18 @@ public class TestConsoleCommunicationImplementation
       "handleException", DisplayMessageConsoleException.class);
     m_errorHandlerStubFactory.assertNoMoreCalls();
 
-    m_consoleCommunication.sendToAgent(
+    m_consoleCommunication.sendToAddressedAgents(
       new StubAgentIdentity("agent"), new MyMessage());
 
     m_errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
     m_errorHandlerStubFactory.assertNoMoreCalls();
+
+    m_consoleCommunication.sendToAgents(new MyMessage());
+    m_errorHandlerStubFactory.assertSuccess(
+      "handleException", DisplayMessageConsoleException.class);
+    m_errorHandlerStubFactory.assertNoMoreCalls();
+
 
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
     final ConsoleCommunication brokenConsoleCommunication =
@@ -451,10 +471,13 @@ public class TestConsoleCommunicationImplementation
       "handleException", DisplayMessageConsoleException.class);
     m_errorHandlerStubFactory.assertNoMoreCalls();
 
-    brokenConsoleCommunication.sendToAgent(
+    brokenConsoleCommunication.sendToAddressedAgents(
       new StubAgentIdentity("agent"), new MyMessage());
-
     m_errorHandlerStubFactory.assertSuccess("handleErrorMessage", String.class);
+
+    brokenConsoleCommunication.sendToAgents(new MyMessage());
+    m_errorHandlerStubFactory.assertSuccess("handleErrorMessage", String.class);
+
     m_errorHandlerStubFactory.assertNoMoreCalls();
   }
 
@@ -471,8 +494,12 @@ public class TestConsoleCommunicationImplementation
       "handleException", DisplayMessageConsoleException.class);
     m_errorHandlerStubFactory.assertNoMoreCalls();
 
-    new DistributionControlImplementation(m_consoleCommunication)
-    .clearFileCaches();
+    final CacheHighWaterMark cacheHighWaterMark =
+      new StubCacheHighWaterMark(123);
+
+    new DistributionControlImplementation(m_consoleCommunication,
+                                          m_agentFileCacheState)
+    .clearFileCaches(cacheHighWaterMark);
 
     m_errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
@@ -495,8 +522,9 @@ public class TestConsoleCommunicationImplementation
       "handleException", DisplayMessageConsoleException.class);
     errorHandlerStubFactory2.assertNoMoreCalls();
 
-    new DistributionControlImplementation(brokenConsoleCommunication)
-    .clearFileCaches();
+    new DistributionControlImplementation(brokenConsoleCommunication,
+                                          m_agentFileCacheState)
+    .clearFileCaches(cacheHighWaterMark);
 
     errorHandlerStubFactory2.assertSuccess("handleErrorMessage", String.class);
     errorHandlerStubFactory2.assertNoMoreCalls();

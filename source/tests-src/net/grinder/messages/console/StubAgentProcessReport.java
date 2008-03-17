@@ -21,6 +21,8 @@
 
 package net.grinder.messages.console;
 
+import net.grinder.messages.agent.CacheHighWaterMark;
+
 
 public final class StubAgentProcessReport implements AgentProcessReport {
 
@@ -42,5 +44,9 @@ public final class StubAgentProcessReport implements AgentProcessReport {
 
   public short getState() {
     return m_state;
+  }
+
+  public CacheHighWaterMark getCacheHighWaterMark() {
+    return null;
   }
 }

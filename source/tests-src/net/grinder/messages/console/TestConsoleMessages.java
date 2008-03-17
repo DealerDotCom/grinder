@@ -32,6 +32,8 @@ import java.util.HashSet;
 import junit.framework.TestCase;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.messages.agent.CacheHighWaterMark;
+import net.grinder.messages.agent.StubCacheHighWaterMark;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -164,11 +166,16 @@ public class TestConsoleMessages extends TestCase {
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
 
+    final CacheHighWaterMark cacheHighWaterMark =
+      new StubCacheHighWaterMark(100);
+
     final AgentProcessReportMessage original =
-      new AgentProcessReportMessage(agentIdentity, (short)1);
+      new AgentProcessReportMessage(
+        agentIdentity, (short)1, cacheHighWaterMark);
 
     assertEquals(agentIdentity, original.getAgentIdentity());
     assertEquals(agentIdentity, original.getIdentity());
+    assertEquals(cacheHighWaterMark, original.getCacheHighWaterMark());
     assertEquals(1, original.getState());
 
     final AgentProcessReportMessage received =
@@ -177,5 +184,6 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(agentIdentity, original.getAgentIdentity());
     assertEquals(agentIdentity, original.getIdentity());
     assertEquals(1, received.getState());
+    assertEquals(cacheHighWaterMark, received.getCacheHighWaterMark());
   }
 }

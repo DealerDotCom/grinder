@@ -21,9 +21,9 @@
 
 package net.grinder.console.communication;
 
+import net.grinder.communication.Address;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
-import net.grinder.messages.console.AgentIdentity;
 
 
 /**
@@ -68,12 +68,12 @@ public interface ConsoleCommunication {
    * Send the given message to the given agent processes (which may pass it on
    * to its workers).
    *
-   * @param agent
-   *            The agent to which the message should be sent.
+   * @param address
+   *            The address to which the message should be sent.
    * @param message
    *            The message to send.
    */
-  void sendToAgent(AgentIdentity agent, Message message);
+  void sendToAddressedAgents(Address address, Message message);
 
   /**
    * How many connections have been accepted? Used by the unit tests.

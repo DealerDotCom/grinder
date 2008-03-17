@@ -158,12 +158,8 @@ public final class FileDistributionImplementation implements FileDistribution {
 
     final long earliestFileTime = m_cacheState.getEarliestFileTime();
 
-    if (earliestFileTime < 0) {
-      m_distributionControl.clearFileCaches();
-    }
-
     // Change the cache state to "updating" in case there are no files to
-    // transfer. This can happen for the first transfer if the  distribution
+    // transfer. This can happen for the first transfer if the distribution
     // directory contains no files.
     m_cacheState.updateStarted(earliestFileTime);
 

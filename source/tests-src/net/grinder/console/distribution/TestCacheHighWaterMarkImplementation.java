@@ -47,13 +47,13 @@ public class TestCacheHighWaterMarkImplementation extends TestCase {
     final CacheHighWaterMark d =
       new CacheHighWaterMarkImplementation(cache2, 120);
 
-    assertTrue(a.isSameOrAfter(b));
-    assertTrue(a.isSameOrAfter(a));
-    assertTrue(b.isSameOrAfter(a));
-    assertFalse(a.isSameOrAfter(c));
-    assertTrue(c.isSameOrAfter(a));
-    assertFalse(d.isSameOrAfter(a));
-    assertFalse(a.isSameOrAfter(d));
+    assertFalse(a.isLater(b));
+    assertFalse(a.isLater(a));
+    assertFalse(b.isLater(a));
+    assertFalse(a.isLater(c));
+    assertTrue(c.isLater(a));
+    assertTrue(d.isLater(a));
+    assertTrue(a.isLater(d));
   }
 
 }

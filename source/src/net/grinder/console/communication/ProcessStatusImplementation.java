@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.communication.Address;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReport;
@@ -122,7 +123,36 @@ final class ProcessStatusImplementation {
    * @return The number of agents.
    */
   public int getNumberOfLiveAgents() {
-    return m_agentIdentityToAgentAndWorkers.size();
+    synchronized (m_agentIdentityToAgentAndWorkers) {
+      return m_agentIdentityToAgentAndWorkers.size();
+    }
+  }
+
+  public Address agentsWithOutOfDateCaches(CacheHighWaterMark highWaterMark) {
+
+    final Set agents = new HashSet();
+
+    synchronized (m_agentIdentityToAgentAndWorkers) {
+      final Iterator iterator =
+        m_agentIdentityToAgentAndWorkers.entrySet().iterator();
+
+      while (iterator.hasNext()) {
+        final Map.Entry entry = (Map.Entry)iterator.next();
+        final AgentAndWorkers agentAndWorkers =
+          (AgentAndWorkers)entry.getValue();
+
+        if (highWaterMark.isLater(
+          agentAndWorkers.getAgentProcessReport().getCacheHighWaterMark())) {
+          agents.add(entry.getKey());
+        }
+      }
+    }
+
+    return new Address() {
+      public boolean includes(Address address) {
+        return agents.contains(address);
+      }
+    };
   }
 
   private void update() {

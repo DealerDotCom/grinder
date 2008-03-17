@@ -25,7 +25,7 @@ import net.grinder.communication.Message;
 
 
 /**
- * Pass a cache checkpoint to the agent.
+ * Pass a cache check point to the agent.
  *
  * @author Philip Aston
  * @version $Revision:$
@@ -46,11 +46,11 @@ public class DistributionCacheCheckpointMessage implements Message {
   }
 
   /**
-   * Return the cache checkpoint.
+   * Return the cache check point.
    *
-   * @return The cache checkpoint.
+   * @return The cache check point.
    */
-  public CacheHighWaterMark getCacheCheckpoint() {
+  public CacheHighWaterMark getCacheHighWaterMark() {
     return m_highWaterMark;
   }
 }

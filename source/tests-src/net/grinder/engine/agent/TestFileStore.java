@@ -32,8 +32,11 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchSender;
 import net.grinder.communication.SimpleMessage;
+import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.agent.ClearCacheMessage;
 import net.grinder.messages.agent.DistributeFileMessage;
+import net.grinder.messages.agent.DistributionCacheCheckpointMessage;
+import net.grinder.messages.agent.StubCacheHighWaterMark;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.FileUtilities;
 import net.grinder.util.Directory;
@@ -47,6 +50,8 @@ import net.grinder.util.FileContents;
  * @version $Revision$
  */
 public class TestFileStore extends AbstractFileTestCase {
+
+  private static final Random s_random = new Random();
 
   public void testConstruction() throws Exception {
 
@@ -78,9 +83,9 @@ public class TestFileStore extends AbstractFileTestCase {
 
     // Nor a directory that contains a plain file clashing with one
     // of the subdirectory names.
-    file1.delete();
-    file1.mkdir();
-    new File(file1, "current").createNewFile();
+    assertTrue(file1.delete());
+    assertTrue(file1.mkdir());
+    assertTrue(new File(file1, "current").createNewFile());
 
     try {
       new FileStore(file1, null);
@@ -91,8 +96,8 @@ public class TestFileStore extends AbstractFileTestCase {
 
     // Can't use a read-only directory.
     final File readOnlyDirectory = new File(getDirectory(), "directory");
-    readOnlyDirectory.mkdir();
-    readOnlyDirectory.setReadOnly();
+    assertTrue(readOnlyDirectory.mkdir());
+    assertTrue(readOnlyDirectory.setReadOnly());
 
     try {
       new FileStore(readOnlyDirectory, null);
@@ -128,13 +133,13 @@ public class TestFileStore extends AbstractFileTestCase {
 
     // Test with a good message.
     final File sourceDirectory = new File(getDirectory(), "source");
-    sourceDirectory.mkdirs();
+    assertTrue(sourceDirectory.mkdirs());
 
     final File file0 = new File(sourceDirectory, "dir/file0");
-    file0.getParentFile().mkdirs();
+    assertTrue(file0.getParentFile().mkdirs());
     final OutputStream outputStream = new FileOutputStream(file0);
     final byte[] bytes = new byte[500];
-    new Random().nextBytes(bytes);
+    s_random.nextBytes(bytes);
     outputStream.write(bytes);
     outputStream.close();
 
@@ -169,7 +174,7 @@ public class TestFileStore extends AbstractFileTestCase {
     loggerStubFactory.assertSuccess("error", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
 
-    incomingDirectoryFile.delete();
+    assertFalse(incomingDirectoryFile.delete());
 
     messageDispatcher.send(message1);
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
@@ -192,8 +197,8 @@ public class TestFileStore extends AbstractFileTestCase {
 
     // Frig with currentDirectory so that getDirectory() fails.
     new Directory(currentDirectoryFile).deleteContents();
-    currentDirectoryFile.delete();
-    currentDirectoryFile.createNewFile();
+    assertTrue(currentDirectoryFile.delete());
+    assertTrue(currentDirectoryFile.createNewFile());
 
     try {
       fileStore.getDirectory();
@@ -203,11 +208,11 @@ public class TestFileStore extends AbstractFileTestCase {
     }
 
     // Put things back again.
-    currentDirectoryFile.delete();
+    assertTrue(currentDirectoryFile.delete());
     fileStore.getDirectory();
 
     // Test with a bad message.
-    targetFile.setReadOnly();
+    assertTrue(targetFile.setReadOnly());
 
     try {
       messageDispatcher.send(message1);
@@ -255,5 +260,23 @@ public class TestFileStore extends AbstractFileTestCase {
       new FileStore.FileStoreException("bite me", nested);
 
     assertEquals(nested, e.getCause());
+  }
+
+  public void testDistributionCheckpointMessage() throws Exception {
+    final FileStore fileStore = new FileStore(getDirectory(), null);
+
+    assertNull(fileStore.getCacheHighWaterMark());
+
+    final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
+    fileStore.registerMessageHandlers(messageDispatcher);
+
+    final CacheHighWaterMark cacheHighWaterMark =
+      new StubCacheHighWaterMark(123);
+    final Message message =
+      new DistributionCacheCheckpointMessage(cacheHighWaterMark);
+
+    messageDispatcher.send(message);
+
+    assertEquals(cacheHighWaterMark, fileStore.getCacheHighWaterMark());
   }
 }

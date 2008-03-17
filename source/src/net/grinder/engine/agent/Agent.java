@@ -405,11 +405,6 @@ public final class Agent {
       m_sender = ClientSender.connect(m_receiver);
       m_connector = connector;
 
-      m_sender.send(
-        new AgentProcessReportMessage(
-          m_agentIdentity,
-          AgentProcessReportMessage.STATE_STARTED));
-
       if (m_fileStore == null) {
         // Only create the file store if we connected.
         m_fileStore =
@@ -417,6 +412,12 @@ public final class Agent {
             new File("./" + m_agentIdentity.getName() + "-file-store"),
             m_logger);
       }
+
+      m_sender.send(
+        new AgentProcessReportMessage(
+          m_agentIdentity,
+          AgentProcessReportMessage.STATE_STARTED,
+          m_fileStore.getCacheHighWaterMark()));
 
       final MessageDispatchSender fileStoreMessageDispatcher =
         new MessageDispatchSender();
@@ -439,7 +440,8 @@ public final class Agent {
             m_sender.send(
               new AgentProcessReportMessage(
                 m_agentIdentity,
-                AgentProcessReportMessage.STATE_RUNNING));
+                AgentProcessReportMessage.STATE_RUNNING,
+                m_fileStore.getCacheHighWaterMark()));
           }
           catch (CommunicationException e) {
             cancel();
@@ -461,7 +463,8 @@ public final class Agent {
         m_sender.send(
           new AgentProcessReportMessage(
             m_agentIdentity,
-            AgentProcessReportMessage.STATE_FINISHED));
+            AgentProcessReportMessage.STATE_FINISHED,
+            m_fileStore.getCacheHighWaterMark()));
       }
       catch (CommunicationException e) {
         // Ignore - peer has probably shut down.

@@ -30,6 +30,7 @@ import net.grinder.console.communication.DistributionControl;
 import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
 import net.grinder.console.distribution.FileChangeWatcher.FileChangedListener;
 import net.grinder.console.distribution.FileDistributionImplementation.CacheIdentityImplementation;
+import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
@@ -66,13 +67,14 @@ public class TestFileDistribution extends AbstractFileTestCase {
     distributionControlStubFactory.assertNoMoreCalls();
 
     final File anotherFile = new File(getDirectory(), "foo");
-    anotherFile.mkdir();
+    assertTrue(anotherFile.mkdir());
     final Directory directory2 = new Directory(anotherFile);
 
     final FileDistributionHandler fileDistributionHandler1 =
       fileDistribution.getHandler();
 
-    distributionControlStubFactory.assertSuccess("clearFileCaches");
+    distributionControlStubFactory.assertSuccess("clearFileCaches",
+                                                 CacheHighWaterMark.class);
     distributionControlStubFactory.assertNoMoreCalls();
 
     // Convince the AgentCacheState that its up to date.
@@ -84,6 +86,9 @@ public class TestFileDistribution extends AbstractFileTestCase {
     // Test with same directory.
     final FileDistributionHandler fileDistributionHandler2 =
       fileDistribution.getHandler();
+
+    distributionControlStubFactory.assertSuccess("clearFileCaches",
+                                                 CacheHighWaterMark.class);
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler2);
     distributionControlStubFactory.assertNoMoreCalls();
@@ -97,7 +102,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler3);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler3);
-    distributionControlStubFactory.assertSuccess("clearFileCaches");
+    distributionControlStubFactory.assertSuccess("clearFileCaches",
+                                                 CacheHighWaterMark.class);
 
     // Again, convince the AgentCacheState that its up to date.
     agentCacheState.updateStarted(anotherFile.lastModified());
@@ -113,7 +119,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
     assertNotSame(fileDistributionHandler1, fileDistributionHandler4);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler4);
     assertNotSame(fileDistributionHandler3, fileDistributionHandler4);
-    distributionControlStubFactory.assertSuccess("clearFileCaches");
+    distributionControlStubFactory.assertSuccess("clearFileCaches",
+                                                 CacheHighWaterMark.class);;
     distributionControlStubFactory.assertNoMoreCalls();
 
     // Mark cache as up to date.
@@ -130,7 +137,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
     assertNotSame(fileDistributionHandler2, fileDistributionHandler5);
     assertNotSame(fileDistributionHandler3, fileDistributionHandler5);
     assertNotSame(fileDistributionHandler4, fileDistributionHandler5);
-    distributionControlStubFactory.assertSuccess("clearFileCaches");
+    distributionControlStubFactory.assertSuccess("clearFileCaches",
+                                                 CacheHighWaterMark.class);
 
     agentCacheState.setOutOfDate();
 
@@ -138,7 +146,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
       fileDistribution.getHandler();
 
     assertNotSame(fileDistributionHandler5, fileDistributionHandler6);
-    distributionControlStubFactory.assertSuccess("clearFileCaches");
+    distributionControlStubFactory.assertSuccess("clearFileCaches",
+                                                 CacheHighWaterMark.class);
 
     distributionControlStubFactory.assertNoMoreCalls();
   }
@@ -183,13 +192,13 @@ public class TestFileDistribution extends AbstractFileTestCase {
     fileListenerStubFactory.assertNoMoreCalls();
 
     final File file1 = new File(getDirectory(), "file1");
-    file1.createNewFile();
+    assertTrue(file1.createNewFile());
     final File file2 = new File(getDirectory(), "file2");
-    file2.createNewFile();
+    assertTrue(file2.createNewFile());
     final File oldFile = new File(getDirectory(), "file3");
-    oldFile.createNewFile();
-    oldFile.setLastModified(0);
-    file2.setLastModified(file1.lastModified() + 5000);
+    assertTrue(oldFile.createNewFile());
+    assertTrue(oldFile.setLastModified(0));
+    assertTrue(file2.setLastModified(file1.lastModified() + 5000));
 
     fileDistribution.setDirectory(directory);
     fileDistribution.setFileFilterPattern(m_matchAllPattern);
@@ -197,11 +206,11 @@ public class TestFileDistribution extends AbstractFileTestCase {
     assertEquals(0, agentCacheState.getEarliestFileTime());
     fileListenerStubFactory.assertNoMoreCalls();
 
-    file1.delete();
-    file1.createNewFile();
-    file2.delete();
-    file2.createNewFile();
-    file2.setLastModified(file1.lastModified() + 5000);
+    assertTrue(file1.delete());
+    assertTrue(file1.createNewFile());
+    assertTrue(file2.delete());
+    assertTrue(file2.createNewFile());
+    assertTrue(file2.setLastModified(file1.lastModified() + 5000));
 
     fileDistribution.setFileFilterPattern(m_matchIgnoredPattern);
     fileDistribution.scanDistributionFiles();
@@ -221,7 +230,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     // Even if the cache has older out of date times, we only scan from the
     // last scan time.
     final File file4 = new File(getDirectory(), "file4");
-    file4.createNewFile();
+    assertTrue(file4.createNewFile());
     agentCacheStateStubFactory.setEarliestFileTime(0);
     agentCacheStateStubFactory.resetOutOfDate();
     fileDistribution.scanDistributionFiles();
@@ -232,15 +241,15 @@ public class TestFileDistribution extends AbstractFileTestCase {
     // Do some checks with directories
     agentCacheStateStubFactory.resetOutOfDate();
     final File testDirectory = new File(getDirectory(), "test");
-    testDirectory.mkdir();
+    assertTrue(testDirectory.mkdir());
     final File directory1 = new File(getDirectory(), "test/dir1");
-    directory1.mkdir();
+    assertTrue(directory1.mkdir());
     final File oldDirectory = new File(getDirectory(), "test/dir3");
-    oldDirectory.mkdir();
+    assertTrue(oldDirectory.mkdir());
     final File directory2 = new File(getDirectory(), "test/dir3/dir2");
-    directory2.mkdir();
-    oldDirectory.setLastModified(0);
-    file2.setLastModified(file1.lastModified() + 5000);
+    assertTrue(directory2.mkdir());
+    assertTrue(oldDirectory.setLastModified(0));
+    assertTrue(file2.setLastModified(file1.lastModified() + 5000));
 
     fileDistribution.setDirectory(new Directory(testDirectory));
     fileDistribution.scanDistributionFiles();
@@ -271,7 +280,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
       new Directory(new File(getDirectory(), "subdirectory"));
     subdirectory.create();
     final File f1 = new File(subdirectory.getFile(), "file");
-    f1.createNewFile();
+    assertTrue(f1.createNewFile());
 
     FileUtilities.setCanAccess(subdirectory.getFile(), false);
 
@@ -346,7 +355,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     for (int i = 0; i < acceptableFilenames.length; ++i) {
       final File f = new File(getDirectory(), acceptableFilenames[i]);
-      f.createNewFile();
+      assertTrue(f.createNewFile());
       assertTrue(f.getPath() + " is acceptable", filter.accept(f));
     }
 
@@ -358,21 +367,21 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     for (int i = 0; i < unacceptableFileNames.length; ++i) {
       final File f = new File(getDirectory(), unacceptableFileNames[i]);
-      f.createNewFile();
+      assertTrue(f.createNewFile());
 
       assertTrue(f.getPath() + " is unacceptable", !filter.accept(f));
     }
 
     final File timeFile = new File(getDirectory(), "time file");
-    timeFile.createNewFile();
+    assertTrue(timeFile.createNewFile());
     assertTrue(timeFile.getPath() + " is acceptable", filter.accept(timeFile));
-    timeFile.setLastModified(123L);
+    assertTrue(timeFile.setLastModified(123L));
     assertTrue(timeFile.getPath() + " is unacceptable",
                !filter.accept(timeFile));
 
     // Add an error margin, as Linux does not support setting the modification
     // date with millisecond precision.
-    timeFile.setLastModified(101001L);
+    assertTrue(timeFile.setLastModified(101001L));
     assertTrue(timeFile.getPath() + " is acceptable", filter.accept(timeFile));
 
     final String[] acceptableDirectoryNames = new String[] {
@@ -382,7 +391,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     for (int i = 0; i < acceptableDirectoryNames.length; ++i) {
       final File f = new File(getDirectory(), acceptableDirectoryNames[i]);
-      f.mkdir();
+      assertTrue(f.mkdir());
       assertTrue(f.getPath() + " is acceptable", filter.accept(f));
     }
 
@@ -393,29 +402,28 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     for (int i = 0; i < unacceptableDirectoryNames.length; ++i) {
       final File f = new File(getDirectory(), unacceptableDirectoryNames[i]);
-      f.mkdir();
       assertTrue(f.getPath() + " is unacceptable", !filter.accept(f));
     }
 
     final File timeDirectory = new File(getDirectory(), "time directory");
-    timeDirectory.mkdir();
+    assertTrue(timeDirectory.mkdir());
     assertTrue(timeDirectory.getPath() + " is acceptable",
                filter.accept(timeDirectory));
-    timeDirectory.setLastModified(123L);
+    assertTrue(timeDirectory.setLastModified(123L));
     assertTrue(timeDirectory.getPath() + " is acceptable",
                filter.accept(timeDirectory));
 
     final File fileStoreDirectory = new File(getDirectory(), "foo-file-store");
-    fileStoreDirectory.mkdir();
+    assertTrue(fileStoreDirectory.mkdir());
     assertTrue(fileStoreDirectory.getPath() + " is acceptable",
                filter.accept(fileStoreDirectory));
 
     final File readMeFile = new File(fileStoreDirectory, "README.txt");
-    readMeFile.createNewFile();
+    assertTrue(readMeFile.createNewFile());
     assertTrue(fileStoreDirectory.getPath() + " is unacceptable",
                !filter.accept(fileStoreDirectory));
 
-    readMeFile.delete();
+    assertTrue(readMeFile.delete());
     assertTrue(fileStoreDirectory.getPath() + " is acceptable",
                filter.accept(fileStoreDirectory));
   }
@@ -435,7 +443,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     for (int i = 0; i < acceptableFilenames.length; ++i) {
       final File f = new File(getDirectory(), acceptableFilenames[i]);
-      f.createNewFile();
+      assertTrue(f.createNewFile());
       assertTrue(f.getPath() + " is distributable", filter.accept(f));
     }
 
@@ -447,7 +455,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     for (int i = 0; i < unacceptableFileNames.length; ++i) {
       final File f = new File(getDirectory(), unacceptableFileNames[i]);
-      f.createNewFile();
+      assertTrue(f.createNewFile());
 
       assertTrue(f.getPath() + " is not distributable", !filter.accept(f));
     }

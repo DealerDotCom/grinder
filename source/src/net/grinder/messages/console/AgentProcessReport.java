@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,8 @@
 
 package net.grinder.messages.console;
 
+import net.grinder.messages.agent.CacheHighWaterMark;
+
 
 /**
  * Interface for enquiring about an agent process.
@@ -36,5 +38,12 @@ public interface AgentProcessReport extends ProcessReport {
    * @return The process identity.
    */
   AgentIdentity getAgentIdentity();
+
+  /**
+   * Accessor for the cache status.
+   *
+   * @return The cache status.
+   */
+  CacheHighWaterMark getCacheHighWaterMark();
 }
 

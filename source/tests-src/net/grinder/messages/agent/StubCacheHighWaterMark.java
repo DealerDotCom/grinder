@@ -19,46 +19,34 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.distribution;
-
-import java.io.Serializable;
+package net.grinder.messages.agent;
 
 import net.grinder.messages.agent.CacheHighWaterMark;
 
+public class StubCacheHighWaterMark implements CacheHighWaterMark {
+  public int m_height;
 
-/**
- * Implementation of {@link CacheHighWaterMark}.
- *
- * @author Philip Aston
- * @version $Revision:$
- */
-final class CacheHighWaterMarkImplementation implements CacheHighWaterMark {
-
-  private static final long serialVersionUID = 1L;
-
-  private final CacheIdentity m_cacheIdentity;
-  private final long m_highWaterMark;
-
-  public CacheHighWaterMarkImplementation(CacheIdentity cacheIdentity,
-                                          long highWaterMark) {
-    m_cacheIdentity = cacheIdentity;
-    m_highWaterMark = highWaterMark;
+  public StubCacheHighWaterMark(int height) {
+    m_height = height;
   }
 
   public boolean isLater(CacheHighWaterMark other) {
-    // For now, we only support comparison with other
-    // CacheHighWaterMarkImplementations.
-    final CacheHighWaterMarkImplementation otherHighWater =
-      (CacheHighWaterMarkImplementation)other;
-
-    return otherHighWater == null ||
-           !m_cacheIdentity.equals(otherHighWater.m_cacheIdentity) ||
-           m_highWaterMark > otherHighWater.m_highWaterMark;
+    return m_height >= ((StubCacheHighWaterMark)other).m_height;
   }
 
-  /**
-   * Opaque object representing the cache parameters.
-   */
-  interface CacheIdentity extends Serializable {
+  public int hashCode() {
+    return m_height;
+  }
+
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+
+    if (o == null || o.getClass() != getClass()) {
+      return false;
+    }
+
+    return m_height == ((StubCacheHighWaterMark)o).m_height;
   }
 }

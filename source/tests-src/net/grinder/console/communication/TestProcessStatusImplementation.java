@@ -21,8 +21,6 @@
 
 package net.grinder.console.communication;
 
-import junit.framework.TestCase;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,9 +28,13 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import junit.framework.TestCase;
 import net.grinder.console.communication.ProcessStatusImplementation.AgentAndWorkers;
 import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.messages.agent.CacheHighWaterMark;
+import net.grinder.messages.agent.StubCacheHighWaterMark;
 import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.messages.console.ProcessReport;
 import net.grinder.messages.console.StubAgentProcessReport;
 import net.grinder.messages.console.StubWorkerProcessReport;
@@ -356,6 +358,56 @@ public class TestProcessStatusImplementation extends TestCase {
       agentAndWorkers.getAgentProcessReport();
 
     assertEquals(agentIdentity, initialReport.getAgentIdentity());
+
+    assertNull(initialReport.getCacheHighWaterMark());
+  }
+
+  public void testAgentsWithOutOfDateCaches() throws Exception {
+    final ProcessStatusImplementation processStatusSet =
+      new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
+
+    final StubAgentIdentity agentIdentity1 =
+      new StubAgentIdentity("agent");
+    final StubAgentIdentity agentIdentity2 =
+      new StubAgentIdentity("agent2");
+
+    final CacheHighWaterMark cacheState1 = new StubCacheHighWaterMark(1213);
+
+    assertFalse(
+      processStatusSet.agentsWithOutOfDateCaches(cacheState1).includes(
+        agentIdentity1));
+
+    processStatusSet.addAgentStatusReport(
+      new AgentProcessReportMessage(agentIdentity1, (short)0, cacheState1));
+
+    assertTrue(
+      processStatusSet.agentsWithOutOfDateCaches(cacheState1).includes(
+        agentIdentity1));
+
+    assertFalse(
+      processStatusSet.agentsWithOutOfDateCaches(
+        new StubCacheHighWaterMark(1212)).includes(agentIdentity1));
+
+    processStatusSet.addAgentStatusReport(
+      new AgentProcessReportMessage(agentIdentity2,
+                                   (short)0,
+                                   new StubCacheHighWaterMark(2000)));
+
+    assertTrue(
+      processStatusSet.agentsWithOutOfDateCaches(
+        new StubCacheHighWaterMark(1214)).includes(agentIdentity1));
+
+    assertFalse(
+      processStatusSet.agentsWithOutOfDateCaches(
+        new StubCacheHighWaterMark(1214)).includes(agentIdentity2));
+
+    assertTrue(
+      processStatusSet.agentsWithOutOfDateCaches(
+        new StubCacheHighWaterMark(2214)).includes(agentIdentity1));
+
+    assertTrue(
+      processStatusSet.agentsWithOutOfDateCaches(
+        new StubCacheHighWaterMark(2214)).includes(agentIdentity2));
   }
 
   private static final class MyTimer extends Timer {

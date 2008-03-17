@@ -69,6 +69,9 @@ public class TestFileDistributionHandlerImplementation
         distributionControl,
         updateableAgentCacheState);
 
+    distributionControlStubFactory.assertSuccess("clearFileCaches",
+                                                 CacheHighWaterMark.class);
+
     final FileDistributionHandler.Result result0 =
       fileDistributionHandler.sendNextFile();
 
@@ -76,7 +79,8 @@ public class TestFileDistributionHandlerImplementation
     assertEquals("a", result0.getFileName());
 
     distributionControlStubFactory.assertSuccess("sendFile",
-                                                 FileContents.class);
+                                                 FileContents.class,
+                                                 CacheHighWaterMark.class);
 
     final File earliestFile = new File(getDirectory(), files[0].getPath());
 
@@ -91,7 +95,8 @@ public class TestFileDistributionHandlerImplementation
     assertEquals("b", result1.getFileName());
 
     distributionControlStubFactory.assertSuccess("sendFile",
-                                                 FileContents.class);
+                                                 FileContents.class,
+                                                 CacheHighWaterMark.class);
 
     updateableAgentCacheStateStubFactory.assertNoMoreCalls();
 

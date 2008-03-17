@@ -57,6 +57,13 @@ final class FileDistributionHandlerImplementation
     m_files = files;
     m_distributionControl = distributionControl;
     m_updateableCacheState = updateableCacheState;
+
+    // Clear any cache that has out of date cache parameters.
+    // We currently we do nothing about cached copies of deleted files.
+    m_distributionControl.clearFileCaches(
+      new CacheHighWaterMarkImplementation(
+        m_cacheIdentity,
+        0));
   }
 
   public Result sendNextFile() throws FileContents.FileContentsException {
@@ -81,7 +88,11 @@ final class FileDistributionHandlerImplementation
         final int index = m_fileIndex;
         final File file = m_files[index];
 
-        m_distributionControl.sendFile(new FileContents(m_directory, file));
+        m_distributionControl.sendFile(
+          new FileContents(m_directory, file),
+          new CacheHighWaterMarkImplementation(
+            m_cacheIdentity,
+            new File(m_directory, file.getPath()).lastModified()));
 
         return new Result() {
             public int getProgressInCents() {

@@ -25,6 +25,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import net.grinder.communication.Acceptor;
+import net.grinder.communication.Address;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
@@ -36,7 +37,6 @@ import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.messages.console.AgentIdentity;
 import net.grinder.util.thread.BooleanCondition;
 
 
@@ -322,19 +322,19 @@ public final class ConsoleCommunicationImplementation
    * {@link #setErrorHandler(ErrorHandler)}.
    * </p>
    *
-   * @param agent
-   *            The agent to which the message should be sent.
+   * @param address
+   *            The address to which the message should be sent.
    * @param message
    *            The message to send.
    */
-  public void sendToAgent(AgentIdentity agent, Message message) {
+  public void sendToAddressedAgents(Address address, Message message) {
     if (m_sender == null) {
       m_errorHandler.handleErrorMessage(
         m_resources.getString("sendError.text"));
     }
     else {
       try {
-        m_sender.send(agent, message);
+        m_sender.send(address, message);
       }
       catch (CommunicationException e) {
         m_errorHandler.handleException(

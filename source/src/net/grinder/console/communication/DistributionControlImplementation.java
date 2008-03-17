@@ -38,32 +38,49 @@ public class DistributionControlImplementation
   implements DistributionControl {
 
   private final ConsoleCommunication m_consoleCommunication;
+  private final AgentFileCacheState m_agentFileCacheState;
 
   /**
    * Constructor.
    *
    * @param consoleCommunication
    *          The console communication handler.
+   * @param agentFileCacheState
+   *          Something that knows the state of the agent file caches.
    */
   public DistributionControlImplementation(
-    ConsoleCommunication consoleCommunication) {
+    ConsoleCommunication consoleCommunication,
+    AgentFileCacheState agentFileCacheState) {
       m_consoleCommunication = consoleCommunication;
+      m_agentFileCacheState = agentFileCacheState;
   }
 
   /**
-   * Signal the agent processes to clear their file caches.
+   * Signal the agent processes that are less up to date than the given water
+   * mark to clear their file caches.
+   *
+   * @param cacheHighWaterMark
+   *            The water mark. In practice, its associated time will be 0, so
+   *            agents with caches for out of date cache parameters will be
+   *            cleared.
    */
-  public void clearFileCaches() {
-    m_consoleCommunication.sendToAgents(new ClearCacheMessage());
+  public void clearFileCaches(CacheHighWaterMark cacheHighWaterMark) {
+    m_consoleCommunication.sendToAddressedAgents(
+      m_agentFileCacheState.agentsWithOutOfDateCaches(cacheHighWaterMark),
+      new ClearCacheMessage());
   }
 
   /**
-   * Send a file to the file caches.
+   * Send a file to the file caches that are less up to date than the given
+   * high water mark.
    *
    * @param fileContents The file contents.
+   * @param cacheHighWaterMark The high water mark.
    */
-  public void sendFile(FileContents fileContents) {
-    m_consoleCommunication.sendToAgents(
+  public void sendFile(FileContents fileContents,
+                       CacheHighWaterMark cacheHighWaterMark) {
+    m_consoleCommunication.sendToAddressedAgents(
+      m_agentFileCacheState.agentsWithOutOfDateCaches(cacheHighWaterMark),
       new DistributeFileMessage(fileContents));
   }
 

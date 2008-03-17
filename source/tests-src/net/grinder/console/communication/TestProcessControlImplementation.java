@@ -23,12 +23,16 @@ package net.grinder.console.communication;
 
 import java.util.Comparator;
 
+import net.grinder.communication.Address;
 import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.messages.agent.CacheHighWaterMark;
+import net.grinder.messages.agent.StubCacheHighWaterMark;
 import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.messages.console.StubAgentProcessReport;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.testutility.StubTimer;
 
 import junit.framework.TestCase;
 
@@ -39,6 +43,13 @@ import junit.framework.TestCase;
  * @version $Revision:$
  */
 public class TestProcessControlImplementation extends TestCase {
+
+  private final StubTimer m_timer = new StubTimer();
+
+  private final RandomStubFactory m_consoleCommunicationStubFactory =
+    new RandomStubFactory(ConsoleCommunication.class);
+  private final ConsoleCommunication m_consoleCommunication =
+    (ConsoleCommunication)m_consoleCommunicationStubFactory.getStub();
 
   public void testProcessReportsComparator() throws Exception {
     final Comparator comparator = new ProcessControl.ProcessReportsComparator();
@@ -73,5 +84,25 @@ public class TestProcessControlImplementation extends TestCase {
     assertEquals(0, comparator.compare(processReports2, processReports2));
     assertTrue(comparator.compare(processReports1, processReports2) < 0);
     assertTrue(comparator.compare(processReports2, processReports1) > 0);
+  }
+
+  public void testAgentsWithOutOfDateCaches() throws Exception {
+    final ProcessControlImplementation processControl =
+      new ProcessControlImplementation(m_timer, m_consoleCommunication);
+
+    final CacheHighWaterMark cacheState1 = new StubCacheHighWaterMark(9);
+
+    final Address address =
+      processControl.agentsWithOutOfDateCaches(cacheState1);
+
+    assertNotNull(address);
+    assertFalse(address.includes(
+      new Address() {
+        public boolean includes(Address address) { return false; }
+      }
+    ));
+
+    assertNotSame(address,
+                  processControl.agentsWithOutOfDateCaches(cacheState1));
   }
 }

@@ -19,46 +19,28 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.distribution;
+package net.grinder.console.communication;
 
-import java.io.Serializable;
-
+import net.grinder.communication.Address;
 import net.grinder.messages.agent.CacheHighWaterMark;
 
 
 /**
- * Implementation of {@link CacheHighWaterMark}.
+ * AgentFileCacheState.
+ *
+ * <p>Tracks the state of individual agent file caches.</p>
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-final class CacheHighWaterMarkImplementation implements CacheHighWaterMark {
-
-  private static final long serialVersionUID = 1L;
-
-  private final CacheIdentity m_cacheIdentity;
-  private final long m_highWaterMark;
-
-  public CacheHighWaterMarkImplementation(CacheIdentity cacheIdentity,
-                                          long highWaterMark) {
-    m_cacheIdentity = cacheIdentity;
-    m_highWaterMark = highWaterMark;
-  }
-
-  public boolean isLater(CacheHighWaterMark other) {
-    // For now, we only support comparison with other
-    // CacheHighWaterMarkImplementations.
-    final CacheHighWaterMarkImplementation otherHighWater =
-      (CacheHighWaterMarkImplementation)other;
-
-    return otherHighWater == null ||
-           !m_cacheIdentity.equals(otherHighWater.m_cacheIdentity) ||
-           m_highWaterMark > otherHighWater.m_highWaterMark;
-  }
+public interface AgentFileCacheState {
 
   /**
-   * Opaque object representing the cache parameters.
+   * Return an address that can be used to send a message to all agent caches
+   * that are less up to date than the given high water mark.
+   *
+   * @param highWaterMark The high water mark.
+   * @return The address.
    */
-  interface CacheIdentity extends Serializable {
-  }
+  Address agentsWithOutOfDateCaches(CacheHighWaterMark highWaterMark);
 }

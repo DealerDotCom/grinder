@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,16 @@ import java.beans.PropertyChangeListener;
 
 
 /**
- * Simplistic model of remote caches.
+ * Simplistic model of remote file caches.
+ *
+ * <p>
+ * This tracks the state of all the caches, so {@link #getOutOfDate()} will
+ * return <code>true</code> if any one of the caches is out of date. The
+ * communication package further filters interaction on a per cache basis, see
+ * {@link net.grinder.console.communication.AgentFileCacheState}.
+ * </p>
+ *
+ * TODO This should be reworked based on AgentFileCacheState.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -33,19 +42,19 @@ import java.beans.PropertyChangeListener;
 public interface AgentCacheState {
 
   /**
-   * Enquire whether the agent caches are out of date.
+   * Enquire whether one or more agent caches is out of date.
    *
-   * @return <code>true</code> => they are out of date.
+   * @return <code>true</code> => at least one agent cache is out of date.
    */
   boolean getOutOfDate();
 
   /**
-   * Notify that the agent caches are invalid.
+   * Notify that an agent cache is invalid.
    */
   void setOutOfDate();
 
   /**
-   * Notify that the agent caches are out of date due to a file
+   * Notify that an agent cache is out of date due to a file
    * changing.
    *
    * @param invalidAfter Cache entries with files newer than this time

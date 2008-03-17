@@ -40,15 +40,16 @@ public interface CacheHighWaterMark extends Serializable {
    * We don't use {@link Comparable} since this is not a strict ordering. Two
    * <code>CacheHighWaterMark</code>s for different caches (perhaps the key
    * information about the cache has changed) <code>x</code> and
-   * <code>y</code>, will return <code>false</code> for both
-   * <code>x.isSameOrAfter(y)</code> and <code>y.isSameOrAfter(x)</code>.
+   * <code>y</code>, will return <code>true</code> for both
+   * <code>x.isLater(y)</code> and <code>y.isLater(x)</code>.
    * </p>
    *
    *
    * @param other
    *            The state to compare.
-   * @return <code>true</code> if and only if this cache state is for the same
-   *         cache and is at least as up to date as the other cache state.
+   * @return <code>true</code> if this cache state is for the same cache and
+   *         is later than <code>other</code>, or this cache state is for a
+   *         different cache, or <code>other</code> is <code>null</code>.
    */
-  boolean isSameOrAfter(CacheHighWaterMark other);
+  boolean isLater(CacheHighWaterMark other);
 }
