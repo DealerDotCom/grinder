@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -372,7 +372,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     // Check load a non-directory, should give default.
     final File file2 = new File(getDirectory(), "testing2");
     properties.setAndSaveDistributionDirectory(new Directory(file2));
-    file2.createNewFile();
+    assertTrue(file2.createNewFile());
 
     final ConsoleProperties p2 =
       new ConsoleProperties(s_resources, file);
@@ -625,7 +625,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
   public void testWithBadFile() throws Exception {
 
     final File badFile = new File(getDirectory(), "bad");
-    badFile.createNewFile();
+    assertTrue(badFile.createNewFile());
     FileUtilities.setCanAccess(badFile, false);
 
     try {

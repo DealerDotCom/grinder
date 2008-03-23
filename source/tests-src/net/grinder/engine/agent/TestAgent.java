@@ -83,9 +83,9 @@ public class TestAgent extends AbstractFileTestCase {
 
     final File relativeScriptFile = new File("script/blah");
     relativeScriptFile.deleteOnExit();
-    relativeScriptFile.getParentFile().mkdirs();
+    assertTrue(relativeScriptFile.getParentFile().mkdirs());
     relativeScriptFile.getParentFile().deleteOnExit();
-    relativeScriptFile.createNewFile();
+    assertTrue(relativeScriptFile.createNewFile());
 
     try {
       final GrinderProperties properties = new GrinderProperties(propertyFile);
@@ -117,9 +117,9 @@ public class TestAgent extends AbstractFileTestCase {
       agent.shutdown();
     }
     finally {
-      propertyFile.delete();
-      relativeScriptFile.delete();
-      relativeScriptFile.getParentFile().delete();
+      assertTrue(propertyFile.delete());
+      assertTrue(relativeScriptFile.delete());
+      assertTrue(relativeScriptFile.getParentFile().delete());
     }
   }
 
@@ -148,7 +148,7 @@ public class TestAgent extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
 
     final File scriptFile = new File(getDirectory(), "script");
-    scriptFile.createNewFile();
+    assertTrue(scriptFile.createNewFile());
 
     final File badFile = new File(scriptFile.getAbsoluteFile(), "blah");
     properties.setFile("grinder.script", badFile);
@@ -362,7 +362,7 @@ public class TestAgent extends AbstractFileTestCase {
     final Agent agent = new Agent(m_logger, propertyFile);
 
     final File script = new File(getDirectory(), "grinder.py");
-    script.createNewFile();
+    assertTrue(script.createNewFile());
 
     properties.setInt("grinder.consolePort", console.getPort());
     properties.setInt("grinder.initialProcesses", 0);

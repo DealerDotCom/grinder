@@ -117,9 +117,9 @@ public class TestFileTree extends AbstractFileTestCase {
 
     // Tests with files outside of the root directory.
     final File f1 = new File(getDirectory(), "file1");
-    f1.createNewFile();
+    assertTrue(f1.createNewFile());
     final File f2 = new File(getDirectory(), "file2");
-    f1.createNewFile();
+    assertTrue(f2.createNewFile());
     final Buffer buffer = editorModel.selectBufferForFile(f1);
     buffer.save(f2);
     editorModel.closeBuffer(buffer);

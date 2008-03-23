@@ -97,7 +97,7 @@ public class TestAbstractMainClass extends TestCase {
     loggerStubFactory.assertNoMoreCalls();
   }
 
-  private class MyMainClass extends AbstractMainClass {
+  private static class MyMainClass extends AbstractMainClass {
     public MyMainClass(Logger logger, String usage) throws GrinderException {
       super(logger, usage);
     }

@@ -168,7 +168,7 @@ public class TestThreadSafeQueue extends TestCase {
     assertNull(threadSafeQueue.dequeue(false));
   }
 
-  private final class MyMessage {
+  private static final class MyMessage {
     private final int m_queuerNumber;
     private final int m_messageNumber;
 
@@ -223,7 +223,7 @@ public class TestThreadSafeQueue extends TestCase {
     }
   }
 
-  private final class Dequeuer implements Runnable {
+  private static final class Dequeuer implements Runnable {
     private final int m_numberOfMessages;
     private final ThreadSafeQueue m_queue;
     private final List m_answerList;

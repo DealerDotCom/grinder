@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -339,7 +339,7 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     }
   }
 
-  private final class AcceptSingleConnectionAndEcho implements Runnable {
+  private static final class AcceptSingleConnectionAndEcho implements Runnable {
     private final ServerSocket m_serverSocket;
 
     public AcceptSingleConnectionAndEcho() throws IOException {
@@ -359,7 +359,7 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
                                           socket.getOutputStream());
       }
       catch (IOException e) {
-        fail("Got a " + e.getMessage());
+        System.err.println("Got a " + e.getMessage());
       }
     }
   }

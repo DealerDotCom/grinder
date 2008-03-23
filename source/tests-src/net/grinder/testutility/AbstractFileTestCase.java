@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,7 +40,7 @@ import java.util.Random;
  */
 public abstract class AbstractFileTestCase extends TestCase {
 
-  private static Random s_random  = new Random();
+  protected static Random s_random  = new Random();
 
   private File m_directory;
 
@@ -73,8 +73,8 @@ public abstract class AbstractFileTestCase extends TestCase {
   protected final File getDirectory() throws IOException {
     if (m_directory == null) {
       m_directory = File.createTempFile(getClass().getName(), "test");
-      m_directory.delete();
-      m_directory.mkdir();
+      assertTrue(m_directory.delete());
+      assertTrue(m_directory.mkdir());
       m_directory.deleteOnExit();
     }
 

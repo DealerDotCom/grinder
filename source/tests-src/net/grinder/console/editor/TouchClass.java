@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,7 +41,9 @@ public class TouchClass {
     final String command = arguments[0];
 
     if (TOUCH.equals(command)) {
-      new File(arguments[1]).setLastModified(System.currentTimeMillis());
+      final File file = new File(arguments[1]);
+      boolean result = file.setLastModified(System.currentTimeMillis());
+      assert result;
     }
     else if (SLEEP.equals(command)) {
       Thread.sleep(60 * 1000);

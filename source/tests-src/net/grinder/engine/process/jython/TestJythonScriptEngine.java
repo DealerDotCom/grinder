@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -105,7 +105,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
       AssertUtilities.assertContains(e.getShortMessage(), "IOError");
     }
 
-    scriptFile.createNewFile();
+    assertTrue(scriptFile.createNewFile());
 
     try {
       scriptEngine.initialise(scriptWithIncorrectRoot);
@@ -135,7 +135,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     scriptEngine.shutdown();
 
     final File directory = new File(getDirectory(), "foo");
-    directory.mkdirs();
+    assertTrue(directory.mkdirs());
     // new File(directory, "__init__.py").createNewFile();
 
     final PrintWriter w3 = new PrintWriter(new FileWriter(scriptFile, true));
@@ -176,7 +176,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     scriptEngine.initialise(script);
     scriptEngine.shutdown();
 
-    s_lastCallbackObject = null;
+    callback(null);
 
     final PrintWriter w2 = new PrintWriter(new FileWriter(script.getFile()));
     w2.println("from net.grinder.engine.process.jython import TestJythonScriptEngine");
@@ -864,7 +864,6 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     // Can't wrap strings.
     assertNotWrappable("foo bah");
-    assertNotWrappable(new String());
 
     // Can't wrap numbers.
     assertNotWrappable(new Long(56));

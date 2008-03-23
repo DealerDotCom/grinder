@@ -196,7 +196,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     // Add an error margin, as Linux does not support setting the modification
     // date with millisecond precision.
-    file.setLastModified(System.currentTimeMillis() + 1000);
+    assertTrue(file.setLastModified(System.currentTimeMillis() + 1000));
 
     assertTrue(!buffer.isUpToDate());
 

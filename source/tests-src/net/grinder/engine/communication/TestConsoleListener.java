@@ -207,7 +207,9 @@ public class TestConsoleListener extends TestCase {
 
     final Thread t = new Thread() {
         public void run() {
-          synchronized (myCondition) { } // Wait until we're listening.
+          synchronized (myCondition) {
+            // Wait until we're listening.
+          }
           try {
             messageDispatcher.send(
               new StartGrinderMessage(new GrinderProperties(), -1));

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,6 @@ package net.grinder.util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.Random;
 
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
@@ -53,7 +52,7 @@ public class TestFileContents extends AbstractFileTestCase {
       fullPath.getParentFile().mkdirs();
       final OutputStream outputStream = new FileOutputStream(fullPath);
       final byte[] bytes = new byte[500];
-      new Random().nextBytes(bytes);
+      s_random.nextBytes(bytes);
       outputStream.write(bytes);
       outputStream.close();
 
@@ -91,7 +90,7 @@ public class TestFileContents extends AbstractFileTestCase {
     catch (FileContents.FileContentsException e) {
     }
   }
-    
+
   public void testCreate() throws Exception {
 
     final String[] files = {
@@ -104,7 +103,7 @@ public class TestFileContents extends AbstractFileTestCase {
       final File fullPath = new File(getDirectory(), relativePath.getPath());
 
       createRandomFile(fullPath);
-    
+
       final FileContents fileContents =
         new FileContents(getDirectory(), relativePath);
 

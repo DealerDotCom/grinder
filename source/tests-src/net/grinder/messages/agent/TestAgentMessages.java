@@ -63,7 +63,7 @@ public class TestAgentMessages extends AbstractFileTestCase {
 
   public void testDistributeFileMessage() throws Exception {
     final File file = new File("test");
-    new File(getDirectory(), file.getPath()).createNewFile();
+    assertTrue(new File(getDirectory(), file.getPath()).createNewFile());
 
     final FileContents fileContents = new FileContents(getDirectory(), file);
 

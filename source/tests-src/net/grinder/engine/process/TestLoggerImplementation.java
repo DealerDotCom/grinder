@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -70,7 +70,7 @@ public class TestLoggerImplementation extends AbstractFileTestCase {
   public void testBasics() throws Exception {
     final File directory = new File(getDirectory(), "logs");
 
-    directory.mkdir();
+    assertTrue(directory.mkdir());
     FileUtilities.setCanAccess(directory, false);
 
     try {

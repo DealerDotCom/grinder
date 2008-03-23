@@ -44,7 +44,7 @@ public class TestDirectory extends AbstractFileTestCase {
   public void testConstruction() throws Exception {
 
     final File file = new File(getDirectory(), "x");
-    file.createNewFile();
+    assertTrue(file.createNewFile());
 
     try {
       new Directory(file);
@@ -75,7 +75,7 @@ public class TestDirectory extends AbstractFileTestCase {
     final Directory d2 = new Directory(getDirectory());
 
     final File f = new File(getDirectory(), "comeonpilgrimyouknowhelovesyou");
-    f.mkdir();
+    assertTrue(f.mkdir());
 
     final Directory d3 = new Directory(f);
 
@@ -113,10 +113,10 @@ public class TestDirectory extends AbstractFileTestCase {
     for (int i=0; i<files.length; ++i) {
       final File file = new File(getDirectory(), files[i]);
       file.getParentFile().mkdirs();
-      file.createNewFile();
+      assertTrue(file.createNewFile());
 
       if (i < 3) {
-        file.setLastModified(10000L * (i + 1));
+        assertTrue(file.setLastModified(10000L * (i + 1)));
       }
       else {
         // Result uses relative paths.
@@ -131,7 +131,7 @@ public class TestDirectory extends AbstractFileTestCase {
 
     for (int i = 0; i < badDirectories.length; ++i) {
       badDirectories[i].getParentFile().mkdirs();
-      badDirectories[i].mkdir();
+      assertTrue(badDirectories[i].mkdir());
       FileUtilities.setCanAccess(badDirectories[i], false);
     }
 
@@ -189,7 +189,7 @@ public class TestDirectory extends AbstractFileTestCase {
     for (int i = 0; i < files.length; ++i) {
       final File file = new File(getDirectory(), files[i]);
       file.getParentFile().mkdirs();
-      file.createNewFile();
+      assertTrue(file.createNewFile());
     }
 
     assertTrue(getDirectory().list().length > 0);
@@ -218,7 +218,7 @@ public class TestDirectory extends AbstractFileTestCase {
     }
 
     final File file = new File(getDirectory(), "readonly");
-    file.createNewFile();
+    assertTrue(file.createNewFile());
     FileUtilities.setCanAccess(file, false);
 
     try {
@@ -241,7 +241,7 @@ public class TestDirectory extends AbstractFileTestCase {
       new Directory(new File(getDirectory(), "another"));
     directory2.create();
     final File file2 = new File(getDirectory(), "another/file");
-    file2.createNewFile();
+    assertTrue(file2.createNewFile());
 
     try {
       directory2.delete();

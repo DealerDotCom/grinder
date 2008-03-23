@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -176,13 +176,13 @@ public class TestFileTreeModel extends AbstractFileTestCase {
 
   public void testWithFileStructure() throws Exception {
     final File file1 = new File(getDirectory(), "file1");
-    file1.createNewFile();
+    assertTrue(file1.createNewFile());
     final File dir1 = new File(getDirectory(), "dir1");
-    dir1.mkdir();
+    assertTrue(dir1.mkdir());
     final File file2 = new File(dir1, "file2");
-    file2.createNewFile();
+    assertTrue(file2.createNewFile());
     final File file3 = new File(dir1, "file3");
-    file3.createNewFile();
+    assertTrue(file3.createNewFile());
 
     final FileTreeModel fileTreeModel =
       new FileTreeModel(m_editorModel, m_nullFileFilter);
@@ -224,27 +224,27 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     fileTreeModel.refresh();
     assertNull(fileTreeModel.findNode(dir1));
 
-    dir1.mkdir();
+    assertTrue(dir1.mkdir());
     final File dir2 = new File(getDirectory(), "dir2");
-    dir2.mkdir();
+    assertTrue(dir2.mkdir());
 
     fileTreeModel.refresh();
     assertNotNull(fileTreeModel.findNode(dir1));
     fileTreeModel.refresh();
     assertNotNull(fileTreeModel.findNode(dir1));
-    dir1.delete();
+    assertTrue(dir1.delete());
     assertNotNull(fileTreeModel.findNode(dir1));
     fileTreeModel.refresh();
     assertNull(fileTreeModel.findNode(dir1));
-    dir1.mkdir();
-    dir2.delete();
+    assertTrue(dir1.mkdir());
+    assertTrue(dir2.delete());
 
     final File file1 = new File(getDirectory(), "file1");
-    file1.createNewFile();
+    assertTrue(file1.createNewFile());
     final File file2 = new File(dir1, "file2");
-    file2.createNewFile();
+    assertTrue(file2.createNewFile());
     final File file3 = new File(dir1, "file3");
-    file3.createNewFile();
+    assertTrue(file3.createNewFile());
 
     final Node dir1Node = fileTreeModel.findNode(dir1);
     assertEquals(dir1Node, fileTreeModel.getChild(rootNode, 0));
@@ -265,8 +265,8 @@ public class TestFileTreeModel extends AbstractFileTestCase {
 
     listenerStubFactory.assertNoMoreCalls();
 
-    dir3.mkdir();
-    file4.createNewFile();
+    assertTrue(dir3.mkdir());
+    assertTrue(file4.createNewFile());
     final FileNode file4Node = (FileNode)fileTreeModel.findNode(file4);
 
     final CallData callData =
@@ -287,7 +287,7 @@ public class TestFileTreeModel extends AbstractFileTestCase {
 
   public void testFindFileNode() throws Exception {
     final File file1 = new File(getDirectory(), "file1");
-    file1.createNewFile();
+    assertTrue(file1.createNewFile());
 
     final FileTreeModel fileTreeModel =
       new FileTreeModel(m_editorModel, m_nullFileFilter);
@@ -313,13 +313,13 @@ public class TestFileTreeModel extends AbstractFileTestCase {
 
   public void testRefreshChangedDirectoriesListener() throws Exception {
     final File dir1 = new File(getDirectory(), "dir1");
-    dir1.mkdir();
+    assertTrue(dir1.mkdir());
     final File file1 = new File(getDirectory(), "file1");
-    file1.createNewFile();
+    assertTrue(file1.createNewFile());
     final File file2 = new File(dir1, "file2");
-    file2.createNewFile();
+    assertTrue(file2.createNewFile());
     final File file3 = new File(dir1, "file3");
-    file3.createNewFile();
+    assertTrue(file3.createNewFile());
 
     final FileTreeModel fileTreeModel =
       new FileTreeModel(m_editorModel, m_nullFileFilter);

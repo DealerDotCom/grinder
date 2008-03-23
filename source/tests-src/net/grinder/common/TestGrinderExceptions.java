@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -79,7 +79,7 @@ public class TestGrinderExceptions extends TestCase {
     assertEquals(1, countOccurrences("Method.invoke", s));
   }
 
-  private class WeirdException extends RuntimeException {
+  private static class WeirdException extends RuntimeException {
     public void printStackTrace(PrintWriter w) {
       w.println("Unconventional stack trace");
       w.flush();

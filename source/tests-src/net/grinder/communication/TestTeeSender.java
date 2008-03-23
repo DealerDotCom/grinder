@@ -1,4 +1,4 @@
-// Copyright (C) 2004-2006 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -67,7 +67,7 @@ public class TestTeeSender extends TestCase {
     sender2StubFactory.assertNoMoreCalls();
   }
 
-  final class BadSender implements Sender {
+  final static class BadSender implements Sender {
 
     final CommunicationException m_exceptionToThrowFromSend;
     final RuntimeException m_exceptionToThrowFromShutdown;

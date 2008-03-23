@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -217,7 +217,7 @@ public class TestResourcePool extends TestCase {
         for (int i=0; i<100; ++i) {
           final List list = resourcePool.reserveAll();
 
-          assertEquals(5, list.size());
+          assert list.size() == 5;
 
           final Iterator iterator = list.iterator();
 
@@ -308,7 +308,7 @@ public class TestResourcePool extends TestCase {
     assertEquals(0, resourcePool.countActive());
   }
 
-  private class MyResource implements ResourcePool.Resource {
+  private static class MyResource implements ResourcePool.Resource {
 
     private boolean m_closed = false;
 

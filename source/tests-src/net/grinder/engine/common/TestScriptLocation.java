@@ -71,7 +71,7 @@ public class TestScriptLocation extends AbstractFileTestCase {
   public void testNameShortening() throws Exception {
     final Directory directory = new Directory(getDirectory());
     final File existentFile = new File(getDirectory(), "hello");
-    existentFile.createNewFile();
+    assertTrue(existentFile.createNewFile());
     final File nonExistentFile = new File(getDirectory(), "world");
 
     final ScriptLocation s1 = new ScriptLocation(directory, existentFile);

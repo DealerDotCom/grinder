@@ -206,7 +206,7 @@ public class TestHTTPRecordingImplementation extends TestCase {
     assertEquals(0, result.getCommonHeadersArray(0).getHeaderArray().length);
 
     assertEquals(2, result.getBaseUriArray().length);
-    assertEquals("hostb", result.getBaseUriArray(0).getHost().toString());
+    assertEquals("hostb", result.getBaseUriArray(0).getHost());
     assertEquals("https", result.getBaseUriArray(1).getScheme().toString());
 
     assertEquals(2, result.getPageArray().length);
