@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,7 +45,7 @@ public class AssertUtilities extends Assert {
 
   public static void assertArraysEqual(String message, Object[] a,
                                        Object[] b) {
-    if (message != "") {
+    if (!message.equals("")) {
       message = message + ": ";
     }
 
@@ -70,7 +70,7 @@ public class AssertUtilities extends Assert {
 
   public static void assertArraysEqual(String message, byte[] a, byte[] b) {
 
-    if (message != "") {
+    if (!message.equals("")) {
       message = message + ": ";
     }
 
@@ -96,7 +96,7 @@ public class AssertUtilities extends Assert {
   public static void assertArraysEqual(String message, NVPair[] a,
                                        NVPair[] b) {
 
-    if (message != "") {
+    if (!message.equals("")) {
       message = message + ": ";
     }
 
