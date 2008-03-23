@@ -167,7 +167,7 @@ public class TestConsoleMessages extends TestCase {
       new StubAgentIdentity("Agent");
 
     final CacheHighWaterMark cacheHighWaterMark =
-      new StubCacheHighWaterMark(100);
+      new StubCacheHighWaterMark("", 100);
 
     final AgentProcessReportMessage original =
       new AgentProcessReportMessage(

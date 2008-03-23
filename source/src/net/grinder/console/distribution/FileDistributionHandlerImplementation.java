@@ -23,13 +23,16 @@ package net.grinder.console.distribution;
 
 import java.io.File;
 
+import net.grinder.communication.Address;
 import net.grinder.console.communication.DistributionControl;
-import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
+import net.grinder.console.distribution.AgentSet.OutOfDateException;
 import net.grinder.util.FileContents;
 
 
 /**
  * File Distribution Handler implementation.
+ *
+ * <p>Not thread safe.</p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -37,83 +40,86 @@ import net.grinder.util.FileContents;
 final class FileDistributionHandlerImplementation
   implements FileDistributionHandler {
 
-  private final CacheIdentity m_cacheIdentity;
+  private final CacheParameters m_cacheParameters;
   private final File m_directory;
   private final File[] m_files;
+  private final long m_latestFileTime;
   private final DistributionControl m_distributionControl;
-  private final UpdateableAgentCacheState m_updateableCacheState;
+  private final AgentSet m_agents;
 
   private int m_fileIndex = 0;
 
   FileDistributionHandlerImplementation(
-    CacheIdentity cacheIdentity,
+    CacheParameters cacheParameters,
     File directory,
     File[] files,
     DistributionControl distributionControl,
-    UpdateableAgentCacheState updateableCacheState) {
+    AgentSet agents) {
 
-    m_cacheIdentity = cacheIdentity;
+    m_cacheParameters = cacheParameters;
     m_directory = directory;
     m_files = files;
     m_distributionControl = distributionControl;
-    m_updateableCacheState = updateableCacheState;
+    m_agents = agents;
 
-    // Clear any cache that has out of date cache parameters.
-    // We currently we do nothing about cached copies of deleted files.
-    m_distributionControl.clearFileCaches(
-      new CacheHighWaterMarkImplementation(
-        m_cacheIdentity,
-        0));
+    long latestFileTime = -1;
+
+    for (int i = 0; i < m_files.length; ++i) {
+      final long fileTime =
+        new File(m_directory, m_files[i].getPath()).lastModified();
+
+      latestFileTime = Math.max(latestFileTime, fileTime);
+    }
+
+    m_latestFileTime = latestFileTime;
   }
 
   public Result sendNextFile() throws FileContents.FileContentsException {
+    try {
+      if (m_fileIndex < m_files.length) {
+        if (m_fileIndex == 0) {
+          // Clear any cache that has out of date cache parameters.
+          // We currently we do nothing about cached copies of deleted files.
+          final Address addressAgentsWithInvalidCaches =
+            m_agents.getAddressOfOutOfDateAgents(0);
 
-    if (m_fileIndex < m_files.length) {
-
-      if (m_fileIndex == 0) {
-        long latestFileTime = 0;
-        for (int i = 0; i < m_files.length; ++i) {
-          final long fileTime =
-            new File(m_directory, m_files[i].getPath()).lastModified();
-
-          if (fileTime > latestFileTime) {
-            latestFileTime = fileTime;
-          }
+          m_distributionControl.clearFileCaches(addressAgentsWithInvalidCaches);
         }
 
-        m_updateableCacheState.updateStarted(latestFileTime);
+        try {
+          final int index = m_fileIndex;
+          final File file = m_files[index];
+
+          final Address addressAgentsWithoutFile =
+            m_agents.getAddressOfOutOfDateAgents(
+              new File(m_directory, file.getPath()).lastModified());
+
+          m_distributionControl.sendFile(addressAgentsWithoutFile,
+                                         new FileContents(m_directory, file));
+
+          return new Result() {
+              public int getProgressInCents() {
+                return ((index + 1) * 100) / m_files.length;
+              }
+
+              public String getFileName() {
+                return file.getPath();
+              }
+            };
+        }
+        finally {
+          ++m_fileIndex;
+        }
       }
+      else {
+        m_distributionControl.setHighWaterMark(
+          m_agents.getAddressOfAllAgents(),
+          m_cacheParameters.createHighWaterMark(m_latestFileTime));
 
-      try {
-        final int index = m_fileIndex;
-        final File file = m_files[index];
-
-        m_distributionControl.sendFile(
-          new FileContents(m_directory, file),
-          new CacheHighWaterMarkImplementation(
-            m_cacheIdentity,
-            new File(m_directory, file.getPath()).lastModified()));
-
-        return new Result() {
-            public int getProgressInCents() {
-              return ((index + 1) * 100) / m_files.length;
-            }
-
-            public String getFileName() {
-              return file.getPath();
-            }
-          };
-      }
-      finally {
-        ++m_fileIndex;
+        return null;
       }
     }
-    else {
-      final long highWaterMark = m_updateableCacheState.updateComplete();
-
-      m_distributionControl.setHighWaterMark(
-        new CacheHighWaterMarkImplementation(m_cacheIdentity, highWaterMark));
-
+    catch (OutOfDateException e) {
       return null;
     }
   }

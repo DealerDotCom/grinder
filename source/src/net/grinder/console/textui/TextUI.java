@@ -121,8 +121,7 @@ public class TextUI implements UI {
       m_noConnectedAgents = resources.getString("noConnectedAgents.text");
     }
 
-    public void update(ProcessControl.ProcessReports[] processReports,
-                       boolean newAgent) {
+    public void update(ProcessControl.ProcessReports[] processReports) {
 
       final String reportString;
 

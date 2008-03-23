@@ -23,9 +23,21 @@ package net.grinder.console.distribution;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.regex.Pattern;
 
+import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.StubProcessReports;
+import net.grinder.console.communication.ProcessControl.Listener;
+import net.grinder.console.communication.ProcessControl.ProcessReports;
+import net.grinder.console.distribution.AgentSet.OutOfDateException;
+import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.messages.agent.CacheHighWaterMark;
+import net.grinder.messages.console.ProcessReport;
+import net.grinder.messages.console.StubAgentProcessReport;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.Directory;
 
 
 /**
@@ -36,62 +48,236 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
+  private final RandomStubFactory m_processControlStubFactory =
+    new RandomStubFactory(ProcessControl.class);
+  private final ProcessControl m_processControl =
+    (ProcessControl)m_processControlStubFactory.getStub();
+  private Directory m_directory;
+  private Pattern m_pattern;
+
+  protected void setUp() throws Exception {
+    m_directory = new Directory(new File(""));
+    m_pattern = Pattern.compile(".*");
+  }
+
   public void testAgentCacheStateImplementation() throws Exception {
 
-    final FileDistribution fileDistribution =
-      new FileDistributionImplementation(null, null, null);
+    final UpdateableAgentCacheState cacheState =
+      new AgentCacheStateImplementation(
+        m_processControl, m_directory, m_pattern);
 
-    final AgentCacheStateImplementation cacheState =
-      (AgentCacheStateImplementation)fileDistribution.getAgentCacheState();
+    final CacheParameters cacheParameters = cacheState.getCacheParameters();
+    assertEquals(m_directory, cacheParameters.getDirectory());
+    assertEquals(m_pattern.pattern(),
+      cacheParameters.getFileFilterPattern().pattern());
 
-    final RandomStubFactory propertyChangeListenerStubFactory =
+    cacheState.setDirectory(m_directory);
+    cacheState.setFileFilterPattern(m_pattern);
+
+    assertEquals(cacheParameters, cacheState.getCacheParameters());
+  }
+
+  public void testProcessUpdates() throws Exception {
+
+    final UpdateableAgentCacheState cacheState =
+      new AgentCacheStateImplementation(
+        m_processControl, m_directory, m_pattern);
+
+    final Listener processListener =
+      (Listener) m_processControlStubFactory.assertSuccess(
+        "addProcessStatusListener", Listener.class).getParameters()[0];
+    m_processControlStubFactory.assertNoMoreCalls();
+
+    final RandomStubFactory listenerStubFactory =
       new RandomStubFactory(PropertyChangeListener.class);
-    final PropertyChangeListener propertyChangeListener =
-      (PropertyChangeListener)propertyChangeListenerStubFactory.getStub();
+    final PropertyChangeListener listener =
+      (PropertyChangeListener)listenerStubFactory.getStub();
 
-    cacheState.addListener(propertyChangeListener);
+    cacheState.addListener(listener);
 
-    assertEquals(-1, cacheState.getEarliestFileTime());
-    assertTrue(cacheState.getOutOfDate());
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
-
-    final long update1StartTime = System.currentTimeMillis();
-    cacheState.updateStarted(update1StartTime);
-    assertEquals(-1, cacheState.getEarliestFileTime());
-    assertTrue(cacheState.getOutOfDate());
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
-
-    final long updateCompleteTime = cacheState.updateComplete();
     assertFalse(cacheState.getOutOfDate());
-    assertEquals(update1StartTime, cacheState.getEarliestFileTime());
-    assertEquals(update1StartTime, updateCompleteTime);
-    propertyChangeListenerStubFactory.assertSuccess("propertyChange",
-                                                    PropertyChangeEvent.class);
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
 
-    cacheState.setOutOfDate();
+    processListener.update(new ProcessReports[0]);
+    assertFalse(cacheState.getOutOfDate());
+    listenerStubFactory.assertNoMoreCalls();
+
+    processListener.update(new ProcessReports[0]);
+
+    assertFalse(cacheState.getOutOfDate());
+    listenerStubFactory.assertNoMoreCalls();
+
+    final StubAgentIdentity agentIdentity1 = new StubAgentIdentity("agent1");
+    final StubAgentProcessReport agentReport1 =
+      new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
+
+    processListener.update(new ProcessReports[] {
+        new StubProcessReports(agentReport1, null),
+    });
+
     assertTrue(cacheState.getOutOfDate());
-    assertEquals(-1, cacheState.getEarliestFileTime());
-    propertyChangeListenerStubFactory.assertSuccess("propertyChange",
-                                                    PropertyChangeEvent.class);
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
 
-    Thread.sleep(10);
+    final PropertyChangeEvent propertyChangeEvent2 =
+      (PropertyChangeEvent)
+      listenerStubFactory.assertSuccess(
+        "propertyChange", PropertyChangeEvent.class).getParameters()[0];
+    listenerStubFactory.assertNoMoreCalls();
 
-    final long update2StartTime = System.currentTimeMillis();
-    cacheState.updateStarted(update2StartTime);
+    assertEquals("outOfDate", propertyChangeEvent2.getPropertyName());
+    assertEquals(Boolean.FALSE, propertyChangeEvent2.getOldValue());
+    assertEquals(Boolean.TRUE, propertyChangeEvent2.getNewValue());
+
+    final CacheHighWaterMark highWaterMark =
+      cacheState.getCacheParameters().createHighWaterMark(1000);
+
+    agentReport1.setCacheHighWaterMark(highWaterMark);
+
+    processListener.update(new ProcessReports[] {
+      new StubProcessReports(agentReport1, null),
+    });
+
+    assertFalse(cacheState.getOutOfDate());
+    listenerStubFactory.assertSuccess(
+      "propertyChange", PropertyChangeEvent.class);
+    listenerStubFactory.assertNoMoreCalls();
+
+    cacheState.setNewFileTime(1000);
+
+    processListener.update(new ProcessReports[] {
+      new StubProcessReports(agentReport1, null),
+    });
+
+    assertFalse(cacheState.getOutOfDate());
+    listenerStubFactory.assertNoMoreCalls();
+
+    cacheState.setNewFileTime(1500);
+
+    processListener.update(new ProcessReports[] {
+      new StubProcessReports(agentReport1, null),
+    });
+
     assertTrue(cacheState.getOutOfDate());
-    assertEquals(-1, cacheState.getEarliestFileTime());
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
+    listenerStubFactory.assertSuccess(
+      "propertyChange", PropertyChangeEvent.class);
+    listenerStubFactory.assertNoMoreCalls();
+  }
 
-    cacheState.setOutOfDate();
-    assertTrue(cacheState.getOutOfDate());
-    assertEquals(-1, cacheState.getEarliestFileTime());
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
+  public void testAgentSetValidity() throws Exception {
+    final UpdateableAgentCacheState cacheState =
+      new AgentCacheStateImplementation(
+        m_processControl, m_directory, m_pattern);
 
-    cacheState.updateComplete();
-    assertTrue(cacheState.getOutOfDate());
-    assertEquals(-1, cacheState.getEarliestFileTime());
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
+    final AgentSet agentSet = cacheState.getAgentSet();
+
+    assertNotNull(agentSet.getAddressOfAllAgents());
+    assertNotNull(agentSet.getAddressOfOutOfDateAgents(123));
+    assertEquals(-1, agentSet.getEarliestAgentTime());
+
+    cacheState.setDirectory(new Directory(new File("abc")));
+
+    try {
+      agentSet.getAddressOfAllAgents();
+      fail("Expected OutOfDateException");
+    }
+    catch (OutOfDateException e) {
+    }
+
+    try {
+      agentSet.getAddressOfOutOfDateAgents(123);
+      fail("Expected OutOfDateException");
+    }
+    catch (OutOfDateException e) {
+    }
+
+    final AgentSet agentSet2 = cacheState.getAgentSet();
+
+    assertNotNull(agentSet2.getAddressOfAllAgents());
+    assertNotNull(agentSet2.getAddressOfOutOfDateAgents(123));
+
+    cacheState.setFileFilterPattern(Pattern.compile(".?"));
+
+    try {
+      agentSet.getAddressOfAllAgents();
+      fail("Expected OutOfDateException");
+    }
+    catch (OutOfDateException e) {
+    }
+
+    try {
+      agentSet.getAddressOfOutOfDateAgents(123);
+      fail("Expected OutOfDateException");
+    }
+    catch (OutOfDateException e) {
+    }
+
+    assertEquals(-1, agentSet2.getEarliestAgentTime());
+  }
+
+  public void testAgentSetGetAddressOfAllAgents() throws Exception {
+    final UpdateableAgentCacheState cacheState =
+      new AgentCacheStateImplementation(
+        m_processControl, m_directory, m_pattern);
+
+    final Listener processListener =
+      (Listener) m_processControlStubFactory.assertSuccess(
+        "addProcessStatusListener", Listener.class).getParameters()[0];
+    m_processControlStubFactory.assertNoMoreCalls();
+
+    final StubAgentIdentity agentIdentity1 = new StubAgentIdentity("agent1");
+    final StubAgentProcessReport agentReport1 =
+      new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
+
+    assertFalse(cacheState.getAgentSet().getAddressOfAllAgents().includes(
+      agentIdentity1));
+
+    processListener.update(new ProcessReports[] {
+      new StubProcessReports(agentReport1, null),
+    });
+
+    assertTrue(cacheState.getAgentSet().getAddressOfAllAgents().includes(
+      agentIdentity1));
+  }
+
+  public void testAgentSetGetAddressOfOutOfDateAgents() throws Exception {
+    final UpdateableAgentCacheState cacheState =
+      new AgentCacheStateImplementation(
+        m_processControl, m_directory, m_pattern);
+
+    final Listener processListener =
+      (Listener) m_processControlStubFactory.assertSuccess(
+        "addProcessStatusListener", Listener.class).getParameters()[0];
+    m_processControlStubFactory.assertNoMoreCalls();
+
+    final StubAgentIdentity agentIdentity1 = new StubAgentIdentity("agent1");
+    final StubAgentProcessReport agentReport1 =
+      new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
+
+    assertFalse(
+      cacheState.getAgentSet().getAddressOfOutOfDateAgents(100).includes(
+        agentIdentity1));
+
+    processListener.update(new ProcessReports[] {
+      new StubProcessReports(agentReport1, null),
+    });
+
+    assertTrue(
+      cacheState.getAgentSet().getAddressOfOutOfDateAgents(100).includes(
+        agentIdentity1));
+
+    final CacheHighWaterMark highWaterMark =
+      cacheState.getCacheParameters().createHighWaterMark(1000);
+
+    agentReport1.setCacheHighWaterMark(highWaterMark);
+
+    processListener.update(new ProcessReports[] {
+      new StubProcessReports(agentReport1, null),
+    });
+
+    assertTrue(
+      cacheState.getAgentSet().getAddressOfOutOfDateAgents(1001).includes(
+        agentIdentity1));
+
+    assertFalse(
+      cacheState.getAgentSet().getAddressOfOutOfDateAgents(1000).includes(
+        agentIdentity1));
   }
 }

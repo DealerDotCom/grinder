@@ -49,7 +49,6 @@ import net.grinder.util.StreamCopier;
  * @version $Revision$
  */
 final class FileStore {
-
   private final Logger m_logger;
 
   private final File m_readmeFile;
@@ -62,7 +61,8 @@ final class FileStore {
   // Guarded by m_incomingDirectory
   private boolean m_incremental;
 
-  private volatile CacheHighWaterMark m_cacheHighWaterMark;
+  private volatile CacheHighWaterMark m_cacheHighWaterMark =
+    new OutOfDateCacheHighWaterMark();
 
   public FileStore(File directory, Logger logger) throws FileStoreException {
 
@@ -212,6 +212,18 @@ final class FileStore {
 
     FileStoreException(String message, Throwable e) {
       super(message, e);
+    }
+  }
+
+  private static final class OutOfDateCacheHighWaterMark
+    implements CacheHighWaterMark {
+
+    public long getTime() {
+      return -1;
+    }
+
+    public boolean isForSameCache(CacheHighWaterMark other) {
+      return false;
     }
   }
 }

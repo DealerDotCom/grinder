@@ -24,11 +24,9 @@ package net.grinder.console.communication;
 import java.util.Timer;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.communication.Address;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
-import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
@@ -40,13 +38,12 @@ import net.grinder.util.AllocateLowestNumberImplementation;
 
 
 /**
- * Implementation of {@link ProcessControl}.
+ * Implementation of {@link ProcessControl} and {@link AgentFileCacheState}.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class ProcessControlImplementation
-  implements ProcessControl, AgentFileCacheState {
+public class ProcessControlImplementation implements ProcessControl {
 
   private final ConsoleCommunication m_consoleCommunication;
 
@@ -144,16 +141,5 @@ public class ProcessControlImplementation
    */
   public int getNumberOfLiveAgents() {
     return m_processStatusSet.getNumberOfLiveAgents();
-  }
-
-  /**
-   * Return an address that can be used to send a message to all agent caches
-   * that are less up to date than the given high water mark.
-   *
-   * @param highWaterMark The high water mark.
-   * @return The address.
-   */
-  public Address agentsWithOutOfDateCaches(CacheHighWaterMark highWaterMark) {
-    return m_processStatusSet.agentsWithOutOfDateCaches(highWaterMark);
   }
 }

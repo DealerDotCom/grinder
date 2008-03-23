@@ -95,11 +95,10 @@ public class TestExternalEditor extends AbstractFileTestCase {
       new AgentCacheState() {
 
         public void addListener(PropertyChangeListener listener) {}
+
         public boolean getOutOfDate() { return false; }
 
-        public void setOutOfDate() {}
-
-        public void setOutOfDate(long invalidAfter) {
+        public void setNewFileTime(long invalidAfter) {
           lastInvalidAfter[0] = invalidAfter;
         }};
 
@@ -122,8 +121,8 @@ public class TestExternalEditor extends AbstractFileTestCase {
                          TouchClass.TOUCH + " %f");
 
     final File file = new File(getDirectory(), "hello world");
-    file.createNewFile();
-    file.setLastModified(0);
+    assertTrue(file.createNewFile());
+    assertTrue(file.setLastModified(0));
     assertEquals(0, file.lastModified());
 
     externalEditor1.open(file);
@@ -141,7 +140,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
 
     // Clean buffers get reloaded.
     final Buffer buffer = editorModel.selectBufferForFile(file);
-    file.setLastModified(0);
+    assertTrue(file.setLastModified(0));
 
     externalEditor1.open(file);
 
@@ -158,7 +157,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
 
 
     // Dirty buffers don't get reloaded.
-    file.setLastModified(0);
+    assertTrue(file.setLastModified(0));
     buffer.load();
     ((StringTextSource)buffer.getTextSource()).markDirty();
     assertTrue(buffer.isDirty());
@@ -186,7 +185,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
                          TouchClass.class.getName() + " " +
                          TouchClass.NOOP + " %f");
 
-    file.setLastModified(0);
+    assertTrue(file.setLastModified(0));
     assertEquals(0, file.lastModified());
 
     externalEditor2.open(file);
@@ -211,7 +210,7 @@ public class TestExternalEditor extends AbstractFileTestCase {
                          TouchClass.class.getName() + " " +
                          TouchClass.SLEEP + " %f");
 
-    file.setLastModified(0);
+    assertTrue(file.setLastModified(0));
     assertEquals(0, file.lastModified());
 
     externalEditor3.open(file);

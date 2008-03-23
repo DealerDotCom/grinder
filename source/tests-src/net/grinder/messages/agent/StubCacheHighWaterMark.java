@@ -23,19 +23,28 @@ package net.grinder.messages.agent;
 
 import net.grinder.messages.agent.CacheHighWaterMark;
 
-public class StubCacheHighWaterMark implements CacheHighWaterMark {
-  public int m_height;
 
-  public StubCacheHighWaterMark(int height) {
-    m_height = height;
+/**
+ * Stub implementation of {@link CacheHighWaterMark}.
+ *
+ * @author Philip Aston
+ * @version $Revision:$
+ */
+public class StubCacheHighWaterMark implements CacheHighWaterMark {
+  private final String m_cacheID;
+  private final long m_time;
+
+  public StubCacheHighWaterMark(String cacheID, long height) {
+    m_cacheID = cacheID;
+    m_time = height;
   }
 
   public boolean isLater(CacheHighWaterMark other) {
-    return m_height >= ((StubCacheHighWaterMark)other).m_height;
+    return m_time >= ((StubCacheHighWaterMark)other).m_time;
   }
 
   public int hashCode() {
-    return m_height;
+    return (int)m_time;
   }
 
   public boolean equals(Object o) {
@@ -47,6 +56,16 @@ public class StubCacheHighWaterMark implements CacheHighWaterMark {
       return false;
     }
 
-    return m_height == ((StubCacheHighWaterMark)o).m_height;
+    return m_time == ((StubCacheHighWaterMark)o).m_time;
+  }
+
+  public long getTime() {
+    return m_time;
+  }
+
+  public boolean isForSameCache(CacheHighWaterMark other) {
+    return other != null &&
+           other instanceof StubCacheHighWaterMark &&
+           m_cacheID.equals(((StubCacheHighWaterMark)other).m_cacheID);
   }
 }

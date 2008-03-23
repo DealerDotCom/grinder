@@ -22,6 +22,7 @@
 package net.grinder.console.communication;
 
 
+import net.grinder.communication.Address;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.util.FileContents;
 
@@ -35,33 +36,31 @@ import net.grinder.util.FileContents;
 public interface DistributionControl {
 
   /**
-   * Signal the agent processes that are less up to date than the given water
-   * mark to clear their file caches.
+   * Signal agents matching the given address to clear their file caches.
    *
-   * @param cacheHighWaterMark
-   *            The water mark. In practice, its associated time will be 0, so
-   *            agents with caches for out of date cache parameters will be
-   *            cleared.
+   * @param address
+   *            The address of the agents.
    */
-  void clearFileCaches(CacheHighWaterMark  cacheHighWaterMark);
+  void clearFileCaches(Address address);
 
   /**
-   * Send a file to the file caches that are less up to date than the given
-   * high water mark.
+   * Send a file to the agents matching the given address.
    *
+   * @param address
+   *            The address of the agents.
    * @param fileContents The file contents.
-   * @param cacheHighWaterMark The high water mark.
    */
-  void sendFile(FileContents fileContents,
-                CacheHighWaterMark cacheHighWaterMark);
+  void sendFile(Address address, FileContents fileContents);
 
   /**
    * Inform agent processes of a checkpoint of the cache state. Each agent
    * should maintain this (perhaps persistently), and report it in status
    * reports.
    *
+   * @param address
+   *            The address of the agents.
    * @param highWaterMark
    *            A checkpoint of the cache state.
    */
-  void setHighWaterMark(CacheHighWaterMark highWaterMark);
+  void setHighWaterMark(Address address, CacheHighWaterMark highWaterMark);
 }

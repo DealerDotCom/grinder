@@ -112,7 +112,7 @@ class ExternalEditor {
         final long lastModified = file.lastModified();
 
         if (lastModified > originalModificationTime) {
-          m_agentCacheState.setOutOfDate(lastModified);
+          m_agentCacheState.setNewFileTime(lastModified);
 
           // If there is an existing, clean buffer refresh it from the file.
           final Buffer buffer = m_editorModel.getBufferForFile(file);

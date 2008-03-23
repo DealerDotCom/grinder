@@ -21,44 +21,24 @@
 
 package net.grinder.console.distribution;
 
-import java.io.Serializable;
+import java.util.regex.Pattern;
 
 import net.grinder.messages.agent.CacheHighWaterMark;
+import net.grinder.util.Directory;
 
 
 /**
- * Implementation of {@link CacheHighWaterMark}.
+ * Key parameters that define a file cache. If these change, the distributed
+ * copies of the cache are invalid.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-final class CacheHighWaterMarkImplementation implements CacheHighWaterMark {
+interface CacheParameters {
 
-  private static final long serialVersionUID = 1L;
+  Directory getDirectory();
 
-  private final CacheIdentity m_cacheIdentity;
-  private final long m_highWaterMark;
+  Pattern getFileFilterPattern();
 
-  public CacheHighWaterMarkImplementation(CacheIdentity cacheIdentity,
-                                          long highWaterMark) {
-    m_cacheIdentity = cacheIdentity;
-    m_highWaterMark = highWaterMark;
-  }
-
-  public boolean isLater(CacheHighWaterMark other) {
-    // For now, we only support comparison with other
-    // CacheHighWaterMarkImplementations.
-    final CacheHighWaterMarkImplementation otherHighWater =
-      (CacheHighWaterMarkImplementation)other;
-
-    return otherHighWater == null ||
-           !m_cacheIdentity.equals(otherHighWater.m_cacheIdentity) ||
-           m_highWaterMark > otherHighWater.m_highWaterMark;
-  }
-
-  /**
-   * Opaque object representing the cache parameters.
-   */
-  interface CacheIdentity extends Serializable {
-  }
+  CacheHighWaterMark createHighWaterMark(long time);
 }

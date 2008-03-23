@@ -19,28 +19,28 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.console.distribution;
 
 import net.grinder.communication.Address;
-import net.grinder.messages.agent.CacheHighWaterMark;
 
 
 /**
- * AgentFileCacheState.
- *
- * <p>Tracks the state of individual agent file caches.</p>
+ * Snapshot of the agents that were connected at a particular time.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface AgentFileCacheState {
+interface AgentSet {
+
+  Address getAddressOfAllAgents() throws OutOfDateException;
+
+  Address getAddressOfOutOfDateAgents(long time)
+    throws OutOfDateException;
+
+  long getEarliestAgentTime();
 
   /**
-   * Return an address that can be used to send a message to all agent caches
-   * that are less up to date than the given high water mark.
-   *
-   * @param highWaterMark The high water mark.
-   * @return The address.
+   * Exception indicating that the agent set has been invalidated.
    */
-  Address agentsWithOutOfDateCaches(CacheHighWaterMark highWaterMark);
+  final class OutOfDateException extends Exception { }
 }

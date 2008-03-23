@@ -19,41 +19,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.distribution;
-
-import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
-import net.grinder.messages.agent.CacheHighWaterMark;
-import junit.framework.TestCase;
+package net.grinder.communication;
 
 
 /**
- * Unit tests for {@link CacheHighWaterMarkImplementation}.
+ * Stub implementation of {@link Address}.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestCacheHighWaterMarkImplementation extends TestCase {
-
-  public void testCacheHighWaterMark() throws Exception {
-    final CacheIdentity cache1 = new CacheIdentity() {};
-    final CacheIdentity cache2 = new CacheIdentity() {};
-
-    final CacheHighWaterMark a =
-      new CacheHighWaterMarkImplementation(cache1, 100);
-    final CacheHighWaterMark b =
-      new CacheHighWaterMarkImplementation(cache1, 100);
-    final CacheHighWaterMark c =
-      new CacheHighWaterMarkImplementation(cache1, 120);
-    final CacheHighWaterMark d =
-      new CacheHighWaterMarkImplementation(cache2, 120);
-
-    assertFalse(a.isLater(b));
-    assertFalse(a.isLater(a));
-    assertFalse(b.isLater(a));
-    assertFalse(a.isLater(c));
-    assertTrue(c.isLater(a));
-    assertTrue(d.isLater(a));
-    assertTrue(a.isLater(d));
+public final class SendToEveryoneAddress implements Address {
+  public boolean includes(Address address) {
+    return true;
   }
-
 }

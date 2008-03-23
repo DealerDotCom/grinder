@@ -81,12 +81,8 @@ public interface ProcessControl {
      *
      * @param processReports
      *          Process status information.
-     * @param newAgent
-     *          A new agent has connected since the last update. This is used to
-     *          invalidate the cache distribution status; it will go away when
-     *          we have per-agent cache updates.
      */
-    void update(ProcessReports[] processReports, boolean newAgent);
+    void update(ProcessReports[] processReports);
   }
 
   /**

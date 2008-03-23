@@ -34,8 +34,6 @@ import java.beans.PropertyChangeListener;
  * {@link net.grinder.console.communication.AgentFileCacheState}.
  * </p>
  *
- * TODO This should be reworked based on AgentFileCacheState.
- *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -49,19 +47,14 @@ public interface AgentCacheState {
   boolean getOutOfDate();
 
   /**
-   * Notify that an agent cache is invalid.
-   */
-  void setOutOfDate();
-
-  /**
-   * Notify that an agent cache is out of date due to a file
-   * changing.
+   * Inform that agent caches are out of date due to a change to a file. Called
+   * whenever a new or modified file is found.
    *
-   * @param invalidAfter Cache entries with files newer than this time
-   * should be invalidated (milliseconds since Epoch). <code>-1</code>
-   * => invalidate the entire cache.
+   * @param time
+   *            Caches need to be refreshed with files newer than this time
+   *            (milliseconds since Epoch).
    */
-  void setOutOfDate(long invalidAfter);
+  void setNewFileTime(long time);
 
   /**
    * Allow other parties to register their interest in changes to our state.

@@ -93,8 +93,7 @@ class ProcessStatusTableModel
     processControl.addProcessStatusListener(
       (ProcessControl.Listener)swingDispatcherFactory.create(
         new ProcessControl.Listener() {
-          public void update(ProcessControl.ProcessReports[] processReports,
-                             boolean newAgent) {
+          public void update(ProcessControl.ProcessReports[] processReports) {
             final List rows = new ArrayList();
             int runningThreads = 0;
             int totalThreads = 0;

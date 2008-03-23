@@ -21,8 +21,6 @@
 
 package net.grinder.console.distribution;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -31,7 +29,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
-import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
+import net.grinder.console.communication.ProcessControl;
 import net.grinder.util.Directory;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.ListenerSupport.Informer;
@@ -52,18 +50,13 @@ public final class FileDistributionImplementation implements FileDistribution {
   private final DistributionControl m_distributionControl;
   private final UpdateableAgentCacheState m_cacheState;
 
-  // Guarded by this.
-  private long m_lastScanTime;
-
-  // Guarded by this.
-  private Directory m_directory;
-
-  private volatile Pattern m_distributionFileFilterPattern;
+  private volatile long m_lastScanTime;
 
   /**
    * Constructor.
    *
    * @param distributionControl A <code>DistributionControl</code>.
+   * @param processControl A process control.
    * @param directory The base distribution directory.
    * @param distributionFileFilterPattern -
    *            The filter. Files with names that match this pattern will be
@@ -71,36 +64,23 @@ public final class FileDistributionImplementation implements FileDistribution {
    */
   public FileDistributionImplementation(
     DistributionControl distributionControl,
+    ProcessControl processControl,
     Directory directory,
     Pattern distributionFileFilterPattern) {
     this(distributionControl,
-         new AgentCacheStateImplementation(),
-         directory,
-         distributionFileFilterPattern);
+         new AgentCacheStateImplementation(processControl,
+                                           directory,
+                                           distributionFileFilterPattern));
   }
 
   /**
    * <p>Package scope for unit tests.</p>
    */
   FileDistributionImplementation(DistributionControl distributionControl,
-                                 UpdateableAgentCacheState agentCacheState,
-                                 Directory directory,
-                                 Pattern distributionFileFilterPattern) {
+                                 UpdateableAgentCacheState agentCacheState) {
 
     m_distributionControl = distributionControl;
     m_cacheState = agentCacheState;
-    setDirectory(directory);
-    setFileFilterPattern(distributionFileFilterPattern);
-
-    m_cacheState.addListener(new PropertyChangeListener() {
-      public void propertyChange(PropertyChangeEvent event) {
-        if (m_cacheState.getEarliestFileTime() < 0) {
-          synchronized (FileDistributionImplementation.this) {
-            m_lastScanTime = -1;
-          }
-        }
-      }
-    });
   }
 
   /**
@@ -109,11 +89,8 @@ public final class FileDistributionImplementation implements FileDistribution {
    * @param directory The base distribution directory.
    */
   public void setDirectory(Directory directory) {
-    synchronized (this) {
-      m_directory = directory;
-    }
-
-    m_cacheState.setOutOfDate();
+    m_lastScanTime = -1;
+    m_cacheState.setDirectory(directory);
   }
 
   /**
@@ -124,9 +101,8 @@ public final class FileDistributionImplementation implements FileDistribution {
    *            filtered out.
    */
   public void setFileFilterPattern(Pattern distributionFileFilterPattern) {
-    m_distributionFileFilterPattern = distributionFileFilterPattern;
-
-    m_cacheState.setOutOfDate();
+    m_lastScanTime = -1;
+    m_cacheState.setFileFilterPattern(distributionFileFilterPattern);
   }
 
   /**
@@ -156,60 +132,22 @@ public final class FileDistributionImplementation implements FileDistribution {
     // invalidate the cache immediately after distribution.
     scanDistributionFiles();
 
-    final long earliestFileTime = m_cacheState.getEarliestFileTime();
+    // Get the AgentSet snapshot before the cache parameters to avoid need for
+    // synchronisation. If the cache parameters change after the agent set is
+    // acquired, the AgentSet will detect that it has been invalidated and throw
+    // AgentSetOutOfDateException.
+    final AgentSet agents = m_cacheState.getAgentSet();
 
-    // Change the cache state to "updating" in case there are no files to
-    // transfer. This can happen for the first transfer if the distribution
-    // directory contains no files.
-    m_cacheState.updateStarted(earliestFileTime);
-
-    final Directory directory;
-
-    synchronized (this) {
-      directory = m_directory;
-    }
-
-    final Pattern pattern = m_distributionFileFilterPattern;
+    final CacheParameters cacheParameters = m_cacheState.getCacheParameters();
 
     return new FileDistributionHandlerImplementation(
-      new CacheIdentityImplementation(directory, pattern),
-      directory.getFile(),
-      directory.listContents(
-        new FixedPatternFileFilter(earliestFileTime, pattern)),
+      cacheParameters,
+      cacheParameters.getDirectory().getFile(),
+      cacheParameters.getDirectory().listContents(
+        new FixedPatternFileFilter(agents.getEarliestAgentTime(),
+                                   cacheParameters.getFileFilterPattern())),
       m_distributionControl,
-      m_cacheState);
-  }
-
-  /**
-   * Package scope for unit tests.
-   */
-  static final class CacheIdentityImplementation implements CacheIdentity {
-
-    private final String m_identity;
-
-    public CacheIdentityImplementation(Directory directory,
-                                       Pattern fileFilterPattern) {
-      m_identity = directory.getFile().getPath() + "|" + fileFilterPattern;
-    }
-
-    public int hashCode() {
-      return m_identity.hashCode();
-    }
-
-    public boolean equals(Object o) {
-      if (o == this) {
-        return true;
-      }
-
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      final CacheIdentityImplementation other = (CacheIdentityImplementation)o;
-
-      return m_identity.equals(other.m_identity);
-    }
-
+      agents);
   }
 
   /**
@@ -229,13 +167,8 @@ public final class FileDistributionImplementation implements FileDistribution {
    */
   public void scanDistributionFiles() {
 
-    final long scanTime;
-    final Directory directory;
-
-    synchronized (this) {
-      scanTime = m_lastScanTime;
-      directory = m_directory;
-    }
+    final long scanTime = m_lastScanTime;
+    final CacheParameters cacheParameters = m_cacheState.getCacheParameters();
 
     // We only work with times obtained from the file system. This avoids
     // problems due to differences between the system clock and whatever the
@@ -247,7 +180,8 @@ public final class FileDistributionImplementation implements FileDistribution {
       // root directory timestamp to be constantly changing, so we create
       // files in a more long-lived working directory.
       final File privateDirectory =
-        new File(directory.getFile(), PRIVATE_DIRECTORY_NAME);
+        new File(cacheParameters.getDirectory().getFile(),
+                 PRIVATE_DIRECTORY_NAME);
       privateDirectory.mkdir();
       privateDirectory.deleteOnExit();
 
@@ -268,8 +202,9 @@ public final class FileDistributionImplementation implements FileDistribution {
     // Include directories because our listeners want to know about changes
     // to them too.
     final File[] laterFiles =
-      directory.listContents(
-        new FixedPatternFileFilter(scanTime, m_distributionFileFilterPattern),
+      cacheParameters.getDirectory().listContents(
+        new FixedPatternFileFilter(scanTime,
+                                   cacheParameters.getFileFilterPattern()),
         true,
         true);
 
@@ -289,7 +224,7 @@ public final class FileDistributionImplementation implements FileDistribution {
         if (laterFile.isFile()) {
           // Only mark the cache invalid for changes to files,
           // since we don't distribute directories.
-          m_cacheState.setOutOfDate(laterFile.lastModified());
+          m_cacheState.setNewFileTime(laterFile.lastModified());
         }
 
         changedFiles.add(laterFile);
@@ -384,7 +319,7 @@ public final class FileDistributionImplementation implements FileDistribution {
   public FileFilter getDistributionFileFilter() {
     return new AbstractFileFilter(-1) {
       protected Pattern getFileFilterPattern() {
-        return m_distributionFileFilterPattern;
+        return m_cacheState.getCacheParameters().getFileFilterPattern();
       }
     };
   }

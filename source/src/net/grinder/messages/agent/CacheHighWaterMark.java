@@ -25,8 +25,7 @@ import java.io.Serializable;
 
 
 /**
- * A checkpoint of the agent cache state. The implementation is opaque to
- * agents.
+ * A timed checkpoint of the agent cache state.
  *
  * @author Philip Aston
  * @version $Revision:$
@@ -34,22 +33,21 @@ import java.io.Serializable;
 public interface CacheHighWaterMark extends Serializable {
 
   /**
-   * Compare this cache state with another.
-   *
-   * <p>
-   * We don't use {@link Comparable} since this is not a strict ordering. Two
-   * <code>CacheHighWaterMark</code>s for different caches (perhaps the key
-   * information about the cache has changed) <code>x</code> and
-   * <code>y</code>, will return <code>true</code> for both
-   * <code>x.isLater(y)</code> and <code>y.isLater(x)</code>.
-   * </p>
+   * Return whether this <code>CacheHighWaterMark</code> was generated for the
+   * same cache as the given <code>CacheHighWaterMark</code>.
    *
    *
    * @param other
-   *            The state to compare.
-   * @return <code>true</code> if this cache state is for the same cache and
-   *         is later than <code>other</code>, or this cache state is for a
-   *         different cache, or <code>other</code> is <code>null</code>.
+   *            The <code>CacheHighWaterMark</code> to compare.
+   * @return <code>true</code> if and only if this cache state is for the same
+   *         cache.
    */
-  boolean isLater(CacheHighWaterMark other);
+  boolean isForSameCache(CacheHighWaterMark other);
+
+  /**
+   * Get the checkpoint time.
+   *
+   * @return The time.
+   */
+  long getTime();
 }

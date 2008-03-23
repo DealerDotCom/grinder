@@ -29,7 +29,7 @@ import java.util.Random;
  * @author Philip Aston
  * @version $Revision:$
  */
-final class StubAddress implements Address {
+public final class StubAddress implements Address {
   private static final Random s_random = new Random();
 
   private final Object m_identity;

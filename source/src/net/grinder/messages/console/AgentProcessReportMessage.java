@@ -43,10 +43,13 @@ public final class AgentProcessReportMessage
   /**
    * Creates a new <code>AgentProcessReportMessage</code> instance.
    *
-   * @param identity Process identity.
-   * @param state The process state. See {@link
-   * net.grinder.messages.console.AgentProcessReport}.
-   * @param cacheHighWaterMark The current cache status.
+   * @param identity
+   *            Process identity.
+   * @param state
+   *            The process state. See {@link
+   *            net.grinder.messages.console.AgentProcessReport}.
+   * @param cacheHighWaterMark
+   *            The current cache status.
    */
   public AgentProcessReportMessage(AgentIdentity identity,
                                    short state,

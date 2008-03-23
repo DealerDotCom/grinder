@@ -28,6 +28,7 @@ public final class StubAgentProcessReport implements AgentProcessReport {
 
   private final AgentIdentity m_identity;
   private final short m_state;
+  private CacheHighWaterMark m_cacheHighWaterMark = null;
 
   public StubAgentProcessReport(AgentIdentity identity, short state) {
     m_identity = identity;
@@ -47,6 +48,10 @@ public final class StubAgentProcessReport implements AgentProcessReport {
   }
 
   public CacheHighWaterMark getCacheHighWaterMark() {
-    return null;
+    return m_cacheHighWaterMark;
+  }
+
+  public void setCacheHighWaterMark(CacheHighWaterMark highWaterMark) {
+    m_cacheHighWaterMark = highWaterMark;
   }
 }

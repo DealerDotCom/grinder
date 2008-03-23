@@ -40,7 +40,6 @@ import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.communication.DistributionControlImplementation;
-import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessControlImplementation;
 import net.grinder.console.communication.server.DispatchClientCommands;
 import net.grinder.console.distribution.FileDistribution;
@@ -137,10 +136,14 @@ public final class ConsoleFoundation {
       DistributionControlImplementation.class);
 
     m_container.registerComponentImplementation(
+      ProcessControlImplementation.class);
+
+    m_container.registerComponentImplementation(
       FileDistributionImplementation.class,
       FileDistributionImplementation.class,
       new Parameter[] {
         new ComponentParameter(DistributionControlImplementation.class),
+        new ComponentParameter(ProcessControlImplementation.class),
         new ConstantParameter(properties.getDistributionDirectory()),
         new ConstantParameter(properties.getDistributionFileFilterPattern()),
       });
@@ -150,9 +153,6 @@ public final class ConsoleFoundation {
     m_container.registerComponentImplementation(WireFileDistribution.class);
 
     m_container.registerComponentImplementation(WireMessageDispatch.class);
-
-    m_container.registerComponentImplementation(
-      ProcessControlImplementation.class);
 
     m_container.registerComponentImplementation(ErrorQueue.class);
   }
@@ -246,12 +246,10 @@ public final class ConsoleFoundation {
      * @param fileDistribution A file distribution.
      * @param properties The console properties.
      * @param timer A timer.
-     * @param processControl A process control
      */
     public WireFileDistribution(final FileDistribution fileDistribution,
                                 ConsoleProperties properties,
-                                Timer timer,
-                                ProcessControl processControl) {
+                                Timer timer) {
 
       timer.schedule(new TimerTask() {
           public void run() {
@@ -261,16 +259,6 @@ public final class ConsoleFoundation {
         properties.getScanDistributionFilesPeriod(),
         properties.getScanDistributionFilesPeriod());
 
-
-      processControl.addProcessStatusListener(
-        new ProcessControl.Listener() {
-          public void update(ProcessControl.ProcessReports[] processStatuses,
-                             boolean newAgent) {
-            if (newAgent) {
-              fileDistribution.getAgentCacheState().setOutOfDate();
-            }
-          }
-        });
 
       properties.addPropertyChangeListener(
         new PropertyChangeListener() {

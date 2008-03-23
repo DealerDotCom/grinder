@@ -433,14 +433,14 @@ public class TestEditorModel extends AbstractFileTestCase {
     // Buffer changed because it is associated with a new file.
     listenerStubFactory.assertSuccess("bufferStateChanged", buffer);
     listenerStubFactory.assertNoMoreCalls();
-    m_agentCacheStateStubFactory.assertSuccess("setOutOfDate",
+    m_agentCacheStateStubFactory.assertSuccess("setNewFileTime",
                                                new Long(file1.lastModified()));
     m_agentCacheStateStubFactory.assertNoMoreCalls();
 
     buffer.save(file1);
     listenerStubFactory.assertNoMoreCalls();
-    m_agentCacheStateStubFactory.assertSuccess("setOutOfDate",
-                                             new Long(file1.lastModified()));
+    m_agentCacheStateStubFactory.assertSuccess("setNewFileTime",
+                                               new Long(file1.lastModified()));
     m_agentCacheStateStubFactory.assertNoMoreCalls();
 
     assertEquals(buffer, editorModel.getBufferForFile(file1));
@@ -450,8 +450,8 @@ public class TestEditorModel extends AbstractFileTestCase {
     // Buffer changed because it is associated with a new file.
     listenerStubFactory.assertSuccess("bufferStateChanged", buffer);
     listenerStubFactory.assertNoMoreCalls();
-    m_agentCacheStateStubFactory.assertSuccess("setOutOfDate",
-                                             new Long(file2.lastModified()));
+    m_agentCacheStateStubFactory.assertSuccess("setNewFileTime",
+                                               new Long(file2.lastModified()));
     m_agentCacheStateStubFactory.assertNoMoreCalls();
 
     assertNull(editorModel.getBufferForFile(file1));
@@ -545,14 +545,14 @@ public class TestEditorModel extends AbstractFileTestCase {
 
     editorModel.addListener(editorModelListener);
     final File f1 = new File(getDirectory(), "test file");
-    f1.createNewFile();
+    assertTrue(f1.createNewFile());
     final Buffer buffer = editorModel.selectBufferForFile(f1);
     assertTrue(buffer.isUpToDate());
     editorModelListenerStubFactory.assertSuccess("bufferAdded", buffer);
     editorModelListenerStubFactory.assertSuccess("bufferStateChanged", buffer);
     editorModelListenerStubFactory.assertNoMoreCalls();
 
-    f1.setLastModified(System.currentTimeMillis() + 1000);
+    assertTrue(f1.setLastModified(System.currentTimeMillis() + 1000));
     assertFalse(buffer.isUpToDate());
 
     editorModelListenerStubFactory.assertNoMoreCalls();
@@ -563,7 +563,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     editorModelListenerStubFactory.assertNoMoreCalls();
 
     // Selecting a modified buffer should also fire bufferNotUpToDate.
-    f1.setLastModified(System.currentTimeMillis() + 2000);
+    assertTrue(f1.setLastModified(System.currentTimeMillis() + 2000));
     editorModel.selectBufferForFile(f1);
     editorModelListenerStubFactory.assertSuccess("bufferNotUpToDate", buffer);
     editorModelListenerStubFactory.assertNoMoreCalls();

@@ -1201,33 +1201,22 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
     }
   }
 
-  private abstract class AbstractEnableIfAgentsConnected
+  private class EnableIfAgentsConnected
     implements ProcessControl.Listener {
 
     private final Action m_action;
 
-    AbstractEnableIfAgentsConnected(Action action) {
+    EnableIfAgentsConnected(Action action) {
       m_action = action;
+      enableOrDisable();
     }
 
-    public final void update(ProcessControl.ProcessReports[] processStatuses,
-                             boolean newAgent) {
+    public final void update(ProcessControl.ProcessReports[] processStatuses) {
       enableOrDisable();
     }
 
     protected final void enableOrDisable() {
       m_action.setEnabled(shouldEnable());
-    }
-
-    protected abstract boolean shouldEnable();
-  }
-
-  private final class EnableIfAgentsConnected
-    extends AbstractEnableIfAgentsConnected {
-
-    EnableIfAgentsConnected(Action action) {
-      super(action);
-      enableOrDisable();
     }
 
     protected boolean shouldEnable() {
@@ -1493,20 +1482,11 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
           }
         });
 
-      m_processControl.addProcessStatusListener(
-        new AbstractEnableIfAgentsConnected(this) {
-          protected boolean shouldEnable() {
-            return DistributeFilesAction.this.shouldEnable();
-          }
-        });
-
       setEnabled(shouldEnable());
     }
 
     private boolean shouldEnable() {
-      return
-        m_fileDistribution.getAgentCacheState().getOutOfDate() &&
-        m_processControl.getNumberOfLiveAgents() > 0;
+      return m_fileDistribution.getAgentCacheState().getOutOfDate();
     }
 
     public void actionPerformed(ActionEvent event) {

@@ -21,6 +21,7 @@
 
 package net.grinder.console.communication;
 
+import net.grinder.communication.Address;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.agent.ClearCacheMessage;
 import net.grinder.messages.agent.DistributeFileMessage;
@@ -38,60 +39,55 @@ public class DistributionControlImplementation
   implements DistributionControl {
 
   private final ConsoleCommunication m_consoleCommunication;
-  private final AgentFileCacheState m_agentFileCacheState;
 
   /**
    * Constructor.
    *
    * @param consoleCommunication
    *          The console communication handler.
-   * @param agentFileCacheState
-   *          Something that knows the state of the agent file caches.
    */
   public DistributionControlImplementation(
-    ConsoleCommunication consoleCommunication,
-    AgentFileCacheState agentFileCacheState) {
+    ConsoleCommunication consoleCommunication) {
       m_consoleCommunication = consoleCommunication;
-      m_agentFileCacheState = agentFileCacheState;
   }
 
   /**
-   * Signal the agent processes that are less up to date than the given water
-   * mark to clear their file caches.
+   * Signal agents matching the given address to clear their file caches.
    *
-   * @param cacheHighWaterMark
-   *            The water mark. In practice, its associated time will be 0, so
-   *            agents with caches for out of date cache parameters will be
-   *            cleared.
+   * @param address
+   *            The address of the agents.
    */
-  public void clearFileCaches(CacheHighWaterMark cacheHighWaterMark) {
+  public void clearFileCaches(Address address) {
     m_consoleCommunication.sendToAddressedAgents(
-      m_agentFileCacheState.agentsWithOutOfDateCaches(cacheHighWaterMark),
-      new ClearCacheMessage());
+      address, new ClearCacheMessage());
   }
 
   /**
-   * Send a file to the file caches that are less up to date than the given
-   * high water mark.
+   * Send a file to the agents matching the given address.
    *
+   * @param address
+   *            The address of the agents.
    * @param fileContents The file contents.
-   * @param cacheHighWaterMark The high water mark.
    */
-  public void sendFile(FileContents fileContents,
-                       CacheHighWaterMark cacheHighWaterMark) {
+  public void sendFile(Address address, FileContents fileContents) {
     m_consoleCommunication.sendToAddressedAgents(
-      m_agentFileCacheState.agentsWithOutOfDateCaches(cacheHighWaterMark),
-      new DistributeFileMessage(fileContents));
+      address, new DistributeFileMessage(fileContents));
   }
 
   /**
-   * Inform agent processes of a checkpoint of the cache state.
+   * Inform agent processes of a checkpoint of the cache state. Each agent
+   * should maintain this (perhaps persistently), and report it in status
+   * reports.
    *
+   * @param address
+   *            The address of the agents.
    * @param highWaterMark
    *            A checkpoint of the cache state.
    */
-  public void setHighWaterMark(CacheHighWaterMark highWaterMark) {
-    m_consoleCommunication.sendToAgents(
+  public void setHighWaterMark(Address address,
+                               CacheHighWaterMark highWaterMark) {
+    m_consoleCommunication.sendToAddressedAgents(
+      address,
       new DistributionCacheCheckpointMessage(highWaterMark));
   }
 }

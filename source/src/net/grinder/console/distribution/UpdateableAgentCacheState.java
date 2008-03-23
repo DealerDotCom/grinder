@@ -21,6 +21,10 @@
 
 package net.grinder.console.distribution;
 
+import java.util.regex.Pattern;
+
+import net.grinder.util.Directory;
+
 
 /**
  * Package interface to the AgentCacheStateImplementation.
@@ -30,9 +34,11 @@ package net.grinder.console.distribution;
  */
 interface UpdateableAgentCacheState extends AgentCacheState {
 
-  long getEarliestFileTime();
+  void setDirectory(Directory directory);
 
-  void updateStarted(long latestFileTime);
+  void setFileFilterPattern(Pattern fileFilterPattern);
 
-  long updateComplete();
+  CacheParameters getCacheParameters();
+
+  AgentSet getAgentSet();
 }

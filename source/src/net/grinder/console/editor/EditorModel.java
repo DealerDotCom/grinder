@@ -318,7 +318,7 @@ public final class EditorModel {
         public void bufferSaved(Buffer buffer, File oldFile) {
           final File newFile = buffer.getFile();
 
-          m_agentCacheState.setOutOfDate(newFile.lastModified());
+          m_agentCacheState.setNewFileTime(newFile.lastModified());
 
           if (!newFile.equals(oldFile)) {
             if (oldFile != null) {

@@ -139,14 +139,14 @@ public class TestTextUI extends TestCase {
     m_loggerStubFactory.assertNoMoreCalls();
 
     final ProcessReports[] reports1 = new ProcessReports[0];
-    processListener.update(reports1, false);
+    processListener.update(reports1);
     m_loggerStubFactory.assertOutputMessage("no agents!");
     m_loggerStubFactory.assertNoMoreCalls();
 
-    processListener.update(reports1, false);
+    processListener.update(reports1);
     m_loggerStubFactory.assertNoMoreCalls();
 
-    processListener.update(reports1, true);
+    processListener.update(reports1);
     m_loggerStubFactory.assertNoMoreCalls();
 
     final StubAgentIdentity agentIdentity1 = new StubAgentIdentity("agent1");
@@ -168,7 +168,7 @@ public class TestTextUI extends TestCase {
                                  workerProcessReport1,
                                  workerProcessReport2,
                                }),
-      }, true);
+      });
 
     m_loggerStubFactory.assertOutputMessage(
       "AG agent1 [plugged in] " +
@@ -183,7 +183,7 @@ public class TestTextUI extends TestCase {
                                  workerProcessReport2,
                                  workerProcessReport1,
                                }),
-      }, true);
+      });
 
     m_loggerStubFactory.assertNoMoreCalls();
 
@@ -200,7 +200,7 @@ public class TestTextUI extends TestCase {
                                  workerProcessReport2,
                                  workerProcessReport1,
                                }),
-      }, false);
+      });
 
     m_loggerStubFactory.assertOutputMessage(
       "AG agent1 [plugged in] " +

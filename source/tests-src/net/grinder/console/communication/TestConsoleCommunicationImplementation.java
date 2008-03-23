@@ -36,6 +36,7 @@ import net.grinder.communication.Address;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
+import net.grinder.communication.SendToEveryoneAddress;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StreamSender;
 import net.grinder.communication.StubConnector;
@@ -89,11 +90,6 @@ public class TestConsoleCommunicationImplementation
     new RandomStubFactory(ErrorHandler.class);
   private final ErrorHandler m_errorHandler =
     (ErrorHandler)m_errorHandlerStubFactory.getStub();
-
-  final RandomStubFactory m_agentFileCacheStateStubFactory =
-    new RandomStubFactory(AgentFileCacheState.class);
-  final AgentFileCacheState m_agentFileCacheState =
-    (AgentFileCacheState)m_agentFileCacheStateStubFactory.getStub();
 
   protected void setUp() throws Exception {
     super.setUp();
@@ -211,7 +207,7 @@ public class TestConsoleCommunicationImplementation
       (ProcessControl.Listener)listenerStubFactory.getStub();
 
     final CacheHighWaterMark cacheHighWaterMark =
-      new StubCacheHighWaterMark(100);
+      new StubCacheHighWaterMark("cache", 100);
 
     processControl.addProcessStatusListener(listener);
 
@@ -240,7 +236,7 @@ public class TestConsoleCommunicationImplementation
       Thread.sleep(10);
     }
     while (listenerStubFactory.peekFirst() == null);
-    listenerStubFactory.assertSuccess("update", ProcessReports[].class, Boolean.class);
+    listenerStubFactory.assertSuccess("update", ProcessReports[].class);
     listenerStubFactory.assertNoMoreCalls();
 
     processControl.startWorkerProcesses(properties);
@@ -289,12 +285,7 @@ public class TestConsoleCommunicationImplementation
       .connect();
 
     final DistributionControl distributionControl =
-      new DistributionControlImplementation(m_consoleCommunication,
-                                            m_agentFileCacheState);
-    m_agentFileCacheStateStubFactory.setResult(
-      "agentsWithOutOfDateCaches", new Address() {
-        public boolean includes(Address address) { return true; }
-      });
+      new DistributionControlImplementation(m_consoleCommunication);
 
     final Socket socket2 =
       new StubConnector(InetAddress.getByName(null).getHostName(),
@@ -306,7 +297,7 @@ public class TestConsoleCommunicationImplementation
 
     socket2.close();
 
-    final CacheHighWaterMark cacheHighWaterMark = new StubCacheHighWaterMark(0);
+    final Address address = new SendToEveryoneAddress();
 
     // Closing the socket isn't enough for the ConsoleCommunication's Sender to
     // know we've gone (and so close its end of the connection); we need to send
@@ -316,7 +307,7 @@ public class TestConsoleCommunicationImplementation
     int n = 0;
 
     while (m_consoleCommunication.getNumberOfConnections() != 1) {
-      distributionControl.clearFileCaches(cacheHighWaterMark);
+      distributionControl.clearFileCaches(address);
       ++n;
       assertTrue(n < 10);
     }
@@ -332,7 +323,7 @@ public class TestConsoleCommunicationImplementation
     final FileContents fileContents = new FileContents(getDirectory(),
       relativePath);
 
-    distributionControl.sendFile(fileContents, cacheHighWaterMark);
+    distributionControl.sendFile(address, fileContents);
 
     assertTrue(readMessage(socket) instanceof DistributeFileMessage);
     socket.close();
@@ -355,13 +346,11 @@ public class TestConsoleCommunicationImplementation
 
     waitForNumberOfConnections(1);
 
-    final CacheHighWaterMark cacheHighWaterMark2 =
-      new StubCacheHighWaterMark(100);
-
-    distributionControl.clearFileCaches(cacheHighWaterMark2);
+    distributionControl.clearFileCaches(address);
     assertTrue(readMessage(socket3) instanceof ClearCacheMessage);
 
-    distributionControl.setHighWaterMark(cacheHighWaterMark);
+    distributionControl.setHighWaterMark(address,
+                                         new StubCacheHighWaterMark("", 100));
     assertTrue(
       readMessage(socket3) instanceof DistributionCacheCheckpointMessage);
   }
@@ -494,12 +483,10 @@ public class TestConsoleCommunicationImplementation
       "handleException", DisplayMessageConsoleException.class);
     m_errorHandlerStubFactory.assertNoMoreCalls();
 
-    final CacheHighWaterMark cacheHighWaterMark =
-      new StubCacheHighWaterMark(123);
+    final Address address = new SendToEveryoneAddress();
 
-    new DistributionControlImplementation(m_consoleCommunication,
-                                          m_agentFileCacheState)
-    .clearFileCaches(cacheHighWaterMark);
+    new DistributionControlImplementation(m_consoleCommunication)
+    .clearFileCaches(address);
 
     m_errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
@@ -522,9 +509,8 @@ public class TestConsoleCommunicationImplementation
       "handleException", DisplayMessageConsoleException.class);
     errorHandlerStubFactory2.assertNoMoreCalls();
 
-    new DistributionControlImplementation(brokenConsoleCommunication,
-                                          m_agentFileCacheState)
-    .clearFileCaches(cacheHighWaterMark);
+    new DistributionControlImplementation(brokenConsoleCommunication)
+    .clearFileCaches(address);
 
     errorHandlerStubFactory2.assertSuccess("handleErrorMessage", String.class);
     errorHandlerStubFactory2.assertNoMoreCalls();

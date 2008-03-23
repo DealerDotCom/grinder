@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,18 @@ package net.grinder.console.distribution;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import net.grinder.communication.Address;
+import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.ProcessControl.ProcessReports;
+import net.grinder.messages.agent.CacheHighWaterMark;
+import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.util.Directory;
 
 
 /**
@@ -31,79 +43,202 @@ import java.beans.PropertyChangeSupport;
  * @author Philip Aston
  * @version $Revision$
  */
-final class AgentCacheStateImplementation
-  implements AgentCacheState, UpdateableAgentCacheState {
-
-  private static final int UP_TO_DATE = 0;
-  private static final int UPDATING = 1;
-  private static final int OUT_OF_DATE = 2;
+final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
 
   private final PropertyChangeSupport m_propertyChangeSupport =
     new PropertyChangeSupport(this);
 
-  // m_state, m_earliestFileTime, m_updateStartTime are guarded by this.
-  private int m_state = OUT_OF_DATE;
-  private long m_earliestFileTime = -1;
-  private long m_postUpdateEarliestFileTime = -1;
+  // All mutable fields are guarded by this.
+  private CacheParameters m_cacheParameters;
+  private long m_latestNewFileTime = -1;
 
-  public synchronized long getEarliestFileTime() {
-    return m_earliestFileTime;
+  private boolean m_outOfDate = false;
+  private Set m_lastAgentReportSet = new HashSet();
+  private long m_earliestAgentTime = -1;
+
+  public AgentCacheStateImplementation(ProcessControl processControl,
+                                       Directory directory,
+                                       Pattern fileFilterPattern) {
+    reset(new CacheParametersImplementation(directory, fileFilterPattern));
+    processControl.addProcessStatusListener(new ProcessReportListener());
+  }
+
+  private synchronized void reset(CacheParameters cacheParameters) {
+    if (!cacheParameters.equals(m_cacheParameters)) {
+      m_cacheParameters = cacheParameters;
+      m_latestNewFileTime = -1;
+
+      m_lastAgentReportSet = new HashSet();
+      m_earliestAgentTime = -1;
+    }
   }
 
   public synchronized boolean getOutOfDate() {
-    return UP_TO_DATE != m_state;
+    return m_outOfDate;
   }
 
-  public void setOutOfDate() {
-    setOutOfDate(-1);
-  }
-
-  public synchronized void setOutOfDate(long invalidAfter) {
-    // Currently setOutOfDate() isn't safe to be called when UPDATING.
-    // Its effects will be wholly or partly overridden by the next call to
-    // updateStarted()/updateComplete().
-
-    if (m_postUpdateEarliestFileTime > invalidAfter) {
-      m_postUpdateEarliestFileTime = invalidAfter;
-    }
-
-    if (m_earliestFileTime > invalidAfter) {
-      m_earliestFileTime = invalidAfter;
-    }
-
-    setState(OUT_OF_DATE);
-  }
-
-  public synchronized void updateStarted(long latestFileTime) {
-    m_postUpdateEarliestFileTime = latestFileTime;
-    setState(UPDATING);
-  }
-
-  public synchronized long updateComplete() {
-    // Even if we're not up to date, we've at least transfered all
-    // files older than this m_updateStartTime.
-    m_earliestFileTime = m_postUpdateEarliestFileTime;
-
-    if (m_state == UPDATING) {
-      // Only mark clean if we haven't been marked out of date
-      // during the update.
-      setState(UP_TO_DATE);
-    }
-
-    return m_postUpdateEarliestFileTime;
-  }
-
-  private void setState(int newState) {
-    final boolean oldOutOfDate = getOutOfDate();
-    m_state = newState;
-
-    m_propertyChangeSupport.firePropertyChange("outOfDate",
-                                               oldOutOfDate,
-                                               getOutOfDate());
+  public synchronized void setNewFileTime(long time) {
+    // Listeners will be updated on next report cycle.
+    m_latestNewFileTime = Math.max(m_latestNewFileTime, time);
   }
 
   public void addListener(PropertyChangeListener listener) {
     m_propertyChangeSupport.addPropertyChangeListener(listener);
+  }
+
+  public synchronized void setDirectory(Directory directory) {
+    reset(new CacheParametersImplementation(
+            directory, m_cacheParameters.getFileFilterPattern()));
+  }
+
+  public synchronized void setFileFilterPattern(Pattern fileFilterPattern) {
+    reset(new CacheParametersImplementation(
+            m_cacheParameters.getDirectory(), fileFilterPattern));
+  }
+
+  public synchronized CacheParameters getCacheParameters() {
+    return m_cacheParameters;
+  }
+
+  public synchronized AgentSet getAgentSet() {
+
+    synchronized (this) {
+      return new AgentSetImplementation(getCacheParameters(),
+                                        m_lastAgentReportSet,
+                                        m_earliestAgentTime);
+    }
+  }
+
+  private final class AgentSetImplementation implements AgentSet {
+
+    private final CacheParameters m_validCacheParameters;
+    private final Set m_agentReports;
+    private final long m_earliestAgentTime;
+
+    private AgentSetImplementation(CacheParameters cacheParameters,
+                                   Set agentReports,
+                                   long earliestAgentTime) {
+      m_validCacheParameters = cacheParameters;
+      m_agentReports = agentReports;
+      m_earliestAgentTime = earliestAgentTime;
+    }
+
+    private void checkValidity() throws OutOfDateException {
+      if (!m_validCacheParameters.equals(getCacheParameters())) {
+        throw new OutOfDateException();
+      }
+    }
+
+    public Address getAddressOfAllAgents() throws OutOfDateException {
+      checkValidity();
+
+      final Set agents = new HashSet();
+      final Iterator iterator = m_agentReports.iterator();
+
+      while (iterator.hasNext()) {
+        agents.add(((AgentProcessReport)iterator.next()).getAgentIdentity());
+      }
+
+      return new AgentSetAddress(agents);
+    }
+
+    public Address getAddressOfOutOfDateAgents(long time)
+      throws OutOfDateException {
+      checkValidity();
+
+      final CacheHighWaterMark cacheState =
+        m_validCacheParameters.createHighWaterMark(time);
+
+      final Set outOfDateAgents = new HashSet();
+      final Iterator iterator = m_agentReports.iterator();
+
+      while (iterator.hasNext()) {
+        final AgentProcessReport agentReport =
+          (AgentProcessReport)iterator.next();
+
+        final CacheHighWaterMark agentCache =
+          agentReport.getCacheHighWaterMark();
+
+        if (cacheState.isForSameCache(agentCache)) {
+          if (cacheState.getTime() > agentCache.getTime()) {
+            outOfDateAgents.add(agentReport.getAgentIdentity());
+          }
+        }
+        else {
+          outOfDateAgents.add(agentReport.getAgentIdentity());
+        }
+      }
+
+      return new AgentSetAddress(outOfDateAgents);
+    }
+
+    public long getEarliestAgentTime() {
+      return m_earliestAgentTime;
+    }
+  }
+
+  private final class ProcessReportListener implements ProcessControl.Listener {
+    public void update(ProcessReports[] processReports) {
+
+      final Set agents = new HashSet();
+
+      final CacheHighWaterMark cacheState;
+
+      synchronized (AgentCacheStateImplementation.this) {
+        cacheState =
+          m_cacheParameters.createHighWaterMark(m_latestNewFileTime);
+      }
+
+      long earliestAgentTime = Long.MAX_VALUE;
+
+      for (int i = 0; i < processReports.length; ++i) {
+        final AgentProcessReport agentReport =
+          processReports[i].getAgentProcessReport();
+
+        final CacheHighWaterMark agentCache =
+          agentReport.getCacheHighWaterMark();
+
+        if (cacheState.isForSameCache(agentCache)) {
+          if (cacheState.getTime() > agentCache.getTime()) {
+            earliestAgentTime =
+              Math.min(earliestAgentTime, agentCache.getTime());
+          }
+        }
+        else {
+          earliestAgentTime = -1;
+        }
+
+        agents.add(agentReport);
+      }
+
+      final boolean oldOutOfDate;
+      final boolean newOutOfDate;
+
+      synchronized (AgentCacheStateImplementation.this) {
+        m_lastAgentReportSet = Collections.unmodifiableSet(agents);
+        m_earliestAgentTime = earliestAgentTime;
+
+        oldOutOfDate = m_outOfDate;
+        newOutOfDate = earliestAgentTime < Long.MAX_VALUE;
+        m_outOfDate = newOutOfDate;
+      }
+
+      m_propertyChangeSupport.firePropertyChange("outOfDate",
+                                                 oldOutOfDate,
+                                                 newOutOfDate);
+    }
+  }
+
+  private static final class AgentSetAddress implements Address {
+    private final Set m_agents;
+
+    public AgentSetAddress(Set agents) {
+      m_agents = agents;
+    }
+
+    public boolean includes(Address address) {
+      return m_agents.contains(address);
+    }
   }
 }
 

@@ -23,8 +23,8 @@ package net.grinder.console.distribution;
 
 import java.io.File;
 
+import net.grinder.communication.Address;
 import net.grinder.console.communication.DistributionControl;
-import net.grinder.console.distribution.CacheHighWaterMarkImplementation.CacheIdentity;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
@@ -40,37 +40,41 @@ import net.grinder.util.FileContents;
 public class TestFileDistributionHandlerImplementation
   extends AbstractFileTestCase {
 
-  public void testFileDistributionHandlerImplementation() throws Exception {
+  private final RandomStubFactory m_distributionControlStubFactory =
+    new RandomStubFactory(DistributionControl.class);
+  private final DistributionControl m_distributionControl =
+    (DistributionControl)m_distributionControlStubFactory.getStub();
 
-    final RandomStubFactory distributionControlStubFactory =
-      new RandomStubFactory(DistributionControl.class);
-    final DistributionControl distributionControl =
-      (DistributionControl)distributionControlStubFactory.getStub();
+  private final RandomStubFactory m_agentSetStubFactory =
+    new RandomStubFactory(AgentSet.class);
+  private final AgentSet m_agentSet = (AgentSet)m_agentSetStubFactory.getStub();
 
-    final RandomStubFactory updateableAgentCacheStateStubFactory =
-      new RandomStubFactory(UpdateableAgentCacheState.class);
-    final UpdateableAgentCacheState updateableAgentCacheState =
-      (UpdateableAgentCacheState)updateableAgentCacheStateStubFactory.getStub();
+  private final CacheParameters m_cacheParameters =
+    new CacheParametersImplementation(null, null);
 
-    final File[] files = {
-      new File("a"),
-      new File("b"),
-    };
+  final File[] m_files = {
+    new File("a"),
+    new File("b"),
+  };
 
-    for (int i = 0; i < files.length; ++i) {
-      createRandomFile(new File(getDirectory(), files[i].getPath()));
+  protected void setUp() throws Exception {
+    super.setUp();
+
+    for (int i = 0; i < m_files.length; ++i) {
+      createRandomFile(new File(getDirectory(), m_files[i].getPath()));
     }
+  }
 
+  public void testFileDistributionHandlerImplementation() throws Exception {
     final FileDistributionHandlerImplementation fileDistributionHandler =
       new FileDistributionHandlerImplementation(
-        new CacheIdentity() {},
+        m_cacheParameters,
         getDirectory(),
-        files,
-        distributionControl,
-        updateableAgentCacheState);
+        m_files,
+        m_distributionControl,
+        m_agentSet);
 
-    distributionControlStubFactory.assertSuccess("clearFileCaches",
-                                                 CacheHighWaterMark.class);
+    m_distributionControlStubFactory.assertNoMoreCalls();
 
     final FileDistributionHandler.Result result0 =
       fileDistributionHandler.sendNextFile();
@@ -78,15 +82,21 @@ public class TestFileDistributionHandlerImplementation
     assertEquals(50, result0.getProgressInCents());
     assertEquals("a", result0.getFileName());
 
-    distributionControlStubFactory.assertSuccess("sendFile",
-                                                 FileContents.class,
-                                                 CacheHighWaterMark.class);
+    m_distributionControlStubFactory.assertSuccess(
+      "clearFileCaches", Address.class);
 
-    final File earliestFile = new File(getDirectory(), files[0].getPath());
+    m_agentSetStubFactory.assertSuccess(
+      "getAddressOfOutOfDateAgents", new Long(0));
 
-    updateableAgentCacheStateStubFactory.assertSuccess(
-      "updateStarted", new Long(earliestFile.lastModified()));
-    updateableAgentCacheStateStubFactory.assertNoMoreCalls();
+    m_distributionControlStubFactory.assertSuccess("sendFile",
+                                                 Address.class,
+                                                 FileContents.class);
+
+    m_agentSetStubFactory.assertSuccess(
+      "getAddressOfOutOfDateAgents",
+      new Long(new File(getDirectory(), m_files[0].getPath()).lastModified()));
+
+    m_agentSetStubFactory.assertNoMoreCalls();
 
     final FileDistributionHandler.Result result1 =
       fileDistributionHandler.sendNextFile();
@@ -94,22 +104,45 @@ public class TestFileDistributionHandlerImplementation
     assertEquals(100, result1.getProgressInCents());
     assertEquals("b", result1.getFileName());
 
-    distributionControlStubFactory.assertSuccess("sendFile",
-                                                 FileContents.class,
-                                                 CacheHighWaterMark.class);
+    m_distributionControlStubFactory.assertSuccess("sendFile",
+                                                 Address.class,
+                                                 FileContents.class);
 
-    updateableAgentCacheStateStubFactory.assertNoMoreCalls();
+    m_agentSetStubFactory.assertSuccess(
+      "getAddressOfOutOfDateAgents",
+      new Long(new File(getDirectory(), m_files[1].getPath()).lastModified()));
+
+    m_agentSetStubFactory.assertNoMoreCalls();
 
     final FileDistributionHandler.Result result2 =
       fileDistributionHandler.sendNextFile();
 
     assertNull(result2);
 
-    distributionControlStubFactory.assertSuccess(
-      "setHighWaterMark", CacheHighWaterMark.class);
-    distributionControlStubFactory.assertNoMoreCalls();
+    m_distributionControlStubFactory.assertSuccess(
+      "setHighWaterMark", Address.class, CacheHighWaterMark.class);
+    m_distributionControlStubFactory.assertNoMoreCalls();
 
-    updateableAgentCacheStateStubFactory.assertSuccess("updateComplete");
-    updateableAgentCacheStateStubFactory.assertNoMoreCalls();
+    m_agentSetStubFactory.assertSuccess("getAddressOfAllAgents");
+
+    m_agentSetStubFactory.assertNoMoreCalls();
+  }
+
+  public void testOutOfDateHandler() throws Exception {
+
+    final FileDistributionHandlerImplementation fileDistributionHandler =
+      new FileDistributionHandlerImplementation(
+        m_cacheParameters,
+        getDirectory(),
+        m_files,
+        m_distributionControl,
+        m_agentSet);
+
+    assertNotNull(fileDistributionHandler.sendNextFile());
+
+    m_agentSetStubFactory.setThrows("getAddressOfOutOfDateAgents",
+                                    new AgentSet.OutOfDateException());
+
+    assertNull(fileDistributionHandler.sendNextFile());
   }
 }

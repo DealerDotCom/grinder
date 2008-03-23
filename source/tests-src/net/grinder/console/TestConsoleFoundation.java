@@ -44,7 +44,6 @@ import net.grinder.console.common.StubResources;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.DistributionControl;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.ProcessControl.Listener;
 import net.grinder.console.communication.server.DispatchClientCommands;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.model.ConsoleProperties;
@@ -74,6 +73,10 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
 
   private static TestConsoleFoundation s_instance;
 
+  private static void setInstance(TestConsoleFoundation instance) {
+    s_instance = instance;
+  }
+
   private final Resources m_resources =
     new StubResources(new HashMap() {{
 
@@ -87,7 +90,7 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     final ConsoleFoundation foundation =
       new ConsoleFoundation(m_resources, m_logger);
 
-    s_instance = this;
+    setInstance(this);
 
     final MyUI ui = (MyUI)foundation.createUI(MyUI.class);
     assertNotNull(ui);
@@ -156,11 +159,6 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     final FileDistribution fileDistribution =
       (FileDistribution)fileDistributionStubFactory.getStub();
 
-    final RandomStubFactory processControlStubFactory =
-      new RandomStubFactory(ProcessControl.class);
-    final ProcessControl processControl =
-      (ProcessControl)processControlStubFactory.getStub();
-
     final ConsoleProperties consoleProperties =
       new ConsoleProperties(m_resources, new File(getDirectory(), "props"));
 
@@ -168,8 +166,7 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
 
     new ConsoleFoundation.WireFileDistribution(fileDistribution,
                                                consoleProperties,
-                                               timer,
-                                               processControl);
+                                               timer);
 
     fileDistributionStubFactory.assertNoMoreCalls();
 
@@ -179,21 +176,6 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     final TimerTask scanFileTask = timer.getLastScheduledTimerTask();
     scanFileTask.run();
     fileDistributionStubFactory.assertSuccess("scanDistributionFiles");
-    fileDistributionStubFactory.assertNoMoreCalls();
-
-    final CallData addListenerCall =
-      processControlStubFactory.assertSuccess("addProcessStatusListener",
-                                              Listener.class);
-    final Listener listener =
-      (Listener) addListenerCall.getParameters()[0];
-
-    final ProcessControl.ProcessReports[] reports =
-      new ProcessControl.ProcessReports[0];
-    listener.update(reports, false);
-    fileDistributionStubFactory.assertNoMoreCalls();
-
-    listener.update(reports, true);
-    fileDistributionStubFactory.assertSuccess("getAgentCacheState");
     fileDistributionStubFactory.assertNoMoreCalls();
 
     consoleProperties.setDistributionFileFilterExpression(".*");

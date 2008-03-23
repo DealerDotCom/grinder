@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.grinder.communication.Address;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReport;
@@ -80,7 +79,6 @@ final class ProcessStatusImplementation {
   private final ListenerSupport m_listeners = new ListenerSupport();
 
   private volatile boolean m_newData = false;
-  private volatile boolean m_newAgent = false;
 
   /**
    * Constructor.
@@ -128,41 +126,12 @@ final class ProcessStatusImplementation {
     }
   }
 
-  public Address agentsWithOutOfDateCaches(CacheHighWaterMark highWaterMark) {
-
-    final Set agents = new HashSet();
-
-    synchronized (m_agentIdentityToAgentAndWorkers) {
-      final Iterator iterator =
-        m_agentIdentityToAgentAndWorkers.entrySet().iterator();
-
-      while (iterator.hasNext()) {
-        final Map.Entry entry = (Map.Entry)iterator.next();
-        final AgentAndWorkers agentAndWorkers =
-          (AgentAndWorkers)entry.getValue();
-
-        if (highWaterMark.isLater(
-          agentAndWorkers.getAgentProcessReport().getCacheHighWaterMark())) {
-          agents.add(entry.getKey());
-        }
-      }
-    }
-
-    return new Address() {
-      public boolean includes(Address address) {
-        return agents.contains(address);
-      }
-    };
-  }
-
   private void update() {
     if (!m_newData) {
       return;
     }
 
-    final boolean newAgent = m_newAgent;
     m_newData = false;
-    m_newAgent = false;
 
     final AgentAndWorkers[] processStatuses;
 
@@ -175,7 +144,7 @@ final class ProcessStatusImplementation {
     m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
-          ((ProcessControl.Listener)listener).update(processStatuses, newAgent);
+          ((ProcessControl.Listener)listener).update(processStatuses);
         }
       });
   }
@@ -192,7 +161,6 @@ final class ProcessStatusImplementation {
 
       final AgentAndWorkers created = new AgentAndWorkers(agentIdentity);
       m_agentIdentityToAgentAndWorkers.put(agentIdentity, created);
-      m_newAgent = true;
 
       m_agentNumberMap.add(agentIdentity);
 

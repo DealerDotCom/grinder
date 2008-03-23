@@ -265,13 +265,17 @@ public class TestFileStore extends AbstractFileTestCase {
   public void testDistributionCheckpointMessage() throws Exception {
     final FileStore fileStore = new FileStore(getDirectory(), null);
 
-    assertNull(fileStore.getCacheHighWaterMark());
+    final CacheHighWaterMark outOfDateCacheHighWaterMark =
+      fileStore.getCacheHighWaterMark();
+    assertEquals(-1, outOfDateCacheHighWaterMark.getTime());
+    assertFalse(outOfDateCacheHighWaterMark.isForSameCache(
+                  outOfDateCacheHighWaterMark));
 
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
     fileStore.registerMessageHandlers(messageDispatcher);
 
     final CacheHighWaterMark cacheHighWaterMark =
-      new StubCacheHighWaterMark(123);
+      new StubCacheHighWaterMark("", 123);
     final Message message =
       new DistributionCacheCheckpointMessage(cacheHighWaterMark);
 

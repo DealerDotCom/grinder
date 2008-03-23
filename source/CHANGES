@@ -59,6 +59,9 @@ The Grinder 3.0.2 (not yet released).
   Fix bug 1913056 - release fails on build of test-src. Thanks to Travis
   Swicegood for the report.
 
+  The file distribution now only updates out of date agents, and only sends
+  the updated files.
+
 
 The Grinder 3.0.1
 -----------------

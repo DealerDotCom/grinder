@@ -121,7 +121,7 @@ public class TestProcessStatusTableModel extends TestCase {
     assertEquals(0, processStatusTableModel.getRowCount());
 
     final ProcessReports[] nullReport = new ProcessReports[0];
-    listener.update(nullReport, true);
+    listener.update(nullReport);
 
     assertEquals(1, processStatusTableModel.getRowCount());
     assertEquals("", processStatusTableModel.getValueAt(0, 0));
@@ -150,7 +150,7 @@ public class TestProcessStatusTableModel extends TestCase {
           }),
     };
 
-    listener.update(someData, true);
+    listener.update(someData);
 
     assertEquals(4, processStatusTableModel.getRowCount());
     assertEquals("agent1", processStatusTableModel.getValueAt(0, 0));
