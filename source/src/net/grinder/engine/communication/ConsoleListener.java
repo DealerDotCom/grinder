@@ -90,6 +90,13 @@ public final class ConsoleListener {
   }
 
   /**
+   * Shut down.
+   */
+  public void shutdown() {
+    setReceived(SHUTDOWN);
+  }
+
+  /**
    * Wait until any message is received.
    *
    * <p>After calling this method, the actual messages can be

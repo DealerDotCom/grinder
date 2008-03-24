@@ -207,15 +207,16 @@ public class TestConsoleListener extends TestCase {
 
     final Thread t = new Thread() {
         public void run() {
+          // We synchronise to ensure main thread is blocked in
+          // waitForMessage();
           synchronized (myCondition) {
-            // Wait until we're listening.
-          }
-          try {
-            messageDispatcher.send(
-              new StartGrinderMessage(new GrinderProperties(), -1));
-          }
-          catch (CommunicationException e) {
-            e.printStackTrace();
+            try {
+              messageDispatcher.send(
+                new StartGrinderMessage(new GrinderProperties(), -1));
+            }
+            catch (CommunicationException e) {
+              e.printStackTrace();
+            }
           }
         }
     };
@@ -231,7 +232,7 @@ public class TestConsoleListener extends TestCase {
   private static final class MyMessage implements Message, Serializable {
   }
 
-  public void testShutdown() throws Exception {
+  public void testDispatcherShutdown() throws Exception {
 
     final Condition myCondition = new Condition();
     final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
@@ -252,7 +253,32 @@ public class TestConsoleListener extends TestCase {
     assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
                                           ConsoleListener.SHUTDOWN));
     assertTrue(listener.checkForMessage(ConsoleListener.SHUTDOWN));
+    assertTrue(listener.received(ConsoleListener.SHUTDOWN));
+    assertFalse(listener.checkForMessage(ConsoleListener.SHUTDOWN));
+    assertFalse(listener.received(ConsoleListener.SHUTDOWN));
   }
+
+  public void testShutdown() throws Exception {
+
+    final Condition myCondition = new Condition();
+    final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
+
+    final WaitForNotification notified = new WaitForNotification(myCondition);
+
+    listener.shutdown();
+
+    assertTrue(notified.wasNotified());
+
+    m_loggerFactory.assertNoMoreCalls();
+
+    assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
+                                          ConsoleListener.SHUTDOWN));
+    assertTrue(listener.checkForMessage(ConsoleListener.SHUTDOWN));
+    assertTrue(listener.received(ConsoleListener.SHUTDOWN));
+    assertFalse(listener.checkForMessage(ConsoleListener.SHUTDOWN));
+    assertFalse(listener.received(ConsoleListener.SHUTDOWN));
+  }
+
 
   private static class WaitForNotification implements Runnable {
     private final Thread m_thread;
