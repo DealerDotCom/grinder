@@ -73,7 +73,13 @@ public interface Sleeper extends TimeAuthority {
    * Exception used to indicate that a Sleeper has been shutdown.
    */
   public static final class ShutdownException extends GrinderException {
-    ShutdownException(String message) {
+
+    /**
+     * Constructor. Public for unit tests.
+     *
+     * @param message Why we were shut down.
+     */
+    public ShutdownException(String message) {
       super(message);
     }
   }

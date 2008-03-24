@@ -1,5 +1,4 @@
 // Copyright (C) 2008 Philip Aston
-// Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,30 +19,42 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.agent;
-
-import net.grinder.common.GrinderException;
+package net.grinder.communication;
 
 
 /**
- * Agent interface.
+ * A {@link Sender} decorator that ignores shutdown.
  *
- * @author Pawel Lacinski
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public interface Agent {
+public final class IgnoreShutdownSender implements Sender {
+
+  private final Sender m_delegate;
 
   /**
-   * Run the Grinder agent process.
+   * Constructor.
    *
-   * @throws GrinderException
-   *             If an error occurs.
+   * @param delegate The delegate <code>Sender</code>.
    */
-  void run() throws GrinderException;
+  public IgnoreShutdownSender(Sender delegate) {
+    m_delegate = delegate;
+  }
 
   /**
-   * Clean up resources.
+   * Send the given message using the delegate.
+   *
+   * @param message A {@link Message}.
+   * @throws CommunicationException If an error occurs.
    */
-  void shutdown();
+  public void send(Message message) throws CommunicationException {
+    m_delegate.send(message);
+  }
+
+  /**
+   * A no-op.
+   */
+  public void shutdown() {
+    // Ignore.
+  }
 }

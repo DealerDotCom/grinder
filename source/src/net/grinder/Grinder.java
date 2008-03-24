@@ -1,5 +1,6 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,8 +26,12 @@ package net.grinder;
 import java.io.File;
 import java.io.PrintWriter;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.engine.agent.Agent;
+import net.grinder.engine.agent.AgentDaemon;
+import net.grinder.engine.agent.AgentImplementation;
+import net.grinder.util.AbstractMainClass;
 import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
 
@@ -36,40 +41,97 @@ import net.grinder.util.SimpleLogger;
  *
  * @author Paco Gomez
  * @author Philip Aston
+ * @author Pawel Lacinski
  * @version $Revision$
  */
-public final class Grinder {
+public final class Grinder extends AbstractMainClass {
 
-  private Grinder() {
-  }
+  private static final String USAGE =
+    "\n  java " + Grinder.class + " <options> [alternatePropertiesFilename]" +
+    "\n\n" +
+    "Options:" +
+    "\n  [-daemon [n]]                Run agent in deamon mode; try to" +
+    "\n                               reconnect every n seconds (default 60)." +
+    "\n\n";
 
   /**
    * The Grinder agent process entry point.
    *
    * @param args Command line arguments.
-   * @exception Exception If an error occurred.
    */
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
 
-    if (args.length > 1) {
-      System.err.println("Usage: java " + Grinder.class.getName() +
-                         " [alternatePropertiesFilename]");
+    final Logger logger =
+      new SimpleLogger("agent",
+                       new PrintWriter(System.out),
+                       new PrintWriter(System.err));
+
+    try {
+      if (!JVM.getInstance().haveRequisites(logger)) {
+        System.exit(3);
+      }
+
+      final Grinder grinder = new Grinder(args, logger);
+      grinder.run();
+    }
+    catch (LoggedInitialisationException e) {
       System.exit(1);
     }
-
-    final Logger logger = new SimpleLogger("agent",
-                                           new PrintWriter(System.out),
-                                           new PrintWriter(System.err));
-
-    if (!JVM.getInstance().haveRequisites(logger)) {
-      return;
+    catch (Throwable e) {
+      final PrintWriter errorWriter = logger.getErrorLogWriter();
+      e.printStackTrace(errorWriter);
+      errorWriter.flush();
+      System.exit(2);
     }
 
-    final Agent agent =
-      new Agent(logger, args.length == 1 ? new File(args[0]) : null);
+    System.exit(0);
+  }
 
-    agent.run();
+  private final Agent m_agent;
 
-    agent.shutdown();
+  private Grinder(String[] args, Logger logger) throws GrinderException {
+    super(logger, USAGE);
+
+    File propertiesFile = null;
+    long daemonPeriod = -1;
+
+    for (int i = 0; i < args.length; ++i) {
+      if (args[i].equalsIgnoreCase("-daemon")) {
+        daemonPeriod = 60000;
+
+        try {
+          daemonPeriod = Integer.parseInt(args[i + 1]) * 1000;
+          ++i;
+        }
+        catch (IndexOutOfBoundsException e) {
+          // Ignore.
+        }
+        catch (NumberFormatException e) {
+          // Ignore.
+        }
+      }
+      else if (i == args.length - 1 && !args[i].startsWith("-")) {
+        propertiesFile = new File(args[i]);
+      }
+      else {
+        throw barfUsage();
+      }
+    }
+
+    if (daemonPeriod > -1) {
+      m_agent =
+        new AgentDaemon(
+          logger,
+          daemonPeriod,
+          new AgentImplementation(logger, propertiesFile, false));
+    }
+    else {
+      m_agent = new AgentImplementation(logger, propertiesFile, true);
+    }
+  }
+
+  private void run() throws GrinderException {
+    m_agent.run();
+    m_agent.shutdown();
   }
 }

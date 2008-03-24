@@ -62,6 +62,11 @@ The Grinder 3.0.2 (not yet released).
   The file distribution now only updates out of date agents, and only sends
   the updated files.
 
+  Fulfill feature request 1723753 - Agent service needed. Agents can now be
+  started in a "daemon" mode where they automatically reconnect to a console.
+  Thanks to Travis Bear for the request, and to Pawel Lacinski for the
+  initial implementation.
+
 
 The Grinder 3.0.1
 -----------------

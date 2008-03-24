@@ -1,5 +1,4 @@
 // Copyright (C) 2008 Philip Aston
-// Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,30 +19,41 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.agent;
+package net.grinder.communication;
 
-import net.grinder.common.GrinderException;
+import junit.framework.TestCase;
+
+import net.grinder.testutility.RandomStubFactory;
 
 
 /**
- * Agent interface.
+ * Unit tests for {@link IgnoreShutdownSender}.
  *
- * @author Pawel Lacinski
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Agent {
+public class TestIgnoreShutdownSender extends TestCase {
 
-  /**
-   * Run the Grinder agent process.
-   *
-   * @throws GrinderException
-   *             If an error occurs.
-   */
-  void run() throws GrinderException;
+  public void testIgnoreShudtonwSender() throws Exception {
 
-  /**
-   * Clean up resources.
-   */
-  void shutdown();
+    final RandomStubFactory senderStubFactory =
+      new RandomStubFactory(Sender.class);
+    final Sender sender = (Sender)senderStubFactory.getStub();
+
+    final IgnoreShutdownSender ignoreShutdownSender =
+      new IgnoreShutdownSender(sender);
+
+    final Message m1 = new SimpleMessage();
+    final Message m2 = new SimpleMessage();
+
+    ignoreShutdownSender.send(m1);
+    ignoreShutdownSender.send(m2);
+    ignoreShutdownSender.send(m2);
+    ignoreShutdownSender.shutdown();
+
+    senderStubFactory.assertSuccess("send", new Object[] { m1 });
+    senderStubFactory.assertSuccess("send", new Object[] { m2 });
+    senderStubFactory.assertSuccess("send", new Object[] { m2 });
+    senderStubFactory.assertNoMoreCalls();
+  }
 }

@@ -49,9 +49,9 @@ import net.grinder.testutility.AbstractFileTestCase;
  * TestAgent.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 3828 $
  */
-public class TestAgent extends AbstractFileTestCase {
+public class TestAgentImplemantation extends AbstractFileTestCase {
 
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
   private final Logger m_logger = m_loggerStubFactory.getLogger();
@@ -69,7 +69,7 @@ public class TestAgent extends AbstractFileTestCase {
 
   public void testConstruction() throws Exception {
     final File propertyFile = new File(getDirectory(), "properties");
-    final Agent agent = new Agent(m_logger, propertyFile);
+    final Agent agent = new AgentImplementation(m_logger, propertyFile, true);
     agent.shutdown();
 
     m_loggerStubFactory.assertOutputMessageContains("finished");
@@ -83,14 +83,14 @@ public class TestAgent extends AbstractFileTestCase {
 
     final File relativeScriptFile = new File("script/blah");
     relativeScriptFile.deleteOnExit();
-    assertTrue(relativeScriptFile.getParentFile().mkdirs());
+    relativeScriptFile.getParentFile().mkdirs();
     relativeScriptFile.getParentFile().deleteOnExit();
-    assertTrue(relativeScriptFile.createNewFile());
+    relativeScriptFile.createNewFile();
 
     try {
       final GrinderProperties properties = new GrinderProperties(propertyFile);
 
-      final Agent agent = new Agent(m_logger, null);
+      final Agent agent = new AgentImplementation(m_logger, null, true);
 
       m_loggerStubFactory.assertNoMoreCalls();
 
@@ -127,7 +127,7 @@ public class TestAgent extends AbstractFileTestCase {
     final File propertyFile = new File(getDirectory(), "properties");
     final GrinderProperties properties = new GrinderProperties(propertyFile);
 
-    final Agent agent = new Agent(m_logger, propertyFile);
+    final Agent agent = new AgentImplementation(m_logger, propertyFile, true);
 
     m_loggerStubFactory.assertNoMoreCalls();
 
@@ -271,7 +271,7 @@ public class TestAgent extends AbstractFileTestCase {
     final File propertyFile = new File(getDirectory(), "properties");
     final GrinderProperties properties = new GrinderProperties(propertyFile);
 
-    final Agent agent = new Agent(m_logger, propertyFile);
+    final Agent agent = new AgentImplementation(m_logger, propertyFile, true);
 
     properties.setInt("grinder.consolePort", console.getPort());
     properties.save();
@@ -359,7 +359,7 @@ public class TestAgent extends AbstractFileTestCase {
     final File propertyFile = new File(getDirectory(), "properties");
     final GrinderProperties properties = new GrinderProperties(propertyFile);
 
-    final Agent agent = new Agent(m_logger, propertyFile);
+    final Agent agent = new AgentImplementation(m_logger, propertyFile, true);
 
     final File script = new File(getDirectory(), "grinder.py");
     assertTrue(script.createNewFile());
@@ -414,7 +414,7 @@ public class TestAgent extends AbstractFileTestCase {
     properties.setInt("grinder.consolePort", console1.getPort());
     properties.save();
 
-    final Agent agent = new Agent(m_logger, propertyFile);
+    final Agent agent = new AgentImplementation(m_logger, propertyFile, true);
 
     agent.run();
 
