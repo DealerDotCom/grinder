@@ -21,8 +21,6 @@
 
 package net.grinder.messages.console;
 
-import net.grinder.communication.Address;
-
 
 /**
  * Agent process identity.
@@ -30,7 +28,7 @@ import net.grinder.communication.Address;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface AgentIdentity extends ProcessReport.ProcessIdentity, Address {
+public interface AgentIdentity extends ProcessReport.ProcessIdentity {
 
   /**
    * Get the console allocated agent number.

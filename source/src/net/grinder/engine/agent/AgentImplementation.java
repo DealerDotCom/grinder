@@ -49,6 +49,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.messages.agent.StartGrinderMessage;
+import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.util.AllocateLowestNumberImplementation;
 import net.grinder.util.Directory;
@@ -434,7 +435,7 @@ public final class AgentImplementation implements Agent {
         throws CommunicationException, FileStore.FileStoreException {
 
       final ClientReceiver receiver =
-        ClientReceiver.connect(connector, m_agentIdentity);
+        ClientReceiver.connect(connector, new AgentAddress(m_agentIdentity));
       m_sender = ClientSender.connect(receiver);
       m_connector = connector;
 

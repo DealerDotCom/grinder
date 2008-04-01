@@ -33,6 +33,7 @@ import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.console.distribution.AgentSet.OutOfDateException;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.agent.CacheHighWaterMark;
+import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.ProcessReport;
 import net.grinder.messages.console.StubAgentProcessReport;
 import net.grinder.testutility.AbstractFileTestCase;
@@ -227,14 +228,14 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
       new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
 
     assertFalse(cacheState.getAgentSet().getAddressOfAllAgents().includes(
-      agentIdentity1));
+      new AgentAddress(agentIdentity1)));
 
     processListener.update(new ProcessReports[] {
       new StubProcessReports(agentReport1, null),
     });
 
     assertTrue(cacheState.getAgentSet().getAddressOfAllAgents().includes(
-      agentIdentity1));
+      new AgentAddress(agentIdentity1)));
   }
 
   public void testAgentSetGetAddressOfOutOfDateAgents() throws Exception {
@@ -253,7 +254,7 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
     assertFalse(
       cacheState.getAgentSet().getAddressOfOutOfDateAgents(100).includes(
-        agentIdentity1));
+        new AgentAddress(agentIdentity1)));
 
     processListener.update(new ProcessReports[] {
       new StubProcessReports(agentReport1, null),
@@ -261,7 +262,7 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
     assertTrue(
       cacheState.getAgentSet().getAddressOfOutOfDateAgents(100).includes(
-        agentIdentity1));
+        new AgentAddress(agentIdentity1)));
 
     final CacheHighWaterMark highWaterMark =
       cacheState.getCacheParameters().createHighWaterMark(1000);
@@ -274,10 +275,10 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
     assertTrue(
       cacheState.getAgentSet().getAddressOfOutOfDateAgents(1001).includes(
-        agentIdentity1));
+        new AgentAddress(agentIdentity1)));
 
     assertFalse(
       cacheState.getAgentSet().getAddressOfOutOfDateAgents(1000).includes(
-        agentIdentity1));
+        new AgentAddress(agentIdentity1)));
   }
 }

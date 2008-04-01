@@ -21,7 +21,6 @@
 
 package net.grinder.engine.agent;
 
-import net.grinder.communication.Address;
 import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.util.AllocateLowestNumber;
@@ -75,18 +74,6 @@ class AgentIdentityImplementation
    */
   public void setNumber(int number) {
     m_number = number;
-  }
-
-  /**
-   * Address ourself.
-   *
-   * @param address
-   *            Address to compare.
-   * @return <code>true</code> if and only if <code>address</code> is this
-   *         object.
-   */
-  public boolean includes(Address address) {
-    return equals(address);
   }
 
   /**

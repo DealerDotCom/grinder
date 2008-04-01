@@ -55,6 +55,7 @@ import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
 import net.grinder.messages.agent.StubCacheHighWaterMark;
+import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
@@ -194,7 +195,7 @@ public class TestConsoleCommunicationImplementation
       new StubConnector(InetAddress.getByName(null).getHostName(),
                         m_properties.getConsolePort(),
                         ConnectionType.AGENT)
-      .connect(agentIdentity);
+      .connect(new AgentAddress(agentIdentity));
 
     waitForNumberOfConnections(1);
 
@@ -437,7 +438,7 @@ public class TestConsoleCommunicationImplementation
     m_errorHandlerStubFactory.assertNoMoreCalls();
 
     m_consoleCommunication.sendToAddressedAgents(
-      new StubAgentIdentity("agent"), new MyMessage());
+      new AgentAddress(new StubAgentIdentity("agent")), new MyMessage());
 
     m_errorHandlerStubFactory.assertSuccess(
       "handleException", DisplayMessageConsoleException.class);
@@ -461,7 +462,7 @@ public class TestConsoleCommunicationImplementation
     m_errorHandlerStubFactory.assertNoMoreCalls();
 
     brokenConsoleCommunication.sendToAddressedAgents(
-      new StubAgentIdentity("agent"), new MyMessage());
+      new AgentAddress(new StubAgentIdentity("agent")), new MyMessage());
     m_errorHandlerStubFactory.assertSuccess("handleErrorMessage", String.class);
 
     brokenConsoleCommunication.sendToAgents(new MyMessage());

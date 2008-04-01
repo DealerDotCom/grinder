@@ -33,6 +33,7 @@ import net.grinder.communication.Address;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.messages.agent.CacheHighWaterMark;
+import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReport;
 import net.grinder.util.Directory;
 
@@ -132,14 +133,16 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
     public Address getAddressOfAllAgents() throws OutOfDateException {
       checkValidity();
 
-      final Set agents = new HashSet();
+      final Set agentAddresses = new HashSet();
       final Iterator iterator = m_agentReports.iterator();
 
       while (iterator.hasNext()) {
-        agents.add(((AgentProcessReport)iterator.next()).getAgentIdentity());
+        agentAddresses.add(
+          new AgentAddress(
+            ((AgentProcessReport)iterator.next()).getAgentIdentity()));
       }
 
-      return new AgentSetAddress(agents);
+      return new AddressSet(agentAddresses);
     }
 
     public Address getAddressOfOutOfDateAgents(long time)
@@ -149,7 +152,7 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
       final CacheHighWaterMark cacheState =
         m_validCacheParameters.createHighWaterMark(time);
 
-      final Set outOfDateAgents = new HashSet();
+      final Set outOfDateAgentAddresses = new HashSet();
       final Iterator iterator = m_agentReports.iterator();
 
       while (iterator.hasNext()) {
@@ -161,15 +164,17 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
 
         if (cacheState.isForSameCache(agentCache)) {
           if (cacheState.getTime() > agentCache.getTime()) {
-            outOfDateAgents.add(agentReport.getAgentIdentity());
+            outOfDateAgentAddresses.add(
+              new AgentAddress(agentReport.getAgentIdentity()));
           }
         }
         else {
-          outOfDateAgents.add(agentReport.getAgentIdentity());
+          outOfDateAgentAddresses.add(
+            new AgentAddress(agentReport.getAgentIdentity()));
         }
       }
 
-      return new AgentSetAddress(outOfDateAgents);
+      return new AddressSet(outOfDateAgentAddresses);
     }
 
     public long getEarliestAgentTime() {
@@ -229,15 +234,15 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
     }
   }
 
-  private static final class AgentSetAddress implements Address {
-    private final Set m_agents;
+  private static final class AddressSet implements Address {
+    private final Set m_addresses;
 
-    public AgentSetAddress(Set agents) {
-      m_agents = agents;
+    public AddressSet(Set addresses) {
+      m_addresses = addresses;
     }
 
     public boolean includes(Address address) {
-      return m_agents.contains(address);
+      return m_addresses.contains(address);
     }
   }
 }
