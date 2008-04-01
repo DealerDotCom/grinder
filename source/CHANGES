@@ -67,6 +67,9 @@ The Grinder 3.0.2 (not yet released).
   Thanks to Travis Bear for the request, and to Pawel Lacinski for the
   initial implementation.
 
+  Fix bug 1926601 - Jython change breaks byte arrays in generated scripts.
+  Thanks to Dhinakar K and O.A.Francis for reporting this.
+
 
 The Grinder 3.0.1
 -----------------

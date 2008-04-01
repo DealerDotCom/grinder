@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -292,33 +292,32 @@ public final class XSLTHelper {
 
     final StringBuffer result = new StringBuffer(base64.length * 2);
 
-    result.append("( ");
-    changeIndent(1);
+    result.append('"');
 
     if (base64.length > 0) {
       final byte[] bytes = Codecs.base64Decode(base64);
 
       for (int i = 0; i < bytes.length; ++i) {
-        if (i > 0 && i % 8 == 0) {
+        if (i > 0 && i % 16 == 0) {
+          result.append('"');
           result.append(newLineAndIndent());
+          result.append('"');
         }
 
         final int b = bytes[i] < 0 ? 0x100 + bytes[i] : bytes[i];
 
         if (b <= 0xF) {
-          result.append("0x0");
+          result.append("\\x0");
         }
         else {
-          result.append("0x");
+          result.append("\\x");
         }
 
         result.append(Integer.toHexString(b).toUpperCase());
-        result.append(", ");
       }
     }
 
-    changeIndent(-1);
-    result.append(")");
+    result.append('"');
 
     return result.toString();
   }
