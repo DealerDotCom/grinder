@@ -101,6 +101,7 @@ import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
+import net.grinder.util.thread.Condition;
 
 
 /**
@@ -1470,6 +1471,8 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
   private final class DistributeFilesAction extends CustomAction {
 
+    private final Condition m_cacheStateCondition = new Condition();
+
     DistributeFilesAction() {
       super(m_resources, "distribute-files");
 
@@ -1479,6 +1482,9 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
       agentCacheState.addListener(new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ignored) {
             setEnabled(shouldEnable());
+            synchronized (m_cacheStateCondition) {
+              m_cacheStateCondition.notifyAll();
+            }
           }
         });
 
@@ -1528,6 +1534,15 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
             progressMonitor.close();
 
             if (onCompletionCallback != null) {
+              // The cache status is updated asynchronously by agent reports.
+              // If we have a listener, we wait for up to five seconds for all
+              // agents to indicate that they are up to date.
+              synchronized (m_cacheStateCondition) {
+                for (int i = 0; i < 5 && shouldEnable(); ++i) {
+                  m_cacheStateCondition.waitNoInterrruptException(1000);
+                }
+              }
+
               SwingUtilities.invokeLater(onCompletionCallback);
             }
           }
