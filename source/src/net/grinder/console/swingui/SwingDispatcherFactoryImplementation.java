@@ -24,9 +24,11 @@ package net.grinder.console.swingui;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.SwingUtilities;
@@ -93,7 +95,16 @@ final class SwingDispatcherFactoryImplementation
     Class c = theClass;
 
     do {
-      interfaces.addAll(Arrays.asList(c.getInterfaces()));
+      final Iterator iterator = Arrays.asList(c.getInterfaces()).iterator();
+
+      while (iterator.hasNext()) {
+        final Class anInterface = (Class)iterator.next();
+
+        if (Modifier.isPublic(anInterface.getModifiers())) {
+          interfaces.add(anInterface);
+        }
+      }
+
       c = c.getSuperclass();
     }
     while (c != null);

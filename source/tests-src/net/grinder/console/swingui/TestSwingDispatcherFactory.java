@@ -109,6 +109,7 @@ public class TestSwingDispatcherFactory extends TestCase {
 
     assertTrue(proxy instanceof Foo);
     assertTrue(proxy instanceof PropertyChangeListener);
+    assertFalse(proxy instanceof Bah);
   }
 
   private static final class MyPropertyChangeListener
@@ -152,9 +153,11 @@ public class TestSwingDispatcherFactory extends TestCase {
     public void propertyChange(PropertyChangeEvent e) { }
   }
 
+  private interface Bah { }
+
   public static abstract class Foo2 implements Foo { }
 
-  public static class FooFoo extends Foo2 implements Foo {
+  public static class FooFoo extends Foo2 implements Foo, Bah {
     public void propertyChange(PropertyChangeEvent e) { }
   }
 }
