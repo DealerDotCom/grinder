@@ -19,11 +19,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.messages.console;
+package net.grinder.console.common.processidentity;
 
 import java.util.Comparator;
 
 import junit.framework.TestCase;
+import net.grinder.common.processidentity.AgentIdentity;
+import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.engine.agent.StubAgentIdentity;
 
 

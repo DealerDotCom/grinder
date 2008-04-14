@@ -22,9 +22,9 @@
 package net.grinder.engine.messages;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.Message;
 import net.grinder.engine.common.ScriptLocation;
-import net.grinder.messages.console.WorkerIdentity;
 
 
 /**

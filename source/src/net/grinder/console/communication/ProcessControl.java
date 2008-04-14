@@ -25,9 +25,9 @@ import java.util.Comparator;
 import java.util.EventListener;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.messages.console.AgentProcessReport;
-import net.grinder.messages.console.ProcessReport;
-import net.grinder.messages.console.WorkerProcessReport;
+import net.grinder.common.processidentity.ProcessReport;
+import net.grinder.common.processidentity.WorkerProcessReport;
+import net.grinder.messages.console.AgentAndCacheReport;
 
 
 /**
@@ -96,7 +96,7 @@ public interface ProcessControl {
      *
      * @return The agent process report.
      */
-    AgentProcessReport getAgentProcessReport();
+    AgentAndCacheReport getAgentProcessReport();
 
     /**
      * Returns the latest worker process reports.

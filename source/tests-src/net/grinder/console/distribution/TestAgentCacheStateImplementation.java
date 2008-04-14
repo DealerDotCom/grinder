@@ -26,6 +26,8 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.regex.Pattern;
 
+import net.grinder.common.processidentity.ProcessReport;
+import net.grinder.console.common.processidentity.StubAgentProcessReport;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.StubProcessReports;
 import net.grinder.console.communication.ProcessControl.Listener;
@@ -34,8 +36,6 @@ import net.grinder.console.distribution.AgentSet.OutOfDateException;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.console.AgentAddress;
-import net.grinder.messages.console.ProcessReport;
-import net.grinder.messages.console.StubAgentProcessReport;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.Directory;

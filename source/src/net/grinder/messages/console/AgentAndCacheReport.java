@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,27 +21,23 @@
 
 package net.grinder.messages.console;
 
+import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.messages.agent.CacheHighWaterMark;
+
 
 /**
- * Worker process identity.
+ * Extend {@link AgentProcessReport} with information about the agent's cache.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 3865 $
  */
-public interface WorkerIdentity extends ProcessReport.ProcessIdentity {
+public interface AgentAndCacheReport extends AgentProcessReport {
 
   /**
-   * Get the identity of the worker's agent process.
+   * Accessor for the cache status.
    *
-   * @return The agent identity.
+   * @return The cache status.
    */
-  AgentIdentity getAgentIdentity();
-
-  /**
-   * Get the agent allocated worker process number.
-   *
-   * @return The worker process number.
-   * @see net.grinder.script.Grinder.ScriptContext#getProcessNumber()
-   */
-  int getNumber();
+  CacheHighWaterMark getCacheHighWaterMark();
 }
+

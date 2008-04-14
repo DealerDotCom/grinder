@@ -29,14 +29,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import junit.framework.TestCase;
+import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.common.processidentity.ProcessReport;
+import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.common.processidentity.WorkerProcessReport;
+import net.grinder.console.common.processidentity.StubAgentProcessReport;
+import net.grinder.console.common.processidentity.StubWorkerProcessReport;
 import net.grinder.console.communication.ProcessStatusImplementation.AgentAndWorkers;
 import net.grinder.engine.agent.StubAgentIdentity;
-import net.grinder.messages.console.AgentProcessReport;
-import net.grinder.messages.console.ProcessReport;
-import net.grinder.messages.console.StubAgentProcessReport;
-import net.grinder.messages.console.StubWorkerProcessReport;
-import net.grinder.messages.console.WorkerIdentity;
-import net.grinder.messages.console.WorkerProcessReport;
+import net.grinder.messages.console.AgentAndCacheReport;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -343,7 +344,7 @@ public class TestProcessStatusImplementation extends TestCase {
     final AgentAndWorkers agentAndWorkers =
       processStatusSet.new AgentAndWorkers(agentIdentity);
 
-    final AgentProcessReport initialReport =
+    final AgentAndCacheReport initialReport =
       agentAndWorkers.getAgentProcessReport();
 
     assertEquals(agentIdentity, initialReport.getAgentIdentity());

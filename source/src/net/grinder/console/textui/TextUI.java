@@ -26,15 +26,15 @@ import java.util.Comparator;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
+import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.common.processidentity.ProcessReport;
+import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.console.ConsoleFoundation.UI;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ProcessReportDescriptionFactory;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.model.SampleModel;
-import net.grinder.messages.console.AgentProcessReport;
-import net.grinder.messages.console.ProcessReport;
-import net.grinder.messages.console.WorkerProcessReport;
 
 
 /**

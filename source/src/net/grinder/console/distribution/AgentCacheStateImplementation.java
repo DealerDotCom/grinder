@@ -34,7 +34,7 @@ import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.console.AgentAddress;
-import net.grinder.messages.console.AgentProcessReport;
+import net.grinder.messages.console.AgentAndCacheReport;
 import net.grinder.util.Directory;
 
 
@@ -139,7 +139,7 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
       while (iterator.hasNext()) {
         agentAddresses.add(
           new AgentAddress(
-            ((AgentProcessReport)iterator.next()).getAgentIdentity()));
+            ((AgentAndCacheReport)iterator.next()).getAgentIdentity()));
       }
 
       return new AddressSet(agentAddresses);
@@ -156,8 +156,8 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
       final Iterator iterator = m_agentReports.iterator();
 
       while (iterator.hasNext()) {
-        final AgentProcessReport agentReport =
-          (AgentProcessReport)iterator.next();
+        final AgentAndCacheReport agentReport =
+          (AgentAndCacheReport)iterator.next();
 
         final CacheHighWaterMark agentCache =
           agentReport.getCacheHighWaterMark();
@@ -197,7 +197,7 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
       long earliestAgentTime = Long.MAX_VALUE;
 
       for (int i = 0; i < processReports.length; ++i) {
-        final AgentProcessReport agentReport =
+        final AgentAndCacheReport agentReport =
           processReports[i].getAgentProcessReport();
 
         final CacheHighWaterMark agentCache =

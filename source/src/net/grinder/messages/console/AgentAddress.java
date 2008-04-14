@@ -21,6 +21,7 @@
 
 package net.grinder.messages.console;
 
+import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.communication.Address;
 
 

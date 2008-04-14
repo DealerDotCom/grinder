@@ -30,10 +30,11 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.common.processidentity.AgentIdentity;
+import net.grinder.common.processidentity.ProcessIdentity;
+import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.messages.agent.CacheHighWaterMark;
-import net.grinder.messages.console.AgentIdentity;
-import net.grinder.messages.console.AgentProcessReport;
-import net.grinder.messages.console.WorkerProcessReport;
+import net.grinder.messages.console.AgentAndCacheReport;
 import net.grinder.util.AllocateLowestNumber;
 import net.grinder.util.ListenerSupport;
 
@@ -173,7 +174,7 @@ final class ProcessStatusImplementation {
    *
    * @param agentProcessStatus Process status.
    */
-  public void addAgentStatusReport(AgentProcessReport agentProcessStatus) {
+  public void addAgentStatusReport(AgentAndCacheReport agentProcessStatus) {
 
     final AgentAndWorkers agentAndWorkers =
       getAgentAndWorkers(agentProcessStatus.getAgentIdentity());
@@ -244,13 +245,13 @@ final class ProcessStatusImplementation {
   }
 
   private final class AgentReference extends AbstractTimedReference {
-    private final AgentProcessReport m_agentProcessReport;
+    private final AgentAndCacheReport m_agentProcessReport;
 
-    AgentReference(AgentProcessReport agentProcessReport) {
+    AgentReference(AgentAndCacheReport agentProcessReport) {
       m_agentProcessReport = agentProcessReport;
     }
 
-    public AgentProcessReport getAgentProcessReport() {
+    public AgentAndCacheReport getAgentProcessReport() {
       return m_agentProcessReport;
     }
 
@@ -281,7 +282,7 @@ final class ProcessStatusImplementation {
   }
 
   private static final class UnknownAgentProcessReport
-    implements AgentProcessReport {
+    implements AgentAndCacheReport {
 
     private final AgentIdentity m_identity;
 
@@ -323,11 +324,11 @@ final class ProcessStatusImplementation {
       setAgentProcessStatus(new UnknownAgentProcessReport(agentIdentity));
     }
 
-    void setAgentProcessStatus(AgentProcessReport agentProcessStatus) {
+    void setAgentProcessStatus(AgentAndCacheReport agentProcessStatus) {
       m_agentReportReference = new AgentReference(agentProcessStatus);
     }
 
-    public AgentProcessReport getAgentProcessReport() {
+    public AgentAndCacheReport getAgentProcessReport() {
       return m_agentReportReference.getAgentProcessReport();
     }
 

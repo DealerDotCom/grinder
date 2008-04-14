@@ -21,9 +21,9 @@
 
 package net.grinder.console.common;
 
-import net.grinder.messages.console.AgentIdentity;
-import net.grinder.messages.console.AgentProcessReport;
-import net.grinder.messages.console.WorkerProcessReport;
+import net.grinder.common.processidentity.AgentIdentity;
+import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.common.processidentity.WorkerProcessReport;
 
 
 /**

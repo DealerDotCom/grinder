@@ -34,13 +34,13 @@ import java.util.List;
 import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.WorkerProcessEntryPoint;
-import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.util.AllocateLowestNumber;
 import net.grinder.util.AllocateLowestNumberImplementation;
 import net.grinder.util.Directory;

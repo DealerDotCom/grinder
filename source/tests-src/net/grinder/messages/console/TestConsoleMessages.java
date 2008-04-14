@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import junit.framework.TestCase;
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.agent.CacheHighWaterMark;

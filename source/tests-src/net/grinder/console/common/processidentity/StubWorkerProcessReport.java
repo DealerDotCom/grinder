@@ -19,7 +19,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.messages.console;
+package net.grinder.console.common.processidentity;
+
+import net.grinder.common.processidentity.ProcessIdentity;
+import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.common.processidentity.WorkerProcessReport;
 
 
 public final class StubWorkerProcessReport

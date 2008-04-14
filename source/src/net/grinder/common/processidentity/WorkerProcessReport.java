@@ -1,4 +1,5 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,39 +20,37 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.messages.console;
-
-import net.grinder.messages.agent.CacheHighWaterMark;
+package net.grinder.common.processidentity;
 
 
-public final class StubAgentProcessReport implements AgentProcessReport {
 
-  private final AgentIdentity m_identity;
-  private final short m_state;
-  private CacheHighWaterMark m_cacheHighWaterMark = null;
+/**
+ * Interface for enquiring about a worker process.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
+public interface WorkerProcessReport extends ProcessReport {
 
-  public StubAgentProcessReport(AgentIdentity identity, short state) {
-    m_identity = identity;
-    m_state = state;
-  }
+  /**
+   * Return the unique process identity.
+   *
+   * @return The process identity.
+   */
+  WorkerIdentity getWorkerIdentity();
 
-  public AgentIdentity getAgentIdentity() {
-    return m_identity;
-  }
+  /**
+   * Get the number of running threads.
+   *
+   * @return The number of threads that are running.
+   */
+  short getNumberOfRunningThreads();
 
-  public ProcessIdentity getIdentity() {
-    return m_identity;
-  }
-
-  public short getState() {
-    return m_state;
-  }
-
-  public CacheHighWaterMark getCacheHighWaterMark() {
-    return m_cacheHighWaterMark;
-  }
-
-  public void setCacheHighWaterMark(CacheHighWaterMark highWaterMark) {
-    m_cacheHighWaterMark = highWaterMark;
-  }
+  /**
+   * Get the maximum number of threads.
+   *
+   * @return The maximum number of threads.
+   */
+  short getMaximumNumberOfThreads();
 }
+

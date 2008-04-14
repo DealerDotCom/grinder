@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,35 +19,29 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
-
-import net.grinder.common.processidentity.WorkerProcessReport;
-import net.grinder.console.communication.ProcessControl.ProcessReports;
-import net.grinder.messages.console.AgentAndCacheReport;
+package net.grinder.common.processidentity;
 
 
 /**
- * Stub implementation of {@link ProcessReports}.
+ * Worker process identity.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
-public class StubProcessReports implements ProcessReports {
+public interface WorkerIdentity extends ProcessIdentity {
 
-  private final AgentAndCacheReport m_agentProcessReport;
-  private final WorkerProcessReport[] m_workerProcessReports;
+  /**
+   * Get the identity of the worker's agent process.
+   *
+   * @return The agent identity.
+   */
+  AgentIdentity getAgentIdentity();
 
-  public StubProcessReports(AgentAndCacheReport agentProcessReport,
-                            WorkerProcessReport[] workerProcessReports) {
-    m_agentProcessReport = agentProcessReport;
-    m_workerProcessReports = workerProcessReports;
-  }
-
-  public AgentAndCacheReport getAgentProcessReport() {
-    return m_agentProcessReport;
-  }
-
-  public WorkerProcessReport[] getWorkerProcessReports() {
-    return m_workerProcessReports;
-  }
+  /**
+   * Get the agent allocated worker process number.
+   *
+   * @return The worker process number.
+   * @see net.grinder.script.Grinder.ScriptContext#getProcessNumber()
+   */
+  int getNumber();
 }

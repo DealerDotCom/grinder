@@ -21,8 +21,8 @@
 
 package net.grinder.engine.agent;
 
-import net.grinder.messages.console.AgentIdentity;
-import net.grinder.messages.console.WorkerIdentity;
+import net.grinder.common.processidentity.AgentIdentity;
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.testutility.Serializer;
 import net.grinder.util.AllocateLowestNumber;
 import net.grinder.util.AllocateLowestNumberImplementation;

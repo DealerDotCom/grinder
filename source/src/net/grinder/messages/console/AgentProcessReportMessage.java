@@ -21,6 +21,8 @@
 
 package net.grinder.messages.console;
 
+import net.grinder.common.processidentity.AgentIdentity;
+import net.grinder.common.processidentity.ProcessIdentity;
 import net.grinder.communication.Message;
 import net.grinder.messages.agent.CacheHighWaterMark;
 
@@ -32,7 +34,7 @@ import net.grinder.messages.agent.CacheHighWaterMark;
  * @version $Revision$
  */
 public final class AgentProcessReportMessage
-  implements AgentProcessReport, Message {
+  implements AgentAndCacheReport, Message {
 
   private static final long serialVersionUID = 3L;
 
@@ -47,7 +49,7 @@ public final class AgentProcessReportMessage
    *            Process identity.
    * @param state
    *            The process state. See {@link
-   *            net.grinder.messages.console.AgentProcessReport}.
+   *            net.grinder.common.processidentity.AgentProcessReport}.
    * @param cacheHighWaterMark
    *            The current cache status.
    */

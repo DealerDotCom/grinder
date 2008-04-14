@@ -24,10 +24,10 @@ package net.grinder.engine.messages;
 import java.io.File;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.engine.common.ScriptLocation;
-import net.grinder.messages.console.WorkerIdentity;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
 import net.grinder.util.Directory;

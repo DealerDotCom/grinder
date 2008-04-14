@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.messages.console;
+package net.grinder.common.processidentity;
 
 
 /**
@@ -28,7 +28,7 @@ package net.grinder.messages.console;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface AgentIdentity extends ProcessReport.ProcessIdentity {
+public interface AgentIdentity extends ProcessIdentity {
 
   /**
    * Get the console allocated agent number.

@@ -22,6 +22,9 @@
 
 package net.grinder.messages.console;
 
+import net.grinder.common.processidentity.ProcessIdentity;
+import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.communication.Message;
 
 
@@ -47,7 +50,7 @@ public final class WorkerProcessReportMessage
    *
    * @param identity Process identity.
    * @param state The process state. See {@link
-   * net.grinder.messages.console.WorkerProcessReport}.
+   * net.grinder.common.processidentity.WorkerProcessReport}.
    * @param totalThreads The total number of threads.
    * @param runningThreads The number of threads that are still running.
    */

@@ -1,5 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
-// Copyright (C) 2001, 2002 Dirk Feufel
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,34 +21,22 @@
 
 package net.grinder.messages.console;
 
+import net.grinder.messages.agent.CacheHighWaterMark;
+
 
 /**
- * Interface for enquiring about a worker process.
+ * Report of the cache status.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 3865 $
  */
-public interface WorkerProcessReport extends ProcessReport {
+public interface CacheStatusReport {
 
   /**
-   * Return the unique process identity.
+   * Accessor for the cache status.
    *
-   * @return The process identity.
+   * @return The cache status.
    */
-  WorkerIdentity getWorkerIdentity();
-
-  /**
-   * Get the number of running threads.
-   *
-   * @return The number of threads that are running.
-   */
-  short getNumberOfRunningThreads();
-
-  /**
-   * Get the maximum number of threads.
-   *
-   * @return The maximum number of threads.
-   */
-  short getMaximumNumberOfThreads();
+  CacheHighWaterMark getCacheHighWaterMark();
 }
 

@@ -24,11 +24,11 @@ package net.grinder.console.common;
 import java.util.HashMap;
 
 import junit.framework.TestCase;
+import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
 import net.grinder.engine.agent.StubAgentIdentity;
-import net.grinder.messages.console.AgentProcessReport;
-import net.grinder.messages.console.WorkerIdentity;
-import net.grinder.messages.console.WorkerProcessReport;
 import net.grinder.testutility.RandomStubFactory;
 
 

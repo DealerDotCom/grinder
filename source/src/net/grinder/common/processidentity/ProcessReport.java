@@ -19,9 +19,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.messages.console;
+package net.grinder.common.processidentity;
 
-import java.io.Serializable;
 import java.util.Comparator;
 
 
@@ -67,30 +66,6 @@ public interface ProcessReport {
    * {@link #STATE_FINISHED}.
    */
   short getState();
-
-  /**
-   * The identity of a process.
-   *
-   * <p>Implementations should define equality so that instances are equal if
-   * and only they represent the same process.</p>
-   */
-  interface ProcessIdentity extends Serializable {
-
-    /**
-     * Return the process name.
-     *
-     * @return The process name.
-     */
-    String getName();
-
-    /**
-     * Return the process number. This is not necessarily set when
-     * the process is started.
-     *
-     * @return The number.
-     */
-    int getNumber();
-  }
 
   /**
    * Comparator that compares ProcessReports by state, then by name.

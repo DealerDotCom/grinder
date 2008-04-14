@@ -24,6 +24,7 @@ package net.grinder.console.communication;
 import java.util.Timer;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
@@ -31,7 +32,6 @@ import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
 import net.grinder.messages.console.AgentAddress;
-import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.util.AllocateLowestNumber;

@@ -32,6 +32,7 @@ import java.util.TimerTask;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.communication.Address;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
@@ -56,7 +57,6 @@ import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
 import net.grinder.messages.agent.StubCacheHighWaterMark;
 import net.grinder.messages.console.AgentAddress;
-import net.grinder.messages.console.AgentIdentity;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.testutility.AbstractFileTestCase;
