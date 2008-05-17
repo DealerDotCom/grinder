@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
- Copyright (C) 2006 - 2008 Philip Aston
+ Copyright (C) 2006, 2007 Philip Aston
  Copyright (C) 2007 Venelin Mitov
- Copyright (C) 2008 Brian Dols
  All rights reserved.
 
  This file is part of The Grinder software distribution. Refer to
@@ -30,8 +29,6 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
   xmlns:g="http://grinder.sourceforge.net/tcpproxy/http/1.0"
   xmlns:helper="net.grinder.plugin.http.tcpproxyfilter.XSLTHelper">
-
-  <xsl:param name="domainFilter"/> <!-- TODO default -->
 
   <xsl:output method="text"/>
   <xsl:strip-space elements="*"/>
@@ -116,14 +113,14 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:base-uri[contains(g:host,$domainFilter)]" mode="file">
+  <xsl:template match="g:base-uri" mode="file">
     <xsl:value-of select="helper:newLine()"/>
     <xsl:value-of select="concat(@uri-id, ' = ')"/>
     <xsl:text>'</xsl:text>
     <xsl:value-of select="concat(g:scheme, '://', g:host, ':', g:port)"/>
     <xsl:text>'</xsl:text>
 
-    <xsl:if test="not(following::g:base-uri)"> <!-- TODO -->
+    <xsl:if test="not(following::g:base-uri)">
       <xsl:value-of select="helper:newLine()"/>
     </xsl:if>
   </xsl:template>
@@ -298,12 +295,12 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:page[g:request/g:uri[//base-uri[@extends=XX and contains(g:host,$domainFilter)]]]" mode="file">
+  <xsl:template match="g:page" mode="file">
     <xsl:apply-templates select="*" mode="file"/>
   </xsl:template>
 
 
-  <xsl:template match="g:page[g:request/g:uri[contains(g:host,$domainFilter)]]" mode="TestRunner">
+  <xsl:template match="g:page" mode="TestRunner">
     <xsl:apply-templates select="*" mode="TestRunner"/>
 
     <xsl:variable name="page-function-name">
@@ -330,7 +327,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:page[g:request/g:uri[contains(g:host,$domainFilter)]]" mode="instrumentMethod">
+  <xsl:template match="g:page" mode="instrumentMethod">
     <xsl:variable name="page-number">
       <xsl:apply-templates select="." mode="generate-number"/>
     </xsl:variable>
@@ -364,7 +361,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:page[g:request/g:uri[contains(g:host,$domainFilter)]]" mode="__call__">
+  <xsl:template match="g:page" mode="__call__">
     <xsl:apply-templates select="*" mode="__call__"/>
 
     <xsl:variable name="page-function-name">
