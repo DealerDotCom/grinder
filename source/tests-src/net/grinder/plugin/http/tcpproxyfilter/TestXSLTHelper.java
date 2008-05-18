@@ -102,6 +102,7 @@ public class TestXSLTHelper extends TestCase {
     assertEquals("'foo\\''", XSLTHelper.quoteForPython("foo'"));
     assertEquals("' \\\\ '", XSLTHelper.quoteForPython(" \\ "));
     assertEquals("'''foo \n bah'''", XSLTHelper.quoteForPython("foo \n bah"));
+    assertEquals("'''foo \\r bah'''", XSLTHelper.quoteForPython("foo \r bah"));
     assertEquals("'foo \\\\n bah'", XSLTHelper.quoteForPython("foo \\n bah"));
   }
 
@@ -112,8 +113,8 @@ public class TestXSLTHelper extends TestCase {
     assertEquals("'foo'", XSLTHelper.quoteEOLEscapedStringForPython("foo"));
     assertEquals("'foo\\''", XSLTHelper.quoteEOLEscapedStringForPython("foo'"));
     assertEquals("' \\\\ '", XSLTHelper.quoteEOLEscapedStringForPython(" \\ "));
-    assertEquals("'''foo \\\n bah'''",
-      XSLTHelper.quoteEOLEscapedStringForPython("foo \n bah"));
+    assertEquals("'''foo   bah'''",
+      XSLTHelper.quoteEOLEscapedStringForPython("foo \n \r bah"));
     assertEquals("'foo \\n bah\\\\'",
       XSLTHelper.quoteEOLEscapedStringForPython("foo \\n bah\\"));
 

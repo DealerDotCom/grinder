@@ -26,8 +26,11 @@
  *
  *  The HTTPClient's home page is located at:
  *
- *  http://www.innovation.ch/java/HTTPClient/ 
+ *  http://www.innovation.ch/java/HTTPClient/
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
  */
 
 package HTTPClient;
@@ -656,7 +659,17 @@ public class Codecs
     {
 	if (str == null)  return  null;
 
-	return java.net.URLEncoder.encode(str);
+	/** ++GRINDER MODIFICATION **/
+	//return java.net.URLEncoder.encode(str);
+
+    try {
+      // encode() javadoc references W3C recommendation to use UTF-8.
+      return java.net.URLEncoder.encode(str, "UTF-8");
+    }
+    catch (UnsupportedEncodingException e) {
+      throw new AssertionError(e);
+    }
+    /** --GRINDER MODIFICATION **/
     }
 
 
@@ -671,6 +684,24 @@ public class Codecs
     public final static String URLDecode(String str) throws ParseException
     {
 	if (str == null)  return  null;
+
+    /** ++GRINDER MODIFICATION **/
+
+	// The original implementation only handles extended ASCII encoding, and
+	// so URLDecode(URLEncode(s)) was not necessarily equal to s.
+	// We delegate to URLDecoder instead.
+
+  	try {
+  	  return java.net.URLDecoder.decode(str, "UTF-8");
+    }
+    catch (UnsupportedEncodingException e) {
+      throw new AssertionError(e);
+    }
+    catch (IllegalArgumentException e) {
+      throw new ParseException(e.getMessage());
+    }
+
+	/*
 
 	char[] res  = new char[str.length()];
 	int    didx = 0;
@@ -699,6 +730,8 @@ public class Codecs
 	}
 
 	return String.valueOf(res, 0, didx);
+	*/
+    /** --GRINDER MODIFICATION **/
     }
 
 

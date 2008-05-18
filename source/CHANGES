@@ -70,6 +70,9 @@ The Grinder 3.0.2 (not yet released).
   Fix bug 1926601 - Jython change breaks byte arrays in generated scripts.
   Thanks to Dhinakar K and O.A.Francis for reporting this.
 
+  Fix bug 1953141 - line feeds and other characters not correctly captured
+  by HTTP TCPProxy filter. Thanks to Dhinakar K for reporting this.
+
 
 The Grinder 3.0.1
 -----------------

@@ -82,11 +82,22 @@ public final class XSLTHelper {
 
     final StringBuffer result = new StringBuffer();
 
-    final String quotes = value.indexOf("\n") > -1 ? "'''" : "'";
+    final String quotes = quotes(value);
 
-    result.append(quotes).append(escape(value)).append(quotes);
+    result.append(quotes).append(escape(value, false)).append(quotes);
 
     return result.toString();
+  }
+
+  /**
+   * Return appropriate Python quotes for the string based on whether
+   * it contains any line separates.
+   *
+   * @param s The string to quote.
+   * @return The quotes.
+   */
+  private static String quotes(String s) {
+    return s.indexOf("\n") > -1 || s.indexOf("\r") > -1 ? "'''" : "'";
   }
 
   /**
@@ -96,6 +107,7 @@ public final class XSLTHelper {
    * @param value
    *          The string.
    * @return The quoted string.
+   * @see net.grinder.util.SimpleStringEscaper
    */
   public static String quoteEOLEscapedStringForPython(String value) {
     if (value == null) {
@@ -104,9 +116,9 @@ public final class XSLTHelper {
 
     final StringBuffer result = new StringBuffer();
 
-    final String quotes = value.indexOf("\n") > -1 ? "'''" : "'";
+    final String quotes = quotes(value);
 
-    result.append(quotes).append(escapePreservingEOLs(value)).append(quotes);
+    result.append(quotes).append(escape(value, true)).append(quotes);
 
     return result.toString();
   }
@@ -164,33 +176,22 @@ public final class XSLTHelper {
    * @return The escaped string.
    */
   public static String escape(String value) {
-    final StringBuffer result = new StringBuffer(value.length());
-
-    for (int i = 0; i < value.length(); ++i) {
-      final char c = value.charAt(i);
-
-      switch (c) {
-      case '\'':
-      case '"':
-      case '\\':
-        result.append('\\');
-        // Fall through.
-      default:
-        result.append(c);
-      }
-    }
-
-    return result.toString();
+    return escape(value, false);
   }
 
   /**
-   * Escape quotes and back slashes for Python. One day, this might escape
-   * white space and non-printable characters too.
+   * Escape quotes and back slashes for Python.
    *
-   * @param value The string.
+   * @param value
+   *            The string.
+   * @param preserveEOLQuotes
+   *            <code>true</code> => existing \n and \r quotes should be
+   *            preserved, and literal \n, \r should be removed. (This is for
+   *            strings that have been pre-escaped with
+   *            {@link net.grinder.util.SimpleStringEscaper}).
    * @return The escaped string.
    */
-  private static String escapePreservingEOLs(String value) {
+  private static String escape(String value, boolean preserveEOLQuotes) {
     final int valueLength = value.length();
 
     final StringBuffer result = new StringBuffer(valueLength);
@@ -200,29 +201,45 @@ public final class XSLTHelper {
 
       switch (c) {
       case '\\':
-        if (i + 1 < valueLength) {
+        if (preserveEOLQuotes && i + 1 < valueLength) {
           final char nextCharacter = value.charAt(i + 1);
 
           if (nextCharacter == 'n' ||
               nextCharacter == 'r') {
+            result.append(c);
             break;
           }
         }
 
         result.append('\\');
+        result.append(c);
         break;
 
       case '\'':
       case '"':
-      case '\n':
         result.append('\\');
+        result.append(c);
+        break;
+
+      case '\n':
+        if (!preserveEOLQuotes) {
+          result.append(c);
+        }
+
+        break;
+
+      case '\r':
+        if (!preserveEOLQuotes) {
+          // We quote line feeds since the Jython parser translates them to
+          // carriage returns (or perhaps the platform line ending?).
+          result.append("\\r");
+        }
         break;
 
       default:
+        result.append(c);
         break;
       }
-
-      result.append(c);
     }
 
     return result.toString();
