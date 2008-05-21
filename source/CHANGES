@@ -73,6 +73,9 @@ The Grinder 3.0.2 (not yet released).
   Fix bug 1953141 - line feeds and other characters not correctly captured
   by HTTP TCPProxy filter. Thanks to Dhinakar K for reporting this.
 
+  The "Stop Processes" action has been removed from the tool bar since it
+  is required only rarely.
+
 
 The Grinder 3.0.1
 -----------------
