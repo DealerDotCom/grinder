@@ -15,6 +15,22 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="ext:ground-report">Ground Report</a>
+      </td>
+
+      <td></td>
+
+      <td>
+          The Ground Report is a collection of reporting utilities specific to
+          The Grinder test tool.
+
+          The tools consist of a reporting database and graphing &amp; report
+          utilities based upon jyplot, jFreechart and DocBook written in Jython.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
         <a href="ext:grinder-analyzer">Grinder Analyzer</a>
       </td>
 
