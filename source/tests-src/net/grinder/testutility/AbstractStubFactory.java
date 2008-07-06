@@ -21,6 +21,8 @@
 
 package net.grinder.testutility;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -43,6 +45,8 @@ import java.util.Set;
  */
 public abstract class AbstractStubFactory extends CallRecorder {
 
+  private final static WeakIdentityMap s_stubToFactory = new WeakIdentityMap();
+
   private final Object m_stub;
   private final Map m_resultMap = new HashMap();
   private final Map m_throwsMap = new HashMap();
@@ -58,6 +62,8 @@ public abstract class AbstractStubFactory extends CallRecorder {
     m_stub = Proxy.newProxyInstance(stubbedInterface.getClassLoader(),
                                     getAllInterfaces(stubbedInterface),
                                     decoratedInvocationHandler);
+
+    s_stubToFactory.put(m_stub, this);
   }
 
   private final class RecordingInvocationHandler implements InvocationHandler {
@@ -147,5 +153,65 @@ public abstract class AbstractStubFactory extends CallRecorder {
     while (c != null);
 
     return (Class[]) interfaces.toArray(new Class[0]);
+  }
+
+  public static AbstractStubFactory getFactory(Object stub) {
+    return (AbstractStubFactory) s_stubToFactory.get(stub);
+  }
+
+  /**
+   * Ripped off from Jython implementation.
+   */
+  private static class WeakIdentityMap {
+
+    private final ReferenceQueue m_referenceQueue = new ReferenceQueue();
+    private final Map m_hashmap = new HashMap();
+
+    private void cleanup() {
+      Object k;
+
+      while ((k = m_referenceQueue.poll()) != null) {
+        m_hashmap.remove(k);
+      }
+    }
+
+    private static class WeakIdKey extends WeakReference {
+      private final int m_hashcode;
+
+      WeakIdKey(Object object, ReferenceQueue referenceQueue) {
+        super(object, referenceQueue);
+        m_hashcode = System.identityHashCode(object);
+      }
+
+      public int hashCode() {
+        return m_hashcode;
+      }
+
+      public boolean equals(Object other) {
+        final Object object = this.get();
+
+        if (object != null) {
+          return object == ((WeakIdKey)other).get();
+        }
+        else {
+          return this == other;
+        }
+      }
+    }
+
+    public void put(Object key,Object value) {
+      cleanup();
+      m_hashmap.put(new WeakIdKey(key, m_referenceQueue), value);
+    }
+
+    public Object get(Object key) {
+      cleanup();
+      return m_hashmap.get(new WeakIdKey(key, m_referenceQueue));
+    }
+
+    public void remove(Object key) {
+      cleanup();
+      m_hashmap.remove(new WeakIdKey(key, m_referenceQueue));
+    }
   }
 }

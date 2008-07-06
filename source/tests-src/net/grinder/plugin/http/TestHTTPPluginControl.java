@@ -27,6 +27,7 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.script.Grinder.ScriptContext;
+import net.grinder.testutility.AbstractStubFactory;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.StandardTimeAuthority;
 
@@ -68,6 +69,20 @@ public class TestHTTPPluginControl extends TestCase {
         plugin.initialize(pluginProcessContext);
       }
     };
+
+    // Sigh, if a previous test has registered a stub PluginProcessContext, we
+    // need to rewire it to make this test valid. Further proof that static
+    // references are evil.
+    final AbstractStubFactory existingProcessContextStubFactory =
+        AbstractStubFactory.getFactory(
+          HTTPPlugin.getPlugin().getPluginProcessContext());
+    if (existingProcessContextStubFactory != pluginProcessContextStubFactory) {
+
+      existingProcessContextStubFactory.setResult(
+        "getPluginThreadListener", threadState);
+      existingProcessContextStubFactory.setResult(
+        "getScriptContext", scriptContext);
+    }
 
     final HTTPPluginConnection connectionDefaults =
       HTTPPluginControl.getConnectionDefaults();
