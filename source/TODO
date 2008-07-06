@@ -20,6 +20,10 @@ against it too :-).
 
 *** API
 
+- Move Identity and Report interfaces to a separate, common package
+- Add way to query the latest process reports through the console API
+
+
 Process control
 
  void startWorkerProcess(some id)
