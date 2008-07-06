@@ -504,9 +504,13 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     waitUntilAllStreamThreadsStopped(engine);
 
+    m_requestFilterStubFactory.waitUntilCalled(5000);
+
     m_requestFilterStubFactory.assertSuccess("connectionClosed",
                                              ConnectionDetails.class);
     m_requestFilterStubFactory.assertNoMoreCalls();
+
+    m_responseFilterStubFactory.waitUntilCalled(5000);
 
     m_responseFilterStubFactory.assertSuccess("connectionClosed",
                                               ConnectionDetails.class);
