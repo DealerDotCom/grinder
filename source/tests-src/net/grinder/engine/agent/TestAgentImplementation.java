@@ -51,7 +51,7 @@ import net.grinder.testutility.AbstractFileTestCase;
  * @author Philip Aston
  * @version $Revision: 3828 $
  */
-public class TestAgentImplemantation extends AbstractFileTestCase {
+public class TestAgentImplementation extends AbstractFileTestCase {
 
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
   private final Logger m_logger = m_loggerStubFactory.getLogger();
