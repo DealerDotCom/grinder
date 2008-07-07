@@ -1,3 +1,11 @@
+2008-07-07 [r3898]  Philip Aston
+
+	* build.xml: Sigh, update version numbers.
+
+2008-07-07 [r3896]  Philip Aston
+
+	* ChangeLog: More updates.
+
 2008-07-07 [r3895]  Philip Aston
 
 	* etc/localpaths.properties: Update path.
