@@ -1,3 +1,18 @@
+2008-07-07 [r3895]  Philip Aston
+
+	* etc/localpaths.properties: Update path.
+
+2008-07-07 [r3894]  Philip Aston
+
+	* tests-src/net/grinder/engine/agent/TestAgentImplementation.java
+	  (added),
+	  tests-src/net/grinder/engine/agent/TestAgentImplemantation.java
+	  (removed): Correct spelling.
+
+2008-07-07 [r3893]  Philip Aston
+
+	* ChangeLog: Update for next release.
+
 2008-07-07 [r3892]  Philip Aston
 
 	* CHANGES: Update for release.
