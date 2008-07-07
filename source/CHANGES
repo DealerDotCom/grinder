@@ -1,5 +1,5 @@
-The Grinder 3.0.2 (not yet released).
------------------
+The Grinder 3.1
+---------------
 
   The console now has a "-headless" option which causes it to start without
   the graphical user interface. This is useful when used with the console
@@ -53,7 +53,7 @@ The Grinder 3.0.2 (not yet released).
   used by multiple worker threads. Thanks to Huifeng Shen for the report.
 
   Fulfill feature request 1731843 - Ability to close explicitly the
-  HTTPconnection. Thanks to whoever requested this feature.
+  HTTP connection. Thanks to whoever requested this feature.
 
   Fix bug 1913049 - dist build target fails due to syntax issues. Thanks to
   Travis Swicegood for the report.
