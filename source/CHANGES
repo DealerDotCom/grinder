@@ -1,9 +1,16 @@
+The Grinder 3.1.1 (not yet released)
+------------------------------------
+
+  Fix bug 2018168 - HTTP filter generates invalid Jython variable
+  names.
+
+
 The Grinder 3.1
 ---------------
 
-  The console now has a "-headless" option which causes it to start without
-  the graphical user interface. This is useful when used with the console
-  client API.
+  The console now has a "-headless" option which causes it to start
+  without the graphical user interface. This is useful when used with
+  the console client API.
 
   Add ConsoleConnection.stopAgents(), requested by Andreas Spall.
 
@@ -14,11 +21,10 @@ The Grinder 3.1
   - Display sample data when triggered and ignoring samples.
 
   Relative paths set for grinder.script are now resolved relative to
-  the location of the properties file. This fixes two bugs.
-  - Bug 1889281 - grinder.script relative path bug. Thanks to Ross
-    Nicholson for the report, and the suggested fix.
-  - Bug 1875880 - Script validation wrong for properties file in sub
-    directory.
+  the location of the properties file. This fixes two bugs. - Bug
+  1889281 - grinder.script relative path bug. Thanks to Ross Nicholson
+  for the report, and the suggested fix. - Bug 1875880 - Script
+  validation wrong for properties file in sub directory.
 
   HTTP Digest Authentication example from Matt Moran.
 
@@ -28,55 +34,58 @@ The Grinder 3.1
 
   French console translation updates from Tagnon Soko.
 
-  Fulfil feature request 1891023 - Worker and Agent id's. The script context
-  has new getAgentNumber() and getProcessNumber() methods. getThreadID() has
-  been renamed to getThreadNumber() for consistency. Thanks to Ross Nicholson
-  for requesting this feature.
+  Fulfil feature request 1891023 - Worker and Agent id's. The script
+  context has new getAgentNumber() and getProcessNumber() methods.
+  getThreadID() has been renamed to getThreadNumber() for consistency.
+  Thanks to Ross Nicholson for requesting this feature.
 
-  Fix bug 1897988 - grinder.initialSleepTime issue. The initialSleepTime
-  property was broken. Thanks to whoever reported this.
+  Fix bug 1897988 - grinder.initialSleepTime issue. The
+  initialSleepTime property was broken. Thanks to whoever reported
+  this.
 
-  Fix bug 1893027 - ArrayIndexOutOfBoundsException in TCPProxy. Thanks to
-  Brian Dols for reporting this.
+  Fix bug 1893027 - ArrayIndexOutOfBoundsException in TCPProxy. Thanks
+  to Brian Dols for reporting this.
 
   Fix bug 1709285 - HTTP plug-in records wrong times with
   grinder.useNanoTime=true. Thanks to liaoya for the report.
 
-  Fulfil feature request 1902280 - Use absolute start times in the data log.
-  This allows the logs from different workers to be merged, so long as their
-  machine clocks are synchronised. Thanks to Olivier Merlin for requesting
-  this feature.
+  Fulfil feature request 1902280 - Use absolute start times in the
+  data log. This allows the logs from different workers to be merged,
+  so long as their machine clocks are synchronised. Thanks to Olivier
+  Merlin for requesting this feature.
 
-  Fix bug 1549708 - HTTPRequest.setDataFromFile() is not thread safe. The
-  HTTPRequest methods that set defaults are now thread safe, and the Javadoc
-  has been updated to warn that the default setters are not intended to be
-  used by multiple worker threads. Thanks to Huifeng Shen for the report.
+  Fix bug 1549708 - HTTPRequest.setDataFromFile() is not thread safe.
+  The HTTPRequest methods that set defaults are now thread safe, and
+  the Javadoc has been updated to warn that the default setters are
+  not intended to be used by multiple worker threads. Thanks to
+  Huifeng Shen for the report.
 
   Fulfill feature request 1731843 - Ability to close explicitly the
   HTTP connection. Thanks to whoever requested this feature.
 
-  Fix bug 1913049 - dist build target fails due to syntax issues. Thanks to
+  Fix bug 1913049 - dist build target fails due to syntax issues.
+  Thanks to Travis Swicegood for the report.
+
+  Fix bug 1913056 - release fails on build of test-src. Thanks to
   Travis Swicegood for the report.
 
-  Fix bug 1913056 - release fails on build of test-src. Thanks to Travis
-  Swicegood for the report.
+  The file distribution now only updates out of date agents, and only
+  sends the updated files.
 
-  The file distribution now only updates out of date agents, and only sends
-  the updated files.
+  Fulfill feature request 1723753 - Agent service needed. Agents can
+  now be started in a "daemon" mode where they automatically reconnect
+  to a console. Thanks to Travis Bear for the request, and to Pawel
+  Lacinski for the initial implementation.
 
-  Fulfill feature request 1723753 - Agent service needed. Agents can now be
-  started in a "daemon" mode where they automatically reconnect to a console.
-  Thanks to Travis Bear for the request, and to Pawel Lacinski for the
-  initial implementation.
+  Fix bug 1926601 - Jython change breaks byte arrays in generated
+  scripts. Thanks to Dhinakar K and O.A.Francis for reporting this.
 
-  Fix bug 1926601 - Jython change breaks byte arrays in generated scripts.
-  Thanks to Dhinakar K and O.A.Francis for reporting this.
+  Fix bug 1953141 - line feeds and other characters not correctly
+  captured by HTTP TCPProxy filter. Thanks to Dhinakar K for reporting
+  this.
 
-  Fix bug 1953141 - line feeds and other characters not correctly captured
-  by HTTP TCPProxy filter. Thanks to Dhinakar K for reporting this.
-
-  The "Stop Processes" action has been removed from the tool bar since it
-  is required only rarely.
+  The "Stop Processes" action has been removed from the tool bar since
+  it is required only rarely.
 
 
 The Grinder 3.0.1

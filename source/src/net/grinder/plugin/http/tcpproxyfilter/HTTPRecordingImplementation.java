@@ -601,7 +601,11 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
           for (int i = 0; i < name.length(); ++i) {
             final char c = name.charAt(i);
 
-            if (Character.isJavaIdentifierPart(c)) {
+            // Python is quite restrictive on what it allows in identifiers.
+            if (c >= 'A' && c <= 'Z' ||
+                c >= 'a' && c <= 'z' ||
+                c >= '0' && c <= '9' ||
+                c == '_') {
               tokenID.append(c);
             }
           }
