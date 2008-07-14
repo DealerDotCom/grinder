@@ -124,6 +124,7 @@ what you want. Currently the conditionally built modules are:
 
   <!-- javadoc -->
   <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
+  <property name="cloverdoc.dir" value="${doc.dir}/clover"/>
   <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
   <property name="package-lists.dir" value="${etc.dir}/packagelists"/>
 
@@ -575,7 +576,7 @@ what you want. Currently the conditionally built modules are:
 
   <target name="clover-html" depends="clover">
     <clover-report>
-      <current outfile="${doc.dir}/clover">
+      <current outfile="${cloverdoc.dir}">
         <format type="html"/>
         <testsources dir="${test-src.dir}"/>
         <testresults dir="${junit-report.dir}"/>
@@ -856,7 +857,8 @@ what you want. Currently the conditionally built modules are:
   <target name="realclean" depends="clean"
     description="Removes all generated files and temporary files.">
     <delete dir="${dist.root}"/>
-    <delete dir="${doc.dir}" quiet="true"/>
+    <delete dir="${javadoc.dir}" quiet="true"/>
+    <delete dir="${cloverdoc.dir}" quiet="true"/>
     <delete dir="${lib.dir}"/>
     <delete>
       <fileset dir="." includes="**/*~" defaultexcludes="false"/>
