@@ -1,6 +1,72 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.1' id='The Grinder 3.1'>
+<p>
+The console now has a "-headless" option which causes it to start without the graphical user interface. This is useful when used with the console client API. </p>
+<p>
+Add ConsoleConnection.stopAgents(), requested by Andreas Spall. </p>
+<p>
+Refine console sampling model: </p>
+<ul>
+<li>
+ Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1618759&amp;group_id=18598&amp;atid=118598">bug 1618759</a> - Console should not discard first sample. </li>
+<li>
+ Count empty samples when deciding when to stop recording. </li>
+<li>
+ Count empty samples when triggered and ignoring samples. </li>
+<li>
+ Display sample data when triggered and ignoring samples. </li>
+</ul>
+<p>
+Relative paths set for grinder.script are now resolved relative to the location of the properties file. This fixes two bugs. </p>
+<ul>
+<li>
+ <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1889281&amp;group_id=18598&amp;atid=118598">Bug 1889281</a> - grinder.script relative path bug. Thanks to Ross Nicholson for the report, and the suggested fix. </li>
+<li>
+ <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1875880&amp;group_id=18598&amp;atid=118598">Bug 1875880</a> - Script validation wrong for properties file in sub directory. </li>
+</ul>
+<p>
+HTTP Digest Authentication example from Matt Moran. </p>
+<p>
+German console translation updates from Matthias Dillier. </p>
+<p>
+Italian console translation updates from Meo Bogliolo. </p>
+<p>
+French console translation updates from Tagnon Soko. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1891023&amp;group_id=18598&amp;atid=368598">request 1891023</a> - Worker and Agent id's. The script context has new getAgentNumber() and getProcessNumber() methods. getThreadID() has been renamed to getThreadNumber() for consistency. Thanks to Ross Nicholson for requesting this feature. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1897988&amp;group_id=18598&amp;atid=118598">bug 1897988</a> - grinder.initialSleepTime issue. The initialSleepTime property was broken. Thanks to whoever reported this. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1893027&amp;group_id=18598&amp;atid=118598">bug 1893027</a> - ArrayIndexOutOfBoundsException in TCPProxy. Thanks to Brian Dols for reporting this. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1709285&amp;group_id=18598&amp;atid=118598">bug 1709285</a> - HTTP plug-in records wrong times with grinder.useNanoTime=true. Thanks to liaoya for the report. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1902280&amp;group_id=18598&amp;atid=368598">request 1902280</a> - Use absolute start times in the data log. This allows the logs from different workers to be merged, so long as their machine clocks are synchronised. Thanks to Olivier Merlin for requesting this feature. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1549708&amp;group_id=18598&amp;atid=118598">bug 1549708</a> - HTTPRequest.setDataFromFile() is not thread safe. The HTTPRequest methods that set defaults are now thread safe, and the Javadoc has been updated to warn that the default setters are not intended to be used by multiple worker threads. Thanks to Huifeng Shen for the report. </p>
+<p>
+Fulfill feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1731843&amp;group_id=18598&amp;atid=368598">request 1731843</a> - Ability to close explicitly the HTTP connection. Thanks to whoever requested this feature. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1913049&amp;group_id=18598&amp;atid=118598">bug 1913049</a> - dist build target fails due to syntax issues. Thanks to Travis Swicegood for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1913056&amp;group_id=18598&amp;atid=118598">bug 1913056</a> - release fails on build of test-src. Thanks to Travis Swicegood for the report. </p>
+<p>
+The file distribution now only updates out of date agents, and only sends the updated files. </p>
+<p>
+Fulfill feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1723753&amp;group_id=18598&amp;atid=368598">request 1723753</a> - Agent service needed. Agents can now be started in a "daemon" mode where they automatically reconnect to a console. Thanks to Travis Bear for the request, and to Pawel Lacinski for the initial implementation. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1926601&amp;group_id=18598&amp;atid=118598">bug 1926601</a> - Jython change breaks byte arrays in generated scripts. Thanks to Dhinakar K and O.A.Francis for reporting this. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1953141&amp;group_id=18598&amp;atid=118598">bug 1953141</a> - line feeds and other characters not correctly captured by HTTP TCPProxy filter. Thanks to Dhinakar K for reporting this. </p>
+<p>
+The "Stop Processes" action has been removed from the tool bar since it is required only rarely. </p>
+</section>
+<section name='The Grinder 3.0.1' id='The Grinder 3.0.1'>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1876273&amp;group_id=18598&amp;atid=118598">bug 1876273</a> - grinder.jar has incorrect manifest classpath. </p>
+</section>
 <section name='The Grinder 3.0' id='The Grinder 3.0'>
 <p>
 The console now expects a properties file to be selected, rather than a script. The properties file determines the script to run through the grinder.script property. Other properties override the values in the agents' local grinder.properties file. This provides much better centralised control from the console. </p>
