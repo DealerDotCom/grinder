@@ -56,7 +56,7 @@ class TestRunner:
         trader.remove()                 # We don't record the remove() as a test
 
         # Can obtain information about the thread context...
-        if grinder.threadID == 0 and grinder.runNumber == 0:
+        if grinder.threadNumber == 0 and grinder.runNumber == 0:
             # ...and navigate from the proxy back to the test
             d = queryTest.__test__
             log("Query test is test %d, (%s)" % (d.number, d.description))

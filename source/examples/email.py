@@ -36,7 +36,7 @@ class TestRunner:
         message.addRecipient(Message.RecipientType.TO,
                              InternetAddress("you@yourtestdomain.net"))
         message.subject = "Test email %s from thread %s" % (grinder.runNumber,
-                                                            grinder.threadID)
+                                                            grinder.threadNumber)
 
         # One could vary this by pointing to various files for content
         message.setText("SMTPTransport Email works from The Grinder!")

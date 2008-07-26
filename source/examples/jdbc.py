@@ -47,11 +47,11 @@ class TestRunner:
 
             testInsert = test1.wrap(statement)
             testInsert.execute("insert into grinder_fun values(%d, %d)" %
-                               (grinder.threadID, grinder.runNumber))
+                               (grinder.threadNumber, grinder.runNumber))
 
             testQuery = test2.wrap(statement)
             testQuery.execute("select * from grinder_fun where thread=%d" %
-                              grinder.threadID)
+                              grinder.threadNumber)
 
         finally:
             ensureClosed(statement)

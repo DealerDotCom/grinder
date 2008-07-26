@@ -16,7 +16,7 @@ def createTestRunner(script):
 
 class TestRunner:
     def __init__(self):
-        tid = grinder.threadID
+        tid = grinder.threadNumber
 
         if tid % 4 == 2:
             self.testRunner = createTestRunner(scripts[1])

@@ -27,7 +27,7 @@ parser = javadom.XercesDomImplementation()
 
 class TestRunner:
     def __call__(self):
-        if grinder.runNumber > 0 or grinder.threadID > 0:
+        if grinder.runNumber > 0 or grinder.threadNumber > 0:
             raise RuntimeError("Use limited to one thread, one run; "
                                "see Amazon Web Services terms and conditions")
 

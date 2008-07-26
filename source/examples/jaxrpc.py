@@ -21,5 +21,5 @@ portTest = Test(1, "JAXP Port test").wrap(port)
 
 class TestRunner:
     def __call__(self):
-        result = portTest.sayHello(grinder.threadID, grinder.grinderID)
+        result = portTest.sayHello(grinder.threadNumber, grinder.grinderID)
         grinder.logger.output("Got '%s'" % result)

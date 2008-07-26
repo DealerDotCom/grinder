@@ -46,7 +46,7 @@ class TestRunner:
             (self.runsForThread, totalNumberOfRuns, self.initialisationTime))
 
         # You can also vary behaviour based on thread ID.
-        if grinder.threadID % 2 == 0:
+        if grinder.threadNumber % 2 == 0:
             grinder.logger.output("I have an even thread ID.")
 
     # Scripts can optionally define a __del__ method. The Grinder
