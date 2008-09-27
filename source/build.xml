@@ -650,6 +650,7 @@ what you want. Currently the conditionally built modules are:
       <arg value="examples/email.py"/>
       <arg value="examples/sequence.py"/>
       <arg value="examples/parallel.py"/>
+    	<arg value="examples/threadrampup.py"/>
     </java>
 
   </target>

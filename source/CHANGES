@@ -4,6 +4,9 @@ The Grinder 3.1.1 (not yet released)
   Fix bug 2018168 - HTTP filter generates invalid Jython variable
   names.
 
+  Address bug 2058502 - Add example script showing how to ramp up threads.
+  Thanks to Travis Bear for the prompt.
+
 
 The Grinder 3.1
 ---------------
