@@ -60,10 +60,11 @@ See http://forrest.apache.org/docs/linking.html for more info
       </scripts-intro>
       <tutorial label="Tutorial" href="tutorial-perks.html"/>
       <script-gallery label="Script Gallery" href="script-gallery.html">
+        <digestauthentication href="#digestauthentication"/>
         <helloworldfunctions href="#helloworldfunctions"/>
-        <statistics href="#statistics"/>
-        <sequence href="#sequence"/>
         <parallel href="#parallel"/>
+        <sequence href="#sequence"/>
+        <statistics href="#statistics"/>
       </script-gallery>
       <script-api label="Script API" href="ext:grinder/g3/api"/>
     </scripts>
