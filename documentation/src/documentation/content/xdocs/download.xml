@@ -19,11 +19,11 @@
   <p>The Grinder 3 is distributed as two zip files which you should expand
   using <code>unzip</code>, <a href="ext:winzip">WinZip</a> or
   similar. Everything required to run The Grinder is in the zip file labelled
-  <code>grinder-3.0-version.zip</code>. The remaining
+  <code>grinder-</code><em>version</em><code>.zip</code>. The remaining
   files that are needed to build The Grinder are distributed in the zip file
-  labelled <code>grinder-3.0-version-src.zip</code>; these are mainly of
-  interest to developers wanting to <a href="site:development/contributing">
-  extend The Grinder</a>.
+  labelled <code>grinder-</code><em>version</em><code>-src.zip</code>;
+  these are mainly of interest to developers wanting to
+  <a href="site:development/contributing"> extend The Grinder</a>.
   </p>
 
   <section>
