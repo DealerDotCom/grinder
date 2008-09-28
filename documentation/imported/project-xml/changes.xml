@@ -1,6 +1,12 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.1.1 (not yet released)' id='The Grinder 3.1.1 (not yet released)'>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2018168&amp;group_id=18598&amp;atid=118598">bug 2018168</a> - HTTP filter generates invalid Jython variable names. </p>
+<p>
+Address <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2058502&amp;group_id=18598&amp;atid=118598">bug 2058502</a> - Add example script showing how to ramp up threads. Thanks to Travis Bear for the prompt. </p>
+</section>
 <section name='The Grinder 3.1' id='The Grinder 3.1'>
 <p>
 The console now has a "-headless" option which causes it to start without the graphical user interface. This is useful when used with the console client API. </p>
@@ -19,13 +25,7 @@ Refine console sampling model: </p>
  Display sample data when triggered and ignoring samples. </li>
 </ul>
 <p>
-Relative paths set for grinder.script are now resolved relative to the location of the properties file. This fixes two bugs. </p>
-<ul>
-<li>
- <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1889281&amp;group_id=18598&amp;atid=118598">Bug 1889281</a> - grinder.script relative path bug. Thanks to Ross Nicholson for the report, and the suggested fix. </li>
-<li>
- <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1875880&amp;group_id=18598&amp;atid=118598">Bug 1875880</a> - Script validation wrong for properties file in sub directory. </li>
-</ul>
+Relative paths set for grinder.script are now resolved relative to the location of the properties file. This fixes two bugs. - Bug 1889281 - grinder.script relative path bug. Thanks to Ross Nicholson for the report, and the suggested fix. - <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1875880&amp;group_id=18598&amp;atid=118598">Bug 1875880</a> - Script validation wrong for properties file in sub directory. </p>
 <p>
 HTTP Digest Authentication example from Matt Moran. </p>
 <p>

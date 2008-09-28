@@ -324,7 +324,7 @@ class TestRunner:
         trader.remove()                 # We don't record the remove() as a test
 
         # Can obtain information about the thread context...
-        if grinder.threadID == 0 and grinder.runNumber == 0:
+        if grinder.threadNumber == 0 and grinder.runNumber == 0:
             # ...and navigate from the proxy back to the test
             d = queryTest.__test__
             log("Query test is test %d, (%s)" % (d.number, d.description))
@@ -378,11 +378,11 @@ class TestRunner:
 
             testInsert = test1.wrap(statement)
             testInsert.execute("insert into grinder_fun values(%d, %d)" %
-                               (grinder.threadID, grinder.runNumber))
+                               (grinder.threadNumber, grinder.runNumber))
 
             testQuery = test2.wrap(statement)
             testQuery.execute("select * from grinder_fun where thread=%d" %
-                              grinder.threadID)
+                              grinder.threadNumber)
 
         finally:
             ensureClosed(statement)
@@ -416,7 +416,7 @@ parser = javadom.XercesDomImplementation()
 
 class TestRunner:
     def __call__(self):
-        if grinder.runNumber &gt; 0 or grinder.threadID &gt; 0:
+        if grinder.runNumber &gt; 0 or grinder.threadNumber &gt; 0:
             raise RuntimeError("Use limited to one thread, one run; "
                                "see Amazon Web Services terms and conditions")
 
@@ -469,7 +469,7 @@ portTest = Test(1, "JAXP Port test").wrap(port)
 
 class TestRunner:
     def __call__(self):
-        result = portTest.sayHello(grinder.threadID, grinder.grinderID)
+        result = portTest.sayHello(grinder.threadNumber, grinder.grinderID)
         grinder.logger.output("Got '%s'" % result)
 </script>
 <script title='XML-RPC Web Service' id='xml-rpc'>
@@ -572,7 +572,7 @@ class TestRunner:
             (self.runsForThread, totalNumberOfRuns, self.initialisationTime))
 
         # You can also vary behaviour based on thread ID.
-        if grinder.threadID % 2 == 0:
+        if grinder.threadNumber % 2 == 0:
             grinder.logger.output("I have an even thread ID.")
 
     # Scripts can optionally define a __del__ method. The Grinder
@@ -908,7 +908,7 @@ class TestRunner:
         message.addRecipient(Message.RecipientType.TO,
                              InternetAddress("you@yourtestdomain.net"))
         message.subject = "Test email %s from thread %s" % (grinder.runNumber,
-                                                            grinder.threadID)
+                                                            grinder.threadNumber)
 
         # One could vary this by pointing to various files for content
         message.setText("SMTPTransport Email works from The Grinder!")
@@ -968,7 +968,7 @@ def createTestRunner(script):
 
 class TestRunner:
     def __init__(self):
-        tid = grinder.threadID
+        tid = grinder.threadNumber
 
         if tid % 4 == 2:
             self.testRunner = createTestRunner(scripts[1])
@@ -980,5 +980,31 @@ class TestRunner:
     # This method is called for every run.
     def __call__(self):
         self.testRunner()</script>
+<script title='Thread ramp up' id='threadrampup'>
+# A simple way to start threads at different times.
+#
+
+from net.grinder.script.Grinder import grinder
+from net.grinder.common import Logger
+
+def log(message):
+    """Log to the console, the message will include the thread ID"""
+    grinder.logger.output(message, Logger.TERMINAL)
+
+class TestRunner:
+    def __init__(self):
+        log("initialising")
+
+    def initialSleep( self):
+        sleepTime = grinder.threadNumber * 5000  # 5 seconds per thread
+        grinder.sleep(sleepTime, 0)
+        log("initial sleep complete, slept for around %d ms" % sleepTime)
+
+    def __call__( self ):
+        if grinder.runNumber == 0: self.initialSleep()
+
+        grinder.sleep(500)
+        log("in __call__()")
+</script>
 </scripts>
 
