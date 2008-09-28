@@ -39,8 +39,11 @@ See http://forrest.apache.org/docs/linking.html for more info
     <getting-started label="Getting started" >
       <getting-started-intro label="Introduction" href="getting-started.html">
          <processes href="#The+Grinder+processes"/>
+         <howtostart href="#howtostart"/>
       </getting-started-intro>
-      <properties label="Properties" href="properties.html"/>
+      <properties label="Properties" href="properties.html">
+        <commandline href="#Specifying+properties+on+the+command+line"/>
+      </properties>
       <console label="The Console" href="console.html">
       <process-controls href="#process-controls"/>
       </console>
