@@ -210,6 +210,9 @@ public class TestThreadPool extends TestCase {
     }
     catch (UncheckedInterruptedException e) {
     }
+
+    // Clear interrupt status as it might have been set by other threads.
+    Thread.interrupted();
   }
 }
 
