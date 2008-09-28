@@ -10,8 +10,7 @@
 
   <p>Follow <a href="site:getting-started-intro/howtostart">these instructions</a> to start the console.</p>
 
-  <figure src="../images/console-screenshot-g3.png" width="782"
-  height="554" alt="The Console"/>
+  <figure src="../images/console-screenshot-g3.png" width="778" height="551" alt="The Console"/>
 
   <section id="process-controls">
     <title>Process controls</title>
@@ -283,7 +282,7 @@
       </ol>
 
       <section id="setdirectory">
-       <title id="123">Set the directory for the script distribution</title>
+       <title>Set the directory for the script distribution</title>
 
        <p>The file tree on the left hand side of Script tab is shows the a view
        of local files on the console machine. Use
@@ -318,11 +317,11 @@
        The file name extension should be <code>properties</code>, and unless you have many
        different properties files in the directory, the file is usually called
        <code>grinder.properties</code>. If your script is not called <code>grinder.py</code>,
-       add a <code>grinder.script</code> property to your properties file:
-       <source>grinder.script = myscript.py</source> </p>
+       add a <code>grinder.script</code> property to your properties file:</p>
+       <source>grinder.script = myscript.py</source>
 
-       <note>
-       <p>The properties sent from the console are combined with any set
+       <p>
+       The properties sent from the console are combined with any set
        in a <code>grinder.properties</code> file in the agent's working directory
        or <a href="site:getting-started/properties/commandline">set
        on the agent command line</a>. If a property is specified in several
@@ -333,13 +332,12 @@
        <li>Properties in the agent's local <code>grinder.properties</code> file <em>[least important]</em></li>
        </ul>
 
-       <p>If your agents are running remotely to the
+       <note>If your agents are running remotely to the
        console, you will need to set the <code>grinder.consoleHost</code> property
        (and <code>grinder.consolePort</code> if the console isn't using the
        default port) in the agent's command line or local
        <code>grinder.properties</code> so it can make the initial connection
        to the console.
-       </p>
        </note>
       </section>
 
