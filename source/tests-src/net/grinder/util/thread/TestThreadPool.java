@@ -206,7 +206,7 @@ public class TestThreadPool extends TestCase {
 
     try {
       threadPool.stopAndWait();
-      fail("Expected UncheckedInterruptedException");
+      assert(Thread.interrupted()); // Threads all died early, so we didn't join().
     }
     catch (UncheckedInterruptedException e) {
     }
