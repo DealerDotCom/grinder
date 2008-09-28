@@ -263,26 +263,82 @@ class TestRunner:
     <p>The Grinder is shipped with a version of Jython but does not
     package the Jython distribution of the standard Python library. If
     you want to use the standard library, or if you want to use a
-    different version of Jython, obtain and install Jython and add the
-    installation's <code>jython.jar</code> to the start of the
-    <code>CLASSPATH</code> used to launch The Grinder.</p>
+    different version of Jython, obtain and install Jython and tell
+    The Grinder where you installed it. You can do this either by
+    adding the following to your
+    <a href="site:getting-started/properties">properties</a> file:</p>
+
+    <source>
+grinder.jvm.arguments = -Dpython.home=/opt/jython/jython2.2.1
+    </source>
+
+    <p>or on the agent command line:</p>
+
+    <source>
+java -Dgrinder.jvm.arguments=-Dpython.home=/opt/jython/jython2.2.1 net.grinder.Grinder
+    </source>
+
+    <p>In both cases, change <code>/opt/jython/jython2.2.1</code> to the
+    directory in which you installed Jython. You must install Jython on all
+    of the agent machines. If the version of Jython is different to that
+    included with The Grinder (2.2.1), you should also add the
+    installation's <code>jython.jar</code>  to the start of the
+    <code>CLASSPATH</code> used to launch the agent.</p>
+
+    <note>
+    Adding the installation's <code>jython.jar</code>
+    to the start of the <code>CLASSPATH</code> used to be sufficient for
+    Jython to calculate its install directory, but this no longer appears
+    to work with Jython 2.2.1. You must explicitly set <code>python.home</code>
+    as described above.
+    </note>
 
     <p>Jython picks up user and site preferences from several sources
     (see <a
     href="ext:jython/registry">http://www.jython.org/docs/registry.html</a>).
-    A side effect of adding the installed <code>jython.jar</code> to
-    the start of the <code>CLASSPATH</code> is that
-    <code>python.home</code> can be correctly determined and the
+    A side effect of setting <code>python.home</code> is that the
     installed registry file will be used.</p>
 
-    <p>A useful thing that you can set in the registry is
-    <code>python.cachedir</code>. This specifies a working directory
-    which Jython uses to store byte compiled python code. If you do
-    not have your own installed version of Jython in the
-    <code>CLASSPATH</code>, the working directory will be created in
-    the directory which you run The Grinder. This is fine for most
-    casual users; if you are are terribly worried about preserving
-    disk space, read the information on the Jython site.</p>
+    <section id="jython-cachedir">
+    <title>Setting the Jython cache directory</title>
+
+    <p>Another feature that is not working in later versions of Jython is the
+    correct calculation of the cache directory. If you don't have a Jython
+    cache directory, wild card imports of Java packages (e.g.
+    <code> from java.util import *</code>) may not work, The Grinder will
+    take a little longer to start, and ugly error messages will be displayed:
+    </p>
+
+    <source>
+28/09/08 17:57:11 (agent): worker paston01-0 started
+*sys-package-mgr*: can't create package cache dir, '/home/philipa/performance/round2/grinder-3.1/lib/jython.jar/cachedir/packages'
+    </source>
+
+    <p>You can specify the cache directory either by setting the
+    <code>python.home</code> as above (in which case the directory will
+    that specified in the Python registry), or by setting the Java property
+    <code>python.cachedir</code> in your <a href="site:getting-started/properties">properties</a> file:
+    </p>
+
+    <source>
+grinder.jvm.arguments = -Dpython.cachedir=/tmp/mycache
+    </source>
+
+    <p>or on the command line:</p>
+
+    <source>
+java -Dgrinder.jvm.arguments = -Dpython.cachedir=/tmp/mycache net.grinder.Grinder
+    </source>
+
+    <p>You can only set <code>grinder.jvm.arguments</code> once, so
+    if you want to set both the cache directory and <code>python.home</code>
+    either use the registry, or do this:</p>
+
+    <source>
+grinder.jvm.arguments = -Dpython.home=/opt/jython/jython2.2.1 -Dpython.cachedir=/tmp/mycache
+    </source>
+
+    </section>
   </section>
 </body>
 </document>
