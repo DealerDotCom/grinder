@@ -151,7 +151,7 @@ public final class AgentImplementation implements Agent {
               !consoleCommunication.getConnector().equals(connector)) {
             shutdownConsoleCommunication(consoleCommunication);
             consoleCommunication = null;
-            startMessage = null;
+            // Accept any startMessage from previous console - see bug 2092881.
           }
 
           if (consoleCommunication == null && connector != null) {

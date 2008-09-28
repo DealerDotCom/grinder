@@ -7,6 +7,10 @@ The Grinder 3.1.1 (not yet released)
   Address bug 2058502 - Add example script showing how to ramp up threads.
   Thanks to Travis Bear for the prompt.
 
+  Fix bug 2092881 - Agents do not start first time after reset if console
+  overrides consoleHost or consolePort properties. Thanks to HappySpaceInvader
+  for the report.
+
 
 The Grinder 3.1
 ---------------
