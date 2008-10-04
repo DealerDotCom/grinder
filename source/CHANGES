@@ -10,6 +10,9 @@ The Grinder 3.1.1 (not yet released)
   Fix bug 2092881 - Agents do not start first time after reset if console
   overrides consoleHost or consolePort properties. Thanks to HappySpaceInvader
   for the report.
+  
+  Fix bug 2138601 - Moving table columns results in incorrect formatting.
+  Thanks to Walter Tuvell for the report.
 
 
 The Grinder 3.1

@@ -101,9 +101,12 @@ final class Table extends JTable {
   public TableCellRenderer getCellRenderer(int row, int column) {
     final TableModel model = (TableModel)getModel();
 
-    final Color foreground = model.getForeground(row, column);
-    final Color background = model.getBackground(row, column);
-    final boolean bold = model.isBold(row, column);
+    final int modelColumn = getColumnModel().getColumn(column).getModelIndex();
+
+    final Color foreground = model.getForeground(row, modelColumn);
+    final Color background = model.getBackground(row, modelColumn);
+
+    final boolean bold = model.isBold(row, modelColumn);
 
     if (foreground == null &&
         background == null &&
