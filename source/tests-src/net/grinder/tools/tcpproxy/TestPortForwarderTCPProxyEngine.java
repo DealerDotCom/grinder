@@ -24,6 +24,7 @@ package net.grinder.tools.tcpproxy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -123,8 +124,11 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
       new Socket(engine.getListenEndPoint().getHost(),
                  engine.getListenEndPoint().getPort());
 
+    final OutputStreamWriter outputStreamWriter =
+      new OutputStreamWriter(clientSocket.getOutputStream());
+    
     final PrintWriter clientWriter =
-      new PrintWriter(clientSocket.getOutputStream(), true);
+      new PrintWriter(outputStreamWriter, true);
 
     final String message =
       "This is some stuff\r\nWe expect to be echoed.\u00ff\u00fe";
@@ -148,7 +152,10 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
       response.write(buffer, 0, bytesRead);
     }
 
-    assertEquals(message, response.toString());
+    // Not sure why, but on some JVMs, this fails if we use BAOS.toString().
+    // Why should the default encoding used by OSW differ from that used
+    // by BAOS?
+    assertEquals(message, response.toString(outputStreamWriter.getEncoding()));
 
     clientSocket.close();
 
