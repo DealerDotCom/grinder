@@ -186,7 +186,10 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
         response.write(buffer, 0, bytesRead);
       }
 
-      final String s = response.toString();
+      // Workaround JRockit bug.
+      //final String s = response.toString();
+      final String s = response.toString(System.getProperty("file.encoding"));
+
       final Matcher matcher = terminalPattern.matcher(s);
 
       if (matcher.find()) {
@@ -520,7 +523,6 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
   }
 
   public void testHTTPProxyEngine() throws Exception {
-
     final AbstractTCPProxyEngine engine =
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
                                   m_requestFilter,
