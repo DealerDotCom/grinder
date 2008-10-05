@@ -1,0 +1,9 @@
+#Sun Oct 05 15:40:35 BST 2008
+eclipse.preferences.version=1
+flush_interval=1000
+flush_policy=0
+init_string_default=true
+init_string_project_relative=true
+instrumentation_enabled=true
+output_root=.clover/bin
+output_root_same_as_project=true
