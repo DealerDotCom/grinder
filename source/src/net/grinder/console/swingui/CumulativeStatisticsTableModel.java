@@ -51,6 +51,8 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel {
     super(model, sampleModelViews, resources, swingDispatcherFactory);
 
     m_totalString = resources.getString("table.total.label");
+
+    resetStatisticsViews();
   }
 
   public synchronized void resetStatisticsViews() {

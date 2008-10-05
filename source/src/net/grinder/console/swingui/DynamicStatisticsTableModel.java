@@ -83,12 +83,11 @@ abstract class DynamicStatisticsTableModel
     m_testDescriptionColumnString =
       m_resources.getString("table.descriptionColumn.label");
 
-    resetTests();
-    resetStatisticsViews();
-
     m_model.addModelListener(
       (SampleModel.Listener) swingDispatcherFactory.create(this));
     m_modelViews.addListener((Listener) swingDispatcherFactory.create(this));
+
+    resetTests();
   }
 
   protected abstract StatisticsSet getStatistics(int row);

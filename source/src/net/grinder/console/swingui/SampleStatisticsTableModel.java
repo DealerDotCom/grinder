@@ -42,6 +42,8 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
     SwingDispatcherFactory swingDispatcherFactory) {
 
     super(model, sampleModelViews, resources, swingDispatcherFactory);
+
+    resetStatisticsViews();
   }
 
   public synchronized void resetStatisticsViews() {
