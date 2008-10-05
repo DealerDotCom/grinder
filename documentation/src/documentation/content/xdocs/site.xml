@@ -36,32 +36,38 @@ See http://forrest.apache.org/docs/linking.html for more info
   <g3 label="The Grinder 3" href="g3/" tab="manual">
     <whats-new label="What's new?" href="whats-new.html"/>
     <features label="Features" href="features.html"/>
-    <getting-started label="Getting started" >
-      <getting-started-intro label="Introduction" href="getting-started.html">
-         <processes href="#The+Grinder+processes"/>
-         <howtostart href="#howtostart"/>
-      </getting-started-intro>
-      <properties label="Properties" href="properties.html">
-        <commandline href="#Specifying+properties+on+the+command+line"/>
-      </properties>
-      <console label="The Console" href="console.html">
+    <getting-started label="Getting started" href="getting-started.html">
+       <processes href="#The+Grinder+processes"/>
+       <howtostart href="#howtostart"/>
+    </getting-started>
+
+    <agents-and-workers label="Agents and Workers">
+      <processes label="Processes" href="agents-and-workers.html">
+        <agents href="#agent-processes"/>
+        <workers href="#worker-processes"/>
+      </processes>
+	    <properties label="Properties" href="properties.html">
+	      <commandline href="#Specifying+properties+on+the+command+line"/>
+	    </properties>
+	  </agents-and-workers>
+
+    <console label="The Console" href="console.html">
       <process-controls href="#process-controls"/>
-      </console>
-      <tcpproxy label="The TCPProxy" href="tcpproxy.html">
+      <script-tab href="#Script+tab"/>
+    </console>
+    <tcpproxy label="The TCPProxy" href="tcpproxy.html">
       <HTTPPluginTCPProxyFilter href="#HTTPPluginTCPProxyFilter"/>
     </tcpproxy>
-    </getting-started>
     <plugins label="Plug-ins">
       <http-plugin label="HTTP plug-in" href="http-plugin.html" >
           <string-bean href="#string-bean"/>
       </http-plugin>
     </plugins>
-    <statistics label ="Statistics" href="statistics.html"/>
+    <statistics label="Statistics" href="statistics.html"/>
     <scripts label="Scripts">
       <scripts-intro label="Introduction" href="scripts.html">
          <jython-installation href="#jython-installation"/>
       </scripts-intro>
-      <tutorial label="Tutorial" href="tutorial-perks.html"/>
       <script-gallery label="Script Gallery" href="script-gallery.html">
         <digestauthentication href="#digestauthentication"/>
         <helloworldfunctions href="#helloworldfunctions"/>
@@ -74,6 +80,10 @@ See http://forrest.apache.org/docs/linking.html for more info
     <ssl label="SSL support" href="ssl-support.html">
       <ssl-keymanager href="#own-key-manager"/>
     </ssl>
+    <advice label="Advice">
+      <project-structure label="Setting up a project" href="setting-up-a-project.html"/>
+      <tutorial label="Tutorial" href="tutorial-perks.html"/>
+    </advice>
     <manual href="manual.html" label="Complete User Guide" />
   </g3>
 

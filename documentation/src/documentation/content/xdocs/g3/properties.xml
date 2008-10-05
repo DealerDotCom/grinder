@@ -352,6 +352,11 @@
 <source>
 java -Dgrinder.logDirectory="log/$(date +%y%m%d)" net.grinder.Grinder
 </source>
+
+      <p>Property values set as Java system properties override values set in the
+      <code>grinder.properties</code> file. Only properties with names that
+      start "<code>grinder.</code>" are considered.
+      </p>
     </section>
   </body>
 </document>

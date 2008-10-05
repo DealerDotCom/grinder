@@ -115,7 +115,7 @@ class TestRunner:
     </section>
   <section>
       <title>Automatically generating scripts</title>
-    <p>If you are creating a script for a website or web application, you can use the <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a> to generate an HTTPPlugin script
+    <p>If you are creating a script for a website or web application, you can use the <a href="site:g3/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a> to generate an HTTPPlugin script
       suitable for use with The Grinder.</p>
   </section>
   </section>
@@ -266,7 +266,7 @@ class TestRunner:
     different version of Jython, obtain and install Jython and tell
     The Grinder where you installed it. You can do this either by
     adding the following to your
-    <a href="site:getting-started/properties">properties</a> file:</p>
+    <a href="site:properties">properties</a> file:</p>
 
     <source>
 grinder.jvm.arguments = -Dpython.home=/opt/jython/jython2.2.1
@@ -317,7 +317,7 @@ java -Dgrinder.jvm.arguments=-Dpython.home=/opt/jython/jython2.2.1 net.grinder.G
     <p>You can specify the cache directory either by setting the
     <code>python.home</code> as above (in which case the directory will
     that specified in the Python registry), or by setting the Java property
-    <code>python.cachedir</code> in your <a href="site:getting-started/properties">properties</a> file:
+    <code>python.cachedir</code> in your <a href="site:properties">properties</a> file:
     </p>
 
     <source>

@@ -19,10 +19,11 @@
 
     <p>The Grinder is a framework for running test scripts across a
     number of machines. The framework is comprised of three types of
-    <em>process</em> (or program). <em>Worker processes</em>,
-    <em>agent processes</em>, and the <em> <a
-    href="site:console">console</a></em>. The responsibilities of
-    each of the process types are:</p>
+    <em>process</em> (or program):
+    <em><a href="site:processes/workers">worker processes</a></em>,
+    <em><a href="site:processes/agents">agent processes</a></em>,
+    and the <em> <a href="site:console">console</a></em>.
+    The responsibilities of each of the process types are:</p>
 
     <ul>
       <li>
@@ -88,7 +89,7 @@
 
     <p>If you are creating a script to test a web site or web application, you
     can use the
-    <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">
+    <a href="site:g3/tcpproxy/HTTPPluginTCPProxyFilter">
     TCPProxy</a> to record a browser session as a script.</p>
   </section>
 
@@ -114,7 +115,7 @@
     <note>To change the console addresses, set the
     <code>grinder.consoleHost</code> and
     <code>grinder.consolePort</code> properties in the <a
-    href="site:g3/getting-started/properties"><code>grinder.properties</code></a>
+    href="site:properties"><code>grinder.properties</code></a>
     file before starting The Grinder agents. The values must match those specified
     in the console options dialog.</note>
   </section>
@@ -189,7 +190,7 @@ Totals        250           0             156.70       23.32
 
     <ol>
       <li>Create a <a
-      href="site:g3/getting-started/properties"><code>grinder.properties</code></a> file.
+      href="site:properties"><code>grinder.properties</code></a> file.
       This file specifies general control information (how the worker
       processes should contact the console, how many worker processes
       to use, ..), as well as the name of the Jython script that will
@@ -199,7 +200,7 @@ Totals        250           0             156.70       23.32
       <code>grinder.jar</code> file which can be found in the
       <code>lib</code> directory.<p/></li>
 
-      <li>Start the console on one of the test machines:
+      <li>Start the <a href="site:console">console</a> on one of the test machines:
 <source>
 java net.grinder.Console
 </source></li>
@@ -209,8 +210,10 @@ java net.grinder.Console
 <source>
 java net.grinder.Grinder
 </source>
-        <p>You can also specify an explicit properties file as the
-        first argument. For example:</p>
+        <p>The agent will look for the <code>grinder.properties</code> file
+        in the local directory. The Jython script is usually stored alongside
+        the properties file. If you like, you can also specify an explicit
+        properties file as the first argument. For example:</p>
 
 <source>
 java net.grinder.Grinder myproperties
@@ -222,10 +225,16 @@ java net.grinder.Grinder myproperties
     file. It has its own options dialog (choose the
     <em>File/Options</em> menu option) which you should use to set the
     communication addresses and ports to match those in the
-    <code>grinder.properties</code> files. The <a
-    href="site:console/process-controls">console controls</a> can be
+    <code>grinder.properties</code> files. The console <a
+    href="site:console/process-controls">process controls</a> can be
     used to trigger The Grinder test scenario. Each agent process then
     creates child worker processes to do the work.</p>
+
+    <note>
+    When you know a little more about the console, you can use it to
+    <a href="site:console/script-tab">edit and distribute properties files and
+    scripts</a> instead of copying them to each agent machine.
+    </note>
 
     <p>As the worker processes execute, they dynamically inform the
     console of the tests in the test script. If you start the console
@@ -235,10 +244,11 @@ java net.grinder.Grinder myproperties
     processes which will update the console with the new test
     information.</p>
 
-    <p>Included below are some sample shell scripts, for both unix/linux and windows,
-    for starting grinder agents, its console, and the HTTPProxy.</p>
+    <p>Included below are some sample scripts, for both Unix/Linux and
+    Windows, for starting grinder agents, the console, and the
+    <a href="site:tcpproxy">TCPProxy</a> for recording HTTP scripts.</p>
 
-    <p><strong>Windows:</strong></p>
+    <p><strong>Windows</strong></p>
     <ul>
      <li>setGrinderEnv.cmd:
 <source>
@@ -270,7 +280,7 @@ java -cp %CLASSPATH% net.grinder.TCPProxy -console -http > grinder.py
      </li>
     </ul>
 
-    <p><strong>Unix:</strong></p>
+    <p><strong>Unix</strong></p>
      <ul>
       <li>setGrinderEnv.sh:
 <source>
@@ -305,115 +315,6 @@ java -cp $CLASSPATH net.grinder.TCPProxy -console -http > grinder.py
 </source>
       </li>
      </ul>
-  </section>
-
-  <section id="howtosetup">
-    <title>How should I set up a project structure for The Grinder?</title>
-    <p>Well the short answer is however works best for you. Many people will already know how they want to set up
-    their directory structure and will have no issue implementing The Grinder as one of their many tools. For those
-    looking for a little guidance it is worth asking yourself questions like:</p>
-    <ul>
-      <li>How many projects will I be working on?</li>
-      <li>Will I need to revisit projects from time to time?</li>
-      <li>Do I need repeatability?</li>
-      <li>Is this a shared implementation?</li>
-      <li>...etc.</li>
-    </ul>
-    <p>Below is given an example of a directory structure for setting up The Grinder.</p>
-<source>
-.
-`- <strong>Grinder</strong>
-    |
-    |-- <strong>bin</strong>
-    |   |-- setGrinderEnv.sh/cmd
-    |   |-- startAgent.sh/cmd
-    |   |-- startConsole.sh/cmd
-    |   `-- startProxy.sh/cmd
-    |
-    |-- <strong>engine</strong>
-    |   |-- grinder-3.0-beta32
-    |   |-- grinder-3.0
-    |   `-- ...
-    |
-    |-- <strong>etc</strong>
-    |   |-- grinder.properties
-    |   `-- ...
-    |
-    |-- <strong>jvm</strong>
-    |   |-- jdk1.3
-    |   |-- jdk1.4.02
-    |   `-- ...
-    |
-    |-- <strong>lib</strong>
-    |   |-- jython2.1
-    |   |-- jdom-1.0
-    |   |-- xerces_2_6_0
-    |   |-- xerces-2_6_2
-    |   |-- oracle
-    |   `-- ...
-    |
-    |-- <strong>logs</strong>
-    |   `-- ...
-    |
-    `-- <strong>projects</strong>
-        |-- website_project
-        |   |-- httpscript.py
-        |   |-- httpscript_tests.py
-        |   `-- ...
-        |
-        |-- db_project
-        |   |-- jdbc.py
-        |   `-- ...
-        |
-        `-- ...
-</source>
-    <p>First off the <strong>bin</strong> directory has been created for storing executable files for the implementation.
-    The sample start scripts from <a href="#howtostart"> "How do I start The Grinder?"</a> have been included in this directory.
-    The <strong>engine</strong> directory has been created for storing the versions
-    of The Grinder that may be used. Strictly speaking the versions of The Grinder could be stored under the <strong>lib</strong>
-    directory but for this example The Grinder has been given its own directory. The <strong>etc</strong> directory has been created
-    to store the configuration files for the implementation such as the grinder.properties file. The <strong>jvm</strong> directory has been
-    created to store the various jdks and their versions that could be used in testing. The <strong>lib</strong> directory has been
-    created to store the various third party libraries and their respective versions that projects may require. For example if you
-    wanted to use the full set of <a href="site:g3/scripts/scripts-intro/jython-installation">libraries</a> which come with jython
-    then this is the directory into which you would install. Remember to update your CLASSPATH with the libraries you require. The <strong>logs
-    </strong> has been created to store the various logs that the grinder generates during its runs.The <strong>projects</strong>
-    directory has been created to store the scripts to be run by The Grinder and organise them by project/body of work.</p>
-
-    <p>The above example would be useful as a simple implementation for one person who works on one project at a time.
-    As the number of projects grows, more people share the implementation, or projects need
-    to be revisited with repeatability ensured, then it makes sense, in this example, to
-    modularize the implementation around the projects. To do this simply create the <strong>bin</strong>, <strong>etc</strong> and <strong>logs</strong>
-    directories under the respective projects like so:</p>
-<source>
-    |
-    `-- <strong>projects</strong>
-        |-- website_project
-        |   |-- <strong>bin</strong>
-        |   |   |-- setGrinderEnv.sh/cmd
-        |   |   |-- startAgent.sh/cmd
-        |   |   |-- startConsole.sh/cmd
-        |   |   `-- startProxy.sh/cmd
-        |   |-- <strong>etc</strong>
-        |   |   |-- grinder.properties
-        |   |   `-- ...
-        |   |-- httpscript.py
-        |   |-- httpscript_tests.py
-        |   |-- <strong>logs</strong>
-        |   |   `-- ...
-        |   `-- ...
-        |
-        |-- db_project
-</source>
-
-   <p>Once this has been done the environment can be set to use the engine, jvm and libraries required by a particular project, rather
-   than setting the environment for all the projects (as would happen in the simple implementation). This allows you, for example, to
-   retain projects which were run using legacy versions of libraries and/or engine and re-run them at a later date with the same setup.
-   Also different projects may require different versions of the same library which would have caused issues when using an implementation-wide
-   CLASSPATH. The grinder.properties file can also be customised on a per project basis.</p>
-
-   <p>Modularizing the implementation like this gives greater flexibility and repeatability and opens up the prospect of multiple
-   people using the implementation concurrently.</p>
   </section>
 
 </body>

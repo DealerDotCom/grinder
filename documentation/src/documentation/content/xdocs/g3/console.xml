@@ -8,7 +8,7 @@
 </header>
 <body>
 
-  <p>Follow <a href="site:getting-started-intro/howtostart">these instructions</a> to start the console.</p>
+  <p>Follow <a href="site:getting-started/howtostart">these instructions</a> to start the console.</p>
 
   <figure src="../images/console-screenshot-g3.png" width="778" height="551" alt="The Console"/>
 
@@ -18,7 +18,7 @@
     <p>The <em>Start processes</em>, <em>Reset processes</em>, and <em>Stop
     processes</em> menu items send signals to Grinder processes that are
     listening. (See the <a
-    href="site:getting-started/properties">properties</a>
+    href="site:properties">properties</a>
     <code>grinder.useConsole</code>, <code>grinder.consoleHost</code>
     and <code>consolePort</code>.) <em>Start processes</em> and
     <em>Reset processes</em> are also tool bar buttons. </p>
@@ -70,7 +70,7 @@
     these only control the console behaviour. For example, they do not
     adjust the frequency at which the worker processes send reports
     (see <a
-    href="site:getting-started/properties"><code>grinder.reportToConsole.interval</code></a>
+    href="site:properties"><code>grinder.reportToConsole.interval</code></a>
     for that). Additionally, the sample controls do not interact in
     any way with the process controls.</p>
 
@@ -323,7 +323,7 @@
        <p>
        The properties sent from the console are combined with any set
        in a <code>grinder.properties</code> file in the agent's working directory
-       or <a href="site:getting-started/properties/commandline">set
+       or <a href="site:properties/commandline">set
        on the agent command line</a>. If a property is specified in several
        places, the order of precedence is</p>
        <ul>

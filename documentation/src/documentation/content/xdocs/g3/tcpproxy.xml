@@ -338,18 +338,18 @@ instrumentMethod(Test(200, 'Page 2'), 'page2')
   <ol>
 
   <li>You can create a simple
-    <a href="site:g3/getting-started/properties"><code>grinder.properties</code></a>
+    <a href="site:properties"><code>grinder.properties</code></a>
     file and you can replay the recorded scenario with The Grinder.
-    Your properties file should at least set <a
-    href="site:g3/getting-started/properties"><code>grinder.script</code></a> to
+    Your properties file should at least set <code>grinder.script</code> to
     <code>grinder.py</code>.</li>
 
-  <li>Alternately you can use the Grinder <a href="site:g3/getting-started/console">console</a>
-  to distribute your script to an	agent and set it as the script to run.
+  <li>Alternately you can use the console
+  to <a href="site:g3/console/script-tab">distribute your script to an agent
+  and set it as the script to run</a>.
   Each agent will still need a simple
-  <a href="site:g3/getting-started/properties"><code>grinder.properties</code></a> file
-  , though you will not need to set the <a
-    href="site:g3/getting-started/properties"><code>grinder.script</code></a> property.</li>
+  <a href="site:properties"><code>grinder.properties</code></a> file
+  containing the console address, though you will not need to set the
+  <code>grinder.script</code> property.</li>
 
   </ol>
 
@@ -535,7 +535,7 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
       <td>Display a simple console that has a control button that
       allows The TCPProxy to be shutdown cleanly. This can help in
       certain situations where a hard kill of the TCPProxy process
-      would loose output that is still buffered in memory .</td>
+      would loose output that is still buffered in memory.</td>
     </tr>
 
     <tr>

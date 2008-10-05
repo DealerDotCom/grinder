@@ -187,7 +187,7 @@ number of worker threads x number of worker processes x number test machines
   seconds, set the console to collect 720 samples.</p>
 
   <p>If you're not using the console, see <a
-  href="site:getting-started/properties">grinder.duration</a>.</p>
+  href="site:g3/agents-and-workers/properties">grinder.duration</a>.</p>
       </answer>
     </faq>
 
@@ -649,7 +649,7 @@ finally {
     <p>As of The Grinder 2.6.1 you can set a property (<a
     href="site:g2/getting-started/properties">grinder.recordTime</a> for
     The Grinder 2, renamed to
-    <a href="site:g3/getting-started/properties">grinder.reportTimesToConsole</a>
+    <a href="site:g3/agents-and-workers/properties">grinder.reportTimesToConsole</a>
     for The Grinder 3) to be
     <code>false</code> which will cause the worker processes that use
     that <code>grinder.properties</code> file not report the test
@@ -661,8 +661,8 @@ finally {
     <em>timer client</em> machine, change the
     <code>grinder.recordTime</code>/<code>grinder.reportTimesToConsole</code>
     property to be <code>true</code>, and set <a
-    href="site:g2/getting-started/properties">grinder.processes</a> and <a
-    href="site:g2/getting-started/properties">grinder.threads</a> to <code>1</code>.
+    href="site:g3/agents-and-workers/properties">grinder.processes</a> and <a
+    href="site:g3/agents-and-workers/properties">grinder.threads</a> to <code>1</code>.
     The single worker process will run on the timing client, record
     all timing information and (optionally) report it to the console.
     The less other stuff you run on the timing client, the better.</p>
@@ -985,7 +985,7 @@ grinder.test0.parameter.post=getPostData.dat
       to do that.
       </p>
 
-      <p>First identify the relevant <a href="site:g3/getting-started/getting-started-intro/processes">process</a>,
+      <p>First identify the relevant <a href="site:g3/getting-started/processes">process</a>,
       and start it from a command line terminal. The output will go to the
       command line, so either set the terminal up so that it has plenty of lines
       of scroll-back or redirect the output of the process to a file. For
@@ -1060,7 +1060,7 @@ grinder.jvm.arguments: -Dpython.cachedir=/tmp
       <p>Using the Grinder 3 it is possible to automatically generate a script
       of your HTTP journey. To do this you need to make use of the TCPProxy and its
       associated HTTP TCPProxy filters. The recommended filter to use is "-http" as the
-      other filters are now deprecated. See this <a href="site:g3/getting-started/tcpproxy/HTTPPluginTCPProxyFilter">link</a>
+      other filters are now deprecated. See this <a href="site:g3/tcpproxy/HTTPPluginTCPProxyFilter">link</a>
       for how to use the TCPProxy and the recommended filter.</p>
       </answer>
     </faq>
@@ -1538,7 +1538,7 @@ modify your script to remove duplicate requests.</p>
   differences between those that a browser send, but which
   rarely affect server behaviour. Its worth knowing how to
   examine the differences with the TCPProxy. First <a
-  href="site:g3/getting-started/tcpproxy">set the TCPProxy as a browser
+  href="site:g3/tcpproxy">set the TCPProxy as a browser
   proxy</a> and record the output to a file. Secondly alter your
   tests so that all requests go via the TCPProxy (the best way
   is to set the test script connections to direct requests via

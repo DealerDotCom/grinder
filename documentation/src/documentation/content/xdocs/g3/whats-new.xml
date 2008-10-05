@@ -10,7 +10,7 @@
 <body>
   <p>This section summarises the changes between The Grinder 2 and The
   Grinder 3. If you're not familiar with The Grinder 2, skim read this
-  and move on to <a href="site:g3/getting-started/getting-started-intro">Getting
+  and move on to <a href="site:g3/getting-started">Getting
   Started</a>.</p>
 
   <note>Please read <a href="site:gfaq/common/g2vsg3">Should I use The Grinder
@@ -100,7 +100,7 @@
       with The Grinder 3.</li>
 
       <li>Many <a
-      href="site:getting-started/properties"><code>grinder.properties</code></a>
+      href="site:properties"><code>grinder.properties</code></a>
       have been removed. The features formerly accessed through
       setting properties are now set by making calls to the plug-in
       from test scripts. Some of the remaining property names have
