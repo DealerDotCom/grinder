@@ -10,9 +10,13 @@ The Grinder 3.1.1 (not yet released)
   Fix bug 2092881 - Agents do not start first time after reset if console
   overrides consoleHost or consolePort properties. Thanks to HappySpaceInvader
   for the report.
-  
+
   Fix bug 2138601 - Moving table columns results in incorrect formatting.
   Thanks to Walter Tuvell for the report.
+
+  Add stream based versions of POST, PUT, OPTIONS to HTTPRequest. This allows
+  arbitrarily large amount of data can be sent without requiring a
+  corresponding amount of memory. Thanks to Walter Tuvell for the suggestion.
 
 
 The Grinder 3.1
@@ -588,7 +592,7 @@ Grinder 3.0-beta23
   be overridden in scripts initialistion section.
 
   Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP
-  URLs. Thanks to Thomas Böhne for reporting problems.
+  URLs. Thanks to Thomas Bï¿½hne for reporting problems.
 
   Fix another bug in HTTPClient related to responses with a
   Content-Length of 0. Thanks to John Lee for the report.
@@ -604,7 +608,7 @@ Grinder 3.0-beta23
   new statistics measuring time to resolve host names (DNS), time to
   establish the connection, and time to first byte.
 
-  XML-RPC example from Sebastián Fontana.
+  XML-RPC example from Sebastiï¿½n Fontana.
 
 
 Grinder 3.0-beta22
@@ -1442,7 +1446,7 @@ Grinder 2.6.3
   Split the documentation of the plugins and the TCPSniffer into
   separate files.
 
-  The HTTP plugin now has experimental support for Ronald Tschalär's
+  The HTTP plugin now has experimental support for Ronald Tschalï¿½r's
   excellent HTTPClient library instead of HttpURLConnection.
   HTTPClient has many more features than HttpURLConnection, see
   http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html

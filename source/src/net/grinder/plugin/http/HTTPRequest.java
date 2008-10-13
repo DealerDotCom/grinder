@@ -29,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.HttpURLConnection;
 import java.util.HashSet;
@@ -50,6 +51,7 @@ import net.grinder.util.StreamCopier;
 
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
+import HTTPClient.HttpOutputStream;
 import HTTPClient.ModuleException;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
@@ -591,6 +593,64 @@ public class HTTPRequest {
   }
 
   /**
+   * Makes an HTTP <code>OPTIONS</code> request. This version allows the data
+   * to be passed as a stream, so an arbitrarily large amount of data can be
+   * sent without requiring a corresponding amount of memory.
+   *
+   * @param uri The URI. If a default URL has been specified with
+   * {@link #setUrl}, this value need not be absolute and, if
+   * relative, it will be resolved relative to the default URL.
+   * Otherwise this value must be an absolute URL.
+   * @param inputStream Data to be submitted in the body of the request.
+   * This stream will be fully read and closed when the method is called.
+   * The value set with {@link #setData} is ignored.
+   * @return Contains details of the server's response.
+   * @throws Exception If an error occurs.
+   */
+  public final HTTPResponse OPTIONS(String uri, InputStream inputStream)
+    throws Exception {
+    return OPTIONS(uri, inputStream, getHeaders());
+  }
+
+
+  /**
+   * Makes an HTTP <code>OPTIONS</code> request. This version allows the data
+   * to be passed as a stream, so an arbitrarily large amount of data can be
+   * sent without requiring a corresponding amount of memory.
+   *
+   * @param uri The URI. If a default URL has been specified with
+   * {@link #setUrl}, this value need not be absolute and, if
+   * relative, it will be resolved relative to the default URL.
+   * Otherwise this value must be an absolute URL.
+   * @param inputStream Data to be submitted in the body of the request.
+   * This stream will be fully read and closed when the method is called.
+   * The value set with {@link #setData} is ignored.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
+   * @return Contains details of the server's response.
+   * @throws Exception If an error occurs.
+   */
+  public final HTTPResponse OPTIONS(final String uri,
+                                    final InputStream inputStream,
+                                    final NVPair[] headers) throws Exception {
+
+    return new AbstractStreamingRequest(uri) {
+        InputStream getInputStream() {
+          return inputStream;
+        }
+
+        HTTPResponse doStreamingRequest(HTTPConnection connection,
+                                        String path,
+                                        HttpOutputStream outputStream)
+          throws IOException, ModuleException {
+          return connection.Options(path, mergeHeaders(headers), outputStream);
+        }
+      }
+      .getHTTPResponse();
+  }
+
+  /**
    * Makes an HTTP <code>POST</code> request.
    *
    * @return Contains details of the server's response.
@@ -726,6 +786,64 @@ public class HTTPRequest {
   }
 
   /**
+   * Makes an HTTP <code>POST</code> request. This version allows the data
+   * to be passed as a stream, so an arbitrarily large amount of data can be
+   * sent without requiring a corresponding amount of memory.
+   *
+   * @param uri The URI. If a default URL has been specified with
+   * {@link #setUrl}, this value need not be absolute and, if
+   * relative, it will be resolved relative to the default URL.
+   * Otherwise this value must be an absolute URL.
+   * @param inputStream Data to be submitted in the body of the request.
+   * This stream will be fully read and closed when the method is called.
+   * The value set with {@link #setData} is ignored.
+   * @return Contains details of the server's response.
+   * @throws Exception If an error occurs.
+   */
+  public final HTTPResponse POST(String uri, InputStream inputStream)
+    throws Exception {
+    return POST(uri, inputStream, getHeaders());
+  }
+
+
+  /**
+   * Makes an HTTP <code>POST</code> request. This version allows the data
+   * to be passed as a stream, so an arbitrarily large amount of data can be
+   * sent without requiring a corresponding amount of memory.
+   *
+   * @param uri The URI. If a default URL has been specified with
+   * {@link #setUrl}, this value need not be absolute and, if
+   * relative, it will be resolved relative to the default URL.
+   * Otherwise this value must be an absolute URL.
+   * @param inputStream Data to be submitted in the body of the request.
+   * This stream will be fully read and closed when the method is called.
+   * The value set with {@link #setData} is ignored.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
+   * @return Contains details of the server's response.
+   * @throws Exception If an error occurs.
+   */
+  public final HTTPResponse POST(final String uri,
+                                 final InputStream inputStream,
+                                 final NVPair[] headers) throws Exception {
+
+    return new AbstractStreamingRequest(uri) {
+        InputStream getInputStream() {
+          return inputStream;
+        }
+
+        HTTPResponse doStreamingRequest(HTTPConnection connection,
+                                        String path,
+                                        HttpOutputStream outputStream)
+          throws IOException, ModuleException {
+          return connection.Post(path, outputStream, mergeHeaders(headers));
+        }
+      }
+      .getHTTPResponse();
+  }
+
+  /**
    * Makes an HTTP <code>PUT</code> request.
    *
    * @return Contains details of the server's response.
@@ -791,6 +909,63 @@ public class HTTPRequest {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
           return connection.Put(path, data, mergeHeaders(headers));
+        }
+      }
+      .getHTTPResponse();
+  }
+
+  /**
+   * Makes an HTTP <code>PUT</code> request. This version allows the data
+   * to be passed as a stream, so an arbitrarily large amount of data can be
+   * sent without requiring a corresponding amount of memory.
+   *
+   * @param uri The URI. If a default URL has been specified with
+   * {@link #setUrl}, this value need not be absolute and, if
+   * relative, it will be resolved relative to the default URL.
+   * Otherwise this value must be an absolute URL.
+   * @param inputStream Data to be submitted in the body of the request.
+   * This stream will be fully read and closed when the method is called.
+   * The value set with {@link #setData} is ignored.
+   * @return Contains details of the server's response.
+   * @throws Exception If an error occurs.
+   */
+  public final HTTPResponse PUT(String uri, InputStream inputStream)
+    throws Exception {
+    return PUT(uri, inputStream, getHeaders());
+  }
+
+  /**
+   * Makes an HTTP <code>PUT</code> request. This version allows the data
+   * to be passed as a stream, so an arbitrarily large amount of data can be
+   * sent without requiring a corresponding amount of memory.
+   *
+   * @param uri The URI. If a default URL has been specified with
+   * {@link #setUrl}, this value need not be absolute and, if
+   * relative, it will be resolved relative to the default URL.
+   * Otherwise this value must be an absolute URL.
+   * @param inputStream Data to be submitted in the body of the request.
+   * This stream will be fully read and closed when the method is called.
+   * The value set with {@link #setData} is ignored.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
+   * @return Contains details of the server's response.
+   * @throws Exception If an error occurs.
+   */
+  public final HTTPResponse PUT(final String uri,
+                                final InputStream inputStream,
+                                final NVPair[] headers) throws Exception {
+
+    return new AbstractStreamingRequest(uri) {
+        InputStream getInputStream() {
+          return inputStream;
+        }
+
+        HTTPResponse doStreamingRequest(HTTPConnection connection,
+                                        String path,
+                                        HttpOutputStream outputStream)
+          throws IOException, ModuleException {
+          return connection.Put(path, outputStream, mergeHeaders(headers));
         }
       }
       .getHTTPResponse();
@@ -1033,6 +1208,34 @@ public class HTTPRequest {
     }
 
     abstract HTTPResponse doRequest(HTTPConnection connection, String path)
+      throws IOException, ModuleException;
+  }
+
+  private abstract class AbstractStreamingRequest extends AbstractRequest {
+
+    public AbstractStreamingRequest(String uri)
+      throws ParseException, URLException {
+      super(uri);
+    }
+
+    HTTPResponse doRequest(HTTPConnection connection, String path)
+      throws IOException, ModuleException {
+
+      final HttpOutputStream outputStream = new HttpOutputStream();
+
+      final HTTPResponse result =
+        doStreamingRequest(connection, path, outputStream);
+
+      new StreamCopier(4096, true).copy(getInputStream(), outputStream);
+
+      return result;
+    }
+
+    abstract InputStream getInputStream();
+
+    abstract HTTPResponse doStreamingRequest(HTTPConnection connection,
+                                             String path,
+                                             HttpOutputStream outputStream)
       throws IOException, ModuleException;
   }
 

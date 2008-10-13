@@ -21,9 +21,11 @@
 
 package net.grinder.plugin.http;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Random;
 
 import junit.framework.TestCase;
 
@@ -60,6 +62,8 @@ import HTTPClient.ParseException;
  * @version $Revision$
  */
 public class TestHTTPRequest extends TestCase {
+  private static final Random s_random = new Random();
+
   private final RandomStubFactory m_scriptContextStubFactory =
     new RandomStubFactory(ScriptContext.class);
 
@@ -436,14 +440,14 @@ public class TestHTTPRequest extends TestCase {
     assertEquals(200, response3.getStatusCode());
     assertEquals("OPTIONS / HTTP/1.1", m_handler.getRequestFirstHeader());
 
-    final byte[] data4 = { 0, 1, 2, 3, 4, };
+    final byte[] data4 = randomBytes(10);
 
     final HTTPResponse response4 = request.OPTIONS("/blah", data4);
     assertEquals(200, response4.getStatusCode());
     assertEquals("OPTIONS /blah HTTP/1.1", m_handler.getRequestFirstHeader());
     AssertUtilities.assertArraysEqual(data4, m_handler.getLastRequestBody());
 
-    final byte[] data5 = { 23, 45, -21, -124 , 9, 44, 2 };
+    final byte[] data5 = randomBytes(100);
 
     request.setUrl(m_handler.getURL() + "/lah/");
     request.setData(data5);
@@ -460,6 +464,23 @@ public class TestHTTPRequest extends TestCase {
     final HTTPResponse response6 = request.OPTIONS();
     assertEquals(200, response6.getStatusCode());
     assertEquals("OPTIONS /lah/ HTTP/1.1", m_handler.getRequestFirstHeader());
+    m_handler.assertRequestContainsHeader("key: value");
+
+    final byte[] data6 = randomBytes(10000);
+
+    final HTTPResponse response7 =
+      request.OPTIONS("/blah", new ByteArrayInputStream(data6));
+    assertEquals(200, response7.getStatusCode());
+    assertEquals("OPTIONS /blah HTTP/1.1", m_handler.getRequestFirstHeader());
+    AssertUtilities.assertArraysEqual(data6, m_handler.getLastRequestBody());
+
+    final byte[] data7 = randomBytes(10000);
+
+    final HTTPResponse response8 =
+      request.OPTIONS("/blah", new ByteArrayInputStream(data7), headers6);
+    assertEquals(200, response8.getStatusCode());
+    assertEquals("OPTIONS /blah HTTP/1.1", m_handler.getRequestFirstHeader());
+    AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
     m_handler.assertRequestContainsHeader("key: value");
   }
 
@@ -493,14 +514,14 @@ public class TestHTTPRequest extends TestCase {
     assertEquals(200, response3.getStatusCode());
     assertEquals("POST / HTTP/1.1", m_handler.getRequestFirstHeader());
 
-    final byte[] data4 = { 0, 1, 2, 3, 4, };
+    final byte[] data4 = randomBytes(10);
 
     final HTTPResponse response4 = request.POST("/blah", data4);
     assertEquals(200, response4.getStatusCode());
     assertEquals("POST /blah HTTP/1.1", m_handler.getRequestFirstHeader());
     AssertUtilities.assertArraysEqual(data4, m_handler.getLastRequestBody());
 
-    final byte[] data5 = { 23, 45, -21, -124 , 9, 44, 2 };
+    final byte[] data5 = randomBytes(100);
 
     request.setUrl(m_handler.getURL() + "/lah/");
     request.setData(data5);
@@ -558,6 +579,23 @@ public class TestHTTPRequest extends TestCase {
     assertEquals("POST /lah/ HTTP/1.1", m_handler.getRequestFirstHeader());
     final String bodyText10 = new String(m_handler.getLastRequestBody());
     assertTrue(bodyText10.indexOf("Vessel=Grace+of+Lefkas") > -1);
+
+    final byte[] data6 = randomBytes(10000);
+
+    final HTTPResponse response11 = request.POST("/bhxhh",
+                                                 new ByteArrayInputStream(data6));
+    assertEquals(200, response11.getStatusCode());
+    assertEquals("POST /bhxhh HTTP/1.1", m_handler.getRequestFirstHeader());
+    AssertUtilities.assertArraysEqual(data6, m_handler.getLastRequestBody());
+
+    final byte[] data7 = randomBytes(10000);
+
+    final HTTPResponse response12 =
+      request.POST("/bhxhh", new ByteArrayInputStream(data7), headers6);
+    assertEquals(200, response12.getStatusCode());
+    assertEquals("POST /bhxhh HTTP/1.1", m_handler.getRequestFirstHeader());
+    AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
+    m_handler.assertRequestContainsHeader("key: value");
   }
 
   public void testPUT() throws Exception {
@@ -590,14 +628,14 @@ public class TestHTTPRequest extends TestCase {
     assertEquals(200, response3.getStatusCode());
     assertEquals("PUT / HTTP/1.1", m_handler.getRequestFirstHeader());
 
-    final byte[] data4 = { 0, 1, 2, 3, 4, };
+    final byte[] data4 = randomBytes(10);
 
     final HTTPResponse response4 = request.PUT("/blah", data4);
     assertEquals(200, response4.getStatusCode());
     assertEquals("PUT /blah HTTP/1.1", m_handler.getRequestFirstHeader());
     AssertUtilities.assertArraysEqual(data4, m_handler.getLastRequestBody());
 
-    final byte[] data5 = { 23, 45, -21, -124 , 9, 44, 2 };
+    final byte[] data5 = randomBytes(100);
 
     request.setUrl(m_handler.getURL() + "/lah/");
     request.setData(data5);
@@ -615,6 +653,14 @@ public class TestHTTPRequest extends TestCase {
     assertEquals(200, response6.getStatusCode());
     assertEquals("PUT /lah/ HTTP/1.1", m_handler.getRequestFirstHeader());
     m_handler.assertRequestContainsHeader("key: value");
+
+    final byte[] data7 = randomBytes(10000);
+
+    final HTTPResponse response7 = request.PUT("/bhhh",
+                                               new ByteArrayInputStream(data7));
+    assertEquals(200, response7.getStatusCode());
+    assertEquals("PUT /bhhh HTTP/1.1", m_handler.getRequestFirstHeader());
+    AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
   }
 
   public void testTRACE() throws Exception {
@@ -683,7 +729,7 @@ public class TestHTTPRequest extends TestCase {
 
     final OutputStream out = new FileOutputStream(file);
 
-    final byte[] data5 = { 23, 45, -21, -124 , 9, 44, 2 };
+    final byte[] data5 = randomBytes(10);
 
     out.write(data5);
     out.close();
@@ -721,6 +767,7 @@ public class TestHTTPRequest extends TestCase {
         302,
         HttpURLConnection.HTTP_MOVED_PERM,
         HttpURLConnection.HTTP_MOVED_TEMP,
+        307,
     };
 
     for (int i = 0; i < redirectCodes.length; ++i) {
@@ -935,7 +982,12 @@ public class TestHTTPRequest extends TestCase {
     final HTTPResponse response2 = request.GET(m_handler.getURL());
     assertEquals(200, response2.getStatusCode());
     assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
+  }
 
+  private static byte[] randomBytes(int max) {
+    final byte[] result = new byte[s_random.nextInt(max)];
+    s_random.nextBytes(result);
+    return result;
   }
 
   private static class ListTimeAuthority implements TimeAuthority {
