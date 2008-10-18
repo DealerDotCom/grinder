@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -99,6 +99,24 @@ public class TestCookie extends TestCase {
   public void testDotNetHttpOnlyNonsense() throws Exception {
     Cookie.parse(".ASPXANONYMOUS=AcbBC8KU9yE3MmQyMDA1Ni0wZDlmLTQ0MjktYWI2NS0zMTUwOGQwZmZhNTk1; expires=Wed, 16-Aug-2006 04:12:47 GMT; path=/;HttpOnly, language=en-US; path=/;HttpOnly",
       m_roRequest);
+  }
+
+  public void testFixForBug1576609() throws Exception {
+    m_roRequestStubFactory.setHost("khan.idc.shaw.ca");
+
+    final Cookie[] cookies =
+      Cookie.parse(
+        "ssogrp1-uwc=131088949714C3AFD48A39038260AD79;Domain=.shaw.ca;Path=/",
+        m_roRequest);
+
+    assertEquals(1, cookies.length);
+
+    final Cookie[] cookies2 =
+      Cookie.parse(
+        "ssogrp1-uwc=131088949714C3AFD48A39038260AD79;Domain=.ca;Path=/",
+        m_roRequest);
+
+    assertEquals(0, cookies2.length);
   }
 
   public static final class RoRequestStubFactory extends RandomStubFactory {

@@ -18,6 +18,11 @@ The Grinder 3.1.1 (not yet released)
   arbitrarily large amount of data can be sent without requiring a
   corresponding amount of memory. Thanks to Walter Tuvell for the suggestion.
 
+  Fix bug 1576609 - "Accept Cookie" rules too strict. I've relaxed the
+  rules about what cookie domains are acceptable to The Grinder, better to
+  align it with current browser implementations. Thanks to Bryan Cornies for
+  the report.
+
 
 The Grinder 3.1
 ---------------
