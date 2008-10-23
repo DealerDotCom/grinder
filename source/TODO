@@ -68,7 +68,7 @@ Task: Distribution file filter should be dynamically settable.
 ** Console
 
 *** Stop the recording when last thread terminates
-Requested by Jürgen Weber
+Requested by Jï¿½rgen Weber
 
 *** Refactoring
 
@@ -115,6 +115,11 @@ its license terms are acceptable. Apparently now available.
 ** Engine
 
 There should be an ExternalFilenameFactory, cf ExternalLogger.
+
+
+Support for some sort of "Surrogate task" that is run in a pool of threads and
+has its own statistics context would be good.
+
 
 *** Interactive mode
 
@@ -192,7 +197,7 @@ Remove ParseException, ProtocolNotSuppException from public APIs.
 
 Script support for HTTP "system property" options.
 
-Pablo Estades Fernández says:
+Pablo Estades Fernï¿½ndez says:
  > I need to use client cert on TCPProxy to be able to
  > record the test case but also I need to configure
  > grinder workers to run the test case presenting a
