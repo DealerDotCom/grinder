@@ -1,6 +1,7 @@
-#Sat Oct 18 16:43:57 BST 2008
+#Sat Oct 25 17:03:57 BST 2008
 block_filters=Source Directive
 eclipse.preferences.version=1
+exclude_filter=**/tests-src/*.java
 flush_interval=1000
 flush_policy=0
 include_filter=**/*.java
