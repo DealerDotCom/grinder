@@ -194,7 +194,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    * @throws NoActivityTimeOutException If the accept timed out, and
    * we have no active threads handling connections.
    */
-  protected Socket accept() throws IOException, NoActivityTimeOutException {
+  protected Socket accept() throws NoActivityTimeOutException, IOException {
     while (true) {
       try {
         return m_serverSocket.accept();

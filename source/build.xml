@@ -36,7 +36,7 @@ The following optional packages are necessary to run The Grinder unit
 tests, reports, and release process.
 
   - JUnit 3.8.1
-  - Checkstyle 4.2
+  - Checkstyle 4.4
   - Clover 2.0.3
   - svnant 1.0.0
 

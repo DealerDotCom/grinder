@@ -149,7 +149,7 @@ public class Grinder {
      *  another worker thread.
      * @throws GrinderException If the new worker thread could not be started.
      */
-    int startWorkerThread() throws InvalidContextException, GrinderException;
+    int startWorkerThread() throws GrinderException;
 
     /**
      * Get a {@link net.grinder.common.FilenameFactory} that can be

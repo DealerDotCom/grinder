@@ -29,6 +29,7 @@
         <module name="JavadocMethod">
           <property name="scope" value="protected"/>
           <property name="allowUndeclaredRTE" value="true"/>
+          <property name="allowThrowsTagsForSubclasses" value="true"/>
 
         <!-- Work around for Checklipse 2.1.0 issues. See
             http://www.arcknowledge.com/gmane.comp.db.axion.devel/2006-10/msg00017.html

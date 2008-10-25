@@ -26,6 +26,9 @@
   <suppress checks="JavadocMethod" files="Statistics.java"/>
 
   <!-- Requires a large number of parameters. -->
-  <suppress checks="ParameterNumberCheck" files="ScriptContextImplementation.java"/>
+  <suppress checks="ParameterNumber" files="ScriptContextImplementation.java"/>
+
+  <!-- Appears to be broken with Checkstyle 4.4 -->
+  <suppress checks="HideUtilityClassConstructor" files=".*.java"/>
 
 </suppressions>
