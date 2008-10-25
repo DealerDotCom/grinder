@@ -37,7 +37,7 @@ public class TestGrinderProcess extends TestCase {
     final Condition c = new Condition();
 
     final ThreadSynchronisation ts =
-      new GrinderProcess.ThreadSynchronisation(c, (short)0);
+      new GrinderProcess.ThreadSynchronisation(c);
 
     assertEquals(0, ts.getTotalNumberOfThreads());
     assertEquals(0, ts.getNumberOfRunningThreads());
@@ -53,7 +53,7 @@ public class TestGrinderProcess extends TestCase {
     final Thread[] threads = new Thread[100];
 
     final ThreadSynchronisation ts =
-      new GrinderProcess.ThreadSynchronisation(c, (short)100);
+      new GrinderProcess.ThreadSynchronisation(c);
 
     for (int i = 0; i < threads.length; ++i) {
       threads[i] = new Thread(new MyRunnable(ts, i % 3 == 0));
@@ -88,6 +88,7 @@ public class TestGrinderProcess extends TestCase {
     public MyRunnable(ThreadSynchronisation ts, boolean failBeforeStart) {
       m_ts = ts;
       m_failBeforeStart = failBeforeStart;
+      ts.threadCreated();
     }
 
     public void run() {

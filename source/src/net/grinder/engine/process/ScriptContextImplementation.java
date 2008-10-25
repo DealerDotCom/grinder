@@ -50,6 +50,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
   private final SSLControl m_sslControl;
   private final Statistics m_scriptStatistics;
   private final TestRegistry m_testRegistry;
+  private final ThreadStarter m_threadStarter;
 
   public ScriptContextImplementation(WorkerIdentity workerIdentity,
                                      ThreadContextLocator threadContextLocator,
@@ -59,7 +60,8 @@ final class ScriptContextImplementation implements InternalScriptContext {
                                      Sleeper sleeper,
                                      SSLControl sslControl,
                                      Statistics scriptStatistics,
-                                     TestRegistry testRegistry) {
+                                     TestRegistry testRegistry,
+                                     ThreadStarter threadStarter) {
     m_workerIdentity = workerIdentity;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
@@ -69,6 +71,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
     m_sslControl = sslControl;
     m_scriptStatistics = scriptStatistics;
     m_testRegistry = testRegistry;
+    m_threadStarter = threadStarter;
   }
 
   public int getAgentNumber() {
@@ -113,6 +116,10 @@ final class ScriptContextImplementation implements InternalScriptContext {
 
   public void sleep(long meanTime, long sigma) throws GrinderException {
     m_sleeper.sleepNormal(meanTime, sigma);
+  }
+
+  public int startWorkerThread() throws GrinderException {
+    return m_threadStarter.startThread();
   }
 
   public FilenameFactory getFilenameFactory() {

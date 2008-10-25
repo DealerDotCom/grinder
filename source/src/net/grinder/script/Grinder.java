@@ -140,6 +140,18 @@ public class Grinder {
     void sleep(long meanTime, long sigma) throws GrinderException;
 
     /**
+     * Start a new worker thread.
+     *
+     * @return The thread number of the new worker thread.
+     * @throws InvalidContextException If the main thread has not yet
+     *  initialised the script engine, or all other threads have shut down.
+     *  Typically, you should only call <code>startWorkerThread()</code> from
+     *  another worker thread.
+     * @throws GrinderException If the new worker thread could not be started.
+     */
+    int startWorkerThread() throws InvalidContextException, GrinderException;
+
+    /**
      * Get a {@link net.grinder.common.FilenameFactory} that can be
      * used to create unique filenames. The filenames depend upon the
      * process name and the thread used to call the

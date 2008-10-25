@@ -59,7 +59,6 @@ final class ProcessContextImplementation implements ProcessContext {
   private final WorkerIdentity m_workerIdentity;
   private final GrinderProperties m_properties;
   private final Logger m_processLogger;
-  private final QueuedSender m_consoleSender;
   private final ThreadContextLocator m_threadContextLocator;
   private final TestRegistryImplementation m_testRegistryImplementation;
   private final InternalScriptContext m_scriptContext;
@@ -72,16 +71,19 @@ final class ProcessContextImplementation implements ProcessContext {
   private volatile long m_executionStartTime;
   private volatile boolean m_shutdown;
 
-  ProcessContextImplementation(WorkerIdentity workerIdentity,
-                 GrinderProperties properties, Logger logger,
-                 FilenameFactory filenameFactory, QueuedSender consoleSender,
-                 StatisticsServices statisticsServices)
+  ProcessContextImplementation(
+                 WorkerIdentity workerIdentity,
+                 GrinderProperties properties,
+                 Logger logger,
+                 FilenameFactory filenameFactory,
+                 QueuedSender consoleSender,
+                 StatisticsServices statisticsServices,
+                 ThreadStarter threadStarter)
     throws GrinderException {
 
     m_workerIdentity = workerIdentity;
     m_properties = properties;
     m_processLogger = logger;
-    m_consoleSender = consoleSender;
     m_statisticsServices = statisticsServices;
     m_threadContextLocator = new ThreadContextLocatorImplementation();
     m_testStatisticsHelper =
@@ -151,7 +153,8 @@ final class ProcessContextImplementation implements ProcessContext {
       m_sleeper,
       sslControl,
       scriptStatistics,
-      m_testRegistryImplementation);
+      m_testRegistryImplementation,
+      threadStarter);
 
     final PluginRegistryImplementation pluginRegistry =
       new PluginRegistryImplementation(externalLogger, m_scriptContext,
@@ -165,10 +168,6 @@ final class ProcessContextImplementation implements ProcessContext {
 
     Grinder.grinder = m_scriptContext;
     m_shutdown = false;
-  }
-
-  public QueuedSender getConsoleSender() {
-    return m_consoleSender;
   }
 
   public WorkerProcessReportMessage createStatusMessage(
@@ -200,10 +199,6 @@ final class ProcessContextImplementation implements ProcessContext {
 
   public GrinderProperties getProperties() {
     return m_properties;
-  }
-
-  public InternalScriptContext getScriptContext() {
-    return m_scriptContext;
   }
 
   public ThreadContextLocator getThreadContextLocator() {

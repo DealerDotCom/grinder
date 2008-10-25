@@ -87,6 +87,8 @@ public class TestGrinderThread extends AbstractFileTestCase {
                       scriptEngine,
                       3);
 
+    m_workerThreadSynchronisationStubFactory.assertSuccess("threadCreated");
+
     final ThreadContext threadContext =
       (ThreadContext)m_processContextStubFactory.assertSuccess(
         "fireThreadCreatedEvent", ThreadContext.class).getParameters()[0];
@@ -102,6 +104,8 @@ public class TestGrinderThread extends AbstractFileTestCase {
                         m_loggerImplementation,
                         scriptEngine,
                         3);
+
+    m_workerThreadSynchronisationStubFactory.assertSuccess("threadCreated");
 
     final ThreadContext threadContext =
       (ThreadContext)m_processContextStubFactory.assertSuccess(

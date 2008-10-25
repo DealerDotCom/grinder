@@ -69,6 +69,11 @@ public class TestScriptContextImplementation extends TestCase {
     final FilenameFactory filenameFactory =
       (FilenameFactory)filenameFactoryStubFactory.getStub();
 
+    final RandomStubFactory threadStarterStubFactory =
+      new RandomStubFactory(ThreadStarter.class);
+    final ThreadStarter threadStarter =
+      (ThreadStarter)threadStarterStubFactory.getStub();
+
     final int threadNumber = 99;
     final int runNumber = 3;
     final ThreadContextLocator threadContextLocator =
@@ -101,7 +106,8 @@ public class TestScriptContextImplementation extends TestCase {
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         workerIdentity, threadContextLocator, properties, logger,
-        filenameFactory, sleeper, sslControl, statistics, testRegistry);
+        filenameFactory, sleeper, sslControl, statistics, testRegistry,
+        threadStarter);
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
     assertEquals(threadNumber, scriptContext.getThreadNumber());
@@ -124,6 +130,12 @@ public class TestScriptContextImplementation extends TestCase {
     agentIdentity.setNumber(10);
     assertEquals(0, scriptContext.getProcessNumber());
     assertEquals(10, scriptContext.getAgentNumber());
+
+    threadStarterStubFactory.assertNoMoreCalls();
+
+    scriptContext.startWorkerThread();
+    threadStarterStubFactory.assertSuccess("startThread");
+    threadStarterStubFactory.assertNoMoreCalls();
   }
 
   public void testSleep() throws Exception {
@@ -137,7 +149,7 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        null, null, null, null, null, sleeper, null, null, null);
+        null, null, null, null, null, sleeper, null, null, null, null);
 
     assertTrue(
       new Time(50, 70) {

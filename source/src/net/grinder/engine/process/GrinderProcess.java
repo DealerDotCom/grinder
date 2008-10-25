@@ -52,6 +52,7 @@ import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.messages.console.RegisterTestsMessage;
+import net.grinder.script.InvalidContextException;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
@@ -74,12 +75,19 @@ import net.grinder.util.thread.Condition;
 final class GrinderProcess {
 
   private final ProcessContext m_context;
+  private final QueuedSender m_consoleSender;
   private final LoggerImplementation m_loggerImplementation;
   private final InitialiseGrinderMessage m_initialisationMessage;
   private final ConsoleListener m_consoleListener;
   private final TestStatisticsMap m_accumulatedStatistics;
   private final Condition m_eventSynchronisation = new Condition();
   private final MessagePump m_messagePump;
+
+  private final ThreadStarter m_invalidThreadStarter =
+    new InvalidThreadStarter();
+
+  // Guarded by m_eventSynchronisation.
+  private ThreadStarter m_threadStarter = m_invalidThreadStarter;
 
   private boolean m_shutdownTriggered;
   private boolean m_communicationShutdown;
@@ -117,17 +125,15 @@ final class GrinderProcess {
     processLogger.output("time zone is " +
                          new SimpleDateFormat("z (Z)").format(new Date()));
 
-    final QueuedSender consoleSender;
-
     if (m_initialisationMessage.getReportToConsole()) {
-      consoleSender =
+      m_consoleSender =
         new QueuedSenderDecorator(
           ClientSender.connect(
             new ConnectorFactory(ConnectionType.WORKER).create(properties)));
     }
     else {
       // Null Sender implementation.
-      consoleSender = new QueuedSender() {
+      m_consoleSender = new QueuedSender() {
           public void send(Message message) { }
           public void flush() { }
           public void queue(Message message) { }
@@ -135,14 +141,24 @@ final class GrinderProcess {
         };
     }
 
+    final ThreadStarter delegatingThreadStarter = new ThreadStarter() {
+      public int startThread()
+        throws EngineException, InvalidContextException {
+        synchronized (m_eventSynchronisation) {
+          return m_threadStarter.startThread();
+        }
+      }
+    };
+
     m_context =
       new ProcessContextImplementation(
         m_initialisationMessage.getWorkerIdentity(),
         properties,
         processLogger,
         m_loggerImplementation.getFilenameFactory(),
-        consoleSender,
-        StatisticsServicesImplementation.getInstance());
+        m_consoleSender,
+        StatisticsServicesImplementation.getInstance(),
+        delegatingThreadStarter);
 
     // If we don't call getLocalHost() before spawning our
     // ConsoleListener thread, any attempt to call it afterwards will
@@ -184,8 +200,7 @@ final class GrinderProcess {
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
 
-    final ScriptEngine scriptEngine =
-      new JythonScriptEngine(m_context.getScriptContext());
+    final ScriptEngine scriptEngine = new JythonScriptEngine();
 
     m_context.getTestRegistry().setInstrumenter(scriptEngine);
 
@@ -231,26 +246,22 @@ final class GrinderProcess {
 
     dataWriter.println();
 
-    final QueuedSender consoleSender = m_context.getConsoleSender();
-
-    consoleSender.send(
+    m_consoleSender.send(
       m_context.createStatusMessage(
         WorkerProcessReport.STATE_STARTED, (short)0, numberOfThreads));
 
+    final ThreadSynchronisation threadSynchronisation =
+      new ThreadSynchronisation(m_eventSynchronisation);
+
     logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
 
-    final GrinderThread[] runnable = new GrinderThread[numberOfThreads];
-    final ThreadSynchronisation threadSynchronisation =
-      new ThreadSynchronisation(m_eventSynchronisation, numberOfThreads);
+    synchronized (m_eventSynchronisation) {
+      m_threadStarter =
+        new ThreadStarterImplementation(threadSynchronisation, scriptEngine);
 
-    for (int i = 0; i < numberOfThreads; i++) {
-      runnable[i] =
-        new GrinderThread(threadSynchronisation, m_context,
-                          m_loggerImplementation, scriptEngine, i);
-
-      final Thread t = new Thread(runnable[i], "Grinder thread " + i);
-      t.setDaemon(true);
-      t.start();
+      for (int i = 0; i < numberOfThreads; i++) {
+        m_threadStarter.startThread();
+      }
     }
 
     threadSynchronisation.startThreads();
@@ -276,7 +287,7 @@ final class GrinderProcess {
 
     try {
       if (duration > 0) {
-        logger.output("will shutdown after " + duration + " ms",
+        logger.output("will shut down after " + duration + " ms",
                       Logger.LOG | Logger.TERMINAL);
 
         timer.schedule(shutdownTimerTask, duration);
@@ -307,6 +318,7 @@ final class GrinderProcess {
           logger.output("waiting for threads to terminate",
                         Logger.LOG | Logger.TERMINAL);
 
+          m_threadStarter = m_invalidThreadStarter;
           m_context.shutdown();
 
           final long time = System.currentTimeMillis();
@@ -338,12 +350,12 @@ final class GrinderProcess {
     m_loggerImplementation.getDataWriter().close();
 
     if (!m_communicationShutdown) {
-      consoleSender.send(
+      m_consoleSender.send(
         m_context.createStatusMessage(
           WorkerProcessReport.STATE_FINISHED, (short)0, (short)0));
     }
 
-    consoleSender.shutdown();
+    m_consoleSender.shutdown();
 
     logger.output("Final statistics for this process:");
 
@@ -386,8 +398,6 @@ final class GrinderProcess {
       m_loggerImplementation.getDataWriter().flush();
 
       if (!m_communicationShutdown) {
-        final QueuedSender consoleSender = m_context.getConsoleSender();
-
         try {
           final TestStatisticsMap sample =
             m_context.getTestRegistry().getTestStatisticsMap().reset();
@@ -399,15 +409,15 @@ final class GrinderProcess {
             m_context.getTestRegistry().getNewTests();
 
           if (newTests != null) {
-            consoleSender.queue(new RegisterTestsMessage(newTests));
+            m_consoleSender.queue(new RegisterTestsMessage(newTests));
           }
 
           if (sample.size() > 0) {
-            consoleSender.queue(
+            m_consoleSender.queue(
               m_context.createReportStatisticsMessage(sample));
           }
 
-          consoleSender.send(
+          m_consoleSender.send(
             m_context.createStatusMessage(WorkerProcessReport.STATE_RUNNING,
                                           m_threads.getNumberOfRunningThreads(),
                                           m_threads.getTotalNumberOfThreads()));
@@ -455,23 +465,21 @@ final class GrinderProcess {
     private final BooleanCondition m_started = new BooleanCondition();
     private final Condition m_threadEventCondition;
 
-    private final short m_totalNumberOfThreads;
-    private short m_numberAwaitingStart;
-    private short m_numberFinished;
+    private short m_numberCreated = 0;
+    private short m_numberAwaitingStart = 0;
+    private short m_numberFinished = 0;
 
-    ThreadSynchronisation(Condition condition, short numberOfThreads) {
+    ThreadSynchronisation(Condition condition) {
       m_threadEventCondition = condition;
-      m_totalNumberOfThreads = numberOfThreads;
-      m_numberAwaitingStart = 0;
     }
 
     /**
-     * The number of worker threads that have been started but not run to
+     * The number of worker threads that have been created but not run to
      * completion.
      */
     public short getNumberOfRunningThreads() {
       synchronized (m_threadEventCondition) {
-        return (short)(m_totalNumberOfThreads - m_numberFinished);
+        return (short)(m_numberCreated - m_numberFinished);
       }
     }
 
@@ -489,7 +497,15 @@ final class GrinderProcess {
      * The number of worker threads that have been created.
      */
     public short getTotalNumberOfThreads() {
-      return m_totalNumberOfThreads;
+      synchronized (m_threadEventCondition) {
+        return m_numberCreated;
+      }
+    }
+
+    public void threadCreated() {
+      synchronized (m_threadEventCondition) {
+        ++m_numberCreated;
+      }
     }
 
     public void startThreads() {
@@ -524,6 +540,50 @@ final class GrinderProcess {
           m_threadEventCondition.notifyAll();
         }
       }
+    }
+  }
+
+  private final class ThreadStarterImplementation implements ThreadStarter {
+    private final ThreadSynchronisation m_threadSynchronisation;
+    private final ScriptEngine m_scriptEngine;
+
+    private int m_i = -1;
+
+    private ThreadStarterImplementation(
+      ThreadSynchronisation threadSynchronisation,
+      ScriptEngine scriptEngine) {
+      m_threadSynchronisation = threadSynchronisation;
+      m_scriptEngine = scriptEngine;
+    }
+
+    public int startThread() throws EngineException {
+      final int threadNumber;
+      synchronized (this) {
+        threadNumber = ++m_i;
+      }
+
+      final GrinderThread runnable =
+        new GrinderThread(m_threadSynchronisation,
+                          m_context,
+                          m_loggerImplementation,
+                          m_scriptEngine,
+                          threadNumber);
+
+      final Thread t = new Thread(runnable, "Grinder thread " + threadNumber);
+      t.setDaemon(true);
+      t.start();
+
+      return threadNumber;
+    }
+  }
+
+  private static final class InvalidThreadStarter implements ThreadStarter {
+    public int startThread() throws InvalidContextException {
+      throw new InvalidContextException(
+        "You should not start worker threads until the main thread has " +
+        "initialised the script engine, or after all other threads have " +
+        "shut down. Typically, you should only call startWorkerThread() from " +
+        "another worker thread.");
     }
   }
 }

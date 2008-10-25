@@ -25,4 +25,7 @@
   <suppress checks="JavadocMethod" files="HTTPRequest.java"/>
   <suppress checks="JavadocMethod" files="Statistics.java"/>
 
+  <!-- Requires a large number of parameters. -->
+  <suppress checks="ParameterNumberCheck" files="ScriptContextImplementation.java"/>
+
 </suppressions>

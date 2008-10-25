@@ -39,7 +39,6 @@ import net.grinder.engine.process.ScriptEngine.WorkerRunnable;
 import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
 import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.script.NotWrappableTypeException;
-import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
@@ -59,12 +58,6 @@ import org.python.util.PythonInterpreter;
  * @version $Revision$
  */
 public class TestJythonScriptEngine extends AbstractFileTestCase {
-
-  private final RandomStubFactory m_scriptContextStubFactory =
-    new RandomStubFactory(ScriptContext.class);
-
-  private final ScriptContext m_scriptContext =
-    (ScriptContext) m_scriptContextStubFactory.getStub();
 
   {
     PySystemState.initialize();
@@ -86,8 +79,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_dispatcherStubFactory.getDispatcher();
 
   public void testInitialise() throws Exception {
-    final JythonScriptEngine scriptEngine = new JythonScriptEngine(
-      m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     AssertUtilities.assertContains(scriptEngine.getDescription(), "Jython");
 
@@ -156,14 +148,13 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     // Jython caches modules, so we need to use a fresh interpreter to
     // avoid a repeated import error.
-    final ScriptEngine scriptEngine2 = new JythonScriptEngine(m_scriptContext);
+    final ScriptEngine scriptEngine2 = new JythonScriptEngine();
     scriptEngine2.initialise(script2);
     scriptEngine2.shutdown();
   }
 
   public void testShutdown() throws Exception {
-    final JythonScriptEngine scriptEngine = new JythonScriptEngine(
-      m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     final ScriptLocation script =
       new ScriptLocation(new Directory(getDirectory()),
@@ -259,8 +250,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
 
   public void testWorkerRunnable() throws Exception {
-    final JythonScriptEngine scriptEngine = new JythonScriptEngine(
-      m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     final ScriptLocation script =
       new ScriptLocation(new Directory(getDirectory()),
@@ -347,8 +337,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
   }
 
   public void testCreateProxyWithPyFunction() throws Exception {
-    final JythonScriptEngine scriptEngine = new JythonScriptEngine(
-      m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     m_interpreter.exec("def return1(): return 1");
     final PyObject pyFunction = m_interpreter.get("return1");
@@ -443,8 +432,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
   }
 
   public void testCreateProxyWithPyInstance() throws Exception {
-    final JythonScriptEngine scriptEngine = new JythonScriptEngine(
-      m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     // PyInstance.
     m_interpreter.exec(
@@ -523,8 +511,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
   }
 
   public void testCreateProxyWithPyMethod() throws Exception {
-    final JythonScriptEngine scriptEngine =
-      new JythonScriptEngine(m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     m_interpreter.exec(
       "class Foo:\n" +
@@ -619,8 +606,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
   }
 
   public void testCreateProxyWithPyJavaInstance() throws Exception {
-    final JythonScriptEngine scriptEngine =
-      new JythonScriptEngine(m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     m_interpreter.exec("from java.util import Random\nx=Random()");
     final PyObject pyJava = m_interpreter.get("x");
@@ -658,8 +644,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
   public void testCreateProxyWithPyReflectedFunction() throws Exception {
 
-    final JythonScriptEngine scriptEngine =
-      new JythonScriptEngine(m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     m_interpreter.exec("from java.util import Random\nx=Random()");
     final PyObject pyJava = m_interpreter.get("x");
@@ -700,8 +685,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
   public void testCreateProxyWithPyProxy() throws Exception {
 
-    final JythonScriptEngine scriptEngine =
-      new JythonScriptEngine(m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     // PyProxy's come paired with PyInstances - need to call
     // __tojava__ to get the PyProxy.
@@ -750,8 +734,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
   public void testCreateProxyWithJavaInstance() throws Exception {
 
-    final JythonScriptEngine scriptEngine =
-      new JythonScriptEngine(m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     final Object java = new MyClass();
     final PyObject javaProxy = (PyObject)
@@ -828,8 +811,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
   public void testCreateProxyWithRecursiveCode() throws Exception {
 
-    final JythonScriptEngine scriptEngine =
-      new JythonScriptEngine(m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     m_interpreter.exec(
       "class Recurse:\n" +
@@ -887,8 +869,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
   }
 
   public void testPyDispatcherErrorHandling() throws Exception {
-    final JythonScriptEngine scriptEngine = new JythonScriptEngine(
-      m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     final DispatcherStubFactory dispatcherStubFactory = new DispatcherStubFactory();
     final Dispatcher dispatcher = dispatcherStubFactory.getDispatcher();
@@ -923,8 +904,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
   }
 
   private void assertNotWrappable(Object o) throws Exception {
-    final JythonScriptEngine scriptEngine = new JythonScriptEngine(
-      m_scriptContext);
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     try {
       scriptEngine.createInstrumentedProxy(null, null, o);

@@ -21,30 +21,16 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.engine.common.EngineException;
+import net.grinder.script.InvalidContextException;
+
 
 /**
- * Synchronisation contract between {@link GrinderThread} and
- * {@link GrinderProcess}.
+ * Something that can start threads.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-interface WorkerThreadSynchronisation {
-
-  /**
-   * This should be called before the thread is started - e.g. in the
-   * Thread or Runnable's constructor.
-   */
-  void threadCreated();
-
-  /**
-   * The worker thread should call this when it is ready to run. The call
-   * blocks until the main process thread signals for all threads to start.
-   */
-  void awaitStart();
-
-  /**
-   * The worker thread should call this to indicate it has finished.
-   */
-  void threadFinished();
+interface ThreadStarter {
+  int startThread() throws EngineException, InvalidContextException;
 }

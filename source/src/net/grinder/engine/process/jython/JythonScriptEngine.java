@@ -1,4 +1,4 @@
-// Copyright (C) 2001-2007 Philip Aston
+// Copyright (C) 2001-2008 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -44,7 +44,6 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.process.ScriptEngine;
 import net.grinder.script.NotWrappableTypeException;
-import net.grinder.script.Grinder.ScriptContext;
 
 
 /**
@@ -68,11 +67,9 @@ public final class JythonScriptEngine implements ScriptEngine {
   /**
    * Constructor for JythonScriptEngine.
    *
-   * @param scriptContext The script context.
    * @throws EngineException If the script engine could not be created.
    */
-  public JythonScriptEngine(ScriptContext scriptContext)
-    throws EngineException {
+  public JythonScriptEngine() throws EngineException {
 
     PySystemState.initialize();
     m_systemState = new PySystemState();

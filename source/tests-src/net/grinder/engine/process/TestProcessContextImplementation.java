@@ -79,19 +79,15 @@ public class TestProcessContextImplementation extends TestCase {
         m_logger,
         null,
         m_queuedSender,
-        statisticsServices);
+        statisticsServices,
+        null);
 
     assertSame(statisticsServices, processContext.getStatisticsServices());
     assertSame(m_logger, processContext.getProcessLogger());
-    assertSame(m_queuedSender, processContext.getConsoleSender());
     assertSame(properties, processContext.getProperties());
 
     assertNotNull(processContext.getSleeper());
     assertNotNull(processContext.getTestRegistry());
-    assertNotNull(processContext.getScriptContext());
-
-    m_workerIdentityStubFactory.setResult("getName", "test");
-    assertEquals("test", processContext.getScriptContext().getProcessName());
 
     assertEquals(0, processContext.getExecutionStartTime());
     final long t1 = System.currentTimeMillis();
@@ -119,7 +115,8 @@ public class TestProcessContextImplementation extends TestCase {
         null,
         null,
         null,
-        StatisticsServicesTestFactory.createTestInstance());
+        StatisticsServicesTestFactory.createTestInstance(),
+        null);
 
     final ThreadContextLocator threadContextLocator =
       processContext.getThreadContextLocator();
@@ -151,7 +148,8 @@ public class TestProcessContextImplementation extends TestCase {
         m_logger,
         null,
         m_queuedSender,
-        StatisticsServicesTestFactory.createTestInstance());
+        StatisticsServicesTestFactory.createTestInstance(),
+        null);
 
     processContext.fireThreadCreatedEvent(m_threadContext);
 
@@ -173,7 +171,8 @@ public class TestProcessContextImplementation extends TestCase {
         m_logger,
         null,
         m_queuedSender,
-        statisticsServices);
+        statisticsServices,
+        null);
 
     final WorkerProcessReportMessage message1 =
       processContext.createStatusMessage(
@@ -217,7 +216,8 @@ public class TestProcessContextImplementation extends TestCase {
         m_logger,
         null,
         m_queuedSender,
-        statisticsServices);
+        statisticsServices,
+        null);
 
     final ReportStatisticsMessage message4 =
       processContext2.createReportStatisticsMessage(testStatisticsMap);

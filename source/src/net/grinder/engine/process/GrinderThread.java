@@ -68,6 +68,8 @@ class GrinderThread implements java.lang.Runnable {
 
     // Dispatch the process context callback in the main thread.
     m_processContext.fireThreadCreatedEvent(m_context);
+
+    threadSynchronisation.threadCreated();
   }
 
   /**
@@ -93,10 +95,10 @@ class GrinderThread implements java.lang.Runnable {
       final int numberOfRuns = properties.getInt("grinder.runs", 1);
 
       if (numberOfRuns == 0) {
-        logger.output("about to run forever");
+        logger.output("starting, will run forever");
       }
       else {
-        logger.output("about to do " + numberOfRuns + " run" +
+        logger.output("starting, will do " + numberOfRuns + " run" +
                       (numberOfRuns == 1 ? "" : "s"));
       }
 
@@ -123,7 +125,7 @@ class GrinderThread implements java.lang.Runnable {
 
           if (cause instanceof ShutdownException ||
               cause instanceof Sleeper.ShutdownException) {
-            logger.output("shutdown");
+            logger.output("shut down");
             break;
           }
 
@@ -151,7 +153,7 @@ class GrinderThread implements java.lang.Runnable {
         // Sadly PrintWriter only exposes its lock object to subclasses.
         synchronized (errorWriter) {
           logger.error(
-            "Aborted test runner shutdown due to " + e.getShortMessage());
+            "Aborted test runner shut down due to " + e.getShortMessage());
           e.printStackTrace(errorWriter);
         }
       }

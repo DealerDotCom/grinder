@@ -23,10 +23,8 @@ package net.grinder.engine.process;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.communication.QueuedSender;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
-import net.grinder.script.InternalScriptContext;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.Sleeper;
@@ -40,8 +38,6 @@ import net.grinder.util.Sleeper;
  */
 interface ProcessContext {
 
-  QueuedSender getConsoleSender();
-
   WorkerProcessReportMessage createStatusMessage(short state,
     short numberOfThreads, short totalNumberOfThreads);
 
@@ -53,8 +49,6 @@ interface ProcessContext {
   TestRegistryImplementation getTestRegistry();
 
   GrinderProperties getProperties();
-
-  InternalScriptContext getScriptContext();
 
   ThreadContextLocator getThreadContextLocator();
 
