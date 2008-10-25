@@ -228,7 +228,7 @@ public final class ConsoleListener {
       }
 
       if (shutdown) {
-        m_logger.output("communication shutdown", Logger.LOG);
+        m_logger.output("communication shut down", Logger.LOG);
         setReceived(SHUTDOWN);
       }
     }
