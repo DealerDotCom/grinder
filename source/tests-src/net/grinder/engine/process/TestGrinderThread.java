@@ -24,6 +24,7 @@ package net.grinder.engine.process;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.process.ScriptEngine.WorkerRunnable;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.AbstractFileTestCase;
@@ -85,7 +86,8 @@ public class TestGrinderThread extends AbstractFileTestCase {
                       m_processContext,
                       m_loggerImplementation,
                       scriptEngine,
-                      3);
+                      3,
+                      null);
 
     m_workerThreadSynchronisationStubFactory.assertSuccess("threadCreated");
 
@@ -103,7 +105,8 @@ public class TestGrinderThread extends AbstractFileTestCase {
                         m_processContext,
                         m_loggerImplementation,
                         scriptEngine,
-                        3);
+                        3,
+                        null);
 
     m_workerThreadSynchronisationStubFactory.assertSuccess("threadCreated");
 
@@ -226,6 +229,50 @@ public class TestGrinderThread extends AbstractFileTestCase {
 
     m_workerThreadSynchronisationStubFactory.assertSuccess("threadFinished");
     m_workerThreadSynchronisationStubFactory.assertNoMoreCalls();
+  }
+
+  public void testRunWithWorkerRunnable() throws Exception {
+    final RandomStubFactory workerRunnableStubFactory =
+      new RandomStubFactory(WorkerRunnable.class);
+    final WorkerRunnable workerRunnable =
+      (WorkerRunnable)workerRunnableStubFactory.getStub();
+
+    final GrinderThread grinderThread =
+      new GrinderThread(m_workerThreadSynchronisation,
+                        m_processContext,
+                        m_loggerImplementation,
+                        scriptEngine,
+                        3,
+                        workerRunnable);
+
+    m_workerThreadSynchronisationStubFactory.assertSuccess("threadCreated");
+
+    final ThreadContext threadContext =
+      (ThreadContext)m_processContextStubFactory.assertSuccess(
+        "fireThreadCreatedEvent", ThreadContext.class).getParameters()[0];
+    m_processContextStubFactory.assertNoMoreCalls();
+
+    final RandomStubFactory threadLifeCycleListenerStubFactory =
+      new RandomStubFactory(ThreadLifeCycleListener.class);
+    final ThreadLifeCycleListener threadLifeCycleListener =
+      (ThreadLifeCycleListener)threadLifeCycleListenerStubFactory.getStub();
+    threadContext.registerThreadLifeCycleListener(threadLifeCycleListener);
+
+    grinderThread.run();
+
+    m_processContextStubFactory.assertSuccess("getThreadContextLocator");
+    m_processContextStubFactory.assertNoMoreCalls();
+
+    threadLifeCycleListenerStubFactory.assertSuccess("beginThread");
+    threadLifeCycleListenerStubFactory.assertSuccess("beginRun");
+    threadLifeCycleListenerStubFactory.assertSuccess("endRun");
+    threadLifeCycleListenerStubFactory.assertSuccess("beginShutdown");
+    threadLifeCycleListenerStubFactory.assertSuccess("endThread");
+    threadLifeCycleListenerStubFactory.assertNoMoreCalls();
+
+    workerRunnableStubFactory.assertSuccess("run");
+    workerRunnableStubFactory.assertSuccess("shutdown");
+    workerRunnableStubFactory.assertNoMoreCalls();
   }
 
   private static final class MyScriptEngineException

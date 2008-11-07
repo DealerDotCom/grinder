@@ -1,4 +1,4 @@
-// Copyright (C) 2001-2008 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -103,7 +103,7 @@ public final class JythonScriptEngine implements ScriptEngine {
     m_testRunnerFactory = m_interpreter.get(TEST_RUNNER_CALLABLE_NAME);
 
     if (m_testRunnerFactory == null || !m_testRunnerFactory.isCallable()) {
-      throw new EngineException(
+      throw new JythonScriptExecutionException(
         "There is no callable (class or function) named '" +
         TEST_RUNNER_CALLABLE_NAME + "' in " + script);
     }
@@ -116,9 +116,31 @@ public final class JythonScriptEngine implements ScriptEngine {
    * @return The runnable.
    * @throws EngineException If the runnable could not be created.
    */
-  public WorkerRunnable createWorkerRunnable()
-    throws EngineException {
+  public WorkerRunnable createWorkerRunnable() throws EngineException {
     return new JythonWorkerRunnable();
+  }
+
+  /**
+   * Create a {@link WorkerRunnable} that will be used to run the work
+   * for one worker thread.
+   *
+   * @param testRunner Optional test runner.
+   * @return The runnable.
+   * @throws EngineException If the runnable could not be created.
+   */
+  public WorkerRunnable createWorkerRunnable(Object testRunner)
+    throws EngineException {
+
+    if (testRunner instanceof PyObject) {
+      final PyObject pyTestRunner = (PyObject) testRunner;
+
+      if (pyTestRunner.isCallable()) {
+        return new JythonWorkerRunnable(pyTestRunner);
+      }
+    }
+
+    throw new JythonScriptExecutionException(
+      "testRunner object is not callable");
   }
 
   /**
@@ -316,10 +338,14 @@ public final class JythonScriptEngine implements ScriptEngine {
       }
 
       if (!m_testRunner.isCallable()) {
-        throw new EngineException(
+        throw new JythonScriptExecutionException(
           "The result of '" + TEST_RUNNER_CALLABLE_NAME +
           "()' is not callable");
       }
+    }
+
+    public JythonWorkerRunnable(PyObject testRunner) {
+      m_testRunner = testRunner;
     }
 
     public void run() throws ScriptExecutionException {

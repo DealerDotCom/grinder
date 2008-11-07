@@ -213,42 +213,6 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     s_lastCallbackObject = o;
   }
 
-/*
-  public void testScriptContextAndImplicitGrinderWarning() throws Exception {
-    final RandomStubFactory loggerStubFactory = new RandomStubFactory(
-      Logger.class);
-    final Logger logger = (Logger) loggerStubFactory.getStub();
-
-    m_scriptContextStubFactory.setResult("getLogger", logger);
-
-    final JythonScriptEngine scriptEngine =
-      new JythonScriptEngine(m_scriptContext);
-
-    final File scriptFile = new File(getDirectory(), "script");
-
-    final PrintWriter w1 = new PrintWriter(new FileWriter(scriptFile));
-    w1.println("grinder.threadID");
-    w1.println("grinder.runNumber");
-    w1.println("class TestRunner:pass");
-    w1.close();
-
-    scriptEngine.initialise(scriptFile, null);
-
-    // Only one warning.
-    final CallData outputCall = loggerStubFactory.assertSuccess("output",
-      String.class, Integer.class);
-    AssertUtilities.assertContains((String) outputCall.getParameters()[0],
-      "deprecated");
-    loggerStubFactory.assertNoMoreCalls();
-
-    m_scriptContextStubFactory.assertSuccess("getLogger");
-    m_scriptContextStubFactory.assertSuccess("getThreadID");
-    m_scriptContextStubFactory.assertSuccess("getRunNumber");
-    m_scriptContextStubFactory.assertNoMoreCalls();
-  }
-*/
-
-
   public void testWorkerRunnable() throws Exception {
     final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
@@ -334,6 +298,61 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     // Try it again, __del__ should now be disabled.
     runnable5.shutdown();
+  }
+
+
+  public void testNewWorkerRunnableWithTestRunner() throws Exception {
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
+
+    final ScriptLocation script =
+      new ScriptLocation(new Directory(getDirectory()),
+                         new File(getDirectory(), "script"));
+
+    final PrintWriter w1 = new PrintWriter(new FileWriter(script.getFile()));
+    w1.println("class TestRunner: pass");
+    w1.close();
+
+    scriptEngine.initialise(script);
+
+    try {
+      scriptEngine.createWorkerRunnable(null);
+      fail("Expected JythonScriptExecutionException");
+    }
+    catch (JythonScriptExecutionException e) {
+      AssertUtilities.assertContains(e.getMessage(), "is not callable");
+    }
+
+    final Object badRunner = new Object();
+
+    try {
+      scriptEngine.createWorkerRunnable(badRunner);
+      fail("Expected JythonScriptExecutionException");
+    }
+    catch (JythonScriptExecutionException e) {
+      AssertUtilities.assertContains(e.getMessage(), "is not callable");
+    }
+
+    m_interpreter.exec("result=1");
+    m_interpreter.exec("def myRunner():\n global result\n result=99");
+    final PyObject goodRunner = m_interpreter.get("myRunner");
+
+    final WorkerRunnable workerRunnable =
+      scriptEngine.createWorkerRunnable(goodRunner);
+
+    assertEquals("1", m_interpreter.get("result").toString());
+
+    workerRunnable.run();
+    assertEquals("99", m_interpreter.get("result").toString());
+
+    final PyObject badRunner2 =  m_interpreter.get("result");
+
+    try {
+      scriptEngine.createWorkerRunnable(badRunner2);
+      fail("Expected JythonScriptExecutionException");
+    }
+    catch (JythonScriptExecutionException e) {
+      AssertUtilities.assertContains(e.getMessage(), "is not callable");
+    }
   }
 
   public void testCreateProxyWithPyFunction() throws Exception {

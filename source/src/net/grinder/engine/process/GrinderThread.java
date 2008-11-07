@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.ScriptEngine.ScriptExecutionException;
+import net.grinder.engine.process.ScriptEngine.WorkerRunnable;
 import net.grinder.util.Sleeper;
 
 
@@ -43,6 +44,7 @@ class GrinderThread implements java.lang.Runnable {
   private final ProcessContext m_processContext;
   private final ScriptEngine m_scriptEngine;
   private final ThreadContext m_context;
+  private final WorkerRunnable m_workerRunnable;
 
   /**
    * The constructor.
@@ -51,12 +53,14 @@ class GrinderThread implements java.lang.Runnable {
                        ProcessContext processContext,
                        LoggerImplementation loggerImplementation,
                        ScriptEngine scriptEngine,
-                       int threadID)
+                       int threadID,
+                       WorkerRunnable workerRunnable)
     throws EngineException {
 
     m_threadSynchronisation = threadSynchronisation;
     m_processContext = processContext;
     m_scriptEngine = scriptEngine;
+    m_workerRunnable = workerRunnable;
 
     m_context =
       new ThreadContextImplementation(
@@ -88,8 +92,14 @@ class GrinderThread implements java.lang.Runnable {
     m_context.fireBeginThreadEvent();
 
     try {
-      final ScriptEngine.WorkerRunnable scriptThreadRunnable =
-        m_scriptEngine.createWorkerRunnable();
+      final WorkerRunnable scriptThreadRunnable;
+
+      if (m_workerRunnable == null) {
+        scriptThreadRunnable = m_scriptEngine.createWorkerRunnable();
+      }
+      else {
+        scriptThreadRunnable = m_workerRunnable;
+      }
 
       final GrinderProperties properties = m_processContext.getProperties();
       final int numberOfRuns = properties.getInt("grinder.runs", 1);

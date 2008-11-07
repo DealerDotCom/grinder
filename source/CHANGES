@@ -1,8 +1,9 @@
 The Grinder 3.1.1 (not yet released)
 ------------------------------------
 
-  Added net.grinder.ScriptContext.startWorkerThread() method which scripts can
-  use to start additional worker threads.
+  Add net.grinder.ScriptContext startWorkerThread() and
+  startWorkerThread(testRunner) methods which scripts can use to start
+  additional worker threads.
 
   Fix bug 2018168 - HTTP filter generates invalid Jython variable
   names.

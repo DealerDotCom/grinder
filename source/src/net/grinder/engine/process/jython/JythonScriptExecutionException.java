@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,6 +40,18 @@ final class JythonScriptExecutionException extends ScriptExecutionException {
 
   private final String m_message;
   private final String m_shortMessage;
+
+  /**
+   * Constructor for exceptions arising from a problem with the script that
+   * did not arise from some other exception.
+   *
+   * @param message
+   */
+  public JythonScriptExecutionException(String message) {
+    super(message);
+    m_message = message;
+    m_shortMessage = message;
+  }
 
   /**
    * Creates a new <code>JythonScriptExecutionException</code> instance.

@@ -41,9 +41,9 @@ public class Grinder {
   public static InternalScriptContext grinder;
 
   /**
-   * Scripts can get contextual information through a global
-   * <code>net.grinder.script.Grinder.grinder</code> object that
-   * supports this interface.
+   * Scripts can get contextual information and access services
+   * through a global <code>net.grinder.script.Grinder.grinder</code>
+   * object that supports this interface.
    *
    * @author Philip Aston
    * @version $Revision$
@@ -140,7 +140,8 @@ public class Grinder {
     void sleep(long meanTime, long sigma) throws GrinderException;
 
     /**
-     * Start a new worker thread.
+     * Start a new worker thread. The script's <code>TestRunner</code> class
+     * will be used to create new test runner instance for the worker thread.
      *
      * @return The thread number of the new worker thread.
      * @throws InvalidContextException If the main thread has not yet
@@ -150,6 +151,23 @@ public class Grinder {
      * @throws GrinderException If the new worker thread could not be started.
      */
     int startWorkerThread() throws GrinderException;
+
+    /**
+     * Start a new worker thread, specifying a <em>test runner</em> instance.
+     *
+     * <p>This is a more advanced version of {@link #startWorkerThread} that
+     * allows a different test runner to be specified. The test runner should
+     * be a function or a callable object.
+     *
+     * @param testRunner A function, or some other callable object.
+     * @return The thread number of the new worker thread.
+     * @throws InvalidContextException If the main thread has not yet
+     *  initialised the script engine, or all other threads have shut down.
+     *  Typically, you should only call <code>startWorkerThread()</code> from
+     *  another worker thread.
+     * @throws GrinderException If the new worker thread could not be started.
+     */
+    int startWorkerThread(Object testRunner) throws GrinderException;
 
     /**
      * Get a {@link net.grinder.common.FilenameFactory} that can be

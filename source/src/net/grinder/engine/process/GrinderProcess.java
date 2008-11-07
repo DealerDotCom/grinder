@@ -142,10 +142,10 @@ final class GrinderProcess {
     }
 
     final ThreadStarter delegatingThreadStarter = new ThreadStarter() {
-      public int startThread()
+      public int startThread(Object testRunner)
         throws EngineException, InvalidContextException {
         synchronized (m_eventSynchronisation) {
-          return m_threadStarter.startThread();
+          return m_threadStarter.startThread(testRunner);
         }
       }
     };
@@ -260,7 +260,7 @@ final class GrinderProcess {
         new ThreadStarterImplementation(threadSynchronisation, scriptEngine);
 
       for (int i = 0; i < numberOfThreads; i++) {
-        m_threadStarter.startThread();
+        m_threadStarter.startThread(null);
       }
     }
 
@@ -556,18 +556,32 @@ final class GrinderProcess {
       m_scriptEngine = scriptEngine;
     }
 
-    public int startThread() throws EngineException {
+    public int startThread(Object testRunner) throws EngineException {
       final int threadNumber;
       synchronized (this) {
         threadNumber = ++m_i;
       }
 
-      final GrinderThread runnable =
-        new GrinderThread(m_threadSynchronisation,
-                          m_context,
-                          m_loggerImplementation,
-                          m_scriptEngine,
-                          threadNumber);
+      final GrinderThread runnable;
+
+      if (testRunner != null) {
+        runnable =
+          new GrinderThread(m_threadSynchronisation,
+                            m_context,
+                            m_loggerImplementation,
+                            m_scriptEngine,
+                            threadNumber,
+                            m_scriptEngine.createWorkerRunnable(testRunner));
+      }
+      else {
+        runnable =
+          new GrinderThread(m_threadSynchronisation,
+                            m_context,
+                            m_loggerImplementation,
+                            m_scriptEngine,
+                            threadNumber,
+                            null);
+      }
 
       final Thread t = new Thread(runnable, "Grinder thread " + threadNumber);
       t.setDaemon(true);
@@ -578,7 +592,7 @@ final class GrinderProcess {
   }
 
   private static final class InvalidThreadStarter implements ThreadStarter {
-    public int startThread() throws InvalidContextException {
+    public int startThread(Object testRunner) throws InvalidContextException {
       throw new InvalidContextException(
         "You should not start worker threads until the main thread has " +
         "initialised the script engine, or after all other threads have " +

@@ -134,7 +134,12 @@ public class TestScriptContextImplementation extends TestCase {
     threadStarterStubFactory.assertNoMoreCalls();
 
     scriptContext.startWorkerThread();
-    threadStarterStubFactory.assertSuccess("startThread");
+    threadStarterStubFactory.assertSuccess("startThread", Object.class);
+    threadStarterStubFactory.assertNoMoreCalls();
+
+    final Object testRunner = new Object();
+    scriptContext.startWorkerThread(testRunner);
+    threadStarterStubFactory.assertSuccess("startThread", testRunner);
     threadStarterStubFactory.assertNoMoreCalls();
   }
 

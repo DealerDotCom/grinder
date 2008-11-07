@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,12 +45,25 @@ public interface ScriptEngine extends Instrumenter {
 
   /**
    * Create a {@link WorkerRunnable} that will be used to run the work
-   * for one worker thread.
+   * for one worker thread. The {@link WorkerRunnable} will forward to
+   * a new instance of the script's <code>TestRunner</code> class.
    *
+   * of the script's <code>TestRunner</code> class should be used.
    * @return The runnable.
    * @throws EngineException If the runnable could not be created.
    */
   WorkerRunnable createWorkerRunnable() throws EngineException;
+
+  /**
+   * Create a {@link WorkerRunnable} that will be used to run the work
+   * for one worker thread. The {@link WorkerRunnable} will forward to
+   * a the supplied <code>testRunner</code>.
+   *
+   * @param testRunner An existing script instance that is callable.
+   * @return The runnable.
+   * @throws EngineException If the runnable could not be created.
+   */
+  WorkerRunnable createWorkerRunnable(Object testRunner) throws EngineException;
 
   /**
    * Shut down the engine.

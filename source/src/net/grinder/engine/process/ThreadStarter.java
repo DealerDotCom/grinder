@@ -32,5 +32,6 @@ import net.grinder.script.InvalidContextException;
  * @version $Revision:$
  */
 interface ThreadStarter {
-  int startThread() throws EngineException, InvalidContextException;
+  int startThread(Object testRunner)
+    throws EngineException, InvalidContextException;
 }

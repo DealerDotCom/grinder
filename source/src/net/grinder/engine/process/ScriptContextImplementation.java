@@ -119,7 +119,11 @@ final class ScriptContextImplementation implements InternalScriptContext {
   }
 
   public int startWorkerThread() throws GrinderException {
-    return m_threadStarter.startThread();
+    return m_threadStarter.startThread(null);
+  }
+
+  public int startWorkerThread(Object testRunner) throws GrinderException {
+    return m_threadStarter.startThread(testRunner);
   }
 
   public FilenameFactory getFilenameFactory() {
