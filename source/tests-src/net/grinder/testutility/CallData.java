@@ -1,4 +1,4 @@
-// Copyright (C) 2004 2005 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -72,11 +72,21 @@ public final class CallData extends Assert implements CallAssertions {
     final Class[] types = new Class[m_parameters.length];
 
     for (int i=0; i<types.length; ++i) {
-      types[i] = m_parameters[i].getClass();
+      if (m_parameters[i] == null) {
+        types[i] = ANY_TYPE.class;
+      }
+      else {
+        types[i] = m_parameters[i].getClass();
+      }
     }
 
     return types;
   }
+
+  /**
+   * Class that represents a parameter that is compatible with any type.
+   */
+  public static class ANY_TYPE { }
 
   public Object getResult() {
     assertNull(m_throwable);
@@ -209,14 +219,16 @@ public final class CallData extends Assert implements CallAssertions {
                      actualParameterTypes.length);
 
         for (int i = 0; i < parameterTypes.length; ++i) {
-          assertTrue("Parameter  " + i + " is instance of  " +
-                     actualParameterTypes[i].getName() +
-                     " which supports the interfaces " +
-                     Arrays.asList(actualParameterTypes[i].getInterfaces()) +
-                     " and is not assignable from " +
-                     parameterTypes[i].getName(),
-                     parameterTypes[i].isAssignableFrom(
-                       actualParameterTypes[i]));
+          if (!(actualParameterTypes[i].equals(ANY_TYPE.class))) {
+            assertTrue("Parameter  " + i + " is instance of  " +
+                       actualParameterTypes[i].getName() +
+                       " which supports the interfaces " +
+                       Arrays.asList(actualParameterTypes[i].getInterfaces()) +
+                       " and is not assignable from " +
+                       parameterTypes[i].getName(),
+                       parameterTypes[i].isAssignableFrom(
+                         actualParameterTypes[i]));
+          }
         }
       }
     }
