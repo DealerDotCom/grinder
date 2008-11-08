@@ -494,6 +494,30 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
       this by looking into the Registry location above.</p>
     </dd>
   </dl>
+
+  <p>Update from sellgren:</p>
+
+  <dl>
+
+	  <dt/>
+	  <dd class="quote">
+	    <p>On Vista/Windows Server 2008, the default value for TcpTimedWaitDelay
+	    is 120 seconds and there are 16384 ephemeral ports available. To reduce
+	    the TcpTimedWaitDelay, add a new registry key to the same path mentioned
+	    above and reboot. To query the value for ephemeral ports, in a command
+	    window run:</p>
+<source>
+netsh interface ipv4 show dynamicportrange tcp
+</source>
+
+      <p>To set it, run:</p>
+<source>
+netsh interface ipv4 set dynamicportrange protocol=tcp startport=10000 numberofports=20000
+</source>
+
+	    <p><a href="site:microsoft/tcpip-reg">Microsoft reference</a></p>
+	  </dd>
+  </dl>
       </answer>
     </faq>
 

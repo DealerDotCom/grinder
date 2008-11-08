@@ -252,8 +252,9 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <microsoft>
       <support href="http://support.microsoft.com/">
-  <delayed-ack href="kb/328890/"/>
+        <delayed-ack href="kb/328890/"/>
       </support>
+      <tcpip-reg href="http://download.microsoft.com/download/c/2/6/c26893a6-46c7-4b5c-b287-830216597340/TCPIP_Reg.doc"/>
     </microsoft>
 
     <mozilla href="http://www.mozilla.com/"/>
