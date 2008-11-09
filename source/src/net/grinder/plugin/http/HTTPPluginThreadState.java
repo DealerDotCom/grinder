@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import net.grinder.common.SSLContextFactory;
+import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
@@ -47,7 +48,8 @@ import HTTPClient.URI;
  * @author Philip Aston
  * @version $Revision$
  */
-class HTTPPluginThreadState implements PluginThreadListener {
+class HTTPPluginThreadState
+  extends SkeletonThreadLifeCycleListener implements PluginThreadListener {
 
   private final PluginThreadContext m_threadContext;
   private final SSLContextFactory m_sslContextFactory;
@@ -110,8 +112,6 @@ class HTTPPluginThreadState implements PluginThreadListener {
     return newConnectionWrapper;
   }
 
-  public void beginThread() { }
-
   public void beginRun() {
     // Discard our cookies.
     CookieModule.discardAllCookies(this);
@@ -125,12 +125,6 @@ class HTTPPluginThreadState implements PluginThreadListener {
 
     m_httpConnectionWrappers.clear();
   }
-
-  public void endRun() { }
-
-  public void beginShutdown() { }
-
-  public void endThread() { }
 
   public void setLastResponse(HTTPResponse lastResponse) {
     m_lastResponse = lastResponse;

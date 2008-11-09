@@ -5,6 +5,10 @@ The Grinder 3.1.1 (not yet released)
   startWorkerThread(testRunner) methods which scripts can use to start
   additional worker threads.
 
+  Fulfil feature request 1694369 - Ability to stop worker threads from
+  script. See the ScriptContext stopThisWorkerThread() and stopWorkerThread()
+  methods.
+
   Fix bug 2018168 - HTTP filter generates invalid Jython variable
   names.
 

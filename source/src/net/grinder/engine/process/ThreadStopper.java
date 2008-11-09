@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,17 +21,13 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.UncheckedGrinderException;
 
 /**
- * Exception used to indicate that the process has been shutdown.
+ * Something that can stop threads.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-final class ShutdownException extends UncheckedGrinderException {
-  public ShutdownException(String message) {
-    super(message);
-  }
+interface ThreadStopper {
+  boolean stopThread(int threadNumber);
 }
-

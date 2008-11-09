@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2007 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,8 @@
 package net.grinder.engine.process;
 
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
@@ -31,7 +31,7 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 
 import net.grinder.common.SSLContextFactory;
-import net.grinder.common.ThreadLifeCycleListener;
+import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.util.InsecureSSLContextFactory;
@@ -167,7 +167,7 @@ final class SSLControlImplementation implements SSLControl {
   }
 
   private class CachingSSLContextFactory
-    implements SSLContextFactory, ThreadLifeCycleListener {
+    extends SkeletonThreadLifeCycleListener implements SSLContextFactory {
 
     private final SSLContextFactory m_delegateContextFactory;
     private SSLContext m_sslContext;
@@ -184,18 +184,10 @@ final class SSLControlImplementation implements SSLControl {
       return m_sslContext;
     }
 
-    public void beginThread() { }
-
-    public void beginRun() { }
-
     public void endRun() {
       if (!m_shareContextBetweenRuns) {
         m_sslContext = null;
       }
     }
-
-    public void beginShutdown() { }
-
-    public void endThread() { }
   }
 }

@@ -66,8 +66,6 @@ interface ProcessContext {
    */
   long getExecutionStartTime();
 
-  void checkIfShutdown() throws ShutdownException;
-
   void shutdown();
 
   Sleeper getSleeper();

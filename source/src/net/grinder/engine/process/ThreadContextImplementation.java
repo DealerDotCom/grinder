@@ -28,6 +28,7 @@ import java.util.List;
 
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.SSLContextFactory;
+import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.common.Test;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
@@ -54,7 +55,6 @@ final class ThreadContextImplementation
   private final DispatchContextStack m_dispatchContextStack =
     new DispatchContextStack();
 
-  private final ProcessContext m_processContext;
   private final ThreadLogger m_threadLogger;
   private final FilenameFactory m_filenameFactory;
   private final DispatchResultReporter m_dispatchResultReporter;
@@ -67,7 +67,8 @@ final class ThreadContextImplementation
 
   private StatisticsForTest m_statisticsForLastTest;
 
-  private boolean m_shutdownStarted;
+  private volatile boolean m_shutdown;
+  private boolean m_shutdownInProgress;
 
   public ThreadContextImplementation(ProcessContext processContext,
                                      ThreadLogger threadLogger,
@@ -75,7 +76,6 @@ final class ThreadContextImplementation
                                      PrintWriter dataWriter)
     throws EngineException {
 
-    m_processContext = processContext;
     m_threadLogger = threadLogger;
     m_filenameFactory = filenameFactory;
 
@@ -112,12 +112,8 @@ final class ThreadContextImplementation
     }
 
     registerThreadLifeCycleListener(
-      new ThreadLifeCycleListener() {
-        public void beginThread() { }
-        public void beginRun() { }
+      new SkeletonThreadLifeCycleListener() {
         public void endRun() { reportPendingDispatchContext(); }
-        public void beginShutdown() { m_shutdownStarted = true; }
-        public void endThread() { }
       });
   }
 
@@ -197,8 +193,9 @@ final class ThreadContextImplementation
   public void pushDispatchContext(DispatchContext dispatchContext)
     throws ShutdownException {
 
-    if (!m_shutdownStarted) {
-      m_processContext.checkIfShutdown();
+    if (m_shutdown && !m_shutdownInProgress) {
+      m_shutdownInProgress = true;
+      throw new ShutdownException("Thread has been shut down");
     }
 
     reportPendingDispatchContext();
@@ -325,5 +322,9 @@ final class ThreadContextImplementation
 
       return (DispatchContext)m_stack.get(size - 1);
     }
+  }
+
+  public void shutdown() {
+    m_shutdown = true;
   }
 }

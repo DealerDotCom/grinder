@@ -22,10 +22,14 @@
 
 package net.grinder.engine.process;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.QueuedSender;
 import net.grinder.engine.common.EngineException;
@@ -55,6 +59,7 @@ import net.grinder.util.ListenerSupport.Informer;
 final class ProcessContextImplementation implements ProcessContext {
   private final ListenerSupport m_processLifeCycleListeners =
     new ListenerSupport();
+  private final ThreadContexts m_threadContexts = new ThreadContexts();
 
   private final WorkerIdentity m_workerIdentity;
   private final GrinderProperties m_properties;
@@ -69,7 +74,6 @@ final class ProcessContextImplementation implements ProcessContext {
   private final boolean m_reportTimesToConsole;
 
   private volatile long m_executionStartTime;
-  private volatile boolean m_shutdown;
 
   ProcessContextImplementation(
                  WorkerIdentity workerIdentity,
@@ -144,6 +148,12 @@ final class ProcessContextImplementation implements ProcessContext {
                        m_testStatisticsHelper,
                        m_timeAuthority);
 
+    final ThreadStopper threadStopper = new ThreadStopper() {
+      public boolean stopThread(int threadNumber) {
+        return m_threadContexts.shutdown(threadNumber);
+      }
+    };
+
     m_scriptContext = new ScriptContextImplementation(
       m_workerIdentity,
       m_threadContextLocator,
@@ -154,7 +164,8 @@ final class ProcessContextImplementation implements ProcessContext {
       sslControl,
       scriptStatistics,
       m_testRegistryImplementation,
-      threadStarter);
+      threadStarter,
+      threadStopper);
 
     final PluginRegistryImplementation pluginRegistry =
       new PluginRegistryImplementation(externalLogger, m_scriptContext,
@@ -163,11 +174,12 @@ final class ProcessContextImplementation implements ProcessContext {
 
     m_processLifeCycleListeners.add(pluginRegistry);
 
+    m_processLifeCycleListeners.add(m_threadContexts);
+
     m_reportTimesToConsole =
       properties.getBoolean("grinder.reportTimesToConsole", true);
 
     Grinder.grinder = m_scriptContext;
-    m_shutdown = false;
   }
 
   public WorkerProcessReportMessage createStatusMessage(
@@ -213,18 +225,11 @@ final class ProcessContextImplementation implements ProcessContext {
     return m_executionStartTime;
   }
 
-  public void checkIfShutdown() throws ShutdownException {
-    if (m_shutdown) {
-      throw new ShutdownException("Process has been shutdown");
-    }
-  }
-
   public void shutdown() {
     // Interrupt any sleepers.
     SleeperImplementation.shutdownAllCurrentSleepers();
 
-    // Worker threads poll this before each test execution.
-    m_shutdown = true;
+    m_threadContexts.shutdownAll();
   }
 
   public Sleeper getSleeper() {
@@ -254,6 +259,77 @@ final class ProcessContextImplementation implements ProcessContext {
 
     public void set(ThreadContext threadContext) {
       m_threadContextThreadLocal.set(threadContext);
+    }
+  }
+
+  private static final class ThreadContexts
+    implements ProcessLifeCycleListener {
+
+    // Guarded by self.
+    private final Map m_threadContexts = new HashMap();
+
+    // Guarded by m_threadContexts.
+    private boolean m_allShutdown;
+
+    public void threadCreated(ThreadContext threadContext) {
+      final Integer threadNumber =
+        new Integer(threadContext.getThreadNumber());
+
+      final boolean shutdown;
+
+      synchronized (m_threadContexts) {
+        shutdown = m_allShutdown;
+
+        if (!shutdown) {
+          threadContext.registerThreadLifeCycleListener(
+            new SkeletonThreadLifeCycleListener() {
+              public void endThread() {
+                m_threadContexts.remove(threadNumber);
+              }
+            });
+
+          // Very unlikely, harmless race here - we could store a reference to
+          // a thread context that is in the process of shutting down.
+          m_threadContexts.put(threadNumber, threadContext);
+        }
+      }
+
+      if (shutdown) {
+        // Stop new threads in their tracks.
+        threadContext.shutdown();
+      }
+    }
+
+    public boolean shutdown(int threadNumber) {
+      final ThreadContext threadContext;
+
+      synchronized (m_threadContexts) {
+        threadContext =
+          (ThreadContext)m_threadContexts.get(new Integer(threadNumber));
+      }
+
+      if (threadContext != null) {
+        threadContext.shutdown();
+        return true;
+      }
+
+      return false;
+    }
+
+    public void shutdownAll() {
+      final ThreadContext[] threadContexts;
+
+      synchronized (m_threadContexts) {
+        m_allShutdown = true;
+
+        threadContexts = (ThreadContext[])
+          m_threadContexts.values().toArray(
+            new ThreadContext[m_threadContexts.size()]);
+      }
+
+      for (int i = 0; i < threadContexts.length; ++i) {
+        threadContexts[i].shutdown();
+      }
     }
   }
 }

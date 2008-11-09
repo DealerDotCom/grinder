@@ -70,5 +70,7 @@ interface ThreadContext extends PluginThreadContext {
   void setDelayReports(boolean b);
 
   void reportPendingDispatchContext();
+
+  void shutdown();
 }
 

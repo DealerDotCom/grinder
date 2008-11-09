@@ -28,6 +28,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
 import net.grinder.script.TestRegistry;
@@ -103,11 +104,16 @@ public class TestScriptContextImplementation extends TestCase {
     final TestRegistry testRegistry =
       (TestRegistry)testRegistryStubFactory.getStub();
 
+    final RandomStubFactory threadStopperStubFactory =
+      new RandomStubFactory(ThreadStopper.class);
+    final ThreadStopper threadStopper =
+      (ThreadStopper)threadStopperStubFactory.getStub();
+
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         workerIdentity, threadContextLocator, properties, logger,
         filenameFactory, sleeper, sslControl, statistics, testRegistry,
-        threadStarter);
+        threadStarter, threadStopper);
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
     assertEquals(threadNumber, scriptContext.getThreadNumber());
@@ -141,6 +147,10 @@ public class TestScriptContextImplementation extends TestCase {
     scriptContext.startWorkerThread(testRunner);
     threadStarterStubFactory.assertSuccess("startThread", testRunner);
     threadStarterStubFactory.assertNoMoreCalls();
+
+    scriptContext.stopWorkerThread(10);
+    threadStopperStubFactory.assertSuccess("stopThread", new Integer(10));
+    threadStopperStubFactory.assertNoMoreCalls();
   }
 
   public void testSleep() throws Exception {
@@ -154,7 +164,7 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        null, null, null, null, null, sleeper, null, null, null, null);
+        null, null, null, null, null, sleeper, null, null, null, null, null);
 
     assertTrue(
       new Time(50, 70) {
@@ -165,5 +175,31 @@ public class TestScriptContextImplementation extends TestCase {
       new Time(40, 70) {
         public void doIt() throws Exception  { scriptContext.sleep(50, 5); }
       }.run());
+  }
+
+  public void testStopThisWorkerThread() throws Exception {
+    final ThreadContextLocator threadContextLocator =
+      new StubThreadContextLocator();
+
+    final ScriptContextImplementation scriptContext =
+      new ScriptContextImplementation(
+        null, threadContextLocator, null, null, null, null, null, null, null,
+        null, null);
+
+    try {
+      scriptContext.stopThisWorkerThread();
+      fail("Expected InvalidContextException");
+    }
+    catch (InvalidContextException e) {
+    }
+
+    threadContextLocator.set(m_threadContext);
+
+    try {
+      scriptContext.stopThisWorkerThread();
+      fail("Expected ShutdownException");
+    }
+    catch (ShutdownException e) {
+    }
   }
 }

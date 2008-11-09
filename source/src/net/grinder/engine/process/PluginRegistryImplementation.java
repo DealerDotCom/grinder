@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2007 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.grinder.common.Logger;
-import net.grinder.common.ThreadLifeCycleListener;
+import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
@@ -104,7 +104,7 @@ final class PluginRegistryImplementation
     // worker thread.
 
     threadContext.registerThreadLifeCycleListener(
-      new ThreadLifeCycleListener() {
+      new SkeletonThreadLifeCycleListener() {
         public void beginThread() {
           final RegisteredPlugin[] registeredPlugins;
 
@@ -118,20 +118,12 @@ final class PluginRegistryImplementation
               registeredPlugins[i].createPluginThreadListener(threadContext);
             }
             catch (EngineException e) {
-              // Swallow plugin failures. We don't need a result from
+              // Swallow plug-in failures. We don't need a result from
               // createPluginThreadListener(), and it will have produced
               // adequate logging.
             }
           }
         }
-
-        public void beginRun() { }
-
-        public void endRun() { }
-
-        public void beginShutdown() { }
-
-        public void endThread() { }
       });
   }
 }

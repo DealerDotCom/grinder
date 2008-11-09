@@ -75,10 +75,8 @@ public class TestThreadContextImplementation extends TestCase {
 
   public void testShutdownOnlyOnce() throws Exception {
 
-    // pushDispatchContext() should throw an exception after
-    // the process has been shut down but before the thread
-    // has detected this. Effectively, it will throw a
-    // ShutdownException at most once per thread.
+    // pushDispatchContext() should throw one ShutdownException exception after
+    // the thread has been shut down.
 
     final ThreadContext threadContext =
       new ThreadContextImplementation(
@@ -91,20 +89,14 @@ public class TestThreadContextImplementation extends TestCase {
       threadContext.pushDispatchContext(m_dispatchContext);
     }
 
-    final ShutdownException se = new ShutdownException("test");
-    m_processContextStubFactory.setThrows("checkIfShutdown", se);
+    threadContext.shutdown();
 
-    for (int i = 0; i < 2; ++i) {
-      try {
-        threadContext.pushDispatchContext(m_dispatchContext);
-        fail("Expected ShutdownException");
-      }
-      catch (ShutdownException e) {
-        assertSame(se, e);
-      }
+    try {
+      threadContext.pushDispatchContext(m_dispatchContext);
+      fail("Expected ShutdownException");
     }
-
-    threadContext.fireBeginShutdownEvent();
+    catch (ShutdownException e) {
+    }
 
     for (int i = 0; i < 2; ++i) {
       threadContext.pushDispatchContext(m_dispatchContext);

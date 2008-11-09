@@ -144,9 +144,14 @@ final class GrinderProcess {
     final ThreadStarter delegatingThreadStarter = new ThreadStarter() {
       public int startThread(Object testRunner)
         throws EngineException, InvalidContextException {
+
+        final ThreadStarter threadStarter;
+
         synchronized (m_eventSynchronisation) {
-          return m_threadStarter.startThread(testRunner);
+          threadStarter = m_threadStarter;
         }
+
+        return threadStarter.startThread(testRunner);
       }
     };
 

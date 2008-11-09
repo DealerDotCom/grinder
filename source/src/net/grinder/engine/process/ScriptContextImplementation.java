@@ -27,6 +27,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.script.InternalScriptContext;
+import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.SSLControl;
 import net.grinder.script.TestRegistry;
@@ -51,6 +52,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
   private final Statistics m_scriptStatistics;
   private final TestRegistry m_testRegistry;
   private final ThreadStarter m_threadStarter;
+  private final ThreadStopper m_threadStopper;
 
   public ScriptContextImplementation(WorkerIdentity workerIdentity,
                                      ThreadContextLocator threadContextLocator,
@@ -61,7 +63,8 @@ final class ScriptContextImplementation implements InternalScriptContext {
                                      SSLControl sslControl,
                                      Statistics scriptStatistics,
                                      TestRegistry testRegistry,
-                                     ThreadStarter threadStarter) {
+                                     ThreadStarter threadStarter,
+                                     ThreadStopper threadStopper) {
     m_workerIdentity = workerIdentity;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
@@ -72,6 +75,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
     m_scriptStatistics = scriptStatistics;
     m_testRegistry = testRegistry;
     m_threadStarter = threadStarter;
+    m_threadStopper = threadStopper;
   }
 
   public int getAgentNumber() {
@@ -124,6 +128,21 @@ final class ScriptContextImplementation implements InternalScriptContext {
 
   public int startWorkerThread(Object testRunner) throws GrinderException {
     return m_threadStarter.startThread(testRunner);
+  }
+
+  public void stopThisWorkerThread() throws InvalidContextException {
+
+    if (m_threadContextLocator.get() != null) {
+      throw new ShutdownException("Thread has been shut down");
+    }
+    else {
+      throw new InvalidContextException(
+        "stopThisWorkerThread() must be called from  a worker thread");
+    }
+  }
+
+  public boolean stopWorkerThread(int threadNumber) {
+    return m_threadStopper.stopThread(threadNumber);
   }
 
   public FilenameFactory getFilenameFactory() {

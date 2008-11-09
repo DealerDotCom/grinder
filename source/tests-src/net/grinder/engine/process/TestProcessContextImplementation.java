@@ -21,6 +21,7 @@
 
 package net.grinder.engine.process;
 
+import junit.framework.TestCase;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.StubTest;
@@ -30,12 +31,13 @@ import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.communication.QueuedSender;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
+import net.grinder.script.Grinder;
+import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesTestFactory;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.testutility.RandomStubFactory;
-import junit.framework.TestCase;
 
 
 /**
@@ -95,16 +97,6 @@ public class TestProcessContextImplementation extends TestCase {
     final long t2 = System.currentTimeMillis();
     assertTrue(t1 <= processContext.getExecutionStartTime());
     assertTrue(processContext.getExecutionStartTime() <= t2);
-
-    processContext.checkIfShutdown();
-    processContext.shutdown();
-
-    try {
-      processContext.checkIfShutdown();
-      fail("Expected ShutdownException");
-    }
-    catch (ShutdownException e) {
-    }
   }
 
   public void testThreadContextLocator() throws Exception {
@@ -153,6 +145,9 @@ public class TestProcessContextImplementation extends TestCase {
 
     processContext.fireThreadCreatedEvent(m_threadContext);
 
+    m_threadContextStubFactory.assertSuccess(
+      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
+    m_threadContextStubFactory.assertSuccess("getThreadNumber");
     m_threadContextStubFactory.assertSuccess(
       "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
     m_threadContextStubFactory.assertNoMoreCalls();
@@ -225,5 +220,144 @@ public class TestProcessContextImplementation extends TestCase {
     final TestStatisticsMap statisticsDelta2 = message4.getStatisticsDelta();
     assertEquals(0, testStatisticsHelper.getTestTime(
       statisticsDelta2.nonCompositeStatisticsTotals()));
+  }
+
+  public void testShutdownAll() throws Exception {
+    final ProcessContext processContext =
+      new ProcessContextImplementation(
+        m_workerIdentity,
+        new GrinderProperties(),
+        m_logger,
+        null,
+        m_queuedSender,
+        StatisticsServicesTestFactory.createTestInstance(),
+        null);
+
+    final RandomStubFactory threadContext1StubFactory =
+      new RandomStubFactory(ThreadContext.class);
+    final ThreadContext threadContext1 =
+      (ThreadContext)threadContext1StubFactory.getStub();
+    threadContext1StubFactory.setResult("getThreadNumber", new Integer(1));
+
+    final RandomStubFactory threadContext2StubFactory =
+      new RandomStubFactory(ThreadContext.class);
+    final ThreadContext threadContext2 =
+      (ThreadContext)threadContext2StubFactory.getStub();
+    threadContext2StubFactory.setResult("getThreadNumber", new Integer(2));
+
+    processContext.fireThreadCreatedEvent(threadContext1);
+
+    threadContext1StubFactory.assertSuccess(
+      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
+    threadContext1StubFactory.assertSuccess("getThreadNumber");
+    final ThreadLifeCycleListener threadListener1 = (ThreadLifeCycleListener)
+    threadContext1StubFactory.assertSuccess(
+      "registerThreadLifeCycleListener",
+      ThreadLifeCycleListener.class).getParameters()[0];
+    threadContext1StubFactory.assertNoMoreCalls();
+
+    processContext.fireThreadCreatedEvent(threadContext2);
+
+    threadContext2StubFactory.assertSuccess(
+      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
+    threadContext2StubFactory.assertSuccess("getThreadNumber");
+    threadContext2StubFactory.assertSuccess(
+      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
+    threadContext2StubFactory.assertNoMoreCalls();
+
+    processContext.shutdown();
+
+    threadContext1StubFactory.assertSuccess("shutdown");
+    threadContext1StubFactory.assertNoMoreCalls();
+    threadContext2StubFactory.assertSuccess("shutdown");
+    threadContext2StubFactory.assertNoMoreCalls();
+
+    final RandomStubFactory threadContext3StubFactory =
+      new RandomStubFactory(ThreadContext.class);
+    final ThreadContext threadContext3 =
+      (ThreadContext)threadContext3StubFactory.getStub();
+    threadContext3StubFactory.setResult("getThreadNumber", new Integer(3));
+
+    processContext.fireThreadCreatedEvent(threadContext3);
+
+    threadContext3StubFactory.assertSuccess(
+      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
+    threadContext3StubFactory.assertSuccess("getThreadNumber");
+    threadContext3StubFactory.assertSuccess("shutdown");
+    threadContext3StubFactory.assertNoMoreCalls();
+
+    threadListener1.endThread();
+
+    processContext.shutdown();
+
+    threadContext1StubFactory.assertNoMoreCalls();
+    threadContext2StubFactory.assertSuccess("shutdown");
+    threadContext2StubFactory.assertNoMoreCalls();
+    threadContext3StubFactory.assertNoMoreCalls();
+  }
+
+  public void testStopThread() throws Exception {
+    final ProcessContext processContext =
+      new ProcessContextImplementation(
+        m_workerIdentity,
+        new GrinderProperties(),
+        m_logger,
+        null,
+        m_queuedSender,
+        StatisticsServicesTestFactory.createTestInstance(),
+        null);
+
+    final ScriptContext scriptContext = Grinder.grinder;
+
+    final RandomStubFactory threadContext1StubFactory =
+      new RandomStubFactory(ThreadContext.class);
+    final ThreadContext threadContext1 =
+      (ThreadContext)threadContext1StubFactory.getStub();
+    threadContext1StubFactory.setResult("getThreadNumber", new Integer(1));
+
+    final RandomStubFactory threadContext2StubFactory =
+      new RandomStubFactory(ThreadContext.class);
+    final ThreadContext threadContext2 =
+      (ThreadContext)threadContext2StubFactory.getStub();
+    threadContext2StubFactory.setResult("getThreadNumber", new Integer(2));
+
+    processContext.fireThreadCreatedEvent(threadContext1);
+
+    threadContext1StubFactory.assertSuccess(
+      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
+    threadContext1StubFactory.assertSuccess("getThreadNumber");
+    final ThreadLifeCycleListener threadListener1 = (ThreadLifeCycleListener)
+    threadContext1StubFactory.assertSuccess(
+      "registerThreadLifeCycleListener",
+      ThreadLifeCycleListener.class).getParameters()[0];
+    threadContext1StubFactory.assertNoMoreCalls();
+
+    processContext.fireThreadCreatedEvent(threadContext2);
+
+    threadContext2StubFactory.assertSuccess(
+      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
+    threadContext2StubFactory.assertSuccess("getThreadNumber");
+    threadContext2StubFactory.assertSuccess(
+      "registerThreadLifeCycleListener",
+      ThreadLifeCycleListener.class);
+    threadContext2StubFactory.assertNoMoreCalls();
+
+    final boolean result1 = scriptContext.stopWorkerThread(3);
+    assertFalse(result1);
+    threadContext1StubFactory.assertNoMoreCalls();
+    threadContext2StubFactory.assertNoMoreCalls();
+
+    final boolean result2 = scriptContext.stopWorkerThread(2);
+    assertTrue(result2);
+    threadContext1StubFactory.assertNoMoreCalls();
+    threadContext2StubFactory.assertSuccess("shutdown");
+    threadContext2StubFactory.assertNoMoreCalls();
+
+    threadListener1.endThread();
+
+    final boolean result3 = scriptContext.stopWorkerThread(1);
+    assertFalse(result3);
+    threadContext1StubFactory.assertNoMoreCalls();
+    threadContext2StubFactory.assertNoMoreCalls();
   }
 }

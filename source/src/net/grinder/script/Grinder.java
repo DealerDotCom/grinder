@@ -48,7 +48,8 @@ public class Grinder {
    * @author Philip Aston
    * @version $Revision$
    */
-  public static interface ScriptContext {
+  public interface ScriptContext {
+
     /**
      * Return the agent number. The console allocates a unique number to that
      * each connected agent, and the agent passes this on to the worker process.
@@ -66,7 +67,6 @@ public class Grinder {
      * @see #getThreadNumber()
      */
     int getAgentNumber();
-
 
     /**
      * Return the process number. The agent allocates a unique number to that
@@ -124,7 +124,7 @@ public class Grinder {
      * according to a pseudo normal distribution.
      *
      * @param meanTime Mean time in milliseconds.
-     * @exception GrinderException If the sleep failed.
+     * @throws GrinderException If the sleep failed.
      */
     void sleep(long meanTime) throws GrinderException;
 
@@ -168,6 +168,28 @@ public class Grinder {
      * @throws GrinderException If the new worker thread could not be started.
      */
     int startWorkerThread(Object testRunner) throws GrinderException;
+
+    /**
+     * Stop this worker thread immediately and cleanly.
+     *
+     * <p>This method works by throwing a special unchecked exception. If the
+     * caller catches this exception, rather than letting it propagate, the
+     * thread will not stop.</p>
+     *
+     * @throws InvalidContextException If called from a non-worker thread.
+     */
+    void stopThisWorkerThread() throws InvalidContextException;
+
+    /**
+     * Request a specific worker thread to stop. If the thread was running, it
+     * will shut down be the next time it enters code instrumented by a
+     * {@link Test}.
+     *
+     * @param threadNumber The thread number of the worker thread to stop.
+     * @return <code>true</code> if a thread existed with the given
+     * <code>threadNumber</code>, otherwise <code>false</code>.
+     */
+    boolean stopWorkerThread(int threadNumber);
 
     /**
      * Get a {@link net.grinder.common.FilenameFactory} that can be
