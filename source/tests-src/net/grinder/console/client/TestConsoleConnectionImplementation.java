@@ -21,6 +21,8 @@
 
 package net.grinder.console.client;
 
+import java.io.Serializable;
+
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.BlockingSender;
 import net.grinder.communication.CommunicationException;
@@ -140,7 +142,7 @@ public class TestConsoleConnectionImplementation extends TestCase {
     }
 
     m_senderStubFactory.setResult(
-      "blockingSend", new ResultMessage(new Object()));
+      "blockingSend", new ResultMessage(new Serializable() {}));
 
     try {
       consoleConnection.getNumberOfAgents();

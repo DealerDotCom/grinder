@@ -21,6 +21,8 @@
 
 package net.grinder.console.communication.server.messages;
 
+import java.io.Serializable;
+
 import net.grinder.communication.Message;
 
 
@@ -31,16 +33,17 @@ import net.grinder.communication.Message;
  * @version $Revision:$
  */
 public final class ResultMessage implements Message {
-  private static final long serialVersionUID = 1;
+  private static final long serialVersionUID = 2;
 
-  private final Object m_result;
+  /** @serial The result message. */
+  private final Serializable m_result;
 
   /**
    * Constructor.
    *
    * @param result The result.
    */
-  public ResultMessage(Object result) {
+  public ResultMessage(Serializable result) {
     m_result = result;
   }
 
