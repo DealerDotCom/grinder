@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -206,7 +206,8 @@ public class TestThreadPool extends TestCase {
 
     try {
       threadPool.stopAndWait();
-      assert(Thread.interrupted()); // Threads all died early, so we didn't join().
+      // Threads all died early, so we didn't join().
+      assertTrue(Thread.interrupted());
     }
     catch (UncheckedInterruptedException e) {
     }
