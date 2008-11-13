@@ -179,7 +179,8 @@ final class WorkerLauncher {
    *
    * <ol>
    * <li>We need to shutdown the kernel even if we never started a worker.</li>
-   * <li>Shutting down the kernel joins our {@link WaitForWorkerTask} threads,
+   * <li>Shutting down the kernel joins our
+   * {@link net.grinder.engine.agent.WorkerLauncher.WaitForWorkerTask} threads,
    * and the last thread didn't complete as the caller of {@link #allFinished()}
    * was holding the <em>notifyOnFinish</em> {@link Condition}.</li>
    * </ol>

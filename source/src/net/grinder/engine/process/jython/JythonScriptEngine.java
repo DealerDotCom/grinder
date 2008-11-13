@@ -110,23 +110,14 @@ public final class JythonScriptEngine implements ScriptEngine {
   }
 
   /**
-   * Create a {@link WorkerRunnable} that will be used to run the work
-   * for one worker thread.
-   *
-   * @return The runnable.
-   * @throws EngineException If the runnable could not be created.
+   * {@inheritDoc}
    */
   public WorkerRunnable createWorkerRunnable() throws EngineException {
     return new JythonWorkerRunnable();
   }
 
   /**
-   * Create a {@link WorkerRunnable} that will be used to run the work
-   * for one worker thread.
-   *
-   * @param testRunner Optional test runner.
-   * @return The runnable.
-   * @throws EngineException If the runnable could not be created.
+   * {@inheritDoc}
    */
   public WorkerRunnable createWorkerRunnable(Object testRunner)
     throws EngineException {
@@ -196,8 +187,8 @@ public final class JythonScriptEngine implements ScriptEngine {
    * <p>
    * There's a subtle difference in the equality semantics of
    * InstrumentedPyInstances and InstrumentedPyJavaInstances.
-   * InstrumentedPyInstances compare do not equal to the wrapped objects, where
-   * as due to <code>PyJavaInstance._is()</code> semantics,
+   * InstrumentedPyInstances do not compare equal to the wrapped objects,
+   * whereas due to <code>PyJavaInstance._is()</code> semantics,
    * InstrumentedPyJavaInstances <em>do</em> compare equal to the wrapped
    * objects. We can only influence one side of the comparison (we can't easily
    * alter the <code>_is</code> implementation of wrapped objects) so we can't
@@ -207,7 +198,7 @@ public final class JythonScriptEngine implements ScriptEngine {
   class PyInstrumentedProxyFactory {
 
     /**
-     * See {@link PyInstrumentedProxyFactory}.
+     * See {@link JythonScriptEngine.PyInstrumentedProxyFactory}.
      *
      *
      * @param test
@@ -467,11 +458,11 @@ public final class JythonScriptEngine implements ScriptEngine {
    * A dispatcher that translates return types and exceptions from the script.
    *
    * <p>
-   * The delegate {@link Dispatcher} can be safely invoked multiple times for
-   * the same test and thread (only the outer invocation will be recorded).
-   * Consequently there is no problem with our PyInstance instrumentation and
-   * Jython 1.1, where Jython can make multiple calls through our instrumented
-   * invoke methods.
+   * The delegate {@link net.grinder.engine.process.ScriptEngine.Dispatcher
+   * Dispatcher} can safely be invoked multiple times for the same test and
+   * thread (only the outer invocation will be recorded). Consequently there
+   * is no problem with our PyInstance instrumentation and Jython 1.1, where
+   * Jython can make multiple calls through our instrumented invoke methods.
    * </p>
    */
   static final class PyDispatcher {

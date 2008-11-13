@@ -178,7 +178,7 @@ public interface SampleModel {
   }
 
   /**
-   * Null implementation of {@link Listener}.
+   * Skeleton implementation of {@link SampleModel.Listener}.
    */
   abstract class AbstractListener implements Listener {
 

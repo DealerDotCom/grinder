@@ -107,8 +107,8 @@ public interface ProcessControl {
   }
 
   /**
-   * Comparator for {@link ProcessReports} that sorts according to
-   * the agent report.
+   * Comparator for {@link ProcessControl.ProcessReports} that sorts according
+   * to the agent report.
    */
   final class ProcessReportsComparator implements Comparator {
     private final Comparator m_processReportComparator =

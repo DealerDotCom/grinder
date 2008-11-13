@@ -44,7 +44,10 @@ public final class FileContents implements Serializable {
 
   private static final long serialVersionUID = -3140708892260600117L;
 
+  /** @serial The file name. */
   private final File m_filename;
+
+  /** @serial The file data. */
   private final byte[] m_contents;
 
   /**

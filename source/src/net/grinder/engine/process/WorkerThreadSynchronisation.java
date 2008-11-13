@@ -32,7 +32,7 @@ package net.grinder.engine.process;
 interface WorkerThreadSynchronisation {
 
   /**
-   * This should be called before the thread is started - e.g. in the
+   * This should be called before the thread is started, for example in the
    * Thread or Runnable's constructor.
    */
   void threadCreated();

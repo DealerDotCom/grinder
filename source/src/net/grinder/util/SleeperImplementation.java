@@ -102,7 +102,7 @@ public final class SleeperImplementation implements Sleeper {
 
   /**
    * Shutdown this <code>Sleeper</code>. Once called, all sleep
-   * method invocations will throw {@link ShutdownException},
+   * method invocations will throw {@link Sleeper.ShutdownException},
    * including those already sleeping.
    */
   public void shutdown() {

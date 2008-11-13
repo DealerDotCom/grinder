@@ -32,8 +32,8 @@ import java.io.Writer;
  *
  * <p>
  * <strong>Unsynchronised</strong>. In practice, each
- * <code>DelayedCreationFileWriter</code> is wrapped in a {@link PrintWritter}
- * that provides adequate synchronisation.
+ * <code>DelayedCreationFileWriter</code> is wrapped in a
+ * {@link java.io.PrintWriter} that provides adequate synchronisation.
  * </p>
  *
  * @author Philip Aston

@@ -125,8 +125,8 @@ public final class ConnectionDetails {
   }
 
   /**
-   * Two ConnectionDetails are equal if and only if all of the following are
-   * true:
+   * Equality. Two ConnectionDetails are equal if and only if all of the
+   * following are true:
    *
    * <ul>
    * <li>they represent the same ordered pair of end points</li>

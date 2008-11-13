@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,13 +30,13 @@ import net.grinder.common.UncheckedGrinderException;
  * <p>
  * Strict state model, the {@link StopWatch} is either <em>running</em> or
  * <em>not running</em>. If <em>running</em> then the only valid method is
- * {@link #stop()}. If <em>not running</em> then {@link #start()},
- * {@link #getTime()}, {@link #add()}, and {@link #reset()} are all valid, but
- * {@link #stop()} is not.
+ * {@link #stop}. If <em>not running</em> then {@link #start},
+ * {@link #getTime}, {@link #add}, and {@link #reset} are all valid, but
+ * {@link #stop} is not.
  * </p>
  *
  * <p>
- * Calling an method that is not valid for the current state results in an
+ * Calling a method that is not valid for the current state results in an
  * unchecked {@link StopWatchStateException}; this is effectively an assertion.
  * </p>
  *

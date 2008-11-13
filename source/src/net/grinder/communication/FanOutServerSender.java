@@ -102,7 +102,6 @@ public final class FanOutServerSender extends AbstractFanOutSender {
    *
    * @param resource The resource.
    * @return The address, or <code>null</code> if the socket has no address.
-   * @see AddressedMessage
    */
   protected Address getAddress(Resource resource) {
 

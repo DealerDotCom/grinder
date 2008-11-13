@@ -76,7 +76,7 @@ public interface ConsoleCommunication {
   void sendToAddressedAgents(Address address, Message message);
 
   /**
-   * How many connections have been accepted? Used by the unit tests.
+   * The number of connections that have been accepted. Used by the unit tests.
    *
    * @return The number of accepted connections.
    */

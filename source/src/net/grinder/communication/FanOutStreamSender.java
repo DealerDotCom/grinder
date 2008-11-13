@@ -88,7 +88,6 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
    *
    * @param resource The resource.
    * @return The address, or <code>null</code> if the resource has no address.
-   * @see AddressedMessage
    */
   protected Address getAddress(Resource resource) {
     return null;

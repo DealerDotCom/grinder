@@ -164,7 +164,7 @@ public final class ConsoleFoundation {
    *
    * @param uiClass
    *            The implementation class - must implement
-   *            {@link ConsoleFoundation#UI}.
+   *            {@link ConsoleFoundation.UI}.
    * @return An instance of the user interface class.
    */
   public UI createUI(Class uiClass) {
@@ -283,7 +283,7 @@ public final class ConsoleFoundation {
    *
    * <p>Must be public for PicoContainer.</p>
    *
-   * @see WireFileDistribution
+   * @see ConsoleFoundation.WireFileDistribution
    */
   public static class WireMessageDispatch {
 

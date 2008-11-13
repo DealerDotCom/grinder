@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,9 +28,10 @@ import HTTPClient.HTTPConnection.BandwidthLimiterFactory;
 
 
 /**
- * BandwidthLimiterFactory that creates a {@link BandwidthLimiter} that
- * restricts the bandwidth of the data transfered through the buffer in
- * {@link BandwidthLimiter#maximumBytes} by sleeping.
+ * BandwidthLimiterFactory that creates a
+ * {@link HTTPClient.HTTPConnection.BandwidthLimiter}
+ * that restricts the bandwidth of the data transfered through the buffer in
+ * {@link HTTPClient.HTTPConnection.BandwidthLimiter#maximumBytes} by sleeping.
  *
  * @author Philip Aston
  * @version $Revision$

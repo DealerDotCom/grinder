@@ -79,7 +79,6 @@ class AgentIdentityImplementation
   /**
    * Create a worker identity.
    *
-   * @param processNumber The agent allocated worker process number.
    * @return The worker identity.
    */
   WorkerIdentityImplementation createWorkerIdentity() {

@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -253,8 +253,10 @@ final class FileTreeModel implements TreeModel {
   }
 
   /**
-   * A {@link FileChangeWatcher.FileChangedListener} that listens for changed
-   * file notifications and updates the FileTreeModel appropriately.
+   * A {@link
+   * net.grinder.console.distribution.FileChangeWatcher.FileChangedListener}
+   * that listens for changed file notifications and updates the FileTreeModel
+   * appropriately.
    *
    */
   public class RefreshChangedDirectoriesListener

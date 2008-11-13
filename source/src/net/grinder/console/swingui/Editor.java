@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -67,9 +67,9 @@ final class Editor {
 
   /**
    * Constructor.
-   * @param saveFileAsAction
    *
-   * @param model The editor model.
+   * @param editorModel The editor model.
+   * @param saveFileAsAction
    */
   public Editor(EditorModel editorModel,
                 Action saveFileAsAction) throws ConsoleException {

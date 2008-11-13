@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,7 +47,9 @@ public final class ListenerSupport {
   }
 
   /**
-   * Adapter interface for use with an {@link ListenerSupport#apply(Informer)}.
+   * Adapter interface for use with
+   * {@link
+   * ListenerSupport#apply(net.grinder.util.ListenerSupport.Informer)}.
    */
   public interface Informer {
 
@@ -60,8 +62,9 @@ public final class ListenerSupport {
   }
 
   /**
-   * Adapter interface for use with an
-   * {@link ListenerSupport#apply(HandlingInformer)}.
+   * Adapter interface for use with
+   * {@link
+   * ListenerSupport#apply(net.grinder.util.ListenerSupport.HandlingInformer)}.
    */
   public interface HandlingInformer {
 

@@ -73,6 +73,7 @@ public class GrinderProperties extends Properties {
   private transient PrintWriter m_errorWriter =
     new PrintWriter(System.err, true);
 
+  /** @serial Associated file. */
   private File m_file;
 
   /**
@@ -505,6 +506,9 @@ public class GrinderProperties extends Properties {
     }
   }
 
+  /**
+   * Override to restore error writer to <code>System.err</code>.
+   */
   private void readObject(java.io.ObjectInputStream in)
     throws IOException, ClassNotFoundException {
     in.defaultReadObject();

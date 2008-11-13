@@ -279,8 +279,8 @@ public final class ConsoleCommunicationImplementation
   }
 
   /**
-   * How many connections have been accepted and are still active? Used by the
-   * unit tests.
+   * The number of connections that have been accepted and are still active.
+   * Used by the unit tests.
    *
    * @return The number of accepted connections.
    */
@@ -292,8 +292,7 @@ public final class ConsoleCommunicationImplementation
    * Send the given message to the agent processes (which may pass it on to
    * their workers).
    *
-   * <p>Any errors that occur will be handled with the error handler, see
-   * {@link #setErrorHandler}.</p>
+   * <p>Any errors that occur will be handled with the error handler.</p>
    *
    * @param message The message to send.
    */
@@ -318,8 +317,7 @@ public final class ConsoleCommunicationImplementation
    * to its workers).
    *
    * <p>
-   * Any errors that occur will be handled with the error handler, see
-   * {@link #setErrorHandler(ErrorHandler)}.
+   * Any errors that occur will be handled with the error handler.
    * </p>
    *
    * @param address

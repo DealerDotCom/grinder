@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -686,11 +686,11 @@ public interface Statistics  {
     /**
      * Returns the elapsed time for the test.
      *
-     * <p>If this {@link StatisticsForTest} was obtained with
-     * {@link Statistics#getForCurrentTest}, the result will be the elapsed time
-     * since the test in progress was started. If it was obtained with
-     * {@link Statistics#getForLastTest}. the result will be the time taken by
-     * the last test.
+     * <p>If this {@link Statistics.StatisticsForTest StatisticsForTest} was
+     * obtained with {@link Statistics#getForCurrentTest}, the result will be
+     * the elapsed time since the test in progress was started. If it was
+     * obtained with {@link Statistics#getForLastTest}, the result will be the
+     * time taken by the last test.
      *
      * <p>
      * {@link #getTime()} always returns the time taken by the test, even if the

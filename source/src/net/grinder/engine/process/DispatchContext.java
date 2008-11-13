@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,11 +42,12 @@ interface DispatchContext {
   Test getTest();
 
   /**
-   * Creates a {@link StatisticsForTest} through which the script can query and
-   * update the statistics. The statistics are only mutable update until the
-   * next time {@link #report()} is called; after that time the
-   * {@link StatisticsForTest} is disassociated from this
-   * {@link DispatchContext} and the statistics are read-only.
+   * Creates a {@link net.grinder.script.Statistics.StatisticsForTest} through
+   * which the script can query and update the statistics. The statistics are
+   * only mutable update until the next time {@link #report()} is called; after
+   * that time the {@link net.grinder.script.Statistics.StatisticsForTest} is
+   * disassociated from this {@link DispatchContext} and the statistics are
+   * read-only.
    *
    * @return The handle the script uses to update the statistics, or
    *    <code>null</code> if there currently is no test in progress.

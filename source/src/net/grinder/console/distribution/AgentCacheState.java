@@ -29,9 +29,8 @@ import java.beans.PropertyChangeListener;
  *
  * <p>
  * This tracks the state of all the caches, so {@link #getOutOfDate()} will
- * return <code>true</code> if any one of the caches is out of date. The
- * communication package further filters interaction on a per cache basis, see
- * {@link net.grinder.console.communication.AgentFileCacheState}.
+ * return <code>true</code> if any one of the caches is out of date. For per
+ * cache information, see {@link AgentSet#getAddressOfOutOfDateAgents}.
  * </p>
  *
  * @author Philip Aston

@@ -151,7 +151,8 @@ final class SocketWrapper implements ResourcePool.Resource {
 
   /**
    * Set an external object that identifies this socket. This can be used in
-   * conjunction with {@link AddressedMessage} to address a particular target.
+   * conjunction with {@link FanOutServerSender#send} to address a particular
+   * target.
    *
    * @param address
    *            The address. We only care about its equality semantics.

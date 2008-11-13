@@ -188,8 +188,8 @@ public final class Acceptor {
   }
 
   /**
-   * How many connections have been accepted and are still active? Used by the
-   * unit tests.
+   * The number of connections that have been accepted and are still active.
+   * Used by the unit tests.
    *
    * @return The number of accepted connections.
    */

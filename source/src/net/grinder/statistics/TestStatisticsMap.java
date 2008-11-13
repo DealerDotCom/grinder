@@ -353,9 +353,9 @@ public final class TestStatisticsMap implements java.io.Externalizable {
    * <code>TestStatisticsMap</code> around use.
    *
    * <p>
-   * See the simpler {@link ForEach} for cases where you don't need control over
-   * advancing the iterator or to propagate exceptions from the code that
-   * handles each item.
+   * See the simpler {@link TestStatisticsMap.ForEach} for cases where you
+   * don't need control over advancing the iterator or to propagate exceptions
+   * from the code that handles each item.
    * </p>
    */
   public final class Iterator {

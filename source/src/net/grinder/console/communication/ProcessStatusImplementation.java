@@ -308,7 +308,7 @@ final class ProcessStatusImplementation {
   }
 
   /**
-   * Implementation of {@link ProcessStatus.ProcessReports}.
+   * Implementation of {@link ProcessControl.ProcessReports}.
    *
    * Package scope for unit tests.
    */

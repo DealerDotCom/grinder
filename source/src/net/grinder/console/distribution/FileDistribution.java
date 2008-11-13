@@ -32,14 +32,6 @@ import net.grinder.util.Directory;
  * File Distribution. Has a model of the agent cache state, and is a factory for
  * {@link FileDistributionHandler}s.
  *
- * <p>
- * Client code can actively invalidate the agent cache state by calling
- * {@link AgentCacheStateImplementation#setOutOfDate()}
- * on the result of {@link #getAgentCacheState}. They may want to do this, for
- * example, if a parameter they will pass to {@link #getHandler} changes and
- * they are using events from the {@link AgentCacheState} to update a UI.
- * </p>
- *
  * @author Philip Aston
  * @version $Revision$
  */

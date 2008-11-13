@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,7 @@ import net.grinder.communication.Message;
 public class StartWorkerProcessesMessage implements Message {
   private static final long serialVersionUID = 1;
 
+  /** @serial Properties to use to start the worker processes. */
   private final GrinderProperties m_properties;
 
   /**

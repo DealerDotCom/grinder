@@ -39,7 +39,7 @@ import net.grinder.util.AllocateLowestNumberImplementation;
 
 
 /**
- * Implementation of {@link ProcessControl} and {@link AgentFileCacheState}.
+ * Implementation of {@link ProcessControl}.
  *
  * @author Philip Aston
  * @version $Revision:$

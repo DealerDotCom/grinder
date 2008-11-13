@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,14 +30,15 @@ package net.grinder.util.thread;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see UncheckedInterruptedException For policy on handling interrupted
- *      threads.
+ * @see net.grinder.common.UncheckedInterruptedException For policy on handling
+ *  interrupted threads.
  */
 public interface InterruptibleRunnable {
 
   /**
    * A run method that guarantees to exit if the thread is interrupted,
-   * perhaps by throwing {@link UncheckedInterruptedException}.
+   * perhaps by throwing {@link
+   * net.grinder.common.UncheckedInterruptedException}.
    */
   void interruptibleRun();
 }

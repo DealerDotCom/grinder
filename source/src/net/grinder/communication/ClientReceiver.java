@@ -38,7 +38,7 @@ public final class ClientReceiver extends StreamReceiver {
    *            Connector to use to make the connection to the server.
    * @param address
    *            The address of this ClientReceiver - can be used with
-   *            {@link FanOutServerSender#send(AddressedMessage)}.
+   *            {@link FanOutServerSender#send(Address, Message)}.
    * @return The ClientReceiver.
    * @throws CommunicationException
    *             If failed to connect.

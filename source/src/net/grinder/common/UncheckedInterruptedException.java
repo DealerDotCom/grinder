@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,13 +46,16 @@ import java.net.SocketTimeoutException;
  * implementations are carefully reviewed to ensure that they do not ignore the
  * interrupt condition and will exit whenever {@link InterruptedException} and
  * {@link InterruptedIOException}s are received. We only interrupt code that
- * implements {@link InterruptibleRunnable#interruptibleRun()}.</li>
+ * implements
+ * {@link net.grinder.util.thread.InterruptibleRunnable#interruptibleRun()}.
+ * </li>
  *
  * <li>The InterruptibleRunnable's are invoked by wrapping then in an
  * InterruptibleRunnableAdapter. This exits cleanly, silently handling
  * {@link UncheckedInterruptedException}s.</li>
  *
- * <li>Whenever core code outside an {@link InterruptibleRunnable} catches an
+ * <li>Whenever core code outside an
+ * {@link net.grinder.util.thread.InterruptibleRunnable} catches an
  * {@link IOException}, it calls {@link #ioException(IOException)}, which will
  * throw an {@link UncheckedInterruptedException} if necessary.</li>
  *
@@ -84,8 +87,8 @@ public class UncheckedInterruptedException extends UncheckedGrinderException {
   /**
    * {@link InterruptedIOException}s are a pain to handle as they extend
    * {@link IOException}. {@link IOException} handlers should call this, unless
-   * they are part of an {@link InterruptibleRunnable} and know what there
-   * doing.
+   * they are part of an {@link net.grinder.util.thread.InterruptibleRunnable}
+   * and know what they're doing.
    *
    * @param e
    *          An {@link IOException}.
