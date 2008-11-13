@@ -667,10 +667,10 @@ what you want. Currently the conditionally built modules are:
              doctitle="${Name}"
              bottom="Copyright &#169; ${year} Paco Gómez, Philip Aston. All Rights Reserved."
              stylesheetfile="${javadoc.css}"
-       package="true">
+             source="1.4"
+             package="true">
       <sourcepath>
         <pathelement path="${src.dir}"/>
-        <pathelement path="${test-src.dir}"/>
       </sourcepath>
             <classpath>
               <path refid="build.classpath"/>
@@ -735,6 +735,7 @@ what you want. Currently the conditionally built modules are:
              stylesheetfile="${javadoc.css}"
              protected="true"
              overview="${script-javadoc-src.dir}/net/grinder/script/overview.html"
+             source="1.4"
              sourcepath="${script-javadoc-src.dir}">
         <group title="The Grinder Scripting API"
                packages="net.grinder.common,net.grinder.script,net.grinder.statistics"/>
