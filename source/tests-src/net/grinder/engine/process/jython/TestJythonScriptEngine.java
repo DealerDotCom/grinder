@@ -38,6 +38,7 @@ import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.ScriptEngine.WorkerRunnable;
 import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
 import net.grinder.engine.process.jython.JythonScriptEngine;
+import net.grinder.engine.process.jython.JythonScriptEngine.JythonVersionAdapter;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
@@ -46,6 +47,7 @@ import net.grinder.util.Directory;
 
 import org.python.core.Py;
 import org.python.core.PyException;
+import org.python.core.PyInstance;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
@@ -65,6 +67,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
   private final PythonInterpreter m_interpreter =
     new PythonInterpreter(null, new PySystemState());
+  private final JythonVersionAdapter m_versionAdapter;
 
   private final PyObject m_one = new PyInteger(1);
   private final PyObject m_two = new PyInteger(2);
@@ -77,6 +80,10 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     new DispatcherStubFactory();
   private final Dispatcher m_dispatcher =
     m_dispatcherStubFactory.getDispatcher();
+
+  public TestJythonScriptEngine() throws Exception {
+    m_versionAdapter = new JythonVersionAdapter();
+  }
 
   public void testInitialise() throws Exception {
     final JythonScriptEngine scriptEngine = new JythonScriptEngine();
@@ -828,6 +835,81 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
 
+  public void testCreateProxyWithJavaClass() throws Exception {
+
+    final JythonScriptEngine scriptEngine = new JythonScriptEngine();
+
+    final Class javaClass = MyClass.class;
+    final PyObject javaProxy = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, javaClass);
+    final PyObject result =
+      javaProxy.invoke("addTwo", Py.java2py(new Integer(10)));
+    assertEquals(new Integer(12), result.__tojava__(Integer.class));
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+    assertSame(m_test, javaProxy.__getattr__("__test__").__tojava__(Test.class));
+
+    final PyObject targetReference = javaProxy.__getattr__("__target__");
+    assertSame(javaClass, targetReference.__tojava__(Object.class));
+    assertNotSame(javaProxy, targetReference);
+    final PyObject targetResult =
+      targetReference.invoke("addTwo", Py.java2py(new Integer(10)));
+    assertEquals(new Integer(12), targetResult.__tojava__(Integer.class));
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    final PyObject result1 = javaProxy.invoke("staticSum", m_one, m_two);
+    assertEquals(m_three, result1);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    final PyObject result2 = javaProxy.invoke("staticSum3",
+      new PyObject[] { m_one,  m_two, m_three });
+    assertEquals(m_six, result2);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    final PyObject result3 = javaProxy.invoke("staticSum",
+      new PyObject[] { m_one, m_two }, Py.NoKeywords);
+    assertEquals(m_three, result3);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    final PyObject instance = javaProxy.__call__();
+    assertEquals(MyClass.class,
+      m_versionAdapter.getClassForInstance((PyInstance) instance).__tojava__(Class.class));
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+
+    final PyObject instance2 = (PyInstance)javaProxy.__call__(
+      new PyObject[] { m_one, m_two, m_three, },
+      new String[] { "c", "b", "a" });
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    final MyClass javaInstance2 = (MyClass) instance2.__tojava__(MyClass.class);
+    assertEquals(3, javaInstance2.getA());
+    assertEquals(2, javaInstance2.getB());
+    assertEquals(1, javaInstance2.getC());
+
+    // From Jython.
+    m_interpreter.set("proxy", javaProxy);
+
+    m_interpreter.exec("result4 = proxy.staticSum3(0, -29, 30)");
+    final PyObject result4 = m_interpreter.get("result4");
+    assertEquals(m_one, result4);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result4Cached = proxy.staticSum3(0, -29, 30)");
+    final PyObject result4Cached = m_interpreter.get("result4Cached");
+    assertEquals(m_one, result4Cached);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result5 = proxy.staticSum(1, 1)");
+    final PyObject result5 = m_interpreter.get("result5");
+    assertEquals(m_two, result5);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+  }
+
   public void testCreateProxyWithRecursiveCode() throws Exception {
 
     final JythonScriptEngine scriptEngine = new JythonScriptEngine();
@@ -948,6 +1030,20 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
   }
 
   public static class MyClass {
+    private int m_a;
+    private int m_b;
+    private int m_c;
+
+    public MyClass() {
+      this(0, 0, 0);
+    }
+
+    public MyClass(int a, int b, int c) {
+      m_a = a;
+      m_b = b;
+      m_c = c;
+    }
+
     public int addOne(int i) {
       return i + 1;
     }
@@ -959,5 +1055,42 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     public int sum3(int x, int y, int z) {
       return x + y + z;
     }
+
+    public static int addTwo(int i) {
+      return i + 2;
+    }
+
+    public static int staticSum(int x, int y) {
+      return x + y;
+    }
+
+    public static int staticSum3(int x, int y, int z) {
+      return x + y + z;
+    }
+
+    public int getA() {
+      return m_a;
+    }
+
+    public void setA(int a) {
+      m_a = a;
+    }
+
+    public int getB() {
+      return m_b;
+    }
+
+    public void setB(int b) {
+      m_b = b;
+    }
+
+    public int getC() {
+      return m_c;
+    }
+
+    public void setC(int c) {
+      m_c = c;
+    }
+
   }
 }

@@ -248,6 +248,10 @@ public final class JythonScriptEngine implements ScriptEngine {
       else if (o == null) {
         throw new NotWrappableTypeException("Can't wrap null/None");
       }
+      else if (o instanceof Class) {
+        return new InstrumentedPyJavaClass(
+          this, test, pyDispatcher, (Class)o);
+      }
       else {
         // Java object.
 
@@ -397,10 +401,9 @@ public final class JythonScriptEngine implements ScriptEngine {
   /**
    * Work around different the Jython implementations.
    *
-   * @author Philip Aston
-   * @version $Revision$
+   * <p>Package scope for unit tests.</p>
    */
-  private static class JythonVersionAdapter {
+  static class JythonVersionAdapter {
     private final Field m_instanceClassField;
 
     // The softly spoken Welshman.

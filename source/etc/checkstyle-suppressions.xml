@@ -15,6 +15,7 @@
   <!-- Non standard method names. -->
   <suppress checks="MethodName" files="HTTPRequest.java"/>
   <suppress checks="MethodName" files="InstrumentedPyInstance.java"/>
+  <suppress checks="MethodName" files="InstrumentedPyJavaClass.java"/>
   <suppress checks="MethodName" files="InstrumentedPyJavaInstance.java"/>
   <suppress checks="MethodName" files="InstrumentedPyJavaInstanceForJavaInstances.java"/>
   <suppress checks="MethodName" files="InstrumentedPyReflectedFunction.java"/>
