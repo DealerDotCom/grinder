@@ -22,9 +22,10 @@ The Grinder 3.1.1 (not yet released)
   Fix bug 2138601 - Moving table columns results in incorrect formatting.
   Thanks to Walter Tuvell for the report.
 
-  Add stream based versions of POST, PUT, OPTIONS to HTTPRequest. This allows
-  arbitrarily large amount of data can be sent without requiring a
-  corresponding amount of memory. Thanks to Walter Tuvell for the suggestion.
+  Fulfill feature request 2201502. Add stream based versions of POST, PUT,
+  OPTIONS to HTTPRequest. This allows arbitrarily large amount of data can be
+  sent without requiring a corresponding amount of memory. Thanks to Walter
+  Tuvell for the suggestion.
 
   Fix bug 1576609 - "Accept Cookie" rules too strict. I've relaxed the
   rules about what cookie domains are acceptable to The Grinder, better to
