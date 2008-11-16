@@ -874,6 +874,11 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
+    final PyObject result4 = javaProxy.invoke("staticSix");
+    assertEquals(m_six, result4);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
     final PyObject instance = javaProxy.__call__();
     assertEquals(MyClass.class,
       m_versionAdapter.getClassForInstance((PyInstance) instance).__tojava__(Class.class));
@@ -887,25 +892,54 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     assertEquals(3, javaInstance2.getA());
     assertEquals(2, javaInstance2.getB());
     assertEquals(1, javaInstance2.getC());
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    final PyObject instance3 =
+      (PyInstance)javaProxy.__call__(m_one, m_two, m_three);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    final MyClass javaInstance3 = (MyClass) instance3.__tojava__(MyClass.class);
+    assertEquals(1, javaInstance3.getA());
+    assertEquals(2, javaInstance3.getB());
+    assertEquals(3, javaInstance3.getC());
+    m_dispatcherStubFactory.assertNoMoreCalls();
 
     // From Jython.
     m_interpreter.set("proxy", javaProxy);
 
-    m_interpreter.exec("result4 = proxy.staticSum3(0, -29, 30)");
-    final PyObject result4 = m_interpreter.get("result4");
-    assertEquals(m_one, result4);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
-    m_dispatcherStubFactory.assertNoMoreCalls();
-
-    m_interpreter.exec("result4Cached = proxy.staticSum3(0, -29, 30)");
-    final PyObject result4Cached = m_interpreter.get("result4Cached");
-    assertEquals(m_one, result4Cached);
-    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
-    m_dispatcherStubFactory.assertNoMoreCalls();
-
-    m_interpreter.exec("result5 = proxy.staticSum(1, 1)");
+    m_interpreter.exec("result5 = proxy.staticSum3(0, -29, 30)");
     final PyObject result5 = m_interpreter.get("result5");
-    assertEquals(m_two, result5);
+    assertEquals(m_one, result5);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result5Cached = proxy.staticSum3(0, -29, 30)");
+    final PyObject result5Cached = m_interpreter.get("result5Cached");
+    assertEquals(m_one, result5Cached);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result6 = proxy.staticSum(1, 1)");
+    final PyObject result6 = m_interpreter.get("result6");
+    assertEquals(m_two, result6);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result7 = proxy.staticSix()");
+    final PyObject result7 = m_interpreter.get("result7");
+    assertEquals(m_six, result7);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("instance = proxy(a=1, c=2, b=3)\nb=instance.b");
+    final PyObject result8 = m_interpreter.get("b");
+    assertEquals(m_three, result8);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("instance = proxy()\n");
+    final PyObject result9 = m_interpreter.get("instance");
+    assertEquals(MyClass.class,
+      m_versionAdapter.getClassForInstance((PyInstance) result9).__tojava__(Class.class));
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
   }
@@ -1066,6 +1100,10 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     public static int staticSum3(int x, int y, int z) {
       return x + y + z;
+    }
+
+    public static int staticSix() {
+      return 6;
     }
 
     public int getA() {
