@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,14 +23,11 @@ package net.grinder.engine.process.jython;
 
 import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
-import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
 import org.python.core.ClonePyInstance;
 import org.python.core.PyClass;
 import org.python.core.PyInstance;
-import org.python.core.PyJavaInstance;
-import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
 
@@ -41,65 +38,29 @@ import org.python.core.PyObject;
  * @version $Revision$
  */
 final class InstrumentedPyInstance extends ClonePyInstance {
-  /** The field name that allows the test to be obtained from a proxy. */
-  static final String TEST_FIELD_NAME = "__test__";
+  private final InstrumentationHelper m_instrumentationHelper;
 
-  /** The field name that allows the target to be obtained from a proxy. */
-  static final String TARGET_FIELD_NAME = "__target__";
-
-  private final JythonScriptEngine.PyInstrumentedProxyFactory m_proxyFactory;
-  private final PyDispatcher m_dispatcher;
-  private final Test m_test;
-  private final PyObject m_pyTest;
-
-  public InstrumentedPyInstance(
-    final JythonScriptEngine.PyInstrumentedProxyFactory proxyFactory,
-    Test test,
-    PyDispatcher dispatcher,
-    PyClass targetClass,
-    PyInstance target) {
+  public InstrumentedPyInstance(Test test,
+                                PyClass targetClass,
+                                PyInstance target,
+                                PyDispatcher dispatcher) {
 
     super(targetClass, target);
 
-    m_proxyFactory = proxyFactory;
-    m_dispatcher = dispatcher;
-    m_test = test;
-    m_pyTest = new PyJavaInstance(test);
+    m_instrumentationHelper =
+      new InstrumentationHelper(test, target, dispatcher) {
+        protected PyObject doFindAttr(String name) {
+          return InstrumentedPyInstance.super.__findattr__(name);
+        }
+      };
   }
 
   public PyObject __findattr__(String name) {
-    if (name == TEST_FIELD_NAME) { // Valid because name is interned.
-      return m_pyTest;
-    }
-
-    if (name == TARGET_FIELD_NAME) {
-      return getTarget();
-    }
-
-    final PyObject unadorned =
-      InstrumentedPyInstance.super.__findattr__(name);
-
-    if (unadorned instanceof PyMethod) {
-      // We create new instrumentation every time.
-      //
-      // At one point, we cached the instrumented method. However, Jython
-      // doesn't cache the underlying PyMethod (it creates a new PyMethod
-      // whenever one is asked for), so its hard/too expensive to check the
-      // cached value is correct.
-      //
-      // Another bad idea was to call __setattr__ with the instrumented method,
-      // and use our dictionary as the cache. We share our dictionary with our
-      // target, so invocations on the target
-      // ended up being instrumented.
-      return m_proxyFactory.instrumentPyMethod(
-        m_test, m_dispatcher, (PyMethod)unadorned);
-    }
-
-    return unadorned;
+    return m_instrumentationHelper.findAttrInstrumentingMethods(name);
   }
 
   public PyObject invoke(final String name) {
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyInstance.super.invoke(name);
@@ -109,7 +70,7 @@ final class InstrumentedPyInstance extends ClonePyInstance {
   }
 
   public PyObject invoke(final String name, final PyObject arg1) {
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyInstance.super.invoke(name, arg1);
@@ -118,9 +79,10 @@ final class InstrumentedPyInstance extends ClonePyInstance {
     );
   }
 
-  public PyObject invoke(final String name, final PyObject arg1,
+  public PyObject invoke(final String name,
+                         final PyObject arg1,
                          final PyObject arg2) {
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyInstance.super.invoke(name, arg1, arg2);

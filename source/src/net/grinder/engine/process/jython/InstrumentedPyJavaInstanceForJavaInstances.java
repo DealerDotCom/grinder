@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,10 +23,8 @@ package net.grinder.engine.process.jython;
 
 import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
-import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
-import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
 
@@ -48,46 +46,28 @@ import org.python.core.PyObject;
 final class InstrumentedPyJavaInstanceForJavaInstances
   extends AbstractInstrumentedPyJavaInstance {
 
-  private final JythonScriptEngine.PyInstrumentedProxyFactory m_proxyFactory;
-  private final Test m_test;
-
-  public InstrumentedPyJavaInstanceForJavaInstances(
-    final JythonScriptEngine.PyInstrumentedProxyFactory proxyFactory,
-    Test test,
-    final PyDispatcher dispatcher,
-    Object target) {
-
-    super(test, dispatcher, target);
-
-    m_proxyFactory = proxyFactory;
-    m_test = test;
+  public InstrumentedPyJavaInstanceForJavaInstances(Test test,
+                                                    Object target,
+                                                    PyDispatcher dispatcher) {
+    super(test, target, dispatcher);
   }
 
   public PyObject __findattr__(String name) {
-    final PyObject unadorned =
-      InstrumentedPyJavaInstanceForJavaInstances.super.__findattr__(name);
-
-    if (unadorned instanceof PyMethod) {
-      // See notes in InstrumentedPyInstance about why we don't cache this.
-      return m_proxyFactory.instrumentPyMethod(
-        m_test, getDispatcher(), (PyMethod)unadorned);
-    }
-
-    return unadorned;
+    return getInstrumentationHelper().findAttrInstrumentingMethods(name);
   }
 
   public PyObject invoke(final String name) {
-    return getDispatcher().dispatch(
+    return getInstrumentationHelper().dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForJavaInstances.super.invoke(name);
         }
       }
-      );
+    );
   }
 
   public PyObject invoke(final String name, final PyObject arg1) {
-    return getDispatcher().dispatch(
+    return getInstrumentationHelper().dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForJavaInstances.super.invoke(
@@ -99,7 +79,7 @@ final class InstrumentedPyJavaInstanceForJavaInstances
 
   public PyObject invoke(final String name, final PyObject arg1,
                          final PyObject arg2) {
-    return getDispatcher().dispatch(
+    return getInstrumentationHelper().dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaInstanceForJavaInstances.super.invoke(

@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005 2006 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,6 @@ package net.grinder.engine.process.jython;
 import net.grinder.common.Test;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
-import org.python.core.Py;
 import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
 
@@ -36,35 +35,29 @@ import org.python.core.PyObject;
  * @version $Revision$
  */
 abstract class AbstractInstrumentedPyJavaInstance extends PyJavaInstance {
-  private final PyDispatcher m_dispatcher;
-  private final PyObject m_pyTest;
-  private final Object m_target;
+  private final InstrumentationHelper m_instrumentationHelper;
 
-  public AbstractInstrumentedPyJavaInstance(Test test,
-                                            PyDispatcher dispatcher,
-                                            Object target) {
+  public AbstractInstrumentedPyJavaInstance(
+    Test test,
+    Object target,
+    PyDispatcher dispatcher) {
+
     super(target);
 
-    m_dispatcher = dispatcher;
-    m_pyTest = new PyJavaInstance(test);
-    m_target = target;
+    m_instrumentationHelper =
+      new InstrumentationHelper(test, target, dispatcher) {
+        protected PyObject doFindAttr(String name) {
+          return AbstractInstrumentedPyJavaInstance.super.__findattr__(name);
+        }
+      };
   }
 
-  protected final PyDispatcher getDispatcher() {
-    return m_dispatcher;
+  protected final InstrumentationHelper getInstrumentationHelper() {
+    return m_instrumentationHelper;
   }
 
   public PyObject __findattr__(String name) {
-    // Valid because name is interned.
-    if (name == InstrumentedPyInstance.TEST_FIELD_NAME) {
-      return m_pyTest;
-    }
-
-    if (name == InstrumentedPyInstance.TARGET_FIELD_NAME) {
-      return Py.java2py(m_target);
-    }
-
-    return super.__findattr__(name);
+    return m_instrumentationHelper.findAttr(name);
   }
 }
 

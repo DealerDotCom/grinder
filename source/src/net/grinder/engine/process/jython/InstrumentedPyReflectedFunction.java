@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,6 @@ import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
-import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
 import org.python.core.PyReflectedFunction;
 
@@ -37,13 +36,11 @@ import org.python.core.PyReflectedFunction;
  * @version $Revision$
  */
 class InstrumentedPyReflectedFunction extends PyReflectedFunction {
-  private final PyDispatcher m_dispatcher;
-  private final PyObject m_pyTest;
-  private final PyReflectedFunction m_target;
+  private final InstrumentationHelper m_instrumentationHelper;
 
   public InstrumentedPyReflectedFunction(Test test,
-                                         PyDispatcher dispatcher,
-                                         PyReflectedFunction target) {
+                                         PyReflectedFunction target,
+                                         PyDispatcher dispatcher) {
     super(target.__name__);
 
     // We follow the same logic as PyReflectedFunction.copy(), except we
@@ -52,28 +49,22 @@ class InstrumentedPyReflectedFunction extends PyReflectedFunction {
     nargs = target.nargs;
     argslist = target.argslist;
 
-    m_dispatcher = dispatcher;
-    m_pyTest = new PyJavaInstance(test);
-    m_target = target;
+    m_instrumentationHelper =
+      new InstrumentationHelper(test, target, dispatcher) {
+        protected PyObject doFindAttr(String name) {
+          return InstrumentedPyReflectedFunction.super.__findattr__(name);
+        }
+      };
   }
 
   public PyObject __findattr__(String name) {
-    // Valid because name is interned.
-    if (name == InstrumentedPyInstance.TEST_FIELD_NAME) {
-      return m_pyTest;
-    }
-
-    if (name == InstrumentedPyInstance.TARGET_FIELD_NAME) {
-      return m_target;
-    }
-
-    return super.__findattr__(name);
+    return m_instrumentationHelper.findAttr(name);
   }
 
   public PyObject __call__(final PyObject self, final PyObject[] args,
                            final String[] keywords) {
 
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyReflectedFunction.super.__call__(

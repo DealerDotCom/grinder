@@ -195,7 +195,7 @@ public final class JythonScriptEngine implements ScriptEngine {
    * do anything nice about this.
    * </p>
    */
-  class PyInstrumentedProxyFactory {
+  private class PyInstrumentedProxyFactory {
 
     /**
      * See {@link JythonScriptEngine.PyInstrumentedProxyFactory}.
@@ -223,18 +223,19 @@ public final class JythonScriptEngine implements ScriptEngine {
           final PyClass pyClass =
             m_versionAdapter.getClassForInstance(pyInstance);
           return new InstrumentedPyInstance(
-            this, test, pyDispatcher, pyClass, pyInstance);
+            test, pyClass, pyInstance, pyDispatcher);
         }
         else if (o instanceof PyFunction) {
-          return new InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions(
-            test, pyDispatcher, (PyFunction)o);
+          return new InstrumentedPyJavaInstanceForPyFunctions(
+            test, (PyFunction)o, pyDispatcher);
         }
         else if (o instanceof PyMethod) {
-          return instrumentPyMethod(test, pyDispatcher, (PyMethod)o);
+          return new InstrumentedPyJavaInstanceForPyMethods(
+            test, (PyMethod)o, pyDispatcher);
         }
         else if (o instanceof PyReflectedFunction) {
           return new InstrumentedPyReflectedFunction(
-            test, pyDispatcher, (PyReflectedFunction)o);
+            test, (PyReflectedFunction)o, pyDispatcher);
         }
       }
       else if (o instanceof PyProxy) {
@@ -243,14 +244,13 @@ public final class JythonScriptEngine implements ScriptEngine {
         final PyClass pyClass =
           m_versionAdapter.getClassForInstance(pyInstance);
         return new InstrumentedPyInstance(
-          this, test, pyDispatcher, pyClass, pyInstance);
+          test, pyClass, pyInstance, pyDispatcher);
       }
       else if (o == null) {
         throw new NotWrappableTypeException("Can't wrap null/None");
       }
       else if (o instanceof Class) {
-        return new InstrumentedPyJavaClass(
-          this, test, pyDispatcher, (Class)o);
+        return new InstrumentedPyJavaClass(test, (Class)o, pyDispatcher);
       }
       else {
         // Java object.
@@ -262,18 +262,11 @@ public final class JythonScriptEngine implements ScriptEngine {
             !(o instanceof Number) &&
             !(o instanceof String)) {
           return new InstrumentedPyJavaInstanceForJavaInstances(
-            this, test, pyDispatcher, o);
+            test, o, pyDispatcher);
         }
       }
 
       throw new NotWrappableTypeException(o.getClass().getName());
-    }
-
-    public PyObject instrumentPyMethod(Test test,
-                                       PyDispatcher pyDispatcher,
-                                       PyMethod o) {
-      return new InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions(
-        test, pyDispatcher, o);
     }
   }
 
@@ -465,7 +458,8 @@ public final class JythonScriptEngine implements ScriptEngine {
    * Dispatcher} can safely be invoked multiple times for the same test and
    * thread (only the outer invocation will be recorded). Consequently there
    * is no problem with our PyInstance instrumentation and Jython 1.1, where
-   * Jython can make multiple calls through our instrumented invoke methods.
+   * the code path can make multiple calls through our instrumented invoke
+   * methods.
    * </p>
    */
   static final class PyDispatcher {

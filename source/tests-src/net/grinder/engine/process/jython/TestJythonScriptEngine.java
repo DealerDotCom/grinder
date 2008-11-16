@@ -409,6 +409,24 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     m_dispatcherStubFactory.assertNoMoreCalls();
 
+    m_interpreter.exec("def square(x): return x * x");
+    final PyObject pyFunction11 = m_interpreter.get("square");
+    final PyObject pyFunctionProxy11 = (PyObject)
+      scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, pyFunction11);
+    final PyObject result11 = pyFunctionProxy11.invoke("__call__", m_two);
+    assertEquals(new PyInteger(4), result11);
+    m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
+    final PyObject targetReference11 =
+      pyFunctionProxy11.__getattr__("__target__");
+    assertSame(pyFunction11, targetReference11);
+    assertNotSame(pyFunctionProxy11, targetReference11);
+    final PyObject targetResult11 =
+      targetReference11.invoke("__call__", m_three);
+    assertEquals(new PyInteger(9), targetResult11);
+    m_dispatcherStubFactory.assertNoMoreCalls();
+
     // From Jython.
     m_interpreter.set("proxy", pyFunctionProxy);
     m_interpreter.set("proxy2", pyFunctionProxy2);

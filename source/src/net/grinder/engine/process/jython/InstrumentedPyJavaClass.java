@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2002 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,10 +25,7 @@ import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
-import org.python.core.Py;
 import org.python.core.PyJavaClass;
-import org.python.core.PyJavaInstance;
-import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
 
@@ -39,54 +36,28 @@ import org.python.core.PyObject;
  * @version $Revision: 3762 $
  */
 final class InstrumentedPyJavaClass extends PyJavaClass {
-  /** The field name that allows the test to be obtained from a proxy. */
-  static final String TEST_FIELD_NAME = "__test__";
+  private final InstrumentationHelper m_instrumentationHelper;
 
-  /** The field name that allows the target to be obtained from a proxy. */
-  static final String TARGET_FIELD_NAME = "__target__";
+  public InstrumentedPyJavaClass(Test test,
+                                 Class target,
+                                 PyDispatcher dispatcher) {
 
-  private final JythonScriptEngine.PyInstrumentedProxyFactory m_proxyFactory;
-  private final PyDispatcher m_dispatcher;
-  private final Test m_test;
-  private final PyObject m_pyTest;
+    super(target);
 
-  public InstrumentedPyJavaClass(
-    final JythonScriptEngine.PyInstrumentedProxyFactory proxyFactory,
-    Test test,
-    PyDispatcher dispatcher,
-    Class targetClass) {
-
-    super(targetClass);
-
-    m_proxyFactory = proxyFactory;
-    m_dispatcher = dispatcher;
-    m_test = test;
-    m_pyTest = new PyJavaInstance(test);
+    m_instrumentationHelper =
+      new InstrumentationHelper(test, target, dispatcher) {
+        protected PyObject doFindAttr(String name) {
+          return InstrumentedPyJavaClass.super.__findattr__(name);
+        }
+      };
   }
 
   public PyObject __findattr__(String name) {
-    if (name == TEST_FIELD_NAME) { // Valid because name is interned.
-      return m_pyTest;
-    }
-
-    if (name == TARGET_FIELD_NAME) {
-      return Py.java2py(getProxyClass());
-    }
-
-    final PyObject unadorned =
-      InstrumentedPyJavaClass.super.__findattr__(name);
-
-    if (unadorned instanceof PyMethod) {
-      // See notes in InstrumentedPyInstance about why we don't cache this.
-      return m_proxyFactory.instrumentPyMethod(
-        m_test, m_dispatcher, (PyMethod)unadorned);
-    }
-
-    return unadorned;
+    return m_instrumentationHelper.findAttr(name);
   }
 
   public PyObject invoke(final String name) {
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaClass.super.invoke(name);
@@ -96,7 +67,7 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
   }
 
   public PyObject invoke(final String name, final PyObject arg1) {
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaClass.super.invoke(name, arg1);
@@ -108,7 +79,7 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
   public PyObject invoke(final String name,
                          final PyObject arg1,
                          final PyObject arg2) {
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaClass.super.invoke(name, arg1, arg2);
@@ -120,7 +91,7 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
   public PyObject invoke(final String name,
                          final PyObject[] args,
                          final String[] keywords) {
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaClass.super.invoke(name, args, keywords);
@@ -130,7 +101,7 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
   }
 
   public PyObject invoke(final String name, final PyObject[] args) {
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaClass.super.invoke(name, args);
@@ -140,7 +111,7 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
   }
 
   public PyObject __call__(final PyObject[] args, final String[] keywords) {
-    return m_dispatcher.dispatch(
+    return m_instrumentationHelper.dispatch(
       new Dispatcher.Callable() {
         public Object call() {
           return InstrumentedPyJavaClass.super.__call__(args, keywords);
