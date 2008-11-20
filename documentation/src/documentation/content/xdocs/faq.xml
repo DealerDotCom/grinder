@@ -536,7 +536,7 @@ netsh interface ipv4 set dynamicportrange protocol=tcp startport=10000 numberofp
       <ol>
       <li>Increase the ephemeral port range:
 <source>
-echo "32768 65535" > proc/sys/net/ipv4/ip_local_port_range
+echo "32768 65535" > /proc/sys/net/ipv4/ip_local_port_range
 </source>
 	  </li>
 
