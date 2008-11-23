@@ -318,9 +318,26 @@
           threads rather than processes, using special class loaders to isolate
           the engines. This allows the engine to be easily run in a debugger.
           This is primarily a tool for debugging The Grinder engine, but it
-          might also be useful to advanced users.</td>
+          might also be useful to advanced users.
+          <a href="site:grinderstone">GrinderStone</a> uses this property to
+          allow interactive debugging. </td>
 
           <td>false</td>
+    </tr>
+
+        <tr>
+          <td>
+            <code>grinder.debug.singleprocess.sharedclasses</code>
+          </td>
+
+          <td>For advanced use only. Specifies a comma separated list of
+          names of classes that should be shared between the worker engines when
+          <code>grinder.debug.singleprocess</code> is <code>true</code>.
+          Class names can end with a <code>*</code> wildcard. See
+          <a href="site:sourceforge/bug2314157">bug 2314157</a> for more details.
+          </td>
+
+          <td></td>
     </tr>
 
         <tr>
