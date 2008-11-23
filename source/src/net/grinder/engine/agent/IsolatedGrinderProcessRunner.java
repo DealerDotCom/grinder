@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.engine.agent;
 
 import java.io.InputStream;
-import java.lang.reflect.Method;
 
 import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.engine.process.WorkerProcessEntryPoint;
@@ -40,38 +39,6 @@ public class IsolatedGrinderProcessRunner
   implements IsolateGrinderProcessRunner {
 
   /**
-   * Key of system property used to override the thread worker class.
-   */
-  public static final String RUNNER_CLASSNAME_PROPERTY =
-    "grinder.debug.singleprocess.runner";
-
-  private final Class m_workerClass;
-  private final Method m_runMethod;
-
-  /**
-   * Constructor.
-   *
-   * @throws ClassNotFoundException If the thread worker could not be
-   * introspected.
-   * @throws SecurityException If the thread worker could not be
-   * introspected.
-   * @throws NoSuchMethodException If the thread worker does not have a run
-   * method.
-   */
-  public IsolatedGrinderProcessRunner()
-    throws ClassNotFoundException, SecurityException, NoSuchMethodException {
-
-    // Allow the unit tests to override the thread runner.
-    m_workerClass =
-      Class.forName(
-        System.getProperty(RUNNER_CLASSNAME_PROPERTY,
-                           WorkerProcessEntryPoint.class.getName()));
-
-    m_runMethod =
-      m_workerClass.getMethod("run", new Class[] {InputStream.class });
-  }
-
-  /**
    * Create and run a
    * {@link net.grinder.engine.process.WorkerProcessEntryPoint}.
    *
@@ -81,17 +48,9 @@ public class IsolatedGrinderProcessRunner
    */
   public int run(final InputStream agentInputStream) {
 
-    try {
-      final Object instance = m_workerClass.newInstance();
+    final WorkerProcessEntryPoint workerProcessEntryPoint =
+      new WorkerProcessEntryPoint();
 
-      final Integer result = (Integer)
-        m_runMethod.invoke(instance, new Object[] { agentInputStream });
-
-      return result.intValue();
-    }
-    catch (Exception e) {
-      // We're debug code, so no need to handle this too cleanly.
-      throw new AssertionError(e);
-    }
+    return workerProcessEntryPoint.run(agentInputStream);
   }
 }

@@ -34,6 +34,13 @@ The Grinder 3.1.1 (not yet released)
 
   Fix bug 1580340 - Can't invoke static methods through a wrapped Java class.
 
+  Fix bug 2314157 - Log4j classes reloaded by IsolatingClassLoader. This bug
+  was really a feature request to allow specific classes to be shared when
+  running with grinder.debug.singleprocess=true. This is important because
+  GrinderStone uses the single process mode.  Classes can now be share with
+  the new grinder.debug.singleprocess.sharedclasses property. Thanks to
+  Fei Fan for requesting this.
+
 
 The Grinder 3.1
 ---------------

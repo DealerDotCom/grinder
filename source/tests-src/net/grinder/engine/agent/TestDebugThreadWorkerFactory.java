@@ -21,11 +21,18 @@
 
 package net.grinder.engine.agent;
 
+import java.io.InputStream;
+
 import net.grinder.common.GrinderProperties;
+import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
+import net.grinder.communication.StreamReceiver;
+import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
+import net.grinder.engine.common.EngineException;
+import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RedirectStandardStreams;
-import net.grinder.util.AllocateLowestNumber;
 import net.grinder.util.AllocateLowestNumberImplementation;
 
 
@@ -37,24 +44,24 @@ import net.grinder.util.AllocateLowestNumberImplementation;
  */
 public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
 
+  private AgentIdentityImplementation m_agentIdentity =
+    new AgentIdentityImplementation(
+      getClass().getName(),
+      new AllocateLowestNumberImplementation());
+
+  private FanOutStreamSender m_fanOutStreamSender = new FanOutStreamSender(0);
+  private GrinderProperties m_properties = new GrinderProperties();
+
   public void testFactory() throws Exception {
-
-    final AllocateLowestNumber workerNumberMap =
-      new AllocateLowestNumberImplementation();
-
-    final AgentIdentityImplementation agentIdentity =
-      new AgentIdentityImplementation(getClass().getName(), workerNumberMap);
-
-    final GrinderProperties properties = new GrinderProperties();
-    properties.setProperty("grinder.logDirectory",
+    m_properties.setProperty("grinder.logDirectory",
                            getDirectory().getAbsolutePath());
 
     final DebugThreadWorkerFactory factory =
-      new DebugThreadWorkerFactory(agentIdentity,
-                                   new FanOutStreamSender(0),
+      new DebugThreadWorkerFactory(m_agentIdentity,
+                                   m_fanOutStreamSender,
                                    false,
                                    null,
-                                   properties);
+                                   m_properties);
 
     new RedirectStandardStreams() {
       protected void runWithRedirectedStreams() throws Exception {
@@ -65,5 +72,192 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
 
     // Should have output and error files.
     assertEquals(2, getDirectory().list().length);
+  }
+
+  public void testWithBadIsolatedRunner() throws Exception {
+    try {
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(
+        BadClassInaccesible.class);
+
+      final DebugThreadWorkerFactory factory =
+        new DebugThreadWorkerFactory(m_agentIdentity,
+                                     m_fanOutStreamSender,
+                                     false,
+                                     null,
+                                     m_properties);
+
+      try {
+        factory.create(null, null);
+        fail("Expected EngineException");
+      }
+      catch (EngineException e) {
+      }
+
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(
+        BadClassCantInstantiate.class);
+
+      final DebugThreadWorkerFactory factory2 =
+        new DebugThreadWorkerFactory(m_agentIdentity,
+                                     m_fanOutStreamSender,
+                                     false,
+                                     null,
+                                     m_properties);
+
+      try {
+        factory2.create(null, null);
+        fail("Expected EngineException");
+      }
+      catch (EngineException e) {
+      }
+
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(
+        BadClassNotAnIsolateGrinderProcessRunner.class);
+
+      final DebugThreadWorkerFactory factory3 =
+        new DebugThreadWorkerFactory(m_agentIdentity,
+                                     m_fanOutStreamSender,
+                                     false,
+                                     null,
+                                     m_properties);
+
+      try {
+        factory3.create(null, null);
+        fail("Expected ClassCastException");
+      }
+      catch (ClassCastException e) {
+      }
+    }
+    finally {
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
+    }
+  }
+
+  public void testIsolation() throws Exception {
+    try {
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(GoodRunner.class);
+
+      final DebugThreadWorkerFactory factory =
+        new DebugThreadWorkerFactory(m_agentIdentity,
+                                     m_fanOutStreamSender,
+                                     false,
+                                     null,
+                                     m_properties);
+
+      final RedirectStandardStreams rss0 = new RedirectStandardStreams() {
+        protected void runWithRedirectedStreams() throws Exception {
+          final Worker worker = factory.create(null, null);
+          worker.waitFor();
+        }
+      };
+
+      rss0.run();
+
+      final RedirectStandardStreams rss1 = new RedirectStandardStreams() {
+        protected void runWithRedirectedStreams() throws Exception {
+          final Worker worker = factory.create(null, null);
+          worker.waitFor();
+        }
+      };
+
+      rss1.run();
+
+      final String worker0Result = new String(rss0.getStdoutBytes());
+      final String worker1Result = new String(rss1.getStdoutBytes());
+
+      AssertUtilities.assertContains(worker0Result, "Hello from 0 count is 1");
+      AssertUtilities.assertContains(worker1Result, "Hello from 1 count is 1");
+    }
+    finally {
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
+    }
+  }
+
+  public void testIsolationWithSharedClasses() throws Exception {
+    try {
+      m_properties.setProperty("grinder.debug.singleprocess.sharedclasses",
+                               MyStaticHolder.class.getName());
+
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(GoodRunner.class);
+
+      final DebugThreadWorkerFactory factory =
+        new DebugThreadWorkerFactory(m_agentIdentity,
+                                     m_fanOutStreamSender,
+                                     false,
+                                     null,
+                                     m_properties);
+
+      final RedirectStandardStreams rss0 = new RedirectStandardStreams() {
+        protected void runWithRedirectedStreams() throws Exception {
+          final Worker worker = factory.create(null, null);
+          worker.waitFor();
+        }
+      };
+
+      rss0.run();
+
+      final RedirectStandardStreams rss1 = new RedirectStandardStreams() {
+        protected void runWithRedirectedStreams() throws Exception {
+          final Worker worker = factory.create(null, null);
+          worker.waitFor();
+        }
+      };
+
+      rss1.run();
+
+      final String worker0Result = new String(rss0.getStdoutBytes());
+      final String worker1Result = new String(rss1.getStdoutBytes());
+
+      AssertUtilities.assertContains(worker0Result, "Hello from 0 count is 1");
+      AssertUtilities.assertContains(worker1Result, "Hello from 1 count is 2");
+    }
+    finally {
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
+    }
+  }
+
+  public static class BadClassInaccesible {
+    BadClassInaccesible() { }
+  }
+
+  public static abstract class BadClassCantInstantiate {
+    public BadClassCantInstantiate() { }
+  }
+
+  public static class BadClassNotAnIsolateGrinderProcessRunner { }
+
+  public static class MyStaticHolder {
+    private static int s_number = 0;
+
+    public static void incrementNumber() {
+      ++s_number;
+    }
+
+    public static int getNumber() {
+      return s_number;
+    }
+  }
+
+  public static class GoodRunner implements IsolateGrinderProcessRunner {
+    public int run(InputStream agentInputStream) {
+      final StreamReceiver streamReceiver =
+        new StreamReceiver(agentInputStream);
+
+      InitialiseGrinderMessage message;
+
+      try {
+        message = (InitialiseGrinderMessage)streamReceiver.waitForMessage();
+      }
+      catch (CommunicationException e) {
+        throw new AssertionError(e);
+      }
+
+      MyStaticHolder.incrementNumber();
+
+      System.out.println(
+        "Hello from " + message.getWorkerIdentity().getNumber() +
+        " count is " + MyStaticHolder.getNumber());
+
+      return 0;
+    }
   }
 }

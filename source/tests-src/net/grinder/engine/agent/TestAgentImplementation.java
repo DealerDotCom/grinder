@@ -38,6 +38,7 @@ import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.communication.StreamReceiver;
+import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
@@ -56,15 +57,14 @@ public class TestAgentImplementation extends AbstractFileTestCase {
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
   private final Logger m_logger = m_loggerStubFactory.getLogger();
 
-  protected void setUp() {
-    System.setProperty(IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY,
-                       TestRunnner.class.getName());
+  protected void setUp() throws Exception {
+    DebugThreadWorkerFactory.setIsolatedRunnerClass(TestRunner.class);
+    super.setUp();
   }
 
   protected void tearDown() throws Exception {
     super.tearDown();
-    System.getProperties().remove(
-      IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY);
+    DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
   }
 
   public void testConstruction() throws Exception {
@@ -485,7 +485,7 @@ public class TestAgentImplementation extends AbstractFileTestCase {
     public abstract void onConnect() throws Exception;
   }
 
-  public static class TestRunnner {
+  public static class TestRunner implements IsolateGrinderProcessRunner {
 
     public int run(InputStream in) {
       try {

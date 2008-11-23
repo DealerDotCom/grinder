@@ -22,12 +22,18 @@
 package net.grinder.engine.agent;
 
 import java.io.OutputStream;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
+import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
+import net.grinder.util.IsolatingClassLoader;
 
 
 /**
@@ -39,22 +45,84 @@ import net.grinder.engine.common.ScriptLocation;
  */
 final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
 
+  private static Class s_isolatedRunnerClass =
+    IsolatedGrinderProcessRunner.class;
+
+  private String[] m_sharedClassArray;
+
+  /**
+   * Allow unit tests to change the IsolateGrinderProcessRunner.
+   */
+  static void setIsolatedRunnerClass(Class isolatedRunnerClass) {
+    if (isolatedRunnerClass != null) {
+      s_isolatedRunnerClass = isolatedRunnerClass;
+    }
+    else {
+      s_isolatedRunnerClass = IsolatedGrinderProcessRunner.class;
+    }
+  }
+
   public DebugThreadWorkerFactory(AgentIdentityImplementation agentIdentity,
                                   FanOutStreamSender fanOutStreamSender,
                                   boolean reportToConsole,
                                   ScriptLocation script,
-                                  GrinderProperties properties) {
+                                  GrinderProperties properties)
+    throws EngineException {
     super(agentIdentity,
           fanOutStreamSender,
           reportToConsole,
           script,
           properties);
+
+    final List sharedClasses = new ArrayList();
+
+    sharedClasses.add(IsolateGrinderProcessRunner.class.getName());
+
+    sharedClasses.addAll(Arrays.asList(
+      properties.getProperty("grinder.debug.singleprocess.sharedclasses", "")
+      .split(",")));
+
+
+    m_sharedClassArray = (String[])
+      sharedClasses.toArray(new String[sharedClasses.size()]);
   }
 
   protected Worker createWorker(WorkerIdentityImplementation workerIdentity,
                                 OutputStream outputStream,
                                 OutputStream errorStream)
     throws EngineException {
-    return new DebugThreadWorker(workerIdentity);
+
+    final ClassLoader classLoader =
+      new IsolatingClassLoader((URLClassLoader)getClass().getClassLoader(),
+                               m_sharedClassArray,
+                               true);
+
+    final Class isolatedRunnerClass;
+
+    try {
+      isolatedRunnerClass =
+        Class.forName(s_isolatedRunnerClass.getName(),
+                      true,
+                      classLoader);
+    }
+    catch (ClassNotFoundException e) {
+      throw new AssertionError(e);
+    }
+
+    final IsolateGrinderProcessRunner runner;
+
+    try {
+      runner = (IsolateGrinderProcessRunner)isolatedRunnerClass.newInstance();
+    }
+    catch (InstantiationException e) {
+      throw new EngineException(
+        "Failed to create IsolateGrinderProcessRunner", e);
+    }
+    catch (IllegalAccessException e) {
+      throw new EngineException(
+        "Failed to create IsolateGrinderProcessRunner", e);
+    }
+
+    return new DebugThreadWorker(workerIdentity, runner);
   }
 }

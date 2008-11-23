@@ -26,35 +26,28 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.net.URLClassLoader;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
-import net.grinder.engine.common.EngineException;
-import net.grinder.util.IsolatingClassLoader;
 
 
 /**
  * Class that starts a worker in a separate thread and an
- * {@link IsolatingClassLoader}. Used for debugging.
+ * {@link net.grinder.util.IsolatingClassLoader}. Used for debugging.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 final class DebugThreadWorker implements Worker {
 
-  private static final String[] SHARED_CLASSES = {
-    IsolateGrinderProcessRunner.class.getName(),
-  };
-
   private final WorkerIdentityImplementation m_workerIdentity;
   private final Thread m_thread;
   private final PipedOutputStream m_communicationStream;
   private int m_result;
 
-  public DebugThreadWorker(WorkerIdentityImplementation workerIdentity)
-    throws EngineException {
+  public DebugThreadWorker(WorkerIdentityImplementation workerIdentity,
+                           final IsolateGrinderProcessRunner runner) {
     m_workerIdentity = workerIdentity;
 
     m_communicationStream = new PipedOutputStream();
@@ -64,36 +57,7 @@ final class DebugThreadWorker implements Worker {
       inputStream = new PipedInputStream(m_communicationStream);
     }
     catch (IOException e) {
-      UncheckedInterruptedException.ioException(e);
-      throw new EngineException("Assertion failure", e);
-    }
-
-    final ClassLoader classLoader =
-      new IsolatingClassLoader((URLClassLoader)getClass().getClassLoader(),
-                               SHARED_CLASSES,
-                               true);
-
-    final IsolateGrinderProcessRunner runner;
-
-    try {
-      final Class isolatedRunnerClass =
-        Class.forName(IsolatedGrinderProcessRunner.class.getName(),
-                      true,
-                      classLoader);
-
-      runner = (IsolateGrinderProcessRunner)isolatedRunnerClass.newInstance();
-    }
-    catch (ClassNotFoundException e) {
-      throw new EngineException(
-        "Failed to create IsolateGrinderProcessRunner", e);
-    }
-    catch (InstantiationException e) {
-      throw new EngineException(
-        "Failed to create IsolateGrinderProcessRunner", e);
-    }
-    catch (IllegalAccessException e) {
-      throw new EngineException(
-        "Failed to create IsolateGrinderProcessRunner", e);
+      throw new AssertionError(e);
     }
 
     m_thread = new Thread(workerIdentity.getName()) {

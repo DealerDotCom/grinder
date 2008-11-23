@@ -24,11 +24,12 @@ package net.grinder.engine.agent;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.StreamSender;
 import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
-import net.grinder.engine.common.EngineException;
+import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
+import net.grinder.testutility.DelegatingStubFactory;
 import net.grinder.testutility.RedirectStandardStreams;
-import net.grinder.util.AllocateLowestNumber;
 import net.grinder.util.AllocateLowestNumberImplementation;
 
 
@@ -40,18 +41,23 @@ import net.grinder.util.AllocateLowestNumberImplementation;
  */
 public class TestDebugThreadWorker extends TestCase {
 
+  private final WorkerIdentityImplementation m_workerIdentity =
+    new AgentIdentityImplementation(getClass().getName(),
+      new AllocateLowestNumberImplementation())
+    .createWorkerIdentity();
+
   public void testDebugThreadWorker() throws Exception {
 
-    final AllocateLowestNumber workerNumberMap =
-      new AllocateLowestNumberImplementation();
+    final DelegatingStubFactory isolateGrinderProcessRunnerStubFactory =
+      new DelegatingStubFactory(new IsolatedGrinderProcessRunner());
+    final IsolateGrinderProcessRunner isolateGrinderProcessRunner =
+      (IsolateGrinderProcessRunner)
+      isolateGrinderProcessRunnerStubFactory.getStub();
 
-    final WorkerIdentityImplementation workerIdentity =
-      new AgentIdentityImplementation(getClass().getName(), workerNumberMap)
-      .createWorkerIdentity();
+    final Worker worker =
+      new DebugThreadWorker(m_workerIdentity, isolateGrinderProcessRunner);
 
-    final Worker worker = new DebugThreadWorker(workerIdentity);
-
-    assertEquals(workerIdentity, worker.getIdentity());
+    assertEquals(m_workerIdentity, worker.getIdentity());
     assertNotNull(worker.getCommunicationStream());
 
     final int[] resultHolder = { -1 };
@@ -76,6 +82,9 @@ public class TestDebugThreadWorker extends TestCase {
 
     streams.run();
 
+    isolateGrinderProcessRunnerStubFactory.assertSuccess(
+      "run", InputStream.class);
+
     assertEquals(-2, resultHolder[0]);
     final String output = new String(streams.getStderrBytes());
     assertTrue(output.indexOf("No control stream from agent") > 0);
@@ -83,62 +92,31 @@ public class TestDebugThreadWorker extends TestCase {
     worker.destroy();
   }
 
-  public void testWithBadWorker() throws Exception {
+  public void testInterruption() throws Exception {
 
-    final AllocateLowestNumber workerNumberMap =
-      new AllocateLowestNumberImplementation();
+    final DebugThreadWorker debugThreadWorker =
+      new DebugThreadWorker(
+        m_workerIdentity,
+        new IsolateGrinderProcessRunner() {
+          public int run(InputStream agentInputStream) {
+            try {
+              Thread.sleep(10000);
+            }
+            catch (InterruptedException e) {
+            }
+            return 0;
+          }});
 
-    final WorkerIdentityImplementation workerIdentity =
-      new AgentIdentityImplementation(getClass().getName(), workerNumberMap)
-      .createWorkerIdentity();
+    Thread.currentThread().interrupt();
 
     try {
-      System.setProperty(IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY,
-        "blah");
-
-      try {
-        new DebugThreadWorker(workerIdentity);
-        fail("Expected EngineException");
-      }
-      catch (EngineException e) {
-        assertTrue(e.getCause() instanceof ClassNotFoundException);
-      }
-
-      // Not bothering to test other reflection exceptions. This is partly
-      // due to the JDK bug where we get a NoSuchMethodException if the
-      // IsolatedGrinderProcessRunner constructor throws it. (We should get
-      // a InstantiationException).
+      debugThreadWorker.waitFor();
+      fail("Expected UncheckedInterruptedException");
     }
-    finally {
-      System.getProperties().remove(
-        IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY);
+    catch (UncheckedInterruptedException e) {
     }
-  }
 
-  public void testIsolatedGrinderProcessRunner() throws Exception {
-    try {
-      System.setProperty(IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY,
-        BadWorker.class.getName());
-
-      final IsolatedGrinderProcessRunner isolatedGrinderProcessRunner =
-        new IsolatedGrinderProcessRunner();
-
-      try {
-        isolatedGrinderProcessRunner.run(null);
-        fail("Expected AssertionError");
-      }
-      catch (AssertionError e) {
-      }
-    }
-    finally {
-      System.getProperties().remove(
-        IsolatedGrinderProcessRunner.RUNNER_CLASSNAME_PROPERTY);
-    }
-  }
-
-  public static class BadWorker {
-    public String run(InputStream in) {
-      return "wrong return type";
-    }
+    debugThreadWorker.destroy();
+    debugThreadWorker.waitFor();
   }
 }
