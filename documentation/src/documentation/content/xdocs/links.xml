@@ -65,16 +65,14 @@
     </tr>
     <tr>
       <td>
-        <a href="http://code.google.com/p/grinderstone/">Grinderstone</a>
+        <a href="site:grinderstone">GrinderStone</a>
       </td>
 
       <td></td>
 
       <td>
-        GrinderStone Eclipse plug-in is Grinder development
-        environment (debugger for Grinder scripts is
-        included).GrinderStone is extension for PyDev plug-in for
-        developing Grinder scripts.
+        GrinderStone is an Eclipse plug-in for Grinder load testing scripts
+        development (debugger for scripts is included).
       </td>
     </tr>
   </table>
