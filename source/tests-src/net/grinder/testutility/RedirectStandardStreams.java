@@ -63,4 +63,16 @@ public abstract class RedirectStandardStreams {
   }
 
   protected abstract void runWithRedirectedStreams() throws Exception;
+
+  public String toString() {
+    final StringBuffer result = new StringBuffer();
+
+    result.append("RedirectStandardStreams");
+    result.append("\nstdout:\n");
+    result.append(new String(m_stdoutContent.toByteArray()));
+    result.append("\nstderr:\n");
+    result.append(new String(m_stderrContent.toByteArray()));
+
+    return result.toString();
+  }
 }
