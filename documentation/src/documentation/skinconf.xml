@@ -384,6 +384,13 @@ which will be used to configure the chosen Forrest skin.
       <width>88</width>
       <height>31</height>
     </credit>
+    <credit>
+     <name>Ohloh statistics</name>
+     <url>http://www.ohloh.net/p/9894</url>
+     <image>https://www.ohloh.net/p/9894/widgets/project_partner_badge.gif</image>
+     <width>193</width>
+     <height>33</height>
+    </credit>
 <!-- A credit with @role="pdf" will be used to compose a footer
      for each page in the PDF, using either "name" or "url" or both.
     -->
