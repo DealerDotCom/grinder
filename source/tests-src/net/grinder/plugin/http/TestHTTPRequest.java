@@ -880,6 +880,123 @@ public class TestHTTPRequest extends TestCase {
 
 
     final HTTPRequest request = new HTTPRequest();
+    final String bodyText = "Your heart's gone the colour of Coca Cola\n";
+    m_handler.setBody(bodyText);
+    final HTTPResponse response = request.GET(m_handler.getURL());
+    assertEquals(200, response.getStatusCode());
+    assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
+
+    assertEquals(Boolean.TRUE,
+      m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
+    m_statisticsStubFactory.assertSuccess("getForCurrentTest");
+    m_statisticsStubFactory.assertNoMoreCalls();
+
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY,
+      new Long(bodyText.length()));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY,
+      new Long(200));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY,
+      new Long(23));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY,
+      new Long(100));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
+      new Long(119));
+    m_statisticsForTestStubFactory.assertNoMoreCalls();
+
+    try {
+      timeAuthority.getTimeInMilliseconds();
+      fail("Not all times used");
+    }
+    catch (ArrayIndexOutOfBoundsException e) {
+    }
+
+    assertTrue(response.getInputStream() instanceof ByteArrayInputStream);
+    assertEquals(bodyText, response.getText());
+
+    // Now try again, but with invalid DNS, connect times. Unsure how these
+    // can actually be < 0, but I've explicitly handled it so I'm not about
+    // to remove it in a hurry.
+    timeAuthority.setTimes(
+      new long[] {
+          400, // start time
+          0,   // DNS time
+          0,   // connection time
+          419, // time to first byte
+      });
+
+    m_handler.setBody(null);
+
+    final HTTPResponse response2 = request.GET(m_handler.getURL());
+
+    assertEquals(Boolean.TRUE,
+      m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
+    m_statisticsStubFactory.assertSuccess("getForCurrentTest");
+    m_statisticsStubFactory.assertNoMoreCalls();
+
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY,
+      new Long(0));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY,
+      new Long(200));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
+      new Long(19));
+    m_statisticsForTestStubFactory.assertNoMoreCalls();
+
+    try {
+      timeAuthority.getTimeInMilliseconds();
+      fail("Not all times used");
+    }
+    catch (ArrayIndexOutOfBoundsException e) {
+    }
+
+    assertTrue(response2.getInputStream() instanceof ByteArrayInputStream);
+    assertEquals("", response2.getText());
+  }
+
+  public void testSetReadResponseBody() throws Exception {
+
+    final ListTimeAuthority timeAuthority =
+      new ListTimeAuthority(new long[] {
+          100, // start time
+          123, // DNS time
+          200, // connection time
+          219, // time to first byte
+      });
+
+    final HTTPPluginThreadState threadState =
+      new HTTPPluginThreadState(m_threadContext,
+                                m_sslContextFactory,
+                                null,
+                                timeAuthority);
+
+    m_pluginProcessContextStubFactory.setResult("getPluginThreadListener",
+                                                threadState);
+
+    m_statisticsStubFactory.setResult("isTestInProgress", Boolean.TRUE);
+    m_statisticsStubFactory.setResult("getForCurrentTest", m_statisticsForTest);
+
+
+    final HTTPRequest request = new HTTPRequest();
+
+    assertTrue(request.getReadResponseBody());
+    request.setReadResponseBody(false);
+    assertFalse(request.getReadResponseBody());
+    request.setReadResponseBody(true);
+    assertTrue(request.getReadResponseBody());
+    request.setReadResponseBody(false);
+    assertFalse(request.getReadResponseBody());
+
+    final String bodyText =
+      "Your heart's gone the colour of a dust\nbin\n liner";
+    m_handler.setBody(bodyText);
+
     final HTTPResponse response = request.GET(m_handler.getURL());
     assertEquals(200, response.getStatusCode());
     assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
@@ -913,6 +1030,8 @@ public class TestHTTPRequest extends TestCase {
     catch (ArrayIndexOutOfBoundsException e) {
     }
 
+    assertTrue(!(response.getInputStream() instanceof ByteArrayInputStream));
+    assertEquals(bodyText, response.getText());
 
     // Now try again, but with invalid DNS, connect times. Unsure how these
     // can actually be < 0, but I've explicitly handled it so I'm not about
@@ -925,7 +1044,9 @@ public class TestHTTPRequest extends TestCase {
           419, // time to first byte
       });
 
-    request.GET(m_handler.getURL());
+    m_handler.setBody(null);
+
+    final HTTPResponse response2 = request.GET(m_handler.getURL());
 
     assertEquals(Boolean.TRUE,
       m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
@@ -949,6 +1070,9 @@ public class TestHTTPRequest extends TestCase {
     }
     catch (ArrayIndexOutOfBoundsException e) {
     }
+
+    assertTrue(!(response2.getInputStream() instanceof ByteArrayInputStream));
+    assertEquals("", response2.getText());
   }
 
   public void testWithBadStatistics() throws Exception {
