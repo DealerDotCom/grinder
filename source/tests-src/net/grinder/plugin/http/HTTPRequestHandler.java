@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import junit.framework.Assert;
+
 import HTTPClient.NVPair;
 
 
@@ -40,7 +42,7 @@ import HTTPClient.NVPair;
  * Active class that accepts a connection on a socket, reads an HTTP request,
  * and returns a response. The details of the request can then be retrieved.
  */
-class HTTPRequestHandler implements Runnable {
+class HTTPRequestHandler extends Assert implements Runnable {
   private static final Pattern s_contentLengthPattern;
 
   private final List m_headers = new ArrayList();
@@ -87,7 +89,7 @@ class HTTPRequestHandler implements Runnable {
     final String text = getLastRequestHeaders();
 
     final int i = text.indexOf("\r\n");
-    TestHTTPRequest.assertTrue("Has at least one line", i>=0);
+    assertTrue("Has at least one line", i>=0);
     return text.substring(0, i);
   }
 
@@ -109,7 +111,7 @@ class HTTPRequestHandler implements Runnable {
       return;
     }
 
-    TestHTTPRequest.fail(text + " does not contain " + line);
+    fail(text + " does not contain " + line);
   }
 
   public final void assertRequestDoesNotContainHeader(String line) {
@@ -119,11 +121,11 @@ class HTTPRequestHandler implements Runnable {
     int i;
 
     while((i = text.indexOf("\r\n", start)) != -1) {
-      TestHTTPRequest.assertTrue(!text.substring(start, i).equals(line));
+      assertTrue(!text.substring(start, i).equals(line));
       start = i + 2;
     }
 
-    TestHTTPRequest.assertTrue(!text.substring(start).equals(line));
+    assertTrue(!text.substring(start).equals(line));
   }
 
   public final void run() {
