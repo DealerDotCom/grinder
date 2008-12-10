@@ -40,8 +40,12 @@ The Grinder 3.1.1 (not yet released)
   GrinderStone uses the single process mode.  Classes can now be share with
   the new grinder.debug.singleprocess.sharedclasses property. Thanks to
   Fei Fan for requesting this.
-  
+
   Dutch console translation from Marc Van Giel.
+
+  Fulfill feature request 2412104 - support streaming HTTP responses. Thanks
+  to Randy Shaffer for requesting this feature, and to Olivier Merlin for
+  testing an initial patch.
 
 
 The Grinder 3.1

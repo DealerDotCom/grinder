@@ -93,6 +93,7 @@ public class HTTPRequest {
   private volatile NVPair[] m_defaultHeaders = new NVPair[0];
   private volatile byte[] m_defaultData;
   private volatile NVPair[] m_defaultFormData;
+  private volatile boolean m_readResponseBody = true;
 
   /**
    * Creates a new <code>HTTPRequest</code> instance.
@@ -299,6 +300,64 @@ public class HTTPRequest {
    */
   public final void setFormData(NVPair[] formData) {
     m_defaultFormData = formData;
+  }
+
+  /**
+   * Return whether or not the whole response body will be read.
+   *
+   * @return <code>true</code> => The response body will be read.
+   * @see #setReadResponseBody
+   */
+  public boolean getReadResponseBody() {
+    return m_readResponseBody;
+  }
+
+  /**
+   * Set whether or not the whole response body will be read.
+   *
+   * <p>If <code>true</code>, the response body will be read during one
+   * of the HTTP method operations (<code>GET</code>, <code>PUT</code>, ...).
+   * Otherwise, the response body will not be read. Most users will want
+   * to leave this set to its default value of <code>true</code>.
+   *
+   * <p>If set to <code>false</code>, the response body stream will be
+   * available for reading from the {@link HTTPResponse#getInputStream()}, and
+   * the following effects will be observed for the test statistics:</p>
+   *
+   * <ol>
+   * <li>The time taken to read the body will not included in the recorded test
+   * time.</li>
+   * <li>The response body length will be recorded as <code>0</code>.
+   * </li>
+   * </ol>
+   *
+   * <p>If desired, the caller could manually update the statistics by extending
+   * {@link HTTPRequest} and implementing {@link #processResponse} as follows:
+   * </p>
+   *
+   * <pre>
+   *   final PluginProcessContext pluginProcessContext =
+   *     HTTPPlugin.getPlugin().getPluginProcessContext();
+   *
+   *   final HTTPPluginThreadState threadState =
+   *     (HTTPPluginThreadState)pluginProcessContext.getPluginThreadListener();
+   *
+   *   final PluginThreadContext threadContext = threadState.getThreadContext();
+   *
+   *   threadContext.resumeClock();
+   *   final int bodyLength = ... // Read body from HTTPResponse.
+   *   threadContext.pauseClock();
+   *
+   *   final StatisticsForTest testStatistics = statistics.getForCurrentTest();
+   *   testStatistics.addLong(
+   *     StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY, bodyLength);
+   *
+   * </pre>
+   *
+   * @param b <code>true</code> => The response body will be read.
+   */
+  public void setReadResponseBody(boolean b) {
+    m_readResponseBody = b;
   }
 
   /**
@@ -1113,13 +1172,18 @@ public class HTTPRequest {
         throw new TimeoutException(e);
       }
 
-      // Read the entire response.
-      final byte[] data = httpResponse.getData();
+      final int responseLength;
 
-      // With standard HTTPClient, data is null <=> if Content-Length is 0.
-      // We've modified HTTPClient to avoid this.
-      final int responseLength = data.length;
-      httpResponse.getInputStream().close();
+      if (m_readResponseBody) {
+        // Read the entire response.
+        // With standard HTTPClient, data is null <=> if Content-Length is 0.
+        // We've modified HTTPClient to avoid this.
+        responseLength = httpResponse.getData().length;
+      }
+      else {
+        httpResponse.getStatusCode();
+        responseLength = 0;
+      }
 
       // Stop the clock whilst we do potentially expensive result processing.
       threadContext.pauseClock();
