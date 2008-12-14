@@ -35,9 +35,10 @@ import net.grinder.engine.common.ScriptLocation;
  */
 public final class InitialiseGrinderMessage implements Message {
 
-  private static final long serialVersionUID = 4L;
+  private static final long serialVersionUID = 5L;
 
   private final WorkerIdentity m_workerIdentity;
+  private final WorkerIdentity m_firstWorkerIdentity;
   private final boolean m_reportToConsole;
   private final ScriptLocation m_script;
   private final GrinderProperties m_properties;
@@ -45,18 +46,21 @@ public final class InitialiseGrinderMessage implements Message {
   /**
    * Constructor.
    *
-   * @param workerIdentity Worker process identity
-   * .
+   * @param workerIdentity Worker process identity.
+   * @param firstWorkerIdentity The identity of the first worker of this
+   *  generation.
    * @param reportToConsole Whether or not the worker process should
    * report to the console.
    * @param script The script to run.
    * @param properties Properties from the agent.
    */
   public InitialiseGrinderMessage(WorkerIdentity workerIdentity,
+                                  WorkerIdentity firstWorkerIdentity,
                                   boolean reportToConsole,
                                   ScriptLocation script,
                                   GrinderProperties properties) {
     m_workerIdentity = workerIdentity;
+    m_firstWorkerIdentity = firstWorkerIdentity;
     m_reportToConsole = reportToConsole;
     m_script = script;
     m_properties = properties;
@@ -69,6 +73,15 @@ public final class InitialiseGrinderMessage implements Message {
    */
   public WorkerIdentity getWorkerIdentity() {
     return m_workerIdentity;
+  }
+
+  /**
+   * Accessor for the first worker identity.
+   *
+   * @return The worker identity.
+   */
+  public WorkerIdentity getFirstWorkerIdentity() {
+    return m_firstWorkerIdentity;
   }
 
   /**

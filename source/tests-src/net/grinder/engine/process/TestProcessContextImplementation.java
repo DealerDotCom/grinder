@@ -67,6 +67,8 @@ public class TestProcessContextImplementation extends TestCase {
     new RandomStubFactory(WorkerIdentity.class);
   private final WorkerIdentity m_workerIdentity =
     (WorkerIdentity)m_workerIdentityStubFactory.getStub();
+  private final WorkerIdentity m_firstWorkerIdentity =
+    (WorkerIdentity)m_workerIdentityStubFactory.getStub();
 
   public void testAccessors() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
@@ -77,6 +79,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         properties,
         m_logger,
         null,
@@ -102,6 +105,7 @@ public class TestProcessContextImplementation extends TestCase {
   public void testThreadContextLocator() throws Exception {
     final ProcessContext processContext =
       new ProcessContextImplementation(
+        null,
         null,
         new GrinderProperties(),
         null,
@@ -136,6 +140,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         new GrinderProperties(),
         m_logger,
         null,
@@ -162,6 +167,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         grinderProperties,
         m_logger,
         null,
@@ -207,6 +213,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext2 =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         grinderProperties,
         m_logger,
         null,
@@ -226,6 +233,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         new GrinderProperties(),
         m_logger,
         null,
@@ -300,6 +308,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         new GrinderProperties(),
         m_logger,
         null,

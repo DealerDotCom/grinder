@@ -158,6 +158,7 @@ final class GrinderProcess {
     m_context =
       new ProcessContextImplementation(
         m_initialisationMessage.getWorkerIdentity(),
+        m_initialisationMessage.getFirstWorkerIdentity(),
         properties,
         processLogger,
         m_loggerImplementation.getFilenameFactory(),

@@ -25,6 +25,7 @@ import java.io.OutputStream;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedGrinderException;
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.StreamSender;
@@ -46,6 +47,7 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
   private final boolean m_reportToConsole;
   private final ScriptLocation m_script;
   private final GrinderProperties m_properties;
+  private WorkerIdentity m_firstWorkerIdentity;
 
   protected AbstractWorkerFactory(AgentIdentityImplementation agentIdentity,
                                   FanOutStreamSender fanOutStreamSender,
@@ -66,6 +68,10 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
     final WorkerIdentityImplementation workerIdentity =
       m_agentIdentity.createWorkerIdentity();
 
+    if (m_firstWorkerIdentity == null) {
+      m_firstWorkerIdentity = workerIdentity;
+    }
+
     final Worker worker =
       createWorker(workerIdentity, outputStream, errorStream);
 
@@ -74,6 +80,7 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
     try {
       final InitialiseGrinderMessage initialisationMessage =
         new InitialiseGrinderMessage(workerIdentity,
+                                     m_firstWorkerIdentity,
                                      m_reportToConsole,
                                      m_script,
                                      m_properties);

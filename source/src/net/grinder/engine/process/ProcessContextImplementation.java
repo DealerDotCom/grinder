@@ -75,14 +75,14 @@ final class ProcessContextImplementation implements ProcessContext {
 
   private volatile long m_executionStartTime;
 
-  ProcessContextImplementation(
-                 WorkerIdentity workerIdentity,
-                 GrinderProperties properties,
-                 Logger logger,
-                 FilenameFactory filenameFactory,
-                 QueuedSender consoleSender,
-                 StatisticsServices statisticsServices,
-                 ThreadStarter threadStarter)
+  ProcessContextImplementation(WorkerIdentity workerIdentity,
+                               WorkerIdentity firstWorkerIdentity,
+                               GrinderProperties properties,
+                               Logger logger,
+                               FilenameFactory filenameFactory,
+                               QueuedSender consoleSender,
+                               StatisticsServices statisticsServices,
+                               ThreadStarter threadStarter)
     throws GrinderException {
 
     m_workerIdentity = workerIdentity;
@@ -156,6 +156,7 @@ final class ProcessContextImplementation implements ProcessContext {
 
     m_scriptContext = new ScriptContextImplementation(
       m_workerIdentity,
+      firstWorkerIdentity,
       m_threadContextLocator,
       properties,
       externalLogger,

@@ -22,7 +22,7 @@ The Grinder 3.1.1 (not yet released)
   Fix bug 2138601 - Moving table columns results in incorrect formatting.
   Thanks to Walter Tuvell for the report.
 
-  Fulfill feature request 2201502. Add stream based versions of POST, PUT,
+  Fulfil feature request 2201502. Add stream based versions of POST, PUT,
   OPTIONS to HTTPRequest. This allows arbitrarily large amount of data can be
   sent without requiring a corresponding amount of memory. Thanks to Walter
   Tuvell for the suggestion.
@@ -43,9 +43,14 @@ The Grinder 3.1.1 (not yet released)
 
   Dutch console translation from Marc Van Giel.
 
-  Fulfill feature request 2412104 - support streaming HTTP responses. Thanks
+  Fulfil feature request 2412104 - support streaming HTTP responses. Thanks
   to Randy Shaffer for requesting this feature, and to Olivier Merlin for
   testing an initial patch.
+
+  Fulfil feature request 2298825 - worker number which is reset for each test
+  run. Added ScriptContext.getFirstProcessNumber() which a script can use with
+  getProcessNumber() to calculate a zero based value for indexing into test
+  data.
 
 
 The Grinder 3.1

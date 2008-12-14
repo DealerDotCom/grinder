@@ -98,6 +98,8 @@ public class TestScriptContextImplementation extends TestCase {
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
     final WorkerIdentity workerIdentity = agentIdentity.createWorkerIdentity();
+    final WorkerIdentity firstWorkerIdentity =
+      agentIdentity.createWorkerIdentity();
 
     final RandomStubFactory testRegistryStubFactory =
       new RandomStubFactory(TestRegistry.class);
@@ -111,11 +113,15 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        workerIdentity, threadContextLocator, properties, logger,
-        filenameFactory, sleeper, sslControl, statistics, testRegistry,
+        workerIdentity, firstWorkerIdentity, threadContextLocator, properties,
+        logger, filenameFactory, sleeper, sslControl, statistics, testRegistry,
         threadStarter, threadStopper);
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
+    assertEquals(workerIdentity.getNumber(),
+                 scriptContext.getProcessNumber());
+    assertEquals(firstWorkerIdentity.getNumber(),
+                 scriptContext.getFirstProcessNumber());
     assertEquals(threadNumber, scriptContext.getThreadNumber());
     assertEquals(runNumber, scriptContext.getRunNumber());
     assertSame(logger, scriptContext.getLogger());
@@ -164,7 +170,8 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        null, null, null, null, null, sleeper, null, null, null, null, null);
+        null, null, null, null, null, null, sleeper, null, null, null, null,
+        null);
 
     assertTrue(
       new Time(50, 70) {
@@ -183,8 +190,8 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        null, threadContextLocator, null, null, null, null, null, null, null,
-        null, null);
+        null, null, threadContextLocator, null, null, null, null, null, null,
+        null, null, null);
 
     try {
       scriptContext.stopThisWorkerThread();

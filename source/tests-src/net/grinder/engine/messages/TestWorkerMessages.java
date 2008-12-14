@@ -50,24 +50,29 @@ public class TestWorkerMessages extends AbstractFileTestCase {
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
     final WorkerIdentity workerIdentity = agentIdentity.createWorkerIdentity();
+    final WorkerIdentity workerIdentity2 = agentIdentity.createWorkerIdentity();
 
     final GrinderProperties properties = new GrinderProperties();
 
     final InitialiseGrinderMessage original =
-      new InitialiseGrinderMessage(workerIdentity, false, script, properties);
+      new InitialiseGrinderMessage(
+        workerIdentity, workerIdentity2, false, script, properties);
 
     final InitialiseGrinderMessage received =
       (InitialiseGrinderMessage) ((Message) Serializer.serialize(original));
 
     assertEquals(workerIdentity, received.getWorkerIdentity());
+    assertEquals(workerIdentity2, received.getFirstWorkerIdentity());
     assertTrue(!received.getReportToConsole());
     assertEquals(script, received.getScript());
     assertEquals(properties, received.getProperties());
 
     final InitialiseGrinderMessage another =
-      new InitialiseGrinderMessage(workerIdentity, true, script, properties);
+      new InitialiseGrinderMessage(
+        workerIdentity, workerIdentity2, true, script, properties);
 
     assertEquals(workerIdentity, another.getWorkerIdentity());
+    assertEquals(workerIdentity2, another.getFirstWorkerIdentity());
     assertTrue(another.getReportToConsole());
     assertEquals(script, another.getScript());
   }
