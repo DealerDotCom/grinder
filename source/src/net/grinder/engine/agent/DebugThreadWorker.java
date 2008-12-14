@@ -90,7 +90,6 @@ final class DebugThreadWorker implements Worker {
 
   public void destroy() {
     m_thread.interrupt();
-    m_workerIdentity.destroy();
   }
 
   /**

@@ -24,8 +24,6 @@ package net.grinder.engine.agent;
 import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.testutility.Serializer;
-import net.grinder.util.AllocateLowestNumber;
-import net.grinder.util.AllocateLowestNumberImplementation;
 import junit.framework.TestCase;
 
 /**
@@ -38,13 +36,9 @@ public class TestAgentIdentityImplementation extends TestCase {
 
   public void testAgentIdentityImplementation() throws Exception {
 
-    final AllocateLowestNumber workerNumberMap =
-      new AllocateLowestNumberImplementation();
-
     final AgentIdentityImplementation a1 =
-      new AgentIdentityImplementation("foo", workerNumberMap);
-    final AgentIdentity a2 =
-      new AgentIdentityImplementation("foo", workerNumberMap);
+      new AgentIdentityImplementation("foo");
+    final AgentIdentity a2 =new AgentIdentityImplementation("foo");
 
     assertEquals(a1, a1);
     assertTrue(!a1.equals(null));

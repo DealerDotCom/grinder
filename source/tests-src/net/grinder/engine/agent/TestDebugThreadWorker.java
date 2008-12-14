@@ -30,7 +30,6 @@ import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplem
 import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.testutility.DelegatingStubFactory;
 import net.grinder.testutility.RedirectStandardStreams;
-import net.grinder.util.AllocateLowestNumberImplementation;
 
 
 /**
@@ -42,8 +41,7 @@ import net.grinder.util.AllocateLowestNumberImplementation;
 public class TestDebugThreadWorker extends TestCase {
 
   private final WorkerIdentityImplementation m_workerIdentity =
-    new AgentIdentityImplementation(getClass().getName(),
-      new AllocateLowestNumberImplementation())
+    new AgentIdentityImplementation(getClass().getName())
     .createWorkerIdentity();
 
   public void testDebugThreadWorker() throws Exception {

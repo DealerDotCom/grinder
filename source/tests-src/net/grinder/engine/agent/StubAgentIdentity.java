@@ -21,7 +21,6 @@
 
 package net.grinder.engine.agent;
 
-import net.grinder.util.AllocateLowestNumberImplementation;
 
 
 /**
@@ -34,7 +33,7 @@ import net.grinder.util.AllocateLowestNumberImplementation;
 public final class StubAgentIdentity extends AgentIdentityImplementation {
 
   public StubAgentIdentity(String name) {
-    super(name, new AllocateLowestNumberImplementation());
+    super(name);
   }
 
   public WorkerIdentityImplementation createWorkerIdentity() {

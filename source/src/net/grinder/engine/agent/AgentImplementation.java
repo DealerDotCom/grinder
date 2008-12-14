@@ -51,7 +51,6 @@ import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
-import net.grinder.util.AllocateLowestNumberImplementation;
 import net.grinder.util.Directory;
 import net.grinder.util.Directory.DirectoryException;
 import net.grinder.util.thread.Condition;
@@ -106,9 +105,7 @@ public final class AgentImplementation implements Agent {
     m_proceedWithoutConsole = proceedWithoutConsole;
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, m_logger);
-    m_agentIdentity =
-      new AgentIdentityImplementation(getHostName(),
-                                      new AllocateLowestNumberImplementation());
+    m_agentIdentity = new AgentIdentityImplementation(getHostName());
   }
 
   /**

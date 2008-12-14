@@ -33,7 +33,6 @@ import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RedirectStandardStreams;
-import net.grinder.util.AllocateLowestNumberImplementation;
 
 
 /**
@@ -45,9 +44,7 @@ import net.grinder.util.AllocateLowestNumberImplementation;
 public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
 
   private AgentIdentityImplementation m_agentIdentity =
-    new AgentIdentityImplementation(
-      getClass().getName(),
-      new AllocateLowestNumberImplementation());
+    new AgentIdentityImplementation(getClass().getName());
 
   private FanOutStreamSender m_fanOutStreamSender = new FanOutStreamSender(0);
   private GrinderProperties m_properties = new GrinderProperties();

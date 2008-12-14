@@ -151,7 +151,6 @@ final class ProcessWorker implements Worker {
     }
 
     m_process.destroy();
-    m_workerIdentity.destroy();
   }
 
   private class Redirector {
