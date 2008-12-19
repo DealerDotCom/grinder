@@ -43,14 +43,19 @@ The Grinder 3.1.1 (not yet released)
 
   Dutch console translation from Marc Van Giel.
 
-  Fulfil feature request 2412104 - support streaming HTTP responses. Thanks
+  Fulfil feature request 2412104 - Support streaming HTTP responses. Thanks
   to Randy Shaffer for requesting this feature, and to Olivier Merlin for
   testing an initial patch.
 
-  Fulfil feature request 2298825 - worker number which is reset for each test
+  Fulfil feature request 2298825 - Worker number which is reset for each test
   run. Added ScriptContext.getFirstProcessNumber() which a script can use with
   getProcessNumber() to calculate a zero based value for indexing into test
   data.
+  
+  Fix bug 2412121 - Not compatible with servers that only provide SSLv3. I've
+  altered the TCPProxy and the HTTPClient library so that the SSL sockets they
+  create enable all the protocols and cipher suites supported by the underlying
+  JVM.
 
 
 The Grinder 3.1

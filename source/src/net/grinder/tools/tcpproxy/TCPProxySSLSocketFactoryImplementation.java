@@ -150,6 +150,7 @@ public final class TCPProxySSLSocketFactoryImplementation
     socket.setSoTimeout(timeout);
 
     socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+    socket.setEnabledProtocols(socket.getSupportedProtocols());
 
     return socket;
   }
