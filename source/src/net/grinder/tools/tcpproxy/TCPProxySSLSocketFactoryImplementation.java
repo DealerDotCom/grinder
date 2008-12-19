@@ -170,6 +170,9 @@ public final class TCPProxySSLSocketFactoryImplementation
     try {
       socket = (SSLSocket)m_clientSocketFactory.createSocket(
         remoteEndPoint.getHost(), remoteEndPoint.getPort());
+
+      socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+      socket.setEnabledProtocols(socket.getSupportedProtocols());
     }
     catch (ConnectException e) {
       throw new VerboseConnectException(e, "SSL end point " + remoteEndPoint);

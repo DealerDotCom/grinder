@@ -51,11 +51,11 @@ The Grinder 3.1.1 (not yet released)
   run. Added ScriptContext.getFirstProcessNumber() which a script can use with
   getProcessNumber() to calculate a zero based value for indexing into test
   data.
-  
+
   Fix bug 2412121 - Not compatible with servers that only provide SSLv3. I've
   altered the TCPProxy and the HTTPClient library so that the SSL sockets they
   create enable all the protocols and cipher suites supported by the underlying
-  JVM.
+  JVM. Thanks to Lorance Stinson for the report.
 
 
 The Grinder 3.1
