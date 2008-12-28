@@ -55,7 +55,9 @@ The Grinder 3.1.1 (not yet released)
   Fix bug 2412121 - Not compatible with servers that only provide SSLv3. I've
   altered the TCPProxy and the HTTPClient library so that the SSL sockets they
   create enable all the protocols and cipher suites supported by the underlying
-  JVM. Thanks to Lorance Stinson for the report.
+  JVM. These can be overridden if necessary with the https.cipherSuites and
+  https.protocols Java system properties. Thanks to Lorance Stinson for the
+  report and for testing various candidate patches.
 
 
 The Grinder 3.1

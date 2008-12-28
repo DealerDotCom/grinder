@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +37,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocketFactory;
+
+import HTTPClient.HTTPConnection;
 
 import net.grinder.common.Closer;
 import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
@@ -170,15 +172,14 @@ public final class TCPProxySSLSocketFactoryImplementation
     try {
       socket = (SSLSocket)m_clientSocketFactory.createSocket(
         remoteEndPoint.getHost(), remoteEndPoint.getPort());
-
-      socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
-      socket.setEnabledProtocols(socket.getSupportedProtocols());
     }
     catch (ConnectException e) {
       throw new VerboseConnectException(e, "SSL end point " + remoteEndPoint);
     }
 
-    socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+    socket.setEnabledCipherSuites(HTTPConnection.getSSLCipherSuites());
+    socket.setEnabledProtocols(HTTPConnection.getSSLProtocols());
+
     return socket;
   }
 
@@ -205,7 +206,9 @@ public final class TCPProxySSLSocketFactoryImplementation
         existingSocket, remoteEndPoint.getHost(), remoteEndPoint.getPort(),
         true);
 
-    socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+    socket.setEnabledCipherSuites(HTTPConnection.getSSLCipherSuites());
+    socket.setEnabledProtocols(HTTPConnection.getSSLProtocols());
+
     return socket;
   }
 }
