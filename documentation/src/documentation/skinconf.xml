@@ -77,7 +77,7 @@ which will be used to configure the chosen Forrest skin.
   <favicon-url>images/grinder.gif</favicon-url>
 
   <!-- The following are used to construct a copyright statement -->
-  <year>2008</year>
+  <year>2009</year>
   <vendor>Philip Aston, Calum Fitzgerald</vendor>
   <!-- The optional copyright-link URL will be used as a link in the
     copyright statement
@@ -190,7 +190,7 @@ which will be used to configure the chosen Forrest skin.
 
     .codefrag {
       font-weight: bolder;
-	  color: #303030;
+    color: #303030;
     }
 
     a .codefrag {
@@ -225,7 +225,7 @@ which will be used to configure the chosen Forrest skin.
     }
 
     #content p { line-height: 150%; text-align: justify; }
-	#content a { font-weight: bold; }
+  #content a { font-weight: bold; }
     #content dt { color: #303030; }
     #content h1 { color: #3a4b8d; }
     #content h2 { color: #3a4b8d; }
@@ -237,31 +237,31 @@ which will be used to configure the chosen Forrest skin.
     #content .underlined_10 {border-bottom: solid 1px #808080;}
 
     #top {  background: url("images/fade.png") #fff repeat-x; }
-	#top .projectlogo { padding-top: 0; padding-bottom: 30px; }
-	#top .searchbox { height: inherit; }
+  #top .projectlogo { padding-top: 0; padding-bottom: 30px; }
+  #top .searchbox { height: inherit; }
 
-	#main .breadtrail {
-	    background: transparent;
-    	border-bottom: 0px;
-    	border-top: solid 1px #ccc;
-	}
+  #main .breadtrail {
+      background: transparent;
+      border-bottom: 0px;
+      border-top: solid 1px #ccc;
+  }
 
-	#menu { top:-15px; color: white; }
+  #menu { top:-15px; color: white; }
 
-	#publishedStrip { color: #E5E4D9; }
+  #publishedStrip { color: #E5E4D9; }
 
-	.note .label { background: #3a4b8d; }
+  .note .label { background: #3a4b8d; }
 
 
   </extra-css>
   <colors>
 
-	<!--  Setting colors is the only way to get correct round corners.
-	      Relationship to CSS is a little random. -->
-  	<color name="tab-selected" value="#3a4b8d" link="#FFFFFF" vlink="#FFFFFF" hlink="#FFFFFF"/>
-  	<color name="menu" value="#3a4b8d" link="#FFFFFF" vlink="#FFFFFF" hlink="#FFFFFF"/>
+  <!--  Setting colors is the only way to get correct round corners.
+        Relationship to CSS is a little random. -->
+    <color name="tab-selected" value="#3a4b8d" link="#FFFFFF" vlink="#FFFFFF" hlink="#FFFFFF"/>
+    <color name="menu" value="#3a4b8d" link="#FFFFFF" vlink="#FFFFFF" hlink="#FFFFFF"/>
 
-	<color name="body" value="#ffffff" link="#324ebe" vlink="#324ebe" hlink="#000066"/>
+  <color name="body" value="#ffffff" link="#324ebe" vlink="#324ebe" hlink="#000066"/>
 
     <!-- Set this for the PDF. Seems to be ignored for HTML? -->
     <color name="code" value="#FFFFFF"/>

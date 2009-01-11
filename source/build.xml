@@ -82,7 +82,7 @@ what you want. Currently the conditionally built modules are:
   <property name="version" value="3.1.1"/>			 <!-- AND THE NEXT LINE -->
   <property name="release.tag" value="release_3_1_1"/>
 
-  <property name="year" value="2008"/>
+  <property name="year" value="2009"/>
 
   <!-- local settings -->
   <property file="etc/localpaths.properties"/>
@@ -650,7 +650,7 @@ what you want. Currently the conditionally built modules are:
       <arg value="examples/email.py"/>
       <arg value="examples/sequence.py"/>
       <arg value="examples/parallel.py"/>
-    	<arg value="examples/threadrampup.py"/>
+      <arg value="examples/threadrampup.py"/>
     </java>
 
   </target>
