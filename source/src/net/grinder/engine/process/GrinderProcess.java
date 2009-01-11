@@ -363,6 +363,9 @@ final class GrinderProcess {
 
     m_consoleSender.shutdown();
 
+    final long elapsedTime = m_context.getElapsedTime();
+    logger.output("elapsed time is " + elapsedTime + " ms");
+
     logger.output("Final statistics for this process:");
 
     final StatisticsTable statisticsTable =

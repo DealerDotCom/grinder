@@ -226,6 +226,10 @@ final class ProcessContextImplementation implements ProcessContext {
     return m_executionStartTime;
   }
 
+  public long getElapsedTime() {
+    return m_timeAuthority.getTimeInMilliseconds() - getExecutionStartTime();
+  }
+
   public void shutdown() {
     // Interrupt any sleepers.
     SleeperImplementation.shutdownAllCurrentSleepers();
