@@ -72,7 +72,6 @@ public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
         statisticsServices,
         m_model);
 
-    m_modelStubFactory.assertSuccess("getTPSExpression");
     m_modelStubFactory.assertSuccess("getPeakTPSExpression");
 
     final Set cumulativeViewSet =

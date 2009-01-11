@@ -128,7 +128,7 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
     assertSame(m_sampleModel, model.getModel());
     assertSame(m_sampleModelViews, model.getModelViews());
 
-    assertEquals(6, model.getColumnCount());
+    assertEquals(7, model.getColumnCount());
     assertEquals(0, model.getRowCount());
     assertEquals(0, model.getLastModelTestIndex().getNumberOfTests());
 
@@ -148,7 +148,7 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
 
     model.write(writer, "::", "**");
 
-    assertEquals("Test Column::Test Description Column::Tests::Errors::Mean Test Time (ms)::Test Time Standard Deviation (ms)::**",
+    assertEquals("Test Column::Test Description Column::Tests::Errors::Mean Test Time (ms)::Test Time Standard Deviation (ms)::TPS::**",
                  writer.toString());
   }
 
@@ -162,19 +162,19 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
     m_resources.put("statistic.Errors", "Blah");
     m_resources.put("statistic.Mean_Test_Time_(ms)", "meantime");
 
-    assertEquals(6, model.getColumnCount());
+    assertEquals(7, model.getColumnCount());
 
     model.addColumns(m_statisticsServices.getSummaryStatisticsView());
 
     // Adding same columns again is a no-op.
-    assertEquals(6, model.getColumnCount());
+    assertEquals(7, model.getColumnCount());
     assertEquals("Tests", model.getColumnName(2));
     assertEquals("Errors", model.getColumnName(3));
     assertEquals("Mean Test Time (ms)", model.getColumnName(4));
 
     model.addColumns(m_statisticsServices.getDetailStatisticsView());
 
-    assertEquals(7, model.getColumnCount());
+    assertEquals(8, model.getColumnCount());
     assertEquals("Test time", model.getColumnName(2));
     assertEquals("Blah", model.getColumnName(4));
     assertEquals("meantime", model.getColumnName(5));

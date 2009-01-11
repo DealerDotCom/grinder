@@ -68,6 +68,10 @@ final class CommonStatisticsViews {
           "Test Time Standard Deviation (ms)",
           "(sqrt (variance timedTests))",
           false),
+        expressionFactory.createExpressionView(
+          "TPS",
+          "(* 1000 (/ (+ (count timedTests) untimedTests) period))",
+          false),
       };
 
       for (int i = 0; i < summaryExpressionViews.length; ++i) {

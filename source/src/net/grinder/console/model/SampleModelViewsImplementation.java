@@ -44,7 +44,6 @@ public class SampleModelViewsImplementation implements SampleModelViews {
 
   private final ListenerSupport m_listeners = new ListenerSupport();
   private final StatisticsServices m_statisticsServices;
-  private final ExpressionView m_tpsExpressionView;
   private final ExpressionView m_peakTPSExpressionView;
 
   // Guarded by this.
@@ -74,10 +73,6 @@ public class SampleModelViewsImplementation implements SampleModelViews {
 
     final StatisticExpressionFactory statisticExpressionFactory =
       m_statisticsServices.getStatisticExpressionFactory();
-
-    m_tpsExpressionView =
-      statisticExpressionFactory
-        .createExpressionView("TPS", model.getTPSExpression());
 
     m_peakTPSExpressionView =
       statisticExpressionFactory
@@ -111,10 +106,8 @@ public class SampleModelViewsImplementation implements SampleModelViews {
     }
 
     m_intervalStatisticsView.add(summaryStatisticsView);
-    m_intervalStatisticsView.add(m_tpsExpressionView);
 
     m_cumulativeStatisticsView.add(summaryStatisticsView);
-    m_cumulativeStatisticsView.add(m_tpsExpressionView);
     m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
 
     m_listeners.apply(
