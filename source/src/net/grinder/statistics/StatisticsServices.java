@@ -72,4 +72,11 @@ public interface StatisticsServices {
    * @return The {@link TestStatisticsQueries}.
    */
   TestStatisticsQueries getTestStatisticsQueries();
+
+  /**
+   * Return the TPS expression.
+   *
+   * @return The TPS expression.
+   */
+  StatisticExpression getTPSExpression();
 }

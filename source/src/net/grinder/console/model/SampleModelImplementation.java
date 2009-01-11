@@ -131,9 +131,7 @@ public final class SampleModelImplementation implements SampleModel {
     final StatisticExpressionFactory statisticExpressionFactory =
       m_statisticsServices.getStatisticExpressionFactory();
 
-    m_tpsExpression =
-      statisticExpressionFactory.createExpression(
-        "(* 1000 (/ (+ (count timedTests) untimedTests) period))");
+    m_tpsExpression = statisticsServices.getTPSExpression();
 
     m_peakTPSExpression =
       statisticExpressionFactory.createPeak(
