@@ -100,6 +100,9 @@ public class TestProcessContextImplementation extends TestCase {
     final long t2 = System.currentTimeMillis();
     assertTrue(t1 <= processContext.getExecutionStartTime());
     assertTrue(processContext.getExecutionStartTime() <= t2);
+    final long elapsedTime = processContext.getElapsedTime();
+    assertTrue(elapsedTime <= (System.currentTimeMillis() - t1));
+    assertTrue(elapsedTime >= 0);
   }
 
   public void testThreadContextLocator() throws Exception {
