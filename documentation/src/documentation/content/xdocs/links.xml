@@ -15,6 +15,21 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="ext:grinder-hudson">Grinder Plugin for Hudson</a>
+      </td>
+
+      <td></td>
+
+      <td>
+          This plug-in reads output result files from performance tests run
+          with The Grinder, and will generate reports showing test results
+          for every build and trend reports showing performance results across
+          builds.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
         <a href="ext:ground-report">Ground Report</a>
       </td>
 
