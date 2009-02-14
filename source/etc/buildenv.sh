@@ -1,5 +1,6 @@
 export ANT_HOME=/opt/ant/apache-ant-1.6.2
 export JAVA_HOME=/opt/bea-816/jdk142_11
+#export JAVA_HOME=/opt/jrockit/jrockit-R27.5.0-jdk1.5.0_14/
 #export JAVAHL_HOME=/opt/eclipse/3.2/eclipse/plugins/org.tigris.subversion.javahl.win32_1.0.4/
 export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
