@@ -16,7 +16,8 @@
     <module name="PackageHtml"/>
     <!-- No good as it matches the common header comments.
     <module name="StrictDuplicateCode"/> -->
-    <module name="Translation"/>
+
+    <!-- <module name="Translation"/> -->
 
     <module name="TreeWalker">
 
