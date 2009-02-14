@@ -87,6 +87,8 @@ b) You must cause any work that you distribute or publish, that in whole or in p
 <section name='Engine' depth='2' id='Engine'>
 <p>
 There should be an ExternalFilenameFactory, cf ExternalLogger. </p>
+<p>
+Support for some sort of "Surrogate task" that is run in a pool of threads and has its own statistics context would be good. </p>
 <section name='Interactive mode' depth='3' id='Interactive mode'>
 <p>
 Possible to have an interactive mode for debugging? E.g. a simple UI that can be launched from a thread which drops the user into a console? Would need to launch with grinder.debug.singleprocess=true. </p>
