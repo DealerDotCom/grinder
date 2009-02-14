@@ -1,5 +1,5 @@
-The Grinder 3.1.1 (not yet released)
-------------------------------------
+The Grinder 3.2
+---------------
 
   Add net.grinder.ScriptContext startWorkerThread() and
   startWorkerThread(testRunner) methods which scripts can use to start
@@ -636,7 +636,7 @@ Grinder 3.0-beta23
   be overridden in scripts initialistion section.
 
   Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP
-  URLs. Thanks to Thomas B�hne for reporting problems.
+  URLs. Thanks to Thomas Býhne for reporting problems.
 
   Fix another bug in HTTPClient related to responses with a
   Content-Length of 0. Thanks to John Lee for the report.
@@ -652,7 +652,7 @@ Grinder 3.0-beta23
   new statistics measuring time to resolve host names (DNS), time to
   establish the connection, and time to first byte.
 
-  XML-RPC example from Sebasti�n Fontana.
+  XML-RPC example from Sebastiýn Fontana.
 
 
 Grinder 3.0-beta22
@@ -1490,7 +1490,7 @@ Grinder 2.6.3
   Split the documentation of the plugins and the TCPSniffer into
   separate files.
 
-  The HTTP plugin now has experimental support for Ronald Tschal�r's
+  The HTTP plugin now has experimental support for Ronald Tschalýr's
   excellent HTTPClient library instead of HttpURLConnection.
   HTTPClient has many more features than HttpURLConnection, see
   http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html

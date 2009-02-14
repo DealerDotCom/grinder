@@ -1,3 +1,423 @@
+2009-02-14 [r3974]  Philip Aston
+
+	* etc/localpaths.properties: Update path.
+
+2009-02-14 [r3973]  Philip Aston
+
+	* etc/buildenv.sh: Still haven't switched to Java 5, use 1.4 for
+	  build.
+
+2009-02-14 [r3972]  Philip Aston
+
+	* .settings/org.eclipse.jdt.core.prefs, .classpath,
+	  .settings/org.eclipse.jdt.ui.prefs,
+	  .settings/com.cenqua.clover.core.prefs, .pydevproject: Update
+	  cruft.
+
+2009-02-14 [r3971]  Philip Aston
+
+	* etc/checkstyle.xml: Hmm.. checkstyle has started bitching about
+	  the common properties that are not intended for translation.
+	  Disable the translation module.
+
+2009-01-11 [r3969]  Philip Aston
+
+	* build.xml, LICENSE,
+	  src/net/grinder/console/common/resources/about.html: Happy New
+	  Year.
+
+2009-01-11 [r3968]  Philip Aston
+
+	* src/net/grinder/statistics/StatisticsServices.java,
+	  src/net/grinder/console/model/SampleModelImplementation.java,
+	  src/net/grinder/statistics/CommonStatisticsViews.java,
+	  src/net/grinder/statistics/StatisticsServicesImplementation.java:
+	  DRY - only create one TPS expression.
+
+2009-01-11 [r3967]  Philip Aston
+
+	* src/net/grinder/console/model/SampleModelViewsImplementation.java,
+	  tests-src/net/grinder/console/model/TestSampleModelViewsImplementation.java,
+	  tests-src/net/grinder/console/swingui/TestCumulativeStatisticsTableModel.java,
+	  src/net/grinder/statistics/CommonStatisticsViews.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  tests-src/net/grinder/console/swingui/TestSampleStatisticsTableModel.java,
+	  CHANGES: Fulfill feature request 1677083 - agent should produce
+	  TPS when run without console.
+
+2009-01-11 [r3966]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/TestProcessContextImplementation.java:
+	  Report total elapsed time on exit.
+
+2009-01-11 [r3965]  Philip Aston
+
+	* src/net/grinder/engine/process/ProcessContext.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/ProcessContextImplementation.java:
+	  Report total elapsed time on exit.
+
+2008-12-28 [r3964]  Philip Aston
+
+	* src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java,
+	  src/HTTPClient/HTTPConnection.java, CHANGES: Yet another attempt
+	  at fixing 2412121.
+
+2008-12-19 [r3963]  Philip Aston
+
+	* src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java,
+	  CHANGES: Fix bug 2412121 - Not compatible with servers that only
+	  provide SSLv3.
+
+2008-12-19 [r3962]  Philip Aston
+
+	* src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java,
+	  src/HTTPClient/HTTPConnection.java, CHANGES: Fix bug 2412121 -
+	  Not compatible with servers that only provide SSLv3.
+
+2008-12-14 [r3961]  Philip Aston
+
+	* src/net/grinder/engine/messages/InitialiseGrinderMessage.java,
+	  src/net/grinder/engine/agent/AbstractWorkerFactory.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/ProcessContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestProcessContextImplementation.java,
+	  tests-src/net/grinder/engine/messages/TestWorkerMessages.java,
+	  src/net/grinder/script/Grinder.java, CHANGES,
+	  src/net/grinder/engine/process/ScriptContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestScriptContextImplementation.java:
+	  Fulfil feature request 2298825 - worker number which is reset for
+	  each test run.
+
+2008-12-14 [r3960]  Philip Aston
+
+	* src/net/grinder/engine/agent/AgentImplementation.java,
+	  tests-src/net/grinder/engine/agent/StubAgentIdentity.java,
+	  src/net/grinder/engine/agent/DebugThreadWorker.java,
+	  src/net/grinder/engine/agent/ProcessWorker.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorker.java,
+	  src/net/grinder/engine/agent/AgentIdentityImplementation.java,
+	  tests-src/net/grinder/engine/agent/TestAgentIdentityImplementation.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorkerFactory.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java,
+	  src/net/grinder/engine/agent/AbstractProcessIdentityImplementation.java:
+	  Previously worker process numbers were re-used if a worker was
+	  forcibly terminated. Consequently the worker number could get out
+	  of step with the worker name. Worker process numbers are reused
+	  no longer.
+
+2008-12-10 [r3957-3958]  Philip Aston
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPRequest.java: Fulfill
+	  feature request 2412104 - support streaming HTTP responses.
+
+	* tests-src/net/grinder/plugin/http/HTTPRequestHandler.java: Remove
+	  circular dependency.
+
+2008-12-10 [r3955]  Philip Aston
+
+	* tests-src/net/grinder/plugin/http/TestHTTPRequest.java: Remove
+	  circular dependency.
+
+2008-12-04 [r3954]  Philip Aston
+
+	* src/net/grinder/console/common/resources/Console_nl.properties
+	  (added), AUTHORS, CHANGES: Dutch console translation from Marc
+	  Van Giel.
+
+2008-11-23 [r3947]  Philip Aston
+
+	* tests-src/net/grinder/engine/agent/TestAgentImplementation.java,
+	  src/net/grinder/engine/agent/DebugThreadWorker.java,
+	  src/net/grinder/engine/agent/IsolatedGrinderProcessRunner.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorker.java,
+	  CHANGES,
+	  src/net/grinder/engine/agent/DebugThreadWorkerFactory.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorkerFactory.java:
+	  Fix bug 2314157 - add grinder.debug.singleprocess.sharedclasses
+	  property.
+
+2008-11-23 [r3946]  Philip Aston
+
+	* tests-src/net/grinder/testutility/RedirectStandardStreams.java:
+	  toString()
+
+2008-11-16 [r3944]  Philip Aston
+
+	* CHANGES: Note FR for HTTP streaming.
+
+2008-11-16 [r3943]  Philip Aston
+
+	* src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java
+	  (removed),
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyFunctions.java
+	  (added),
+	  src/net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyInstance.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaClass.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java,
+	  src/net/grinder/engine/process/jython/InstrumentationHelper.java
+	  (added),
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethods.java
+	  (added),
+	  src/net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	  Refactor to remove duplicate code.
+
+2008-11-16 [r3942]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	  More tests.
+
+2008-11-15 [r3941]  Philip Aston
+
+	* etc/checkstyle-suppressions.xml,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaClass.java
+	  (added), CHANGES,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	  Fix bug 1580340 - Can't invoke static methods through a wrapped
+	  Java class.
+
+2008-11-13 [r3940]  Philip Aston
+
+	* src/net/grinder/util/DelayedCreationFileWriter.java,
+	  src/net/grinder/communication/ClientReceiver.java,
+	  src/net/grinder/util/FileContents.java,
+	  src/net/grinder/console/swingui/Editor.java,
+	  src/net/grinder/communication/FanOutStreamSender.java,
+	  src/net/grinder/statistics/TestStatisticsMap.java,
+	  src/net/grinder/util/SleeperImplementation.java,
+	  src/net/grinder/util/URIParser.java,
+	  src/net/grinder/console/ConsoleFoundation.java,
+	  src/net/grinder/engine/process/WorkerThreadSynchronisation.java,
+	  src/net/grinder/util/ListenerSupport.java,
+	  src/net/grinder/console/distribution/FileDistribution.java,
+	  src/net/grinder/plugin/http/SlowClientBandwidthLimiterFactory.java,
+	  src/net/grinder/console/distribution/AgentCacheState.java,
+	  src/net/grinder/console/swingui/FileTreeModel.java,
+	  src/net/grinder/console/communication/server/messages/StartWorkerProcessesMessage.java,
+	  src/net/grinder/engine/agent/AgentIdentityImplementation.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  src/net/grinder/console/communication/ProcessControl.java,
+	  src/net/grinder/communication/AbstractFanOutSender.java,
+	  src/net/grinder/common/UncheckedInterruptedException.java,
+	  src/net/grinder/engine/process/DispatchContext.java,
+	  src/net/grinder/communication/FanOutServerSender.java,
+	  src/net/grinder/console/communication/ProcessControlImplementation.java,
+	  src/net/grinder/tools/tcpproxy/ConnectionDetails.java,
+	  src/net/grinder/communication/SocketWrapper.java,
+	  src/net/grinder/engine/agent/WorkerLauncher.java,
+	  src/net/grinder/script/Statistics.java,
+	  src/net/grinder/console/communication/ProcessStatusImplementation.java,
+	  src/net/grinder/console/communication/ConsoleCommunication.java,
+	  src/net/grinder/common/GrinderProperties.java,
+	  src/net/grinder/engine/process/StopWatch.java,
+	  src/net/grinder/util/thread/InterruptibleRunnable.java,
+	  src/net/grinder/console/model/SampleModel.java,
+	  src/net/grinder/communication/Acceptor.java,
+	  src/net/grinder/console/communication/ConsoleCommunicationImplementation.java:
+	  Javadoc fixes.
+
+2008-11-13 [r3938-3939]  Philip Aston
+
+	* src/net/grinder/console/communication/server/messages/ResultMessage.java,
+	  tests-src/net/grinder/console/client/TestConsoleConnectionImplementation.java:
+	  Payload must be serializable.
+
+	* tests-src/net/grinder/util/thread/TestThreadPool.java: Use junit
+	  assert.
+
+2008-11-13 [r3937]  Philip Aston
+
+	* build.xml: Fix javadoc generation. Don't generate javadoc for the
+	  unit tests.
+
+2008-11-09 [r3936]  Philip Aston
+
+	* src/net/grinder/engine/process/ProcessContext.java,
+	  src/net/grinder/engine/process/ThreadStopper.java (added),
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/ProcessContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestProcessContextImplementation.java,
+	  src/net/grinder/engine/process/ScriptEngine.java,
+	  src/net/grinder/engine/process/ShutdownException.java,
+	  src/net/grinder/engine/process/PluginRegistryImplementation.java,
+	  CHANGES,
+	  src/net/grinder/common/SkeletonThreadLifeCycleListener.java
+	  (added),
+	  src/net/grinder/engine/process/SSLControlImplementation.java,
+	  src/net/grinder/script/Grinder.java,
+	  src/net/grinder/engine/process/ThreadContext.java,
+	  tests-src/net/grinder/engine/process/TestScriptContextImplementation.java,
+	  src/net/grinder/engine/process/ScriptContextImplementation.java,
+	  src/net/grinder/plugin/http/HTTPPluginThreadState.java,
+	  src/net/grinder/engine/process/ThreadContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	  Fulfil feature request 1694369 - Ability to stop worker threads
+	  from script.
+
+2008-11-07 [r3934]  Philip Aston
+
+	* src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/ScriptEngine.java,
+	  src/net/grinder/script/Grinder.java,
+	  src/net/grinder/engine/process/ThreadStarter.java, CHANGES,
+	  src/net/grinder/engine/process/jython/JythonScriptExecutionException.java,
+	  src/net/grinder/engine/process/ScriptContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestScriptContextImplementation.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java,
+	  src/net/grinder/engine/process/GrinderThread.java,
+	  tests-src/net/grinder/engine/process/TestGrinderThread.java:
+	  Added net.grinder.ScriptContext.startWorkerThread(testRunner).
+
+2008-11-07 [r3933]  Philip Aston
+
+	* tests-src/net/grinder/testutility/CallData.java: Copy with null
+	  parameters.
+
+2008-10-25 [r3932]  Philip Aston
+
+	* build.xml, etc/localpaths.properties,
+	  src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java,
+	  etc/checkstyle-suppressions.xml, etc/checkstyle.properties,
+	  src/net/grinder/script/Grinder.java, etc/checkstyle.xml:
+	  Checkstyle fixes.
+
+2008-10-25 [r3930-3931]  Philip Aston
+
+	* src/net/grinder/engine/process/ProcessContext.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/ProcessContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestGrinderProcess.java,
+	  tests-src/net/grinder/engine/process/TestProcessContextImplementation.java,
+	  etc/checkstyle.properties, CHANGES,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  etc/checkstyle-suppressions.xml,
+	  src/net/grinder/script/Grinder.java,
+	  src/net/grinder/engine/process/ThreadStarter.java (added),
+	  src/net/grinder/engine/process/WorkerThreadSynchronisation.java,
+	  src/net/grinder/engine/process/ScriptContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestScriptContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestGrinderThread.java,
+	  src/net/grinder/engine/process/GrinderThread.java: Added
+	  net.grinder.ScriptContext.startWorkerThread().
+
+	* src/net/grinder/engine/communication/ConsoleListener.java:
+	  shutdown -> shut down
+
+2008-10-25 [r3929]  Philip Aston
+
+	* .settings/com.cenqua.clover.core.prefs: Filter tests-src from
+	  clover compilation.
+
+2008-10-23 [r3928]  Philip Aston
+
+	* TODO: Idea for surrogate tasks.
+
+2008-10-18 [r3925-3926]  Philip Aston
+
+	* .settings/com.cenqua.clover.core.prefs, .pydevproject: More
+	  cruft.
+
+	* src/HTTPClient/Cookie.java, tests-src/HTTPClient/TestCookie.java,
+	  CHANGES: Fix bug 1576609 - "Accept Cookie" rules too strict.
+
+2008-10-18 [r3924]  Philip Aston
+
+	* .classpath: Fluff.
+
+2008-10-13 [r3923]  Philip Aston
+
+	* tests-src/net/grinder/console/swingui/TestCumulativeStatisticsTableModel.java
+	  (added),
+	  tests-src/net/grinder/console/swingui/TestSampleStatisticsTableModel.java
+	  (added), tests-src/net/grinder/console/common/StubResources.java:
+	  Coverage.
+
+2008-10-13 [r3922]  Philip Aston
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPRequest.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java: Add
+	  stream based versions of POST, PUT, OPTIONS to HTTPRequest.
+
+2008-10-05 [r3921]  Philip Aston
+
+	* src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java,
+	  src/net/grinder/console/swingui/SampleStatisticsTableModel.java,
+	  src/net/grinder/console/swingui/DynamicStatisticsTableModel.java:
+	  Tsch - don't call non-final methods from constructors.
+
+2008-10-05 [r3920]  Philip Aston
+
+	* .settings/com.cenqua.clover.core.prefs (added): Fluff.
+
+2008-10-05 [r3919]  Philip Aston
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java:
+	  Workaround JRockit bug where it uses the wrong encoding in
+	  ByteArrayOutputStream.toString().
+
+2008-10-04 [r3917]  Philip Aston
+
+	* src/net/grinder/console/swingui/Table.java, CHANGES: Fix bug
+	  2138601 - Moving table columns results in incorrect formatting.
+
+2008-10-04 [r3916]  Philip Aston
+
+	* tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java:
+	  Work around mysterious problem that has appeared where JRockit
+	  doesn't appear to use the correct default character encodings for
+	  ByteArrayOutputStream.toString().
+
+2008-09-28 [r3911]  Philip Aston
+
+	* src/net/grinder/engine/agent/AgentImplementation.java, CHANGES:
+	  Fix bug 2092881 - Agents do not start first time after reset if
+	  console overrides consoleHost or consolePort properties.
+
+2008-09-28 [r3910]  Philip Aston
+
+	* tests-src/net/grinder/util/thread/TestThreadPool.java: Make sure
+	  we don't leave the interrupt flag set.
+
+2008-09-28 [r3909]  Philip Aston
+
+	* tests-src/net/grinder/util/thread/TestThreadPool.java: Test can
+	  have a different outcome based on race.
+
+2008-09-27 [r3907]  Philip Aston
+
+	* build.xml, examples/threadrampup.py (added), CHANGES: Address bug
+	  2058502 - add example script showing how to ramp up threads.
+
+2008-07-26 [r3905]  Philip Aston
+
+	* examples/proportion.py, examples/parallel.py, examples/ejb.py,
+	  examples/jdbc.py, examples/scriptlifecycle.py,
+	  examples/amazon.py, examples/email.py, examples/jaxrpc.py:
+	  threadID -> threadNumber.
+
+2008-07-14 [r3903-3904]  Philip Aston
+
+	* src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java,
+	  CHANGES: Fix bug 2018168 - HTTP filter generates invalid Jython
+	  variable names.
+
+	* build.xml: Next might be 3.1.1.
+
+2008-07-14 [r3902]  Philip Aston
+
+	* build.xml: Don't clean out the whole docs dir as it contains
+	  sources too.
+
+2008-07-07 [r3899]  Philip Aston
+
+	* ChangeLog: Yet more updates.
+
 2008-07-07 [r3898]  Philip Aston
 
 	* build.xml: Sigh, update version numbers.
