@@ -1,6 +1,6 @@
 The Grinder
 Copyright (c) 2000 Paco Gomez
-Copyright (c) 2000-2008 Philip Aston
+Copyright (c) 2000-2009 Philip Aston
 All rights reserved.
 
 Additional contributions have been made by individuals listed in the
@@ -35,7 +35,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.
 
 
-The Grinder includes Ronald Tschalär's HTTPClient library
+The Grinder includes Ronald Tschalï¿½r's HTTPClient library
 (http://www.innovation.ch/java/HTTPClient/index.html). The HTTPClient
 library is distributed under the GNU Lesser Public License. Under the
 term 6 of the GNU Lesser Public License, The Grinder is a "work that

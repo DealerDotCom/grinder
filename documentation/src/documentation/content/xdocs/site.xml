@@ -46,10 +46,10 @@ See http://forrest.apache.org/docs/linking.html for more info
         <agents href="#agent-processes"/>
         <workers href="#worker-processes"/>
       </processes>
-	    <properties label="Properties" href="properties.html">
-	      <commandline href="#Specifying+properties+on+the+command+line"/>
-	    </properties>
-	  </agents-and-workers>
+      <properties label="Properties" href="properties.html">
+        <commandline href="#Specifying+properties+on+the+command+line"/>
+      </properties>
+    </agents-and-workers>
 
     <console label="The Console" href="console.html">
       <process-controls href="#process-controls"/>
@@ -192,6 +192,8 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <grinder-analyzer href="http://sourceforge.net/project/showfiles.php?group_id=160220"/>
 
+    <grinder-hudson href="http://hudson.gotdns.com/wiki/display/HUDSON/Grinder+Plugin"/>
+
     <grinderstone href="http://code.google.com/p/grinderstone/"/>site
 
     <ground-report href="http://ground.sourceforge.net"/>
@@ -243,7 +245,7 @@ See http://forrest.apache.org/docs/linking.html for more info
     </jython-bugs>
 
     <jython-wiki href="http://wiki.python.org/">
-    	<package-scanning href="jython/PackageScanning"/>
+      <package-scanning href="jython/PackageScanning"/>
     </jython-wiki>
 
     <mail>
@@ -280,6 +282,7 @@ See http://forrest.apache.org/docs/linking.html for more info
     </zephyrfalcon>
 
     <sourceforge href="http://www.sourceforge.net/">
+      <bug2314157 href="tracker2/?func=detail&amp;aid=2314157&amp;group_id=18598&amp;atid=118598"/>
       <grinder href="projects/grinder"/>
       <junit href="projects/junit"/>
       <extra-line href="tracker/index.php?func=detail&amp;aid=1081136&amp;group_id=18598&amp;atid=118598"/>

@@ -249,8 +249,28 @@ enable the HTTPClient Transfer Encoding Module with
 <code>Transfer-Encoding</code>). Your browser doesn't do this, so neither should
 The Grinder. If you really want to do this, you can use Java or Jython
 decompression libraries from your script.</p>
+  </section>
+
+  <section>
+	 <title>Streaming requests and response</title>
+
+	 <p>The <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html">HTTPRequest</a>
+	 class has support for sending request data from a stream. This allows an
+	 arbitrarily large amount of data to be sent without requiring a corresponding
+	 amount of memory. To do this, use these versions of the
+    <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html#POST(java.lang.String, InputStream)">POST</a>,
+    <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html#PUT(java.lang.String, InputStream)">PUT</a>, and
+    <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html#OPTIONS(java.lang.String, InputStream)">OPTIONS</a>
+    methods.
+   </p>
+
+   <p><code>HTTPRequest</code> allows you the response body to be handled as a
+   stream. Refer to the Javadoc for the
+   <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html#setReadResponseBody(boolean)">
+   setReadResponseBody</a> method for more details.</p>
 
   </section>
+
 
   </section>
 
