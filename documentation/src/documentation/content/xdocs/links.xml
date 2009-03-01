@@ -15,6 +15,24 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="ext:grinder-in-the-cloud">Grinder In The Cloud</a>
+      </td>
+
+      <td></td>
+
+      <td>
+          Grinder in the Cloud leverages the well known Grinder load test
+          framework by putting it in the cloud. It offers an easy to use load
+          test framework with virtually unlimited firepower at a competitive
+          price. This Windows based AMI starts the Grinder console. It starts
+          Grinder agent AMIs to generate the load. The Agents automatically
+          connect to the console. Built by Jörg Kalsbach.
+      </td>
+    </tr>
+
+
+    <tr>
+      <td>
         <a href="ext:grinder-hudson">Grinder Plugin for Hudson</a>
       </td>
 
