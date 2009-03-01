@@ -1,3 +1,13 @@
+The Grinder 3.X (not yet released)
+----------------------------------
+
+  The TCPProxy now supports HTTPS proxies that use challenge/response
+  authentication protocols such as NTLM and Negotiate. This will allow
+  scripts to be recorded through such a proxy, but are no plans to add
+  support for replaying scripts through the proxy. Thanks to
+  Suvendu Kumar Mohapatra for extensive testing of candidate patches.
+
+
 The Grinder 3.2
 ---------------
 

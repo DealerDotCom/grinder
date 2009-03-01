@@ -1,4 +1,4 @@
-// Copyright (C) 2000-2006 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003 Bertrand Ave
@@ -78,6 +78,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
   private final Pattern m_httpConnectPattern;
   private final Pattern m_httpsConnectPattern;
+  private final Pattern m_httpsProxyResponsePattern;
   private final ProxySSLEngine m_proxySSLEngine;
   private final Thread m_proxySSLEngineThread;
   private final EndPoint m_chainedHTTPProxy;
@@ -129,6 +130,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     m_httpsConnectPattern =
       Pattern.compile("^CONNECT[ \\t]+([^:]+):(\\d+).*\r\n\r\n",
                       Pattern.DOTALL);
+
+    m_httpsProxyResponsePattern =
+      Pattern.compile("^HTTP.*? (\\d+) .*", Pattern.DOTALL);
 
     // When handling HTTPS proxies, we use our plain socket to accept
     // connections on. We suck the bit we understand off the front and
@@ -275,21 +279,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               new EndPoint(httpsConnectMatcher.group(1),
                            Integer.parseInt(httpsConnectMatcher.group(2)));
 
+            final OutputStream out = localSocket.getOutputStream();
+
+            byte[] proxyResponse = null;
+
             if (m_httpsProxySocketFactory != null) {
-              // Read additional data from the client (HTTP protocol
-              // version and headers) and pass it to our
-              // HTTPSProxySocketFactory for use in the establishment of
-              // the chained proxy connection.
-
-              final ByteArrayOutputStream additionalRequestBytes =
-                new ByteArrayOutputStream();
-
-              additionalRequestBytes.write(
-                bufferAsString.substring(httpsConnectMatcher.end(2))
-                .getBytes());
-
-              m_httpsProxySocketFactory.setAdditionalRequestBytes(
-                additionalRequestBytes.toByteArray());
+              // Set up our chained proxy connection.
+              in.reset();
+              proxyResponse = m_httpsProxySocketFactory.negotiate(in, out);
             }
 
             final Socket sslProxySocket;
@@ -313,17 +310,15 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               "Copy to proxy engine for " + remoteEndPoint,
               in).start();
 
-            final OutputStream out = localSocket.getOutputStream();
-
             new StreamThread(
               new StreamCopier(4096, true)
                 .getInterruptibleRunnable(sslProxySocket.getInputStream(), out),
               "Copy from proxy engine for " + remoteEndPoint,
               sslProxySocket.getInputStream()).start();
 
-            if (m_httpsProxySocketFactory != null) {
-              // Chuck the chained proxy's response back as our own.
-              out.write(m_httpsProxySocketFactory.getResponseBytes());
+            if (proxyResponse != null) {
+              // Chuck the chained proxy's final response back as our own.
+              out.write(proxyResponse);
               out.flush();
             }
             else {
@@ -662,8 +657,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     private final TCPProxySSLSocketFactory m_delegate;
     private final EndPoint m_httpsProxy;
 
-    private byte[] m_additionalRequestBytes;
-    private byte[] m_responseBytes;
+    // Guarded by this.
+    private Socket m_nextRawClientSocket;
 
     /**
      * Constructor.
@@ -674,7 +669,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
      */
     public HTTPSProxySocketFactory(TCPProxySSLSocketFactory delegate,
                                    EndPoint chainedHTTPSProxy) {
-
       m_delegate = delegate;
       m_httpsProxy = chainedHTTPSProxy;
     }
@@ -693,39 +687,129 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     }
 
     /**
-     * Set additional header bytes to send after the CONNECT header
-     * when establishing the next client socket.
+     * Establish a connection to the remote proxy and pass requests and
+     * responses between the browser and the remote proxy until the proxy
+     * returns a 200 or closes the connection. This should handle multistage
+     * proxy authentication protocols such as NTLM and Negotiate.
      *
-     * @param additionalRequestBytes The bytes.
+     * <p>
+     * If negotiation was successful, the client socket is cached and will be
+     * returned for the next call to {@link #createClientSocket(EndPoint)}, and
+     * this method will return the final 200 response from the proxy. The final
+     * 200 response is not sent to the browser by this method; instead, the
+     * engine sets up the SSL engine and does so itself.
+     * </p>
+     *
+     * <p>
+     * If the negotiation was unsuccessful, one of the parties will close
+     * a connection and we'll throw an {@link IOException}
+     * </p>
+     *
+     * @param request
+     *          Stream from the browser.
+     * @param response
+     *          Stream to the browser.
+     * @return The final 200 response from the remote proxy, or {@code null} if
+     *         authentication failed.
+     * @exception IOException If an error occurs.
      */
-    public void setAdditionalRequestBytes(byte[] additionalRequestBytes) {
-      m_additionalRequestBytes = additionalRequestBytes;
-    }
+    public byte[] negotiate(InputStream request, OutputStream response)
+      throws IOException {
 
-    /**
-     * The response returned from the chained proxy during the last
-     * client socket establishment. Blocks until bytes are available.
-     *
-     * @return The response bytes.
-     * @throws IOException If thread interrupted whilst waiting.
-     */
-    public byte[] getResponseBytes() throws IOException {
       synchronized (this) {
-        try {
-          while (m_responseBytes == null) {
-            try {
-              wait();
-            }
-            catch (InterruptedException e) {
-              throw new UncheckedInterruptedException(e);
-            }
-          }
+        m_nextRawClientSocket = null;
+      }
 
-          return m_responseBytes;
+      final Socket socket;
+
+      try {
+        socket = new Socket(m_httpsProxy.getHost(), m_httpsProxy.getPort());
+      }
+      catch (ConnectException e) {
+        throw new VerboseConnectException(e, "HTTPS proxy " + m_httpsProxy);
+      }
+
+      while (true) {
+        // Use a buffered output stream so the output is flushed as one.
+        final OutputStream proxyRequest =
+          new BufferedOutputStream(socket.getOutputStream());
+
+        final byte[] buffer = new byte[1024];
+
+        final InputStream proxyResponse = socket.getInputStream();
+
+        // Non-blocking read.
+        while (request.available() > 0) {
+          final int n = request.read(buffer);
+
+          if (n > 0) {
+            proxyRequest.write(buffer, 0, n);
+          }
         }
-        finally {
-          // Reset for next time.
-          m_responseBytes = null;
+
+        proxyRequest.flush();
+
+        // Wait for response.
+
+        for (int i = 0;
+             i < s_connectTimeout && proxyResponse.available() == 0;
+             i += 10) {
+          sleep(10);
+        }
+
+        if (proxyResponse.available() == 0) {
+          throw new IOException(
+            "HTTPS proxy " + m_httpsProxy + " failed to respond after " +
+            s_connectTimeout + " ms");
+        }
+
+        // We've got a live one. Parse its response.
+        final ByteArrayOutputStream responseBytes = new ByteArrayOutputStream();
+
+        // Non-blocking read.
+        while (proxyResponse.available() > 0) {
+          final int n = proxyResponse.read(buffer);
+
+          if (n > 0) {
+            responseBytes.write(buffer, 0, n);
+          }
+        }
+
+        final byte[] bytesRead = responseBytes.toByteArray();
+
+        final String bufferAsString = new String(bytesRead, "US-ASCII");
+
+        final Matcher statusCodeMatcher =
+          m_httpsProxyResponsePattern.matcher(bufferAsString);
+
+        if (statusCodeMatcher.find()) {
+          final String statusCode = statusCodeMatcher.group(1);
+
+          if (statusCode.equals("200")) {
+            synchronized (this) {
+              m_nextRawClientSocket = socket;
+            }
+
+            return bytesRead;
+          }
+        }
+
+        // Not a 200, flush directly back to the browser.
+        response.write(bytesRead);
+        response.flush();
+
+        // Wait for request.
+
+        for (int i = 0;
+             i < s_connectTimeout && request.available() == 0;
+             i += 10) {
+          sleep(10);
+        }
+
+        if (request.available() == 0) {
+          throw new IOException(
+            "Timed out waiting for browser after " +
+            s_connectTimeout + " ms");
         }
       }
     }
@@ -740,64 +824,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     public Socket createClientSocket(EndPoint remoteEndPoint)
       throws IOException {
 
-      final Socket socket;
-
       try {
-        socket = new Socket(m_httpsProxy.getHost(), m_httpsProxy.getPort());
+        return m_delegate.createClientSocket(m_nextRawClientSocket,
+                                             remoteEndPoint);
       }
-      catch (ConnectException e) {
-        synchronized (this) {
-          m_responseBytes = new byte[0];
-          notifyAll();
-        }
-
-        throw new VerboseConnectException(e, "HTTPS proxy " + m_httpsProxy);
+      finally {
+        m_nextRawClientSocket = null;
       }
-
-      // Use a buffered output stream so the output is flushed as one.
-      final OutputStream outputStream =
-        new BufferedOutputStream(socket.getOutputStream());
-
-      final InputStream inputStream = socket.getInputStream();
-
-      outputStream.write(("CONNECT " + remoteEndPoint).getBytes());
-      outputStream.write(m_additionalRequestBytes);
-      outputStream.flush();
-
-      // Wait for, and discard response.
-      final byte[] buffer = new byte[1024];
-
-      for (int i = 0;
-           i < s_connectTimeout && inputStream.available() == 0;
-           i += 10) {
-        sleep(10);
-      }
-
-      if (inputStream.available() == 0) {
-        throw new IOException(
-          "HTTPS proxy " + m_httpsProxy + " failed to respond after " +
-          s_connectTimeout + " ms");
-      }
-
-      // We've got a live one. Read its response.
-      final ByteArrayOutputStream responseBytes = new ByteArrayOutputStream();
-
-      // Non-blocking read.
-      while (inputStream.available() > 0) {
-        final int n = inputStream.read(buffer);
-
-        if (n > 0) {
-          responseBytes.write(buffer, 0, n);
-        }
-      }
-
-      synchronized (this) {
-        m_responseBytes = responseBytes.toByteArray();
-        notifyAll();
-      }
-
-      // HTTPS proxy protocol complete, now build the SSL socket.
-      return m_delegate.createClientSocket(socket, remoteEndPoint);
     }
   }
 }
