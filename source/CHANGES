@@ -7,6 +7,12 @@ The Grinder 3.X (not yet released)
   support for replaying scripts through the proxy. Thanks to
   Suvendu Kumar Mohapatra for extensive testing of candidate patches.
 
+  The stream support for HTTPRequest introduced in 3.2 has been
+  enhanced to use the Content-Length header if provided. This allows
+  the stream to be sent directly to the server without buffering,
+  whether or not HTTP/1.1 chunking is available. Thanks to Walter
+  Tuvell for the requirement and extensive testing.
+
 
 The Grinder 3.2
 ---------------

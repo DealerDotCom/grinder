@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -596,6 +596,15 @@ public class TestHTTPRequest extends TestCase {
     assertEquals("POST /bhxhh HTTP/1.1", m_handler.getRequestFirstHeader());
     AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
     m_handler.assertRequestContainsHeader("key: value");
+
+    headers6[0] = new NVPair("Content-Length", Integer.toString(data7.length));
+
+    final HTTPResponse response13 =
+      request.POST("/bhxhh", new ByteArrayInputStream(data7), headers6);
+    assertEquals(200, response13.getStatusCode());
+    assertEquals("POST /bhxhh HTTP/1.1", m_handler.getRequestFirstHeader());
+    AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
+    m_handler.assertRequestContainsHeader("Content-length: " + data7.length);
   }
 
   public void testPUT() throws Exception {

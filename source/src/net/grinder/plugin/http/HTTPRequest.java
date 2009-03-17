@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
@@ -72,6 +72,16 @@ import HTTPClient.URI;
  * <code>HTTPRequest</code>. If a worker thread needs to set a thread specific
  * value, it should either use its own <code>HTTPRequest</code>, or not use the
  * defaults and pass the value as an argument to the HTTP method.</p>
+ *
+ * <p><h3>Streaming</h3>There are variants of POST, PUT, and OPTIONS that
+ * accept an input stream, so an arbitrarily large amount of data can be
+ * sent without requiring a corresponding amount of memory. The streaming
+ * behaviour will vary depending on the version of HTTP in use and whether
+ * a {@code Content-Length} header has been supplied - please refer to the
+ * {@link HttpOutputStream} class Javadoc for full details. If you are
+ * streaming output to avoid loading complete request messages into memory,
+ * you may also want to use {@link #setReadResponseBody} to disable
+ * the reading of response bodies, and managed them yourself.</p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -399,13 +409,15 @@ public class HTTPRequest {
    * @throws Exception
    *              If an error occurs.
    */
-  public final HTTPResponse DELETE(final String uri, final NVPair[] headers)
+  public final HTTPResponse DELETE(final String uri, NVPair[] headers)
     throws Exception {
 
-    return new AbstractRequest(uri) {
-        HTTPResponse doRequest(HTTPConnection connection, String path)
+    return new AbstractRequest(uri, headers) {
+        HTTPResponse doRequest(HTTPConnection connection,
+                               String path,
+                               NVPair[] mergedHeaders)
           throws IOException, ModuleException {
-          return connection.Delete(path, mergeHeaders(headers));
+          return connection.Delete(path, mergedHeaders);
         }
       }
       .getHTTPResponse();
@@ -484,12 +496,14 @@ public class HTTPRequest {
    */
   public final HTTPResponse GET(final String uri,
                                 final NVPair[] queryData,
-                                final NVPair[] headers) throws Exception {
+                                NVPair[] headers) throws Exception {
 
-    return new AbstractRequest(uri) {
-        HTTPResponse doRequest(HTTPConnection connection, String path)
+    return new AbstractRequest(uri, headers) {
+        HTTPResponse doRequest(HTTPConnection connection,
+                               String path,
+                               NVPair[] mergedHeaders)
           throws IOException, ModuleException {
-          return connection.Get(path, queryData, mergeHeaders(headers));
+          return connection.Get(path, queryData, mergedHeaders);
         }
       }
       .getHTTPResponse();
@@ -568,12 +582,14 @@ public class HTTPRequest {
    */
   public final HTTPResponse HEAD(final String uri,
                                  final NVPair[] queryData,
-                                 final NVPair[] headers) throws Exception {
+                                 NVPair[] headers) throws Exception {
 
-    return new AbstractRequest(uri) {
-        HTTPResponse doRequest(HTTPConnection connection, String path)
+    return new AbstractRequest(uri, headers) {
+        HTTPResponse doRequest(HTTPConnection connection,
+                               String path,
+                               NVPair[] mergedHeaders)
           throws IOException, ModuleException {
-          return connection.Head(path, queryData, mergeHeaders(headers));
+          return connection.Head(path, queryData, mergedHeaders);
         }
       }
       .getHTTPResponse();
@@ -640,12 +656,14 @@ public class HTTPRequest {
    */
   public final HTTPResponse OPTIONS(final String uri,
                                     final byte[] data,
-                                    final NVPair[] headers) throws Exception {
+                                    NVPair[] headers) throws Exception {
 
-    return new AbstractRequest(uri) {
-        HTTPResponse doRequest(HTTPConnection connection, String path)
+    return new AbstractRequest(uri, headers) {
+        HTTPResponse doRequest(HTTPConnection connection,
+                               String path,
+                               NVPair[] mergedHeaders)
           throws IOException, ModuleException {
-          return connection.Options(path, mergeHeaders(headers), data);
+          return connection.Options(path, mergedHeaders, data);
         }
       }
       .getHTTPResponse();
@@ -653,8 +671,8 @@ public class HTTPRequest {
 
   /**
    * Makes an HTTP <code>OPTIONS</code> request. This version allows the data
-   * to be passed as a stream, so an arbitrarily large amount of data can be
-   * sent without requiring a corresponding amount of memory.
+   * to be passed as a stream, see the note in the
+   * {@link HTTPRequest class description}.
    *
    * @param uri The URI. If a default URL has been specified with
    * {@link #setUrl}, this value need not be absolute and, if
@@ -674,8 +692,8 @@ public class HTTPRequest {
 
   /**
    * Makes an HTTP <code>OPTIONS</code> request. This version allows the data
-   * to be passed as a stream, so an arbitrarily large amount of data can be
-   * sent without requiring a corresponding amount of memory.
+   * to be passed as a stream, see the note in the
+   * {@link HTTPRequest class description}.
    *
    * @param uri The URI. If a default URL has been specified with
    * {@link #setUrl}, this value need not be absolute and, if
@@ -692,18 +710,19 @@ public class HTTPRequest {
    */
   public final HTTPResponse OPTIONS(final String uri,
                                     final InputStream inputStream,
-                                    final NVPair[] headers) throws Exception {
+                                    NVPair[] headers) throws Exception {
 
-    return new AbstractStreamingRequest(uri) {
+    return new AbstractStreamingRequest(uri, headers) {
         InputStream getInputStream() {
           return inputStream;
         }
 
         HTTPResponse doStreamingRequest(HTTPConnection connection,
                                         String path,
+                                        NVPair[] mergedHeaders,
                                         HttpOutputStream outputStream)
           throws IOException, ModuleException {
-          return connection.Options(path, mergeHeaders(headers), outputStream);
+          return connection.Options(path, mergedHeaders, outputStream);
         }
       }
       .getHTTPResponse();
@@ -789,12 +808,14 @@ public class HTTPRequest {
    */
   public final HTTPResponse POST(final String uri,
                                  final NVPair[] formData,
-                                 final NVPair[] headers) throws Exception {
+                                 NVPair[] headers) throws Exception {
 
-    return new AbstractRequest(uri) {
-        HTTPResponse doRequest(HTTPConnection connection, String path)
+    return new AbstractRequest(uri, headers) {
+        HTTPResponse doRequest(HTTPConnection connection,
+                               String path,
+                               NVPair[] mergedHeaders)
           throws IOException, ModuleException {
-          return connection.Post(path, formData, mergeHeaders(headers));
+          return connection.Post(path, formData, mergedHeaders);
         }
       }
       .getHTTPResponse();
@@ -833,12 +854,14 @@ public class HTTPRequest {
    */
   public final HTTPResponse POST(final String uri,
                                  final byte[] data,
-                                 final NVPair[] headers) throws Exception {
+                                 NVPair[] headers) throws Exception {
 
-    return new AbstractRequest(uri) {
-        HTTPResponse doRequest(HTTPConnection connection, String path)
+    return new AbstractRequest(uri, headers) {
+        HTTPResponse doRequest(HTTPConnection connection,
+                               String path,
+                               NVPair[] mergedHeaders)
           throws IOException, ModuleException {
-          return connection.Post(path, data, mergeHeaders(headers));
+          return connection.Post(path, data, mergedHeaders);
         }
       }
       .getHTTPResponse();
@@ -846,8 +869,8 @@ public class HTTPRequest {
 
   /**
    * Makes an HTTP <code>POST</code> request. This version allows the data
-   * to be passed as a stream, so an arbitrarily large amount of data can be
-   * sent without requiring a corresponding amount of memory.
+   * to be passed as a stream, see the note in the
+   * {@link HTTPRequest class description}.
    *
    * @param uri The URI. If a default URL has been specified with
    * {@link #setUrl}, this value need not be absolute and, if
@@ -867,8 +890,8 @@ public class HTTPRequest {
 
   /**
    * Makes an HTTP <code>POST</code> request. This version allows the data
-   * to be passed as a stream, so an arbitrarily large amount of data can be
-   * sent without requiring a corresponding amount of memory.
+   * to be passed as a stream, see the note in the
+   * {@link HTTPRequest class description}.
    *
    * @param uri The URI. If a default URL has been specified with
    * {@link #setUrl}, this value need not be absolute and, if
@@ -885,18 +908,19 @@ public class HTTPRequest {
    */
   public final HTTPResponse POST(final String uri,
                                  final InputStream inputStream,
-                                 final NVPair[] headers) throws Exception {
+                                 NVPair[] headers) throws Exception {
 
-    return new AbstractStreamingRequest(uri) {
+    return new AbstractStreamingRequest(uri, headers) {
         InputStream getInputStream() {
           return inputStream;
         }
 
         HTTPResponse doStreamingRequest(HTTPConnection connection,
                                         String path,
+                                        NVPair[] mergedHeaders,
                                         HttpOutputStream outputStream)
           throws IOException, ModuleException {
-          return connection.Post(path, outputStream, mergeHeaders(headers));
+          return connection.Post(path, outputStream, mergedHeaders);
         }
       }
       .getHTTPResponse();
@@ -962,12 +986,14 @@ public class HTTPRequest {
    */
   public final HTTPResponse PUT(final String uri,
                                 final byte[] data,
-                                final NVPair[] headers) throws Exception {
+                                NVPair[] headers) throws Exception {
 
-    return new AbstractRequest(uri) {
-        HTTPResponse doRequest(HTTPConnection connection, String path)
+    return new AbstractRequest(uri, headers) {
+        HTTPResponse doRequest(HTTPConnection connection,
+                               String path,
+                               NVPair[] mergedHeaders)
           throws IOException, ModuleException {
-          return connection.Put(path, data, mergeHeaders(headers));
+          return connection.Put(path, data, mergedHeaders);
         }
       }
       .getHTTPResponse();
@@ -975,8 +1001,8 @@ public class HTTPRequest {
 
   /**
    * Makes an HTTP <code>PUT</code> request. This version allows the data
-   * to be passed as a stream, so an arbitrarily large amount of data can be
-   * sent without requiring a corresponding amount of memory.
+   * to be passed as a stream, see the note in the
+   * {@link HTTPRequest class description}.
    *
    * @param uri The URI. If a default URL has been specified with
    * {@link #setUrl}, this value need not be absolute and, if
@@ -995,8 +1021,8 @@ public class HTTPRequest {
 
   /**
    * Makes an HTTP <code>PUT</code> request. This version allows the data
-   * to be passed as a stream, so an arbitrarily large amount of data can be
-   * sent without requiring a corresponding amount of memory.
+   * to be passed as a stream, see the note in the
+   * {@link HTTPRequest class description}.
    *
    * @param uri The URI. If a default URL has been specified with
    * {@link #setUrl}, this value need not be absolute and, if
@@ -1013,18 +1039,19 @@ public class HTTPRequest {
    */
   public final HTTPResponse PUT(final String uri,
                                 final InputStream inputStream,
-                                final NVPair[] headers) throws Exception {
+                                NVPair[] headers) throws Exception {
 
-    return new AbstractStreamingRequest(uri) {
+    return new AbstractStreamingRequest(uri, headers) {
         InputStream getInputStream() {
           return inputStream;
         }
 
         HTTPResponse doStreamingRequest(HTTPConnection connection,
                                         String path,
+                                        NVPair[] mergedHeaders,
                                         HttpOutputStream outputStream)
           throws IOException, ModuleException {
-          return connection.Put(path, outputStream, mergeHeaders(headers));
+          return connection.Put(path, outputStream, mergedHeaders);
         }
       }
       .getHTTPResponse();
@@ -1069,13 +1096,15 @@ public class HTTPRequest {
    * @throws Exception
    *              If an error occurs.
    */
-  public final HTTPResponse TRACE(final String uri, final NVPair[] headers)
+  public final HTTPResponse TRACE(final String uri, NVPair[] headers)
     throws Exception {
 
-    return new AbstractRequest(uri) {
-        HTTPResponse doRequest(HTTPConnection connection, String path)
+    return new AbstractRequest(uri, headers) {
+        HTTPResponse doRequest(HTTPConnection connection,
+                              String path,
+                              NVPair[] mergedHeaders)
           throws IOException, ModuleException {
-          return connection.Trace(path, mergeHeaders(headers));
+          return connection.Trace(path, mergedHeaders);
         }
       }
       .getHTTPResponse();
@@ -1092,8 +1121,13 @@ public class HTTPRequest {
 
   private abstract class AbstractRequest {
     private final URI m_url;
+    private final NVPair[] m_mergedHeaders;
 
-    public AbstractRequest(String uri) throws ParseException, URLException {
+    public AbstractRequest(String uri, NVPair[] headers)
+      throws ParseException, URLException {
+
+      m_mergedHeaders = mergeHeaders(headers);
+
       final URI defaultURL = m_defaultURL;
 
       if (uri == null) {
@@ -1164,7 +1198,7 @@ public class HTTPRequest {
       final HTTPResponse httpResponse;
 
       try {
-        httpResponse = doRequest(connection, path);
+        httpResponse = doRequest(connection, path, m_mergedHeaders);
       }
       catch (InterruptedIOException e) {
         // We never interrupt worker threads, so we can be sure this is due to
@@ -1271,24 +1305,41 @@ public class HTTPRequest {
       return httpResponse;
     }
 
-    abstract HTTPResponse doRequest(HTTPConnection connection, String path)
+    abstract HTTPResponse doRequest(HTTPConnection connection,
+                                    String path,
+                                    NVPair[] headers)
       throws IOException, ModuleException;
   }
 
   private abstract class AbstractStreamingRequest extends AbstractRequest {
 
-    public AbstractStreamingRequest(String uri)
+    public AbstractStreamingRequest(String uri, NVPair[] headers)
       throws ParseException, URLException {
-      super(uri);
+      super(uri, headers);
     }
 
-    HTTPResponse doRequest(HTTPConnection connection, String path)
+    HTTPResponse doRequest(HTTPConnection connection,
+                           String path,
+                           NVPair[] mergedHeaders)
       throws IOException, ModuleException {
 
-      final HttpOutputStream outputStream = new HttpOutputStream();
+      int contentLength = -1;
+
+      for (int i = 0; i < mergedHeaders.length; ++i) {
+        final NVPair header = mergedHeaders[i];
+        if (header != null &&
+            "Content-Length".equalsIgnoreCase(header.getName())) {
+          contentLength = Integer.parseInt(header.getValue());
+          break;
+        }
+      }
+
+      final HttpOutputStream outputStream =
+        contentLength >= 0 ?
+          new HttpOutputStream(contentLength) : new HttpOutputStream();
 
       final HTTPResponse result =
-        doStreamingRequest(connection, path, outputStream);
+        doStreamingRequest(connection, path, mergedHeaders, outputStream);
 
       new StreamCopier(4096, true).copy(getInputStream(), outputStream);
 
@@ -1299,6 +1350,7 @@ public class HTTPRequest {
 
     abstract HTTPResponse doStreamingRequest(HTTPConnection connection,
                                              String path,
+                                             NVPair[] mergedHeaders,
                                              HttpOutputStream outputStream)
       throws IOException, ModuleException;
   }

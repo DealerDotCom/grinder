@@ -3220,7 +3220,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
           // hence kicking off connection re-establishment.
           // This breaks pipelining, but The Grinder doesn't
           // use that.
-          if (getTestConnectionHealthWithBlockingRead()) {
+          if (getTestConnectionHealthWithBlockingRead() &&
+              // But we won't get a response if we haven't committed our
+              // stream yet....
+              req.getStream() == null) {
           r.getVersion();
       }
 
