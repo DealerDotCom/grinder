@@ -83,6 +83,7 @@ See http://forrest.apache.org/docs/linking.html for more info
     <advice label="Advice">
       <project-structure label="Setting up a project" href="setting-up-a-project.html"/>
       <tutorial label="Tutorial" href="tutorial-perks.html"/>
+      <weight-distribution label="Weighted Distribution" href="tutorial-weight-distribution.html"/>
     </advice>
     <manual href="manual.html" label="Complete User Guide" />
   </g3>
