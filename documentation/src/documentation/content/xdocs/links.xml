@@ -115,7 +115,14 @@
   <title>Articles</title>
 
   <table class="noborder">
-   <tr>
+    <tr>
+      <td>
+        <a href="http://www.performanceengineer.com/blog/introduction-to-the-grinder/">PerformanceEngineer.com: Introduction To The Grinder</a>
+      </td>
+
+      <td>An introductory blog entry showing how to set up The Grinder with <a href="site:grinderstone">GrinderStone</a>.</td>
+    </tr>
+    <tr>
       <td>
         <a href="http://www.pcpro.co.uk/features/230550/technology-you-can-bet-on/page3.html">PC Pro article</a>
       </td>
@@ -297,10 +304,10 @@
     </p>
 
     <p>Peter is the author of <a href="site:links/book">J2EE Performance Testing</a>
-    (Expert Press, 2002), coauthor of “Professional J2EE Programming with
-     BEA WebLogic Server” (WroxPress, 2000) and “Beginning EJB 3 Application
-     Development” (Apress 2006). He is the founding editor of the WebLogic
-     Developer’s Journal, and a frequent speaker on technology issues around the
+    (Expert Press, 2002), coauthor of "Professional J2EE Programming with
+     BEA WebLogic Server" (WroxPress, 2000) and "Beginning EJB 3 Application
+     Development" (Apress 2006). He is the founding editor of the WebLogic
+     Developer's Journal, and a frequent speaker on technology issues around the
      world. Peter was also part of the team that created The Grinder.
     </p>
 
