@@ -1323,13 +1323,13 @@ public class HTTPRequest {
                            NVPair[] mergedHeaders)
       throws IOException, ModuleException {
 
-      int contentLength = -1;
+      long contentLength = -1;
 
       for (int i = 0; i < mergedHeaders.length; ++i) {
         final NVPair header = mergedHeaders[i];
         if (header != null &&
             "Content-Length".equalsIgnoreCase(header.getName())) {
-          contentLength = Integer.parseInt(header.getValue());
+          contentLength = Long.parseLong(header.getValue());
           break;
         }
       }
