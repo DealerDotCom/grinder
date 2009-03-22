@@ -346,7 +346,8 @@ public class HTTPRequest {
    * </p>
    *
    * <pre>
-   *   final PluginProcessContext pluginProcessContext = getPluginProcessContext();
+   *   final PluginProcessContext pluginProcessContext =
+   *     getPluginProcessContext();
    *
    *   final HTTPPluginThreadState threadState =
    *     (HTTPPluginThreadState)pluginProcessContext.getPluginThreadListener();
@@ -1118,6 +1119,11 @@ public class HTTPRequest {
   protected void processResponse(HTTPResponse response) {
   }
 
+  /**
+   * Provide subclasses access to the process context.
+   *
+   * @return The process context.
+   */
   protected PluginProcessContext getPluginProcessContext() {
     return HTTPPlugin.getPlugin().getPluginProcessContext();
   }
@@ -1174,7 +1180,8 @@ public class HTTPRequest {
       throws GrinderException, IOException, ModuleException, ParseException,
              ProtocolNotSuppException {
 
-      final PluginProcessContext pluginProcessContext = getPluginProcessContext();
+      final PluginProcessContext pluginProcessContext =
+        getPluginProcessContext();
 
       final HTTPPluginThreadState threadState = (HTTPPluginThreadState)
         pluginProcessContext.getPluginThreadListener();
