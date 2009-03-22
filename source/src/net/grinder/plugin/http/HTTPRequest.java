@@ -346,8 +346,7 @@ public class HTTPRequest {
    * </p>
    *
    * <pre>
-   *   final PluginProcessContext pluginProcessContext =
-   *     HTTPPlugin.getPlugin().getPluginProcessContext();
+   *   final PluginProcessContext pluginProcessContext = getPluginProcessContext();
    *
    *   final HTTPPluginThreadState threadState =
    *     (HTTPPluginThreadState)pluginProcessContext.getPluginThreadListener();
@@ -1119,6 +1118,10 @@ public class HTTPRequest {
   protected void processResponse(HTTPResponse response) {
   }
 
+  protected PluginProcessContext getPluginProcessContext() {
+    return HTTPPlugin.getPlugin().getPluginProcessContext();
+  }
+
   private abstract class AbstractRequest {
     private final URI m_url;
     private final NVPair[] m_mergedHeaders;
@@ -1171,10 +1174,7 @@ public class HTTPRequest {
       throws GrinderException, IOException, ModuleException, ParseException,
              ProtocolNotSuppException {
 
-      final HTTPPlugin plugin = HTTPPlugin.getPlugin();
-
-      final PluginProcessContext pluginProcessContext =
-        plugin.getPluginProcessContext();
+      final PluginProcessContext pluginProcessContext = getPluginProcessContext();
 
       final HTTPPluginThreadState threadState = (HTTPPluginThreadState)
         pluginProcessContext.getPluginThreadListener();

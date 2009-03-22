@@ -13,6 +13,11 @@ The Grinder 3.X (not yet released)
   whether or not HTTP/1.1 chunking is available. Thanks to Walter
   Tuvell for the requirement and extensive testing.
 
+  Add HTTPRequest.getPluginProcessContext() so subclasses outside of
+  the Java package can access the process context. This is useful when
+  following the advice in the setReadResponseBody documentation.
+  Thanks to Walter Tuvell for the requirement.
+
 
 The Grinder 3.2
 ---------------
