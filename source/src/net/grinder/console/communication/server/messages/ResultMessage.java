@@ -30,7 +30,7 @@ import net.grinder.communication.Message;
  * Response message that contains a result.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class ResultMessage implements Message {
   private static final long serialVersionUID = 2;

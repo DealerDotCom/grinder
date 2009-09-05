@@ -39,7 +39,7 @@ import HTTPClient.HTTPConnection.BandwidthLimiterFactory;
  * Unit tests for {@link HTTPConnectionWrapper}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestHTTPConnectionWrapper extends TestCase {
 

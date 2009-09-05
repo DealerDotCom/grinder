@@ -33,7 +33,7 @@ import net.grinder.util.Directory.DirectoryException;
  * necessarily the immediate parent of the file.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class ScriptLocation implements Serializable {
   private static final long serialVersionUID = 771173195260716872L;

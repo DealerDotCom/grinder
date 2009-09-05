@@ -43,7 +43,7 @@ import net.grinder.console.model.SampleModelViews;
  * DispatchClientCommands.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class DispatchClientCommands {
 

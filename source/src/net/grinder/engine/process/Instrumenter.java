@@ -30,7 +30,7 @@ import net.grinder.script.NotWrappableTypeException;
  * A factory for instrumented proxies.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public interface Instrumenter {
 

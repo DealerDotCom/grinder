@@ -26,7 +26,7 @@ package net.grinder.communication;
  * A {@link Sender} decorator that ignores shutdown.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class IgnoreShutdownSender implements Sender {
 

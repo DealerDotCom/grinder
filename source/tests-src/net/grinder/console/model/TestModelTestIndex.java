@@ -33,7 +33,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link ModelTestIndex}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestModelTestIndex extends TestCase {
 

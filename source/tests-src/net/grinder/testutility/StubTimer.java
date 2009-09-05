@@ -31,7 +31,7 @@ import java.util.TimerTask;
  * Stub implementation of {@link Timer}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class StubTimer extends Timer {
   private final Map m_taskByPeriod = new HashMap();

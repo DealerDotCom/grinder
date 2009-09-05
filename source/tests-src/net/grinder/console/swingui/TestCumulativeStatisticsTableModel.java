@@ -51,7 +51,7 @@ import net.grinder.testutility.StubTimer;
  * Unit tests for {@link CumulativeStatisticsTableModel}.
  *
  * @author Philip Aston
- * @version $Revision: 3869 $
+ * @version $Revision$
  */
 public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
 

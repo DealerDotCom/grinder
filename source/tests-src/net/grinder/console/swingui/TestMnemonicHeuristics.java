@@ -35,7 +35,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link MnemonicHeuristics}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestMnemonicHeuristics extends TestCase {
 

@@ -26,7 +26,7 @@ package net.grinder.util;
  * Abstract implementation of MultiLineFormatter.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public abstract class AbstractMultiLineFormatter implements MultiLineFormatter {
 

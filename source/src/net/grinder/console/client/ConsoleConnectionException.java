@@ -28,7 +28,7 @@ import net.grinder.common.GrinderException;
  * Exception indicating problem related to a console connection.
  *
  * @author Philip Aston
- * @version $Revision: 1.10 $
+ * @version $Revision$
  */
 public class ConsoleConnectionException extends GrinderException {
 

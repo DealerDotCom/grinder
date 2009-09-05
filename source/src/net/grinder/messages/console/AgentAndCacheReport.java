@@ -29,7 +29,7 @@ import net.grinder.messages.agent.CacheHighWaterMark;
  * Extend {@link AgentProcessReport} with information about the agent's cache.
  *
  * @author Philip Aston
- * @version $Revision: 3865 $
+ * @version $Revision$
  */
 public interface AgentAndCacheReport extends AgentProcessReport {
 

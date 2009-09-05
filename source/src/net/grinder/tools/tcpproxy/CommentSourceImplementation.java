@@ -31,7 +31,7 @@ import java.util.List;
  * interfaces. Manages a FIFO of comments.
  *
  * @author Venelin Mitov
- * @version $Revision: 1 $
+ * @version $Revision$
  */
 public class CommentSourceImplementation implements UpdatableCommentSource {
 

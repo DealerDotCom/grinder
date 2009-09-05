@@ -28,7 +28,7 @@ import net.grinder.common.Test;
  * Registry of Tests.
  *
  * @author Philip Aston
- * @version $Revision: 3642 $
+ * @version $Revision$
  */
 public interface TestRegistry {
 

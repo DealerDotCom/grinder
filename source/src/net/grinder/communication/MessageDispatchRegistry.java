@@ -33,7 +33,7 @@ package net.grinder.communication;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public interface MessageDispatchRegistry {
 

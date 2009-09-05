@@ -67,7 +67,7 @@ import net.grinder.util.Directory;
  * Unit tests for {@link ConsoleFoundation}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestConsoleFoundation extends AbstractFileTestCase {
 

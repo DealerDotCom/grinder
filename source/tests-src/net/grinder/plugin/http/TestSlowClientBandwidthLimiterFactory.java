@@ -31,7 +31,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link SlowClientBandwidthLimiterFactory}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestSlowClientBandwidthLimiterFactory extends TestCase {
 

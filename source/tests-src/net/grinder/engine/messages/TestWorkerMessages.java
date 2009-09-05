@@ -37,7 +37,7 @@ import net.grinder.util.Directory;
  * Unit test case for messages that are sent to the worker processes.
  *
  * @author Philip Aston
- * @version $Revision: 3823 $
+ * @version $Revision$
  */
 public class TestWorkerMessages extends AbstractFileTestCase {
 

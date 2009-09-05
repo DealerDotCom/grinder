@@ -43,7 +43,7 @@ import junit.framework.TestCase;
  * Unit tests for ConsoleConnectionImplementation.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestConsoleConnectionImplementation extends TestCase {
 

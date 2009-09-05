@@ -26,7 +26,7 @@ package net.grinder.util;
  * Null implementation of MultiLineFormatter.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class NullMultiLineFormatter extends AbstractMultiLineFormatter {
 

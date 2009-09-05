@@ -26,7 +26,7 @@ package net.grinder.common;
  * Skeleton implementation of {@link ThreadLifeCycleListener}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public abstract class SkeletonThreadLifeCycleListener
   implements ThreadLifeCycleListener {

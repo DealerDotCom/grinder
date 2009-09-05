@@ -36,7 +36,7 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link IntegerField}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestIntegerField extends TestCase {
 

@@ -37,7 +37,7 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link ExternalEditor}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestExternalEditor extends AbstractFileTestCase {
 

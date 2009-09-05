@@ -33,7 +33,7 @@ import net.grinder.communication.SocketAcceptorThread;
  * Unit tests for {@link ConsoleConnectionFactory}.
 *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestConsoleConnectionFactory extends TestCase {
 

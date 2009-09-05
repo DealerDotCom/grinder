@@ -34,7 +34,7 @@ import net.grinder.util.ListenerSupport;
  * Implementation of {@link ResourcePool}.
  *
  * @author Philip Aston
- * @version $Revision: 1.1 $
+ * @version $Revision$
  */
 final class ResourcePoolImplementation implements ResourcePool {
   private static final int PURGE_FREQUENCY = 1000;

@@ -40,7 +40,7 @@ import net.grinder.util.Sleeper.ShutdownException;
  *
  * @author
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestAgentDaemon extends AbstractFileTestCase {
 

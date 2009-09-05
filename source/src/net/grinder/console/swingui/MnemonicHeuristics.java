@@ -47,7 +47,7 @@ import javax.swing.SwingUtilities;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 final class MnemonicHeuristics {
 

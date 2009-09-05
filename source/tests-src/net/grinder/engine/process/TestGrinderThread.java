@@ -36,7 +36,7 @@ import net.grinder.util.Sleeper;
  * Unit tests for {@link GrinderThread}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestGrinderThread extends AbstractFileTestCase {
 

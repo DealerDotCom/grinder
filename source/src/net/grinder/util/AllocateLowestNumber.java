@@ -27,7 +27,7 @@ package net.grinder.util;
  * are allocated the lowest available number, starting at 0.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public interface AllocateLowestNumber {
 

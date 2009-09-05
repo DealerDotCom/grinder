@@ -35,7 +35,7 @@ import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
  * Common instrumentation logic.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 abstract class InstrumentationHelper {
   /** The field name that allows the test to be obtained from a proxy. */

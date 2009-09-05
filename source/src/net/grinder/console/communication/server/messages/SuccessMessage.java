@@ -28,7 +28,7 @@ import net.grinder.communication.Message;
  * Message indicating that a command completed successfully.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class SuccessMessage implements Message {
   private static final long serialVersionUID = 1;

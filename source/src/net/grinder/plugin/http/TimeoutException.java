@@ -53,7 +53,7 @@ import net.grinder.common.GrinderException;
  * </pre>
  *
  * @author Philip Aston
- * @version $Revision: 2664 $
+ * @version $Revision$
  */
 public class TimeoutException extends GrinderException {
 

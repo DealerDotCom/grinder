@@ -31,7 +31,7 @@ import java.util.Map.Entry;
  * Implementation of @{link {@link AllocateLowestNumber}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class AllocateLowestNumberImplementation
   implements AllocateLowestNumber {

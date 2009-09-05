@@ -31,7 +31,7 @@ import net.grinder.common.processidentity.WorkerProcessReport;
  * the user interface.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class ProcessReportDescriptionFactory {
   private final String m_threadsString;

@@ -10,7 +10,7 @@ import java.io.Serializable;
  * and only they represent the same process.</p>
  *
  * @author Philip Aston
- * @version $Revision: 3875 $
+ * @version $Revision$
  */
 public interface ProcessIdentity extends Serializable {
 

@@ -26,7 +26,7 @@ package net.grinder.console.swingui;
  * Factory for dynamic proxies that dispatch work in the Swing thread.
  *
  * @author Philip Aston
- * @version $Revision: 3764 $
+ * @version $Revision$
  */
 interface SwingDispatcherFactory {
   Object create(final Object delegate);

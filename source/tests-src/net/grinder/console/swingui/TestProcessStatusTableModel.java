@@ -41,7 +41,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link ProcessStatusTableModel}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestProcessStatusTableModel extends TestCase {
 

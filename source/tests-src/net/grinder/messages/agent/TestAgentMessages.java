@@ -34,7 +34,7 @@ import net.grinder.util.FileContents;
  * Unit test case for messages that are sent to the agent processes.
  *
  * @author Philip Aston
- * @version $Revision: 3823 $
+ * @version $Revision$
  */
 public class TestAgentMessages extends AbstractFileTestCase {
 

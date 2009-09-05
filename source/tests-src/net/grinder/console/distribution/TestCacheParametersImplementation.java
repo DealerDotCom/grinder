@@ -34,7 +34,7 @@ import net.grinder.util.Directory.DirectoryException;
  * Unit tests for {@link CacheParametersImplementation}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestCacheParametersImplementation extends TestCase {
 

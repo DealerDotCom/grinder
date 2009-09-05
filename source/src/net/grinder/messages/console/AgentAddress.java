@@ -29,7 +29,7 @@ import net.grinder.communication.Address;
  * {@link Address} for an Agent.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class AgentAddress implements Address {
 

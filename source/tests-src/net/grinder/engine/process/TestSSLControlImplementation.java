@@ -43,7 +43,7 @@ import net.grinder.util.StreamCopier;
  * Unit tests for {@link TestSSLControlImplementation}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestSSLControlImplementation extends AbstractFileTestCase {
 

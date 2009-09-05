@@ -47,7 +47,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link TextUI}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestTextUI extends TestCase {
 

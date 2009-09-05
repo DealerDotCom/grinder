@@ -46,7 +46,7 @@ import net.grinder.console.model.SampleModel;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TextUI implements UI {
   private final Logger m_logger;

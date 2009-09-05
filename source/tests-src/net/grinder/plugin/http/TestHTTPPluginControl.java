@@ -36,7 +36,7 @@ import net.grinder.util.StandardTimeAuthority;
  * Unit tests for {@link HTTPPluginControl}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestHTTPPluginControl extends TestCase {
 
