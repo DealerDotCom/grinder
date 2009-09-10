@@ -93,7 +93,7 @@ import java.awt.event.WindowAdapter;
  * @see <a href="http://home.netscape.com/newsref/std/cookie_spec.html">Netscape's cookie spec</a>
  * @see <a href="http://www.ietf.org/rfc/rfc2965.txt">HTTP State Management Mechanism spec</a>
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal�r
+ * @author	Ronald Tschalär
  * @since	V0.3
  *
  * This file contains modifications for use with "The Grinder"
@@ -852,7 +852,7 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler
  * or if cookies from whole domains should be silently accepted or rejected.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal�r
+ * @author	Ronald Tschalär
  */
 class BasicCookieBox extends Frame
 {

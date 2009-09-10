@@ -108,7 +108,7 @@ import java.util.Enumeration;
  * switch to HTTP/1.1.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal�r
+ * @author	Ronald Tschalär
  * @since	V0.3
  */
 public class HttpURLConnection extends java.net.HttpURLConnection

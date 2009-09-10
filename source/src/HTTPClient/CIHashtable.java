@@ -42,7 +42,7 @@ import java.util.Enumeration;
  * This class implements a Hashtable with case-insensitive Strings as keys.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal�r
+ * @author	Ronald Tschalär
  */
 class CIHashtable extends Hashtable
 {

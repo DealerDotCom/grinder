@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,7 @@ package net.grinder.engine.agent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.processidentity.WorkerIdentity;
@@ -54,7 +55,7 @@ final class ProcessWorker implements Worker {
    * Constructor.
    *
    * @param workerIdentity The process identity.
-   * @param commandArray Command line arguments.
+   * @param command Command line arguments.
    * @param outputStream Output stream to which child process stdout
    * should be redirected. Will not be closed by this class.
    * @param errorStream Output stream to which child process stderr
@@ -62,15 +63,17 @@ final class ProcessWorker implements Worker {
    * @throws EngineException If an error occurs.
    */
   public ProcessWorker(WorkerIdentityImplementation workerIdentity,
-                       String[] commandArray,
+                       List<String> command,
                        OutputStream outputStream,
                        OutputStream errorStream)
     throws EngineException {
 
     m_workerIdentity = workerIdentity;
 
+    final ProcessBuilder processBuilder = new ProcessBuilder(command);
+
     try {
-      m_process = Runtime.getRuntime().exec(commandArray);
+      m_process = processBuilder.start();
     }
     catch (IOException e) {
       UncheckedInterruptedException.ioException(e);
@@ -160,7 +163,7 @@ final class ProcessWorker implements Worker {
       m_thread =
         new Thread(new StreamCopier(4096, false).getRunnable(inputStream,
                                                              outputStream),
-                  "Stream redirector for process " + m_process);
+                   "Stream redirector for process " + m_process);
       m_thread.setDaemon(true);
       m_thread.start();
     }

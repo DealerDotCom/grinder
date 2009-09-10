@@ -2,7 +2,7 @@
  * @(#)MD5InputStream.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschal‰r
+ *  Copyright (C) 1996-2001 Ronald Tschal√§r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -45,7 +45,7 @@ import java.security.NoSuchAlgorithmException;
  * is expected to verify this digest and to throw an Exception if it fails.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal‰r
+ * @author	Ronald Tschal√§r
  */
 class MD5InputStream extends FilterInputStream
 {

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,7 @@
 package net.grinder.engine.agent;
 
 import java.io.OutputStream;
+import java.util.Arrays;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
@@ -61,7 +62,7 @@ final class ProcessWorkerFactory extends AbstractWorkerFactory {
     throws EngineException {
 
     return new ProcessWorker(workerIdentity,
-                             m_commandLine.getCommandArray(),
+                             Arrays.asList(m_commandLine.getCommandArray()),
                              outputStream,
                              errorStream);
   }
