@@ -74,17 +74,15 @@ public final class ScriptLocation implements Serializable {
   }
 
   /**
-   * Constructor for ScriptLocation that sets the directory to the parent of the
-   * passed file.
+   * Constructor for ScriptLocation based on the current working directory.
    *
    * @param file
    *            The script file.
    * @throws DirectoryException
-   *             if the parent directory is invalid.
+   *            If the parent directory is invalid.
    */
   public ScriptLocation(File file) throws DirectoryException {
-    this(new Directory(file.getAbsoluteFile().getParentFile()),
-         new File(file.getName()));
+    this(new Directory(), file);
   }
 
   /**
