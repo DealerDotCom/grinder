@@ -1,5 +1,5 @@
 // Copyright (C) 2008 Pawel Lacinski
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008-2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -117,7 +117,11 @@ public class TestAgentDaemon extends AbstractFileTestCase {
     m_agentStubFactory.assertNoMoreCalls();
   }
 
-  public static class ActionListSleeperStubFactory extends RandomStubFactory {
+  public static class ActionListSleeperStubFactory
+    // Good grief. Some horrible javac issue means we need to fully qualify
+    // this.
+    extends net.grinder.testutility.RandomStubFactory {
+
     public interface SleepAction {
       void sleep(long time) throws ShutdownException;
     }

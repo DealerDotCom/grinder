@@ -1,6 +1,9 @@
 The Grinder 3.X (not yet released)
 ----------------------------------
 
+  The Grinder now requires J2SE 5.0 ("Java 5"). J2SE 1.4 is no longer
+  supported.
+  
   The TCPProxy now supports HTTPS proxies that use challenge/response
   authentication protocols such as NTLM and Negotiate. This will allow
   scripts to be recorded through such a proxy, but are no plans to add

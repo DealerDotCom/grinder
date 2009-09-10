@@ -2,7 +2,7 @@
  * @(#)CookieModule.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschalär
+ *  Copyright (C) 1996-2001 Ronald TschalÃ¤r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -93,8 +93,12 @@ import java.awt.event.WindowAdapter;
  * @see <a href="http://home.netscape.com/newsref/std/cookie_spec.html">Netscape's cookie spec</a>
  * @see <a href="http://www.ietf.org/rfc/rfc2965.txt">HTTP State Management Mechanism spec</a>
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @author	Ronald Tschalï¿½r
  * @since	V0.3
+ *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
  */
 public class CookieModule implements HTTPClientModule
 {
@@ -167,20 +171,34 @@ public class CookieModule implements HTTPClientModule
 	if (cookie_jar != null  &&  (!cookie_jar.exists()  ||
 	     cookie_jar.isFile()  &&  cookie_jar.canWrite()))
 	{
-	    Hashtable cookie_list = new Hashtable();
-	    Enumeration enum = Util.getList(cookie_cntxt_list,
-					    HTTPConnection.getDefaultContext())
-				   .elements();
+	  /** ++GRINDER MODICIFATION **/
+//	    Hashtable cookie_list = new Hashtable();
+//	    Enumeration enum = Util.getList(cookie_cntxt_list,
+//					    HTTPConnection.getDefaultContext())
+//				   .elements();
+//
+//	    // discard cookies which are not to be kept across sessions
+//
+//	    while (enum.hasMoreElements())
+//	    {
+//		Cookie cookie = (Cookie) enum.nextElement();
+//		if (!cookie.discard())
+//		    cookie_list.put(cookie, cookie);
+//	    }
+        Hashtable cookie_list = new Hashtable();
+        Enumeration e = Util.getList(cookie_cntxt_list,
+                        HTTPConnection.getDefaultContext())
+                   .elements();
 
-	    // discard cookies which are not to be kept across sessions
+        // discard cookies which are not to be kept across sessions
 
-	    while (enum.hasMoreElements())
-	    {
-		Cookie cookie = (Cookie) enum.nextElement();
-		if (!cookie.discard())
-		    cookie_list.put(cookie, cookie);
-	    }
-
+        while (e.hasMoreElements())
+        {
+        Cookie cookie = (Cookie) e.nextElement();
+        if (!cookie.discard())
+            cookie_list.put(cookie, cookie);
+        }
+      /** --GRINDER MODICIFATION **/
 
 	    // save any remaining cookies in jar
 
@@ -555,10 +573,15 @@ public class CookieModule implements HTTPClientModule
 	    Cookie[] cookies = new Cookie[cookie_list.size()];
 	    int idx = 0;
 
-	    Enumeration enum = cookie_list.elements();
-	    while (enum.hasMoreElements())
-		cookies[idx++] = (Cookie) enum.nextElement();
-
+	    /** ++GRINDER MODIFICATION **/
+//	    Enumeration enum = cookie_list.elements();
+//	    while (enum.hasMoreElements())
+//		cookies[idx++] = (Cookie) enum.nextElement();
+        Enumeration e = cookie_list.elements();
+        while (e.hasMoreElements())
+        cookies[idx++] = (Cookie) e.nextElement();
+        /** --GRINDER MODIFICATION **/
+        
 	    return cookies;
 	}
     }
@@ -829,7 +852,7 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler
  * or if cookies from whole domains should be silently accepted or rejected.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @author	Ronald Tschalï¿½r
  */
 class BasicCookieBox extends Frame
 {

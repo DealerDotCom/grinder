@@ -25,7 +25,7 @@ package net.grinder.util;
  * A {@link TimeAuthority} implementation that uses J2SE 5's nanoTime() method.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 3845 $
  */
 public final class NanoTimeTimeAuthority implements TimeAuthority {
 

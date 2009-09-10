@@ -115,16 +115,21 @@
                     value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS"/>
         </module>
         <module name="NoWhitespaceBefore"/>
+
         <module name="OperatorWrap">
           <property name="option" value="eol"/>
         </module>
+
         <module name="ParenPad"/>
         <module name="TabCharacter"/>
         <module name="TypecastParenPad"/>
         <module name="WhitespaceAfter">
           <property name="tokens" value="COMMA,SEMI"/>
         </module>
+
+        <!--  TODO - Commenting this for generics, figure out what's right.
         <module name="WhitespaceAround"/>
+        -->
 
         <module name="ModifierOrder"/>
 

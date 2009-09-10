@@ -22,8 +22,7 @@ What do I need?
 As well as Ant, to build and run The Grinder you need a version of Java that
 supports:
 
-  - J2SE 1.4.1 or later
-  - J2SE 5 or later (to build optional J2SE 5 specific code)
+  - J2SE 5.0 ("Java 5") or later
 
 The following addtional packages are necessary to build and run The Grinder.
 They are bundled in the lib directory:
@@ -94,7 +93,6 @@ what you want. Currently the conditionally built modules are:
 
   <!-- source of all evil -->
   <property name="src.dir" value="src"/>
-  <property name="j2se5-src.dir" value="src-j2se5"/>
   <property name="native-src.dir" value="native"/>
   <property name="test-src.dir" value="tests-src"/>
   <property name="etc.dir" value="etc"/>
@@ -108,9 +106,8 @@ what you want. Currently the conditionally built modules are:
 
   <!-- output -->
   <!-- classes.dir is calcuated in init. -->
-  <property name="build.dir" value="${basedir}/build"/>
+  <property name="build.dir" value="${basedir}/build/ant"/>
   <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
-  <property name="j2se5-classes.dir" value="${build.dir}/j2se5-classes"/>
   <property name="junit-report.dir" value="${build.dir}/junit"/>
   <property name="lib.dir" value="lib"/>
   <property name="dist.root" value="${build.dir}/distribution"/>
@@ -119,7 +116,6 @@ what you want. Currently the conditionally built modules are:
   <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
   <property name="release.dir" value="releases"/>
   <property name="doc.dir" value="docs"/>
-  <property name="j2se5.jar" value="${lib.dir}/grinder-j2se5.jar"/>
   <property name="xmlbeans.jar" value="${lib.dir}/grinder-xmlbeans.jar"/>
 
   <!-- javadoc -->
@@ -133,7 +129,6 @@ what you want. Currently the conditionally built modules are:
     <include name="build.xml"/>
     <include name="ChangeLog"/>
     <include name="${src.dir}/**"/>
-    <include name="${j2se5-src.dir}/**"/>
     <include name="${native-src.dir}/**"/>
     <include name="${test-src.dir}/**"/>
     <include name="${etc.dir}/**"/>
@@ -382,7 +377,7 @@ what you want. Currently the conditionally built modules are:
            destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
-           source="1.4"
+           source="1.5"
            deprecation="false"> <!-- Uses deprecated API's -->
        <classpath refid="build.classpath"/>
        <exclude name="net/grinder/**"/>
@@ -395,25 +390,9 @@ what you want. Currently the conditionally built modules are:
            debug="${debug}"
            optimize="${optimize}"
            deprecation="${deprecation}"
-           source="1.4">
+           source="1.5">
        <include name="net/grinder/**"/>
        <classpath refid="build.classpath"/>
-    </javac>
-  </target>
-
-  <target name="compile-j2se5" depends="init"
-          description="Compiles the J2SE 5 source.">
-    <mkdir dir="${j2se5-classes.dir}"/>
-
-    <javac srcdir="${j2se5-src.dir}"
-           destdir="${j2se5-classes.dir}"
-           debug="${debug}"
-           optimize="${optimize}"
-           deprecation="${deprecation}"
-           source="1.5"
-           executable="${j2se5compiler.exe}"
-           fork="true">
-      <classpath refid="build.classpath"/>
     </javac>
   </target>
 
@@ -445,7 +424,7 @@ what you want. Currently the conditionally built modules are:
            destdir="${test-classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
-           source="1.4"
+           source="1.5"
            deprecation="${deprecation}">
        <classpath refid="build.classpath"/>
    </javac>
@@ -454,15 +433,12 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Creates the jar                                                     -->
   <!-- =================================================================== -->
-  <target name="jar" depends="compile, copy-resources, compile-j2se5"
-    description="Default target, creates lib/grinder.jar.">
+  <target name="jar" depends="compile, copy-resources"
+          description="Default target, creates lib/grinder.jar.">
 
     <jar jarfile="${lib.dir}/${name}.jar"
          basedir="${classes.dir}"
          manifest="etc/grinder-manifest.mf"/>
-
-    <jar jarfile="${j2se5.jar}"
-         basedir="${j2se5-classes.dir}"/>
   </target>
 
   <!-- =================================================================== -->
@@ -667,18 +643,18 @@ what you want. Currently the conditionally built modules are:
              doctitle="${Name}"
              bottom="Copyright &#169; ${year} Paco Gómez, Philip Aston. All Rights Reserved."
              stylesheetfile="${javadoc.css}"
-             source="1.4"
+             source="1.5"
              package="true">
       <sourcepath>
         <pathelement path="${src.dir}"/>
       </sourcepath>
-            <classpath>
-              <path refid="build.classpath"/>
-              <pathelement path="${java.class.path}"/>
-            </classpath>
-            <link offline="true"
-                  href="http://java.sun.com/j2se/1.4.1/docs/api/"
-                  packagelistLoc="${package-lists.dir}/jdk1.4.1"/>
+      <classpath>
+        <path refid="build.classpath"/>
+        <pathelement path="${java.class.path}"/>
+      </classpath>
+      <link offline="true"
+            href="http://java.sun.com/j2se/1.5/docs/api/"
+            packagelistLoc="${package-lists.dir}/jdk1.5"/>
     </javadoc>
   </target>
 
@@ -742,8 +718,8 @@ what you want. Currently the conditionally built modules are:
         <group title="HTTP Plug-in"
                packages="net.grinder.plugin.http,HTTPClient"/>
         <link offline="true"
-              href="http://java.sun.com/j2se/1.4.1/docs/api/"
-              packagelistLoc="${package-lists.dir}/jdk1.4.1"/>
+              href="http://java.sun.com/j2se/1.5/docs/api/"
+              packagelistLoc="${package-lists.dir}/jdk1.5"/>
     </javadoc>
   </target>
 

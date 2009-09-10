@@ -1,4 +1,4 @@
-// Copyright (C)  2003 - 2008 Philip Aston
+// Copyright (C)  2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -311,6 +311,7 @@ final class ErrorDialogHandler implements ErrorHandler {
                   OPEN_TOP_LEVEL_LINE_FORMAT);
     }
 
+    @Override
     public void write(char[] buffer, int offset, int length) {
 
       final int last = offset + length;
@@ -330,11 +331,13 @@ final class ErrorDialogHandler implements ErrorHandler {
       super.write(buffer, p, last - p);
     }
 
+    @Override
     public void write(String s, int offset, int length) {
       write(s.toCharArray(), offset, length);
     }
 
-    public void write(char c) {
+    @Override
+    public void write(int c) {
       final String replacement = replaceCharacter(c);
 
       if (replacement != null) {
@@ -350,7 +353,7 @@ final class ErrorDialogHandler implements ErrorHandler {
       super.write(chars, 0, chars.length);
     }
 
-    private String replaceCharacter(char c) {
+    private String replaceCharacter(int c) {
 
       switch (c) {
       case '\t':
@@ -390,10 +393,12 @@ final class ErrorDialogHandler implements ErrorHandler {
       return "";
     }
 
+    @Override
     public void println() {
       writeDirect(endOfLine());
     }
 
+    @Override
     public void close() {
       writeDirect("</body></html>");
       super.close();
