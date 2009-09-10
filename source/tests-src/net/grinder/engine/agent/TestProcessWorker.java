@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import clover.retrotranslator.edu.emory.mathcs.backport.java.util.Arrays;
+
 import net.grinder.common.GrinderException;
+import net.grinder.util.Directory;
 
 import junit.framework.TestCase;
 
@@ -54,7 +57,8 @@ public class TestProcessWorker extends TestCase {
 
     try {
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-                        commandArray,
+                        Arrays.asList(commandArray),
+                        new Directory(),
                         m_outputStream,
                         m_errorStream);
       fail("Expected GrinderException");
@@ -75,7 +79,8 @@ public class TestProcessWorker extends TestCase {
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        commandArray,
+        Arrays.asList(commandArray),
+        new Directory(),
         m_outputStream,
         m_errorStream);
 
@@ -99,7 +104,8 @@ public class TestProcessWorker extends TestCase {
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        commandArray,
+        Arrays.asList(commandArray),
+        new Directory(),
         m_outputStream,
         m_errorStream);
 
@@ -136,7 +142,8 @@ public class TestProcessWorker extends TestCase {
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        commandArray,
+        Arrays.asList(commandArray),
+        new Directory(),
         m_outputStream,
         m_errorStream);
 
@@ -178,7 +185,8 @@ public class TestProcessWorker extends TestCase {
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        commandArray,
+        Arrays.asList(commandArray),
+        new Directory(),
         m_outputStream,
         m_errorStream);
 

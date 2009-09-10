@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -76,7 +76,7 @@ public class TestProcessWorkerFactory extends TestCase {
       ReadMessageEchoClass.class.getName());
 
     final ScriptLocation script =
-      new ScriptLocation(new Directory(new File("b")), new File("a"));
+      new ScriptLocation(new Directory(new File(".")), new File("a"));
     final boolean reportToConsole = false;
 
     final AgentIdentityImplementation agentIdentityImplementation =
@@ -132,10 +132,14 @@ public class TestProcessWorkerFactory extends TestCase {
 
     final AbstractWorkerFactory myWorkerFactory =
       new AbstractWorkerFactory(agentIdentityImplementation,
-                                null, false, null, null) {
+                                null,
+                                false,
+                                new ScriptLocation(new File(".")),
+                                null) {
 
         protected Worker
           createWorker(WorkerIdentityImplementation workerIdentity,
+                       Directory directory,
                        OutputStream outputStream,
                        OutputStream errorStream)
         throws EngineException {

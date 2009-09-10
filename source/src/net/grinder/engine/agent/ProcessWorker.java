@@ -31,6 +31,7 @@ import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
+import net.grinder.util.Directory;
 import net.grinder.util.StreamCopier;
 
 
@@ -56,6 +57,7 @@ final class ProcessWorker implements Worker {
    *
    * @param workerIdentity The process identity.
    * @param command Command line arguments.
+   * @param workingDirectory The working directory for the process.
    * @param outputStream Output stream to which child process stdout
    * should be redirected. Will not be closed by this class.
    * @param errorStream Output stream to which child process stderr
@@ -64,6 +66,7 @@ final class ProcessWorker implements Worker {
    */
   public ProcessWorker(WorkerIdentityImplementation workerIdentity,
                        List<String> command,
+                       Directory workingDirectory,
                        OutputStream outputStream,
                        OutputStream errorStream)
     throws EngineException {
@@ -71,6 +74,7 @@ final class ProcessWorker implements Worker {
     m_workerIdentity = workerIdentity;
 
     final ProcessBuilder processBuilder = new ProcessBuilder(command);
+    processBuilder.directory(workingDirectory.getFile());
 
     try {
       m_process = processBuilder.start();

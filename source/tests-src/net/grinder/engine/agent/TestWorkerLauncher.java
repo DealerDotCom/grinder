@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.engine.agent;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import junit.framework.TestCase;
 import net.grinder.common.Logger;
@@ -34,6 +35,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RedirectStandardStreams;
+import net.grinder.util.Directory;
 import net.grinder.util.thread.Condition;
 import net.grinder.util.thread.Executor;
 
@@ -337,7 +339,8 @@ public class TestWorkerLauncher extends TestCase {
 
       final Worker childProcess =
         new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-                          commandArray,
+                          Arrays.asList(commandArray),
+                          new Directory(),
                           outputStream,
                           errorStream);
       ++m_numberOfProcesses;

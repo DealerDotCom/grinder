@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.engine.agent;
 
+import java.io.File;
 import java.io.InputStream;
 
 import net.grinder.common.GrinderProperties;
@@ -29,6 +30,7 @@ import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.StreamReceiver;
 import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
@@ -57,7 +59,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
       new DebugThreadWorkerFactory(m_agentIdentity,
                                    m_fanOutStreamSender,
                                    false,
-                                   null,
+                                   new ScriptLocation(new File(".")),
                                    m_properties);
 
     new RedirectStandardStreams() {
@@ -80,7 +82,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       try {
@@ -97,7 +99,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       try {
@@ -114,7 +116,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       try {
@@ -137,7 +139,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       final RedirectStandardStreams rss0 = new RedirectStandardStreams() {
@@ -180,7 +182,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       final RedirectStandardStreams rss0 = new RedirectStandardStreams() {

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,14 +41,14 @@ import net.grinder.engine.process.WorkerProcessEntryPoint;
  */
 final class WorkerProcessCommandLine {
 
-  private final List m_command;
+  private final List<String> m_command;
   private final int m_commandClassIndex;
 
   public WorkerProcessCommandLine(GrinderProperties properties,
                                   Properties systemProperties,
                                   String jvmArguments) {
 
-    m_command = new ArrayList();
+    m_command = new ArrayList<String>();
     m_command.add(properties.getProperty("grinder.jvm", "java"));
 
     if (jvmArguments != null) {
@@ -89,14 +89,10 @@ final class WorkerProcessCommandLine {
     m_command.add(WorkerProcessEntryPoint.class.getName());
   }
 
-  public String[] getCommandArray() {
-    return (String[])m_command.toArray(new String[m_command.size()]);
-  }
-
   /**
    * Package scope for the unit tests.
    */
-  List getCommandList() {
+  public List<String> getCommandList() {
     return m_command;
   }
 
@@ -109,7 +105,7 @@ final class WorkerProcessCommandLine {
   } };
 
   public String toString() {
-    final String[] commandArray = getCommandArray();
+    final String[] commandArray = getCommandList().toArray(new String[0]);
 
     final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
 

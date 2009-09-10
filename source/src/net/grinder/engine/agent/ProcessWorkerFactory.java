@@ -22,13 +22,13 @@
 package net.grinder.engine.agent;
 
 import java.io.OutputStream;
-import java.util.Arrays;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
+import net.grinder.util.Directory;
 
 
 /**
@@ -56,13 +56,16 @@ final class ProcessWorkerFactory extends AbstractWorkerFactory {
     m_commandLine = commandLine;
   }
 
+  @Override
   protected Worker createWorker(WorkerIdentityImplementation workerIdentity,
+                                Directory workingDirectory,
                                 OutputStream outputStream,
                                 OutputStream errorStream)
     throws EngineException {
 
     return new ProcessWorker(workerIdentity,
-                             Arrays.asList(m_commandLine.getCommandArray()),
+                             m_commandLine.getCommandList(),
+                             workingDirectory,
                              outputStream,
                              errorStream);
   }
