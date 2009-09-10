@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // Copyright (C) 2004 Slavik Gnatenko
 // All rights reserved.
@@ -118,7 +118,7 @@ final class GrinderProcess {
 
     m_loggerImplementation = new LoggerImplementation(
       m_initialisationMessage.getWorkerIdentity().getName(),
-      properties.getProperty("grinder.logDirectory", "."),
+      properties.getProperty(GrinderProperties.LOG_DIRECTORY, "."),
       properties.getBoolean("grinder.logProcessStreams", true),
       properties.getInt("grinder.numberOfOldLogs", 1));
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -113,6 +113,18 @@ public class TestAgentImplementation extends AbstractFileTestCase {
       m_loggerStubFactory.assertOutputMessageContains("The Grinder");
       m_loggerStubFactory.assertOutputMessageContains("command line");
       m_loggerStubFactory.assertNoMoreCalls();
+
+      properties.setFile("grinder.logDirectory",
+                         getDirectory().getAbsoluteFile());
+      properties.save();
+
+      agent.run();
+
+      m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+      m_loggerStubFactory.assertOutputMessageContains("command line");
+      m_loggerStubFactory.assertNoMoreCalls();
+
+
 
       agent.shutdown();
     }

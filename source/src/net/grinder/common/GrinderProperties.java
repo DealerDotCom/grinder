@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,6 +49,11 @@ public class GrinderProperties extends Properties {
    * Key to use for the script property.
    */
   public static final String SCRIPT = "grinder.script";
+
+  /**
+   * Key to use for the log directory property.
+   */
+  public static final String LOG_DIRECTORY = "grinder.logDirectory";
 
   /**
    * Key to use for the console host property.

@@ -34,6 +34,7 @@ import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.GrinderProperties.PersistenceException;
 import net.grinder.communication.ClientReceiver;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationException;
@@ -128,13 +129,8 @@ public final class AgentImplementation implements Agent {
 
         do {
           properties =
-            new GrinderProperties(
-              m_alternateFile != null ?
-                  m_alternateFile : GrinderProperties.DEFAULT_PROPERTIES);
-
-          if (startMessage != null) {
-            properties.putAll(startMessage.getProperties());
-          }
+            createAndMergeProperties(startMessage != null ?
+                                     startMessage.getProperties() : null);
 
           m_agentIdentity.setName(
             properties.getProperty("grinder.hostID", getHostName()));
@@ -320,8 +316,7 @@ public final class AgentImplementation implements Agent {
 
                 m_logger.output("forcibly terminating unresponsive processes");
 
-                // destroyAllWorkers() also prevents any more workers from
-                // starting.
+                // destroyAllWorkers() prevents further workers from starting.
                 workerLauncher.destroyAllWorkers();
               }
 
@@ -363,6 +358,33 @@ public final class AgentImplementation implements Agent {
     finally {
       shutdownConsoleCommunication(consoleCommunication);
     }
+  }
+
+  private GrinderProperties createAndMergeProperties(
+      GrinderProperties startMessageProperties)
+    throws PersistenceException {
+
+    final GrinderProperties properties =
+      new GrinderProperties(
+        m_alternateFile != null ?
+            m_alternateFile : GrinderProperties.DEFAULT_PROPERTIES);
+
+    if (startMessageProperties != null) {
+      properties.putAll(startMessageProperties);
+    }
+
+    // Ensure the log directory property is set and is absolute.
+    final File nullFile = new File("");
+
+    final File originalLogDirectory =
+      properties.getFile(GrinderProperties.LOG_DIRECTORY, nullFile);
+
+    if (!originalLogDirectory.isAbsolute()) {
+      properties.setFile(GrinderProperties.LOG_DIRECTORY,
+        new File(nullFile.getAbsoluteFile(), originalLogDirectory.getPath()));
+    }
+
+    return properties;
   }
 
   private void shutdownConsoleCommunication(
