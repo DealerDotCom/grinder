@@ -98,8 +98,12 @@ public class TestProcessContextImplementation extends TestCase {
     final long t1 = System.currentTimeMillis();
     processContext.setExecutionStartTime();
     final long t2 = System.currentTimeMillis();
-    assertTrue(t1 <= processContext.getExecutionStartTime());
-    assertTrue(processContext.getExecutionStartTime() <= t2);
+
+    // Fudge required since nanoTime() is more precise that currentTimeMillis().
+    final long FUDGE = 10;
+
+    assertTrue(t1 - FUDGE <= processContext.getExecutionStartTime());
+    assertTrue(processContext.getExecutionStartTime() <= t2 + FUDGE);
     final long elapsedTime = processContext.getElapsedTime();
     assertTrue(elapsedTime <= (System.currentTimeMillis() - t1));
     assertTrue(elapsedTime >= 0);

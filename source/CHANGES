@@ -1,16 +1,16 @@
 The Grinder 3.X (not yet released)
 ----------------------------------
 
-  Non-backwardly compatible changes:
+  Changes that may not be backwardly compatible with existing scripts:
 
     The Grinder now requires J2SE 5.0 ("Java 5"). J2SE 1.4 is no longer
     supported.
 
     Fix bug 2315181 - Classpath of distributed jars. When distributing
     scripts from the console, the worker process working directory is
-    now the root of the cache directory. This allows scripts to refer
-    to distributed resources using relative paths. Thanks to ujik for
-    reporting this.
+    now the root of the local cache directory. This allows scripts to
+    refer to distributed resources using relative paths. Thanks to
+    ujik for reporting this.
 
   Other changes:
 
@@ -33,6 +33,9 @@ The Grinder 3.X (not yet released)
     documentation. Thanks to Walter Tuvell for the requirement.
 
     Updated Spanish translation from Antonio Manuel Muñiz Martin.
+
+    The Grinder now always uses the Java 5 System.nanoTime() method for
+    timing. The grinder.useNanoTime property has been removed.
 
 
 The Grinder 3.2

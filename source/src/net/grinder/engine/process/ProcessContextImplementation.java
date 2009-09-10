@@ -32,7 +32,6 @@ import net.grinder.common.Logger;
 import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.QueuedSender;
-import net.grinder.engine.common.EngineException;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.script.Grinder;
@@ -41,7 +40,6 @@ import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.util.JVM;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.Sleeper;
 import net.grinder.util.SleeperImplementation;
@@ -94,33 +92,7 @@ final class ProcessContextImplementation implements ProcessContext {
       new TestStatisticsHelperImplementation(
         m_statisticsServices.getStatisticsIndexMap());
 
-    TimeAuthority alternateTimeAuthority = null;
-
-    if (properties.getBoolean("grinder.useNanoTime", false)) {
-      if (!JVM.getInstance().isAtLeastVersion(1, 5)) {
-        logger.output("grinder.useNanoTime=true requires J2SE 5 or later, " +
-                      "ignoring this setting",
-                      Logger.LOG | Logger.TERMINAL);
-      }
-      else {
-        try {
-          final Class nanoTimeClass =
-            Class.forName("net.grinder.util.NanoTimeTimeAuthority");
-          alternateTimeAuthority = (TimeAuthority)nanoTimeClass.newInstance();
-          logger.output("Using System.nanoTime()");
-        }
-        catch (Exception e) {
-          throw new EngineException("Failed to load nanoTime() support", e);
-        }
-      }
-    }
-
-    if (alternateTimeAuthority != null) {
-      m_timeAuthority = alternateTimeAuthority;
-    }
-    else {
-      m_timeAuthority = new StandardTimeAuthority();
-    }
+    m_timeAuthority = new StandardTimeAuthority();
 
     final Logger externalLogger =
       new ExternalLogger(m_processLogger, m_threadContextLocator);

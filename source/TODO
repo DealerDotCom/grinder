@@ -24,6 +24,8 @@ Re-enable generics warnings.
 ** Opportunities
 *** JUC executors, CAS etc.
 
+*** System.nanoTime() - can move to microsecond based time?
+
 
 
 * Enhancements
