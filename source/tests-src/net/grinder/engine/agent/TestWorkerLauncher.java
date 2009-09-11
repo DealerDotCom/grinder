@@ -103,10 +103,10 @@ public class TestWorkerLauncher extends TestCase {
     workerLauncher.startSomeWorkers(10);
     assertEquals(5, myProcessFactory.getNumberOfProcesses());
 
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertSuccess("output", String.class);
     loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(5, myProcessFactory.getChildProcesses().size());

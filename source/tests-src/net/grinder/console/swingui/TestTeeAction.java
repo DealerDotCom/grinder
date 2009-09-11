@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -51,14 +51,14 @@ public class TestTeeAction extends TestCase {
 
     assertTrue(!teeAction.isEnabled());
 
-    action1StubFactory.assertSuccess("isEnabled", new Object[0]);
-    action2StubFactory.assertSuccess("isEnabled", new Object[0]);
+    action1StubFactory.assertSuccess("isEnabled");
+    action2StubFactory.assertSuccess("isEnabled");
 
     teeAction.actionPerformed(actionEvent);
 
-    action1StubFactory.assertSuccess("isEnabled", new Object[0]);
+    action1StubFactory.assertSuccess("isEnabled");
     action1StubFactory.assertNoMoreCalls();
-    action2StubFactory.assertSuccess("isEnabled", new Object[0]);
+    action2StubFactory.assertSuccess("isEnabled");
     action2StubFactory.assertNoMoreCalls();
 
     action2StubFactory.setEnabled(true);
@@ -70,11 +70,10 @@ public class TestTeeAction extends TestCase {
 
     teeAction.actionPerformed(actionEvent);
 
-    action1StubFactory.assertSuccess("isEnabled", new Object[0]);
+    action1StubFactory.assertSuccess("isEnabled");
     action1StubFactory.assertNoMoreCalls();
-    action2StubFactory.assertSuccess("isEnabled", new Object[0]);
-    action2StubFactory.assertSuccess("actionPerformed",
-                                     new Object[] { actionEvent} );
+    action2StubFactory.assertSuccess("isEnabled");
+    action2StubFactory.assertSuccess("actionPerformed", actionEvent);
     action2StubFactory.assertNoMoreCalls();
 
     action1StubFactory.setEnabled(true);
@@ -86,13 +85,11 @@ public class TestTeeAction extends TestCase {
 
     teeAction.actionPerformed(actionEvent);
 
-    action1StubFactory.assertSuccess("isEnabled", new Object[0]);
-    action1StubFactory.assertSuccess("actionPerformed",
-                                     new Object[] { actionEvent} );
+    action1StubFactory.assertSuccess("isEnabled");
+    action1StubFactory.assertSuccess("actionPerformed", actionEvent);
     action1StubFactory.assertNoMoreCalls();
-    action2StubFactory.assertSuccess("isEnabled", new Object[0]);
-    action2StubFactory.assertSuccess("actionPerformed",
-                                     new Object[] { actionEvent} );
+    action2StubFactory.assertSuccess("isEnabled");
+    action2StubFactory.assertSuccess("actionPerformed", actionEvent);
     action2StubFactory.assertNoMoreCalls();
   }
 

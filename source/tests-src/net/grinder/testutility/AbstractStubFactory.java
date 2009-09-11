@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.testutility;
 
+import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationHandler;
@@ -45,13 +46,15 @@ import java.util.Set;
  */
 public abstract class AbstractStubFactory extends CallRecorder {
 
-  private final static WeakIdentityMap s_stubToFactory = new WeakIdentityMap();
+  private final static WeakIdentityMap<Object, AbstractStubFactory>
+    s_stubToFactory = new WeakIdentityMap<Object, AbstractStubFactory>();
 
   private final Object m_stub;
-  private final Map m_resultMap = new HashMap();
-  private final Map m_throwsMap = new HashMap();
+  private final Map<String, Object> m_resultMap = new HashMap<String, Object>();
+  private final Map<String, Throwable> m_throwsMap =
+    new HashMap<String, Throwable>();
 
-  public AbstractStubFactory(Class stubbedInterface,
+  public AbstractStubFactory(Class<?> stubbedInterface,
                              InvocationHandler invocationHandler) {
 
     final InvocationHandler decoratedInvocationHandler =
@@ -79,16 +82,16 @@ public abstract class AbstractStubFactory extends CallRecorder {
 
       try {
         final Object result = m_delegate.invoke(proxy, method, parameters);
-        record(new CallData(method, parameters, result));
+        record(new CallData(method, result, parameters));
         return result;
       }
       catch (InvocationTargetException t) {
         final Throwable targetException = t.getTargetException();
-        record(new CallData(method, parameters, targetException));
+        record(new CallData(method, targetException, parameters));
         throw targetException;
       }
       catch (Throwable t) {
-        record(new CallData(method, parameters, t));
+        record(new CallData(method, t, parameters));
         throw t;
       }
     }
@@ -109,7 +112,7 @@ public abstract class AbstractStubFactory extends CallRecorder {
       final String methodName = method.getName();
 
       if (m_throwsMap.containsKey(methodName)) {
-        final Throwable t = (Throwable)m_throwsMap.get(methodName);
+        final Throwable t = m_throwsMap.get(methodName);
         t.fillInStackTrace();
         throw t;
       }
@@ -134,15 +137,15 @@ public abstract class AbstractStubFactory extends CallRecorder {
     m_throwsMap.put(methodName, result);
   }
 
-  public static Class[] getAllInterfaces(Class c) {
-    final Set interfaces = new HashSet();
+  public static Class<?>[] getAllInterfaces(Class<?> c) {
+    final Set<Class<?>> interfaces = new HashSet<Class<?>>();
 
     if (c.isInterface()) {
       interfaces.add(c);
     }
 
     do {
-      final Class[] moreInterfaces = c.getInterfaces();
+      final Class<?>[] moreInterfaces = c.getInterfaces();
 
       if (moreInterfaces != null) {
         interfaces.addAll(Arrays.asList(moreInterfaces));
@@ -152,41 +155,47 @@ public abstract class AbstractStubFactory extends CallRecorder {
     }
     while (c != null);
 
-    return (Class[]) interfaces.toArray(new Class[0]);
+    return interfaces.toArray(new Class<?>[0]);
   }
 
+  /**
+   * Return the cached {@code AbstractStubFactory} for stub.
+   * @return The factory, or {@code null}.
+   */
   public static AbstractStubFactory getFactory(Object stub) {
-    return (AbstractStubFactory) s_stubToFactory.get(stub);
+    return s_stubToFactory.get(stub);
   }
 
   /**
    * Ripped off from Jython implementation.
    */
-  private static class WeakIdentityMap {
+  private static class WeakIdentityMap<K, V> {
 
-    private final ReferenceQueue m_referenceQueue = new ReferenceQueue();
-    private final Map m_hashmap = new HashMap();
+    private final ReferenceQueue<K> m_referenceQueue = new ReferenceQueue<K>();
+    private final Map<WeakIdKey, V> m_hashmap = new HashMap<WeakIdKey, V>();
 
     private void cleanup() {
-      Object k;
+      Reference<? extends K> k;
 
       while ((k = m_referenceQueue.poll()) != null) {
         m_hashmap.remove(k);
       }
     }
 
-    private static class WeakIdKey extends WeakReference {
+    private class WeakIdKey extends WeakReference<K> {
       private final int m_hashcode;
 
-      WeakIdKey(Object object, ReferenceQueue referenceQueue) {
-        super(object, referenceQueue);
-        m_hashcode = System.identityHashCode(object);
+      WeakIdKey(K key) {
+        super(key, m_referenceQueue);
+        m_hashcode = System.identityHashCode(key);
       }
 
+      @Override
       public int hashCode() {
         return m_hashcode;
       }
 
+      @Override
       public boolean equals(Object other) {
         final Object object = this.get();
 
@@ -199,19 +208,21 @@ public abstract class AbstractStubFactory extends CallRecorder {
       }
     }
 
-    public void put(Object key,Object value) {
+    public void put(K key, V value) {
       cleanup();
-      m_hashmap.put(new WeakIdKey(key, m_referenceQueue), value);
+      m_hashmap.put(new WeakIdKey(key), value);
     }
 
-    public Object get(Object key) {
+    public V get(K key) {
       cleanup();
-      return m_hashmap.get(new WeakIdKey(key, m_referenceQueue));
+      return m_hashmap.get(new WeakIdKey(key));
     }
 
-    public void remove(Object key) {
+    /*
+    public void remove(K key) {
       cleanup();
-      m_hashmap.remove(new WeakIdKey(key, m_referenceQueue));
+      m_hashmap.remove(new WeakIdKey<K>(key, m_referenceQueue));
     }
+    */
   }
 }

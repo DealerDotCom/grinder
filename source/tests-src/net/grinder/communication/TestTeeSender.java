@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,16 +54,16 @@ public class TestTeeSender extends TestCase {
     teeSender.send(m2);
     teeSender.shutdown();
 
-    sender1StubFactory.assertSuccess("send", new Object[] { m1 });
-    sender1StubFactory.assertSuccess("send", new Object[] { m2 });
-    sender1StubFactory.assertSuccess("send", new Object[] { m2 });
-    sender1StubFactory.assertSuccess("shutdown", new Object[] { });
+    sender1StubFactory.assertSuccess("send", m1);
+    sender1StubFactory.assertSuccess("send", m2);
+    sender1StubFactory.assertSuccess("send", m2);
+    sender1StubFactory.assertSuccess("shutdown");
     sender1StubFactory.assertNoMoreCalls();
 
-    sender2StubFactory.assertSuccess("send", new Object[] { m1 });
-    sender2StubFactory.assertSuccess("send", new Object[] { m2 });
-    sender2StubFactory.assertSuccess("send", new Object[] { m2 });
-    sender2StubFactory.assertSuccess("shutdown", new Object[] { });
+    sender2StubFactory.assertSuccess("send", m1);
+    sender2StubFactory.assertSuccess("send", m2);
+    sender2StubFactory.assertSuccess("send", m2);
+    sender2StubFactory.assertSuccess("shutdown");
     sender2StubFactory.assertNoMoreCalls();
   }
 
@@ -115,7 +115,7 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromSend, e);
     }
 
-    goodSenderStubFactory.assertSuccess("send", new Object[] { m });
+    goodSenderStubFactory.assertSuccess("send", m);
     goodSenderStubFactory.assertNoMoreCalls();
 
     try {
@@ -126,7 +126,7 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromShutdown, e);
     }
 
-    goodSenderStubFactory.assertSuccess("shutdown", new Object[] {});
+    goodSenderStubFactory.assertSuccess("shutdown");
     goodSenderStubFactory.assertNoMoreCalls();
 
     // goodSender is second, so will never be invoked.

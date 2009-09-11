@@ -113,8 +113,8 @@ public class TestHTTPRecordingImplementation extends TestCase {
 
     m_resultProcessorStubFactory.assertException(
       "process",
-      new Class[] { HttpRecordingDocument.class},
-      exception);
+      exception,
+      HttpRecordingDocument.class);
     loggerStubFactory.assertSuccess("error", exception.getMessage());
     loggerStubFactory.assertSuccess("getErrorLogWriter");
     loggerStubFactory.assertNoMoreCalls();

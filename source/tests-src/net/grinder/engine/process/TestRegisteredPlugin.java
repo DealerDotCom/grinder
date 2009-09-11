@@ -135,10 +135,9 @@ public class TestRegisteredPlugin extends TestCase {
     threadContextStubFactory.assertSuccess("getThreadLogger");
     threadContextStubFactory.assertNoMoreCalls();
 
-    grinderPluginStubFactory.assertException(
-      "createThreadListener",
-      new Class[] { PluginThreadContext.class },
-      PluginException.class);
+    grinderPluginStubFactory.assertException("createThreadListener",
+                                             PluginException.class,
+                                             PluginThreadContext.class);
 
     grinderPluginStubFactory.assertNoMoreCalls();
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -92,8 +92,8 @@ public class TestConsoleListener extends TestCase {
     messageDispatcher.send(new MyMessage());
     messageDispatcher.send(new ResetGrinderMessage());
 
-    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertSuccess("output", String.class);
+    m_loggerFactory.assertSuccess("output", String.class);
     m_loggerFactory.assertNoMoreCalls();
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
@@ -125,15 +125,15 @@ public class TestConsoleListener extends TestCase {
       new StartGrinderMessage(new GrinderProperties(), -1));
     messageDispatcher.send(new ResetGrinderMessage());
 
-    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertSuccess("output", String.class);
+    m_loggerFactory.assertSuccess("output", String.class);
     m_loggerFactory.assertNoMoreCalls();
 
     assertTrue(listener.checkForMessage(ConsoleListener.RESET |
                                         ConsoleListener.START));
     messageDispatcher.send(new ResetGrinderMessage());
 
-    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertSuccess("output", String.class);
     m_loggerFactory.assertNoMoreCalls();
 
     assertTrue(listener.checkForMessage(ConsoleListener.RESET |
@@ -245,8 +245,7 @@ public class TestConsoleListener extends TestCase {
 
     assertTrue(notified.wasNotified());
 
-    m_loggerFactory.assertSuccess("output",
-                                  new Class[] { String.class, Integer.class });
+    m_loggerFactory.assertSuccess("output", String.class, Integer.class);
 
     m_loggerFactory.assertNoMoreCalls();
 

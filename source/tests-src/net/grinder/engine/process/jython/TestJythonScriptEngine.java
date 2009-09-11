@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -857,7 +857,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
-    final Class javaClass = MyClass.class;
+    final Class<?> javaClass = MyClass.class;
     final PyObject javaProxy = (PyObject)
       scriptEngine.createInstrumentedProxy(m_test, m_dispatcher, javaClass);
     final PyObject result =
@@ -899,10 +899,11 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
 
     final PyObject instance = javaProxy.__call__();
     assertEquals(MyClass.class,
-      m_versionAdapter.getClassForInstance((PyInstance) instance).__tojava__(Class.class));
+      m_versionAdapter.getClassForInstance((PyInstance) instance)
+      .__tojava__(Class.class));
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
 
-    final PyObject instance2 = (PyInstance)javaProxy.__call__(
+    final PyObject instance2 = javaProxy.__call__(
       new PyObject[] { m_one, m_two, m_three, },
       new String[] { "c", "b", "a" });
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
@@ -912,8 +913,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     assertEquals(1, javaInstance2.getC());
     m_dispatcherStubFactory.assertNoMoreCalls();
 
-    final PyObject instance3 =
-      (PyInstance)javaProxy.__call__(m_one, m_two, m_three);
+    final PyObject instance3 = javaProxy.__call__(m_one, m_two, m_three);
     m_dispatcherStubFactory.assertSuccess("dispatch", Callable.class);
     final MyClass javaInstance3 = (MyClass) instance3.__tojava__(MyClass.class);
     assertEquals(1, javaInstance3.getA());
@@ -1040,7 +1040,8 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     }
 
     dispatcherStubFactory.assertException("dispatch",
-      new Class[] { Callable.class }, PyException.class);
+                                          PyException.class,
+                                          Callable.class);
 
     dispatcherStubFactory.assertNoMoreCalls();
 

@@ -58,7 +58,7 @@ public class TestDisplayMessageConsoleException extends TestCase {
     assertNull(e2.getCause());
 
     final DisplayMessageConsoleException e4 =
-      new DisplayMessageConsoleException(resources, "sum",
+      new DisplayMessageConsoleException(resources, "sum", 
                                          new Object[]{
                                            new Integer(1),
                                            new Integer(2),

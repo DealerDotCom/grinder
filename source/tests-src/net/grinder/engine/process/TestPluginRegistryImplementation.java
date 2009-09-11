@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -97,7 +97,7 @@ public class TestPluginRegistryImplementation extends TestCase {
 
     m_grinderPluginStubFactory.assertNoMoreCalls();
 
-    m_loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerStubFactory.assertSuccess("output", String.class);
     m_loggerStubFactory.assertNoMoreCalls();
 
     pluginRegistry.register(m_grinderPlugin);

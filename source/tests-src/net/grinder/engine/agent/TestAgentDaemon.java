@@ -107,7 +107,7 @@ public class TestAgentDaemon extends AbstractFileTestCase {
       assertSame(runException, e);
     }
 
-    m_agentStubFactory.assertException("run", new Object[0], runException);
+    m_agentStubFactory.assertException("run", runException);
 
     assertTrue(Runtime.getRuntime().removeShutdownHook(shutdownHook));
 

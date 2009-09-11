@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,51 +23,31 @@ package net.grinder.testutility;
 
 public interface CallAssertions {
 
-  CallData assertSuccess(String methodName, Object[] parameters);
+  CallData assertSuccess(String methodName, Object... parameters);
 
-  CallData assertSuccess(String methodName, Class[] parameterTypes);
-
-  CallData assertSuccess(String methodName);
-
-  CallData assertSuccess(String methodName, Object object1);
-
-  CallData assertSuccess(String methodName, Object object1, Object object2);
-
-  CallData assertSuccess(String methodName,
-                         Object object1,
-                         Object object2,
-                         Object object3);
-
-  CallData assertSuccess(String methodName, Class class1);
-
-  CallData assertSuccess(String methodName, Class class1, Class class2);
-
-  CallData assertSuccess(String methodName,
-                         Class class1,
-                         Class class2,
-                         Class class3);
+  CallData assertSuccess(String methodName, Class<?>... parameterTypes);
 
   /**
    *  Check the given method was called, and that it threw the given
    *  exception.
    */
   CallData assertException(String methodName,
-                           Object[] parameters,
-                           Throwable throwable);
+                           Throwable throwable,
+                           Object... parameters);
 
   CallData assertException(String methodName,
-                           Class[] parameterTypes,
-                           Throwable throwable);
+                           Throwable throwable,
+                           Class<?>... parameterTypes);
 
   /**
    *  Check the given method was called, and that it threw an
    *  exception of the given type.
    */
   CallData assertException(String methodName,
-                           Object[] parameters,
-                           Class throwableType);
+                           Class<?> throwableType,
+                           Object... parameters);
 
   CallData assertException(String methodName,
-                           Class[] parameterTypes,
-                           Class throwableType);
+                           Class<?> throwableType,
+                           Class<?>... parameterTypes);
 }

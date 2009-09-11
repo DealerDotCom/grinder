@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -339,6 +339,6 @@ public class TestFileTreeModel extends AbstractFileTestCase {
 
     filesChangedListener.filesChanged(new File[] { file2, dir1, });
     listenerStubFactory.assertSuccess("treeStructureChanged",
-      new Class[] { TreeModelEvent.class });
+                                      TreeModelEvent.class);
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,14 +38,14 @@ public final class CallData extends Assert implements CallAssertions {
   private final Object m_result;
   private final Throwable m_throwable;
 
-  public CallData(Method method, Object[] parameters, Object result) {
+  public CallData(Method method, Object result, Object... parameters) {
     m_method = method;
     m_parameters = parameters;
     m_result = result;
     m_throwable = null;
   }
 
-  public CallData(Method method, Object[] parameters, Throwable throwable) {
+  public CallData(Method method, Throwable throwable, Object... parameters) {
     m_method = method;
     m_parameters = parameters;
     m_result = null;
@@ -64,12 +64,12 @@ public final class CallData extends Assert implements CallAssertions {
     return m_parameters;
   }
 
-  public Class[] getParameterTypes() {
+  public Class<?>[] getParameterTypes() {
     if (m_parameters == null) {
       return new Class[0];
     }
 
-    final Class[] types = new Class[m_parameters.length];
+    final Class<?>[] types = new Class<?>[m_parameters.length];
 
     for (int i=0; i<types.length; ++i) {
       if (m_parameters[i] == null) {
@@ -100,14 +100,14 @@ public final class CallData extends Assert implements CallAssertions {
   /**
    *  Check the given method was called.
    */
-  public final CallData assertSuccess(String methodName, Object[] parameters) {
+  public final CallData assertSuccess(String methodName, Object... parameters) {
     assertCalled(methodName, parameters);
     assertNull(getThrowable());
     return this;
   }
 
   public final CallData assertSuccess(String methodName,
-                                      Class[] parameterTypes) {
+                                      Class<?>... parameterTypes) {
     assertCalled(methodName, parameterTypes);
     assertNull(getThrowable());
     return this;
@@ -117,75 +117,40 @@ public final class CallData extends Assert implements CallAssertions {
     return assertSuccess(methodName, new Class[0]);
   }
 
-  public final CallData assertSuccess(String methodName, Object object1) {
-    return assertSuccess(methodName, new Object[] { object1 });
-  }
-
-  public final CallData assertSuccess(String methodName,
-                                      Object object1,
-                                      Object object2) {
-    return assertSuccess(methodName, new Object[] { object1, object2 });
-  }
-
-  public final CallData assertSuccess(String methodName,
-                                      Object object1,
-                                      Object object2,
-                                      Object object3) {
-    return assertSuccess(methodName,
-                         new Object[] { object1, object2, object3 });
-  }
-
-  public final CallData assertSuccess(String methodName, Class class1) {
-    return assertSuccess(methodName, new Class[] { class1 });
-  }
-
-  public final CallData assertSuccess(String methodName,
-                                      Class class1,
-                                      Class class2) {
-    return assertSuccess(methodName, new Class[] { class1, class2 });
-  }
-
-  public final CallData assertSuccess(String methodName,
-                                      Class class1,
-                                      Class class2,
-                                      Class class3) {
-    return assertSuccess(methodName, new Class[] { class1, class2, class3 });
-  }
-
   public final CallData assertException(String methodName,
-                                     Object[] parameters,
-                                     Throwable throwable) {
+                                        Throwable throwable,
+                                        Object... parameters) {
     assertCalled(methodName, parameters);
     assertEquals(throwable, getThrowable());
     return this;
   }
 
   public final CallData assertException(String methodName,
-                                     Class[] parameterTypes,
-                                     Throwable throwable) {
+                                        Throwable throwable,
+                                        Class<?>... parameterTypes) {
     assertCalled(methodName, parameterTypes);
     assertEquals(throwable, getThrowable());
     return this;
   }
 
   public final CallData assertException(String methodName,
-                                     Object[] parameters,
-                                     Class throwableType) {
+                                        Class<?> throwableType,
+                                        Object... parameters) {
     assertCalled(methodName, parameters);
     assertTrue(throwableType.isAssignableFrom(getThrowable().getClass()));
     return this;
   }
 
   public final CallData assertException(String methodName,
-                                     Class[] parameterTypes,
-                                     Class throwableType) {
+                                        Class<?> throwableType,
+                                        Class<?>... parameterTypes) {
     assertCalled(methodName, parameterTypes);
     assertNotNull(getThrowable());
     assertTrue(throwableType.isAssignableFrom(getThrowable().getClass()));
     return this;
   }
 
-  private void assertCalled(String methodName, Object[] parameters) {
+  private void assertCalled(String methodName, Object... parameters) {
     if (parameters.length == 0) {
       parameters = null;
     }
@@ -200,13 +165,13 @@ public final class CallData extends Assert implements CallAssertions {
       parameters, getParameters());
   }
 
-  private void assertCalled(String methodName, Class[] parameterTypes) {
+  private void assertCalled(String methodName, Class<?>... parameterTypes) {
 
     // Just check method names match. Don't worry about modifiers
     // etc., or even which class the method belongs to.
     assertEquals(methodName, getMethodName());
 
-    final Class[] actualParameterTypes = getParameterTypes();
+    final Class<?>[] actualParameterTypes = getParameterTypes();
 
     if (parameterTypes != null || actualParameterTypes != null) {
       assertNotNull(parameterTypes);

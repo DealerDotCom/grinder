@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -101,8 +101,9 @@ public class TestMessageDispatchSender extends TestCase {
     }
 
     handlerStubFactory.assertException("send",
-                                             new Object[] { m1 },
-                                             CommunicationException.class);
+                                       CommunicationException.class,
+                                       m1);
+
     handlerStubFactory.assertNoMoreCalls();
     fallbackHandlerStubFactory.assertNoMoreCalls();
     otherMessagerHandlerStubFactory.assertNoMoreCalls();
@@ -198,10 +199,9 @@ public class TestMessageDispatchSender extends TestCase {
       assertSame(communicationException, e);
     }
 
-    senderStubFactory.assertException(
-      "send",
-      new Class[] { Message.class, },
-      communicationException);
+    senderStubFactory.assertException("send",
+                                      communicationException,
+                                      Message.class);
 
     senderStubFactory.assertNoMoreCalls();
 
@@ -214,10 +214,9 @@ public class TestMessageDispatchSender extends TestCase {
       assertSame(communicationException, e);
     }
 
-    senderStubFactory.assertException(
-      "send",
-      new Class[] { Message.class, },
-      communicationException);
+    senderStubFactory.assertException("send",
+                                      communicationException,
+                                      Message.class);
 
     senderStubFactory.assertNoMoreCalls();
   }

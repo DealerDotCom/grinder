@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -428,7 +428,7 @@ public class TestThreadContextImplementation extends TestCase {
       assertSame(t, e.getCause());
     }
 
-    m_dispatchContextStubFactory.assertException("report", new Class[0], t);
+    m_dispatchContextStubFactory.assertException("report", t);
     m_dispatchContextStubFactory.assertNoMoreCalls();
   }
 
@@ -458,7 +458,7 @@ public class TestThreadContextImplementation extends TestCase {
       assertSame(t, e.getCause());
     }
 
-    m_dispatchContextStubFactory.assertException("report", new Class[0], t);
+    m_dispatchContextStubFactory.assertException("report", t);
     m_dispatchContextStubFactory.assertNoMoreCalls();
   }
 
