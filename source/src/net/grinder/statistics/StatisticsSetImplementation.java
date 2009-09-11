@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,9 +25,10 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
-import java.util.Iterator;
 
+import net.grinder.statistics.StatisticsIndexMap.DoubleIndex;
 import net.grinder.statistics.StatisticsIndexMap.DoubleSampleIndex;
+import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.statistics.StatisticsIndexMap.LongSampleIndex;
 import net.grinder.statistics.StatisticsIndexMap.SampleIndex;
 import net.grinder.util.Serialiser;
@@ -114,7 +115,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @return The value.
    */
-  public synchronized long getValue(StatisticsIndexMap.LongIndex index) {
+  public synchronized long getValue(LongIndex index) {
     return m_longData[index.getValue()];
   }
 
@@ -127,7 +128,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @return The value.
    */
-  public synchronized double getValue(StatisticsIndexMap.DoubleIndex index) {
+  public synchronized double getValue(DoubleIndex index) {
     return m_doubleData[index.getValue()];
   }
 
@@ -140,8 +141,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public synchronized void setValue(StatisticsIndexMap.LongIndex index,
-                                    long value) {
+  public synchronized void setValue(LongIndex index, long value) {
     m_longData[index.getValue()] = value;
     m_zero &= value == 0;
   }
@@ -155,8 +155,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public synchronized void setValue(StatisticsIndexMap.DoubleIndex index,
-                                    double value) {
+  public synchronized void setValue(DoubleIndex index, double value) {
     m_doubleData[index.getValue()] = value;
     m_zero &= value == 0;
   }
@@ -170,8 +169,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public synchronized void addValue(StatisticsIndexMap.LongIndex index,
-                                    long value) {
+  public synchronized void addValue(LongIndex index, long value) {
     m_longData[index.getValue()] += value;
     m_zero &= value == 0;
   }
@@ -185,8 +183,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public synchronized void addValue(StatisticsIndexMap.DoubleIndex index,
-                                    double value) {
+  public synchronized void addValue(DoubleIndex index, double value) {
 
     m_doubleData[index.getValue()] += value;
     m_zero &= value == 0;
@@ -377,17 +374,10 @@ final class StatisticsSetImplementation implements StatisticsSet {
 
     final boolean[] isVarianceIndex = new boolean[m_doubleData.length];
 
-    final Iterator longSampleIndexIterator =
-      m_statisticsIndexMap.getLongSampleIndicies().iterator();
-
-    while (longSampleIndexIterator.hasNext()) {
-      final StatisticsIndexMap.LongSampleIndex index =
-        (StatisticsIndexMap.LongSampleIndex)longSampleIndexIterator.next();
-
-      final StatisticsIndexMap.LongIndex sumIndex = index.getSumIndex();
-      final StatisticsIndexMap.LongIndex countIndex = index.getCountIndex();
-      final StatisticsIndexMap.DoubleIndex varianceIndex =
-        index.getVarianceIndex();
+    for (LongSampleIndex index: m_statisticsIndexMap.getLongSampleIndicies()) {
+      final LongIndex sumIndex = index.getSumIndex();
+      final LongIndex countIndex = index.getCountIndex();
+      final DoubleIndex varianceIndex = index.getVarianceIndex();
 
       setValue(varianceIndex,
         calculateVariance(getValue(sumIndex),
@@ -400,17 +390,12 @@ final class StatisticsSetImplementation implements StatisticsSet {
       isVarianceIndex[varianceIndex.getValue()] = true;
     }
 
-    final Iterator doubleSampleIndexIterator =
-      m_statisticsIndexMap.getDoubleSampleIndicies().iterator();
+    for (DoubleSampleIndex index :
+         m_statisticsIndexMap.getDoubleSampleIndicies()) {
 
-    while (doubleSampleIndexIterator.hasNext()) {
-      final StatisticsIndexMap.DoubleSampleIndex index =
-        (StatisticsIndexMap.DoubleSampleIndex)doubleSampleIndexIterator.next();
-
-      final StatisticsIndexMap.DoubleIndex sumIndex = index.getSumIndex();
-      final StatisticsIndexMap.LongIndex countIndex = index.getCountIndex();
-      final StatisticsIndexMap.DoubleIndex varianceIndex =
-        index.getVarianceIndex();
+      final DoubleIndex sumIndex = index.getSumIndex();
+      final LongIndex countIndex = index.getCountIndex();
+      final DoubleIndex varianceIndex = index.getVarianceIndex();
 
       setValue(varianceIndex,
                calculateVariance(getValue(sumIndex),

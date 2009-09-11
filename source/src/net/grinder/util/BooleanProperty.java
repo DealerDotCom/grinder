@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,7 +38,7 @@ import net.grinder.common.GrinderException;
  */
 public final class BooleanProperty {
   private final Object m_bean;
-  private final Class m_beanClass;
+  private final Class<?> m_beanClass;
   private final PropertyDescriptor m_propertyDescriptor;
 
   /**
@@ -64,7 +64,7 @@ public final class BooleanProperty {
         m_beanClass + "'", e);
     }
 
-    final Class propertyType = m_propertyDescriptor.getPropertyType();
+    final Class<?> propertyType = m_propertyDescriptor.getPropertyType();
 
     if (!propertyType.equals(Boolean.TYPE) &&
         !propertyType.equals(Boolean.class)) {

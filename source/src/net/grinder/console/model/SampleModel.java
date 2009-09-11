@@ -138,7 +138,7 @@ public interface SampleModel {
    *
    * @param tests The new tests.
    */
-  void registerTests(Collection tests);
+  void registerTests(Collection<Test> tests);
 
   /**
    * Add a new test report.
@@ -168,7 +168,7 @@ public interface SampleModel {
      * @param newTests The new tests.
      * @param modelTestIndex New index structure for the model's tests.
      */
-    void newTests(Set newTests, ModelTestIndex modelTestIndex);
+    void newTests(Set<Test> newTests, ModelTestIndex modelTestIndex);
 
     /**
      * Called when existing tests and statistics views should be
@@ -184,7 +184,7 @@ public interface SampleModel {
 
     public void newSample() { }
 
-    public void newTests(Set newTests, ModelTestIndex modelTestIndex) { }
+    public void newTests(Set<Test> newTests, ModelTestIndex modelTestIndex) { }
 
     public void resetTests() { }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -325,7 +325,8 @@ final class MnemonicHeuristics {
   }
 
   private static class MnemonicMap {
-    private final Map m_map = new HashMap();
+    private final Map<Integer, ButtonWrapper> m_map =
+      new HashMap<Integer, ButtonWrapper>();
 
     public void add(int mnemonic, AbstractButton button) {
       m_map.put(new Integer(mnemonic), new ButtonWrapper(button, false));
@@ -336,8 +337,7 @@ final class MnemonicHeuristics {
     }
 
     public AbstractButton getExplicit(int mnemonic) {
-      final ButtonWrapper wrapper =
-        (ButtonWrapper)m_map.get(new Integer(mnemonic));
+      final ButtonWrapper wrapper = m_map.get(mnemonic);
 
       if (wrapper != null && wrapper.isExplicit()) {
         return wrapper.getButton();
@@ -347,8 +347,7 @@ final class MnemonicHeuristics {
     }
 
     public AbstractButton remove(int mnemonic) {
-      final ButtonWrapper wrapper =
-        (ButtonWrapper)m_map.remove(new Integer(mnemonic));
+      final ButtonWrapper wrapper = m_map.remove(mnemonic);
 
       return wrapper != null ? wrapper.getButton() : null;
     }
@@ -358,8 +357,7 @@ final class MnemonicHeuristics {
      * for a particular button.
      */
     public AbstractButton remove(int mnemonic, AbstractButton button) {
-      final ButtonWrapper wrapper =
-        (ButtonWrapper)m_map.get(new Integer(mnemonic));
+      final ButtonWrapper wrapper = m_map.get(mnemonic);
 
       if (wrapper != null && wrapper.getButton() == button) {
         return remove(mnemonic);

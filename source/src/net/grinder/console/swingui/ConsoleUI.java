@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,7 +43,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -581,12 +581,10 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
     public void populate(String key) {
       final String tokens = m_resources.getString(key);
-      final Iterator iterator =
-        Collections.list(new StringTokenizer(tokens)).iterator();
+      final List<Object> tokenList =
+        Collections.list(new StringTokenizer(tokens));
 
-      while (iterator.hasNext()) {
-        final String itemKey = (String)iterator.next();
-
+      for (Object itemKey : tokenList) {
         if ("-".equals(itemKey)) {
           dash();
         }
@@ -594,7 +592,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
           greaterThan();
         }
         else {
-          token(itemKey);
+          token((String)itemKey);
         }
       }
     }
@@ -739,14 +737,15 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
   }
 
   private static class ActionTable {
-    private final Map m_map = new HashMap();
+    private final Map<String, CustomAction> m_map =
+      new HashMap<String, CustomAction>();
 
     public void add(CustomAction action) {
       m_map.put(action.getKey(), action);
     }
 
     public void setAction(AbstractButton button, String actionKey) {
-      final CustomAction action = (CustomAction)m_map.get(actionKey);
+      final CustomAction action = m_map.get(actionKey);
 
       if (action != null) {
         button.setAction(action);
@@ -1087,7 +1086,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
         final Buffer oldBuffer = m_editorModel.getBufferForFile(file);
 
         if (oldBuffer != null) {
-          final ArrayList messages = new ArrayList();
+          final List<String> messages = new ArrayList<String>();
           messages.add(
             m_resources.getString("ignoreExistingBufferConfirmation.text"));
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -51,28 +51,31 @@ final class BufferImplementation implements Buffer {
 
   // Common file types we're likely to work with. Definition must come
   // after type constants are initialised.
-  private static final Map s_extensionMap = new HashMap() { {
-      put("bash", SHELL_BUFFER);
-      put("bat", MSDOS_BATCH_BUFFER);
-      put("cmd", MSDOS_BATCH_BUFFER);
-      put("csh", SHELL_BUFFER);
-      put("htm", HTML_BUFFER);
-      put("html", HTML_BUFFER);
-      put("java", JAVA_BUFFER);
-      put("ksh", SHELL_BUFFER);
-      put("properties", PROPERTIES_BUFFER);
-      put("py", PYTHON_BUFFER);
-      put("sh", SHELL_BUFFER);
-      put("text", TEXT_BUFFER);
-      put("txt", TEXT_BUFFER);
-      put("xml", XML_BUFFER);
-    }
-  };
+  private static final Map<String, Type>
+    s_extensionMap =
+      new HashMap<String, Type>() { {
+        put("bash", SHELL_BUFFER);
+        put("bat", MSDOS_BATCH_BUFFER);
+        put("cmd", MSDOS_BATCH_BUFFER);
+        put("csh", SHELL_BUFFER);
+        put("htm", HTML_BUFFER);
+        put("html", HTML_BUFFER);
+        put("java", JAVA_BUFFER);
+        put("ksh", SHELL_BUFFER);
+        put("properties", PROPERTIES_BUFFER);
+        put("py", PYTHON_BUFFER);
+        put("sh", SHELL_BUFFER);
+        put("text", TEXT_BUFFER);
+        put("txt", TEXT_BUFFER);
+        put("xml", XML_BUFFER);
+      }
+    };
 
   private final Resources m_resources;
   private final TextSource m_textSource;
 
-  private final ListenerSupport m_listeners = new ListenerSupport();
+  private final ListenerSupport<Listener> m_listeners =
+    new ListenerSupport<Listener>();
 
   private String m_name;
   private File m_file;
@@ -224,10 +227,9 @@ final class BufferImplementation implements Buffer {
       m_lastModified = m_file.lastModified();
 
       m_listeners.apply(
-        new ListenerSupport.Informer() {
-          public void inform(Object listener) {
-            ((Listener)listener).bufferSaved(BufferImplementation.this,
-                                             oldFile);
+        new ListenerSupport.Informer<Listener>() {
+          public void inform(Listener l) {
+            l.bufferSaved(BufferImplementation.this, oldFile);
           }
         });
     }
@@ -295,8 +297,7 @@ final class BufferImplementation implements Buffer {
 
       if (lastDot >= 0) {
         final String extension = name.substring(lastDot + 1);
-        final TypeImplementation type =
-          (TypeImplementation)s_extensionMap.get(extension);
+        final Type type = s_extensionMap.get(extension);
 
         if (type != null) {
           return type;

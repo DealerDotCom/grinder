@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,7 +45,8 @@ public final class FileDistributionImplementation implements FileDistribution {
 
   private static final String PRIVATE_DIRECTORY_NAME = ".grinder";
 
-  private final ListenerSupport m_filesChangedListeners = new ListenerSupport();
+  private final ListenerSupport<FileChangedListener> m_filesChangedListeners =
+    new ListenerSupport<FileChangedListener>();
 
   private final DistributionControl m_distributionControl;
   private final UpdateableAgentCacheState m_cacheState;
@@ -209,7 +210,7 @@ public final class FileDistributionImplementation implements FileDistribution {
         true);
 
     if (laterFiles.length > 0) {
-      final Set changedFiles = new HashSet(laterFiles.length / 2);
+      final Set<File> changedFiles = new HashSet<File>(laterFiles.length / 2);
 
       for (int i = 0; i < laterFiles.length; ++i) {
         final File laterFile = laterFiles[i];
@@ -231,12 +232,12 @@ public final class FileDistributionImplementation implements FileDistribution {
       }
 
       final File[] changedFilesArray =
-        (File[])changedFiles.toArray(new File[changedFiles.size()]);
+        changedFiles.toArray(new File[changedFiles.size()]);
 
       m_filesChangedListeners.apply(
-        new Informer() {
-          public void inform(Object listener) {
-            ((FileChangedListener)listener).filesChanged(changedFilesArray);
+        new Informer<FileChangedListener>() {
+          public void inform(FileChangedListener l) {
+            l.filesChanged(changedFilesArray);
           }
         });
     }

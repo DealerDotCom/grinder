@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,7 +37,8 @@ public abstract class AbstractTextSource implements TextSource {
   /** We are born into this world dirty. */
   private boolean m_dirty = true;
 
-  private final ListenerSupport m_listeners = new ListenerSupport();
+  private final ListenerSupport<Listener> m_listeners =
+    new ListenerSupport<Listener>();
 
   /**
    * Return whether the text has changed since the last call to {@link
@@ -84,10 +85,8 @@ public abstract class AbstractTextSource implements TextSource {
 
   private void fireTextSourceChanged(final boolean firstEdit) {
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).textSourceChanged(firstEdit);
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.textSourceChanged(firstEdit); }
       });
   }
 }

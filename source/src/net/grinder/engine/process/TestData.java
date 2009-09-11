@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -107,8 +107,10 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
    * thread that has ever used this test.
    */
   private final class DispatcherHolderThreadLocal {
-    private final ThreadLocal m_threadLocal = new ThreadLocal() {
-      public Object initialValue() {
+    private final ThreadLocal<DispatcherHolder> m_threadLocal =
+      new ThreadLocal<DispatcherHolder>() {
+
+      public DispatcherHolder initialValue() {
         final ThreadContext threadContext = m_threadContextLocator.get();
 
         if (threadContext == null) {
@@ -125,7 +127,7 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
 
     public DispatcherHolder getDispatcherHolder() throws EngineException {
       try {
-        return (DispatcherHolder)m_threadLocal.get();
+        return m_threadLocal.get();
       }
       catch (UncheckedException e) {
         throw new EngineException(e.getMessage());

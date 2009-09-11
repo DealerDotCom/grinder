@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,7 +28,6 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
@@ -134,7 +133,7 @@ public final class ConsoleProperties {
   private final PropertyChangeSupport m_changeSupport =
     new PropertyChangeSupport(this);
 
-  private final List m_propertyList = new ArrayList();
+  private final List<Property> m_propertyList = new ArrayList<Property>();
 
   private final IntProperty m_collectSampleCount =
     new IntProperty(COLLECT_SAMPLES_PROPERTY, 0);
@@ -229,10 +228,8 @@ public final class ConsoleProperties {
         m_resources, "couldNotLoadOptionsError.text", e);
     }
 
-    final Iterator propertyIterator = m_propertyList.iterator();
-
-    while (propertyIterator.hasNext()) {
-      ((Property)propertyIterator.next()).setFromProperties();
+    for (Property property : m_propertyList) {
+      property.setFromProperties();
     }
   }
 
@@ -307,10 +304,8 @@ public final class ConsoleProperties {
    * @throws ConsoleException If an error occurs.
    */
   public void save() throws ConsoleException {
-    final Iterator propertyIterator = m_propertyList.iterator();
-
-    while (propertyIterator.hasNext()) {
-      ((Property)propertyIterator.next()).setToProperties();
+    for (Property property : m_propertyList) {
+      property.setToProperties();
     }
 
     try {

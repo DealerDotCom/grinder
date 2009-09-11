@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,7 +55,7 @@ public final class Console extends AbstractMainClass {
 
     super(logger, USAGE);
 
-    Class ui = ConsoleUI.class;
+    Class<?> ui = ConsoleUI.class;
 
     for (int i = 0; i < args.length; i++) {
       if (args[i].equalsIgnoreCase("-headless")) {

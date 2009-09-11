@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -249,16 +249,14 @@ public final class JythonScriptEngine implements ScriptEngine {
       else if (o == null) {
         throw new NotWrappableTypeException("Can't wrap null/None");
       }
-      else if (o instanceof Class) {
-        return new InstrumentedPyJavaClass(test, (Class)o, pyDispatcher);
+      else if (o instanceof Class<?>) {
+        return new InstrumentedPyJavaClass(test, (Class<?>)o, pyDispatcher);
       }
       else {
         // Java object.
 
-        final Class c = o.getClass();
-
         // NB Jython uses Java types for some primitives and strings.
-        if (!c.isArray() &&
+        if (!o.getClass().isArray() &&
             !(o instanceof Number) &&
             !(o instanceof String)) {
           return new InstrumentedPyJavaInstanceForJavaInstances(

@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -62,7 +62,7 @@ class ExternalEditor {
 
 
   String[] fileToCommandLine(File file) {
-    final List result = new ArrayList();
+    final List<String> result = new ArrayList<String>();
     result.add(m_command.getAbsolutePath());
 
     boolean fileTemplateFound = false;
@@ -84,7 +84,7 @@ class ExternalEditor {
       result.add(file.getAbsolutePath());
     }
 
-    return (String[]) result.toArray(new String[result.size()]);
+    return result.toArray(new String[result.size()]);
   }
 
   public void open(final File file) throws IOException {

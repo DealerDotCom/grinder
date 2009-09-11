@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,7 +47,7 @@ public interface MessageDispatchRegistry {
    * @return The previous message handler registered for
    *         <code>messageType</code> or <code>null</code>.
    */
-  Sender set(Class messageType, Sender messageHandler);
+  Sender set(Class<? extends Message> messageType, Sender messageHandler);
 
   /**
    * Register a message responder.
@@ -58,7 +58,8 @@ public interface MessageDispatchRegistry {
    * @return The previous message handler registered for
    *         <code>messageType</code> or <code>null</code>.
    */
-  BlockingSender set(Class messageType, BlockingSender messageResponder);
+  BlockingSender set(Class<? extends Message> messageType,
+                     BlockingSender messageResponder);
 
   /**
    * Register a message handler that is called if no other handler or responder

@@ -96,13 +96,13 @@ final class WorkerProcessCommandLine {
     return m_command;
   }
 
-  private static final Set s_unquoted = new HashSet() { {
-    add("-classpath");
-    add("-client");
-    add("-cp");
-    add("-jar");
-    add("-server");
-  } };
+  private static final Set<String> s_unquoted = new HashSet<String>() { {
+      add("-classpath");
+      add("-client");
+      add("-cp");
+      add("-jar");
+      add("-server");
+    } };
 
   public String toString() {
     final String[] commandArray = getCommandList().toArray(new String[0]);

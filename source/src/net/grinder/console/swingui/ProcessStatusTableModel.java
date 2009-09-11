@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -38,6 +38,7 @@ import net.grinder.console.common.ProcessReportDescriptionFactory;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
 import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.ProcessControl.ProcessReports;
 
 
 /**
@@ -56,10 +57,10 @@ class ProcessStatusTableModel
   private static final int TYPE_COLUMN_INDEX = 1;
   private static final int STATE_COLUMN_INDEX = 2;
 
-  private final Comparator m_processReportComparator =
+  private final Comparator<ProcessReport> m_processReportComparator =
     new ProcessReport.StateThenNameThenNumberComparator();
 
-  private final Comparator m_processReportsComparator =
+  private final Comparator<ProcessReports> m_processReportsComparator =
     new ProcessControl.ProcessReportsComparator();
 
   private final ProcessReportDescriptionFactory m_descriptionFactory;
@@ -94,7 +95,7 @@ class ProcessStatusTableModel
       (ProcessControl.Listener)swingDispatcherFactory.create(
         new ProcessControl.Listener() {
           public void update(ProcessControl.ProcessReports[] processReports) {
-            final List rows = new ArrayList();
+            final List<Row> rows = new ArrayList<Row>();
             int runningThreads = 0;
             int totalThreads = 0;
             int workerProcesses = 0;
@@ -130,7 +131,7 @@ class ProcessStatusTableModel
             rows.add(
               new TotalRow(runningThreads, totalThreads, workerProcesses));
 
-            m_data = (Row[])rows.toArray(new Row[rows.size()]);
+            m_data = rows.toArray(new Row[rows.size()]);
 
             fireTableDataChanged();
           }

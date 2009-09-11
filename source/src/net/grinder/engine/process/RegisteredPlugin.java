@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,7 +46,8 @@ final class RegisteredPlugin implements PluginProcessContext {
   private final ScriptContext m_scriptContext;
   private final ThreadContextLocator m_threadContextLocator;
   private final StatisticsServices m_statisticsServices;
-  private final ThreadLocal m_threadListenerThreadLocal = new ThreadLocal();
+  private final ThreadLocal<PluginThreadListener> m_threadListenerThreadLocal =
+    new ThreadLocal<PluginThreadListener>();
   private final TimeAuthority m_timeAuthority;
 
   public RegisteredPlugin(GrinderPlugin plugin, ScriptContext scriptContext,
@@ -80,7 +81,7 @@ final class RegisteredPlugin implements PluginProcessContext {
     throws EngineException {
 
     final PluginThreadListener existingPluginThreadListener =
-      (PluginThreadListener)m_threadListenerThreadLocal.get();
+      m_threadListenerThreadLocal.get();
 
     if (existingPluginThreadListener != null) {
       return existingPluginThreadListener;

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -51,13 +51,12 @@ final class SocketWrapper implements ResourcePool.Resource {
   private final InputStream m_inputStream;
   private final OutputStream m_outputStream;
 
-  private final ListenerSupport m_closedListeners = new ListenerSupport();
+  private final ListenerSupport<ClosedListener> m_closedListeners =
+    new ListenerSupport<ClosedListener>();
 
-  private final ListenerSupport.Informer m_closedInformer =
-    new ListenerSupport.Informer() {
-      public void inform(Object listener) {
-        ((ClosedListener)listener).socketClosed();
-      }
+  private final ListenerSupport.Informer<ClosedListener> m_closedInformer =
+    new ListenerSupport.Informer<ClosedListener>() {
+      public void inform(ClosedListener l) { l.socketClosed(); }
     };
 
   private Address m_address;

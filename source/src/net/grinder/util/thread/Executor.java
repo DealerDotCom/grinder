@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,7 +33,7 @@ import net.grinder.common.UncheckedInterruptedException;
  */
 public final class Executor {
 
-  private final ThreadSafeQueue m_workQueue;
+  private final ThreadSafeQueue<InterruptibleRunnable> m_workQueue;
   private final ThreadPool m_threadPool;
 
   /**
@@ -43,7 +43,7 @@ public final class Executor {
    */
   public Executor(int numberOfThreads) {
 
-    this(new ThreadSafeQueue(), numberOfThreads);
+    this(new ThreadSafeQueue<InterruptibleRunnable>(), numberOfThreads);
   }
 
   /**
@@ -53,7 +53,8 @@ public final class Executor {
    * @param workQueue Queue to use.
    * @param numberOfThreads Number of worker threads to use.
    */
-  Executor(ThreadSafeQueue workQueue, int numberOfThreads) {
+  Executor(ThreadSafeQueue<InterruptibleRunnable> workQueue,
+           int numberOfThreads) {
 
     m_workQueue = workQueue;
 
@@ -117,7 +118,7 @@ public final class Executor {
         final InterruptibleRunnable runnable;
 
         try {
-          runnable = (InterruptibleRunnable)m_workQueue.dequeue(true);
+          runnable = m_workQueue.dequeue(true);
         }
         catch (ThreadSafeQueue.ShutdownException e) {
           // We've been shut down, exit the thread cleanly.

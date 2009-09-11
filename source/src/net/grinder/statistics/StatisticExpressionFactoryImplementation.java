@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -570,14 +570,14 @@ final class StatisticExpressionFactoryImplementation
 
   private StatisticExpression[] readOperands(ParseContext parseContext)
     throws ParseContext.ParseException {
-    final List arrayList = new ArrayList();
+    final List<StatisticExpression> arrayList =
+      new ArrayList<StatisticExpression>();
 
     while (parseContext.peekCharacter() != ')') {
       arrayList.add(readExpression(parseContext));
     }
 
-    return (StatisticExpression[])
-      arrayList.toArray(new StatisticExpression[arrayList.size()]);
+    return arrayList.toArray(new StatisticExpression[arrayList.size()]);
   }
 
   private abstract static class DoubleStatistic

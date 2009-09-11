@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,6 @@ package net.grinder.plugin.http;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -55,7 +54,8 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
   private final AttributeStringParser m_attributeStringParser =
     new AttributeStringParserImplementation();
 
-  private final ThreadLocal m_parsedBodyThreadLocal = new ThreadLocal();
+  private final ThreadLocal<ParsedBody> m_parsedBodyThreadLocal =
+    new ThreadLocal<ParsedBody>();
   private final NameValue[] m_emptyNameValues = new NameValue[0];
 
   private final PluginProcessContext m_processContext;
@@ -157,7 +157,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
   }
 
   private ParsedBody getParsedBody(HTTPResponse response) {
-    final ParsedBody original = (ParsedBody) m_parsedBodyThreadLocal.get();
+    final ParsedBody original = m_parsedBodyThreadLocal.get();
 
     if (original != null && original.isValidForResponse(response)) {
       return original;
@@ -248,19 +248,15 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
   }
 
   private static class CachedValueList {
-    private final List m_valuesByPosition = new ArrayList();
+    private final List<PositionAndValue> m_valuesByPosition =
+      new ArrayList<PositionAndValue>();
 
     public void addValue(int position, String value) {
       m_valuesByPosition.add(new PositionAndValue(position, value));
     }
 
     public String getValue(int startFrom) {
-      final Iterator iterator = m_valuesByPosition.iterator();
-
-      while (iterator.hasNext()) {
-        final PositionAndValue positionAndValue =
-          (PositionAndValue)iterator.next();
-
+      for (PositionAndValue positionAndValue : m_valuesByPosition) {
         if (positionAndValue.getPosition() >= startFrom) {
           return positionAndValue.getValue();
         }
@@ -293,10 +289,11 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
   }
 
   private static class CachedValueMap {
-    private final Map m_map = new HashMap();
+    private final Map<String, CachedValueList> m_map =
+      new HashMap<String, CachedValueList>();
 
     public CachedValueList get(String tokenName) {
-      final CachedValueList existing = (CachedValueList) m_map.get(tokenName);
+      final CachedValueList existing = m_map.get(tokenName);
 
       if (existing != null) {
         return existing;
@@ -394,7 +391,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     }
 
     protected NameValue[] parseMatch() {
-      final List result = new ArrayList();
+      final List<NameValue> result = new ArrayList<NameValue>();
 
       final String uri = getMatcher().group(1);
 
@@ -410,7 +407,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
         }
       });
 
-      return (NameValue[]) result.toArray(new NameValue[result.size()]);
+      return result.toArray(new NameValue[result.size()]);
     }
   }
 }

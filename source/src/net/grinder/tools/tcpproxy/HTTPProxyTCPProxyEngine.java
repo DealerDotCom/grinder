@@ -35,7 +35,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -417,7 +416,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     private final InputStream m_in;
     private final Socket m_localSocket;
     private final EndPoint m_clientEndPoint;
-    private final Map m_remoteStreamMap = new HashMap();
+    private final Map<String, OutputStreamFilterTee> m_remoteStreamMap =
+      new HashMap<String, OutputStreamFilterTee>();
     private OutputStreamFilterTee m_lastRemoteStream;
 
     HTTPProxyStreamDemultiplexer(InputStream in, Socket localSocket,
@@ -469,8 +469,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
             final String key = remoteEndPoint.toString();
 
-            m_lastRemoteStream =
-              (OutputStreamFilterTee) m_remoteStreamMap.get(key);
+            m_lastRemoteStream = m_remoteStreamMap.get(key);
 
             if (m_lastRemoteStream == null) {
 
@@ -557,10 +556,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         // When exiting, close all our outgoing streams. This will
         // force all the FilteredStreamThreads we've launched to
         // handle the paired streams to shut down.
-        final Iterator iterator = m_remoteStreamMap.values().iterator();
-
-        while (iterator.hasNext()) {
-          ((OutputStreamFilterTee)iterator.next()).connectionClosed();
+        for (OutputStreamFilterTee s : m_remoteStreamMap.values()) {
+          s.connectionClosed();
         }
 
         // We may not have any FilteredStreamThreads, so ensure the

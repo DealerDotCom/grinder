@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,7 +42,8 @@ import net.grinder.util.SignificantFigureFormat;
  */
 public class SampleModelViewsImplementation implements SampleModelViews {
 
-  private final ListenerSupport m_listeners = new ListenerSupport();
+  private final ListenerSupport<Listener> m_listeners =
+    new ListenerSupport<Listener>();
   private final StatisticsServices m_statisticsServices;
   private final ExpressionView m_peakTPSExpressionView;
 
@@ -111,10 +112,8 @@ public class SampleModelViewsImplementation implements SampleModelViews {
     m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).resetStatisticsViews();
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.resetStatisticsViews(); }
       });
   }
 
@@ -142,11 +141,9 @@ public class SampleModelViewsImplementation implements SampleModelViews {
     m_cumulativeStatisticsView.add(statisticExpression);
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          final Listener modelListener = (Listener)listener;
-
-          modelListener.newStatisticExpression(statisticExpression);
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) {
+          l.newStatisticExpression(statisticExpression);
         }
       });
   }

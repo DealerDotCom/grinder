@@ -24,8 +24,10 @@ package net.grinder.statistics;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import net.grinder.common.AbstractTestSemantics;
 import net.grinder.common.Test;
@@ -54,7 +56,8 @@ public final class TestStatisticsMap implements java.io.Externalizable {
    * Use a TreeMap so we store in test number order. Synchronise on
    * this TestStatisticsMap before accessing.
    */
-  private final Map m_data = new TreeMap();
+  private final Map<Test, StatisticsSet> m_data =
+    new TreeMap<Test, StatisticsSet>();
 
   /**
    * Creates a new <code>TestStatisticsMap</code> instance.
@@ -111,30 +114,24 @@ public final class TestStatisticsMap implements java.io.Externalizable {
    * @param other The other <code>TestStatisticsMap</code>.
    */
   public void add(TestStatisticsMap other) {
-    // Use an Iterator rather than ForEach as its important to be clear
-    // about this versus the other.
     synchronized (other) {
-      final Iterator otherIterator = other.new Iterator();
-
-      while (otherIterator.hasNext()) {
-        final Pair othersPair = otherIterator.next();
-
+      for (Entry<Test, StatisticsSet> othersEntry : other.m_data.entrySet()) {
         final StatisticsSet statistics;
 
         synchronized (this) {
           final StatisticsSet existingStatistics =
-            (StatisticsSet)m_data.get(othersPair.getTest());
+            m_data.get(othersEntry.getKey());
 
           if (existingStatistics == null) {
             statistics = m_statisticsSetFactory.create();
-            put(othersPair.getTest(), statistics);
+            put(othersEntry.getKey(), statistics);
           }
           else {
             statistics = existingStatistics;
           }
         }
 
-        statistics.add(othersPair.getStatistics());
+        statistics.add(othersEntry.getValue());
       }
     }
   }
@@ -229,15 +226,17 @@ public final class TestStatisticsMap implements java.io.Externalizable {
       return false;
     }
 
-    final Iterator iterator = new Iterator();
-    final Iterator otherIterator = otherMap.new Iterator();
+    final Iterator<Entry<Test, StatisticsSet>> iterator =
+      m_data.entrySet().iterator();
+    final Iterator<Entry<Test, StatisticsSet>> otherIterator =
+      otherMap.m_data.entrySet().iterator();
 
     while (iterator.hasNext()) {
-      final Pair pair = iterator.next();
-      final Pair otherPair = otherIterator.next();
+      final Entry<Test, StatisticsSet> entry = iterator.next();
+      final Entry<Test, StatisticsSet> otherEntry = otherIterator.next();
 
-      if (!pair.getTest().equals(otherPair.getTest()) ||
-          !pair.getStatistics().equals(otherPair.getStatistics())) {
+      if (!entry.getKey().equals(otherEntry.getKey()) ||
+          !entry.getValue().equals(otherEntry.getValue())) {
         return false;
       }
     }
@@ -295,17 +294,13 @@ public final class TestStatisticsMap implements java.io.Externalizable {
     synchronized (this) {
       out.writeInt(m_data.size());
 
-      final Iterator iterator = new Iterator();
-
-      while (iterator.hasNext()) {
-        final Pair pair = iterator.next();
-
-        out.writeInt(pair.getTest().getNumber());
+      for (Entry<Test, StatisticsSet> entry : m_data.entrySet()) {
+        out.writeInt(entry.getKey().getNumber());
 
         // Its a class invariant that our StatisticsSets are all
         // StatisticsSetImplementations.
         m_statisticsSetFactory.writeStatisticsExternal(
-          out, (StatisticsSetImplementation)pair.getStatistics());
+          out, (StatisticsSetImplementation)entry.getValue());
       }
     }
   }
@@ -349,86 +344,7 @@ public final class TestStatisticsMap implements java.io.Externalizable {
   }
 
   /**
-   * A type safe iterator. Should synchronise on the
-   * <code>TestStatisticsMap</code> around use.
-   *
-   * <p>
-   * See the simpler {@link TestStatisticsMap.ForEach} for cases where you
-   * don't need control over advancing the iterator or to propagate exceptions
-   * from the code that handles each item.
-   * </p>
-   */
-  public final class Iterator {
-    private final java.util.Iterator m_iterator;
-
-    /**
-     * Creates a new <code>Iterator</code> instance.
-     */
-    public Iterator() {
-      m_iterator = m_data.entrySet().iterator();
-    }
-
-    /**
-     * Check whether we are at the end of the {@link
-     * TestStatisticsMap}.
-     *
-     * @return <code>true</code> if there is a next {@link
-     * TestStatisticsMap.Pair}.
-     */
-    public boolean hasNext() {
-      return m_iterator.hasNext();
-    }
-
-    /**
-     * Get the next {@link TestStatisticsMap.Pair} from the {@link
-     * TestStatisticsMap}.
-     *
-     * @return The next {@link TestStatisticsMap.Pair}.
-     * @throws java.util.NoSuchElementException If there is no next element.
-     */
-    public Pair next() {
-      final Map.Entry entry = (Map.Entry)m_iterator.next();
-      final Test test = (Test)entry.getKey();
-      final StatisticsSet statistics = (StatisticsSet)entry.getValue();
-
-      return new Pair(test, statistics);
-    }
-  }
-
-  /**
-   * A type safe pair of a {@link net.grinder.common.Test} and a
-   * {@link StatisticsSet}.
-   */
-  public static final class Pair {
-    private final Test m_test;
-    private final StatisticsSet m_statistics;
-
-    private Pair(Test test, StatisticsSet statistics) {
-      m_test = test;
-      m_statistics = statistics;
-    }
-
-    /**
-     * Get the {@link net.grinder.common.Test}.
-     *
-     * @return  The {@link net.grinder.common.Test}.
-     */
-    public Test getTest() {
-      return m_test;
-    }
-
-    /**
-     * Get the {@link StatisticsSet}.
-     *
-     * @return The {@link StatisticsSet}.
-     */
-    public StatisticsSet getStatistics() {
-      return m_statistics;
-    }
-  }
-
-  /**
-   * Convenience visitor-like wrapper around an Iterator.
+   * Convenient visitor-like iteration.
    */
   public abstract class ForEach {
     /**
@@ -436,11 +352,8 @@ public final class TestStatisticsMap implements java.io.Externalizable {
      */
     public void iterate() {
       synchronized (TestStatisticsMap.this) {
-        final Iterator iterator = new Iterator();
-
-        while (iterator.hasNext()) {
-          final Pair pair = iterator.next();
-          next(pair.getTest(), pair.getStatistics());
+        for (Entry<Test, StatisticsSet> entry : m_data.entrySet()) {
+          next(entry.getKey(), entry.getValue());
         }
       }
     }

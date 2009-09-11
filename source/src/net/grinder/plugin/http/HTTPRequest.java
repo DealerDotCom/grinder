@@ -175,7 +175,7 @@ public class HTTPRequest {
 
     final NVPair[] result =
       new NVPair[defaultPairs.length + overridePairs.length];
-    final Set seen = new HashSet();
+    final Set<String> seen = new HashSet<String>();
 
     for (int i = 0; i < overridePairs.length; ++i) {
       result[i] = overridePairs[i];

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -64,7 +64,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   private final TCPProxySocketFactory m_socketFactory;
   private final ServerSocket m_serverSocket;
   // Guarded by m_streamThreads.
-  private final List m_streamThreads = new LinkedList();
+  private final List<StreamThread> m_streamThreads =
+    new LinkedList<StreamThread>();
   private final ThreadGroup m_streamThreadGroup =
     new ThreadGroup("TCPProxy Stream Handler");
 
@@ -136,7 +137,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     final StreamThread[] threads;
 
     synchronized (m_streamThreads) {
-      threads = (StreamThread[])
+      threads =
         m_streamThreads.toArray(new StreamThread[m_streamThreads.size()]);
     }
 
@@ -440,7 +441,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    */
   protected final String logIOException(IOException e) {
 
-    final Class c = e.getClass();
+    final Class<? extends IOException> c = e.getClass();
     final String message = e.getMessage();
     final String description;
 

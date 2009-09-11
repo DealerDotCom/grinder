@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -57,7 +57,7 @@ public class TestAbstractTestSemantics extends TestCase {
     final Test t4 = new Test() {
         public int getNumber() { return 1; }
         public String getDescription() { return null; }
-        public final int compareTo(Object o) { return 0; }
+        public final int compareTo(Test o) { return 0; }
       };
 
     assertEquals(t3, t3);

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -167,7 +167,7 @@ public final class ConsoleFoundation {
    *            {@link ConsoleFoundation.UI}.
    * @return An instance of the user interface class.
    */
-  public UI createUI(Class uiClass) {
+  public UI createUI(Class<?> uiClass) {
     m_container.registerComponentImplementation(uiClass);
 
     final UI ui = (UI) m_container.getComponentInstanceOfType(uiClass);

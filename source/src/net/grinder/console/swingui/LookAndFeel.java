@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,8 +26,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.EventListener;
-import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -43,7 +43,7 @@ import net.grinder.console.model.ConsoleProperties;
  */
 final class LookAndFeel {
 
-  private final List m_listeners = new ArrayList();
+  private final List<Listener> m_listeners = new ArrayList<Listener>();
 
   private final UIManager.LookAndFeelInfo[] m_installedLookAndFeels =
     UIManager.getInstalledLookAndFeels();
@@ -97,10 +97,7 @@ final class LookAndFeel {
     }
 
     synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
-
-      while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
+      for (Listener listener : m_listeners) {
         listener.lookAndFeelChanged();
       }
     }

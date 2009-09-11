@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,12 +21,11 @@
 
 package net.grinder.communication;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import net.grinder.common.UncheckedInterruptedException;
@@ -46,7 +45,7 @@ import net.grinder.util.thread.ThreadSafeQueue.ShutdownException;
 public final class ServerReceiver implements Receiver {
 
   private final MessageQueue m_messageQueue = new MessageQueue(true);
-  private final List m_threadPools = new ArrayList();
+  private final List<ThreadPool> m_threadPools = new ArrayList<ThreadPool>();
 
   /**
    * Registers a new {@link Acceptor} from which the <code>ServerReceiver</code>
@@ -152,10 +151,8 @@ public final class ServerReceiver implements Receiver {
 
     m_messageQueue.shutdown();
 
-    final Iterator iterator = m_threadPools.iterator();
-
-    while (iterator.hasNext()) {
-      ((ThreadPool)iterator.next()).stop();
+    for (ThreadPool threadPool : m_threadPools) {
+      threadPool.stop();
     }
   }
 
@@ -167,10 +164,8 @@ public final class ServerReceiver implements Receiver {
   synchronized int getActveThreadCount() {
     int result = 0;
 
-    final Iterator iterator = m_threadPools.iterator();
-
-    while (iterator.hasNext()) {
-      result += ((ThreadPool)iterator.next()).getThreadGroup().activeCount();
+    for (ThreadPool threadPool : m_threadPools) {
+      result += threadPool.getThreadGroup().activeCount();
     }
 
     return result;

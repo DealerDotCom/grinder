@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
 // All rights reserved.
@@ -62,10 +62,14 @@ public final class StatisticsIndexMap implements Serializable {
 
   private static final long serialVersionUID = 1;
 
-  private final Map m_doubleMap = new HashMap();
-  private final Map m_longMap = new HashMap();
-  private final Map m_doubleSampleMap = new HashMap();
-  private final Map m_longSampleMap = new HashMap();
+  private final Map<String, DoubleIndex> m_doubleMap =
+    new HashMap<String, DoubleIndex>();
+  private final Map<String, LongIndex> m_longMap =
+    new HashMap<String, LongIndex>();
+  private final Map<String, DoubleSampleIndex> m_doubleSampleMap =
+    new HashMap<String, DoubleSampleIndex>();
+  private final Map<String, LongSampleIndex> m_longSampleMap =
+    new HashMap<String, LongSampleIndex>();
 
   // These are bigger than m_doubleMap.size() and m_longMap.size()
   // as the sample indicies also use slots.
@@ -169,11 +173,11 @@ public final class StatisticsIndexMap implements Serializable {
     return m_numberOfLongs;
   }
 
-  Collection getDoubleSampleIndicies() {
+  Collection<DoubleSampleIndex> getDoubleSampleIndicies() {
     return m_doubleSampleMap.values();
   }
 
-  Collection getLongSampleIndicies() {
+  Collection<LongSampleIndex> getLongSampleIndicies() {
     return m_longSampleMap.values();
   }
 
@@ -185,7 +189,7 @@ public final class StatisticsIndexMap implements Serializable {
    * double statistic.
    */
   public DoubleIndex getDoubleIndex(String statisticName) {
-    return (DoubleIndex)m_doubleMap.get(statisticName);
+    return m_doubleMap.get(statisticName);
   }
 
   /**
@@ -196,7 +200,7 @@ public final class StatisticsIndexMap implements Serializable {
    * long statistic.
    */
   public LongIndex getLongIndex(String statisticName) {
-    return (LongIndex)m_longMap.get(statisticName);
+    return m_longMap.get(statisticName);
   }
 
   /**
@@ -207,7 +211,7 @@ public final class StatisticsIndexMap implements Serializable {
    * double sample statistic.
    */
   public DoubleSampleIndex getDoubleSampleIndex(String statisticName) {
-    return (DoubleSampleIndex)m_doubleSampleMap.get(statisticName);
+    return m_doubleSampleMap.get(statisticName);
   }
 
   /**
@@ -218,7 +222,7 @@ public final class StatisticsIndexMap implements Serializable {
    * long sample statistic.
    */
   public LongSampleIndex getLongSampleIndex(String statisticName) {
-    return (LongSampleIndex)m_longSampleMap.get(statisticName);
+    return m_longSampleMap.get(statisticName);
   }
 
   /**

@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
@@ -48,6 +48,7 @@ import net.grinder.plugin.http.xml.ResponseType;
 import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
 import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.plugin.http.xml.TokenResponseLocationType;
+import net.grinder.plugin.http.xml.RequestType.Method.Enum;
 import net.grinder.tools.tcpproxy.CommentSource;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.util.AttributeStringParser;
@@ -72,29 +73,31 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
   /**
    * Headers which we record.
    */
-  private static final Set MIRRORED_HEADERS = new HashSet(Arrays.asList(
-    new String[] {
-      "Accept",
-      "Accept-Charset",
-      "Accept-Encoding",
-      "Accept-Language",
-      "Cache-Control",
-      "Content-Type",
-      "Content-type", // Common misspelling.
-      "If-Modified-Since",
-      "If-None-Match",
-      "Referer", // Deliberate misspelling to match specification.
-      "User-Agent",
-    }
-  ));
+  private static final Set<String> MIRRORED_HEADERS = new HashSet<String>(
+      Arrays.asList(
+        new String[] {
+          "Accept",
+          "Accept-Charset",
+          "Accept-Encoding",
+          "Accept-Language",
+          "Cache-Control",
+          "Content-Type",
+          "Content-type", // Common misspelling.
+          "If-Modified-Since",
+          "If-None-Match",
+          "Referer", // Deliberate misspelling to match specification.
+          "User-Agent",
+        }
+      ));
 
-  private static final Set HTTP_METHODS_WITH_BODY = new HashSet(Arrays.asList(
-    new RequestType.Method.Enum[] {
-        RequestType.Method.OPTIONS,
-        RequestType.Method.POST,
-        RequestType.Method.PUT,
-    }
-  ));
+  private static final Set<Enum> HTTP_METHODS_WITH_BODY =
+    new HashSet<Enum>(Arrays.asList(
+        new RequestType.Method.Enum[] {
+            RequestType.Method.OPTIONS,
+            RequestType.Method.POST,
+            RequestType.Method.PUT,
+        }
+      ));
 
   private final HTTPRecording m_httpRecording;
 
@@ -586,7 +589,8 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
     private final ResponseType m_responseXML;
     private ResponseBody m_body;
-    private final Map m_tokensInResponseMap = new HashMap();
+    private final Map<String, ResponseTokenReferenceType> m_tokensInResponseMap
+     = new HashMap<String, ResponseTokenReferenceType>();
 
     public Response(ResponseType responseXML) {
       m_responseXML = responseXML;
@@ -606,7 +610,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       TokenResponseLocationType.Enum source) {
 
       final ResponseTokenReferenceType existingTokenReference =
-        (ResponseTokenReferenceType)m_tokensInResponseMap.get(name);
+        m_tokensInResponseMap.get(name);
 
       if (existingTokenReference == null) {
         final ResponseTokenReferenceType newTokenReference =

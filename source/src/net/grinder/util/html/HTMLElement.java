@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,7 +35,8 @@ import java.util.List;
 public class HTMLElement extends AbstractHTMLNode {
 
   private final String m_name;
-  private final List m_children = new ArrayList();
+  private final List<AbstractHTMLNode> m_children =
+    new ArrayList<AbstractHTMLNode>();
 
   /**
    * Constructor.
@@ -93,10 +94,10 @@ public class HTMLElement extends AbstractHTMLNode {
         }
       }
 
-      final Iterator iterator = m_children.iterator();
+      final Iterator<AbstractHTMLNode> iterator = m_children.iterator();
 
       while (iterator.hasNext()) {
-        ((AbstractHTMLNode)iterator.next()).toStringBuffer(buffer, html);
+        iterator.next().toStringBuffer(buffer, html);
       }
 
       if (!isFragment()) {

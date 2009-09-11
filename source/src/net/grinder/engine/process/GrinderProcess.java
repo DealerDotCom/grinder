@@ -429,7 +429,7 @@ final class GrinderProcess {
 
           // We look up the new tests after we've taken the sample to
           // avoid a race condition when new tests are being added.
-          final Collection newTests =
+          final Collection<Test> newTests =
             m_context.getTestRegistry().getNewTests();
 
           if (newTests != null) {

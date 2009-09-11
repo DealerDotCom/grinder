@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2008 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -51,7 +51,8 @@ final class PluginRegistryImplementation
   private final StatisticsServices m_statisticsServices;
   private final TimeAuthority m_timeAuthority;
 
-  private final Map m_plugins = new HashMap();
+  private final Map<GrinderPlugin, RegisteredPlugin> m_plugins =
+    new HashMap<GrinderPlugin, RegisteredPlugin>();
 
   /**
    * Constructor.
@@ -109,7 +110,7 @@ final class PluginRegistryImplementation
           final RegisteredPlugin[] registeredPlugins;
 
           synchronized (m_plugins) {
-            registeredPlugins = (RegisteredPlugin[])m_plugins.values().toArray(
+            registeredPlugins = m_plugins.values().toArray(
                                   new RegisteredPlugin[m_plugins.size()]);
           }
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,8 +55,10 @@ import net.grinder.util.ListenerSupport.Informer;
  * @version $Revision$
  */
 final class ProcessContextImplementation implements ProcessContext {
-  private final ListenerSupport m_processLifeCycleListeners =
-    new ListenerSupport();
+  private final ListenerSupport<ProcessLifeCycleListener>
+    m_processLifeCycleListeners =
+      new ListenerSupport<ProcessLifeCycleListener>();
+
   private final ThreadContexts m_threadContexts = new ThreadContexts();
 
   private final WorkerIdentity m_workerIdentity;
@@ -218,20 +220,21 @@ final class ProcessContextImplementation implements ProcessContext {
   }
 
   public void fireThreadCreatedEvent(final ThreadContext threadContext) {
-    m_processLifeCycleListeners.apply(new Informer() {
-      public void inform(Object listener) {
-        ((ProcessLifeCycleListener)listener).threadCreated(threadContext);
-      } }
-    );
+    m_processLifeCycleListeners.apply(new Informer<ProcessLifeCycleListener>() {
+      public void inform(ProcessLifeCycleListener listener) {
+        listener.threadCreated(threadContext);
+      }
+    });
   }
 
   private static final class ThreadContextLocatorImplementation
     implements ThreadContextLocator  {
 
-    private final ThreadLocal m_threadContextThreadLocal = new ThreadLocal();
+    private final ThreadLocal<ThreadContext> m_threadContextThreadLocal =
+      new ThreadLocal<ThreadContext>();
 
     public ThreadContext get() {
-      return (ThreadContext)m_threadContextThreadLocal.get();
+      return m_threadContextThreadLocal.get();
     }
 
     public void set(ThreadContext threadContext) {
@@ -243,7 +246,8 @@ final class ProcessContextImplementation implements ProcessContext {
     implements ProcessLifeCycleListener {
 
     // Guarded by self.
-    private final Map m_threadContexts = new HashMap();
+    private final Map<Integer, ThreadContext> m_threadContexts =
+      new HashMap<Integer, ThreadContext>();
 
     // Guarded by m_threadContexts.
     private boolean m_allShutdown;
@@ -281,8 +285,7 @@ final class ProcessContextImplementation implements ProcessContext {
       final ThreadContext threadContext;
 
       synchronized (m_threadContexts) {
-        threadContext =
-          (ThreadContext)m_threadContexts.get(new Integer(threadNumber));
+        threadContext = m_threadContexts.get(threadNumber);
       }
 
       if (threadContext != null) {
@@ -299,7 +302,7 @@ final class ProcessContextImplementation implements ProcessContext {
       synchronized (m_threadContexts) {
         m_allShutdown = true;
 
-        threadContexts = (ThreadContext[])
+        threadContexts =
           m_threadContexts.values().toArray(
             new ThreadContext[m_threadContexts.size()]);
       }

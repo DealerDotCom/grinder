@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,11 +23,10 @@ package net.grinder.communication;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Iterator;
 
 import net.grinder.communication.ResourcePool.Resource;
-import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.Executor;
+import net.grinder.util.thread.InterruptibleRunnable;
 
 
 /**
@@ -78,12 +77,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
       // reservations to WriteMessageToStream instances. This
       // guarantees order of messages to a given resource for this
       // AbstractFanOutSender.
-      final Iterator iterator = m_resourcePool.reserveAll().iterator();
-
-      while (iterator.hasNext()) {
-        final ResourcePool.Reservation reservation =
-          (ResourcePool.Reservation) iterator.next();
-
+      for (ResourcePool.Reservation reservation : m_resourcePool.reserveAll()) {
         final Resource resource = reservation.getResource();
 
         if (!address.includes(getAddress(resource))) {

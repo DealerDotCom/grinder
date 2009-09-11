@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,12 +39,17 @@ public final class MessageDispatchSender
   implements Sender, MessageDispatchRegistry {
 
   /* Guarded by m_handlers. */
-  private final Map m_handlers = Collections.synchronizedMap(new HashMap());
+  private final Map<Class<? extends Message>, Sender> m_handlers =
+    Collections.synchronizedMap(
+      new HashMap<Class<? extends Message>, Sender>());
 
   /* Guarded by m_responders. */
-  private final Map m_responders = Collections.synchronizedMap(new HashMap());
+  private final Map<Class<? extends Message>, BlockingSender> m_responders =
+    Collections.synchronizedMap(
+      new HashMap<Class<? extends Message>, BlockingSender>());
 
-  private final ListenerSupport m_fallbackHandlers = new ListenerSupport();
+  private final ListenerSupport<Sender> m_fallbackHandlers =
+    new ListenerSupport<Sender>();
 
   /**
    * Register a message handler.
@@ -56,8 +61,9 @@ public final class MessageDispatchSender
    * @return The previous message handler registered for
    *         <code>messageType</code> or <code>null</code>.
    */
-  public Sender set(Class messageType, Sender messageHandler) {
-    return (Sender) m_handlers.put(messageType, messageHandler);
+  public Sender set(Class<? extends Message> messageType,
+                    Sender messageHandler) {
+    return m_handlers.put(messageType, messageHandler);
   }
 
   /**
@@ -69,9 +75,9 @@ public final class MessageDispatchSender
    * @return The previous message handler registered for
    *         <code>messageType</code> or <code>null</code>.
    */
-  public BlockingSender set(Class messageType,
+  public BlockingSender set(Class<? extends Message> messageType,
                             BlockingSender messageResponder) {
-    return (BlockingSender) m_responders.put(messageType, messageResponder);
+    return m_responders.put(messageType, messageResponder);
   }
 
   /**
@@ -100,7 +106,7 @@ public final class MessageDispatchSender
       final Message requestMessage = messageRequringResponse.getMessage();
 
       final BlockingSender responder =
-        (BlockingSender) m_responders.get(requestMessage.getClass());
+        m_responders.get(requestMessage.getClass());
 
       if (responder != null) {
         messageRequringResponse.sendResponse(
@@ -109,7 +115,7 @@ public final class MessageDispatchSender
       }
     }
     else {
-      final Sender handler = (Sender) m_handlers.get(message.getClass());
+      final Sender handler = m_handlers.get(message.getClass());
 
       if (handler != null) {
         handler.send(message);
@@ -119,16 +125,16 @@ public final class MessageDispatchSender
 
     final CommunicationException[] exception = new CommunicationException[1];
 
-    m_fallbackHandlers.apply(new ListenerSupport.Informer() {
-      public void inform(Object listener) {
-        try {
-          ((Sender)listener).send(message);
+    m_fallbackHandlers.apply(new ListenerSupport.Informer<Sender>() {
+        public void inform(Sender sender) {
+          try {
+            sender.send(message);
+          }
+          catch (CommunicationException e) {
+            exception[0] = e;
+          }
         }
-        catch (CommunicationException e) {
-          exception[0] = e;
-        }
-      }
-    });
+      });
 
     if (message instanceof MessageRequiringResponse) {
       final MessageRequiringResponse messageRequringResponse =
@@ -152,8 +158,7 @@ public final class MessageDispatchSender
     final Sender[] handlers;
 
     synchronized (m_handlers) {
-      handlers = (Sender[])
-        m_handlers.values().toArray(new Sender[m_handlers.size()]);
+      handlers = m_handlers.values().toArray(new Sender[m_handlers.size()]);
     }
 
     for (int i = 0; i < handlers.length; ++i) {
@@ -163,7 +168,7 @@ public final class MessageDispatchSender
     final BlockingSender[] responders;
 
     synchronized (m_responders) {
-      responders = (BlockingSender[])
+      responders =
         m_responders.values().toArray(new BlockingSender[m_responders.size()]);
     }
 
@@ -171,10 +176,8 @@ public final class MessageDispatchSender
       responders[i].shutdown();
     }
 
-    m_fallbackHandlers.apply(new ListenerSupport.Informer() {
-      public void inform(Object listener) {
-        ((Sender)listener).shutdown();
-      }
+    m_fallbackHandlers.apply(new ListenerSupport.Informer<Sender>() {
+      public void inform(Sender sender) { sender.shutdown(); }
     });
   }
 }

@@ -46,7 +46,7 @@ import net.grinder.util.IsolatingClassLoader;
  */
 final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
 
-  private static Class s_isolatedRunnerClass =
+  private static Class<?> s_isolatedRunnerClass =
     IsolatedGrinderProcessRunner.class;
 
   private String[] m_sharedClassArray;
@@ -54,7 +54,7 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
   /**
    * Allow unit tests to change the IsolateGrinderProcessRunner.
    */
-  static void setIsolatedRunnerClass(Class isolatedRunnerClass) {
+  static void setIsolatedRunnerClass(Class<?> isolatedRunnerClass) {
     if (isolatedRunnerClass != null) {
       s_isolatedRunnerClass = isolatedRunnerClass;
     }
@@ -75,7 +75,7 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
           script,
           properties);
 
-    final List sharedClasses = new ArrayList();
+    final List<String> sharedClasses = new ArrayList<String>();
 
     sharedClasses.add(IsolateGrinderProcessRunner.class.getName());
 
@@ -83,7 +83,7 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
       properties.getProperty("grinder.debug.singleprocess.sharedclasses", "")
       .split(",")));
 
-    m_sharedClassArray = (String[])
+    m_sharedClassArray =
       sharedClasses.toArray(new String[sharedClasses.size()]);
   }
 
@@ -101,7 +101,7 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
                                m_sharedClassArray,
                                true);
 
-    final Class isolatedRunnerClass;
+    final Class<?> isolatedRunnerClass;
 
     try {
       isolatedRunnerClass =

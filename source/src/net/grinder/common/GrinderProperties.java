@@ -118,7 +118,7 @@ public class GrinderProperties extends Properties {
       }
     }
 
-    final Enumeration systemProperties =
+    final Enumeration<?> systemProperties =
       System.getProperties().propertyNames();
 
     while (systemProperties.hasMoreElements()) {
@@ -260,7 +260,7 @@ public class GrinderProperties extends Properties {
     getPropertySubset(String prefix) {
     final GrinderProperties result = new GrinderProperties();
 
-    final Enumeration propertyNames = propertyNames();
+    final Enumeration<?> propertyNames = propertyNames();
 
     while (propertyNames.hasMoreElements()) {
       final String name = (String)propertyNames.nextElement();

@@ -29,11 +29,15 @@ import java.util.Map;
 /**
  * A map that maintains weak references to its values.
  *
+ * @param <K> Key type.
+ * @param <V> Value type.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class WeakValueHashMap  {
-  private final Map m_map = new HashMap();
+public final class WeakValueHashMap<K, V>  {
+  private final Map<K, WeakReference<V>> m_map =
+    new HashMap<K, WeakReference<V>>();
 
   /**
    * Clear all entries out of the map.
@@ -48,8 +52,8 @@ public final class WeakValueHashMap  {
    * @param key The key.
    * @return The value, or <code>null</code> if none found.
    */
-  public Object get(Object key) {
-    final WeakReference reference = (WeakReference)m_map.get(key);
+  public V get(K key) {
+    final WeakReference<V> reference = m_map.get(key);
     return reference != null ? reference.get() : null;
   }
 
@@ -59,8 +63,8 @@ public final class WeakValueHashMap  {
    * @param key The key.
    * @param value The value.
    */
-  public void put(Object key, Object value) {
-    m_map.put(key, new WeakReference(value));
+  public void put(K key, V value) {
+    m_map.put(key, new WeakReference<V>(value));
   }
 
   /**
@@ -69,8 +73,8 @@ public final class WeakValueHashMap  {
    * @param key The key.
    * @return The removed value, or <code>null</code> if none found.
    */
-  public Object remove(Object key) {
-    final WeakReference reference = (WeakReference)m_map.remove(key);
+  public V remove(K key) {
+    final WeakReference<V> reference = m_map.remove(key);
     return reference != null ? reference.get() : null;
   }
 }

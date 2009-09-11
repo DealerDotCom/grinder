@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,7 +46,8 @@ final class BufferTreeModel implements TreeModel {
 
   private final Object m_rootNode = new Object();
   private final EventListenerList m_listeners = new EventListenerList();
-  private final WeakValueHashMap m_buffersToNodes = new WeakValueHashMap();
+  private final WeakValueHashMap<Buffer, BufferNode> m_buffersToNodes =
+    new WeakValueHashMap<Buffer, BufferNode>();
 
   private BufferNode[] m_bufferNodes = new BufferNode[0];
 
@@ -171,8 +172,7 @@ final class BufferTreeModel implements TreeModel {
 
   public void bufferChanged(Buffer buffer) {
 
-    final BufferTreeModel.BufferNode node =
-      (BufferNode)m_buffersToNodes.get(buffer);
+    final BufferTreeModel.BufferNode node = m_buffersToNodes.get(buffer);
 
     if (node != null) {
       valueForPathChanged(node.getPath(), node);

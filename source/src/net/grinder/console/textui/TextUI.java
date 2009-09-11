@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,7 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ProcessReportDescriptionFactory;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.console.model.SampleModel;
 
 
@@ -105,10 +106,10 @@ public class TextUI implements UI {
   }
 
   private final class ProcessListener implements ProcessControl.Listener {
-    private final Comparator m_processReportComparator =
+    private final Comparator<ProcessReport> m_processReportComparator =
       new ProcessReport.StateThenNameThenNumberComparator();
 
-    private final Comparator m_processReportsComparator =
+    private final Comparator<ProcessReports> m_processReportsComparator =
       new ProcessControl.ProcessReportsComparator();
 
     private final ProcessReportDescriptionFactory m_descriptionFactory;

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.communication;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -49,11 +48,12 @@ final class ResourcePoolImplementation implements ResourcePool {
   private final Object m_reservablesMutex = new Object();
 
   // Guarded by m_reservablesMutex.
-  private List m_reservables = new ArrayList();
+  private List<Reservable> m_reservables = new ArrayList<Reservable>();
   private int m_lastReservable = 0;
   private int m_nextPurge = 0;
 
-  private final ListenerSupport m_listeners = new ListenerSupport();
+  private final ListenerSupport<Listener> m_listeners =
+    new ListenerSupport<Listener>();
 
   /**
    * Constructor.
@@ -77,10 +77,8 @@ final class ResourcePoolImplementation implements ResourcePool {
     }
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).resourceAdded(resource);
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.resourceAdded(resource); }
       });
 
     return resourceWrapper;
@@ -105,8 +103,7 @@ final class ResourcePoolImplementation implements ResourcePool {
           m_lastReservable = 0;
         }
 
-        final Reservable reservable =
-          (Reservable)m_reservables.get(m_lastReservable);
+        final Reservable reservable = m_reservables.get(m_lastReservable);
 
         if (reservable.reserve()) {
           return reservable;
@@ -123,29 +120,29 @@ final class ResourcePoolImplementation implements ResourcePool {
    * @return The resources. It is up to the caller to free or close
    * each resource.
    */
-  public List reserveAll() {
+  public List<Reservable> reserveAll() {
 
     // Only one thread gets to reserveAll at a time. Otherwise two threads
     // calling this can deadlock each other. See bug #1199086.
     synchronized (m_reserveAllMutex) {
 
-      final List result;
-      final List reserveList;
+      final List<Reservable> result;
+      final List<Reservable> reserveList;
 
       synchronized (m_reservablesMutex) {
         purgeZombieResources();
 
-        result = new ArrayList(m_reservables.size());
-        reserveList = new ArrayList(m_reservables);
+        result = new ArrayList<Reservable>(m_reservables.size());
+        reserveList = new ArrayList<Reservable>(m_reservables);
       }
 
       while (reserveList.size() > 0) {
         // Iterate backwards so remove is cheap.
-        final ListIterator iterator =
+        final ListIterator<Reservable> iterator =
           reserveList.listIterator(reserveList.size());
 
         while (iterator.hasPrevious()) {
-          final Reservable reservable = (Reservable)iterator.previous();
+          final Reservable reservable = iterator.previous();
 
           if (reservable.isSentinel()) {
             iterator.remove();
@@ -196,7 +193,7 @@ final class ResourcePoolImplementation implements ResourcePool {
     // leaks don't cause us a problem. It's up to the resource implementation
     // to allow it to be closed cleanly whilst reserved by another thread.
     synchronized (m_reservablesMutex) {
-      reservablesClone = (Reservable[])
+      reservablesClone =
         m_reservables.toArray(new Reservable[m_reservables.size()]);
     }
 
@@ -216,11 +213,7 @@ final class ResourcePoolImplementation implements ResourcePool {
     int result = 0;
 
     synchronized (m_reservablesMutex) {
-      final Iterator iterator = m_reservables.iterator();
-
-      while (iterator.hasNext()) {
-        final Reservable reservable = (Reservable)iterator.next();
-
+      for (Reservable reservable : m_reservables) {
         if (!reservable.isClosed() && !reservable.isSentinel()) {
           ++result;
         }
@@ -235,13 +228,10 @@ final class ResourcePoolImplementation implements ResourcePool {
       if (++m_nextPurge > PURGE_FREQUENCY) {
         m_nextPurge = 0;
 
-        final List newReservables = new ArrayList(m_reservables.size());
+        final List<Reservable> newReservables =
+          new ArrayList<Reservable>(m_reservables.size());
 
-        final Iterator iterator = m_reservables.iterator();
-
-        while (iterator.hasNext()) {
-          final Reservable reservable = (Reservable)iterator.next();
-
+        for (Reservable reservable : m_reservables) {
           if (!reservable.isClosed()) {
             newReservables.add(reservable);
           }
@@ -363,13 +353,11 @@ final class ResourcePoolImplementation implements ResourcePool {
           m_reservableFreedMutex.notifyAll();
         }
 
-        final ListenerSupport.Informer informer;
+        final ListenerSupport.Informer<Listener> informer;
 
         try {
-          informer = new ListenerSupport.Informer() {
-              public void inform(Object listener) {
-                ((Listener)listener).resourceClosed(m_resource);
-              }
+          informer = new ListenerSupport.Informer<Listener>() {
+              public void inform(Listener l) { l.resourceClosed(m_resource); }
             };
         }
         catch (Exception e) {

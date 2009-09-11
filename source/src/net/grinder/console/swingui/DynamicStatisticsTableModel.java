@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.util.Set;
 import javax.swing.table.AbstractTableModel;
 
+import net.grinder.common.Test;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.ModelTestIndex;
@@ -155,7 +156,7 @@ abstract class DynamicStatisticsTableModel
     fireTableRowsUpdated(0, getRowCount());
   }
 
-  public final synchronized void newTests(Set newTests,
+  public final synchronized void newTests(Set<Test> newTests,
                                           ModelTestIndex modelTestIndex) {
 
     m_lastModelTestIndex = modelTestIndex;

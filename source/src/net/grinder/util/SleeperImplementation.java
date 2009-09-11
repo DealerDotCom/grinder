@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,6 @@ package net.grinder.util;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -43,7 +42,8 @@ import net.grinder.util.thread.Condition;
 public final class SleeperImplementation implements Sleeper {
 
   private static final Random s_random = new Random();
-  private static final List s_allSleepers = new ArrayList();
+  private static final List<WeakReference<SleeperImplementation>>
+    s_allSleepers = new ArrayList<WeakReference<SleeperImplementation>>();
 
   private final TimeAuthority m_timeAuthority;
   private final double m_factor;
@@ -71,7 +71,7 @@ public final class SleeperImplementation implements Sleeper {
     }
 
     synchronized (SleeperImplementation.class) {
-      s_allSleepers.add(new WeakReference(this));
+      s_allSleepers.add(new WeakReference<SleeperImplementation>(this));
     }
 
     m_timeAuthority  = timeAuthority;
@@ -85,12 +85,8 @@ public final class SleeperImplementation implements Sleeper {
    */
   public static synchronized void shutdownAllCurrentSleepers() {
 
-    final Iterator iterator = s_allSleepers.iterator();
-
-    while (iterator.hasNext()) {
-      final WeakReference reference = (WeakReference)iterator.next();
-
-      final Sleeper sleeper = (Sleeper)reference.get();
+    for (WeakReference<SleeperImplementation> reference : s_allSleepers) {
+      final Sleeper sleeper = reference.get();
 
       if (sleeper != null) {
         sleeper.shutdown();

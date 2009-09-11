@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -53,13 +53,15 @@ public final class EditorModel {
   private final AgentCacheState m_agentCacheState;
   //private final Buffer m_defaultBuffer;
 
-  private final ListenerSupport m_listeners = new ListenerSupport();
+  private final ListenerSupport<Listener> m_listeners =
+    new ListenerSupport<Listener>();
 
   // Guarded by itself.
-  private final LinkedList m_bufferList = new LinkedList();
+  private final LinkedList<Buffer> m_bufferList = new LinkedList<Buffer>();
 
   // Guarded by itself.
-  private final Map m_fileBuffers = Collections.synchronizedMap(new HashMap());
+  private final Map<File, Buffer> m_fileBuffers =
+    Collections.synchronizedMap(new HashMap<File, Buffer>());
 
   // Guarded by this.
   private int m_nextNewBufferNameIndex = 0;
@@ -180,7 +182,7 @@ public final class EditorModel {
    * @return The buffer; <code>null</code> => there is no buffer for the file.
    */
   public Buffer getBufferForFile(File file) {
-    return (Buffer)m_fileBuffers.get(file);
+    return m_fileBuffers.get(file);
   }
 
   /**
@@ -190,7 +192,7 @@ public final class EditorModel {
    */
   public Buffer[] getBuffers() {
     synchronized (m_bufferList) {
-      return (Buffer[])m_bufferList.toArray(new Buffer[m_bufferList.size()]);
+      return m_bufferList.toArray(new Buffer[m_bufferList.size()]);
     }
   }
 
@@ -268,10 +270,8 @@ public final class EditorModel {
       }
 
       m_listeners.apply(
-        new ListenerSupport.Informer() {
-          public void inform(Object listener) {
-            ((Listener)listener).bufferRemoved(buffer);
-          }
+        new ListenerSupport.Informer<Listener>() {
+          public void inform(Listener l) { l.bufferRemoved(buffer); }
         });
     }
   }
@@ -342,19 +342,15 @@ public final class EditorModel {
     }
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).bufferAdded(buffer);
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.bufferAdded(buffer); }
       });
   }
 
   private void fireBufferStateChanged(final Buffer buffer) {
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).bufferStateChanged(buffer);
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.bufferStateChanged(buffer); }
       });
   }
 
@@ -364,10 +360,8 @@ public final class EditorModel {
    */
   private void fireBufferNotUpToDate(final Buffer buffer) {
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).bufferNotUpToDate(buffer);
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.bufferNotUpToDate(buffer); }
       });
   }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -54,7 +53,8 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
   private long m_latestNewFileTime = -1;
 
   private boolean m_outOfDate = false;
-  private Set m_lastAgentReportSet = new HashSet();
+  private Set<AgentAndCacheReport> m_lastAgentReportSet =
+    new HashSet<AgentAndCacheReport>();
   private long m_earliestAgentTime = -1;
 
   public AgentCacheStateImplementation(ProcessControl processControl,
@@ -69,7 +69,7 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
       m_cacheParameters = cacheParameters;
       m_latestNewFileTime = -1;
 
-      m_lastAgentReportSet = new HashSet();
+      m_lastAgentReportSet = new HashSet<AgentAndCacheReport>();
       m_earliestAgentTime = -1;
     }
   }
@@ -113,11 +113,11 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
   private final class AgentSetImplementation implements AgentSet {
 
     private final CacheParameters m_validCacheParameters;
-    private final Set m_agentReports;
+    private final Set<AgentAndCacheReport> m_agentReports;
     private final long m_earliestAgentTime;
 
     private AgentSetImplementation(CacheParameters cacheParameters,
-                                   Set agentReports,
+                                   Set<AgentAndCacheReport> agentReports,
                                    long earliestAgentTime) {
       m_validCacheParameters = cacheParameters;
       m_agentReports = agentReports;
@@ -133,13 +133,10 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
     public Address getAddressOfAllAgents() throws OutOfDateException {
       checkValidity();
 
-      final Set agentAddresses = new HashSet();
-      final Iterator iterator = m_agentReports.iterator();
+      final Set<AgentAddress> agentAddresses = new HashSet<AgentAddress>();
 
-      while (iterator.hasNext()) {
-        agentAddresses.add(
-          new AgentAddress(
-            ((AgentAndCacheReport)iterator.next()).getAgentIdentity()));
+      for (AgentAndCacheReport report : m_agentReports) {
+        agentAddresses.add(new AgentAddress(report.getAgentIdentity()));
       }
 
       return new AddressSet(agentAddresses);
@@ -152,13 +149,10 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
       final CacheHighWaterMark cacheState =
         m_validCacheParameters.createHighWaterMark(time);
 
-      final Set outOfDateAgentAddresses = new HashSet();
-      final Iterator iterator = m_agentReports.iterator();
+      final Set<AgentAddress> outOfDateAgentAddresses =
+        new HashSet<AgentAddress>();
 
-      while (iterator.hasNext()) {
-        final AgentAndCacheReport agentReport =
-          (AgentAndCacheReport)iterator.next();
-
+      for (AgentAndCacheReport agentReport : m_agentReports) {
         final CacheHighWaterMark agentCache =
           agentReport.getCacheHighWaterMark();
 
@@ -185,7 +179,8 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
   private final class ProcessReportListener implements ProcessControl.Listener {
     public void update(ProcessReports[] processReports) {
 
-      final Set agents = new HashSet();
+      final Set<AgentAndCacheReport> agents =
+        new HashSet<AgentAndCacheReport>();
 
       final CacheHighWaterMark cacheState;
 
@@ -235,9 +230,9 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
   }
 
   private static final class AddressSet implements Address {
-    private final Set m_addresses;
+    private final Set<? extends Address> m_addresses;
 
-    public AddressSet(Set addresses) {
+    public AddressSet(Set<? extends Address> addresses) {
       m_addresses = addresses;
     }
 

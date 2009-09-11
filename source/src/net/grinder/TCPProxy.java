@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003, 2004, 2005 Bertrand Ave
 // Copyright (C) 2007 Venelin Mitov
@@ -30,13 +30,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-
-import org.picocontainer.ComponentAdapter;
-import org.picocontainer.defaults.DefaultPicoContainer;
-import org.picocontainer.monitors.WriterComponentMonitor;
 
 import net.grinder.common.Logger;
 import net.grinder.plugin.http.tcpproxyfilter.ConnectionCache;
@@ -66,6 +61,10 @@ import net.grinder.util.FixedWidthFormatter;
 import net.grinder.util.SimpleLogger;
 import net.grinder.util.SimpleStringEscaper;
 import net.grinder.util.URIParserImplementation;
+
+import org.picocontainer.ComponentAdapter;
+import org.picocontainer.defaults.DefaultPicoContainer;
+import org.picocontainer.monitors.WriterComponentMonitor;
 
 
 /**
@@ -230,7 +229,7 @@ public final class TCPProxy extends AbstractMainClass {
           responseFilterChain.add(args[++i]);
         }
         else if (args[i].equalsIgnoreCase("-component")) {
-          final Class componentClass;
+          final Class<?> componentClass;
 
           try {
             componentClass = Class.forName(args[++i]);
@@ -491,14 +490,15 @@ public final class TCPProxy extends AbstractMainClass {
 
   private final class FilterChain {
     private final String m_type;
-    private final List m_adapterList = new ArrayList();
+    private final List<ComponentAdapter> m_adapterList =
+      new ArrayList<ComponentAdapter>();
     private int m_value;
 
     public FilterChain(String type) {
       m_type = type;
     }
 
-    public void add(Class theClass) {
+    public void add(Class<?> theClass) {
       m_adapterList.add(
         m_filterContainer.registerComponentImplementation(
           m_type + ++m_value, theClass));
@@ -514,7 +514,7 @@ public final class TCPProxy extends AbstractMainClass {
         add(EchoFilter.class);
       }
       else {
-        final Class filterClass;
+        final Class<?> filterClass;
 
         try {
           filterClass = Class.forName(filterClassName);
@@ -540,11 +540,7 @@ public final class TCPProxy extends AbstractMainClass {
 
       final CompositeFilter result = new CompositeFilter();
 
-      final Iterator iterator = m_adapterList.iterator();
-
-      while (iterator.hasNext()) {
-        final ComponentAdapter adapter = (ComponentAdapter)iterator.next();
-
+      for (ComponentAdapter adapter : m_adapterList) {
         result.add(
           (TCPProxyFilter)adapter.getComponentInstance(m_filterContainer));
       }

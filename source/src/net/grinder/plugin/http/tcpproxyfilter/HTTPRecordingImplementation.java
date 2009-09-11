@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,19 +29,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.xmlbeans.XmlObject;
-import org.picocontainer.Disposable;
-
-import HTTPClient.ParseException;
-import HTTPClient.URI;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
@@ -62,6 +55,12 @@ import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
 import net.grinder.util.URIParser;
 
+import org.apache.xmlbeans.XmlObject;
+import org.picocontainer.Disposable;
+
+import HTTPClient.ParseException;
+import HTTPClient.URI;
+
 
 /**
  * Contains common state for HTTP recording.
@@ -74,17 +73,18 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   /**
    * Headers which are likely to have common values.
    */
-  private static final Set COMMON_HEADERS = new HashSet(Arrays.asList(
-    new String[] {
-      "Accept",
-      "Accept-Charset",
-      "Accept-Encoding",
-      "Accept-Language",
-      "Cache-Control",
-      "Referer", // Deliberate misspelling to match specification.
-      "User-Agent",
-    }
-  ));
+  private static final Set<String> COMMON_HEADERS =
+    new HashSet<String>(Arrays.asList(
+        new String[] {
+          "Accept",
+          "Accept-Charset",
+          "Accept-Encoding",
+          "Accept-Language",
+          "Cache-Control",
+          "Referer", // Deliberate misspelling to match specification.
+          "User-Agent",
+        }
+      ));
 
   private final HttpRecordingDocument m_recordingDocument =
     HttpRecordingDocument.Factory.newInstance();
@@ -344,8 +344,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     final CommonHeadersType[] commonHeaders =
       result.getHttpRecording().getCommonHeadersArray();
 
-    final Map defaultHeaders = new HashMap();
-    final Set notDefaultHeaders = new HashSet();
+    final Map<String, String> defaultHeaders = new HashMap<String, String>();
+    final Set<String> notDefaultHeaders = new HashSet<String>();
 
     for (int i = 0; i < commonHeaders.length; ++i) {
       final HeaderType[] headers = commonHeaders[i].getHeaderArray();
@@ -358,7 +358,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
           continue;
         }
 
-        final String existing = (String)defaultHeaders.put(name, value);
+        final String existing = defaultHeaders.put(name, value);
 
         if (existing != null && !value.equals(existing) ||
             existing == null && i > 0) {
@@ -379,12 +379,10 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       newCommonHeaders[0] = CommonHeadersType.Factory.newInstance();
       newCommonHeaders[0].setHeadersId(defaultHeadersID);
 
-      final Iterator iterator = defaultHeaders.entrySet().iterator();
-      while (iterator.hasNext()) {
-        final Entry entry = (Entry)iterator.next();
+      for (Entry<String, String> entry : defaultHeaders.entrySet()) {
         final HeaderType header = newCommonHeaders[0].addNewHeader();
-        header.setName((String)entry.getKey());
-        header.setValue((String)entry.getValue());
+        header.setName(entry.getKey());
+        header.setValue(entry.getValue());
       }
 
       for (int i = 0; i < commonHeaders.length; ++i) {
@@ -411,16 +409,18 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   private final class BaseURLMap {
-    private final Map m_map = new HashMap();
+    private final Map<String, BaseURIType> m_map =
+      new HashMap<String, BaseURIType>();
+
     private final IntGenerator m_idGenerator = new IntGenerator();
 
     public BaseURIType getBaseURL(
       BaseURIType.Scheme.Enum scheme, EndPoint endPoint) {
 
-      final Object key = scheme.toString() + "://" + endPoint;
+      final String key = scheme.toString() + "://" + endPoint;
 
       synchronized (m_map) {
-        final BaseURIType existing = (BaseURIType)m_map.get(key);
+        final BaseURIType existing = m_map.get(key);
 
         if (existing != null) {
           return existing;
@@ -445,7 +445,9 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   private static final class CommonHeadersMap {
-    private final Map m_map = new HashMap();
+    private final Map<String, CommonHeadersType> m_map =
+      new HashMap<String, CommonHeadersType>();
+
     private final IntGenerator m_idGenerator = new IntGenerator();
 
     public void extractCommonHeaders(
@@ -474,11 +476,11 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       }
 
       // Key that ignores ID.
-      final Object key =
+      final String key =
         Arrays.asList(commonHeaders.getHeaderArray()).toString();
 
       synchronized (m_map) {
-        final CommonHeadersType existing = (CommonHeadersType)m_map.get(key);
+        final CommonHeadersType existing = m_map.get(key);
 
         if (existing != null) {
           newRequestHeaders.setExtends(existing.getHeadersId());
@@ -499,7 +501,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   private final class RequestList {
-    private final List m_requests = new ArrayList();
+    private final List<RequestType> m_requests = new ArrayList<RequestType>();
     private final Pattern m_resourcePathPattern = Pattern.compile(
       ".*(?:\\.css|\\.gif|\\.ico|\\.jpe?g|\\.js|\\.png)(?:\\?.*)?$",
       Pattern.CASE_INSENSITIVE);
@@ -516,16 +518,12 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
     public void record(HTTPRecordingType httpRecording) {
       synchronized (m_requests) {
-        final Iterator iterator = m_requests.iterator();
-
         String lastBaseURI = null;
         boolean lastResponseWasRedirect = false;
 
         PageType currentPage = null;
 
-        while (iterator.hasNext()) {
-          final RequestType request = (RequestType)iterator.next();
-
+        for (RequestType request : m_requests) {
           final ResponseType response = request.getResponse();
 
           if (response == null) {
@@ -576,8 +574,10 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
    * might not be right for every use case.
    */
   private final class TokenMap {
-    private final Map m_map = new HashMap();
-    private final Map m_uniqueTokenIDs = new HashMap();
+    private final Map<String, TokenLastValuePair> m_map =
+      new HashMap<String, TokenLastValuePair>();
+    private final Map<String, Integer> m_uniqueTokenIDs =
+      new HashMap<String, Integer>();
 
     public void add(
       String name, String value, TokenReferenceType tokenReference) {
@@ -585,7 +585,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       final TokenLastValuePair tokenValuePair;
 
       synchronized (m_map) {
-        final TokenLastValuePair existing = (TokenLastValuePair)m_map.get(name);
+        final TokenLastValuePair existing = m_map.get(name);
 
         if (existing == null) {
           final TokenType newToken;
@@ -611,8 +611,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
           }
 
           final String partToken = tokenID.toString();
-          final Integer existingValue =
-            (Integer)m_uniqueTokenIDs.get(partToken);
+          final Integer existingValue = m_uniqueTokenIDs.get(partToken);
 
           if (existingValue != null) {
             tokenID.append(existingValue);
@@ -649,7 +648,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       final TokenLastValuePair existing;
 
       synchronized (m_map) {
-        existing = (TokenLastValuePair)m_map.get(name);
+        existing = m_map.get(name);
       }
 
       return existing != null ? existing.getLastValue() : null;
@@ -660,7 +659,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       final TokenLastValuePair existing;
 
       synchronized (m_map) {
-        existing = (TokenLastValuePair)m_map.get(name);
+        existing = m_map.get(name);
       }
 
       return existing != null && existing.hasAReferenceWithSource(source);
@@ -669,7 +668,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
   private static final class TokenLastValuePair {
     private final TokenType m_token;
-    private final Set m_sources = new HashSet();
+    private final Set<String> m_sources = new HashSet<String>();
     private String m_lastValue;
 
     public TokenLastValuePair(TokenType token) {
