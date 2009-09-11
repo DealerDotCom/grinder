@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,17 +21,15 @@
 
 package net.grinder.script;
 
-import junit.framework.TestCase;
-
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import junit.framework.TestCase;
 import net.grinder.engine.process.StubTestRegistry;
 
 
@@ -61,8 +59,8 @@ public class TestTest extends TestCase {
   public void testOrdering() throws Exception {
     final int size = 100;
 
-    final Set sorted = new TreeSet();
-    final List keys = new ArrayList(size);
+    final Set<Test> sorted = new TreeSet<Test>();
+    final List<Integer> keys = new ArrayList<Integer>(size);
 
     for (int i=0; i<size; i++) {
       keys.add(new Integer(i));
@@ -70,18 +68,13 @@ public class TestTest extends TestCase {
 
     Collections.shuffle(keys);
 
-    final Iterator keyIterator = keys.iterator();
-
-    while (keyIterator.hasNext()) {
-      final int i = ((Integer)keyIterator.next()).intValue();
-      sorted.add(new Test(i, Integer.toString(i)));
+    for (Integer i : keys) {
+      sorted.add(new Test(i, i.toString()));
     }
 
-    final Iterator sortedIterator = sorted.iterator();
     int i = 0;
 
-    while (keyIterator.hasNext()) {
-      final Test test = (Test)sortedIterator.next();
+    for (Test test : sorted) {
       assertEquals(i++, test.getNumber());
     }
   }

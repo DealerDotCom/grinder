@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -65,7 +65,7 @@ public class TestHTTPPlugin extends TestCase {
     final ClassLoader classLoader =
       new IsolatingClassLoader(
         (URLClassLoader) getClass().getClassLoader(), new String[] { }, false) {
-      protected Class loadClass(String name, boolean resolve)
+      protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException  {
 
         if (name.equals("HTTPClient.RetryModule")) {

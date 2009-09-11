@@ -21,13 +21,11 @@
 
 package net.grinder.console.common;
 
-import junit.framework.TestCase;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.TestCase;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomObjectFactory;
 import net.grinder.testutility.RandomStubFactory;
@@ -107,7 +105,7 @@ public class TestErrorQueue extends TestCase {
         final Object[] parameters =
           randomObjectFactory.generateParameters(method.getParameterTypes());
 
-        callDataList.add(new CallData(method, parameters, null));
+        callDataList.add(new CallData(method, null, parameters));
 
         method.invoke(errorQueue, parameters);
       }

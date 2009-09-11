@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
+import net.grinder.common.Test;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.Sender;
 import net.grinder.console.ConsoleFoundation.UI;
@@ -78,8 +79,7 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
   }
 
   private final Resources m_resources =
-    new StubResources(new HashMap() {{
-
+    new StubResources(new HashMap<String, Object>() {{
     }});
 
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
@@ -234,7 +234,7 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     assertEquals(RegisterTestsMessage.class, call1.getParameters()[0]);
 
     final Sender sender1 = (Sender) call1.getParameters()[1];
-    final Collection tests = Collections.EMPTY_SET;
+    final Collection<Test> tests = Collections.emptySet();
     sender1.send(new RegisterTestsMessage(tests));
     modelStubFactory.assertSuccess("registerTests", tests);
     modelStubFactory.assertNoMoreCalls();

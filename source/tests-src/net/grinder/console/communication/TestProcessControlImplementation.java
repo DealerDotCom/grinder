@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,7 +40,8 @@ import net.grinder.testutility.RandomStubFactory;
 public class TestProcessControlImplementation extends TestCase {
 
   public void testProcessReportsComparator() throws Exception {
-    final Comparator comparator = new ProcessControl.ProcessReportsComparator();
+    final Comparator<ProcessReports> comparator =
+      new ProcessControl.ProcessReportsComparator();
 
     final AgentIdentity agentIdentity1 =
       new StubAgentIdentity("my agent");

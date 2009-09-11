@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,6 @@ package net.grinder.messages.agent;
 import java.io.File;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.communication.Message;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
 import net.grinder.util.FileContents;
@@ -38,12 +37,8 @@ import net.grinder.util.FileContents;
  */
 public class TestAgentMessages extends AbstractFileTestCase {
 
-  private static Message serialise(Message original) throws Exception {
-    return (Message) Serializer.serialize(original);
-  }
-
   public void testResetGrinderMessage() throws Exception {
-    serialise(new ResetGrinderMessage());
+    Serializer.serialize(new ResetGrinderMessage());
   }
 
   public void testStartGrinderMessage() throws Exception {
@@ -52,13 +47,13 @@ public class TestAgentMessages extends AbstractFileTestCase {
     properties.setInt("lah", 123);
 
     final StartGrinderMessage received =
-      (StartGrinderMessage)serialise(new StartGrinderMessage(properties, -1));
+      Serializer.serialize(new StartGrinderMessage(properties, -1));
 
     assertEquals(properties, received.getProperties());
   }
 
   public void testStopGrinderMessage() throws Exception {
-    serialise(new StopGrinderMessage());
+    Serializer.serialize(new StopGrinderMessage());
   }
 
   public void testDistributeFileMessage() throws Exception {
@@ -68,14 +63,13 @@ public class TestAgentMessages extends AbstractFileTestCase {
     final FileContents fileContents = new FileContents(getDirectory(), file);
 
     final DistributeFileMessage received =
-      (DistributeFileMessage)
-      serialise(new DistributeFileMessage(fileContents));
+      Serializer.serialize(new DistributeFileMessage(fileContents));
 
     assertEquals(fileContents.toString(),
                  received.getFileContents().toString());
   }
 
   public void testClearCacheMessage() throws Exception {
-    serialise(new ClearCacheMessage());
+    Serializer.serialize(new ClearCacheMessage());
   }
 }

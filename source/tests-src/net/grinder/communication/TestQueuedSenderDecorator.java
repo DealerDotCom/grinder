@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,7 +41,7 @@ public class TestQueuedSenderDecorator extends TestCase {
 
   private final static class StubSender implements Sender {
 
-    private List m_messagesReceived = new ArrayList();
+    private List<Message> m_messagesReceived = new ArrayList<Message>();
     private boolean m_shutdown;
 
     public void send(Message message) throws CommunicationException {
@@ -54,7 +54,7 @@ public class TestQueuedSenderDecorator extends TestCase {
 
     public Message[] getMessagesReceived() {
       try {
-        return (Message[])m_messagesReceived.toArray(new Message[0]);
+        return m_messagesReceived.toArray(new Message[0]);
       }
       finally {
         m_messagesReceived.clear();

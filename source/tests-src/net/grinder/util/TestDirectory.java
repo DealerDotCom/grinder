@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,6 @@ package net.grinder.util;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import net.grinder.testutility.AbstractFileTestCase;
@@ -108,7 +107,7 @@ public class TestDirectory extends AbstractFileTestCase {
       "another",
     };
 
-    final Set expected = new HashSet();
+    final Set<File> expected = new HashSet<File>();
 
     for (int i=0; i<files.length; ++i) {
       final File file = new File(getDirectory(), files[i]);
@@ -293,16 +292,13 @@ public class TestDirectory extends AbstractFileTestCase {
   }
 
   public void testCopyTo() throws Exception {
-    final Set files = new HashSet() {{
+    final Set<File> files = new HashSet<File>() {{
       add(new File("a file"));
       add(new File("directory/.afile"));
       add(new File("directory/b/c/d/e"));
     }};
 
-    final Iterator iterator = files.iterator();
-
-    while (iterator.hasNext()) {
-      final File relativeFile = (File)iterator.next();
+    for (File relativeFile : files) {
       final File absoluteFile =
         new File(getDirectory(), relativeFile.getPath());
 
@@ -379,6 +375,6 @@ public class TestDirectory extends AbstractFileTestCase {
   public void testSerialization() throws Exception {
     final Directory original = new Directory(getDirectory());
 
-    assertEquals(original, (Directory)Serializer.serialize(original));
+    assertEquals(original, Serializer.serialize(original));
   }
 }

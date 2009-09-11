@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,17 +35,18 @@ import junit.framework.TestCase;
 public class TestCommunicationDefaults extends TestCase {
 
   public void testThatIsStupidButImprovesCoverage() throws Exception {
-    final Class c = CommunicationDefaults.class;
-    final Constructor constructor = c.getDeclaredConstructor(new Class[0]);
+    final Class<CommunicationDefaults> c = CommunicationDefaults.class;
+    final Constructor<CommunicationDefaults> constructor =
+      c.getDeclaredConstructor();
 
     try {
-      constructor.newInstance(new Object[0]);
+      constructor.newInstance();
       fail("Expected IllegalAccessException");
     }
     catch (IllegalAccessException e) {
     }
 
     constructor.setAccessible(true);
-    constructor.newInstance(new Object[0]);
+    constructor.newInstance();
   }
 }

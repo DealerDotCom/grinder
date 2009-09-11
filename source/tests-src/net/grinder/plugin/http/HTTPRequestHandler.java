@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,13 +28,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import junit.framework.Assert;
-
 import HTTPClient.NVPair;
 
 
@@ -45,7 +43,7 @@ import HTTPClient.NVPair;
 class HTTPRequestHandler extends Assert implements Runnable {
   private static final Pattern s_contentLengthPattern;
 
-  private final List m_headers = new ArrayList();
+  private final List<NVPair> m_headers = new ArrayList<NVPair>();
 
   static {
     try {
@@ -241,11 +239,7 @@ class HTTPRequestHandler extends Assert implements Runnable {
   protected void writeHeaders(StringBuffer response) {
     response.append("HTTP/1.0 200 OK\r\n");
 
-    final Iterator iterator = m_headers.iterator();
-
-    while (iterator.hasNext()) {
-      final NVPair pair = (NVPair)iterator.next();
-
+    for (NVPair pair : m_headers) {
       response.append(pair.getName()).append(": ").append(pair.getValue());
       response.append("\r\n");
     }

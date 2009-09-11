@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -119,10 +119,10 @@ public class AssertUtilities extends Assert {
   }
 
   public static void assertArrayContainsAll(Object[] array1, Object[] array2) {
-    final List list1 = Arrays.asList(array1);
-    final List list2 = Arrays.asList(array2);
+    final List<Object> list1 = Arrays.asList(array1);
+    final List<Object> list2 = Arrays.asList(array2);
     assertTrue("" + list1 + " contains " + list2,
-      new HashSet(list1).containsAll(list2));
+      new HashSet<Object>(list1).containsAll(list2));
   }
 
   public static void assertNotEquals(Object o1, Object o2) {

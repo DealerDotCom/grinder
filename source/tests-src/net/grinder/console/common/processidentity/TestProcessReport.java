@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,7 +39,7 @@ import net.grinder.engine.agent.StubAgentIdentity;
 public class TestProcessReport extends TestCase {
 
   public void testStateThenNameComparator() throws Exception {
-    final Comparator comparator =
+    final Comparator<ProcessReport> comparator =
       new ProcessReport.StateThenNameThenNumberComparator();
 
     final AgentIdentity agentIdentity1 =

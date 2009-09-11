@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,10 +26,10 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 
 
-public class StubResources implements Resources {
-  private final Map m_results;
+public class StubResources<T> implements Resources {
+  private final Map<String, T> m_results;
 
-  public StubResources(Map results) {
+  public StubResources(Map<String, T> results) {
     m_results = results;
   }
 
@@ -53,7 +53,7 @@ public class StubResources implements Resources {
     throw new AssertionError("not implemented");
   }
 
-  public void put(String key, Object value) {
+  public void put(String key, T value) {
     m_results.put(key, value);
   }
 }

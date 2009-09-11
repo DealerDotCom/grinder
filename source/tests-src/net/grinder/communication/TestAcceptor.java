@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -143,7 +143,7 @@ public class TestAcceptor extends TestCase {
     assertSame(controlSocketSet,
                acceptor.getSocketSet(ConnectionType.AGENT));
 
-    final List controlSocketResources = controlSocketSet.reserveAll();
+    final List<?> controlSocketResources = controlSocketSet.reserveAll();
     assertEquals(2, controlSocketResources.size());
 
     // Now do a similar checks with report socket set.
@@ -158,7 +158,7 @@ public class TestAcceptor extends TestCase {
 
     assertSame(reportSocketSet, acceptor.getSocketSet(ConnectionType.WORKER));
 
-    final List reportSocketResources = reportSocketSet.reserveAll();
+    final List<?> reportSocketResources = reportSocketSet.reserveAll();
     assertEquals(1, reportSocketResources.size());
 
     acceptor.shutdown();

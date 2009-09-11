@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,8 +41,8 @@ import net.grinder.testutility.RandomStubFactory;
 public class TestProcessReportDescriptionFactory extends TestCase {
 
   private Resources m_resources =
-    new StubResources(
-      new HashMap() { {
+    new StubResources<String>(
+      new HashMap<String, String>() { {
         put("processTable.threads.label", "strings");
         put("processTable.agentProcess.label", "AG");
         put("processTable.workerProcess.label", "WK");
