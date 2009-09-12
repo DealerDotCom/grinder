@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -52,10 +52,10 @@ public class TestAllocateLowestNumberImplementation extends TestCase {
     set.remove(object2);
     assertEquals(1, set.add(object4));
 
-    final Map expectation = new HashMap() {{
-      put(object1, new Integer(0));
-      put(object4, new Integer(1));
-      put(object3, new Integer(2));
+    final Map<Object, Integer> expectation = new HashMap<Object, Integer>() {{
+      put(object1, 0);
+      put(object4, 1);
+      put(object3, 2);
     }};
 
     set.forEach(new IteratorCallback() {

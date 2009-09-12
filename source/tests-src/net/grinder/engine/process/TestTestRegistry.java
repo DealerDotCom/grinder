@@ -48,7 +48,7 @@ public class TestTestRegistry extends TestCase {
   private final TimeAuthorityStubFactory m_timeAuthorityStubFactory =
     new TimeAuthorityStubFactory();
   private final TimeAuthority m_timeAuthority =
-    m_timeAuthorityStubFactory.getTimeAuthority();
+    m_timeAuthorityStubFactory.getStub();
 
   public TestTestRegistry(String name) {
     super(name);

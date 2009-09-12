@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,8 +45,8 @@ public class TestCustomAction extends TestCase {
   private static ImageIcon s_image2 = new ImageIcon();
 
   private static Resources s_resources =
-    new StubResources(
-      new HashMap() { {
+    new StubResources<Object>(
+      new HashMap<String, Object>() { {
         put("blah.label", "lah");
         put("blah.rollover-image", s_image2);
         put("x.label", "X");

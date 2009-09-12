@@ -24,8 +24,7 @@ package net.grinder.engine.agent;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-
-import clover.retrotranslator.edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 import net.grinder.common.GrinderException;
 import net.grinder.util.Directory;

@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -53,7 +53,7 @@ import net.grinder.util.TerminalColour;
  */
 public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
-  private final List m_echoers = new java.util.LinkedList();
+  private final List<AcceptAndEcho> m_echoers = new java.util.LinkedList<AcceptAndEcho>();
 
   private final MyFilterStubFactory m_requestFilterStubFactory =
     new MyFilterStubFactory();
@@ -95,10 +95,10 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
   }
 
   protected void tearDown() throws Exception {
-    final Iterator iterator = m_echoers.iterator();
+    final Iterator<AcceptAndEcho> iterator = m_echoers.iterator();
 
     while (iterator.hasNext()) {
-      ((AcceptAndEcho)iterator.next()).shutdown();
+      iterator.next().shutdown();
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,6 @@ import java.io.File;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.processidentity.WorkerIdentity;
-import net.grinder.communication.Message;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.testutility.AbstractFileTestCase;
@@ -58,8 +57,7 @@ public class TestWorkerMessages extends AbstractFileTestCase {
       new InitialiseGrinderMessage(
         workerIdentity, workerIdentity2, false, script, properties);
 
-    final InitialiseGrinderMessage received =
-      (InitialiseGrinderMessage) ((Message) Serializer.serialize(original));
+    final InitialiseGrinderMessage received = Serializer.serialize(original);
 
     assertEquals(workerIdentity, received.getWorkerIdentity());
     assertEquals(workerIdentity2, received.getFirstWorkerIdentity());

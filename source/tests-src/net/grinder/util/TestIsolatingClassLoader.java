@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.util;
 import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
+
 
 public class TestIsolatingClassLoader extends TestCase {
 
@@ -71,7 +72,7 @@ public class TestIsolatingClassLoader extends TestCase {
 
     final String name = "net.grinder.util.AnIsolatedClass";
 
-    final Class c = Class.forName(name, true, clA);
+    final Class<?> c = Class.forName(name, true, clA);
 
     // AFAICT, the SUN JVM/JDK never calls loadClass(.., true).
     // Do so by here to force coverage.

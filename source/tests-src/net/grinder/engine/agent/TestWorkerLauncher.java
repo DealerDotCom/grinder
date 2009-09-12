@@ -92,7 +92,7 @@ public class TestWorkerLauncher extends TestCase {
 
     assertEquals(1, myProcessFactory.getChildProcesses().size());
     final Worker childProcess =
-      (Worker)myProcessFactory.getChildProcesses().get(0);
+      myProcessFactory.getChildProcesses().get(0);
 
     final CallData call =
       loggerStubFactory.assertSuccess("output", String.class);
@@ -114,7 +114,6 @@ public class TestWorkerLauncher extends TestCase {
     assertFalse(workerLauncher.allFinished());
 
     final Worker[] processes =
-      (Worker[])
       myProcessFactory.getChildProcesses().toArray(new Worker[0]);
 
     sendTerminationMessage(processes[0]);
@@ -171,7 +170,6 @@ public class TestWorkerLauncher extends TestCase {
     assertEquals(9, myProcessFactory.getChildProcesses().size());
 
     final Worker[] processes =
-      (Worker[])
       myProcessFactory.getChildProcesses().toArray(new Worker[0]);
 
     sendTerminationMessage(processes[0]);
@@ -265,7 +263,6 @@ public class TestWorkerLauncher extends TestCase {
     assertEquals(4, myProcessFactory.getChildProcesses().size());
 
     final Worker[] processes =
-      (Worker[])
       myProcessFactory.getChildProcesses().toArray(new Worker[0]);
 
     sendTerminationMessage(processes[1]);
@@ -320,7 +317,7 @@ public class TestWorkerLauncher extends TestCase {
     private int m_numberOfProcesses = 0;
     private OutputStream m_lastOutputStream;
     private OutputStream m_lastErrorStream;
-    private ArrayList m_childProcesses = new ArrayList();
+    private ArrayList<Worker> m_childProcesses = new ArrayList<Worker>();
     private StubAgentIdentity m_agentIdentity =
       new StubAgentIdentity("process");
 
@@ -361,7 +358,7 @@ public class TestWorkerLauncher extends TestCase {
       return m_lastErrorStream;
     }
 
-    public ArrayList getChildProcesses() {
+    public ArrayList<Worker> getChildProcesses() {
       return m_childProcesses;
     }
   }

@@ -54,7 +54,7 @@ public class TestScriptLocation extends AbstractFileTestCase {
     assertEquals(sl1.hashCode(), sl2.hashCode());
     assertTrue(sl1.hashCode() != sl3.hashCode());
 
-    final ScriptLocation sl4 = (ScriptLocation)Serializer.serialize(sl1);
+    final ScriptLocation sl4 = Serializer.serialize(sl1);
     assertEquals(sl1, sl4);
 
     final ScriptLocation sl5 = new ScriptLocation(file1);

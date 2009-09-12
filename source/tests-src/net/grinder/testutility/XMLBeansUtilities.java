@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,14 +38,14 @@ import org.apache.xmlbeans.XmlOptions;
  */
 public class XMLBeansUtilities {
   public static final void validate(XmlObject o) {
-    final ArrayList errors = new ArrayList();
+    final ArrayList<XmlError> errors = new ArrayList<XmlError>();
 
     if (!o.validate(new XmlOptions().setErrorListener(errors))) {
       final StringBuffer message = new StringBuffer();
       message.append("Validation failures:\n");
 
       for (int i = 0; i < errors.size(); ++i) {
-        final XmlError error = (XmlError)errors.get(i);
+        final XmlError error = errors.get(i);
         message.append(i + 1);
         message.append(": ");
         message.append(error.getMessage());

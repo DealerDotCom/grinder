@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -62,8 +62,7 @@ public class TestFileContents extends AbstractFileTestCase {
       assertEquals(relativePath, fileContents.getFilename());
       AssertUtilities.assertArraysEqual(bytes, fileContents.getContents());
 
-      final FileContents fileContents2 =
-        (FileContents)Serializer.serialize(fileContents);
+      final FileContents fileContents2 = Serializer.serialize(fileContents);
 
       assertEquals(relativePath, fileContents2.getFilename());
       AssertUtilities.assertArraysEqual(bytes, fileContents2.getContents());

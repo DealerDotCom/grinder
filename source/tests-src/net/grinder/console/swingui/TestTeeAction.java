@@ -39,10 +39,10 @@ public class TestTeeAction extends TestCase {
 
   public void testTeeAction() throws Exception {
     final ActionStubFactory action1StubFactory = new ActionStubFactory();
-    final Action action1 = action1StubFactory.getAction();
+    final Action action1 = action1StubFactory.getStub();
 
     final ActionStubFactory action2StubFactory = new ActionStubFactory();
-    final Action action2 = action2StubFactory.getAction();
+    final Action action2 = action2StubFactory.getStub();
 
     final TeeAction teeAction = new TeeAction(action1, action2);
 
@@ -93,7 +93,8 @@ public class TestTeeAction extends TestCase {
     action2StubFactory.assertNoMoreCalls();
   }
 
-  public final static class ActionStubFactory extends RandomStubFactory {
+  public final static class ActionStubFactory
+    extends RandomStubFactory<Action> {
 
     private boolean m_isEnabled = false;
 
@@ -107,10 +108,6 @@ public class TestTeeAction extends TestCase {
 
     public void setEnabled(boolean b) {
       m_isEnabled = b;
-    }
-
-    Action getAction() {
-      return (Action)getStub();
     }
   }
 }

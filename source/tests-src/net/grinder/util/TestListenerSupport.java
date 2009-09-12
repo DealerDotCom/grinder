@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,7 +37,8 @@ public class TestListenerSupport extends TestCase {
 
   public void testWithInformer() throws Exception {
 
-    final ListenerSupport listenerSupport = new ListenerSupport();
+    final ListenerSupport<Object> listenerSupport =
+      new ListenerSupport<Object>();
 
     final Object listener1 = new Object();
     final Object listener2 = new Object();
@@ -48,9 +49,9 @@ public class TestListenerSupport extends TestCase {
     listenerSupport.add(listener3);
     listenerSupport.add(listener1);
 
-    final List listeners = new ArrayList();
+    final List<Object> listeners = new ArrayList<Object>();
 
-    listenerSupport.apply(new ListenerSupport.Informer() {
+    listenerSupport.apply(new ListenerSupport.Informer<Object>() {
       public void inform(Object listener) {
         listeners.add(listener);
       }
@@ -67,16 +68,17 @@ public class TestListenerSupport extends TestCase {
 
   public void testWithHandlingInformer() throws Exception {
 
-    final ListenerSupport listenerSupport = new ListenerSupport();
+    final ListenerSupport<Object> listenerSupport =
+      new ListenerSupport<Object>();
 
     final Object listener1 = new Object();
     final Object listener2 = new Object();
     final Object listener3 = new Object();
 
-    final List listeners = new ArrayList();
+    final List<Object> listeners = new ArrayList<Object>();
 
-    final ListenerSupport.HandlingInformer informUpToListener3 =
-      new ListenerSupport.HandlingInformer() {
+    final ListenerSupport.HandlingInformer<Object> informUpToListener3 =
+      new ListenerSupport.HandlingInformer<Object>() {
         public boolean inform(Object listener) {
           if (listener == listener3) {
             return true;
@@ -110,8 +112,8 @@ public class TestListenerSupport extends TestCase {
 
     listeners.clear();
 
-    final ListenerSupport.HandlingInformer informAll =
-      new ListenerSupport.HandlingInformer() {
+    final ListenerSupport.HandlingInformer<Object> informAll =
+      new ListenerSupport.HandlingInformer<Object>() {
         public boolean inform(Object listener) {
           listeners.add(listener);
           return false;

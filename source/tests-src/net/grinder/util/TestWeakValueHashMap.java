@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,7 +34,8 @@ public class TestWeakValueHashMap extends TestCase {
 
   public void testWeakValueHashMap() throws Exception {
 
-    final WeakValueHashMap map = new WeakValueHashMap();
+    final WeakValueHashMap<Object, Object> map =
+      new WeakValueHashMap<Object, Object>();
 
     Object k1 = new Object();
     Object v1 = new Object();

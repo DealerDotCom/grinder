@@ -79,7 +79,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
   private final DispatcherStubFactory m_dispatcherStubFactory =
     new DispatcherStubFactory();
   private final Dispatcher m_dispatcher =
-    m_dispatcherStubFactory.getDispatcher();
+    m_dispatcherStubFactory.getStub();
 
   public TestJythonScriptEngine() throws Exception {
     m_versionAdapter = new JythonVersionAdapter();
@@ -1025,7 +1025,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final JythonScriptEngine scriptEngine = new JythonScriptEngine();
 
     final DispatcherStubFactory dispatcherStubFactory = new DispatcherStubFactory();
-    final Dispatcher dispatcher = dispatcherStubFactory.getDispatcher();
+    final Dispatcher dispatcher = dispatcherStubFactory.getStub();
 
     m_interpreter.exec("def blah(): raise 'a problem'");
     final PyObject pyFunction = m_interpreter.get("blah");
@@ -1068,13 +1068,11 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     }
   }
 
-  public static final class DispatcherStubFactory extends RandomStubFactory {
+  public static final class DispatcherStubFactory
+    extends RandomStubFactory<Dispatcher> {
+
     public DispatcherStubFactory() {
       super(Dispatcher.class);
-    }
-
-    Dispatcher getDispatcher() {
-      return (Dispatcher) getStub();
     }
 
     public Object override_dispatch(Object proxy, Callable callable) {

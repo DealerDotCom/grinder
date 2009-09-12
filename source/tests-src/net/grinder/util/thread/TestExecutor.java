@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -74,7 +74,8 @@ public class TestExecutor extends TestCase {
     // middle of shutting down. Another thread in execute() could be
     // just about to queue some work.
 
-    final ThreadSafeQueue myQueue = new ThreadSafeQueue();
+    final ThreadSafeQueue<InterruptibleRunnable> myQueue =
+      new ThreadSafeQueue<InterruptibleRunnable>();
 
     final Executor executor = new Executor(myQueue, 5);
 

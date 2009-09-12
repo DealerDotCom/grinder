@@ -69,7 +69,7 @@ public class TestProcessWorkerFactory extends TestCase {
       new WorkerProcessCommandLine(
         grinderProperties, systemProperties, "");
 
-    final List commandList = commandLine.getCommandList();
+    final List<String> commandList = commandLine.getCommandList();
 
     commandList.set(
       commandList.indexOf(WorkerProcessEntryPoint.class.getName()),
