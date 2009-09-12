@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,21 +41,19 @@ import net.grinder.util.StandardTimeAuthority;
 public class TestHTTPPluginControl extends TestCase {
 
   public void testHTTPPluginControl() throws Exception {
-    final RandomStubFactory pluginProcessContextStubFactory =
-      new RandomStubFactory(PluginProcessContext.class);
-    final PluginProcessContext pluginProcessContext =
-      (PluginProcessContext)pluginProcessContextStubFactory.getStub();
-
+    final RandomStubFactory<PluginProcessContext>
+      pluginProcessContextStubFactory =
+        RandomStubFactory.create(PluginProcessContext.class);
     final HTTPPluginThreadState threadState =
       new HTTPPluginThreadState(null,
                                 null,
                                 null,
                                 new StandardTimeAuthority());
 
-    final RandomStubFactory scriptContextStubFactory =
-      new RandomStubFactory(ScriptContext.class);
+    final RandomStubFactory<ScriptContext> scriptContextStubFactory =
+      RandomStubFactory.create(ScriptContext.class);
     final ScriptContext scriptContext =
-      (ScriptContext)scriptContextStubFactory.getStub();
+      scriptContextStubFactory.getStub();
 
     pluginProcessContextStubFactory.setResult(
       "getPluginThreadListener", threadState);
@@ -66,14 +64,14 @@ public class TestHTTPPluginControl extends TestCase {
       { setInstance(this); }
 
       public void register(GrinderPlugin plugin) throws GrinderException {
-        plugin.initialize(pluginProcessContext);
+        plugin.initialize(pluginProcessContextStubFactory.getStub());
       }
     };
 
     // Sigh, if a previous test has registered a stub PluginProcessContext, we
     // need to rewire it to make this test valid. Further proof that static
     // references are evil.
-    final AbstractStubFactory existingProcessContextStubFactory =
+    final AbstractStubFactory<?> existingProcessContextStubFactory =
         AbstractStubFactory.getFactory(
           HTTPPlugin.getPlugin().getPluginProcessContext());
     if (existingProcessContextStubFactory != pluginProcessContextStubFactory) {

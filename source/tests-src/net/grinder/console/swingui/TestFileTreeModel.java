@@ -33,6 +33,7 @@ import net.grinder.console.distribution.FileChangeWatcher;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.editor.TextSource;
+import net.grinder.console.editor.TextSource.Factory;
 import net.grinder.console.swingui.FileTreeModel.FileNode;
 import net.grinder.console.swingui.FileTreeModel.Node;
 import net.grinder.testutility.AbstractFileTestCase;
@@ -49,24 +50,25 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestFileTreeModel extends AbstractFileTestCase {
 
-  private RandomStubFactory m_resourcesStubFactory =
-    new RandomStubFactory(Resources.class);
-  private Resources m_resources = (Resources)m_resourcesStubFactory.getStub();
+  private RandomStubFactory<Resources> m_resourcesStubFactory =
+    RandomStubFactory.create(Resources.class);
+  private Resources m_resources = m_resourcesStubFactory.getStub();
 
-  private RandomStubFactory m_textSourceFactoryStubFactory =
-    new RandomStubFactory(TextSource.Factory.class);
+  private RandomStubFactory<Factory> m_textSourceFactoryStubFactory =
+    RandomStubFactory.create(TextSource.Factory.class);
   private TextSource.Factory m_textSourceFactory =
-    (TextSource.Factory)m_textSourceFactoryStubFactory.getStub();
+    m_textSourceFactoryStubFactory.getStub();
 
-  private RandomStubFactory m_agentCacheStateStubFactory =
-    new RandomStubFactory(AgentCacheState.class);
+  private RandomStubFactory<AgentCacheState> m_agentCacheStateStubFactory =
+    RandomStubFactory.create(AgentCacheState.class);
   private AgentCacheState m_agentCacheState =
-    (AgentCacheState)m_agentCacheStateStubFactory.getStub();
+    m_agentCacheStateStubFactory.getStub();
 
-  private final RandomStubFactory m_fileChangeWatcherStubFactory =
-    new RandomStubFactory(FileChangeWatcher.class);
+  private final RandomStubFactory<FileChangeWatcher>
+    m_fileChangeWatcherStubFactory =
+      RandomStubFactory.create(FileChangeWatcher.class);
   private final FileChangeWatcher m_fileChangeWatcher =
-    (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
+    m_fileChangeWatcherStubFactory.getStub();
 
   final EditorModel m_editorModel = new EditorModel(m_resources,
                                                     m_textSourceFactory,
@@ -112,19 +114,15 @@ public class TestFileTreeModel extends AbstractFileTestCase {
   }
 
   public void testListener() throws Exception {
-    final RandomStubFactory listenerStubFactory1 =
-      new RandomStubFactory(TreeModelListener.class);
-    final TreeModelListener listener1 =
-      (TreeModelListener)listenerStubFactory1.getStub();
-    final RandomStubFactory listenerStubFactory2 =
-      new RandomStubFactory(TreeModelListener.class);
-    final TreeModelListener listener2 =
-      (TreeModelListener)listenerStubFactory2.getStub();
+    final RandomStubFactory<TreeModelListener> listenerStubFactory1 =
+      RandomStubFactory.create(TreeModelListener.class);
+    final RandomStubFactory<TreeModelListener> listenerStubFactory2 =
+      RandomStubFactory.create(TreeModelListener.class);
 
     final FileTreeModel fileTreeModel =
       new FileTreeModel(m_editorModel, m_nullFileFilter);
-    fileTreeModel.addTreeModelListener(listener1);
-    fileTreeModel.addTreeModelListener(listener2);
+    fileTreeModel.addTreeModelListener(listenerStubFactory1.getStub());
+    fileTreeModel.addTreeModelListener(listenerStubFactory2.getStub());
 
     fileTreeModel.setRootDirectory(getDirectory());
     final Node rootNode = (Node)fileTreeModel.getRoot();
@@ -155,7 +153,7 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     // pertinent to the test.
     listenerStubFactory1.setIgnoreObjectMethods();
     listenerStubFactory2.setIgnoreObjectMethods();
-    fileTreeModel.removeTreeModelListener(listener1);
+    fileTreeModel.removeTreeModelListener(listenerStubFactory1.getStub());
     fileTreeModel.refresh();
 
     listenerStubFactory1.assertNoMoreCalls();
@@ -253,11 +251,9 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     assertSame(file3Node, fileTreeModel.getChild(dir1Node, 1));
     assertSame(file3Node, fileTreeModel.findNode(file3));
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(TreeModelListener.class);
-    final TreeModelListener listener =
-      (TreeModelListener)listenerStubFactory.getStub();
-    fileTreeModel.addTreeModelListener(listener);
+    final RandomStubFactory<TreeModelListener> listenerStubFactory =
+      RandomStubFactory.create(TreeModelListener.class);
+    fileTreeModel.addTreeModelListener(listenerStubFactory.getStub());
 
     final File dir3 = new File(dir1, "dir3");
     final File file4 = new File(dir3, "file4");
@@ -294,12 +290,12 @@ public class TestFileTreeModel extends AbstractFileTestCase {
     fileTreeModel.setRootDirectory(getDirectory());
     final FileNode file1Node = (FileNode)fileTreeModel.findNode(file1);
 
-    final RandomStubFactory bufferStubFactory1 =
-      new RandomStubFactory(Buffer.class);
-    final Buffer buffer1 = (Buffer)bufferStubFactory1.getStub();
-    final RandomStubFactory bufferStubFactory2 =
-      new RandomStubFactory(Buffer.class);
-    final Buffer buffer2 = (Buffer)bufferStubFactory2.getStub();
+    final RandomStubFactory<Buffer> bufferStubFactory1 =
+      RandomStubFactory.create(Buffer.class);
+    final Buffer buffer1 = bufferStubFactory1.getStub();
+    final RandomStubFactory<Buffer> bufferStubFactory2 =
+      RandomStubFactory.create(Buffer.class);
+    final Buffer buffer2 = bufferStubFactory2.getStub();
 
     file1Node.setBuffer(buffer1);
     assertSame(buffer1, file1Node.getBuffer());
@@ -325,10 +321,10 @@ public class TestFileTreeModel extends AbstractFileTestCase {
       new FileTreeModel(m_editorModel, m_nullFileFilter);
     fileTreeModel.setRootDirectory(getDirectory());
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(TreeModelListener.class);
+    final RandomStubFactory<TreeModelListener> listenerStubFactory =
+      RandomStubFactory.create(TreeModelListener.class);
     final TreeModelListener listener =
-      (TreeModelListener)listenerStubFactory.getStub();
+      listenerStubFactory.getStub();
     fileTreeModel.addTreeModelListener(listener);
 
     final FileChangeWatcher.FileChangedListener filesChangedListener =

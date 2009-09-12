@@ -25,6 +25,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.communication.ResourcePool.Listener;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -69,18 +70,14 @@ public class TestResourcePool extends TestCase {
 
     final ResourcePool resourcePool = new ResourcePoolImplementation();
 
-    final RandomStubFactory listener1StubFactory =
-      new RandomStubFactory(ResourcePool.Listener.class);
-    final ResourcePool.Listener listener1 =
-      (ResourcePool.Listener)listener1StubFactory.getStub();
+    final RandomStubFactory<Listener> listener1StubFactory =
+      RandomStubFactory.create(ResourcePool.Listener.class);
 
-    final RandomStubFactory listener2StubFactory =
-      new RandomStubFactory(ResourcePool.Listener.class);
-    final ResourcePool.Listener listener2 =
-      (ResourcePool.Listener)listener2StubFactory.getStub();
+    final RandomStubFactory<Listener> listener2StubFactory =
+      RandomStubFactory.create(ResourcePool.Listener.class);
 
-    resourcePool.addListener(listener1);
-    resourcePool.addListener(listener2);
+    resourcePool.addListener(listener1StubFactory.getStub());
+    resourcePool.addListener(listener2StubFactory.getStub());
 
     final MyResource resource1 = new MyResource();
     final MyResource resource2 = new MyResource();
@@ -246,15 +243,13 @@ public class TestResourcePool extends TestCase {
     assertEquals(0, resourcePool.reserveAll().size());
     assertEquals(0, resourcePool.reserveAll().size());
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ResourcePool.Listener.class);
-    final ResourcePool.Listener listener =
-      (ResourcePool.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<Listener> listenerStubFactory =
+      RandomStubFactory.create(ResourcePool.Listener.class);
 
     final MyResource resource1 = new MyResource();
     final MyResource resource2 = new MyResource();
 
-    resourcePool.addListener(listener);
+    resourcePool.addListener(listenerStubFactory.getStub());
 
     resourcePool.add(resource1);
     resourcePool.add(resource2);

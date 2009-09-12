@@ -36,15 +36,13 @@ public class TestTeeSender extends TestCase {
 
   public void testWithGoodSenders() throws Exception {
 
-    final RandomStubFactory sender1StubFactory =
-      new RandomStubFactory(Sender.class);
-    final Sender sender1 = (Sender)sender1StubFactory.getStub();
+    final RandomStubFactory<Sender> sender1StubFactory =
+      RandomStubFactory.create(Sender.class);
 
-    final RandomStubFactory sender2StubFactory =
-      new RandomStubFactory(Sender.class);
-    final Sender sender2 = (Sender)sender2StubFactory.getStub();
-
-    final TeeSender teeSender = new TeeSender(sender1, sender2);
+    final RandomStubFactory<Sender> sender2StubFactory =
+      RandomStubFactory.create(Sender.class);
+    final TeeSender teeSender = new TeeSender(sender1StubFactory.getStub(),
+                                              sender2StubFactory.getStub());
 
     final Message m1 = new SimpleMessage();
     final Message m2 = new SimpleMessage();
@@ -89,9 +87,9 @@ public class TestTeeSender extends TestCase {
 
   public void testWithABadSender() throws Exception {
 
-    final RandomStubFactory goodSenderStubFactory =
-      new RandomStubFactory(Sender.class);
-    final Sender goodSender = (Sender)goodSenderStubFactory.getStub();
+    final RandomStubFactory<Sender> goodSenderStubFactory =
+      RandomStubFactory.create(Sender.class);
+    final Sender goodSender = goodSenderStubFactory.getStub();
 
     final CommunicationException exceptionToThrowFromSend =
       new CommunicationException("Foo");

@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,71 +21,16 @@
 
 package net.grinder.common;
 
-import java.io.PrintWriter;
 
-import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.CallData;
-import net.grinder.testutility.StubPrintWriter;
-import net.grinder.testutility.RandomStubFactory;
-
-
-public class LoggerStubFactory extends RandomStubFactory {
-
-  private StubPrintWriter m_outputLogWriter = new StubPrintWriter();
-  private StubPrintWriter m_errorLogWriter = new StubPrintWriter();
+/**
+ * Factory for <code>Logger</code> stubs.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
+public class LoggerStubFactory extends AbstractLoggerStubFactory<Logger> {
 
   public LoggerStubFactory() {
     super(Logger.class);
   }
-
-  protected LoggerStubFactory(Class c) {
-    super(c);
-  }
-
-  public Logger getLogger() {
-    return (Logger) getStub();
-  }
-
-  public StubPrintWriter getOutputLogWriter() {
-    return m_outputLogWriter;
-  }
-
-  public StubPrintWriter getErrorLogWriter() {
-    return m_errorLogWriter;
-  }
-
-  public PrintWriter override_getOutputLogWriter(Object proxy) {
-    return getOutputLogWriter();
-  }
-
-  public PrintWriter override_getErrorLogWriter(Object proxy) {
-    return getErrorLogWriter();
-  }
-
-  public CallData assertOutputMessage(String message) {
-    final CallData callData = assertSuccess("output", String.class);
-    assertEquals(message, callData.getParameters()[0]);
-    return callData;
-  }
-
-  public CallData assertOutputMessageContains(String message) {
-    final CallData callData = assertSuccess("output", String.class);
-    AssertUtilities.assertContains(
-      callData.getParameters()[0].toString(), message);
-    return callData;
-  }
-
-  public CallData assertErrorMessage(String message) {
-    final CallData callData = assertSuccess("error", String.class);
-    assertEquals(message, callData.getParameters()[0]);
-    return callData;
-  }
-
-  public CallData assertErrorMessageContains(String message) {
-    final CallData callData = assertSuccess("error", String.class);
-    AssertUtilities.assertContains(
-      callData.getParameters()[0].toString(), message);
-    return callData;
-  }
 }
-

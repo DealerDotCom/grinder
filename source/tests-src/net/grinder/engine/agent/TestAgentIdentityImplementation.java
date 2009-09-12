@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,7 +45,7 @@ public class TestAgentIdentityImplementation extends TestCase {
     assertTrue(!a1.equals(this));
     assertTrue(!a1.equals(a2));
 
-    final AgentIdentity a1Copy = (AgentIdentity)Serializer.serialize(a1);
+    final AgentIdentity a1Copy = Serializer.serialize(a1);
 
     assertEquals("foo", a1.getName());
     a1.setName("bah");
@@ -71,7 +71,7 @@ public class TestAgentIdentityImplementation extends TestCase {
 
     assertTrue(!w1.getName().equals(w2.getName()));
 
-    final WorkerIdentity w1Copy = (WorkerIdentity)Serializer.serialize(w1);
+    final WorkerIdentity w1Copy = Serializer.serialize(w1);
 
     assertEquals(w1, w1Copy);
     assertEquals(w1.toString(), w1Copy.toString());

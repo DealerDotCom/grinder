@@ -36,6 +36,7 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.StubResources;
 import net.grinder.console.model.SampleModel.AbstractListener;
+import net.grinder.console.model.SampleModel.Listener;
 import net.grinder.console.model.SampleModel.State;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsServices;
@@ -72,15 +73,15 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
   private StubTimer m_timer;
 
-  private final RandomStubFactory m_listenerStubFactory =
-    new RandomStubFactory(SampleModel.Listener.class);
+  private final RandomStubFactory<Listener> m_listenerStubFactory =
+    RandomStubFactory.create(SampleModel.Listener.class);
   private final SampleModel.Listener m_listener =
-    (SampleModel.Listener)m_listenerStubFactory.getStub();
+    m_listenerStubFactory.getStub();
 
-  final RandomStubFactory m_errorHandlerStubFactory =
-    new RandomStubFactory(ErrorHandler.class);
+  final RandomStubFactory<ErrorHandler> m_errorHandlerStubFactory =
+    RandomStubFactory.create(ErrorHandler.class);
   final ErrorHandler m_errorHandler =
-    (ErrorHandler)m_errorHandlerStubFactory.getStub();
+    m_errorHandlerStubFactory.getStub();
 
   protected void setUp() throws Exception {
     super.setUp();
@@ -363,22 +364,20 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
                                     m_resources,
                                     m_errorHandler);
 
-    final RandomStubFactory totalSampleListenerStubFactory =
-      new RandomStubFactory(SampleListener.class);
-    final SampleListener totalSampleListener =
-      (SampleListener)totalSampleListenerStubFactory.getStub();
-
-    sampleModelImplementation.addTotalSampleListener(totalSampleListener);
+    final RandomStubFactory<SampleListener> totalSampleListenerStubFactory =
+      RandomStubFactory.create(SampleListener.class);
+    sampleModelImplementation.addTotalSampleListener(
+      totalSampleListenerStubFactory.getStub());
 
     final Test test1 = new StubTest(1, "test 1");
     final Test test2 = new StubTest(2, "test 2");
     final Test test3 = new StubTest(3, "test 3");
     final Test test4 = new StubTest(4, "test 4");
 
-    final RandomStubFactory sampleListenerStubFactory =
-      new RandomStubFactory(SampleListener.class);
+    final RandomStubFactory<SampleListener> sampleListenerStubFactory =
+      RandomStubFactory.create(SampleListener.class);
     final SampleListener sampleListener =
-      (SampleListener)sampleListenerStubFactory.getStub();
+      sampleListenerStubFactory.getStub();
 
     // Adding a listener for a test that isn't registered is a no-op.
     sampleModelImplementation.addSampleListener(test1, sampleListener);

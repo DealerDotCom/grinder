@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -71,10 +71,10 @@ public class TestCompositeTreeModel extends TestCase {
     assertFalse(compositeTreeModel.isLeaf(new Object()));
 
     final TreeModel delegateModel1 = createTreeModel();
-    final DelegatingStubFactory delegateModelStubFactory1 =
-      new DelegatingStubFactory(createTreeModel());
+    final DelegatingStubFactory<DefaultTreeModel> delegateModelStubFactory1 =
+      DelegatingStubFactory.create(createTreeModel());
     final TreeModel instrumentedDelegateModel1 =
-      (TreeModel)delegateModelStubFactory1.getStub();
+      delegateModelStubFactory1.getStub();
 
     compositeTreeModel.addTreeModel(instrumentedDelegateModel1, true);
 
@@ -138,13 +138,11 @@ public class TestCompositeTreeModel extends TestCase {
     final CompositeTreeModel compositeTreeModel = new CompositeTreeModel();
     final Object root = compositeTreeModel.getRoot();
 
-    final RandomStubFactory listener1StubFactory =
-      new RandomStubFactory(TreeModelListener.class);
+    final RandomStubFactory<TreeModelListener> listener1StubFactory =
+      RandomStubFactory.create(TreeModelListener.class);
     listener1StubFactory.setIgnoreObjectMethods();
-    final TreeModelListener listener1 =
-      (TreeModelListener)listener1StubFactory.getStub();
 
-    compositeTreeModel.addTreeModelListener(listener1);
+    compositeTreeModel.addTreeModelListener(listener1StubFactory.getStub());
 
     compositeTreeModel.valueForPathChanged(null, null);
     listener1StubFactory.assertNoMoreCalls();
@@ -155,13 +153,11 @@ public class TestCompositeTreeModel extends TestCase {
 
     compositeTreeModel.addTreeModel(delegateModel, false);
 
-    final RandomStubFactory listener2StubFactory =
-      new RandomStubFactory(TreeModelListener.class);
+    final RandomStubFactory<TreeModelListener> listener2StubFactory =
+      RandomStubFactory.create(TreeModelListener.class);
     listener2StubFactory.setIgnoreObjectMethods();
-    final TreeModelListener listener2 =
-      (TreeModelListener)listener2StubFactory.getStub();
 
-    compositeTreeModel.addTreeModelListener(listener2);
+    compositeTreeModel.addTreeModelListener(listener2StubFactory.getStub());
 
     final DefaultMutableTreeNode child3 = new DefaultMutableTreeNode("Child3");
     delegateModel.insertNodeInto(child3, delegateRoot, 2);
@@ -181,7 +177,7 @@ public class TestCompositeTreeModel extends TestCase {
                                        TreeModelEvent.class);
     listener2StubFactory.assertNoMoreCalls();
 
-    compositeTreeModel.removeTreeModelListener(listener1);
+    compositeTreeModel.removeTreeModelListener(listener1StubFactory.getStub());
 
     final DefaultMutableTreeNode grandChild2 =
       new DefaultMutableTreeNode("Grandchild2");
@@ -200,7 +196,7 @@ public class TestCompositeTreeModel extends TestCase {
       new Object[] { root, child3 }, insertEvent2.getPath());
 
     // Removing twice should be a no-op.
-    compositeTreeModel.removeTreeModelListener(listener1);
+    compositeTreeModel.removeTreeModelListener(listener1StubFactory.getStub());
   }
 
   private DefaultTreeModel createTreeModel() {
@@ -213,16 +209,5 @@ public class TestCompositeTreeModel extends TestCase {
     root.add(child1);
     root.add(child2);
     return new DefaultTreeModel(root);
-  }
-
-  public static class ListenerStubFactory extends RandomStubFactory {
-    ListenerStubFactory() {
-      super(TreeModelListener.class);
-      setIgnoreObjectMethods();
-    }
-
-    public TreeModelListener getListener() {
-      return (TreeModelListener)getStub();
-    }
   }
 }

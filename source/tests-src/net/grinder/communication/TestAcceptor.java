@@ -27,7 +27,6 @@ import java.net.Socket;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
@@ -100,12 +99,10 @@ public class TestAcceptor extends TestCase {
 
     assertEquals(0, acceptor.getNumberOfConnections());
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(Acceptor.Listener.class);
-    final Acceptor.Listener listener =
-      (Acceptor.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<Acceptor.Listener> listenerStubFactory =
+      RandomStubFactory.create(Acceptor.Listener.class);
 
-    acceptor.addListener(ConnectionType.WORKER, listener);
+    acceptor.addListener(ConnectionType.WORKER, listenerStubFactory.getStub());
 
     final ResourcePool controlSocketSet =
       acceptor.getSocketSet(ConnectionType.AGENT);

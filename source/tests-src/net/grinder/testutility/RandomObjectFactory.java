@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+
 /**
  *  Factory that generates various types of test object.
  *
@@ -38,7 +39,7 @@ public final class RandomObjectFactory {
 
   private final Random m_random = new Random();
 
-  public Object generateParameter(Class type) {
+  public Object generateParameter(Class<?> type) {
 
     if (Boolean.TYPE == type || Boolean.class == type) {
       return Boolean.valueOf(m_random.nextBoolean());
@@ -85,7 +86,7 @@ public final class RandomObjectFactory {
 
     if (Map.class == type) {
       final int size = Math.abs(m_random.nextInt() % 10);
-      final Map result = new HashMap(size);
+      final Map<Object, Object> result = new HashMap<Object, Object>(size);
 
       for (int i = 0; i < size; ++i) {
         result.put(
@@ -96,7 +97,7 @@ public final class RandomObjectFactory {
     }
 
     if (type.isArray()) {
-      final Class componentType = type.getComponentType();
+      final Class<?> componentType = type.getComponentType();
 
       if (Byte.TYPE == componentType) {
         // Handle byte[] as special case for optimisation and larger arrays.
@@ -131,7 +132,7 @@ public final class RandomObjectFactory {
         new SimpleEqualityDecoration("a null " + type.getName())));
   }
 
-  public Object[] generateParameters(Class[] parameterTypes) {
+  public Object[] generateParameters(Class<?>[] parameterTypes) {
 
     if (parameterTypes.length == 0) {
       return null;

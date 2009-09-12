@@ -59,10 +59,10 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("my agent");
 
-    final RandomStubFactory agentProcessReportStubFactory =
-      new RandomStubFactory(AgentProcessReport.class);
+    final RandomStubFactory<AgentProcessReport> agentProcessReportStubFactory =
+      RandomStubFactory.create(AgentProcessReport.class);
     final AgentProcessReport agentProcessReport =
-      (AgentProcessReport)agentProcessReportStubFactory.getStub();
+      agentProcessReportStubFactory.getStub();
     agentProcessReportStubFactory.setResult("getAgentIdentity", agentIdentity);
     agentProcessReportStubFactory.setResult(
       "getState", new Short(AgentProcessReport.STATE_UNKNOWN));
@@ -123,11 +123,14 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     final WorkerIdentity workerIdentity =
       agentIdentity.createWorkerIdentity();
 
-    final RandomStubFactory workerProcessReportStubFactory =
-      new RandomStubFactory(WorkerProcessReport.class);
+    final RandomStubFactory<WorkerProcessReport>
+      workerProcessReportStubFactory =
+        RandomStubFactory.create(WorkerProcessReport.class);
+
     final WorkerProcessReport workerProcessReport =
-      (WorkerProcessReport)workerProcessReportStubFactory.getStub();
-    workerProcessReportStubFactory.setResult("getWorkerIdentity", workerIdentity);
+      workerProcessReportStubFactory.getStub();
+    workerProcessReportStubFactory.setResult("getWorkerIdentity",
+                                             workerIdentity);
     workerProcessReportStubFactory.setResult(
       "getState", new Short(WorkerProcessReport.STATE_UNKNOWN));
 

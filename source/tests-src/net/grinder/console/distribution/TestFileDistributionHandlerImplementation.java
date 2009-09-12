@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,14 +40,15 @@ import net.grinder.util.FileContents;
 public class TestFileDistributionHandlerImplementation
   extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_distributionControlStubFactory =
-    new RandomStubFactory(DistributionControl.class);
+  private final RandomStubFactory<DistributionControl>
+    m_distributionControlStubFactory =
+      RandomStubFactory.create(DistributionControl.class);
   private final DistributionControl m_distributionControl =
-    (DistributionControl)m_distributionControlStubFactory.getStub();
+    m_distributionControlStubFactory.getStub();
 
-  private final RandomStubFactory m_agentSetStubFactory =
-    new RandomStubFactory(AgentSet.class);
-  private final AgentSet m_agentSet = (AgentSet)m_agentSetStubFactory.getStub();
+  private final RandomStubFactory<AgentSet> m_agentSetStubFactory =
+    RandomStubFactory.create(AgentSet.class);
+  private final AgentSet m_agentSet = m_agentSetStubFactory.getStub();
 
   private final CacheParameters m_cacheParameters =
     new CacheParametersImplementation(null, null);

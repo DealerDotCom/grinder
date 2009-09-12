@@ -79,7 +79,7 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
   }
 
   private final Resources m_resources =
-    new StubResources(new HashMap<String, Object>() {{
+    new StubResources<Object>(new HashMap<String, Object>() {{
     }});
 
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
@@ -154,19 +154,17 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
 
   public void testWireFileDistribution() throws Exception {
 
-    final RandomStubFactory fileDistributionStubFactory =
-      new RandomStubFactory(FileDistribution.class);
-    final FileDistribution fileDistribution =
-      (FileDistribution)fileDistributionStubFactory.getStub();
-
+    final RandomStubFactory<FileDistribution> fileDistributionStubFactory =
+      RandomStubFactory.create(FileDistribution.class);
     final ConsoleProperties consoleProperties =
       new ConsoleProperties(m_resources, new File(getDirectory(), "props"));
 
     final StubTimer timer = new StubTimer();
 
-    new ConsoleFoundation.WireFileDistribution(fileDistribution,
-                                               consoleProperties,
-                                               timer);
+    new ConsoleFoundation.WireFileDistribution(
+      fileDistributionStubFactory.getStub(),
+      consoleProperties,
+      timer);
 
     fileDistributionStubFactory.assertNoMoreCalls();
 
@@ -198,32 +196,31 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
   }
 
   public void testWireMessageDispatch() throws Exception {
-    final RandomStubFactory messageDispatchRegistryStubFactory =
-      new RandomStubFactory(MessageDispatchRegistry.class);
-    final MessageDispatchRegistry messageDispatchRegistry =
-      (MessageDispatchRegistry)messageDispatchRegistryStubFactory.getStub();
+    final RandomStubFactory<MessageDispatchRegistry>
+      messageDispatchRegistryStubFactory =
+        RandomStubFactory.create(MessageDispatchRegistry.class);
 
-    final RandomStubFactory consoleCommunicationStubFactory =
-      new RandomStubFactory(ConsoleCommunication.class);
-    final ConsoleCommunication consoleCommunication =
-      (ConsoleCommunication)consoleCommunicationStubFactory.getStub();
+    final RandomStubFactory<ConsoleCommunication>
+      consoleCommunicationStubFactory =
+        RandomStubFactory.create(ConsoleCommunication.class);
     consoleCommunicationStubFactory.setResult(
-      "getMessageDispatchRegistry", messageDispatchRegistry);
+      "getMessageDispatchRegistry",
+      messageDispatchRegistryStubFactory.getStub());
 
-    final RandomStubFactory modelStubFactory =
-      new RandomStubFactory(SampleModel.class);
-    final SampleModel model = (SampleModel)modelStubFactory.getStub();
+    final RandomStubFactory<SampleModel> modelStubFactory =
+      RandomStubFactory.create(SampleModel.class);
 
-    final RandomStubFactory sampleModelViewsStubFactory =
-      new RandomStubFactory(SampleModelViews.class);
-    final SampleModelViews sampleModelViews =
-      (SampleModelViews)sampleModelViewsStubFactory.getStub();
+    final RandomStubFactory<SampleModelViews> sampleModelViewsStubFactory =
+      RandomStubFactory.create(SampleModelViews.class);
 
     final DispatchClientCommands dispatchClientCommands =
       new DispatchClientCommands(null, null, null);
 
     new ConsoleFoundation.WireMessageDispatch(
-      consoleCommunication, model, sampleModelViews, dispatchClientCommands);
+      consoleCommunicationStubFactory.getStub(),
+      modelStubFactory.getStub(),
+      sampleModelViewsStubFactory.getStub(),
+      dispatchClientCommands);
 
     consoleCommunicationStubFactory.assertSuccess("getMessageDispatchRegistry");
     consoleCommunicationStubFactory.assertNoMoreCalls();

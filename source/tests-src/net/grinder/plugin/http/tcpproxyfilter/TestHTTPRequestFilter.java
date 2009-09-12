@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,12 +43,11 @@ public class TestHTTPRequestFilter extends TestCase {
       false);
 
   public void testDelegation() throws Exception {
-    final RandomStubFactory connectionMapStubFactory =
-      new RandomStubFactory(HTTPFilterEventListener.class);
-    final HTTPFilterEventListener connectionMap =
-      (HTTPFilterEventListener)connectionMapStubFactory.getStub();
+    final RandomStubFactory<HTTPFilterEventListener> connectionMapStubFactory =
+      RandomStubFactory.create(HTTPFilterEventListener.class);
 
-    final HTTPRequestFilter filter = new HTTPRequestFilter(connectionMap);
+    final HTTPRequestFilter filter =
+      new HTTPRequestFilter(connectionMapStubFactory.getStub());
 
     connectionMapStubFactory.assertNoMoreCalls();
 

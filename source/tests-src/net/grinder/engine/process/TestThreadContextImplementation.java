@@ -43,30 +43,32 @@ public class TestThreadContextImplementation extends TestCase {
   private final StatisticsServices m_statisticsServices =
     StatisticsServicesImplementation.getInstance();
 
-  private final RandomStubFactory m_threadLoggerStubFactory =
-    new RandomStubFactory(ThreadLogger.class);
+  private final RandomStubFactory<ThreadLogger> m_threadLoggerStubFactory =
+    RandomStubFactory.create(ThreadLogger.class);
   private final ThreadLogger m_threadLogger =
-    (ThreadLogger) m_threadLoggerStubFactory.getStub();
+    m_threadLoggerStubFactory.getStub();
 
-  private final RandomStubFactory m_filenameFactoryStubFactory =
-    new RandomStubFactory(FilenameFactory.class);
+  private final RandomStubFactory<FilenameFactory> m_filenameFactoryStubFactory =
+    RandomStubFactory.create(FilenameFactory.class);
   private final FilenameFactory m_filenameFactory =
-    (FilenameFactory)m_filenameFactoryStubFactory.getStub();
+    m_filenameFactoryStubFactory.getStub();
 
   private final ProcessContextStubFactory m_processContextStubFactory =
     new ProcessContextStubFactory();
   private final ProcessContext m_processContext =
-    m_processContextStubFactory.getProcessContext();
+    m_processContextStubFactory.getStub();
 
-  private final RandomStubFactory m_sslContextFactoryStubFactory =
-    new RandomStubFactory(SSLContextFactory.class);
+  private final RandomStubFactory<SSLContextFactory>
+    m_sslContextFactoryStubFactory =
+      RandomStubFactory.create(SSLContextFactory.class);
   private final SSLContextFactory m_sslContextFactory =
-    (SSLContextFactory)m_sslContextFactoryStubFactory.getStub();
+    m_sslContextFactoryStubFactory.getStub();
 
-  private final RandomStubFactory m_dispatchContextStubFactory =
-    new RandomStubFactory(DispatchContext.class);
+  private final RandomStubFactory<DispatchContext>
+    m_dispatchContextStubFactory =
+      RandomStubFactory.create(DispatchContext.class);
   private final DispatchContext m_dispatchContext =
-    (DispatchContext)m_dispatchContextStubFactory.getStub();
+    m_dispatchContextStubFactory.getStub();
 
   public void setUp() {
     m_processContextStubFactory.setResult(
@@ -192,10 +194,10 @@ public class TestThreadContextImplementation extends TestCase {
 
     m_threadLoggerStubFactory.resetCallHistory();
 
-    final RandomStubFactory statisticsForTestStubFactory =
-      new RandomStubFactory(StatisticsForTest.class);
+    final RandomStubFactory<StatisticsForTest> statisticsForTestStubFactory =
+      RandomStubFactory.create(StatisticsForTest.class);
     final StatisticsForTest statisticsForTest =
-      (StatisticsForTest)statisticsForTestStubFactory.getStub();
+      statisticsForTestStubFactory.getStub();
     m_dispatchContextStubFactory.setResult(
       "getStatisticsForTest", statisticsForTest);
 
@@ -221,20 +223,16 @@ public class TestThreadContextImplementation extends TestCase {
     assertSame(statisticsForTest, threadContext.getStatisticsForLastTest());
     assertNull(threadContext.getStatisticsForCurrentTest());
 
-    final RandomStubFactory anotherDispatchContextStubFactory =
-      new RandomStubFactory(DispatchContext.class);
-    final DispatchContext anotherDispatchContext =
-      (DispatchContext)anotherDispatchContextStubFactory.getStub();
+    final RandomStubFactory<DispatchContext> anotherDispatchContextStubFactory =
+      RandomStubFactory.create(DispatchContext.class);
     final Test test2 = new StubTest(3, "another test");
     anotherDispatchContextStubFactory.setResult("getTest", test2);
 
-    final RandomStubFactory stopWatchStubFactory =
-      new RandomStubFactory(StopWatch.class);
-    final StopWatch stopWatch =
-      (StopWatch)stopWatchStubFactory.getStub();
-    anotherDispatchContextStubFactory.setResult("getPauseTimer", stopWatch);
+    final RandomStubFactory<StopWatch> stopWatchStubFactory =
+      RandomStubFactory.create(StopWatch.class);
+    anotherDispatchContextStubFactory.setResult("getPauseTimer", stopWatchStubFactory.getStub());
 
-    threadContext.pushDispatchContext(anotherDispatchContext);
+    threadContext.pushDispatchContext(anotherDispatchContextStubFactory.getStub());
     threadContext.pushDispatchContext(m_dispatchContext);
     m_dispatchContextStubFactory.resetCallHistory();
     anotherDispatchContextStubFactory.resetCallHistory();
@@ -287,16 +285,14 @@ public class TestThreadContextImplementation extends TestCase {
   }
 
   public void testEvents() throws Exception {
-    final RandomStubFactory threadLifeCycleListenerStubFactory =
-      new RandomStubFactory(ThreadLifeCycleListener.class);
-    final ThreadLifeCycleListener threadLifeCycleListener =
-      (ThreadLifeCycleListener)threadLifeCycleListenerStubFactory.getStub();
-
+    final RandomStubFactory<ThreadLifeCycleListener> threadLifeCycleListenerStubFactory =
+      RandomStubFactory.create(ThreadLifeCycleListener.class);
     final ThreadContext threadContext =
       new ThreadContextImplementation(
         m_processContext, m_threadLogger, m_filenameFactory, null);
 
-    threadContext.registerThreadLifeCycleListener(threadLifeCycleListener);
+    threadContext.registerThreadLifeCycleListener(
+      threadLifeCycleListenerStubFactory.getStub());
 
     threadContext.fireBeginThreadEvent();
     threadLifeCycleListenerStubFactory.assertSuccess("beginThread");
@@ -463,16 +459,12 @@ public class TestThreadContextImplementation extends TestCase {
   }
 
   public static final class ProcessContextStubFactory
-    extends RandomStubFactory {
+    extends RandomStubFactory<ProcessContext> {
 
     private GrinderProperties m_properties = new GrinderProperties();
 
     public ProcessContextStubFactory() {
       super(ProcessContext.class);
-    }
-
-    public ProcessContext getProcessContext() {
-      return (ProcessContext)getStub();
     }
 
     public GrinderProperties override_getProperties(Object proxy) {

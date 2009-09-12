@@ -60,10 +60,11 @@ public class TestProcessStatusImplementation extends TestCase {
 
   private final MyTimer m_timer = new MyTimer();
 
-  private final RandomStubFactory m_allocateLowestNumberStubFactory =
-    new RandomStubFactory(AllocateLowestNumber.class);
+  private final RandomStubFactory<AllocateLowestNumber>
+    m_allocateLowestNumberStubFactory =
+      RandomStubFactory.create(AllocateLowestNumber.class);
   private final AllocateLowestNumber m_allocateLowestNumber =
-    (AllocateLowestNumber)m_allocateLowestNumberStubFactory.getStub();
+    m_allocateLowestNumberStubFactory.getStub();
 
   protected void tearDown() {
     m_timer.cancel();
@@ -79,17 +80,15 @@ public class TestProcessStatusImplementation extends TestCase {
 
   public void testUpdate() throws Exception {
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ProcessControl.Listener.class);
-    final ProcessControl.Listener listener =
-      (ProcessControl.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<ProcessControl.Listener> listenerStubFactory =
+      RandomStubFactory.create(ProcessControl.Listener.class);
 
     final ProcessStatusImplementation processStatusSet =
       new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
 
     final TimerTask updateTask = m_timer.getTaskByPeriod(500L);
 
-    processStatusSet.addListener(listener);
+    processStatusSet.addListener(listenerStubFactory.getStub());
 
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
@@ -134,10 +133,8 @@ public class TestProcessStatusImplementation extends TestCase {
   }
 
   public void testUpdateWithManyProcessStatusesAndFlush() throws Exception {
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ProcessControl.Listener.class);
-    final ProcessControl.Listener listener =
-      (ProcessControl.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<ProcessControl.Listener> listenerStubFactory =
+      RandomStubFactory.create(ProcessControl.Listener.class);
 
     final ProcessStatusImplementation processStatus =
       new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
@@ -145,7 +142,7 @@ public class TestProcessStatusImplementation extends TestCase {
     final TimerTask updateTask = m_timer.getTaskByPeriod(500L);
     final TimerTask flushTask = m_timer.getTaskByPeriod(2000L);
 
-    processStatus.addListener(listener);
+    processStatus.addListener(listenerStubFactory.getStub());
 
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();

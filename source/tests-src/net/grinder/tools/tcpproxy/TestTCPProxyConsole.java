@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
@@ -40,13 +40,14 @@ import junit.framework.TestCase;
 public class TestTCPProxyConsole extends TestCase {
 
   public void testConstructor() throws Exception {
-    final RandomStubFactory engineStubFactory =
-      new RandomStubFactory(TCPProxyEngine.class);
-    final TCPProxyEngine engine = (TCPProxyEngine)engineStubFactory.getStub();
-    final UpdatableCommentSource commentSource = new CommentSourceImplementation();
+    final RandomStubFactory<TCPProxyEngine> engineStubFactory =
+      RandomStubFactory.create(TCPProxyEngine.class);
+
+    final UpdatableCommentSource commentSource =
+      new CommentSourceImplementation();
 
     final TCPProxyConsole console =
-      new TCPProxyConsole(engine, commentSource);
+      new TCPProxyConsole(engineStubFactory.getStub(), commentSource);
 
     console.dispose();
 
@@ -54,14 +55,14 @@ public class TestTCPProxyConsole extends TestCase {
   }
 
   public void testButton() throws Exception {
-    final RandomStubFactory engineStubFactory =
-      new RandomStubFactory(TCPProxyEngine.class);
-    final TCPProxyEngine engine = (TCPProxyEngine)engineStubFactory.getStub();
+    final RandomStubFactory<TCPProxyEngine> engineStubFactory =
+      RandomStubFactory.create(TCPProxyEngine.class);
+
     final UpdatableCommentSource commentSource =
       new CommentSourceImplementation();
 
     final TCPProxyConsole console =
-      new TCPProxyConsole(engine, commentSource);
+      new TCPProxyConsole(engineStubFactory.getStub(), commentSource);
 
     JButton stopButton = null;
 

@@ -49,12 +49,12 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
   private final MyFilterStubFactory m_requestFilterStubFactory =
     new MyFilterStubFactory();
   private final TCPProxyFilter m_requestFilter =
-    m_requestFilterStubFactory.getFilter();
+    m_requestFilterStubFactory.getStub();
 
   private final MyFilterStubFactory m_responseFilterStubFactory =
     new MyFilterStubFactory();
   private final TCPProxyFilter m_responseFilter =
-    m_responseFilterStubFactory.getFilter();
+    m_responseFilterStubFactory.getStub();
 
   private final LoggerStubFactory m_loggerStubFactory =
     new LoggerStubFactory();

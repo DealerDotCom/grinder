@@ -64,12 +64,9 @@ public class TestErrorQueue extends TestCase {
     }
 
     // Set delegate and assert that it gets the pending events.
-    final RandomStubFactory delegateErrorHandlerStubFactory =
-      new RandomStubFactory(ErrorHandler.class);
-    final ErrorHandler delegateErrorHandler =
-      (ErrorHandler)delegateErrorHandlerStubFactory.getStub();
-
-    errorQueue.setErrorHandler(delegateErrorHandler);
+    final RandomStubFactory<ErrorHandler> delegateErrorHandlerStubFactory =
+      RandomStubFactory.create(ErrorHandler.class);
+    errorQueue.setErrorHandler(delegateErrorHandlerStubFactory.getStub());
 
     for (CallData data : callDataList) {
       delegateErrorHandlerStubFactory.assertSuccess(data.getMethodName(),

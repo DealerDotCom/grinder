@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -72,13 +72,11 @@ public class TestJVM extends TestCase {
   }
 
   public void testHaveRequisites() throws Exception {
-    final RandomStubFactory loggerFactory =
-      new RandomStubFactory(Logger.class);
-    final Logger logger = (Logger)loggerFactory.getStub();
-
+    final RandomStubFactory<Logger> loggerFactory =
+      RandomStubFactory.create(Logger.class);
     final JVM jvm = JVM.getInstance();
 
-    assertTrue(jvm.haveRequisites(logger));
+    assertTrue(jvm.haveRequisites(loggerFactory.getStub()));
     loggerFactory.assertNoMoreCalls();
 
     final String oldVersion = System.getProperty("java.version");
@@ -86,7 +84,7 @@ public class TestJVM extends TestCase {
     try {
       System.setProperty("java.version", "1.2");
 
-      assertFalse(jvm.haveRequisites(logger));
+      assertFalse(jvm.haveRequisites(loggerFactory.getStub()));
       loggerFactory.assertSuccess("error", String.class);
       loggerFactory.assertNoMoreCalls();
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,18 +47,20 @@ import net.grinder.util.StreamCopier;
  */
 public class TestSSLControlImplementation extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_threadContextStubFactory =
-    new RandomStubFactory(ThreadContext.class);
+  private final RandomStubFactory<ThreadContext> m_threadContextStubFactory =
+    RandomStubFactory.create(ThreadContext.class);
   private final ThreadContext m_threadContext =
-    (ThreadContext)m_threadContextStubFactory.getStub();
-  private final RandomStubFactory m_threadContextLocatorStubFactory =
-    new RandomStubFactory(ThreadContextLocator.class);
+    m_threadContextStubFactory.getStub();
+
+  private final RandomStubFactory<ThreadContextLocator>
+    m_threadContextLocatorStubFactory =
+      RandomStubFactory.create(ThreadContextLocator.class);
   private final ThreadContextLocator m_threadContextLocator =
-    (ThreadContextLocator)m_threadContextLocatorStubFactory.getStub();
-  private final RandomStubFactory m_keyManagerStubFactory =
-    new RandomStubFactory(KeyManager.class);
-  private final KeyManager m_keyManager =
-    (KeyManager)m_keyManagerStubFactory.getStub();
+    m_threadContextLocatorStubFactory.getStub();
+
+  private final RandomStubFactory<KeyManager> m_keyManagerStubFactory =
+    RandomStubFactory.create(KeyManager.class);
+  private final KeyManager m_keyManager = m_keyManagerStubFactory.getStub();
 
   public void testShareContextBetweenRuns() throws Exception {
     final SSLControl sslControl =

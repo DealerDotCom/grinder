@@ -45,9 +45,9 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_modelStubFactory =
-    new RandomStubFactory(SampleModel.class);
-  private final SampleModel m_model = (SampleModel)m_modelStubFactory.getStub();
+  private final RandomStubFactory<SampleModel> m_modelStubFactory =
+    RandomStubFactory.create(SampleModel.class);
+  private final SampleModel m_model = m_modelStubFactory.getStub();
 
   private ConsoleProperties m_consoleProperties;
 
@@ -139,11 +139,9 @@ public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
         statisticsServices,
         m_model);
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(Listener.class);
-    final Listener listener = (Listener)listenerStubFactory.getStub();
-
-    sampleModelViews.addListener(listener);
+    final RandomStubFactory<Listener> listenerStubFactory =
+      RandomStubFactory.create(Listener.class);
+    sampleModelViews.addListener(listenerStubFactory.getStub());
 
     sampleModelViews.resetStatisticsViews();
     listenerStubFactory.assertSuccess("resetStatisticsViews");

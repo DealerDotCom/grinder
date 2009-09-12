@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,33 +36,30 @@ import net.grinder.testutility.RandomStubFactory;
  * @version $Revision$
  */
 public class StubTestRegistry {
-  private static final RandomStubFactory s_testStatisticsHelperStubFactory =
-    new RandomStubFactory(TestStatisticsHelper.class);
-  private static final TestStatisticsHelper s_testStatisticsHelper =
-    (TestStatisticsHelper)s_testStatisticsHelperStubFactory.getStub();
-
 
   public static void stubTestRegistry() {
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
+    final RandomStubFactory<TestStatisticsHelper>
+      testStatisticsHelperStubFactory =
+        RandomStubFactory.create(TestStatisticsHelper.class);
+
     final TestRegistryImplementation testRegistry =
-      new TestRegistryImplementation(
-        null, statisticsSetFactory, s_testStatisticsHelper, null);
+      new TestRegistryImplementation(null,
+                                     statisticsSetFactory,
+                                     testStatisticsHelperStubFactory.getStub(),
+                                     null);
 
-    final RandomStubFactory scriptEngineStubFactory =
-      new RandomStubFactory(ScriptEngine.class);
-    final Instrumenter scriptEngine =
-      (Instrumenter)scriptEngineStubFactory.getStub();
+    final RandomStubFactory<ScriptEngine> scriptEngineStubFactory =
+      RandomStubFactory.create(ScriptEngine.class);
 
-    testRegistry.setInstrumenter(scriptEngine);
+    testRegistry.setInstrumenter(scriptEngineStubFactory.getStub());
 
-    final RandomStubFactory scriptContextStubFactory =
-      new RandomStubFactory(InternalScriptContext.class);
-    final InternalScriptContext scriptContext =
-      (InternalScriptContext)scriptContextStubFactory.getStub();
+    final RandomStubFactory<InternalScriptContext> scriptContextStubFactory =
+      RandomStubFactory.create(InternalScriptContext.class);
     scriptContextStubFactory.setResult("getTestRegistry", testRegistry);
 
-    Grinder.grinder = scriptContext;
+    Grinder.grinder = scriptContextStubFactory.getStub();
   }
 }

@@ -45,9 +45,9 @@ public class TestHTTPConnectionWrapper extends TestCase {
 
   public void testHTTPConnectionWrapper() throws Exception {
 
-    final RandomStubFactory sleeperStubFactory =
-      new RandomStubFactory(Sleeper.class);
-    final Sleeper sleeper = (Sleeper)sleeperStubFactory.getStub();
+    final RandomStubFactory<Sleeper> sleeperStubFactory =
+      RandomStubFactory.create(Sleeper.class);
+    final Sleeper sleeper = sleeperStubFactory.getStub();
 
     final StubHTTPConnection connection = new StubHTTPConnection("foo");
 

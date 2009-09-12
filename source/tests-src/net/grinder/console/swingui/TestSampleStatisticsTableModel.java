@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -70,9 +70,9 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
   private final SwingDispatcherFactory m_swingDispatcherFactoryDelegate =
     new NullSwingDispatcherFactory();
 
-  private final StubResources m_resources =
-    new StubResources(
-      new HashMap() { {
+  private final StubResources<String> m_resources =
+    new StubResources<String>(
+      new HashMap<String, String>() { {
         put("table.test.label", "t3st");
         put("table.testColumn.label", "Test Column");
         put("table.descriptionColumn.label", "Test Description Column");
@@ -80,19 +80,22 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
       } }
     );
 
-  private final DelegatingStubFactory m_swingDispatcherFactoryStubFactory =
-    new DelegatingStubFactory(m_swingDispatcherFactoryDelegate);
+  private final DelegatingStubFactory<SwingDispatcherFactory>
+    m_swingDispatcherFactoryStubFactory =
+      DelegatingStubFactory.create(m_swingDispatcherFactoryDelegate);
   private final SwingDispatcherFactory m_swingDispatcherFactory =
-    (SwingDispatcherFactory)m_swingDispatcherFactoryStubFactory.getStub();
-  private final RandomStubFactory m_sampleModelStubFactory =
-    new RandomStubFactory(SampleModel.class);
-  private final SampleModel m_sampleModel =
-    (SampleModel)m_sampleModelStubFactory.getStub();
+    m_swingDispatcherFactoryStubFactory.getStub();
 
-  private final RandomStubFactory m_sampleModelViewsStubFactory =
-    new RandomStubFactory(SampleModelViews.class);
+  private final RandomStubFactory<SampleModel> m_sampleModelStubFactory =
+    RandomStubFactory.create(SampleModel.class);
+  private final SampleModel m_sampleModel =
+    m_sampleModelStubFactory.getStub();
+
+  private final RandomStubFactory<SampleModelViews>
+    m_sampleModelViewsStubFactory =
+      RandomStubFactory.create(SampleModelViews.class);
   private final SampleModelViews m_sampleModelViews =
-    (SampleModelViews)m_sampleModelViewsStubFactory.getStub();
+    m_sampleModelViewsStubFactory.getStub();
 
   private final StatisticsServices m_statisticsServices =
     StatisticsServicesTestFactory.createTestInstance();

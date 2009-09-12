@@ -64,27 +64,29 @@ import HTTPClient.ParseException;
 public class TestHTTPRequest extends TestCase {
   private static final Random s_random = new Random();
 
-  private final RandomStubFactory m_scriptContextStubFactory =
-    new RandomStubFactory(ScriptContext.class);
+  private final RandomStubFactory<ScriptContext> m_scriptContextStubFactory =
+    RandomStubFactory.create(ScriptContext.class);
 
-  private final RandomStubFactory m_statisticsStubFactory =
-    new RandomStubFactory(Statistics.class);
+  private final RandomStubFactory<Statistics> m_statisticsStubFactory =
+    RandomStubFactory.create(Statistics.class);
 
-  private final PluginThreadContext m_threadContext = (PluginThreadContext)
-    new RandomStubFactory(PluginThreadContext.class).getStub();
+  private final PluginThreadContext m_threadContext =
+    RandomStubFactory.create(PluginThreadContext.class).getStub();
 
-  private final SSLContextFactory m_sslContextFactory = (SSLContextFactory)
-    new RandomStubFactory(SSLContextFactory.class).getStub();
+  private final SSLContextFactory m_sslContextFactory =
+    RandomStubFactory.create(SSLContextFactory.class).getStub();
 
-  private final RandomStubFactory m_pluginProcessContextStubFactory =
-    new RandomStubFactory(PluginProcessContext.class);
+  private final RandomStubFactory<PluginProcessContext>
+    m_pluginProcessContextStubFactory =
+      RandomStubFactory.create(PluginProcessContext.class);
   private final PluginProcessContext m_pluginProcessContext =
-    (PluginProcessContext)m_pluginProcessContextStubFactory.getStub();
+    m_pluginProcessContextStubFactory.getStub();
 
-  private final RandomStubFactory m_statisticsForTestStubFactory =
-    new RandomStubFactory(StatisticsForTest.class);
+  private final RandomStubFactory<StatisticsForTest>
+    m_statisticsForTestStubFactory =
+      RandomStubFactory.create(StatisticsForTest.class);
   private final StatisticsForTest m_statisticsForTest =
-    (StatisticsForTest)m_statisticsForTestStubFactory.getStub();
+    m_statisticsForTestStubFactory.getStub();
 
   private HTTPRequestHandler m_handler;
 

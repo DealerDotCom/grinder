@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,10 +49,11 @@ import net.grinder.util.Directory;
  */
 public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_processControlStubFactory =
-    new RandomStubFactory(ProcessControl.class);
+  private final RandomStubFactory<ProcessControl> m_processControlStubFactory =
+    RandomStubFactory.create(ProcessControl.class);
   private final ProcessControl m_processControl =
-    (ProcessControl)m_processControlStubFactory.getStub();
+    m_processControlStubFactory.getStub();
+
   private Directory m_directory;
   private Pattern m_pattern;
 
@@ -89,12 +90,10 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
         "addProcessStatusListener", Listener.class).getParameters()[0];
     m_processControlStubFactory.assertNoMoreCalls();
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(PropertyChangeListener.class);
-    final PropertyChangeListener listener =
-      (PropertyChangeListener)listenerStubFactory.getStub();
+    final RandomStubFactory<PropertyChangeListener> listenerStubFactory =
+      RandomStubFactory.create(PropertyChangeListener.class);
 
-    cacheState.addListener(listener);
+    cacheState.addListener(listenerStubFactory.getStub());
 
     assertFalse(cacheState.getOutOfDate());
 

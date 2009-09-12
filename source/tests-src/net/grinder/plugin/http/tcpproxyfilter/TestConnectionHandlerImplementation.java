@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
@@ -54,10 +54,10 @@ import net.grinder.util.URIParserImplementation;
  */
 public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_httpRecordingStubFactory =
-    new RandomStubFactory(HTTPRecording.class);
+  private final RandomStubFactory<HTTPRecording> m_httpRecordingStubFactory =
+    RandomStubFactory.create(HTTPRecording.class);
   private final HTTPRecording m_httpRecording =
-    (HTTPRecording) m_httpRecordingStubFactory.getStub();
+    m_httpRecordingStubFactory.getStub();
 
   private final LoggerStubFactory m_loggerStubFactory =
     new LoggerStubFactory();

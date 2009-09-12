@@ -50,10 +50,10 @@ public class TestProcessControlImplementation extends TestCase {
       new StubAgentProcessReport(agentIdentity1,
                                  AgentProcessReport.STATE_RUNNING);
 
-    final RandomStubFactory processReportsStubFactory1 =
-      new RandomStubFactory(ProcessReports.class);
+    final RandomStubFactory<ProcessReports> processReportsStubFactory1 =
+      RandomStubFactory.create(ProcessReports.class);
     final ProcessReports processReports1 =
-      (ProcessReports)processReportsStubFactory1.getStub();
+      processReportsStubFactory1.getStub();
     processReportsStubFactory1.setResult("getAgentProcessReport",
                                          agentProcessReport1);
 
@@ -63,10 +63,10 @@ public class TestProcessControlImplementation extends TestCase {
       new StubAgentProcessReport(agentIdentity1,
                                  AgentProcessReport.STATE_FINISHED);
 
-    final RandomStubFactory processReportsStubFactory2 =
-      new RandomStubFactory(ProcessReports.class);
+    final RandomStubFactory<ProcessReports> processReportsStubFactory2 =
+      RandomStubFactory.create(ProcessReports.class);
     final ProcessReports processReports2 =
-      (ProcessReports)processReportsStubFactory2.getStub();
+      processReportsStubFactory2.getStub();
     processReportsStubFactory2.setResult("getAgentProcessReport",
                                          agentProcessReport2);
 

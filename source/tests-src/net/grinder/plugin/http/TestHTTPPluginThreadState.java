@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,19 +42,21 @@ import junit.framework.TestCase;
  */
 public class TestHTTPPluginThreadState extends TestCase {
 
-  private final RandomStubFactory m_threadContextStubFactory =
-    new RandomStubFactory(PluginThreadContext.class);
+  private final RandomStubFactory<PluginThreadContext>
+    m_threadContextStubFactory =
+      RandomStubFactory.create(PluginThreadContext.class);
   private final PluginThreadContext m_threadContext =
-    (PluginThreadContext)m_threadContextStubFactory.getStub();
+    m_threadContextStubFactory.getStub();
 
-  private final DelegatingStubFactory m_sslContextFactoryStubFactory =
-    new DelegatingStubFactory(new InsecureSSLContextFactory());
+  private final DelegatingStubFactory<InsecureSSLContextFactory>
+    m_sslContextFactoryStubFactory =
+      DelegatingStubFactory.create(new InsecureSSLContextFactory());
   private final SSLContextFactory m_sslContextFactory =
-    (SSLContextFactory)m_sslContextFactoryStubFactory.getStub();
+    m_sslContextFactoryStubFactory.getStub();
 
-  private final RandomStubFactory m_sleeperStubFactory =
-    new RandomStubFactory(Sleeper.class);
-  private final Sleeper m_sleeper = (Sleeper)m_sleeperStubFactory.getStub();
+  private final RandomStubFactory<Sleeper> m_sleeperStubFactory =
+    RandomStubFactory.create(Sleeper.class);
+  private final Sleeper m_sleeper = m_sleeperStubFactory.getStub();
 
   public void testHTTPPluginThreadState() throws Exception {
     final HTTPPluginThreadState pluginThreadState =

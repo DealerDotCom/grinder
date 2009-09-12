@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,7 +40,7 @@ public class TestCookie extends TestCase {
 
   private final RoRequestStubFactory m_roRequestStubFactory =
     new RoRequestStubFactory();
-  private final RoRequest m_roRequest = m_roRequestStubFactory.getRoRequest();
+  private final RoRequest m_roRequest = m_roRequestStubFactory.getStub();
 
   public void testParse() throws Exception {
     // No cookies, nothing to do.
@@ -119,16 +119,14 @@ public class TestCookie extends TestCase {
     assertEquals(0, cookies2.length);
   }
 
-  public static final class RoRequestStubFactory extends RandomStubFactory {
+  public static final class RoRequestStubFactory
+    extends RandomStubFactory<RoRequest> {
+
     private String m_host = "host";
     private String m_requestURI = "/path/sub;blah=blah";
 
     public RoRequestStubFactory() {
       super(RoRequest.class);
-    }
-
-    public RoRequest getRoRequest() {
-      return (RoRequest)getStub();
     }
 
     public HTTPConnection override_getConnection(Object proxy) {

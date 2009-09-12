@@ -64,22 +64,23 @@ public class TestTestData extends TestCase {
   private final StatisticsSetFactory m_statisticsSetFactory =
     StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
-  private final RandomStubFactory m_scriptEngineStubFactory =
-    new RandomStubFactory(ScriptEngine.class);
+  private final RandomStubFactory<ScriptEngine> m_scriptEngineStubFactory =
+    RandomStubFactory.create(ScriptEngine.class);
   private final Instrumenter m_scriptEngine =
-    (Instrumenter)m_scriptEngineStubFactory.getStub();
+    m_scriptEngineStubFactory.getStub();
 
-  private final RandomStubFactory m_testStatisticsHelperStubFactory =
-    new RandomStubFactory(TestStatisticsHelper.class);
+  private final RandomStubFactory<TestStatisticsHelper>
+    m_testStatisticsHelperStubFactory =
+      RandomStubFactory.create(TestStatisticsHelper.class);
   private final TestStatisticsHelper m_testStatisticsHelper =
-    (TestStatisticsHelper)m_testStatisticsHelperStubFactory.getStub();
+    m_testStatisticsHelperStubFactory.getStub();
 
   private final StubThreadContextLocator m_threadContextLocator =
     new StubThreadContextLocator();
-  private final RandomStubFactory m_threadContextStubFactory =
-    new RandomStubFactory(ThreadContext.class);
+  private final RandomStubFactory<ThreadContext> m_threadContextStubFactory =
+    RandomStubFactory.create(ThreadContext.class);
   private final ThreadContext m_threadContext =
-    (ThreadContext)m_threadContextStubFactory.getStub();
+    m_threadContextStubFactory.getStub();
 
   private final StandardTimeAuthority m_timeAuthority =
     new StandardTimeAuthority();
@@ -113,9 +114,9 @@ public class TestTestData extends TestCase {
     final StatisticsSet statistics = testData.getTestStatistics();
     assertNotNull(statistics);
 
-    final RandomStubFactory callableStubFactory =
-      new RandomStubFactory(Callable.class);
-    final Callable callable = (Callable)callableStubFactory.getStub();
+    final RandomStubFactory<Callable> callableStubFactory =
+      RandomStubFactory.create(Callable.class);
+    final Callable callable = callableStubFactory.getStub();
 
     // 1. Happy case.
     try {
@@ -285,9 +286,9 @@ public class TestTestData extends TestCase {
     final StatisticsSet statistics = testData.getTestStatistics();
     assertNotNull(statistics);
 
-    final RandomStubFactory callableStubFactory =
-      new RandomStubFactory(Callable.class);
-    final Callable callable = (Callable)callableStubFactory.getStub();
+    final RandomStubFactory<Callable> callableStubFactory =
+      RandomStubFactory.create(Callable.class);
+    final Callable callable = callableStubFactory.getStub();
 
     m_threadContextLocator.set(m_threadContext);
 
@@ -408,9 +409,9 @@ public class TestTestData extends TestCase {
                    new StubTest(1, "test1"));
 
 
-    final RandomStubFactory callableStubFactory =
-      new RandomStubFactory(Callable.class);
-    final Callable callable = (Callable)callableStubFactory.getStub();
+    final RandomStubFactory<Callable> callableStubFactory =
+      RandomStubFactory.create(Callable.class);
+    final Callable callable = callableStubFactory.getStub();
 
     m_threadContextLocator.set(m_threadContext);
 
@@ -436,7 +437,9 @@ public class TestTestData extends TestCase {
    * delegating directly to the callable. Must be public so
    * override_ methods can be invoked.
    */
-  public static class ThreadContextStubFactory extends RandomStubFactory {
+  public static class ThreadContextStubFactory
+    extends RandomStubFactory<ThreadContext> {
+
     private final TestData m_expectedTestData;
 
     public ThreadContextStubFactory(TestData expectedTestData) {
@@ -449,10 +452,6 @@ public class TestTestData extends TestCase {
                                       Dispatcher.Callable callable) {
       assertSame(m_expectedTestData, testData);
       return callable.call();
-    }
-
-    public ThreadContext getThreadContext() {
-      return (ThreadContext)getStub();
     }
   }
 }

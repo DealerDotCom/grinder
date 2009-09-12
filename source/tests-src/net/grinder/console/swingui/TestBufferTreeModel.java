@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -51,15 +51,17 @@ public class TestBufferTreeModel extends TestCase {
       new ResourcesImplementation(
         "net.grinder.console.common.resources.Console");
 
-  private final RandomStubFactory m_agentCacheStateStubFactory =
-    new RandomStubFactory(AgentCacheState.class);
+  private final RandomStubFactory<AgentCacheState>
+    m_agentCacheStateStubFactory =
+      RandomStubFactory.create(AgentCacheState.class);
   private final AgentCacheState m_agentCacheState =
-    (AgentCacheState)m_agentCacheStateStubFactory.getStub();
+    m_agentCacheStateStubFactory.getStub();
 
-  private final RandomStubFactory m_fileChangeWatcherStubFactory =
-    new RandomStubFactory(FileChangeWatcher.class);
+  private final RandomStubFactory<FileChangeWatcher>
+    m_fileChangeWatcherStubFactory =
+      RandomStubFactory.create(FileChangeWatcher.class);
   private final FileChangeWatcher m_fileChangeWatcher =
-    (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
+    m_fileChangeWatcherStubFactory.getStub();
 
   public void testConstructionAndGetChildMethods() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
@@ -124,18 +126,13 @@ public class TestBufferTreeModel extends TestCase {
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
 
-    final RandomStubFactory listener1StubFactory =
-      new RandomStubFactory(TreeModelListener.class);
-    final TreeModelListener listener1 =
-      (TreeModelListener)listener1StubFactory.getStub();
+    final RandomStubFactory<TreeModelListener> listener1StubFactory =
+      RandomStubFactory.create(TreeModelListener.class);
+    final RandomStubFactory<TreeModelListener> listener2StubFactory =
+      RandomStubFactory.create(TreeModelListener.class);
 
-    final RandomStubFactory listener2StubFactory =
-      new RandomStubFactory(TreeModelListener.class);
-    final TreeModelListener listener2 =
-      (TreeModelListener)listener2StubFactory.getStub();
-
-    bufferTreeModel.addTreeModelListener(listener1);
-    bufferTreeModel.addTreeModelListener(listener2);
+    bufferTreeModel.addTreeModelListener(listener1StubFactory.getStub());
+    bufferTreeModel.addTreeModelListener(listener2StubFactory.getStub());
 
     final TreePath treePath = new TreePath(new Object());
     bufferTreeModel.valueForPathChanged(treePath, null);
@@ -153,7 +150,7 @@ public class TestBufferTreeModel extends TestCase {
                                        TreeModelEvent.class);
     listener2StubFactory.assertNoMoreCalls();
 
-    bufferTreeModel.removeTreeModelListener(listener1);
+    bufferTreeModel.removeTreeModelListener(listener1StubFactory.getStub());
 
     // removeTreeModelListener() can calls equals() on the listeners.
     listener1StubFactory.resetCallHistory();

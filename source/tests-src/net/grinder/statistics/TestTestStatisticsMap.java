@@ -83,7 +83,7 @@ public class TestTestStatisticsMap extends TestCase {
     assertEquals(2, map.size());
 
     final StatisticsSet bogusStatisticsSetImplementation =
-      (StatisticsSet)new RandomStubFactory(StatisticsSet.class).getStub();
+      RandomStubFactory.create(StatisticsSet.class).getStub();
 
     try {
       map.put(m_test1, bogusStatisticsSetImplementation);

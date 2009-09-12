@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,14 +46,13 @@ public class TestDebugThreadWorker extends TestCase {
 
   public void testDebugThreadWorker() throws Exception {
 
-    final DelegatingStubFactory isolateGrinderProcessRunnerStubFactory =
-      new DelegatingStubFactory(new IsolatedGrinderProcessRunner());
-    final IsolateGrinderProcessRunner isolateGrinderProcessRunner =
-      (IsolateGrinderProcessRunner)
-      isolateGrinderProcessRunnerStubFactory.getStub();
+    final DelegatingStubFactory<IsolatedGrinderProcessRunner>
+      isolateGrinderProcessRunnerStubFactory =
+        DelegatingStubFactory.create(new IsolatedGrinderProcessRunner());
 
     final Worker worker =
-      new DebugThreadWorker(m_workerIdentity, isolateGrinderProcessRunner);
+      new DebugThreadWorker(m_workerIdentity,
+                            isolateGrinderProcessRunnerStubFactory.getStub());
 
     assertEquals(m_workerIdentity, worker.getIdentity());
     assertNotNull(worker.getCommunicationStream());

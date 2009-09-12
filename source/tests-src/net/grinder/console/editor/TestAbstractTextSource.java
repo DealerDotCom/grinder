@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,18 +43,14 @@ public class TestAbstractTextSource extends TestCase {
 
     assertTrue(textSource.isDirty());
 
-    final RandomStubFactory listener1StubFactory =
-      new RandomStubFactory(TextSource.Listener.class);
-    final TextSource.Listener listener1 =
-      (TextSource.Listener)listener1StubFactory.getStub();
+    final RandomStubFactory<TextSource.Listener> listener1StubFactory =
+      RandomStubFactory.create(TextSource.Listener.class);
 
-    final RandomStubFactory listener2StubFactory =
-      new RandomStubFactory(TextSource.Listener.class);
-    final TextSource.Listener listener2 =
-      (TextSource.Listener)listener2StubFactory.getStub();
+    final RandomStubFactory<TextSource.Listener> listener2StubFactory =
+      RandomStubFactory.create(TextSource.Listener.class);
 
-    textSource.addListener(listener1);
-    textSource.addListener(listener2);
+    textSource.addListener(listener1StubFactory.getStub());
+    textSource.addListener(listener2StubFactory.getStub());
 
     textSource.setChanged();
 

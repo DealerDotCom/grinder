@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -142,12 +142,9 @@ public class TestIntegerField extends TestCase {
   public void testChangeListener() throws Exception {
     final IntegerField field = new IntegerField(0, 15);
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ChangeListener.class);
-    final ChangeListener listener =
-      (ChangeListener)listenerStubFactory.getStub();
-
-    field.addChangeListener(listener);
+    final RandomStubFactory<ChangeListener> listenerStubFactory =
+      RandomStubFactory.create(ChangeListener.class);
+    field.addChangeListener(listenerStubFactory.getStub());
 
 
     field.setText("10");
@@ -165,20 +162,20 @@ public class TestIntegerField extends TestCase {
     final IntegerField field2 = new IntegerField(0, 10);
     final DefaultStyledDocument styledDocument = new DefaultStyledDocument();
     field2.setDocument(styledDocument);
-    field2.addChangeListener(listener);
+    field2.addChangeListener(listenerStubFactory.getStub());
     listenerStubFactory.assertNoMoreCalls();
 
-    final RandomStubFactory attributeSetStubFactory =
-      new RandomStubFactory(AttributeSet.class);
-    final AttributeSet attributeSet =
-      (AttributeSet)attributeSetStubFactory.getStub();
+    final RandomStubFactory<AttributeSet> attributeSetStubFactory =
+      RandomStubFactory.create(AttributeSet.class);
+
     attributeSetStubFactory.setResult("getAttributeNames",
-      new Enumeration() {
+      new Enumeration<String>() {
         public boolean hasMoreElements() { return false; }
-        public Object nextElement() { return null; }
+        public String nextElement() { return null; }
       } );
 
-    styledDocument.setCharacterAttributes(0, 1, attributeSet, false);
+    styledDocument.setCharacterAttributes(
+      0, 1, attributeSetStubFactory.getStub(), false);
     listenerStubFactory.assertSuccess("stateChanged", ChangeEvent.class);
 
     listenerStubFactory.assertNoMoreCalls();

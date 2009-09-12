@@ -37,12 +37,12 @@ public class TestCompositeFilter extends TestCase {
   private final MyFilterStubFactory m_filter1StubFactory =
     new MyFilterStubFactory();
 
-  private final TCPProxyFilter m_filter1 = m_filter1StubFactory.getFilter();
+  private final TCPProxyFilter m_filter1 = m_filter1StubFactory.getStub();
 
   final MyFilterStubFactory m_filter2StubFactory =
     new MyFilterStubFactory();
 
-  final TCPProxyFilter m_filter2 = m_filter2StubFactory.getFilter();
+  final TCPProxyFilter m_filter2 = m_filter2StubFactory.getStub();
 
   private final ConnectionDetails m_connectionDetails =
     new ConnectionDetails(new EndPoint("foo", 1),

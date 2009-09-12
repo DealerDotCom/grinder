@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,13 +24,13 @@ package net.grinder.communication;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
 
+
 /**
  * Unit tests for <code>TestResponseSender</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-
 public class TestResponseSender extends TestCase {
 
   public void testResponseSenderConstruction() throws Exception {
@@ -58,11 +58,10 @@ public class TestResponseSender extends TestCase {
     catch (CommunicationException e) {
     }
 
-    final RandomStubFactory senderStubFactory =
-      new RandomStubFactory(Sender.class);
-    final Sender sender = (Sender)senderStubFactory.getStub();
+    final RandomStubFactory<Sender> senderStubFactory =
+      RandomStubFactory.create(Sender.class);
 
-    responseSender.setResponder(sender);
+    responseSender.setResponder(senderStubFactory.getStub());
 
     responseSender.sendResponse(responseMessage);
     senderStubFactory.assertSuccess("send", responseMessage);

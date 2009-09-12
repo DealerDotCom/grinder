@@ -42,19 +42,23 @@ import java.util.Set;
  *  based on java.lang.reflect.Proxy it can only intercept invocations
  *  which are defined by interfaces.
  *
+ *  @param <T> Stub type.
+ *
  * @author    Philip Aston
  */
-public abstract class AbstractStubFactory extends CallRecorder {
+public abstract class AbstractStubFactory<T> extends CallRecorder {
 
-  private final static WeakIdentityMap<Object, AbstractStubFactory>
-    s_stubToFactory = new WeakIdentityMap<Object, AbstractStubFactory>();
+  private final static WeakIdentityMap<Object, AbstractStubFactory<Object>>
+    s_stubToFactory =
+      new WeakIdentityMap<Object, AbstractStubFactory<Object>>();
 
-  private final Object m_stub;
+  private final T m_stub;
   private final Map<String, Object> m_resultMap = new HashMap<String, Object>();
   private final Map<String, Throwable> m_throwsMap =
     new HashMap<String, Throwable>();
 
-  public AbstractStubFactory(Class<?> stubbedInterface,
+  @SuppressWarnings("unchecked")
+  public AbstractStubFactory(Class<T> stubbedInterface,
                              InvocationHandler invocationHandler) {
 
     final InvocationHandler decoratedInvocationHandler =
@@ -62,11 +66,11 @@ public abstract class AbstractStubFactory extends CallRecorder {
         new StubResultInvocationHandler(
           new OverrideInvocationHandlerDecorator(invocationHandler, this)));
 
-    m_stub = Proxy.newProxyInstance(stubbedInterface.getClassLoader(),
-                                    getAllInterfaces(stubbedInterface),
-                                    decoratedInvocationHandler);
+    m_stub = (T)Proxy.newProxyInstance(stubbedInterface.getClassLoader(),
+                                       getAllInterfaces(stubbedInterface),
+                                       decoratedInvocationHandler);
 
-    s_stubToFactory.put(m_stub, this);
+    s_stubToFactory.put(m_stub, (AbstractStubFactory<Object>) this);
   }
 
   private final class RecordingInvocationHandler implements InvocationHandler {
@@ -125,7 +129,7 @@ public abstract class AbstractStubFactory extends CallRecorder {
     }
   }
 
-  public final Object getStub() {
+  public final T getStub() {
     return m_stub;
   }
 
@@ -162,8 +166,22 @@ public abstract class AbstractStubFactory extends CallRecorder {
    * Return the cached {@code AbstractStubFactory} for stub.
    * @return The factory, or {@code null}.
    */
-  public static AbstractStubFactory getFactory(Object stub) {
+  public static AbstractStubFactory<?> getFactory(Object stub) {
     return s_stubToFactory.get(stub);
+  }
+
+  /**
+   * Localise need for unchecked cast. I thought the compiler was meant
+   * to regarding {@link Object.getClass()} - seems the Eclipse compiler
+   * (at least) is not.
+   *
+   * @param <K> Parameter type.
+   * @param o Parameter.
+   * @return Parameter's class.
+   */
+  @SuppressWarnings("unchecked")
+  protected static <K> Class<K> getClass(K o) {
+    return (Class<K>)o.getClass();
   }
 
   /**

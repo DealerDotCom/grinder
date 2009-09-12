@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,25 +46,24 @@ import junit.framework.TestCase;
  */
 public class TestHTTPUtilitiesImplementation extends TestCase {
 
-  private final RandomStubFactory m_pluginProcessContextStubFactory =
-    new RandomStubFactory(PluginProcessContext.class);
+  private final RandomStubFactory<PluginProcessContext>
+    m_pluginProcessContextStubFactory =
+      RandomStubFactory.create(PluginProcessContext.class);
   private final PluginProcessContext m_pluginProcessContext =
-    (PluginProcessContext)m_pluginProcessContextStubFactory.getStub();
+    m_pluginProcessContextStubFactory.getStub();
 
-  private final RandomStubFactory m_scriptContextStubFactory =
-    new RandomStubFactory(ScriptContext.class);
+  private final RandomStubFactory<ScriptContext> m_scriptContextStubFactory =
+    RandomStubFactory.create(ScriptContext.class);
 
-  private final RandomStubFactory m_statisticsStubFactory =
-    new RandomStubFactory(Statistics.class);
+  private final RandomStubFactory<Statistics> m_statisticsStubFactory =
+    RandomStubFactory.create(Statistics.class);
 
   protected void setUp() throws Exception {
     final PluginThreadContext threadContext =
-      (PluginThreadContext)
-      new RandomStubFactory(PluginThreadContext.class).getStub();
+      RandomStubFactory.create(PluginThreadContext.class).getStub();
 
     final SSLContextFactory sslContextFactory =
-      (SSLContextFactory)
-      new RandomStubFactory(SSLContextFactory.class).getStub();
+      RandomStubFactory.create(SSLContextFactory.class).getStub();
 
     final TimeAuthority timeAuthority = new StandardTimeAuthority();
 
@@ -76,11 +75,11 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
 
     m_statisticsStubFactory.setResult("availableForUpdate", Boolean.FALSE);
     final Statistics statistics =
-      (Statistics)m_statisticsStubFactory.getStub();
+      m_statisticsStubFactory.getStub();
 
     m_scriptContextStubFactory.setResult("getStatistics", statistics);
     final ScriptContext scriptContext =
-      (ScriptContext)m_scriptContextStubFactory.getStub();
+      m_scriptContextStubFactory.getStub();
 
     m_pluginProcessContextStubFactory.setResult("getPluginThreadListener",
                                                 threadState);

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,7 +39,7 @@ import java.util.Map;
 public final class StubRelationshipsInvocationHandlerDecorator
   implements InvocationHandler {
 
-  private Map m_stubs = new HashMap();
+  private Map<String, Object> m_stubs = new HashMap<String, Object>();
   private final InvocationHandler m_delegate;
 
   public StubRelationshipsInvocationHandlerDecorator(
@@ -51,7 +51,7 @@ public final class StubRelationshipsInvocationHandlerDecorator
     throws Throwable {
 
     final String methodName = method.getName();
-    final Class returnType = method.getReturnType();
+    final Class<?> returnType = method.getReturnType();
 
     if (parameters == null || parameters.length == 0 &&
         methodName.indexOf("get") == 0 &&
@@ -63,11 +63,12 @@ public final class StubRelationshipsInvocationHandlerDecorator
         return existingStub;
       }
 
-      final RandomStubFactory stubFactory = new RandomStubFactory(returnType);
-      final Object stub = stubFactory.getStub();
-      m_stubs.put(methodName, stub);
+      final RandomStubFactory<? extends Object> stubFactory =
+        RandomStubFactory.create(returnType);
 
-      return stub;
+      m_stubs.put(methodName, stubFactory.getStub());
+
+      return stubFactory.getStub();
     }
     else {
       return m_delegate.invoke(proxy, method, parameters);
