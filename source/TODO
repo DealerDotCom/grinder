@@ -13,11 +13,38 @@ against it too :-).
 
 - Philip Aston
 
+* NG instrumentation
+
+Steps:
+  1. Add TwoPartDispatcher
+     - Re-entrant protection involves having the TL implement
+        "getIfEnteringFirstFrame", "getIfLeavingFirstFrame", with a counter
+     - Implement TwoToOneDispatcherAdapter, retrofit and run unit tests
+     - Fix existing instrumentation to use TwoPartDispatcher, remove old
+       dispatcher
+
+  2. Finish off DCRInstrumenter for Jython.
+     - Write test cases.
+
+  3. Implement InstrumentationRegistry.
+
+  4. Fold in instrumentation engine to mainline.
+     - Add -javaagent iff JSE6 +
+     - Unit test for instrumentation should verify serialization compatibility.
+
+  5. Move existing instrumenter to a separate class. Dynamically load.
+     - Fall back to DCRInstrumenter on failure.
+
+  6. Test with Jython 2.5
+     - Requires J2SE 6?
+     - Doc changes to wrap() semantics. (Changes object in place, original
+       not accessible, no way to get to Test).
+     - Add void Test.instrument(Object). DCR warns if wrap() called.
+       JythonInstrumenter throws NotSupported if instrument() called.
+
+
 
 * Java 5 upgrade
-
-** Add generics to collections
-Re-enable generics warnings.
 
 ** Checkstyle vs "<"
 
@@ -229,15 +256,6 @@ Script access to global statistics.
 *** Alternate test languages
 
 Should support Java, Groovy scripts.
-
-Should use AOP proxies to do test instrumentation. CGLib, or raw ASM?
-
-Blocker: Can't wrap around an existing instance that doesn't have a
-default constructor. This is a general problem. How to create a new proxy
-that supports all the methods + interfaces - it clearly needs to extend
-the target. What if we don't care about implementing the interfaces -
-just create a proxy that supports the same methods as its delegate? CGLib
-doesn't appear to support this.
 
 *** Events
 Idea from Nurul Choudhury:
