@@ -31,6 +31,7 @@ Steps:
   4. Fold in instrumentation engine to mainline.
      - Add -javaagent iff JSE6 +
      - Unit test for instrumentation should verify serialization compatibility.
+     - Understand intern(), and apply if we can.
 
   5. Move existing instrumenter to a separate class. Dynamically load.
      - Fall back to DCRInstrumenter on failure.
