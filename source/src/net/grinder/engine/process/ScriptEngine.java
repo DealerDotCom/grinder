@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -122,7 +122,7 @@ public interface ScriptEngine extends Instrumenter {
   }
 
   /**
-   * Call back interface that proxies use to dispatch work.
+   * Callback interface that proxies use to dispatch work.
    */
   interface Dispatcher {
 
@@ -140,5 +140,25 @@ public interface ScriptEngine extends Instrumenter {
     interface Callable {
       Object call();
     }
+  }
+
+  /**
+   * Non-callback based interface to the test instrumentation.
+   */
+  interface TestInstrumentation {
+
+    /**
+     * Call before instrumented code to initiate test recording.
+     *
+     * @throws EngineException Test recording could not be initiated.
+     */
+    void startTest() throws EngineException;
+
+    /**
+     * Call after instrumented code to complete test recording.
+     *
+     * @throws EngineException Test recording could not be completed.
+     */
+    void endTest(boolean success) throws EngineException;
   }
 }

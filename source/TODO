@@ -16,12 +16,7 @@ against it too :-).
 * NG instrumentation
 
 Steps:
-  1. Add TwoPartDispatcher
-     - Re-entrant protection involves having the TL implement
-        "getIfEnteringFirstFrame", "getIfLeavingFirstFrame", with a counter
-     - Implement TwoToOneDispatcherAdapter, retrofit and run unit tests
-     - Fix existing instrumentation to use TwoPartDispatcher, remove old
-       dispatcher
+  1b. Remove old dispatcher
 
   2. Finish off DCRInstrumenter for Jython.
      - Write test cases.
