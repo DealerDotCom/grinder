@@ -44,10 +44,7 @@ import net.grinder.util.TimeAuthority;
  * @author Philip Aston
  * @version $Revision$
  */
-final class TestData
-  implements RegisteredTest,
-             TestInstrumentation,
-             ScriptEngine.Dispatcher {
+final class TestData implements RegisteredTest, TestInstrumentation {
 
   private final StatisticsSetFactory m_statisticsSetFactory;
   private final TestStatisticsHelper m_testStatisticsHelper;
@@ -97,23 +94,6 @@ final class TestData
    */
   public Object createProxy(Object o) throws NotWrappableTypeException {
     return m_instrumenter.createInstrumentedProxy(getTest(), this, o);
-  }
-
-  // Temporarily adapt to the old Dispatcher interface.
-  public Object dispatch(Callable callable) throws EngineException {
-
-    startTest();
-
-    boolean success = false;
-
-    try {
-      final Object result = callable.call();
-      success = true;
-      return result;
-    }
-    finally {
-      endTest(success);
-    }
   }
 
   public void startTest() throws EngineException {

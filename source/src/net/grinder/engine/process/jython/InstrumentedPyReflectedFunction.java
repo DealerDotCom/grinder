@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.engine.process.jython;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
 import org.python.core.PyObject;
@@ -65,8 +64,8 @@ class InstrumentedPyReflectedFunction extends PyReflectedFunction {
                            final String[] keywords) {
 
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyReflectedFunction.super.__call__(
             self, args, keywords);
         }

@@ -27,7 +27,6 @@ import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
 
@@ -100,7 +99,7 @@ abstract class InstrumentationHelper {
     return unadorned;
   }
 
-  public PyObject dispatch(Dispatcher.Callable callable) {
+  public PyObject dispatch(PyDispatcher.Callable callable) {
     return m_dispatcher.dispatch(callable);
   }
 

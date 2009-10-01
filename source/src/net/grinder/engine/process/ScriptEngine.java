@@ -122,28 +122,7 @@ public interface ScriptEngine extends Instrumenter {
   }
 
   /**
-   * Callback interface that proxies use to dispatch work.
-   */
-  interface Dispatcher {
-
-    /**
-     * Dispatch method.
-     *
-     * <p>If called multiple times for the same test and thread, only the outer
-     * invocation should be recorded.</p>
-     */
-    Object dispatch(Callable callable) throws EngineException;
-
-    /**
-     * Interface for things that can be called.
-     */
-    interface Callable {
-      Object call();
-    }
-  }
-
-  /**
-   * Non-callback based interface to the test instrumentation.
+   * Interface to the test instrumentation.
    */
   interface TestInstrumentation {
 

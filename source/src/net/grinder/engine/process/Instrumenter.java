@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,7 @@
 package net.grinder.engine.process;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Dispatcher;
+import net.grinder.engine.process.ScriptEngine.TestInstrumentation;
 import net.grinder.script.NotWrappableTypeException;
 
 
@@ -37,12 +37,18 @@ public interface Instrumenter {
   /**
    * Create a proxy object that wraps an target object for a test.
    *
-   * @param test The test.
-   * @param dispatcher The proxy should use this to dispatch the work.
-   * @param o Object to wrap.
+   * @param test
+   *          The test.
+   * @param testInstrumentation
+   *          The proxy should use this to instrument the work.
+   * @param o
+   *          Object to wrap.
    * @return The instrumented proxy.
-   * @throws NotWrappableTypeException If the target cannot be wrapped.
+   * @throws NotWrappableTypeException
+   *           If the target cannot be wrapped.
    */
-  Object createInstrumentedProxy(Test test, Dispatcher dispatcher, Object o)
+  Object createInstrumentedProxy(Test test,
+                                 TestInstrumentation testInstrumentation,
+                                 Object o)
     throws NotWrappableTypeException;
 }

@@ -27,8 +27,6 @@ import net.grinder.common.Test;
 import net.grinder.common.StubTest;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
-import net.grinder.engine.process.ScriptEngine.Dispatcher;
-import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsIndexMap;
@@ -114,32 +112,27 @@ public class TestTestData extends TestCase {
     final StatisticsSet statistics = testData.getTestStatistics();
     assertNotNull(statistics);
 
-    final RandomStubFactory<Callable> callableStubFactory =
-      RandomStubFactory.create(Callable.class);
-    final Callable callable = callableStubFactory.getStub();
-
     // 1. Happy case.
     try {
-      testData.dispatch(callable);
+      testData.startTest();
       fail("Expected EngineException");
     }
     catch (EngineException e) {
       AssertUtilities.assertContains(e.getMessage(), "Only Worker Threads");
     }
 
-    callableStubFactory.assertNoMoreCalls();
-
     m_threadContextLocator.set(m_threadContext);
 
-    testData.dispatch(callable);
-
-    callableStubFactory.assertSuccess("call");
-    callableStubFactory.assertNoMoreCalls();
+    testData.startTest();
 
     m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
     final DispatchContext dispatchContext =
       (DispatchContext) m_threadContextStubFactory.assertSuccess(
       "pushDispatchContext", DispatchContext.class).getParameters()[0];
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    testData.endTest(true);
+
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
 
@@ -159,23 +152,19 @@ public class TestTestData extends TestCase {
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     // 2. Nested case.
-    final Callable outer = new Callable() {
+    testData.startTest();
 
-      public Object call() {
-        // No call to getDispatchResultReporter as dispatcher is reused.
-        m_threadContextStubFactory.assertSuccess(
-          "pushDispatchContext", DispatchContext.class);
+    m_threadContextStubFactory.assertSuccess(
+      "pushDispatchContext", DispatchContext.class);
+    m_threadContextStubFactory.assertNoMoreCalls();
 
-        try {
-          testData.dispatch(callable);
-        }
-        catch (EngineException e) {
-          fail(e.getMessage());
-        }
-        return null;
-      }};
+    testData.startTest();
+    m_threadContextStubFactory.assertNoMoreCalls();
 
-    testData.dispatch(outer);
+    testData.endTest(true);
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    testData.endTest(true);
 
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
@@ -194,23 +183,15 @@ public class TestTestData extends TestCase {
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     // 3. Unhappy case.
-    final RuntimeException problem = new RuntimeException();
-    callableStubFactory.setThrows("call", problem);
-
-    try {
-      testData.dispatch(callable);
-      fail("Expected RuntimeException");
-    }
-    catch (RuntimeException e) {
-      assertSame(problem, e);
-    }
+    testData.startTest();
+    testData.endTest(false);
 
     // The dispatcher's statistics (not the test statistics) are
     // marked bad.
     final StatisticsSet dispatcherStatistics =
       (StatisticsSet)
       m_testStatisticsHelperStubFactory.assertSuccess(
-      "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
+        "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
     assertNotSame(statistics, dispatcherStatistics);
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
@@ -218,32 +199,23 @@ public class TestTestData extends TestCase {
     dispatchContext.report();
     m_testStatisticsHelperStubFactory.resetCallHistory();
 
-    Callable evilCallable = new Callable() {
-      public Object call() {
-        dispatchContext.getPauseTimer().start();
-        return callable.call();
-      }};
+    testData.startTest();
+    dispatchContext.getPauseTimer().start();
 
-      try {
-        testData.dispatch(evilCallable);
-        fail("Expected RuntimeException");
-      }
-      catch (RuntimeException e) {
-        assertSame(problem, e);
-      }
+    testData.endTest(false);
 
     // The dispatcher's statistics (not the test statistics) are
     // marked bad.
     final StatisticsSet dispatcherStatistics2 =
       (StatisticsSet)
       m_testStatisticsHelperStubFactory.assertSuccess(
-      "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
+        "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
     assertNotSame(statistics, dispatcherStatistics2);
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     // 4. Assertion failures.
     try {
-      testData.dispatch(callable);
+      testData.startTest();
       fail("Expected DispatchStateException");
     }
     catch (DispatchStateException e) {
@@ -286,24 +258,21 @@ public class TestTestData extends TestCase {
     final StatisticsSet statistics = testData.getTestStatistics();
     assertNotNull(statistics);
 
-    final RandomStubFactory<Callable> callableStubFactory =
-      RandomStubFactory.create(Callable.class);
-    final Callable callable = callableStubFactory.getStub();
-
     m_threadContextLocator.set(m_threadContext);
 
     final long beforeTime = System.currentTimeMillis();
 
-    testData.dispatch(callable);
-
-    callableStubFactory.assertSuccess("call");
-    callableStubFactory.assertNoMoreCalls();
+    testData.startTest();
 
     m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
     final DispatchContext dispatchContext =
       (DispatchContext)
       m_threadContextStubFactory.assertSuccess(
         "pushDispatchContext", DispatchContext.class).getParameters()[0];
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    testData.endTest(true);
+
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
 
@@ -372,23 +341,20 @@ public class TestTestData extends TestCase {
     catch (InvalidContextException e) {
     }
 
-    final Callable longerCallable = new Callable() {
-      public Object call() {
-        assertTrue(dispatchContext.getElapsedTime() < 20);
-        try {
-          Thread.sleep(50);
-        }
-        catch (InterruptedException e) {
-          fail(e.getMessage());
-        }
+    testData.startTest();
 
-        assertTrue(dispatchContext.getElapsedTime() >=
-                   50 - Time.J2SE_TIME_ACCURACY_MILLIS);
-        return null;
-      }
-    };
+    assertTrue(dispatchContext.getElapsedTime() < 20);
+    try {
+      Thread.sleep(50);
+    }
+    catch (InterruptedException e) {
+      fail(e.getMessage());
+    }
 
-    testData.dispatch(longerCallable);
+    assertTrue(dispatchContext.getElapsedTime() >=
+               50 - Time.J2SE_TIME_ACCURACY_MILLIS);
+
+    testData.endTest(true);
 
     final long elapsedTime2 = dispatchContext.getElapsedTime();
     assertTrue(elapsedTime2 >= 50 - Time.J2SE_TIME_ACCURACY_MILLIS);
@@ -409,17 +375,13 @@ public class TestTestData extends TestCase {
                    new StubTest(1, "test1"));
 
 
-    final RandomStubFactory<Callable> callableStubFactory =
-      RandomStubFactory.create(Callable.class);
-    final Callable callable = callableStubFactory.getStub();
-
     m_threadContextLocator.set(m_threadContext);
 
     final ShutdownException se = new ShutdownException("Bang");
     m_threadContextStubFactory.setThrows("pushDispatchContext", se);
 
     try {
-      testData.dispatch(callable);
+      testData.startTest();
       fail("Expected ShutdownException");
     }
     catch (ShutdownException e) {
@@ -430,28 +392,5 @@ public class TestTestData extends TestCase {
                                                se,
                                                DispatchContext.class);
     m_threadContextStubFactory.assertNoMoreCalls();
-  }
-
-  /**
-   * Creates dynamic ThreadContext stubs which implement invokeTest by
-   * delegating directly to the callable. Must be public so
-   * override_ methods can be invoked.
-   */
-  public static class ThreadContextStubFactory
-    extends RandomStubFactory<ThreadContext> {
-
-    private final TestData m_expectedTestData;
-
-    public ThreadContextStubFactory(TestData expectedTestData) {
-      super(ThreadContext.class);
-      m_expectedTestData = expectedTestData;
-    }
-
-    public Object override_invokeTest(Object proxy,
-                                      TestData testData,
-                                      Dispatcher.Callable callable) {
-      assertSame(m_expectedTestData, testData);
-      return callable.call();
-    }
   }
 }

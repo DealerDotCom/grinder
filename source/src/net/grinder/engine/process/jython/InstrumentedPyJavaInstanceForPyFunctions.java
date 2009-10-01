@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2008 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.engine.process.jython;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
 import org.python.core.PyFunction;
@@ -58,8 +57,8 @@ class InstrumentedPyJavaInstanceForPyFunctions
     }
 
     return getInstrumentationHelper().dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaInstanceForPyFunctions
             .super.invoke(name);
         }
@@ -74,8 +73,8 @@ class InstrumentedPyJavaInstanceForPyFunctions
     }
 
     return getInstrumentationHelper().dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaInstanceForPyFunctions
             .super.invoke(name, arg1);
         }
@@ -91,8 +90,8 @@ class InstrumentedPyJavaInstanceForPyFunctions
     }
 
     return getInstrumentationHelper().dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaInstanceForPyFunctions
             .super.invoke(name, arg1, arg2);
         }
@@ -107,8 +106,8 @@ class InstrumentedPyJavaInstanceForPyFunctions
     }
 
     return getInstrumentationHelper().dispatch(
-      new Dispatcher.Callable() {
-          public Object call() {
+      new PyDispatcher.Callable() {
+          public PyObject call() {
             return InstrumentedPyJavaInstanceForPyFunctions
               .super.invoke(name, args);
           }
@@ -127,8 +126,8 @@ class InstrumentedPyJavaInstanceForPyFunctions
     */
 
     return getInstrumentationHelper().dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaInstanceForPyFunctions
             .super.invoke(name, args, keywords);
         }

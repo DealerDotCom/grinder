@@ -16,17 +16,15 @@ against it too :-).
 * NG instrumentation
 
 Steps:
-  1b. Remove old dispatcher
+  2. Implement InstrumentationRegistry.
 
-  2. Finish off DCRInstrumenter for Jython.
-     - Write test cases.
-
-  3. Implement InstrumentationRegistry.
-
-  4. Fold in instrumentation engine to mainline.
+  3. Fold in instrumentation engine to mainline.
      - Add -javaagent iff JSE6 +
      - Unit test for instrumentation should verify serialization compatibility.
      - Understand intern(), and apply if we can.
+
+  4. Finish off DCRInstrumenter for Jython.
+     - Write test cases.
 
   5. Move existing instrumenter to a separate class. Dynamically load.
      - Fall back to DCRInstrumenter on failure.

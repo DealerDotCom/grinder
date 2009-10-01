@@ -22,7 +22,6 @@
 package net.grinder.engine.process.jython;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
 import org.python.core.PyJavaClass;
@@ -58,8 +57,8 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
 
   public PyObject invoke(final String name) {
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaClass.super.invoke(name);
         }
       }
@@ -68,8 +67,8 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
 
   public PyObject invoke(final String name, final PyObject arg1) {
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaClass.super.invoke(name, arg1);
         }
       }
@@ -80,8 +79,8 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
                          final PyObject arg1,
                          final PyObject arg2) {
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaClass.super.invoke(name, arg1, arg2);
         }
       }
@@ -92,8 +91,8 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
                          final PyObject[] args,
                          final String[] keywords) {
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaClass.super.invoke(name, args, keywords);
         }
       }
@@ -102,8 +101,8 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
 
   public PyObject invoke(final String name, final PyObject[] args) {
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaClass.super.invoke(name, args);
         }
       }
@@ -112,8 +111,8 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
 
   public PyObject __call__(final PyObject[] args, final String[] keywords) {
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyJavaClass.super.__call__(args, keywords);
         }
       }

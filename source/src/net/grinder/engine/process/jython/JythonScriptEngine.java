@@ -135,21 +135,15 @@ public final class JythonScriptEngine implements ScriptEngine {
   }
 
   /**
-   * Create a proxy object that wraps an target object for a test.
-   *
-   * @param test The test.
-   * @param dispatcher The proxy should use this to dispatch the work.
-   * @param o Object to wrap.
-   * @return The instrumented proxy.
-   * @throws NotWrappableTypeException If the target cannot be wrapped.
+   *{@inheritDoc}.
    */
   public Object createInstrumentedProxy(Test test,
-                                        Dispatcher dispatcher,
+                                        TestInstrumentation testInstrumentation,
                                         Object o)
     throws NotWrappableTypeException {
 
     return m_instrumentedProxyFactory.instrumentObject(
-      test, new PyDispatcher(dispatcher), o);
+      test, new PyDispatcher(testInstrumentation), o);
   }
 
   /**
@@ -461,15 +455,40 @@ public final class JythonScriptEngine implements ScriptEngine {
    * </p>
    */
   static final class PyDispatcher {
-    private final Dispatcher m_delegate;
 
-    private PyDispatcher(Dispatcher delegate) {
-      m_delegate = delegate;
+    /**
+     * Callback interface.
+     *
+     * @author Philip Aston
+     * @version $Revision$
+     */
+    interface Callable {
+      PyObject call();
     }
 
-    public PyObject dispatch(Dispatcher.Callable callable) {
+    private final TestInstrumentation m_testInstrumentation;
+
+    private PyDispatcher(TestInstrumentation testInstrumentation) {
+      m_testInstrumentation = testInstrumentation;
+    }
+
+    public PyObject dispatch(Callable callable) {
+
       try {
-        return (PyObject)m_delegate.dispatch(callable);
+        m_testInstrumentation.startTest();
+
+        boolean success = false;
+
+        try {
+          final PyObject result = callable.call();
+
+          success = true;
+
+          return result;
+        }
+        finally {
+          m_testInstrumentation.endTest(success);
+        }
       }
       catch (UncheckedGrinderException e) {
         // Don't translate our unchecked exceptions.

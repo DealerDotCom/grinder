@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2008 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.engine.process.jython;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Dispatcher;
 import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
 import org.python.core.ClonePyInstance;
@@ -61,8 +60,8 @@ final class InstrumentedPyInstance extends ClonePyInstance {
 
   public PyObject invoke(final String name) {
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyInstance.super.invoke(name);
         }
       }
@@ -71,8 +70,8 @@ final class InstrumentedPyInstance extends ClonePyInstance {
 
   public PyObject invoke(final String name, final PyObject arg1) {
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyInstance.super.invoke(name, arg1);
         }
       }
@@ -83,8 +82,8 @@ final class InstrumentedPyInstance extends ClonePyInstance {
                          final PyObject arg1,
                          final PyObject arg2) {
     return m_instrumentationHelper.dispatch(
-      new Dispatcher.Callable() {
-        public Object call() {
+      new PyDispatcher.Callable() {
+        public PyObject call() {
           return InstrumentedPyInstance.super.invoke(name, arg1, arg2);
         }
       }
