@@ -68,9 +68,12 @@ import net.grinder.util.thread.Condition;
  */
 public final class AgentImplementation implements Agent {
 
+  private static final String AGENT_JAR_FILENAME = "grinder-agent.jar";
+
   private final Logger m_logger;
   private final File m_alternateFile;
   private final boolean m_proceedWithoutConsole;
+  private final File m_agent;
 
   private final Timer m_timer = new Timer(true);
   private final Condition m_eventSynchronisation = new Condition();
@@ -107,6 +110,31 @@ public final class AgentImplementation implements Agent {
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, m_logger);
     m_agentIdentity = new AgentIdentityImplementation(getHostName());
+    m_agent = findAgentFile();
+  }
+
+  private static File findAgentFile() {
+    final String[] classPath =
+      System.getProperty("java.class.path").split("[:;]");
+
+    for (String classPathEntry : classPath) {
+      final File classPathFile = new File(classPathEntry);
+
+      if (classPathFile.getName().equals(AGENT_JAR_FILENAME)) {
+        return classPathFile;
+      }
+    }
+
+    for (String classPathEntry : classPath) {
+      final File siblingFile =
+        new File(new File(classPathEntry).getParent(), AGENT_JAR_FILENAME);
+
+      if (siblingFile.exists()) {
+        return siblingFile;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -243,6 +271,7 @@ public final class AgentImplementation implements Agent {
             final WorkerProcessCommandLine workerCommandLine =
               new WorkerProcessCommandLine(properties,
                                            System.getProperties(),
+                                           m_agent,
                                            jvmArguments);
 
             m_logger.output(

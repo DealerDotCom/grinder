@@ -42,6 +42,7 @@ public class TestWorkerProcessCommandLine extends TestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(new GrinderProperties(),
                                    new Properties(),
+                                   null,
                                    null);
 
     assertEquals(
@@ -61,6 +62,7 @@ public class TestWorkerProcessCommandLine extends TestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(grinderProperties,
                                    overrideProperties,
+                                   null,
                                    grinderProperties.getProperty("grinder.jvm.arguments"));
 
     assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.WorkerProcessEntryPoint",
@@ -85,6 +87,7 @@ public class TestWorkerProcessCommandLine extends TestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(grinderProperties,
                                    systemProperties,
+                                   null,
                                    grinderProperties.getProperty("grinder.jvm.arguments"));
 
     String commandLine = workerProcessCommandLine.toString();

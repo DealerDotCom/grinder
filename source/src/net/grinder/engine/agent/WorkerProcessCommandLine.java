@@ -46,10 +46,15 @@ final class WorkerProcessCommandLine {
 
   public WorkerProcessCommandLine(GrinderProperties properties,
                                   Properties systemProperties,
+                                  File agent,
                                   String jvmArguments) {
 
     m_command = new ArrayList<String>();
     m_command.add(properties.getProperty("grinder.jvm", "java"));
+
+    if (agent != null) {
+      m_command.add("-javaagent:" + agent.getAbsolutePath());
+    }
 
     if (jvmArguments != null) {
       // Really should allow whitespace to be escaped/quoted.
