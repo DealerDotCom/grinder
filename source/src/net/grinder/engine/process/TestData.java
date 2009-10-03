@@ -59,8 +59,8 @@ final class TestData implements RegisteredTest, TestInstrumentation {
    */
   private final StatisticsSet m_testStatistics;
 
-  private final DispatcherHolderThreadLocal m_dispatcherHolderThreadLocal =
-    new DispatcherHolderThreadLocal();
+  private final InstrumentationHolderThreadLocal m_instrumentationHolderTL =
+    new InstrumentationHolderThreadLocal();
 
   TestData(ThreadContextLocator threadContextLocator,
            StatisticsSetFactory statisticsSetFactory,
@@ -97,37 +97,37 @@ final class TestData implements RegisteredTest, TestInstrumentation {
   }
 
   public void startTest() throws EngineException {
-    m_dispatcherHolderThreadLocal.getDispatcherHolder().startTest();
+    m_instrumentationHolderTL.getHolder().startTest();
   }
 
   public void endTest(boolean success) throws EngineException {
-    m_dispatcherHolderThreadLocal.getDispatcherHolder().endTest(success);
+    m_instrumentationHolderTL.getHolder().endTest(success);
   }
 
   /**
-   * Thread local storage which keeps a {@link DispatcherHolder} for each worker
-   * thread that has ever used this test.
+   * Thread local storage which keeps a {@link InstrumentationHolder} for each
+   * worker thread that has ever used this test.
    */
-  private final class DispatcherHolderThreadLocal {
-    private final ThreadLocal<DispatcherHolder> m_threadLocal =
-      new ThreadLocal<DispatcherHolder>() {
+  private final class InstrumentationHolderThreadLocal {
+    private final ThreadLocal<InstrumentationHolder> m_threadLocal =
+      new ThreadLocal<InstrumentationHolder>() {
 
-      public DispatcherHolder initialValue() {
+      public InstrumentationHolder initialValue() {
         final ThreadContext threadContext = m_threadContextLocator.get();
 
         if (threadContext == null) {
           throw new UncheckedException("Only Worker Threads can invoke tests");
         }
 
-        final Dispatcher dispatcher =
-          new Dispatcher(threadContext.getDispatchResultReporter(),
+        final Instrumentation instrumentation =
+          new Instrumentation(threadContext.getDispatchResultReporter(),
                          new StopWatchImplementation(m_timeAuthority));
 
-        return new DispatcherHolder(threadContext, dispatcher);
+        return new InstrumentationHolder(threadContext, instrumentation);
       }
     };
 
-    public DispatcherHolder getDispatcherHolder() throws EngineException {
+    public InstrumentationHolder getHolder() throws EngineException {
       try {
         return m_threadLocal.get();
       }
@@ -138,7 +138,7 @@ final class TestData implements RegisteredTest, TestInstrumentation {
   }
 
   /**
-   * Cache a single Dispatcher for a particular worker thread.
+   * Cache a single {@link Instrumentation} for a particular worker thread.
    *
    * <p>
    * Ensure each worker thread ignores any nested methods instrumented with the
@@ -153,30 +153,31 @@ final class TestData implements RegisteredTest, TestInstrumentation {
    * script engine instrumentation.
    * </p>
    */
-  private static final class DispatcherHolder implements TestInstrumentation {
+  private static final class InstrumentationHolder
+    implements TestInstrumentation {
 
     private final ThreadContext m_threadContext;
-    private final Dispatcher m_dispatcher;
+    private final Instrumentation m_instrumentation;
     private int m_nestingDepth = 0;
 
-    public DispatcherHolder(ThreadContext threadContext,
-                            Dispatcher dispatcher) {
+    public InstrumentationHolder(ThreadContext threadContext,
+                                 Instrumentation instrumentation) {
       m_threadContext = threadContext;
-      m_dispatcher = dispatcher;
+      m_instrumentation = instrumentation;
     }
 
     public void startTest() throws DispatchStateException {
       if (m_nestingDepth++ == 0) {
         // Entering outer frame.
-        m_threadContext.pushDispatchContext(m_dispatcher);
-        m_dispatcher.startTest();
+        m_threadContext.pushDispatchContext(m_instrumentation);
+        m_instrumentation.startTest();
       }
     }
 
     public void endTest(boolean success)  {
       if (--m_nestingDepth == 0) {
         // Leaving outer frame.
-        m_dispatcher.endTest(success);
+        m_instrumentation.endTest(success);
         m_threadContext.popDispatchContext();
       }
     }
@@ -197,7 +198,7 @@ final class TestData implements RegisteredTest, TestInstrumentation {
    * return references to Dispatchers that are <em>dispatching</em> or
    * <em>complete</em>.
    */
-  private final class Dispatcher
+  private final class Instrumentation
     implements DispatchContext, TestInstrumentation {
 
     private final DispatchResultReporter m_resultReporter;
@@ -207,8 +208,8 @@ final class TestData implements RegisteredTest, TestInstrumentation {
     private long m_dispatchTime = -1;
     private StatisticsForTestImplementation m_statisticsForTest;
 
-    public Dispatcher(DispatchResultReporter resultReporter,
-                      StopWatch pauseTimer) {
+    public Instrumentation(DispatchResultReporter resultReporter,
+                           StopWatch pauseTimer) {
 
       m_resultReporter = resultReporter;
       m_pauseTimer = pauseTimer;
