@@ -16,12 +16,11 @@ against it too :-).
 * NG instrumentation
 
 Steps:
-  2. Implement InstrumentationRegistry.
-
   3. Fold in instrumentation engine to mainline.
-     - Add -javaagent iff JSE6 +
      - Unit test for instrumentation should verify serialization compatibility.
      - Understand intern(), and apply if we can.
+
+  3. Implement InstrumentationRegistry.
 
   4. Finish off DCRInstrumenter for Jython.
      - Write test cases.
