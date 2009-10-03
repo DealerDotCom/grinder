@@ -117,11 +117,21 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="http://vivin.net/tag/the-grinder/">Rough Book</a>
+      </td>
+
+      <td>A series of in-depth blog entries tahte introduceThe Grinder and
+          present a rich framework for scripts.</td>
+    </tr>
+
+    <tr>
+      <td>
         <a href="http://www.performanceengineer.com/blog/introduction-to-the-grinder/">PerformanceEngineer.com: Introduction To The Grinder</a>
       </td>
 
       <td>An introductory blog entry showing how to set up The Grinder with <a href="site:grinderstone">GrinderStone</a>.</td>
     </tr>
+
     <tr>
       <td>
         <a href="http://www.pcpro.co.uk/features/230550/technology-you-can-bet-on/page3.html">PC Pro article</a>
