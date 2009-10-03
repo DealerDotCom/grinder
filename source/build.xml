@@ -19,10 +19,13 @@ file) as building instructions. For more information refer to
 What do I need?
 ===============
 
-As well as Ant, to build and run The Grinder you need a version of Java that
-supports:
+As well as Ant, to build The Grinder you need a version of Java that supports:
 
-  - J2SE 5.0 ("Java 5") or later
+  - J2SE 6.0 ("Java 6") or later
+
+(J2SE 6.0 is required by the new instrumentation engine introduced in The
+Grinder 3.3. If you are not using this feature, J2SE 5.0 is sufficient at
+runtime).
 
 The following addtional packages are necessary to build and run The Grinder.
 They are bundled in the lib directory:
@@ -30,6 +33,7 @@ They are bundled in the lib directory:
   - Apache XMLBeans 2.1.0
   - Jython 2.2.1
   - PicoContainer 1.3
+  - ASM 3.2
 
 The following optional packages are necessary to run The Grinder unit
 tests, reports, and release process.
@@ -124,7 +128,7 @@ what you want. Currently the conditionally built modules are:
   <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
   <property name="package-lists.dir" value="${etc.dir}/packagelists"/>
 
-  <!-- distribution patternsets -->
+  <!-- distribution and packaging patternsets -->
   <patternset id="sources.patternset">
     <include name="build.xml"/>
     <include name="ChangeLog"/>
@@ -169,6 +173,10 @@ what you want. Currently the conditionally built modules are:
     <include name="README"/>
   </patternset>
 
+  <patternset id="agent-classes.patternset">
+    <include name="net/grinder/util/weave/agent/*"/>
+  </patternset>
+
   <!-- =================================================================== -->
   <!-- Initialization target                                               -->
   <!-- =================================================================== -->
@@ -193,6 +201,13 @@ what you want. Currently the conditionally built modules are:
       <pathelement path="${lib.dir}/jython.jar"/>
     </path>
 
+    <path id="asm.classpath">
+      <!-- Must use fileset, pathelement doesn't accept wildcards. -->
+      <fileset dir="${lib.dir}">
+        <include name="asm*.jar"/>
+      </fileset>
+    </path>
+
     <path id="picocontainer.classpath">
       <!-- Must use fileset, pathelement doesn't accept wildcards. -->
       <fileset dir="${lib.dir}">
@@ -207,6 +222,7 @@ what you want. Currently the conditionally built modules are:
 
     <path id="build.classpath">
       <pathelement path="${classes.dir}"/>
+      <path refid="asm.classpath"/>
       <path refid="jython.classpath"/>
       <path refid="picocontainer.classpath"/>
       <path refid="xmlbeans.classpath"/>
@@ -278,6 +294,14 @@ what you want. Currently the conditionally built modules are:
   <target name="bundle-libraries">
     <copy todir="${lib.dir}" failonerror="false" verbose="true">
       <fileset dir="${jython.dir}" includes="jython.jar"/>
+
+      <fileset dir="${asm.dir}/lib">
+        <include name="asm-*.jar"/>
+        <exclude name="*analysis*.jar"/>
+        <exclude name="*tree*.jar"/>
+        <exclude name="*util*.jar"/>
+        <exclude name="*xml*.jar"/>
+      </fileset>
 
       <fileset dir="${picocontainer.dir}">
         <include name="picocontainer-*.jar"/>
@@ -393,6 +417,7 @@ what you want. Currently the conditionally built modules are:
            source="1.5">
        <include name="net/grinder/**"/>
        <classpath refid="build.classpath"/>
+       <exclude name="**/DCR**"/> <!-- TODO -->
     </javac>
   </target>
 
@@ -431,14 +456,22 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <!-- =================================================================== -->
-  <!-- Creates the jar                                                     -->
+  <!-- Creates the jars                                                    -->
   <!-- =================================================================== -->
   <target name="jar" depends="compile, copy-resources"
           description="Default target, creates lib/grinder.jar.">
 
     <jar jarfile="${lib.dir}/${name}.jar"
          basedir="${classes.dir}"
-         manifest="etc/grinder-manifest.mf"/>
+         manifest="etc/grinder-manifest.mf"
+         filesonly="true"
+         excludes="net/grinder/util/weave/agent/**"/>
+
+    <jar jarfile="${lib.dir}/${name}-agent.jar"
+         basedir="${classes.dir}"
+         manifest="etc/agent-manifest.mf"
+         filesonly="true"
+         includes="net/grinder/util/weave/agent/**"/>
   </target>
 
   <!-- =================================================================== -->
