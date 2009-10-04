@@ -104,26 +104,28 @@ public final class DCRWeaver implements Weaver {
           classes.add(entry.getKey().getDeclaringClass());
         }
 
+        final Instrumentation instrumentation =
+          ExposeInstrumentation.getInstrumentation();
+
+        if (instrumentation == null) {
+          throw new WeavingException(
+            "Instrumentation not available, " +
+            "does the command line specify the Java agent?");
+        }
+
+        final ClassFileTransformer transformer =
+          m_transformerFactory.create(methodsAndLocations);
+
+        instrumentation.addTransformer(transformer, true);
+
         try {
-          final Instrumentation instrumentation =
-            ExposeInstrumentation.getInstrumentation();
-
-          if (instrumentation == null) {
-            throw new WeavingException(
-              "Instrumentation not available, " +
-              "does the command line specify the Java agent?");
-          }
-
-          final ClassFileTransformer transformer =
-            m_transformerFactory.create(methodsAndLocations);
-
-          instrumentation.addTransformer(transformer, true);
           instrumentation.retransformClasses(classes.toArray(new Class<?>[0]));
-          instrumentation.removeTransformer(transformer);
         }
         catch (UnmodifiableClassException e) {
           throw new WeavingException("Failed to modify class", e);
         }
+
+        instrumentation.removeTransformer(transformer);
 
         m_wovenMethods.putAll(m_pendingMethods);
         m_pendingMethods.clear();
