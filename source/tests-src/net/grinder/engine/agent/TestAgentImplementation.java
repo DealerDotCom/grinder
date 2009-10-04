@@ -56,14 +56,17 @@ public class TestAgentImplementation extends AbstractFileTestCase {
 
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
   private final Logger m_logger = m_loggerStubFactory.getLogger();
+  private String m_originalClassPath;
 
   protected void setUp() throws Exception {
     DebugThreadWorkerFactory.setIsolatedRunnerClass(TestRunner.class);
+    m_originalClassPath = System.getProperty("java.class.path");
     super.setUp();
   }
 
   protected void tearDown() throws Exception {
     super.tearDown();
+    System.setProperty("java.class.path", m_originalClassPath);
     DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
   }
 
@@ -445,6 +448,20 @@ public class TestAgentImplementation extends AbstractFileTestCase {
     console2.shutdown();
 
     agent.shutdown();
+  }
+
+  public void testFindAgentFile() {
+    System.setProperty("java.class.path", "");
+
+    assertNull(AgentImplementation.findJavaAgentFile());
+
+    System.setProperty("java.class.path", "somewhere:somewhereelse");
+
+    assertNull(AgentImplementation.findJavaAgentFile());
+
+    System.setProperty("java.class.path", m_originalClassPath);
+
+    assertNotNull(AgentImplementation.findJavaAgentFile());
   }
 
   private abstract class ConsoleStub {

@@ -73,7 +73,7 @@ public final class AgentImplementation implements Agent {
   private final Logger m_logger;
   private final File m_alternateFile;
   private final boolean m_proceedWithoutConsole;
-  private final File m_agent;
+  private final File m_javaAgentFile;
 
   private final Timer m_timer = new Timer(true);
   private final Condition m_eventSynchronisation = new Condition();
@@ -110,20 +110,15 @@ public final class AgentImplementation implements Agent {
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, m_logger);
     m_agentIdentity = new AgentIdentityImplementation(getHostName());
-    m_agent = findAgentFile();
+    m_javaAgentFile = findJavaAgentFile();
   }
 
-  private static File findAgentFile() {
+  /**
+   * Package scope for unit tests.
+   */
+  static File findJavaAgentFile() {
     final String[] classPath =
       System.getProperty("java.class.path").split("[:;]");
-
-    for (String classPathEntry : classPath) {
-      final File classPathFile = new File(classPathEntry);
-
-      if (classPathFile.getName().equals(AGENT_JAR_FILENAME)) {
-        return classPathFile;
-      }
-    }
 
     for (String classPathEntry : classPath) {
       final File siblingFile =
@@ -271,7 +266,7 @@ public final class AgentImplementation implements Agent {
             final WorkerProcessCommandLine workerCommandLine =
               new WorkerProcessCommandLine(properties,
                                            System.getProperties(),
-                                           m_agent,
+                                           m_javaAgentFile,
                                            jvmArguments);
 
             m_logger.output(
