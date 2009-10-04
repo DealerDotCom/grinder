@@ -24,11 +24,13 @@ package net.grinder.util.weave.j2se6;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
 
 import org.objectweb.asm.ClassAdapter;
@@ -55,10 +57,50 @@ public final class ASMTransformerFactory
   /**
    * Constructor.
    *
+   * <p>
+   * {@code adviceClass} should implement two methods with the following
+   * names and signatures.
+   * </p>
+   *
+   * <pre>
+   * public static void enter(Object reference,
+   *                          String location);
+   *
+   * public static void exit(Object reference,
+   *                         String location,
+   *                         boolean success);
+   * </pre>
+   *
+   *
    * @param adviceClass
    *          Class that provides the advice.
+   * @throws WeavingException
+   *           If {@code adviceClass} does not implement {@code enter} and
+   *           {@code exit} static methods.
    */
-  public ASMTransformerFactory(Class<?> adviceClass) {
+  public ASMTransformerFactory(Class<?> adviceClass) throws WeavingException {
+
+    try {
+      final Method enterMethod =
+        adviceClass.getMethod("enter", Object.class, String.class);
+
+      if (!Modifier.isStatic(enterMethod.getModifiers())) {
+        throw new WeavingException("Enter method is not static");
+      }
+
+      final Method exitMethod =
+        adviceClass.getMethod("exit", Object.class, String.class, Boolean.TYPE);
+
+      if (!Modifier.isStatic(exitMethod.getModifiers())) {
+        throw new WeavingException("Exit method is not static");
+      }
+    }
+    catch (Exception e) {
+      throw new WeavingException(
+        adviceClass.getName() + " does not expected enter and exit methods",
+        e);
+    }
+
     m_adviceClass = Type.getInternalName(adviceClass);
   }
 
