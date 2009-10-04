@@ -1,11 +1,37 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
-<section name='The Grinder 3.1.1 (not yet released)' id='The Grinder 3.1.1 (not yet released)'>
+<section name='The Grinder 3.2' id='The Grinder 3.2'>
+<p>
+Add net.grinder.ScriptContext startWorkerThread() and startWorkerThread(testRunner) methods which scripts can use to start additional worker threads. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1694369&amp;group_id=18598&amp;atid=368598">request 1694369</a> - Ability to stop worker threads from script. See the ScriptContext stopThisWorkerThread() and stopWorkerThread() methods. </p>
 <p>
 Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2018168&amp;group_id=18598&amp;atid=118598">bug 2018168</a> - HTTP filter generates invalid Jython variable names. </p>
 <p>
 Address <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2058502&amp;group_id=18598&amp;atid=118598">bug 2058502</a> - Add example script showing how to ramp up threads. Thanks to Travis Bear for the prompt. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2092881&amp;group_id=18598&amp;atid=118598">bug 2092881</a> - Agents do not start first time after reset if console overrides consoleHost or consolePort properties. Thanks to HappySpaceInvader for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2138601&amp;group_id=18598&amp;atid=118598">bug 2138601</a> - Moving table columns results in incorrect formatting. Thanks to Walter Tuvell for the report. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2201502&amp;group_id=18598&amp;atid=368598">request 2201502</a>. Add stream based versions of POST, PUT, OPTIONS to HTTPRequest. This allows arbitrarily large amount of data can be sent without requiring a corresponding amount of memory. Thanks to Walter Tuvell for the suggestion. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1576609&amp;group_id=18598&amp;atid=118598">bug 1576609</a> - "Accept Cookie" rules too strict. I've relaxed the rules about what cookie domains are acceptable to The Grinder, better to align it with current browser implementations. Thanks to Bryan Cornies for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1580340&amp;group_id=18598&amp;atid=118598">bug 1580340</a> - Can't invoke static methods through a wrapped Java class. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2314157&amp;group_id=18598&amp;atid=118598">bug 2314157</a> - Log4j classes reloaded by IsolatingClassLoader. This bug was really a feature request to allow specific classes to be shared when running with grinder.debug.singleprocess=true. This is important because GrinderStone uses the single process mode.  Classes can now be share with the new grinder.debug.singleprocess.sharedclasses property. Thanks to Fei Fan for requesting this. </p>
+<p>
+Dutch console translation from Marc Van Giel. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2412104&amp;group_id=18598&amp;atid=368598">request 2412104</a> - Support streaming HTTP responses. Thanks to Randy Shaffer for requesting this feature, and to Olivier Merlin for testing an initial patch. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2298825&amp;group_id=18598&amp;atid=368598">request 2298825</a> - Worker number which is reset for each test run. Added ScriptContext.getFirstProcessNumber() which a script can use with getProcessNumber() to calculate a zero based value for indexing into test data. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2412121&amp;group_id=18598&amp;atid=118598">bug 2412121</a> - Not compatible with servers that only provide SSLv3. I've altered the TCPProxy and the HTTPClient library so that the SSL sockets they create enable all the protocols and cipher suites supported by the underlying JVM. These can be overridden if necessary with the https.cipherSuites and https.protocols Java system properties. Thanks to Lorance Stinson for the report and for testing various candidate patches. </p>
+<p>
+Fulfill feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1677083&amp;group_id=18598&amp;atid=368598">request 1677083</a> - Agent should produce TPS when run without Console. Thanks to MattyM76 for requesting this feature. </p>
 </section>
 <section name='The Grinder 3.1' id='The Grinder 3.1'>
 <p>
@@ -357,7 +383,7 @@ Scripts can now control the SSL context used by each worker thread. This can be 
 <p>
 Enhancement from Slavik Gnatenko that allows the grinder.threads, grinder.reportToConsole.interval, and grinder.duration properties to be overridden in scripts initialistion section. </p>
 <p>
-Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP URLs. Thanks to Thomas B�hne for reporting problems. </p>
+Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP URLs. Thanks to Thomas Býhne for reporting problems. </p>
 <p>
 Fix another bug in HTTPClient related to responses with a Content-Length of 0. Thanks to John Lee for the report. </p>
 <p>
@@ -369,7 +395,7 @@ New documentation built with Apache Forrest. </p>
 <p>
 Additional HTTP instrumentation from Calumn Fitzgerald. This adds new statistics measuring time to resolve host names (DNS), time to establish the connection, and time to first byte. </p>
 <p>
-XML-RPC example from Sebasti�n Fontana. </p>
+XML-RPC example from Sebastiýn Fontana. </p>
 </section>
 <section name='Grinder 3.0-beta22' id='Grinder 3.0-beta22'>
 <p>
@@ -967,7 +993,7 @@ Fix basic authentication property names. Thanks to Andrew Sliwkowski for reporti
 <p>
 Added new file doc/Problems.txt to hold wisdom from Mikael Suokas. Split the documentation of the plugins and the TCPSniffer into separate files. </p>
 <p>
-The HTTP plugin now has experimental support for Ronald Tschal�r's excellent HTTPClient library instead of HttpURLConnection. HTTPClient has many more features than HttpURLConnection, see http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html for a comparision. I hope to lever features such as proxy support, connection timeouts and persistent cookies into future versions of The Grinder. Unfortunately experimentation shows HTTPClient sometimes does not perform well in a multithreaded environment. I'm guessing this should be straightforward to fix. See the file doc/HTTPPlugin.txt for details on how to turn on the HTTPClient support. </p>
+The HTTP plugin now has experimental support for Ronald Tschalýr's excellent HTTPClient library instead of HttpURLConnection. HTTPClient has many more features than HttpURLConnection, see http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html for a comparision. I hope to lever features such as proxy support, connection timeouts and persistent cookies into future versions of The Grinder. Unfortunately experimentation shows HTTPClient sometimes does not perform well in a multithreaded environment. I'm guessing this should be straightforward to fix. See the file doc/HTTPPlugin.txt for details on how to turn on the HTTPClient support. </p>
 <p>
 The TCPSniffer echo filter now reports connection open and close events. </p>
 <p>
