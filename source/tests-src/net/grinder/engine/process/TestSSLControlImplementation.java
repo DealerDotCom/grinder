@@ -24,6 +24,7 @@ package net.grinder.engine.process;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.security.UnrecoverableKeyException;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -183,9 +184,12 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
     try {
       // Will fail since JKS doesn't support null passwords.
       sslControl.setKeyStoreFile(myKeyStore.getAbsolutePath(), null, "jks");
-      fail("Expected IllegalArgumentException");
+      fail("Expected IllegalArgumentException or UnrecoverableKeyException");
     }
-    catch (IllegalArgumentException e) {
+    catch (Exception e) {
+      assertTrue("Unexpected exception type: " + e.getClass(),
+                 e instanceof UnrecoverableKeyException ||
+                 e instanceof IllegalArgumentException);
     }
 
     sslControl.setKeyStoreFile(
