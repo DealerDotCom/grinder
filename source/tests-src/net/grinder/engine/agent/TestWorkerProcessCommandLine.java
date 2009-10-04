@@ -73,6 +73,25 @@ public class TestWorkerProcessCommandLine extends TestCase {
                  workerProcessCommandLine.toString());
   }
 
+  public void testConstructorWithAgent() throws Exception {
+
+    final GrinderProperties grinderProperties = new GrinderProperties();
+
+    final Properties overrideProperties = new Properties();
+
+    final File agentFile = new File("foobah.jar");
+
+    final WorkerProcessCommandLine workerProcessCommandLine =
+      new WorkerProcessCommandLine(grinderProperties,
+                                   overrideProperties,
+                                   agentFile,
+                                   grinderProperties.getProperty("grinder.jvm.arguments"));
+
+    assertEquals("java '-javaagent:" + agentFile.getAbsolutePath() +
+                 "' net.grinder.engine.process.WorkerProcessEntryPoint",
+                 workerProcessCommandLine.toString());
+  }
+
   public void testWithSystemProperties() throws Exception {
     final GrinderProperties grinderProperties = new GrinderProperties() {{
       setProperty("grinder.jvm.arguments", "-Xmx1024M");
