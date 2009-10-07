@@ -155,8 +155,6 @@ public class TestASMTransformerFactory extends TestCase {
     s_callRecorder.assertSuccess("exit", a, "loc2", false);
     s_callRecorder.assertNoMoreCalls();
 
-    System.out.println(a.getClass());
-
     m_pointCutRegistryStubFactory.addMethod(A.class, "m1", "loc4");
 
     instrumentation.retransformClasses(new Class[] { A.class, A2.class });
@@ -190,7 +188,6 @@ public class TestASMTransformerFactory extends TestCase {
 
     instrumentation.addTransformer(transformer, true);
     instrumentation.retransformClasses(new Class[] { SerializableA.class, });
-    instrumentation.removeTransformer(transformer);
 
     assertEquals(1, a.m1());
 
@@ -201,6 +198,32 @@ public class TestASMTransformerFactory extends TestCase {
     final byte[] bytes = serialize(a);
 
     assertArraysEqual(originalBytes, bytes);
+
+    instrumentation.removeTransformer(transformer);
+  }
+
+  public void testConstructors() throws Exception {
+    final Instrumentation instrumentation = getInstrumentation();
+
+    final ClassFileTransformerFactory transformerFactory =
+      new ASMTransformerFactory(MyAdvice.class);
+
+    m_pointCutRegistryStubFactory.addMethod(A2.class, "<init>", "loc1");
+
+    final ClassFileTransformer transformer =
+      transformerFactory.create(m_pointCutRegistry);
+
+    new A2(1);
+    s_callRecorder.assertNoMoreCalls();
+
+    instrumentation.addTransformer(transformer, true);
+    instrumentation.retransformClasses(new Class[] { A2.class, });
+
+    final A2 a = new A2(1);
+
+    s_callRecorder.assertSuccess("enter", a, "loc1");
+    s_callRecorder.assertSuccess("exit", a, "loc1", true);
+    s_callRecorder.assertNoMoreCalls();
 
     instrumentation.removeTransformer(transformer);
   }
@@ -233,6 +256,9 @@ public class TestASMTransformerFactory extends TestCase {
   }
 
   public static final class A2 {
+    public A2(int x) {
+    }
+
     public int m1() {
       return 1;
     }
