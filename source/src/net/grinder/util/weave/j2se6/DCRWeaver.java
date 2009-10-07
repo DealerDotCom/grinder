@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
@@ -45,47 +44,41 @@ import net.grinder.util.weave.agent.ExposeInstrumentation;
 public final class DCRWeaver implements Weaver {
 
   // Guarded by this.
-  private final Map<Method, LocationImpl> m_wovenMethods =
-    new HashMap<Method, LocationImpl>();
+  private final Set<Class<?>> m_pendingClasses = new HashSet<Class<?>>();
 
-  // Guarded by this.
-  private final Map<Method, LocationImpl> m_pendingMethods =
-    new HashMap<Method, LocationImpl>();
+  private final PointCutRegistryImplementation m_pointCutRegistry =
+    new PointCutRegistryImplementation();
+  private final ClassFileTransformer m_transformer;
 
-  private final ClassFileTransformerFactory m_transformerFactory;
+  private final Instrumentation m_instrumentation;
 
   /**
    * Constructor.
    *
    * @param transformerFactory Used to create the transformer.
+   * @throws WeavingException If our Java agent is not installed.
    */
-  public DCRWeaver(ClassFileTransformerFactory transformerFactory) {
-    m_transformerFactory = transformerFactory;
+  public DCRWeaver(ClassFileTransformerFactory transformerFactory)
+    throws WeavingException {
+
+    m_instrumentation = ExposeInstrumentation.getInstrumentation();
+
+    if (m_instrumentation == null) {
+      throw new WeavingException(
+        "Instrumentation not available, " +
+        "does the command line specify the Java agent?");
+    }
+
+    m_transformer = transformerFactory.create(m_pointCutRegistry);
+
+    m_instrumentation.addTransformer(m_transformer, true);
   }
 
   /**
    * {@inheritDoc}
    */
-  public Location weave(Method m) {
-    synchronized (this) {
-      final Location alreadyWoven = m_wovenMethods.get(m);
-
-      if (alreadyWoven != null) {
-        return alreadyWoven;
-      }
-
-      final Location alreadyPending = m_pendingMethods.get(m);
-
-      if (alreadyPending != null) {
-        return alreadyPending;
-      }
-
-      final LocationImpl newLocation = new LocationImpl();
-
-      m_pendingMethods.put(m, newLocation);
-
-      return newLocation;
-    }
+  public Location weave(Method method) {
+    return m_pointCutRegistry.add(method);
   }
 
   /**
@@ -93,42 +86,16 @@ public final class DCRWeaver implements Weaver {
    */
   public void applyChanges() throws WeavingException {
     synchronized (this) {
-      if (m_pendingMethods.size() > 0) {
-        final Map<Method, String> methodsAndLocations =
-          new HashMap<Method, String>();
-        final Set<Class<?>> classes = new HashSet<Class<?>>();
-
-        for (Entry<Method, LocationImpl> entry : m_pendingMethods.entrySet()) {
-          methodsAndLocations.put(entry.getKey(),
-                               entry.getValue().getLocationString());
-          classes.add(entry.getKey().getDeclaringClass());
-        }
-
-        final Instrumentation instrumentation =
-          ExposeInstrumentation.getInstrumentation();
-
-        if (instrumentation == null) {
-          throw new WeavingException(
-            "Instrumentation not available, " +
-            "does the command line specify the Java agent?");
-        }
-
-        final ClassFileTransformer transformer =
-          m_transformerFactory.create(methodsAndLocations);
-
-        instrumentation.addTransformer(transformer, true);
-
+      if (m_pendingClasses.size() > 0) {
         try {
-          instrumentation.retransformClasses(classes.toArray(new Class<?>[0]));
+          m_instrumentation.retransformClasses(
+            m_pendingClasses.toArray(new Class<?>[0]));
         }
         catch (UnmodifiableClassException e) {
           throw new WeavingException("Failed to modify class", e);
         }
 
-        instrumentation.removeTransformer(transformer);
-
-        m_wovenMethods.putAll(m_pendingMethods);
-        m_pendingMethods.clear();
+        m_pendingClasses.clear();
       }
     }
   }
@@ -140,6 +107,24 @@ public final class DCRWeaver implements Weaver {
   }
 
   /**
+   * Something that remembers all the point cuts.
+   */
+  public interface PointCutRegistry {
+
+    /**
+     * Return the registered point cuts for a class.
+     *
+     * @param className
+     *          The name of the class, in internal form. For example, {@code
+     *          java/util/List}. Passed through to
+     *          {@link ClassFileTransformer#transform}.
+     * @return A map of method names to location strings. Each method in a class
+     *         has at most one location string.
+     */
+    Map<String, String> getPointCutsForClass(String className);
+  }
+
+  /**
    * Factory that generates {@link ClassFileTransformer}s which perform
    * the weaving.
    */
@@ -148,10 +133,68 @@ public final class DCRWeaver implements Weaver {
     /**
      * Factory method.
      *
-     * @param methodsAndLocations
-     *          Map from methods to instrument to their location strings.
+     * @param pointCutRegistry The point cut registry.
      * @return The transformer.
      */
-    ClassFileTransformer create(Map<Method, String> methodsAndLocations);
+    ClassFileTransformer create(PointCutRegistry pointCutRegistry);
+  }
+
+  private final class PointCutRegistryImplementation
+    implements PointCutRegistry {
+    // Guarded by this.
+    private final Map<Method, LocationImpl> m_wovenMethods =
+      new HashMap<Method, LocationImpl>();
+
+    // Faster mapping of internal class name -> method name -> location string.
+    // Guarded by this.
+    private final Map<String, Map<String, String>>
+      m_internalClassNameToMethodNameToLocation =
+        new HashMap<String, Map<String, String>>();
+
+    public Map<String, String> getPointCutsForClass(String className) {
+      synchronized (this) {
+        return m_internalClassNameToMethodNameToLocation.get(className);
+      }
+    }
+
+    public Location add(Method method) {
+      synchronized(this) {
+        final LocationImpl alreadyWoven = m_wovenMethods.get(method);
+
+        if (alreadyWoven != null) {
+          return alreadyWoven;
+        }
+      }
+
+      final String className = method.getDeclaringClass().getName();
+      final String internalClassName = className.replace('.', '/');
+      final LocationImpl location = new LocationImpl();
+
+      synchronized(this) {
+        final Map<String, String> methodNameToLocation;
+
+        final Map<String, String> existing =
+          m_internalClassNameToMethodNameToLocation.get(internalClassName);
+
+        if (existing != null) {
+          methodNameToLocation = existing;
+        }
+        else {
+          methodNameToLocation = new HashMap<String, String>();
+          m_internalClassNameToMethodNameToLocation.put(internalClassName,
+                                                        methodNameToLocation);
+        }
+
+        m_wovenMethods.put(method, location);
+        methodNameToLocation.put(method.getName(),
+                                 location.getLocationString());
+      }
+
+      synchronized(DCRWeaver.this) {
+        m_pendingClasses.add(method.getDeclaringClass());
+      }
+
+      return location;
+    }
   }
 }

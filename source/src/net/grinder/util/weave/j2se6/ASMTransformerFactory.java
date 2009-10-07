@@ -26,12 +26,11 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
+import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
 
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
@@ -44,7 +43,7 @@ import org.objectweb.asm.commons.AdviceAdapter;
 
 /**
  * {@link ClassFileTransformerFactory} implementation that uses ASM to
- * apply the instrumentation.
+ * advise methods.
  *
  * @author Philip Aston
  * @version $Revision:$
@@ -58,8 +57,9 @@ public final class ASMTransformerFactory
    * Constructor.
    *
    * <p>
-   * {@code adviceClass} should implement two methods with the following
-   * names and signatures.
+   * We can't add fields to the class due to DCR limitations, so we have to wire
+   * in the advice class using static methods.{@code adviceClass} should
+   * implement two methods with the following names and signatures.
    * </p>
    *
    * <pre>
@@ -107,84 +107,49 @@ public final class ASMTransformerFactory
   /**
    * {@inheritDoc}
    */
-  public ClassFileTransformer create(Map<Method, String> methodsAndLocations) {
-    return new ASMTransformer(methodsAndLocations);
+  public ClassFileTransformer create(PointCutRegistry pointCutRegistry) {
+    return new ASMTransformer(pointCutRegistry);
   }
 
-
   /**
-   * {@link ClassFileTransformer} that adds instrumentation using ASM.
+   * {@link ClassFileTransformer} that advise methods using ASM.
    *
    * @author Philip Aston
    * @version $Revision:$
    */
   private class ASMTransformer implements ClassFileTransformer {
 
-    private final Map<String, Map<String, String>>
-      m_classNameToMethodNameToLocation =
-        new HashMap<String, Map<String, String>>();
+    private final PointCutRegistry m_pointCutRegistry;
 
     /**
      * Constructor.
      *
      * <p>
-     * We can't add fields to instrumented class due to DCR limitations, so we
-     * have to wire in the advice class using static methods. We expect {@code
-     * adviceClass} to implement two static methods, {@code enter} and {@code
-     * exit}. Both methods should have the similar signatures:
-     *
-     * <ul>
-     * <li>The first parameter is a {@link Object}, and will be passed the
-     * instrumented instance, or {code null} if for static methods.</li>
-     * <li>The second parameter is an opaque {@link String} that uniquely
-     * identifies the instrumentation point.</li>
-     * <li>The {@code exit} method has a third boolean parameter that indicates
-     * whether or the return is normal ({@code true}) or due to an exception (
-     * {@code false}).
-     * <li>The return type of both methods is {@code void}.</li>
-     * </ul>
+     * Each method has at most one advice. If the class is re-transformed,
+     * perhaps with additional advised methods, we will be passed the original
+     * class byte code . We rely on a {@link PointCutRegistry} to remember which
+     * methods to advise.
      * </p>
      *
-     * @param instrumentationPoints
-     *          The methods to instrument, and the location strings.
+     * @param pointCutRegistry
+     *          Remembers the methods to advice, and the location strings.
      */
-    public ASMTransformer(Map<Method, String> instrumentationPoints) {
-
-      for (Entry<Method, String> e : instrumentationPoints.entrySet()) {
-
-        final String internalClassName =
-          Type.getInternalName(e.getKey().getDeclaringClass());
-
-        final Map<String, String> methodNameToLocation;
-
-        final Map<String, String> existing =
-          m_classNameToMethodNameToLocation.get(internalClassName);
-
-        if (existing != null) {
-          methodNameToLocation = existing;
-        }
-        else {
-          methodNameToLocation = new HashMap<String, String>();
-          m_classNameToMethodNameToLocation.put(internalClassName,
-                                                methodNameToLocation);
-        }
-
-        methodNameToLocation.put(e.getKey().getName(), e.getValue());
-      }
+    public ASMTransformer(PointCutRegistry pointCutRegistry) {
+      m_pointCutRegistry = pointCutRegistry;
     }
 
     /**
      * {@inheritDoc}
      */
     public byte[] transform(ClassLoader loader,
-                            String className,
+                            final String internalClassName,
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] originalBytes)
       throws IllegalClassFormatException {
 
       final Map<String, String> methodNameToLocation =
-        m_classNameToMethodNameToLocation.get(className);
+        m_pointCutRegistry.getPointCutsForClass(internalClassName);
 
       if (methodNameToLocation == null) {
         return null;
@@ -208,49 +173,50 @@ public final class ASMTransformerFactory
                                          final String desc,
                                          final String signature,
                                          final String[] exceptions) {
-            final MethodVisitor defaultVisitor =
-              cv.visitMethod(access, name, desc, signature, exceptions);
 
-            final String location = methodNameToLocation.get(name);
+          final MethodVisitor defaultVisitor =
+            cv.visitMethod(access, name, desc, signature, exceptions);
 
-            if (location != null) {
-              assert defaultVisitor != null;
+          final String location = methodNameToLocation.get(name);
 
-              return new AdviceAdapter(defaultVisitor, access, name, desc) {
-                @Override
-                public void onMethodEnter() {
-                  mv.visitVarInsn(ALOAD, 0);
-                  mv.visitLdcInsn(location);
-                  mv.visitMethodInsn(
-                    INVOKESTATIC,
-                    m_adviceClass,
-                    "enter",
-                    "(Ljava/lang/Object;Ljava/lang/String;)V");
-                }
+          if (location != null) {
+            assert defaultVisitor != null;
+
+            return new AdviceAdapter(defaultVisitor, access, name, desc) {
+              @Override
+              public void onMethodEnter() {
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitLdcInsn(location);
+                mv.visitMethodInsn(
+                  INVOKESTATIC,
+                  m_adviceClass,
+                  "enter",
+                  "(Ljava/lang/Object;Ljava/lang/String;)V");
+              }
 
 
-                @Override
-                public void onMethodExit(int opCode) {
-                  mv.visitVarInsn(ALOAD, 0);
-                  mv.visitLdcInsn(location);
-                  mv.visitInsn(opCode == ATHROW ? ICONST_0: ICONST_1);
+              @Override
+              public void onMethodExit(int opCode) {
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitLdcInsn(location);
+                mv.visitInsn(opCode == ATHROW ? ICONST_0: ICONST_1);
 
-                  mv.visitMethodInsn(
-                    INVOKESTATIC,
-                    m_adviceClass,
-                    "exit",
-                    "(Ljava/lang/Object;Ljava/lang/String;Z)V");
-                }
-              };
-            }
-
-            return defaultVisitor;
+                mv.visitMethodInsn(
+                  INVOKESTATIC,
+                  m_adviceClass,
+                  "exit",
+                  "(Ljava/lang/Object;Ljava/lang/String;Z)V");
+              }
+            };
           }
+
+          return defaultVisitor;
+        }
       };
 
       // Uncomment to see the original code:
-      //  visitorChain =
-      //    new TraceClassVisitor(visitorChain, new PrintWriter(System.out));
+      // visitorChain =
+      //   new TraceClassVisitor(visitorChain, new PrintWriter(System.out));
 
       classReader.accept(visitorChain, 0);
 
