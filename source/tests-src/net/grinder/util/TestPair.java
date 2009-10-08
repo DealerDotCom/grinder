@@ -73,10 +73,13 @@ public class TestPair extends TestCase {
 
     final Pair<Integer, String> p4 = new Pair<Integer, String>(null, null);
     assertEquals(p4, p4);
+    assertEquals(p4.hashCode(), p4.hashCode());
     assertNotEquals(p4, p3);
 
     final Pair<Integer, String> p5 = new Pair<Integer, String>(3, null);
     assertNotEquals(p3, p5);
     assertNotEquals(p5, p3);
+    assertEquals(p5, p5);
+    assertEquals(p5.hashCode(), p5.hashCode());
   }
 }
