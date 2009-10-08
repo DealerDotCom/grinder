@@ -79,6 +79,13 @@ public final class DCRWeaver implements Weaver {
   /**
    * {@inheritDoc}
    */
+  public Location weave(Constructor<?> constructor) {
+    return m_pointCutRegistry.add(constructor);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public Location weave(Method method) {
     return m_pointCutRegistry.add(method);
   }
@@ -180,6 +187,10 @@ public final class DCRWeaver implements Weaver {
 
     public Map<Method, String> getMethodPointCutsForClass(String className) {
       return m_internalClassNameToMethodToLocation.get(className);
+    }
+
+    public Location add(Constructor<?> constructor) {
+      return add(constructor, m_internalClassNameToConstructorToLocation);
     }
 
     public Location add(Method method) {

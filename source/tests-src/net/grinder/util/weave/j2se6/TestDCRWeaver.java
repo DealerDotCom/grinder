@@ -25,6 +25,7 @@ import static net.grinder.testutility.AssertUtilities.assertArraysEqual;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -110,12 +111,17 @@ public class TestDCRWeaver extends TestCase {
 
     final String internalClassName = getClass().getName().replace('.', '/');
 
-    final Map<Method, String> pointCuts =
+    final Map<Constructor<?>, String> constructorPointCuts =
+      pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
+
+    assertNull(constructorPointCuts);
+
+    final Map<Method, String> methodPointCuts =
       pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
-    assertEquals(1, pointCuts.size());
+    assertEquals(1, methodPointCuts.size());
 
-    final String location1 = pointCuts.get(method);
+    final String location1 = methodPointCuts.get(method);
     assertNotNull(location1);
 
     final Method method2 = getClass().getDeclaredMethod("myOtherMethod");
@@ -133,6 +139,45 @@ public class TestDCRWeaver extends TestCase {
 
     assertEquals(location1, pointCuts2.get(method));
     assertNotNull(pointCuts2.get(method2));
+  }
+
+  public void testConstructorRegistration() throws Exception {
+    ExposeInstrumentation.premain("", m_instrumentation);
+
+    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory);
+
+    final CallData createCall =
+      m_classFileTransformerFactoryStubFactory.assertSuccess(
+        "create", PointCutRegistry.class);
+    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
+
+    final Constructor<?> constructor = getClass().getDeclaredConstructor();
+
+    final Location l1 = weaver.weave(constructor);
+    final Location l2 = weaver.weave(constructor);
+    assertEquals(l1, l2);
+
+    weaver.weave(constructor);
+
+    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
+
+    final PointCutRegistry pointCutRegistry =
+      (PointCutRegistry) createCall.getParameters()[0];
+
+    final String internalClassName = getClass().getName().replace('.', '/');
+
+    final Map<Constructor<?>, String> constructorPointCuts =
+      pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
+
+    assertEquals(1, constructorPointCuts.size());
+
+    final Map<Method, String> methodPointCuts =
+      pointCutRegistry.getMethodPointCutsForClass(internalClassName);
+
+    assertNull(methodPointCuts);
+
+    final String location1 = constructorPointCuts.get(constructor);
+    assertNotNull(location1);
   }
 
   public void testWeavingWithNoInstrumentation() throws Exception {
