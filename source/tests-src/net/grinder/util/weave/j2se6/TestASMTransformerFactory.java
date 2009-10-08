@@ -48,8 +48,6 @@ import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
 /**
  * Unit tests for {@link ASMTransformerFactory}.
  *
- * TODO static methods
- *
  * @author Philip Aston
  * @version $Revision:$
  */
@@ -227,6 +225,85 @@ public class TestASMTransformerFactory extends TestCase {
     s_callRecorder.assertSuccess("exit", a, "loc1", true);
     s_callRecorder.assertNoMoreCalls();
 
+    new A3();
+    s_callRecorder.assertNoMoreCalls();
+
+    m_pointCutRegistryStubFactory.addConstructor(
+      A3.class, A3.class.getDeclaredConstructor(), "loc2");
+    instrumentation.retransformClasses(new Class[] { A3.class, A2.class });
+
+    final A3 a3 = new A3();
+
+    s_callRecorder.assertSuccess("enter", a3, "loc2");
+    s_callRecorder.assertSuccess("exit", a3, "loc2", true);
+    s_callRecorder.assertNoMoreCalls();
+
+    instrumentation.removeTransformer(transformer);
+  }
+
+  public void testOverloading() throws Exception {
+    final Instrumentation instrumentation = getInstrumentation();
+
+    final ClassFileTransformerFactory transformerFactory =
+      new ASMTransformerFactory(MyAdvice.class);
+
+    m_pointCutRegistryStubFactory.addConstructor(
+      A4.class, A4.class.getDeclaredConstructor(), "loc1");
+    m_pointCutRegistryStubFactory.addConstructor(
+      A4.class, A4.class.getDeclaredConstructor(String.class), "loc2");
+
+    m_pointCutRegistryStubFactory.addMethod(
+      A4.class, A4.class.getDeclaredMethod("m1", Integer.TYPE), "loc3");
+    m_pointCutRegistryStubFactory.addMethod(
+      A4.class, A4.class.getDeclaredMethod("m1", String.class), "loc4");
+
+    final ClassFileTransformer transformer =
+      transformerFactory.create(m_pointCutRegistry);
+
+    instrumentation.addTransformer(transformer, true);
+    instrumentation.retransformClasses(new Class[] { A4.class, });
+
+    final A4 a = new A4("abc");
+
+    // We enter and exit the nested constructor first.
+    s_callRecorder.assertSuccess("enter", a, "loc1");
+    s_callRecorder.assertSuccess("exit", a, "loc1", true);
+    s_callRecorder.assertSuccess("enter", a, "loc2");
+    s_callRecorder.assertSuccess("exit", a, "loc2", true);
+    s_callRecorder.assertNoMoreCalls();
+
+    a.m1(1);
+
+    s_callRecorder.assertSuccess("enter", a, "loc3");
+    s_callRecorder.assertSuccess("enter", a, "loc4");
+    s_callRecorder.assertSuccess("exit", a, "loc4", true);
+    s_callRecorder.assertSuccess("exit", a, "loc3", true);
+    s_callRecorder.assertNoMoreCalls();
+
+    instrumentation.removeTransformer(transformer);
+  }
+
+  public void testStaticMethods() throws Exception {
+    final Instrumentation instrumentation = getInstrumentation();
+
+    final ClassFileTransformerFactory transformerFactory =
+      new ASMTransformerFactory(MyAdvice.class);
+
+    m_pointCutRegistryStubFactory.addMethod(
+      A2.class, A2.class.getDeclaredMethod("m3"), "loc1");
+
+    final ClassFileTransformer transformer =
+      transformerFactory.create(m_pointCutRegistry);
+
+    instrumentation.addTransformer(transformer, true);
+    instrumentation.retransformClasses(new Class[] { A2.class, });
+
+    assertEquals(3, A2.m3());
+
+    s_callRecorder.assertSuccess("enter", null, "loc1");
+    s_callRecorder.assertSuccess("exit", null, "loc1", true);
+    s_callRecorder.assertNoMoreCalls();
+
     instrumentation.removeTransformer(transformer);
   }
 
@@ -261,11 +338,34 @@ public class TestASMTransformerFactory extends TestCase {
     public A2(int x) {
     }
 
-    public int m1() {
+    protected int m1() {
       return 1;
     }
 
     public void m2() {
+    }
+
+    public static int m3() {
+      return 3;
+    }
+  }
+
+  public static final class A3 {
+  }
+
+  public static final class A4 {
+    private A4() {
+    }
+
+    protected A4(String a) {
+      this();
+    }
+
+    public void m1(int a) {
+      m1(Integer.toString(a));
+    }
+
+    private void m1(String a) {
     }
   }
 

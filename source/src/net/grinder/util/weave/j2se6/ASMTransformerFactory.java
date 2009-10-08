@@ -41,6 +41,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
 
@@ -209,54 +210,8 @@ public final class ASMTransformerFactory
       //  visitorChain =
       //    new TraceClassVisitor(visitorChain, new PrintWriter(System.err));
 
-      visitorChain = new ClassAdapter(visitorChain) {
-        @Override
-        public MethodVisitor visitMethod(final int access,
-                                         final String name,
-                                         final String desc,
-                                         final String signature,
-                                         final String[] exceptions) {
-
-          final MethodVisitor defaultVisitor =
-            cv.visitMethod(access, name, desc, signature, exceptions);
-
-          final String location = nameAndDescriptionToLocation.get(
-            new Pair<String, String>(name, desc));
-
-          if (location != null) {
-            assert defaultVisitor != null;
-
-            return new AdviceAdapter(defaultVisitor, access, name, desc) {
-              @Override
-              public void onMethodEnter() {
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitLdcInsn(location);
-                mv.visitMethodInsn(
-                  INVOKESTATIC,
-                  m_adviceClass,
-                  "enter",
-                  "(Ljava/lang/Object;Ljava/lang/String;)V");
-              }
-
-
-              @Override
-              public void onMethodExit(int opCode) {
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitLdcInsn(location);
-                mv.visitInsn(opCode == ATHROW ? ICONST_0: ICONST_1);
-
-                mv.visitMethodInsn(
-                  INVOKESTATIC,
-                  m_adviceClass,
-                  "exit",
-                  "(Ljava/lang/Object;Ljava/lang/String;Z)V");
-              }
-            };
-          }
-
-          return defaultVisitor;
-        }
-      };
+      visitorChain = new AddAdviceClassAdapter(visitorChain,
+                                               nameAndDescriptionToLocation);
 
       // Uncomment to see the original code:
       // visitorChain =
@@ -265,6 +220,79 @@ public final class ASMTransformerFactory
       classReader.accept(visitorChain, 0);
 
       return classWriter.toByteArray();
+    }
+  }
+
+  private final class AddAdviceClassAdapter extends ClassAdapter {
+
+    private final Map<Pair<String, String>, String> m_locations;
+
+    private AddAdviceClassAdapter(ClassVisitor classVisitor,
+                                  Map<Pair<String, String>, String> locations) {
+      super(classVisitor);
+      m_locations = locations;
+    }
+
+    @Override
+    public MethodVisitor visitMethod(final int access,
+                                     final String name,
+                                     final String desc,
+                                     final String signature,
+                                     final String[] exceptions) {
+
+      System.err.printf("%d %s %s%n", access, name, desc);
+
+      final MethodVisitor defaultVisitor =
+        cv.visitMethod(access, name, desc, signature, exceptions);
+
+      final String location = m_locations.get(
+        new Pair<String, String>(name, desc));
+
+      if (location != null) {
+        assert defaultVisitor != null;
+
+        final boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
+
+        return new AdviceAdapter(defaultVisitor, access, name, desc) {
+          @Override
+          public void onMethodEnter() {
+            if (isStatic) {
+              mv.visitInsn(ACONST_NULL);
+            }
+            else {
+              mv.visitVarInsn(ALOAD, 0);
+            }
+
+            mv.visitLdcInsn(location);
+            mv.visitMethodInsn(
+              INVOKESTATIC,
+              m_adviceClass,
+              "enter",
+              "(Ljava/lang/Object;Ljava/lang/String;)V");
+          }
+
+          @Override
+          public void onMethodExit(int opCode) {
+            if (isStatic) {
+              mv.visitInsn(ACONST_NULL);
+            }
+            else {
+              mv.visitVarInsn(ALOAD, 0);
+            }
+
+            mv.visitLdcInsn(location);
+            mv.visitInsn(opCode == ATHROW ? ICONST_0: ICONST_1);
+
+            mv.visitMethodInsn(
+              INVOKESTATIC,
+              m_adviceClass,
+              "exit",
+              "(Ljava/lang/Object;Ljava/lang/String;Z)V");
+          }
+        };
+      }
+
+      return defaultVisitor;
     }
   }
 }
