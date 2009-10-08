@@ -129,9 +129,6 @@ public class AssertUtilities extends Assert {
     if (o1 == null) {
       assertNotNull(o2);
     }
-    else if (o2 == null) {
-      assertNotNull(o1);
-    }
     else {
       assertTrue("'" + o1 + "' is not equal to '" + o2 + "'", !o1.equals(o2));
     }
