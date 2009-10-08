@@ -23,11 +23,15 @@ package net.grinder.util.weave.j2se6;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import net.grinder.util.Pair;
 import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
 import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
@@ -148,11 +152,49 @@ public final class ASMTransformerFactory
                             byte[] originalBytes)
       throws IllegalClassFormatException {
 
-      final Map<String, String> methodNameToLocation =
-        m_pointCutRegistry.getPointCutsForClass(internalClassName);
+      // The PointCutRegistry provides us the constructors and methods to advise
+      // organised by class. This allows us quickly to find the right methods,
+      // and ignore classes that aren't to be advised. (Important, since we're
+      // called for every class that is loaded).
+      final Map<Constructor<?>, String> constructorToLocation =
+        m_pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
 
-      if (methodNameToLocation == null) {
+      final Map<Method, String> methodToLocation =
+        m_pointCutRegistry.getMethodPointCutsForClass(internalClassName);
+
+      if (constructorToLocation == null && methodToLocation == null) {
         return null;
+      }
+
+      // Having found the right set of constructors methods, we transform the
+      // key to a form that is easier for our ASM visitor to use.
+
+      final Map<Pair<String, String>, String> nameAndDescriptionToLocation =
+        new HashMap<Pair<String, String>, String>(
+            (constructorToLocation != null ? constructorToLocation.size() : 0) +
+            (methodToLocation != null ? methodToLocation.size() : 0));
+
+      if (constructorToLocation != null) {
+        for (Entry<Constructor<?>, String> entry :
+             constructorToLocation.entrySet()) {
+
+          final Constructor<?> c = entry.getKey();
+
+          nameAndDescriptionToLocation.put(
+            new Pair<String, String>("<init>",
+                                     Type.getConstructorDescriptor(c)),
+            entry.getValue());
+        }
+      }
+
+      if (methodToLocation != null) {
+        for (Entry<Method, String> entry : methodToLocation.entrySet()) {
+          final Method m = entry.getKey();
+
+          nameAndDescriptionToLocation.put(
+            new Pair<String, String>(m.getName(), Type.getMethodDescriptor(m)),
+            entry.getValue());
+        }
       }
 
       final ClassReader classReader = new ClassReader(originalBytes);
@@ -177,7 +219,8 @@ public final class ASMTransformerFactory
           final MethodVisitor defaultVisitor =
             cv.visitMethod(access, name, desc, signature, exceptions);
 
-          final String location = methodNameToLocation.get(name);
+          final String location = nameAndDescriptionToLocation.get(
+            new Pair<String, String>(name, desc));
 
           if (location != null) {
             assert defaultVisitor != null;

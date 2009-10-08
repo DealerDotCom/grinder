@@ -29,6 +29,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +48,6 @@ import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
 /**
  * Unit tests for {@link ASMTransformerFactory}.
  *
- * TODO constructors
  * TODO static methods
  *
  * @author Philip Aston
@@ -208,7 +209,8 @@ public class TestASMTransformerFactory extends TestCase {
     final ClassFileTransformerFactory transformerFactory =
       new ASMTransformerFactory(MyAdvice.class);
 
-    m_pointCutRegistryStubFactory.addMethod(A2.class, "<init>", "loc1");
+    m_pointCutRegistryStubFactory.addConstructor(
+      A2.class, A2.class.getDeclaredConstructor(Integer.TYPE), "loc1");
 
     final ClassFileTransformer transformer =
       transformerFactory.create(m_pointCutRegistry);
@@ -334,37 +336,72 @@ public class TestASMTransformerFactory extends TestCase {
   public static final class PointCutRegistryStubFactory
     extends RandomStubFactory<PointCutRegistry> {
 
-    private Map<String, Map<String, String>> m_data =
-      new HashMap<String, Map<String, String>>();
+    private final Map<String, Map<Constructor<?>, String>> m_constructors =
+      new HashMap<String, Map<Constructor<?>, String>>();
+
+    private final Map<String, Map<Method, String>> m_methods =
+      new HashMap<String, Map<Method, String>>();
 
     protected PointCutRegistryStubFactory() {
       super(PointCutRegistry.class);
     }
 
-    public Map<String, String>
-      override_getPointCutsForClass(Object stub, String className) {
-      return m_data.get(className);
+    public Map<Constructor<?>, String>
+      override_getConstructorPointCutsForClass(Object stub, String className) {
+      return m_constructors.get(className);
+    }
+
+    public Map<Method, String>
+      override_getMethodPointCutsForClass(Object stub, String className) {
+      return m_methods.get(className);
+    }
+
+    public void addConstructor(Class<?> theClass,
+                               Constructor<?> constructor,
+                               String location) {
+      addMember(theClass, constructor, location, m_constructors);
+    }
+
+    /**
+     * Convenience for methods that have no parameters.
+     */
+    public void addMethod(Class<?> theClass,
+                          String methodName,
+                          String location)
+      throws SecurityException, NoSuchMethodException {
+
+      addMethod(theClass,
+                theClass.getDeclaredMethod(methodName),
+                location);
     }
 
     public void addMethod(Class<?> theClass,
-                          String methodName,
+                          Method method,
                           String location) {
+      addMember(theClass, method, location, m_methods);
+    }
+
+    public <T extends Member> void addMember(
+      Class<?> theClass,
+      T member,
+      String location,
+      Map<String, Map<T, String>> members) {
 
       final String internalClassName = theClass.getName().replace('.', '/');
 
-      final Map<String, String> forClass;
+      final Map<T, String> forClass;
 
-      final Map<String, String> existing = m_data.get(internalClassName);
+      final Map<T, String> existing = members.get(internalClassName);
 
       if (existing != null) {
         forClass = existing;
       }
       else {
-        forClass = new HashMap<String, String>();
-        m_data.put(internalClassName, forClass);
+        forClass = new HashMap<T, String>();
+        members.put(internalClassName, forClass);
       }
 
-      forClass.put(methodName, location);
+      forClass.put(member, location);
     }
   }
 }

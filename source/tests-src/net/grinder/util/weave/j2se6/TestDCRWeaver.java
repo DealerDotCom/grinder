@@ -110,12 +110,12 @@ public class TestDCRWeaver extends TestCase {
 
     final String internalClassName = getClass().getName().replace('.', '/');
 
-    final Map<String, String> pointCuts =
-      pointCutRegistry.getPointCutsForClass(internalClassName);
+    final Map<Method, String> pointCuts =
+      pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
     assertEquals(1, pointCuts.size());
 
-    final String location1 = pointCuts.get("myMethod");
+    final String location1 = pointCuts.get(method);
     assertNotNull(location1);
 
     final Method method2 = getClass().getDeclaredMethod("myOtherMethod");
@@ -126,13 +126,13 @@ public class TestDCRWeaver extends TestCase {
     m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
     m_instrumentationStubFactory.assertNoMoreCalls();
 
-    final Map<String, String> pointCuts2 =
-      pointCutRegistry.getPointCutsForClass(internalClassName);
+    final Map<Method, String> pointCuts2 =
+      pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
     assertEquals(2, pointCuts2.size());
 
-    assertEquals(location1, pointCuts2.get("myMethod"));
-    assertNotNull(pointCuts2.get("myOtherMethod"));
+    assertEquals(location1, pointCuts2.get(method));
+    assertNotNull(pointCuts2.get(method2));
   }
 
   public void testWeavingWithNoInstrumentation() throws Exception {
