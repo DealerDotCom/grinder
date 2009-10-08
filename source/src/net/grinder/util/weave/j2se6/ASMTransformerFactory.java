@@ -162,17 +162,18 @@ public final class ASMTransformerFactory
       final Map<Method, String> methodToLocation =
         m_pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
-      if (constructorToLocation == null && methodToLocation == null) {
+      final int size =
+        (constructorToLocation != null ? constructorToLocation.size() : 0) +
+        (methodToLocation != null ? methodToLocation.size() : 0);
+
+      if (size == 0) {
         return null;
       }
 
       // Having found the right set of constructors methods, we transform the
       // key to a form that is easier for our ASM visitor to use.
-
       final Map<Pair<String, String>, String> nameAndDescriptionToLocation =
-        new HashMap<Pair<String, String>, String>(
-            (constructorToLocation != null ? constructorToLocation.size() : 0) +
-            (methodToLocation != null ? methodToLocation.size() : 0));
+        new HashMap<Pair<String, String>, String>(size);
 
       if (constructorToLocation != null) {
         for (Entry<Constructor<?>, String> entry :
