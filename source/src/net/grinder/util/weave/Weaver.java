@@ -21,6 +21,7 @@
 
 package net.grinder.util.weave;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 
@@ -31,6 +32,28 @@ import java.lang.reflect.Method;
  * @version $Revision:$
  */
 public interface Weaver {
+
+  /**
+   * Queue the given {@code constructor} for weaving, and return a unique
+   * {@link Location} that can be used by the advice to identify the constructor
+   * pointcut.
+   *
+   * <p>
+   * Once {@link #weave} has been called for a constructor, subsequent calls are
+   * no-ops that will return the {@link Location} generated for the original
+   * call.
+   * </p>
+   *
+   * <p>
+   * The instrumentation will not be applied to the code until
+   * {@link #applyChanges} is called.
+   * </p>
+   *
+   * @param constructor
+   *          The constructor.
+   * @return Uniquely identifies the pointcut.
+   */
+  Location weave(Constructor<?> constructor);
 
   /**
    * Queue the given {@code method} for weaving, and return a unique
