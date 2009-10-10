@@ -8,6 +8,7 @@
 	<classpathentry kind="lib" path="lib/jsr173_1.0_api.jar"/>
 	<classpathentry kind="lib" path="lib/xbean.jar" sourcepath="/opt/xmlbeans/xmlbeans-2.1.0/xmlbeans-2.1.0-src.zip"/>
 	<classpathentry kind="lib" path="lib/jython.jar" sourcepath="/opt/jython/jython2.2.1/src/java/src"/>
+	<classpathentry kind="lib" path="lib/extra166y-customconcurrenthashmap.jar" sourcepath="/home/philipa/src/extra166yCCHM"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk160_11"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ASM 3.2 - core"/>

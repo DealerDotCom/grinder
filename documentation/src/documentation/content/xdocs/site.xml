@@ -237,6 +237,8 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <jedit-syntax href="http://syntax.jedit.org/"/>
 
+    <jsr166 href="http://g.oswego.edu/dl/concurrency-interest/"/>
+
     <junit href="http://junit.sourceforge.net/"/>
 
     <jython href="http://www.jython.org/">
