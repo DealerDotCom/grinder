@@ -240,8 +240,6 @@ public final class ASMTransformerFactory
                                      final String signature,
                                      final String[] exceptions) {
 
-      System.err.printf("%d %s %s%n", access, name, desc);
-
       final MethodVisitor defaultVisitor =
         cv.visitMethod(access, name, desc, signature, exceptions);
 
