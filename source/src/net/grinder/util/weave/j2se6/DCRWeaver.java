@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
@@ -79,14 +80,14 @@ public final class DCRWeaver implements Weaver {
   /**
    * {@inheritDoc}
    */
-  public Location weave(Constructor<?> constructor) {
+  public String weave(Constructor<?> constructor) {
     return m_pointCutRegistry.add(constructor);
   }
 
   /**
    * {@inheritDoc}
    */
-  public Location weave(Method method) {
+  public String weave(Method method) {
     return m_pointCutRegistry.add(method);
   }
 
@@ -109,10 +110,10 @@ public final class DCRWeaver implements Weaver {
     }
   }
 
-  private static final class LocationImpl implements Location {
-    String getLocationString() {
-      return "L" + hashCode();
-    }
+  private static final AtomicLong s_nextLocation = new AtomicLong();
+
+  private static String generateLocationString() {
+    return "L" + s_nextLocation.getAndIncrement();
   }
 
   /**
@@ -163,8 +164,8 @@ public final class DCRWeaver implements Weaver {
   private final class PointCutRegistryImplementation
     implements PointCutRegistry {
     // Guarded by this.
-    private final Map<Member, LocationImpl> m_wovenMembers =
-      new HashMap<Member, LocationImpl>();
+    private final Map<Member, String> m_wovenMembers =
+      new HashMap<Member, String>();
 
     // Pre-calculated mapping of internal class name -> constructor -> location
     // string for efficiency.
@@ -189,20 +190,20 @@ public final class DCRWeaver implements Weaver {
       return m_internalClassNameToMethodToLocation.get(className);
     }
 
-    public Location add(Constructor<?> constructor) {
+    public String add(Constructor<?> constructor) {
       return add(constructor, m_internalClassNameToConstructorToLocation);
     }
 
-    public Location add(Method method) {
+    public String add(Method method) {
       return add(method, m_internalClassNameToMethodToLocation);
     }
 
-    private <T extends Member> Location add(
+    private <T extends Member> String add(
       T member,
       Map<String, Map<T, String>> classNameToMemberToLocation) {
 
       synchronized(this) {
-        final LocationImpl alreadyWoven = m_wovenMembers.get(member);
+        final String alreadyWoven = m_wovenMembers.get(member);
 
         if (alreadyWoven != null) {
           return alreadyWoven;
@@ -211,7 +212,7 @@ public final class DCRWeaver implements Weaver {
 
       final String className = member.getDeclaringClass().getName();
       final String internalClassName = className.replace('.', '/');
-      final LocationImpl location = new LocationImpl();
+      final String location = generateLocationString();
 
       synchronized(this) {
         final Map<T, String> methodNameToLocation;
@@ -230,7 +231,7 @@ public final class DCRWeaver implements Weaver {
 
         m_wovenMembers.put(member, location);
 
-        methodNameToLocation.put(member, location.getLocationString());
+        methodNameToLocation.put(member, location);
       }
 
       synchronized(DCRWeaver.this) {

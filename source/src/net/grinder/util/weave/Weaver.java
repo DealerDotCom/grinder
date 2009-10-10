@@ -51,9 +51,9 @@ public interface Weaver {
    *
    * @param constructor
    *          The constructor.
-   * @return Uniquely identifies the pointcut.
+   * @return String that uniquely identifies the pointcut.
    */
-  Location weave(Constructor<?> constructor);
+  String weave(Constructor<?> constructor);
 
   /**
    * Queue the given {@code method} for weaving, and return a unique
@@ -73,9 +73,9 @@ public interface Weaver {
    *
    * @param method
    *          The method.
-   * @return Uniquely identifies the pointcut.
+   * @return String that iniquely identifies the pointcut.
    */
-  Location weave(Method method);
+  String weave(Method method);
 
   /**
    * Apply pending weaving that has been requested with {@link #weave}.
@@ -83,10 +83,4 @@ public interface Weaver {
    * @throws WeavingException A problem occurred with the weaving.
    */
   void applyChanges() throws WeavingException;
-
-  /**
-   * Opaque object that uniquely identifies a pointcut. Equality is well
-   * defined.
-   */
-  public interface Location { }
 }

@@ -34,7 +34,6 @@ import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
-import net.grinder.util.weave.Weaver.Location;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
 import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
@@ -97,8 +96,8 @@ public class TestDCRWeaver extends TestCase {
 
     final Method method = getClass().getDeclaredMethod("myMethod");
 
-    final Location l1 = weaver.weave(method);
-    final Location l2 = weaver.weave(method);
+    final String l1 = weaver.weave(method);
+    final String l2 = weaver.weave(method);
     assertEquals(l1, l2);
 
     weaver.weave(method);
@@ -153,8 +152,8 @@ public class TestDCRWeaver extends TestCase {
 
     final Constructor<?> constructor = getClass().getDeclaredConstructor();
 
-    final Location l1 = weaver.weave(constructor);
-    final Location l2 = weaver.weave(constructor);
+    final String l1 = weaver.weave(constructor);
+    final String l2 = weaver.weave(constructor);
     assertEquals(l1, l2);
 
     weaver.weave(constructor);
