@@ -77,11 +77,11 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(target, "location");
-    m_instrumentationStubFactory.assertSuccess("startTest");
+    m_instrumentationStubFactory.assertSuccess("start");
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.exit(target, "location", true);
-    m_instrumentationStubFactory.assertSuccess("endTest", true);
+    m_instrumentationStubFactory.assertSuccess("end", true);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(this, "location");
@@ -93,11 +93,11 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(target, "location");
-    m_instrumentationStubFactory.assertSuccess("startTest");
+    m_instrumentationStubFactory.assertSuccess("start");
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.exit(target, "location", false);
-    m_instrumentationStubFactory.assertSuccess("endTest", false);
+    m_instrumentationStubFactory.assertSuccess("end", false);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     // Interned strings shouldn't match.
@@ -111,8 +111,8 @@ public class TestInstrumentationLocator extends TestCase {
 
     final EngineException exception = new EngineException("bork");
 
-    m_instrumentationStubFactory.setThrows("startTest", exception);
-    m_instrumentationStubFactory.setThrows("endTest", exception);
+    m_instrumentationStubFactory.setThrows("start", exception);
+    m_instrumentationStubFactory.setThrows("end", exception);
 
     m_instrumentationRegistry.register(target, "location", m_instrumentation);
     m_instrumentationStubFactory.assertNoMoreCalls();
@@ -124,7 +124,7 @@ public class TestInstrumentationLocator extends TestCase {
     catch (UncheckedGrinderException e) {
       assertSame(exception, e.getCause());
     }
-    m_instrumentationStubFactory.assertException("startTest", exception);
+    m_instrumentationStubFactory.assertException("start", exception);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     try {
@@ -134,7 +134,7 @@ public class TestInstrumentationLocator extends TestCase {
     catch (UncheckedGrinderException e) {
       assertSame(exception, e.getCause());
     }
-    m_instrumentationStubFactory.assertException("endTest", exception, false);
+    m_instrumentationStubFactory.assertException("end", exception, false);
     m_instrumentationStubFactory.assertNoMoreCalls();
   }
 
@@ -143,11 +143,11 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(null, "location");
-    m_instrumentationStubFactory.assertSuccess("startTest");
+    m_instrumentationStubFactory.assertSuccess("start");
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.exit(null, "location", true);
-    m_instrumentationStubFactory.assertSuccess("endTest", true);
+    m_instrumentationStubFactory.assertSuccess("end", true);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(this, "location");
@@ -170,39 +170,39 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(target, "location");
-    m_instrumentationStubFactory.assertSuccess("startTest");
+    m_instrumentationStubFactory.assertSuccess("start");
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.exit(target, "location", true);
-    m_instrumentationStubFactory.assertSuccess("endTest", true);
+    m_instrumentationStubFactory.assertSuccess("end", true);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     m_instrumentationRegistry.register(target2, "location", m_instrumentation2);
     m_instrumentationRegistry.register(target2, "location2", m_instrumentation);
 
     InstrumentationLocator.enter(target, "location");
-    m_instrumentationStubFactory.assertSuccess("startTest");
+    m_instrumentationStubFactory.assertSuccess("start");
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(target2, "location");
-    m_instrumentationStubFactory2.assertSuccess("startTest");
+    m_instrumentationStubFactory2.assertSuccess("start");
     m_instrumentationStubFactory2.assertNoMoreCalls();
 
     InstrumentationLocator.exit(target, "location", true);
-    m_instrumentationStubFactory.assertSuccess("endTest", true);
+    m_instrumentationStubFactory.assertSuccess("end", true);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.exit(target2, "location", false);
-    m_instrumentationStubFactory2.assertSuccess("endTest", false);
+    m_instrumentationStubFactory2.assertSuccess("end", false);
     m_instrumentationStubFactory2.assertNoMoreCalls();
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(target2, "location2");
-    m_instrumentationStubFactory.assertSuccess("startTest");
+    m_instrumentationStubFactory.assertSuccess("start");
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.exit(target2, "location2", true);
-    m_instrumentationStubFactory.assertSuccess("endTest", true);
+    m_instrumentationStubFactory.assertSuccess("end", true);
     m_instrumentationStubFactory.assertNoMoreCalls();
   }
 
@@ -214,16 +214,16 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationRegistry.register(target, "location", m_instrumentation2);
 
     InstrumentationLocator.enter(target, "location");
-    m_instrumentationStubFactory.assertSuccess("startTest");
-    m_instrumentationStubFactory.assertSuccess("startTest");
-    m_instrumentationStubFactory2.assertSuccess("startTest");
+    m_instrumentationStubFactory.assertSuccess("start");
+    m_instrumentationStubFactory.assertSuccess("start");
+    m_instrumentationStubFactory2.assertSuccess("start");
     m_instrumentationStubFactory.assertNoMoreCalls();
     m_instrumentationStubFactory2.assertNoMoreCalls();
 
     InstrumentationLocator.exit(target, "location", false);
-    m_instrumentationStubFactory2.assertSuccess("endTest", false);
-    m_instrumentationStubFactory.assertSuccess("endTest", false);
-    m_instrumentationStubFactory.assertSuccess("endTest", false);
+    m_instrumentationStubFactory2.assertSuccess("end", false);
+    m_instrumentationStubFactory.assertSuccess("end", false);
+    m_instrumentationStubFactory.assertSuccess("end", false);
     m_instrumentationStubFactory.assertNoMoreCalls();
     m_instrumentationStubFactory2.assertNoMoreCalls();
   }
