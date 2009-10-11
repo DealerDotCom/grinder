@@ -40,6 +40,7 @@ import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -224,7 +225,6 @@ public final class ASMTransformerFactory
   }
 
   private final class AddAdviceClassAdapter extends ClassAdapter {
-
     private final Map<Pair<String, String>, String> m_locations;
 
     private AddAdviceClassAdapter(ClassVisitor classVisitor,
@@ -249,48 +249,92 @@ public final class ASMTransformerFactory
       if (location != null) {
         assert defaultVisitor != null;
 
-        final boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
-
-        return new AdviceAdapter(defaultVisitor, access, name, desc) {
-          @Override
-          public void onMethodEnter() {
-            if (isStatic) {
-              mv.visitInsn(ACONST_NULL);
-            }
-            else {
-              mv.visitVarInsn(ALOAD, 0);
-            }
-
-            mv.visitLdcInsn(location);
-            mv.visitMethodInsn(
-              INVOKESTATIC,
-              m_adviceClass,
-              "enter",
-              "(Ljava/lang/Object;Ljava/lang/String;)V");
-          }
-
-          @Override
-          public void onMethodExit(int opCode) {
-            if (isStatic) {
-              mv.visitInsn(ACONST_NULL);
-            }
-            else {
-              mv.visitVarInsn(ALOAD, 0);
-            }
-
-            mv.visitLdcInsn(location);
-            mv.visitInsn(opCode == ATHROW ? ICONST_0: ICONST_1);
-
-            mv.visitMethodInsn(
-              INVOKESTATIC,
-              m_adviceClass,
-              "exit",
-              "(Ljava/lang/Object;Ljava/lang/String;Z)V");
-          }
-        };
+        return new AdviceMethodVisitor(defaultVisitor,
+                                       access,
+                                       name,
+                                       desc,
+                                       location);
       }
 
       return defaultVisitor;
+    }
+  }
+
+  private final class AdviceMethodVisitor extends AdviceAdapter {
+    private final String m_location;
+    private final boolean m_isStatic;
+
+    private Label m_entryLabel = null;
+
+    private final Label m_exceptionExitLabel = new Label();
+
+    private AdviceMethodVisitor(MethodVisitor mv,
+                                int access,
+                                String name,
+                                String desc,
+                                String location) {
+      super(mv, access, name, desc);
+
+      m_location = location;
+      m_isStatic = (access & Opcodes.ACC_STATIC) != 0;
+    }
+
+    @Override public void onMethodEnter() {
+      if (m_entryLabel == null) {
+        m_entryLabel = new Label();
+
+        mv.visitTryCatchBlock(m_entryLabel,
+                              m_exceptionExitLabel,
+                              m_exceptionExitLabel,
+                              null);
+
+        mv.visitLabel(m_entryLabel);
+      }
+
+      if (m_isStatic) {
+        mv.visitInsn(ACONST_NULL);
+      }
+      else {
+        mv.visitVarInsn(ALOAD, 0);
+      }
+
+      mv.visitLdcInsn(m_location);
+      mv.visitMethodInsn(
+        INVOKESTATIC,
+        m_adviceClass,
+        "enter",
+        "(Ljava/lang/Object;Ljava/lang/String;)V");
+    }
+
+    private void generateExitCall(boolean success) {
+      if (m_isStatic) {
+        mv.visitInsn(ACONST_NULL);
+      }
+      else {
+        mv.visitVarInsn(ALOAD, 0);
+      }
+
+      mv.visitLdcInsn(m_location);
+      mv.visitInsn(success ? ICONST_1 : ICONST_0);
+
+      mv.visitMethodInsn(
+        INVOKESTATIC,
+        m_adviceClass,
+        "exit",
+        "(Ljava/lang/Object;Ljava/lang/String;Z)V");
+    }
+
+    @Override public void onMethodExit(int opCode) {
+      if (opCode != ATHROW) {
+        generateExitCall(true);
+      }
+    }
+
+    @Override public void visitMaxs(int maxStack, int maxLocals) {
+      mv.visitLabel(m_exceptionExitLabel);
+      generateExitCall(false);
+      mv.visitInsn(ATHROW);       // Re-throw.
+      mv.visitMaxs(maxStack, maxLocals);
     }
   }
 }

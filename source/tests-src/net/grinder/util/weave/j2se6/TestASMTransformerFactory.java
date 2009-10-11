@@ -120,6 +120,7 @@ public class TestASMTransformerFactory extends TestCase {
 
     m_pointCutRegistryStubFactory.addMethod(A.class, "m1", "loc1");
     m_pointCutRegistryStubFactory.addMethod(A.class, "m2", "loc2");
+    m_pointCutRegistryStubFactory.addMethod(A.class, "m4", "loc4");
 
     final ClassFileTransformer transformer =
       transformerFactory.create(m_pointCutRegistry);
@@ -154,14 +155,27 @@ public class TestASMTransformerFactory extends TestCase {
     s_callRecorder.assertSuccess("exit", a, "loc2", false);
     s_callRecorder.assertNoMoreCalls();
 
-    m_pointCutRegistryStubFactory.addMethod(A.class, "m1", "loc4");
+    try {
+      a.m4();
+      fail("Expected RuntimeException");
+    }
+    catch (RuntimeException e) {
+    }
+
+    s_callRecorder.assertSuccess("enter", a, "loc4");
+    s_callRecorder.assertSuccess("enter", a, "loc2");
+    s_callRecorder.assertSuccess("exit", a, "loc2", false);
+    s_callRecorder.assertSuccess("exit", a, "loc4", false);
+    s_callRecorder.assertNoMoreCalls();
+
+    m_pointCutRegistryStubFactory.addMethod(A.class, "m1", "locX");
 
     instrumentation.retransformClasses(new Class[] { A.class, A2.class });
 
     a.m1();
     // We only support one advice per method.
-    s_callRecorder.assertSuccess("enter", a, "loc4");
-    s_callRecorder.assertSuccess("exit", a, "loc4", true);
+    s_callRecorder.assertSuccess("enter", a, "locX");
+    s_callRecorder.assertSuccess("exit", a, "locX", true);
     s_callRecorder.assertNoMoreCalls();
 
     instrumentation.removeTransformer(transformer);
@@ -331,6 +345,10 @@ public class TestASMTransformerFactory extends TestCase {
 
     public static int m3() {
       return 2;
+    }
+
+    public void m4() {
+      m2();
     }
   }
 
