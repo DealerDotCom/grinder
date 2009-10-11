@@ -138,12 +138,12 @@ public final class JythonScriptEngine implements ScriptEngine {
    *{@inheritDoc}.
    */
   public Object createInstrumentedProxy(Test test,
-                                        TestInstrumentation testInstrumentation,
+                                        Instrumentation instrumentation,
                                         Object o)
     throws NotWrappableTypeException {
 
     return m_instrumentedProxyFactory.instrumentObject(
-      test, new PyDispatcher(testInstrumentation), o);
+      test, new PyDispatcher(instrumentation), o);
   }
 
   /**
@@ -466,16 +466,16 @@ public final class JythonScriptEngine implements ScriptEngine {
       PyObject call();
     }
 
-    private final TestInstrumentation m_testInstrumentation;
+    private final Instrumentation m_instrumentation;
 
-    private PyDispatcher(TestInstrumentation testInstrumentation) {
-      m_testInstrumentation = testInstrumentation;
+    private PyDispatcher(Instrumentation instrumentation) {
+      m_instrumentation = instrumentation;
     }
 
     public PyObject dispatch(Callable callable) {
 
       try {
-        m_testInstrumentation.startTest();
+        m_instrumentation.start();
 
         boolean success = false;
 
@@ -487,7 +487,7 @@ public final class JythonScriptEngine implements ScriptEngine {
           return result;
         }
         finally {
-          m_testInstrumentation.endTest(success);
+          m_instrumentation.end(success);
         }
       }
       catch (UncheckedGrinderException e) {

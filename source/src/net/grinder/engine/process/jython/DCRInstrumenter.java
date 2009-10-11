@@ -24,14 +24,14 @@ package net.grinder.engine.process.jython;
 import java.lang.reflect.Method;
 
 import net.grinder.common.Test;
+import net.grinder.engine.process.InstrumentationLocator;
 import net.grinder.engine.process.Instrumenter;
-import net.grinder.engine.process.ScriptEngine.TestInstrumentation;
+import net.grinder.engine.process.ScriptEngine.Instrumentation;
 import net.grinder.script.NotWrappableTypeException;
-import net.grinder.utils.weave.ASMTransformerFactory;
-import net.grinder.utils.weave.AdviceImpl;
-import net.grinder.utils.weave.DCRWeaver;
-import net.grinder.utils.weave.Weaver;
-import net.grinder.utils.weave.WeavingException;
+import net.grinder.util.weave.Weaver;
+import net.grinder.util.weave.WeavingException;
+import net.grinder.util.weave.j2se6.ASMTransformerFactory;
+import net.grinder.util.weave.j2se6.DCRWeaver;
 
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
@@ -39,6 +39,7 @@ import org.python.core.PyMethod;
 import org.python.core.PyObject;
 import org.python.core.PyProxy;
 import org.python.core.PyReflectedFunction;
+
 
 /**
  * DCRInstrumenter.
@@ -48,42 +49,53 @@ import org.python.core.PyReflectedFunction;
  */
 public final class DCRInstrumenter implements Instrumenter {
 
-  private final Weaver m_weaver =
-    new DCRWeaver(new ASMTransformerFactory(AdviceImpl.class));
+  private final Weaver m_weaver;
+
+  /**
+   * Constructor for DCRInstrumenter.
+   */
+  public DCRInstrumenter() {
+    try {
+      m_weaver =
+        new DCRWeaver(new ASMTransformerFactory(InstrumentationLocator.class));
+    }
+    catch (WeavingException e) {
+      throw new AssertionError(e);
+    }
+  }
 
   /**
    * {@inheritDoc}
    */
   public Object createInstrumentedProxy(Test test,
-                                        TestInstrumentation testInstrumentation,
-                                        Object o)
+                                        Instrumentation instrumentation,
+                                        Object target)
     throws NotWrappableTypeException {
 
-    if (o instanceof PyObject) {
+    if (target instanceof PyObject) {
       // Jython object.
-      if (o instanceof PyInstance ||
-          o instanceof PyFunction||
-          o instanceof PyMethod) {
-        instrument(o, "invoke");
+      if (target instanceof PyInstance ||
+          target instanceof PyFunction||
+          target instanceof PyMethod) {
+        instrument(target, "invoke", instrumentation);
       }
-      else if (o instanceof PyReflectedFunction) {
+      else if (target instanceof PyReflectedFunction) {
         // __call__ method; would invoke() do?
-        instrument(o, "__call__");
+        instrument(target, "__call__", instrumentation);
       }
     }
-    else if (o instanceof PyProxy) {
+    else if (target instanceof PyProxy) {
       // Jython object that extends a Java class.
-      final PyInstance pyInstance = ((PyProxy)o)._getPyInstance();
-      instrument(pyInstance, "invoke");
+      final PyInstance pyInstance = ((PyProxy)target)._getPyInstance();
+      instrument(pyInstance, "invoke", instrumentation);
     }
-    else if (o == null) {
+    else if (target == null) {
       throw new NotWrappableTypeException("Can't wrap null/None");
     }
     else {
       // Java object.
       // All methods?
       // Static methods will use class itself as the reference.
-      // TODO
     }
 
     try {
@@ -93,20 +105,26 @@ public final class DCRInstrumenter implements Instrumenter {
       throw new NotWrappableTypeException(e.getMessage());
     }
 
-    return o;
+    return target;
   }
 
-  private void instrument(Object o, String methodName)
+  private void instrument(Object target,
+                          String methodName,
+                          Instrumentation instrumentation)
     throws NotWrappableTypeException {
 
-    System.err.printf("%s %s %s", o.getClass(), o, methodName);
+    // System.err.printf("%s %s %s", o.getClass(), o, methodName);
 
-    for (Method m : o.getClass().getMethods()) {
+    for (Method m : target.getClass().getMethods()) {
       if (!m.getName().equals(methodName)) {
         continue;
       }
 
-      m_weaver.weave(m);
+      final String location = m_weaver.weave(m);
+
+      InstrumentationLocator.register(target,
+                                      location,
+                                      instrumentation);
     }
   }
 }

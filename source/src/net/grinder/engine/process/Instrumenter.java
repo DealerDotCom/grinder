@@ -22,7 +22,7 @@
 package net.grinder.engine.process;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.TestInstrumentation;
+import net.grinder.engine.process.ScriptEngine.Instrumentation;
 import net.grinder.script.NotWrappableTypeException;
 
 
@@ -39,7 +39,7 @@ public interface Instrumenter {
    *
    * @param test
    *          The test.
-   * @param testInstrumentation
+   * @param instrumentation
    *          The proxy should use this to instrument the work.
    * @param o
    *          Object to wrap.
@@ -48,7 +48,7 @@ public interface Instrumenter {
    *           If the target cannot be wrapped.
    */
   Object createInstrumentedProxy(Test test,
-                                 TestInstrumentation testInstrumentation,
+                                 Instrumentation instrumentation,
                                  Object o)
     throws NotWrappableTypeException;
 }

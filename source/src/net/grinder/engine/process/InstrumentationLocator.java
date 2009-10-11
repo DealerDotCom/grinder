@@ -32,13 +32,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.process.ScriptEngine.TestInstrumentation;
+import net.grinder.engine.process.ScriptEngine.Instrumentation;
 import extra166y.CustomConcurrentHashMap;
 
 
 /**
  * Static methods that weaved code uses to dispatch enter and exit calls to the
- * appropriate {@link ScriptEngine.TestInstrumentation}.
+ * appropriate {@link ScriptEngine.Instrumentation}.
  *
  * @author Philip Aston
  * @version $Revision:$
@@ -55,34 +55,34 @@ public final class InstrumentationLocator {
    */
   private static final ConcurrentMap<Object,
                                      ConcurrentMap<String,
-                                                   List<TestInstrumentation>>>
+                                                   List<Instrumentation>>>
     s_instrumentation =
       new CustomConcurrentHashMap<Object,
                                   ConcurrentMap<String,
-                                                List<TestInstrumentation>>>(
+                                                List<Instrumentation>>>(
             STRONG, IDENTITY, STRONG, IDENTITY, 101);
 
-  private static final ConcurrentMap<String, List<TestInstrumentation>>
+  private static final ConcurrentMap<String, List<Instrumentation>>
     s_staticInstrumentation =
-      new CustomConcurrentHashMap<String, List<TestInstrumentation>>(
+      new CustomConcurrentHashMap<String, List<Instrumentation>>(
             STRONG, IDENTITY, STRONG, IDENTITY, 101);
 
-  private static List<TestInstrumentation> getInstrumentationList(
+  private static List<Instrumentation> getInstrumentationList(
     Object target,
     String locationID) {
 
-    final ConcurrentMap<String, List<TestInstrumentation>> locationMap =
+    final ConcurrentMap<String, List<Instrumentation>> locationMap =
       target == null ? s_staticInstrumentation : s_instrumentation.get(target);
 
     if (locationMap != null) {
-      final List<TestInstrumentation> list = locationMap.get(locationID);
+      final List<Instrumentation> list = locationMap.get(locationID);
 
       if (list != null) {
         return list;
       }
     }
 
-    return Collections.<TestInstrumentation>emptyList();
+    return Collections.<Instrumentation>emptyList();
   }
 
   /**
@@ -98,9 +98,9 @@ public final class InstrumentationLocator {
   public static void enter(Object target, String locationID) {
 
     try {
-      for (TestInstrumentation instrumentation :
+      for (Instrumentation instrumentation :
            getInstrumentationList(target, locationID)) {
-        instrumentation.startTest();
+        instrumentation.start();
       }
     }
     catch (EngineException e) {
@@ -122,18 +122,16 @@ public final class InstrumentationLocator {
    */
   public static void exit(Object target, String locationID, boolean success) {
 
-    final List<TestInstrumentation> instrumentationList =
+    final List<Instrumentation> instrumentationList =
       getInstrumentationList(target, locationID);
 
     // Iterate over instrumentation in reverse.
-    final ListIterator<TestInstrumentation> i =
+    final ListIterator<Instrumentation> i =
       instrumentationList.listIterator(instrumentationList.size());
 
     try {
       while (i.hasPrevious()) {
-        final TestInstrumentation  instrumentation = i.previous();
-
-        instrumentation.endTest(success);
+        i.previous().end(success);
       }
     }
     catch (EngineException e) {
@@ -156,33 +154,33 @@ public final class InstrumentationLocator {
    */
   public static void register(Object target,
                               String location,
-                              TestInstrumentation instrumentation) {
+                              Instrumentation instrumentation) {
 
     // We will create and quickly discard many maps and lists here to avoid
     // needing to lock the ConcurrentMaps. It is important that the
     // enter/exit methods are lock free, the instrumentation registration
     // process can be relatively slow.
 
-    final ConcurrentMap<String, List<TestInstrumentation>> locationMap;
+    final ConcurrentMap<String, List<Instrumentation>> locationMap;
 
     if (target == null) {
       locationMap = s_staticInstrumentation;
     }
     else {
-      final ConcurrentMap<String, List<TestInstrumentation>> newMap =
-        new CustomConcurrentHashMap<String, List<TestInstrumentation>>(
+      final ConcurrentMap<String, List<Instrumentation>> newMap =
+        new CustomConcurrentHashMap<String, List<Instrumentation>>(
               STRONG, IDENTITY, STRONG, IDENTITY, 0);
 
-      final ConcurrentMap<String, List<TestInstrumentation>> oldMap =
+      final ConcurrentMap<String, List<Instrumentation>> oldMap =
         s_instrumentation.putIfAbsent(target, newMap);
 
       locationMap = oldMap != null ? oldMap : newMap;
     }
 
-    final List<TestInstrumentation> newList =
-      new CopyOnWriteArrayList<TestInstrumentation>();
+    final List<Instrumentation> newList =
+      new CopyOnWriteArrayList<Instrumentation>();
 
-    final List<TestInstrumentation> oldList =
+    final List<Instrumentation> oldList =
       locationMap.putIfAbsent(location, newList);
 
     (oldList != null ? oldList : newList).add(instrumentation);

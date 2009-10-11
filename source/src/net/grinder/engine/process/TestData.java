@@ -26,7 +26,7 @@ import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
-import net.grinder.engine.process.ScriptEngine.TestInstrumentation;
+import net.grinder.engine.process.ScriptEngine.Instrumentation;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.script.TestRegistry.RegisteredTest;
@@ -44,7 +44,7 @@ import net.grinder.util.TimeAuthority;
  * @author Philip Aston
  * @version $Revision$
  */
-final class TestData implements RegisteredTest, TestInstrumentation {
+final class TestData implements RegisteredTest, Instrumentation {
 
   private final StatisticsSetFactory m_statisticsSetFactory;
   private final TestStatisticsHelper m_testStatisticsHelper;
@@ -96,12 +96,12 @@ final class TestData implements RegisteredTest, TestInstrumentation {
     return m_instrumenter.createInstrumentedProxy(getTest(), this, o);
   }
 
-  public void startTest() throws EngineException {
-    m_instrumentationHolderTL.getHolder().startTest();
+  public void start() throws EngineException {
+    m_instrumentationHolderTL.getHolder().start();
   }
 
-  public void endTest(boolean success) throws EngineException {
-    m_instrumentationHolderTL.getHolder().endTest(success);
+  public void end(boolean success) throws EngineException {
+    m_instrumentationHolderTL.getHolder().end(success);
   }
 
   /**
@@ -119,8 +119,8 @@ final class TestData implements RegisteredTest, TestInstrumentation {
           throw new UncheckedException("Only Worker Threads can invoke tests");
         }
 
-        final Instrumentation instrumentation =
-          new Instrumentation(threadContext.getDispatchResultReporter(),
+        final TestInstrumentation instrumentation =
+          new TestInstrumentation(threadContext.getDispatchResultReporter(),
                          new StopWatchImplementation(m_timeAuthority));
 
         return new InstrumentationHolder(threadContext, instrumentation);
@@ -138,7 +138,7 @@ final class TestData implements RegisteredTest, TestInstrumentation {
   }
 
   /**
-   * Cache a single {@link Instrumentation} for a particular worker thread.
+   * Cache a single {@link TestInstrumentation} for a particular worker thread.
    *
    * <p>
    * Ensure each worker thread ignores any nested methods instrumented with the
@@ -154,30 +154,30 @@ final class TestData implements RegisteredTest, TestInstrumentation {
    * </p>
    */
   private static final class InstrumentationHolder
-    implements TestInstrumentation {
+    implements Instrumentation {
 
     private final ThreadContext m_threadContext;
-    private final Instrumentation m_instrumentation;
+    private final TestInstrumentation m_instrumentation;
     private int m_nestingDepth = 0;
 
     public InstrumentationHolder(ThreadContext threadContext,
-                                 Instrumentation instrumentation) {
+                                 TestInstrumentation instrumentation) {
       m_threadContext = threadContext;
       m_instrumentation = instrumentation;
     }
 
-    public void startTest() throws DispatchStateException {
+    public void start() throws DispatchStateException {
       if (m_nestingDepth++ == 0) {
         // Entering outer frame.
         m_threadContext.pushDispatchContext(m_instrumentation);
-        m_instrumentation.startTest();
+        m_instrumentation.start();
       }
     }
 
-    public void endTest(boolean success)  {
+    public void end(boolean success)  {
       if (--m_nestingDepth == 0) {
         // Leaving outer frame.
-        m_instrumentation.endTest(success);
+        m_instrumentation.end(success);
         m_threadContext.popDispatchContext();
       }
     }
@@ -198,8 +198,8 @@ final class TestData implements RegisteredTest, TestInstrumentation {
    * return references to Dispatchers that are <em>dispatching</em> or
    * <em>complete</em>.
    */
-  private final class Instrumentation
-    implements DispatchContext, TestInstrumentation {
+  private final class TestInstrumentation
+    implements DispatchContext, Instrumentation {
 
     private final DispatchResultReporter m_resultReporter;
     private final StopWatch m_pauseTimer;
@@ -208,14 +208,14 @@ final class TestData implements RegisteredTest, TestInstrumentation {
     private long m_dispatchTime = -1;
     private StatisticsForTestImplementation m_statisticsForTest;
 
-    public Instrumentation(DispatchResultReporter resultReporter,
+    public TestInstrumentation(DispatchResultReporter resultReporter,
                            StopWatch pauseTimer) {
 
       m_resultReporter = resultReporter;
       m_pauseTimer = pauseTimer;
     }
 
-    public void startTest() throws DispatchStateException {
+    public void start() throws DispatchStateException {
       if (m_startTime != -1 || m_dispatchTime != -1) {
         throw new DispatchStateException("Last statistics were not reported");
       }
@@ -233,7 +233,7 @@ final class TestData implements RegisteredTest, TestInstrumentation {
       m_startTime = m_timeAuthority.getTimeInMilliseconds();
     }
 
-    public void endTest(boolean success) {
+    public void end(boolean success) {
       m_dispatchTime = m_timeAuthority.getTimeInMilliseconds() - m_startTime;
 
       if (m_pauseTimer.isRunning()) {

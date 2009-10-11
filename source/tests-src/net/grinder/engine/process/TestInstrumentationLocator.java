@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.TestCase;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.process.ScriptEngine.TestInstrumentation;
+import net.grinder.engine.process.ScriptEngine.Instrumentation;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -45,16 +45,16 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestInstrumentationLocator extends TestCase {
 
-  private final RandomStubFactory<TestInstrumentation>
+  private final RandomStubFactory<Instrumentation>
     m_instrumentationStubFactory =
-      RandomStubFactory.create(TestInstrumentation.class);
-  private final TestInstrumentation m_instrumentation =
+      RandomStubFactory.create(Instrumentation.class);
+  private final Instrumentation m_instrumentation =
     m_instrumentationStubFactory.getStub();
 
-  private final RandomStubFactory<TestInstrumentation>
+  private final RandomStubFactory<Instrumentation>
     m_instrumentationStubFactory2 =
-      RandomStubFactory.create(TestInstrumentation.class);
-  private final TestInstrumentation m_instrumentation2 =
+      RandomStubFactory.create(Instrumentation.class);
+  private final Instrumentation m_instrumentation2 =
     m_instrumentationStubFactory2.getStub();
 
   @Override protected void tearDown() throws Exception {
@@ -231,12 +231,12 @@ public class TestInstrumentationLocator extends TestCase {
     final AtomicInteger runs = new AtomicInteger(0);
     final AtomicInteger n = new AtomicInteger(0);
 
-    final TestInstrumentation instrumentation = new TestInstrumentation() {
-      public void startTest() throws EngineException {
+    final Instrumentation instrumentation = new Instrumentation() {
+      public void start() throws EngineException {
         n.incrementAndGet();
       }
 
-      public void endTest(boolean success) throws EngineException {
+      public void end(boolean success) throws EngineException {
         n.decrementAndGet();
       }
     };

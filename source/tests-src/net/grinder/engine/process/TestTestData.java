@@ -114,7 +114,7 @@ public class TestTestData extends TestCase {
 
     // 1. Happy case.
     try {
-      testData.startTest();
+      testData.start();
       fail("Expected EngineException");
     }
     catch (EngineException e) {
@@ -123,7 +123,7 @@ public class TestTestData extends TestCase {
 
     m_threadContextLocator.set(m_threadContext);
 
-    testData.startTest();
+    testData.start();
 
     m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
     final DispatchContext dispatchContext =
@@ -131,7 +131,7 @@ public class TestTestData extends TestCase {
       "pushDispatchContext", DispatchContext.class).getParameters()[0];
     m_threadContextStubFactory.assertNoMoreCalls();
 
-    testData.endTest(true);
+    testData.end(true);
 
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
@@ -152,19 +152,19 @@ public class TestTestData extends TestCase {
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     // 2. Nested case.
-    testData.startTest();
+    testData.start();
 
     m_threadContextStubFactory.assertSuccess(
       "pushDispatchContext", DispatchContext.class);
     m_threadContextStubFactory.assertNoMoreCalls();
 
-    testData.startTest();
+    testData.start();
     m_threadContextStubFactory.assertNoMoreCalls();
 
-    testData.endTest(true);
+    testData.end(true);
     m_threadContextStubFactory.assertNoMoreCalls();
 
-    testData.endTest(true);
+    testData.end(true);
 
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
@@ -183,8 +183,8 @@ public class TestTestData extends TestCase {
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     // 3. Unhappy case.
-    testData.startTest();
-    testData.endTest(false);
+    testData.start();
+    testData.end(false);
 
     // The dispatcher's statistics (not the test statistics) are
     // marked bad.
@@ -199,10 +199,10 @@ public class TestTestData extends TestCase {
     dispatchContext.report();
     m_testStatisticsHelperStubFactory.resetCallHistory();
 
-    testData.startTest();
+    testData.start();
     dispatchContext.getPauseTimer().start();
 
-    testData.endTest(false);
+    testData.end(false);
 
     // The dispatcher's statistics (not the test statistics) are
     // marked bad.
@@ -215,7 +215,7 @@ public class TestTestData extends TestCase {
 
     // 4. Assertion failures.
     try {
-      testData.startTest();
+      testData.start();
       fail("Expected DispatchStateException");
     }
     catch (DispatchStateException e) {
@@ -262,7 +262,7 @@ public class TestTestData extends TestCase {
 
     final long beforeTime = System.currentTimeMillis();
 
-    testData.startTest();
+    testData.start();
 
     m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
     final DispatchContext dispatchContext =
@@ -271,7 +271,7 @@ public class TestTestData extends TestCase {
         "pushDispatchContext", DispatchContext.class).getParameters()[0];
     m_threadContextStubFactory.assertNoMoreCalls();
 
-    testData.endTest(true);
+    testData.end(true);
 
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
@@ -341,7 +341,7 @@ public class TestTestData extends TestCase {
     catch (InvalidContextException e) {
     }
 
-    testData.startTest();
+    testData.start();
 
     assertTrue(dispatchContext.getElapsedTime() < 20);
     try {
@@ -354,7 +354,7 @@ public class TestTestData extends TestCase {
     assertTrue(dispatchContext.getElapsedTime() >=
                50 - Time.J2SE_TIME_ACCURACY_MILLIS);
 
-    testData.endTest(true);
+    testData.end(true);
 
     final long elapsedTime2 = dispatchContext.getElapsedTime();
     assertTrue(elapsedTime2 >= 50 - Time.J2SE_TIME_ACCURACY_MILLIS);
@@ -381,7 +381,7 @@ public class TestTestData extends TestCase {
     m_threadContextStubFactory.setThrows("pushDispatchContext", se);
 
     try {
-      testData.startTest();
+      testData.start();
       fail("Expected ShutdownException");
     }
     catch (ShutdownException e) {

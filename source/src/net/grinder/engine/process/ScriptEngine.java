@@ -124,20 +124,20 @@ public interface ScriptEngine extends Instrumenter {
   /**
    * Interface to the test instrumentation.
    */
-  interface TestInstrumentation {
+  interface Instrumentation {
 
     /**
      * Call before instrumented code to initiate test recording.
      *
      * @throws EngineException Test recording could not be initiated.
      */
-    void startTest() throws EngineException;
+    void start() throws EngineException;
 
     /**
      * Call after instrumented code to complete test recording.
      *
      * @throws EngineException Test recording could not be completed.
      */
-    void endTest(boolean success) throws EngineException;
+    void end(boolean success) throws EngineException;
   }
 }
