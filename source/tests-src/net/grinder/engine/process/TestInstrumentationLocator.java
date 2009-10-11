@@ -59,21 +59,18 @@ public class TestInstrumentationLocator extends TestCase {
 
   @Override protected void tearDown() throws Exception {
     super.tearDown();
-    InstrumentationLocator.getInstrumentation().clear();
+    InstrumentationLocator.clearInstrumentation();
   }
 
   public void testNullBehaviour() throws Exception {
     InstrumentationLocator.enter(this, "foo");
     InstrumentationLocator.exit(this, "foo", false);
-
-    assertEquals(0, InstrumentationLocator.getInstrumentation().size());
   }
 
   public void testSingleRegistration() throws Exception {
     final Object target = new Object();
 
     InstrumentationLocator.register(target, "location", m_instrumentation);
-    assertEquals(1, InstrumentationLocator.getInstrumentation().size());
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(target, "location");
@@ -115,7 +112,6 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationStubFactory.setThrows("endTest", exception);
 
     InstrumentationLocator.register(target, "location", m_instrumentation);
-    assertEquals(1, InstrumentationLocator.getInstrumentation().size());
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     try {
@@ -141,7 +137,6 @@ public class TestInstrumentationLocator extends TestCase {
 
   public void testStaticRegistration() throws Exception {
     InstrumentationLocator.register(null, "location", m_instrumentation);
-    assertEquals(1, InstrumentationLocator.getInstrumentation().size());
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(null, "location");
@@ -166,7 +161,6 @@ public class TestInstrumentationLocator extends TestCase {
     final Object target2 = new Object();
 
     InstrumentationLocator.register(target, "location", m_instrumentation);
-    assertEquals(1, InstrumentationLocator.getInstrumentation().size());
 
     InstrumentationLocator.enter(target2, "location");
     InstrumentationLocator.exit(target2, "location", false);
@@ -181,10 +175,7 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.register(target2, "location", m_instrumentation2);
-    assertEquals(1, InstrumentationLocator.getInstrumentation().size());
-
     InstrumentationLocator.register(target2, "location2", m_instrumentation);
-    assertEquals(2, InstrumentationLocator.getInstrumentation().size());
 
     InstrumentationLocator.enter(target, "location");
     m_instrumentationStubFactory.assertSuccess("startTest");
@@ -218,7 +209,6 @@ public class TestInstrumentationLocator extends TestCase {
     InstrumentationLocator.register(target, "location", m_instrumentation);
     InstrumentationLocator.register(target, "location", m_instrumentation);
     InstrumentationLocator.register(target, "location", m_instrumentation2);
-    assertEquals(1, InstrumentationLocator.getInstrumentation().size());
 
     InstrumentationLocator.enter(target, "location");
     m_instrumentationStubFactory.assertSuccess("startTest");
