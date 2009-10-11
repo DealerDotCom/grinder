@@ -43,7 +43,10 @@ import extra166y.CustomConcurrentHashMap;
  * @author Philip Aston
  * @version $Revision:$
  */
-public final class InstrumentationLocator {
+public final class InstrumentationLocator implements InstrumentationRegistry {
+
+  private static final InstrumentationLocator s_instance =
+    new InstrumentationLocator();
 
   /**
    * Target reference -> location -> instrumentation list. Location strings are
@@ -53,26 +56,24 @@ public final class InstrumentationLocator {
    * non-instrumented references, which is important if {@code Object}, {@code
    * PyObject}, etc. are instrumented.
    */
-  private static final ConcurrentMap<Object,
-                                     ConcurrentMap<String,
-                                                   List<Instrumentation>>>
-    s_instrumentation =
+  private final ConcurrentMap<Object,
+                              ConcurrentMap<String, List<Instrumentation>>>
+    m_instrumentation =
       new CustomConcurrentHashMap<Object,
-                                  ConcurrentMap<String,
-                                                List<Instrumentation>>>(
+                                  ConcurrentMap<String, List<Instrumentation>>>(
             STRONG, IDENTITY, STRONG, IDENTITY, 101);
 
-  private static final ConcurrentMap<String, List<Instrumentation>>
-    s_staticInstrumentation =
+  private final ConcurrentMap<String, List<Instrumentation>>
+    m_staticInstrumentation =
       new CustomConcurrentHashMap<String, List<Instrumentation>>(
             STRONG, IDENTITY, STRONG, IDENTITY, 101);
 
-  private static List<Instrumentation> getInstrumentationList(
+  private List<Instrumentation> getInstrumentationList(
     Object target,
     String locationID) {
 
     final ConcurrentMap<String, List<Instrumentation>> locationMap =
-      target == null ? s_staticInstrumentation : s_instrumentation.get(target);
+      target == null ? m_staticInstrumentation : m_instrumentation.get(target);
 
     if (locationMap != null) {
       final List<Instrumentation> list = locationMap.get(locationID);
@@ -99,7 +100,7 @@ public final class InstrumentationLocator {
 
     try {
       for (Instrumentation instrumentation :
-           getInstrumentationList(target, locationID)) {
+           s_instance.getInstrumentationList(target, locationID)) {
         instrumentation.start();
       }
     }
@@ -123,7 +124,7 @@ public final class InstrumentationLocator {
   public static void exit(Object target, String locationID, boolean success) {
 
     final List<Instrumentation> instrumentationList =
-      getInstrumentationList(target, locationID);
+      s_instance.getInstrumentationList(target, locationID);
 
     // Iterate over instrumentation in reverse.
     final ListIterator<Instrumentation> i =
@@ -140,10 +141,16 @@ public final class InstrumentationLocator {
   }
 
   /**
-   * Interface to allow instrumentation to be registered.
+   * Expose our instrumentation registry to the package.
    *
-   * TODO - make this non-static and extract interface to break package
-   * circularity.
+   * @return The instrumentation registry.
+   */
+  static InstrumentationRegistry getInstrumentationRegistry() {
+    return s_instance;
+  }
+
+  /**
+   * Registration method.
    *
    * @param target
    *          The target reference, or {@code null} for static methods.
@@ -152,9 +159,9 @@ public final class InstrumentationLocator {
    * @param instrumentation
    *          The instrumentation to apply.
    */
-  public static void register(Object target,
-                              String location,
-                              Instrumentation instrumentation) {
+  public void register(Object target,
+                       String location,
+                       Instrumentation instrumentation) {
 
     // We will create and quickly discard many maps and lists here to avoid
     // needing to lock the ConcurrentMaps. It is important that the
@@ -164,7 +171,7 @@ public final class InstrumentationLocator {
     final ConcurrentMap<String, List<Instrumentation>> locationMap;
 
     if (target == null) {
-      locationMap = s_staticInstrumentation;
+      locationMap = m_staticInstrumentation;
     }
     else {
       final ConcurrentMap<String, List<Instrumentation>> newMap =
@@ -172,7 +179,7 @@ public final class InstrumentationLocator {
               STRONG, IDENTITY, STRONG, IDENTITY, 0);
 
       final ConcurrentMap<String, List<Instrumentation>> oldMap =
-        s_instrumentation.putIfAbsent(target, newMap);
+        m_instrumentation.putIfAbsent(target, newMap);
 
       locationMap = oldMap != null ? oldMap : newMap;
     }
@@ -191,8 +198,8 @@ public final class InstrumentationLocator {
    *
    * @return Our internal structure.
    */
-  static void clearInstrumentation() {
-    s_instrumentation.clear();
+  void clearInstrumentation() {
+    m_instrumentation.clear();
   }
 
   private static final class InstrumentationFailureException

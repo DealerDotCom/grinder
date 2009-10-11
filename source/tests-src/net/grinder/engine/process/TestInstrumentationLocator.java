@@ -57,9 +57,12 @@ public class TestInstrumentationLocator extends TestCase {
   private final Instrumentation m_instrumentation2 =
     m_instrumentationStubFactory2.getStub();
 
+  private final InstrumentationRegistry m_instrumentationRegistry =
+    InstrumentationLocator.getInstrumentationRegistry();
+
   @Override protected void tearDown() throws Exception {
     super.tearDown();
-    InstrumentationLocator.clearInstrumentation();
+    ((InstrumentationLocator)m_instrumentationRegistry).clearInstrumentation();
   }
 
   public void testNullBehaviour() throws Exception {
@@ -70,7 +73,7 @@ public class TestInstrumentationLocator extends TestCase {
   public void testSingleRegistration() throws Exception {
     final Object target = new Object();
 
-    InstrumentationLocator.register(target, "location", m_instrumentation);
+    m_instrumentationRegistry.register(target, "location", m_instrumentation);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(target, "location");
@@ -111,7 +114,7 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationStubFactory.setThrows("startTest", exception);
     m_instrumentationStubFactory.setThrows("endTest", exception);
 
-    InstrumentationLocator.register(target, "location", m_instrumentation);
+    m_instrumentationRegistry.register(target, "location", m_instrumentation);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     try {
@@ -136,7 +139,7 @@ public class TestInstrumentationLocator extends TestCase {
   }
 
   public void testStaticRegistration() throws Exception {
-    InstrumentationLocator.register(null, "location", m_instrumentation);
+    m_instrumentationRegistry.register(null, "location", m_instrumentation);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     InstrumentationLocator.enter(null, "location");
@@ -160,7 +163,7 @@ public class TestInstrumentationLocator extends TestCase {
     final Object target = new Object();
     final Object target2 = new Object();
 
-    InstrumentationLocator.register(target, "location", m_instrumentation);
+    m_instrumentationRegistry.register(target, "location", m_instrumentation);
 
     InstrumentationLocator.enter(target2, "location");
     InstrumentationLocator.exit(target2, "location", false);
@@ -174,8 +177,8 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationStubFactory.assertSuccess("endTest", true);
     m_instrumentationStubFactory.assertNoMoreCalls();
 
-    InstrumentationLocator.register(target2, "location", m_instrumentation2);
-    InstrumentationLocator.register(target2, "location2", m_instrumentation);
+    m_instrumentationRegistry.register(target2, "location", m_instrumentation2);
+    m_instrumentationRegistry.register(target2, "location2", m_instrumentation);
 
     InstrumentationLocator.enter(target, "location");
     m_instrumentationStubFactory.assertSuccess("startTest");
@@ -206,9 +209,9 @@ public class TestInstrumentationLocator extends TestCase {
   public void testNestedRegistrations() throws Exception {
     final Object target = new Object();
 
-    InstrumentationLocator.register(target, "location", m_instrumentation);
-    InstrumentationLocator.register(target, "location", m_instrumentation);
-    InstrumentationLocator.register(target, "location", m_instrumentation2);
+    m_instrumentationRegistry.register(target, "location", m_instrumentation);
+    m_instrumentationRegistry.register(target, "location", m_instrumentation);
+    m_instrumentationRegistry.register(target, "location", m_instrumentation2);
 
     InstrumentationLocator.enter(target, "location");
     m_instrumentationStubFactory.assertSuccess("startTest");
@@ -252,7 +255,7 @@ public class TestInstrumentationLocator extends TestCase {
         final String location = locations[random.nextInt(locations.length)];
 
         if (random.nextInt(10) == 0) {
-          InstrumentationLocator.register(this, location, instrumentation);
+          m_instrumentationRegistry.register(this, location, instrumentation);
         }
 
         InstrumentationLocator.enter(this, location);

@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 
 import net.grinder.common.Test;
 import net.grinder.engine.process.InstrumentationLocator;
+import net.grinder.engine.process.InstrumentationRegistry;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.ScriptEngine.Instrumentation;
 import net.grinder.script.NotWrappableTypeException;
@@ -50,11 +51,15 @@ import org.python.core.PyReflectedFunction;
 public final class DCRInstrumenter implements Instrumenter {
 
   private final Weaver m_weaver;
+  private final InstrumentationRegistry m_instrumentationRegistry;
 
   /**
    * Constructor for DCRInstrumenter.
+   *
+   * @param instrumentationRegistry The instrumentation registry.
    */
-  public DCRInstrumenter() {
+  public DCRInstrumenter(InstrumentationRegistry instrumentationRegistry) {
+    m_instrumentationRegistry = instrumentationRegistry;
     try {
       m_weaver =
         new DCRWeaver(new ASMTransformerFactory(InstrumentationLocator.class));
@@ -122,9 +127,9 @@ public final class DCRInstrumenter implements Instrumenter {
 
       final String location = m_weaver.weave(m);
 
-      InstrumentationLocator.register(target,
-                                      location,
-                                      instrumentation);
+      m_instrumentationRegistry.register(target,
+                                         location,
+                                         instrumentation);
     }
   }
 }
