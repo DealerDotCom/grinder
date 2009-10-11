@@ -50,7 +50,7 @@ import org.python.util.PythonInterpreter;
  * @author Philip Aston
  * @version $Revision:$
  */
-public abstract class AbtractInstrumenterTestCase extends TestCase {
+public abstract class AbstractInstrumenterTestCase extends TestCase {
 
   {
     PySystemState.initialize();
@@ -74,7 +74,7 @@ public abstract class AbtractInstrumenterTestCase extends TestCase {
   private final Instrumentation m_instrumentation =
     m_instrumentationStubFactory.getStub();
 
-  public AbtractInstrumenterTestCase(Instrumenter instrumenter)
+  public AbstractInstrumenterTestCase(Instrumenter instrumenter)
     throws Exception {
     super();
     m_versionAdapter = new JythonVersionAdapter();

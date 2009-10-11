@@ -30,7 +30,7 @@ package net.grinder.engine.process.jython;
  * @version $Revision: 4057 $
  */
 public class TestJythonScriptEngineInstrumenter
-  extends AbtractInstrumenterTestCase {
+  extends AbstractInstrumenterTestCase {
 
   public TestJythonScriptEngineInstrumenter() throws Exception {
     super(new JythonScriptEngine());
