@@ -23,6 +23,7 @@ package net.grinder.engine.process;
 
 import static extra166y.CustomConcurrentHashMap.IDENTITY;
 import static extra166y.CustomConcurrentHashMap.STRONG;
+import static extra166y.CustomConcurrentHashMap.WEAK;
 
 import java.util.Collections;
 import java.util.List;
@@ -58,10 +59,10 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
    */
   private final ConcurrentMap<Object,
                               ConcurrentMap<String, List<Instrumentation>>>
-    m_instrumentation =
+  m_instrumentation =
       new CustomConcurrentHashMap<Object,
                                   ConcurrentMap<String, List<Instrumentation>>>(
-            STRONG, IDENTITY, STRONG, IDENTITY, 101);
+            WEAK, IDENTITY, STRONG, IDENTITY, 101);
 
   private final ConcurrentMap<String, List<Instrumentation>>
     m_staticInstrumentation =
@@ -91,16 +92,17 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
    *
    * @param target
    *          The reference used to call the method.
-   * @param locationID
+   * @param location
    *          Unique identity generated when the method was instrumented.
    *          Will be interned.
    * @throws EngineException
    */
-  public static void enter(Object target, String locationID) {
-
+  public static void enter(Object target, String location) {
     try {
       for (Instrumentation instrumentation :
-           s_instance.getInstrumentationList(target, locationID)) {
+           s_instance.getInstrumentationList(target, location)) {
+        System.out.printf("enter(%s, %s)%n",
+          target == null ? null : target.hashCode(), location);
         instrumentation.start();
       }
     }
@@ -114,17 +116,16 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
    *
    * @param target
    *          The reference used to call the method.
-   * @param locationID
+   * @param location
    *          Unique identity generated when the method was instrumented.
    *          Will be interned.
    * @param success
    *          {@code true} if the exit was a normal return, {code false} if an
    *          exception was thrown.
    */
-  public static void exit(Object target, String locationID, boolean success) {
-
+  public static void exit(Object target, String location, boolean success) {
     final List<Instrumentation> instrumentationList =
-      s_instance.getInstrumentationList(target, locationID);
+      s_instance.getInstrumentationList(target, location);
 
     // Iterate over instrumentation in reverse.
     final ListIterator<Instrumentation> i =
@@ -132,6 +133,8 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
 
     try {
       while (i.hasPrevious()) {
+        // System.out.printf("exit(%s, %s)%n",
+        // target == null ? null : target.hashCode(), location);
         i.previous().end(success);
       }
     }
@@ -163,6 +166,11 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
                        String location,
                        Instrumentation instrumentation) {
 
+    // System.out.printf("register(%s, %s, %s, %s)%n",
+    //                  target == null ? null : target.hashCode(), location,
+    //                      target,
+    //                      target == null ? null : target.getClass());
+
     // We will create and quickly discard many maps and lists here to avoid
     // needing to lock the ConcurrentMaps. It is important that the
     // enter/exit methods are lock free, the instrumentation registration
@@ -188,7 +196,7 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
       new CopyOnWriteArrayList<Instrumentation>();
 
     final List<Instrumentation> oldList =
-      locationMap.putIfAbsent(location, newList);
+      locationMap.putIfAbsent(location.intern(), newList);
 
     (oldList != null ? oldList : newList).add(instrumentation);
   }
