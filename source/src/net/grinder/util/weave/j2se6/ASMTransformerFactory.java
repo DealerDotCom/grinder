@@ -276,7 +276,11 @@ public final class ASMTransformerFactory
       super(mv, access, name, desc);
 
       m_location = location;
-      m_isStatic = (access & Opcodes.ACC_STATIC) != 0;
+
+      // We handle constructors like static methods, since the reference to
+      // the new object is useless.
+      m_isStatic = (access & Opcodes.ACC_STATIC) != 0 ||
+                   name.equals("<init>");
     }
 
     @Override public void onMethodEnter() {
