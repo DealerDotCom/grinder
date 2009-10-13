@@ -91,8 +91,15 @@ public class TestDCRInstrumenter extends AbstractInstrumenterTestCase {
     interpreter.exec("class Foo: pass");
     assertNotWrappable(interpreter.get("Foo"));
 
-    // Can't wrap None.
     assertNotWrappable(null);
+
+    assertNotWrappable(Object.class);
+    assertNotWrappable(new Object());
+    assertNotWrappable(new String());
+    assertNotWrappable(java.util.Random.class);
+
+    // Can't wrap classes in net.grinder.*.
+    assertNotWrappable(this);
   }
 
   @Override

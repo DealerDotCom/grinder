@@ -44,6 +44,9 @@ import org.python.core.PyProxy;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
+import test.MyClass;
+import test.MyExtendedClass;
+
 
 /**
  * Instrumentation unit tests.
@@ -392,6 +395,8 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
 
   public void testCreateProxyWithJavaInstance() throws Exception {
     final Object java = new MyClass();
+    final Object extendedJava = new MyExtendedClass();
+
     final PyObject javaProxy = proxyToPyObject(
       m_instrumenter.createInstrumentedProxy(m_test, m_instrumentation, java));
     final PyObject result =
@@ -446,6 +451,19 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_instrumentationStubFactory.assertSuccess("start");
     m_instrumentationStubFactory.assertSuccess("end", true);
     m_instrumentationStubFactory.assertNoMoreCalls();
+
+    final PyObject extendedJavaProxy = proxyToPyObject(
+      m_instrumenter.createInstrumentedProxy(m_test,
+                                             m_instrumentation,
+                                             extendedJava));
+    final PyObject result7 =
+      extendedJavaProxy.invoke("addOne", Py.java2py(new Integer(10)));
+    assertEquals(new Integer(11), result7.__tojava__(Integer.class));
+    m_instrumentationStubFactory.assertSuccess("start");
+    m_instrumentationStubFactory.assertSuccess("end", true);
+    m_instrumentationStubFactory.assertNoMoreCalls();
+    assertTestReference(extendedJavaProxy, m_test);
+    assertTargetReference(extendedJavaProxy, extendedJava, true);
   }
 
   public void testCreateProxyWithJavaClass() throws Exception {
@@ -664,74 +682,6 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     catch (PyException e3) {
       e3.printStackTrace();
       assertSame(e, e3.value.__tojava__(Exception.class));
-    }
-  }
-
-  public static class MyClass {
-    private int m_a;
-    private int m_b;
-    private int m_c;
-
-    public MyClass() {
-      this(0, 0, 0);
-    }
-
-    public MyClass(int a, int b, int c) {
-      m_a = a;
-      m_b = b;
-      m_c = c;
-    }
-
-    public int addOne(int i) {
-      return i + 1;
-    }
-
-    public int sum(int x, int y) {
-      return x + y;
-    }
-
-    public int sum3(int x, int y, int z) {
-      return x + y + z;
-    }
-
-    public static int addTwo(int i) {
-      return i + 2;
-    }
-
-    public static int staticSum(int x, int y) {
-      return x + y;
-    }
-
-    public static int staticSum3(int x, int y, int z) {
-      return x + y + z;
-    }
-
-    public static int staticSix() {
-      return 6;
-    }
-
-    public int getA() {
-      return m_a;
-    }
-
-    public void setA(int a) {
-      m_a = a;
-    }
-
-    public int getB() {
-      return m_b;
-    }
-
-    public void setB(int b) {
-      m_b = b;
-    }
-
-    public int getC() {
-      return m_c;
-    }
-
-    public void setC(int c) {
-      m_c = c;
     }
   }
 }

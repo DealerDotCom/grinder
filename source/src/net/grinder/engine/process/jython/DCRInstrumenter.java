@@ -49,6 +49,12 @@ import org.python.core.PyReflectedFunction;
  */
 public final class DCRInstrumenter implements Instrumenter {
 
+  private static final String[] NON_INSTRUMENTABLE_PACKAGES = {
+    "net.grinder",
+    "extra166y",
+    "org.objectweb.asm",
+  };
+
   private static final ClassLoader BOOTSTRAP_CLASSLOADER =
     Object.class.getClassLoader();
 
@@ -77,14 +83,13 @@ public final class DCRInstrumenter implements Instrumenter {
 
     if (target instanceof PyObject) {
       // Jython object.
-      if (target instanceof PyInstance
-          //target instanceof PyFunction||
-          ) {
-        instrumentMethodsByName(target, "invoke", instrumentation, true);
+      if (target instanceof PyInstance) {
+        instrumentPublicMethodsByName(target, "invoke", instrumentation, true);
       }
       else if (target instanceof PyFunction ||
                target instanceof PyMethod) {
-        instrumentMethodsByName(target, "__call__", instrumentation, false);
+        instrumentPublicMethodsByName(
+          target, "__call__", instrumentation, false);
       }
       else if (target instanceof PyReflectedFunction) {
         final Method callMethod;
@@ -108,7 +113,8 @@ public final class DCRInstrumenter implements Instrumenter {
     else if (target instanceof PyProxy) {
       // Jython object that extends a Java class.
       final PyInstance pyInstance = ((PyProxy)target)._getPyInstance();
-      instrumentMethodsByName(pyInstance, "invoke", instrumentation, true);
+      instrumentPublicMethodsByName(
+        pyInstance, "invoke", instrumentation, true);
     }
     else if (target == null) {
       throw new NotWrappableTypeException("Can't wrap null/None");
@@ -136,38 +142,57 @@ public final class DCRInstrumenter implements Instrumenter {
                                Instrumentation instrumentation)
     throws NotWrappableTypeException {
 
+    if (!isInstrumentable(targetClass)) {
+      throw new NotWrappableTypeException("Cannot instrument " +
+                                          targetClass);
+    }
+
     for (Constructor<?> constructor : targetClass.getDeclaredConstructors()) {
-      if (constructor.getDeclaringClass().getClassLoader() ==
-          BOOTSTRAP_CLASSLOADER) {
-        continue;
-      }
-
-      instrument(targetClass, constructor, instrumentation);
+       instrument(targetClass, constructor, instrumentation);
     }
 
-    for (Method method : targetClass.getDeclaredMethods()) {
-      if (method.getDeclaringClass().getClassLoader() ==
-          BOOTSTRAP_CLASSLOADER) {
-        continue;
+    Class<?> c = targetClass;
+
+    do {
+      for (Method method : c.getDeclaredMethods()) {
+        instrument(
+          Modifier.isStatic(method.getModifiers()) ? targetClass : target,
+          method,
+          instrumentation);
       }
 
-      instrument(
-        Modifier.isStatic(method.getModifiers()) ? targetClass : target,
-        method,
-        instrumentation);
+      c = c.getSuperclass();
     }
+    while (isInstrumentable(c));
   }
 
-  private void instrumentMethodsByName(Object target,
-                                       String methodName,
-                                       Instrumentation instrumentation,
-                                       boolean includeSuperClassMethods)
+  private static boolean isInstrumentable(Class<?> targetClass) {
+
+    // We disallow instrumentation of these classes to avoid the need for
+    // complex protection against recursion in the engine itself.
+    if (targetClass.getClassLoader() == BOOTSTRAP_CLASSLOADER) {
+      return false;
+    }
+
+    final String packageName = targetClass.getPackage().getName();
+
+    for (String prefix : NON_INSTRUMENTABLE_PACKAGES) {
+      if (packageName.startsWith(prefix)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private void instrumentPublicMethodsByName(Object target,
+                                             String methodName,
+                                             Instrumentation instrumentation,
+                                             boolean includeSuperClassMethods)
     throws NotWrappableTypeException {
 
-    // getMethods or getDeclargedMethods?
-
+    // getMethods() includes superclass methods.
     for (Method method : target.getClass().getMethods()) {
-
       if (!includeSuperClassMethods &&
           target.getClass() != method.getDeclaringClass()) {
         continue;
