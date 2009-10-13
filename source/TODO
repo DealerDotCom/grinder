@@ -16,8 +16,12 @@ against it too :-).
 * NG instrumentation
 
 Steps:
+  * - Need statistics from weaver.
+
   4. Finish off DCRInstrumenter for Jython.
      - Write test cases.
+
+  4b. Instrumenters should be pluggable.
 
   5. Move existing instrumenter to a separate class. Dynamically load.
      - Fall back to DCRInstrumenter on failure.

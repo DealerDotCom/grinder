@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,58 +22,64 @@
 package net.grinder.engine.process.jython;
 
 import net.grinder.common.Test;
+import net.grinder.engine.process.ExposeInstrumentationRegistry;
+import net.grinder.engine.process.InstrumentationLocator;
+import net.grinder.util.weave.Weaver;
+import net.grinder.util.weave.WeavingException;
+import net.grinder.util.weave.j2se6.ASMTransformerFactory;
+import net.grinder.util.weave.j2se6.DCRWeaver;
 
+import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 
-
 /**
- * Unit tests for {@link JythonScriptEngine}.
+ * Unit tests for {@link DCRInstrumenter}.
  *
  * @author Philip Aston
- * @version $Revision: 4057 $
+ * @version $Revision:$
  */
-public class TestJythonScriptEngineInstrumenter
-  extends AbstractInstrumenterTestCase {
+public class TestDCRInstrumenter extends AbstractInstrumenterTestCase {
 
-  public TestJythonScriptEngineInstrumenter() throws Exception {
-    super(new JythonScriptEngine());
+  private static final Weaver s_weaver;
+
+  static {
+    try {
+      s_weaver =
+        new DCRWeaver(new ASMTransformerFactory(InstrumentationLocator.class));
+    }
+    catch (WeavingException e) {
+      throw new ExceptionInInitializerError(e);
+    }
+  }
+
+
+  public TestDCRInstrumenter() throws Exception {
+    super(new DCRInstrumenter(
+                s_weaver,
+                ExposeInstrumentationRegistry.getInstrumentationRegistry()));
+  }
+
+  @Override protected void tearDown() throws Exception {
+    super.tearDown();
+    ExposeInstrumentationRegistry.clearInstrumentation();
   }
 
   @Override protected void assertTestReference(PyObject pyObject, Test test) {
-    assertSame(test, pyObject.__getattr__("__test__").__tojava__(Test.class));
+    // No-op, DCRInstrumenter doesn't support __test__.
   }
 
   @Override
   protected void assertTargetReference(PyObject proxy,
                                        Object original,
                                        boolean unwrapTarget) {
-    final PyObject targetReference = proxy.__getattr__("__target__");
-
-    final Object target =
-      unwrapTarget ? targetReference.__tojava__(Object.class) : targetReference;
-
-    assertSame(original, target);
-    assertNotSame(proxy, target);
+    // DCRInstrumenter doesn't support __target__.
   }
 
   public void testCreateProxyWithNonWrappableParameters() throws Exception {
 
     // The types that can be wrapped depend on the Instrumenter.
-
-    // Can't wrap arrays.
-    assertNotWrappable(new int[] { 1, 2, 3 });
-    assertNotWrappable(new Object[] { "foo", new Object() });
-
-    // Can't wrap strings.
-    assertNotWrappable("foo bah");
-
-    // Can't wrap numbers.
-    assertNotWrappable(new Long(56));
-    assertNotWrappable(new Integer(56));
-    assertNotWrappable(new Short((short) 56));
-    assertNotWrappable(new Byte((byte) 56));
 
     final PythonInterpreter interpreter = getInterpretter();
 
@@ -91,11 +97,11 @@ public class TestJythonScriptEngineInstrumenter
 
   @Override
   protected PyObject proxyToPyObject(Object proxy) {
-    return (PyObject)proxy;
+    return Py.java2py(proxy);
   }
 
   @Override
   protected boolean isProxyInstrumentation() {
-    return true;
+    return false;
   }
 }
