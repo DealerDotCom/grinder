@@ -138,27 +138,6 @@ public class TestInstrumentationLocator extends TestCase {
     m_instrumentationStubFactory.assertNoMoreCalls();
   }
 
-  public void testStaticRegistration() throws Exception {
-    m_instrumentationRegistry.register(null, "location", m_instrumentation);
-    m_instrumentationStubFactory.assertNoMoreCalls();
-
-    InstrumentationLocator.enter(null, "location");
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertNoMoreCalls();
-
-    InstrumentationLocator.exit(null, "location", true);
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
-
-    InstrumentationLocator.enter(this, "location");
-    InstrumentationLocator.exit(this, "location", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
-
-    InstrumentationLocator.enter(null, "location2");
-    InstrumentationLocator.exit(null, "location2", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
-  }
-
   public void testMultipleRegistrations() throws Exception {
     final Object target = new Object();
     final Object target2 = new Object();

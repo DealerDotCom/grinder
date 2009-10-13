@@ -64,17 +64,12 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
                                   ConcurrentMap<String, List<Instrumentation>>>(
             WEAK, IDENTITY, STRONG, IDENTITY, 101);
 
-  private final ConcurrentMap<String, List<Instrumentation>>
-    m_staticInstrumentation =
-      new CustomConcurrentHashMap<String, List<Instrumentation>>(
-            STRONG, IDENTITY, STRONG, IDENTITY, 101);
-
   private List<Instrumentation> getInstrumentationList(
     Object target,
     String locationID) {
 
     final ConcurrentMap<String, List<Instrumentation>> locationMap =
-      target == null ? m_staticInstrumentation : m_instrumentation.get(target);
+      m_instrumentation.get(target);
 
     if (locationMap != null) {
       final List<Instrumentation> list = locationMap.get(locationID);
@@ -91,7 +86,8 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
    * Called when a weaved method is entered.
    *
    * @param target
-   *          The reference used to call the method.
+   *          The reference used to call the method. The class is used for
+   *          static methods or constructors.
    * @param location
    *          Unique identity generated when the method was instrumented.
    *          Will be interned.
@@ -101,8 +97,8 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
     try {
       for (Instrumentation instrumentation :
            s_instance.getInstrumentationList(target, location)) {
-        System.out.printf("enter(%s, %s)%n",
-          target == null ? null : target.hashCode(), location);
+//        System.out.printf("enter(%s, %s)%n",
+//          target == null ? null : target.hashCode(), location);
         instrumentation.start();
       }
     }
@@ -115,7 +111,8 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
    * Called when a weaved method is exited.
    *
    * @param target
-   *          The reference used to call the method.
+   *          The reference used to call the method. The class is used for
+   *          static methods or constructors.
    * @param location
    *          Unique identity generated when the method was instrumented.
    *          Will be interned.
@@ -176,21 +173,15 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
     // enter/exit methods are lock free, the instrumentation registration
     // process can be relatively slow.
 
-    final ConcurrentMap<String, List<Instrumentation>> locationMap;
+    final ConcurrentMap<String, List<Instrumentation>> newMap =
+      new CustomConcurrentHashMap<String, List<Instrumentation>>(
+            STRONG, IDENTITY, STRONG, IDENTITY, 0);
 
-    if (target == null) {
-      locationMap = m_staticInstrumentation;
-    }
-    else {
-      final ConcurrentMap<String, List<Instrumentation>> newMap =
-        new CustomConcurrentHashMap<String, List<Instrumentation>>(
-              STRONG, IDENTITY, STRONG, IDENTITY, 0);
+    final ConcurrentMap<String, List<Instrumentation>> oldMap =
+      m_instrumentation.putIfAbsent(target, newMap);
 
-      final ConcurrentMap<String, List<Instrumentation>> oldMap =
-        m_instrumentation.putIfAbsent(target, newMap);
-
-      locationMap = oldMap != null ? oldMap : newMap;
-    }
+    final ConcurrentMap<String, List<Instrumentation>> locationMap =
+      oldMap != null ? oldMap : newMap;
 
     final List<Instrumentation> newList =
       new CopyOnWriteArrayList<Instrumentation>();

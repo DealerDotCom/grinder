@@ -211,8 +211,10 @@ public final class ASMTransformerFactory
       //  visitorChain =
       //    new TraceClassVisitor(visitorChain, new PrintWriter(System.err));
 
-      visitorChain = new AddAdviceClassAdapter(visitorChain,
-                                               nameAndDescriptionToLocation);
+      visitorChain = new AddAdviceClassAdapter(
+                           visitorChain,
+                           Type.getType("L" + internalClassName + ";"),
+                           nameAndDescriptionToLocation);
 
       // Uncomment to see the original code:
       // visitorChain =
@@ -225,11 +227,14 @@ public final class ASMTransformerFactory
   }
 
   private final class AddAdviceClassAdapter extends ClassAdapter {
+    private final Type m_internalClassType;
     private final Map<Pair<String, String>, String> m_locations;
 
     private AddAdviceClassAdapter(ClassVisitor classVisitor,
+                                  Type internalClassType,
                                   Map<Pair<String, String>, String> locations) {
       super(classVisitor);
+      m_internalClassType = internalClassType;
       m_locations = locations;
     }
 
@@ -250,6 +255,7 @@ public final class ASMTransformerFactory
         assert defaultVisitor != null;
 
         return new AdviceMethodVisitor(defaultVisitor,
+                                       m_internalClassType,
                                        access,
                                        name,
                                        desc,
@@ -261,19 +267,21 @@ public final class ASMTransformerFactory
   }
 
   private final class AdviceMethodVisitor extends AdviceAdapter {
+    private final Type m_internalClassType;
     private final String m_location;
     private final boolean m_isStatic;
 
-    private Label m_entryLabel = null;
-
+    private final Label m_entryLabel = new Label();
     private final Label m_exceptionExitLabel = new Label();
 
     private AdviceMethodVisitor(MethodVisitor mv,
+                                Type internalClassType,
                                 int access,
                                 String name,
                                 String desc,
                                 String location) {
       super(mv, access, name, desc);
+      m_internalClassType = internalClassType;
 
       m_location = location;
 
@@ -284,19 +292,15 @@ public final class ASMTransformerFactory
     }
 
     @Override public void onMethodEnter() {
-      if (m_entryLabel == null) {
-        m_entryLabel = new Label();
+      mv.visitTryCatchBlock(m_entryLabel,
+                            m_exceptionExitLabel,
+                            m_exceptionExitLabel,
+                            null);
 
-        mv.visitTryCatchBlock(m_entryLabel,
-                              m_exceptionExitLabel,
-                              m_exceptionExitLabel,
-                              null);
-
-        mv.visitLabel(m_entryLabel);
-      }
+      mv.visitLabel(m_entryLabel);
 
       if (m_isStatic) {
-        mv.visitInsn(ACONST_NULL);
+        mv.visitLdcInsn(m_internalClassType);
       }
       else {
         mv.visitVarInsn(ALOAD, 0);
@@ -312,7 +316,7 @@ public final class ASMTransformerFactory
 
     private void generateExitCall(boolean success) {
       if (m_isStatic) {
-        mv.visitInsn(ACONST_NULL);
+        mv.visitLdcInsn(m_internalClassType);
       }
       else {
         mv.visitVarInsn(ALOAD, 0);
