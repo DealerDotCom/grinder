@@ -40,6 +40,7 @@ import org.python.core.PyException;
 import org.python.core.PyInstance;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
+import org.python.core.PyProxy;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
@@ -344,25 +345,32 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
   }
 
   public void testCreateProxyWithPyProxy() throws Exception {
-    // PyProxy's come paired with PyInstances - need to call
-    // __tojava__ to get the PyProxy.
     m_interpreter.exec("from java.util import Random");
     m_interpreter.exec(
       "class PyRandom(Random):\n" +
       " def one(self): return 1\n" +
       "x=PyRandom()");
-    final Object pyProxy = m_interpreter.get("x");
-    final PyInstance pyProxyProxy = (PyInstance)
+    final PyObject pyInstance = m_interpreter.get("x");
+
+    // PyProxy's come paired with PyInstances - need to call
+    // __tojava__ to get the PyProxy.
+    final PyProxy pyProxy = (PyProxy) pyInstance.__tojava__(PyProxy.class);
+    final Object pyProxyProxy =
       m_instrumenter.createInstrumentedProxy(m_test,
                                              m_instrumentation,
                                              pyProxy);
-    final PyObject result = pyProxyProxy.invoke("one");
+
+    final PyInstance pyProxyInstance =
+      (pyProxyProxy instanceof PyProxy) ?
+       ((PyProxy)pyProxyProxy)._getPyInstance() : (PyInstance)pyProxyProxy;
+
+    final PyObject result = pyProxyInstance.invoke("one");
     assertEquals(m_one, result);
     m_instrumentationStubFactory.assertSuccess("start");
     m_instrumentationStubFactory.assertSuccess("end", true);
     m_instrumentationStubFactory.assertNoMoreCalls();
-    assertTestReference(pyProxyProxy, m_test);
-    assertTargetReference(pyProxyProxy, pyProxy);
+    assertTestReference(pyProxyInstance, m_test);
+    assertTargetReference(pyProxyInstance, pyInstance);
 
     // From Jython.
     m_interpreter.set("proxy", pyProxyProxy);
