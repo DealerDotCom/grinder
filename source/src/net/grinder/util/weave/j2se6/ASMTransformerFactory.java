@@ -239,6 +239,22 @@ public final class ASMTransformerFactory
     }
 
     @Override
+    public void visit(int originalVersion,
+                      int access,
+                      String name,
+                      String signature,
+                      String superName,
+                      String[] interfaces) {
+
+      cv.visit(Math.max(originalVersion & 0xFFFF, Opcodes.V1_5),
+               access,
+               name,
+               signature,
+               superName,
+               interfaces);
+    }
+
+    @Override
     public MethodVisitor visitMethod(final int access,
                                      final String name,
                                      final String desc,
