@@ -51,7 +51,7 @@ import net.grinder.engine.common.ConnectorFactory;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
-import net.grinder.engine.process.instrumenter.traditionaljython.TraditionalJythonInstrumenter;
+import net.grinder.engine.process.instrumenter.MasterInstrumenter;
 import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.script.InvalidContextException;
@@ -213,8 +213,7 @@ final class GrinderProcess {
 
     final ScriptEngine scriptEngine = new JythonScriptEngine();
 
-    m_context.getTestRegistry().setInstrumenter(
-      new TraditionalJythonInstrumenter());
+    m_context.getTestRegistry().setInstrumenter(new MasterInstrumenter(logger));
 
     final StringBuffer numbers = new StringBuffer("worker process ");
     numbers.append(m_initialisationMessage.getWorkerIdentity().getNumber());

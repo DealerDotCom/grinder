@@ -21,6 +21,7 @@
 
 package net.grinder.engine.process.instrumenter.dcr;
 
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -31,6 +32,9 @@ import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
+import net.grinder.util.weave.agent.ExposeInstrumentation;
+import net.grinder.util.weave.j2se6.ASMTransformerFactory;
+import net.grinder.util.weave.j2se6.DCRWeaver;
 
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
@@ -47,6 +51,35 @@ import org.python.core.PyReflectedFunction;
  * @version $Revision:$
  */
 public final class DCRInstrumenter implements Instrumenter {
+
+  /**
+   * Create a DCRInstrumenter if possible.
+   *
+   * @return The instrumenter, or {@code null} if one could not be created.
+   */
+  public static Instrumenter createIfEnabled() {
+    final Instrumentation instrumentation =
+      ExposeInstrumentation.getInstrumentation();
+
+    if (instrumentation == null ||
+        !instrumentation.isRetransformClassesSupported()) {
+      return null;
+    }
+
+    final ASMTransformerFactory transformerFactory;
+
+    try {
+      transformerFactory =
+        new ASMTransformerFactory(RecorderLocator.class);
+    }
+    catch (WeavingException e) {
+      throw new AssertionError(e);
+    }
+
+    return new DCRInstrumenter(
+                 new DCRWeaver(transformerFactory, instrumentation),
+                 RecorderLocator.getRecorderRegistry());
+  }
 
   private static final String[] NON_INSTRUMENTABLE_PACKAGES = {
     "net.grinder",
@@ -66,8 +99,7 @@ public final class DCRInstrumenter implements Instrumenter {
    * @param weaver The weaver.
    * @param instrumentationRegistry The instrumentation registry.
    */
-  public DCRInstrumenter(Weaver weaver,
-                         RecorderRegistry instrumentationRegistry) {
+  DCRInstrumenter(Weaver weaver, RecorderRegistry instrumentationRegistry) {
     m_weaver = weaver;
     m_instrumentationRegistry = instrumentationRegistry;
   }

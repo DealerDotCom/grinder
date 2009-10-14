@@ -21,7 +21,6 @@
 
 package net.grinder.engine.process.instrumenter;
 
-import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,16 +28,10 @@ import net.grinder.common.Logger;
 import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.Instrumenter;
-import net.grinder.engine.process.ScriptEngine;
+import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.engine.process.instrumenter.dcr.DCRInstrumenter;
-import net.grinder.engine.process.instrumenter.dcr.RecorderLocator;
-import net.grinder.engine.process.instrumenter.dcr.RecorderRegistry;
 import net.grinder.engine.process.instrumenter.traditionaljython.TraditionalJythonInstrumenter;
 import net.grinder.script.NotWrappableTypeException;
-import net.grinder.util.weave.WeavingException;
-import net.grinder.util.weave.agent.ExposeInstrumentation;
-import net.grinder.util.weave.j2se6.ASMTransformerFactory;
-import net.grinder.util.weave.j2se6.DCRWeaver;
 
 
 /**
@@ -65,54 +58,36 @@ public final class MasterInstrumenter implements Instrumenter {
     // Override with property?
     try {
       m_instrumenterList.add(new TraditionalJythonInstrumenter());
+
       logger.output(" - traditional Jython instrumenter");
     }
     catch (EngineException e) {
       // Ignore.
     }
 
-    final Instrumentation jvmInstrumentation =
-      ExposeInstrumentation.getInstrumentation();
+    // Split out Jython instrumentation from Java instrumentation?
+    // Separate Jython 2.5 instrumentation?
+    final Instrumenter dcrInstrumenter = DCRInstrumenter.createIfEnabled();
 
-    if (jvmInstrumentation != null &&
-        jvmInstrumentation.isRetransformClassesSupported()) {
-      // Split out Jython instrumentation from Java instrumentation?
-      // Separate Jython 2.5 instrumentation?
+    if (dcrInstrumenter != null) {
+      m_instrumenterList.add(dcrInstrumenter);
 
-      final ASMTransformerFactory transformerFactory;
-
-      try {
-        transformerFactory =
-          new ASMTransformerFactory(RecorderLocator.class);
-      }
-      catch (WeavingException e) {
-        // TODO
-        throw new RuntimeException();
-      }
-
-      final DCRWeaver weaver = new DCRWeaver(transformerFactory,
-                                             jvmInstrumentation);
-
-      final RecorderRegistry instrumentationRegistry =
-        RecorderLocator.getRecorderRegistry();
-
-      m_instrumenterList.add(new DCRInstrumenter(weaver,
-                                                 instrumentationRegistry));
+      logger.output(
+        " - byte code transforminginstrumenter for Jython and Java");
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public Object createInstrumentedProxy(
-                  Test test,
-                  ScriptEngine.Recorder instrumentation,
-                  Object target)
+  public Object createInstrumentedProxy(Test test,
+                                        Recorder recorder,
+                                        Object target)
     throws NotWrappableTypeException {
 
     for (Instrumenter instrumenter : m_instrumenterList) {
       final Object result =
-        instrumenter.createInstrumentedProxy(test, instrumentation, target);
+        instrumenter.createInstrumentedProxy(test, recorder, target);
 
       if (result != null) {
         return result;
@@ -124,10 +99,9 @@ public final class MasterInstrumenter implements Instrumenter {
 
   private static final class RejectNullInstrumenter implements Instrumenter {
 
-    public Object createInstrumentedProxy(
-                    Test test,
-                    ScriptEngine.Recorder instrumentation,
-                    Object target)
+    public Object createInstrumentedProxy(Test test,
+                                          Recorder recorder,
+                                          Object target)
       throws NotWrappableTypeException {
 
       if (target == null) {

@@ -18,14 +18,6 @@ against it too :-).
 Steps:
   * - Need statistics from weaver.
 
-  4. Finish off DCRInstrumenter for Jython.
-     - Write test cases.
-
-  4b. Instrumenters should be pluggable.
-
-  5. Move existing instrumenter to a separate class. Dynamically load.
-     - Fall back to DCRInstrumenter on failure.
-
   6. Test with Jython 2.5
      - Requires J2SE 6?
      - Doc changes to wrap() semantics. (Changes object in place, original
@@ -33,7 +25,18 @@ Steps:
      - Add void Test.instrument(Object). DCR warns if wrap() called.
        JythonInstrumenter throws NotSupported if instrument() called.
 
+Jython 2.5 notes:
+ - Initially forbid PyInstances, PyMethods, PyJavaInstances,
+   PyReflectedFunctions, PyProxy's, JavaClasses, 
+    
 
+ - To instrument PyInstances, we'd need to register
+      public org.python.core.PyObject org.python.core.PyFunction.__call__(org.python.core.ThreadState,org.python.core.PyObject)
+      public org.python.core.PyObject org.python.core.PyFunction.__call__(org.python.core.ThreadState,org.python.core.PyObject,org.python.core.PyObject)
+      public org.python.core.PyObject org.python.core.PyFunction.__call__(org.python.core.ThreadState,org.python.core.PyObject,org.python.core.PyObject,org.python.core.PyObject)
+      public org.python.core.PyObject org.python.core.PyFunction.__call__(org.python.core.ThreadState,org.python.core.PyObject,org.python.core.PyObject[],java.lang.String[])
+
+   and extend the weaver to use the second parameter as the reference.
 
 * Java 5 upgrade
 
