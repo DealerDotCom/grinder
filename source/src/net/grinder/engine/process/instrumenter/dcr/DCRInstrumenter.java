@@ -203,6 +203,8 @@ public final class DCRInstrumenter implements Instrumenter {
 
     // We disallow instrumentation of these classes to avoid the need for
     // complex protection against recursion in the engine itself.
+    // Also, classes from the bootstrap classloader can't statically
+    // refer to RecorderLocator.
     if (targetClass.getClassLoader() == BOOTSTRAP_CLASSLOADER) {
       return false;
     }
