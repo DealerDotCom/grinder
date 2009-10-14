@@ -34,7 +34,6 @@ import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
-import net.grinder.util.weave.agent.ExposeInstrumentation;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
 import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
 
@@ -47,8 +46,6 @@ import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
  * @version $Revision:$
  */
 public class TestDCRWeaver extends TestCase {
-  private Instrumentation m_originalInstrumentation;
-
   final RandomStubFactory<ClassFileTransformerFactory>
     m_classFileTransformerFactoryStubFactory =
       RandomStubFactory.create(ClassFileTransformerFactory.class);
@@ -68,20 +65,9 @@ public class TestDCRWeaver extends TestCase {
   private void myOtherMethod() {
   }
 
-  @Override
-  public void setUp() {
-    m_originalInstrumentation = ExposeInstrumentation.getInstrumentation();
-  }
-
-  @Override
-  public void tearDown() {
-    ExposeInstrumentation.premain("", m_originalInstrumentation);
-  }
-
   public void testMethodRegistration() throws Exception {
-    ExposeInstrumentation.premain("", m_instrumentation);
-
-    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory);
+    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
+                                        m_instrumentation);
 
     final CallData createCall =
       m_classFileTransformerFactoryStubFactory.assertSuccess(
@@ -141,9 +127,8 @@ public class TestDCRWeaver extends TestCase {
   }
 
   public void testConstructorRegistration() throws Exception {
-    ExposeInstrumentation.premain("", m_instrumentation);
-
-    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory);
+    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
+                                        m_instrumentation);
 
     final CallData createCall =
       m_classFileTransformerFactoryStubFactory.assertSuccess(
@@ -179,23 +164,9 @@ public class TestDCRWeaver extends TestCase {
     assertNotNull(location1);
   }
 
-  public void testWeavingWithNoInstrumentation() throws Exception {
-    ExposeInstrumentation.premain("", null);
-
-    try {
-      new DCRWeaver(m_classFileTransformerFactory);
-      fail("Expected WeavingException");
-    }
-    catch (WeavingException e) {
-    }
-
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
-  }
-
   public void testWeavingWithInstrumentation() throws Exception {
-    ExposeInstrumentation.premain("", m_instrumentation);
-
-    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory);
+    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
+                                        m_instrumentation);
 
     final CallData createCall =
       m_classFileTransformerFactoryStubFactory.assertSuccess(
@@ -233,9 +204,8 @@ public class TestDCRWeaver extends TestCase {
   }
 
   public void testWeavingWithBadInstrumentation() throws Exception {
-    ExposeInstrumentation.premain("", m_instrumentation);
-
-    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory);
+    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
+                                        m_instrumentation);
 
     final Method method = getClass().getDeclaredMethod("myMethod");
 
