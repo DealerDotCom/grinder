@@ -94,6 +94,8 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
    * @throws EngineException
    */
   public static void enter(Object target, String location) {
+//   System.out.printf("enter(%s, %s, %s)%n",
+//    target.hashCode(), target.getClass(), location);
     try {
       for (Instrumentation instrumentation :
            s_instance.getInstrumentationList(target, location)) {
@@ -163,10 +165,10 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
                        String location,
                        Instrumentation instrumentation) {
 
-    // System.out.printf("register(%s, %s, %s, %s)%n",
-    //                  target == null ? null : target.hashCode(), location,
-    //                      target,
-    //                      target == null ? null : target.getClass());
+//     System.out.printf("register(%s, %s, %s, %s)%n",
+//                      target.hashCode(), location,
+//                          target,
+//                          target.getClass());
 
     // We will create and quickly discard many maps and lists here to avoid
     // needing to lock the ConcurrentMaps. It is important that the
