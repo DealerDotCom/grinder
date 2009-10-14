@@ -50,7 +50,6 @@ import org.python.core.PyReflectedFunction;
 public final class TraditionalJythonInstrumenter implements Instrumenter {
 
   private final JythonVersionAdapter m_versionAdapter;
-  private final PyInstrumentedProxyFactory m_instrumentedProxyFactory;
 
   /**
    * Constructor for JythonScriptEngine.
@@ -59,7 +58,6 @@ public final class TraditionalJythonInstrumenter implements Instrumenter {
    */
   public TraditionalJythonInstrumenter() throws EngineException {
     m_versionAdapter = new JythonVersionAdapter();
-    m_instrumentedProxyFactory = new PyInstrumentedProxyFactory();
   }
 
   /**
@@ -70,8 +68,7 @@ public final class TraditionalJythonInstrumenter implements Instrumenter {
                                         Object o)
     throws NotWrappableTypeException {
 
-    return m_instrumentedProxyFactory.instrumentObject(
-      test, new PyDispatcher(instrumentation), o);
+    return instrumentObject(test, new PyDispatcher(instrumentation), o);
   }
 
   /**
@@ -116,78 +113,71 @@ public final class TraditionalJythonInstrumenter implements Instrumenter {
    * alter the <code>_is</code> implementation of wrapped objects) so we can't
    * do anything nice about this.
    * </p>
+   *
+   * @param test
+   *          The test.
+   * @param pyDispatcher
+   *          The proxy should use this to dispatch the work.
+   * @param o
+   *          Object to wrap.
+   * @return The instrumented proxy.
+   * @throws NotWrappableTypeException
+   *           If the target cannot be wrapped.
    */
-  private class PyInstrumentedProxyFactory {
+  private PyObject instrumentObject(Test test,
+                                    PyDispatcher pyDispatcher,
+                                    Object o)
+    throws NotWrappableTypeException {
 
-    /**
-     * See {@link TraditionalJythonInstrumenter.PyInstrumentedProxyFactory}.
-     *
-     *
-     * @param test
-     *          The test.
-     * @param pyDispatcher
-     *          The proxy should use this to dispatch the work.
-     * @param o
-     *          Object to wrap.
-     * @return The instrumented proxy.
-     * @throws NotWrappableTypeException
-     *           If the target cannot be wrapped.
-     */
-    public PyObject instrumentObject(Test test,
-                                     PyDispatcher pyDispatcher,
-                                     Object o)
-      throws NotWrappableTypeException {
-
-      if (o instanceof PyObject) {
-        // Jython object.
-        if (o instanceof PyInstance) {
-          final PyInstance pyInstance = (PyInstance)o;
-          final PyClass pyClass =
-            m_versionAdapter.getClassForInstance(pyInstance);
-          return new InstrumentedPyInstance(
-            test, pyClass, pyInstance, pyDispatcher);
-        }
-        else if (o instanceof PyFunction) {
-          return new InstrumentedPyJavaInstanceForPyFunctions(
-            test, (PyFunction)o, pyDispatcher);
-        }
-        else if (o instanceof PyMethod) {
-          return new InstrumentedPyJavaInstanceForPyMethods(
-            test, (PyMethod)o, pyDispatcher);
-        }
-        else if (o instanceof PyReflectedFunction) {
-          return new InstrumentedPyReflectedFunction(
-            test, (PyReflectedFunction)o, pyDispatcher);
-        }
-      }
-      else if (o instanceof PyProxy) {
-        // Jython object that extends a Java class.
-        final PyInstance pyInstance = ((PyProxy)o)._getPyInstance();
+    if (o instanceof PyObject) {
+      // Jython object.
+      if (o instanceof PyInstance) {
+        final PyInstance pyInstance = (PyInstance)o;
         final PyClass pyClass =
           m_versionAdapter.getClassForInstance(pyInstance);
         return new InstrumentedPyInstance(
           test, pyClass, pyInstance, pyDispatcher);
       }
-      else if (o == null) {
-        throw new NotWrappableTypeException("Can't wrap null/None");
+      else if (o instanceof PyFunction) {
+        return new InstrumentedPyJavaInstanceForPyFunctions(
+          test, (PyFunction)o, pyDispatcher);
       }
-      else if (o instanceof Class<?>) {
-        return new InstrumentedPyJavaClass(test, (Class<?>)o, pyDispatcher);
+      else if (o instanceof PyMethod) {
+        return new InstrumentedPyJavaInstanceForPyMethods(
+          test, (PyMethod)o, pyDispatcher);
       }
-      else {
-        // Java object.
-
-        // NB Jython uses Java types for some primitives and strings.
-        if (!o.getClass().isArray() &&
-            !(o instanceof Number) &&
-            !(o instanceof String)) {
-          return new InstrumentedPyJavaInstanceForJavaInstances(
-            test, o, pyDispatcher);
-        }
+      else if (o instanceof PyReflectedFunction) {
+        return new InstrumentedPyReflectedFunction(
+          test, (PyReflectedFunction)o, pyDispatcher);
       }
-
-      throw new NotWrappableTypeException(o.getClass().getName());
     }
+    else if (o instanceof PyProxy) {
+      // Jython object that extends a Java class.
+      final PyInstance pyInstance = ((PyProxy)o)._getPyInstance();
+      final PyClass pyClass =
+        m_versionAdapter.getClassForInstance(pyInstance);
+      return new InstrumentedPyInstance(
+        test, pyClass, pyInstance, pyDispatcher);
+    }
+    else if (o == null) {
+      throw new NotWrappableTypeException("Can't wrap null/None");
+    }
+    else if (o instanceof Class<?>) {
+      return new InstrumentedPyJavaClass(test, (Class<?>)o, pyDispatcher);
+    }
+    else {
+      // Java object.
+
+      // NB Jython uses Java types for some primitives and strings.
+      if (!o.getClass().isArray() &&
+          !(o instanceof Number) &&
+          !(o instanceof String)) {
+        return new InstrumentedPyJavaInstanceForJavaInstances(
+          test, o, pyDispatcher);
+      }
+    }
+
+    throw new NotWrappableTypeException(o.getClass().getName());
   }
 
   /**
