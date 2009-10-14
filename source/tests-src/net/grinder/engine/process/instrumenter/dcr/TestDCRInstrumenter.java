@@ -59,12 +59,13 @@ public class TestDCRInstrumenter extends AbstractInstrumenterTestCase {
   public TestDCRInstrumenter() throws Exception {
     super(new DCRInstrumenter(
                 s_weaver,
-                ExposeInstrumentationRegistry.getInstrumentationRegistry()));
+                InstrumentationLocator.getInstrumentationRegistry()));
   }
 
   @Override protected void tearDown() throws Exception {
     super.tearDown();
-    ExposeInstrumentationRegistry.clearInstrumentation();
+    ((InstrumentationLocator)InstrumentationLocator.getInstrumentationRegistry())
+    .clearInstrumentation();
   }
 
   @Override protected void assertTestReference(PyObject pyObject, Test test) {
