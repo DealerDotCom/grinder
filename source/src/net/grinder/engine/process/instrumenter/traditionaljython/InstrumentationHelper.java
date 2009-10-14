@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.jython;
+package net.grinder.engine.process.instrumenter.traditionaljython;
 
 import org.python.core.Py;
 import org.python.core.PyJavaInstance;
@@ -27,7 +27,6 @@ import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
 
 /**

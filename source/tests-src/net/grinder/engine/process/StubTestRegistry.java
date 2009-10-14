@@ -51,10 +51,10 @@ public class StubTestRegistry {
                                      testStatisticsHelperStubFactory.getStub(),
                                      null);
 
-    final RandomStubFactory<ScriptEngine> scriptEngineStubFactory =
-      RandomStubFactory.create(ScriptEngine.class);
+    final RandomStubFactory<Instrumenter> instrumenterStubFactory =
+      RandomStubFactory.create(Instrumenter.class);
 
-    testRegistry.setInstrumenter(scriptEngineStubFactory.getStub());
+    testRegistry.setInstrumenter(instrumenterStubFactory.getStub());
 
     final RandomStubFactory<InternalScriptContext> scriptContextStubFactory =
       RandomStubFactory.create(InternalScriptContext.class);

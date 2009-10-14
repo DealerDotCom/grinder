@@ -19,47 +19,49 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.jython;
+package net.grinder.engine.process.instrumenter.traditionaljython;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
-import org.python.core.PyJavaClass;
+import org.python.core.ClonePyInstance;
+import org.python.core.PyClass;
+import org.python.core.PyInstance;
 import org.python.core.PyObject;
 
 
 /**
- * An instrumented <code>PyJavaClass</code>.
+ * An instrumented <code>PyInstance</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class InstrumentedPyJavaClass extends PyJavaClass {
+final class InstrumentedPyInstance extends ClonePyInstance {
   private final InstrumentationHelper m_instrumentationHelper;
 
-  public InstrumentedPyJavaClass(Test test,
-                                 Class<?> target,
-                                 PyDispatcher dispatcher) {
+  public InstrumentedPyInstance(Test test,
+                                PyClass targetClass,
+                                PyInstance target,
+                                PyDispatcher dispatcher) {
 
-    super(target);
+    super(targetClass, target);
 
     m_instrumentationHelper =
       new InstrumentationHelper(test, target, dispatcher) {
         protected PyObject doFindAttr(String name) {
-          return InstrumentedPyJavaClass.super.__findattr__(name);
+          return InstrumentedPyInstance.super.__findattr__(name);
         }
       };
   }
 
   public PyObject __findattr__(String name) {
-    return m_instrumentationHelper.findAttr(name);
+    return m_instrumentationHelper.findAttrInstrumentingMethods(name);
   }
 
   public PyObject invoke(final String name) {
     return m_instrumentationHelper.dispatch(
       new PyDispatcher.Callable() {
         public PyObject call() {
-          return InstrumentedPyJavaClass.super.invoke(name);
+          return InstrumentedPyInstance.super.invoke(name);
         }
       }
     );
@@ -69,7 +71,7 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
     return m_instrumentationHelper.dispatch(
       new PyDispatcher.Callable() {
         public PyObject call() {
-          return InstrumentedPyJavaClass.super.invoke(name, arg1);
+          return InstrumentedPyInstance.super.invoke(name, arg1);
         }
       }
     );
@@ -81,39 +83,7 @@ final class InstrumentedPyJavaClass extends PyJavaClass {
     return m_instrumentationHelper.dispatch(
       new PyDispatcher.Callable() {
         public PyObject call() {
-          return InstrumentedPyJavaClass.super.invoke(name, arg1, arg2);
-        }
-      }
-    );
-  }
-
-  public PyObject invoke(final String name,
-                         final PyObject[] args,
-                         final String[] keywords) {
-    return m_instrumentationHelper.dispatch(
-      new PyDispatcher.Callable() {
-        public PyObject call() {
-          return InstrumentedPyJavaClass.super.invoke(name, args, keywords);
-        }
-      }
-    );
-  }
-
-  public PyObject invoke(final String name, final PyObject[] args) {
-    return m_instrumentationHelper.dispatch(
-      new PyDispatcher.Callable() {
-        public PyObject call() {
-          return InstrumentedPyJavaClass.super.invoke(name, args);
-        }
-      }
-    );
-  }
-
-  public PyObject __call__(final PyObject[] args, final String[] keywords) {
-    return m_instrumentationHelper.dispatch(
-      new PyDispatcher.Callable() {
-        public PyObject call() {
-          return InstrumentedPyJavaClass.super.__call__(args, keywords);
+          return InstrumentedPyInstance.super.invoke(name, arg1, arg2);
         }
       }
     );

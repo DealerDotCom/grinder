@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,57 +19,44 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.jython;
+package net.grinder.engine.process.instrumenter.traditionaljython;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
+import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
-import org.python.core.PyReflectedFunction;
 
 
 /**
- * An instrumented <code>PyReflectedFunction</code>.
+ * An instrumented <code>PyJavaInstance</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-class InstrumentedPyReflectedFunction extends PyReflectedFunction {
+abstract class AbstractInstrumentedPyJavaInstance extends PyJavaInstance {
   private final InstrumentationHelper m_instrumentationHelper;
 
-  public InstrumentedPyReflectedFunction(Test test,
-                                         PyReflectedFunction target,
-                                         PyDispatcher dispatcher) {
-    super(target.__name__);
+  public AbstractInstrumentedPyJavaInstance(
+    Test test,
+    Object target,
+    PyDispatcher dispatcher) {
 
-    // We follow the same logic as PyReflectedFunction.copy(), except we
-    // shallow copy argslist as ReflectedArgs is package scope.
-    __doc__ = target.__doc__;
-    nargs = target.nargs;
-    argslist = target.argslist;
+    super(target);
 
     m_instrumentationHelper =
       new InstrumentationHelper(test, target, dispatcher) {
         protected PyObject doFindAttr(String name) {
-          return InstrumentedPyReflectedFunction.super.__findattr__(name);
+          return AbstractInstrumentedPyJavaInstance.super.__findattr__(name);
         }
       };
   }
 
-  public PyObject __findattr__(String name) {
-    return m_instrumentationHelper.findAttr(name);
+  protected final InstrumentationHelper getInstrumentationHelper() {
+    return m_instrumentationHelper;
   }
 
-  public PyObject __call__(final PyObject self, final PyObject[] args,
-                           final String[] keywords) {
-
-    return m_instrumentationHelper.dispatch(
-      new PyDispatcher.Callable() {
-        public PyObject call() {
-          return InstrumentedPyReflectedFunction.super.__call__(
-            self, args, keywords);
-        }
-      });
+  public PyObject __findattr__(String name) {
+    return m_instrumentationHelper.findAttr(name);
   }
 }
 

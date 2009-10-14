@@ -19,31 +19,31 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.jython;
+package net.grinder.engine.process.instrumenter.traditionaljython;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.jython.JythonScriptEngine.PyDispatcher;
 
-import org.python.core.PyMethod;
+import org.python.core.PyFunction;
 import org.python.core.PyObject;
 
 
 /**
- * An instrumented <code>PyJavaInstance</code>, used to wrap PyMethods.
+ * An instrumented <code>PyJavaInstance</code>, used to wrap PyFunctions.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-class InstrumentedPyJavaInstanceForPyMethods
+class InstrumentedPyJavaInstanceForPyFunctions
   extends AbstractInstrumentedPyJavaInstance {
 
-  private final PyMethod m_pyMethod;
+  private final PyFunction m_pyFunction;
 
-  public InstrumentedPyJavaInstanceForPyMethods(Test test,
-                                                PyMethod pyMethod,
-                                                PyDispatcher dispatcher) {
-    super(test, pyMethod, dispatcher);
-    m_pyMethod = pyMethod;
+  public InstrumentedPyJavaInstanceForPyFunctions(
+    Test test,
+    PyFunction pyFunction,
+    PyDispatcher dispatcher) {
+    super(test, pyFunction, dispatcher);
+    m_pyFunction = pyFunction;
   }
 
   public final PyObject invoke(final String name) {
@@ -52,13 +52,13 @@ class InstrumentedPyJavaInstanceForPyMethods
       // Under Jython 2.1, wrapped.__target__() comes through this path. Under
       // Jython 2.2, it is dispatched via __find_attr__ and this code path is
       // unnecessary.
-      return m_pyMethod.__call__();
+      return m_pyFunction.__call__();
     }
 
     return getInstrumentationHelper().dispatch(
       new PyDispatcher.Callable() {
         public PyObject call() {
-          return InstrumentedPyJavaInstanceForPyMethods
+          return InstrumentedPyJavaInstanceForPyFunctions
             .super.invoke(name);
         }
       }
@@ -68,13 +68,13 @@ class InstrumentedPyJavaInstanceForPyMethods
   public final PyObject invoke(final String name, final PyObject arg1) {
 
     if (name == InstrumentationHelper.TARGET_FIELD_NAME) {
-      return m_pyMethod.__call__(arg1);
+      return m_pyFunction.__call__(arg1);
     }
 
     return getInstrumentationHelper().dispatch(
       new PyDispatcher.Callable() {
         public PyObject call() {
-          return InstrumentedPyJavaInstanceForPyMethods
+          return InstrumentedPyJavaInstanceForPyFunctions
             .super.invoke(name, arg1);
         }
       }
@@ -85,13 +85,13 @@ class InstrumentedPyJavaInstanceForPyMethods
     final String name, final PyObject arg1, final PyObject arg2) {
 
     if (name == InstrumentationHelper.TARGET_FIELD_NAME) {
-      return m_pyMethod.__call__(arg1, arg2);
+      return m_pyFunction.__call__(arg1, arg2);
     }
 
     return getInstrumentationHelper().dispatch(
       new PyDispatcher.Callable() {
         public PyObject call() {
-          return InstrumentedPyJavaInstanceForPyMethods
+          return InstrumentedPyJavaInstanceForPyFunctions
             .super.invoke(name, arg1, arg2);
         }
       }
@@ -101,13 +101,13 @@ class InstrumentedPyJavaInstanceForPyMethods
   public final PyObject invoke(final String name, final PyObject[] args) {
 
     if (name == InstrumentationHelper.TARGET_FIELD_NAME) {
-      return m_pyMethod.__call__(args);
+      return m_pyFunction.__call__(args);
     }
 
     return getInstrumentationHelper().dispatch(
       new PyDispatcher.Callable() {
           public PyObject call() {
-            return InstrumentedPyJavaInstanceForPyMethods
+            return InstrumentedPyJavaInstanceForPyFunctions
               .super.invoke(name, args);
           }
       }
@@ -120,14 +120,14 @@ class InstrumentedPyJavaInstanceForPyMethods
     /*
     // Neither Jython 2.1 or 2.2 take this path.
     if (name == InstrumentationHelper.TARGET_FIELD_NAME) {
-      return m_pyMethod.__call__(args, keywords);
+      return m_pyFunction.__call__(args, keywords);
     }
     */
 
     return getInstrumentationHelper().dispatch(
       new PyDispatcher.Callable() {
         public PyObject call() {
-          return InstrumentedPyJavaInstanceForPyMethods
+          return InstrumentedPyJavaInstanceForPyFunctions
             .super.invoke(name, args, keywords);
         }
       }

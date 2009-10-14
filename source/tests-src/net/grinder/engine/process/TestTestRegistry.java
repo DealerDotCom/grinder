@@ -94,10 +94,10 @@ public class TestTestRegistry extends TestCase {
     catch (AssertionError e) {
     }
 
-    final RandomStubFactory<ScriptEngine> scriptEngineStubFactory =
-      RandomStubFactory.create(ScriptEngine.class);
+    final RandomStubFactory<Instrumenter> instrumenterStubFactory =
+      RandomStubFactory.create(Instrumenter.class);
     testRegistryImplementation.setInstrumenter(
-      scriptEngineStubFactory.getStub());
+      instrumenterStubFactory.getStub());
 
     final TestRegistryImplementation.RegisteredTest registeredTest1a =
       testRegistryImplementation.register(test1);

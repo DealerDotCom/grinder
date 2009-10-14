@@ -31,7 +31,7 @@ import net.grinder.engine.common.ScriptLocation;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ScriptEngine extends Instrumenter {
+public interface ScriptEngine {
 
   /**
    * Run any process initialisation required by the script. Called once

@@ -62,10 +62,10 @@ public class TestTestData extends TestCase {
   private final StatisticsSetFactory m_statisticsSetFactory =
     StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
-  private final RandomStubFactory<ScriptEngine> m_scriptEngineStubFactory =
-    RandomStubFactory.create(ScriptEngine.class);
-  private final Instrumenter m_scriptEngine =
-    m_scriptEngineStubFactory.getStub();
+  private final RandomStubFactory<Instrumenter> m_instrumenterStubFactory =
+    RandomStubFactory.create(Instrumenter.class);
+  private final Instrumenter m_instrumenter =
+    m_instrumenterStubFactory.getStub();
 
   private final RandomStubFactory<TestStatisticsHelper>
     m_testStatisticsHelperStubFactory =
@@ -86,15 +86,15 @@ public class TestTestData extends TestCase {
   public void testCreateProxy() throws Exception {
     final TestData testData =
       new TestData(null, m_statisticsSetFactory, null,
-                   m_timeAuthority, m_scriptEngine, null);
+                   m_timeAuthority, m_instrumenter, null);
 
     final Object original = new Object();
 
     testData.createProxy(original);
 
-    m_scriptEngineStubFactory.assertSuccess(
+    m_instrumenterStubFactory.assertSuccess(
       "createInstrumentedProxy", null, testData, original);
-    m_scriptEngineStubFactory.assertNoMoreCalls();
+    m_instrumenterStubFactory.assertNoMoreCalls();
   }
 
   public void testDispatch() throws Exception {
@@ -105,7 +105,7 @@ public class TestTestData extends TestCase {
                    m_statisticsSetFactory,
                    m_testStatisticsHelper,
                    m_timeAuthority,
-                   m_scriptEngine,
+                   m_instrumenter,
                    test1);
 
     assertSame(test1, testData.getTest());
@@ -251,7 +251,7 @@ public class TestTestData extends TestCase {
                    m_statisticsSetFactory,
                    testStatisticsHelper,
                    m_timeAuthority,
-                   m_scriptEngine,
+                   m_instrumenter,
                    test1);
 
     assertSame(test1, testData.getTest());
@@ -371,7 +371,7 @@ public class TestTestData extends TestCase {
                    m_statisticsSetFactory,
                    m_testStatisticsHelper,
                    m_timeAuthority,
-                   m_scriptEngine,
+                   m_instrumenter,
                    new StubTest(1, "test1"));
 
 

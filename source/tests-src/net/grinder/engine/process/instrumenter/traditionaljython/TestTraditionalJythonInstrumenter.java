@@ -19,9 +19,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.jython;
+package net.grinder.engine.process.instrumenter.traditionaljython;
 
 import net.grinder.common.Test;
+import net.grinder.engine.process.instrumenter.AbstractInstrumenterTestCase;
 
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
@@ -29,16 +30,16 @@ import org.python.util.PythonInterpreter;
 
 
 /**
- * Unit tests for {@link JythonScriptEngine}.
+ * Unit tests for {@link TraditionalJythonInstrumenter}.
  *
  * @author Philip Aston
  * @version $Revision: 4057 $
  */
-public class TestJythonScriptEngineInstrumenter
+public class TestTraditionalJythonInstrumenter
   extends AbstractInstrumenterTestCase {
 
-  public TestJythonScriptEngineInstrumenter() throws Exception {
-    super(new JythonScriptEngine());
+  public TestTraditionalJythonInstrumenter() throws Exception {
+    super(new TraditionalJythonInstrumenter());
   }
 
   @Override protected void assertTestReference(PyObject pyObject, Test test) {
