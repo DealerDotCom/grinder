@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
 import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.Instrumenter;
-import net.grinder.engine.process.ScriptEngine.Instrumentation;
+import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 
 import org.python.core.PyClass;
@@ -64,11 +64,11 @@ public final class TraditionalJythonInstrumenter implements Instrumenter {
    *{@inheritDoc}.
    */
   public Object createInstrumentedProxy(Test test,
-                                        Instrumentation instrumentation,
+                                        Recorder recorder,
                                         Object o)
     throws NotWrappableTypeException {
 
-    return instrumentObject(test, new PyDispatcher(instrumentation), o);
+    return instrumentObject(test, new PyDispatcher(recorder), o);
   }
 
   /**

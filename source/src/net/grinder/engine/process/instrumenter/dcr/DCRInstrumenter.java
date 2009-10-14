@@ -27,7 +27,7 @@ import java.lang.reflect.Modifier;
 
 import net.grinder.common.Test;
 import net.grinder.engine.process.Instrumenter;
-import net.grinder.engine.process.ScriptEngine.Instrumentation;
+import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
@@ -58,7 +58,7 @@ public final class DCRInstrumenter implements Instrumenter {
     Object.class.getClassLoader();
 
   private final Weaver m_weaver;
-  private final InstrumentationRegistry m_instrumentationRegistry;
+  private final RecorderRegistry m_instrumentationRegistry;
 
   /**
    * Constructor for DCRInstrumenter.
@@ -67,7 +67,7 @@ public final class DCRInstrumenter implements Instrumenter {
    * @param instrumentationRegistry The instrumentation registry.
    */
   public DCRInstrumenter(Weaver weaver,
-                         InstrumentationRegistry instrumentationRegistry) {
+                         RecorderRegistry instrumentationRegistry) {
     m_weaver = weaver;
     m_instrumentationRegistry = instrumentationRegistry;
   }
@@ -76,7 +76,7 @@ public final class DCRInstrumenter implements Instrumenter {
    * {@inheritDoc}
    */
   public Object createInstrumentedProxy(Test test,
-                                        Instrumentation instrumentation,
+                                        Recorder instrumentation,
                                         Object target)
     throws NotWrappableTypeException {
 
@@ -140,7 +140,7 @@ public final class DCRInstrumenter implements Instrumenter {
 
   private void instrumentClass(Object target,
                                Class<?> targetClass,
-                               Instrumentation instrumentation)
+                               Recorder instrumentation)
     throws NotWrappableTypeException {
 
     if (!isInstrumentable(targetClass)) {
@@ -193,7 +193,7 @@ public final class DCRInstrumenter implements Instrumenter {
 
   private void instrumentPublicMethodsByName(Object target,
                                              String methodName,
-                                             Instrumentation instrumentation,
+                                             Recorder instrumentation,
                                              boolean includeSuperClassMethods)
     throws NotWrappableTypeException {
 
@@ -214,7 +214,7 @@ public final class DCRInstrumenter implements Instrumenter {
 
   private void instrument(Object target,
                           Constructor<?> constructor,
-                          Instrumentation instrumentation) {
+                          Recorder instrumentation) {
     final String location = m_weaver.weave(constructor);
 
 //    System.out.printf("register(%s, %s, %s, %s)%n",
@@ -229,7 +229,7 @@ public final class DCRInstrumenter implements Instrumenter {
 
   private void instrument(Object target,
                           Method method,
-                          Instrumentation instrumentation) {
+                          Recorder instrumentation) {
     final String location = m_weaver.weave(method);
 
 //    System.out.printf("register(%s, %s, %s, %s)%n",

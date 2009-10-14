@@ -26,7 +26,7 @@ import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
-import net.grinder.engine.process.ScriptEngine.Instrumentation;
+import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.script.TestRegistry.RegisteredTest;
@@ -44,7 +44,7 @@ import net.grinder.util.TimeAuthority;
  * @author Philip Aston
  * @version $Revision$
  */
-final class TestData implements RegisteredTest, Instrumentation {
+final class TestData implements RegisteredTest, Recorder {
 
   private final StatisticsSetFactory m_statisticsSetFactory;
   private final TestStatisticsHelper m_testStatisticsHelper;
@@ -59,8 +59,8 @@ final class TestData implements RegisteredTest, Instrumentation {
    */
   private final StatisticsSet m_testStatistics;
 
-  private final InstrumentationHolderThreadLocal m_instrumentationHolderTL =
-    new InstrumentationHolderThreadLocal();
+  private final RecorderHolderThreadLocal m_recorderHolderTL =
+    new RecorderHolderThreadLocal();
 
   TestData(ThreadContextLocator threadContextLocator,
            StatisticsSetFactory statisticsSetFactory,
@@ -97,37 +97,37 @@ final class TestData implements RegisteredTest, Instrumentation {
   }
 
   public void start() throws EngineException {
-    m_instrumentationHolderTL.getHolder().start();
+    m_recorderHolderTL.getHolder().start();
   }
 
   public void end(boolean success) throws EngineException {
-    m_instrumentationHolderTL.getHolder().end(success);
+    m_recorderHolderTL.getHolder().end(success);
   }
 
   /**
-   * Thread local storage which keeps a {@link InstrumentationHolder} for each
+   * Thread local storage which keeps a {@link RecorderHolder} for each
    * worker thread that has ever used this test.
    */
-  private final class InstrumentationHolderThreadLocal {
-    private final ThreadLocal<InstrumentationHolder> m_threadLocal =
-      new ThreadLocal<InstrumentationHolder>() {
+  private final class RecorderHolderThreadLocal {
+    private final ThreadLocal<RecorderHolder> m_threadLocal =
+      new ThreadLocal<RecorderHolder>() {
 
-      public InstrumentationHolder initialValue() {
+      public RecorderHolder initialValue() {
         final ThreadContext threadContext = m_threadContextLocator.get();
 
         if (threadContext == null) {
           throw new UncheckedException("Only Worker Threads can invoke tests");
         }
 
-        final TestInstrumentation instrumentation =
-          new TestInstrumentation(threadContext.getDispatchResultReporter(),
-                         new StopWatchImplementation(m_timeAuthority));
+        final TestRecorder recorder =
+          new TestRecorder(threadContext.getDispatchResultReporter(),
+                           new StopWatchImplementation(m_timeAuthority));
 
-        return new InstrumentationHolder(threadContext, instrumentation);
+        return new RecorderHolder(threadContext, recorder);
       }
     };
 
-    public InstrumentationHolder getHolder() throws EngineException {
+    public RecorderHolder getHolder() throws EngineException {
       try {
         return m_threadLocal.get();
       }
@@ -138,7 +138,7 @@ final class TestData implements RegisteredTest, Instrumentation {
   }
 
   /**
-   * Cache a single {@link TestInstrumentation} for a particular worker thread.
+   * Cache a single {@link TestRecorder} for a particular worker thread.
    *
    * <p>
    * Ensure each worker thread ignores any nested methods instrumented with the
@@ -153,31 +153,29 @@ final class TestData implements RegisteredTest, Instrumentation {
    * script engine instrumentation.
    * </p>
    */
-  private static final class InstrumentationHolder
-    implements Instrumentation {
+  private static final class RecorderHolder implements Recorder {
 
     private final ThreadContext m_threadContext;
-    private final TestInstrumentation m_instrumentation;
+    private final TestRecorder m_recorder;
     private int m_nestingDepth = 0;
 
-    public InstrumentationHolder(ThreadContext threadContext,
-                                 TestInstrumentation instrumentation) {
+    public RecorderHolder(ThreadContext threadContext, TestRecorder recorder) {
       m_threadContext = threadContext;
-      m_instrumentation = instrumentation;
+      m_recorder = recorder;
     }
 
     public void start() throws DispatchStateException {
       if (m_nestingDepth++ == 0) {
         // Entering outer frame.
-        m_threadContext.pushDispatchContext(m_instrumentation);
-        m_instrumentation.start();
+        m_threadContext.pushDispatchContext(m_recorder);
+        m_recorder.start();
       }
     }
 
     public void end(boolean success)  {
       if (--m_nestingDepth == 0) {
         // Leaving outer frame.
-        m_instrumentation.end(success);
+        m_recorder.end(success);
         m_threadContext.popDispatchContext();
       }
     }
@@ -198,8 +196,8 @@ final class TestData implements RegisteredTest, Instrumentation {
    * return references to Dispatchers that are <em>dispatching</em> or
    * <em>complete</em>.
    */
-  private final class TestInstrumentation
-    implements DispatchContext, Instrumentation {
+  private final class TestRecorder
+    implements DispatchContext, Recorder {
 
     private final DispatchResultReporter m_resultReporter;
     private final StopWatch m_pauseTimer;
@@ -208,7 +206,7 @@ final class TestData implements RegisteredTest, Instrumentation {
     private long m_dispatchTime = -1;
     private StatisticsForTestImplementation m_statisticsForTest;
 
-    public TestInstrumentation(DispatchResultReporter resultReporter,
+    public TestRecorder(DispatchResultReporter resultReporter,
                            StopWatch pauseTimer) {
 
       m_resultReporter = resultReporter;

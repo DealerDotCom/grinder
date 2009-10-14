@@ -47,7 +47,7 @@ public class TestDCRInstrumenter extends AbstractInstrumenterTestCase {
   static {
     try {
       s_weaver =
-        new DCRWeaver(new ASMTransformerFactory(InstrumentationLocator.class),
+        new DCRWeaver(new ASMTransformerFactory(RecorderLocator.class),
                       ExposeInstrumentation.getInstrumentation());
     }
     catch (WeavingException e) {
@@ -55,17 +55,14 @@ public class TestDCRInstrumenter extends AbstractInstrumenterTestCase {
     }
   }
 
-
   public TestDCRInstrumenter() throws Exception {
-    super(new DCRInstrumenter(
-                s_weaver,
-                InstrumentationLocator.getInstrumentationRegistry()));
+    super(new DCRInstrumenter(s_weaver,
+                              RecorderLocator.getRecorderRegistry()));
   }
 
   @Override protected void tearDown() throws Exception {
     super.tearDown();
-    ((InstrumentationLocator)InstrumentationLocator.getInstrumentationRegistry())
-    .clearInstrumentation();
+    RecorderLocator.clearRecorders();
   }
 
   @Override protected void assertTestReference(PyObject pyObject, Test test) {

@@ -124,7 +124,7 @@ public interface ScriptEngine {
   /**
    * Interface to the test instrumentation.
    */
-  interface Instrumentation {
+  interface Recorder {
 
     /**
      * Call before instrumented code to initiate test recording.

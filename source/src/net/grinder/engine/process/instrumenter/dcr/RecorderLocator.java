@@ -33,24 +33,30 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.process.ScriptEngine.Instrumentation;
+import net.grinder.engine.process.ScriptEngine.Recorder;
 import extra166y.CustomConcurrentHashMap;
 
 
 /**
  * Static methods that weaved code uses to dispatch enter and exit calls to the
- * appropriate {@link ScriptEngine.Instrumentation}.
+ * appropriate {@link Recorder}.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public final class InstrumentationLocator implements InstrumentationRegistry {
+public final class RecorderLocator implements RecorderRegistry {
 
-  private static final InstrumentationLocator s_instance =
-    new InstrumentationLocator();
+  private static final RecorderLocator s_instance = new RecorderLocator();
 
   /**
-   * Target reference -> location -> instrumentation list. Location strings are
+   * Accessor for the unit tests.
+   */
+  static void clearRecorders() {
+    s_instance.m_recorders.clear();
+  }
+
+  /**
+   * Target reference -> location -> recorder list. Location strings are
    * interned, so we use an identity hash map for both maps. We use concurrent
    * structures throughout to avoid synchronisation. The target reference is the
    * first key to minimise the cost of traversing woven code for
@@ -58,28 +64,27 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
    * PyObject}, etc. are instrumented.
    */
   private final ConcurrentMap<Object,
-                              ConcurrentMap<String, List<Instrumentation>>>
-  m_instrumentation =
+                              ConcurrentMap<String, List<Recorder>>>
+  m_recorders =
       new CustomConcurrentHashMap<Object,
-                                  ConcurrentMap<String, List<Instrumentation>>>(
+                                  ConcurrentMap<String, List<Recorder>>>(
             WEAK, IDENTITY, STRONG, IDENTITY, 101);
 
-  private List<Instrumentation> getInstrumentationList(
-    Object target,
-    String locationID) {
+  private List<Recorder> getRecorderList(Object target,
+                                         String locationID) {
 
-    final ConcurrentMap<String, List<Instrumentation>> locationMap =
-      m_instrumentation.get(target);
+    final ConcurrentMap<String, List<Recorder>> locationMap =
+      m_recorders.get(target);
 
     if (locationMap != null) {
-      final List<Instrumentation> list = locationMap.get(locationID);
+      final List<Recorder> list = locationMap.get(locationID);
 
       if (list != null) {
         return list;
       }
     }
 
-    return Collections.<Instrumentation>emptyList();
+    return Collections.<Recorder>emptyList();
   }
 
   /**
@@ -97,15 +102,14 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
 //   System.out.printf("enter(%s, %s, %s)%n",
 //    target.hashCode(), target.getClass(), location);
     try {
-      for (Instrumentation instrumentation :
-           s_instance.getInstrumentationList(target, location)) {
+      for (Recorder recorder : s_instance.getRecorderList(target, location)) {
 //        System.out.printf("enter(%s, %s)%n",
 //          target == null ? null : target.hashCode(), location);
-        instrumentation.start();
+        recorder.start();
       }
     }
     catch (EngineException e) {
-      throw new InstrumentationFailureException(e);
+      throw new RecordingFailureException(e);
     }
   }
 
@@ -123,12 +127,11 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
    *          exception was thrown.
    */
   public static void exit(Object target, String location, boolean success) {
-    final List<Instrumentation> instrumentationList =
-      s_instance.getInstrumentationList(target, location);
+    final List<Recorder> recorders =
+      s_instance.getRecorderList(target, location);
 
-    // Iterate over instrumentation in reverse.
-    final ListIterator<Instrumentation> i =
-      instrumentationList.listIterator(instrumentationList.size());
+    // Iterate over recorders in reverse.
+    final ListIterator<Recorder> i = recorders.listIterator(recorders.size());
 
     try {
       while (i.hasPrevious()) {
@@ -138,32 +141,23 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
       }
     }
     catch (EngineException e) {
-      throw new InstrumentationFailureException(e);
+      throw new RecordingFailureException(e);
     }
   }
 
   /**
-   * Expose our instrumentation registry to the package.
+   * Expose our registry to the package.
    *
-   * @return The instrumentation registry.
+   * @return The registry.
    */
-  static InstrumentationRegistry getInstrumentationRegistry() {
+  static RecorderRegistry getRecorderRegistry() {
     return s_instance;
   }
 
   /**
-   * Registration method.
-   *
-   * @param target
-   *          The target reference, or {@code null} for static methods.
-   * @param location
-   *          String that uniquely identifies the instrumentation location.
-   * @param instrumentation
-   *          The instrumentation to apply.
+   * {@inheritDoc}.
    */
-  public void register(Object target,
-                       String location,
-                       Instrumentation instrumentation) {
+  public void register(Object target, String location, Recorder recorder) {
 
 //     System.out.printf("register(%s, %s, %s, %s)%n",
 //                      target.hashCode(), location,
@@ -175,39 +169,29 @@ public final class InstrumentationLocator implements InstrumentationRegistry {
     // enter/exit methods are lock free, the instrumentation registration
     // process can be relatively slow.
 
-    final ConcurrentMap<String, List<Instrumentation>> newMap =
-      new CustomConcurrentHashMap<String, List<Instrumentation>>(
+    final ConcurrentMap<String, List<Recorder>> newMap =
+      new CustomConcurrentHashMap<String, List<Recorder>>(
             STRONG, IDENTITY, STRONG, IDENTITY, 0);
 
-    final ConcurrentMap<String, List<Instrumentation>> oldMap =
-      m_instrumentation.putIfAbsent(target, newMap);
+    final ConcurrentMap<String, List<Recorder>> oldMap =
+      m_recorders.putIfAbsent(target, newMap);
 
-    final ConcurrentMap<String, List<Instrumentation>> locationMap =
+    final ConcurrentMap<String, List<Recorder>> locationMap =
       oldMap != null ? oldMap : newMap;
 
-    final List<Instrumentation> newList =
-      new CopyOnWriteArrayList<Instrumentation>();
+    final List<Recorder> newList = new CopyOnWriteArrayList<Recorder>();
 
-    final List<Instrumentation> oldList =
+    final List<Recorder> oldList =
       locationMap.putIfAbsent(location.intern(), newList);
 
-    (oldList != null ? oldList : newList).add(instrumentation);
+    (oldList != null ? oldList : newList).add(recorder);
   }
 
-  /**
-   * Accessor for the unit tests.
-   *
-   * @return Our internal structure.
-   */
-  void clearInstrumentation() {
-    m_instrumentation.clear();
-  }
-
-  private static final class InstrumentationFailureException
+  private static final class RecordingFailureException
     extends UncheckedGrinderException {
 
-    private InstrumentationFailureException(EngineException cause) {
-      super("Instrumentation Failure", cause);
+    private RecordingFailureException(EngineException cause) {
+      super("Recording Failure", cause);
     }
   }
 }

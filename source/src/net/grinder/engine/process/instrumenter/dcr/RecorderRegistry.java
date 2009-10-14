@@ -21,16 +21,16 @@
 
 package net.grinder.engine.process.instrumenter.dcr;
 
-import net.grinder.engine.process.ScriptEngine.Instrumentation;
+import net.grinder.engine.process.ScriptEngine.Recorder;
 
 
 /**
- * Instrumentation registry.
+ * Recorder registry.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public interface InstrumentationRegistry {
+interface RecorderRegistry {
 
   /**
    * Registration method.
@@ -39,10 +39,8 @@ public interface InstrumentationRegistry {
    *          The target reference, or {@code null} for static methods.
    * @param location
    *          String that uniquely identifies the instrumentation location.
-   * @param instrumentation
-   *          The instrumentation to apply.
+   * @param recorder
+   *          The recorder to register.
    */
-  void register(Object target,
-                String location,
-                Instrumentation instrumentation);
+  void register(Object target, String location, Recorder recorder);
 }

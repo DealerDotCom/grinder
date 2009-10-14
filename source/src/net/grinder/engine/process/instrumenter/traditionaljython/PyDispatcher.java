@@ -22,7 +22,7 @@
 package net.grinder.engine.process.instrumenter.traditionaljython;
 
 import net.grinder.common.UncheckedGrinderException;
-import net.grinder.engine.process.ScriptEngine.Instrumentation;
+import net.grinder.engine.process.ScriptEngine.Recorder;
 
 import org.python.core.Py;
 import org.python.core.PyObject;
@@ -54,16 +54,16 @@ final class PyDispatcher {
     PyObject call();
   }
 
-  private final Instrumentation m_instrumentation;
+  private final Recorder m_recorder;
 
-  PyDispatcher(Instrumentation instrumentation) {
-    m_instrumentation = instrumentation;
+  PyDispatcher(Recorder recorder) {
+    m_recorder = recorder;
   }
 
   public PyObject dispatch(Callable callable) {
 
     try {
-      m_instrumentation.start();
+      m_recorder.start();
 
       boolean success = false;
 
@@ -75,7 +75,7 @@ final class PyDispatcher {
         return result;
       }
       finally {
-        m_instrumentation.end(success);
+        m_recorder.end(success);
       }
     }
     catch (UncheckedGrinderException e) {

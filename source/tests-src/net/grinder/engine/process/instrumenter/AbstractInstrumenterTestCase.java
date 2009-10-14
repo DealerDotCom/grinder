@@ -30,7 +30,7 @@ import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.process.Instrumenter;
-import net.grinder.engine.process.ScriptEngine.Instrumentation;
+import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
@@ -72,11 +72,9 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
   private final PyObject m_six = new PyInteger(6);
   private final Test m_test = new StubTest(1, "test");
 
-  private final RandomStubFactory<Instrumentation>
-    m_instrumentationStubFactory =
-      RandomStubFactory.create(Instrumentation.class);
-  private final Instrumentation m_instrumentation =
-    m_instrumentationStubFactory.getStub();
+  private final RandomStubFactory<Recorder> m_recorderStubFactory =
+      RandomStubFactory.create(Recorder.class);
+  private final Recorder m_recorder = m_recorderStubFactory.getStub();
 
   public AbstractInstrumenterTestCase(Instrumenter instrumenter) {
     super();
@@ -143,13 +141,13 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     final PyObject pyFunction = m_interpreter.get("return1");
     final PyObject pyFunctionProxy = (PyObject)
       m_instrumenter.createInstrumentedProxy(
-        m_test, m_instrumentation, pyFunction);
+        m_test, m_recorder, pyFunction);
 
     final PyObject result = pyFunctionProxy.invoke("__call__");
     assertEquals(m_one, result);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTestReference(pyFunctionProxy, m_test);
     assertTargetReference(pyFunctionProxy, pyFunction);
 
@@ -157,32 +155,32 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     final PyObject pyFunction2 = m_interpreter.get("multiply");
     final PyObject pyFunctionProxy2 = (PyObject)
       m_instrumenter.createInstrumentedProxy(
-        m_test, m_instrumentation, pyFunction2);
+        m_test, m_recorder, pyFunction2);
     final PyObject result2 =
       pyFunctionProxy2.invoke("__call__", m_two, m_three);
     assertEquals(m_six, result2);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTargetReference(pyFunctionProxy2, pyFunction2);
 
     final PyObject result3 =
       pyFunctionProxy2.invoke("__call__", new PyObject[] { m_two, m_three});
     assertEquals(m_six, result3);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("def square(x): return x * x");
     final PyObject pyFunction11 = m_interpreter.get("square");
     final PyObject pyFunctionProxy11 = (PyObject)
       m_instrumenter.createInstrumentedProxy(
-        m_test, m_instrumentation, pyFunction11);
+        m_test, m_recorder, pyFunction11);
     final PyObject result11 = pyFunctionProxy11.invoke("__call__", m_two);
     assertEquals(new PyInteger(4), result11);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTargetReference(pyFunctionProxy11, pyFunction11);
 
     // From Jython.
@@ -192,9 +190,9 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_interpreter.exec("result5 = proxy()");
     final PyObject result5 = m_interpreter.get("result5");
     assertEquals(m_one, result5);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithPyInstance() throws Exception {
@@ -209,41 +207,41 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
 
     final PyObject pyInstance = m_interpreter.get("x");
     final PyObject pyInstanceProxy = (PyObject) m_instrumenter
-        .createInstrumentedProxy(m_test, m_instrumentation, pyInstance);
+        .createInstrumentedProxy(m_test, m_recorder, pyInstance);
     final PyObject result1 = pyInstanceProxy.invoke("two");
     assertEquals(m_two, result1);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTestReference(pyInstanceProxy, m_test);
     assertNull(pyInstanceProxy.__findattr__("__blah__"));
     assertTargetReference(pyInstanceProxy, pyInstance);
 
     final PyObject result2 = pyInstanceProxy.invoke("identity", m_one);
     assertSame(m_one, result2);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject result3 = pyInstanceProxy.invoke("sum", m_one, m_two);
     assertEquals(m_three, result3);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject result4 = pyInstanceProxy.invoke("sum3", new PyObject[] {
         m_one, m_two, m_three });
     assertEquals(m_six, result4);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject result5 = pyInstanceProxy.invoke("sum", new PyObject[] {
         m_one, m_two }, new String[] { "x", "y" });
     assertEquals(m_three, result5);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     // From Jython.
     m_interpreter.set("proxy", pyInstanceProxy);
@@ -252,9 +250,9 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
         "result6 = proxy.sum(2, 4)");
     final PyObject result6 = m_interpreter.get("result6");
     assertEquals(m_six, result6);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithPyMethod() throws Exception {
@@ -270,12 +268,12 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     final PyObject pyMethod = m_interpreter.get("y");
     final PyObject pyMethodProxy = (PyObject)
       m_instrumenter.createInstrumentedProxy(
-        m_test, m_instrumentation, pyMethod);
+        m_test, m_recorder, pyMethod);
     final PyObject result = pyMethodProxy.invoke("__call__", pyInstance);
     assertEquals(m_two, result);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTestReference(pyMethodProxy, m_test);
     assertNull(pyMethodProxy.__findattr__("__blah__"));
     assertTargetReference(pyMethodProxy, pyMethod);
@@ -284,37 +282,37 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     final PyObject pyMethod2 = m_interpreter.get("y");
     final PyObject pyMethodProxy2 = (PyObject)
       m_instrumenter.createInstrumentedProxy(
-        m_test, m_instrumentation, pyMethod2);
+        m_test, m_recorder, pyMethod2);
     final PyObject result2 =
       pyMethodProxy2.invoke("__call__", pyInstance, m_one);
     assertEquals(m_one, result2);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("y=Foo.sum");
     final PyObject pyMethod3 = m_interpreter.get("y");
     final PyObject pyMethodProxy3 = (PyObject)
       m_instrumenter.createInstrumentedProxy(
-        m_test, m_instrumentation, pyMethod3);
+        m_test, m_recorder, pyMethod3);
     final PyObject result3 =
       pyMethodProxy3.invoke(
         "__call__", new PyObject[] { pyInstance, m_one, m_two });
     assertEquals(m_three, result3);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("y=x.two"); // Bound method.
     final PyObject pyMethod4 = m_interpreter.get("y");
     final PyObject pyMethodProxy4 = (PyObject)
       m_instrumenter.createInstrumentedProxy(
-        m_test, m_instrumentation, pyMethod4);
+        m_test, m_recorder, pyMethod4);
     final PyObject result4 = pyMethodProxy4.invoke("__call__");
     assertEquals(m_two, result4);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     // From Jython.
     m_interpreter.set("proxy", pyMethodProxy);
@@ -322,21 +320,21 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_interpreter.exec("result5 = proxy(x)");
     final PyObject result5 = m_interpreter.get("result5");
     assertEquals(m_two, result5);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithPyJavaInstance() throws Exception {
     m_interpreter.exec("from java.util import Random\nx=Random()");
     final PyObject pyJava = m_interpreter.get("x");
     final PyObject pyJavaProxy = (PyObject) m_instrumenter
-        .createInstrumentedProxy(m_test, m_instrumentation, pyJava);
+        .createInstrumentedProxy(m_test, m_recorder, pyJava);
     final PyObject result = pyJavaProxy.invoke("getClass");
     assertEquals(Random.class, result.__tojava__(Class.class));
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTestReference(pyJavaProxy, m_test);
     assertNull(pyJavaProxy.__findattr__("__blah__"));
     assertTargetReference(pyJavaProxy, pyJava);
@@ -347,9 +345,9 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_interpreter.exec("result2 = proxy.getClass()");
     final PyObject result2 = m_interpreter.get("result2");
     assertEquals(Random.class, result2.__tojava__(Class.class));
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithPyReflectedFunction() throws Exception {
@@ -358,12 +356,12 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_interpreter.exec("y=Random.nextInt");
     final PyObject pyJavaMethod = m_interpreter.get("y");
     final PyObject pyJavaMethodProxy = (PyObject) m_instrumenter
-        .createInstrumentedProxy(m_test, m_instrumentation, pyJavaMethod);
+        .createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
     final PyObject result = pyJavaMethodProxy.__call__(pyJava);
     assertTrue(result.__tojava__(Object.class) instanceof Integer);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTestReference(pyJavaMethodProxy, m_test);
     assertNull(pyJavaMethodProxy.__findattr__("__blah__"));
     assertTargetReference(pyJavaMethodProxy, pyJavaMethod);
@@ -374,9 +372,9 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_interpreter.exec("result2 = proxy(x)");
     final PyObject result2 = m_interpreter.get("result2");
     assertTrue(result2.__tojava__(Object.class) instanceof Integer);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithPyProxy() throws Exception {
@@ -392,7 +390,7 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     final PyProxy pyProxy = (PyProxy) pyInstance.__tojava__(PyProxy.class);
     final Object pyProxyProxy =
       m_instrumenter.createInstrumentedProxy(m_test,
-                                             m_instrumentation,
+                                             m_recorder,
                                              pyProxy);
 
     final PyObject pyProxyInstance =
@@ -401,9 +399,9 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
 
     final PyObject result = pyProxyInstance.invoke("one");
     assertEquals(m_one, result);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTestReference(pyProxyInstance, m_test);
     assertTargetReference(pyProxyInstance, pyInstance);
 
@@ -413,16 +411,16 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_interpreter.exec("result2 = proxy.one()");
     final PyObject result2 = m_interpreter.get("result2");
     assertEquals(m_one, result2);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("result3 = proxy.nextInt()");
     final PyObject result3 = m_interpreter.get("result3");
     assertNotNull(result3);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithJavaInstance() throws Exception {
@@ -430,35 +428,35 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     final Object extendedJava = new MyExtendedClass();
 
     final PyObject javaProxy = proxyToPyObject(
-      m_instrumenter.createInstrumentedProxy(m_test, m_instrumentation, java));
+      m_instrumenter.createInstrumentedProxy(m_test, m_recorder, java));
     final PyObject result =
       javaProxy.invoke("addOne", Py.java2py(new Integer(10)));
     assertEquals(new Integer(11), result.__tojava__(Integer.class));
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTestReference(javaProxy, m_test);
     assertTargetReference(javaProxy, java, true);
 
     final PyObject result2 = javaProxy.invoke("sum", m_one, m_two);
     assertEquals(m_three, result2);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject result3 = javaProxy.invoke("sum3", new PyObject[] { m_one,
         m_two, m_three });
     assertEquals(m_six, result3);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject result4 = javaProxy.invoke("sum", new PyObject[] { m_one,
         m_two }, Py.NoKeywords);
     assertEquals(m_three, result4);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     // From Jython.
     m_interpreter.set("proxy", javaProxy);
@@ -466,34 +464,34 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_interpreter.exec("result5 = proxy.sum3(0, -29, 30)");
     final PyObject result5 = m_interpreter.get("result5");
     assertEquals(m_one, result5);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("result5Cached = proxy.sum3(0, -29, 30)");
     final PyObject result5Cached = m_interpreter.get("result5Cached");
     assertEquals(m_one, result5Cached);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("result6 = proxy.sum(1, 1)");
     final PyObject result6 = m_interpreter.get("result6");
     assertEquals(m_two, result6);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject extendedJavaProxy = proxyToPyObject(
       m_instrumenter.createInstrumentedProxy(m_test,
-                                             m_instrumentation,
+                                             m_recorder,
                                              extendedJava));
     final PyObject result7 =
       extendedJavaProxy.invoke("addOne", Py.java2py(new Integer(10)));
     assertEquals(new Integer(11), result7.__tojava__(Integer.class));
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTestReference(extendedJavaProxy, m_test);
     assertTargetReference(extendedJavaProxy, extendedJava, true);
   }
@@ -504,54 +502,54 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     final Class<?> javaClass = MyClass.class;
     final PyObject javaProxy = proxyToPyObject(
       m_instrumenter.createInstrumentedProxy(
-        m_test, m_instrumentation, javaClass));
+        m_test, m_recorder, javaClass));
     final PyObject result =
       javaProxy.invoke("addTwo", Py.java2py(new Integer(10)));
     assertEquals(new Integer(12), result.__tojava__(Integer.class));
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
     assertTestReference(javaProxy, m_test);
     assertTargetReference(javaProxy, javaClass, true);
 
     final PyObject result1 = javaProxy.invoke("staticSum", m_one, m_two);
     assertEquals(m_three, result1);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject result2 = javaProxy.invoke("staticSum3",
       new PyObject[] { m_one,  m_two, m_three });
     assertEquals(m_six, result2);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject result3 = javaProxy.invoke("staticSum",
       new PyObject[] { m_one, m_two }, Py.NoKeywords);
     assertEquals(m_three, result3);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject result4 = javaProxy.invoke("staticSix");
     assertEquals(m_six, result4);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject instance = javaProxy.__call__(); // Constructor.
 
     assertEquals(MyClass.class, getClassForInstance((PyInstance) instance));
 
     if (!isProxyInstrumentation()) {
-      m_instrumentationStubFactory.assertSuccess("start");
-      m_instrumentationStubFactory.assertSuccess("end", true);
+      m_recorderStubFactory.assertSuccess("start");
+      m_recorderStubFactory.assertSuccess("end", true);
     }
 
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject instance2 = javaProxy.__call__(
       new PyObject[] { m_one, m_two, m_three, },
@@ -560,27 +558,27 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     if (!isProxyInstrumentation()) {
       // All our arguments are keywords, so we'll call the no args ctor,
       // which first calls the 3 args ctor.
-      m_instrumentationStubFactory.assertSuccess("start");
-      m_instrumentationStubFactory.assertSuccess("end", true);
+      m_recorderStubFactory.assertSuccess("start");
+      m_recorderStubFactory.assertSuccess("end", true);
     }
 
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
 
     final MyClass javaInstance2 = (MyClass) instance2.__tojava__(MyClass.class);
     assertEquals(3, javaInstance2.getA());
     assertEquals(2, javaInstance2.getB());
     assertEquals(1, javaInstance2.getC());
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final PyObject instance3 = javaProxy.__call__(m_one, m_two, m_three);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
     final MyClass javaInstance3 = (MyClass) instance3.__tojava__(MyClass.class);
     assertEquals(1, javaInstance3.getA());
     assertEquals(2, javaInstance3.getB());
     assertEquals(3, javaInstance3.getC());
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertNoMoreCalls();
 
     // From Jython.
     m_interpreter.set("proxy", javaProxy);
@@ -588,30 +586,30 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_interpreter.exec("result5 = proxy.staticSum3(0, -29, 30)");
     final PyObject result5 = m_interpreter.get("result5");
     assertEquals(m_one, result5);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("result5Cached = proxy.staticSum3(0, -29, 30)");
     final PyObject result5Cached = m_interpreter.get("result5Cached");
     assertEquals(m_one, result5Cached);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("result6 = proxy.staticSum(1, 1)");
     final PyObject result6 = m_interpreter.get("result6");
     assertEquals(m_two, result6);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("result7 = proxy.staticSix()");
     final PyObject result7 = m_interpreter.get("result7");
     assertEquals(m_six, result7);
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("instance = proxy(a=1, c=2, b=3)\nb=instance.b");
     final PyObject result8 = m_interpreter.get("b");
@@ -619,13 +617,13 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
 
     if (!isProxyInstrumentation()) {
       // No args ctor, which first calls the 3 args ctor.
-      m_instrumentationStubFactory.assertSuccess("start");
-      m_instrumentationStubFactory.assertSuccess("end", true);
+      m_recorderStubFactory.assertSuccess("start");
+      m_recorderStubFactory.assertSuccess("end", true);
     }
 
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     m_interpreter.exec("instance = proxy()\n");
     final PyObject result9 = m_interpreter.get("instance");
@@ -634,13 +632,13 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
 
     if (!isProxyInstrumentation()) {
       // No args ctor, which first calls the 3 args ctor.
-      m_instrumentationStubFactory.assertSuccess("start");
-      m_instrumentationStubFactory.assertSuccess("end", true);
+      m_recorderStubFactory.assertSuccess("start");
+      m_recorderStubFactory.assertSuccess("end", true);
     }
 
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithRecursiveCode() throws Exception {
@@ -656,27 +654,27 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
 
     final PyObject proxy = (PyObject)
       m_instrumenter.createInstrumentedProxy(
-        m_test, m_instrumentation, m_interpreter.get("r"));
+        m_test, m_recorder, m_interpreter.get("r"));
 
     final PyObject result = proxy.invoke("foo");
 
     assertEquals(new PyInteger(3), result);
     // The dispatcher will be called multiple times. The real dispatcher
     // only records the outer invocation.
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertSuccess("end", true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 
   public void testPyDispatcherErrorHandling() throws Exception {
     m_interpreter.exec("def blah(): raise 'a problem'");
     final PyObject pyFunction = m_interpreter.get("blah");
     final PyObject pyFunctionProxy = (PyObject) m_instrumenter
-        .createInstrumentedProxy(m_test, m_instrumentation, pyFunction);
+        .createInstrumentedProxy(m_test, m_recorder, pyFunction);
     try {
       pyFunctionProxy.invoke("__call__");
       fail("Expected PyException");
@@ -685,12 +683,12 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
       AssertUtilities.assertContains(e.toString(), "a problem");
     }
 
-    m_instrumentationStubFactory.assertSuccess("start");
-    m_instrumentationStubFactory.assertSuccess("end", false);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", false);
+    m_recorderStubFactory.assertNoMoreCalls();
 
     final UncheckedGrinderException e = new UncheckedInterruptedException(null);
-    m_instrumentationStubFactory.setThrows("start", e);
+    m_recorderStubFactory.setThrows("start", e);
 
     try {
       pyFunctionProxy.invoke("__call__");
