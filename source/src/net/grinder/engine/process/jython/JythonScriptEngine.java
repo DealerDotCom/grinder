@@ -28,10 +28,9 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.process.ScriptEngine;
 
-import org.python.core.PyClass;
+import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyInstance;
-import org.python.core.PyJavaClass;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
@@ -155,7 +154,7 @@ public final class JythonScriptEngine implements ScriptEngine {
    * @return The description.
    */
   public String getDescription() {
-    return "Jython " + PySystemState.version;
+    return "Jython " + m_versionAdapter.getVersion();
   }
 
   /**
@@ -247,10 +246,12 @@ public final class JythonScriptEngine implements ScriptEngine {
    * Work around different the Jython implementations.
    */
   private static class JythonVersionAdapter {
-    private final Field m_instanceClassField;
 
     // The softly spoken Welshman.
-    private final PyClass m_dieQuietly = PyJavaClass.lookup(Object.class);
+    private final PyObject m_dieQuietly = Py.java2py(Object.class);
+
+    private final Field m_instanceClassField;
+    private final String m_version;
 
     public JythonVersionAdapter() throws EngineException {
       Field f;
@@ -270,6 +271,22 @@ public final class JythonScriptEngine implements ScriptEngine {
       }
 
       m_instanceClassField = f;
+
+      String version;
+
+      try {
+
+        version = PySystemState.class.getField("version").get(null).toString();
+      }
+      catch (Exception e) {
+        version = "Unknown";
+      }
+
+      m_version = version;
+    }
+
+    public String getVersion() {
+      return m_version;
     }
 
     public void disableDel(PyObject pyObject) {
