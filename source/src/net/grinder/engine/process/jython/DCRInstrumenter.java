@@ -112,7 +112,9 @@ public final class DCRInstrumenter implements Instrumenter {
     }
     else if (target instanceof PyProxy) {
       // Jython object that extends a Java class.
-      final PyInstance pyInstance = ((PyProxy)target)._getPyInstance();
+      // We can't just use the Java wrapping, since then we'd miss the
+      // Jython methods.
+      final PyObject pyInstance = ((PyProxy)target)._getPyInstance();
       instrumentPublicMethodsByName(
         pyInstance, "invoke", instrumentation, true);
     }
@@ -174,11 +176,16 @@ public final class DCRInstrumenter implements Instrumenter {
       return false;
     }
 
-    final String packageName = targetClass.getPackage().getName();
+    // Package can be null.
+    final Package thePackage = targetClass.getPackage();
 
-    for (String prefix : NON_INSTRUMENTABLE_PACKAGES) {
-      if (packageName.startsWith(prefix)) {
-        return false;
+    if (thePackage != null) {
+      final String packageName = thePackage.getName();
+
+      for (String prefix : NON_INSTRUMENTABLE_PACKAGES) {
+        if (packageName.startsWith(prefix)) {
+          return false;
+        }
       }
     }
 
@@ -211,6 +218,11 @@ public final class DCRInstrumenter implements Instrumenter {
                           Instrumentation instrumentation) {
     final String location = m_weaver.weave(constructor);
 
+//    System.out.printf("register(%s, %s, %s, %s)%n",
+//                      target.hashCode(), location,
+//                      target,
+//                      constructor);
+
     m_instrumentationRegistry.register(target,
                                        location,
                                        instrumentation);
@@ -220,6 +232,11 @@ public final class DCRInstrumenter implements Instrumenter {
                           Method method,
                           Instrumentation instrumentation) {
     final String location = m_weaver.weave(method);
+
+//    System.out.printf("register(%s, %s, %s, %s)%n",
+//                      target.hashCode(), location,
+//                      target,
+//                      method);
 
     m_instrumentationRegistry.register(target,
                                        location,
