@@ -21,6 +21,7 @@
 
 package net.grinder.engine.process.jython;
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 import junit.framework.TestCase;
@@ -30,12 +31,12 @@ import net.grinder.common.UncheckedGrinderException;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.ScriptEngine.Instrumentation;
-import net.grinder.engine.process.jython.JythonScriptEngine.JythonVersionAdapter;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 
 import org.python.core.Py;
+import org.python.core.PyClass;
 import org.python.core.PyException;
 import org.python.core.PyInstance;
 import org.python.core.PyInteger;
@@ -61,7 +62,6 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
   }
 
   private final Instrumenter m_instrumenter;
-  private final JythonVersionAdapter m_versionAdapter;
 
   private final PythonInterpreter m_interpreter =
     new PythonInterpreter(null, new PySystemState());
@@ -78,10 +78,8 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
   private final Instrumentation m_instrumentation =
     m_instrumentationStubFactory.getStub();
 
-  public AbstractInstrumenterTestCase(Instrumenter instrumenter)
-    throws Exception {
+  public AbstractInstrumenterTestCase(Instrumenter instrumenter) {
     super();
-    m_versionAdapter = new JythonVersionAdapter();
       m_instrumenter = instrumenter;
   }
 
@@ -105,6 +103,39 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
 
   protected final PythonInterpreter getInterpretter() {
     return m_interpreter;
+  }
+
+  protected final void assertNotWrappable(Object o) throws Exception {
+    try {
+      m_instrumenter.createInstrumentedProxy(null, null, o);
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NotWrappableTypeException e) {
+    }
+  }
+
+  private final Class<?> getClassForInstance(PyInstance target)
+    throws IllegalArgumentException, IllegalAccessException {
+
+    Field f;
+
+    try {
+      // Jython 2.1
+      f = PyObject.class.getField("__class__");
+    }
+    catch (NoSuchFieldException e) {
+      // Jython 2.2a1+
+      try {
+        f = PyInstance.class.getField("instclass");
+      }
+      catch (NoSuchFieldException e2) {
+        throw new AssertionError("Incompatible Jython release in classpath");
+      }
+    }
+
+    final PyClass pyClass = (PyClass)f.get(target);
+
+    return (Class<?>) pyClass.__tojava__(Class.class);
   }
 
   public void testCreateProxyWithPyFunction() throws Exception {
@@ -217,7 +248,8 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     // From Jython.
     m_interpreter.set("proxy", pyInstanceProxy);
 
-    m_interpreter.exec("result6 = proxy.sum(2, 4)");
+    m_interpreter.exec("print dir(proxy)\n" +
+        "result6 = proxy.sum(2, 4)");
     final PyObject result6 = m_interpreter.get("result6");
     assertEquals(m_six, result6);
     m_instrumentationStubFactory.assertSuccess("start");
@@ -363,9 +395,9 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
                                              m_instrumentation,
                                              pyProxy);
 
-    final PyInstance pyProxyInstance =
+    final PyObject pyProxyInstance =
       (pyProxyProxy instanceof PyProxy) ?
-       ((PyProxy)pyProxyProxy)._getPyInstance() : (PyInstance)pyProxyProxy;
+       ((PyProxy)pyProxyProxy)._getPyInstance() : (PyObject)pyProxyProxy;
 
     final PyObject result = pyProxyInstance.invoke("one");
     assertEquals(m_one, result);
@@ -510,9 +542,7 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
 
     final PyObject instance = javaProxy.__call__(); // Constructor.
 
-    assertEquals(MyClass.class,
-      m_versionAdapter.getClassForInstance((PyInstance) instance)
-      .__tojava__(Class.class));
+    assertEquals(MyClass.class, getClassForInstance((PyInstance) instance));
 
     if (!isProxyInstrumentation()) {
       m_instrumentationStubFactory.assertSuccess("start");
@@ -599,9 +629,8 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
 
     m_interpreter.exec("instance = proxy()\n");
     final PyObject result9 = m_interpreter.get("instance");
-    assertEquals(MyClass.class,
-      m_versionAdapter.getClassForInstance((PyInstance) result9)
-      .__tojava__(Class.class));
+
+    assertEquals(MyClass.class, getClassForInstance((PyInstance) result9));
 
     if (!isProxyInstrumentation()) {
       // No args ctor, which first calls the 3 args ctor.
@@ -641,15 +670,6 @@ public abstract class AbstractInstrumenterTestCase extends TestCase {
     m_instrumentationStubFactory.assertSuccess("end", true);
     m_instrumentationStubFactory.assertSuccess("end", true);
     m_instrumentationStubFactory.assertNoMoreCalls();
-  }
-
-  protected final void assertNotWrappable(Object o) throws Exception {
-    try {
-      m_instrumenter.createInstrumentedProxy(null, null, o);
-      fail("Expected NotWrappableTypeException");
-    }
-    catch (NotWrappableTypeException e) {
-    }
   }
 
   public void testPyDispatcherErrorHandling() throws Exception {
