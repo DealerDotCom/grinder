@@ -35,7 +35,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
-import net.grinder.util.weave.agent.ExposeInstrumentation;
 
 
 /**
@@ -59,18 +58,12 @@ public final class DCRWeaver implements Weaver {
    * Constructor.
    *
    * @param transformerFactory Used to create the transformer.
-   * @throws WeavingException If our Java agent is not installed.
+   * @param instrumentation Access to the JVM instrumentation.
    */
-  public DCRWeaver(ClassFileTransformerFactory transformerFactory)
-    throws WeavingException {
+  public DCRWeaver(ClassFileTransformerFactory transformerFactory,
+                   Instrumentation instrumentation) {
 
-    m_instrumentation = ExposeInstrumentation.getInstrumentation();
-
-    if (m_instrumentation == null) {
-      throw new WeavingException(
-        "Instrumentation not available, " +
-        "does the command line specify the Java agent?");
-    }
+    m_instrumentation = instrumentation;
 
     m_transformer = transformerFactory.create(m_pointCutRegistry);
 

@@ -19,13 +19,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.instrumenter;
+package net.grinder.engine.process.instrumenter.dcr;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.ExposeInstrumentationRegistry;
-import net.grinder.engine.process.InstrumentationLocator;
+import net.grinder.engine.process.instrumenter.AbstractInstrumenterTestCase;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
+import net.grinder.util.weave.agent.ExposeInstrumentation;
 import net.grinder.util.weave.j2se6.ASMTransformerFactory;
 import net.grinder.util.weave.j2se6.DCRWeaver;
 
@@ -47,7 +47,8 @@ public class TestDCRInstrumenter extends AbstractInstrumenterTestCase {
   static {
     try {
       s_weaver =
-        new DCRWeaver(new ASMTransformerFactory(InstrumentationLocator.class));
+        new DCRWeaver(new ASMTransformerFactory(InstrumentationLocator.class),
+                      ExposeInstrumentation.getInstrumentation());
     }
     catch (WeavingException e) {
       throw new ExceptionInInitializerError(e);

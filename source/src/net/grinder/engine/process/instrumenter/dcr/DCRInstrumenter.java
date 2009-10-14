@@ -19,14 +19,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.instrumenter;
+package net.grinder.engine.process.instrumenter.dcr;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.InstrumentationRegistry;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.ScriptEngine.Instrumentation;
 import net.grinder.script.NotWrappableTypeException;

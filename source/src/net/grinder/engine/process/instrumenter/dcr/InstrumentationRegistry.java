@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.engine.process.instrumenter.dcr;
 
 import net.grinder.engine.process.ScriptEngine.Instrumentation;
 

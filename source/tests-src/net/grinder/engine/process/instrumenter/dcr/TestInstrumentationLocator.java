@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.engine.process.instrumenter.dcr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.TestCase;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.process.ScriptEngine;
 import net.grinder.engine.process.ScriptEngine.Instrumentation;
 import net.grinder.testutility.RandomStubFactory;
 
