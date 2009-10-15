@@ -213,7 +213,10 @@ final class GrinderProcess {
 
     final ScriptEngine scriptEngine = new JythonScriptEngine();
 
-    m_context.getTestRegistry().setInstrumenter(new MasterInstrumenter(logger));
+    final MasterInstrumenter instrumenter = new MasterInstrumenter();
+    m_context.getTestRegistry().setInstrumenter(instrumenter);
+    logger.output("loaded instrumentation agents: " +
+                  instrumenter.getDescription());
 
     final StringBuffer numbers = new StringBuffer("worker process ");
     numbers.append(m_initialisationMessage.getWorkerIdentity().getNumber());

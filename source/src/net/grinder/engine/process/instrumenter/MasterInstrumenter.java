@@ -24,57 +24,35 @@ package net.grinder.engine.process.instrumenter;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.grinder.common.Logger;
 import net.grinder.common.Test;
-import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.ScriptEngine.Recorder;
-import net.grinder.engine.process.instrumenter.dcr.DCRInstrumenter;
-import net.grinder.engine.process.instrumenter.traditionaljython.TraditionalJythonInstrumenter;
+import net.grinder.engine.process.instrumenter.dcr.DCRInstrumenterFactory;
+import net.grinder.engine.process.instrumenter.traditionaljython.JythonInstrumenterFactory;
 import net.grinder.script.NotWrappableTypeException;
 
 
 /**
- * MasterInstrumenter.
+ * Master instrumenter.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
 public final class MasterInstrumenter implements Instrumenter {
 
-  private final List<Instrumenter> m_instrumenterList =
+  private final List<Instrumenter> m_instrumenters =
     new ArrayList<Instrumenter>();
 
   /**
    * Constructor for MasterInstrumenter.
-   *
-   * @param logger A logger.
    */
-  public MasterInstrumenter(Logger logger) {
-    m_instrumenterList.add(new RejectNullInstrumenter());
-
-    logger.output("Loading instrumentation agents");
+  public MasterInstrumenter() {
+    m_instrumenters.add(new RejectNullInstrumenter());
 
     // Override with property?
-    try {
-      m_instrumenterList.add(new TraditionalJythonInstrumenter());
+    m_instrumenters.addAll(JythonInstrumenterFactory.create());
 
-      logger.output(" - traditional Jython instrumenter");
-    }
-    catch (EngineException e) {
-      // Ignore.
-    }
-
-    // Split out Jython instrumentation from Java instrumentation?
-    // Separate Jython 2.5 instrumentation?
-    final Instrumenter dcrInstrumenter = DCRInstrumenter.createIfEnabled();
-
-    if (dcrInstrumenter != null) {
-      m_instrumenterList.add(dcrInstrumenter);
-
-      logger.output(
-        " - byte code transforminginstrumenter for Jython and Java");
-    }
+    m_instrumenters.addAll(DCRInstrumenterFactory.create());
   }
 
   /**
@@ -85,7 +63,7 @@ public final class MasterInstrumenter implements Instrumenter {
                                         Object target)
     throws NotWrappableTypeException {
 
-    for (Instrumenter instrumenter : m_instrumenterList) {
+    for (Instrumenter instrumenter : m_instrumenters) {
       final Object result =
         instrumenter.createInstrumentedProxy(test, recorder, target);
 
@@ -95,6 +73,27 @@ public final class MasterInstrumenter implements Instrumenter {
     }
 
     throw new NotWrappableTypeException("Failed to wrap " + target);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String getDescription() {
+    final StringBuilder result = new StringBuilder();
+
+    for (Instrumenter instrumenter : m_instrumenters) {
+      final String description = instrumenter.getDescription();
+
+      if (description != null) {
+        if (result.length() > 0) {
+          result.append("; ");
+        }
+
+        result.append(description);
+      }
+    }
+
+    return result.toString();
   }
 
   private static final class RejectNullInstrumenter implements Instrumenter {
@@ -108,6 +107,10 @@ public final class MasterInstrumenter implements Instrumenter {
         throw new NotWrappableTypeException("Can't wrap null/None");
       }
 
+      return null;
+    }
+
+    public String getDescription() {
       return null;
     }
   }

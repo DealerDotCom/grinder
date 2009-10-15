@@ -30,7 +30,7 @@ import org.python.util.PythonInterpreter;
 
 
 /**
- * Unit tests for {@link TraditionalJythonInstrumenter}.
+ * Unit tests for {@link JythonInstrumenter}.
  *
  * @author Philip Aston
  * @version $Revision: 4057 $

@@ -47,7 +47,7 @@ import org.python.core.PyReflectedFunction;
  * @author Philip Aston
  * @version $Revision: 4057 $
  */
-public final class TraditionalJythonInstrumenter implements Instrumenter {
+final class TraditionalJythonInstrumenter implements Instrumenter {
 
   private final JythonVersionAdapter m_versionAdapter;
 
@@ -58,6 +58,10 @@ public final class TraditionalJythonInstrumenter implements Instrumenter {
    */
   public TraditionalJythonInstrumenter() throws EngineException {
     m_versionAdapter = new JythonVersionAdapter();
+  }
+
+  public String getDescription() {
+    return "traditional Jython instrumenter";
   }
 
   /**

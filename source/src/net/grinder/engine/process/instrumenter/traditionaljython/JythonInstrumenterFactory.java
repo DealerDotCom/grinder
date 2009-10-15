@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2009 Philip Aston
+// Copyright (C) 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,41 +19,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.engine.process.instrumenter.traditionaljython;
 
-import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Recorder;
-import net.grinder.script.NotWrappableTypeException;
+import java.util.Collections;
+import java.util.List;
+
+import net.grinder.engine.common.EngineException;
+import net.grinder.engine.process.Instrumenter;
 
 
 /**
- * A factory for instrumented proxies.
+ * Factory for {@link TraditionalJythonInstrumenter}s.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision:$
  */
-public interface Instrumenter {
+public class JythonInstrumenterFactory {
 
   /**
-   * Create a proxy object that wraps an target object for a test.
+   * Factory method.
    *
-   * @param test
-   *          The test.
-   * @param recorder
-   *          The proxy should use this to instrument the work.
-   * @param target
-   *          Object to wrap.
-   * @return The instrumented proxy.
-   * @throws NotWrappableTypeException
-   *           If the target cannot be wrapped.
+   * @return An ordered list of available instrumenters.
    */
-  Object createInstrumentedProxy(Test test, Recorder recorder, Object target)
-    throws NotWrappableTypeException;
+  public static List<? extends Instrumenter> create() {
 
-  /**
-   * Public description of the {@code Instrumenter}.
-   *
-   * @return The description; {@code null} for internal {@code Instrumenters}.
-   */
-  String getDescription();
+    try {
+      return Collections.singletonList(new TraditionalJythonInstrumenter());
+    }
+    catch (EngineException e) {
+      // Ignore.
+    }
+    catch (VerifyError e) {
+      // Ignore.
+    }
+
+    return Collections.emptyList();
+  }
 }
