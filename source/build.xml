@@ -408,6 +408,7 @@ what you want. Currently the conditionally built modules are:
            debug="${debug}"
            optimize="${optimize}"
            source="1.5"
+           target="1.5"
            deprecation="false"> <!-- Uses deprecated API's -->
        <classpath refid="build.classpath"/>
        <exclude name="net/grinder/**"/>
@@ -420,10 +421,10 @@ what you want. Currently the conditionally built modules are:
            debug="${debug}"
            optimize="${optimize}"
            deprecation="${deprecation}"
-           source="1.5">
+           source="1.5"
+           target="1.5">
        <include name="net/grinder/**"/>
        <classpath refid="build.classpath"/>
-       <exclude name="**/DCR**"/> <!-- TODO -->
     </javac>
   </target>
 
