@@ -22,6 +22,7 @@
 package net.grinder.engine.process.instrumenter.dcr;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,9 +52,20 @@ public final class DCRInstrumenterFactory {
     final Instrumentation instrumentation =
       ExposeInstrumentation.getInstrumentation();
 
-    if (instrumentation == null ||
-        !instrumentation.isRetransformClassesSupported()) {
+    if (instrumentation == null) {
       return null;
+    }
+
+    try {
+    final Method m =
+      Instrumentation.class.getMethod("isRetransformClassesSupported");
+
+      if (!(Boolean)m.invoke(null)) {
+        return Collections.emptyList();
+      }
+    }
+    catch (Exception e1) {
+      return Collections.emptyList();
     }
 
     final ASMTransformerFactory transformerFactory;
