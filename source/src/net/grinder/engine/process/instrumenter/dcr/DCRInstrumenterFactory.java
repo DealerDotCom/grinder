@@ -53,7 +53,7 @@ public final class DCRInstrumenterFactory {
       ExposeInstrumentation.getInstrumentation();
 
     if (instrumentation == null) {
-      return null;
+      return Collections.emptyList();
     }
 
     try {
