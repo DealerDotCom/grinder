@@ -58,7 +58,7 @@ public final class DCRInstrumenterFactory {
     final Method m =
       Instrumentation.class.getMethod("isRetransformClassesSupported");
 
-      if (!(Boolean)m.invoke(null)) {
+      if (!(Boolean)m.invoke(instrumentation)) {
         return Collections.emptyList();
       }
     }
