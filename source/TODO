@@ -16,19 +16,25 @@ against it too :-).
 * NG instrumentation
 
 Steps:
-  * - Need statistics from weaver.
+  * Need statistics from weaver.
 
-  6. Test with Jython 2.5
-     - Requires J2SE 6?
+  * Better reporting why instrumenters didn't load.
+
+  * Split out separate Java and Jython DCR instrumenters
+
+  * Can we simplify the Jython 2.1/2.2 instrumenters?
+    - Parameter based instrumentation instead of "this" based?
+
+  * Jython 2.5
      - Doc changes to wrap() semantics. (Changes object in place, original
        not accessible, no way to get to Test).
-     - Add void Test.instrument(Object). DCR warns if wrap() called.
+     - Add void record(Object). DCR warns if wrap() called.
        JythonInstrumenter throws NotSupported if instrument() called.
 
 Jython 2.5 notes:
  - Initially forbid PyInstances, PyMethods, PyJavaInstances,
-   PyReflectedFunctions, PyProxy's, JavaClasses, 
-    
+   PyReflectedFunctions, PyProxy's, JavaClasses,
+
 
  - To instrument PyInstances, we'd need to register
       public org.python.core.PyObject org.python.core.PyFunction.__call__(org.python.core.ThreadState,org.python.core.PyObject)

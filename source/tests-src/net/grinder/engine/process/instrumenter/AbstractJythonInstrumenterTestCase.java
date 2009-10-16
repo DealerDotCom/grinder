@@ -89,6 +89,13 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
 
   protected abstract PyObject proxyToPyObject(Object proxy);
 
+
+  public static void assertVersion(String expected) throws Exception {
+    AssertUtilities.assertContains(
+      PySystemState.class.getField("version").get(null).toString(),
+      expected);
+  }
+
   /**
    * @return {@code true} if the instrumentation is proxy based, false if the
    *         target is changed in place.
@@ -242,8 +249,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     // From Jython.
     m_interpreter.set("proxy", pyInstanceProxy);
 
-    m_interpreter.exec("print dir(proxy)\n" +
-        "result6 = proxy.sum(2, 4)");
+    m_interpreter.exec("result6 = proxy.sum(2, 4)");
     final PyObject result6 = m_interpreter.get("result6");
     assertEquals(m_six, result6);
     m_recorderStubFactory.assertSuccess("start");

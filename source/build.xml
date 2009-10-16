@@ -521,6 +521,9 @@ what you want. Currently the conditionally built modules are:
       <sysproperty key="grinder.version" value="${version}"/>
       <sysproperty key="grinder.date" value="${TODAY}"/>
 
+      <sysproperty key="jython21.dir" value="/opt/jython/jython-2.1"/>
+      <sysproperty key="jython25.dir" value="/opt/jython/jython2.5.0"/>
+
       <!-- Enable assertions. -->
       <jvmarg line="-ea"/>
 

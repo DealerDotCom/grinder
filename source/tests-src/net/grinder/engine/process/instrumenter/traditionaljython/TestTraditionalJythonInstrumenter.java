@@ -138,8 +138,6 @@ public class TestTraditionalJythonInstrumenter
   }
 
   public void testCreateProxyWithJavaClass() throws Exception {
-    System.out.println("\ntestCreateProxyWithJavaClass");
-
     final Class<?> javaClass = MyClass.class;
     final PyObject javaProxy = proxyToPyObject(
       m_instrumenter.createInstrumentedProxy(
