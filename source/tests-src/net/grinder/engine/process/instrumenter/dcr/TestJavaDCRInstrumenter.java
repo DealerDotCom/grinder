@@ -21,28 +21,25 @@
 
 package net.grinder.engine.process.instrumenter.dcr;
 
-import net.grinder.common.Test;
-import net.grinder.engine.process.instrumenter.AbstractInstrumenterTestCase;
+import junit.framework.TestCase;
+import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 import net.grinder.util.weave.j2se6.ASMTransformerFactory;
 import net.grinder.util.weave.j2se6.DCRWeaver;
 
-import org.python.core.Py;
-import org.python.core.PyObject;
-import org.python.util.PythonInterpreter;
-
 
 /**
- * Unit tests for {@link DCRInstrumenter}.
+ * Unit tests for {@link JavaDCRInstrumenter}.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestDCRInstrumenter extends AbstractInstrumenterTestCase {
+public class TestJavaDCRInstrumenter extends TestCase {
 
   private static final Weaver s_weaver;
+  private final JavaDCRInstrumenter m_instrumenter;
 
   static {
     try {
@@ -55,42 +52,25 @@ public class TestDCRInstrumenter extends AbstractInstrumenterTestCase {
     }
   }
 
-  public TestDCRInstrumenter() throws Exception {
-    super(new DCRInstrumenter(s_weaver,
-                              RecorderLocator.getRecorderRegistry()));
+  public TestJavaDCRInstrumenter() throws Exception {
+    m_instrumenter =
+      new JavaDCRInstrumenter(s_weaver, RecorderLocator.getRecorderRegistry());
   }
 
   @Override protected void tearDown() throws Exception {
-    super.tearDown();
     RecorderLocator.clearRecorders();
   }
 
-  @Override protected void assertTestReference(PyObject pyObject, Test test) {
-    // No-op, DCRInstrumenter doesn't support __test__.
-  }
-
-  @Override
-  protected void assertTargetReference(PyObject proxy,
-                                       Object original,
-                                       boolean unwrapTarget) {
-    // DCRInstrumenter doesn't support __target__.
+  private void assertNotWrappable(Object o) throws Exception {
+    try {
+      m_instrumenter.createInstrumentedProxy(null, null, o);
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NotWrappableTypeException e) {
+    }
   }
 
   public void testCreateProxyWithNonWrappableParameters() throws Exception {
-
-    // The types that can be wrapped depend on the Instrumenter.
-
-    final PythonInterpreter interpreter = getInterpretter();
-
-    // Can't wrap PyInteger.
-    interpreter.exec("x=1");
-    assertNotWrappable(interpreter.get("x"));
-
-    // Can't wrap PyClass.
-    interpreter.exec("class Foo: pass");
-    assertNotWrappable(interpreter.get("Foo"));
-
-    assertNotWrappable(null);
 
     assertNotWrappable(Object.class);
     assertNotWrappable(new Object());
@@ -99,15 +79,5 @@ public class TestDCRInstrumenter extends AbstractInstrumenterTestCase {
 
     // Can't wrap classes in net.grinder.*.
     assertNotWrappable(this);
-  }
-
-  @Override
-  protected PyObject proxyToPyObject(Object proxy) {
-    return Py.java2py(proxy);
-  }
-
-  @Override
-  protected boolean isProxyInstrumentation() {
-    return false;
   }
 }

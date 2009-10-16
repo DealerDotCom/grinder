@@ -19,16 +19,49 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.engine.process.instrumenter.dcr;
+
+import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.script.NotWrappableTypeException;
+import net.grinder.util.weave.Weaver;
+
 
 /**
- * Test class used by
- * {@link net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase}.
+ * DCRInstrumenter.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
+ * @version $Revision:$
  */
-public class MyExtendedClass extends MyClass {
+final class JavaDCRInstrumenter extends DCRInstrumenter {
+
+  /**
+   * Constructor for DCRInstrumenter.
+   *
+   * @param weaver The weaver.
+   * @param recorderRegistry The recorder registry.
+   */
+  public JavaDCRInstrumenter(Weaver weaver, RecorderRegistry recorderRegistry) {
+    super(weaver, recorderRegistry);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String getDescription() {
+    return "byte code transforming instrumenter for Java";
+  }
+
+  @Override
+  protected Object instrument(Object target, Recorder recorder)
+    throws NotWrappableTypeException {
+
+    if (target instanceof Class<?>) {
+      instrumentClass(target, (Class<?>)target, recorder);
+    }
+    else {
+      instrumentClass(target, target.getClass(), recorder);
+    }
+
+    return target;
+  }
 }

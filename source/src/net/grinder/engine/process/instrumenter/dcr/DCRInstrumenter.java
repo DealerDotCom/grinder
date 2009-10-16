@@ -32,13 +32,6 @@ import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
 
-import org.python.core.PyFunction;
-import org.python.core.PyInstance;
-import org.python.core.PyMethod;
-import org.python.core.PyObject;
-import org.python.core.PyProxy;
-import org.python.core.PyReflectedFunction;
-
 
 /**
  * DCRInstrumenter.
@@ -46,7 +39,7 @@ import org.python.core.PyReflectedFunction;
  * @author Philip Aston
  * @version $Revision:$
  */
-final class DCRInstrumenter implements Instrumenter {
+abstract class DCRInstrumenter implements Instrumenter {
 
   private static final String[] NON_INSTRUMENTABLE_PACKAGES = {
     "net.grinder",
@@ -58,96 +51,48 @@ final class DCRInstrumenter implements Instrumenter {
     Object.class.getClassLoader();
 
   private final Weaver m_weaver;
-  private final RecorderRegistry m_instrumentationRegistry;
+  private final RecorderRegistry m_recorderRegistry;
 
   /**
    * Constructor for DCRInstrumenter.
    *
    * @param weaver The weaver.
-   * @param instrumentationRegistry The instrumentation registry.
+   * @param recorderRegistry The recorder registry.
    */
   public DCRInstrumenter(Weaver weaver,
-                         RecorderRegistry instrumentationRegistry) {
+                         RecorderRegistry recorderRegistry) {
     m_weaver = weaver;
-    m_instrumentationRegistry = instrumentationRegistry;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public String getDescription() {
-    return "byte code transforming instrumenter for Jython and Java";
+    m_recorderRegistry = recorderRegistry;
   }
 
   /**
    * {@inheritDoc}
    */
   public Object createInstrumentedProxy(Test test,
-                                        Recorder instrumentation,
+                                        Recorder recorder,
                                         Object target)
     throws NotWrappableTypeException {
 
-    if (target instanceof PyObject) {
-      // Jython object.
-      if (target instanceof PyInstance) {
-        instrumentPublicMethodsByName(target, "invoke", instrumentation, true);
-      }
-      else if (target instanceof PyFunction ||
-               target instanceof PyMethod) {
-        instrumentPublicMethodsByName(
-          target, "__call__", instrumentation, false);
-      }
-      else if (target instanceof PyReflectedFunction) {
-        final Method callMethod;
+    final Object result = instrument(target, recorder);
 
-        try {
-          callMethod = PyReflectedFunction.class.getMethod("__call__",
-                                                           PyObject.class);
-        }
-        catch (Exception e) {
-          throw new NotWrappableTypeException(
-            "Correct version of Jython?: " + e.getLocalizedMessage());
-        }
-
-        instrument(target, callMethod, instrumentation);
+    if (result != null) {
+      try {
+        m_weaver.applyChanges();
       }
-      else {
-        // Fail, rather than guess a generic approach.
-        throw new NotWrappableTypeException("Unknown PyObject");
+      catch (WeavingException e) {
+        throw new NotWrappableTypeException(e.getMessage());
       }
     }
-    else if (target instanceof PyProxy) {
-      // Jython object that extends a Java class.
-      // We can't just use the Java wrapping, since then we'd miss the
-      // Jython methods.
-      final PyObject pyInstance = ((PyProxy)target)._getPyInstance();
-      instrumentPublicMethodsByName(
-        pyInstance, "invoke", instrumentation, true);
-    }
-    else if (target == null) {
-      throw new NotWrappableTypeException("Can't wrap null/None");
-    }
-    else if (target instanceof Class<?>) {
-      instrumentClass(target, (Class<?>)target, instrumentation);
-    }
-    else {
-      // Java object.
-      instrumentClass(target, target.getClass(), instrumentation);
-    }
 
-    try {
-      m_weaver.applyChanges();
-    }
-    catch (WeavingException e) {
-      throw new NotWrappableTypeException(e.getMessage());
-    }
-
-    return target;
+    return result;
   }
 
-  private void instrumentClass(Object target,
-                               Class<?> targetClass,
-                               Recorder instrumentation)
+  protected abstract Object instrument(Object target,  Recorder recorder)
+    throws NotWrappableTypeException;
+
+  public void instrumentClass(Object target,
+                              Class<?> targetClass,
+                              Recorder recorder)
     throws NotWrappableTypeException {
 
     if (!isInstrumentable(targetClass)) {
@@ -156,7 +101,7 @@ final class DCRInstrumenter implements Instrumenter {
     }
 
     for (Constructor<?> constructor : targetClass.getDeclaredConstructors()) {
-       instrument(targetClass, constructor, instrumentation);
+       instrument(targetClass, constructor, recorder);
     }
 
     Class<?> c = targetClass;
@@ -166,12 +111,57 @@ final class DCRInstrumenter implements Instrumenter {
         instrument(
           Modifier.isStatic(method.getModifiers()) ? targetClass : target,
           method,
-          instrumentation);
+          recorder);
       }
 
       c = c.getSuperclass();
     }
     while (isInstrumentable(c));
+  }
+
+  public void instrumentPublicMethodsByName(Object target,
+                                            String methodName,
+                                            Recorder recorder,
+                                            boolean includeSuperClassMethods)
+    throws NotWrappableTypeException {
+
+    // getMethods() includes superclass methods.
+    for (Method method : target.getClass().getMethods()) {
+      if (!includeSuperClassMethods &&
+          target.getClass() != method.getDeclaringClass()) {
+        continue;
+      }
+
+      if (!method.getName().equals(methodName)) {
+        continue;
+      }
+
+      instrument(target, method, recorder);
+    }
+  }
+
+  public void instrument(Object target,
+                         Constructor<?> constructor,
+                         Recorder recorder) {
+    final String location = m_weaver.weave(constructor);
+
+//    System.out.printf("register(%s, %s, %s, %s)%n",
+//                      target.hashCode(), location,
+//                      target,
+//                      constructor);
+
+    m_recorderRegistry.register(target, location, recorder);
+  }
+
+  public void instrument(Object target, Method method, Recorder recorder) {
+    final String location = m_weaver.weave(method);
+
+//    System.out.printf("register(%s, %s, %s, %s)%n",
+//                      target.hashCode(), location,
+//                      target,
+//                      method);
+
+    m_recorderRegistry.register(target, location, recorder);
   }
 
   private static boolean isInstrumentable(Class<?> targetClass) {
@@ -198,56 +188,5 @@ final class DCRInstrumenter implements Instrumenter {
     }
 
     return true;
-  }
-
-  private void instrumentPublicMethodsByName(Object target,
-                                             String methodName,
-                                             Recorder instrumentation,
-                                             boolean includeSuperClassMethods)
-    throws NotWrappableTypeException {
-
-    // getMethods() includes superclass methods.
-    for (Method method : target.getClass().getMethods()) {
-      if (!includeSuperClassMethods &&
-          target.getClass() != method.getDeclaringClass()) {
-        continue;
-      }
-
-      if (!method.getName().equals(methodName)) {
-        continue;
-      }
-
-      instrument(target, method, instrumentation);
-    }
-  }
-
-  private void instrument(Object target,
-                          Constructor<?> constructor,
-                          Recorder instrumentation) {
-    final String location = m_weaver.weave(constructor);
-
-//    System.out.printf("register(%s, %s, %s, %s)%n",
-//                      target.hashCode(), location,
-//                      target,
-//                      constructor);
-
-    m_instrumentationRegistry.register(target,
-                                       location,
-                                       instrumentation);
-  }
-
-  private void instrument(Object target,
-                          Method method,
-                          Recorder instrumentation) {
-    final String location = m_weaver.weave(method);
-
-//    System.out.printf("register(%s, %s, %s, %s)%n",
-//                      target.hashCode(), location,
-//                      target,
-//                      method);
-
-    m_instrumentationRegistry.register(target,
-                                       location,
-                                       instrumentation);
   }
 }

@@ -22,10 +22,15 @@
 package net.grinder.engine.process.instrumenter.traditionaljython;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.instrumenter.AbstractInstrumenterTestCase;
+import net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase;
 
+import org.python.core.Py;
+import org.python.core.PyInstance;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
+
+import test.MyClass;
+import test.MyExtendedClass;
 
 
 
@@ -36,7 +41,7 @@ import org.python.util.PythonInterpreter;
  * @version $Revision: 4057 $
  */
 public class TestTraditionalJythonInstrumenter
-  extends AbstractInstrumenterTestCase {
+  extends AbstractJythonInstrumenterTestCase {
 
   public TestTraditionalJythonInstrumenter() throws Exception {
     super(new TraditionalJythonInstrumenter());
@@ -57,6 +62,224 @@ public class TestTraditionalJythonInstrumenter
 
     assertSame(original, target);
     assertNotSame(proxy, target);
+  }
+
+  public void testCreateProxyWithJavaInstance() throws Exception {
+    final Object java = new MyClass();
+    final Object extendedJava = new MyExtendedClass();
+
+    final PyObject javaProxy = proxyToPyObject(
+      m_instrumenter.createInstrumentedProxy(m_test, m_recorder, java));
+    final PyObject result =
+      javaProxy.invoke("addOne", Py.java2py(new Integer(10)));
+    assertEquals(new Integer(11), result.__tojava__(Integer.class));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+    assertTestReference(javaProxy, m_test);
+    assertTargetReference(javaProxy, java, true);
+
+    final PyObject result2 = javaProxy.invoke("sum", m_one, m_two);
+    assertEquals(m_three, result2);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final PyObject result3 = javaProxy.invoke("sum3", new PyObject[] { m_one,
+        m_two, m_three });
+    assertEquals(m_six, result3);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final PyObject result4 = javaProxy.invoke("sum", new PyObject[] { m_one,
+        m_two }, Py.NoKeywords);
+    assertEquals(m_three, result4);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython.
+    m_interpreter.set("proxy", javaProxy);
+
+    m_interpreter.exec("result5 = proxy.sum3(0, -29, 30)");
+    final PyObject result5 = m_interpreter.get("result5");
+    assertEquals(m_one, result5);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result5Cached = proxy.sum3(0, -29, 30)");
+    final PyObject result5Cached = m_interpreter.get("result5Cached");
+    assertEquals(m_one, result5Cached);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result6 = proxy.sum(1, 1)");
+    final PyObject result6 = m_interpreter.get("result6");
+    assertEquals(m_two, result6);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final PyObject extendedJavaProxy = proxyToPyObject(
+      m_instrumenter.createInstrumentedProxy(m_test,
+                                             m_recorder,
+                                             extendedJava));
+    final PyObject result7 =
+      extendedJavaProxy.invoke("addOne", Py.java2py(new Integer(10)));
+    assertEquals(new Integer(11), result7.__tojava__(Integer.class));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+    assertTestReference(extendedJavaProxy, m_test);
+    assertTargetReference(extendedJavaProxy, extendedJava, true);
+  }
+
+  public void testCreateProxyWithJavaClass() throws Exception {
+    System.out.println("\ntestCreateProxyWithJavaClass");
+
+    final Class<?> javaClass = MyClass.class;
+    final PyObject javaProxy = proxyToPyObject(
+      m_instrumenter.createInstrumentedProxy(
+        m_test, m_recorder, javaClass));
+    final PyObject result =
+      javaProxy.invoke("addTwo", Py.java2py(new Integer(10)));
+    assertEquals(new Integer(12), result.__tojava__(Integer.class));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+    assertTestReference(javaProxy, m_test);
+    assertTargetReference(javaProxy, javaClass, true);
+
+    final PyObject result1 = javaProxy.invoke("staticSum", m_one, m_two);
+    assertEquals(m_three, result1);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final PyObject result2 = javaProxy.invoke("staticSum3",
+      new PyObject[] { m_one,  m_two, m_three });
+    assertEquals(m_six, result2);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final PyObject result3 = javaProxy.invoke("staticSum",
+      new PyObject[] { m_one, m_two }, Py.NoKeywords);
+    assertEquals(m_three, result3);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final PyObject result4 = javaProxy.invoke("staticSix");
+    assertEquals(m_six, result4);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final PyObject instance = javaProxy.__call__(); // Constructor.
+
+    assertEquals(MyClass.class, getClassForInstance((PyInstance) instance));
+
+    if (!isProxyInstrumentation()) {
+      m_recorderStubFactory.assertSuccess("start");
+      m_recorderStubFactory.assertSuccess("end", true);
+    }
+
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final PyObject instance2 = javaProxy.__call__(
+      new PyObject[] { m_one, m_two, m_three, },
+      new String[] { "c", "b", "a" }); // Keywords.
+
+    if (!isProxyInstrumentation()) {
+      // All our arguments are keywords, so we'll call the no args ctor,
+      // which first calls the 3 args ctor.
+      m_recorderStubFactory.assertSuccess("start");
+      m_recorderStubFactory.assertSuccess("end", true);
+    }
+
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+
+    final MyClass javaInstance2 = (MyClass) instance2.__tojava__(MyClass.class);
+    assertEquals(3, javaInstance2.getA());
+    assertEquals(2, javaInstance2.getB());
+    assertEquals(1, javaInstance2.getC());
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final PyObject instance3 = javaProxy.__call__(m_one, m_two, m_three);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    final MyClass javaInstance3 = (MyClass) instance3.__tojava__(MyClass.class);
+    assertEquals(1, javaInstance3.getA());
+    assertEquals(2, javaInstance3.getB());
+    assertEquals(3, javaInstance3.getC());
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython.
+    m_interpreter.set("proxy", javaProxy);
+
+    m_interpreter.exec("result5 = proxy.staticSum3(0, -29, 30)");
+    final PyObject result5 = m_interpreter.get("result5");
+    assertEquals(m_one, result5);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result5Cached = proxy.staticSum3(0, -29, 30)");
+    final PyObject result5Cached = m_interpreter.get("result5Cached");
+    assertEquals(m_one, result5Cached);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result6 = proxy.staticSum(1, 1)");
+    final PyObject result6 = m_interpreter.get("result6");
+    assertEquals(m_two, result6);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result7 = proxy.staticSix()");
+    final PyObject result7 = m_interpreter.get("result7");
+    assertEquals(m_six, result7);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("instance = proxy(a=1, c=2, b=3)\nb=instance.b");
+    final PyObject result8 = m_interpreter.get("b");
+    assertEquals(m_three, result8);
+
+    if (!isProxyInstrumentation()) {
+      // No args ctor, which first calls the 3 args ctor.
+      m_recorderStubFactory.assertSuccess("start");
+      m_recorderStubFactory.assertSuccess("end", true);
+    }
+
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("instance = proxy()\n");
+    final PyObject result9 = m_interpreter.get("instance");
+
+    assertEquals(MyClass.class, getClassForInstance((PyInstance) result9));
+
+    if (!isProxyInstrumentation()) {
+      // No args ctor, which first calls the 3 args ctor.
+      m_recorderStubFactory.assertSuccess("start");
+      m_recorderStubFactory.assertSuccess("end", true);
+    }
+
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateProxyWithNonWrappableParameters() throws Exception {

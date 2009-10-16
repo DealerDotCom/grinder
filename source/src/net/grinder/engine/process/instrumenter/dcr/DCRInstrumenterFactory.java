@@ -23,6 +23,7 @@ package net.grinder.engine.process.instrumenter.dcr;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,9 +47,6 @@ public final class DCRInstrumenterFactory {
    * @return The instrumenters.
    */
   public static List<Instrumenter> create() {
-    // TODO Split out Jython instrumentation from Java instrumentation?
-    // Separate Jython 2.5 instrumentation?
-
     final Instrumentation instrumentation =
       ExposeInstrumentation.getInstrumentation();
 
@@ -78,10 +76,12 @@ public final class DCRInstrumenterFactory {
       throw new AssertionError(e);
     }
 
-     final Instrumenter instrumenter =
-       new DCRInstrumenter(new DCRWeaver(transformerFactory, instrumentation),
-                           RecorderLocator.getRecorderRegistry());
+    final DCRWeaver weaver = new DCRWeaver(transformerFactory, instrumentation);
+    final RecorderRegistry registry = RecorderLocator.getRecorderRegistry();
 
-    return Collections.singletonList(instrumenter);
+    return Arrays.<Instrumenter>asList(
+        new JythonDCRInstrumenter(weaver, registry),
+        new JavaDCRInstrumenter(weaver, registry)
+      );
   }
 }

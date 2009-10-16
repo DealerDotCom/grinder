@@ -23,7 +23,7 @@ package test;
 
 /**
  * Test class used by
- * {@link net.grinder.engine.process.instrumenter.AbstractInstrumenterTestCase}.
+ * {@link net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase}.
  *
  * <p>
  * Needs to be outside of the {@code net.grinder} package so it can be
