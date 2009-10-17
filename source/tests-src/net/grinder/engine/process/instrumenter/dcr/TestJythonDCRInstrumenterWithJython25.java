@@ -31,19 +31,20 @@ import net.grinder.testutility.BlockingClassLoader;
  * @author Philip Aston
  * @version $Revision: 4057 $
  */
-public class TestJythonDCRInstrumenterWithJython25 extends TestSuite {
+public class TestJythonDCRInstrumenterWithJython25
+  extends TestJythonDCRInstrumenter {
 
-  private TestJythonDCRInstrumenterWithJython25(Class<?> testClass) {
-    super(testClass);
+  public TestJythonDCRInstrumenterWithJython25() throws Exception {
+    super();
   }
 
   public static TestSuite suite() throws Exception {
-    final Class<?> testClass =
+    return new TestSuite(
       BlockingClassLoader.createJython25ClassLoader().loadClass(
-        TestJythonDCRInstrumenter.class.getName());
+        TestJythonDCRInstrumenterWithJython25.class.getName()));
+  }
 
-    testClass.getMethod("assertVersion", String.class).invoke(null, "2.5");
-
-    return new TestJythonDCRInstrumenterWithJython25(testClass);
+  public void testVersion() throws Exception {
+    assertVersion("2.5.0");
   }
 }

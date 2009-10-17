@@ -21,10 +21,11 @@
 
 package net.grinder.engine.process.instrumenter.traditionaljython;
 
-import java.net.URLClassLoader;
 import java.util.List;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase;
 import net.grinder.testutility.BlockingClassLoader;
 
 
@@ -36,18 +37,16 @@ import net.grinder.testutility.BlockingClassLoader;
  */
 public class TestJythonEngineWithJython25 extends TestCase {
 
+  public static TestSuite suite() throws Exception {
+    return new TestSuite(
+      BlockingClassLoader.createJython25ClassLoader().loadClass(
+        TestJythonEngineWithJython25.class.getName()));
+  }
+
   public void testJythonInstrumenterFactory() throws Exception {
+    AbstractJythonInstrumenterTestCase.assertVersion("2.5.0");
 
-    final URLClassLoader classLoader =
-      BlockingClassLoader.createJython25ClassLoader();
-
-    classLoader.loadClass(TestTraditionalJythonInstrumenter.class.getName())
-      .getMethod("assertVersion", String.class).invoke(null, "2.5.0");
-
-    final Class<?> jifClass =
-      classLoader.loadClass(JythonInstrumenterFactory.class.getName());
-
-    List<?> result = (List<?>)jifClass.getMethod("create").invoke(null);
+    final List<?> result = JythonInstrumenterFactory.create();
 
     assertEquals(0, result.size());
   }
