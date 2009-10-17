@@ -23,9 +23,10 @@ package net.grinder.engine.process.instrumenter.dcr;
 
 import java.lang.instrument.Instrumentation;
 
+import junit.framework.TestCase;
+
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
-import junit.framework.TestCase;
 
 
 /**
@@ -38,23 +39,21 @@ public class TestDCRInstrumenterFactory extends TestCase {
 
   private Instrumentation m_originalInstrumentation;
 
-  private final RandomStubFactory<Instrumentation>
-    m_instrumentationStubFactory =
-      RandomStubFactory.create(Instrumentation.class);
-  private final Instrumentation m_instrumentation =
-    m_instrumentationStubFactory.getStub();
-
   @Override
   protected void setUp() throws Exception {
-    super.setUp();
     m_originalInstrumentation = ExposeInstrumentation.getInstrumentation();
   }
 
   @Override
   protected void tearDown() throws Exception {
-    super.tearDown();
     ExposeInstrumentation.premain("", m_originalInstrumentation);
   }
+
+  private final RandomStubFactory<Instrumentation>
+    m_instrumentationStubFactory =
+      RandomStubFactory.create(Instrumentation.class);
+  private final Instrumentation m_instrumentation =
+    m_instrumentationStubFactory.getStub();
 
   public void testCreateWithNoInstrumentation() throws Exception {
     ExposeInstrumentation.premain("", null);

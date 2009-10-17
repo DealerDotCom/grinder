@@ -23,7 +23,6 @@ package net.grinder.engine.process.instrumenter.dcr;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import net.grinder.common.Test;
 import net.grinder.engine.process.Instrumenter;
@@ -90,35 +89,6 @@ abstract class DCRInstrumenter implements Instrumenter {
   protected abstract Object instrument(Object target,  Recorder recorder)
     throws NotWrappableTypeException;
 
-  public void instrumentClass(Object target,
-                              Class<?> targetClass,
-                              Recorder recorder)
-    throws NotWrappableTypeException {
-
-    if (!isInstrumentable(targetClass)) {
-      throw new NotWrappableTypeException("Cannot instrument " +
-                                          targetClass);
-    }
-
-    for (Constructor<?> constructor : targetClass.getDeclaredConstructors()) {
-       instrument(targetClass, constructor, recorder);
-    }
-
-    Class<?> c = targetClass;
-
-    do {
-      for (Method method : c.getDeclaredMethods()) {
-        instrument(
-          Modifier.isStatic(method.getModifiers()) ? targetClass : target,
-          method,
-          recorder);
-      }
-
-      c = c.getSuperclass();
-    }
-    while (isInstrumentable(c));
-  }
-
   public void instrumentPublicMethodsByName(Object target,
                                             String methodName,
                                             Recorder recorder,
@@ -142,7 +112,11 @@ abstract class DCRInstrumenter implements Instrumenter {
 
   public void instrument(Object target,
                          Constructor<?> constructor,
-                         Recorder recorder) {
+                         Recorder recorder)
+   throws NotWrappableTypeException {
+
+    checkWrappable(constructor.getDeclaringClass());
+
     final String location = m_weaver.weave(constructor);
 
 //    System.out.printf("register(%s, %s, %s, %s)%n",
@@ -153,7 +127,11 @@ abstract class DCRInstrumenter implements Instrumenter {
     m_recorderRegistry.register(target, location, recorder);
   }
 
-  public void instrument(Object target, Method method, Recorder recorder) {
+  public void instrument(Object target, Method method, Recorder recorder)
+    throws NotWrappableTypeException {
+
+    checkWrappable(method.getDeclaringClass());
+
     final String location = m_weaver.weave(method);
 
 //    System.out.printf("register(%s, %s, %s, %s)%n",
@@ -164,7 +142,15 @@ abstract class DCRInstrumenter implements Instrumenter {
     m_recorderRegistry.register(target, location, recorder);
   }
 
-  private static boolean isInstrumentable(Class<?> targetClass) {
+  protected static final void checkWrappable(Class<?> theClass)
+    throws NotWrappableTypeException {
+
+    if (!isInstrumentable(theClass)) {
+      throw new NotWrappableTypeException("Cannot instrument " + theClass);
+    }
+  }
+
+  protected static final boolean isInstrumentable(Class<?> targetClass) {
 
     // We disallow instrumentation of these classes to avoid the need for
     // complex protection against recursion in the engine itself.

@@ -21,6 +21,10 @@
 
 package net.grinder.engine.process.instrumenter.dcr;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
 import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
@@ -56,12 +60,58 @@ final class JavaDCRInstrumenter extends DCRInstrumenter {
     throws NotWrappableTypeException {
 
     if (target instanceof Class<?>) {
-      instrumentClass(target, (Class<?>)target, recorder);
+      instrumentClass((Class<?>)target, recorder);
     }
     else {
-      instrumentClass(target, target.getClass(), recorder);
+      instrumentInstance(target, recorder);
     }
 
     return target;
+  }
+
+  private void instrumentClass(Class<?> targetClass, Recorder recorder)
+    throws NotWrappableTypeException {
+
+    for (Constructor<?> constructor : targetClass.getDeclaredConstructors()) {
+       instrument(targetClass, constructor, recorder);
+    }
+
+    // Instrument the static methods declared by the target class. Ignore
+    // any parent class.
+    for (Method method : targetClass.getDeclaredMethods()) {
+      if (Modifier.isStatic(method.getModifiers())) {
+        instrument(targetClass, method, recorder);
+      }
+    }
+
+//    Class<?> c = targetClass;
+//
+//    do {
+//      for (Method method : c.getDeclaredMethods()) {
+//        if (Modifier.isStatic(method.getModifiers())) {
+//          instrument(c, method, recorder);
+//        }
+//      }
+//
+//      c = c.getSuperclass();
+//    }
+//    while (isInstrumentable(c));
+  }
+
+  private void instrumentInstance(Object target, Recorder recorder)
+    throws NotWrappableTypeException {
+
+    Class<?> c = target.getClass();
+
+    do {
+      for (Method method : c.getDeclaredMethods()) {
+        if (!Modifier.isStatic(method.getModifiers())) {
+          instrument(target, method, recorder);
+        }
+      }
+
+      c = c.getSuperclass();
+    }
+    while (isInstrumentable(c));
   }
 }

@@ -69,8 +69,7 @@ public final class DCRInstrumenterFactory {
     final ASMTransformerFactory transformerFactory;
 
     try {
-      transformerFactory =
-        new ASMTransformerFactory(RecorderLocator.class);
+      transformerFactory = new ASMTransformerFactory(RecorderLocator.class);
     }
     catch (WeavingException e) {
       throw new AssertionError(e);
