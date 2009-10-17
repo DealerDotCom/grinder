@@ -115,6 +115,11 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     }
   }
 
+  protected final void assertNotWrappableByThisInstrumenter(Object o)
+    throws Exception {
+    assertNull(m_instrumenter.createInstrumentedProxy(null, null, o));
+  }
+
   protected final Class<?> getClassForInstance(PyInstance target)
     throws IllegalArgumentException, IllegalAccessException {
 
