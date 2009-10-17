@@ -154,6 +154,10 @@ final class TraditionalJythonInstrumenter implements Instrumenter {
         return new InstrumentedPyReflectedFunction(
           test, (PyReflectedFunction)o, pyDispatcher);
       }
+      else {
+        // Fail, rather than guess a generic approach.
+        throw new NotWrappableTypeException("Unknown PyObject");
+      }
     }
     else if (o instanceof PyProxy) {
       // Jython object that extends a Java class.
@@ -163,13 +167,10 @@ final class TraditionalJythonInstrumenter implements Instrumenter {
       return new InstrumentedPyInstance(
         test, pyClass, pyInstance, pyDispatcher);
     }
-    else if (o == null) {
-      throw new NotWrappableTypeException("Can't wrap null/None");
-    }
     else if (o instanceof Class<?>) {
       return new InstrumentedPyJavaClass(test, (Class<?>)o, pyDispatcher);
     }
-    else {
+    else if (o != null) {
       // Java object.
 
       // NB Jython uses Java types for some primitives and strings.
@@ -181,7 +182,7 @@ final class TraditionalJythonInstrumenter implements Instrumenter {
       }
     }
 
-    throw new NotWrappableTypeException(o.getClass().getName());
+    return null;
   }
 
   /**

@@ -285,17 +285,17 @@ public class TestTraditionalJythonInstrumenter
     // The types that can be wrapped depend on the Instrumenter.
 
     // Can't wrap arrays.
-    assertNotWrappable(new int[] { 1, 2, 3 });
-    assertNotWrappable(new Object[] { "foo", new Object() });
+    assertNotWrappableByThisInstrumenter(new int[] { 1, 2, 3 });
+    assertNotWrappableByThisInstrumenter(new Object[] { "foo", new Object() });
 
     // Can't wrap strings.
-    assertNotWrappable("foo bah");
+    assertNotWrappableByThisInstrumenter("foo bah");
 
     // Can't wrap numbers.
-    assertNotWrappable(new Long(56));
-    assertNotWrappable(new Integer(56));
-    assertNotWrappable(new Short((short) 56));
-    assertNotWrappable(new Byte((byte) 56));
+    assertNotWrappableByThisInstrumenter(new Long(56));
+    assertNotWrappableByThisInstrumenter(new Integer(56));
+    assertNotWrappableByThisInstrumenter(new Short((short) 56));
+    assertNotWrappableByThisInstrumenter(new Byte((byte) 56));
 
     final PythonInterpreter interpreter = getInterpretter();
 
@@ -308,7 +308,7 @@ public class TestTraditionalJythonInstrumenter
     assertNotWrappable(interpreter.get("Foo"));
 
     // Can't wrap None.
-    assertNotWrappable(null);
+    assertNotWrappableByThisInstrumenter(null);
   }
 
   @Override
