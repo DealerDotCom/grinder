@@ -304,6 +304,7 @@ what you want. Currently the conditionally built modules are:
       <fileset dir="${asm.dir}/lib">
         <include name="asm-*.jar"/>
         <exclude name="*analysis*.jar"/>
+        <exclude name="*commons*.jar"/>
         <exclude name="*tree*.jar"/>
         <exclude name="*util*.jar"/>
         <exclude name="*xml*.jar"/>
