@@ -23,12 +23,17 @@ package net.grinder.engine.process.instrumenter.dcr;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Arrays;
 
 import test.MyClass;
 import test.MyExtendedClass;
 import junit.framework.TestCase;
 import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.testutility.BlockingClassLoader;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
@@ -203,4 +208,49 @@ public class TestJavaDCRInstrumenter extends TestCase {
     assertEquals(0, c2.getA());
     m_recorderStubFactory.assertNoMoreCalls();
   }
+
+
+  public void testWithNoPackage() throws Exception {
+
+    RecorderLocator.clearRecorders();
+
+    final URLClassLoader ourClassLoader =
+      (URLClassLoader)BlockingClassLoader.class.getClassLoader();
+
+    final BlockingClassLoader blockingClassLoader =
+      new BlockingClassLoader(ourClassLoader,
+                              Arrays.<String>asList(
+                               AnotherClass.class.getName()));
+
+    final NoPackageURLClassLoader cl =
+      new NoPackageURLClassLoader(ourClassLoader.getURLs(),
+                                  blockingClassLoader);
+
+    final Class<?> noPackageClass = cl.loadClass(AnotherClass.class.getName());
+    final Method noPackageMethod = noPackageClass.getMethod("getOne");
+
+    assertEquals(1, noPackageMethod.invoke(null));
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_instrumenter.createInstrumentedProxy(null, m_recorder, noPackageClass);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    assertEquals(1, noPackageMethod.invoke(null));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  private static class NoPackageURLClassLoader extends URLClassLoader {
+
+    public NoPackageURLClassLoader(URL[] urls, ClassLoader parent) {
+      super(urls, parent);
+    }
+
+    @Override
+    protected Package getPackage(String name) {
+      return null;
+    }
+  }
 }
+
