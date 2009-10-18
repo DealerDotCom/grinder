@@ -519,21 +519,6 @@ public final class ASMTransformerFactory
       super.visitMultiANewArrayInsn(desc, dims);
     }
 
-    public void visitLocalVariable(String name,
-                                   String desc,
-                                   String signature,
-                                   Label start,
-                                   Label end,
-                                   int index) {
-      generateEntryBlocks();
-      super.visitLocalVariable(name, desc, signature, start, end, index);
-    }
-
-    public void visitLineNumber(int line, Label start) {
-      generateEntryBlocks();
-      super.visitLineNumber(line, start);
-    }
-
     @Override public void visitMaxs(int maxStack, int maxLocals) {
       super.visitLabel(m_exceptionExitLabel);
       generateExitCall(false);
