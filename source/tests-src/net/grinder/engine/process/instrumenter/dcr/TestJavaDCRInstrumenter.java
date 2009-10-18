@@ -131,8 +131,8 @@ public class TestJavaDCRInstrumenter extends TestCase {
 
     final MyClass c2 = new MyClass();
     m_recorderStubFactory.assertSuccess("start");
-    m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertSuccess("end", true);
     assertEquals(0, c1.getA());
     assertEquals(0, c2.getA());
