@@ -67,8 +67,7 @@ public class BlockingClassLoader extends URLClassLoader {
       (URLClassLoader)BlockingClassLoader.class.getClassLoader();
 
     final BlockingClassLoader blockingClassLoader =
-      new BlockingClassLoader(ourClassLoader,
-                              blockedClasses.toArray(new String[0]));
+      new BlockingClassLoader(ourClassLoader, blockedClasses);
 
     final List<URL> ourClassPath = Arrays.asList(ourClassLoader.getURLs());
     final List<URL> classPath = new ArrayList<URL>(classPathEntries.size() +
@@ -120,32 +119,32 @@ public class BlockingClassLoader extends URLClassLoader {
    *          block. A leading "+" can be added to a class name or package
    *          prefix to indicate that it is allowed, overriding blocking rules.
    */
-  public BlockingClassLoader(URLClassLoader parent, String[] blocked) {
+  public BlockingClassLoader(URLClassLoader parent, List<String> blockedList) {
     super(parent.getURLs(), parent);
 
     final List<String> allowedPrefixes = new ArrayList<String>();
     final List<String> blockedPrefixes = new ArrayList<String>();
 
-    for (int i = 0; i < blocked.length; i++) {
-      final int index = blocked[i].indexOf('*');
+    for (String blocked : blockedList) {
+      final int index = blocked.indexOf('*');
 
-      final boolean allowed = blocked[i].length() > 1 &&
-                              blocked[i].charAt(0) == '+';
+      final boolean allowed = blocked.length() > 1 &&
+                              blocked.charAt(0) == '+';
 
       if (index >= 0) {
         if (allowed) {
-          allowedPrefixes.add(blocked[i].substring(1, index));
+          allowedPrefixes.add(blocked.substring(1, index));
         }
         else {
-          blockedPrefixes.add(blocked[i].substring(0, index));
+          blockedPrefixes.add(blocked.substring(0, index));
         }
       }
       else {
         if (allowed) {
-          m_allowedClassNames.add(blocked[i].substring(1));
+          m_allowedClassNames.add(blocked.substring(1));
         }
         else {
-          m_blockedClassNames.add(blocked[i]);
+          m_blockedClassNames.add(blocked);
         }
       }
     }
