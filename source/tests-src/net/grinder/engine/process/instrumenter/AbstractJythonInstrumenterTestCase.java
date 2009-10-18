@@ -87,20 +87,11 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     assertTargetReference(proxy, original, false);
   }
 
-  protected abstract PyObject proxyToPyObject(Object proxy);
-
-
   public static void assertVersion(String expected) throws Exception {
     AssertUtilities.assertContains(
       PySystemState.class.getField("version").get(null).toString(),
       expected);
   }
-
-  /**
-   * @return {@code true} if the instrumentation is proxy based, false if the
-   *         target is changed in place.
-   */
-  protected abstract boolean isProxyInstrumentation();
 
   protected final PythonInterpreter getInterpretter() {
     return m_interpreter;

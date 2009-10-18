@@ -68,8 +68,10 @@ public class TestTraditionalJythonInstrumenter
     final Object java = new MyClass();
     final Object extendedJava = new MyExtendedClass();
 
-    final PyObject javaProxy = proxyToPyObject(
-      m_instrumenter.createInstrumentedProxy(m_test, m_recorder, java));
+    final PyObject javaProxy =
+      (PyObject)m_instrumenter.createInstrumentedProxy(m_test,
+                                                       m_recorder,
+                                                       java);
     final PyObject result =
       javaProxy.invoke("addOne", Py.java2py(new Integer(10)));
     assertEquals(new Integer(11), result.__tojava__(Integer.class));
@@ -123,10 +125,10 @@ public class TestTraditionalJythonInstrumenter
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
 
-    final PyObject extendedJavaProxy = proxyToPyObject(
-      m_instrumenter.createInstrumentedProxy(m_test,
-                                             m_recorder,
-                                             extendedJava));
+    final PyObject extendedJavaProxy =
+      (PyObject)m_instrumenter.createInstrumentedProxy(m_test,
+                                                       m_recorder,
+                                                       extendedJava);
     final PyObject result7 =
       extendedJavaProxy.invoke("addOne", Py.java2py(new Integer(10)));
     assertEquals(new Integer(11), result7.__tojava__(Integer.class));
@@ -139,9 +141,10 @@ public class TestTraditionalJythonInstrumenter
 
   public void testCreateProxyWithJavaClass() throws Exception {
     final Class<?> javaClass = MyClass.class;
-    final PyObject javaProxy = proxyToPyObject(
-      m_instrumenter.createInstrumentedProxy(
-        m_test, m_recorder, javaClass));
+    final PyObject javaProxy =
+      (PyObject)m_instrumenter.createInstrumentedProxy(m_test,
+                                                       m_recorder,
+                                                       javaClass);
     final PyObject result =
       javaProxy.invoke("addTwo", Py.java2py(new Integer(10)));
     assertEquals(new Integer(12), result.__tojava__(Integer.class));
@@ -181,11 +184,6 @@ public class TestTraditionalJythonInstrumenter
 
     assertEquals(MyClass.class, getClassForInstance((PyInstance) instance));
 
-    if (!isProxyInstrumentation()) {
-      m_recorderStubFactory.assertSuccess("start");
-      m_recorderStubFactory.assertSuccess("end", true);
-    }
-
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
@@ -193,13 +191,6 @@ public class TestTraditionalJythonInstrumenter
     final PyObject instance2 = javaProxy.__call__(
       new PyObject[] { m_one, m_two, m_three, },
       new String[] { "c", "b", "a" }); // Keywords.
-
-    if (!isProxyInstrumentation()) {
-      // All our arguments are keywords, so we'll call the no args ctor,
-      // which first calls the 3 args ctor.
-      m_recorderStubFactory.assertSuccess("start");
-      m_recorderStubFactory.assertSuccess("end", true);
-    }
 
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
@@ -254,12 +245,6 @@ public class TestTraditionalJythonInstrumenter
     final PyObject result8 = m_interpreter.get("b");
     assertEquals(m_three, result8);
 
-    if (!isProxyInstrumentation()) {
-      // No args ctor, which first calls the 3 args ctor.
-      m_recorderStubFactory.assertSuccess("start");
-      m_recorderStubFactory.assertSuccess("end", true);
-    }
-
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
@@ -268,12 +253,6 @@ public class TestTraditionalJythonInstrumenter
     final PyObject result9 = m_interpreter.get("instance");
 
     assertEquals(MyClass.class, getClassForInstance((PyInstance) result9));
-
-    if (!isProxyInstrumentation()) {
-      // No args ctor, which first calls the 3 args ctor.
-      m_recorderStubFactory.assertSuccess("start");
-      m_recorderStubFactory.assertSuccess("end", true);
-    }
 
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
@@ -309,15 +288,5 @@ public class TestTraditionalJythonInstrumenter
 
     // Can't wrap None.
     assertNotWrappableByThisInstrumenter(null);
-  }
-
-  @Override
-  protected PyObject proxyToPyObject(Object proxy) {
-    return (PyObject)proxy;
-  }
-
-  @Override
-  protected boolean isProxyInstrumentation() {
-    return true;
   }
 }

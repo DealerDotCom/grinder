@@ -29,7 +29,6 @@ import net.grinder.util.weave.agent.ExposeInstrumentation;
 import net.grinder.util.weave.j2se6.ASMTransformerFactory;
 import net.grinder.util.weave.j2se6.DCRWeaver;
 
-import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
@@ -90,15 +89,5 @@ public class TestJythonDCRInstrumenter
     // Can't wrap PyClass.
     interpreter.exec("class Foo: pass");
     assertNotWrappable(interpreter.get("Foo"));
-  }
-
-  @Override
-  protected PyObject proxyToPyObject(Object proxy) {
-    return Py.java2py(proxy);
-  }
-
-  @Override
-  protected boolean isProxyInstrumentation() {
-    return false;
   }
 }
