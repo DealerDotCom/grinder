@@ -100,11 +100,13 @@ public final class RecorderLocator implements RecorderRegistry {
    */
   public static void enter(Object target, String location) {
 //   System.out.printf("enter(%s, %s, %s)%n",
-//    target.hashCode(), target.getClass(), location);
+//                     target.hashCode(), target.getClass(), location);
+
     try {
       for (Recorder recorder : s_instance.getRecorderList(target, location)) {
-//        System.out.printf("enter(%s, %s)%n",
-//          target == null ? null : target.hashCode(), location);
+
+//        System.out.printf(" -> %s%n", System.identityHashCode(recorder));
+
         recorder.start();
       }
     }
@@ -127,6 +129,12 @@ public final class RecorderLocator implements RecorderRegistry {
    *          exception was thrown.
    */
   public static void exit(Object target, String location, boolean success) {
+//    System.out.printf("exit(%s, %s, %s, %s)%n",
+//                      target.hashCode(),
+//                      target.getClass(),
+//                      location,
+//                      success);
+
     final List<Recorder> recorders =
       s_instance.getRecorderList(target, location);
 
@@ -135,9 +143,11 @@ public final class RecorderLocator implements RecorderRegistry {
 
     try {
       while (i.hasPrevious()) {
-        // System.out.printf("exit(%s, %s)%n",
-        // target == null ? null : target.hashCode(), location);
-        i.previous().end(success);
+        final Recorder recorder = i.previous();
+
+//        System.out.printf(" -> %s%n", System.identityHashCode(recorder));
+
+        recorder.end(success);
       }
     }
     catch (EngineException e) {
@@ -158,11 +168,6 @@ public final class RecorderLocator implements RecorderRegistry {
    * {@inheritDoc}.
    */
   public void register(Object target, String location, Recorder recorder) {
-
-//     System.out.printf("register(%s, %s, %s, %s)%n",
-//                      target.hashCode(), location,
-//                          target,
-//                          target.getClass());
 
     // We will create and quickly discard many maps and lists here to avoid
     // needing to lock the ConcurrentMaps. It is important that the
