@@ -209,6 +209,9 @@ public class TestJavaDCRInstrumenter extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
+  public void testWithNull() throws Exception {
+    assertNull(m_instrumenter.createInstrumentedProxy(null, null, null));
+  }
 
   public void testWithNoPackage() throws Exception {
 

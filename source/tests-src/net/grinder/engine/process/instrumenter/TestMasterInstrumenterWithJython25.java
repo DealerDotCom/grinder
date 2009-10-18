@@ -21,9 +21,21 @@
 
 package net.grinder.engine.process.instrumenter;
 
+import java.lang.instrument.Instrumentation;
+
+import org.python.core.PyObject;
+
+import test.MyClass;
+
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.grinder.common.StubTest;
+import net.grinder.common.Test;
+import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.BlockingClassLoader;
+import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.weave.agent.ExposeInstrumentation;
 
 
 /**
@@ -33,13 +45,84 @@ import net.grinder.testutility.BlockingClassLoader;
  * @version $Revision:$
  */
 public class TestMasterInstrumenterWithJython25 extends TestCase {
+
   public static TestSuite suite() throws Exception {
     return new TestSuite(
       BlockingClassLoader.createJython25ClassLoader().loadClass(
         TestMasterInstrumenterWithJython25.class.getName()));
   }
 
+  private Instrumentation m_originalInstrumentation;
+
+  @Override
+  protected void setUp() throws Exception {
+    m_originalInstrumentation = ExposeInstrumentation.getInstrumentation();
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    ExposeInstrumentation.premain("", m_originalInstrumentation);
+  }
+
+  private final RandomStubFactory<Recorder> m_recorderStubFactory =
+    RandomStubFactory.create(Recorder.class);
+  private final Recorder m_recorder = m_recorderStubFactory.getStub();
+
+  private final Test m_test = new StubTest(1, "foo");
+
   public void testVersion() throws Exception {
     AbstractJythonInstrumenterTestCase.assertVersion("2.5");
+  }
+
+  public void testWithInstrumentation() throws Exception {
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter();
+
+    assertEquals("byte code transforming instrumenter for Jython; " +
+                 "byte code transforming instrumenter for Java",
+                 masterInstrumenter.getDescription());
+
+    try {
+      masterInstrumenter.createInstrumentedProxy(null, null, null);
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NotWrappableTypeException e) {
+    }
+
+    try {
+      masterInstrumenter.createInstrumentedProxy(m_test,
+                                                 m_recorder,
+                                                 new PyObject());
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NotWrappableTypeException e) {
+    }
+
+    masterInstrumenter.createInstrumentedProxy(m_test,
+                                               m_recorder,
+                                               MyClass.class);
+  }
+
+  public void testWithNoInstrumentation() throws Exception {
+    ExposeInstrumentation.premain("", null);
+
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter();
+
+    assertEquals("", masterInstrumenter.getDescription());
+
+    try {
+      masterInstrumenter.createInstrumentedProxy(null, null, null);
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NotWrappableTypeException e) {
+    }
+
+    try {
+      masterInstrumenter.createInstrumentedProxy(m_test,
+                                                 m_recorder,
+                                                 MyClass.class);
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NotWrappableTypeException e) {
+    }
   }
 }

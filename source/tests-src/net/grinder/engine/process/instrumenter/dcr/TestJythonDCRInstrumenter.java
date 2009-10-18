@@ -89,5 +89,7 @@ public class TestJythonDCRInstrumenter
     // Can't wrap PyClass.
     interpreter.exec("class Foo: pass");
     assertNotWrappable(interpreter.get("Foo"));
+
+    assertNotWrappableByThisInstrumenter(null);
   }
 }
