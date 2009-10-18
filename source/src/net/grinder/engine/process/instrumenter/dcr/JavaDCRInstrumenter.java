@@ -62,7 +62,7 @@ final class JavaDCRInstrumenter extends DCRInstrumenter {
     if (target instanceof Class<?>) {
       instrumentClass((Class<?>)target, recorder);
     }
-    else {
+    else if (target != null) {
       instrumentInstance(target, recorder);
     }
 
