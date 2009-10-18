@@ -111,6 +111,55 @@ public class TestASMTransformerFactory extends TestCase {
     return instrumentation;
   }
 
+  public void testTwoTransformations() throws Exception {
+    final Instrumentation instrumentation = getInstrumentation();
+
+    final ClassFileTransformerFactory transformerFactory =
+      new ASMTransformerFactory(MyAdvice.class);
+
+    m_pointCutRegistryStubFactory.addMethod(A.class, "m1", "loc1");
+    m_pointCutRegistryStubFactory.addMethod(A.class, "m2", "loc2");
+
+    final ClassFileTransformer transformer1 =
+      transformerFactory.create(m_pointCutRegistry);
+    final ClassFileTransformer transformer2 =
+      transformerFactory.create(m_pointCutRegistry);
+
+    instrumentation.addTransformer(transformer1, true);
+    instrumentation.addTransformer(transformer2, true);
+
+    instrumentation.retransformClasses(new Class[] { A.class, });
+
+
+    final A a = new A();
+    assertEquals(1, a.m1());
+
+    s_callRecorder.assertSuccess("enter", a, "loc1");
+    s_callRecorder.assertSuccess("enter", a, "loc1");
+    s_callRecorder.assertSuccess("exit", a, "loc1", true);
+    s_callRecorder.assertSuccess("exit", a, "loc1", true);
+    s_callRecorder.assertNoMoreCalls();
+
+    try {
+      a.m2();
+      fail("Expected RuntimeException");
+    }
+    catch (RuntimeException e) {
+    }
+
+    s_callRecorder.assertSuccess("enter", a, "loc2");
+    s_callRecorder.assertSuccess("enter", a, "loc2");
+    s_callRecorder.assertSuccess("exit", a, "loc2", false);
+    s_callRecorder.assertSuccess("exit", a, "loc2", false);
+    s_callRecorder.assertNoMoreCalls();
+
+    assertTrue(instrumentation.removeTransformer(transformer2));
+    assertTrue(instrumentation.removeTransformer(transformer1));
+    instrumentation.retransformClasses(new Class[] { A.class, });
+    s_callRecorder.assertNoMoreCalls();
+  }
+
+
   public void testWithAgent() throws Exception {
     final Instrumentation instrumentation = getInstrumentation();
     assertTrue(instrumentation.isRetransformClassesSupported());
@@ -280,9 +329,11 @@ public class TestASMTransformerFactory extends TestCase {
     final A4 a = new A4("abc");
 
     // We enter and exit the nested constructor first.
-    s_callRecorder.assertSuccess("enter", A4.class, "loc1");
-    s_callRecorder.assertSuccess("exit", A4.class, "loc1", true);
+//    s_callRecorder.assertSuccess("enter", A4.class, "loc1");
+//    s_callRecorder.assertSuccess("exit", A4.class, "loc1", true);
     s_callRecorder.assertSuccess("enter", A4.class, "loc2");
+  s_callRecorder.assertSuccess("enter", A4.class, "loc1");
+  s_callRecorder.assertSuccess("exit", A4.class, "loc1", true);
     s_callRecorder.assertSuccess("exit", A4.class, "loc2", true);
     s_callRecorder.assertNoMoreCalls();
 
