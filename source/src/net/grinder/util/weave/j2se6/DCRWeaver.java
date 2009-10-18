@@ -103,10 +103,12 @@ public final class DCRWeaver implements Weaver {
     }
   }
 
+  private static final String s_classLoaderIdentity =
+    Integer.toHexString(DCRWeaver.class.hashCode()) + ":";
   private static final AtomicLong s_nextLocation = new AtomicLong();
 
   private static String generateLocationString() {
-    return "L" + s_nextLocation.getAndIncrement();
+    return s_classLoaderIdentity + s_nextLocation.getAndIncrement();
   }
 
   /**
