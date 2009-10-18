@@ -41,10 +41,10 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.AdviceAdapter;
 
 
 /**
@@ -208,8 +208,8 @@ public final class ASMTransformerFactory
       ClassVisitor visitorChain = classWriter;
 
       // Uncomment to see the generated code:
-      //  visitorChain =
-      //    new TraceClassVisitor(visitorChain, new PrintWriter(System.err));
+//      visitorChain =
+//        new TraceClassVisitor(visitorChain, new PrintWriter(System.err));
 
       visitorChain = new AddAdviceClassAdapter(
                            visitorChain,
@@ -217,8 +217,8 @@ public final class ASMTransformerFactory
                            nameAndDescriptionToLocation);
 
       // Uncomment to see the original code:
-      // visitorChain =
-      //   new TraceClassVisitor(visitorChain, new PrintWriter(System.out));
+//      visitorChain =
+//        new TraceClassVisitor(visitorChain, new PrintWriter(System.out));
 
       classReader.accept(visitorChain, 0);
 
@@ -227,6 +227,7 @@ public final class ASMTransformerFactory
   }
 
   private final class AddAdviceClassAdapter extends ClassAdapter {
+
     private final Type m_internalClassType;
     private final Map<Pair<String, String>, String> m_locations;
 
@@ -274,7 +275,6 @@ public final class ASMTransformerFactory
                                        m_internalClassType,
                                        access,
                                        name,
-                                       desc,
                                        location);
       }
 
@@ -282,23 +282,60 @@ public final class ASMTransformerFactory
     }
   }
 
-  private final class AdviceMethodVisitor extends AdviceAdapter {
+  /**
+   * <p>
+   * Generate our advice.
+   * </p>
+   * <p>
+   * Originally this was based on
+   * {@link org.objectweb.asm.commons.AdviceAdapter}. This had the following
+   * problems:
+   * </p>
+   * <ul>
+   * <li>
+   * 95% of {@code AdviceAdapter} code exists to call
+   * {@link org.objectweb.asm.commons.AdviceAdapter#onMethodEnter()} for a
+   * constructor after it has called {@code this()} or {@code super()}. This
+   * seems unnatural for our purposes, we really want to wrap our {@code
+   * TRYCATCHBLOCK} around the whole constructor.</li>
+   * <li>
+   * {@code AdviceAdapter} doesn't handle exceptions that propagate through the
+   * method, so we must add our own {@code TRYCATCHBLOCK} handling. We need to
+   * ignore add code before other adapters in the chain {@see
+   * #visitTryCatchBlock}), which the {@code onMethodEnter} callback doesn't let
+   * us do.</li>
+   * <li>
+   * The {@code AdviceAdapter} class Javadoc doesn't match the implementation -
+   * a smell.</li>
+   * <li>
+   * {@code AdviceAdapter} was the only reason we required the ASM {@code
+   * commons} jar.</li>
+   *
+   * </ul>
+   *
+   * @author Philip Aston
+   * @version $Revision:$
+   */
+  private final class AdviceMethodVisitor
+    extends MethodAdapter implements Opcodes {
+
     private final Type m_internalClassType;
     private final String m_location;
     private final boolean m_isStatic;
 
     private final Label m_entryLabel = new Label();
     private final Label m_exceptionExitLabel = new Label();
+    private boolean m_tryCatchBlockNeeded = true;
+    private boolean m_entryCallNeeded = true;
 
     private AdviceMethodVisitor(MethodVisitor mv,
                                 Type internalClassType,
                                 int access,
                                 String name,
-                                String desc,
                                 String location) {
-      super(mv, access, name, desc);
-      m_internalClassType = internalClassType;
+      super(mv);
 
+      m_internalClassType = internalClassType;
       m_location = location;
 
       // We handle constructors like static methods, since the reference to
@@ -307,58 +344,201 @@ public final class ASMTransformerFactory
                    name.equals("<init>");
     }
 
-    @Override public void onMethodEnter() {
-      mv.visitTryCatchBlock(m_entryLabel,
-                            m_exceptionExitLabel,
-                            m_exceptionExitLabel,
-                            null);
+    private void generateTryCatchBlock() {
+      if (m_tryCatchBlockNeeded) {
+        super.visitTryCatchBlock(m_entryLabel,
+                                 m_exceptionExitLabel,
+                                 m_exceptionExitLabel,
+                                 null);
 
-      mv.visitLabel(m_entryLabel);
-
-      if (m_isStatic) {
-        mv.visitLdcInsn(m_internalClassType);
+        m_tryCatchBlockNeeded = false;
       }
-      else {
-        mv.visitVarInsn(ALOAD, 0);
-      }
+    }
 
-      mv.visitLdcInsn(m_location);
-      mv.visitMethodInsn(
-        INVOKESTATIC,
-        m_adviceClass,
-        "enter",
-        "(Ljava/lang/Object;Ljava/lang/String;)V");
+    private void generateEntryCall() {
+      if (m_entryCallNeeded) {
+        super.visitLabel(m_entryLabel);
+
+        if (m_isStatic) {
+          super.visitLdcInsn(m_internalClassType);
+        }
+        else {
+          super.visitVarInsn(ALOAD, 0);
+        }
+
+        super.visitLdcInsn(m_location);
+
+        super.visitMethodInsn(INVOKESTATIC,
+                              m_adviceClass,
+                              "enter",
+                              "(Ljava/lang/Object;Ljava/lang/String;)V");
+
+        m_entryCallNeeded = false;
+      }
+    }
+
+    private void generateEntryBlocks() {
+      generateTryCatchBlock();
+      generateEntryCall();
     }
 
     private void generateExitCall(boolean success) {
       if (m_isStatic) {
-        mv.visitLdcInsn(m_internalClassType);
+        super.visitLdcInsn(m_internalClassType);
       }
       else {
-        mv.visitVarInsn(ALOAD, 0);
+        super.visitVarInsn(ALOAD, 0);
       }
 
-      mv.visitLdcInsn(m_location);
-      mv.visitInsn(success ? ICONST_1 : ICONST_0);
+      super.visitLdcInsn(m_location);
+      super.visitInsn(success ? ICONST_1 : ICONST_0);
 
-      mv.visitMethodInsn(
-        INVOKESTATIC,
-        m_adviceClass,
-        "exit",
-        "(Ljava/lang/Object;Ljava/lang/String;Z)V");
+      super.visitMethodInsn(INVOKESTATIC,
+                            m_adviceClass,
+                            "exit",
+                            "(Ljava/lang/Object;Ljava/lang/String;Z)V");
     }
 
-    @Override public void onMethodExit(int opCode) {
-      if (opCode != ATHROW) {
-        generateExitCall(true);
+    /**
+     * To nest well if another similar transformation has been done. we must
+     * ensure that any existing top level TryCatchBlock comes first. Otherwise
+     * our TryCatchBlock would have higher precedence, and other catch blocks
+     * would be skipped.
+     *
+     * <p>
+     * This is the reason for the delayed generateEntryBlock*() calls.
+     * Unfortunately, this considerably adds to the complexity of this adapter.
+     * </p>
+     */
+    @Override public void visitTryCatchBlock(Label start,
+                                             Label end,
+                                             Label handler,
+                                             String type) {
+
+      super.visitTryCatchBlock(start, end, handler, type);
+      generateTryCatchBlock();
+    }
+
+    @Override public void visitLabel(Label label) {
+      generateEntryBlocks();
+      super.visitLabel(label);
+    }
+
+    @Override public void visitFrame(int type,
+                                     int nLocal,
+                                     Object[] local,
+                                     int nStack,
+                                     Object[] stack) {
+      generateEntryBlocks();
+      super.visitFrame(type, nLocal, local, nStack, stack);
+    }
+
+    public void visitInsn(int opcode) {
+      generateEntryBlocks();
+
+      switch (opcode) {
+        case RETURN:
+        case IRETURN:
+        case FRETURN:
+        case ARETURN:
+        case LRETURN:
+        case DRETURN:
+          generateExitCall(true);
+          break;
+
+        default:
+          break;
       }
+
+      super.visitInsn(opcode);
+    }
+
+    public void visitIntInsn(int opcode, int operand) {
+      generateEntryBlocks();
+      super.visitIntInsn(opcode, operand);
+    }
+
+    public void visitVarInsn(int opcode, int var) {
+      generateEntryBlocks();
+      super.visitVarInsn(opcode, var);
+    }
+
+    public void visitTypeInsn(int opcode, String type) {
+      generateEntryBlocks();
+      super.visitTypeInsn(opcode, type);
+    }
+
+    public void visitFieldInsn(int opcode,
+                               String owner,
+                               String name,
+                               String desc) {
+      generateEntryBlocks();
+      super.visitFieldInsn(opcode, owner, name, desc);
+    }
+
+    public void visitMethodInsn(int opcode,
+                                String owner,
+                                String name,
+                                String desc) {
+      generateEntryBlocks();
+      super.visitMethodInsn(opcode, owner, name, desc);
+    }
+
+    public void visitJumpInsn(int opcode, Label label) {
+      generateEntryBlocks();
+      super.visitJumpInsn(opcode, label);
+    }
+
+    public void visitLdcInsn(Object cst) {
+      generateEntryBlocks();
+      super.visitLdcInsn(cst);
+    }
+
+    public void visitIincInsn(int var, int increment) {
+      generateEntryBlocks();
+      super.visitIincInsn(var, increment);
+    }
+
+    public void visitTableSwitchInsn(int min,
+                                     int max,
+                                     Label dflt,
+                                     Label[] labels) {
+      generateEntryBlocks();
+      super.visitTableSwitchInsn(min, max, dflt, labels);
+    }
+
+    public void visitLookupSwitchInsn(Label dflt,
+                                      int[] keys,
+                                      Label[] labels) {
+      generateEntryBlocks();
+      super.visitLookupSwitchInsn(dflt, keys, labels);
+    }
+
+    public void visitMultiANewArrayInsn(String desc, int dims) {
+      generateEntryBlocks();
+      super.visitMultiANewArrayInsn(desc, dims);
+    }
+
+    public void visitLocalVariable(String name,
+                                   String desc,
+                                   String signature,
+                                   Label start,
+                                   Label end,
+                                   int index) {
+      generateEntryBlocks();
+      super.visitLocalVariable(name, desc, signature, start, end, index);
+    }
+
+    public void visitLineNumber(int line, Label start) {
+      generateEntryBlocks();
+      super.visitLineNumber(line, start);
     }
 
     @Override public void visitMaxs(int maxStack, int maxLocals) {
-      mv.visitLabel(m_exceptionExitLabel);
+      super.visitLabel(m_exceptionExitLabel);
       generateExitCall(false);
-      mv.visitInsn(ATHROW);       // Re-throw.
-      mv.visitMaxs(maxStack, maxLocals);
+      super.visitInsn(ATHROW);       // Re-throw.
+      super.visitMaxs(maxStack, maxLocals);
     }
   }
 }
