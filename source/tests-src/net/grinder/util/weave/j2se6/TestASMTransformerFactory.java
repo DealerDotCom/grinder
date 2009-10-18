@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.CallRecorder;
 import net.grinder.testutility.RandomStubFactory;
@@ -111,55 +112,6 @@ public class TestASMTransformerFactory extends TestCase {
     return instrumentation;
   }
 
-  public void testTwoTransformations() throws Exception {
-    final Instrumentation instrumentation = getInstrumentation();
-
-    final ClassFileTransformerFactory transformerFactory =
-      new ASMTransformerFactory(MyAdvice.class);
-
-    m_pointCutRegistryStubFactory.addMethod(A.class, "m1", "loc1");
-    m_pointCutRegistryStubFactory.addMethod(A.class, "m2", "loc2");
-
-    final ClassFileTransformer transformer1 =
-      transformerFactory.create(m_pointCutRegistry);
-    final ClassFileTransformer transformer2 =
-      transformerFactory.create(m_pointCutRegistry);
-
-    instrumentation.addTransformer(transformer1, true);
-    instrumentation.addTransformer(transformer2, true);
-
-    instrumentation.retransformClasses(new Class[] { A.class, });
-
-
-    final A a = new A();
-    assertEquals(1, a.m1());
-
-    s_callRecorder.assertSuccess("enter", a, "loc1");
-    s_callRecorder.assertSuccess("enter", a, "loc1");
-    s_callRecorder.assertSuccess("exit", a, "loc1", true);
-    s_callRecorder.assertSuccess("exit", a, "loc1", true);
-    s_callRecorder.assertNoMoreCalls();
-
-    try {
-      a.m2();
-      fail("Expected RuntimeException");
-    }
-    catch (RuntimeException e) {
-    }
-
-    s_callRecorder.assertSuccess("enter", a, "loc2");
-    s_callRecorder.assertSuccess("enter", a, "loc2");
-    s_callRecorder.assertSuccess("exit", a, "loc2", false);
-    s_callRecorder.assertSuccess("exit", a, "loc2", false);
-    s_callRecorder.assertNoMoreCalls();
-
-    assertTrue(instrumentation.removeTransformer(transformer2));
-    assertTrue(instrumentation.removeTransformer(transformer1));
-    instrumentation.retransformClasses(new Class[] { A.class, });
-    s_callRecorder.assertNoMoreCalls();
-  }
-
-
   public void testWithAgent() throws Exception {
     final Instrumentation instrumentation = getInstrumentation();
     assertTrue(instrumentation.isRetransformClassesSupported());
@@ -228,6 +180,54 @@ public class TestASMTransformerFactory extends TestCase {
     s_callRecorder.assertNoMoreCalls();
 
     instrumentation.removeTransformer(transformer);
+  }
+
+  public void testTwoTransformations() throws Exception {
+    final Instrumentation instrumentation = getInstrumentation();
+
+    final ClassFileTransformerFactory transformerFactory =
+      new ASMTransformerFactory(MyAdvice.class);
+
+    m_pointCutRegistryStubFactory.addMethod(A.class, "m1", "loc1");
+    m_pointCutRegistryStubFactory.addMethod(A.class, "m2", "loc2");
+
+    final ClassFileTransformer transformer1 =
+      transformerFactory.create(m_pointCutRegistry);
+    final ClassFileTransformer transformer2 =
+      transformerFactory.create(m_pointCutRegistry);
+
+    instrumentation.addTransformer(transformer1, true);
+    instrumentation.addTransformer(transformer2, true);
+
+    instrumentation.retransformClasses(new Class[] { A.class, });
+
+
+    final A a = new A();
+    assertEquals(1, a.m1());
+
+    s_callRecorder.assertSuccess("enter", a, "loc1");
+    s_callRecorder.assertSuccess("enter", a, "loc1");
+    s_callRecorder.assertSuccess("exit", a, "loc1", true);
+    s_callRecorder.assertSuccess("exit", a, "loc1", true);
+    s_callRecorder.assertNoMoreCalls();
+
+    try {
+      a.m2();
+      fail("Expected RuntimeException");
+    }
+    catch (RuntimeException e) {
+    }
+
+    s_callRecorder.assertSuccess("enter", a, "loc2");
+    s_callRecorder.assertSuccess("enter", a, "loc2");
+    s_callRecorder.assertSuccess("exit", a, "loc2", false);
+    s_callRecorder.assertSuccess("exit", a, "loc2", false);
+    s_callRecorder.assertNoMoreCalls();
+
+    assertTrue(instrumentation.removeTransformer(transformer2));
+    assertTrue(instrumentation.removeTransformer(transformer1));
+    instrumentation.retransformClasses(new Class[] { A.class, });
+    s_callRecorder.assertNoMoreCalls();
   }
 
   public void testSerializationNotBroken() throws Exception {
@@ -328,12 +328,9 @@ public class TestASMTransformerFactory extends TestCase {
 
     final A4 a = new A4("abc");
 
-    // We enter and exit the nested constructor first.
-//    s_callRecorder.assertSuccess("enter", A4.class, "loc1");
-//    s_callRecorder.assertSuccess("exit", A4.class, "loc1", true);
     s_callRecorder.assertSuccess("enter", A4.class, "loc2");
-  s_callRecorder.assertSuccess("enter", A4.class, "loc1");
-  s_callRecorder.assertSuccess("exit", A4.class, "loc1", true);
+    s_callRecorder.assertSuccess("enter", A4.class, "loc1");
+    s_callRecorder.assertSuccess("exit", A4.class, "loc1", true);
     s_callRecorder.assertSuccess("exit", A4.class, "loc2", true);
     s_callRecorder.assertNoMoreCalls();
 
@@ -367,6 +364,47 @@ public class TestASMTransformerFactory extends TestCase {
 
     s_callRecorder.assertSuccess("enter", A2.class, "loc1");
     s_callRecorder.assertSuccess("exit", A2.class, "loc1", true);
+    s_callRecorder.assertNoMoreCalls();
+
+    instrumentation.removeTransformer(transformer);
+  }
+
+  public void testVariedByteCode() throws Exception {
+    final Instrumentation instrumentation = getInstrumentation();
+
+    final ClassFileTransformerFactory transformerFactory =
+      new ASMTransformerFactory(MyAdvice.class);
+
+    m_pointCutRegistryStubFactory.addConstructor(
+      A5.class, A5.class.getDeclaredConstructor(Integer.TYPE), "loc1");
+
+    m_pointCutRegistryStubFactory.addMethod(
+      A5.class, A5.class.getDeclaredMethod("m1", Integer.TYPE), "loc3");
+    m_pointCutRegistryStubFactory.addMethod(
+      A5.class, A5.class.getDeclaredMethod("m1", String.class), "loc4");
+    m_pointCutRegistryStubFactory.addMethod(
+      A5.class, A5.class.getDeclaredMethod("m2"), "loc5");
+    m_pointCutRegistryStubFactory.addMethod(
+      A5.class, A5.class.getDeclaredMethod("m3"), "loc6");
+
+    final ClassFileTransformer transformer =
+      transformerFactory.create(m_pointCutRegistry);
+
+    instrumentation.addTransformer(transformer, true);
+    instrumentation.retransformClasses(new Class[] { A5.class, });
+
+    final A5 a = new A5(10);
+
+    s_callRecorder.assertSuccess("enter", A5.class, "loc1");
+    s_callRecorder.assertSuccess("exit", A5.class, "loc1", true);
+    s_callRecorder.assertNoMoreCalls();
+
+    AssertUtilities.assertEquals(-11d, a.m1(1), 0.01d);
+
+    s_callRecorder.assertSuccess("enter", a, "loc3");
+    s_callRecorder.assertSuccess("enter", a, "loc4");
+    s_callRecorder.assertSuccess("exit", a, "loc4", true);
+    s_callRecorder.assertSuccess("exit", a, "loc3", true);
     s_callRecorder.assertNoMoreCalls();
 
     instrumentation.removeTransformer(transformer);
@@ -435,6 +473,49 @@ public class TestASMTransformerFactory extends TestCase {
     }
 
     private void m1(String a) {
+    }
+  }
+
+  public static final class A5 {
+    private float m_y;
+
+    private A5(int x) {
+      ++x;
+
+      switch (x) {
+        case 99:
+          m_y = x;
+          break;
+        default:
+          m_y = -x;
+      };
+    }
+
+    public double m1(int a) {
+      final int[][] x = new int[3][2];
+
+      // Hacked at this until the compile generated LOOKUPSWITCH
+      // instead of TABLESWITCH.
+      switch (a) {
+        case 1: return m1(Integer.toString(a));
+        case 2: return 1;
+        case 30: return 1;
+        case 4: return 1;
+        case -1: return 1;
+        default: return x[0][0];
+      }
+    }
+
+    private float m1(String a) {
+      return m_y;
+    }
+
+    long m2() {
+      return 2;
+    }
+
+    Object m3() {
+      return this;
     }
   }
 
