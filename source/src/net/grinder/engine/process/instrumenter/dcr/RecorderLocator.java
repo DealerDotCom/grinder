@@ -99,8 +99,12 @@ public final class RecorderLocator implements RecorderRegistry {
    * @throws EngineException
    */
   public static void enter(Object target, String location) {
+    // Beware when enabling the following logging - calls on the object itself
+    // may fail subtly.
 //   System.out.printf("enter(%s, %s, %s)%n",
-//                     target.hashCode(), target.getClass(), location);
+//                     System.identityHashCode(target),
+//                     target.getClass(),
+//                     location);
 
     try {
       for (Recorder recorder : s_instance.getRecorderList(target, location)) {
@@ -129,8 +133,10 @@ public final class RecorderLocator implements RecorderRegistry {
    *          exception was thrown.
    */
   public static void exit(Object target, String location, boolean success) {
+    // Beware when enabling the following logging - calls on the object itself
+    // may fail subtly.
 //    System.out.printf("exit(%s, %s, %s, %s)%n",
-//                      target.hashCode(),
+//                      System.identityHashCode(target.hashCode()),
 //                      target.getClass(),
 //                      location,
 //                      success);
