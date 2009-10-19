@@ -660,7 +660,7 @@ public class TestASMTransformerFactory extends TestCase {
         source = TargetSource.CLASS;
       }
       else {
-        source = TargetSource.THIS;
+        source = TargetSource.FIRST_PARAMETER;
       }
 
       forClass.put(member, new WeavingDetails(location, source));

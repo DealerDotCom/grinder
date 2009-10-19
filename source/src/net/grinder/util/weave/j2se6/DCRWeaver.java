@@ -91,8 +91,8 @@ public final class DCRWeaver implements Weaver {
    */
   public String weave(Method method) {
     return weave(method,
-                 Modifier.isStatic(method.getModifiers()) ? TargetSource.CLASS :
-                                                            TargetSource.THIS);
+                 Modifier.isStatic(method.getModifiers()) ?
+                   TargetSource.CLASS : TargetSource.FIRST_PARAMETER);
   }
 
   /**

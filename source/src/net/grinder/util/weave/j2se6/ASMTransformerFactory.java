@@ -294,17 +294,28 @@ public final class ASMTransformerFactory
 
   private Map<Weaver.TargetSource, TargetExtractor> m_extractors =
     new HashMap<Weaver.TargetSource, TargetExtractor>() {{
-      put(Weaver.TargetSource.THIS, new ThisTargetExtractor());
       put(Weaver.TargetSource.CLASS, new ClassTargetExtractor());
+      put(Weaver.TargetSource.FIRST_PARAMETER,
+          new LocalVariableTargetExtractor(0));
+      put(Weaver.TargetSource.SECOND_PARAMETER,
+          new LocalVariableTargetExtractor(1));
+      put(Weaver.TargetSource.THIRD_PARAMETER,
+          new LocalVariableTargetExtractor(2));
     }};
 
   private interface TargetExtractor {
     void extract(ContextMethodVisitor methodVisitor);
   }
 
-  private static class ThisTargetExtractor implements TargetExtractor {
+  private static class LocalVariableTargetExtractor implements TargetExtractor {
+    private final int m_variableNumber;
+
+    public LocalVariableTargetExtractor(int variableNumber) {
+      m_variableNumber = variableNumber;
+    }
+
     public void extract(ContextMethodVisitor methodVisitor) {
-      methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+      methodVisitor.visitVarInsn(Opcodes.ALOAD, m_variableNumber);
     }
   }
 

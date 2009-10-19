@@ -122,7 +122,7 @@ public class TestDCRWeaver extends TestCase {
 
     assertEquals(2, pointCuts2.size());
 
-    assertEquals(new WeavingDetails(location1, TargetSource.THIS),
+    assertEquals(new WeavingDetails(location1, TargetSource.FIRST_PARAMETER),
                  pointCuts2.get(method));
     assertNotNull(pointCuts2.get(method2));
   }

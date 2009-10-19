@@ -81,13 +81,14 @@ public interface Weaver {
 
   /**
    * <p>
-   * Equivalent to {@code weave(method, THIS)}, or for static methods, {@code
-   * weave(method, CLASS)}.
+   * Equivalent to {@code weave(method, FIRST_PARAMETER)}, or for static
+   * methods, {@code weave(method, CLASS)}.
    * </p>
    *
    * @param method
    *          The method.
    * @return String that uniquely identifies the pointcut.
+   * @deprecated
    */
   String weave(Method method);
 
@@ -104,23 +105,26 @@ public interface Weaver {
    */
   enum TargetSource {
     /**
-     * {@code this} is the target object.
-     */
-    THIS,
-
-    /**
      * The class is the target object.
      */
     CLASS,
 
     /**
-     * The first parameter is the target object.
+     * The first parameter is the target object. For non-static methods,
+     * the first parameter is {@code this}.
      */
     FIRST_PARAMETER,
 
     /**
-     * The second parameter is the target object.
+     * The second parameter is the target object.  For non-static methods,
+     * the first parameter is {@code this}.
      */
     SECOND_PARAMETER,
+
+    /**
+     * The third parameter is the target object.  For non-static methods,
+     * the first parameter is {@code this}.
+     */
+    THIRD_PARAMETER,
   }
 }
