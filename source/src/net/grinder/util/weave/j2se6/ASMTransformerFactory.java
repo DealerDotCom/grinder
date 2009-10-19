@@ -32,9 +32,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.grinder.util.Pair;
+import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
-import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
 
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
@@ -158,15 +158,16 @@ public final class ASMTransformerFactory
       // organised by class. This allows us quickly to find the right methods,
       // and ignore classes that aren't to be advised. (Important, since we're
       // called for every class that is loaded).
-      final Map<Constructor<?>, String> constructorToLocation =
+      final Map<Constructor<?>, WeavingDetails> constructorToWeavingDetails =
         m_pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
 
-      final Map<Method, String> methodToLocation =
+      final Map<Method, WeavingDetails> methodToWeavingDetails =
         m_pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
       final int size =
-        (constructorToLocation != null ? constructorToLocation.size() : 0) +
-        (methodToLocation != null ? methodToLocation.size() : 0);
+        (constructorToWeavingDetails != null ?
+         constructorToWeavingDetails.size() : 0) +
+        (methodToWeavingDetails != null ? methodToWeavingDetails.size() : 0);
 
       if (size == 0) {
         return null;
@@ -174,27 +175,30 @@ public final class ASMTransformerFactory
 
       // Having found the right set of constructors methods, we transform the
       // key to a form that is easier for our ASM visitor to use.
-      final Map<Pair<String, String>, String> nameAndDescriptionToLocation =
-        new HashMap<Pair<String, String>, String>(size);
+      final Map<Pair<String, String>, WeavingDetails>
+        nameAndDescriptionToWeavingDetails =
+          new HashMap<Pair<String, String>, WeavingDetails>(size);
 
-      if (constructorToLocation != null) {
-        for (Entry<Constructor<?>, String> entry :
-             constructorToLocation.entrySet()) {
+      if (constructorToWeavingDetails != null) {
+        for (Entry<Constructor<?>, WeavingDetails> entry :
+             constructorToWeavingDetails.entrySet()) {
 
           final Constructor<?> c = entry.getKey();
 
-          nameAndDescriptionToLocation.put(
+          nameAndDescriptionToWeavingDetails.put(
             new Pair<String, String>("<init>",
                                      Type.getConstructorDescriptor(c)),
             entry.getValue());
         }
       }
 
-      if (methodToLocation != null) {
-        for (Entry<Method, String> entry : methodToLocation.entrySet()) {
+      if (methodToWeavingDetails != null) {
+        for (Entry<Method, WeavingDetails> entry :
+          methodToWeavingDetails.entrySet()) {
+
           final Method m = entry.getKey();
 
-          nameAndDescriptionToLocation.put(
+          nameAndDescriptionToWeavingDetails.put(
             new Pair<String, String>(m.getName(), Type.getMethodDescriptor(m)),
             entry.getValue());
         }
@@ -214,7 +218,7 @@ public final class ASMTransformerFactory
       visitorChain = new AddAdviceClassAdapter(
                            visitorChain,
                            Type.getType("L" + internalClassName + ";"),
-                           nameAndDescriptionToLocation);
+                           nameAndDescriptionToWeavingDetails);
 
       // Uncomment to see the original code:
 //      visitorChain =
@@ -229,14 +233,16 @@ public final class ASMTransformerFactory
   private final class AddAdviceClassAdapter extends ClassAdapter {
 
     private final Type m_internalClassType;
-    private final Map<Pair<String, String>, String> m_locations;
+    private final Map<Pair<String, String>, WeavingDetails> m_weavingDetails;
 
-    private AddAdviceClassAdapter(ClassVisitor classVisitor,
-                                  Type internalClassType,
-                                  Map<Pair<String, String>, String> locations) {
+    private AddAdviceClassAdapter(
+      ClassVisitor classVisitor,
+      Type internalClassType,
+      Map<Pair<String, String>, WeavingDetails> weavingDetails) {
+
       super(classVisitor);
       m_internalClassType = internalClassType;
-      m_locations = locations;
+      m_weavingDetails = weavingDetails;
     }
 
     @Override
@@ -265,21 +271,51 @@ public final class ASMTransformerFactory
       final MethodVisitor defaultVisitor =
         cv.visitMethod(access, name, desc, signature, exceptions);
 
-      final String location = m_locations.get(
-        new Pair<String, String>(name, desc));
+      final WeavingDetails weavingDetails =
+        m_weavingDetails.get(new Pair<String, String>(name, desc));
 
-      if (location != null) {
+      if (weavingDetails != null) {
         assert defaultVisitor != null;
+
+        final TargetExtractor targetExtractor =
+          m_extractors.get(weavingDetails.getTargetSource());
 
         return new AdviceMethodVisitor(defaultVisitor,
                                        m_internalClassType,
                                        access,
                                        name,
-                                       location);
+                                       weavingDetails.getLocation(),
+                                       targetExtractor);
       }
 
       return defaultVisitor;
     }
+  }
+
+  private Map<Weaver.TargetSource, TargetExtractor> m_extractors =
+    new HashMap<Weaver.TargetSource, TargetExtractor>() {{
+      put(Weaver.TargetSource.THIS, new ThisTargetExtractor());
+      put(Weaver.TargetSource.CLASS, new ClassTargetExtractor());
+    }};
+
+  private interface TargetExtractor {
+    void extract(ContextMethodVisitor methodVisitor);
+  }
+
+  private static class ThisTargetExtractor implements TargetExtractor {
+    public void extract(ContextMethodVisitor methodVisitor) {
+      methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    }
+  }
+
+  private static class ClassTargetExtractor implements TargetExtractor {
+    public void extract(ContextMethodVisitor methodVisitor) {
+      methodVisitor.visitLdcInsn(methodVisitor.getInternalClassName());
+    }
+  }
+
+  private interface ContextMethodVisitor extends MethodVisitor {
+    Type getInternalClassName();
   }
 
   /**
@@ -317,11 +353,11 @@ public final class ASMTransformerFactory
    * @version $Revision:$
    */
   private final class AdviceMethodVisitor
-    extends MethodAdapter implements Opcodes {
+    extends MethodAdapter implements ContextMethodVisitor, Opcodes {
 
     private final Type m_internalClassType;
     private final String m_location;
-    private final boolean m_isStatic;
+    private final TargetExtractor m_targetExtractor;
 
     private final Label m_entryLabel = new Label();
     private final Label m_exceptionExitLabel = new Label();
@@ -332,16 +368,13 @@ public final class ASMTransformerFactory
                                 Type internalClassType,
                                 int access,
                                 String name,
-                                String location) {
+                                String location,
+                                TargetExtractor targetExtractor) {
       super(mv);
 
       m_internalClassType = internalClassType;
       m_location = location;
-
-      // We handle constructors like static methods, since the reference to
-      // the new object is useless.
-      m_isStatic = (access & Opcodes.ACC_STATIC) != 0 ||
-                   name.equals("<init>");
+      m_targetExtractor = targetExtractor;
     }
 
     private void generateTryCatchBlock() {
@@ -355,16 +388,17 @@ public final class ASMTransformerFactory
       }
     }
 
+    public Type getInternalClassName() {
+      return m_internalClassType;
+    }
+
     private void generateEntryCall() {
       if (m_entryCallNeeded) {
+        m_entryCallNeeded = false;
+
         super.visitLabel(m_entryLabel);
 
-        if (m_isStatic) {
-          super.visitLdcInsn(m_internalClassType);
-        }
-        else {
-          super.visitVarInsn(ALOAD, 0);
-        }
+        m_targetExtractor.extract(this);
 
         super.visitLdcInsn(m_location);
 
@@ -372,8 +406,6 @@ public final class ASMTransformerFactory
                               m_adviceClass,
                               "enter",
                               "(Ljava/lang/Object;Ljava/lang/String;)V");
-
-        m_entryCallNeeded = false;
       }
     }
 
@@ -383,12 +415,8 @@ public final class ASMTransformerFactory
     }
 
     private void generateExitCall(boolean success) {
-      if (m_isStatic) {
-        super.visitLdcInsn(m_internalClassType);
-      }
-      else {
-        super.visitVarInsn(ALOAD, 0);
-      }
+
+      m_targetExtractor.extract(this);
 
       super.visitLdcInsn(m_location);
       super.visitInsn(success ? ICONST_1 : ICONST_0);

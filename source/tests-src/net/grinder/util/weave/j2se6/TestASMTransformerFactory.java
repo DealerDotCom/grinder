@@ -32,6 +32,7 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,9 +42,9 @@ import net.grinder.testutility.CallData;
 import net.grinder.testutility.CallRecorder;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.WeavingException;
+import net.grinder.util.weave.Weaver.TargetSource;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
-import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
 
 
 /**
@@ -586,22 +587,23 @@ public class TestASMTransformerFactory extends TestCase {
   public static final class PointCutRegistryStubFactory
     extends RandomStubFactory<PointCutRegistry> {
 
-    private final Map<String, Map<Constructor<?>, String>> m_constructors =
-      new HashMap<String, Map<Constructor<?>, String>>();
+    private final Map<String, Map<Constructor<?>, WeavingDetails>>
+      m_constructors =
+        new HashMap<String, Map<Constructor<?>, WeavingDetails>>();
 
-    private final Map<String, Map<Method, String>> m_methods =
-      new HashMap<String, Map<Method, String>>();
+    private final Map<String, Map<Method, WeavingDetails>> m_methods =
+      new HashMap<String, Map<Method, WeavingDetails>>();
 
     protected PointCutRegistryStubFactory() {
       super(PointCutRegistry.class);
     }
 
-    public Map<Constructor<?>, String>
+    public Map<Constructor<?>, WeavingDetails>
       override_getConstructorPointCutsForClass(Object stub, String className) {
       return m_constructors.get(className);
     }
 
-    public Map<Method, String>
+    public Map<Method, WeavingDetails>
       override_getMethodPointCutsForClass(Object stub, String className) {
       return m_methods.get(className);
     }
@@ -635,23 +637,33 @@ public class TestASMTransformerFactory extends TestCase {
       Class<?> theClass,
       T member,
       String location,
-      Map<String, Map<T, String>> members) {
+      Map<String, Map<T, WeavingDetails>> members) {
 
       final String internalClassName = theClass.getName().replace('.', '/');
 
-      final Map<T, String> forClass;
+      final Map<T, WeavingDetails> forClass;
 
-      final Map<T, String> existing = members.get(internalClassName);
+      final Map<T, WeavingDetails> existing = members.get(internalClassName);
 
       if (existing != null) {
         forClass = existing;
       }
       else {
-        forClass = new HashMap<T, String>();
+        forClass = new HashMap<T, WeavingDetails>();
         members.put(internalClassName, forClass);
       }
 
-      forClass.put(member, location);
+      final TargetSource source;
+
+      if (Modifier.isStatic(member.getModifiers()) ||
+          member instanceof Constructor<?>) {
+        source = TargetSource.CLASS;
+      }
+      else {
+        source = TargetSource.THIS;
+      }
+
+      forClass.put(member, new WeavingDetails(location, source));
     }
   }
 }

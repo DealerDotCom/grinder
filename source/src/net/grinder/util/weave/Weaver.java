@@ -73,9 +73,24 @@ public interface Weaver {
    *
    * @param method
    *          The method.
-   * @return String that iniquely identifies the pointcut.
+   * @param targetSource
+   *          Which object should be passed to the target as the advice.
+   * @return String that uniquely identifies the pointcut.
+   */
+  String weave(Method method, TargetSource targetSource);
+
+  /**
+   * <p>
+   * Equivalent to {@code weave(method, THIS)}, or for static methods, {@code
+   * weave(method, CLASS)}.
+   * </p>
+   *
+   * @param method
+   *          The method.
+   * @return String that uniquely identifies the pointcut.
    */
   String weave(Method method);
+
 
   /**
    * Apply pending weaving that has been requested with {@link #weave}.
@@ -83,4 +98,29 @@ public interface Weaver {
    * @throws WeavingException A problem occurred with the weaving.
    */
   void applyChanges() throws WeavingException;
+
+  /**
+   * Source of the target object that the weaving will pass on to the advice.
+   */
+  enum TargetSource {
+    /**
+     * {@code this} is the target object.
+     */
+    THIS,
+
+    /**
+     * The class is the target object.
+     */
+    CLASS,
+
+    /**
+     * The first parameter is the target object.
+     */
+    FIRST_PARAMETER,
+
+    /**
+     * The second parameter is the target object.
+     */
+    SECOND_PARAMETER,
+  }
 }

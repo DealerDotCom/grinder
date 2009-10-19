@@ -34,8 +34,8 @@ import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
+import net.grinder.util.weave.Weaver.TargetSource;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
-import net.grinder.util.weave.j2se6.DCRWeaver.PointCutRegistry;
 
 
 /**
@@ -96,17 +96,17 @@ public class TestDCRWeaver extends TestCase {
 
     final String internalClassName = getClass().getName().replace('.', '/');
 
-    final Map<Constructor<?>, String> constructorPointCuts =
+    final Map<Constructor<?>, WeavingDetails> constructorPointCuts =
       pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
 
     assertNull(constructorPointCuts);
 
-    final Map<Method, String> methodPointCuts =
+    final Map<Method, WeavingDetails> methodPointCuts =
       pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
     assertEquals(1, methodPointCuts.size());
 
-    final String location1 = methodPointCuts.get(method);
+    final String location1 = methodPointCuts.get(method).getLocation();
     assertNotNull(location1);
 
     final Method method2 = getClass().getDeclaredMethod("myOtherMethod");
@@ -117,12 +117,13 @@ public class TestDCRWeaver extends TestCase {
     m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
     m_instrumentationStubFactory.assertNoMoreCalls();
 
-    final Map<Method, String> pointCuts2 =
+    final Map<Method, WeavingDetails> pointCuts2 =
       pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
     assertEquals(2, pointCuts2.size());
 
-    assertEquals(location1, pointCuts2.get(method));
+    assertEquals(new WeavingDetails(location1, TargetSource.THIS),
+                 pointCuts2.get(method));
     assertNotNull(pointCuts2.get(method2));
   }
 
@@ -150,17 +151,18 @@ public class TestDCRWeaver extends TestCase {
 
     final String internalClassName = getClass().getName().replace('.', '/');
 
-    final Map<Constructor<?>, String> constructorPointCuts =
+    final Map<Constructor<?>, WeavingDetails> constructorPointCuts =
       pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
 
     assertEquals(1, constructorPointCuts.size());
 
-    final Map<Method, String> methodPointCuts =
+    final Map<Method, WeavingDetails> methodPointCuts =
       pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
     assertNull(methodPointCuts);
 
-    final String location1 = constructorPointCuts.get(constructor);
+    final String location1 =
+      constructorPointCuts.get(constructor).getLocation();
     assertNotNull(location1);
   }
 
