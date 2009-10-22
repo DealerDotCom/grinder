@@ -27,6 +27,7 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -96,17 +97,19 @@ public class TestDCRWeaver extends TestCase {
 
     final String internalClassName = getClass().getName().replace('.', '/');
 
-    final Map<Constructor<?>, WeavingDetails> constructorPointCuts =
+    final Map<Constructor<?>, List<WeavingDetails>> constructorPointCuts =
       pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
 
     assertNull(constructorPointCuts);
 
-    final Map<Method, WeavingDetails> methodPointCuts =
+    final Map<Method, List<WeavingDetails>> methodPointCuts =
       pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
     assertEquals(1, methodPointCuts.size());
 
-    final String location1 = methodPointCuts.get(method).getLocation();
+    final List<WeavingDetails> locations1 = methodPointCuts.get(method);
+    assertEquals(1, locations1.size());
+    final String location1 = locations1.get(0).getLocation();
     assertNotNull(location1);
 
     final Method method2 = getClass().getDeclaredMethod("myOtherMethod");
@@ -117,13 +120,16 @@ public class TestDCRWeaver extends TestCase {
     m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
     m_instrumentationStubFactory.assertNoMoreCalls();
 
-    final Map<Method, WeavingDetails> pointCuts2 =
+    final Map<Method, List<WeavingDetails>> pointCuts2 =
       pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
     assertEquals(2, pointCuts2.size());
 
+    final List<WeavingDetails> locations2 = pointCuts2.get(method);
+    assertEquals(1, locations2.size());
+
     assertEquals(new WeavingDetails(location1, TargetSource.FIRST_PARAMETER),
-                 pointCuts2.get(method));
+                 locations2.get(0));
     assertNotNull(pointCuts2.get(method2));
   }
 
@@ -151,18 +157,22 @@ public class TestDCRWeaver extends TestCase {
 
     final String internalClassName = getClass().getName().replace('.', '/');
 
-    final Map<Constructor<?>, WeavingDetails> constructorPointCuts =
+    final Map<Constructor<?>, List<WeavingDetails>> constructorPointCuts =
       pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
 
     assertEquals(1, constructorPointCuts.size());
 
-    final Map<Method, WeavingDetails> methodPointCuts =
+    final Map<Method, List<WeavingDetails>> methodPointCuts =
       pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
     assertNull(methodPointCuts);
 
-    final String location1 =
-      constructorPointCuts.get(constructor).getLocation();
+    final List<WeavingDetails> locations1 =
+      constructorPointCuts.get(constructor);
+
+    assertEquals(1, locations1.size());
+
+    final String location1 = locations1.get(0).getLocation();
     assertNotNull(location1);
   }
 

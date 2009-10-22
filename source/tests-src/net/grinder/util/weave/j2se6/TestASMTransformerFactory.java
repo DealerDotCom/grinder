@@ -33,7 +33,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -59,6 +61,11 @@ public class TestASMTransformerFactory extends TestCase {
     new PointCutRegistryStubFactory();
   private final PointCutRegistry m_pointCutRegistry =
     m_pointCutRegistryStubFactory.getStub();
+
+  @Override protected void tearDown() throws Exception {
+    super.tearDown();
+    m_pointCutRegistryStubFactory.clear();
+  }
 
   private static final CallRecorder s_callRecorder = new CallRecorder();
 
@@ -175,9 +182,11 @@ public class TestASMTransformerFactory extends TestCase {
     instrumentation.retransformClasses(new Class[] { A.class, A2.class });
 
     a.m1();
-    // We only support one advice per method.
+    // We only support more than one advice per method.
+    s_callRecorder.assertSuccess("enter", a, "loc1");
     s_callRecorder.assertSuccess("enter", a, "locX");
     s_callRecorder.assertSuccess("exit", a, "locX", true);
+    s_callRecorder.assertSuccess("exit", a, "loc1", true);
     s_callRecorder.assertNoMoreCalls();
 
     instrumentation.removeTransformer(transformer);
@@ -229,6 +238,9 @@ public class TestASMTransformerFactory extends TestCase {
     assertTrue(instrumentation.removeTransformer(transformer1));
     instrumentation.retransformClasses(new Class[] { A.class, });
     s_callRecorder.assertNoMoreCalls();
+
+    instrumentation.removeTransformer(transformer1);
+    instrumentation.removeTransformer(transformer2);
   }
 
   public void testSerializationNotBroken() throws Exception {
@@ -411,6 +423,52 @@ public class TestASMTransformerFactory extends TestCase {
     instrumentation.removeTransformer(transformer);
   }
 
+  public void testTargetSource() throws Exception {
+    final Instrumentation instrumentation = getInstrumentation();
+
+    final ClassFileTransformerFactory transformerFactory =
+      new ASMTransformerFactory(MyAdvice.class);
+
+    m_pointCutRegistryStubFactory.addMethod(
+      A4.class,
+      A4.class.getDeclaredMethod("m1", String.class),
+      "X",
+      TargetSource.SECOND_PARAMETER);
+
+    final ClassFileTransformer transformer =
+      transformerFactory.create(m_pointCutRegistry);
+
+    instrumentation.addTransformer(transformer, true);
+    instrumentation.retransformClasses(new Class[] { A4.class, });
+
+    final A4 a = new A4();
+
+    a.m1("Hello");
+
+    s_callRecorder.assertSuccess("enter", "Hello", "X");
+    s_callRecorder.assertSuccess("exit", "Hello", "X", true);
+    s_callRecorder.assertNoMoreCalls();
+
+
+    m_pointCutRegistryStubFactory.addMethod(
+      A4.class,
+      A4.class.getDeclaredMethod("m1", String.class),
+      "Y",
+      TargetSource.FIRST_PARAMETER);
+
+    instrumentation.retransformClasses(new Class[] { A4.class, });
+
+    a.m1("Goodbye");
+
+    s_callRecorder.assertSuccess("enter", "Goodbye", "X");
+    s_callRecorder.assertSuccess("enter", a, "Y");
+    s_callRecorder.assertSuccess("exit", a, "Y", true);
+    s_callRecorder.assertSuccess("exit", "Goodbye", "X", true);
+    s_callRecorder.assertNoMoreCalls();
+
+    instrumentation.removeTransformer(transformer);
+  }
+
   private static final byte[] serialize(final Object a) throws IOException {
     final ByteArrayOutputStream byteOutputStream =
       new ByteArrayOutputStream();
@@ -587,23 +645,28 @@ public class TestASMTransformerFactory extends TestCase {
   public static final class PointCutRegistryStubFactory
     extends RandomStubFactory<PointCutRegistry> {
 
-    private final Map<String, Map<Constructor<?>, WeavingDetails>>
+    private final Map<String, Map<Constructor<?>, List<WeavingDetails>>>
       m_constructors =
-        new HashMap<String, Map<Constructor<?>, WeavingDetails>>();
+        new HashMap<String, Map<Constructor<?>, List<WeavingDetails>>>();
 
-    private final Map<String, Map<Method, WeavingDetails>> m_methods =
-      new HashMap<String, Map<Method, WeavingDetails>>();
+    private final Map<String, Map<Method, List<WeavingDetails>>> m_methods =
+      new HashMap<String, Map<Method, List<WeavingDetails>>>();
 
     protected PointCutRegistryStubFactory() {
       super(PointCutRegistry.class);
     }
 
-    public Map<Constructor<?>, WeavingDetails>
+    public void clear() {
+      m_constructors.clear();
+      m_methods.clear();
+    }
+
+    public Map<Constructor<?>, List<WeavingDetails>>
       override_getConstructorPointCutsForClass(Object stub, String className) {
       return m_constructors.get(className);
     }
 
-    public Map<Method, WeavingDetails>
+    public Map<Method, List<WeavingDetails>>
       override_getMethodPointCutsForClass(Object stub, String className) {
       return m_methods.get(className);
     }
@@ -611,7 +674,7 @@ public class TestASMTransformerFactory extends TestCase {
     public void addConstructor(Class<?> theClass,
                                Constructor<?> constructor,
                                String location) {
-      addMember(theClass, constructor, location, m_constructors);
+      addMember(theClass, constructor, location, m_constructors, null);
     }
 
     /**
@@ -630,40 +693,64 @@ public class TestASMTransformerFactory extends TestCase {
     public void addMethod(Class<?> theClass,
                           Method method,
                           String location) {
-      addMember(theClass, method, location, m_methods);
+      addMethod(theClass, method, location, null);
+    }
+
+    public void addMethod(Class<?> theClass,
+                          Method method,
+                          String location,
+                          TargetSource source) {
+      addMember(theClass, method, location, m_methods, source);
     }
 
     public <T extends Member> void addMember(
       Class<?> theClass,
       T member,
       String location,
-      Map<String, Map<T, WeavingDetails>> members) {
+      Map<String, Map<T, List<WeavingDetails>>> members,
+      TargetSource source) {
 
       final String internalClassName = theClass.getName().replace('.', '/');
 
-      final Map<T, WeavingDetails> forClass;
+      final Map<T, List<WeavingDetails>> forClass;
 
-      final Map<T, WeavingDetails> existing = members.get(internalClassName);
+      final Map<T, List<WeavingDetails>> existing =
+        members.get(internalClassName);
 
       if (existing != null) {
         forClass = existing;
       }
       else {
-        forClass = new HashMap<T, WeavingDetails>();
+        forClass = new HashMap<T, List<WeavingDetails>>();
         members.put(internalClassName, forClass);
       }
 
-      final TargetSource source;
+      if (source == null) {
 
-      if (Modifier.isStatic(member.getModifiers()) ||
-          member instanceof Constructor<?>) {
-        source = TargetSource.CLASS;
-      }
-      else {
-        source = TargetSource.FIRST_PARAMETER;
+        if (Modifier.isStatic(member.getModifiers()) ||
+            member instanceof Constructor<?>) {
+          source = TargetSource.CLASS;
+        }
+        else {
+          source = TargetSource.FIRST_PARAMETER;
+        }
       }
 
-      forClass.put(member, new WeavingDetails(location, source));
+      getList(forClass, member).add(new WeavingDetails(location, source));
+    }
+  }
+
+  private static <K, V> List<V> getList(Map<K, List<V>> map, K key) {
+
+    final List<V> existing = map.get(key);
+
+    if (existing == null) {
+      final List<V> list = new ArrayList<V>();
+      map.put(key, list);
+      return list;
+    }
+    else {
+      return existing;
     }
   }
 }

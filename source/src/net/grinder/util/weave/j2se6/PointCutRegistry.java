@@ -23,6 +23,7 @@ package net.grinder.util.weave.j2se6;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 
@@ -44,7 +45,7 @@ interface PointCutRegistry {
    *         has at most one location string for a given {@link TargetSource}
    *         type.
    */
-  Map<Constructor<?>, WeavingDetails> getConstructorPointCutsForClass(
+  Map<Constructor<?>, List<WeavingDetails>> getConstructorPointCutsForClass(
     String internalClassName);
 
   /**
@@ -58,6 +59,6 @@ interface PointCutRegistry {
    *         at most one location string for a given {@link TargetSource}
    *         type.
    */
-  Map<Method, WeavingDetails> getMethodPointCutsForClass(
+  Map<Method, List<WeavingDetails>> getMethodPointCutsForClass(
     String internalClassName);
 }

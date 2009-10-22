@@ -28,8 +28,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -147,23 +149,23 @@ public final class DCRWeaver implements Weaver {
     // Pre-calculated mapping of internal class name -> constructor -> weaving
     // details, for efficiency.
     // Guarded by this.
-    private final Map<String, Map<Constructor<?>, WeavingDetails>>
+    private final Map<String, Map<Constructor<?>, List<WeavingDetails>>>
       m_internalClassNameToConstructorToLocation =
-        new HashMap<String, Map<Constructor<?>, WeavingDetails>>();
+        new HashMap<String, Map<Constructor<?>, List<WeavingDetails>>>();
 
     // Pre-calculated mapping of internal class name -> method -> weaving
     // details, for efficiency.
     // Guarded by this.
-    private final Map<String, Map<Method, WeavingDetails>>
+    private final Map<String, Map<Method, List<WeavingDetails>>>
       m_internalClassNameToMethodToLocation =
-        new HashMap<String, Map<Method, WeavingDetails>>();
+        new HashMap<String, Map<Method, List<WeavingDetails>>>();
 
-    public Map<Constructor<?>, WeavingDetails>
+    public Map<Constructor<?>, List<WeavingDetails>>
       getConstructorPointCutsForClass(String className) {
         return m_internalClassNameToConstructorToLocation.get(className);
     }
 
-    public Map<Method, WeavingDetails>
+    public Map<Method, List<WeavingDetails>>
       getMethodPointCutsForClass(String className) {
         return m_internalClassNameToMethodToLocation.get(className);
     }
@@ -181,7 +183,7 @@ public final class DCRWeaver implements Weaver {
     private <T extends Member> String add(
       T member,
       TargetSource targetSource,
-      Map<String, Map<T, WeavingDetails>> classNameToMemberToLocation) {
+      Map<String, Map<T, List<WeavingDetails>>> classNameToMemberToLocation) {
 
       final Pair<Member, TargetSource> locationKey =
         new Pair<Member, TargetSource>(member, targetSource);
@@ -199,25 +201,36 @@ public final class DCRWeaver implements Weaver {
       final String location = generateLocationString();
 
       synchronized(this) {
-        final Map<T, WeavingDetails> methodNameToWeavingDetails;
+        final Map<T, List<WeavingDetails>> methodNameToWeavingDetails;
 
-        final Map<T, WeavingDetails> existing =
+        final Map<T, List<WeavingDetails>> existingMap =
           classNameToMemberToLocation.get(internalClassName);
 
-        if (existing != null) {
-          methodNameToWeavingDetails = existing;
+        if (existingMap != null) {
+          methodNameToWeavingDetails = existingMap;
         }
         else {
-          methodNameToWeavingDetails = new HashMap<T, WeavingDetails>();
+          methodNameToWeavingDetails = new HashMap<T, List<WeavingDetails>>();
           classNameToMemberToLocation.put(internalClassName,
                                           methodNameToWeavingDetails);
         }
 
         m_wovenMembers.put(locationKey, location);
 
-        methodNameToWeavingDetails.put(member,
-                                       new WeavingDetails(location,
-                                                          targetSource));
+        final List<WeavingDetails> weavingDetailsList;
+
+        final List<WeavingDetails> existingList =
+          methodNameToWeavingDetails.get(member);
+
+        if (existingList != null) {
+          weavingDetailsList = existingList;
+        }
+        else {
+          weavingDetailsList = new ArrayList<WeavingDetails>();
+          methodNameToWeavingDetails.put(member, weavingDetailsList);
+        }
+
+        weavingDetailsList.add(new WeavingDetails(location, targetSource));
       }
 
       synchronized(DCRWeaver.this) {

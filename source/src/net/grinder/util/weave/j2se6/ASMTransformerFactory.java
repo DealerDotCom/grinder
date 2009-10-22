@@ -28,6 +28,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -158,10 +160,11 @@ public final class ASMTransformerFactory
       // organised by class. This allows us quickly to find the right methods,
       // and ignore classes that aren't to be advised. (Important, since we're
       // called for every class that is loaded).
-      final Map<Constructor<?>, WeavingDetails> constructorToWeavingDetails =
-        m_pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
+      final Map<Constructor<?>, List<WeavingDetails>>
+        constructorToWeavingDetails =
+          m_pointCutRegistry.getConstructorPointCutsForClass(internalClassName);
 
-      final Map<Method, WeavingDetails> methodToWeavingDetails =
+      final Map<Method, List<WeavingDetails>> methodToWeavingDetails =
         m_pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
       final int size =
@@ -175,32 +178,35 @@ public final class ASMTransformerFactory
 
       // Having found the right set of constructors methods, we transform the
       // key to a form that is easier for our ASM visitor to use.
-      final Map<Pair<String, String>, WeavingDetails>
+      final Map<Pair<String, String>, List<WeavingDetails>>
         nameAndDescriptionToWeavingDetails =
-          new HashMap<Pair<String, String>, WeavingDetails>(size);
+          new HashMap<Pair<String, String>, List<WeavingDetails>>(size);
 
       if (constructorToWeavingDetails != null) {
-        for (Entry<Constructor<?>, WeavingDetails> entry :
+        for (Entry<Constructor<?>, List<WeavingDetails>> entry :
              constructorToWeavingDetails.entrySet()) {
 
           final Constructor<?> c = entry.getKey();
 
+          // The key will be unique, so we can set the value directly.
           nameAndDescriptionToWeavingDetails.put(
-            new Pair<String, String>("<init>",
-                                     Type.getConstructorDescriptor(c)),
-            entry.getValue());
+                  new Pair<String, String>("<init>",
+                                           Type.getConstructorDescriptor(c)),
+                  entry.getValue());
         }
       }
 
       if (methodToWeavingDetails != null) {
-        for (Entry<Method, WeavingDetails> entry :
-          methodToWeavingDetails.entrySet()) {
+        for (Entry<Method, List<WeavingDetails>> entry :
+             methodToWeavingDetails.entrySet()) {
 
           final Method m = entry.getKey();
 
+          // The key will be unique, so we can set the value directly.
           nameAndDescriptionToWeavingDetails.put(
-            new Pair<String, String>(m.getName(), Type.getMethodDescriptor(m)),
-            entry.getValue());
+                  new Pair<String, String>(m.getName(),
+                                           Type.getMethodDescriptor(m)),
+                  entry.getValue());
         }
       }
 
@@ -233,12 +239,13 @@ public final class ASMTransformerFactory
   private final class AddAdviceClassAdapter extends ClassAdapter {
 
     private final Type m_internalClassType;
-    private final Map<Pair<String, String>, WeavingDetails> m_weavingDetails;
+    private final Map<Pair<String, String>,
+                      List<WeavingDetails>> m_weavingDetails;
 
     private AddAdviceClassAdapter(
       ClassVisitor classVisitor,
       Type internalClassType,
-      Map<Pair<String, String>, WeavingDetails> weavingDetails) {
+      Map<Pair<String, String>, List<WeavingDetails>> weavingDetails) {
 
       super(classVisitor);
       m_internalClassType = internalClassType;
@@ -271,21 +278,17 @@ public final class ASMTransformerFactory
       final MethodVisitor defaultVisitor =
         cv.visitMethod(access, name, desc, signature, exceptions);
 
-      final WeavingDetails weavingDetails =
+      final List<WeavingDetails> weavingDetails =
         m_weavingDetails.get(new Pair<String, String>(name, desc));
 
       if (weavingDetails != null) {
         assert defaultVisitor != null;
 
-        final TargetExtractor targetExtractor =
-          m_extractors.get(weavingDetails.getTargetSource());
-
         return new AdviceMethodVisitor(defaultVisitor,
                                        m_internalClassType,
                                        access,
                                        name,
-                                       weavingDetails.getLocation(),
-                                       targetExtractor);
+                                       weavingDetails);
       }
 
       return defaultVisitor;
@@ -367,8 +370,7 @@ public final class ASMTransformerFactory
     extends MethodAdapter implements ContextMethodVisitor, Opcodes {
 
     private final Type m_internalClassType;
-    private final String m_location;
-    private final TargetExtractor m_targetExtractor;
+    private final List<WeavingDetails> m_weavingDetails;
 
     private final Label m_entryLabel = new Label();
     private final Label m_exceptionExitLabel = new Label();
@@ -379,13 +381,11 @@ public final class ASMTransformerFactory
                                 Type internalClassType,
                                 int access,
                                 String name,
-                                String location,
-                                TargetExtractor targetExtractor) {
+                                List<WeavingDetails> weavingDetails) {
       super(mv);
 
       m_internalClassType = internalClassType;
-      m_location = location;
-      m_targetExtractor = targetExtractor;
+      m_weavingDetails = weavingDetails;
     }
 
     private void generateTryCatchBlock() {
@@ -409,14 +409,15 @@ public final class ASMTransformerFactory
 
         super.visitLabel(m_entryLabel);
 
-        m_targetExtractor.extract(this);
+        for (WeavingDetails weavingDetails : m_weavingDetails) {
+          m_extractors.get(weavingDetails.getTargetSource()).extract(this);
+          super.visitLdcInsn(weavingDetails.getLocation());
 
-        super.visitLdcInsn(m_location);
-
-        super.visitMethodInsn(INVOKESTATIC,
-                              m_adviceClass,
-                              "enter",
-                              "(Ljava/lang/Object;Ljava/lang/String;)V");
+          super.visitMethodInsn(INVOKESTATIC,
+                                m_adviceClass,
+                                "enter",
+                                "(Ljava/lang/Object;Ljava/lang/String;)V");
+        }
       }
     }
 
@@ -426,16 +427,23 @@ public final class ASMTransformerFactory
     }
 
     private void generateExitCall(boolean success) {
+      // Iterate in reverse.
+      final ListIterator<WeavingDetails> i =
+        m_weavingDetails.listIterator(m_weavingDetails.size());
 
-      m_targetExtractor.extract(this);
+      while (i.hasPrevious()) {
+        final WeavingDetails weavingDetails = i.previous();
 
-      super.visitLdcInsn(m_location);
-      super.visitInsn(success ? ICONST_1 : ICONST_0);
+        m_extractors.get(weavingDetails.getTargetSource()).extract(this);
+        super.visitLdcInsn(weavingDetails.getLocation());
 
-      super.visitMethodInsn(INVOKESTATIC,
-                            m_adviceClass,
-                            "exit",
-                            "(Ljava/lang/Object;Ljava/lang/String;Z)V");
+        super.visitInsn(success ? ICONST_1 : ICONST_0);
+
+        super.visitMethodInsn(INVOKESTATIC,
+                              m_adviceClass,
+                              "exit",
+                              "(Ljava/lang/Object;Ljava/lang/String;Z)V");
+      }
     }
 
     /**
