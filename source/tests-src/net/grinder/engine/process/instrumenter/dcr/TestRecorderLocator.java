@@ -203,6 +203,19 @@ public class TestRecorderLocator extends TestCase {
     m_recorderStubFactory2.assertNoMoreCalls();
   }
 
+  public void testWithNull() throws Exception {
+    final Object target = new Object();
+
+    m_recorderRegistry.register(target, "location", m_recorder);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    RecorderLocator.enter(null, "location");
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    RecorderLocator.exit(null, "location", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
   public void testConcurrency() throws Exception {
     final ExecutorService executor = Executors.newCachedThreadPool();
 

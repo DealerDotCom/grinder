@@ -99,6 +99,13 @@ public final class RecorderLocator implements RecorderRegistry {
    * @throws EngineException
    */
   public static void enter(Object target, String location) {
+
+    if (target == null) {
+      // We don't allow recorders to register for a null target,
+      // but weaved code can be called with null.
+      return;
+    }
+
     // Beware when enabling the following logging - calls on the object itself
     // may fail subtly.
 //   System.out.printf("enter(%s, %s, %s)%n",
@@ -133,6 +140,13 @@ public final class RecorderLocator implements RecorderRegistry {
    *          exception was thrown.
    */
   public static void exit(Object target, String location, boolean success) {
+
+    if (target == null) {
+      // We don't allow recorders to register for a null target,
+      // but weaved code can be called with null.
+      return;
+    }
+
     // Beware when enabling the following logging - calls on the object itself
     // may fail subtly.
 //    System.out.printf("exit(%s, %s, %s, %s)%n",
