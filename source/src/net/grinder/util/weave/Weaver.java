@@ -80,20 +80,6 @@ public interface Weaver {
   String weave(Method method, TargetSource targetSource);
 
   /**
-   * <p>
-   * Equivalent to {@code weave(method, FIRST_PARAMETER)}, or for static
-   * methods, {@code weave(method, CLASS)}.
-   * </p>
-   *
-   * @param method
-   *          The method.
-   * @return String that uniquely identifies the pointcut.
-   * @deprecated
-   */
-  String weave(Method method);
-
-
-  /**
    * Apply pending weaving that has been requested with {@link #weave}.
    *
    * @throws WeavingException A problem occurred with the weaving.

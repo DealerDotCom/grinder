@@ -83,11 +83,11 @@ public class TestDCRWeaver extends TestCase {
 
     final Method method = getClass().getDeclaredMethod("myMethod");
 
-    final String l1 = weaver.weave(method);
-    final String l2 = weaver.weave(method);
+    final String l1 = weaver.weave(method, TargetSource.FIRST_PARAMETER);
+    final String l2 = weaver.weave(method, TargetSource.FIRST_PARAMETER);
     assertEquals(l1, l2);
 
-    weaver.weave(method);
+    weaver.weave(method, TargetSource.FIRST_PARAMETER);
 
     m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
     m_instrumentationStubFactory.assertNoMoreCalls();
@@ -114,8 +114,8 @@ public class TestDCRWeaver extends TestCase {
 
     final Method method2 = getClass().getDeclaredMethod("myOtherMethod");
 
-    weaver.weave(method);
-    weaver.weave(method2);
+    weaver.weave(method, TargetSource.FIRST_PARAMETER);
+    weaver.weave(method2, TargetSource.FIRST_PARAMETER);
 
     m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
     m_instrumentationStubFactory.assertNoMoreCalls();
@@ -192,7 +192,7 @@ public class TestDCRWeaver extends TestCase {
     m_instrumentationStubFactory.assertNoMoreCalls();
 
     final Method method = getClass().getDeclaredMethod("myMethod");
-    weaver.weave(method);
+    weaver.weave(method, TargetSource.FIRST_PARAMETER);
 
     m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
 
@@ -208,7 +208,7 @@ public class TestDCRWeaver extends TestCase {
 
     m_instrumentationStubFactory.assertNoMoreCalls();
 
-    weaver.weave(method);
+    weaver.weave(method, TargetSource.FIRST_PARAMETER);
     weaver.applyChanges();
 
     m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
@@ -221,8 +221,8 @@ public class TestDCRWeaver extends TestCase {
 
     final Method method = getClass().getDeclaredMethod("myMethod");
 
-    weaver.weave(method);
-    weaver.weave(method);
+    weaver.weave(method, TargetSource.FIRST_PARAMETER);
+    weaver.weave(method, TargetSource.FIRST_PARAMETER);
 
     final Exception uce = new UnmodifiableClassException();
     m_instrumentationStubFactory.setThrows("retransformClasses", uce);

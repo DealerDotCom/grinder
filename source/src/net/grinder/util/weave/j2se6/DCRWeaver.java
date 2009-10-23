@@ -27,7 +27,6 @@ import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,15 +85,6 @@ public final class DCRWeaver implements Weaver {
    */
   public String weave(Method method, TargetSource targetSource) {
     return m_pointCutRegistry.add(method, targetSource);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public String weave(Method method) {
-    return weave(method,
-                 Modifier.isStatic(method.getModifiers()) ?
-                   TargetSource.CLASS : TargetSource.FIRST_PARAMETER);
   }
 
   /**
