@@ -375,6 +375,11 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
+  private PyObject getPyInstance(PyProxy pyProxy) throws Exception {
+    // Dynamic invocation because return type has changed in 2.5.
+    return (PyObject) PyProxy.class.getMethod("_getPyInstance").invoke(pyProxy);
+  }
+
   public void testCreateProxyWithPyProxy() throws Exception {
     m_interpreter.exec("from java.util import Random");
     m_interpreter.exec(
@@ -393,7 +398,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
 
     final PyObject pyProxyInstance =
       (pyProxyProxy instanceof PyProxy) ?
-       ((PyProxy)pyProxyProxy)._getPyInstance() : (PyObject)pyProxyProxy;
+          getPyInstance((PyProxy) pyProxyProxy) : (PyObject)pyProxyProxy;
 
     final PyObject result = pyProxyInstance.invoke("one");
     assertEquals(m_one, result);
@@ -451,7 +456,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
   }
 
   public void testPyDispatcherErrorHandling() throws Exception {
-    m_interpreter.exec("def blah(): raise 'a problem'");
+    m_interpreter.exec("def blah(): raise Exception('a problem')");
     final PyObject pyFunction = m_interpreter.get("blah");
     final PyObject pyFunctionProxy = (PyObject) m_instrumenter
         .createInstrumentedProxy(m_test, m_recorder, pyFunction);

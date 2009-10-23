@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,30 +21,23 @@
 
 package net.grinder.engine.process.instrumenter.dcr;
 
-import junit.framework.TestSuite;
-import net.grinder.testutility.BlockingClassLoader;
+import net.grinder.util.weave.Weaver;
+
 
 
 /**
- * Unit tests for {@link JythonInstrumenter}.
+ * Unit tests for {@link Jython22Instrumenter}.
  *
  * @author Philip Aston
- * @version $Revision: 4057 $
+ * @version $Revision:$
  */
-public class TestJythonDCRInstrumenterWithJython25
-  extends TestJythonDCRInstrumenter {
+public class TestJython22Instrumenter
+  extends AbstractJythonDCRInstrumenterTestCase {
 
-  public TestJythonDCRInstrumenterWithJython25() throws Exception {
-    super();
-  }
+  private static final Weaver s_weaver = createWeaver();
 
-  public static TestSuite suite() throws Exception {
-    return new TestSuite(
-      BlockingClassLoader.createJython25ClassLoader().loadClass(
-        TestJythonDCRInstrumenterWithJython25.class.getName()));
-  }
-
-  public void testVersion() throws Exception {
-    assertVersion("2.5.0");
+  public TestJython22Instrumenter() throws Exception {
+    super(new Jython22Instrumenter(s_weaver,
+                                   RecorderLocator.getRecorderRegistry()));
   }
 }

@@ -28,6 +28,7 @@ import java.lang.reflect.Modifier;
 import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
+import net.grinder.util.weave.Weaver.TargetSource;
 
 
 /**
@@ -80,7 +81,7 @@ final class JavaDCRInstrumenter extends DCRInstrumenter {
     // any parent class.
     for (Method method : targetClass.getDeclaredMethods()) {
       if (Modifier.isStatic(method.getModifiers())) {
-        instrument(targetClass, method, recorder);
+        instrument(targetClass, method, TargetSource.CLASS, recorder);
       }
     }
 
@@ -106,7 +107,7 @@ final class JavaDCRInstrumenter extends DCRInstrumenter {
     do {
       for (Method method : c.getDeclaredMethods()) {
         if (!Modifier.isStatic(method.getModifiers())) {
-          instrument(target, method, recorder);
+          instrument(target, method, TargetSource.FIRST_PARAMETER, recorder);
         }
       }
 

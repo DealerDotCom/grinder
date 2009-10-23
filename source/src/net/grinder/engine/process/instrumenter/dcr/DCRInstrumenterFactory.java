@@ -44,9 +44,18 @@ public final class DCRInstrumenterFactory {
 
   /**
    * Return a list of available DCRInstrumenters.
+   *
    * @return The instrumenters.
    */
   public static List<Instrumenter> create() {
+    return create(RecorderLocator.class, RecorderLocator.getRecorderRegistry());
+  }
+
+  /**
+   * Package scope for unit tests.
+   */
+  static List<Instrumenter> create(Class<?> recorderAdviceClass,
+                                   RecorderRegistry recorderRegistry) {
     final Instrumentation instrumentation =
       ExposeInstrumentation.getInstrumentation();
 
@@ -69,18 +78,27 @@ public final class DCRInstrumenterFactory {
     final ASMTransformerFactory transformerFactory;
 
     try {
-      transformerFactory = new ASMTransformerFactory(RecorderLocator.class);
+      transformerFactory = new ASMTransformerFactory(recorderAdviceClass);
     }
     catch (WeavingException e) {
       throw new AssertionError(e);
     }
 
     final DCRWeaver weaver = new DCRWeaver(transformerFactory, instrumentation);
-    final RecorderRegistry registry = RecorderLocator.getRecorderRegistry();
+
+    Instrumenter jythonInstrumenter;
+
+    try {
+      jythonInstrumenter = new Jython25Instrumenter(weaver, recorderRegistry);
+    }
+    catch (WeavingException e) {
+      // Jython 2.5 not available, assume Jython 2.1 or 2.2.
+      jythonInstrumenter = new Jython22Instrumenter(weaver, recorderRegistry);
+    }
 
     return Arrays.<Instrumenter>asList(
-        new JythonDCRInstrumenter(weaver, registry),
-        new JavaDCRInstrumenter(weaver, registry)
+        jythonInstrumenter,
+        new JavaDCRInstrumenter(weaver, recorderRegistry)
       );
   }
 }

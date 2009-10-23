@@ -78,4 +78,14 @@ public class TestDCRInstrumenterFactory extends TestCase {
   public void testWithInstrumentation() throws Exception {
     assertEquals(2, DCRInstrumenterFactory.create().size());
   }
+
+  public void testWithBadAdvice() throws Exception {
+    try {
+      DCRInstrumenterFactory.create(TestDCRInstrumenterFactory.class,
+                                    RecorderLocator.getRecorderRegistry());
+      fail("Expected AssertionError");
+    }
+    catch (AssertionError e) {
+    }
+  }
 }

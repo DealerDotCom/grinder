@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
+import net.grinder.util.weave.Weaver.TargetSource;
 
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
@@ -36,12 +37,12 @@ import org.python.core.PyReflectedFunction;
 
 
 /**
- * DCRInstrumenter.
+ * DCRInstrumenter for Jython 2.1, 2.2.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-final class JythonDCRInstrumenter extends DCRInstrumenter {
+final class Jython22Instrumenter extends DCRInstrumenter {
 
   /**
    * Constructor for DCRInstrumenter.
@@ -49,8 +50,8 @@ final class JythonDCRInstrumenter extends DCRInstrumenter {
    * @param weaver The weaver.
    * @param recorderRegistry The recorder registry.
    */
-  public JythonDCRInstrumenter(Weaver weaver,
-                               RecorderRegistry recorderRegistry)  {
+  public Jython22Instrumenter(Weaver weaver,
+                              RecorderRegistry recorderRegistry)  {
     super(weaver, recorderRegistry);
   }
 
@@ -58,7 +59,7 @@ final class JythonDCRInstrumenter extends DCRInstrumenter {
    * {@inheritDoc}
    */
   public String getDescription() {
-    return "byte code transforming instrumenter for Jython";
+    return "byte code transforming instrumenter for Jython 2.1/2.2";
   }
 
   @Override
@@ -68,11 +69,25 @@ final class JythonDCRInstrumenter extends DCRInstrumenter {
     if (target instanceof PyObject) {
       // Jython object.
       if (target instanceof PyInstance) {
-        instrumentPublicMethodsByName(target, "invoke", recorder, true);
+        instrumentPublicMethodsByName(target,
+                                      "invoke",
+                                      TargetSource.FIRST_PARAMETER,
+                                      recorder,
+                                      true);
       }
-      else if (target instanceof PyFunction ||
-               target instanceof PyMethod) {
-        instrumentPublicMethodsByName(target, "__call__", recorder, false);
+      else if (target instanceof PyFunction) {
+        instrumentPublicMethodsByName(target,
+                                      "__call__",
+                                      TargetSource.FIRST_PARAMETER,
+                                      recorder,
+                                      false);
+      }
+      else if (target instanceof PyMethod) {
+        instrumentPublicMethodsByName(target,
+                                      "__call__",
+                                      TargetSource.FIRST_PARAMETER,
+                                      recorder,
+                                      false);
       }
       else if (target instanceof PyReflectedFunction) {
         final Method callMethod;
@@ -86,11 +101,12 @@ final class JythonDCRInstrumenter extends DCRInstrumenter {
             "Correct version of Jython?: " + e.getLocalizedMessage());
         }
 
-        instrument(target, callMethod, recorder);
+        instrument(target, callMethod, TargetSource.FIRST_PARAMETER, recorder);
       }
       else {
         // Fail, rather than guess a generic approach.
-        throw new NotWrappableTypeException("Unknown PyObject");
+        throw new NotWrappableTypeException("Unknown PyObject:" +
+                                            target.getClass());
       }
     }
     else if (target instanceof PyProxy) {
@@ -99,12 +115,38 @@ final class JythonDCRInstrumenter extends DCRInstrumenter {
       // Jython methods.
       final PyObject pyInstance = ((PyProxy)target)._getPyInstance();
 
-      instrumentPublicMethodsByName(pyInstance, "invoke", recorder, true);
+      instrumentPublicMethodsByName(pyInstance,
+                                    "invoke",
+                                    TargetSource.FIRST_PARAMETER,
+                                    recorder,
+                                    true);
     }
     else {
       return null;
     }
 
     return target;
+  }
+
+  private void instrumentPublicMethodsByName(Object target,
+                                             String methodName,
+                                             TargetSource targetSource,
+                                             Recorder recorder,
+                                             boolean includeSuperClassMethods)
+    throws NotWrappableTypeException {
+
+    // getMethods() includes superclass methods.
+    for (Method method : target.getClass().getMethods()) {
+      if (!includeSuperClassMethods &&
+          target.getClass() != method.getDeclaringClass()) {
+        continue;
+      }
+
+      if (!method.getName().equals(methodName)) {
+        continue;
+      }
+
+      instrument(target, method, targetSource, recorder);
+    }
   }
 }

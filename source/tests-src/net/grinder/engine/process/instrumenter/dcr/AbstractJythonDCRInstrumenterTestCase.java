@@ -21,7 +21,11 @@
 
 package net.grinder.engine.process.instrumenter.dcr;
 
+import org.python.core.PyObject;
+import org.python.util.PythonInterpreter;
+
 import net.grinder.common.Test;
+import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
@@ -29,24 +33,19 @@ import net.grinder.util.weave.agent.ExposeInstrumentation;
 import net.grinder.util.weave.j2se6.ASMTransformerFactory;
 import net.grinder.util.weave.j2se6.DCRWeaver;
 
-import org.python.core.PyObject;
-import org.python.util.PythonInterpreter;
-
 
 /**
- * Unit tests for {@link JythonDCRInstrumenter}.
+ * Common stuff for Jython DCR instrumenters.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestJythonDCRInstrumenter
+public abstract class AbstractJythonDCRInstrumenterTestCase
   extends AbstractJythonInstrumenterTestCase {
 
-  private static final Weaver s_weaver;
-
-  static {
+  protected static Weaver createWeaver() {
     try {
-      s_weaver =
+      return
         new DCRWeaver(new ASMTransformerFactory(RecorderLocator.class),
                       ExposeInstrumentation.getInstrumentation());
     }
@@ -55,17 +54,18 @@ public class TestJythonDCRInstrumenter
     }
   }
 
-  public TestJythonDCRInstrumenter() throws Exception {
-    super(new JythonDCRInstrumenter(s_weaver,
-                                    RecorderLocator.getRecorderRegistry()));
+  public AbstractJythonDCRInstrumenterTestCase(Instrumenter instrumenter) {
+    super(instrumenter);
   }
 
-  @Override protected void tearDown() throws Exception {
+  @Override
+  protected void tearDown() throws Exception {
     super.tearDown();
     RecorderLocator.clearRecorders();
   }
 
-  @Override protected void assertTestReference(PyObject pyObject, Test test) {
+  @Override
+  protected void assertTestReference(PyObject pyObject, Test test) {
     // No-op, DCRInstrumenter doesn't support __test__.
   }
 

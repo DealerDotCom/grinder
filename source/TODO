@@ -31,18 +31,13 @@ Steps:
      - Add void record(Object). DCR warns if wrap() called.
        JythonInstrumenter throws NotSupported if instrument() called.
 
-Jython 2.5 notes:
- - Initially forbid PyInstances, PyMethods, PyJavaInstances,
-   PyReflectedFunctions, PyProxy's, JavaClasses,
+Wrapping unit test additions:
+  1. Java classes.
+  2. Python lambdas
+  3. Derived objects with static Java methods.
+  4. PyReflectedConstructor
 
 
- - To instrument PyInstances, we'd need to register
-      public org.python.core.PyObject org.python.core.PyFunction.__call__(org.python.core.ThreadState,org.python.core.PyObject)
-      public org.python.core.PyObject org.python.core.PyFunction.__call__(org.python.core.ThreadState,org.python.core.PyObject,org.python.core.PyObject)
-      public org.python.core.PyObject org.python.core.PyFunction.__call__(org.python.core.ThreadState,org.python.core.PyObject,org.python.core.PyObject,org.python.core.PyObject)
-      public org.python.core.PyObject org.python.core.PyFunction.__call__(org.python.core.ThreadState,org.python.core.PyObject,org.python.core.PyObject[],java.lang.String[])
-
-   and extend the weaver to use the second parameter as the reference.
 
 * Java 5 upgrade
 

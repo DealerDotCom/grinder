@@ -30,6 +30,7 @@ import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
+import net.grinder.util.weave.Weaver.TargetSource;
 
 
 /**
@@ -89,27 +90,6 @@ abstract class DCRInstrumenter implements Instrumenter {
   protected abstract Object instrument(Object target,  Recorder recorder)
     throws NotWrappableTypeException;
 
-  public void instrumentPublicMethodsByName(Object target,
-                                            String methodName,
-                                            Recorder recorder,
-                                            boolean includeSuperClassMethods)
-    throws NotWrappableTypeException {
-
-    // getMethods() includes superclass methods.
-    for (Method method : target.getClass().getMethods()) {
-      if (!includeSuperClassMethods &&
-          target.getClass() != method.getDeclaringClass()) {
-        continue;
-      }
-
-      if (!method.getName().equals(methodName)) {
-        continue;
-      }
-
-      instrument(target, method, recorder);
-    }
-  }
-
   public void instrument(Object target,
                          Constructor<?> constructor,
                          Recorder recorder)
@@ -127,12 +107,15 @@ abstract class DCRInstrumenter implements Instrumenter {
     m_recorderRegistry.register(target, location, recorder);
   }
 
-  public void instrument(Object target, Method method, Recorder recorder)
+  public void instrument(Object target,
+                         Method method,
+                         TargetSource targetSource,
+                         Recorder recorder)
     throws NotWrappableTypeException {
 
     checkWrappable(method.getDeclaringClass());
 
-    final String location = m_weaver.weave(method);
+    final String location = m_weaver.weave(method, targetSource);
 
 //    System.out.printf("register(%s, %s, %s, %s)%n",
 //                      target.hashCode(), location,
