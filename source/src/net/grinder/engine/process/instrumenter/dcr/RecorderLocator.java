@@ -150,7 +150,7 @@ public final class RecorderLocator implements RecorderRegistry {
     // Beware when enabling the following logging - calls on the object itself
     // may fail subtly.
 //    System.out.printf("exit(%s, %s, %s, %s)%n",
-//                      System.identityHashCode(target.hashCode()),
+//                      System.identityHashCode(target),
 //                      target.getClass(),
 //                      location,
 //                      success);
