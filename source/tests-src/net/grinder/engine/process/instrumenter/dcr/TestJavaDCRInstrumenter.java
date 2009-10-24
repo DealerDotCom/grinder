@@ -157,7 +157,7 @@ public class TestJavaDCRInstrumenter extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  public void testInstrumentUnmofifiableCLass() throws Exception {
+  public void testInstrumentUnmodifiableCLass() throws Exception {
 
     final RandomStubFactory<Instrumentation> instrumentationStubFactory =
       RandomStubFactory.create(Instrumentation.class);
