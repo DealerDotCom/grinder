@@ -76,7 +76,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     // DCRInstrumenter doesn't support __target__.
   }
 
-  public void testCreateProxyWithNonWrappableParameters() throws Exception {
+  public void testInstrumentationWithNonWrappableParameters() throws Exception {
 
     // The types that can be wrapped depend on the Instrumenter.
 
@@ -89,7 +89,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     assertNotWrappableByThisInstrumenter(null);
   }
 
-  public void testCreateProxyWithPyClass() throws Exception {
+  public void testInstrumentationWithPyClass() throws Exception {
     m_interpreter.exec("class Foo:\n" +
                        " def __init__(self, a, b, c):\n" +
                        "  self.a = a\n" +
@@ -128,7 +128,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  public void testCreateProxyWithPyDerivedClass() throws Exception {
+  public void testInstrumentationWithPyDerivedClass() throws Exception {
     m_interpreter.exec("from test import MyClass\n" +
                        "class Foo(MyClass):\n" +
                        " def six(self): return 6\n" +
@@ -162,6 +162,29 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     // Instrumenting a class doesn't instrument methods.
     m_interpreter.exec("result4 = result3.six()");
     assertEquals(m_six, m_interpreter.get("result4"));
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+  
+  public void testInstrumentationWithStaticMethod() throws Exception {
+    m_interpreter.exec("from test import MyClass\n" +
+                       "x=MyClass.staticSix");
+
+    final PyObject pyType = m_interpreter.get("x");
+    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, pyType);
+    final PyObject result = pyType.__call__();
+    assertEquals(m_six, result);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython.
+    m_interpreter.set("proxy", pyType);
+
+    m_interpreter.exec("result2 = MyClass.staticSix()");
+    final PyObject result2 = m_interpreter.get("result2");
+    assertEquals(m_six, result2);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
   }
 }
