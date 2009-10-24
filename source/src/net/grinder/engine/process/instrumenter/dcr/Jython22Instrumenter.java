@@ -95,7 +95,8 @@ final class Jython22Instrumenter extends DCRInstrumenter {
 
         try {
           callMethod = PyReflectedFunction.class.getMethod("__call__",
-                                                           PyObject.class);
+                                                           PyObject[].class,
+                                                           String[].class);
         }
         catch (Exception e) {
           throw new NotWrappableTypeException(
