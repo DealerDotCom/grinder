@@ -20,11 +20,6 @@ Steps:
 
   * Better reporting why instrumenters didn't load.
 
-  * Split out separate Java and Jython DCR instrumenters
-
-  * Can we simplify the Jython 2.1/2.2 instrumenters?
-    - Parameter based instrumentation instead of "this" based?
-
   * Jython 2.5
      - Doc changes to wrap() semantics. (Changes object in place, original
        not accessible, no way to get to Test).
@@ -32,8 +27,6 @@ Steps:
        JythonInstrumenter throws NotSupported if instrument() called.
 
 Wrapping unit test additions:
-  2. Python lambdas
-  3. Derived objects with static Java methods.
   4. PyReflectedConstructor
 
 Had to use type_call for PyType to catch direct access to __call__(). What

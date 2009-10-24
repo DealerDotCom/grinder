@@ -164,7 +164,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     assertEquals(m_six, m_interpreter.get("result4"));
     m_recorderStubFactory.assertNoMoreCalls();
   }
-  
+
   public void testInstrumentationWithStaticMethod() throws Exception {
     m_interpreter.exec("from test import MyClass\n" +
                        "x=MyClass.staticSix");
@@ -183,6 +183,28 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     m_interpreter.exec("result2 = MyClass.staticSix()");
     final PyObject result2 = m_interpreter.get("result2");
     assertEquals(m_six, result2);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  public void testInstrumentationWithPyLambda() throws Exception {
+    m_interpreter.exec("f=lambda x:x+1");
+
+    final PyObject pyType = m_interpreter.get("f");
+    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, pyType);
+    final PyObject result = pyType.__call__(m_two);
+    assertEquals(m_three, result);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython.
+    m_interpreter.set("proxy", pyType);
+
+    m_interpreter.exec("result2 = f(0)");
+    final PyObject result2 = m_interpreter.get("result2");
+    assertEquals(m_one, result2);
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
