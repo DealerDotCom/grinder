@@ -208,6 +208,10 @@ final class ThreadContextImplementation
     final DispatchContext dispatchContext = m_dispatchContextStack.pop();
 
     if (dispatchContext == null) {
+      if (m_shutdownInProgress) {
+        return;
+      }
+
       throw new AssertionError("DispatchContext stack unexpectedly empty");
     }
 

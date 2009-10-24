@@ -238,7 +238,7 @@ final class TestData implements RegisteredTest, Recorder {
         m_pauseTimer.stop();
       }
 
-      if (!success) {
+      if (!success && m_statisticsForTest != null) {
         // Always mark as an error if the test threw an exception.
         m_testStatisticsHelper.setSuccess(
           m_statisticsForTest.getStatistics(), false);
