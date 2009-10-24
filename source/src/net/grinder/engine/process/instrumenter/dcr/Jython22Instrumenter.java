@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
+import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.Weaver.TargetSource;
 
 import org.python.core.PyClass;
@@ -34,6 +35,7 @@ import org.python.core.PyInstance;
 import org.python.core.PyMethod;
 import org.python.core.PyObject;
 import org.python.core.PyProxy;
+import org.python.core.PyReflectedConstructor;
 import org.python.core.PyReflectedFunction;
 
 
@@ -45,15 +47,38 @@ import org.python.core.PyReflectedFunction;
  */
 final class Jython22Instrumenter extends DCRInstrumenter {
 
+  private final Method m_pyReflectedConstructorCallMethod;
+  private final Method m_pyReflectedFunctionCallMethod;
+
   /**
    * Constructor for DCRInstrumenter.
    *
    * @param weaver The weaver.
    * @param recorderRegistry The recorder registry.
+   * @throws WeavingException If it looks like Jython 2.1/2.2 isn't available.
    */
   public Jython22Instrumenter(Weaver weaver,
-                              RecorderRegistry recorderRegistry)  {
+                              RecorderRegistry recorderRegistry)
+    throws WeavingException {
     super(weaver, recorderRegistry);
+
+
+    try {
+      m_pyReflectedConstructorCallMethod =
+        PyReflectedConstructor.class.getMethod("__call__",
+                                               PyObject.class,
+                                               PyObject[].class,
+                                               String[].class);
+
+      m_pyReflectedFunctionCallMethod =
+        PyReflectedFunction.class.getMethod("__call__",
+                                            PyObject.class,
+                                            PyObject[].class,
+                                            String[].class);
+    }
+    catch (NoSuchMethodException e) {
+      throw new WeavingException("Jython 2.1/2.2 not found", e);
+    }
   }
 
   /**
@@ -90,20 +115,17 @@ final class Jython22Instrumenter extends DCRInstrumenter {
                                       recorder,
                                       false);
       }
+      else if (target instanceof PyReflectedConstructor) {
+        instrument(target,
+                   m_pyReflectedConstructorCallMethod,
+                   TargetSource.FIRST_PARAMETER,
+                   recorder);
+      }
       else if (target instanceof PyReflectedFunction) {
-        final Method callMethod;
-
-        try {
-          callMethod = PyReflectedFunction.class.getMethod("__call__",
-                                                           PyObject[].class,
-                                                           String[].class);
-        }
-        catch (Exception e) {
-          throw new NotWrappableTypeException(
-            "Correct version of Jython?: " + e.getLocalizedMessage());
-        }
-
-        instrument(target, callMethod, TargetSource.FIRST_PARAMETER, recorder);
+        instrument(target,
+                   m_pyReflectedFunctionCallMethod,
+                   TargetSource.FIRST_PARAMETER,
+                   recorder);
       }
       else if (target instanceof PyClass) {
         instrumentPublicMethodsByName(target,

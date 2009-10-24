@@ -23,7 +23,7 @@ package net.grinder.engine.process.instrumenter.dcr;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -86,19 +86,23 @@ public final class DCRInstrumenterFactory {
 
     final DCRWeaver weaver = new DCRWeaver(transformerFactory, instrumentation);
 
-    Instrumenter jythonInstrumenter;
+    final List<Instrumenter> result = new ArrayList<Instrumenter>();
 
     try {
-      jythonInstrumenter = new Jython25Instrumenter(weaver, recorderRegistry);
+      result.add(new Jython25Instrumenter(weaver, recorderRegistry));
     }
     catch (WeavingException e) {
-      // Jython 2.5 not available, assume Jython 2.1 or 2.2.
-      jythonInstrumenter = new Jython22Instrumenter(weaver, recorderRegistry);
+      // Jython 2.5 not available, try Jython 2.1/2.2.
+      try {
+        result.add(new Jython22Instrumenter(weaver, recorderRegistry));
+      }
+      catch (WeavingException e1) {
+        // No known version of Jython.
+      }
     }
 
-    return Arrays.<Instrumenter>asList(
-        jythonInstrumenter,
-        new JavaDCRInstrumenter(weaver, recorderRegistry)
-      );
+    result.add(new JavaDCRInstrumenter(weaver, recorderRegistry));
+
+    return result;
   }
 }

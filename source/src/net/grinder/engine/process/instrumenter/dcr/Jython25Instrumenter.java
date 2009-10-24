@@ -38,6 +38,7 @@ import org.python.core.PyMethod;
 import org.python.core.PyObject;
 import org.python.core.PyObjectDerived;
 import org.python.core.PyProxy;
+import org.python.core.PyReflectedConstructor;
 import org.python.core.PyReflectedFunction;
 import org.python.core.PyType;
 import org.python.core.ThreadState;
@@ -54,6 +55,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
   private final Instrumenter m_pyInstanceInstrumenter;
   private final Instrumenter m_pyFunctionInstrumenter;
   private final Instrumenter m_pyMethodInstrumenter;
+  private final Instrumenter m_pyReflectedConstructorInstrumenter;
   private final Instrumenter m_pyReflectedFunctionInstrumenter;
   private final Instrumenter m_pyDerivedObjectInstrumenter;
   private final Instrumenter m_pyProxyInstrumenter;
@@ -65,7 +67,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
    *
    * @param weaver The weaver.
    * @param recorderRegistry The recorder registry.
-   * @throws WeavingException
+   * @throws WeavingException If it looks like Jython 2.5 isn't available.
    */
   public Jython25Instrumenter(Weaver weaver,
                               RecorderRegistry recorderRegistry)
@@ -132,6 +134,23 @@ final class Jython25Instrumenter extends DCRInstrumenter {
             throws NotWrappableTypeException {
             instrument(target,
                        pyMethodCall,
+                       TargetSource.FIRST_PARAMETER,
+                       recorder);
+          }
+        };
+
+
+      final Method pyReflectedConstructorCall =
+        PyReflectedConstructor.class.getDeclaredMethod("__call__",
+                                                       PyObject.class,
+                                                       PyObject[].class,
+                                                       String[].class);
+
+      m_pyReflectedConstructorInstrumenter = new Instrumenter() {
+          public void transform(Recorder recorder, Object target)
+            throws NotWrappableTypeException {
+            instrument(target,
+                       pyReflectedConstructorCall,
                        TargetSource.FIRST_PARAMETER,
                        recorder);
           }
@@ -252,6 +271,9 @@ final class Jython25Instrumenter extends DCRInstrumenter {
       }
       else if (target instanceof PyObjectDerived) {
         m_pyDerivedObjectInstrumenter.transform(recorder, target);
+      }
+      else if (target instanceof PyReflectedConstructor) {
+        m_pyReflectedConstructorInstrumenter.transform(recorder, target);
       }
       else if (target instanceof PyReflectedFunction) {
         m_pyReflectedFunctionInstrumenter.transform(recorder, target);

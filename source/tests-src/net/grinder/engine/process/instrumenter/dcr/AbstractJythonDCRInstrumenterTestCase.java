@@ -188,6 +188,25 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
+  public void testInstrumentationWithReflectedConstructor() throws Exception {
+    m_interpreter.exec("from test import MyClass\n" +
+                       "x=MyClass.__init__");
+
+    final PyObject myClass = m_interpreter.get("MyClass");
+    final PyObject py = m_interpreter.get("x");
+    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, py);
+    myClass.__call__();
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython.
+    m_interpreter.exec("MyClass()");
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
   public void testInstrumentationWithPyLambda() throws Exception {
     m_interpreter.exec("f=lambda x:x+1");
 

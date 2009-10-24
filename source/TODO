@@ -26,9 +26,6 @@ Steps:
      - Add void record(Object). DCR warns if wrap() called.
        JythonInstrumenter throws NotSupported if instrument() called.
 
-Wrapping unit test additions:
-  4. PyReflectedConstructor
-
 Had to use type_call for PyType to catch direct access to __call__(). What
 else does this apply to?
 
