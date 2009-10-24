@@ -86,10 +86,49 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     interpreter.exec("x=1");
     assertNotWrappable(interpreter.get("x"));
 
-    // Can't wrap PyClass.
-    interpreter.exec("class Foo: pass");
-    assertNotWrappable(interpreter.get("Foo"));
-
     assertNotWrappableByThisInstrumenter(null);
+  }
+
+  public void testCreateProxyWithPyClass() throws Exception {
+    m_interpreter.exec("class Foo:\n" +
+                       " def __init__(self, a, b, c):\n" +
+                       "  self.a = a\n" +
+                       "  self.b = b\n" +
+                       "  self.c = c\n" +
+                       " def six(self): return 6\n");
+  
+    final PyObject pyType = m_interpreter.get("Foo");
+    final PyObject pyTypeProxy = (PyObject) m_instrumenter
+        .createInstrumentedProxy(m_test, m_recorder, pyType);
+    final PyObject result = pyTypeProxy.__call__(m_two, m_three, m_one);
+    assertEquals(m_two, result.__getattr__("a"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+    assertTestReference(pyTypeProxy, m_test);
+    assertNull(pyTypeProxy.__findattr__("__blah__"));
+    assertTargetReference(pyTypeProxy, pyType);
+  
+    // From Jython.
+    m_interpreter.set("proxy", pyTypeProxy);
+  
+    m_interpreter.exec("result2 = Foo(1, 2, 3)");
+    final PyObject result2 = m_interpreter.get("result2");
+    assertEquals(m_two, result2.__getattr__("b"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  
+    m_interpreter.exec("result3 = proxy(0, 0, 0)");
+    final PyObject result3 = m_interpreter.get("result3");
+    assertEquals(m_zero, result3.__getattr__("b"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  
+    // Instrumenting a class doesn't instrument methods.
+    m_interpreter.exec("result4 = result3.six()");
+    assertEquals(m_six, m_interpreter.get("result4"));
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 }

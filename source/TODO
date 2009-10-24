@@ -32,11 +32,12 @@ Steps:
        JythonInstrumenter throws NotSupported if instrument() called.
 
 Wrapping unit test additions:
-  1. Java classes.
   2. Python lambdas
   3. Derived objects with static Java methods.
   4. PyReflectedConstructor
 
+Had to use type_call for PyType to catch direct access to __call__(). What
+else does this apply to?
 
 
 * Java 5 upgrade

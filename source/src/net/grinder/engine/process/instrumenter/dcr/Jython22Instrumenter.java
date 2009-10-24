@@ -28,6 +28,7 @@ import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.Weaver.TargetSource;
 
+import org.python.core.PyClass;
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
 import org.python.core.PyMethod;
@@ -102,6 +103,13 @@ final class Jython22Instrumenter extends DCRInstrumenter {
         }
 
         instrument(target, callMethod, TargetSource.FIRST_PARAMETER, recorder);
+      }
+      else if (target instanceof PyClass) {
+        instrumentPublicMethodsByName(target,
+                                      "__call__",
+                                      TargetSource.FIRST_PARAMETER,
+                                      recorder,
+                                      false);
       }
       else {
         // Fail, rather than guess a generic approach.

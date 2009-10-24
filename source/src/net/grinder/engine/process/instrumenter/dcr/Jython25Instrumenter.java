@@ -31,6 +31,7 @@ import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.Weaver.TargetSource;
 
+import org.python.core.PyClass;
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
 import org.python.core.PyMethod;
@@ -38,6 +39,7 @@ import org.python.core.PyObject;
 import org.python.core.PyObjectDerived;
 import org.python.core.PyProxy;
 import org.python.core.PyReflectedFunction;
+import org.python.core.PyType;
 import org.python.core.ThreadState;
 
 
@@ -55,6 +57,8 @@ final class Jython25Instrumenter extends DCRInstrumenter {
   private final Instrumenter m_pyReflectedFunctionInstrumenter;
   private final Instrumenter m_pyDerivedObjectInstrumenter;
   private final Instrumenter m_pyProxyInstrumenter;
+  private final Instrumenter m_pyTypeInstrumenter;
+  private final Instrumenter m_pyClassInstrumenter;
 
   /**
    * Constructor for DCRInstrumenter.
@@ -185,6 +189,39 @@ final class Jython25Instrumenter extends DCRInstrumenter {
             m_pyDerivedObjectInstrumenter.transform(recorder, pyInstance);
           }
         };
+
+      // Instrumenting a class doesn't instrument static methods.
+      // This is inconsistent with respect to the Java DCR instrumenter,
+      // but better fits Python, with its first class functions.
+      final Method pyTypeCall =
+        PyType.class.getDeclaredMethod("type___call__",
+                                       PyObject[].class,
+                                       String[].class);
+
+      m_pyTypeInstrumenter = new Instrumenter() {
+          public void transform(Recorder recorder, Object target)
+            throws NotWrappableTypeException {
+            instrument(target,
+                       pyTypeCall,
+                       TargetSource.FIRST_PARAMETER,
+                       recorder);
+          }
+        };
+
+      final Method pyClassCall =
+        PyClass.class.getDeclaredMethod("__call__",
+                                        PyObject[].class,
+                                        String[].class);
+
+      m_pyClassInstrumenter = new Instrumenter() {
+          public void transform(Recorder recorder, Object target)
+            throws NotWrappableTypeException {
+            instrument(target,
+                       pyClassCall,
+                       TargetSource.FIRST_PARAMETER,
+                       recorder);
+          }
+        };
     }
     catch (NoSuchMethodException e) {
       throw new WeavingException("Jython 2.5 not found", e);
@@ -218,6 +255,12 @@ final class Jython25Instrumenter extends DCRInstrumenter {
       }
       else if (target instanceof PyReflectedFunction) {
         m_pyReflectedFunctionInstrumenter.transform(recorder, target);
+      }
+      else if (target instanceof PyType) {
+        m_pyTypeInstrumenter.transform(recorder, target);
+      }
+      else if (target instanceof PyClass) {
+        m_pyClassInstrumenter.transform(recorder, target);
       }
       else {
         // Fail, rather than guess a generic approach.

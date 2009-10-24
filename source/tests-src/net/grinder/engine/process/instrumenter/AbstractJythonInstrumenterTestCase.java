@@ -62,6 +62,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
   protected final PythonInterpreter m_interpreter =
     new PythonInterpreter(null, new PySystemState());
 
+  protected final PyObject m_zero = new PyInteger(0);
   protected final PyObject m_one = new PyInteger(1);
   protected final PyObject m_two = new PyInteger(2);
   protected final PyObject m_three = new PyInteger(3);
@@ -348,6 +349,43 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
+  public void testCreateProxyWithJavaClass() throws Exception {
+    m_interpreter.exec("from test import MyClass");
+    final PyObject pyJavaType = m_interpreter.get("MyClass");
+    final PyObject pyJavaTypeProxy = (PyObject) m_instrumenter
+        .createInstrumentedProxy(m_test, m_recorder, pyJavaType);
+    final PyObject result = pyJavaTypeProxy.__call__(m_two, m_three, m_one);
+    assertEquals(m_two, result.invoke("getA"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+    assertTestReference(pyJavaTypeProxy, m_test);
+    assertNull(pyJavaTypeProxy.__findattr__("__blah__"));
+    assertTargetReference(pyJavaTypeProxy, pyJavaType);
+
+    // From Jython.
+    m_interpreter.set("proxy", pyJavaTypeProxy);
+
+    m_interpreter.exec("result2 = MyClass(1, 2, 3)");
+    final PyObject result2 = m_interpreter.get("result2");
+    assertEquals(m_two, result2.invoke("getB"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result3 = proxy()");
+    final PyObject result3 = m_interpreter.get("result3");
+    assertEquals(m_zero, result3.invoke("getB"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // Instrumenting a class doesn't instrument static methods.
+    m_interpreter.exec("result5 = MyClass.staticSix()");
+    assertEquals(m_six, m_interpreter.get("result5"));
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
   public void testCreateProxyWithPyReflectedFunction() throws Exception {
     m_interpreter.exec("from java.util import Random\nx=Random()");
     final PyObject pyJava = m_interpreter.get("x");
@@ -483,7 +521,6 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
       assertSame(e, e2);
     }
     catch (PyException e3) {
-      e3.printStackTrace();
       assertSame(e, e3.value.__tojava__(Exception.class));
     }
   }

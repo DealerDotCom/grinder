@@ -21,6 +21,7 @@
 
 package net.grinder.engine.process.instrumenter.dcr;
 
+import org.python.core.PyObject;
 import org.python.core.PyProxy;
 
 import junit.framework.TestSuite;
@@ -74,5 +75,19 @@ public class TestJython25Instrumenter
     final PyProxy pyProxy = pyProxyStubFactory.getStub();
 
     assertNotWrappable(pyProxy);
+  }
+
+
+  public void testCreateProxyWithJavaClassAnd__call__() throws Exception {
+    m_interpreter.exec("from test import MyClass");
+    final PyObject pyJavaType = m_interpreter.get("MyClass");
+    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, pyJavaType);
+
+    m_interpreter.exec("result2 = MyClass.__call__()");
+    final PyObject result2 = m_interpreter.get("result2");
+    assertEquals(m_zero, result2.invoke("getA"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 }
