@@ -46,6 +46,7 @@ public class BlockingClassLoader extends URLClassLoader {
   private static final List<String> GRINDER_AND_PYTHON_CLASSES =
     Arrays.<String>asList("net.grinder.*",
                            "org.python.*",
+                           "test.*",
                            "+net.grinder.util.weave.agent.*");
 
   /**
