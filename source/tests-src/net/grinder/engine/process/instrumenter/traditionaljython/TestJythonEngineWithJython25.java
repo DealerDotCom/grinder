@@ -44,7 +44,7 @@ public class TestJythonEngineWithJython25 extends TestCase {
   }
 
   public void testJythonInstrumenterFactory() throws Exception {
-    AbstractJythonInstrumenterTestCase.assertVersion("2.5.0");
+    AbstractJythonInstrumenterTestCase.assertVersion("2.5");
 
     final List<?> result = JythonInstrumenterFactory.create();
 

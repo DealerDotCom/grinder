@@ -66,7 +66,7 @@ public class TestJython25Instrumenter
   }
 
   public void testVersion() throws Exception {
-    assertVersion("2.5.0");
+    assertVersion("2.5");
   }
 
   public void testBrokenPyProxy() throws Exception {
