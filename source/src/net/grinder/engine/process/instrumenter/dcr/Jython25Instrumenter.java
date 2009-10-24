@@ -212,6 +212,10 @@ final class Jython25Instrumenter extends DCRInstrumenter {
       // Instrumenting a class doesn't instrument static methods.
       // This is inconsistent with respect to the Java DCR instrumenter,
       // but better fits Python, with its first class functions.
+
+      // Unlike other classes, the "exposed method" type___call__ for PyType
+      // does not delegate to the general __call__ method; its the other way
+      // round. It can be called directly, so we instrument it.
       final Method pyTypeCall =
         PyType.class.getDeclaredMethod("type___call__",
                                        PyObject[].class,

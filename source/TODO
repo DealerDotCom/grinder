@@ -16,18 +16,11 @@ against it too :-).
 * NG instrumentation
 
 Steps:
-  * Need statistics from weaver.
-
-  * Better reporting why instrumenters didn't load.
-
   * Jython 2.5
      - Doc changes to wrap() semantics. (Changes object in place, original
        not accessible, no way to get to Test).
      - Add void record(Object). DCR warns if wrap() called.
-       JythonInstrumenter throws NotSupported if instrument() called.
-
-Had to use type_call for PyType to catch direct access to __call__(). What
-else does this apply to?
+       TradJythonInstrumenter throws NotSupported if record() called.
 
 
 * Java 5 upgrade
