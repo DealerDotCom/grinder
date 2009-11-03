@@ -69,7 +69,7 @@ final class ThreadContextImplementation
   private StatisticsForTest m_statisticsForLastTest;
 
   private volatile boolean m_shutdown;
-  private boolean m_shutdownInProgress;
+  private boolean m_shutdownReported;
 
   public ThreadContextImplementation(ProcessContext processContext,
                                      ThreadLogger threadLogger,
@@ -185,8 +185,14 @@ final class ThreadContextImplementation
   public void pushDispatchContext(DispatchContext dispatchContext)
     throws ShutdownException {
 
-    if (m_shutdown && !m_shutdownInProgress) {
-      m_shutdownInProgress = true;
+    if (m_shutdown) {
+      // As soon as we're shutdown, we disable the instrumentation. This
+      // avoids reporting of misleading test failures.
+
+      // We only throw ShutdownException from pushDispatchContext. A test that
+      // was in-flight at the time of shutdown will complete normally unless
+      // the thread attempts to start a nested test.
+      m_shutdownReported = true;
       throw new ShutdownException("Thread has been shut down");
     }
 
@@ -205,13 +211,13 @@ final class ThreadContextImplementation
   }
 
   public void popDispatchContext() {
+    if (m_shutdownReported) {
+      return;
+    }
+
     final DispatchContext dispatchContext = m_dispatchContextStack.pop();
 
     if (dispatchContext == null) {
-      if (m_shutdownInProgress) {
-        return;
-      }
-
       throw new AssertionError("DispatchContext stack unexpectedly empty");
     }
 

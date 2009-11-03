@@ -75,36 +75,6 @@ public class TestThreadContextImplementation extends TestCase {
       "getStatisticsServices", m_statisticsServices);
   }
 
-  public void testShutdownOnlyOnce() throws Exception {
-
-    // pushDispatchContext() should throw one ShutdownException exception after
-    // the thread has been shut down.
-
-    final ThreadContext threadContext =
-      new ThreadContextImplementation(
-        m_processContext, m_threadLogger, m_filenameFactory, null);
-
-    final Test test = new StubTest(14, "test");
-    m_dispatchContextStubFactory.setResult("getTest", test);
-
-    for (int i = 0; i < 2; ++i) {
-      threadContext.pushDispatchContext(m_dispatchContext);
-    }
-
-    threadContext.shutdown();
-
-    try {
-      threadContext.pushDispatchContext(m_dispatchContext);
-      fail("Expected ShutdownException");
-    }
-    catch (ShutdownException e) {
-    }
-
-    for (int i = 0; i < 2; ++i) {
-      threadContext.pushDispatchContext(m_dispatchContext);
-    }
-  }
-
   public void testBasics() throws Exception {
     m_threadLoggerStubFactory.setResult("getThreadNumber", new Integer(13));
     m_threadLoggerStubFactory.setResult("getCurrentRunNumber", new Integer(2));
@@ -398,6 +368,27 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.setDelayReports(false);
     m_dispatchContextStubFactory.assertSuccess("report");
     m_dispatchContextStubFactory.assertNoMoreCalls();
+  }
+
+  public void testDispatchContextWhenShuttingDown() throws Exception {
+    final ThreadContext threadContext =
+      new ThreadContextImplementation(
+        m_processContext, m_threadLogger, m_filenameFactory, null);
+
+    threadContext.shutdown();
+
+    for (int i=0; i<2; ++i) {
+      try {
+        threadContext.pushDispatchContext(m_dispatchContext);
+        fail("Expected ShutdownException");
+      }
+      catch (ShutdownException e) {
+      }
+
+      threadContext.popDispatchContext(); // No-op.
+
+      m_dispatchContextStubFactory.assertNoMoreCalls();
+    }
   }
 
   public void testWithBadDispatchContext() throws Exception {
