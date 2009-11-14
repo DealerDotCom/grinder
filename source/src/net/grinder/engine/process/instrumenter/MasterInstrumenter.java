@@ -102,6 +102,10 @@ public final class MasterInstrumenter implements Instrumenter {
       }
     }
 
+    if (result.length() == 0) {
+      result.append("NO INSTRUMENTER COULD BE LOADED");
+    }
+
     return result.toString();
   }
 

@@ -21,11 +21,9 @@
 
 package net.grinder.engine.process.instrumenter;
 
+import static net.grinder.testutility.AssertUtilities.assertContains;
+
 import java.lang.instrument.Instrumentation;
-
-import org.python.core.PyObject;
-
-import test.MyClass;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -36,6 +34,10 @@ import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.BlockingClassLoader;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
+
+import org.python.core.PyObject;
+
+import test.MyClass;
 
 
 /**
@@ -107,7 +109,7 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
 
     final MasterInstrumenter masterInstrumenter = new MasterInstrumenter();
 
-    assertEquals("", masterInstrumenter.getDescription());
+    assertContains(masterInstrumenter.getDescription(), "NO INSTRUMENTER");
 
     try {
       masterInstrumenter.createInstrumentedProxy(null, null, null);

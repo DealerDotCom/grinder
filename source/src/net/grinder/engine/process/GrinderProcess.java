@@ -215,8 +215,7 @@ final class GrinderProcess {
 
     final MasterInstrumenter instrumenter = new MasterInstrumenter();
     m_context.getTestRegistry().setInstrumenter(instrumenter);
-    logger.output("loaded instrumentation agents: " +
-                  instrumenter.getDescription());
+    logger.output("instrumentation agents: " + instrumenter.getDescription());
 
     final StringBuffer numbers = new StringBuffer("worker process ");
     numbers.append(m_initialisationMessage.getWorkerIdentity().getNumber());

@@ -22,12 +22,7 @@ Steps:
      - Add void record(Object). DCR warns if wrap() called.
        TradJythonInstrumenter throws NotSupported if record() called.
 
-Better behaviour when running Jython 2.5 without Java 6.
-
-Minor coverage:
- ThreadContextImplementation (when push() throws SDE)
- JythonDCRWeaver.
-
+Support Java DCR instrumenter with trad Jython instrumenter?
 
 
 * Java 5 upgrade
