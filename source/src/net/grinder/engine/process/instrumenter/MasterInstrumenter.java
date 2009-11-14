@@ -49,10 +49,19 @@ public final class MasterInstrumenter implements Instrumenter {
   public MasterInstrumenter() {
     m_instrumenters.add(new RejectNullInstrumenter());
 
-    // Override with property?
-    m_instrumenters.addAll(JythonInstrumenterFactory.create());
+    final DCRInstrumenterFactory dcrInstrumenterFactory =
+      DCRInstrumenterFactory.createFactory();
 
-    m_instrumenters.addAll(DCRInstrumenterFactory.create());
+    final boolean addedTraditionalJythonInstrumenter =
+      JythonInstrumenterFactory.addJythonInstrumenter(m_instrumenters);
+
+    if (dcrInstrumenterFactory != null) {
+      if (!addedTraditionalJythonInstrumenter) {
+        dcrInstrumenterFactory.addJythonInstrumenter(m_instrumenters);
+      }
+
+      dcrInstrumenterFactory.addJavaInstrumenter(m_instrumenters);
+    }
   }
 
   /**

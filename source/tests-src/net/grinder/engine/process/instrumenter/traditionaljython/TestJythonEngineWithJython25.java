@@ -21,10 +21,12 @@
 
 package net.grinder.engine.process.instrumenter.traditionaljython;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase;
 import net.grinder.testutility.BlockingClassLoader;
 
@@ -46,8 +48,12 @@ public class TestJythonEngineWithJython25 extends TestCase {
   public void testJythonInstrumenterFactory() throws Exception {
     AbstractJythonInstrumenterTestCase.assertVersion("2.5");
 
-    final List<?> result = JythonInstrumenterFactory.create();
+    final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
 
-    assertEquals(0, result.size());
+    final boolean result =
+      JythonInstrumenterFactory.addJythonInstrumenter(instrumenters);
+
+    assertFalse(result);
+    assertEquals(0, instrumenters.size());
   }
 }

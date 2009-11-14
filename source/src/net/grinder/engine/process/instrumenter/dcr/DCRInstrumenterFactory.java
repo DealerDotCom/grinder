@@ -23,8 +23,6 @@ package net.grinder.engine.process.instrumenter.dcr;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import net.grinder.engine.process.Instrumenter;
@@ -35,7 +33,7 @@ import net.grinder.util.weave.j2se6.DCRWeaver;
 
 
 /**
- * DCRInstrumenter.
+ * Factory which instantiates the DCR instrumenters.
  *
  * @author Philip Aston
  * @version $Revision:$
@@ -43,24 +41,16 @@ import net.grinder.util.weave.j2se6.DCRWeaver;
 public final class DCRInstrumenterFactory {
 
   /**
-   * Return a list of available DCRInstrumenters.
+   * Attempt to create a {@code DCRInstrumenterFactory}.
    *
-   * @return The instrumenters.
+   * @return The factory, or {@code null} if one could not be created.
    */
-  public static List<Instrumenter> create() {
-    return create(RecorderLocator.class, RecorderLocator.getRecorderRegistry());
-  }
-
-  /**
-   * Package scope for unit tests.
-   */
-  static List<Instrumenter> create(Class<?> recorderAdviceClass,
-                                   RecorderRegistry recorderRegistry) {
+  public static DCRInstrumenterFactory createFactory() {
     final Instrumentation instrumentation =
       ExposeInstrumentation.getInstrumentation();
 
     if (instrumentation == null) {
-      return Collections.emptyList();
+      return null;
     }
 
     try {
@@ -68,13 +58,29 @@ public final class DCRInstrumenterFactory {
       Instrumentation.class.getMethod("isRetransformClassesSupported");
 
       if (!(Boolean)m.invoke(instrumentation)) {
-        return Collections.emptyList();
+        return null;
       }
     }
     catch (Exception e1) {
-      return Collections.emptyList();
+      return null;
     }
 
+    return new DCRInstrumenterFactory(instrumentation,
+                                      RecorderLocator.class,
+                                      RecorderLocator.getRecorderRegistry());
+  }
+
+  private final DCRWeaver m_weaver;
+  private final RecorderRegistry m_recorderRegistry;
+
+  /**
+   * Constructor. Package scope for unit tests.
+   */
+  DCRInstrumenterFactory(Instrumentation instrumentation,
+                         Class<?> recorderAdviceClass,
+                         RecorderRegistry recorderRegistry) {
+
+    m_recorderRegistry = recorderRegistry;
     final ASMTransformerFactory transformerFactory;
 
     try {
@@ -84,25 +90,46 @@ public final class DCRInstrumenterFactory {
       throw new AssertionError(e);
     }
 
-    final DCRWeaver weaver = new DCRWeaver(transformerFactory, instrumentation);
+    m_weaver = new DCRWeaver(transformerFactory, instrumentation);
+  }
 
-    final List<Instrumenter> result = new ArrayList<Instrumenter>();
+  /**
+   * Add a Jython instrumenter.
+   *
+   * @param instrumenters The list of instrumenters to modify.
+   * @return {@code true} if and only if {@code instrumenters} was modified.
+   */
+  public boolean addJythonInstrumenter(List<Instrumenter> instrumenters) {
 
     try {
-      result.add(new Jython25Instrumenter(weaver, recorderRegistry));
+      instrumenters.add(new Jython25Instrumenter(m_weaver,
+                                                 m_recorderRegistry));
+      return true;
     }
     catch (WeavingException e) {
       // Jython 2.5 not available, try Jython 2.1/2.2.
       try {
-        result.add(new Jython22Instrumenter(weaver, recorderRegistry));
+        instrumenters.add(new Jython22Instrumenter(m_weaver,
+                                                   m_recorderRegistry));
+        return true;
       }
       catch (WeavingException e1) {
         // No known version of Jython.
       }
     }
 
-    result.add(new JavaDCRInstrumenter(weaver, recorderRegistry));
+    return false;
+  }
 
-    return result;
+  /**
+   * Add a Jython instrumenter.
+   *
+   * @param instrumenters The list of instrumenters to modify.
+   * @return {@code true} if and only if {@code instrumenters} was modified.
+   */
+  public boolean addJavaInstrumenter(List<Instrumenter> instrumenters) {
+    instrumenters.add(new JavaDCRInstrumenter(m_weaver, m_recorderRegistry));
+
+    return true;
   }
 }

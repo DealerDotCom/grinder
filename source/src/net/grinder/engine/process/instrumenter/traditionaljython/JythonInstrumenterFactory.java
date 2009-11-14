@@ -21,7 +21,6 @@
 
 package net.grinder.engine.process.instrumenter.traditionaljython;
 
-import java.util.Collections;
 import java.util.List;
 
 import net.grinder.engine.common.EngineException;
@@ -39,12 +38,15 @@ public class JythonInstrumenterFactory {
   /**
    * Factory method.
    *
-   * @return An ordered list of available instrumenters.
+   * @param instrumenters The list of instrumenters to modify.
+   * @return {@code true} if and only if {@code instrumenters} was modified.
    */
-  public static List<? extends Instrumenter> create() {
+  public static boolean addJythonInstrumenter(
+                          List<Instrumenter> instrumenters) {
 
     try {
-      return Collections.singletonList(new TraditionalJythonInstrumenter());
+      instrumenters.add(new TraditionalJythonInstrumenter());
+      return true;
     }
     catch (EngineException e) {
       // Ignore.
@@ -53,6 +55,6 @@ public class JythonInstrumenterFactory {
       // Ignore.
     }
 
-    return Collections.emptyList();
+    return false;
   }
 }

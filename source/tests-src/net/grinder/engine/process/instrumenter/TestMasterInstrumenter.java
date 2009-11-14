@@ -54,7 +54,6 @@ public class TestMasterInstrumenter extends TestCase {
     final MasterInstrumenter masterInstrumenter = new MasterInstrumenter();
 
     assertEquals("traditional Jython instrumenter; " +
-                 "byte code transforming instrumenter for Jython 2.1/2.2; " +
                  "byte code transforming instrumenter for Java",
                  masterInstrumenter.getDescription());
 
