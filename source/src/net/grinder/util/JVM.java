@@ -63,9 +63,9 @@ public final class JVM {
 
     final String name = "The Grinder " + GrinderBuild.getVersionString();
 
-    if (!isAtLeastVersion(1, 4)) {
+    if (!isAtLeastVersion(1, 5)) {
       logger.error("Fatal Error - incompatible version of Java (" + this +
-                   ")\n" + name + " requires at least Java 1.4.");
+                   ")\n" + name + " requires at least Java 1.5.");
       return false;
     }
 
@@ -110,10 +110,12 @@ public final class JVM {
    * @return The description.
    */
   public String toString()  {
-    return System.getProperty("java.vm.vendor") + " " +
-      System.getProperty("java.vm.name") + " " +
-      System.getProperty("java.vm.version") +
-      " on " + System.getProperty("os.name") + " " +
+    return System.getProperty("java.runtime.name") + " " +
+      System.getProperty("java.runtime.version") + ": " +
+      System.getProperty("java.vm.name") + " (" +
+      System.getProperty("java.vm.version") + ", " +
+      System.getProperty("java.vm.info") +
+      ") on " + System.getProperty("os.name") + " " +
       System.getProperty("os.arch") + " " +
       System.getProperty("os.version");
   }
