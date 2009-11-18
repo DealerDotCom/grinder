@@ -34,6 +34,8 @@ The Grinder 3.X (not yet released)
 
     Updated Spanish translation from Antonio Manuel Muñiz Martin.
 
+    Updated Polish translation from from KArol Muszynski.
+
     The Grinder now always uses the Java 5 System.nanoTime() method for
     timing. The grinder.useNanoTime property has been removed.
 
