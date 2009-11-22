@@ -51,7 +51,7 @@ public class TestMasterInstrumenter extends TestCase {
   private final Test m_test = new StubTest(1, "foo");
 
   public void testWithDefaults() throws Exception {
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter();
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
 
     assertEquals("traditional Jython instrumenter; " +
                  "byte code transforming instrumenter for Java",
@@ -80,5 +80,14 @@ public class TestMasterInstrumenter extends TestCase {
     }
     catch (NotWrappableTypeException e) {
     }
+  }
+
+  public void testWithForcedDCRInsstrumentation() throws Exception {
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(true);
+
+    assertEquals("byte code transforming instrumenter for Jython 2.1/2.2; " +
+                 "byte code transforming instrumenter for Java",
+                 masterInstrumenter.getDescription());
+
   }
 }

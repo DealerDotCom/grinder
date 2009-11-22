@@ -45,15 +45,24 @@ public final class MasterInstrumenter implements Instrumenter {
 
   /**
    * Constructor for MasterInstrumenter.
+   * @param dcrInstrumentation {@code true} => force the use of the new
+   *    DCR instrumentation.
    */
-  public MasterInstrumenter() {
+  public MasterInstrumenter(boolean dcrInstrumentation) {
     m_instrumenters.add(new RejectNullInstrumenter());
 
     final DCRInstrumenterFactory dcrInstrumenterFactory =
       DCRInstrumenterFactory.createFactory();
 
-    final boolean addedTraditionalJythonInstrumenter =
-      JythonInstrumenterFactory.addJythonInstrumenter(m_instrumenters);
+    final boolean addedTraditionalJythonInstrumenter;
+
+    if (dcrInstrumentation) {
+      addedTraditionalJythonInstrumenter = false;
+    }
+    else {
+      addedTraditionalJythonInstrumenter =
+        JythonInstrumenterFactory.addJythonInstrumenter(m_instrumenters);
+    }
 
     if (dcrInstrumenterFactory != null) {
       if (!addedTraditionalJythonInstrumenter) {

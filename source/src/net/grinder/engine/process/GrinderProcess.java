@@ -213,10 +213,6 @@ final class GrinderProcess {
 
     final ScriptEngine scriptEngine = new JythonScriptEngine();
 
-    final MasterInstrumenter instrumenter = new MasterInstrumenter();
-    m_context.getTestRegistry().setInstrumenter(instrumenter);
-    logger.output("instrumentation agents: " + instrumenter.getDescription());
-
     final StringBuffer numbers = new StringBuffer("worker process ");
     numbers.append(m_initialisationMessage.getWorkerIdentity().getNumber());
 
@@ -231,17 +227,24 @@ final class GrinderProcess {
 
     logger.output(numbers.toString());
 
-    logger.output("executing \"" + m_initialisationMessage.getScript() +
-      "\" using " + scriptEngine.getDescription());
-
-    scriptEngine.initialise(m_initialisationMessage.getScript());
-
     final GrinderProperties properties = m_context.getProperties();
     final short numberOfThreads =
       properties.getShort("grinder.threads", (short)1);
     final int reportToConsoleInterval =
       properties.getInt("grinder.reportToConsole.interval", 500);
     final int duration = properties.getInt("grinder.duration", 0);
+
+    final MasterInstrumenter instrumenter =
+      new MasterInstrumenter(
+        properties.getBoolean("grinder.dcrinstrumentation", false));
+
+    m_context.getTestRegistry().setInstrumenter(instrumenter);
+    logger.output("instrumentation agents: " + instrumenter.getDescription());
+
+    logger.output("executing \"" + m_initialisationMessage.getScript() +
+      "\" using " + scriptEngine.getDescription());
+
+    scriptEngine.initialise(m_initialisationMessage.getScript());
 
     // Don't initialise the data writer until now as the script may
     // declare new statistics.

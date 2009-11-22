@@ -77,7 +77,7 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
   }
 
   public void testWithInstrumentation() throws Exception {
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter();
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
 
     assertEquals("byte code transforming instrumenter for Jython 2.5; " +
                  "byte code transforming instrumenter for Java",
@@ -107,7 +107,7 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
   public void testWithNoInstrumentation() throws Exception {
     ExposeInstrumentation.premain("", null);
 
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter();
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
 
     assertContains(masterInstrumenter.getDescription(), "NO INSTRUMENTER");
 
