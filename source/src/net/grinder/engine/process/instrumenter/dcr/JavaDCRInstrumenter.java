@@ -73,6 +73,10 @@ final class JavaDCRInstrumenter extends DCRInstrumenter {
   private void instrumentClass(Class<?> targetClass, Recorder recorder)
     throws NotWrappableTypeException {
 
+    if (targetClass.isArray()) {
+      throw new NotWrappableTypeException("Can't instrument arrays");
+    }
+
     for (Constructor<?> constructor : targetClass.getDeclaredConstructors()) {
        instrument(targetClass, constructor, recorder);
     }
@@ -103,6 +107,10 @@ final class JavaDCRInstrumenter extends DCRInstrumenter {
     throws NotWrappableTypeException {
 
     Class<?> c = target.getClass();
+
+    if (c.isArray()) {
+      throw new NotWrappableTypeException("Can't instrument arrays");
+    }
 
     do {
       for (Method method : c.getDeclaredMethods()) {

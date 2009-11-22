@@ -213,6 +213,27 @@ public class TestJavaDCRInstrumenter extends TestCase {
     assertNull(m_instrumenter.createInstrumentedProxy(null, null, null));
   }
 
+  public void testArrays() throws Exception {
+
+    RecorderLocator.clearRecorders();
+
+    try {
+      m_instrumenter.createInstrumentedProxy(null, m_recorder, new MyClass[0]);
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NotWrappableTypeException e) {
+    }
+
+    try {
+      m_instrumenter.createInstrumentedProxy(null, m_recorder, MyClass[].class);
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NotWrappableTypeException e) {
+    }
+
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
   public void testWithNoPackage() throws Exception {
 
     RecorderLocator.clearRecorders();
