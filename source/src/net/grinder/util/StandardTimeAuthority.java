@@ -26,8 +26,8 @@ package net.grinder.util;
  * A standard {@link TimeAuthority} implementation.
  *
  * <p>
- * The implementation uses J2SE 5's {@link System.nanoTime()} method, since it
- * it typically more precise than {@link System.currentTimeMillis()}.
+ * The implementation uses J2SE 5's {@link System#nanoTime()} method, since it
+ * it typically more precise than {@link System#currentTimeMillis()}.
  * </p>
  *
  * @author Philip Aston

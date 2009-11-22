@@ -35,13 +35,12 @@ public interface Weaver {
 
   /**
    * Queue the given {@code constructor} for weaving, and return a unique
-   * {@link Location} that can be used by the advice to identify the constructor
+   * identifier that can be used by the advice to refer to the constructor
    * pointcut.
    *
    * <p>
    * Once {@link #weave} has been called for a constructor, subsequent calls are
-   * no-ops that will return the {@link Location} generated for the original
-   * call.
+   * no-ops that will return the identifier generated for the original call.
    * </p>
    *
    * <p>
@@ -57,13 +56,12 @@ public interface Weaver {
 
   /**
    * Queue the given {@code method} for weaving, and return a unique
-   * {@link Location} that can be used by the advice to identify the method
+   * identifier that can be used by the advice to refer to the method
    * pointcut.
    *
    * <p>
    * Once {@link #weave} has been called for a method, subsequent calls are
-   * no-ops that will return the {@link Location} generated for the original
-   * call.
+   * no-ops that will return the identifier generated for the original call.
    * </p>
    *
    * <p>
