@@ -29,6 +29,7 @@ import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.engine.process.instrumenter.dcr.DCRInstrumenterFactory;
 import net.grinder.engine.process.instrumenter.traditionaljython.JythonInstrumenterFactory;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 
 
@@ -96,6 +97,21 @@ public final class MasterInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
+  public boolean instrument(Test test, Recorder recorder, Object target)
+    throws NonInstrumentableTypeException {
+
+    for (Instrumenter instrumenter : m_instrumenters) {
+      if (instrumenter.instrument(test, recorder, target)) {
+        return true;
+      }
+    }
+
+    throw new NonInstrumentableTypeException("Failed to wrap " + target);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public String getDescription() {
     final StringBuilder result = new StringBuilder();
 
@@ -131,6 +147,17 @@ public final class MasterInstrumenter implements Instrumenter {
 
       return null;
     }
+
+    public boolean instrument(Test test, Recorder recorder, Object target)
+      throws NonInstrumentableTypeException {
+
+      if (target == null) {
+        throw new NonInstrumentableTypeException("Can't instrument null/None");
+      }
+
+      return false;
+    }
+
 
     public String getDescription() {
       return null;

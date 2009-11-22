@@ -37,6 +37,8 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class StubTestRegistry {
 
+  private static RandomStubFactory<Instrumenter> s_instrumenterStubFactory;
+
   public static void stubTestRegistry() {
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
@@ -51,15 +53,18 @@ public class StubTestRegistry {
                                      testStatisticsHelperStubFactory.getStub(),
                                      null);
 
-    final RandomStubFactory<Instrumenter> instrumenterStubFactory =
-      RandomStubFactory.create(Instrumenter.class);
+    s_instrumenterStubFactory = RandomStubFactory.create(Instrumenter.class);
 
-    testRegistry.setInstrumenter(instrumenterStubFactory.getStub());
+    testRegistry.setInstrumenter(s_instrumenterStubFactory.getStub());
 
     final RandomStubFactory<InternalScriptContext> scriptContextStubFactory =
       RandomStubFactory.create(InternalScriptContext.class);
     scriptContextStubFactory.setResult("getTestRegistry", testRegistry);
 
     Grinder.grinder = scriptContextStubFactory.getStub();
+  }
+
+  public static RandomStubFactory<Instrumenter> getInstrumenterStubFactory() {
+    return s_instrumenterStubFactory;
   }
 }

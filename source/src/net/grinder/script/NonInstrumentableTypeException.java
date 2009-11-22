@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,48 +21,32 @@
 
 package net.grinder.script;
 
-import net.grinder.common.Test;
+import net.grinder.common.GrinderException;
 
 
 /**
- * Registry of Tests.
+ * Thrown when an attempt is made to wrap a type that can not be instrumented.
  *
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision: 4114 $
  */
-public interface TestRegistry {
-
+public class NonInstrumentableTypeException extends GrinderException {
   /**
-   * Register a new test.
+   * Creates a new <code>NotWrappableTypeException</code> instance.
    *
-   * @param test
-   *          The test.
-   * @return A ProxyFactory that can be used to create proxies instrumented for
-   *         the test.
+   * @param s Exception message.
    */
-  RegisteredTest register(Test test);
+  public NonInstrumentableTypeException(String s) {
+    super(s);
+  }
 
   /**
-   * Interface for test handles.
+   * Creates a new <code>NotWrappableTypeException</code> instance.
+   *
+   * @param s Exception message.
+   * @param cause Cause.
    */
-  public interface RegisteredTest {
-    /**
-     * Create a proxy object that wraps an target object for this test.
-     *
-     * @param o Object to wrap.
-     * @return The proxy.
-     * @throws NotWrappableTypeException If the target could not be wrapped.
-     */
-    Object createProxy(Object o) throws NotWrappableTypeException;
-
-    /**
-     * Instrument the given object.
-     *
-     * @param target
-     *          The object to instrument.
-     * @throws NonInstrumentableTypeException
-     *           If the target could not be instrumented.
-     */
-    void instrument(Object target) throws NonInstrumentableTypeException;
+  public NonInstrumentableTypeException(String s, Throwable cause) {
+    super(s, cause);
   }
 }

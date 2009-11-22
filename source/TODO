@@ -17,9 +17,7 @@ against it too :-).
 
 Steps:
   * Jython 2.5
-     - Add void record(Object).
      - DCR warns if wrap() called?
-     - TradJythonInstrumenter throws NotSupported if record() called.
 
 
 * Java 5 upgrade

@@ -23,6 +23,7 @@ package net.grinder.engine.process;
 
 import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 
 
@@ -45,10 +46,26 @@ public interface Instrumenter {
    *          Object to wrap.
    * @return The instrumented proxy.
    * @throws NotWrappableTypeException
-   *           If the target cannot be wrapped.
+   *           If the target object cannot be wrapped.
    */
   Object createInstrumentedProxy(Test test, Recorder recorder, Object target)
     throws NotWrappableTypeException;
+
+  /**
+   * Instrument a target object with a test.
+   *
+   * @param test
+   *          The test.
+   * @param recorder
+   *          Wire the instrumentation to this {@link Recorder}.
+   * @param target
+   *          The object to instrument.
+   * @return {@code true} if instrumentation was added.
+   * @throws NonInstrumentableTypeException
+   *           If the target object cannot be instrumented.
+   */
+  boolean instrument(Test test, Recorder recorder, Object target)
+    throws NonInstrumentableTypeException;
 
   /**
    * Public description of the {@code Instrumenter}.

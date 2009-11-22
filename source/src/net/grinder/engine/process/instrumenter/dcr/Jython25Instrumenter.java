@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.grinder.engine.process.ScriptEngine.Recorder;
-import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.Weaver.TargetSource;
@@ -89,7 +89,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       m_pyInstanceInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
-            throws NotWrappableTypeException {
+            throws NonInstrumentableTypeException {
 
             for (Method method : methodsForPyInstance) {
               instrument(target,
@@ -112,7 +112,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       m_pyFunctionInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
-            throws NotWrappableTypeException {
+            throws NonInstrumentableTypeException {
 
             for (Method method : methodsForPyFunctionCall) {
               instrument(target,
@@ -131,7 +131,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       m_pyMethodInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
-            throws NotWrappableTypeException {
+            throws NonInstrumentableTypeException {
             instrument(target,
                        pyMethodCall,
                        TargetSource.FIRST_PARAMETER,
@@ -148,7 +148,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       m_pyReflectedConstructorInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
-            throws NotWrappableTypeException {
+            throws NonInstrumentableTypeException {
             instrument(target,
                        pyReflectedConstructorCall,
                        TargetSource.FIRST_PARAMETER,
@@ -164,7 +164,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       m_pyReflectedFunctionInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
-            throws NotWrappableTypeException {
+            throws NonInstrumentableTypeException {
             instrument(target,
                        pyReflectedFunctionCall,
                        TargetSource.FIRST_PARAMETER,
@@ -174,7 +174,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       m_pyDerivedObjectInstrumenter = new Instrumenter() {
         public void transform(Recorder recorder, Object target)
-            throws NotWrappableTypeException {
+            throws NonInstrumentableTypeException {
             instrument(target,
                        pyReflectedFunctionCall,
                        TargetSource.SECOND_PARAMETER,
@@ -193,14 +193,14 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       m_pyProxyInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
-            throws NotWrappableTypeException {
+            throws NonInstrumentableTypeException {
             PyObject pyInstance;
 
             try {
               pyInstance = (PyObject) pyProxyPyInstanceMethod.invoke(target);
             }
             catch (Exception e) {
-              throw new NotWrappableTypeException(
+              throw new NonInstrumentableTypeException(
                 "Could not call _getPyInstance", e);
             }
 
@@ -223,7 +223,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       m_pyTypeInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
-            throws NotWrappableTypeException {
+            throws NonInstrumentableTypeException {
             instrument(target,
                        pyTypeCall,
                        TargetSource.FIRST_PARAMETER,
@@ -238,7 +238,7 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       m_pyClassInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
-            throws NotWrappableTypeException {
+            throws NonInstrumentableTypeException {
             instrument(target,
                        pyClassCall,
                        TargetSource.FIRST_PARAMETER,
@@ -259,8 +259,8 @@ final class Jython25Instrumenter extends DCRInstrumenter {
   }
 
   @Override
-  protected Object instrument(Object target, Recorder recorder)
-    throws NotWrappableTypeException {
+  protected boolean instrument(Object target, Recorder recorder)
+    throws NonInstrumentableTypeException {
 
     if (target instanceof PyObject) {
       // Jython object.
@@ -290,8 +290,8 @@ final class Jython25Instrumenter extends DCRInstrumenter {
       }
       else {
         // Fail, rather than guess a generic approach.
-        throw new NotWrappableTypeException("Unknown PyObject:" +
-                                            target.getClass());
+        throw new NonInstrumentableTypeException("Unknown PyObject:" +
+                                                 target.getClass());
       }
     }
     else if (target instanceof PyProxy) {
@@ -299,14 +299,14 @@ final class Jython25Instrumenter extends DCRInstrumenter {
     }
     else {
       // Let the Java instrumenter have a go.
-      return null;
+      return false;
     }
 
-    return target;
+    return true;
   }
 
   private interface Instrumenter {
     void transform(Recorder recorder, Object target)
-      throws NotWrappableTypeException;
+      throws NonInstrumentableTypeException;
   }
 }

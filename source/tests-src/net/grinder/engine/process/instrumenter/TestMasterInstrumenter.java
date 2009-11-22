@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.RandomStubFactory;
 
@@ -50,7 +51,7 @@ public class TestMasterInstrumenter extends TestCase {
 
   private final Test m_test = new StubTest(1, "foo");
 
-  public void testWithDefaults() throws Exception {
+  public void testCreateInstrumentedProxyWithDefaults() throws Exception {
     final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
 
     assertEquals("traditional Jython instrumenter; " +
@@ -79,6 +80,30 @@ public class TestMasterInstrumenter extends TestCase {
       fail("Expected NotWrappableTypeException");
     }
     catch (NotWrappableTypeException e) {
+    }
+  }
+
+  public void testInstrumentWithDefaults() throws Exception {
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
+
+    assertEquals("traditional Jython instrumenter; " +
+                 "byte code transforming instrumenter for Java",
+                 masterInstrumenter.getDescription());
+
+    try {
+      masterInstrumenter.instrument(null, m_recorder, null);
+      fail("Expected NonInstrumentableTypeException");
+    }
+    catch (NonInstrumentableTypeException e) {
+    }
+
+    final Object foo = new Object();
+
+    try {
+      masterInstrumenter.instrument(m_test, m_recorder, foo);
+      fail("Expected NonInstrumentableTypeException");
+    }
+    catch (NonInstrumentableTypeException e) {
     }
   }
 

@@ -24,7 +24,7 @@ package net.grinder.engine.process.instrumenter.dcr;
 import java.lang.reflect.Method;
 
 import net.grinder.engine.process.ScriptEngine.Recorder;
-import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.Weaver.TargetSource;
@@ -89,8 +89,8 @@ final class Jython22Instrumenter extends DCRInstrumenter {
   }
 
   @Override
-  protected Object instrument(Object target, Recorder recorder)
-    throws NotWrappableTypeException {
+  protected boolean instrument(Object target, Recorder recorder)
+    throws NonInstrumentableTypeException {
 
     if (target instanceof PyObject) {
       // Jython object.
@@ -136,8 +136,8 @@ final class Jython22Instrumenter extends DCRInstrumenter {
       }
       else {
         // Fail, rather than guess a generic approach.
-        throw new NotWrappableTypeException("Unknown PyObject:" +
-                                            target.getClass());
+        throw new NonInstrumentableTypeException("Unknown PyObject:" +
+                                                 target.getClass());
       }
     }
     else if (target instanceof PyProxy) {
@@ -153,10 +153,10 @@ final class Jython22Instrumenter extends DCRInstrumenter {
                                     true);
     }
     else {
-      return null;
+      return false;
     }
 
-    return target;
+    return true;
   }
 
   private void instrumentPublicMethodsByName(Object target,
@@ -164,7 +164,7 @@ final class Jython22Instrumenter extends DCRInstrumenter {
                                              TargetSource targetSource,
                                              Recorder recorder,
                                              boolean includeSuperClassMethods)
-    throws NotWrappableTypeException {
+    throws NonInstrumentableTypeException {
 
     // getMethods() includes superclass methods.
     for (Method method : target.getClass().getMethods()) {

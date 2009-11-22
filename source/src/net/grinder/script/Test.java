@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2008 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -98,6 +98,20 @@ public class Test extends AbstractTestSemantics implements Serializable {
    */
   public final Object wrap(Object target) throws NotWrappableTypeException {
     return m_registeredTest.createProxy(target);
+  }
+
+  /**
+   * Instrument the supplied {@code target} object. Subsequent calls to {@code
+   * target} will be recorded against the statistics for this {@code Test}.
+   *
+   * @param target
+   *          Object to instrument.
+   * @throws NonInstrumentableTypeException
+   *           If {@code target} could not be instrumented.
+   */
+  public final void record(Object target)
+    throws NonInstrumentableTypeException {
+    m_registeredTest.instrument(target);
   }
 }
 

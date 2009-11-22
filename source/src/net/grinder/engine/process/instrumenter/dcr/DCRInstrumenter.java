@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import net.grinder.common.Test;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
@@ -73,27 +74,43 @@ abstract class DCRInstrumenter implements Instrumenter {
                                         Object target)
     throws NotWrappableTypeException {
 
-    final Object result = instrument(target, recorder);
+    try {
+      instrument(test, recorder, target);
+    }
+    catch (NonInstrumentableTypeException e) {
+      throw new NotWrappableTypeException(e.getMessage(), e);
+    }
 
-    if (result != null) {
+    return target;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean instrument(Test test, Recorder recorder, Object target)
+    throws NonInstrumentableTypeException {
+
+    final boolean changed = instrument(target, recorder);
+
+    if (changed) {
       try {
         m_weaver.applyChanges();
       }
       catch (WeavingException e) {
-        throw new NotWrappableTypeException(e.getMessage());
+        throw new NonInstrumentableTypeException(e.getMessage());
       }
     }
 
-    return result;
+    return changed;
   }
 
-  protected abstract Object instrument(Object target,  Recorder recorder)
-    throws NotWrappableTypeException;
+  protected abstract boolean instrument(Object target,  Recorder recorder)
+    throws NonInstrumentableTypeException;
 
   public void instrument(Object target,
                          Constructor<?> constructor,
                          Recorder recorder)
-   throws NotWrappableTypeException {
+   throws NonInstrumentableTypeException {
 
     checkWrappable(constructor.getDeclaringClass());
 
@@ -111,7 +128,7 @@ abstract class DCRInstrumenter implements Instrumenter {
                          Method method,
                          TargetSource targetSource,
                          Recorder recorder)
-    throws NotWrappableTypeException {
+    throws NonInstrumentableTypeException {
 
     checkWrappable(method.getDeclaringClass());
 
@@ -126,10 +143,10 @@ abstract class DCRInstrumenter implements Instrumenter {
   }
 
   protected static final void checkWrappable(Class<?> theClass)
-    throws NotWrappableTypeException {
+    throws NonInstrumentableTypeException {
 
     if (!isInstrumentable(theClass)) {
-      throw new NotWrappableTypeException("Cannot instrument " + theClass);
+      throw new NonInstrumentableTypeException("Cannot instrument " + theClass);
     }
   }
 

@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import net.grinder.engine.process.ScriptEngine.Recorder;
-import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.Weaver.TargetSource;
 
@@ -57,8 +57,8 @@ final class JavaDCRInstrumenter extends DCRInstrumenter {
   }
 
   @Override
-  protected Object instrument(Object target, Recorder recorder)
-    throws NotWrappableTypeException {
+  protected boolean instrument(Object target, Recorder recorder)
+    throws NonInstrumentableTypeException {
 
     if (target instanceof Class<?>) {
       instrumentClass((Class<?>)target, recorder);
@@ -67,14 +67,14 @@ final class JavaDCRInstrumenter extends DCRInstrumenter {
       instrumentInstance(target, recorder);
     }
 
-    return target;
+    return true;
   }
 
   private void instrumentClass(Class<?> targetClass, Recorder recorder)
-    throws NotWrappableTypeException {
+    throws NonInstrumentableTypeException {
 
     if (targetClass.isArray()) {
-      throw new NotWrappableTypeException("Can't instrument arrays");
+      throw new NonInstrumentableTypeException("Can't instrument arrays");
     }
 
     for (Constructor<?> constructor : targetClass.getDeclaredConstructors()) {
@@ -104,12 +104,12 @@ final class JavaDCRInstrumenter extends DCRInstrumenter {
   }
 
   private void instrumentInstance(Object target, Recorder recorder)
-    throws NotWrappableTypeException {
+    throws NonInstrumentableTypeException {
 
     Class<?> c = target.getClass();
 
     if (c.isArray()) {
-      throw new NotWrappableTypeException("Can't instrument arrays");
+      throw new NonInstrumentableTypeException("Can't instrument arrays");
     }
 
     do {

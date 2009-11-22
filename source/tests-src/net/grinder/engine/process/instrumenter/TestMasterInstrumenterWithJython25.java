@@ -30,6 +30,7 @@ import junit.framework.TestSuite;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.BlockingClassLoader;
 import net.grinder.testutility.RandomStubFactory;
@@ -76,7 +77,9 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
     AbstractJythonInstrumenterTestCase.assertVersion("2.5");
   }
 
-  public void testWithInstrumentation() throws Exception {
+  public void testCreateInstrumentedProxyWithInstrumentation()
+    throws Exception {
+
     final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
 
     assertEquals("byte code transforming instrumenter for Jython 2.5; " +
@@ -104,7 +107,33 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
                                                MyClass.class);
   }
 
-  public void testWithNoInstrumentation() throws Exception {
+  public void testInstrumentWithInstrumentation() throws Exception {
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
+
+    assertEquals("byte code transforming instrumenter for Jython 2.5; " +
+                 "byte code transforming instrumenter for Java",
+                 masterInstrumenter.getDescription());
+
+    try {
+      masterInstrumenter.instrument(null, null, null);
+      fail("Expected NonInstrumentableTypeException");
+    }
+    catch (NonInstrumentableTypeException e) {
+    }
+
+    try {
+      masterInstrumenter.instrument(m_test, m_recorder, new PyObject());
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NonInstrumentableTypeException e) {
+    }
+
+    masterInstrumenter.instrument(m_test, m_recorder, MyClass.class);
+  }
+
+  public void testWithCreateInstrumentedProxyWithNoInstrumentation()
+    throws Exception {
+
     ExposeInstrumentation.premain("", null);
 
     final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
@@ -125,6 +154,29 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
       fail("Expected NotWrappableTypeException");
     }
     catch (NotWrappableTypeException e) {
+    }
+  }
+
+  public void testInstrumentWithNoInstrumentation() throws Exception {
+
+    ExposeInstrumentation.premain("", null);
+
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
+
+    assertContains(masterInstrumenter.getDescription(), "NO INSTRUMENTER");
+
+    try {
+      masterInstrumenter.instrument(null, null, null);
+      fail("Expected NonInstrumentableTypeException");
+    }
+    catch (NonInstrumentableTypeException e) {
+    }
+
+    try {
+      masterInstrumenter.instrument(m_test, m_recorder, MyClass.class);
+      fail("Expected NonInstrumentableTypeException");
+    }
+    catch (NonInstrumentableTypeException e) {
     }
   }
 }

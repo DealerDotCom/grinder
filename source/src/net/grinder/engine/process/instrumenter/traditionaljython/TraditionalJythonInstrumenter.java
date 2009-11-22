@@ -28,6 +28,7 @@ import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 
 import org.python.core.PyClass;
@@ -65,7 +66,7 @@ final class TraditionalJythonInstrumenter implements Instrumenter {
   }
 
   /**
-   *{@inheritDoc}.
+   * {@inheritDoc}
    */
   public Object createInstrumentedProxy(Test test,
                                         Recorder recorder,
@@ -73,6 +74,16 @@ final class TraditionalJythonInstrumenter implements Instrumenter {
     throws NotWrappableTypeException {
 
     return instrumentObject(test, new PyDispatcher(recorder), o);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean instrument(Test test, Recorder recorder, Object target)
+    throws NonInstrumentableTypeException {
+
+    throw new NonInstrumentableTypeException(
+      "record() is not supported by the Traditional Jython instrumentor");
   }
 
   /**

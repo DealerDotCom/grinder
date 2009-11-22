@@ -30,7 +30,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import junit.framework.TestCase;
+import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.StubTestRegistry;
+import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -41,12 +44,15 @@ import net.grinder.engine.process.StubTestRegistry;
  */
 public class TestTest extends TestCase {
 
+  private RandomStubFactory<Instrumenter> s_instrumenterStubFactory;
+
   public TestTest(String name) {
     super(name);
   }
 
   protected void setUp() throws Exception {
     StubTestRegistry.stubTestRegistry();
+    s_instrumenterStubFactory = StubTestRegistry.getInstrumenterStubFactory();
   }
 
   public void testGetters() throws Exception {
@@ -113,8 +119,39 @@ public class TestTest extends TestCase {
 
     final Integer i = new Integer(10);
 
+    s_instrumenterStubFactory.assertNoMoreCalls();
+
     final Object proxy1 = t1.wrap(i);
+
+    final Object[] parameters =
+      s_instrumenterStubFactory.assertSuccess("createInstrumentedProxy",
+                                              Test.class,
+                                              Recorder.class,
+                                              Object.class).getParameters();
+
+    assertSame(t1, parameters[0]);
+    assertSame(i, parameters[2]);
+
     final Object proxy2 = t2.wrap(i);
     assertNotSame(proxy1, proxy2);
+  }
+
+  public void testRecord() throws Exception {
+    final Test t1 = new Test(1, "bigger than your dad");
+
+    final Integer i = new Integer(10);
+
+    s_instrumenterStubFactory.assertNoMoreCalls();
+
+    t1.record(i);
+
+    final Object[] parameters =
+      s_instrumenterStubFactory.assertSuccess("instrument",
+                                              Test.class,
+                                              Recorder.class,
+                                              Object.class).getParameters();
+
+    assertSame(t1, parameters[0]);
+    assertSame(i, parameters[2]);
   }
 }
