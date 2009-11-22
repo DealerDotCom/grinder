@@ -143,15 +143,14 @@ test1 = Test(1, "Log method")
 
 class TestRunner:
     def __call__(self):
-        log("Hello World")
+        grinder.logger.output("Hello World")
 </source>
 
     <p>Here we have created a single <code>Test</code> with the test
     number <em>1</em> and the description <em>Log method</em>. Note
-    how must import the <code>Test</code> class in a similar manner to
-    Java. We've also explicitly imported the <code>grinder</code>
-    object, this is good practice as it allows our script to be called
-    from other scripts as a Python <em>module</em>.</p>
+    how must import the <code>grinder</code> object and the
+    <code>Test</code> class in a similar manner to
+    Java.</p>
 
     <p>Now the console knows about our <code>Test</code>, but we're
     still not using it to record anything. Let's record how long our
@@ -171,7 +170,7 @@ from net.grinder.script.Grinder import grinder
 
 test1 = Test(1, "Log method")
 
-# Wrap the log() method with our Test and call the result logWrapper.
+# Wrap the output() method with our Test and call the result logWrapper.
 logWrapper = test1.wrap(grinder.logger.output)
 
 class TestRunner:
