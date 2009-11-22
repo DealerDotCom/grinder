@@ -31,8 +31,7 @@ import org.python.core.PyObject;
  * A dispatcher that translates return types and exceptions from the script.
  *
  * <p>
- * The delegate {@link net.grinder.engine.process.ScriptEngine.Dispatcher
- * Dispatcher} can safely be invoked multiple times for the same test and
+ * The delegate can safely be invoked multiple times for the same test and
  * thread (only the outer invocation will be recorded). Consequently there
  * is no problem with our PyInstance instrumentation and Jython 1.1, where
  * the code path can make multiple calls through our instrumented invoke
