@@ -736,7 +736,7 @@ what you want. Currently the conditionally built modules are:
              stylesheetfile="${javadoc.css}"
              protected="true"
              overview="${script-javadoc-src.dir}/net/grinder/script/overview.html"
-             source="1.4"
+             source="1.5"
              sourcepath="${script-javadoc-src.dir}">
         <group title="The Grinder Scripting API"
                packages="net.grinder.common,net.grinder.script,net.grinder.statistics"/>
