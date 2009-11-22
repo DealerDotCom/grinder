@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+<header>
+  <title>Script Instrumentation</title>
+</header>
+<body>
+
+  <section>
+  <title>About Instrumentation</title>
+
+  <p>The Grinder allows a script to mark the parts of the script code
+  that should be recorded. This is called <em>instrumentation</em>.
+  </p>
+
+  <p>Code is instrumented for a <a href="site:scripts-intro/tests">Test</a>.
+  When instrumented code is called, the test's statistics are updated.
+  The standard statistics record the time taken, number of calls, and number
+  of errors. Advanced scripts can add additional
+  <a href="site:g3/statistics">custom statistics</a>.</p>
+
+  <p>Instrumentation can be <em>nested</em>. For example, you might
+  instrument a method with Test 1, and the method code might call
+  two <code>HTTPRequest</code>s that are instrumented with Test 2
+  and Test 3. The code instrumented by Tests 2 and 3 is nested within
+  the Test 1 code. The time recorded against the Test 1 will be greater than
+  the total time recorded for Tests 2 and 3. It will also
+  include any time spent in the function itself, for example calls to
+  <code>grinder.sleep()</code>.</p>
+
+  <p>The original (or <em>traditional</em>) instrumentation in The Grinder 3
+  works by extending internal classes of the Jython implementation. This
+  approach has served The Grinder well for many years, but has some significant
+  limitations.
+  The Grinder 3.3 includes an alternative instrumentation engine, which
+  will become the default implementation in a future version of The Grinder.
+  </p>
+  </section>
+
+  <section>
+    <title>Traditional Instrumentation</title>
+
+    <p>We've seen an example of using the traditional
+    instrumentation in the <a href="site:scripts-intro/tests">introduction</a>.
+    To recap, you instrument an object by using a
+    <code>Test</code> to create a proxy <em>wrapper</em>. The
+    wrapper object then behaves like the original object.
+    If we call the wrapper the call will be delegated through to the real
+    object, but  additionally the time taken to do the call and the number of
+    calls will be recorded against the <code>Test</code>. Here's the example
+    code again.</p>
+
+<source>
+from net.grinder.script import Test
+from net.grinder.script.Grinder import grinder
+
+test1 = Test(1, "Log method")
+
+# Wrap the output() method with our Test and call the result logWrapper.
+logWrapper = test1.wrap(grinder.logger.output)
+
+class TestRunner:
+    def __call__(self):
+        logWrapper("Hello World")
+</source>
+
+    <p>Each time "Hello World" is written to the log file, the time taken
+    will be recorded by The Grinder.</p>
+
+    <p>Most types of object can be instrumented.</p>
+
+    <table>
+      <tr>
+      <td>Java instance</td>
+      <td>Each method call made through the wrapper is recorded. Arrays and
+      primitive types cannot be instrumented.</td>
+      </tr>
+
+      <tr>
+      <td>Jython instance</td>
+      <td>Each method call made through the wrapper is recorded.</td>
+      </tr>
+
+      <tr>
+      <td>Jython function or method</td>
+      <td>Each call of the wrapper is recorded.</td>
+      </tr>
+
+      <tr>
+      <td>Java class</td>
+      <td>Each call made to the wrapper to construct a new instance of the class
+      is recorded. Calls of other static/class methods are not recorded.</td>
+      </tr>
+
+      <tr>
+      <td>Jython class</td>
+      <td>Jython classes cannot be instrumented.</td>
+      </tr>
+    </table>
+
+    <p>As a convenience to the script author, each wrapper provides a
+    <code>__test__</code> field that can be used
+    to access the test, and a <code>__target__</code> field which
+    returns the original, unwrapped object. </p>
+  </section>
+
+
+  <section id="new-instrumentation">
+    <title>New Instrumentation</title>
+
+    <section>
+      <title>Motivation - why is a new instrumentation engine required?</title>
+
+      <p>The most serious limitation of the traditional instrumentation is that
+      it does not work with Jython 2.5 or
+      later. The Jython 2.5 implementation significantly changed internal
+      APIs upon which The Grinder depends. The new instrumentation <a
+      href="jython-2-5.html">supports Jython 2.5</a>.</p>
+
+      <p>In addition, the traditional
+      instrumentation is deeply tied to Jython. It cannot
+      be used with other scripting languages, nor can it be used within
+      Java code called by the script.</p>
+
+    </section>
+
+    <section>
+      <title>Enabling the new instrumentation</title>
+
+      <p>The new instrumentation was first released in The Grinder 3.3. It
+      requires The Grinder to be run using a Java
+      Virtual Machine that supports transformation of already loaded classes.
+      Practically, this means a Java 6 JVM or later. First check you are
+      using The Grinder 3.3 and a Java 6 JVM.</p>
+
+      <p>When you start up an agent process, you will normally see a line
+      like this in the <a href="site:getting-started/output">output</a> file.</p>
+
+      <source>
+      16/11/09 07:49:40 (process paston01-0): instrumentation agents: traditional Jython instrumenter</source>
+
+      <p>The new instrumentation is enabled by setting the
+      <a href="site:properties">grinder.dcrinstrumentation</a> property to
+      <code>true</code>. If you start an agent with this property set, the
+      line in the output file changes.</p>
+
+      <source>
+      16/11/09 08:02:18 (process paston01-0): instrumentation agents: byte code transforming instrumenter for Jython 2.1/2.2;
+      byte code transforming instrumenter for Java</source>
+
+      <p>If you see the following line, you should check
+      you are using The Grinder 3.3, a Java 6 JVM, and you have set the
+      <code>grinder.dcrinstrumentation</code> property.</p>
+
+      <source>
+      16/11/09 07:59:42 (process paston01-0): instrumentation agents: NO INSTRUMENTER COULD BE LOADED</source>
+    </section>
+
+    <section>
+      <title>New API - <code>record()</code>, not <code>wrap()</code></title>
+
+      <p>The traditional instrumenter creates separate <em>wrapper</em> proxy objects,
+      and does not modify the instrumented target objects. In contrast, the new
+      instrumentation modifies target objects directly. Once an object
+      has been instrumented, it cannot be obtained in its original,
+      un-instrumented form.</p>
+
+      <p>To reflect this change in behaviour, a new
+      <a  href="script-javadoc/net/grinder/script/Test.html#record(java.lang.Object)">record</a>
+      method has been introduced into the script API. This method does not return
+      a value, since there is no separate wrapper. Here's our example script
+      rewritten to use <code>record</code>.
+      </p>
+
+<source>
+from net.grinder.script import Test
+from net.grinder.script.Grinder import grinder
+
+test1 = Test(1, "Log method")
+
+# Instrument the output() method with our Test.
+test1.record(grinder.logger.output)
+
+class TestRunner:
+    def __call__(self):
+        grinder.logger.output("Hello World")
+</source>
+
+      <p>The instrumented objects are changed in-place, so the new
+      instrumentation provides no way to obtain the original object,
+      and no <code>__target__</code>
+      reference. Additionally, the <code>__test__</code> reference is not
+      supported.</p>
+
+      <p>If you call
+      <a href="script-javadoc/net/grinder/script/Test.html#record(java.lang.Object)">record</a>
+      without enabling the new instrumentation, an exception will be thrown.
+      To allow existing scripts to be reused with the new instrumentation, the
+      reverse is not true. That is,
+      <a href="script-javadoc/net/grinder/script/Test.html#record(java.lang.Object)">wrap</a>
+      will use the new instrumentation engine if it is enabled. Since
+      <code>wrap</code> will return its parameter, and not a separate wrapper object,
+      the script may behave differently.</p>
+
+    </section>
+
+    <section>
+      <title>Supported targets</title>
+
+      <p>A wider range of target objects can be instrumented with the new
+      instrumentation engine, and the behaviour for some target types is
+      different.</p>
+
+      <table>
+        <tr>
+        <td>Java instance</td>
+        <td>Each call to a non-static method is recorded, including calls to
+        super classes methods. Arrays cannot be instrumented.</td>
+        </tr>
+
+        <tr>
+        <td>Jython instance</td>
+        <td>Each call to an instance method is recorded.</td>
+        </tr>
+
+        <tr>
+        <td>Jython function or method</td>
+        <td>Each call of the function of method is recorded.</td>
+        </tr>
+
+        <tr>
+        <td>Java class</td>
+        <td>Each call made to a constructor or a static method declared by
+        the class is recorded. Calls of non-static methods or static methods
+        inherited from super classes are not recorded.</td>
+        </tr>
+
+        <tr>
+        <td>Jython class</td>
+        <td>Each call made to the Jython class (i.e. constructor calls) is
+        recorded.</td>
+        </tr>
+      </table>
+
+      <p>In addition to the above rules, JVM classes loaded in the
+      bootstrap classloader, and classes from The Grinder's implementation
+      packages cannot be instrumented.</p>
+    </section>
+
+    <section>
+      <title>The future</title>
+
+      <p>The new instrumentation engine will become the default implementation
+      in a future version of The Grinder, and the <code>wrap</code> method will
+      be deprecated and eventually removed. This change not been made
+      immediately because it requires Java 6, necessitates a change to script
+      API, and further testing to ensure the instrumentation is stable.</p>
+
+      <p>The new instrumentation opens up the possibility for The
+      Grinder to support scripting languages other than Jython.</p>
+    </section>
+  </section>
+</body>
+</document>

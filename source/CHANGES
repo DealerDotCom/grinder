@@ -1,4 +1,4 @@
-The Grinder 3.X (not yet released)
+The Grinder 3.3 (not yet released)
 ----------------------------------
 
   Changes that may not be backwardly compatible with existing scripts:
@@ -38,6 +38,18 @@ The Grinder 3.X (not yet released)
 
     The Grinder now always uses the Java 5 System.nanoTime() method for
     timing. The grinder.useNanoTime property has been removed.
+
+    Fulfil feature request 1949447. A new, alternative instrumentation
+    engine has been introduced. This allows new capabilities, including the
+    ability to instrument code from within Java. The new instrumentation
+    engine requires Java SE 6.
+
+    The Grinder 3.3 supports Jython 2.5 and Jython 2.5.1. This support is
+    based on the new instrumentation engine. The default, included version
+    of Jython remains Jython 2.2.1.
+
+    Fix bug 2686259 - Java 1.5 compilation fails in Eclipse. Thanks to
+    A Bagehot for the report.
 
 
 The Grinder 3.2

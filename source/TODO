@@ -17,12 +17,9 @@ against it too :-).
 
 Steps:
   * Jython 2.5
-     - Doc changes to wrap() semantics. (Changes object in place, original
-       not accessible, no way to get to Test).
-     - Add void record(Object). DCR warns if wrap() called.
-       TradJythonInstrumenter throws NotSupported if record() called.
-
-Support Java DCR instrumenter with trad Jython instrumenter?
+     - Add void record(Object).
+     - DCR warns if wrap() called?
+     - TradJythonInstrumenter throws NotSupported if record() called.
 
 
 * Java 5 upgrade

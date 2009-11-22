@@ -337,7 +337,20 @@
           <a href="site:sourceforge/bug2314157">bug 2314157</a> for more details.
           </td>
 
-          <td></td>
+          <td>false</td>
+    </tr>
+
+        <tr>
+          <td>
+            <code>grinder.dcrinstrumentation</code>
+          </td>
+
+          <td>For advanced use only. Enables the
+          <a href="site:script-instrumentation/new-instrumentation">
+          new instrumentation engine</a>.
+          </td>
+
+          <td>false</td>
     </tr>
 
       </table>
