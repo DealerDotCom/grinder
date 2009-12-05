@@ -104,12 +104,12 @@ public class SampleModelViewsImplementation implements SampleModelViews {
     synchronized (this) {
       m_intervalStatisticsView = new StatisticsView();
       m_cumulativeStatisticsView = new StatisticsView();
+
+      m_intervalStatisticsView.add(summaryStatisticsView);
+
+      m_cumulativeStatisticsView.add(summaryStatisticsView);
+      m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
     }
-
-    m_intervalStatisticsView.add(summaryStatisticsView);
-
-    m_cumulativeStatisticsView.add(summaryStatisticsView);
-    m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
 
     m_listeners.apply(
       new ListenerSupport.Informer<Listener>() {
@@ -136,9 +136,10 @@ public class SampleModelViewsImplementation implements SampleModelViews {
   public void registerStatisticExpression(
     final ExpressionView statisticExpression) {
 
-    // The StatisticsView objects are responsible for synchronisation.
-    m_intervalStatisticsView.add(statisticExpression);
-    m_cumulativeStatisticsView.add(statisticExpression);
+    synchronized (this) {
+      m_intervalStatisticsView.add(statisticExpression);
+      m_cumulativeStatisticsView.add(statisticExpression);
+    }
 
     m_listeners.apply(
       new ListenerSupport.Informer<Listener>() {
