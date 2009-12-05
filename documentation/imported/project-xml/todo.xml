@@ -13,6 +13,16 @@ The TODO list is part of the binary distribution. I'll accept patches against it
 <li>
  Philip Aston </li>
 </ul>
+<section name='Java 5 upgrade' depth='1' id='Java 5 upgrade'>
+<section name='Checkstyle vs "&lt;"' depth='2' id='Checkstyle vs "&lt;"'>
+</section>
+<section name='Opportunities' depth='2' id='Opportunities'>
+<section name='JUC executors, CAS etc.' depth='3' id='JUC executors, CAS etc.'>
+</section>
+<section name='System.nanoTime() - can move to microsecond based time?' depth='3' id='System.nanoTime() - can move to microsecond based time?'>
+</section>
+</section>
+</section>
 <section name='Enhancements' depth='1' id='Enhancements'>
 <section name='Console API' depth='2' id='Console API'>
 <section name='API' depth='3' id='API'>
@@ -158,10 +168,6 @@ Script access to global statistics. </p>
 <section name='Alternate test languages' depth='3' id='Alternate test languages'>
 <p>
 Should support Java, Groovy scripts. </p>
-<p>
-Should use AOP proxies to do test instrumentation. CGLib, or raw ASM? </p>
-<p>
-Blocker: Can't wrap around an existing instance that doesn't have a default constructor. This is a general problem. How to create a new proxy that supports all the methods + interfaces - it clearly needs to extend the target. What if we don't care about implementing the interfaces - just create a proxy that supports the same methods as its delegate? CGLib doesn't appear to support this. </p>
 </section>
 <section name='Events' depth='3' id='Events'>
 <p>
