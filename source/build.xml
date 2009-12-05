@@ -488,7 +488,7 @@ what you want. Currently the conditionally built modules are:
   <!-- Rules to run the tests                                              -->
   <!-- =================================================================== -->
   <target name="test"
-    depends="compile-tests,copy-resources,assert-have-optional-tasks"
+    depends="assert-have-optional-tasks,compile-tests,copy-resources,jar"
     description="Run the unit-tests.">
 
     <path id="test.classpath">
@@ -519,6 +519,8 @@ what you want. Currently the conditionally built modules are:
 
       <!-- Enable assertions. -->
       <jvmarg line="-ea"/>
+
+      <jvmarg line="-javaagent:${lib.dir}/grinder-agent.jar"/>
 
       <!-- Fork separate JVM's for tests to avoid OOMEs when running
       with Clover. -->
