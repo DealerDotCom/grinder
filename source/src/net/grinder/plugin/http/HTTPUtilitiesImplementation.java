@@ -163,7 +163,8 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
       return original;
     }
 
-    final ParsedBody newParsedBody = new ParsedBody(response);
+    final ParsedBody newParsedBody =
+      new ParsedBody(response, this);
     m_parsedBodyThreadLocal.set(newParsedBody);
     return newParsedBody;
   }
@@ -173,14 +174,15 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
    *
    * <p>Specific to a thread, so no need to synchronise.</p>
    */
-  private final class ParsedBody {
+  private static final class ParsedBody {
 
     private final HTTPResponse m_response;
     private final String m_body;
     private final MatchList m_hiddenInputMatchList;
     private final MatchList m_bodyURIMatchList;
 
-    public ParsedBody(HTTPResponse response) {
+    public ParsedBody(HTTPResponse response,
+                      HTTPUtilitiesImplementation httpUtilities) {
       m_response = response;
 
       try {
@@ -191,8 +193,8 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
         throw new AssertionError(e);
       }
 
-      m_hiddenInputMatchList = new HiddenInputMatchList(m_body);
-      m_bodyURIMatchList = new BodyURIMatchList(m_body);
+      m_hiddenInputMatchList = httpUtilities.new HiddenInputMatchList(m_body);
+      m_bodyURIMatchList = httpUtilities.new BodyURIMatchList(m_body);
     }
 
     public boolean isValidForResponse(HTTPResponse response) {
