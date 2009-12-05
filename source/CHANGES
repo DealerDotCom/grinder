@@ -44,7 +44,7 @@ The Grinder 3.3
     ability to instrument code from within Java. The new instrumentation
     engine requires Java SE 6.
 
-    Fulfill feature request 2907553. The Grinder 3.3 supports Jython 2.5 and
+    Fulfil feature request 2907553. The Grinder 3.3 supports Jython 2.5 and
     Jython 2.5.1. This support is based on the new instrumentation engine.
     The default, included version of Jython remains Jython 2.2.1. Thanks to
     Chris Cooper for the request.
