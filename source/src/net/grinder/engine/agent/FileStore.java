@@ -218,6 +218,8 @@ final class FileStore {
   private static final class OutOfDateCacheHighWaterMark
     implements CacheHighWaterMark {
 
+    private static final long serialVersionUID = 1L;
+
     public long getTime() {
       return -1;
     }

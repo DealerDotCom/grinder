@@ -230,6 +230,8 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
   }
 
   private static final class AddressSet implements Address {
+    private static final long serialVersionUID = 1L;
+
     private final Set<? extends Address> m_addresses;
 
     public AddressSet(Set<? extends Address> addresses) {

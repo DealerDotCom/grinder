@@ -139,6 +139,8 @@ abstract class AbstractFanOutSender extends AbstractSender {
   }
 
   private static final class SendToEveryoneAddress implements Address {
+    private static final long serialVersionUID = 1L;
+
     public boolean includes(Address address) {
       return true;
     }
