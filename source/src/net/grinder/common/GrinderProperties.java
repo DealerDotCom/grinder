@@ -519,4 +519,18 @@ public class GrinderProperties extends Properties {
     in.defaultReadObject();
     setErrorWriter(new PrintWriter(System.err, true));
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public boolean equals(Object o) {
+    return super.equals(o);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public int hashCode() {
+    return super.hashCode();
+  }
 }

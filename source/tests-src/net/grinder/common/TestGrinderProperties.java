@@ -162,6 +162,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       m_grinderProperties.getPropertySubset("");
 
     assertEquals(all, m_allSet);
+    assertEquals(all.hashCode(), m_allSet.hashCode());
 
     final GrinderProperties none =
       m_grinderProperties.getPropertySubset("Not there");
