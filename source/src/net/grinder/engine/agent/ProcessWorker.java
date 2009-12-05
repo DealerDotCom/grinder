@@ -85,10 +85,14 @@ final class ProcessWorker implements Worker {
     }
 
     m_stdoutRedirector =
-      new Redirector(m_process.getInputStream(), outputStream);
+      new Redirector(m_process.getInputStream(),
+                     outputStream,
+                     m_process.toString());
 
     m_stderrRedirector =
-      new Redirector(m_process.getErrorStream(), errorStream);
+      new Redirector(m_process.getErrorStream(),
+                     errorStream,
+                     m_process.toString());
   }
 
   /**
@@ -160,14 +164,16 @@ final class ProcessWorker implements Worker {
     m_process.destroy();
   }
 
-  private class Redirector {
+  private static class Redirector {
     private final Thread m_thread;
 
-    public Redirector(InputStream inputStream, OutputStream outputStream) {
+    public Redirector(InputStream inputStream,
+                      OutputStream outputStream,
+                      String processName) {
       m_thread =
         new Thread(new StreamCopier(4096, false).getRunnable(inputStream,
                                                              outputStream),
-                   "Stream redirector for process " + m_process);
+                   "Stream redirector for process " + processName);
       m_thread.setDaemon(true);
       m_thread.start();
     }

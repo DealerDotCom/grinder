@@ -23,6 +23,7 @@
 package net.grinder.statistics;
 
 import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext;
+import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext.ParseException;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
 
@@ -72,11 +73,8 @@ public class TestCommonStatisticsViews extends TestCase {
       statisticExpressionFactoryStubFactory =
         RandomStubFactory.create(StatisticExpressionFactory.class);
 
-    final ParseContext parseContext = new ParseContext("");
-
     statisticExpressionFactoryStubFactory.setThrows(
-      "createExpressionView",
-      parseContext.new ParseException("Broken", 0));
+      "createExpressionView", new ParseException("Broken", "foo", 0));
 
     try {
       new CommonStatisticsViews(
