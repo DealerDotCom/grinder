@@ -165,6 +165,7 @@ final class ProcessWorker implements Worker {
   }
 
   private static class Redirector {
+
     private final Thread m_thread;
 
     public Redirector(InputStream inputStream,
@@ -179,7 +180,8 @@ final class ProcessWorker implements Worker {
     }
 
     public void stop() {
-      m_thread.interrupt();
+      // We used to interrupt our thread, but that's a dumb idea since there
+      // may be pending output to flush.
 
       while (m_thread.isAlive()) {
         try {

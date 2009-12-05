@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 
 /**
- *  Unit tests for <code>ChildProcess</code>.
+ *  Unit tests for {@link ProcessWorker}.
  *
  * @author Philip Aston
  * @version $Revision$
