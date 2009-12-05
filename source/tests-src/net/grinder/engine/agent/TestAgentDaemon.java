@@ -120,7 +120,8 @@ public class TestAgentDaemon extends AbstractFileTestCase {
   public static class ActionListSleeperStubFactory
     // Good grief. Some horrible javac issue means we need to fully qualify
     // this.
-    extends net.grinder.testutility.RandomStubFactory<Sleeper> {
+    extends net.grinder.testutility.RandomStubFactory<
+            net.grinder.util.Sleeper> {
 
     public interface SleepAction {
       void sleep(long time) throws ShutdownException;
