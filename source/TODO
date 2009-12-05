@@ -13,11 +13,6 @@ against it too :-).
 
 - Philip Aston
 
-* NG instrumentation
-
-Steps:
-  * Jython 2.5
-     - DCR warns if wrap() called?
 
 
 * Java 5 upgrade
