@@ -86,8 +86,7 @@ public class TestFileTree extends AbstractFileTestCase {
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel =
-      new FileTreeModel(editorModel, m_nullFileFilter);
-    fileTreeModel.setRootDirectory(new File("c:"));
+      new FileTreeModel(editorModel, m_nullFileFilter, new File("c:"));
 
     final FileTree fileTree = new FileTree(s_resources,
       m_errorHandler, editorModel, bufferTreeModel, fileTreeModel,
@@ -107,9 +106,7 @@ public class TestFileTree extends AbstractFileTestCase {
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel =
-      new FileTreeModel(editorModel, m_nullFileFilter);
-
-    fileTreeModel.setRootDirectory(new File("c:"));
+      new FileTreeModel(editorModel, m_nullFileFilter, new File("c:"));
 
     new FileTree(s_resources, m_errorHandler, editorModel, bufferTreeModel,
                  fileTreeModel, new JLabel().getFont(), new JPopupMenu(), null);
@@ -152,9 +149,7 @@ public class TestFileTree extends AbstractFileTestCase {
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel =
-      new FileTreeModel(editorModel, m_nullFileFilter);
-
-    fileTreeModel.setRootDirectory(getDirectory());
+      new FileTreeModel(editorModel, m_nullFileFilter, getDirectory());
 
     final FileTree fileTree =
       new FileTree(s_resources, m_errorHandler, editorModel,

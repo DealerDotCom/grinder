@@ -84,9 +84,12 @@ final class FileTreeModel implements TreeModel {
 
   private RootNode m_rootNode;
 
-  FileTreeModel(EditorModel editorModel, FileFilter distributionFileFilter) {
+  FileTreeModel(EditorModel editorModel,
+                FileFilter distributionFileFilter,
+                File initialRootDirectory) {
     m_editorModel = editorModel;
     m_distributionFileFilter = distributionFileFilter;
+    setRootDirectory(initialRootDirectory);
   }
 
   public void setRootDirectory(File rootDirectory) {

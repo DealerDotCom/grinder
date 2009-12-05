@@ -344,9 +344,8 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
     final FileTreeModel fileTreeModel =
       new FileTreeModel(m_editorModel,
-                        m_fileDistribution.getDistributionFileFilter());
-    fileTreeModel.setRootDirectory(
-      m_properties.getDistributionDirectory().getFile());
+                        m_fileDistribution.getDistributionFileFilter(),
+                        m_properties.getDistributionDirectory().getFile());
 
     m_properties.addPropertyChangeListener(
       new PropertyChangeListener()  {
