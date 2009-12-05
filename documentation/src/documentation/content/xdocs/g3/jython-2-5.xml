@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+<header>
+  <title>Jython 2.5</title>
+</header>
+<body>
+
+  <p>The default Jython implementation packaged with The Grinder is Jython 2.2.
+  The Grinder 3.3 and later optionally support Jython 2.5. Jython 2.5.1 has also
+  been tested and works fine.</p>
+
+  <section>
+    <title>How to use Jython 2.5</title>
+    
+    <p>Download and install Jython 2.5. Add the path to the installation's jython.jar
+    file to the start of the <code>CLASSPATH</code> you use for The Grinder agent processes.
+    If you wish to use the library modules, you should also 
+    <a href="site:scripts-intro/jython-installation">set the python.home</a> property to
+    point to the installation directory.</p>
+    
+    <p>The support for Jython 2.5 uses the
+    <a href="site:script-instrumentation/new-instrumentation">new instrumentation engine</a>,
+	and so requires that the agent processes are run using Java SE 6.</p>
+
+  </section>
+</body>
+</document>

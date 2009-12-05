@@ -1,6 +1,34 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.3' id='The Grinder 3.3'>
+<p>
+Changes that may be incompatible with existing scripts: </p>
+<p>
+The Grinder now requires J2SE 5.0 ("Java 5"). J2SE 1.4 is no longer supported. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2315181&amp;group_id=18598&amp;atid=118598">bug 2315181</a> - Classpath of distributed jars. When distributing scripts from the console, the worker process working directory is now the root of the local cache directory. This allows scripts to refer to distributed resources using relative paths. Thanks to ujik for reporting this. </p>
+<p>
+Other changes: </p>
+<p>
+The TCPProxy now supports HTTPS proxies that use challenge/response authentication protocols such as NTLM and Negotiate. This will allow scripts to be recorded through such a proxy, but are no plans to add support for replaying scripts through the proxy. Thanks to Suvendu Kumar Mohapatra for extensive testing of candidate patches. </p>
+<p>
+The stream support for HTTPRequest introduced in 3.2 has been enhanced to use the Content-Length header if provided. This allows the stream to be sent directly to the server without buffering, whether or not HTTP/1.1 chunking is available. Thanks to Walter Tuvell for the requirement and extensive testing. </p>
+<p>
+Add HTTPRequest.getPluginProcessContext() so subclasses outside of the Java package can access the process context. This is useful when following the advice in the setReadResponseBody documentation. Thanks to Walter Tuvell for the requirement. </p>
+<p>
+Updated Spanish translation from Antonio Manuel Muñiz Martin. </p>
+<p>
+Updated Polish translation from from KArol Muszynski. </p>
+<p>
+The Grinder now always uses the Java 5 System.nanoTime() method for timing. The grinder.useNanoTime property has been removed. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1949447&amp;group_id=18598&amp;atid=368598">request 1949447</a>. A new, alternative instrumentation engine has been introduced. This allows new capabilities, including the ability to instrument code from within Java. The new instrumentation engine requires Java SE 6. </p>
+<p>
+Fulfill feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2907553&amp;group_id=18598&amp;atid=368598">request 2907553</a>. The Grinder 3.3 supports Jython 2.5 and Jython 2.5.1. This support is based on the new instrumentation engine. The default, included version of Jython remains Jython 2.2.1. Thanks to Chris Cooper for the request. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2686259&amp;group_id=18598&amp;atid=118598">bug 2686259</a> - Java 1.5 compilation fails in Eclipse. Thanks to A Bagehot for the report. </p>
+</section>
 <section name='The Grinder 3.2' id='The Grinder 3.2'>
 <p>
 Add net.grinder.ScriptContext startWorkerThread() and startWorkerThread(testRunner) methods which scripts can use to start additional worker threads. </p>

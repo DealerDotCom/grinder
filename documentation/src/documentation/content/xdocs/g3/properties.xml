@@ -337,23 +337,21 @@
           <a href="site:sourceforge/bug2314157">bug 2314157</a> for more details.
           </td>
 
-          <td></td>
+          <td>false</td>
     </tr>
 
         <tr>
           <td>
-            <code>grinder.useNanoTime</code>
+            <code>grinder.dcrinstrumentation</code>
           </td>
 
-          <td>If set to <code>true</code>, <code>System.nanoTime()</code> is
-          used for measuring time instead of
-          <code>System.currentTimeMills()</code>. The Grinder will still report
-          times in milliseconds. The precision of these methods depends on the
-          JVM implementation and the operating system. Setting to
-          <code>true</code> requires <a href="ext:j2se15">J2SE 5</a> or later.</td>
+          <td>For advanced use only. Enables the
+          <a href="site:script-instrumentation/new-instrumentation">
+          new instrumentation engine</a>.
+          </td>
 
           <td>false</td>
-    </tr>
+        </tr>
 
       </table>
     </section>

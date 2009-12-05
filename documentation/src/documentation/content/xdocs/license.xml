@@ -108,6 +108,15 @@
   </section>
 
   <section>
+    <title>JSR 166y</title>
+
+    <p>The Grinder includes components from the extra166y package.
+       This package is in the public domain.
+       See <a href="ext:jsr166">
+       http://g.oswego.edu/dl/concurrency-interest/</a>.</p>
+  </section>
+
+  <section>
     <title>License text</title>
 
     <section id="LGPL">
