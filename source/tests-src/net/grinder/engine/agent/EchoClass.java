@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004-2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,8 @@
 
 package net.grinder.engine.agent;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-
 
 
 /**
@@ -43,10 +40,8 @@ public class EchoClass {
 
     final Writer commandWriter = new StringWriter();
 
-    final Reader in = new InputStreamReader(System.in);
-
     while (true) {
-      final int c = in.read();
+      final int c = System.in.read();
 
       if (c == -1) {
         throw new Exception("Could not read command");
