@@ -67,15 +67,23 @@ public class EchoClass {
       }
     }
     else if (command.equals(ECHO_STREAMS)) {
+      int noDataCount = 0;
+
       while (true) {
         final int b = System.in.read();
 
         if (b == -1) {
-          break;
-        }
+          Thread.sleep(20);
 
-        System.out.write(b);
-        System.err.write(b);
+          if (++noDataCount > 5) {
+            break;
+          }
+        }
+        else {
+          noDataCount = 0;
+          System.out.write(b);
+          System.err.write(b);
+        }
       }
     }
 
