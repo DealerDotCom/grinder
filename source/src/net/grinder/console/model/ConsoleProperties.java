@@ -476,8 +476,8 @@ public final class ConsoleProperties {
         m_resources,
         "invalidPortNumberError.text",
         new Object[] {
-          new Integer(CommunicationDefaults.MIN_PORT),
-          new Integer(CommunicationDefaults.MAX_PORT), }
+          CommunicationDefaults.MIN_PORT,
+          CommunicationDefaults.MAX_PORT, }
         );
     }
 
@@ -927,7 +927,7 @@ public final class ConsoleProperties {
 
   private final class IntProperty extends Property {
     public IntProperty(String propertyName, int defaultValue) {
-      super(propertyName, new Integer(defaultValue));
+      super(propertyName, defaultValue);
     }
 
     public void setFromProperties() {
@@ -944,7 +944,7 @@ public final class ConsoleProperties {
     }
 
     public void set(int i) {
-      setValue(new Integer(i));
+      setValue(i);
     }
   }
 
@@ -1013,7 +1013,7 @@ public final class ConsoleProperties {
 
   private final class BooleanProperty extends Property {
     public BooleanProperty(String propertyName, boolean defaultValue) {
-      super(propertyName, Boolean.valueOf(defaultValue));
+      super(propertyName, defaultValue);
     }
 
     public void setFromProperties() {
@@ -1030,7 +1030,7 @@ public final class ConsoleProperties {
     }
 
     public void set(boolean b) {
-      setValue(Boolean.valueOf(b));
+      setValue(b);
     }
   }
 

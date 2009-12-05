@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -107,8 +107,7 @@ public class DispatchClientCommands {
       GetNumberOfAgentsMessage.class,
       new AbstractBlockingHandler() {
         public Message blockingSend(Message message) {
-          return new ResultMessage(
-            new Integer(m_processControl.getNumberOfLiveAgents()));
+          return new ResultMessage(m_processControl.getNumberOfLiveAgents());
         }
       });
 

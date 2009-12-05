@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -48,7 +48,7 @@ class IntegerField extends JTextField {
   private static int log10(long x) {
     // The 1e-10 is a cosmological constant to account for FP
     // rounding errors that occur, e.g. for x=10.
-    return new Double((Math.log(x) / s_log10) + 1e-10).intValue();
+    return (int)((Math.log(x) / s_log10) + 1e-10);
   }
 
   private static int maxFieldWidth(int minimumValue, int maximumValue) {

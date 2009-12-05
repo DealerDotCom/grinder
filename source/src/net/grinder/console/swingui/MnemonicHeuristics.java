@@ -329,11 +329,11 @@ final class MnemonicHeuristics {
       new HashMap<Integer, ButtonWrapper>();
 
     public void add(int mnemonic, AbstractButton button) {
-      m_map.put(new Integer(mnemonic), new ButtonWrapper(button, false));
+      m_map.put(mnemonic, new ButtonWrapper(button, false));
     }
 
     public void addExplicit(int mnemonic, AbstractButton button) {
-      m_map.put(new Integer(mnemonic), new ButtonWrapper(button, true));
+      m_map.put(mnemonic, new ButtonWrapper(button, true));
     }
 
     public AbstractButton getExplicit(int mnemonic) {
@@ -367,7 +367,7 @@ final class MnemonicHeuristics {
     }
 
     public boolean contains(int mnemonic) {
-      return m_map.containsKey(new Integer(mnemonic));
+      return m_map.containsKey(mnemonic);
     }
 
     private static class ButtonWrapper {

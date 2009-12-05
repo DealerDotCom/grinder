@@ -616,10 +616,10 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
           if (existingValue != null) {
             tokenID.append(existingValue);
             m_uniqueTokenIDs.put(partToken,
-                              new Integer(existingValue.intValue() + 1));
+                                 existingValue.intValue() + 1);
           }
           else {
-            m_uniqueTokenIDs.put(partToken, new Integer(2));
+            m_uniqueTokenIDs.put(partToken, 2);
           }
 
           newToken.setTokenId(tokenID.toString());

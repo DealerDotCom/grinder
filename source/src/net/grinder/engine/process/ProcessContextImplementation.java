@@ -253,8 +253,7 @@ final class ProcessContextImplementation implements ProcessContext {
     private boolean m_allShutdown;
 
     public void threadCreated(ThreadContext threadContext) {
-      final Integer threadNumber =
-        new Integer(threadContext.getThreadNumber());
+      final Integer threadNumber = threadContext.getThreadNumber();
 
       final boolean shutdown;
 

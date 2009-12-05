@@ -61,13 +61,13 @@ public final class AllocateLowestNumberImplementation
 
       final int nextN = m_nextN;
 
-      m_map.put(o, new Integer(nextN));
+      m_map.put(o, nextN);
 
       ++m_nextN;
 
       final int mapSize = m_map.size();
 
-      while (m_nextN < mapSize && m_map.containsValue(new Integer(m_nextN))) {
+      while (m_nextN < mapSize && m_map.containsValue(m_nextN)) {
         ++m_nextN;
       }
 
