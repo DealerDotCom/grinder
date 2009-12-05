@@ -1,5 +1,5 @@
 export ANT_HOME=/opt/ant/apache-ant-1.6.2
-export JAVA_HOME=/opt/jrockit/jrmc-3.1.0-1.6.0/
+export JAVA_HOME=/opt/mw-1032/jdk160_14_R27.6.5-32
 export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
 JUNIT=/opt/junit/junit3.8.1/junit.jar
