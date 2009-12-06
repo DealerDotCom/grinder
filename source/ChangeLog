@@ -1,3 +1,1550 @@
+2009-12-06 [r4172-4173]  Philip Aston
+
+	* etc/grinder-manifest.mf: Commons is not required.
+
+	* etc/grinder-manifest.mf: I've said it before and I'll say it
+	  again, trailing spaces are important.
+
+2009-12-05 [r4169]  Philip Aston
+
+	* CHANGES: Fix spelling.
+
+2009-12-05 [r4167]  Philip Aston
+
+	* .settings/de.mvmsoft.checkclipse.prefs: Checkstyle tweaks.
+
+2009-12-05 [r4164-4165]  Philip Aston
+
+	* build.xml: Unit tests need the agent jar.
+
+	* etc/buildenv.sh: JRockit appears to have issues with DCR.
+
+2009-12-05 [r4163]  Philip Aston
+
+	* tests-src/net/grinder/engine/agent/EchoClass.java: Really fix the
+	  "race" condition. Seems that using a StreamReader around
+	  System.in is incompatible with direct access.
+
+2009-12-05 [r4162]  Philip Aston
+
+	* tests-src/net/grinder/engine/agent/EchoClass.java,
+	  src/net/grinder/engine/agent/ProcessWorker.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorker.java: Fix
+	  the race condition the right way.
+
+2009-12-05 [r4160-4161]  Philip Aston
+
+	* tests-src/net/grinder/engine/agent/EchoClass.java: Spin for a
+	  while before deciding there's no data to avoid race.
+
+	* etc/findbugs-exclude.xml: More exclusions.
+
+2009-12-05 [r4158-4159]  Philip Aston
+
+	* .fbprefs: Tweak findbugs preferences.
+
+	* .classpath: No separate package for CustomConcurrentHashMap.
+
+2009-12-05 [r4157]  Philip Aston
+
+	* tests-src/net/grinder/console/swingui/TestFileTree.java,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/swingui/FileTreeModel.java,
+	  tests-src/net/grinder/console/swingui/TestFileTreeModel.java:
+	  Initialise root directory in FileTreeModel constructor.
+
+2009-12-05 [r4156]  Philip Aston
+
+	* src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java:
+	  Convert inner classes to nested classes.
+
+2009-12-05 [r4155]  Philip Aston
+
+	* src/net/grinder/engine/agent/ProcessWorker.java,
+	  tests-src/net/grinder/statistics/TestCommonStatisticsViews.java,
+	  src/net/grinder/statistics/StatisticExpressionFactoryImplementation.java:
+	  Convert inner classes to nested classes.
+
+2009-12-05 [r4154]  Philip Aston
+
+	* src/net/grinder/communication/AbstractFanOutSender.java,
+	  src/net/grinder/console/distribution/AgentCacheStateImplementation.java,
+	  src/net/grinder/engine/agent/FileStore.java: serialVersionUID.
+
+2009-12-05 [r4153]  Philip Aston
+
+	* src/net/grinder/util/SignificantFigureFormat.java,
+	  tests-src/net/grinder/util/TestSignificantFigureFormat.java,
+	  src/net/grinder/common/GrinderProperties.java,
+	  tests-src/net/grinder/common/TestGrinderProperties.java: Define
+	  equality to satisfy findbugs.
+
+2009-12-05 [r4151-4152]  Philip Aston
+
+	* etc/grinder-manifest.mf: Easiest to package ConcurrentHashMap in
+	  main src tree.
+
+	* tests-src/net/grinder/engine/agent/TestAgentDaemon.java: More
+	  javac suckage.
+
+2009-12-05 [r4150]  Philip Aston
+
+	* build.xml, src/extra166y/CustomConcurrentHashMap.java (added),
+	  src/extra166y (added), .settings/de.mvmsoft.checkclipse.prefs:
+	  Easiest to package ConcurrentHashMap in main src tree.
+
+2009-12-05 [r4148-4149]  Philip Aston
+
+	* TODO, CHANGES: Update for release.
+
+	* .classpath: Cruft.
+
+2009-12-05 [r4147]  Philip Aston
+
+	* src/net/grinder/console/swingui/IntegerField.java,
+	  src/net/grinder/engine/process/ProcessContextImplementation.java,
+	  src/net/grinder/console/communication/server/DispatchClientCommands.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java,
+	  src/net/grinder/util/AllocateLowestNumberImplementation.java,
+	  src/net/grinder/console/swingui/MnemonicHeuristics.java,
+	  src/net/grinder/console/model/ConsoleProperties.java: Auto-box
+	  rather than creating new wrapper instances or using valueOf.
+
+2009-12-05 [r4144-4146]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java:
+	  Formatting.
+
+	* src/net/grinder/console/model/SampleModelViewsImplementation.java:
+	  Firm up synchronisation.
+
+	* examples/grinder.properties: Add grinder.dcrinstrumentation.
+	  Remove grinder.useNanoTime.
+
+2009-11-22 [r4143]  Philip Aston
+
+	* src/net/grinder/script/TestRegistry.java,
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/TraditionalJythonInstrumenter.java,
+	  TODO,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java,
+	  src/net/grinder/engine/process/Instrumenter.java,
+	  tests-src/net/grinder/script/TestTest.java,
+	  src/net/grinder/script/Test.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/JavaDCRInstrumenter.java,
+	  tests-src/net/grinder/engine/process/StubTestRegistry.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/Jython22Instrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenterWithJython25.java,
+	  src/net/grinder/script/NonInstrumentableTypeException.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/dcr/Jython25Instrumenter.java,
+	  src/net/grinder/engine/process/TestData.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/MasterInstrumenter.java:
+	  Add record().
+
+2009-11-22 [r4142]  Philip Aston
+
+	* TODO, CHANGES: Documentation updates.
+
+2009-11-22 [r4140]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/JavaDCRInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJavaDCRInstrumenter.java:
+	  Instrumenting arrays is a pointless no-op, so explicitly disallow
+	  it.
+
+2009-11-22 [r4137]  Philip Aston
+
+	* src/net/grinder/engine/process/GrinderProcess.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenterWithJython25.java,
+	  src/net/grinder/engine/process/instrumenter/MasterInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenter.java:
+	  grinder.dcrinstrumentation property.
+
+2009-11-22 [r4136]  Philip Aston
+
+	* etc/localpaths.properties: Export files to the trunk
+	  documentation build, not the published one.
+
+2009-11-22 [r4134-4135]  Philip Aston
+
+	* build.xml: 1.5 source for script JavaDoc.
+
+	* src/net/grinder/util/weave/Weaver.java,
+	  src/net/grinder/util/StandardTimeAuthority.java: More Javadoc
+	  fixes.
+
+2009-11-22 [r4133]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/traditionaljython/PyDispatcher.java:
+	  Fix javadoc reference.
+
+2009-11-18 [r4132]  Philip Aston
+
+	* src/net/grinder/console/common/resources/Console_pl.properties,
+	  CHANGES: Updated Polish translation from from KArol Muszynski.
+
+2009-11-14 [r4131]  Philip Aston
+
+	* src/net/grinder/engine/process/GrinderProcess.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenterWithJython25.java,
+	  src/net/grinder/engine/process/instrumenter/MasterInstrumenter.java,
+	  TODO: Warn if no instrumenters could be loaded.
+
+2009-11-14 [r4130]  Philip Aston
+
+	* src/net/grinder/util/JVM.java: Require 1.5. (Check is bogus,
+	  since byte code will fail to load anyway). Align JVM information
+	  with that produced from java -version.
+
+2009-11-14 [r4129]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestJythonEngineWithJython25.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestDCRInstrumenterFactory.java,
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/JythonInstrumenterFactory.java,
+	  src/net/grinder/engine/process/instrumenter/MasterInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenter.java:
+	  Don't create a DCR Jython instrumenter if a traditional Jython
+	  instrumenter could be created.
+
+2009-11-03 [r4128]  Philip Aston
+
+	* src/net/grinder/engine/process/ThreadContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	  Simplify shutdown detection.
+
+2009-10-24 [r4127]  Philip Aston
+
+	* src/net/grinder/engine/process/TestData.java, TODO,
+	  src/net/grinder/engine/process/ThreadContextImplementation.java:
+	  Cope with shutdown - end() can be called with partial context.
+
+2009-10-24 [r4126]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/Jython25Instrumenter.java,
+	  TODO: Comment on why we instrument type___call__() for PyType.
+
+2009-10-24 [r4125]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/Jython22Instrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/Jython25Instrumenter.java,
+	  TODO,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java:
+	  Instrumentation for PyReflectedConstructors.
+
+2009-10-24 [r4124]  Philip Aston
+
+	* TODO,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java:
+	  Test instrumentation with a lambda.
+
+2009-10-24 [r4121-4123]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/Jython22Instrumenter.java:
+	  Fix for static method invocations.
+
+	* tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java:
+	  Test static methods.
+
+	* src/net/grinder/engine/process/instrumenter/dcr/RecorderLocator.java:
+	  Fix debug.
+
+2009-10-24 [r4119-4120]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java:
+	  Test with a Python class that extends a Java class.
+
+	* tests-src/net/grinder/testutility/BlockingClassLoader.java: Our
+	  test classes need to be visible to Python.
+
+2009-10-24 [r4118]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestJythonEngineWithJython25.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJython25Instrumenter.java:
+	  Relax version checks for 2.5.1.
+
+2009-10-24 [r4117]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/Jython22Instrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/Jython25Instrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJython25Instrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/AbstractJythonInstrumenterTestCase.java,
+	  TODO,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java:
+	  Support Python and Java classes.
+
+2009-10-24 [r4116]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/dcr/TestJavaDCRInstrumenter.java:
+	  Fix typo.
+
+2009-10-23 [r4115]  Philip Aston
+
+	* src/net/grinder/util/weave/Weaver.java,
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java: Method
+	  weaving now requires target source parameter.
+
+2009-10-23 [r4114]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestDCRInstrumenterFactory.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJythonDCRInstrumenterWithJython25.java
+	  (removed),
+	  src/net/grinder/engine/process/instrumenter/dcr/JythonDCRInstrumenter.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJythonDCRInstrumenter.java
+	  (removed), TODO,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java,
+	  src/net/grinder/script/NotWrappableTypeException.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/JavaDCRInstrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/Jython22Instrumenter.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJython22Instrumenter.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJython25Instrumenter.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/dcr/Jython25Instrumenter.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenterWithJython25.java,
+	  tests-src/net/grinder/engine/process/instrumenter/AbstractJythonInstrumenterTestCase.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java
+	  (added): Jython 2.5 DCR instrumenter.
+
+2009-10-22 [r4113]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java,
+	  src/net/grinder/util/weave/j2se6/PointCutRegistry.java,
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java:
+	  Support multiple advice per method.
+
+2009-10-22 [r4112]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/RecorderLocator.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestRecorderLocator.java:
+	  Cope with null target reference.
+
+2009-10-19 [r4111]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/RecorderLocator.java:
+	  More tweaks to the debug logging, and a warning comment.
+
+2009-10-19 [r4110]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java,
+	  src/net/grinder/util/weave/Weaver.java,
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java: Part 2
+	  of the rework to support more parameters as target objects.
+
+2009-10-19 [r4109]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java,
+	  src/net/grinder/util/weave/j2se6/PointCutRegistry.java (added),
+	  src/net/grinder/util/weave/Weaver.java,
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java,
+	  src/net/grinder/util/weave/j2se6/WeavingDetails.java (added):
+	  Part 1 of the rework to support more parameters as target
+	  objects.
+
+2009-10-18 [r4107-4108]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenterWithJython25.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJythonDCRInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJavaDCRInstrumenter.java:
+	  Coverage.
+
+	* src/net/grinder/engine/process/instrumenter/dcr/JavaDCRInstrumenter.java:
+	  Cope with null.
+
+2009-10-18 [r4106]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/dcr/AnotherClass.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJavaDCRInstrumenter.java:
+	  Coverage.
+
+2009-10-18 [r4101-4105]  Philip Aston
+
+	* build.xml: Don't bundle ASM commons.
+
+	* tests-src/net/grinder/engine/process/instrumenter/AbstractJythonInstrumenterTestCase.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJythonDCRInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenter.java:
+	  Simplify subclass interface.
+
+	* tests-src/net/grinder/testutility/BlockingClassLoader.java:
+	  Favour Lists over arrays.
+
+	* tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java:
+	  Coverage.
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java: No
+	  need to override the methods that visit debug information.
+
+2009-10-18 [r4096-4100]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenterWithJython25.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenter.java
+	  (added): Test MasterInstrumenter.
+
+	* tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java:
+	  Test multiple transaformations.
+
+	* tests-src/net/grinder/engine/process/instrumenter/dcr/TestJavaDCRInstrumenter.java:
+	  Fix for revised ctor instrumentation order.
+
+	* src/net/grinder/util/weave/j2se6/DCRWeaver.java: Ensure our
+	  locations are unique across classloaders.
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java: Stop
+	  using AdviceAdapter, it has too many flaws. Provide a more
+	  natural call order for constructor instrumentation. Correctly
+	  order TryCatchBlocks to cope with multiple advice.
+
+2009-10-18 [r4095]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/RecorderLocator.java:
+	  Better debug statements.
+
+2009-10-17 [r4092-4094]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/AbstractJythonInstrumenterTestCase.java:
+	  Don't fail on null - leave it to the MasterInstrumenter. Fail on
+	  unrecognised type of PyObject.
+
+	* src/net/grinder/engine/process/instrumenter/traditionaljython/TraditionalJythonInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenter.java:
+	  Don't fail on null - leave it to the MasterInstrumenter. Fail on
+	  unrecognised type of PyObject.
+
+	* tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestJythonEngineWithJython25.java,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenterWithJython21.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJythonDCRInstrumenterWithJython25.java:
+	  Simplify.
+
+2009-10-17 [r4091]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestDCRInstrumenterFactory.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/JavaDCRInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJavaDCRInstrumenter.java:
+	  Instrumentation of classes shouldn't include non-static methods
+	  or those from superclasses. Instrumentation of instances
+	  shouldn't include static methods.
+
+2009-10-16 [r4090]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestDCRInstrumenterFactory.java
+	  (added): Unit tests.
+
+2009-10-16 [r4089]  Philip Aston
+
+	* build.xml,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestJythonEngineWithJython25.java
+	  (added),
+	  tests-src/net/grinder/testutility/BlockingClassLoader.java
+	  (added), etc/localpaths.properties,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenterWithJython21.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/AbstractJythonInstrumenterTestCase.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJythonDCRInstrumenterWithJython25.java
+	  (added), TODO,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenter.java:
+	  Test with various Jython versions.
+
+2009-10-16 [r4088]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java,
+	  tests-src/test/MyClass.java, tests-src/test/MyExtendedClass.java,
+	  tests-src/net/grinder/engine/process/instrumenter/AbstractJythonInstrumenterTestCase.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJythonDCRInstrumenter.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/dcr/JythonDCRInstrumenter.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/AbstractInstrumenterTestCase.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestDCRInstrumenter.java
+	  (removed),
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/JavaDCRInstrumenter.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJavaDCRInstrumenter.java
+	  (added): Split out separate Java and Jython DCR instrumenters.
+
+2009-10-15 [r4087]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java:
+	  Return empty list if instrumentation unavailable.
+
+2009-10-15 [r4085-4086]  Philip Aston
+
+	* build.xml, etc/buildenv.sh: Build Java 5 code with Java 6.
+
+	* src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java:
+	  Fail gracefully if loaded under JSE 5.
+
+2009-10-15 [r4084]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/JythonInstrumenterFactory.java
+	  (added), src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/instrumenter/MasterInstrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/TraditionalJythonInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenter.java,
+	  src/net/grinder/engine/process/Instrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java:
+	  Clean up instrumentation factories.
+
+2009-10-14 [r4083]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java:
+	  Note another reason not to allow boostrap classes to be
+	  instrumented.
+
+2009-10-14 [r4082]  Philip Aston
+
+	* etc/grinder-manifest.mf: Fix manifest - need asm commons.
+
+2009-10-14 [r4081]  Philip Aston
+
+	* src/net/grinder/engine/process/jython/JythonScriptEngine.java:
+	  Cope with Jython 2.5.0.
+
+2009-10-14 [r4080]  Philip Aston
+
+	* etc/grinder-manifest.mf: Fix manifest - trailing spaces are
+	  important.
+
+2009-10-14 [r4079]  Philip Aston
+
+	* src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/instrumenter/MasterInstrumenter.java,
+	  TODO,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java:
+	  Add factory that wires in the various instrumenters.
+
+2009-10-14 [r4078]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/InstrumentationRegistry.java
+	  (removed),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/PyDispatcher.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/RecorderRegistry.java
+	  (added), src/net/grinder/engine/process/TestData.java,
+	  src/net/grinder/engine/process/ScriptEngine.java,
+	  src/net/grinder/engine/process/instrumenter/MasterInstrumenter.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/TraditionalJythonInstrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/InstrumentationLocator.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestInstrumentationLocator.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/instrumenter/AbstractInstrumenterTestCase.java,
+	  src/net/grinder/engine/process/Instrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestDCRInstrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/RecorderLocator.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestRecorderLocator.java
+	  (added): Rename Instrumentation to Recorder.
+
+2009-10-14 [r4077]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/dcr/ExposeInstrumentationRegistry.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestDCRInstrumenter.java:
+	  Remove redundant package tunnel.
+
+2009-10-14 [r4075-4076]  Philip Aston
+
+	* tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java: More
+	  repackaging.
+
+	* src/net/grinder/engine/process/instrumenter/dcr/package.html
+	  (added),
+	  src/net/grinder/engine/process/InstrumentationLocator.java
+	  (removed),
+	  src/net/grinder/engine/process/instrumenter/DCRInstrumenter.java
+	  (removed), src/net/grinder/engine/process/instrumenter/dcr
+	  (added),
+	  tests-src/net/grinder/engine/process/TestInstrumentationLocator.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/instrumenter/TestDCRInstrumenter.java
+	  (removed), tests-src/net/grinder/engine/process/instrumenter/dcr
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/ExposeInstrumentationRegistry.java
+	  (added),
+	  src/net/grinder/engine/process/InstrumentationRegistry.java
+	  (removed),
+	  src/net/grinder/engine/process/instrumenter/dcr/InstrumentationLocator.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestInstrumentationLocator.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestDCRInstrumenter.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/dcr/InstrumentationRegistry.java
+	  (added), src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  tests-src/net/grinder/engine/process/ExposeInstrumentationRegistry.java
+	  (removed): More repackaging.
+
+2009-10-14 [r4074]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/traditionaljython/TraditionalJythonInstrumenter.java:
+	  Simplify.
+
+2009-10-14 [r4073]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/traditionaljython
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/DCRInstrumenter.java
+	  (added),
+	  src/net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/jython/AbstractInstrumenterTestCase.java
+	  (removed),
+	  src/net/grinder/engine/process/jython/InstrumentedPyInstance.java
+	  (removed), src/net/grinder/engine/process/ScriptEngine.java,
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/TraditionalJythonInstrumenter.java
+	  (added), src/org/python/core/ClonePyInstance.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaClass.java
+	  (removed),
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethods.java
+	  (removed),
+	  src/net/grinder/engine/process/jython/DCRInstrumenter.java
+	  (removed),
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyFunctions.java
+	  (removed), tests-src/test/MyExtendedClass.java,
+	  tests-src/net/grinder/engine/process/TestTestRegistry.java,
+	  tests-src/net/grinder/engine/process/TestTestData.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java
+	  (removed),
+	  src/net/grinder/engine/process/jython/InstrumentationHelper.java
+	  (removed), src/net/grinder/engine/process/instrumenter (added),
+	  src/net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngineInstrumenter.java
+	  (removed),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/package.html
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/InstrumentedPyReflectedFunction.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/InstrumentedPyInstance.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython
+	  (added), tests-src/test/MyClass.java,
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/InstrumentedPyJavaClass.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/TestDCRInstrumenter.java
+	  (added), src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/InstrumentedPyJavaInstanceForPyMethods.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenter.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/InstrumentedPyJavaInstanceForPyFunctions.java
+	  (added),
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestDCRInstrumenter.java
+	  (removed),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/PyDispatcher.java
+	  (added),
+	  tests-src/net/grinder/engine/process/StubTestRegistry.java,
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/InstrumentedPyJavaInstanceForJavaInstances.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/InstrumentationHelper.java
+	  (added),
+	  src/net/grinder/engine/process/instrumenter/traditionaljython/AbstractInstrumentedPyJavaInstance.java
+	  (added), src/net/grinder/engine/process/instrumenter/package.html
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/AbstractInstrumenterTestCase.java
+	  (added), tests-src/net/grinder/engine/process/instrumenter
+	  (added): Split out instrumenter from script engine and repackage.
+
+2009-10-14 [r4072]  Philip Aston
+
+	* src/net/grinder/engine/process/jython/DCRInstrumenter.java: A
+	  class may report a null package. Some versions of Jython don't
+	  return a PyInstance from PyProxy._getPyInstance().
+
+2009-10-14 [r4071]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/jython/AbstractInstrumenterTestCase.java:
+	  Remove dependence on JythonVersionAdapter.
+
+2009-10-14 [r4070]  Philip Aston
+
+	* src/net/grinder/engine/process/InstrumentationLocator.java:
+	  Tweaks to temporary debug logging.
+
+2009-10-13 [r4069]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java: We
+	  generate 1.5 code.
+
+2009-10-13 [r4068]  Philip Aston
+
+	* src/net/grinder/engine/process/jython/DCRInstrumenter.java,
+	  tests-src/net/grinder/engine/process/jython/TestDCRInstrumenter.java,
+	  tests-src/test/MyClass.java (added),
+	  tests-src/test/MyExtendedClass.java (added),
+	  tests-src/net/grinder/engine/process/jython/AbstractInstrumenterTestCase.java,
+	  tests-src/test (added): Better rules on what can be instrumented.
+
+2009-10-13 [r4067]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/jython/AbstractInstrumenterTestCase.java:
+	  Really test PyProxy's.
+
+2009-10-13 [r4066]  Philip Aston
+
+	* src/net/grinder/engine/process/jython/DCRInstrumenter.java,
+	  tests-src/net/grinder/engine/process/jython/TestDCRInstrumenter.java
+	  (added),
+	  tests-src/net/grinder/engine/process/jython/AbstractInstrumenterTestCase.java,
+	  TODO,
+	  tests-src/net/grinder/engine/process/ExposeInstrumentationRegistry.java
+	  (added),
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngineInstrumenter.java:
+	  DCR instrumenter.
+
+2009-10-13 [r4065]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java,
+	  src/net/grinder/engine/process/InstrumentationLocator.java,
+	  tests-src/net/grinder/engine/process/TestInstrumentationLocator.java:
+	  Pass class rather than null for statics and constructors. This
+	  makes the lookup simpler, and allows instrumentation to be GC'd
+	  with the class.
+
+2009-10-13 [r4064]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java:
+	  Refer weakly to target references. Handle constructors like
+	  static methods.
+
+2009-10-11 [r4062]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java:
+	  Fix instrumentation to call exit() when propagating an exception.
+
+2009-10-11 [r4059-4061]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/jython/AbtractInstrumenterTestCase.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/jython/AbstractInstrumenterTestCase.java
+	  (added),
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngineInstrumenter.java:
+	  Fix name.
+
+	* tests-src/net/grinder/engine/process/jython/AbtractInstrumenterTestCase.java
+	  (added),
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngineInstrumenter.java
+	  (added): Split out instrumentation tests.
+
+	* tests-src/net/grinder/engine/process/TestInstrumentationLocator.java:
+	  Fix for renaming.
+
+2009-10-11 [r4058]  Philip Aston
+
+	* src/net/grinder/engine/process/jython/DCRInstrumenter.java,
+	  src/net/grinder/engine/process/InstrumentationLocator.java,
+	  tests-src/net/grinder/engine/process/TestInstrumentationLocator.java,
+	  src/net/grinder/engine/process/InstrumentationRegistry.java
+	  (added): Extract out InstrumentationRegistry interface to break
+	  package cycle.
+
+2009-10-11 [r4057]  Philip Aston
+
+	* src/net/grinder/engine/process/jython/DCRInstrumenter.java,
+	  src/net/grinder/engine/process/InstrumentationLocator.java,
+	  tests-src/net/grinder/engine/process/TestInstrumentationLocator.java,
+	  src/net/grinder/engine/process/TestData.java,
+	  tests-src/net/grinder/engine/process/TestTestData.java,
+	  src/net/grinder/engine/process/ScriptEngine.java, TODO,
+	  src/net/grinder/engine/process/Instrumenter.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	  Rename TestInstrumentation to Instrumentation.
+
+2009-10-11 [r4056]  Philip Aston
+
+	* src/net/grinder/engine/process/InstrumentationLocator.java,
+	  tests-src/net/grinder/engine/process/TestInstrumentationLocator.java:
+	  Rework internal structure since there are likely to be many
+	  targets for the same location.
+
+2009-10-10 [r4055]  Philip Aston
+
+	* src/net/grinder/util/weave/Weaver.java,
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java:
+	  Replace Location interface with String.
+
+2009-10-10 [r4053-4054]  Philip Aston
+
+	* src/net/grinder/engine/process/InstrumentationLocator.java,
+	  tests-src/net/grinder/engine/process/TestInstrumentationLocator.java
+	  (added): Implement InstrumentationLocator.
+
+	* build.xml, .classpath, LICENSE, etc/grinder-manifest.mf: Bundle
+	  CustomConcurrentHashMap from JSR 166y extras.
+
+2009-10-10 [r4052]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java:
+	  Remove debug.
+
+2009-10-10 [r4051]  Philip Aston
+
+	* src/net/grinder/util/weave/Weaver.java: Expose API for weaving
+	  constructors.
+
+2009-10-08 [r4050]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java: Expose
+	  API for weaving constructors.
+
+2009-10-08 [r4049]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java:
+	  Support static methods.
+
+2009-10-08 [r4046-4048]  Philip Aston
+
+	* tests-src/net/grinder/testutility/AssertUtilities.java: Equals
+	  methods should handle null parameters.
+
+	* tests-src/net/grinder/util/TestPair.java: Coverage.
+
+	* tests-src/net/grinder/util/TestPair.java (added): Test Pair.
+
+2009-10-08 [r4045]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java:
+	  Minor simplification.
+
+2009-10-08 [r4043-4044]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java,
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java: Fix to
+	  support overloaded methods. Add support for constructors.
+
+	* src/net/grinder/util/Pair.java (added): Generic pair class.
+
+2009-10-07 [r4042]  Philip Aston
+
+	* tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java:
+	  Test constructor.
+
+2009-10-07 [r4040-4041]  Philip Aston
+
+	* .classpath: ASM utils.
+
+	* etc/localpaths.properties: Fix doc build location.
+
+2009-10-07 [r4037-4039]  Philip Aston
+
+	* tests-src/net/grinder/util/weave/j2se6/TestASMTransformerFactory.java
+	  (added),
+	  tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java: Unit
+	  tests.
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java,
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java: The JVM doesn't
+	  pass us the results of previous transformations, so use a single
+	  transformer, with memory.
+
+	* .settings/org.eclipse.jdt.ui.prefs: Update.
+
+2009-10-04 [r4036]  Philip Aston
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java:
+	  Validate advice class.
+
+2009-10-04 [r4034]  Philip Aston
+
+	* tests-src/net/grinder/util/weave/j2se6 (added),
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  tests-src/net/grinder/util/weave/j2se6/TestDCRWeaver.java
+	  (added), tests-src/net/grinder/util/weave (added): Unit test.
+
+2009-10-04 [r4033]  Philip Aston
+
+	* tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java:
+	  Unit test.
+
+2009-10-04 [r4032]  Philip Aston
+
+	* src/net/grinder/engine/agent/AgentImplementation.java,
+	  tests-src/net/grinder/engine/agent/TestAgentImplementation.java:
+	  Rename field to distinguish the Java agent from the agent itself.
+	  Unit test.
+
+2009-10-04 [r4031]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/TestSSLControlImplementation.java:
+	  Fix test for JDK variance.
+
+2009-10-03 [r4020-4028]  Philip Aston
+
+	* src/net/grinder/engine/agent/AgentImplementation.java,
+	  src/net/grinder/engine/agent/WorkerProcessCommandLine.java,
+	  tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java:
+	  Add agent to command line.
+
+	* TODO: Progress.
+
+	* src/net/grinder/engine/process/InstrumentationLocator.java
+	  (added): Weaving.
+
+	* src/net/grinder/engine/process/TestData.java: Rename "dispatcher"
+	  to "instrumentation", since its no longer callback based.
+
+	* src/net/grinder/console/common/resources/about.html: Bundle ASM.
+
+	* etc/agent-manifest.mf (added): Weaving.
+
+	* src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java
+	  (added),
+	  src/net/grinder/util/weave/agent/ExposeInstrumentation.java
+	  (added), src/net/grinder/util/weave/j2se6/package.html (added),
+	  src/net/grinder/util/weave/j2se6 (added),
+	  src/net/grinder/util/weave/Weaver.java (added),
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java (added),
+	  src/net/grinder/util/weave/agent/package.html (added),
+	  src/net/grinder/util/weave/agent (added),
+	  src/net/grinder/util/weave/package.html (added),
+	  src/net/grinder/util/weave/WeavingException.java (added),
+	  src/net/grinder/util/weave (added): Weaving.
+
+	* .classpath: ASM.
+
+	* build.xml, LICENSE-ASM (added), etc/localpaths.properties,
+	  LICENSE: Bundle ASM.
+
+2009-10-01 [r4017]  Philip Aston
+
+	* src/net/grinder/engine/process/jython/DCRInstrumenter.java
+	  (added),
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyFunctions.java,
+	  src/net/grinder/engine/process/TestData.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java,
+	  tests-src/net/grinder/engine/process/TestTestData.java,
+	  src/net/grinder/engine/process/ScriptEngine.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyInstance.java,
+	  TODO,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaClass.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java,
+	  src/net/grinder/engine/process/jython/InstrumentationHelper.java,
+	  src/net/grinder/engine/process/Instrumenter.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethods.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	  Completely remove ScriptEngine.Dispatcher interface.
+
+2009-09-29 [r4016]  Philip Aston
+
+	* src/net/grinder/engine/process/TestData.java,
+	  src/net/grinder/engine/process/ScriptEngine.java, TODO: Deprecate
+	  callback based test dispatch in favour of a pair of pre/post
+	  calls.
+
+2009-09-27 [r4014-4015]  Philip Aston
+
+	* TODO: Plans.
+
+	* TODO: Plans.
+
+2009-09-26 [r4013]  Philip Aston
+
+	* .settings/de.mvmsoft.checkclipse.prefs: Fix paths for local
+	  environment.
+
+2009-09-26 [r4012]  Philip Aston
+
+	* etc/checkstyle.properties: Fix paths for local environment.
+
+2009-09-24 [r4011]  Philip Aston
+
+	* .settings/com.cenqua.clover.core.prefs: Latest prefs.
+
+2009-09-14 [r4009]  Philip Aston
+
+	* .settings/org.eclipse.jdt.core.prefs: Re-enable generics
+	  warnings.
+
+2009-09-12 [r4007-4008]  Philip Aston
+
+	* build.xml: The next will be 3.3.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java,
+	  tests-src/net/grinder/testutility/XMLBeansUtilities.java,
+	  tests-src/net/grinder/util/TestFileContents.java,
+	  tests-src/net/grinder/util/TimeAuthorityStubFactory.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorker.java,
+	  tests-src/net/grinder/util/thread/TestMonitor.java,
+	  tests-src/net/grinder/engine/messages/TestWorkerMessages.java,
+	  tests-src/net/grinder/util/TestAllocateLowestNumberImplementation.java,
+	  tests-src/net/grinder/util/thread/TestExecutor.java,
+	  tests-src/net/grinder/util/TestIsolatingClassLoader.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java,
+	  tests-src/net/grinder/engine/common/TestScriptLocation.java,
+	  tests-src/net/grinder/engine/process/TestTestRegistry.java,
+	  tests-src/net/grinder/engine/agent/TestWorkerLauncher.java,
+	  tests-src/net/grinder/console/swingui/TestCustomAction.java,
+	  tests-src/net/grinder/util/thread/TestThreadSafeQueue.java,
+	  tests-src/net/grinder/util/TestListenerSupport.java,
+	  tests-src/net/grinder/console/swingui/TestTeeAction.java,
+	  tests-src/net/grinder/util/TestWeakValueHashMap.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java,
+	  tests-src/net/grinder/util/TestUniqueIdentityGenerator.java,
+	  tests-src/net/grinder/engine/process/TestStopWatchImplementation.java:
+	  Final batch of generics.
+
+2009-09-12 [r4006]  Philip Aston
+
+	* tests-src/net/grinder/console/swingui/TestFileTreeModel.java,
+	  tests-src/net/grinder/communication/TestMessageDispatchSender.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorker.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java,
+	  tests-src/net/grinder/console/editor/TestExternalEditor.java,
+	  tests-src/net/grinder/console/editor/TestAbstractTextSource.java,
+	  tests-src/net/grinder/engine/agent/TestAgentDaemon.java,
+	  tests-src/net/grinder/communication/TestResourcePool.java,
+	  tests-src/net/grinder/console/swingui/TestIntegerField.java,
+	  tests-src/net/grinder/engine/process/TestTestData.java,
+	  tests-src/net/grinder/testutility/DelegatingStubFactory.java,
+	  tests-src/net/grinder/console/communication/TestProcessControlImplementation.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java,
+	  tests-src/net/grinder/common/LoggerStubFactory.java,
+	  tests-src/net/grinder/engine/process/TestExternalFilenameFactory.java,
+	  tests-src/net/grinder/console/common/TestProcessReportDescriptionFactory.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestHTTPMethodAbsoluteURIFilterDecorator.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestTCPProxyConsole.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPluginThreadState.java,
+	  tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java,
+	  tests-src/net/grinder/engine/process/TestGrinderThread.java,
+	  tests-src/net/grinder/console/client/TestConsoleConnectionImplementation.java,
+	  tests-src/net/grinder/util/TestSleeper.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPConnectionWrapper.java,
+	  tests-src/net/grinder/console/swingui/TestSwingDispatcherFactory.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPResponseFilter.java,
+	  tests-src/net/grinder/testutility/StubRelationshipsInvocationHandlerDecorator.java,
+	  tests-src/net/grinder/communication/TestTeeSender.java,
+	  tests-src/net/grinder/console/swingui/TestFileTree.java,
+	  tests-src/net/grinder/engine/process/StubTestRegistry.java,
+	  tests-src/net/grinder/console/swingui/TestCompositeTreeModel.java,
+	  tests-src/net/grinder/console/TestConsoleFoundation.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java,
+	  tests-src/net/grinder/util/TestURIParserImplementation.java,
+	  tests-src/net/grinder/console/editor/TestEditorModel.java,
+	  tests-src/net/grinder/engine/process/TestRegisteredPlugin.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestCompositeFilter.java,
+	  tests-src/net/grinder/console/distribution/TestFileDistribution.java,
+	  tests-src/net/grinder/console/swingui/TestProcessStatusTableModel.java,
+	  tests-src/net/grinder/testutility/RandomObjectFactory.java,
+	  tests-src/net/grinder/communication/TestResponseSender.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java,
+	  tests-src/net/grinder/engine/process/TestThreadContextImplementation.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerFactoryImplementation.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRequestFilter.java,
+	  tests-src/net/grinder/testutility/RandomStubFactory.java,
+	  tests-src/net/grinder/console/distribution/TestAgentCacheStateImplementation.java,
+	  tests-src/net/grinder/statistics/TestCommonStatisticsViews.java,
+	  tests-src/net/grinder/console/swingui/TestSampleStatisticsTableModel.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPluginControl.java,
+	  tests-src/net/grinder/engine/process/ThreadLoggerStubFactory.java,
+	  tests-src/net/grinder/engine/agent/TestAgentIdentityImplementation.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java,
+	  tests-src/net/grinder/console/common/TestErrorQueue.java,
+	  tests-src/net/grinder/engine/process/TestTestRegistry.java,
+	  tests-src/net/grinder/testutility/AbstractStubFactory.java,
+	  tests-src/net/grinder/console/communication/TestProcessStatusImplementation.java,
+	  tests-src/net/grinder/engine/process/TestScriptContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestExternalLogger.java,
+	  tests-src/net/grinder/communication/TestAcceptor.java,
+	  tests-src/net/grinder/console/textui/TestTextUI.java,
+	  tests-src/HTTPClient/TestCookie.java,
+	  tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java,
+	  tests-src/net/grinder/tools/tcpproxy/MyFilterStubFactory.java,
+	  tests-src/net/grinder/console/swingui/TestCumulativeStatisticsTableModel.java,
+	  tests-src/net/grinder/util/TestJVM.java,
+	  tests-src/net/grinder/console/model/TestSampleModelImplementation.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPlugin.java,
+	  tests-src/net/grinder/engine/process/TestProcessContextImplementation.java,
+	  tests-src/net/grinder/testutility/OverrideInvocationHandlerDecorator.java,
+	  tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java,
+	  tests-src/net/grinder/engine/process/StubThreadContextLocator.java,
+	  tests-src/net/grinder/common/AbstractLoggerStubFactory.java
+	  (added),
+	  tests-src/net/grinder/statistics/TestTestStatisticsMap.java,
+	  tests-src/net/grinder/communication/TestIgnoreShutdownSender.java,
+	  tests-src/net/grinder/console/model/TestSampleModelViewsImplementation.java,
+	  tests-src/net/grinder/engine/process/TestStatisticsForTestImplementation.java,
+	  tests-src/net/grinder/engine/process/TestSSLControlImplementation.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestHTTPMethodRelativeURIFilterDecorator.java,
+	  tests-src/net/grinder/console/communication/server/TestDispatchClientCommands.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionCache.java,
+	  tests-src/net/grinder/console/swingui/TestBufferTreeModel.java,
+	  tests-src/net/grinder/plugin/http/TestSlowClientBandwidthLimiterFactory.java,
+	  tests-src/net/grinder/console/distribution/TestFileDistributionHandlerImplementation.java:
+	  Add Generics to RandomStubFactory and friends.
+
+2009-09-11 [r4005]  Philip Aston
+
+	* tests-src/net/grinder/communication/TestInternalMessages.java,
+	  tests-src/net/grinder/console/model/TestSampleModelImplementation.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPlugin.java,
+	  tests-src/net/grinder/testutility/Serializer.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPConnectionWrapper.java,
+	  tests-src/net/grinder/statistics/TestStatisticsView.java,
+	  tests-src/net/grinder/util/TestDirectory.java,
+	  tests-src/net/grinder/testutility/StubTimer.java,
+	  tests-src/net/grinder/script/TestTest.java,
+	  tests-src/net/grinder/testutility/IsolatedObjectFactory.java,
+	  tests-src/net/grinder/communication/TestResourcePool.java,
+	  tests-src/net/grinder/console/common/TestErrorQueue.java,
+	  tests-src/net/grinder/console/model/TestSampleModelViewsImplementation.java,
+	  tests-src/net/grinder/messages/agent/TestAgentMessages.java,
+	  tests-src/net/grinder/console/TestConsoleFoundation.java,
+	  tests-src/net/grinder/console/communication/TestProcessControlImplementation.java,
+	  tests-src/net/grinder/console/common/processidentity/TestProcessReport.java,
+	  tests-src/net/grinder/communication/TestMessageQueue.java,
+	  tests-src/net/grinder/common/TestGrinderProperties.java,
+	  tests-src/net/grinder/console/communication/TestProcessStatusImplementation.java,
+	  tests-src/net/grinder/testutility/AssertUtilities.java,
+	  tests-src/net/grinder/console/common/TestProcessReportDescriptionFactory.java,
+	  tests-src/net/grinder/communication/TestQueuedSenderDecorator.java,
+	  tests-src/net/grinder/communication/TestCommunicationDefaults.java,
+	  tests-src/net/grinder/console/common/StubResources.java,
+	  tests-src/net/grinder/plugin/http/HTTPRequestHandler.java,
+	  tests-src/net/grinder/messages/console/TestConsoleMessages.java,
+	  tests-src/net/grinder/communication/TestAcceptor.java: More
+	  generics.
+
+2009-09-11 [r4004]  Philip Aston
+
+	* tests-src/net/grinder/console/common/TestDisplayMessageConsoleException.java,
+	  tests-src/net/grinder/console/swingui/TestFileTreeModel.java,
+	  tests-src/net/grinder/testutility/CallData.java,
+	  tests-src/net/grinder/communication/TestMessageDispatchSender.java,
+	  tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java,
+	  tests-src/net/grinder/engine/communication/TestConsoleListener.java,
+	  tests-src/net/grinder/communication/TestTeeSender.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java,
+	  tests-src/net/grinder/engine/agent/TestAgentDaemon.java,
+	  tests-src/net/grinder/communication/TestIgnoreShutdownSender.java,
+	  tests-src/net/grinder/console/common/TestErrorQueue.java,
+	  tests-src/net/grinder/testutility/CallAssertions.java,
+	  tests-src/net/grinder/testutility/AbstractStubFactory.java,
+	  tests-src/net/grinder/engine/process/TestTestData.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestHTTPRecordingImplementation.java,
+	  tests-src/net/grinder/engine/agent/TestWorkerLauncher.java,
+	  tests-src/net/grinder/engine/agent/TestFileStore.java,
+	  tests-src/net/grinder/engine/process/TestRegisteredPlugin.java,
+	  tests-src/net/grinder/console/swingui/TestTeeAction.java,
+	  tests-src/net/grinder/testutility/CallRecorder.java,
+	  tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	  Change CallAssertions API to use varargs.
+
+2009-09-11 [r4003]  Philip Aston
+
+	* src/net/grinder/console/swingui/TestGraphPanel.java,
+	  src/net/grinder/plugin/http/HTTPConnectionWrapper.java,
+	  src/net/grinder/console/swingui/DynamicStatisticsTableModel.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaClass.java,
+	  src/net/grinder/util/thread/Executor.java,
+	  src/net/grinder/console/swingui/SwingDispatcherFactoryImplementation.java,
+	  src/net/grinder/console/model/SampleAccumulator.java,
+	  src/net/grinder/messages/console/RegisterTestsMessage.java,
+	  src/net/grinder/console/swingui/CompositeTreeModel.java,
+	  src/net/grinder/util/AttributeStringParserImplementation.java,
+	  src/net/grinder/console/ConsoleFoundation.java,
+	  src/net/grinder/communication/MessageQueue.java,
+	  src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java,
+	  src/net/grinder/console/editor/EditorModel.java,
+	  src/net/grinder/engine/process/RegisteredPlugin.java,
+	  src/net/grinder/tools/tcpproxy/CompositeFilter.java,
+	  src/net/grinder/communication/MessageDispatchRegistry.java,
+	  src/net/grinder/console/swingui/ProcessStatusTableModel.java,
+	  tests-src/net/grinder/common/TestAbstractTestSemantics.java,
+	  src/net/grinder/util/WeakValueHashMap.java,
+	  src/net/grinder/plugin/http/HTTPRequest.java,
+	  src/net/grinder/engine/process/ThreadContextImplementation.java,
+	  src/net/grinder/statistics/StatisticsSetImplementation.java,
+	  src/net/grinder/common/Test.java,
+	  src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java,
+	  src/net/grinder/console/swingui/LookAndFeel.java,
+	  src/net/grinder/statistics/StatisticsIndexMap.java,
+	  src/net/grinder/console/distribution/AgentCacheStateImplementation.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/statistics/StatisticsView.java,
+	  src/net/grinder/console/model/ConsoleProperties.java,
+	  src/net/grinder/engine/agent/WorkerProcessCommandLine.java,
+	  src/net/grinder/console/communication/ProcessControl.java,
+	  src/net/grinder/communication/AbstractFanOutSender.java,
+	  src/net/grinder/console/common/ErrorQueue.java,
+	  src/net/grinder/TCPProxy.java,
+	  src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java,
+	  src/net/grinder/common/processidentity/ProcessReport.java,
+	  src/net/grinder/communication/ResourcePoolImplementation.java,
+	  src/net/grinder/communication/SocketWrapper.java,
+	  src/net/grinder/util/thread/ThreadSafeQueue.java,
+	  src/net/grinder/console/communication/ProcessStatusImplementation.java,
+	  src/net/grinder/common/GrinderProperties.java,
+	  src/net/grinder/console/swingui/CustomAction.java,
+	  src/net/grinder/console/swingui/MnemonicHeuristics.java,
+	  src/net/grinder/engine/process/TestRegistryImplementation.java,
+	  src/net/grinder/util/BooleanProperty.java,
+	  src/net/grinder/engine/agent/DebugThreadWorkerFactory.java,
+	  src/net/grinder/communication/Acceptor.java,
+	  src/net/grinder/console/textui/TextUI.java,
+	  src/net/grinder/console/model/SampleModelImplementation.java,
+	  src/net/grinder/engine/process/ProcessContextImplementation.java,
+	  src/net/grinder/util/AllocateLowestNumberImplementation.java,
+	  src/net/grinder/engine/process/PluginRegistryImplementation.java,
+	  src/net/grinder/util/Directory.java,
+	  src/net/grinder/statistics/TestStatisticsMap.java,
+	  src/net/grinder/util/SleeperImplementation.java,
+	  src/net/grinder/util/IsolatingClassLoader.java,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/model/SampleModelViewsImplementation.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionCache.java,
+	  src/net/grinder/util/html/HTMLElement.java,
+	  src/net/grinder/util/ListenerSupport.java,
+	  src/net/grinder/communication/ServerReceiver.java,
+	  src/net/grinder/console/swingui/BufferTreeModel.java,
+	  src/net/grinder/Console.java,
+	  src/net/grinder/console/distribution/FileDistributionImplementation.java,
+	  src/net/grinder/console/editor/BufferImplementation.java,
+	  src/net/grinder/console/swingui/FileTreeModel.java,
+	  src/net/grinder/tools/tcpproxy/EndPoint.java,
+	  src/net/grinder/engine/process/LoggerImplementation.java,
+	  src/net/grinder/communication/MessageDispatchSender.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java,
+	  src/net/grinder/statistics/StatisticExpressionFactoryImplementation.java,
+	  src/net/grinder/tools/tcpproxy/CommentSourceImplementation.java,
+	  src/net/grinder/console/editor/AbstractTextSource.java,
+	  src/net/grinder/console/editor/ExternalEditor.java,
+	  tests-src/net/grinder/statistics/TestTestStatisticsMap.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  src/net/grinder/tools/tcpproxy/HTTPResponse.java,
+	  src/net/grinder/communication/ResourcePool.java,
+	  src/net/grinder/engine/process/TestData.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPRecordingImplementation.java,
+	  src/net/grinder/common/AbstractTestSemantics.java,
+	  src/net/grinder/console/model/SampleModel.java,
+	  src/net/grinder/plugin/http/HTTPPluginThreadState.java: Generics.
+
+2009-09-10 [r4001-4002]  Philip Aston
+
+	* src/net/grinder/engine/agent/AgentImplementation.java,
+	  tests-src/net/grinder/engine/agent/TestAgentImplementation.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/common/GrinderProperties.java: Part two of fix
+	  for bug 2315181. When distributing scripts from the console, the
+	  worker process working directory is now the root of the cache
+	  directory.
+
+	* src/net/grinder/engine/process/ProcessContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestProcessContextImplementation.java,
+	  TODO, src/net/grinder/util/NanoTimeTimeAuthority.java (removed),
+	  CHANGES, src/net/grinder/util/StandardTimeAuthority.java: Use
+	  nanoTime().
+
+2009-09-10 [r4000]  Philip Aston
+
+	* src/net/grinder/engine/common/ScriptLocation.java,
+	  tests-src/net/grinder/engine/common/TestScriptLocation.java:
+	  Change ScriptLocation(File) to resolve File relative to cwd.
+
+2009-09-10 [r3999]  Philip Aston
+
+	* src/net/grinder/engine/agent/AgentImplementation.java,
+	  src/net/grinder/engine/agent/AbstractWorkerFactory.java,
+	  src/net/grinder/engine/agent/ProcessWorker.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorker.java,
+	  tests-src/net/grinder/engine/agent/TestWorkerLauncher.java,
+	  CHANGES,
+	  src/net/grinder/engine/agent/WorkerProcessCommandLine.java,
+	  src/net/grinder/engine/agent/DebugThreadWorkerFactory.java,
+	  src/net/grinder/engine/agent/ProcessWorkerFactory.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorkerFactory.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java:
+	  Part on of fix for bug 2315181. When distributing scripts from
+	  the console, the worker process working directory is now the root
+	  of the cache directory. This allows scripts to refer to
+	  distributed resources using relative paths. Thanks to ujik for
+	  reporting this.
+
+2009-09-10 [r3998]  Philip Aston
+
+	* tests-src/net/grinder/console/swingui/TestMnemonicHeuristics.java:
+	  Fix file encoding.
+
+2009-09-10 [r3997]  Philip Aston
+
+	* src/HTTPClient/AuthSchemeNotImplException.java,
+	  src/HTTPClient/StreamDemultiplexor.java,
+	  src/HTTPClient/Cookie.java, src/HTTPClient/HttpOutputStream.java,
+	  src/HTTPClient/ChunkedInputStream.java,
+	  src/HTTPClient/HashVerifier.java,
+	  src/HTTPClient/CookieModule.java,
+	  src/HTTPClient/SocksClient.java,
+	  src/HTTPClient/HTTPClientModuleConstants.java,
+	  src/HTTPClient/HttpURLConnection.java,
+	  src/HTTPClient/HTTPClientModule.java,
+	  src/HTTPClient/RetryException.java,
+	  src/HTTPClient/FilenameMangler.java,
+	  src/HTTPClient/ContentMD5Module.java,
+	  src/HTTPClient/ContentEncodingModule.java,
+	  src/HTTPClient/Request.java, src/HTTPClient/ParseException.java,
+	  src/HTTPClient/RoRequest.java, src/HTTPClient/DefaultModule.java,
+	  src/HTTPClient/Cookie2.java, src/HTTPClient/ResponseHandler.java,
+	  src/HTTPClient/GlobalConstants.java,
+	  src/HTTPClient/Response.java, src/HTTPClient/HTTPResponse.java,
+	  src/HTTPClient/URI.java, src/HTTPClient/NVPair.java,
+	  src/HTTPClient/TransferEncodingModule.java,
+	  src/HTTPClient/SocksException.java,
+	  src/HTTPClient/IdempotentSequence.java,
+	  src/HTTPClient/LinkedList.java, src/HTTPClient/CIHashtable.java,
+	  src/HTTPClient/ProtocolNotSuppException.java,
+	  src/HTTPClient/RetryModule.java, src/HTTPClient/Util.java,
+	  src/HTTPClient/RedirectionModule.java,
+	  src/net/grinder/engine/agent/ProcessWorker.java,
+	  src/HTTPClient/BufferedInputStream.java,
+	  src/HTTPClient/https/Handler.java,
+	  src/HTTPClient/shttp/Handler.java,
+	  src/HTTPClient/MD5InputStream.java, src/HTTPClient/Log.java,
+	  src/HTTPClient/MD5.java, src/HTTPClient/CookiePolicyHandler.java,
+	  src/HTTPClient/AuthorizationPrompter.java,
+	  src/HTTPClient/UncompressInputStream.java,
+	  src/HTTPClient/http/Handler.java,
+	  src/HTTPClient/AuthorizationHandler.java,
+	  src/HTTPClient/HTTPConnection.java,
+	  src/HTTPClient/RoResponse.java, src/HTTPClient/Codecs.java,
+	  src/HTTPClient/HttpHeaderElement.java,
+	  src/HTTPClient/ModuleException.java,
+	  src/HTTPClient/DefaultAuthHandler.java,
+	  src/HTTPClient/RespInputStream.java,
+	  src/net/grinder/engine/agent/ProcessWorkerFactory.java,
+	  src/HTTPClient/AuthorizationModule.java: Fix file encoding.
+
+2009-09-10 [r3996]  Philip Aston
+
+	* build.xml, src/HTTPClient/AuthorizationInfo.java,
+	  src/HTTPClient/CookieModule.java, TODO,
+	  src/net/grinder/util/NanoTimeTimeAuthority.java (added),
+	  src/HTTPClient/HttpURLConnection.java, CHANGES,
+	  etc/checkstyle.xml,
+	  tests-src/net/grinder/engine/agent/TestAgentDaemon.java,
+	  .settings/org.eclipse.jdt.core.prefs, src-j2se5 (removed),
+	  etc/packagelists/jdk1.4.1 (removed),
+	  src/org/syntax/jedit/InputHandler.java, etc/packagelists/jdk1.5
+	  (added), src/net/grinder/console/swingui/ErrorDialogHandler.java,
+	  etc/packagelists/jdk1.5/package-list (added), etc/buildenv.sh,
+	  src/HTTPClient/CIHashtable.java: The Grinder now requires J2SE
+	  5.0 ("Java 5").
+
+2009-09-05 [r3995]  Philip Aston
+
+	* tests-src/net/grinder/console/swingui/TestCustomJButton.java,
+	  src/net/grinder/util/AllocateLowestNumber.java,
+	  src/net/grinder/messages/console/AgentAndCacheReport.java,
+	  src/net/grinder/script/InternalScriptContext.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaClass.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestCommentSourceImplementation.java,
+	  src/net/grinder/console/model/SampleModelViews.java,
+	  src/net/grinder/communication/TeeSender.java,
+	  src/net/grinder/messages/agent/DistributionCacheCheckpointMessage.java,
+	  src/net/grinder/engine/process/ProcessLifeCycleListener.java,
+	  tests-src/net/grinder/console/swingui/TestIntegerField.java,
+	  tests-src/net/grinder/console/swingui/TestFrameBounds.java,
+	  tests-src/net/grinder/console/common/processidentity/TestProcessReport.java,
+	  tests-src/net/grinder/console/communication/TestProcessControlImplementation.java,
+	  src/net/grinder/tools/tcpproxy/UpdatableCommentSource.java,
+	  src/net/grinder/engine/process/WorkerThreadSynchronisation.java,
+	  src/net/grinder/console/communication/server/messages/SuccessMessage.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPluginThreadState.java,
+	  src/net/grinder/console/communication/server/messages/ResultMessage.java,
+	  tests-src/net/grinder/console/client/TestConsoleConnectionImplementation.java,
+	  src/net/grinder/util/AbstractMainClass.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPConnectionWrapper.java,
+	  tests-src/net/grinder/communication/TestTeeSender.java,
+	  tests-src/net/grinder/communication/StubAddress.java,
+	  src/net/grinder/console/client/ConsoleConnectionFactory.java,
+	  src/net/grinder/console/distribution/AgentSet.java,
+	  src/net/grinder/communication/ResourcePoolImplementation.java,
+	  src/net/grinder/util/NullMultiLineFormatter.java,
+	  src/net/grinder/console/communication/server/messages/GetNumberOfAgentsMessage.java,
+	  src/net/grinder/console/communication/server/messages/ResetRecordingMessage.java,
+	  tests-src/net/grinder/util/TestAbstractMainClass.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPluginControl.java,
+	  tests-src/net/grinder/engine/process/TestGrinderProcess.java,
+	  src/net/grinder/util/AllocateLowestNumberImplementation.java,
+	  src/net/grinder/console/client/ConsoleConnectionException.java,
+	  tests-src/net/grinder/messages/agent/StubCacheHighWaterMark.java,
+	  src/net/grinder/communication/IgnoreShutdownSender.java,
+	  src/net/grinder/messages/agent/CacheHighWaterMark.java,
+	  src/net/grinder/util/StringEscaper.java,
+	  src/net/grinder/util/AbstractMultiLineFormatter.java,
+	  tests-src/net/grinder/console/model/TestModelTestIndex.java,
+	  tests-src/net/grinder/console/swingui/TestCustomAction.java,
+	  src/net/grinder/engine/process/ThreadStarter.java,
+	  src/net/grinder/engine/process/jython/InstrumentationHelper.java,
+	  tests-src/net/grinder/console/textui/TestTextUI.java,
+	  src/net/grinder/engine/agent/AgentImplementation.java,
+	  tests-src/net/grinder/engine/agent/StubAgentIdentity.java,
+	  tests-src/net/grinder/console/swingui/TestCumulativeStatisticsTableModel.java,
+	  tests-src/net/grinder/engine/process/TestProcessContextImplementation.java,
+	  tests-src/net/grinder/engine/messages/TestWorkerMessages.java,
+	  tests-src/net/grinder/util/TestAllocateLowestNumberImplementation.java,
+	  src/net/grinder/engine/common/ConnectorFactory.java,
+	  src/net/grinder/tools/tcpproxy/CommentSourceImplementation.java,
+	  tests-src/net/grinder/testutility/StubTimer.java,
+	  src/net/grinder/engine/communication/ConsoleListener.java,
+	  src/net/grinder/console/communication/server/messages/StartRecordingMessage.java,
+	  src/net/grinder/engine/agent/AgentDaemon.java,
+	  tests-src/net/grinder/communication/TestIgnoreShutdownSender.java,
+	  tests-src/net/grinder/console/model/TestSampleModelViewsImplementation.java,
+	  src/net/grinder/common/SkeletonThreadLifeCycleListener.java,
+	  src/net/grinder/engine/common/ScriptLocation.java,
+	  src/net/grinder/communication/Address.java,
+	  tests-src/net/grinder/engine/process/TestSSLControlImplementation.java,
+	  src/net/grinder/console/communication/server/messages/ResetWorkerProcessesMessage.java,
+	  tests-src/net/grinder/communication/StubConnector.java,
+	  src/net/grinder/util/SimpleStringEscaper.java,
+	  tests-src/net/grinder/plugin/http/TestSlowClientBandwidthLimiterFactory.java,
+	  tests-src/net/grinder/engine/agent/TestAgentImplementation.java,
+	  tests-src/net/grinder/engine/process/TestLoggerImplementation.java,
+	  src/net/grinder/console/client/ConsoleConnectionImplementation.java,
+	  src/net/grinder/console/distribution/CacheParameters.java,
+	  src/net/grinder/messages/console/AgentAddress.java,
+	  src/net/grinder/console/swingui/SwingDispatcherFactory.java,
+	  tests-src/net/grinder/common/TestCloser.java,
+	  tests-src/net/grinder/console/editor/TestExternalEditor.java,
+	  src/net/grinder/engine/process/Instrumenter.java,
+	  src/net/grinder/plugin/http/TimeoutException.java,
+	  tests-src/net/grinder/engine/agent/TestAgentDaemon.java,
+	  tests-src/net/grinder/engine/common/TestScriptLocation.java,
+	  tests-src/net/grinder/communication/BlockingSenderWrapper.java,
+	  tests-src/net/grinder/util/TestSimpleStringEscaper.java,
+	  tests-src/net/grinder/console/common/TestProcessReportDescriptionFactory.java,
+	  src/net/grinder/communication/MessageDispatchRegistry.java,
+	  tests-src/net/grinder/engine/process/TestGrinderThread.java,
+	  src/net/grinder/engine/process/ThreadStopper.java,
+	  tests-src/net/grinder/testutility/StubPrintStream.java,
+	  tests-src/net/grinder/console/common/processidentity/StubAgentProcessReport.java,
+	  src/net/grinder/messages/console/CacheStatusReport.java,
+	  tests-src/net/grinder/messages/console/TestAgentAddress.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPluginConnectionDefaults.java,
+	  tests-src/net/grinder/console/TestConsoleFoundation.java,
+	  src/net/grinder/console/swingui/MnemonicHeuristics.java,
+	  tests-src/net/grinder/console/communication/StubProcessReports.java,
+	  src/net/grinder/console/client/ConsoleConnection.java,
+	  tests-src/net/grinder/console/common/StubResources.java,
+	  tests-src/net/grinder/console/swingui/TestProcessStatusTableModel.java,
+	  src/net/grinder/console/textui/TextUI.java,
+	  src/net/grinder/common/processidentity/ProcessIdentity.java,
+	  tests-src/net/grinder/console/swingui/TestSampleStatisticsTableModel.java,
+	  src/net/grinder/console/distribution/CacheParametersImplementation.java,
+	  src/net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyFunctions.java,
+	  src/net/grinder/console/model/SampleModelViewsImplementation.java,
+	  tests-src/net/grinder/console/client/TestConsoleConnectionFactory.java,
+	  tests-src/net/grinder/messages/agent/TestAgentMessages.java,
+	  src/net/grinder/console/communication/DistributionControlImplementation.java,
+	  src/net/grinder/console/communication/server/DispatchClientCommands.java,
+	  tests-src/net/grinder/console/swingui/TestMnemonicHeuristics.java,
+	  tests-src/net/grinder/console/editor/TouchClass.java,
+	  src/net/grinder/console/communication/server/messages/StopAgentAndWorkerProcessesMessage.java,
+	  src/net/grinder/console/communication/server/messages/StartWorkerProcessesMessage.java,
+	  tests-src/net/grinder/console/model/TestSampleModelImplementation.java,
+	  src/net/grinder/tools/tcpproxy/CommentSource.java,
+	  src/net/grinder/console/communication/server/messages/StopRecordingMessage.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPlugin.java,
+	  src/net/grinder/script/TestRegistry.java,
+	  tests-src/net/grinder/console/distribution/TestCacheParametersImplementation.java,
+	  src/net/grinder/common/Closer.java,
+	  src/net/grinder/console/editor/ExternalEditor.java,
+	  tests-src/net/grinder/communication/SendToEveryoneAddress.java,
+	  tests-src/net/grinder/console/common/processidentity/StubWorkerProcessReport.java,
+	  tests-src/HTTPClient/StubHTTPConnection.java,
+	  src/net/grinder/console/swingui/FrameBounds.java,
+	  src/net/grinder/console/communication/ProcessControlImplementation.java,
+	  tests-src/net/grinder/console/communication/server/TestDispatchClientCommands.java,
+	  src/net/grinder/console/common/ProcessReportDescriptionFactory.java,
+	  src/net/grinder/console/swingui/EditorControls.java,
+	  src/net/grinder/util/MultiLineFormatter.java,
+	  src/net/grinder/console/model/SampleModel.java,
+	  src/net/grinder/communication/NoResponseMessage.java: Enable
+	  svn:keywords.
+
+2009-06-04 [r3994]  Philip Aston
+
+	* src/net/grinder/console/common/resources/Console_es.properties,
+	  AUTHORS, CHANGES: Updated Spanish translation from Antonio Manuel
+	  Muñiz Martin.
+
+2009-03-22 [r3992-3993]  Philip Aston
+
+	* src/net/grinder/plugin/http/HTTPRequest.java: Javadoc,
+	  checkstyle.
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPRequest.java: Add
+	  HTTPRequest.getPluginProcessContext().
+
+2009-03-21 [r3991]  Philip Aston
+
+	* src/HTTPClient/HttpOutputStream.java,
+	  src/net/grinder/plugin/http/HTTPRequest.java: Support really
+	  lengthy streams.
+
+2009-03-18 [r3984]  Philip Aston
+
+	* AUTHORS: Welcome Walter.
+
+2009-03-17 [r3983]  Philip Aston
+
+	* src/HTTPClient/HTTPConnection.java, CHANGES,
+	  src/net/grinder/plugin/http/HTTPRequest.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java: The
+	  stream support for HTTPRequest introduced in 3.2 has been
+	  enhanced to use the Content-Length header if provided.
+
+2009-03-01 [r3979]  Philip Aston
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java,
+	  CHANGES: Support HTTPS proxies that use challenge/response
+	  authentication protocols.
+
+2009-02-14 [r3976]  Philip Aston
+
+	* build.xml, ChangeLog, CHANGES: Update for release
+
 2009-02-14 [r3974]  Philip Aston
 
 	* etc/localpaths.properties: Update path.
