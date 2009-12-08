@@ -14,6 +14,9 @@ against it too :-).
 - Philip Aston
 
 
+Test JRockit vs instrumentation.
+
+Add unit test for correct manifest classpath entry.
 
 * Java 5 upgrade
 
@@ -80,7 +83,7 @@ Task: Distribution file filter should be dynamically settable.
 ** Console
 
 *** Stop the recording when last thread terminates
-Requested by J�rgen Weber
+Requested by Jýrgen Weber
 
 *** Refactoring
 
@@ -209,7 +212,7 @@ Remove ParseException, ProtocolNotSuppException from public APIs.
 
 Script support for HTTP "system property" options.
 
-Pablo Estades Fern�ndez says:
+Pablo Estades Fernýndez says:
  > I need to use client cert on TCPProxy to be able to
  > record the test case but also I need to configure
  > grinder workers to run the test case presenting a
