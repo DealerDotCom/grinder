@@ -24,7 +24,6 @@ package net.grinder;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
