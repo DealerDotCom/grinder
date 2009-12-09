@@ -16,8 +16,6 @@ against it too :-).
 
 Test JRockit vs instrumentation.
 
-Add unit test for correct manifest classpath entry.
-
 * Java 5 upgrade
 
 ** Checkstyle vs "<"
