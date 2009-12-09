@@ -22,7 +22,6 @@
 
 package net.grinder.statistics;
 
-import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext;
 import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext.ParseException;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
