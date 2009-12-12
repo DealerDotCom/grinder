@@ -131,4 +131,54 @@ public class TestListenerSupport extends TestCase {
     assertEquals(listener3, calledListeners2[3]);
     assertEquals(listener2, calledListeners2[4]);
   }
+
+  public void testRemove() {
+    final ListenerSupport<Object> listenerSupport =
+      new ListenerSupport<Object>();
+
+    final Object listener1 = new Object();
+    final Object listener2 = new Object();
+    final Object listener3 = new Object();
+
+    listenerSupport.add(listener1);
+    listenerSupport.add(listener2);
+    listenerSupport.add(listener3);
+    listenerSupport.add(listener1);
+
+    listenerSupport.remove(listener2);
+
+    final List<Object> listeners = new ArrayList<Object>();
+
+    final ListenerSupport.Informer<Object> informer =
+      new ListenerSupport.Informer<Object>() {
+        public void inform(Object listener) {
+          listeners.add(listener);
+        }
+      };
+
+    listenerSupport.apply(informer);
+
+    final Object[] calledListeners = listeners.toArray();
+    assertEquals(3, calledListeners.length);
+
+    assertEquals(listener1, calledListeners[0]);
+    assertEquals(listener3, calledListeners[1]);
+    assertEquals(listener1, calledListeners[2]);
+
+    listeners.clear();
+
+    listenerSupport.remove(listener1);
+
+    listenerSupport.apply(informer);
+    assertEquals(1, listeners.size());
+    assertEquals(listener3, listeners.get(0));
+
+    listeners.clear();
+
+    listenerSupport.remove(listener1);
+
+    listenerSupport.apply(informer);
+    assertEquals(1, listeners.size());
+    assertEquals(listener3, listeners.get(0));
+  }
 }

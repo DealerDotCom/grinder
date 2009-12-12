@@ -50,6 +50,19 @@ public final class ListenerSupport<T> {
   }
 
   /**
+   * Remove all instances of the given listener.
+   *
+   * @param listener The listener.
+   */
+  public void remove(T listener) {
+    synchronized (m_listeners) {
+      while (m_listeners.remove(listener)) {
+        // Keep checking.
+      }
+    }
+  }
+
+  /**
    * Adapter interface for use with
    * {@link
    * ListenerSupport#apply(net.grinder.util.ListenerSupport.Informer)}.

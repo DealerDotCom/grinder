@@ -280,6 +280,17 @@ public class TestThreadContextImplementation extends TestCase {
     threadLifeCycleListenerStubFactory.assertSuccess("endThread");
 
     threadLifeCycleListenerStubFactory.assertNoMoreCalls();
+
+    threadContext.fireEndThreadEvent();
+    threadLifeCycleListenerStubFactory.assertSuccess("endThread");
+    threadLifeCycleListenerStubFactory.assertNoMoreCalls();
+
+    threadLifeCycleListenerStubFactory.setIgnoreObjectMethods();
+    threadContext.removeThreadLifeCycleListener(
+      threadLifeCycleListenerStubFactory.getStub());
+
+    threadContext.fireEndThreadEvent();
+    threadLifeCycleListenerStubFactory.assertNoMoreCalls();
   }
 
   public void testDelayReports() throws Exception {

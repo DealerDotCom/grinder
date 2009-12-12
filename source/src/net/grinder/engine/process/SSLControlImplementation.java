@@ -162,6 +162,14 @@ final class SSLControlImplementation implements SSLControl {
     ThreadContext threadContext,
     CachingSSLContextFactory cachingSSLContextFactory) {
 
+    final SSLContextFactory oldSSLContextFactory =
+      threadContext.getThreadSSLContextFactory();
+
+    if (oldSSLContextFactory instanceof CachingSSLContextFactory) {
+      threadContext.removeThreadLifeCycleListener(
+        (CachingSSLContextFactory) oldSSLContextFactory);
+    }
+
     threadContext.setThreadSSLContextFactory(cachingSSLContextFactory);
     threadContext.registerThreadLifeCycleListener(cachingSSLContextFactory);
   }

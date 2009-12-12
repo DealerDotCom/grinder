@@ -1,3 +1,10 @@
+The Grinder 3.4 (not yet released)
+----------------------------------
+
+   Fix bug 2913297 - Memory leak in SSLControlImplementation. Thanks to
+   Guido Serra for the report.
+
+
 The Grinder 3.3
 ---------------
 

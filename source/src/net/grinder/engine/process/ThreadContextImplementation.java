@@ -151,6 +151,10 @@ final class ThreadContextImplementation
     m_threadLifeCycleListeners.add(listener);
   }
 
+  public void removeThreadLifeCycleListener(ThreadLifeCycleListener listener) {
+    m_threadLifeCycleListeners.remove(listener);
+  }
+
   public void fireBeginThreadEvent() {
     m_threadLifeCycleListeners.apply(new Informer<ThreadLifeCycleListener>() {
       public void inform(ThreadLifeCycleListener l) { l.beginThread(); }
