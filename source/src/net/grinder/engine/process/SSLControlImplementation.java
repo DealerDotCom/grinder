@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,7 +38,7 @@ import net.grinder.util.InsecureSSLContextFactory;
 
 
 /**
- * Implementation of {@link SSLControlImplementation}.
+ * Implementation of {@link SSLControl}.
  *
  * @author Philip Aston
  * @version $Revision$
