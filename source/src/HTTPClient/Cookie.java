@@ -441,7 +441,7 @@ public class Cookie implements Serializable
       }
 
       /** ++GRINDER MODIFICATION **/
-      // Despite Roland's comment above, RFC-2965 is not followed in practice.
+      // Despite Ronald's comment above, RFC-2965 is not followed in practice.
       // Browsers seem to be adopting increasingly complicated heuristics for
       // whether a domain matches - see
       // http://my.opera.com/yngve/blog/show.dml/26741.
