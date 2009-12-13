@@ -130,7 +130,8 @@ class TestRunner:
       <title>Enabling the new instrumentation</title>
 
       <p>The new instrumentation was first released in The Grinder 3.3. It
-      requires The Grinder to be run using a Java
+      is based on byte code modification, and requires The Grinder to be run
+      using a Java
       Virtual Machine that supports transformation of already loaded classes.
       Practically, this means a Java 6 JVM or later. First check you are
       using The Grinder 3.3 and a Java 6 JVM.</p>
@@ -158,6 +159,19 @@ class TestRunner:
       16/11/09 07:59:42 (process paston01-0): instrumentation agents: NO INSTRUMENTER COULD BE LOADED</source>
     </section>
 
+      <warning>
+      <p>The current version of Oracle JRockit has a known bug  (8894099) in
+      its implementation of
+      <code>java.lang.instrument.Instrumentation.retransformClasses()</code>
+      that can cause the same byte code transformation to be applied multiple
+      times if instrumentation is applied more than than once for a method.</p>
+
+      <p>The Grinder instrumentation unit tests will fail under
+      JRockit. However, the instrumentation engine is coded defensively and
+      the bug should not cause any problem at runtime, other than a very minor
+      inefficiency.</p>
+
+      </warning>
     <section>
       <title>New API - <code>record()</code>, not <code>wrap()</code></title>
 
