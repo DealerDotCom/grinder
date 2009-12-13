@@ -374,7 +374,7 @@ instrumentMethod(Test(200, 'Page 2'), 'page2')
   </section>
 
   <section id="offset-test-numbers">
-  	<title>How to offset test numbers</title>
+    <title>How to offset test numbers</title>
    <p>
    If sometimes useful to offset test numbers for a test script when
 running several different scripts together, perhaps using the
@@ -488,8 +488,6 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
     <p>Use the <code>-httpproxy</code> option to specify the host name
     and port of the proxy. Use the <code>-httpsproxy</code> option if
     your HTTPS proxy requires separate settings.</p>
-
-    <note>The Grinder does not work with NTLM proxies</note>
   </section>
 
   <section id="port-forwarding-mode">
