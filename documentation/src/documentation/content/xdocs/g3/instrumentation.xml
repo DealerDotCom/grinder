@@ -160,16 +160,16 @@ class TestRunner:
     </section>
 
       <warning>
-      <p>The current version of Oracle JRockit has a known bug  (8894099) in
+      The current version of Oracle JRockit has a known bug  (8894099) in
       its implementation of
       <code>java.lang.instrument.Instrumentation.retransformClasses()</code>
       that can cause the same byte code transformation to be applied multiple
-      times if instrumentation is applied more than than once for a method.</p>
+      times if instrumentation is applied more than than once for a method.
 
-      <p>The Grinder instrumentation unit tests will fail under
+      <br/>The Grinder instrumentation unit tests will fail under
       JRockit. However, the instrumentation engine is coded defensively and
       the bug should not cause any problem at runtime, other than a very minor
-      inefficiency.</p>
+      inefficiency.
 
       </warning>
     <section>
