@@ -67,7 +67,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <script-instrumentation label="Instrumentation" href="instrumentation.html">
         <new-instrumentation href="#new-instrumentation"/>
       </script-instrumentation>
-      <jython-2-5 label="Jython 2.5" href="jython-2-5.html"/>
+      <jython-2.5 label="Jython 2.5" href="jython-2-5.html"/>
       <script-gallery label="Script Gallery" href="script-gallery.html">
         <digestauthentication href="#digestauthentication"/>
         <helloworldfunctions href="#helloworldfunctions"/>
@@ -133,6 +133,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <g3-ssl label="SSL" href="faq.html#g3-ssl"/>
       <g3-tcpproxy label="The TCPProxy" href="faq.html#tcpproxy"/>
       <use-the-tcpproxy href="faq.html#use-the-tcpproxy"/>
+      <sre-assertion href="faq.html#sre-assertion"/>
     </g3faq>
   </gfaq>
 
