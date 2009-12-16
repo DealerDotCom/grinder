@@ -499,13 +499,13 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
 
   <dl>
 
-	  <dt/>
-	  <dd class="quote">
-	    <p>On Vista/Windows Server 2008, the default value for TcpTimedWaitDelay
-	    is 120 seconds and there are 16384 ephemeral ports available. To reduce
-	    the TcpTimedWaitDelay, add a new registry key to the same path mentioned
-	    above and reboot. To query the value for ephemeral ports, in a command
-	    window run:</p>
+    <dt/>
+    <dd class="quote">
+      <p>On Vista/Windows Server 2008, the default value for TcpTimedWaitDelay
+      is 120 seconds and there are 16384 ephemeral ports available. To reduce
+      the TcpTimedWaitDelay, add a new registry key to the same path mentioned
+      above and reboot. To query the value for ephemeral ports, in a command
+      window run:</p>
 <source>
 netsh interface ipv4 show dynamicportrange tcp
 </source>
@@ -515,8 +515,8 @@ netsh interface ipv4 show dynamicportrange tcp
 netsh interface ipv4 set dynamicportrange protocol=tcp startport=10000 numberofports=20000
 </source>
 
-	    <p><a href="site:microsoft/tcpip-reg">Microsoft reference</a></p>
-	  </dd>
+      <p><a href="site:microsoft/tcpip-reg">Microsoft reference</a></p>
+    </dd>
   </dl>
       </answer>
     </faq>
@@ -538,20 +538,20 @@ netsh interface ipv4 set dynamicportrange protocol=tcp startport=10000 numberofp
 <source>
 echo "32768 65535" > /proc/sys/net/ipv4/ip_local_port_range
 </source>
-	  </li>
+    </li>
 
-	  <li>Enable Port Recycling
+    <li>Enable Port Recycling
 <source>
 echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
 </source>
-	  </li>
+    </li>
 
-	  <li>Reduce the timeout (default is 60 seconds)
+    <li>Reduce the timeout (default is 60 seconds)
 <source>
 echo "10" >  /proc/sys/net/ipv4/tcp_fin_timeout
 </source>
-	  </li>
-	  </ol>
+    </li>
+    </ol>
     </dd>
   </dl>
       </answer>
@@ -1060,15 +1060,15 @@ C:\> java net.grinder.Grinder > output.txt
 2/14/08 2:20:00 PM (agent): worker deep-0 started *sys-package-mgr*: can't create package cache dir 'D:\grinder-3.0.1\lib\jython.jar\cachedir\packages'
 </source>
 
-	  <p>This is due to a <a href="ext:jython-bugs/cachedir-bug">
-	  Jython 2.2.1 bug</a>.</p>
+    <p>This is due to a <a href="ext:jython-bugs/cachedir-bug">
+    Jython 2.2.1 bug</a>.</p>
 
-	  <p>You can ignore the warning if you don't rely on Jython <a href="ext:jython-wiki/package-scanning">package scanning</a>
+    <p>You can ignore the warning if you don't rely on Jython <a href="ext:jython-wiki/package-scanning">package scanning</a>
 (this is likely).</p>
 
-	  <p>Alternatively, you can specify a cache directory by adding the following
-	  to grinder.properties (adjusting <code>/tmp</code> accordingly):</p>
-	  <source>
+    <p>Alternatively, you can specify a cache directory by adding the following
+    to grinder.properties (adjusting <code>/tmp</code> accordingly):</p>
+    <source>
 grinder.jvm.arguments: -Dpython.cachedir=/tmp
 </source>
       </answer>
@@ -1187,6 +1187,22 @@ class TestRunner:
       </source>
       </answer>
     </faq>
+
+
+    <faq id="sre-assertion">
+      <question>Why does the Jython <code>re</code> module cause a
+      <code>SRE module mismatch</code> assertion?
+      </question>
+
+      <answer>
+      <p>Mark Theunissen reports that this problem occurs if
+      you are using regular expressions with
+      <a href="site:g3/scripts/jython-2.5">Jython 2.5</a>. Mark
+      succesfully worked around the problem my removing the Jython 2.2.1
+      <code>jython.jar</code> from the <code>lib</code> directory.</p>
+
+      </answer>
+    </faq>
     <faq id="jython-indentation">
       <question>
       Why do I get syntax errors when editing my Jython scripts, even when the code looks correct?
@@ -1229,36 +1245,36 @@ class TestRunner:
     What does "java.lang.ClassFormatError: Invalid method Code length" mean?
     </question>
     <answer>
-	<p>The short answer is that a function in your script is too long and is
+  <p>The short answer is that a function in your script is too long and is
 tripping over a Java limitation on the length of a method inherited by
 Jython. Java methods are limited to 65535 characters or less.</p>
 
-	<p>You'll need to break the script up into smaller pieces. E.g. if you
-	have a script that looks like</p>
-	<source>
+  <p>You'll need to break the script up into smaller pieces. E.g. if you
+  have a script that looks like</p>
+  <source>
 #...
 class TestRunner:
   def __call__(self):
-  	# Lots of code - more than 65535 characters
+    # Lots of code - more than 65535 characters
 </source>
-	<p>you might break it up into smaller methods (functions belonging to
-	<code>TestRunner</code>) as follows:</p>
-	<source>
+  <p>you might break it up into smaller methods (functions belonging to
+  <code>TestRunner</code>) as follows:</p>
+  <source>
 #...
 class TestRunner:
   def part1(self):
-  	# some of the code - less than 65535 characters
+    # some of the code - less than 65535 characters
 
   def part2(self):
-  	# more of the code
+    # more of the code
 
   def part3(self):
-  	# the rest of the code
+    # the rest of the code
 
   def __call__(self):
-  	self.part1()
-  	self.part2()
-  	self.part3()
+    self.part1()
+    self.part2()
+    self.part3()
 </source>
     </answer>
     </faq>
@@ -1457,7 +1473,7 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
   <dl>
     <dt/>
     <dd class="quote">
-	<p>The HTTPClient library does not support NTLM authentication. I have written
+  <p>The HTTPClient library does not support NTLM authentication. I have written
 a simple sample to demonstrate how to check the HTTP response and send
 the NTLM authentication request in my
 <a href="http://yaekees.spaces.live.com/blog/cns!1955EE8C6707277A!247.entry">blog</a>.</p>
@@ -1472,7 +1488,7 @@ modify your script to remove duplicate requests.</p>
     </dd>
   </dl>
       </answer>
-	</faq>
+  </faq>
   </faqsection>
 
   <faqsection id="g3-ssl">

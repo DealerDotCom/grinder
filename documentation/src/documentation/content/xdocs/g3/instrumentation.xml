@@ -117,7 +117,7 @@ class TestRunner:
       it does not work with Jython 2.5 or
       later. The Jython 2.5 implementation significantly changed internal
       APIs upon which The Grinder depends. The new instrumentation <a
-      href="jython-2-5.html">supports Jython 2.5</a>.</p>
+      href="site:jython-2.5">supports Jython 2.5</a>.</p>
 
       <p>In addition, the traditional
       instrumentation is deeply tied to Jython. It cannot
