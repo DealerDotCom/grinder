@@ -25,6 +25,7 @@ import java.net.ProtocolException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
@@ -72,6 +73,7 @@ public class TestCookie extends TestCase {
     final DateFormat df =
       DateFormat.getDateTimeInstance(
         DateFormat.SHORT, DateFormat.MEDIUM, Locale.UK);
+    df.setTimeZone(TimeZone.getTimeZone("GMT"));
     final Date result = df.parse("25/03/06 16:53:28");
     assertEquals(result, cookies2[0].expires());
   }

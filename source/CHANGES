@@ -4,6 +4,9 @@ The Grinder 3.4 (not yet released)
    Fix bug 2913297 - Memory leak in SSLControlImplementation. Thanks to
    Guido Serra for the report.
 
+   Fix bug 1619450 - HTTPClient.TestCookie.testParse unit test fails.
+   Thanks to amachang for re-opening this bug and providing a patch.
+
 
 The Grinder 3.3
 ---------------
