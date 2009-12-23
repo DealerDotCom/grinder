@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
- Copyright (C) 2006, 2007 Philip Aston
+ Copyright (C) 2006 - 2009 Philip Aston
  Copyright (C) 2007 Venelin Mitov
  All rights reserved.
 
@@ -129,7 +129,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   <xsl:template match="g:common-headers[@headers-id='defaultHeaders']" mode="file">
     <xsl:value-of select="helper:newLine()"/>
     <xsl:text>connectionDefaults.defaultHeaders = \</xsl:text>
-    <xsl:call-template name="tuple-list"/>
+    <xsl:call-template name="list"/>
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
@@ -137,7 +137,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   <xsl:template match="g:common-headers" mode="file">
     <xsl:value-of select="helper:newLine()"/>
     <xsl:value-of select="concat(@headers-id, '= \')"/>
-    <xsl:call-template name="tuple-list"/>
+    <xsl:call-template name="list"/>
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
@@ -469,6 +469,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
   </xsl:template>
 
+
   <xsl:template match="g:path" mode="request-uri">
     <!-- Open quote here, last g:text or g:token-reference will close. -->
     <xsl:text>'</xsl:text>
@@ -557,7 +558,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
   <xsl:template match="g:body/g:form" mode="request-uri">
     <xsl:text>,</xsl:text>
-    <xsl:call-template name="tuple-list"/>
+    <xsl:call-template name="tuple"/>
   </xsl:template>
 
 
@@ -587,12 +588,12 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 
     <xsl:text>,</xsl:text>
 
-    <xsl:call-template name="tuple-list"/>
+    <xsl:call-template name="tuple"/>
   </xsl:template>
 
 
-  <xsl:template match="g:header|g:parameter|g:form-field" mode="tuple">
-    <xsl:call-template name="indent-tuple-entry"/>
+  <xsl:template match="g:header|g:parameter|g:form-field" mode="list-item">
+    <xsl:call-template name="indent-list-item"/>
 
     <xsl:text>NVPair(</xsl:text>
     <xsl:value-of select="helper:quoteForPython(@name)"/>
@@ -601,11 +602,11 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:text>),</xsl:text>
   </xsl:template>
 
-  <xsl:template match="g:token-reference" mode="tuple">
+  <xsl:template match="g:token-reference" mode="list-item">
     <xsl:variable name="token-id" select="@token-id"/>
     <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
 
-    <xsl:call-template name="indent-tuple-entry"/>
+    <xsl:call-template name="indent-list-item"/>
 
     <xsl:text>NVPair(</xsl:text>
     <xsl:value-of select="helper:quoteForPython($name)"/>
@@ -615,9 +616,9 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:text>),</xsl:text>
   </xsl:template>
 
-  <xsl:template match="g:authorization/g:basic" mode="tuple">
-    <xsl:call-template name="indent-tuple-entry">
-      <xsl:with-param name="first-entry" select="not(../preceding-sibling::*)"/>
+  <xsl:template match="g:authorization/g:basic" mode="list-item">
+    <xsl:call-template name="indent-list-item">
+      <xsl:with-param name="first-item" select="not(../preceding-sibling::*)"/>
     </xsl:call-template>
 
     <xsl:text>httpUtilities.basicAuthorizationHeader(</xsl:text>
@@ -628,24 +629,37 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template name="tuple-list">
+  <xsl:template name="list">
+    <xsl:value-of select="helper:changeIndent(1)"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>[</xsl:text>
+    <xsl:value-of select="helper:changeIndent(1)"/>
+
+    <xsl:apply-templates mode="list-item"/>
+
+    <xsl:text> ]</xsl:text>
+    <xsl:value-of select="helper:changeIndent(-2)"/>
+  </xsl:template>
+
+
+  <xsl:template name="tuple">
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>(</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
 
-    <xsl:apply-templates mode="tuple"/>
+    <xsl:apply-templates mode="list-item"/>
 
     <xsl:text> )</xsl:text>
     <xsl:value-of select="helper:changeIndent(-2)"/>
   </xsl:template>
 
 
-  <xsl:template name="indent-tuple-entry">
-    <xsl:param name="first-entry" select="not(preceding-sibling::*)"/>
+  <xsl:template name="indent-list-item">
+    <xsl:param name="first-item" select="not(preceding-sibling::*)"/>
 
     <xsl:choose>
-      <xsl:when test="$first-entry"><xsl:text> </xsl:text></xsl:when>
+      <xsl:when test="$first-item"><xsl:text> </xsl:text></xsl:when>
       <xsl:otherwise><xsl:value-of select="helper:newLineAndIndent()"/>
       </xsl:otherwise>
     </xsl:choose>

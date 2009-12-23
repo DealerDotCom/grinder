@@ -7,6 +7,9 @@ The Grinder 3.4 (not yet released)
    Fix bug 1619450 - HTTPClient.TestCookie.testParse unit test fails.
    Thanks to amachang for re-opening this bug and providing a patch.
 
+   Fix bug 2911790 - HTTP filter generates invalid code for Jython 2.5+.
+   Thanks to the anonymous reporter.
+
 
 The Grinder 3.3
 ---------------
