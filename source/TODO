@@ -14,7 +14,11 @@ against it too :-).
 - Philip Aston
 
 
-Test JRockit vs instrumentation.
+* Other languages
+
+Implement a javax.script wrapper that is loaded if detected.
+Prove by implementing support for JavaScript (which is built into Java 6).
+
 
 * Java 5 upgrade
 
@@ -134,12 +138,6 @@ Support for some sort of "Surrogate task" that is run in a pool of threads and
 has its own statistics context would be good.
 
 
-*** Interactive mode
-
-Possible to have an interactive mode for debugging? E.g. a simple UI
-that can be launched from a thread which drops the user into a
-console? Would need to launch with grinder.debug.singleprocess=true.
-
 *** Instrumentation API
 
 Could we support a procedural "startTest()", "stopTest()" API?
@@ -224,10 +222,6 @@ Add per-run statistics. This would also allow number of aborted runs
 to be recorded.
 
 Script access to global statistics.
-
-*** Alternate test languages
-
-Should support Java, Groovy scripts.
 
 *** Events
 Idea from Nurul Choudhury:
@@ -342,10 +336,6 @@ How to build clover reports during full build?
 Include Clover history?
 
 * Documentation
-
-grinder.debug.singleprocess
-
-HTTP plug-in.
 
 ** Examples
 
