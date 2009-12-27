@@ -90,7 +90,6 @@ public class TestHTTPPluginControl extends TestCase {
 
     final HTTPUtilities utilities = HTTPPluginControl.getHTTPUtilities();
     assertNotNull(utilities);
-    assertSame(utilities, HTTPPluginControl.getHTTPUtilities());
 
     final Object threadContext = HTTPPluginControl.getThreadHTTPClientContext();
     assertSame(threadState, threadContext);
