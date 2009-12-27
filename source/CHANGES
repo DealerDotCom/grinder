@@ -10,6 +10,9 @@ The Grinder 3.4 (not yet released)
    Fix bug 2911790 - HTTP filter generates invalid code for Jython 2.5+.
    Thanks to the anonymous reporter.
 
+   Fix bug 2921612 - DCR instrumentation did not work with
+   HTTPRequest. Thanks to Anil Jacob for the report.
+
 
 The Grinder 3.3
 ---------------

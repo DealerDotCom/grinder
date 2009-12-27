@@ -28,10 +28,13 @@ import java.io.OutputStream;
 import java.util.Random;
 
 import junit.framework.TestCase;
-
 import net.grinder.common.GrinderException;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.SSLContextFactory;
+import net.grinder.common.StubTest;
+import net.grinder.common.Test;
+import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.instrumenter.MasterInstrumenter;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
@@ -48,7 +51,6 @@ import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.StandardTimeAuthority;
 import net.grinder.util.TimeAuthority;
-
 import HTTPClient.HTTPResponse;
 import HTTPClient.HttpURLConnection;
 import HTTPClient.NVPair;
@@ -1117,6 +1119,89 @@ public class TestHTTPRequest extends TestCase {
     final HTTPResponse response2 = request.GET(m_handler.getURL());
     assertEquals(200, response2.getStatusCode());
     assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
+  }
+
+  public void testDCRInstrumentation() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(true);
+
+    assertEquals("byte code transforming instrumenter for Jython 2.1/2.2; " +
+                 "byte code transforming instrumenter for Java",
+                 masterInstrumenter.getDescription());
+
+    final RandomStubFactory<Recorder> recorderStubFactory =
+      RandomStubFactory.create(Recorder.class);
+    final Recorder recorder = recorderStubFactory.getStub();
+
+    final Test test = new StubTest(1, "foo");
+
+    masterInstrumenter.createInstrumentedProxy(test, recorder, request);
+
+    try {
+      request.GET();
+      fail("Expected URLException");
+    }
+    catch (URLException e) {
+    }
+
+    recorderStubFactory.assertSuccess("start");
+    consumeStartEndPairs(recorderStubFactory);
+    recorderStubFactory.assertSuccess("end", false);
+    recorderStubFactory.assertNoMoreCalls();
+
+    try {
+      request.GET("#partial");
+      fail("Expected URLException");
+    }
+    catch (URLException e) {
+    }
+
+    recorderStubFactory.assertSuccess("start");
+    consumeStartEndPairs(recorderStubFactory);
+    recorderStubFactory.assertSuccess("end", false);
+    recorderStubFactory.assertNoMoreCalls();
+
+    final HTTPResponse response = request.GET(m_handler.getURL());
+    assertEquals(200, response.getStatusCode());
+    assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
+
+    recorderStubFactory.assertSuccess("start");
+    consumeStartEndPairs(recorderStubFactory);
+    recorderStubFactory.assertSuccess("end", true);
+    recorderStubFactory.assertNoMoreCalls();
+  }
+
+  private static void consumeStartEndPairs(RandomStubFactory<?> stubFactory) {
+
+    int s = 0;
+
+    while (true) {
+      final CallData top = stubFactory.peekFirst();
+
+      if (top == null) {
+        if (s == 0) {
+          return;
+        }
+        else {
+          fail("Unbalanced start/end methods");
+        }
+      }
+
+      final String methodName = top.getMethodName();
+
+      if (methodName.equals("start")) {
+        stubFactory.assertSuccess("start");
+        ++s;
+      }
+      else if (s > 0) {
+        stubFactory.assertSuccess("end", Boolean.class);
+        --s;
+      }
+      else {
+        return;
+      }
+    }
   }
 
   private static byte[] randomBytes(int max) {

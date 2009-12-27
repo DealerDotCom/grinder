@@ -24,6 +24,8 @@ package net.grinder.engine.process.instrumenter.dcr;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
+import test.MyClass;
+
 import net.grinder.common.Test;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase;
@@ -87,6 +89,8 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     assertNotWrappable(interpreter.get("x"));
 
     assertNotWrappableByThisInstrumenter(null);
+
+    assertNotWrappableByThisInstrumenter(MyClass.class);
   }
 
   public void testInstrumentationWithPyClass() throws Exception {

@@ -43,7 +43,7 @@ import net.grinder.util.weave.Weaver.TargetSource;
 abstract class DCRInstrumenter implements Instrumenter {
 
   private static final String[] NON_INSTRUMENTABLE_PACKAGES = {
-    "net.grinder",
+    "net.grinder.engine.process",
     "extra166y",
     "org.objectweb.asm",
   };
@@ -75,13 +75,11 @@ abstract class DCRInstrumenter implements Instrumenter {
     throws NotWrappableTypeException {
 
     try {
-      instrument(test, recorder, target);
+      return instrument(test, recorder, target) ? target : null;
     }
     catch (NonInstrumentableTypeException e) {
       throw new NotWrappableTypeException(e.getMessage(), e);
     }
-
-    return target;
   }
 
   /**

@@ -122,7 +122,9 @@ public class TestJavaDCRInstrumenter extends TestCase {
     assertEquals(0, c1.getA());
     m_recorderStubFactory.assertNoMoreCalls();
 
-    m_instrumenter.createInstrumentedProxy(null, m_recorder, MyClass.class);
+    final Object result =
+      m_instrumenter.createInstrumentedProxy(null, m_recorder, MyClass.class);
+    assertSame(MyClass.class, result);
     m_recorderStubFactory.assertNoMoreCalls();
 
     MyClass.staticSix();
@@ -193,7 +195,9 @@ public class TestJavaDCRInstrumenter extends TestCase {
     assertEquals(0, c1.getA());
     m_recorderStubFactory.assertNoMoreCalls();
 
-    m_instrumenter.createInstrumentedProxy(null, m_recorder, c1);
+    final Object result =
+      m_instrumenter.createInstrumentedProxy(null, m_recorder, c1);
+    assertSame(c1, result);
     m_recorderStubFactory.assertNoMoreCalls();
 
     MyClass.staticSix();
@@ -256,7 +260,9 @@ public class TestJavaDCRInstrumenter extends TestCase {
     assertEquals(1, noPackageMethod.invoke(null));
     m_recorderStubFactory.assertNoMoreCalls();
 
-    m_instrumenter.createInstrumentedProxy(null, m_recorder, noPackageClass);
+    final Object result =
+      m_instrumenter.createInstrumentedProxy(null, m_recorder, noPackageClass);
+    assertSame(noPackageClass, result);
     m_recorderStubFactory.assertNoMoreCalls();
 
     assertEquals(1, noPackageMethod.invoke(null));
