@@ -3115,6 +3115,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
                         /** --GRINDER MODIFICATION **/
         }
 
+        sock.setSoTimeout(con_timeout);
+
         input_demux = new StreamDemultiplexor(Protocol, sock, this);
         DemuxList.addToEnd(input_demux);
         keepAliveReqLeft = keepAliveReqMax;
