@@ -1,5 +1,6 @@
 // Copyright (C) 2006 - 2009 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
+// Copyright (C) 2009 Hitoshi Amano
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -471,21 +472,19 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       public void end() {
         final BodyType body = m_requestXML.addNewBody();
 
-        boolean isFormData;
-        boolean isMultipart = false;
+        final boolean isFormData;
+        final boolean isMultipart;
 
         if (m_contentType != null) {
           body.setContentType(m_contentType);
+          isMultipart = m_contentType.startsWith("multipart/form-data");
           isFormData =
+            isMultipart ||
             m_contentType.startsWith("application/x-www-form-urlencoded");
-
-          if (!isFormData && m_contentType.startsWith("multipart/form-data")) {
-            isFormData = true;
-            isMultipart = true;
-          }
         }
         else {
           isFormData = false;
+          isMultipart = false;
         }
 
         final byte[] bytes = toByteArray();
@@ -524,9 +523,10 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
           if (isFormData) {
             try {
-              final NVPair[] formNameValuePairs = (isMultipart ? 
-                                                    Codecs.mpFormDataDecode(bytes, m_contentType, "/tmp") :
-                                                    Codecs.query2nv(iso88591String));
+              final NVPair[] formNameValuePairs =
+                isMultipart ?
+                    Codecs.mpFormDataDecode(bytes, m_contentType, "/tmp") :
+                    Codecs.query2nv(iso88591String);
 
               final FormBodyType formData = body.addNewForm();
               formData.setMultipart(isMultipart);
@@ -559,7 +559,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
               // treat it as raw data instead.
             }
             catch (IOException e) {
-              // Failed to parse form data as name-value pairs, we'll
+              // Failed to parse multipart form data, we'll
               // treat it as raw data instead.
             }
           }

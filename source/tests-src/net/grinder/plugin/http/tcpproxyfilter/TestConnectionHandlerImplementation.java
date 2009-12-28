@@ -1,5 +1,6 @@
 // Copyright (C) 2005 - 2009 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
+// Copyright (C) 2009 Hitoshi Amano
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -683,101 +684,101 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
     final String message =
         "POST /something HTTP/1.0\r\n" +
-        "Content-Type: multipart/form-data; charset=UTF-8; boundary=---------------------------6549821653387387991112192755\r\n" + 
+        "Content-Type: multipart/form-data; charset=UTF-8; boundary=---------------------------6549821653387387991112192755\r\n" +
         "\r\n" +
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"csrf_ticket\"\r\n" + 
-        "\r\n" + 
-        "XXXXXXXXXXXXXXXXXXXX\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"title\"\r\n" + 
-        "\r\n" + 
-        "test\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"enable_term\"\r\n" + 
-        "\r\n" + 
-        "0\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"sterm_year\"\r\n" + 
-        "\r\n" + 
-        "2009\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"sterm_month\"\r\n" + 
-        "\r\n" + 
-        "12\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"sterm_day\"\r\n" + 
-        "\r\n" + 
-        "3\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"sterm_hour\"\r\n" + 
-        "\r\n" + 
-        "\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"sterm_minute\"\r\n" + 
-        "\r\n" + 
-        "\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"eterm_year\"\r\n" + 
-        "\r\n" + 
-        "2009\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"eterm_month\"\r\n" + 
-        "\r\n" + 
-        "12\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"eterm_day\"\r\n" + 
-        "\r\n" + 
-        "3\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"eterm_hour\"\r\n" + 
-        "\r\n" + 
-        "\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"eterm_minute\"\r\n" + 
-        "\r\n" + 
-        "\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"sterm_\"\r\n" + 
-        "\r\n" + 
-        "\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"eterm_\"\r\n" + 
-        "\r\n" + 
-        "\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"published\"\r\n" + 
-        "\r\n" + 
-        "\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"editor\"\r\n" + 
-        "\r\n" + 
-        "0\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"data\"\r\n" + 
-        "\r\n" + 
-        "testtesttesttesttesttesttesttesttesttesttest\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"file0\"; filename=\"\"\r\n" + 
-        "Content-Type: application/octet-stream\r\n" + 
-        "\r\n" + 
-        "\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"can_follow\"\r\n" + 
-        "\r\n" + 
-        "1\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"send\"\r\n" + 
-        "\r\n" + 
-        "AAA\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"cid\"\r\n" + 
-        "\r\n" + 
-        "2\r\n" + 
-        "-----------------------------6549821653387387991112192755\r\n" + 
-        "Content-Disposition: form-data; name=\"aid\"\r\n" + 
-        "\r\n" + 
-        "\r\n" + 
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"csrf_ticket\"\r\n" +
+        "\r\n" +
+        "XXXXXXXXXXXXXXXXXXXX\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"title\"\r\n" +
+        "\r\n" +
+        "test\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"enable_term\"\r\n" +
+        "\r\n" +
+        "0\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_year\"\r\n" +
+        "\r\n" +
+        "2009\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_month\"\r\n" +
+        "\r\n" +
+        "12\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_day\"\r\n" +
+        "\r\n" +
+        "3\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_hour\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_minute\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_year\"\r\n" +
+        "\r\n" +
+        "2009\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_month\"\r\n" +
+        "\r\n" +
+        "12\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_day\"\r\n" +
+        "\r\n" +
+        "3\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_hour\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_minute\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"published\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"editor\"\r\n" +
+        "\r\n" +
+        "0\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"data\"\r\n" +
+        "\r\n" +
+        "testtesttesttesttesttesttesttesttesttesttest\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"file0\"; filename=\"\"\r\n" +
+        "Content-Type: application/octet-stream\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"can_follow\"\r\n" +
+        "\r\n" +
+        "1\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"send\"\r\n" +
+        "\r\n" +
+        "AAA\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"cid\"\r\n" +
+        "\r\n" +
+        "2\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"aid\"\r\n" +
+        "\r\n" +
+        "\r\n" +
         "-----------------------------6549821653387387991112192755--\r\n";
 
     final byte[] buffer = message.getBytes("UTF-8");

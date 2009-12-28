@@ -13,6 +13,9 @@ The Grinder 3.4 (not yet released)
    Fix bug 2921612 - DCR instrumentation did not work with
    HTTPRequest. Thanks to Anil Jacob for the report.
 
+   Fulfil feature request 2914703 - Multpart form data support. Thanks
+   to Hitoshi Amano for the request and the implementation.
+
 
 The Grinder 3.3
 ---------------

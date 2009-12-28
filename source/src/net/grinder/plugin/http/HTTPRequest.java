@@ -3,6 +3,7 @@
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
+// Copyright (C) 2009 Hitoshi Amano
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -837,7 +838,7 @@ public class HTTPRequest {
    *          Request headers. Overrides headers with matching names set by
    *          {@link #setHeaders}.
    * @param isMultipart
-   *          True if request type is multipart/form-data.
+   *          {@code true} if request type is multipart/form-data.
    * @return Contains details of the server's response.
    * @throws Exception If an error occurs.
    */
@@ -849,10 +850,10 @@ public class HTTPRequest {
       return POST(uri, formData, headers);
     }
 
-    headers = new NVPair[1];
-    final byte[] data = Codecs.mpFormDataEncode(formData, null, headers);
+    final NVPair[] contentHeader = new NVPair[1];
+    final byte[] data = Codecs.mpFormDataEncode(formData, null, contentHeader);
 
-    return new AbstractRequest(uri, headers) {
+    return new AbstractRequest(uri, mergeArrays(headers, contentHeader)) {
         HTTPResponse doRequest(HTTPConnection connection,
                                String path,
                                NVPair[] mergedHeaders)
