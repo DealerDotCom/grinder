@@ -3101,8 +3101,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			/** GRINDER MODIFICATION++ **/
 			final SSLSocket sslSocket = (SSLSocket)sock;
 
-      sslSocket.setEnabledCipherSuites(getSSLCipherSuites());
-      sslSocket.setEnabledProtocols(getSSLProtocols());
+			sslSocket.setEnabledCipherSuites(getSSLCipherSuites());
+			sslSocket.setEnabledProtocols(getSSLProtocols());
 
 			if (getCheckCertificates()) {
                         /** --GRINDER MODIFICATION **/
@@ -3114,8 +3114,11 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			}
                         /** --GRINDER MODIFICATION **/
 		    }
-
-        sock.setSoTimeout(con_timeout);
+		    /** GRINDER MODIFICATION++ **/
+		    else {
+		      sock.setSoTimeout(con_timeout);
+		    }
+		    /** --GRINDER MODIFICATION **/		    
 
 		    input_demux = new StreamDemultiplexor(Protocol, sock, this);
 		    DemuxList.addToEnd(input_demux);
@@ -3188,10 +3191,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			    keep_alive = false;		// Uh oh!
 		    }
 		    else
-            /** GRINDER MODIFICATION++ **/
+		      /** GRINDER MODIFICATION++ **/
 			//sock_out.write(req.getData());
-            writeData(sock_out, req.getData());
-            /** GRINDER MODIFICATION-- **/
+		      writeData(sock_out, req.getData());
+		      /** GRINDER MODIFICATION-- **/
 
 		}
 
