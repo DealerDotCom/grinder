@@ -1204,6 +1204,49 @@ public class TestHTTPRequest extends TestCase {
     }
   }
 
+  public void testReadTimeout() throws Exception {
+
+    final HTTPRequestHandler httpServer = new HTTPRequestHandler();
+    httpServer.setResponseDelay(100);
+
+    final HTTPPluginConnectionDefaults connectionDefaults =
+      HTTPPluginConnectionDefaults.getConnectionDefaults();
+
+    final int originalTimeout = connectionDefaults.getTimeout();
+
+    try {
+      connectionDefaults.setTimeout(1);
+
+      try {
+        new HTTPRequest().GET(httpServer.getURL());
+        fail("Expected TimeoutException");
+      }
+      catch (TimeoutException e) {
+      }
+
+      final HTTPPluginConnection connection =
+        HTTPPluginControl.getThreadConnection(httpServer.getURL());
+
+      connection.setTimeout(0);
+      final HTTPResponse response = new HTTPRequest().GET(httpServer.getURL());
+      assertEquals("", response.getText());
+
+      connection.setTimeout(1);
+
+      try {
+        new HTTPRequest().GET(httpServer.getURL());
+        fail("Expected TimeoutException");
+      }
+      catch (TimeoutException e) {
+      }
+
+      connection.close();
+    }
+    finally {
+      connectionDefaults.setTimeout(originalTimeout);
+    }
+  }
+
   private static byte[] randomBytes(int max) {
     final byte[] result = new byte[s_random.nextInt(max)];
     s_random.nextBytes(result);

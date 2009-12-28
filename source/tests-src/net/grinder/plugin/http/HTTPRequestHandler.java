@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.grinder.common.UncheckedInterruptedException;
+
 import junit.framework.Assert;
 import HTTPClient.NVPair;
 
@@ -61,6 +63,8 @@ class HTTPRequestHandler extends Assert implements Runnable {
   private String m_lastRequestHeaders;
   private byte[] m_lastRequestBody;
   private String m_body;
+
+  private long m_responseDelay = 0;
 
   public HTTPRequestHandler() throws Exception {
     m_serverSocket = new ServerSocket(0);
@@ -204,6 +208,13 @@ class HTTPRequestHandler extends Assert implements Runnable {
           m_lastRequestBody = null;
         }
 
+        try {
+          Thread.sleep(m_responseDelay);
+        }
+        catch (InterruptedException e) {
+          throw new UncheckedInterruptedException(e);
+        }
+
         final OutputStream out = localSocket.getOutputStream();
 
         final StringBuffer response = new StringBuffer();
@@ -255,5 +266,9 @@ class HTTPRequestHandler extends Assert implements Runnable {
 
   public void setBody(String body) {
     m_body = body;
+  }
+
+  public void setResponseDelay(long responseDelay) {
+    m_responseDelay = responseDelay;
   }
 }
