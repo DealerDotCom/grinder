@@ -16,6 +16,9 @@ The Grinder 3.4 (not yet released)
    Fulfil feature request 2914703 - Multpart form data support. Thanks
    to Hitoshi Amano for the request and the implementation.
 
+   Fix bug 2919190 - setTimeout method does not effect read timeouts.
+   Thanks to Hitoshi Amano for the report and the fix.
+
 
 The Grinder 3.3
 ---------------
