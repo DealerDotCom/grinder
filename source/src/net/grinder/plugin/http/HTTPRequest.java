@@ -49,6 +49,7 @@ import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.util.StreamCopier;
 
+import HTTPClient.Codecs;
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
 import HTTPClient.HttpOutputStream;
@@ -816,6 +817,47 @@ public class HTTPRequest {
                                NVPair[] mergedHeaders)
           throws IOException, ModuleException {
           return connection.Post(path, formData, mergedHeaders);
+        }
+      }
+      .getHTTPResponse();
+  }
+
+  /**
+   * Makes an HTTP <code>POST</code> request.
+   *
+   * @param uri The URI. If a default URL has been specified with
+   * {@link #setUrl}, this value need not be absolute and, if
+   * relative, it will be resolved relative to the default URL.
+   * Otherwise this value must be an absolute URL.
+   * @param formData Data to be submitted as an
+   * <code>application/x-www-form-urlencoded</code> or
+   * <code>multipart/form-data</code> encoded request
+   * body.
+   * @param headers
+   *          Request headers. Overrides headers with matching names set by
+   *          {@link #setHeaders}.
+   * @param isMultipart
+   *          True if request type is multipart/form-data.
+   * @return Contains details of the server's response.
+   * @throws Exception If an error occurs.
+   */
+  public final HTTPResponse POST(final String uri,
+                                 final NVPair[] formData,
+                                 NVPair[] headers,
+                                 boolean isMultipart) throws Exception {
+    if (!isMultipart) {
+      return POST(uri, formData, headers);
+    }
+
+    headers = new NVPair[1];
+    final byte[] data = Codecs.mpFormDataEncode(formData, null, headers);
+
+    return new AbstractRequest(uri, headers) {
+        HTTPResponse doRequest(HTTPConnection connection,
+                               String path,
+                               NVPair[] mergedHeaders)
+          throws IOException, ModuleException {
+          return connection.Post(path, data, mergedHeaders);
         }
       }
       .getHTTPResponse();

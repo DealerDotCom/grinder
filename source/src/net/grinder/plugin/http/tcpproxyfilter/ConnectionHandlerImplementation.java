@@ -471,12 +471,18 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       public void end() {
         final BodyType body = m_requestXML.addNewBody();
 
-        final boolean isFormData;
+        boolean isFormData;
+        boolean isMultipart = false;
 
         if (m_contentType != null) {
           body.setContentType(m_contentType);
           isFormData =
             m_contentType.startsWith("application/x-www-form-urlencoded");
+
+          if (!isFormData && m_contentType.startsWith("multipart/form-data")) {
+            isFormData = true;
+            isMultipart = true;
+          }
         }
         else {
           isFormData = false;
@@ -518,10 +524,12 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
           if (isFormData) {
             try {
-              final NVPair[] formNameValuePairs =
-                Codecs.query2nv(iso88591String);
+              final NVPair[] formNameValuePairs = (isMultipart ? 
+                                                    Codecs.mpFormDataDecode(bytes, m_contentType, "/tmp") :
+                                                    Codecs.query2nv(iso88591String));
 
               final FormBodyType formData = body.addNewForm();
+              formData.setMultipart(isMultipart);
 
               for (int i = 0; i < formNameValuePairs.length; ++i) {
                 final String name = formNameValuePairs[i].getName();
@@ -547,6 +555,10 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
               }
             }
             catch (ParseException e) {
+              // Failed to parse form data as name-value pairs, we'll
+              // treat it as raw data instead.
+            }
+            catch (IOException e) {
               // Failed to parse form data as name-value pairs, we'll
               // treat it as raw data instead.
             }

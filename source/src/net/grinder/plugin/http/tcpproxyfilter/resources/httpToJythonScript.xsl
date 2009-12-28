@@ -250,6 +250,12 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:apply-templates select="g:body" mode="request-uri"/>
     <xsl:apply-templates select="g:headers" mode="request-uri"/>
 
+    <xsl:if test="string(g:body/g:form/@multipart) = 'true'">
+      <xsl:text>,</xsl:text>
+      <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text>  True</xsl:text>
+    </xsl:if>
+
     <xsl:text>)</xsl:text>
 
     <xsl:apply-templates select="g:response/g:token-reference" mode="request"/>
