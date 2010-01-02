@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,6 +40,7 @@ public final class RegularExpressionsImplementation
   private final Pattern m_responseLinePattern;
   private final Pattern m_lastPathElementPathPattern;
   private final Pattern m_hrefURIPattern;
+  private final Pattern m_inputPattern;
   private final Pattern m_hiddenInputPattern;
 
   /**
@@ -91,6 +92,10 @@ public final class RegularExpressionsImplementation
     m_hrefURIPattern = Pattern.compile(
       "href[ \\t]*=[ \\t]*['\"]([^'\"]*)['\"]");
 
+    m_inputPattern = Pattern.compile(
+      "<\\s*input\\s+.*?/?>",
+      Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
     m_hiddenInputPattern = Pattern.compile(
       "<\\s*input\\s+" +
       ".*?" +
@@ -101,72 +106,63 @@ public final class RegularExpressionsImplementation
   }
 
   /**
-   * A pattern that matches the first line of an HTTP request.
-   *
-   * @return The pattern.
+   * {@inheritDoc}
    */
   public Pattern getRequestLinePattern() {
     return m_requestLinePattern;
   }
 
   /**
-   * A pattern that matches the first line of an HTTP response.
-   *
-   * @return The pattern.
+   * {@inheritDoc}
    */
   public Pattern getResponseLinePattern() {
     return m_responseLinePattern;
   }
 
   /**
-   * A pattern that matches an HTTP message body.
-   *
-   * @return The pattern.
+   * {@inheritDoc}
    */
   public Pattern getMessageBodyPattern() {
     return m_messageBodyPattern;
   }
 
   /**
-   * A pattern that matches an HTTP header.
-   *
-   * @return The pattern
+   * {@inheritDoc}
    */
   public Pattern getHeaderPattern() {
     return m_headerPattern;
   }
 
   /**
-   * A pattern that matches an HTTP Basic Authorization header.
-   *
-   * @return The pattern
+   * {@inheritDoc}
    */
   public Pattern getBasicAuthorizationHeaderPattern() {
     return m_basicAuthorizationHeaderPattern;
   }
 
   /**
-   * A pattern that matches the last element in a path.
-   *
-   * @return The pattern
+   * {@inheritDoc}
    */
   public Pattern getLastPathElementPathPattern() {
     return m_lastPathElementPathPattern;
   }
 
   /**
-   * A pattern that matches URLs referenced by hyperlinks.
-   *
-   * @return The pattern.
+   * {@inheritDoc}
    */
   public Pattern getHyperlinkURIPattern() {
     return m_hrefURIPattern;
   }
 
   /**
-   * A pattern that matches hidden parameters in HTML forms.
-   *
-   * @return The pattern.
+   * {@inheritDoc}
+   */
+  public Pattern getInputPattern() {
+    return m_inputPattern;
+  }
+
+  /**
+   * {@inheritDoc}
    */
   public Pattern getHiddenInputPattern() {
     return m_hiddenInputPattern;

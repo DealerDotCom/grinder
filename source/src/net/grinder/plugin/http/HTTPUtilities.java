@@ -78,6 +78,91 @@ public interface HTTPUtilities {
    */
   String valueFromLocationURI(String tokenName) throws GrinderException;
 
+
+  /**
+   * Return the value for an input token with the given {@code tokenName} in the
+   * body of the last response. If there are multiple matches, the first value
+   * is returned.
+   *
+   * <p>
+   * If there is no match, an empty string is returned rather than {@code null}.
+   * This makes scripts more robust (as they don't need to check the value
+   * before using it), but they lose the ability to distinguish between a
+   * missing token and an empty value.
+   * </p>
+   *
+   * @param tokenName
+   *          The token name.
+   * @return The first value if one is found, or an empty string.
+   * @throws GrinderException
+   *           If not called from a worker thread.
+   * @see #valueFromBodyInput(String, String)
+   * @see #valuesFromBodyInput(String)
+   */
+  String valueFromBodyInput(String tokenName) throws GrinderException;
+
+  /**
+   * Return the value for an input token with the given {@code tokenName} in the
+   * body of the last response. If there are multiple matches, the first value
+   * is returned. This version of {@code valueFromBodyInput} only considers
+   * matches following the first occurrence of the literal text {@code
+   * afterText}. If there are multiple matches, the first value is returned.
+   *
+   * <p>
+   * If there is no match, an empty string is returned rather than {@code null}.
+   * This makes scripts more robust (as they don't need to check the value
+   * before using it), but they lose the ability to distinguish between a
+   * missing token and an empty value.
+   * </p>
+   *
+   * @param tokenName
+   *          The token name.
+   * @param afterText
+   *          The search begins after the first occurrence of this literal text.
+   * @return The first value if one is found, or an empty string if the body
+   *         does not contain {@code afterText} followed by a URI containing a
+   *         token with name {@code tokenName}.
+   * @throws GrinderException
+   *           If not called from a worker thread.
+   * @see #valueFromBodyInput(String)
+   * @see #valuesFromBodyInput(String, String)
+   */
+  String valueFromBodyInput(String tokenName, String afterText)
+    throws GrinderException;
+
+  /**
+   * Return all matching values for input tokens with the given {@code
+   * tokenName} in the body of the last response.
+   *
+   * @param tokenName
+   *          The token name.
+   * @return The matching values.
+   * @throws GrinderException
+   *           If not called from a worker thread.
+   * @see #valueFromBodyInput(String)
+   * @see #valuesFromBodyInput(String, String)
+   */
+  List<String> valuesFromBodyInput(String tokenName) throws GrinderException;
+
+  /**
+   * Return all matching values for input tokens with the given {@code
+   * tokenName} in the body of the last response. This version of {@code
+   * valueFromBodyInput} only considers matches following the first occurrence
+   * of the literal text {@code afterText}.
+   *
+   * @param tokenName
+   *          The token name.
+   * @param afterText
+   *          The search begins after the first occurrence of this literal text.
+   * @return The matching values.
+   * @throws GrinderException
+   *           If not called from a worker thread.
+   * @see #valuesFromBodyInput(String)
+   * @see #valueFromBodyInput(String, String)
+   */
+  List<String> valuesFromBodyInput(String tokenName, String afterText)
+    throws GrinderException;
+
   /**
    * Return the value for a hidden input token with the given
    * {@code tokenName} in the body of the last response. If there are

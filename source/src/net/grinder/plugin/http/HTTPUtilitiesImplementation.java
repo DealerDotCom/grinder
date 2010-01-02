@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.grinder.common.GrinderException;
 import net.grinder.plugin.http.tcpproxyfilter.RegularExpressions;
@@ -124,6 +125,40 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     return result[0];
   }
 
+  public String valueFromBodyInput(final String tokenName)
+    throws GrinderException {
+    return valueFromBodyInput(tokenName, null);
+  }
+
+  public String valueFromBodyInput(String tokenName, String afterText)
+    throws GrinderException {
+
+    final HTTPResponse response = getLastResponse();
+
+    if (response == null) {
+      return "";
+    }
+
+    return getParsedBody(response).valueFromBodyInput(tokenName, afterText);
+  }
+
+  public List<String> valuesFromBodyInput(final String tokenName)
+    throws GrinderException {
+    return valuesFromBodyInput(tokenName, null);
+  }
+
+  public List<String> valuesFromBodyInput(String tokenName, String afterText)
+    throws GrinderException {
+
+    final HTTPResponse response = getLastResponse();
+
+    if (response == null) {
+      return emptyList();
+    }
+
+    return getParsedBody(response).valuesFromBodyInput(tokenName, afterText);
+  }
+
   public String valueFromHiddenInput(final String tokenName)
     throws GrinderException {
     return valueFromHiddenInput(tokenName, null);
@@ -214,6 +249,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
 
     private final HTTPResponse m_response;
     private final String m_body;
+    private final MatchList m_bodyInputMatchList;
     private final MatchList m_hiddenInputMatchList;
     private final MatchList m_bodyURIMatchList;
 
@@ -228,13 +264,27 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
         throw new AssertionError(e);
       }
 
-      m_hiddenInputMatchList = new HiddenInputMatchList(m_body);
+      m_bodyInputMatchList =
+        new InputMatchList(m_regularExpressions.getInputPattern(), m_body);
+      m_hiddenInputMatchList =
+        new InputMatchList(m_regularExpressions.getHiddenInputPattern(),
+                           m_body);
       m_bodyURIMatchList = new BodyURIMatchList(m_body);
     }
 
     public boolean isValidForResponse(HTTPResponse response) {
       return m_response.equals(response);
     }
+
+    public String valueFromBodyInput(String tokenName, String afterText) {
+      return m_bodyInputMatchList.getMatchValue(tokenName, afterText);
+    }
+
+    public List<String> valuesFromBodyInput(String tokenName,
+                                            String afterText) {
+      return m_bodyInputMatchList.getMatchValues(tokenName, afterText);
+    }
+
 
     public String valueFromHiddenInput(String tokenName, String afterText) {
       return m_hiddenInputMatchList.getMatchValue(tokenName, afterText);
@@ -341,9 +391,9 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     private final Matcher m_matcher;
     private final CachedValueMap m_cache = new CachedValueMap();
 
-    public AbstractMatchList(String body, Matcher matcher) {
+    public AbstractMatchList(Pattern pattern, String body) {
       m_body = body;
-      m_matcher = matcher;
+      m_matcher = pattern.matcher(body);
     }
 
     public String getMatchValue(String tokenName, String afterText) {
@@ -437,10 +487,10 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     protected abstract NameValue[] parseMatch();
   }
 
-  private final class HiddenInputMatchList extends AbstractMatchList {
+  private final class InputMatchList extends AbstractMatchList {
 
-    public HiddenInputMatchList(String body) {
-      super(body, m_regularExpressions.getHiddenInputPattern().matcher(body));
+    public InputMatchList(Pattern pattern, String body) {
+      super(pattern, body);
     }
 
     protected NameValue[] parseMatch() {
@@ -461,7 +511,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
   private final class BodyURIMatchList extends AbstractMatchList {
 
     public BodyURIMatchList(String body) {
-      super(body, m_regularExpressions.getHyperlinkURIPattern().matcher(body));
+      super(m_regularExpressions.getHyperlinkURIPattern(), body);
     }
 
     protected NameValue[] parseMatch() {

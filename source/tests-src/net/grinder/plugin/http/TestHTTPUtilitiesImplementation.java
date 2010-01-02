@@ -278,6 +278,66 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     handler.shutdown();
   }
 
+  public void testValueFromBodyInput() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals("", httpUtilities.valueFromBodyInput("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    request.GET(handler.getURL());
+    assertEquals("", httpUtilities.valueFromBodyInput("foo"));
+
+    handler.setBody("<body><input name='foo'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals("", httpUtilities.valueFromBodyInput("foo"));
+
+    // input tags should be empty. The content has no meaning
+    handler.setBody("<body><input type='hidden' name='foo' value='bah'>foo</input>" +
+                    "<input name='foo' value='blah'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals("bah", httpUtilities.valueFromBodyInput("foo"));
+    assertEquals("", httpUtilities.valueFromBodyInput("bah"));
+    assertEquals("bah", httpUtilities.valueFromBodyInput("foo", "<body>"));
+    assertEquals("blah", httpUtilities.valueFromBodyInput("foo", "input"));
+    assertEquals("", httpUtilities.valueFromBodyInput("foo", "not there"));
+
+    handler.shutdown();
+  }
+
+  public void testValuesFromBodyInput() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("foo"));
+
+    handler.setBody("<body><input name='foo'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("foo"));
+
+    // input tags should be empty. The content has no meaning
+    handler.setBody("<body><input name='foo' value='bah'>foo</input>" +
+                    "<input type='hidden' name='foo' value='blah'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals(asList("bah", "blah"),
+                 httpUtilities.valuesFromBodyInput("foo"));
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("bah"));
+    assertEquals(asList("blah"),
+                 httpUtilities.valuesFromBodyInput("foo", "bah"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromBodyInput("foo", "blah"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromBodyInput("foo", "not there"));
+
+    handler.shutdown();
+  }
+
   public void testValueFromHiddenInput() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
@@ -294,7 +354,8 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
 
     // input tags should be empty. The content has no meaning
-    handler.setBody("<body><input type='hidden' name='foo' value='bah'>foo</input></body>");
+    handler.setBody("<body><input name='foo' value='blah'>foo</input>" +
+                    "<input type='hidden' name='foo' value='bah'>foo</input></body>");
     request.GET(handler.getURL());
     assertEquals("bah", httpUtilities.valueFromHiddenInput("foo"));
     assertEquals("", httpUtilities.valueFromHiddenInput("bah"));

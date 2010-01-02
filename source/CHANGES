@@ -23,6 +23,10 @@ The Grinder 3.4 (not yet released)
    valuesFromBodyURI() methods to HTTPUtilities. Thanks to Anil Jacob
    for the request.
 
+   Fulfil feature request 2841789 - added valueFromBodyInput() and
+   valuesFromBodyInput() methods to HTTPUtilities. Thanks to Satheesh
+   Babu Vattekkat for the request.
+
 
 The Grinder 3.3
 ---------------
