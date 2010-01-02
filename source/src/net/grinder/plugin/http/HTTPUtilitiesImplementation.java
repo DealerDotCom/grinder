@@ -21,6 +21,8 @@
 
 package net.grinder.plugin.http;
 
+import static java.util.Collections.emptyList;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -139,6 +141,23 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     return getParsedBody(response).valueFromHiddenInput(tokenName, afterText);
   }
 
+  public List<String> valuesFromHiddenInput(final String tokenName)
+    throws GrinderException {
+    return valuesFromHiddenInput(tokenName, null);
+  }
+
+  public List<String> valuesFromHiddenInput(String tokenName, String afterText)
+    throws GrinderException {
+
+    final HTTPResponse response = getLastResponse();
+
+    if (response == null) {
+      return emptyList();
+    }
+
+    return getParsedBody(response).valuesFromHiddenInput(tokenName, afterText);
+  }
+
   public String valueFromBodyURI(final String tokenName)
     throws GrinderException {
     return valueFromBodyURI(tokenName, null);
@@ -156,6 +175,24 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     return getParsedBody(response).valueFromBodyURI(tokenName, afterText);
   }
 
+  public List<String> valuesFromBodyURI(final String tokenName)
+    throws GrinderException {
+    return valuesFromBodyURI(tokenName, null);
+  }
+
+  public List<String> valuesFromBodyURI(final String tokenName,
+                                        String afterText)
+    throws GrinderException {
+
+    final HTTPResponse response = getLastResponse();
+
+    if (response == null) {
+      return emptyList();
+    }
+
+    return getParsedBody(response).valuesFromBodyURI(tokenName, afterText);
+  }
+
   private ParsedBody getParsedBody(HTTPResponse response) {
     final ParsedBody original = m_parsedBodyThreadLocal.get();
 
@@ -163,8 +200,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
       return original;
     }
 
-    final ParsedBody newParsedBody =
-      new ParsedBody(response, this);
+    final ParsedBody newParsedBody = new ParsedBody(response, this);
     m_parsedBodyThreadLocal.set(newParsedBody);
     return newParsedBody;
   }
@@ -202,32 +238,20 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     }
 
     public String valueFromHiddenInput(String tokenName, String afterText) {
+      return m_hiddenInputMatchList.getMatchValue(tokenName, afterText);
+    }
 
-      final int startFrom = getStartFrom(afterText);
-
-      if (startFrom == -1) {
-        return "";
-      }
-
-      return m_hiddenInputMatchList.getTokenValue(tokenName, startFrom);
+    public List<String> valuesFromHiddenInput(String tokenName,
+                                              String afterText) {
+      return m_hiddenInputMatchList.getMatchValues(tokenName, afterText);
     }
 
     public String valueFromBodyURI(String tokenName, String afterText) {
-
-      final int startFrom = getStartFrom(afterText);
-
-      if (startFrom == -1) {
-        return "";
-      }
-
-      return m_bodyURIMatchList.getTokenValue(tokenName, startFrom);
+      return m_bodyURIMatchList.getMatchValue(tokenName, afterText);
     }
 
-    private int getStartFrom(String text) {
-      // afterText parameter is infrequently used, so memoizing this
-      // method would cost more than it saved.
-
-      return text == null ? 0 : m_body.indexOf(text);
+    public List<String> valuesFromBodyURI(String tokenName, String afterText) {
+      return m_bodyURIMatchList.getMatchValues(tokenName, afterText);
     }
   }
 
@@ -249,113 +273,162 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
     }
   }
 
-  private static class CachedValueList {
-    private final List<PositionAndValue> m_valuesByPosition =
-      new ArrayList<PositionAndValue>();
+  private static final class Match {
+    private final int m_position;
+    private final String m_value;
 
-    public void addValue(int position, String value) {
-      m_valuesByPosition.add(new PositionAndValue(position, value));
+    public Match(int position, String value) {
+      m_position = position;
+      m_value = value;
     }
 
-    public String getValue(int startFrom) {
-      for (PositionAndValue positionAndValue : m_valuesByPosition) {
-        if (positionAndValue.getPosition() >= startFrom) {
-          return positionAndValue.getValue();
+    public int getPosition() {
+      return m_position;
+    }
+
+    public String getValue() {
+      return m_value;
+    }
+  }
+
+  private static class CachedMatchList {
+    private final List<Match> m_matchesByPosition = new ArrayList<Match>();
+    private int m_lastPosition = -1;
+
+    public void addMatch(Match match) {
+      m_matchesByPosition.add(match);
+      m_lastPosition = match.getPosition();
+    }
+
+    public Match getMatchFrom(int startFrom) {
+      if (m_lastPosition >= startFrom) {
+        for (Match match : m_matchesByPosition) {
+          if (match.getPosition() >= startFrom) {
+            return match;
+          }
         }
       }
 
       return null;
     }
-
-    private static final class PositionAndValue {
-      private final int m_position;
-      private final String m_value;
-
-      public PositionAndValue(int position, String value) {
-        m_position = position;
-        m_value = value;
-      }
-
-      public int getPosition() {
-        return m_position;
-      }
-
-      public String getValue() {
-        return m_value;
-      }
-    }
   }
 
   private interface MatchList {
-    String getTokenValue(String tokenName, int startFrom);
+
+    String getMatchValue(String tokenName, String afterText);
+
+    List<String> getMatchValues(String tokenName, String afterText);
   }
 
   private static class CachedValueMap {
-    private final Map<String, CachedValueList> m_map =
-      new HashMap<String, CachedValueList>();
+    private final Map<String, CachedMatchList> m_map =
+      new HashMap<String, CachedMatchList>();
 
-    public CachedValueList get(String tokenName) {
-      final CachedValueList existing = m_map.get(tokenName);
+    public CachedMatchList get(String tokenName) {
+      final CachedMatchList existing = m_map.get(tokenName);
 
       if (existing != null) {
         return existing;
       }
 
-      final CachedValueList newCachedValueList = new CachedValueList();
+      final CachedMatchList newCachedValueList = new CachedMatchList();
       m_map.put(tokenName, newCachedValueList);
       return newCachedValueList;
     }
-
   }
 
   private abstract static class AbstractMatchList implements MatchList {
+    private final String m_body;
     private final Matcher m_matcher;
     private final CachedValueMap m_cache = new CachedValueMap();
 
-    public AbstractMatchList(Matcher matcher) {
+    public AbstractMatchList(String body, Matcher matcher) {
+      m_body = body;
       m_matcher = matcher;
     }
 
-    public final String getTokenValue(String tokenName, int startFrom) {
+    public String getMatchValue(String tokenName, String afterText) {
+      final int startFrom = getStartFrom(afterText);
 
-      final CachedValueList cachedValueList = m_cache.get(tokenName);
-
-      final String existingValue = cachedValueList.getValue(startFrom);
-
-      if (existingValue != null) {
-        return existingValue;
+      if (startFrom == -1) {
+        return "";
       }
 
+      final CachedMatchList cachedValueList = m_cache.get(tokenName);
+
+      final Match match = getMatch(cachedValueList, tokenName, startFrom);
+      return match != null ? match.getValue() : "";
+    }
+
+    public List<String> getMatchValues(String tokenName, String afterText) {
+
+      int startFrom = getStartFrom(afterText);
+
+      if (startFrom == -1) {
+        return emptyList();
+      }
+
+      final CachedMatchList cachedValueList = m_cache.get(tokenName);
+
+      final List<String> result = new ArrayList<String>();
+
+      while (true) {
+        final Match match = getMatch(cachedValueList, tokenName, startFrom);
+
+        if (match == null) {
+          return result;
+        }
+
+        result.add(match.getValue());
+        startFrom = match.getPosition() + 1;
+      }
+    }
+
+    private Match getMatch(CachedMatchList cachedValueList,
+                           String tokenName,
+                           int startFrom) {
+
+      final Match existingMatch = cachedValueList.getMatchFrom(startFrom);
+
+      if (existingMatch != null) {
+        return existingMatch;
+      }
+
+      Match result = null;
+
       // Cache miss, parse more of the body.
-      while (m_matcher.find()) {
+      while (result == null && m_matcher.find()) {
         final NameValue[] nameValueArray = parseMatch();
 
         final int matchPosition = m_matcher.start();
 
-        String result = null;
-
         for (int i = 0; i < nameValueArray.length; ++i) {
           final String name = nameValueArray[i].getName();
-          final String value = nameValueArray[i].getValue();
+
+          final Match match = new Match(matchPosition,
+                                        nameValueArray[i].getValue());
 
           if (name.equals(tokenName)) {
-            cachedValueList.addValue(matchPosition, value);
+            cachedValueList.addMatch(match);
 
             if (result == null && matchPosition >= startFrom) {
-              result = value;
+              result = match;
             }
           }
           else {
-            m_cache.get(name).addValue(matchPosition, value);
+            m_cache.get(name).addMatch(match);
           }
-        }
-
-        if (result != null) {
-          return result;
         }
       }
 
-      return "";
+      return result;
+    }
+
+    private int getStartFrom(String text) {
+      // afterText parameter is infrequently used, so memoizing this
+      // method would cost more than it saved.
+
+      return text == null ? 0 : m_body.indexOf(text);
     }
 
     protected final Matcher getMatcher() {
@@ -368,7 +441,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
   private final class HiddenInputMatchList extends AbstractMatchList {
 
     public HiddenInputMatchList(String body) {
-      super(m_regularExpressions.getHiddenInputPattern().matcher(body));
+      super(body, m_regularExpressions.getHiddenInputPattern().matcher(body));
     }
 
     protected NameValue[] parseMatch() {
@@ -389,7 +462,7 @@ class HTTPUtilitiesImplementation implements HTTPUtilities {
   private final class BodyURIMatchList extends AbstractMatchList {
 
     public BodyURIMatchList(String body) {
-      super(m_regularExpressions.getHyperlinkURIPattern().matcher(body));
+      super(body, m_regularExpressions.getHyperlinkURIPattern().matcher(body));
     }
 
     protected NameValue[] parseMatch() {

@@ -21,6 +21,10 @@
 
 package net.grinder.plugin.http;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.Arrays.asList;
+
 import net.grinder.common.GrinderException;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -221,6 +225,59 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     handler.shutdown();
   }
 
+  public void testValuesFromBodyURI() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+
+    handler.setBody(
+      "<body><a href='http://www.w3.org/pub/WWW/People.html'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+
+    handler.setBody(
+      "<body><a href='http://www.w3.org/pub/WWW/People.html?foo=bah&lah=dah'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals(singletonList("bah"), httpUtilities.valuesFromBodyURI("foo"));
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("bah"));
+
+    handler.setBody(
+      "<body><a href='http://www.w3.org/pub/WWW/People.html;foo=?foo=bah&lah=dah'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals(singletonList(""), httpUtilities.valuesFromBodyURI("foo"));
+    assertEquals(singletonList("dah"), httpUtilities.valuesFromBodyURI("lah"));
+
+    handler.setBody(
+    "<body><a href='http://www.w3.org/pub/WWW/People.html;JSESSIONID=1234'>foo</a>" +
+    "<a href='http://www.w3.org/pub/WWW/People.html;JSESSIONID=5678'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals(asList("1234", "5678"),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID"));
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+
+    handler.addHeader("Content-type", "garbage");
+    request.GET(handler.getURL());
+    assertEquals(asList("1234", "5678"),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID"));
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+    assertEquals(asList("1234", "5678"),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID", "<body>"));
+    assertEquals(asList("5678"),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID", "</a>"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID", "5"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID", "999"));
+
+    handler.shutdown();
+  }
+
   public void testValueFromHiddenInput() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
@@ -244,6 +301,38 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("bah", httpUtilities.valueFromHiddenInput("foo", "<body>"));
     assertEquals("", httpUtilities.valueFromHiddenInput("foo", "input"));
     assertEquals("", httpUtilities.valueFromHiddenInput("foo", "not there"));
+
+    handler.shutdown();
+  }
+
+  public void testValuesFromHiddenInput() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("foo"));
+
+    handler.setBody("<body><input type='hidden' name='foo'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("foo"));
+
+    // input tags should be empty. The content has no meaning
+    handler.setBody("<body><input type='hidden' name='foo' value='bah'>foo</input>" +
+                    "<input type='hidden' name='foo' value='blah'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals(asList("bah", "blah"),
+                 httpUtilities.valuesFromHiddenInput("foo"));
+    assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("bah"));
+    assertEquals(asList("blah"),
+                 httpUtilities.valuesFromHiddenInput("foo", "bah"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromHiddenInput("foo", "blah"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromHiddenInput("foo", "not there"));
 
     handler.shutdown();
   }
