@@ -44,6 +44,13 @@
     <Bug pattern="RR_NOT_CHECKED" />
   </Match>
 
+  <!-- The object graph referenced by the thread local is correct. -->
+  <Match>
+    <Class
+      name="net.grinder.plugin.http.HTTPUtilitiesImplementation$ParsedBody" />
+    <Bug pattern="SIC_THREADLOCAL_DEADLY_EMBRACE" />
+  </Match>
+
   <!-- Swing forces our UI components to be serializable. We don't care. -->
   <Match>
     <Or>
