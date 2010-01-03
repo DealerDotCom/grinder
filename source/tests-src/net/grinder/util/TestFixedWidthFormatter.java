@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -285,5 +285,25 @@ public class TestFixedWidthFormatter extends TestCase {
 
     final String answer4 = formatter4.format(text4);
     assertEquals(answerText4, answer4);
+  }
+
+  public void testFlowOverflow() throws Exception {
+    final String text1 =
+      "Harness your hopes to the folks with the liquor with the ropes.\n" +
+      "Red, red ropes, periscopes;\n    they've got everything will ever " +
+      "need stored under the chair.";
+
+    final String answerText1 =
+      "Harness your hopes to the folks with the liquor with the ropes. " +
+      "Red, red ropes, periscopes;     they've got everything will ever " +
+      "need stored under the chair.";
+
+    final MultiLineFormatter formatter1 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
+                              FixedWidthFormatter.FLOW_OVERFLOW,
+                              16);
+
+    final String answer1 = formatter1.format(text1);
+    assertEquals(answerText1, answer1);
   }
 }

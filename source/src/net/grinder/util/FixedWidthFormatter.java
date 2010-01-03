@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,7 +27,7 @@ package net.grinder.util;
  *
  * <p>All white space is converted to plain spaces.</p>
  *
- * <p>When flow policy is <code>FLOW_WORD_WRAP</code>, newlines in the
+ * <p>When flow policy is {@code FLOW_WORD_WRAP}, newlines in the
  * source are treated as preferred line breaks.</p>
  *
  * @author Philip Aston
@@ -53,6 +53,9 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
   /** Constant indicating flow should be word-wrapped. */
   public static final int FLOW_WORD_WRAP = 10;
 
+  /** Constant indicating flow should overflow. */
+  public static final int FLOW_OVERFLOW = 11;
+
   /** Blank space to copy for padding. **/
   private static final char[] s_space = new char[256];
 
@@ -69,14 +72,17 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
   /**
    * Constructor.
    *
-   * @param alignment Alignment policy. One of {
-   * <code>ALIGN_LEFT</code>, <code>ALIGN_CENTRE</code>,
-   * <code>ALIGN_RIGHT</code> }
-   * @param flow Flow policy. One of { <code>FLOW_TRUNCATE</code>,
-   * <code>FLOW_WRAP</code>, <code>FLOW_WORD_WRAP</code> }
-   * @param width The cell width.
-   * @exception IllegalArgumentException If <code>alignment</code>,
-   * <code>flow</code> or <code>width</code> are invalid.
+   * @param alignment
+   *          Alignment policy. One of { {@code ALIGN_LEFT}, {@code
+   *          ALIGN_CENTRE}, {@code ALIGN_RIGHT} }
+   * @param flow
+   *          Flow policy. One of { {@code FLOW_TRUNCATE}, {@code FLOW_WRAP},
+   *          {@code FLOW_WORD_WRAP}, {@code FLOW_OVERFLOW} }
+   * @param width
+   *          The cell width.
+   * @exception IllegalArgumentException
+   *              If {@code alignment}, {@code flow} or
+   *              {@code width} is invalid.
    *
    */
   public FixedWidthFormatter(int alignment, int flow, int width) {
@@ -88,7 +94,8 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
 
     if (flow != FLOW_TRUNCATE &&
         flow != FLOW_WRAP &&
-        flow != FLOW_WORD_WRAP) {
+        flow != FLOW_WORD_WRAP &&
+        flow != FLOW_OVERFLOW) {
       throw new IllegalArgumentException("Invalid flow value");
     }
 
@@ -151,7 +158,7 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
   /**
    * Alter buffer to contain a single line according to the policy of
    * the formatter. Insert remaining text at the start of
-   * <code>remainder</code>.
+   * {@code remainder}.
    *
    * @param buffer Buffer to transform to a single line.
    * @param remainder Leftovers.
@@ -161,6 +168,9 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
     int length = buffer.length();
 
     switch (m_flow) {
+
+    case FLOW_OVERFLOW:
+      break;
 
     case FLOW_TRUNCATE:
       if (length > m_width) {

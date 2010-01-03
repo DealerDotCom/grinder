@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,7 +55,7 @@ public class StatisticsTable {
 
   private final FixedWidthFormatter m_rowLabelFormatter =
     new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_TRUNCATE,
+                            FixedWidthFormatter.FLOW_OVERFLOW,
                             COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_rowCellFormatter =

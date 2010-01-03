@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2005 Martin Wagner.
 // All rights reserved.
 //
@@ -86,6 +86,7 @@ public class TestStatisticsTable extends TestCase {
       new StubTest(9, "Test 9"),
       new StubTest(3, null),
       new StubTest(113, "Another test"),
+      new StubTest(12345678, "A test with a long name"),
     };
 
     final StatisticsSet[] statistics = new StatisticsSet[tests.length];
@@ -121,8 +122,9 @@ public class TestStatisticsTable extends TestCase {
     in.println("Test 3       1            2            3            0.50         ");
     in.println("Test 9       0            1            1            0.00          \"Test 9\"");
     in.println("Test 113     2            3            5            0.67          \"Another test\"");
+    in.println("Test 12345678 3            4            7            0.75          \"A test with a long name\"");
     in.println();
-    in.println("Totals       3            6            9            0.50         ");
+    in.println("Totals       6            10           16           0.60         ");
     in.close();
 
     final StatisticsTable table =
@@ -156,8 +158,9 @@ public class TestStatisticsTable extends TestCase {
     in.println("(Test 4      0            1            1            0.00)         \"T4\"");
     in.println("Test 9       0            1            1            0.00          \"Test 9\"");
     in.println("Test 113     2            3            5            0.67          \"Another test\"");
+    in.println("Test 12345678 3            4            7            0.75          \"A test with a long name\"");
     in.println();
-    in.println("Totals       3            6            9            0.50         ");
+    in.println("Totals       6            10           16           0.60         ");
     in.println("             (0)                                                 ");
     in.close();
 

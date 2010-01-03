@@ -27,6 +27,9 @@ The Grinder 3.4 (not yet released)
    valuesFromBodyInput() methods to HTTPUtilities. Thanks to Satheesh
    Babu Vattekkat for the request.
 
+   Fix bug 2816501 - Test numbers larger than 6 digits get truncated
+   in out file. Thanks to Vivin Paliath for the report.
+
 
 The Grinder 3.3
 ---------------
