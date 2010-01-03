@@ -30,6 +30,9 @@ The Grinder 3.4 (not yet released)
    Fix bug 2816501 - Test numbers larger than 6 digits get truncated
    in out file. Thanks to Vivin Paliath for the report.
 
+   Fix bug 2501418 - Handle socket lingering properly. Thanks to Dawid
+   Weiss for the report and suggested fixes.
+
 
 The Grinder 3.3
 ---------------

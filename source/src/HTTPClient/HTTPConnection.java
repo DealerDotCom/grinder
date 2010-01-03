@@ -3396,6 +3396,9 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			    sock = new Socket(addr_list[idx], actual_port,
 					      LocalAddr, LocalPort);
                         /** ++GRINDER MODIFICATION **/
+                        sock.setSoLinger(true, 0);
+                        sock.setKeepAlive(false);
+
 			// capture time for initial connection
 			con_time = getTimeAuthority().getTimeInMilliseconds();
 			/** --GRINDER MODIFICATION **/
@@ -4053,6 +4056,9 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 				sock = new Socket(addr_list[idx], actual_port,
 						  LocalAddr, LocalPort);
                             /** ++GRINDER MODIFICATION */
+                            sock.setSoLinger(true, 0);
+                            sock.setKeepAlive(false);
+
                             // capture time for initial connection
                             con_time =
                               getTimeAuthority().getTimeInMilliseconds();

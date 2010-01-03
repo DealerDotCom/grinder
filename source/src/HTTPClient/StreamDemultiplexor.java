@@ -28,6 +28,10 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
+ *
  */
 
 package HTTPClient;
@@ -729,7 +733,10 @@ class StreamDemultiplexor implements GlobalConstants
 		try
 		{
 		    try
-			{ Sock.setSoLinger(false, 0); }
+                      /** ++GRINDER MODIFICATION **/
+                        // { Sock.setSoLinger(false, 0); }
+			{ Sock.setSoLinger(true, 0); }
+                      /** --GRINDER MODIFICATION **/
 		    catch (SocketException se)
 			{ }
 
