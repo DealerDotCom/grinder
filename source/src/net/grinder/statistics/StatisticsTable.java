@@ -49,23 +49,23 @@ public class StatisticsTable {
   private final String m_lineSeparator = System.getProperty("line.separator");
 
   private final FixedWidthFormatter m_headingFormatter =
-    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_WORD_WRAP,
+    new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                            FixedWidthFormatter.Flow.WORD_WRAP,
                             COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_rowLabelFormatter =
-    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_OVERFLOW,
+    new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                            FixedWidthFormatter.Flow.OVERFLOW,
                             COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_rowCellFormatter =
-    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_TRUNCATE,
+    new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                            FixedWidthFormatter.Flow.TRUNCATE,
                             COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_freeTextFormatter =
-    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_WORD_WRAP,
+    new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                            FixedWidthFormatter.Flow.WORD_WRAP,
                             72);
 
   private final StatisticsView m_statisticsView;

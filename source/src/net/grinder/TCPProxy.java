@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003, 2004, 2005 Bertrand Ave
 // Copyright (C) 2007 Venelin Mitov
@@ -149,8 +149,8 @@ public final class TCPProxy extends AbstractMainClass {
                        new PrintWriter(System.out),
                        new PrintWriter(System.err),
                        new FixedWidthFormatter(
-                         FixedWidthFormatter.ALIGN_LEFT,
-                         FixedWidthFormatter.FLOW_WORD_WRAP,
+                         FixedWidthFormatter.Align.LEFT,
+                         FixedWidthFormatter.Flow.WORD_WRAP,
                          80));
 
     try {
