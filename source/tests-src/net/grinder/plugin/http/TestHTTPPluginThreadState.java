@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2009 Philip Aston
+// Copyright (C) 2007 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -113,6 +113,7 @@ public class TestHTTPPluginThreadState extends TestCase {
 
   public void testSetResponse() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
 
     try {
       final HTTPConnection connection =

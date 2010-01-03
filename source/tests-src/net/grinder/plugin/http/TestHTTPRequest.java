@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -130,6 +130,7 @@ public class TestHTTPRequest extends TestCase {
     m_statisticsStubFactory.resetCallHistory();
 
     m_handler = new HTTPRequestHandler();
+    m_handler.start();
   }
 
   protected void tearDown() throws Exception {
@@ -793,6 +794,7 @@ public class TestHTTPRequest extends TestCase {
           response.append(" Moved Temporarily\r\n"); // whatever
         }
       };
+      handler.start();
 
       final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
       m_scriptContextStubFactory.setResult("getLogger",
@@ -828,6 +830,8 @@ public class TestHTTPRequest extends TestCase {
         response.append("HTTP/1.0 400 Bad Request\r\n");
       }
     };
+
+    handler.start();
 
     final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     m_scriptContextStubFactory.setResult("getLogger",
@@ -1208,6 +1212,7 @@ public class TestHTTPRequest extends TestCase {
 
     final HTTPRequestHandler httpServer = new HTTPRequestHandler();
     httpServer.setResponseDelay(100);
+    httpServer.start();
 
     final HTTPPluginConnectionDefaults connectionDefaults =
       HTTPPluginConnectionDefaults.getConnectionDefaults();
@@ -1224,17 +1229,23 @@ public class TestHTTPRequest extends TestCase {
       catch (TimeoutException e) {
       }
 
+      // Need another HTTPRequestHandler - the first will have closed its
+      // socket.
+      final HTTPRequestHandler httpServer2 = new HTTPRequestHandler();
+      httpServer2.setResponseDelay(100);
+      httpServer2.start();
+
       final HTTPPluginConnection connection =
-        HTTPPluginControl.getThreadConnection(httpServer.getURL());
+        HTTPPluginControl.getThreadConnection(httpServer2.getURL());
 
       connection.setTimeout(0);
-      final HTTPResponse response = new HTTPRequest().GET(httpServer.getURL());
+      final HTTPResponse response = new HTTPRequest().GET(httpServer2.getURL());
       assertEquals("", response.getText());
 
       connection.setTimeout(1);
 
       try {
-        new HTTPRequest().GET(httpServer.getURL());
+        new HTTPRequest().GET(httpServer2.getURL());
         fail("Expected TimeoutException");
       }
       catch (TimeoutException e) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2009 Philip Aston
+// Copyright (C) 2006 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -131,6 +131,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
 
     // HTTPClient isn't hot on interfaces, so we can't stub these.
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     final HTTPRequest request = new HTTPRequest();
     final HTTPResponse httpResponse = request.GET(handler.getURL());
 
@@ -147,6 +148,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromLocationURI("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals("", httpUtilities.valueFromLocationURI("foo"));
 
@@ -186,6 +188,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromBodyURI("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals("", httpUtilities.valueFromBodyURI("foo"));
 
@@ -233,6 +236,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
 
@@ -286,6 +290,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromBodyInput("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals("", httpUtilities.valueFromBodyInput("foo"));
 
@@ -314,6 +319,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("foo"));
 
@@ -346,6 +352,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
 
@@ -374,6 +381,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("foo"));
 

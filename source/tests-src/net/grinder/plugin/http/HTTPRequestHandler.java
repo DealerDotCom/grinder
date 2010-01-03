@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,12 +29,12 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.grinder.common.UncheckedInterruptedException;
-
 import junit.framework.Assert;
+import net.grinder.common.UncheckedInterruptedException;
 import HTTPClient.NVPair;
 
 
@@ -63,12 +63,24 @@ class HTTPRequestHandler extends Assert implements Runnable {
   private String m_lastRequestHeaders;
   private byte[] m_lastRequestBody;
   private String m_body;
+  private AtomicBoolean m_started = new AtomicBoolean();
 
   private long m_responseDelay = 0;
 
   public HTTPRequestHandler() throws Exception {
     m_serverSocket = new ServerSocket(0);
+  }
+
+  public void start() throws InterruptedException {
+    if (m_started.get()) {
+      throw new AssertionError("Already started");
+    }
+
     new Thread(this, getClass().getName()).start();
+
+    while (!m_started.get()) {
+      Thread.sleep(1);
+    }
   }
 
   public final void shutdown() throws Exception {
@@ -132,6 +144,8 @@ class HTTPRequestHandler extends Assert implements Runnable {
 
   public final void run() {
     try {
+      m_started.set(true);
+
       while (true) {
         final Socket localSocket;
 
@@ -232,7 +246,8 @@ class HTTPRequestHandler extends Assert implements Runnable {
       }
     }
     catch (IOException e) {
-      e.printStackTrace();
+      // Ignore, it might be expected The caller will have to call start()
+      // again.
     }
     finally {
       try {
