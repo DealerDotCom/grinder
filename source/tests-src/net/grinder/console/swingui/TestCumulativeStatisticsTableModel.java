@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -170,6 +170,21 @@ public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
     final StringWriter writer = new StringWriter();
 
     model.write(writer, "::", "**");
+
+    assertEquals("Test Column::Test Description Column::Tests::Errors::Mean Test Time (ms)::Test Time Standard Deviation (ms)::TPS::**Total Label::::0::0::::0.0::::**",
+                 writer.toString());
+  }
+
+  public void testWriteWithoutTotals() throws Exception {
+    final CumulativeStatisticsTableModel model =
+      new CumulativeStatisticsTableModel(m_sampleModel,
+                                         m_sampleModelViews,
+                                         m_resources,
+                                         m_swingDispatcherFactory);
+
+    final StringWriter writer = new StringWriter();
+
+    model.writeWithoutTotals(writer, "::", "**");
 
     assertEquals("Test Column::Test Description Column::Tests::Errors::Mean Test Time (ms)::Test Time Standard Deviation (ms)::TPS::**",
                  writer.toString());

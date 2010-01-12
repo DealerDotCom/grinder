@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -130,6 +130,10 @@ public final class ConsoleProperties {
   public static final String FRAME_BOUNDS_PROPERTY =
     "grinder.console.frameBounds";
 
+  /** Property name. */
+  public static final String SAVE_TOTALS_WITH_RESULTS_PROPERTY =
+    "grinder.console.saveTotalsWithResults";
+
   private final PropertyChangeSupport m_changeSupport =
     new PropertyChangeSupport(this);
 
@@ -197,6 +201,9 @@ public final class ConsoleProperties {
 
   private final IntProperty m_consolePort =
     new IntProperty(CONSOLE_PORT_PROPERTY, CommunicationDefaults.CONSOLE_PORT);
+
+  private final BooleanProperty m_saveTotalsWithResults =
+    new BooleanProperty(SAVE_TOTALS_WITH_RESULTS_PROPERTY, false);
 
   private final Resources m_resources;
 
@@ -275,6 +282,7 @@ public final class ConsoleProperties {
       properties.getStartWithUnsavedBuffersAsk());
     m_stopProcessesAsk.set(properties.getStopProcessesAsk());
     m_distributeOnStartAsk.set(properties.getDistributeOnStartAsk());
+    m_saveTotalsWithResults.set(properties.getSaveTotalsWithResults());
   }
 
   /**
@@ -804,6 +812,27 @@ public final class ConsoleProperties {
     m_frameBounds.set(bounds);
     m_frameBounds.save();
   }
+
+  /**
+   * Get whether saved results files should include the Totals line.
+   *
+   * @return {@code true} => results files should include totals.
+   */
+  public boolean getSaveTotalsWithResults() {
+    return m_saveTotalsWithResults.get();
+  }
+
+  /**
+   * Set whether saved results files should include the Totals line.
+   *
+   * @param b {@code true} => results files should include totals.
+   * @throws ConsoleException If the property couldn't be persisted.
+   */
+  public void setSaveTotalsWithResults(boolean b) throws ConsoleException {
+    m_saveTotalsWithResults.set(b);
+    m_saveTotalsWithResults.save();
+  }
+
 
   private abstract class Property {
     private final String m_propertyName;

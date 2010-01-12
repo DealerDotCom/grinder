@@ -36,6 +36,10 @@ The Grinder 3.4 (not yet released)
    Fix bug 2837600 - Content-type header written instead of Content-Type.
    Thanks to Guido Serra for the report.
 
+   Implement feature request 887214 - the console now optionally includes
+   the totals line in saved results. Thanks to Karol Muszynski for
+   prompting me to implement this.
+
 
 The Grinder 3.3
 ---------------

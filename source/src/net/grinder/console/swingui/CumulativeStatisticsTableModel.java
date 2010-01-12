@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -125,13 +125,13 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel {
     }
   }
 
-  public synchronized void write(Writer writer, String columnDelimiter,
-                                 String lineDelimeter)
+  public synchronized void writeWithoutTotals(Writer writer,
+                                              String columnDelimiter,
+                                              String lineDelimeter)
     throws IOException {
 
     try {
       m_includeTotals = false;
-
       super.write(writer, columnDelimiter, lineDelimeter);
     }
     finally {

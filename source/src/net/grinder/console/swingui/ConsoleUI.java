@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,6 +55,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -782,6 +783,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
   private final class SaveResultsAction extends CustomAction {
     private final JFileChooser m_fileChooser = new JFileChooser(".");
+    private final JCheckBox m_saveTotalsCheckBox;
 
     SaveResultsAction() {
       super(m_resources, "save-results", true);
@@ -793,13 +795,20 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
       m_fileChooser.setSelectedFile(
         new File(m_resources.getString("default.filename")));
 
+      m_saveTotalsCheckBox =
+        new JCheckBox(m_resources.getString("saveResults.includeTotals.label"));
+      m_saveTotalsCheckBox.setSelected(
+        m_properties.getSaveTotalsWithResults());
+
+      m_fileChooser.setAccessory(m_saveTotalsCheckBox);
+
       m_lookAndFeel.addListener(
         new LookAndFeel.ComponentListener(m_fileChooser));
     }
 
     public void actionPerformed(ActionEvent event) {
       if (m_fileChooser.showSaveDialog(m_frame) ==
-        JFileChooser.APPROVE_OPTION) {
+          JFileChooser.APPROVE_OPTION) {
 
         final File file = m_fileChooser.getSelectedFile();
 
@@ -815,8 +824,19 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
         FileWriter writer = null;
         try {
           writer = new FileWriter(file);
-          m_cumulativeTableModel.write(writer, "\t",
-                                       System.getProperty("line.separator"));
+
+          final String lineSeparator = System.getProperty("line.separator");
+
+          if (m_saveTotalsCheckBox.isSelected()) {
+            m_cumulativeTableModel.write(writer,
+                                         "\t",
+                                         lineSeparator);
+          }
+          else {
+            m_cumulativeTableModel.writeWithoutTotals(writer,
+                                                      "\t",
+                                                      lineSeparator);
+          }
         }
         catch (IOException e) {
           UncheckedInterruptedException.ioException(e);
@@ -826,6 +846,14 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
         }
         finally {
           Closer.close(writer);
+        }
+
+        try {
+          m_properties.setSaveTotalsWithResults(
+            m_saveTotalsCheckBox.isSelected());
+        }
+        catch (ConsoleException e) {
+          getErrorHandler().handleException(e);
         }
       }
     }
