@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,7 +56,7 @@ final class HTTPResponse {
   }
 
   public void setMessage(String title, HTMLElement text) {
-    setHeader("Content-type", "text/html");
+    setHeader("Content-Type", "text/html");
     setHeader("Connection", "close");
 
     final HTMLDocument document = new HTMLDocument();

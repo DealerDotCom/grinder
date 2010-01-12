@@ -33,6 +33,9 @@ The Grinder 3.4 (not yet released)
    Fix bug 2501418 - Handle socket lingering properly. Thanks to Dawid
    Weiss for the report and suggested fixes.
 
+   Fix bug 2837600 - Content-type header written instead of Content-Type.
+   Thanks to Guido Serra for the report.
+
 
 The Grinder 3.3
 ---------------

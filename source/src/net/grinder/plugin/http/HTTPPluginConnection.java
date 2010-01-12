@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2008 Philip Aston
+// Copyright (C) 2002 - 2010 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
@@ -99,29 +99,30 @@ public interface HTTPPluginConnection {
   /**
    * Sets the default HTTP headers to be sent with each request.
    *
-   * <p> The actual headers sent are determined as follows: for each
-   * header specified in multiple places a value given as part of
-   * the request takes priority over any default values set by this
-   * method, which in turn takes priority over any built-in default
-   * values. A different way of looking at it is that we start off
-   * with a list of all headers specified with the request, then add
-   * any default headers set by this method which aren't already in
-   * our list, and finally add any built-in headers which aren't yet
-   * in the list. There is one exception to this rule:
-   * <code>Content-length</code> header is always ignored; and when
-   * posting form-data any <code>Content-type</code> is ignored in
-   * favor of the built-in
-   * <code>application/x-www-form-urlencoded</code> (however it will
-   * be overriden by any content-type header specified as part of
-   * the request).</p>
+   * <p>
+   * The actual headers sent are determined as follows: for each header
+   * specified in multiple places a value given as part of the request takes
+   * priority over any default values set by this method, which in turn takes
+   * priority over any built-in default values. A different way of looking at it
+   * is that we start off with a list of all headers specified with the request,
+   * then add any default headers set by this method which aren't already in our
+   * list, and finally add any built-in headers which aren't yet in the list.
+   * There is one exception to this rule: {@code Content-Length} header is
+   * always ignored; and when posting form-data any {@code Content-Type} is
+   * ignored in favor of the built-in {@code application/x-www-form-urlencoded}
+   * (however it will be overridden by any content-type header specified as part
+   * of the request).
+   * </p>
    *
-   * <p>Typical headers you might want to set here are
-   * <code>Accept</code> and its <code>Accept-*</code> relatives,
-   * <code>Connection</code>, <code>From</code>,
-   * <code>User-Agent</code>, etc.</p>
+   * <p>
+   * Typical headers you might want to set here are {@code Accept} and its
+   * {@code Accept-*} relatives, {@code Connection}, {@code From}, {@code
+   * User-Agent}, etc.
+   * </p>
    *
-   * @param defaultHeaders an array of header-name/value pairs (do
-   * not give the separating ':').
+   * @param defaultHeaders
+   *          an array of header-name/value pairs (do not give the separating
+   *          ':').
    */
   void setDefaultHeaders(NVPair[] defaultHeaders);
 

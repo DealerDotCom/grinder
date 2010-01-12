@@ -54,7 +54,7 @@ public class TestHTTPResponse extends TestCase {
     response.setMessage("Test", message);
 
     final String result2 = response.toString();
-    AssertUtilities.assertContainsHeader(result2, "Content-type", "text/html");
+    AssertUtilities.assertContainsHeader(result2, "Content-Type", "text/html");
     AssertUtilities.assertContainsHeader(result2, "Connection", "close");
 
     AssertUtilities.assertContainsPattern(result2,

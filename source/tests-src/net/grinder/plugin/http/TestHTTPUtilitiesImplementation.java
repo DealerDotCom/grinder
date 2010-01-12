@@ -265,7 +265,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
                  httpUtilities.valuesFromBodyURI("JSESSIONID"));
     assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
 
-    handler.addHeader("Content-type", "garbage");
+    handler.addHeader("Content-Type", "garbage");
     request.GET(handler.getURL());
     assertEquals(asList("1234", "5678"),
                  httpUtilities.valuesFromBodyURI("JSESSIONID"));

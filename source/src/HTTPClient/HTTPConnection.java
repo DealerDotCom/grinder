@@ -1056,8 +1056,11 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		throws IOException, ModuleException
     {
 	NVPair[] headers =
-	    { new NVPair("Content-type", "application/x-www-form-urlencoded") };
-
+        /** ++GRINDER MODIFICATION **/
+        // { new NVPair("Content-type", "application/x-www-form-urlencoded") };
+        { new NVPair("Content-Type", "application/x-www-form-urlencoded") };
+        /** --GRINDER MODIFICATION **/
+	
 	return Post(file, Codecs.nv2query(form_data), headers);
     }
 
@@ -1087,7 +1090,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	{
 	    headers = Util.resizeArray(headers, idx+1);
 	    headers[idx] =
-		new NVPair("Content-type", "application/x-www-form-urlencoded");
+	    /** ++GRINDER MODIFICATION **/
+	    // new NVPair("Content-type", "application/x-www-form-urlencoded");
+	    new NVPair("Content-Type", "application/x-www-form-urlencoded");
+        /** --GRINDER MODIFICATION **/
 	}
 
 	return Post(file, Codecs.nv2query(form_data), headers);
@@ -3805,7 +3811,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
 	if (req.getData() != null  ||  req.getStream() != null)
 	{
-	    dataout.writeBytes("Content-type: ");
+        /* ++GRINDER MDDIFICATION */
+        // dataout.writeBytes("Content-type: ");
+        dataout.writeBytes("Content-Type: ");
+        /* --GRINDER MDDIFICATION */
 	    if (ct_idx != -1)
 		dataout.writeBytes(hdrs[ct_idx].getValue().trim());
 	    else

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -241,7 +241,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     AssertUtilities.assertStartsWith(response, "HTTP/1.0 400 Bad Request");
     AssertUtilities.assertContainsHeader(response, "Connection", "close");
-    AssertUtilities.assertContainsHeader(response, "Content-type", "text/html");
+    AssertUtilities.assertContainsHeader(response, "Content-Type", "text/html");
     AssertUtilities.assertContains(response, message);
 
     clientSocket.close();
@@ -281,7 +281,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     AssertUtilities.assertStartsWith(response3, "HTTP/1.0 400 Bad Request");
     AssertUtilities.assertContainsHeader(response3, "Connection", "close");
-    AssertUtilities.assertContainsHeader(response3, "Content-type", "text/html");
+    AssertUtilities.assertContainsHeader(response3, "Content-Type", "text/html");
 
     clientSocket3.close();
 
