@@ -1001,11 +1001,17 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
       m_editorModel.addListener(new EditorModel.AbstractListener() {
           public void bufferStateChanged(Buffer ignored) {
-            final Buffer buffer = m_editorModel.getSelectedBuffer();
-
-            setEnabled(buffer != null && buffer.isDirty());
+            setEnabled(shouldEnable());
           }
         });
+
+      setEnabled(shouldEnable());
+    }
+
+    private boolean shouldEnable() {
+      final Buffer buffer = m_editorModel.getSelectedBuffer();
+
+      return buffer != null && buffer.isDirty();
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1044,9 +1050,11 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
       m_editorModel.addListener(new EditorModel.AbstractListener() {
           public void bufferStateChanged(Buffer ignored) {
-            setEnabled(m_editorModel.getSelectedBuffer() != null);
+            setEnabled(shouldEnable());
           }
         });
+
+      setEnabled(shouldEnable());
 
       m_fileChooser.setDialogTitle(
         MnemonicHeuristics.removeMnemonicMarkers(
@@ -1068,6 +1076,10 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
       m_lookAndFeel.addListener(
         new LookAndFeel.ComponentListener(m_fileChooser));
+    }
+
+    private boolean shouldEnable() {
+      return m_editorModel.getSelectedBuffer() != null;
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1172,9 +1184,15 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
       m_editorModel.addListener(new EditorModel.AbstractListener() {
           public void bufferStateChanged(Buffer ignored) {
-            setEnabled(m_editorModel.getSelectedBuffer() != null);
+            setEnabled(shouldEnable());
           }
         });
+
+      setEnabled(shouldEnable());
+    }
+
+    private boolean shouldEnable() {
+      return m_editorModel.getSelectedBuffer() != null;
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1228,8 +1246,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
     }
   }
 
-  private class EnableIfAgentsConnected
-    implements ProcessControl.Listener {
+  private class EnableIfAgentsConnected implements ProcessControl.Listener {
 
     private final Action m_action;
 
