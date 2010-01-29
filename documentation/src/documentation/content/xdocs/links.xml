@@ -15,6 +15,29 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="ext:grinder-agent-installer">The Grinder Agent Installer</a>
+      </td>
+
+      <td></td>
+
+      <td>
+	  The Grinder Agent Installer is useful when you want to
+	  execute load tests in a heterogeneous context, and to
+	  simulate real users accessing the target application through
+	  a firewall, 3G, VPN, direct (router) and from different
+	  locales, where you haven't access to all this computers for
+	  run the agent.
+
+	  <p>It provides an installer any user can install and execute
+	  with only click next and provisioning some data in a graphic
+	  environment. You only have to wait the connections in the
+	  console.</p>
+      </td>
+    </tr>
+
+
+    <tr>
+      <td>
         <a href="ext:grinder-in-the-cloud">Grinder In The Cloud</a>
       </td>
 

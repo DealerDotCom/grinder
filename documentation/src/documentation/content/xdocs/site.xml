@@ -202,6 +202,8 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <grinder-in-the-cloud href="http://developer.amazonwebservices.com/connect/entry.jspa?externalID=2055&amp;categoryID=101"/>
 
+    <grinder-agent-installer href="http://trac.klicap.es/projects/demeter"/>
+
     <grinderstone href="http://code.google.com/p/grinderstone/"/>site
 
     <ground-report href="http://ground.sourceforge.net"/>
