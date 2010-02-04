@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // Copyright (C) 2004 Slavik Gnatenko
 // All rights reserved.
@@ -236,10 +236,14 @@ final class GrinderProcess {
 
     final MasterInstrumenter instrumenter =
       new MasterInstrumenter(
+        logger,
+        // This property name is poor, since it really means "If DCR
+        // instrumentation is available, use it for Jython". I'm not
+        // renaming it, since I expect it only to last a few releases,
+        // until DCR becomes the default.
         properties.getBoolean("grinder.dcrinstrumentation", false));
 
     m_context.getTestRegistry().setInstrumenter(instrumenter);
-    logger.output("instrumentation agents: " + instrumenter.getDescription());
 
     logger.output("executing \"" + m_initialisationMessage.getScript() +
       "\" using " + scriptEngine.getDescription());

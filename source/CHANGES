@@ -40,6 +40,9 @@ The Grinder 3.4 (not yet released)
    the totals line in saved results. Thanks to Karol Muszynski for
    prompting me to implement this.
 
+   Fix bug 2945358 - Fail gracefully if the agent jar file can't be
+   found.
+
 
 The Grinder 3.3
 ---------------

@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import java.lang.instrument.Instrumentation;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Recorder;
@@ -48,6 +49,8 @@ import test.MyClass;
  * @version $Revision:$
  */
 public class TestMasterInstrumenterWithJython25 extends TestCase {
+
+  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
 
   public static TestSuite suite() throws Exception {
     return new TestSuite(
@@ -80,11 +83,15 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
   public void testCreateInstrumentedProxyWithInstrumentation()
     throws Exception {
 
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
+    final MasterInstrumenter masterInstrumenter =
+      new MasterInstrumenter(m_loggerStubFactory.getLogger(), false);
 
     assertEquals("byte code transforming instrumenter for Jython 2.5; " +
                  "byte code transforming instrumenter for Java",
                  masterInstrumenter.getDescription());
+
+    m_loggerStubFactory.assertOutputMessageContains("byte code");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     try {
       masterInstrumenter.createInstrumentedProxy(null, null, null);
@@ -108,11 +115,15 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
   }
 
   public void testInstrumentWithInstrumentation() throws Exception {
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
+    final MasterInstrumenter masterInstrumenter =
+      new MasterInstrumenter(m_loggerStubFactory.getLogger(), false);
 
     assertEquals("byte code transforming instrumenter for Jython 2.5; " +
                  "byte code transforming instrumenter for Java",
                  masterInstrumenter.getDescription());
+
+    m_loggerStubFactory.assertOutputMessageContains("byte code");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     try {
       masterInstrumenter.instrument(null, null, null);
@@ -136,9 +147,14 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
 
     ExposeInstrumentation.premain("", null);
 
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
+    final MasterInstrumenter masterInstrumenter =
+      new MasterInstrumenter(m_loggerStubFactory.getLogger(), false);
 
     assertContains(masterInstrumenter.getDescription(), "NO INSTRUMENTER");
+
+    m_loggerStubFactory.assertOutputMessageContains("does not support");
+    m_loggerStubFactory.assertOutputMessageContains("NO INSTRUMENTER");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     try {
       masterInstrumenter.createInstrumentedProxy(null, null, null);
@@ -161,9 +177,14 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
 
     ExposeInstrumentation.premain("", null);
 
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
+    final MasterInstrumenter masterInstrumenter =
+      new MasterInstrumenter(m_loggerStubFactory.getLogger(), false);
 
     assertContains(masterInstrumenter.getDescription(), "NO INSTRUMENTER");
+
+    m_loggerStubFactory.assertOutputMessageContains("does not support");
+    m_loggerStubFactory.assertOutputMessageContains("NO INSTRUMENTER");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     try {
       masterInstrumenter.instrument(null, null, null);

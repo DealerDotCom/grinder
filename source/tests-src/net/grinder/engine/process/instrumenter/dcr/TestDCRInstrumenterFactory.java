@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import net.grinder.common.LoggerStubFactory;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
@@ -58,10 +59,17 @@ public class TestDCRInstrumenterFactory extends TestCase {
   private final Instrumentation m_instrumentation =
     m_instrumentationStubFactory.getStub();
 
+  private final LoggerStubFactory m_loggerStubFactory =
+    new LoggerStubFactory();
+
   public void testCreateWithNoInstrumentation() throws Exception {
     ExposeInstrumentation.premain("", null);
 
-    assertNull(DCRInstrumenterFactory.createFactory());
+    assertNull(DCRInstrumenterFactory.createFactory(
+                 m_loggerStubFactory.getLogger()));
+
+    m_loggerStubFactory.assertOutputMessageContains("does not support");
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 
   public void testCreateWithNoRetransformation() throws Exception {
@@ -70,18 +78,26 @@ public class TestDCRInstrumenterFactory extends TestCase {
     m_instrumentationStubFactory.setResult("isRetransformClassesSupported",
                                            false);
 
-    assertNull(DCRInstrumenterFactory.createFactory());
+    assertNull(
+      DCRInstrumenterFactory.createFactory(m_loggerStubFactory.getLogger()));
+
+    m_loggerStubFactory.assertOutputMessageContains("does not support");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     m_instrumentationStubFactory.setThrows("isRetransformClassesSupported",
                                            new NoSuchMethodError());
 
-    assertNull(DCRInstrumenterFactory.createFactory());
+    assertNull(
+      DCRInstrumenterFactory.createFactory(m_loggerStubFactory.getLogger()));
+
+    m_loggerStubFactory.assertOutputMessageContains("does not support");
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 
   public void testAddJavaInstrumentation() throws Exception {
 
     final DCRInstrumenterFactory factory =
-      DCRInstrumenterFactory.createFactory();
+      DCRInstrumenterFactory.createFactory(m_loggerStubFactory.getLogger());
 
     final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
 
@@ -92,12 +108,14 @@ public class TestDCRInstrumenterFactory extends TestCase {
 
     assertEquals("byte code transforming instrumenter for Java",
                  instrumenters.get(0).getDescription());
+
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 
   public void testAddJythonInstrumentation() throws Exception {
 
     final DCRInstrumenterFactory factory =
-      DCRInstrumenterFactory.createFactory();
+      DCRInstrumenterFactory.createFactory(null);
 
     final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
 
@@ -113,7 +131,7 @@ public class TestDCRInstrumenterFactory extends TestCase {
   public void testAddAllInstrumentation() throws Exception {
 
     final DCRInstrumenterFactory factory =
-      DCRInstrumenterFactory.createFactory();
+      DCRInstrumenterFactory.createFactory(null);
 
     final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
 

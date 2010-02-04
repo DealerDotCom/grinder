@@ -90,6 +90,8 @@ public class TestHTTPRequest extends TestCase {
   private final StatisticsForTest m_statisticsForTest =
     m_statisticsForTestStubFactory.getStub();
 
+  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
+
   private HTTPRequestHandler m_handler;
 
   protected void setUp() throws Exception {
@@ -756,19 +758,18 @@ public class TestHTTPRequest extends TestCase {
   }
 
   public void testResponseProcessing() throws Exception {
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     m_scriptContextStubFactory.setResult("getLogger",
-                                         loggerStubFactory.getLogger());
+                                         m_loggerStubFactory.getLogger());
 
     final HTTPRequest request = new HTTPRequest();
     request.GET(m_handler.getURL());
 
     final CallData loggerCall =
-      loggerStubFactory.assertSuccess("output", String.class);
+      m_loggerStubFactory.assertSuccess("output", String.class);
     final String message = (String)loggerCall.getParameters()[0];
     assertTrue(message.indexOf("200") >= 0);
     assertEquals(-1, message.indexOf("Redirect"));
-    loggerStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(Boolean.FALSE,
       m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
@@ -796,9 +797,8 @@ public class TestHTTPRequest extends TestCase {
       };
       handler.start();
 
-      final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
       m_scriptContextStubFactory.setResult("getLogger",
-                                           loggerStubFactory.getLogger());
+                                           m_loggerStubFactory.getLogger());
 
       m_statisticsStubFactory.setResult("isTestInProgress", Boolean.TRUE);
 
@@ -807,11 +807,11 @@ public class TestHTTPRequest extends TestCase {
       assertNotNull(response);
 
       final CallData loggerCall =
-        loggerStubFactory.assertSuccess("output", String.class);
+        m_loggerStubFactory.assertSuccess("output", String.class);
       final String message = (String)loggerCall.getParameters()[0];
       assertTrue(message.indexOf(Integer.toString(redirectCode)) >= 0);
       assertTrue(message.indexOf("Redirect") >= 0);
-      loggerStubFactory.assertNoMoreCalls();
+      m_loggerStubFactory.assertNoMoreCalls();
 
       assertEquals(Boolean.TRUE,
         m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
@@ -833,9 +833,8 @@ public class TestHTTPRequest extends TestCase {
 
     handler.start();
 
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     m_scriptContextStubFactory.setResult("getLogger",
-                                         loggerStubFactory.getLogger());
+                                         m_loggerStubFactory.getLogger());
 
     m_statisticsStubFactory.setResult("isTestInProgress", Boolean.TRUE);
 
@@ -844,10 +843,10 @@ public class TestHTTPRequest extends TestCase {
     assertNotNull(response);
 
     final CallData loggerCall =
-      loggerStubFactory.assertSuccess("output", String.class);
+      m_loggerStubFactory.assertSuccess("output", String.class);
     final String message3 = (String)loggerCall.getParameters()[0];
     assertTrue(message3.indexOf("400") >= 0);
-    loggerStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(Boolean.TRUE,
       m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
@@ -1128,11 +1127,15 @@ public class TestHTTPRequest extends TestCase {
   public void testDCRInstrumentation() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(true);
+    final MasterInstrumenter masterInstrumenter =
+      new MasterInstrumenter(m_loggerStubFactory.getLogger(), true);
 
     assertEquals("byte code transforming instrumenter for Jython 2.1/2.2; " +
                  "byte code transforming instrumenter for Java",
                  masterInstrumenter.getDescription());
+
+    m_loggerStubFactory.assertOutputMessageContains("byte code transforming");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     final RandomStubFactory<Recorder> recorderStubFactory =
       RandomStubFactory.create(Recorder.class);

@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,7 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import net.grinder.common.Logger;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
@@ -43,25 +44,30 @@ public final class DCRInstrumenterFactory {
   /**
    * Attempt to create a {@code DCRInstrumenterFactory}.
    *
+   * @param logger A logger to complain to if problems are found.
    * @return The factory, or {@code null} if one could not be created.
    */
-  public static DCRInstrumenterFactory createFactory() {
+  public static DCRInstrumenterFactory createFactory(Logger logger) {
+
     final Instrumentation instrumentation =
       ExposeInstrumentation.getInstrumentation();
-
-    if (instrumentation == null) {
-      return null;
-    }
 
     try {
       final Method m =
         Instrumentation.class.getMethod("isRetransformClassesSupported");
 
       if (!(Boolean)m.invoke(instrumentation)) {
+        logger.output(
+          "Java VM does not support class retransformation, DCR unavailable");
+
         return null;
       }
     }
     catch (Exception e1) {
+      // Also catches case where instrumentation == null.
+      logger.output(
+        "Java VM does not support instrumentation, DCR unavailable");
+
       return null;
     }
 

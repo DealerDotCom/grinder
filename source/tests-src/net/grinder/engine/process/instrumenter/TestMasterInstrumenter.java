@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,7 @@
 package net.grinder.engine.process.instrumenter;
 
 import junit.framework.TestCase;
+import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Recorder;
@@ -49,14 +50,20 @@ public class TestMasterInstrumenter extends TestCase {
     RandomStubFactory.create(Recorder.class);
   private final Recorder m_recorder = m_recorderStubFactory.getStub();
 
+  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
+
   private final Test m_test = new StubTest(1, "foo");
 
   public void testCreateInstrumentedProxyWithDefaults() throws Exception {
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
+    final MasterInstrumenter masterInstrumenter =
+      new MasterInstrumenter(m_loggerStubFactory.getLogger(), false);
 
     assertEquals("traditional Jython instrumenter; " +
                  "byte code transforming instrumenter for Java",
                  masterInstrumenter.getDescription());
+
+    m_loggerStubFactory.assertOutputMessageContains("traditional Jython");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     try {
       masterInstrumenter.createInstrumentedProxy(null, m_recorder, null);
@@ -84,11 +91,15 @@ public class TestMasterInstrumenter extends TestCase {
   }
 
   public void testInstrumentWithDefaults() throws Exception {
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(false);
+    final MasterInstrumenter masterInstrumenter =
+      new MasterInstrumenter(m_loggerStubFactory.getLogger(), false);
 
     assertEquals("traditional Jython instrumenter; " +
                  "byte code transforming instrumenter for Java",
                  masterInstrumenter.getDescription());
+
+    m_loggerStubFactory.assertOutputMessageContains("traditional Jython");
+    m_loggerStubFactory.assertNoMoreCalls();
 
     try {
       masterInstrumenter.instrument(null, m_recorder, null);
@@ -108,11 +119,14 @@ public class TestMasterInstrumenter extends TestCase {
   }
 
   public void testWithForcedDCRInsstrumentation() throws Exception {
-    final MasterInstrumenter masterInstrumenter = new MasterInstrumenter(true);
+    final MasterInstrumenter masterInstrumenter =
+      new MasterInstrumenter(m_loggerStubFactory.getLogger(), true);
 
     assertEquals("byte code transforming instrumenter for Jython 2.1/2.2; " +
                  "byte code transforming instrumenter for Java",
                  masterInstrumenter.getDescription());
 
+    m_loggerStubFactory.assertOutputMessageContains("byte code");
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 }

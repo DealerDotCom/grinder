@@ -21,13 +21,13 @@ What do I need?
 
 As well as Ant, to build The Grinder you need a version of Java that supports:
 
-  - J2SE 6.0 ("Java 6") or later
+  - Java SE 6.0 ("Java 6") or later
 
-(J2SE 6.0 is required by the new instrumentation engine introduced in The
-Grinder 3.3. If you are not using this feature, J2SE 5.0 is sufficient at
+(Java SE 6.0 is required by the new instrumentation engine introduced in The
+Grinder 3.3. If you are not using this feature, Java SE 5.0 is sufficient at
 runtime).
 
-The following addtional packages are necessary to build and run The Grinder.
+The following additional packages are necessary to build and run The Grinder.
 They are bundled in the lib directory:
 
   - Apache XMLBeans 2.1.0
@@ -442,17 +442,19 @@ what you want. Currently the conditionally built modules are:
   <target name="jar" depends="compile, copy-resources"
           description="Default target, creates lib/grinder.jar.">
 
+    <!-- Include the net.grinder.util.weave.agent files in the main jar so
+         its classes can be loaded if the agent is not loaded. -->
     <jar jarfile="${lib.dir}/${name}.jar"
          basedir="${classes.dir}"
          manifest="etc/grinder-manifest.mf"
-         filesonly="true"
-         excludes="net/grinder/util/weave/agent/**"/>
+         filesonly="true"/>
 
     <jar jarfile="${lib.dir}/${name}-agent.jar"
          basedir="${classes.dir}"
          manifest="etc/agent-manifest.mf"
-         filesonly="true"
-         includes="net/grinder/util/weave/agent/**"/>
+         filesonly="true">
+      <patternset refid="agent-classes.patternset"/>
+    </jar>
   </target>
 
   <!-- =================================================================== -->

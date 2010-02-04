@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.engine.process.instrumenter;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.grinder.common.Logger;
 import net.grinder.common.Test;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.ScriptEngine.Recorder;
@@ -46,24 +47,26 @@ public final class MasterInstrumenter implements Instrumenter {
 
   /**
    * Constructor for MasterInstrumenter.
-   * @param dcrInstrumentation {@code true} => force the use of the new
-   *    DCR instrumentation.
+   * @param logger Logger.
+   * @param useDCRInstrumentationForJython {@code true} => force the use of the
+   *    new DCR instrumentation for Jython.
    */
-  public MasterInstrumenter(boolean dcrInstrumentation) {
+  public MasterInstrumenter(Logger logger,
+                            boolean useDCRInstrumentationForJython) {
     m_instrumenters.add(new RejectNullInstrumenter());
-
-    final DCRInstrumenterFactory dcrInstrumenterFactory =
-      DCRInstrumenterFactory.createFactory();
 
     final boolean addedTraditionalJythonInstrumenter;
 
-    if (dcrInstrumentation) {
-      addedTraditionalJythonInstrumenter = false;
-    }
-    else {
+    if (!useDCRInstrumentationForJython) {
       addedTraditionalJythonInstrumenter =
         JythonInstrumenterFactory.addJythonInstrumenter(m_instrumenters);
     }
+    else {
+      addedTraditionalJythonInstrumenter = false;
+    }
+
+    final DCRInstrumenterFactory dcrInstrumenterFactory =
+          DCRInstrumenterFactory.createFactory(logger);
 
     if (dcrInstrumenterFactory != null) {
       if (!addedTraditionalJythonInstrumenter) {
@@ -72,6 +75,8 @@ public final class MasterInstrumenter implements Instrumenter {
 
       dcrInstrumenterFactory.addJavaInstrumenter(m_instrumenters);
     }
+
+    logger.output("instrumentation agents: " + getDescription());
   }
 
   /**
@@ -157,7 +162,6 @@ public final class MasterInstrumenter implements Instrumenter {
 
       return false;
     }
-
 
     public String getDescription() {
       return null;
