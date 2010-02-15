@@ -43,6 +43,8 @@ The Grinder 3.4 (not yet released)
    Fix bug 2945358 - Fail gracefully if the agent jar file can't be
    found.
 
+   Fix bug 2947509 - Improve algorithm that finds agent jar.
+
 
 The Grinder 3.3
 ---------------

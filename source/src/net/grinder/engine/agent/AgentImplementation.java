@@ -118,7 +118,7 @@ public final class AgentImplementation implements Agent {
    */
   static File findJavaAgentFile() {
     final String[] classPath =
-      System.getProperty("java.class.path").split("[:;]");
+      System.getProperty("java.class.path").split(File.pathSeparator);
 
     for (String classPathEntry : classPath) {
       final File siblingFile =

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -126,8 +126,6 @@ public class TestAgentImplementation extends AbstractFileTestCase {
       m_loggerStubFactory.assertOutputMessageContains("The Grinder");
       m_loggerStubFactory.assertOutputMessageContains("command line");
       m_loggerStubFactory.assertNoMoreCalls();
-
-
 
       agent.shutdown();
     }
@@ -450,18 +448,41 @@ public class TestAgentImplementation extends AbstractFileTestCase {
     agent.shutdown();
   }
 
-  public void testFindAgentFile() {
+  public void testFindAgentFile() throws Exception {
     System.setProperty("java.class.path", "");
 
     assertNull(AgentImplementation.findJavaAgentFile());
 
-    System.setProperty("java.class.path", "somewhere:somewhereelse");
+    System.setProperty("java.class.path",
+                       "somewhere " + File.pathSeparatorChar + "somewhereelse");
 
     assertNull(AgentImplementation.findJavaAgentFile());
+
+    final File directories = new File(getDirectory(), "a/b");
+    directories.mkdirs();
+
+    System.setProperty(
+      "java.class.path",
+      new File(directories.getAbsoluteFile(), "c.jar").getPath());
+    assertNull(AgentImplementation.findJavaAgentFile());
+
+    new File(directories, "grinder-agent.jar").createNewFile();
+    assertNotNull(AgentImplementation.findJavaAgentFile());
+
+    System.setProperty(
+      "java.class.path",
+      new File(getDirectory().getAbsoluteFile(), "c.jar").getPath());
+    assertNull(AgentImplementation.findJavaAgentFile());
+
+    new File(getDirectory(), "grinder-agent.jar").createNewFile();
+    assertNotNull(AgentImplementation.findJavaAgentFile());
 
     System.setProperty("java.class.path", m_originalClassPath);
 
     assertNotNull(AgentImplementation.findJavaAgentFile());
+
+    // I'd like also to test with relative paths, but this is impossible to
+    // do in a platform independent manner.
   }
 
   private abstract class ConsoleStub {
