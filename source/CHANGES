@@ -45,9 +45,6 @@ The Grinder 3.4 (not yet released)
 
    Fix bug 2947509 - Improve algorithm that finds agent jar.
 
-   Fix bug 2952023 - Cookie.parse should recognise "httponly"(lower
-   case). Thanks to amachang for the report and the patch.
-
    Fix bug 2936167 - Script execution hangs when using Jython 2.5.1 and
    Windows. Thanks to Mark Cleveland, Dave Martin, and svalkanesko for
    their reports and assistance with the diagnosis.
