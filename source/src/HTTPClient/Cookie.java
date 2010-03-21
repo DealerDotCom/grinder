@@ -157,7 +157,7 @@ public class Cookie implements Serializable
         /** ++GRINDER MODIFICATION **/
         // Cope with .NET nonsense.
         // See http://www.hanselman.com/blog/HttpOnlyCookiesOnASPNET11.aspx
-        if (set_cookie.indexOf("HttpOnly") != -1) {
+        if (set_cookie.toLowerCase().indexOf("httponly") != -1) {
           // Typical section of a .NET cookie:
           //    ... ; path=/;HttpOnly, language=en-US; path=/;HttpOnly
           //
@@ -165,8 +165,8 @@ public class Cookie implements Serializable
           // and all instances of HttpOnly following a semi-colon at the end of
           // the cookie. This leaves something that is more conventional
           // This shouldn't break any valid cookies.
-          set_cookie = set_cookie.replaceAll(";\\s*HttpOnly,",";,");
-          set_cookie = set_cookie.replaceAll(";\\s*HttpOnly$",";");
+          set_cookie = set_cookie.replaceAll("(?i);\\s*HttpOnly,",";,");
+          set_cookie = set_cookie.replaceAll("(?i);\\s*HttpOnly$",";");
         }
         /** --GRINDER MODIFICATION **/
 
