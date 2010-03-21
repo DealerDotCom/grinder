@@ -213,6 +213,14 @@ final class GrinderProcess {
 
     final ScriptEngine scriptEngine = new JythonScriptEngine();
 
+    // Don't start the message pump until we've initialised Jython. Jython 2.5+
+    // tests to see whether the stdin stream is a tty, and on some versions of
+    // Windows, this synchronises on the stream object's monitor. This clashes
+    // with the message pump which starts a thread to call
+    // StreamRecevier.waitForMessage(), and so also synchronises on that
+    // monitor. See bug 2936167.
+    m_messagePump.start();
+
     final StringBuffer numbers = new StringBuffer("worker process ");
     numbers.append(m_initialisationMessage.getWorkerIdentity().getNumber());
 

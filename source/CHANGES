@@ -13,7 +13,7 @@ The Grinder 3.4 (not yet released)
    Fix bug 2921612 - DCR instrumentation did not work with
    HTTPRequest. Thanks to Anil Jacob for the report.
 
-   Fulfil feature request 2914703 - Multpart form data support. Thanks
+   Fulfil feature request 2914703 - Multipart form data support. Thanks
    to Hitoshi Amano for the request and the implementation.
 
    Fix bug 2919190 - setTimeout method does not effect read timeouts.
@@ -47,6 +47,10 @@ The Grinder 3.4 (not yet released)
 
    Fix bug 2952023 - Cookie.parse should recognise "httponly"(lower
    case). Thanks to amachang for the report and the patch.
+
+   Fix bug 2936167 - Script execution hangs when using Jython 2.5.1 and
+   Windows. Thanks to Mark Cleveland, Dave Martin, and svalkanesko for
+   their reports and assistance with the diagnosis.
 
 
 The Grinder 3.3

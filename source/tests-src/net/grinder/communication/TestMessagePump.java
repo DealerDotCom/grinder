@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -71,6 +71,8 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
 
     m_messagePump =
       new MessagePump(m_intermediateReceiver, m_intermediateSender, 1);
+
+    m_messagePump.start();
   }
 
   protected void tearDown() throws Exception {

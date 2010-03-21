@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
@@ -173,6 +173,7 @@ public final class AgentImplementation implements Agent {
           if (consoleCommunication == null && connector != null) {
             try {
               consoleCommunication = new ConsoleCommunication(connector);
+              consoleCommunication.start();
               m_logger.output(
                 "connected to console at " + connector.getEndpointAsString());
             }
@@ -529,7 +530,10 @@ public final class AgentImplementation implements Agent {
           }
         }
       };
+    }
 
+    public void start() {
+      m_messagePump.start();
       m_timer.schedule(m_reportRunningTask, 1000, 1000);
     }
 
