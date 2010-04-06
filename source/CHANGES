@@ -49,6 +49,12 @@ The Grinder 3.4 (not yet released)
    Windows. Thanks to Mark Cleveland, Dave Martin, and svalkanesko for
    their reports and assistance with the diagnosis.
 
+   Fix bug 2980291 - "Resolve host" time incorrect. The HTTP plug-in time
+   To Resolve Host and Time To Establish Connection statistics no longer
+   include the time taken for automatic redirects. Time To First Byte is
+   still based on the time the HTTPRequest call was initiated. Thanks to
+   Travis Bear for the report, and to Bryce Howard for the patch.
+
 
 The Grinder 3.3
 ---------------

@@ -1,9 +1,10 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2010 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
 // Copyright (C) 2009 Hitoshi Amano
+// Copyright (C) 2010 Bryce Howard
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -1272,8 +1273,8 @@ public class HTTPRequest {
       // Stop the clock whilst we do potentially expensive result processing.
       threadContext.pauseClock();
 
-      final long dnsTime = connection.getDnsTime() - startTime;
-      final long connectTime = connection.getConnectTime() - startTime;
+      final long dnsTime = connection.getDnsTime();
+      final long connectTime = connection.getConnectTime();
       final long timeToFirstByte =
         httpResponse.getTimeToFirstByte() - startTime;
 

@@ -3386,11 +3386,16 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		sock = Socks_client.getSocket(actual_host, actual_port);
 	    else
 	    {
+                /** ++GRINDER MODIFICATION **/
+	            final long startTime =
+	              getTimeAuthority().getTimeInMilliseconds();
+                /** --GRINDER MODIFICATION **/
 		// try all A records
 		InetAddress[] addr_list = InetAddress.getAllByName(actual_host);
                 /** ++GRINDER MODIFICATION **/
                 // capture time for DNS Lookup
-                DNS_time = getTimeAuthority().getTimeInMilliseconds();
+                DNS_time =
+                  getTimeAuthority().getTimeInMilliseconds() - startTime;
                 /** --GRINDER MODIFICATION **/
 		for (int idx=0; idx<addr_list.length; idx++)
 		{
@@ -3405,9 +3410,11 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
                         sock.setSoLinger(true, 0);
                         sock.setKeepAlive(false);
 
-			// capture time for initial connection
-			con_time = getTimeAuthority().getTimeInMilliseconds();
-			/** --GRINDER MODIFICATION **/
+                        // capture time for initial connection
+                        con_time =
+                          getTimeAuthority().getTimeInMilliseconds() -
+                          startTime;
+                        /** --GRINDER MODIFICATION **/
 			break;		// success
 		    }
 		    catch (SocketException se)

@@ -877,6 +877,7 @@ public class TestHTTPRequest extends TestCase {
     final ListTimeAuthority timeAuthority =
       new ListTimeAuthority(new long[] {
           100, // start time
+          101, // start time (internal to HTTPResponse - i.e. post redirect)
           123, // DNS time
           200, // connection time
           219, // time to first byte
@@ -915,10 +916,10 @@ public class TestHTTPRequest extends TestCase {
       new Long(200));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY,
-      new Long(23));
+      new Long(22));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY,
-      new Long(100));
+      new Long(99));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
       new Long(119));
@@ -940,6 +941,7 @@ public class TestHTTPRequest extends TestCase {
     timeAuthority.setTimes(
       new long[] {
           400, // start time
+          400, // start time (internal to HTTPResponse - i.e. post redirect)
           0,   // DNS time
           0,   // connection time
           419, // time to first byte
@@ -981,6 +983,7 @@ public class TestHTTPRequest extends TestCase {
     final ListTimeAuthority timeAuthority =
       new ListTimeAuthority(new long[] {
           100, // start time
+          110, // start time (internal to HTTPResponse - i.e. post redirect)
           123, // DNS time
           200, // connection time
           219, // time to first byte
@@ -1030,10 +1033,10 @@ public class TestHTTPRequest extends TestCase {
       new Long(200));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY,
-      new Long(23));
+      new Long(13));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY,
-      new Long(100));
+      new Long(90));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
       new Long(119));
@@ -1055,6 +1058,7 @@ public class TestHTTPRequest extends TestCase {
     timeAuthority.setTimes(
       new long[] {
           400, // start time
+          405, // start time (internal to HTTPResponse - i.e. post redirect)
           0,   // DNS time
           0,   // connection time
           419, // time to first byte
