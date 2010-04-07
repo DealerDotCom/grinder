@@ -1,3 +1,12 @@
+2010-04-07 [r4239]  Philip Aston
+
+	* tests-src/net/grinder/console/TestConsoleFoundation.java: Spin a
+	  little if we can't connect immediately.
+
+2010-04-07 [r4238]  Philip Aston
+
+	* ChangeLog, CHANGES: Update for release.
+
 2010-04-06 [r4236-4237]  Philip Aston
 
 	* .gitignore: Ignore more stuff.
