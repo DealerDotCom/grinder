@@ -13,6 +13,10 @@ The TODO list is part of the binary distribution. I'll accept patches against it
 <li>
  Philip Aston </li>
 </ul>
+<section name='Other languages' depth='1' id='Other languages'>
+<p>
+Implement a javax.script wrapper that is loaded if detected. Prove by implementing support for JavaScript (which is built into Java 6). </p>
+</section>
 <section name='Java 5 upgrade' depth='1' id='Java 5 upgrade'>
 <section name='Checkstyle vs "&lt;"' depth='2' id='Checkstyle vs "&lt;"'>
 </section>
@@ -67,7 +71,7 @@ Task: Distribution file filter should be dynamically settable. </p>
 <section name='Console' depth='2' id='Console'>
 <section name='Stop the recording when last thread terminates' depth='3' id='Stop the recording when last thread terminates'>
 <p>
-Requested by J�rgen Weber </p>
+Requested by Jýrgen Weber </p>
 </section>
 <section name='Refactoring' depth='3' id='Refactoring'>
 <p>
@@ -99,10 +103,6 @@ b) You must cause any work that you distribute or publish, that in whole or in p
 There should be an ExternalFilenameFactory, cf ExternalLogger. </p>
 <p>
 Support for some sort of "Surrogate task" that is run in a pool of threads and has its own statistics context would be good. </p>
-<section name='Interactive mode' depth='3' id='Interactive mode'>
-<p>
-Possible to have an interactive mode for debugging? E.g. a simple UI that can be launched from a thread which drops the user into a console? Would need to launch with grinder.debug.singleprocess=true. </p>
-</section>
 <section name='Instrumentation API' depth='3' id='Instrumentation API'>
 <p>
 Could we support a procedural "startTest()", "stopTest()" API? </p>
@@ -156,7 +156,7 @@ Remove ParseException, ProtocolNotSuppException from public APIs. </p>
 <p>
 Script support for HTTP "system property" options. </p>
 <p>
-Pablo Estades Fern�ndez says: <br/>&gt; I need to use client cert on TCPProxy to be able to <br/>&gt; record the test case but also I need to configure <br/>&gt; grinder workers to run the test case presenting a <br/>&gt; client cert. </p>
+Pablo Estades Fernýndez says: <br/>&gt; I need to use client cert on TCPProxy to be able to <br/>&gt; record the test case but also I need to configure <br/>&gt; grinder workers to run the test case presenting a <br/>&gt; client cert. </p>
 </section>
 <section name='Scripting' depth='2' id='Scripting'>
 <p>
@@ -165,10 +165,6 @@ Consider forcing TestRunner to be registered with grinder. </p>
 Add per-run statistics. This would also allow number of aborted runs to be recorded. </p>
 <p>
 Script access to global statistics. </p>
-<section name='Alternate test languages' depth='3' id='Alternate test languages'>
-<p>
-Should support Java, Groovy scripts. </p>
-</section>
 <section name='Events' depth='3' id='Events'>
 <p>
 Idea from Nurul Choudhury: <br/>&gt; Event counting - The Jython code can create a named event and fire <br/>&gt; the event when some condition was met. When the console polls for <br/>&gt; statistics the events and their count would be sent to the console. </p>
@@ -270,10 +266,6 @@ How to build clover reports during full build? </p>
 Include Clover history? </p>
 </section>
 <section name='Documentation' depth='1' id='Documentation'>
-<p>
-grinder.debug.singleprocess </p>
-<p>
-HTTP plug-in. </p>
 <section name='Examples' depth='2' id='Examples'>
 <p>
 HTTPS. </p>
