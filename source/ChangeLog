@@ -1,4 +1,255 @@
-2009-12-06 [r4172-4173]  Philip Aston
+2010-04-06 [r4236-4237]  Philip Aston
+
+	* .gitignore: Ignore more stuff.
+
+	* src/HTTPClient/HTTPConnection.java, AUTHORS, CHANGES,
+	  src/net/grinder/plugin/http/HTTPRequest.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java: Fix bug
+	  2980291 - "Resolve host" time incorrect.
+
+2010-03-21 [r4232-4235]  Philip Aston
+
+	* src/HTTPClient/Cookie.java, tests-src/HTTPClient/TestCookie.java,
+	  CHANGES: Revert "Fix bug 2952023 - Cookie.parse should recognise
+	  "httponly"(lower case)." Reverting until I have amachang's
+	  permission to distribute under The Grinder license. This reverts
+	  commit 7b469c95260919e581dfc45d6b731be1a70b225f. Conflicts:
+	  trunk/source/CHANGES
+
+	* src/net/grinder/engine/agent/AgentImplementation.java,
+	  src/net/grinder/communication/MessagePump.java,
+	  tests-src/net/grinder/communication/TestMessagePump.java,
+	  src/net/grinder/engine/process/GrinderProcess.java, CHANGES: Fix
+	  bug 2936167 - Script execution hangs when using Jython 2.5.1 and
+	  Windows. Thanks to Mark Cleveland, Dave Martin, and svalkanesko
+	  for their reports and assistance with the diagnosis.
+
+	* src/HTTPClient/Cookie.java, tests-src/HTTPClient/TestCookie.java,
+	  CHANGES: Fix bug 2952023 - Cookie.parse should recognise
+	  "httponly"(lower case). Thanks to amachang for the report and the
+	  patch.
+
+2010-02-15 [r4231]  Philip Aston
+
+	* src/net/grinder/engine/agent/AgentImplementation.java,
+	  tests-src/net/grinder/engine/agent/TestAgentImplementation.java,
+	  CHANGES: Fix bug 2947509 - Improve algorithm that finds agent
+	  jar.
+
+2010-02-04 [r4230]  Philip Aston
+
+	* build.xml,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestDCRInstrumenterFactory.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenterWithJython25.java,
+	  src/net/grinder/engine/process/instrumenter/MasterInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenter.java,
+	  CHANGES, tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	  Fix bug 2945358 - Fail gracefully if the agent jar file can't be
+	  found.
+
+2010-01-15 [r4225]  Philip Aston
+
+	* src/net/grinder/console/swingui/ConsoleUI.java: Correct inital
+	  enable status of file related actions.
+
+2010-01-12 [r4224]  Philip Aston
+
+	* src/net/grinder/console/common/resources/Console_ru.properties,
+	  src/net/grinder/console/swingui/ConsoleUI.java,
+	  src/net/grinder/console/common/resources/Console_es.properties,
+	  src/net/grinder/console/common/resources/Console_fr.properties,
+	  src/net/grinder/console/common/resources/Console_de.properties,
+	  src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java,
+	  tests-src/net/grinder/console/swingui/TestCumulativeStatisticsTableModel.java,
+	  src/net/grinder/console/common/resources/Console_nl.properties,
+	  src/net/grinder/console/common/resources/Console_pl.properties,
+	  src/net/grinder/console/common/resources/Console_it.properties,
+	  CHANGES,
+	  src/net/grinder/console/common/resources/Console.properties,
+	  src/net/grinder/console/model/ConsoleProperties.java,
+	  tests-src/net/grinder/console/model/TestConsoleProperties.java,
+	  src/net/grinder/console/common/resources/Console_zh.properties:
+	  Implement feature request 887214 - the console now optionally
+	  includes the totals line in saved results.
+
+2010-01-12 [r4223]  Philip Aston
+
+	* src/net/grinder/tools/tcpproxy/HTTPResponse.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestHTTPResponse.java,
+	  tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java,
+	  src/net/grinder/plugin/http/HTTPPluginConnection.java,
+	  src/HTTPClient/HTTPConnection.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java,
+	  CHANGES: Fix bug 2837600 - Content-type header written instead of
+	  Content-Type.
+
+2010-01-03 [r4221-4222]  Philip Aston
+
+	* tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java,
+	  tests-src/net/grinder/plugin/http/HTTPRequestHandler.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPluginThreadState.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java: Fix
+	  testReadTimeout().
+
+	* src/HTTPClient/StreamDemultiplexor.java,
+	  src/HTTPClient/HTTPConnection.java, CHANGES: Fix bug 2501418 -
+	  Handle socket lingering properly.
+
+2010-01-03 [r4218-4220]  Philip Aston
+
+	* src/net/grinder/TCPProxy.java,
+	  src/net/grinder/statistics/StatisticsTable.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ProcessHTTPRecordingWithXSLT.java,
+	  src/net/grinder/util/FixedWidthFormatter.java,
+	  tests-src/net/grinder/util/TestFixedWidthFormatter.java: Replace
+	  integer constants with enums.
+
+	* src/net/grinder/statistics/StatisticsTable.java,
+	  tests-src/net/grinder/statistics/TestStatisticsTable.java,
+	  src/net/grinder/util/FixedWidthFormatter.java,
+	  tests-src/net/grinder/util/TestFixedWidthFormatter.java, CHANGES:
+	  Fix bug 2816501 - Test numbers larger than 6 digits get truncated
+	  in out file.
+
+	* build.xml, LICENSE,
+	  src/net/grinder/console/common/resources/about.html: Happy New
+	  Year.
+
+2010-01-02 [r4216-4217]  Philip Aston
+
+	* src/net/grinder/plugin/http/HTTPUtilities.java,
+	  src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java,
+	  src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressions.java,
+	  CHANGES,
+	  src/net/grinder/plugin/http/tcpproxyfilter/RegularExpressionsImplementation.java:
+	  Fulfil feature request 2841789 - added valueFromBodyInput() and
+	  valuesFromBodyInput() methods to HTTPUtilities.
+
+	* etc/findbugs-exclude.xml,
+	  src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java:
+	  Disable FindBugs rule rather than work around it.
+
+2010-01-02 [r4215]  Philip Aston
+
+	* src/net/grinder/plugin/http/HTTPUtilities.java,
+	  src/net/grinder/plugin/http/HTTPUtilitiesImplementation.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPUtilitiesImplementation.java,
+	  CHANGES: Fulfil feature request 2923975 - added
+	  valuesFromHiddenInput() and valuesFromBodyURI() methods to
+	  HTTPUtilities.
+
+2009-12-28 [r4210-4214]  Philip Aston
+
+	* tests-src/net/grinder/plugin/http/HTTPRequestHandler.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java: Test fix
+	  for 2919190.
+
+	* CHANGES: Note fix for 2919190.
+
+	* src/HTTPClient/HTTPConnection.java: Neaten up whitespace for our
+	  changes and add GRINDER MODIFICATION markers for setSoTimeout
+	  change.
+
+	* src/HTTPClient/HTTPConnection.java: Revert the changes to the
+	  original white space introduced at revision 3964.
+
+	* src/HTTPClient/HTTPConnection.java: Fix from amachang for bug
+	  2919190 - setTimeout method does not effect read timeouts.
+
+2009-12-28 [r4208]  Philip Aston
+
+	* AUTHORS,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java,
+	  CHANGES, src/net/grinder/plugin/http/HTTPRequest.java: Tweaks to
+	  the multipart patch.
+
+2009-12-28 [r4207]  Philip Aston
+
+	* etc/tcpproxy-http.xsd,
+	  src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl,
+	  src/net/grinder/plugin/http/tcpproxyfilter/ConnectionHandlerImplementation.java,
+	  tests-src/net/grinder/plugin/http/tcpproxyfilter/TestConnectionHandlerImplementation.java,
+	  src/net/grinder/plugin/http/HTTPRequest.java: Multipart patch
+	  from Hitoshi Amano.
+
+2009-12-27 [r4206]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java,
+	  CHANGES,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJavaDCRInstrumenter.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java: Fix bug
+	  2921612 - DCR instrumentation did not work with HTTPRequest.
+
+2009-12-27 [r4205]  Philip Aston
+
+	* src/net/grinder/plugin/http/HTTPPluginControl.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPPluginControl.java:
+	  Make the HTTPPluginControl facade stateless to keep the static
+	  reference ugliness in one place.
+
+2009-12-23 [r4203-4204]  Philip Aston
+
+	* etc/.gitignore (added),
+	  src/net/grinder/plugin/http/tcpproxyfilter/resources/httpToJythonScript.xsl,
+	  CHANGES: Fix bug 2911790 - HTTP filter generates invalid code for
+	  Jython 2.5+.
+
+	* TODO: More to do.
+
+2009-12-20 [r4202]  Philip Aston
+
+	* tests-src/HTTPClient/TestCookie.java, CHANGES: Fix bug 1619450
+	  again - HTTPClient.TestCookie.testParse unit test fails.
+
+2009-12-12 [r4187]  Philip Aston
+
+	* .gitignore (added): Ignore generated things.
+
+2009-12-12 [r4184-4186]  Philip Aston
+
+	* src/net/grinder/engine/process/SSLControlImplementation.java,
+	  tests-src/net/grinder/engine/process/TestSSLControlImplementation.java,
+	  src/net/grinder/engine/process/ThreadContext.java,
+	  src/net/grinder/util/ListenerSupport.java,
+	  tests-src/net/grinder/util/TestListenerSupport.java, CHANGES,
+	  src/net/grinder/engine/process/ThreadContextImplementation.java,
+	  tests-src/net/grinder/engine/process/TestThreadContextImplementation.java:
+	  Fix bug 2913297 - Memory leak in SSLControlImplementation.
+
+	* src/net/grinder/engine/process/SSLControlImplementation.java: Fix
+	  javadoc link.
+
+	* src/HTTPClient/Cookie.java: Fix spelling.
+
+2009-12-09 [r4181-4183]  Philip Aston
+
+	* tests-src/net/grinder/TestManifestClasspath.java: Remove unused
+	  import.
+
+	* tests-src/net/grinder/TestManifestClasspath.java (added), TODO:
+	  Unit test to check that manifest classpath is correct.
+
+	* tests-src/net/grinder/statistics/TestCommonStatisticsViews.java:
+	  Remove unused import.
+
+2009-12-08 [r4179-4180]  Philip Aston
+
+	* temp (removed): Test git-svn.
+
+	* TODO: Stuff TODO.
+
+2009-12-06 [r4178]  Philip Aston
+
+	* temp (added): Hack to fool git-svn into relocating repo.
+
+2009-12-06 [r4172-4174]  Philip Aston
+
+	* ChangeLog: Remember the ChangeLog this time.
 
 	* etc/grinder-manifest.mf: Commons is not required.
 
