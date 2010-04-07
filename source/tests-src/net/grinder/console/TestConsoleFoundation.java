@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,6 +38,7 @@ import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.Sender;
 import net.grinder.console.ConsoleFoundation.UI;
 import net.grinder.console.client.ConsoleConnection;
+import net.grinder.console.client.ConsoleConnectionException;
 import net.grinder.console.client.ConsoleConnectionFactory;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -142,10 +143,23 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     runConsole.start();
 
     final ConsoleConnectionFactory ccf = new ConsoleConnectionFactory();
-    final ConsoleConnection client = ccf.connect(hostName, port);
 
-    assertEquals(0, client.getNumberOfAgents());
-    client.close();
+    final int retries = 3;
+
+    for (int i = 0; i < retries; ++i) {
+      try {
+	final ConsoleConnection client = ccf.connect(hostName, port);
+	assertEquals(0, client.getNumberOfAgents());
+	client.close();
+      }
+      catch (ConsoleConnectionException e) {
+	if (i == retries - 1) {
+	  throw e;
+	}
+	
+	Thread.sleep(50);
+      }
+    }
 
     foundation.shutdown();
 
