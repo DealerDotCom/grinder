@@ -1,6 +1,40 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.4' id='The Grinder 3.4'>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2913297&amp;group_id=18598&amp;atid=118598">bug 2913297</a> - Memory leak in SSLControlImplementation. Thanks to Guido Serra for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1619450&amp;group_id=18598&amp;atid=118598">bug 1619450</a> - HTTPClient.TestCookie.testParse unit test fails. Thanks to amachang for re-opening this bug and providing a patch. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2911790&amp;group_id=18598&amp;atid=118598">bug 2911790</a> - HTTP filter generates invalid code for Jython 2.5+. Thanks to the anonymous reporter. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2921612&amp;group_id=18598&amp;atid=118598">bug 2921612</a> - DCR instrumentation did not work with HTTPRequest. Thanks to Anil Jacob for the report. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2914703&amp;group_id=18598&amp;atid=368598">request 2914703</a> - Multipart form data support. Thanks to Hitoshi Amano for the request and the implementation. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2919190&amp;group_id=18598&amp;atid=118598">bug 2919190</a> - setTimeout method does not effect read timeouts. Thanks to Hitoshi Amano for the report and the fix. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2923975&amp;group_id=18598&amp;atid=368598">request 2923975</a> - added valuesFromHiddenInput() and valuesFromBodyURI() methods to HTTPUtilities. Thanks to Anil Jacob for the request. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2841789&amp;group_id=18598&amp;atid=368598">request 2841789</a> - added valueFromBodyInput() and valuesFromBodyInput() methods to HTTPUtilities. Thanks to Satheesh Babu Vattekkat for the request. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2816501&amp;group_id=18598&amp;atid=118598">bug 2816501</a> - Test numbers larger than 6 digits get truncated in out file. Thanks to Vivin Paliath for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2501418&amp;group_id=18598&amp;atid=118598">bug 2501418</a> - Handle socket lingering properly. Thanks to Dawid Weiss for the report and suggested fixes. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2837600&amp;group_id=18598&amp;atid=118598">bug 2837600</a> - Content-type header written instead of Content-Type. Thanks to Guido Serra for the report. </p>
+<p>
+Implement feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=887214&amp;group_id=18598&amp;atid=368598">request 887214</a> - the console now optionally includes the totals line in saved results. Thanks to Karol Muszynski for prompting me to implement this. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2945358&amp;group_id=18598&amp;atid=118598">bug 2945358</a> - Fail gracefully if the agent jar file can't be found. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2947509&amp;group_id=18598&amp;atid=118598">bug 2947509</a> - Improve algorithm that finds agent jar. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2936167&amp;group_id=18598&amp;atid=118598">bug 2936167</a> - Script execution hangs when using Jython 2.5.1 and Windows. Thanks to Mark Cleveland, Dave Martin, and svalkanesko for their reports and assistance with the diagnosis. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2980291&amp;group_id=18598&amp;atid=118598">bug 2980291</a> - "Resolve host" time incorrect. The HTTP plug-in time To Resolve Host and Time To Establish Connection statistics no longer include the time taken for automatic redirects. Time To First Byte is still based on the time the HTTPRequest call was initiated. Thanks to Travis Bear for the report, and to Bryce Howard for the patch. </p>
+</section>
 <section name='The Grinder 3.3' id='The Grinder 3.3'>
 <p>
 Changes that may be incompatible with existing scripts: </p>
