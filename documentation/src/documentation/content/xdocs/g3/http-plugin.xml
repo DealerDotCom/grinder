@@ -36,7 +36,7 @@ from net.grinder.plugin.http import HTTPRequest
   of connections and cookies for each worker thread which it resets at the beginning of each run.
   Each run performed by a worker thread simulates a browser session carried out by a user.
   Reseting a thread's cookies at the beginning of a run will cause server
-  applications that used cookie-based tracking to create a new session.</p>
+  applications that use cookie-based tracking to create a new session.</p>
 
   <p>If your
   server application uses some other mechanism for session tracking
