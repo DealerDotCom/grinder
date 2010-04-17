@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import net.grinder.engine.process.jython.JythonScriptExecutionException;
 import net.grinder.testutility.AbstractFileTestCase;
+import static net.grinder.testutility.AssertUtilities.assertContains;
 
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -49,7 +50,7 @@ public class TestJythonScriptExecutionException extends AbstractFileTestCase {
       new JythonScriptExecutionException("Hello", pe);
 
     assertNull(e.getCause());
-    assertTrue(e.getShortMessage().indexOf("Jython exception") >= 0);
+    assertContains(e.getShortMessage(), "Jython exception");
   }
 
   public void testWithJythonStringException() throws Exception {
@@ -58,7 +59,7 @@ public class TestJythonScriptExecutionException extends AbstractFileTestCase {
       new JythonScriptExecutionException("Hello", pe);
 
     assertNull(e.getCause());
-    assertTrue(e.getShortMessage().indexOf("Jython exception") >= 0);
+    assertContains(e.getShortMessage(), "Jython exception");
   }
 
   public void testWithJythonClassException() throws Exception {
@@ -67,7 +68,7 @@ public class TestJythonScriptExecutionException extends AbstractFileTestCase {
       new JythonScriptExecutionException("Hello", pe);
 
     assertNull(e.getCause());
-    assertTrue(e.getShortMessage().indexOf("Jython exception") >= 0);
+    assertContains(e.getShortMessage(), "Jython exception");
   }
 
   public void testWithWrappedJavaException() throws Exception {
@@ -83,9 +84,26 @@ public class TestJythonScriptExecutionException extends AbstractFileTestCase {
     e.printStackTrace(new PrintWriter(writer));
     final String stack = writer.toString();
 
-    assertTrue(stack.indexOf("Hello") > 0);
-    assertTrue(stack.indexOf("java.lang.Throwable") > 0);
+    assertContains(stack, "Hello");
+    assertContains(stack, "java.lang.Throwable");
     assertSame(wrapped, e.getCause());
-    assertTrue(e.getShortMessage().indexOf("Java exception") >= 0);
+    assertContains(e.getShortMessage(), "Java exception");
+  }
+
+  // Bug 2988755
+  public void testWithNullTraceBack() {
+    final PyException pe = new PyException();
+    pe.traceback = null;
+
+    final JythonScriptExecutionException e =
+      new JythonScriptExecutionException("Hello", pe);
+
+    assertContains(e.getShortMessage(), "Jython");
+
+    final StringWriter writer = new StringWriter();
+    e.printStackTrace(new PrintWriter(writer));
+    final String stack = writer.toString();
+
+    assertContains(stack, "None");
   }
 }
