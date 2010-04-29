@@ -1,4 +1,4 @@
-#Sat Sep 12 18:31:07 BST 2009
+#Fri Apr 23 17:08:37 BST 2010
 block_filters=SourceDirective, assert
 eclipse.preferences.version=1
 exclude_filter=**/tests-src/*.java
@@ -9,7 +9,8 @@ init_string=
 init_string_default=true
 init_string_project_relative=true
 instrument_selected_source_folders=false
-instrumentation_enabled=false
+instrumentation_enabled=true
+instrumentation_level=STATEMENT
 instrumented_source_folder_patterns[0]=tests-src\n**/*.java\n\ndisabled
 instrumented_source_folder_patterns[1]=src\n**/*.java\n\ndisabled
 output_root=.clover/bin
