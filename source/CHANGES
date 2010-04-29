@@ -4,6 +4,9 @@ The Grinder 3.5 (Not yet released)
    Fix bug 2988755 - NPE in JythonScriptExecutionException
    .tracebackToMessage(). Thanks to Brian Runck for the report.
 
+   Fix bug 2952023 - Cookie.parse should recognise "httponly"(lower
+   case). Thanks to amachang for the report and the patch.
+
 
 The Grinder 3.4
 ---------------
