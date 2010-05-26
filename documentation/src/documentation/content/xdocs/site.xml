@@ -208,6 +208,8 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <ground-report href="http://ground.sourceforge.net"/>
 
+    <http-qat href="http://http-qat.sf.net"/>
+
     <headwaysoftware href="http://www.headwaysoftware.com/">
       <s101 href="products/structure101"/>
       <grinder href="http://www.structure101.com/structure101-java/tracker/grinder/3.0.1/summary.html"/>
