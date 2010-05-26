@@ -15,6 +15,22 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="ext:http-qat">HTTP Quality Assurance Toolkit</a>
+      </td>
+
+      <td></td>
+
+      <td>
+	  HTTP functional and non-functional (load and performance)
+	  toolkit based on jython/grinder (http://grinder.sf.net)
+	  ...includes capabilities to support: SOA services, REST,
+	  json/xml encoding, AES and WS security ... and a stub to
+	  collect requests.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
         <a href="ext:grinder-agent-installer">The Grinder Agent Installer</a>
       </td>
 

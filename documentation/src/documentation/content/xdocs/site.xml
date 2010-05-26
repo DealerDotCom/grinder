@@ -202,11 +202,13 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <grinder-in-the-cloud href="http://developer.amazonwebservices.com/connect/entry.jspa?externalID=2055&amp;categoryID=101"/>
 
-    <grinder-agent-installer href="http://trac.klicap.es/projects/demeter"/>
+    <grinder-agent-installer href="http://clinker.klicap.es/projects/demeter"/>
 
     <grinderstone href="http://code.google.com/p/grinderstone/"/>site
 
     <ground-report href="http://ground.sourceforge.net"/>
+
+    <http-qat href="http://http-qat.sf.net"/>
 
     <headwaysoftware href="http://www.headwaysoftware.com/">
       <s101 href="products/structure101"/>
