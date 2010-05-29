@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,12 +21,13 @@
 
 package net.grinder.testutility;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import net.grinder.util.IsolatingClassLoader;
 
 
 /**
@@ -42,12 +43,6 @@ import java.util.List;
  * @version $Revision:$
  */
 public class BlockingClassLoader extends URLClassLoader {
-
-  private static final List<String> GRINDER_AND_PYTHON_CLASSES =
-    Arrays.<String>asList("net.grinder.*",
-                           "org.python.*",
-                           "test.*",
-                           "+net.grinder.util.weave.agent.*");
 
   /**
    * Utility method that creates a classloader that will hide a set of classes,
@@ -79,27 +74,6 @@ public class BlockingClassLoader extends URLClassLoader {
 
     return new URLClassLoader(classPath.toArray(new URL[0]),
                               blockingClassLoader);
-  }
-
-  private static URL getJythonURL(String propertyName)
-  throws MalformedURLException {
-    return new URL("file://" +
-                   System.getProperty(propertyName) +
-                   "/jython.jar");
-  }
-
-  public static final URLClassLoader createJython21ClassLoader()
-    throws MalformedURLException {
-    return BlockingClassLoader.createClassLoader(
-             GRINDER_AND_PYTHON_CLASSES,
-             Arrays.<URL>asList(getJythonURL("jython21.dir")));
-  }
-
-  public static final URLClassLoader createJython25ClassLoader()
-    throws MalformedURLException {
-    return BlockingClassLoader.createClassLoader(
-             GRINDER_AND_PYTHON_CLASSES,
-             Arrays.<URL>asList(getJythonURL("jython25.dir")));
   }
 
   private final List<String> m_blockedClassNames = new ArrayList<String>();

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,9 +21,8 @@
 
 package net.grinder.engine.process.instrumenter.traditionaljython;
 
+import static net.grinder.testutility.JythonVersionUtilities.jython21Suite;
 import junit.framework.TestSuite;
-import net.grinder.testutility.BlockingClassLoader;
-
 
 
 /**
@@ -40,9 +39,7 @@ public class TestTraditionalJythonInstrumenterWithJython21
   }
 
   public static TestSuite suite() throws Exception {
-    return new TestSuite(
-      BlockingClassLoader.createJython21ClassLoader().loadClass(
-        TestTraditionalJythonInstrumenterWithJython21.class.getName()));
+    return jython21Suite(TestTraditionalJythonInstrumenterWithJython21.class);
   }
 
   public void testVersion() throws Exception {

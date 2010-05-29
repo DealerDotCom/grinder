@@ -22,6 +22,7 @@
 package net.grinder.engine.process.instrumenter;
 
 import static net.grinder.testutility.AssertUtilities.assertContains;
+import static net.grinder.testutility.JythonVersionUtilities.jython25Suite;
 
 import java.lang.instrument.Instrumentation;
 
@@ -33,7 +34,6 @@ import net.grinder.common.Test;
 import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
-import net.grinder.testutility.BlockingClassLoader;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 
@@ -53,9 +53,7 @@ public class TestMasterInstrumenterWithJython25 extends TestCase {
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
 
   public static TestSuite suite() throws Exception {
-    return new TestSuite(
-      BlockingClassLoader.createJython25ClassLoader().loadClass(
-        TestMasterInstrumenterWithJython25.class.getName()));
+    return jython25Suite(TestMasterInstrumenterWithJython25.class);
   }
 
   private Instrumentation m_originalInstrumentation;

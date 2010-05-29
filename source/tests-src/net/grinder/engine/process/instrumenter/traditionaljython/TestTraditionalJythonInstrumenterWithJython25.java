@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,8 @@
 
 package net.grinder.engine.process.instrumenter.traditionaljython;
 
+import static net.grinder.testutility.JythonVersionUtilities.jython25Suite;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase;
-import net.grinder.testutility.BlockingClassLoader;
 
 
 /**
@@ -40,9 +41,7 @@ import net.grinder.testutility.BlockingClassLoader;
 public class TestTraditionalJythonInstrumenterWithJython25 extends TestCase {
 
   public static TestSuite suite() throws Exception {
-    return new TestSuite(
-      BlockingClassLoader.createJython25ClassLoader().loadClass(
-        TestTraditionalJythonInstrumenterWithJython25.class.getName()));
+    return jython25Suite(TestTraditionalJythonInstrumenterWithJython25.class);
   }
 
   public void testJythonInstrumenterFactory() throws Exception {

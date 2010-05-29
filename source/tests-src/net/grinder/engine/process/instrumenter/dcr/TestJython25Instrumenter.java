@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,13 @@
 
 package net.grinder.engine.process.instrumenter.dcr;
 
-import org.python.core.PyObject;
-import org.python.core.PyProxy;
-
+import static net.grinder.testutility.JythonVersionUtilities.jython25Suite;
 import junit.framework.TestSuite;
-import net.grinder.testutility.BlockingClassLoader;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.Weaver;
+
+import org.python.core.PyObject;
+import org.python.core.PyProxy;
 
 
 /**
@@ -47,22 +47,7 @@ public class TestJython25Instrumenter
   }
 
   public static TestSuite suite() throws Exception {
-
-    final String oldPythonHome = System.getProperty("python.home");
-
-    System.setProperty("python.home",
-                       System.getProperty("jython25.dir"));
-
-    try {
-      return new TestSuite(
-        BlockingClassLoader.createJython25ClassLoader().loadClass(
-          TestJython25Instrumenter.class.getName()));
-    }
-    finally {
-      if (oldPythonHome != null) {
-        System.setProperty("python.home", oldPythonHome);
-      }
-    }
+    return jython25Suite(TestJython25Instrumenter.class);
   }
 
   public void testVersion() throws Exception {
