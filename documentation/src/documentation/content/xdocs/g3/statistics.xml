@@ -46,10 +46,10 @@
 
     <p>A script can query the statistics about the last completed test
     using <a href="script-javadoc/net/grinder/script/Statistics.html#getForLastTest()">
-    grinder.statisticsForLastTest</a>. Script code wrapped in a test can access
+    grinder.statistics.forLastTest</a>. Script code wrapped in a test can access
     information about the statistics for the test (which may be incomplete) using
     <a href="script-javadoc/net/grinder/script/Statistics.html#getForCurrentTest()">
-    grinder.statisticsForCurrentTest</a>. For details of the query and update
+    grinder.statistics.forCurrentTest</a>. For details of the query and update
     methods, see
     <a href="script-javadoc/net/grinder/script/Statistics.StatisticsForTest.html">
     StatisticsForTest</a>. Refer to the documentation of the
