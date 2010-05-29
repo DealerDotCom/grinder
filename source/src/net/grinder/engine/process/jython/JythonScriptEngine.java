@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2010 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -22,15 +22,12 @@
 
 package net.grinder.engine.process.jython;
 
-import java.lang.reflect.Field;
-
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.process.ScriptEngine;
 
-import org.python.core.Py;
+import org.python.core.PyClass;
 import org.python.core.PyException;
-import org.python.core.PyInstance;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
@@ -50,7 +47,9 @@ public final class JythonScriptEngine implements ScriptEngine {
 
   private final PySystemState m_systemState;
   private final PythonInterpreter m_interpreter;
-  private final JythonVersionAdapter m_versionAdapter;
+  private final PyClass m_dieQuietly;  // The softly spoken Welshman.
+  private final String m_version;
+
   private PyObject m_testRunnerFactory;
 
   /**
@@ -63,7 +62,20 @@ public final class JythonScriptEngine implements ScriptEngine {
     PySystemState.initialize();
     m_systemState = new PySystemState();
     m_interpreter = new PythonInterpreter(null, m_systemState);
-    m_versionAdapter = new JythonVersionAdapter();
+
+    m_interpreter.exec("class ___DieQuietly___: pass");
+    m_dieQuietly = (PyClass) m_interpreter.get("___DieQuietly___");
+
+    String version;
+
+    try {
+      version = PySystemState.class.getField("version").get(null).toString();
+    }
+    catch (Exception e) {
+      version = "Unknown";
+    }
+
+    m_version = version;
   }
 
   /**
@@ -154,7 +166,7 @@ public final class JythonScriptEngine implements ScriptEngine {
    * @return The description.
    */
   public String getDescription() {
-    return "Jython " + m_versionAdapter.getVersion();
+    return "Jython " + m_version;
   }
 
   /**
@@ -198,29 +210,36 @@ public final class JythonScriptEngine implements ScriptEngine {
     }
 
     /**
-     * <p>Ensure that if the test runner has a <code>__del__</code>
-     * attribute, it is called when the thread is shutdown. Normally
-     * Jython defers this to the Java garbage collector, so we might
-     * have done something like
+     * <p>
+     * Ensure that if the test runner has a {@code __del__} attribute, it is
+     * called when the thread is shutdown. Normally Jython defers this to the
+     * Java garbage collector, so we might have done something like
      *
-     * <blockquote><pre>
-     * m_testRunner = null; Runtime.getRuntime().gc();
-     *</pre></blockquote>
+     * <blockquote>
+     *
+     * <pre>
+     * m_testRunner = null;
+     * Runtime.getRuntime().gc();
+     *</pre>
+     *
+     * </blockquote>
      *
      * instead. However this would have a number of problems:
      *
      * <ol>
-     * <li>Some JVM's may chose not to finalise the test runner in
-     * response to <code>gc()</code>.</li>
-     * <li><code>__del__</code> would be called by a GC thread.</li>
-     * <li>The standard Jython finalizer wrapping around
-     * <code>__del__</code> logs to <code>stderr</code>.</li>
-     * </ol></p>
+     * <li>Some JVM's may chose not to finalise the test runner in response to
+     * {@code gc()}.</li>
+     * <li>{@code __del__} would be called by a GC thread.</li>
+     * <li>The standard Jython finalizer wrapping around {@code __del__} logs to
+     * {@code stderr}.</li>
+     * </ol>
+     * </p>
      *
-     * <p>Instead, we call any <code>__del__</code> ourselves. After
-     * calling this method, the <code>PyObject</code> that underlies
-     * this class is made invalid.</p>
-    */
+     * <p>
+     * Instead, we call any {@code __del__} ourselves. After calling this
+     * method, the {@code PyObject} that underlies this class is made invalid.
+     * </p>
+     */
     public void shutdown() throws ScriptExecutionException {
 
       final PyObject del = m_testRunner.__findattr__("__del__");
@@ -236,71 +255,12 @@ public final class JythonScriptEngine implements ScriptEngine {
         finally {
           // To avoid the (pretty small) chance of the test runner being
           // finalised and __del__ being run twice, we disable it.
-          m_versionAdapter.disableDel(m_testRunner);
+
+          // Unfortunately, Jython caches the __del__ attribute and makes
+          // it impossible to turn it off at a class level. Instead we do
+          // this:
+          m_testRunner.__setattr__("__class__", m_dieQuietly);
         }
-      }
-    }
-  }
-
-  /**
-   * Work around different the Jython implementations.
-   */
-  private static class JythonVersionAdapter {
-
-    // The softly spoken Welshman.
-    private final PyObject m_dieQuietly = Py.java2py(Object.class);
-
-    private final Field m_instanceClassField;
-    private final String m_version;
-
-    public JythonVersionAdapter() throws EngineException {
-      Field f;
-
-      try {
-        // Jython 2.1
-        f = PyObject.class.getField("__class__");
-      }
-      catch (NoSuchFieldException e) {
-        // Jython 2.2a1+
-        try {
-          f = PyInstance.class.getField("instclass");
-        }
-        catch (NoSuchFieldException e2) {
-          throw new EngineException("Incompatible Jython release in classpath");
-        }
-      }
-
-      m_instanceClassField = f;
-
-      String version;
-
-      try {
-
-        version = PySystemState.class.getField("version").get(null).toString();
-      }
-      catch (Exception e) {
-        version = "Unknown";
-      }
-
-      m_version = version;
-    }
-
-    public String getVersion() {
-      return m_version;
-    }
-
-    public void disableDel(PyObject pyObject) {
-      // Unfortunately, Jython caches the __del__ attribute and makes
-      // it impossible to turn it off at a class level. Instead we do
-      // this:
-      try {
-        m_instanceClassField.set(pyObject, m_dieQuietly);
-      }
-      catch (IllegalArgumentException e) {
-        throw new AssertionError(e);
-      }
-      catch (IllegalAccessException e) {
-        throw new AssertionError(e);
       }
     }
   }
