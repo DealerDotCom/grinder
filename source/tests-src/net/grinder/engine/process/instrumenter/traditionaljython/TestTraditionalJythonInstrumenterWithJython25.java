@@ -37,12 +37,12 @@ import net.grinder.testutility.BlockingClassLoader;
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestJythonEngineWithJython25 extends TestCase {
+public class TestTraditionalJythonInstrumenterWithJython25 extends TestCase {
 
   public static TestSuite suite() throws Exception {
     return new TestSuite(
       BlockingClassLoader.createJython25ClassLoader().loadClass(
-        TestJythonEngineWithJython25.class.getName()));
+        TestTraditionalJythonInstrumenterWithJython25.class.getName()));
   }
 
   public void testJythonInstrumenterFactory() throws Exception {
