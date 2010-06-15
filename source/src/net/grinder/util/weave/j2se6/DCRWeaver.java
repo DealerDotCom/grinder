@@ -178,7 +178,7 @@ public final class DCRWeaver implements Weaver {
       final Pair<Member, TargetSource> locationKey =
         new Pair<Member, TargetSource>(member, targetSource);
 
-      synchronized(this) {
+      synchronized (this) {
         final String alreadyWoven = m_wovenMembers.get(locationKey);
 
         if (alreadyWoven != null) {
@@ -190,7 +190,7 @@ public final class DCRWeaver implements Weaver {
       final String internalClassName = className.replace('.', '/');
       final String location = generateLocationString();
 
-      synchronized(this) {
+      synchronized (this) {
         final Map<T, List<WeavingDetails>> methodNameToWeavingDetails;
 
         final Map<T, List<WeavingDetails>> existingMap =
@@ -223,7 +223,7 @@ public final class DCRWeaver implements Weaver {
         weavingDetailsList.add(new WeavingDetails(location, targetSource));
       }
 
-      synchronized(DCRWeaver.this) {
+      synchronized (DCRWeaver.this) {
         m_pendingClasses.add(member.getDeclaringClass());
       }
 

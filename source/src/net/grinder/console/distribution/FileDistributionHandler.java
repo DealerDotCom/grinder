@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,7 @@
 
 package net.grinder.console.distribution;
 
-import net.grinder.util.FileContents;
+import net.grinder.util.FileContents.FileContentsException;
 
 
 /**
@@ -57,8 +57,8 @@ public interface FileDistributionHandler {
    *
    * @return A {@link Result} or <code>null</code> if there are more
    * files to process.
-   * @throws FileContents.FileContentsException If an error occurs
+   * @throws FileContentsException If an error occurs
    * sending the file.
    */
-  Result sendNextFile() throws FileContents.FileContentsException;
+  Result sendNextFile() throws FileContentsException;
 }

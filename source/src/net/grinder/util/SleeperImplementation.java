@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -97,9 +97,7 @@ public final class SleeperImplementation implements Sleeper {
   }
 
   /**
-   * Shutdown this <code>Sleeper</code>. Once called, all sleep
-   * method invocations will throw {@link Sleeper.ShutdownException},
-   * including those already sleeping.
+   * {@inheritDoc}
    */
   public void shutdown() {
 
@@ -110,24 +108,14 @@ public final class SleeperImplementation implements Sleeper {
   }
 
   /**
-   * Tell the time.
-   *
-   * @return The time. The base time is arbitrary but constant for a given
-   *         TimeAuthority, in a similar fashion to that of
-   *         <code>nanoTime</code>.
+   * {@inheritDoc}
    */
   public long getTimeInMilliseconds() {
     return m_timeAuthority.getTimeInMilliseconds();
   }
 
   /**
-   * Sleep for a time based on the meanTime parameter. The actual
-   * time is taken from a pseudo normal distribution. Approximately
-   * 99.75% of times will be within (100* limit9975Factor) percent
-   * of the meanTime.
-   *
-   * @param meanTime Mean time.
-   * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
+   * {@inheritDoc}
    */
   public void sleepNormal(long meanTime) throws ShutdownException {
 
@@ -135,11 +123,7 @@ public final class SleeperImplementation implements Sleeper {
   }
 
   /**
-   * Sleep for a random time drawn from a pseudo normal distribution.
-   *
-   * @param meanTime Mean time.
-   * @param sigma Standard deviation.
-   * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
+   * {@inheritDoc}
    */
   public void sleepNormal(long meanTime, long sigma) throws ShutdownException {
 
@@ -147,7 +131,7 @@ public final class SleeperImplementation implements Sleeper {
 
     if (meanTime > 0) {
       if (sigma > 0) {
-        doSleep(meanTime + (long)(s_random.nextGaussian() * sigma));
+        doSleep(meanTime + (long) (s_random.nextGaussian() * sigma));
       }
       else {
         doSleep(meanTime);
@@ -156,12 +140,7 @@ public final class SleeperImplementation implements Sleeper {
   }
 
   /**
-   * Sleep for a time based on the maximumTime parameter. The actual
-   * time is taken from a pseudo random flat distribution between 0
-   * and maximumTime.
-   *
-   * @param maximumTime Maximum time.
-   * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
+   * {@inheritDoc}
    */
   public void sleepFlat(long maximumTime) throws ShutdownException {
 

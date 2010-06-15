@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2009 Philip Aston
+// Copyright (C) 2006 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -281,7 +281,7 @@ final class MnemonicHeuristics {
     }
   }
 
-  private abstract class AbstactEarliestMatchHeuristic implements Heuristic {
+  private abstract class AbstractEarliestMatchHeuristic implements Heuristic {
     public int apply(String text) {
       final char[] characters = text.toCharArray();
 
@@ -301,11 +301,11 @@ final class MnemonicHeuristics {
     protected abstract boolean matches(char c);
   }
 
-  private class UpperCaseHeuristic extends AbstactEarliestMatchHeuristic {
+  private class UpperCaseHeuristic extends AbstractEarliestMatchHeuristic {
     protected boolean matches(char c) { return Character.isUpperCase(c); }
   }
 
-  private class LetterOrDigitHeuristic extends AbstactEarliestMatchHeuristic {
+  private class LetterOrDigitHeuristic extends AbstractEarliestMatchHeuristic {
     protected boolean matches(char c) { return Character.isLetterOrDigit(c); }
   }
 

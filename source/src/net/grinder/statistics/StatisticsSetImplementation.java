@@ -374,7 +374,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
 
     final boolean[] isVarianceIndex = new boolean[m_doubleData.length];
 
-    for (LongSampleIndex index: m_statisticsIndexMap.getLongSampleIndicies()) {
+    for (LongSampleIndex index : m_statisticsIndexMap.getLongSampleIndicies()) {
       final LongIndex sumIndex = index.getSumIndex();
       final LongIndex countIndex = index.getCountIndex();
       final DoubleIndex varianceIndex = index.getVarianceIndex();

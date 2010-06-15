@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -51,18 +51,11 @@ public class HTTPResponseFilter implements TCPProxyFilter {
   }
 
   /**
-   * The main handler method called by the proxy engine.
+   * {@inheritDoc}
    *
    * <p>NOTE, this is called for message fragments, don't assume
    * that its passed a complete HTTP message at a time.</p>
    *
-   * @param connectionDetails The TCP connection.
-   * @param buffer The message fragment buffer.
-   * @param bytesRead The number of bytes of buffer to process.
-   * @return Filters can optionally return a <code>byte[]</code>
-   * which will be transmitted to the server instead of
-   * <code>buffer</code>.
-   * @exception FilterException If an error occurs.
    */
   public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
                        int bytesRead)
@@ -74,17 +67,13 @@ public class HTTPResponseFilter implements TCPProxyFilter {
   }
 
   /**
-   * A connection has been opened.
-   *
-   * @param connectionDetails a <code>ConnectionDetails</code> value
+   * {@inheritDoc}
    */
   public void connectionOpened(ConnectionDetails connectionDetails) {
   }
 
   /**
-   * A connection has been closed.
-   *
-   * @param connectionDetails a <code>ConnectionDetails</code> value
+   * {@inheritDoc}
    */
   public void connectionClosed(ConnectionDetails connectionDetails) {
   }

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2009 Philip Aston
+// Copyright (C) 2003 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,15 +37,7 @@ public final class CompositeFilter implements TCPProxyFilter {
     new ArrayList<TCPProxyFilter>();
 
   /**
-   * Handle a message fragment from the stream.
-   *
-   * @param connectionDetails Describes the connection.
-   * @param originalBuffer Contains the data.
-   * @param bytesRead How many bytes of data in <code>buffer</code>.
-   * @return Filters can optionally return a <code>byte[]</code>
-   * which will be transmitted to the server instead of
-   * <code>buffer</code>.
-   * @throws FilterException If an error occurs.
+   * {@inheritDoc}
    */
   public byte[] handle(ConnectionDetails connectionDetails,
                        byte[] originalBuffer, int bytesRead)
@@ -68,29 +60,23 @@ public final class CompositeFilter implements TCPProxyFilter {
   }
 
   /**
-   * A new connection has been opened.
-   *
-   * @param connectionDetails Describes the connection.
-   * @throws FilterException If an error occurs.
+   * {@inheritDoc}
    */
   public void connectionOpened(final ConnectionDetails connectionDetails)
     throws FilterException {
 
-    for (TCPProxyFilter filter: m_filters) {
+    for (TCPProxyFilter filter : m_filters) {
       filter.connectionOpened(connectionDetails);
     }
   }
 
   /**
-   * A connection has been closed.
-   *
-   * @param connectionDetails Describes the connection.
-   * @throws FilterException If an error occurs.x
+   * {@inheritDoc}
    */
   public void connectionClosed(final ConnectionDetails connectionDetails)
     throws FilterException {
 
-    for (TCPProxyFilter filter: m_filters) {
+    for (TCPProxyFilter filter : m_filters) {
       filter.connectionClosed(connectionDetails);
     }
   }
@@ -121,7 +107,7 @@ public final class CompositeFilter implements TCPProxyFilter {
   public String toString() {
     final StringBuffer result = new StringBuffer();
 
-    for (TCPProxyFilter filter: m_filters) {
+    for (TCPProxyFilter filter : m_filters) {
       if (result.length() > 0) {
         result.append(", ");
       }

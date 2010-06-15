@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -118,13 +118,10 @@ public final class InsecureSSLContextFactory implements SSLContextFactory {
   }
 
   /**
-   * Factory method.
-   *
-   * @return An SSLContext.
-   * @exception SSLContextFactoryException If the SSLContext could not
-   * be created.
+   * {@inheritDoc}
    */
   public SSLContext getSSLContext() throws SSLContextFactoryException {
+
     try {
       final SSLContext sslContext = SSLContext.getInstance("SSL");
       sslContext.init(m_keyManagers, s_trustManagers, s_insecureRandom);

@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,41 +33,46 @@ import net.grinder.common.GrinderException;
 public interface Sleeper extends TimeAuthority {
 
   /**
-   * Shutdown this <code>Sleeper</code>. Once called, all sleep
-   * method invocations will throw {@link ShutdownException},
+   * Shutdown this <code>Sleeper</code>. Once called, all sleep method
+   * invocations will throw {@link net.grinder.util.Sleeper.ShutdownException},
    * including those already sleeping.
    */
   void shutdown();
 
   /**
-   * Sleep for a time based on the meanTime parameter. The actual
-   * time is taken from a pseudo normal distribution. Approximately
-   * 99.75% of times will be within (100* limit9975Factor) percent
-   * of the meanTime.
+   * Sleep for a time based on the meanTime parameter. The actual time is taken
+   * from a pseudo normal distribution. Approximately 99.75% of times will be
+   * within (100* limit9975Factor) percent of the meanTime.
    *
-   * @param meanTime Mean time.
-   * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
+   * @param meanTime
+   *          Mean time.
+   * @throws Sleeper.ShutdownException
+   *           If this {@code Sleeper} has been shutdown.
    */
-  void sleepNormal(long meanTime) throws ShutdownException;
+  void sleepNormal(long meanTime) throws Sleeper.ShutdownException;
 
   /**
    * Sleep for a random time drawn from a pseudo normal distribution.
    *
-   * @param meanTime Mean time.
-   * @param sigma Standard deviation.
-   * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
+   * @param meanTime
+   *          Mean time.
+   * @param sigma
+   *          Standard deviation.
+   * @throws Sleeper.ShutdownException
+   *           If this {@code Sleeper} has been shutdown.
    */
-  void sleepNormal(long meanTime, long sigma) throws ShutdownException;
+  void sleepNormal(long meanTime, long sigma) throws Sleeper.ShutdownException;
 
   /**
-   * Sleep for a time based on the maximumTime parameter. The actual
-   * time is taken from a pseudo random flat distribution between 0
-   * and maximumTime.
+   * Sleep for a time based on the maximumTime parameter. The actual time is
+   * taken from a pseudo random flat distribution between 0 and maximumTime.
    *
-   * @param maximumTime Maximum time.
-   * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
+   * @param maximumTime
+   *          Maximum time.
+   * @throws Sleeper.ShutdownException
+   *           If this {@code Sleeper} has been shutdown.
    */
-  void sleepFlat(long maximumTime) throws ShutdownException;
+  void sleepFlat(long maximumTime) throws Sleeper.ShutdownException;
 
   /**
    * Exception used to indicate that a Sleeper has been shutdown.

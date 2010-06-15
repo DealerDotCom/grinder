@@ -1,4 +1,4 @@
-#Fri Apr 23 17:08:37 BST 2010
+#Sat May 29 14:19:29 BST 2010
 block_filters=SourceDirective, assert
 eclipse.preferences.version=1
 exclude_filter=**/tests-src/*.java
@@ -9,7 +9,7 @@ init_string=
 init_string_default=true
 init_string_project_relative=true
 instrument_selected_source_folders=false
-instrumentation_enabled=true
+instrumentation_enabled=false
 instrumentation_level=STATEMENT
 instrumented_source_folder_patterns[0]=tests-src\n**/*.java\n\ndisabled
 instrumented_source_folder_patterns[1]=src\n**/*.java\n\ndisabled

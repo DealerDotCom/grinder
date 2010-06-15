@@ -296,7 +296,7 @@ public final class ASMTransformerFactory
   }
 
   private Map<Weaver.TargetSource, TargetExtractor> m_extractors =
-    new HashMap<Weaver.TargetSource, TargetExtractor>() {{
+    new HashMap<Weaver.TargetSource, TargetExtractor>() { {
       put(Weaver.TargetSource.CLASS, new ClassTargetExtractor());
       put(Weaver.TargetSource.FIRST_PARAMETER,
           new LocalVariableTargetExtractor(0));
@@ -304,7 +304,7 @@ public final class ASMTransformerFactory
           new LocalVariableTargetExtractor(1));
       put(Weaver.TargetSource.THIRD_PARAMETER,
           new LocalVariableTargetExtractor(2));
-    }};
+    } };
 
   private interface TargetExtractor {
     void extract(ContextMethodVisitor methodVisitor);
