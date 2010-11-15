@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,7 @@
 
 package net.grinder.statistics;
 
-import junit.framework.TestCase;
+import static net.grinder.testutility.AssertUtilities.assertNotEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,6 +30,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
 
+import junit.framework.TestCase;
+import net.grinder.statistics.StatisticsIndexMap.DoubleIndex;
+import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.util.Serialiser;
 
 
@@ -42,23 +45,16 @@ import net.grinder.util.Serialiser;
  */
 public class TestStatisticsSetImplementation extends TestCase {
 
-  public TestStatisticsSetImplementation(String name) {
-    super(name);
-  }
-
   private StatisticsIndexMap m_indexMap;
 
-  private StatisticsIndexMap.LongIndex m_longIndex0;
+  private LongIndex m_longIndex0;
+  private LongIndex m_longIndex1;
+  private LongIndex m_longIndex2;
+  private LongIndex m_transientLongIndex;
 
-  private StatisticsIndexMap.LongIndex m_longIndex1;
-
-  private StatisticsIndexMap.LongIndex m_longIndex2;
-
-  private StatisticsIndexMap.DoubleIndex m_doubleIndex0;
-
-  private StatisticsIndexMap.DoubleIndex m_doubleIndex1;
-
-  private StatisticsIndexMap.DoubleIndex m_doubleIndex2;
+  private DoubleIndex m_doubleIndex0;
+  private DoubleIndex m_doubleIndex1;
+  private DoubleIndex m_doubleIndex2;
 
   protected void setUp() throws Exception {
     m_indexMap = StatisticsServicesImplementation.getInstance()
@@ -67,6 +63,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     m_longIndex0 = m_indexMap.getLongIndex("userLong0");
     m_longIndex1 = m_indexMap.getLongIndex("userLong1");
     m_longIndex2 = m_indexMap.getLongIndex("userLong2");
+    m_transientLongIndex = m_indexMap.getLongIndex("period");
     m_doubleIndex0 = m_indexMap.getDoubleIndex("userDouble0");
     m_doubleIndex1 = m_indexMap.getDoubleIndex("userDouble1");
     m_doubleIndex2 = m_indexMap.getDoubleIndex("userDouble2");
@@ -77,6 +74,7 @@ public class TestStatisticsSetImplementation extends TestCase {
       new StatisticsSetImplementation(m_indexMap);
 
     assertEquals(0, statistics.getValue(m_longIndex1));
+    assertEquals(0, statistics.getValue(m_transientLongIndex));
     assertDoublesEqual(0d, statistics.getValue(m_doubleIndex2));
     assertFalse(statistics.isComposite());
   }
@@ -91,15 +89,18 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertTrue(statistics0.isZero());
 
     statistics0.setValue(m_longIndex2, 700);
+    statistics0.setValue(m_transientLongIndex, 123);
     statistics0.setValue(m_doubleIndex2, -0.9999);
     statistics0.setIsComposite();
     assertEquals(700, statistics0.getValue(m_longIndex2));
+    assertEquals(123, statistics0.getValue(m_transientLongIndex));
     assertDoublesEqual(-0.9999d, statistics0.getValue(m_doubleIndex2));
     assertFalse(statistics0.isZero());
     assertTrue(statistics0.isComposite());
 
     statistics0.reset();
     assertEquals(0, statistics0.getValue(m_longIndex2));
+    assertEquals(0, statistics0.getValue(m_transientLongIndex));
     assertDoublesEqual(0d, statistics0.getValue(m_doubleIndex2));
     assertTrue(statistics0.isZero());
     assertFalse(statistics0.isComposite());
@@ -115,20 +116,25 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertEquals(statistics0, statistics1);
     assertEquals(statistics1, statistics0);
 
+    statistics0.setValue(m_transientLongIndex, 123);
+    assertNotEquals(statistics0, statistics1);
+    statistics0.setValue(m_transientLongIndex, 0);
+    assertEquals(statistics0, statistics1);
+
     statistics0.setValue(m_longIndex1, 700);
     assertEquals(700, statistics0.getValue(m_longIndex1));
     statistics0.setValue(m_longIndex1, -300);
     assertEquals(-300, statistics0.getValue(m_longIndex1));
-    assertTrue(!statistics0.equals(statistics1));
-    assertTrue(!statistics1.equals(statistics0));
+    assertNotEquals(statistics0, statistics1);
+    assertNotEquals(statistics1, statistics0);
 
     statistics1.setValue(m_longIndex1, 500);
-    assertTrue(!statistics0.equals(statistics1));
+    assertNotEquals(statistics0, statistics1);
     statistics1.setValue(m_longIndex1, -300);
     assertEquals(statistics0, statistics1);
 
     statistics0.setValue(m_longIndex0, 1);
-    assertTrue(!statistics0.equals(statistics1));
+    assertNotEquals(statistics0, statistics1);
     statistics1.setValue(m_longIndex0, 1);
     assertEquals(statistics0, statistics1);
 
@@ -142,15 +148,15 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertDoublesEqual(7.00d, statistics0.getValue(m_doubleIndex2));
     statistics0.setValue(m_doubleIndex2, 3.00d);
     assertDoublesEqual(3.00d, statistics0.getValue(m_doubleIndex2));
-    assertTrue(!statistics0.equals(statistics1));
+    assertNotEquals(statistics0, statistics1);
 
     statistics1.setValue(m_doubleIndex2, 5.00d);
-    assertTrue(!statistics0.equals(statistics1));
+    assertNotEquals(statistics0, statistics1);
     statistics1.setValue(m_doubleIndex2, 3.00d);
     assertEquals(statistics0, statistics1);
 
     statistics0.setValue(m_doubleIndex0, -1.0d);
-    assertTrue(!statistics0.equals(statistics1));
+    assertNotEquals(statistics0, statistics1);
     statistics1.setValue(m_doubleIndex0, -1.0d);
     assertEquals(statistics0, statistics1);
 
@@ -163,7 +169,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertFalse(statistics0.isComposite());
     statistics0.setIsComposite();
     assertTrue(statistics0.isComposite());
-    assertTrue(!statistics0.equals(statistics1));
+    assertNotEquals(statistics0, statistics1);
     statistics1.setIsComposite();
     assertEquals(statistics0, statistics1);
   }
@@ -189,6 +195,18 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertTrue(!statistics0.equals(statistics1));
     statistics1.addValue(m_doubleIndex1, 5.00d);
     assertEquals(statistics0, statistics1);
+  }
+
+  public void testAddTransientValue() throws Exception {
+    final StatisticsSetImplementation statistics0 =
+      new StatisticsSetImplementation(m_indexMap);
+    final StatisticsSetImplementation statistics1 =
+      new StatisticsSetImplementation(m_indexMap);
+
+    statistics0.addValue(m_transientLongIndex, 700);
+    statistics1.addValue(m_transientLongIndex, 300);
+    assertEquals(statistics0, statistics1);
+    assertEquals(0, statistics1.getValue(m_transientLongIndex));
   }
 
   public void testAdd() throws Exception {
@@ -388,6 +406,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     final StatisticsSetImplementation original0 =
       new StatisticsSetImplementation(m_indexMap);
     original0.addValue(m_longIndex0, Math.abs(random.nextLong()));
+    original0.setValue(m_transientLongIndex, Math.abs(random.nextLong()));
     original0.addValue(m_longIndex2, Math.abs(random.nextLong()));
 
     final StatisticsSetImplementation original1 =
@@ -419,6 +438,10 @@ public class TestStatisticsSetImplementation extends TestCase {
                                       objectInputStream,
                                       serialiser);
 
+    // Transient values aren't serialised.
+    assertEquals(0, received0.getValue(m_transientLongIndex));
+    original0.setValue(m_transientLongIndex, 0);
+
     assertEquals(original0, received0);
     assertEquals(original1, received1);
   }
@@ -438,31 +461,39 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertFalse(rawStatistics0.hashCode() == hashCode0);
   }
 
+  private String commaSeparate(int n, String value) {
+    final StringBuilder result = new StringBuilder();
+
+    result.append("{");
+
+    for (int i = 0; i < n; ++i) {
+      if (i != 0) {
+        result.append(", ");
+      }
+
+      result.append(value);
+    }
+
+    result.append("}");
+
+    return result.toString();
+  }
+
   public void testToString() throws Exception {
+
     final StatisticsSet rawStatistics =
       new StatisticsSetImplementation(m_indexMap);
     final String s0 = rawStatistics.toString();
 
-    final StringBuffer expectedSubstring0 = new StringBuffer();
+    assertTrue(s0.indexOf(commaSeparate(m_indexMap.getNumberOfLongs(), "0"))
+               >= 0);
 
-    for (int i = 0; i < m_indexMap.getNumberOfLongs(); ++i) {
-      if (i != 0) {
-        expectedSubstring0.append(", ");
-      }
-      expectedSubstring0.append("0");
-    }
+    assertTrue(s0.indexOf(
+                 commaSeparate(m_indexMap.getNumberOfTransientLongs(), "0"))
+               >= 0);
 
-    final StringBuffer expectedSubstring1 = new StringBuffer();
-
-    for (int i = 0; i < m_indexMap.getNumberOfDoubles(); ++i) {
-      if (i != 0) {
-        expectedSubstring1.append(", ");
-      }
-      expectedSubstring1.append("0.0");
-    }
-
-    assertTrue(s0.indexOf(expectedSubstring0.toString()) >= 0);
-    assertTrue(s0.indexOf(expectedSubstring1.toString()) >= 0);
+    assertTrue(s0.indexOf(commaSeparate(m_indexMap.getNumberOfDoubles(), "0.0"))
+               >= 0);
 
     assertTrue(s0.indexOf("composite = false") >= 0);
     rawStatistics.setIsComposite();

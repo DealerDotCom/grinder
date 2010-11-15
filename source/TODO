@@ -159,6 +159,11 @@ http://en.wikipedia.org/wiki/Harmonic_mean
 Split out serializeable kernel of TestStatisticsMap? Look hard at where the
 message is deserialised.
 
+Simplify the index classes. Move the index implementations to nested
+classes of StatisticsSetImplementation and expose a single, opaque
+StatsiticsSet.Index interface.
+
+
 *** Aligning data files
 
 Requested by Jose Antonio Zapata:
@@ -324,7 +329,7 @@ Add reset console action.
 ** TCPProxy
 Should listen on all interfaces if -localhost is not specified.
 
-* Build
+* Build and tooling
 
 How to build clover reports during full build?
  - currently "with.clover" only works if clover is first thing on
@@ -334,6 +339,10 @@ How to build clover reports during full build?
  - better to ant ourself?
 
 Include Clover history?
+
+Upgrade to JUnit 4
+
+Introduce Mockito.
 
 * Documentation
 

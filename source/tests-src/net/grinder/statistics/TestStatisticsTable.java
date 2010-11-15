@@ -22,12 +22,11 @@
 
 package net.grinder.statistics;
 
-import junit.framework.TestCase;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
 
+import junit.framework.TestCase;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.testutility.AssertUtilities;
@@ -43,6 +42,7 @@ import net.grinder.testutility.AssertUtilities;
 public class TestStatisticsTable extends TestCase {
 
   private TestStatisticsMap m_testStatisticsMap;
+  private StatisticsIndexMap m_indexMap;
 
   private StatisticsView m_statisticsView;
 
@@ -57,13 +57,12 @@ public class TestStatisticsTable extends TestCase {
     m_testStatisticsMap =
       new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
 
-    final StatisticsIndexMap indexMap =
-      m_statisticsServices.getStatisticsIndexMap();
+    m_indexMap = m_statisticsServices.getStatisticsIndexMap();
 
     final StatisticsIndexMap.LongIndex aIndex =
-      indexMap.getLongIndex("userLong0");
+      m_indexMap.getLongIndex("userLong0");
     final StatisticsIndexMap.LongIndex bIndex =
-      indexMap.getLongIndex("userLong1");
+      m_indexMap.getLongIndex("userLong1");
 
     final StatisticExpressionFactory statisticExpressionFactory =
       StatisticsServicesImplementation.getInstance()
@@ -128,11 +127,11 @@ public class TestStatisticsTable extends TestCase {
     in.close();
 
     final StatisticsTable table =
-      new StatisticsTable(m_statisticsView, m_testStatisticsMap);
+      new StatisticsTable(m_statisticsView, m_indexMap, m_testStatisticsMap);
 
     final StringWriter output = new StringWriter();
     final PrintWriter out = new PrintWriter(output);
-    table.print(out);
+    table.print(out, 1234);
     out.close();
 
     AssertUtilities.assertContains(
@@ -165,11 +164,11 @@ public class TestStatisticsTable extends TestCase {
     in.close();
 
     final StatisticsTable table =
-      new StatisticsTable(m_statisticsView, m_testStatisticsMap);
+      new StatisticsTable(m_statisticsView, m_indexMap, m_testStatisticsMap);
 
     final StringWriter output = new StringWriter();
     final PrintWriter out = new PrintWriter(output);
-    table.print(out);
+    table.print(out, 1234);
     out.close();
 
     AssertUtilities.assertContains(

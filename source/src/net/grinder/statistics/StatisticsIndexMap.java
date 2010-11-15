@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
 // All rights reserved.
@@ -66,6 +66,8 @@ public final class StatisticsIndexMap implements Serializable {
     new HashMap<String, DoubleIndex>();
   private final Map<String, LongIndex> m_longMap =
     new HashMap<String, LongIndex>();
+  private final Map<String, LongIndex> m_transientLongMap =
+    new HashMap<String, LongIndex>();
   private final Map<String, DoubleSampleIndex> m_doubleSampleMap =
     new HashMap<String, DoubleSampleIndex>();
   private final Map<String, LongSampleIndex> m_longSampleMap =
@@ -127,10 +129,10 @@ public final class StatisticsIndexMap implements Serializable {
     // of TestStatisticsMap.
     int nextLongIndex = 0;
     int nextDoubleIndex = 0;
+    int nextTransientLongIndex = 0;
 
     m_longMap.put("errors", new LongIndex(nextLongIndex++));
     m_longMap.put("untimedTests", new LongIndex(nextLongIndex++));
-    m_longMap.put("period", new LongIndex(nextLongIndex++));
     m_longMap.put(HTTP_PLUGIN_RESPONSE_STATUS_KEY,
                   new LongIndex(nextLongIndex++));
     m_longMap.put(HTTP_PLUGIN_RESPONSE_LENGTH_KEY,
@@ -161,6 +163,9 @@ public final class StatisticsIndexMap implements Serializable {
                           new LongIndex(nextLongIndex++),
                           new DoubleIndex(nextDoubleIndex++));
 
+    m_transientLongMap.put("period", new LongIndex(nextTransientLongIndex++,
+                                                   true));
+
     m_numberOfDoubles = nextDoubleIndex;
     m_numberOfLongs = nextLongIndex;
   }
@@ -171,6 +176,10 @@ public final class StatisticsIndexMap implements Serializable {
 
   int getNumberOfLongs() {
     return m_numberOfLongs;
+  }
+
+  int getNumberOfTransientLongs() {
+    return m_transientLongMap.size();
   }
 
   Collection<DoubleSampleIndex> getDoubleSampleIndicies() {
@@ -200,7 +209,14 @@ public final class StatisticsIndexMap implements Serializable {
    * long statistic.
    */
   public LongIndex getLongIndex(String statisticName) {
-    return m_longMap.get(statisticName);
+    final LongIndex nonTransient = m_longMap.get(statisticName);
+
+    if (nonTransient != null) {
+      return nonTransient;
+    }
+    else {
+      return m_transientLongMap.get(statisticName);
+    }
   }
 
   /**
@@ -286,17 +302,29 @@ public final class StatisticsIndexMap implements Serializable {
 
   /**
    * Base for index classes.
+   *
+   * <p>
+   * Refactor me: move the index implementations to nested classes of
+   * StatisticsSetImplementation and expose a single, opaque StatsiticsSet.Index
+   * interface.
+   * </p>
    */
   abstract static class AbstractSimpleIndex {
 
     private final int m_value;
+    private final boolean m_transient;
 
-    protected AbstractSimpleIndex(int i) {
+    protected AbstractSimpleIndex(int i, boolean isTransient) {
       m_value = i;
+      m_transient = isTransient;
     }
 
     public final int getValue() {
       return m_value;
+    }
+
+    public boolean isTransient() {
+      return m_transient;
     }
   }
 
@@ -305,7 +333,7 @@ public final class StatisticsIndexMap implements Serializable {
    */
   public static final class DoubleIndex extends AbstractSimpleIndex {
     private DoubleIndex(int i) {
-      super(i);
+      super(i, false);
     }
   }
 
@@ -314,7 +342,11 @@ public final class StatisticsIndexMap implements Serializable {
    */
   public static final class LongIndex extends AbstractSimpleIndex {
     private LongIndex(int i) {
-      super(i);
+      this(i, false);
+    }
+
+    private LongIndex(int i, boolean isTransient) {
+      super(i, isTransient);
     }
   }
 

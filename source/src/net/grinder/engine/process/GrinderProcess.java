@@ -58,10 +58,8 @@ import net.grinder.script.InvalidContextException;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
-import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.util.JVM;
 import net.grinder.util.thread.BooleanCondition;
 import net.grinder.util.thread.Condition;
@@ -392,21 +390,12 @@ final class GrinderProcess {
 
     logger.output("Final statistics for this process:");
 
-    final LongIndex periodIndex =
-      statisticsServices.getStatisticsIndexMap().getLongIndex("period");
-
-    m_accumulatedStatistics.new ForEach() {
-      protected void next(Test test, StatisticsSet statistics) {
-        statistics.setValue(periodIndex, elapsedTime);
-      }
-    }
-    .iterate();
-
     final StatisticsTable statisticsTable =
       new StatisticsTable(statisticsServices.getSummaryStatisticsView(),
+                          statisticsServices.getStatisticsIndexMap(),
                           m_accumulatedStatistics);
 
-    statisticsTable.print(logger.getOutputLogWriter());
+    statisticsTable.print(logger.getOutputLogWriter(), elapsedTime);
 
     timer.cancel();
 

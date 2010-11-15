@@ -10,6 +10,9 @@ The Grinder 3.5 (Not yet released)
    Fix bug 2952023 - Cookie.parse should recognise "httponly"(lower
    case). Thanks to amachang for the report and the patch.
 
+   Fix bug 3092275 - Incorrect TPS totals in output log. Thanks to
+   Travis Bear for the report.
+
 
 The Grinder 3.4
 ---------------
