@@ -15,17 +15,40 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="ext:grinder-webtest">Grinder Webtest</a>
+      </td>
+
+      <td></td>
+
+      <td>
+     This custom module allows execution of Visual Studio <em>webtest</em> files.
+     It supports parameterization, capturing of variables in HTTP responses, and
+     response validation using regular expressions. Test scripts may be logically
+     grouped into test sets, allowing them to share variables and captured values.
+     Test sets can be run sequentially, randomly, in a specific thread, or
+     according to a percentage-based weighting. A correlating test runner is
+     also provided, making it easier for you to find and capture values in your
+      HTTP responses.
+
+     We have successfully used this module to run load tests of more than 300
+     virtual users, with a scenario involving 21 different webtest scripts
+     recorded in Fiddler.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
         <a href="ext:http-qat">HTTP Quality Assurance Toolkit</a>
       </td>
 
       <td></td>
 
       <td>
-	  HTTP functional and non-functional (load and performance)
-	  toolkit based on jython/grinder (http://grinder.sf.net)
-	  ...includes capabilities to support: SOA services, REST,
-	  json/xml encoding, AES and WS security ... and a stub to
-	  collect requests.
+    HTTP functional and non-functional (load and performance)
+    toolkit based on jython/grinder (http://grinder.sf.net)
+    ...includes capabilities to support: SOA services, REST,
+    json/xml encoding, AES and WS security ... and a stub to
+    collect requests.
       </td>
     </tr>
 
@@ -37,17 +60,17 @@
       <td></td>
 
       <td>
-	  The Grinder Agent Installer is useful when you want to
-	  execute load tests in a heterogeneous context, and to
-	  simulate real users accessing the target application through
-	  a firewall, 3G, VPN, direct (router) and from different
-	  locales, where you haven't access to all this computers for
-	  run the agent.
+    The Grinder Agent Installer is useful when you want to
+    execute load tests in a heterogeneous context, and to
+    simulate real users accessing the target application through
+    a firewall, 3G, VPN, direct (router) and from different
+    locales, where you haven't access to all this computers for
+    run the agent.
 
-	  <p>It provides an installer any user can install and execute
-	  with only click next and provisioning some data in a graphic
-	  environment. You only have to wait the connections in the
-	  console.</p>
+    <p>It provides an installer any user can install and execute
+    with only click next and provisioning some data in a graphic
+    environment. You only have to wait the connections in the
+    console.</p>
       </td>
     </tr>
 

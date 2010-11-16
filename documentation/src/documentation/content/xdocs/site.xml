@@ -208,6 +208,8 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <ground-report href="http://ground.sourceforge.net"/>
 
+    <grinder-webtest href="http://www.automation-excellence.com/software/grinder-webtest"/>
+
     <http-qat href="http://http-qat.sf.net"/>
 
     <headwaysoftware href="http://www.headwaysoftware.com/">
