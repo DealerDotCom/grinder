@@ -13,6 +13,11 @@ The Grinder 3.5 (Not yet released)
    Fix bug 3092275 - Incorrect TPS totals in output log. Thanks to
    Travis Bear for the report.
 
+   Fix bug 3132643 - No statistics to report. This occurred if a clock
+   went backwards in time during a test, and prevented the test from
+   ever executing succesfully again. Thanks to Wallander for the
+   report.
+
 
 The Grinder 3.4
 ---------------

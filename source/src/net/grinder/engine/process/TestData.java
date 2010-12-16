@@ -236,7 +236,8 @@ final class TestData implements RegisteredTest, Recorder {
     }
 
     public void end(boolean success) {
-      m_dispatchTime = m_timeAuthority.getTimeInMilliseconds() - m_startTime;
+      m_dispatchTime =
+        Math.max(m_timeAuthority.getTimeInMilliseconds() - m_startTime, 0);
 
       if (m_pauseTimer.isRunning()) {
         m_pauseTimer.stop();
