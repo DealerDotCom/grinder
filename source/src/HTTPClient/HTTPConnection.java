@@ -50,6 +50,7 @@ import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.net.NoRouteToHostException;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicLong;
 import java.applet.Applet;
 
 import javax.net.ssl.SSLSocket;
@@ -307,10 +308,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     private static boolean       noTrailers = false;
 
     /** hack to capture DNS lookup time */
-    private        long          DNS_time = 0;
+    private        AtomicLong          DNS_time = new AtomicLong();
 
     /** hack to capture Initial Connection time */
-    private        long          con_time = 0;
+    private        AtomicLong          con_time = new AtomicLong();
 
     public interface TimeAuthority {
       long getTimeInMilliseconds();
@@ -1060,7 +1061,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
         // { new NVPair("Content-type", "application/x-www-form-urlencoded") };
         { new NVPair("Content-Type", "application/x-www-form-urlencoded") };
         /** --GRINDER MODIFICATION **/
-	
+
 	return Post(file, Codecs.nv2query(form_data), headers);
     }
 
@@ -3124,7 +3125,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		    else {
 		      sock.setSoTimeout(con_timeout);
 		    }
-		    /** --GRINDER MODIFICATION **/		    
+		    /** --GRINDER MODIFICATION **/
 
 		    input_demux = new StreamDemultiplexor(Protocol, sock, this);
 		    DemuxList.addToEnd(input_demux);
@@ -3394,8 +3395,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		InetAddress[] addr_list = InetAddress.getAllByName(actual_host);
                 /** ++GRINDER MODIFICATION **/
                 // capture time for DNS Lookup
-                DNS_time =
-                  getTimeAuthority().getTimeInMilliseconds() - startTime;
+                DNS_time.set(
+                  Math.max(getTimeAuthority().getTimeInMilliseconds() -
+                           startTime,
+                           0));
                 /** --GRINDER MODIFICATION **/
 		for (int idx=0; idx<addr_list.length; idx++)
 		{
@@ -3411,9 +3414,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
                         sock.setKeepAlive(false);
 
                         // capture time for initial connection
-                        con_time =
-                          getTimeAuthority().getTimeInMilliseconds() -
-                          startTime;
+                        con_time.set(
+                          Math.max(getTimeAuthority().getTimeInMilliseconds() -
+                                   startTime,
+                                   0));
                         /** --GRINDER MODIFICATION **/
 			break;		// success
 		    }
@@ -3450,13 +3454,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
     /** ++GRINDER-MODIFICATION++ */
     public long getDnsTime(){
-           return DNS_time;
+           return DNS_time.get();
     }
     /** --GRINDER-MODIFICATION++ */
 
     /** ++GRINDER-MODIFICATION++ */
     public long getConnectTime(){
-           return con_time;
+           return con_time.get();
     }
     /** --GRINDER-MODIFICATION++ */
 
@@ -4056,11 +4060,19 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		    sock = Socks_client.getSocket(actual_host, actual_port);
 		else
 		{
+            /** ++GRINDER MODIFICATION **/
+            final long startTime =
+              getTimeAuthority().getTimeInMilliseconds();
+            /** --GRINDER MODIFICATION **/
+
 		    // try all A records
 		    InetAddress[] addr_list = InetAddress.getAllByName(actual_host);
                     /** ++GRINDER MODIFICATION **/
                     // capture time for DNS Lookup
-                    DNS_time = getTimeAuthority().getTimeInMilliseconds();
+                    DNS_time.set(
+                       Math.max(getTimeAuthority().getTimeInMilliseconds()
+                                - startTime,
+                                0));
                     /** --GRINDER MODIFICATION **/
 		    for (int idx=0; idx<addr_list.length; idx++)
 		    {
@@ -4076,9 +4088,12 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
                             sock.setKeepAlive(false);
 
                             // capture time for initial connection
-                            con_time =
-                              getTimeAuthority().getTimeInMilliseconds();
-                            /** --GRINDER MODIFICATION */
+                            con_time.set(
+                              Math.max(
+                                getTimeAuthority().getTimeInMilliseconds()
+                                - startTime,
+                                0));
+                           /** --GRINDER MODIFICATION */
 			    break;		// success
 			}
 			catch (SocketException se)

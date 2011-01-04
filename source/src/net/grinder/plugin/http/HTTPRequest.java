@@ -1324,15 +1324,11 @@ public class HTTPRequest {
 
           // These statistics are accumulated over all the
           // HTTPRequests wrapped in the Test.
-          if (dnsTime >= 0) {
-            statisticsForCurrentTest.addLong(
-              StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY, dnsTime);
-          }
+          statisticsForCurrentTest.addLong(
+            StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY, dnsTime);
 
-          if (connectTime >= 0) {
-            statisticsForCurrentTest.addLong(
-              StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY, connectTime);
-          }
+          statisticsForCurrentTest.addLong(
+            StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY, connectTime);
 
           statisticsForCurrentTest.addLong(
             StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,

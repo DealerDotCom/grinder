@@ -935,9 +935,8 @@ public class TestHTTPRequest extends TestCase {
     assertTrue(response.getInputStream() instanceof ByteArrayInputStream);
     assertEquals(bodyText, response.getText());
 
-    // Now try again, but with invalid DNS, connect times. Unsure how these
-    // can actually be < 0, but I've explicitly handled it so I'm not about
-    // to remove it in a hurry.
+    // Now try again, but with invalid DNS, connect times. These will be
+    // reported as zero.
     timeAuthority.setTimes(
       new long[] {
           400, // start time
@@ -962,6 +961,12 @@ public class TestHTTPRequest extends TestCase {
     m_statisticsForTestStubFactory.assertSuccess(
       "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY,
       new Long(200));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY,
+      new Long(0));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY,
+      new Long(0));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
       new Long(19));
@@ -1052,9 +1057,8 @@ public class TestHTTPRequest extends TestCase {
     assertTrue(!(response.getInputStream() instanceof ByteArrayInputStream));
     assertEquals(bodyText, response.getText());
 
-    // Now try again, but with invalid DNS, connect times. Unsure how these
-    // can actually be < 0, but I've explicitly handled it so I'm not about
-    // to remove it in a hurry.
+    // Now try again, but with invalid DNS, connect times. These will be
+    // reported as zero.
     timeAuthority.setTimes(
       new long[] {
           400, // start time
@@ -1079,6 +1083,12 @@ public class TestHTTPRequest extends TestCase {
     m_statisticsForTestStubFactory.assertSuccess(
       "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY,
       new Long(200));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY,
+      new Long(0));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY,
+      new Long(0));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
       new Long(19));
