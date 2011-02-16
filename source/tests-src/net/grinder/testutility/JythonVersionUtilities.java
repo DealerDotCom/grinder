@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Philip Aston
+// Copyright (C) 2010 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -72,6 +72,9 @@ public class JythonVersionUtilities {
     finally {
       if (oldPythonHome != null) {
         System.setProperty("python.home", oldPythonHome);
+      }
+      else {
+        System.clearProperty("python.home");
       }
     }
   }

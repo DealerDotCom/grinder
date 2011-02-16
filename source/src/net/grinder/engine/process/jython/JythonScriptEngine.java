@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2010 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -22,6 +22,8 @@
 
 package net.grinder.engine.process.jython;
 
+import java.io.File;
+
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.process.ScriptEngine;
@@ -44,6 +46,9 @@ import org.python.util.PythonInterpreter;
  */
 public final class JythonScriptEngine implements ScriptEngine {
   private static final String TEST_RUNNER_CALLABLE_NAME = "TestRunner";
+  private static final String PYTHON_HOME = "python.home";
+  private static final String PYTHON_CACHEDIR = "python.cachedir";
+  private static final String CACHEDIR_DEFAULT_NAME = "cachedir";
 
   private final PySystemState m_systemState;
   private final PythonInterpreter m_interpreter;
@@ -59,7 +64,29 @@ public final class JythonScriptEngine implements ScriptEngine {
    */
   public JythonScriptEngine() throws EngineException {
 
-    PySystemState.initialize();
+    // Work around Jython issue 1894900.
+    // If the python.cachedir has not been specified, and Jython is loaded
+    // via the manifest classpath or the jar in the lib directory is
+    // explicitly mentioned in the CLASSPATH, then set the cache directory to
+    // be alongside jython.jar.
+    if (System.getProperty(PYTHON_HOME) == null &&
+        System.getProperty(PYTHON_CACHEDIR) == null) {
+      final String classpath = System.getProperty("java.class.path");
+
+      final File grinderJar = findFileInPath(classpath, "grinder.jar");
+      final File grinderJarDirectory =
+        grinderJar != null ? grinderJar.getParentFile() : new File(".");
+
+      final File jythonJar = findFileInPath(classpath, "jython.jar");
+      final File jythonHome =
+        jythonJar != null ? jythonJar.getParentFile() : grinderJarDirectory;
+
+      if (grinderJarDirectory.equals(jythonHome)) {
+        final File cacheDir = new File(jythonHome, CACHEDIR_DEFAULT_NAME);
+        System.setProperty("python.cachedir", cacheDir.getAbsolutePath());
+      }
+    }
+
     m_systemState = new PySystemState();
     m_interpreter = new PythonInterpreter(null, m_systemState);
 
@@ -263,5 +290,24 @@ public final class JythonScriptEngine implements ScriptEngine {
         }
       }
     }
+  }
+
+  /**
+   * Package scope for unit tests.
+   *
+   * @param path The path to search.
+   * @param fileName Name of the jar file to find.
+   */
+  static File findFileInPath(String path, String fileName) {
+
+    for (String pathEntry : path.split(File.pathSeparator)) {
+      final File file = new File(pathEntry);
+
+     if (file.exists() && file.getName().equals(fileName)) {
+        return file;
+      }
+    }
+
+    return null;
   }
 }

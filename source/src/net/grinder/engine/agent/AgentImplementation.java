@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
@@ -68,12 +68,9 @@ import net.grinder.util.thread.Condition;
  */
 public final class AgentImplementation implements Agent {
 
-  private static final String AGENT_JAR_FILENAME = "grinder-agent.jar";
-
   private final Logger m_logger;
   private final File m_alternateFile;
   private final boolean m_proceedWithoutConsole;
-  private final File m_javaAgentFile;
 
   private final Timer m_timer = new Timer(true);
   private final Condition m_eventSynchronisation = new Condition();
@@ -110,26 +107,6 @@ public final class AgentImplementation implements Agent {
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, m_logger);
     m_agentIdentity = new AgentIdentityImplementation(getHostName());
-    m_javaAgentFile = findJavaAgentFile();
-  }
-
-  /**
-   * Package scope for unit tests.
-   */
-  static File findJavaAgentFile() {
-    final String[] classPath =
-      System.getProperty("java.class.path").split(File.pathSeparator);
-
-    for (String classPathEntry : classPath) {
-      final File siblingFile =
-        new File(new File(classPathEntry).getParent(), AGENT_JAR_FILENAME);
-
-      if (siblingFile.exists()) {
-        return siblingFile;
-      }
-    }
-
-    return null;
   }
 
   /**
@@ -267,7 +244,6 @@ public final class AgentImplementation implements Agent {
             final WorkerProcessCommandLine workerCommandLine =
               new WorkerProcessCommandLine(properties,
                                            System.getProperties(),
-                                           m_javaAgentFile,
                                            jvmArguments);
 
             m_logger.output(

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -129,6 +129,74 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     final ScriptEngine scriptEngine2 = new JythonScriptEngine();
     scriptEngine2.initialise(script2);
     scriptEngine2.shutdown();
+  }
+
+  public void testConstructorWithEmptyClasspath() throws Exception {
+    System.clearProperty("python.cachedir");
+    final String originalClasspath = System.getProperty("java.class.path");
+
+    System.setProperty("java.class.path", "");
+
+    try {
+      new JythonScriptEngine();
+      assertNotNull(System.getProperty("python.cachedir"));
+      System.clearProperty("python.cachedir");
+    }
+    finally {
+      System.setProperty("java.class.path", originalClasspath);
+      System.clearProperty("python.cachedir");
+    }
+  }
+
+  public void testConstructorWithCollocatedGrinderAndJythonJars()
+    throws Exception {
+
+    System.clearProperty("python.cachedir");
+    final String originalClasspath = System.getProperty("java.class.path");
+
+    final File grinderJar = new File(getDirectory(), "grinder.jar");
+    grinderJar.createNewFile();
+    final File jythonJar = new File(getDirectory(), "jython.jar");
+    jythonJar.createNewFile();
+
+    System.setProperty("java.class.path",
+                       grinderJar.getAbsolutePath() + File.pathSeparator +
+                       jythonJar.getAbsolutePath());
+
+    try {
+      new JythonScriptEngine();
+      assertNotNull(System.getProperty("python.cachedir"));
+      System.clearProperty("python.cachedir");
+    }
+    finally {
+      System.setProperty("java.class.path", originalClasspath);
+    }
+  }
+
+  public void testConstructorWithNonCollocatedGrinderAndJythonJars()
+    throws Exception {
+
+    System.clearProperty("python.cachedir");
+    final String originalClasspath = System.getProperty("java.class.path");
+
+    final File anotherDirectory = new File(getDirectory(), "foo");
+    anotherDirectory.mkdirs();
+    final File grinderJar = new File(anotherDirectory, "grinder.jar");
+    grinderJar.createNewFile();
+    final File jythonJar = new File(getDirectory(), "jython.jar");
+    jythonJar.createNewFile();
+
+    System.setProperty("java.class.path",
+                       grinderJar.getAbsolutePath() + File.pathSeparator +
+                       jythonJar.getAbsolutePath());
+
+    try {
+      new JythonScriptEngine();
+      assertNull(System.getProperty("python.cachedir"));
+    }
+    finally {
+      System.setProperty("java.class.path", originalClasspath);
+    }
   }
 
   public void testShutdown() throws Exception {
@@ -271,7 +339,6 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     // Try it again, __del__ should now be disabled.
     runnable5.shutdown();
   }
-
 
   public void testNewWorkerRunnableWithTestRunner() throws Exception {
     final JythonScriptEngine scriptEngine = new JythonScriptEngine();

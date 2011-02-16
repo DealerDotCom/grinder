@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2010 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,17 +56,14 @@ public class TestAgentImplementation extends AbstractFileTestCase {
 
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
   private final Logger m_logger = m_loggerStubFactory.getLogger();
-  private String m_originalClassPath;
 
   protected void setUp() throws Exception {
     DebugThreadWorkerFactory.setIsolatedRunnerClass(TestRunner.class);
-    m_originalClassPath = System.getProperty("java.class.path");
     super.setUp();
   }
 
   protected void tearDown() throws Exception {
     super.tearDown();
-    System.setProperty("java.class.path", m_originalClassPath);
     DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
   }
 
@@ -446,43 +443,6 @@ public class TestAgentImplementation extends AbstractFileTestCase {
     console2.shutdown();
 
     agent.shutdown();
-  }
-
-  public void testFindAgentFile() throws Exception {
-    System.setProperty("java.class.path", "");
-
-    assertNull(AgentImplementation.findJavaAgentFile());
-
-    System.setProperty("java.class.path",
-                       "somewhere " + File.pathSeparatorChar + "somewhereelse");
-
-    assertNull(AgentImplementation.findJavaAgentFile());
-
-    final File directories = new File(getDirectory(), "a/b");
-    directories.mkdirs();
-
-    System.setProperty(
-      "java.class.path",
-      new File(directories.getAbsoluteFile(), "c.jar").getPath());
-    assertNull(AgentImplementation.findJavaAgentFile());
-
-    new File(directories, "grinder-agent.jar").createNewFile();
-    assertNotNull(AgentImplementation.findJavaAgentFile());
-
-    System.setProperty(
-      "java.class.path",
-      new File(getDirectory().getAbsoluteFile(), "c.jar").getPath());
-    assertNull(AgentImplementation.findJavaAgentFile());
-
-    new File(getDirectory(), "grinder-agent.jar").createNewFile();
-    assertNotNull(AgentImplementation.findJavaAgentFile());
-
-    System.setProperty("java.class.path", m_originalClassPath);
-
-    assertNotNull(AgentImplementation.findJavaAgentFile());
-
-    // I'd like also to test with relative paths, but this is impossible to
-    // do in a platform independent manner.
   }
 
   private abstract class ConsoleStub {

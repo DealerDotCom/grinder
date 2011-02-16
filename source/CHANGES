@@ -22,6 +22,10 @@ The Grinder 3.5 (Not yet released)
    set. This was due to an errror in the fix for 3132940. Thanks to
    Jagdish A for the report, and to Wallander for testing.
 
+   Work around Jython issue 1894900. If the default Jython jar is used
+   and it looks like the Jython cachedir has not been configured, then
+   create a cache directory in lib.
+
 
 The Grinder 3.4
 ---------------
