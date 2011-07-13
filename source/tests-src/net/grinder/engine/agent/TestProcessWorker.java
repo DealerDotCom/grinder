@@ -158,6 +158,8 @@ public class TestProcessWorker extends TestCase {
 
     childProcess.waitFor();
 
+    t.join(1000);
+
     assertTrue(!t.isAlive());
 
     final byte[] outputBytes = m_outputStream.toByteArray();
