@@ -15,11 +15,11 @@ The Grinder 3.5 (Not yet released)
 
    Fix bug 3132643 - No statistics to report. This occurred if a clock
    went backwards in time during a test, and prevented the test from
-   ever executing succesfully again. Thanks to Wallander for the
+   ever executing successfully again. Thanks to Wallander for the
    report.
 
    Fix bug 3132940 - Incorrect connect/DNS times when connect timeout
-   set. This was due to an errror in the fix for 3132940. Thanks to
+   set. This was due to an error in the fix for 3132940. Thanks to
    Jagdish A for the report, and to Wallander for testing.
 
    Work around Jython issue 1894900. If the default Jython jar is used
