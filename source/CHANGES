@@ -26,6 +26,9 @@ The Grinder 3.5 (Not yet released)
    and it looks like the Jython cachedir has not been configured, then
    create a cache directory in lib.
 
+   Fulfil feature request 3324241 - Upgrade to PicoContainer 2.13.6.
+   Thanks to Alexis Bezverkhyy the request.
+
 
 The Grinder 3.4
 ---------------
