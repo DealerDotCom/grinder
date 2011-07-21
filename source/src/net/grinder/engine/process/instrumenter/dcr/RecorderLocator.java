@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -209,7 +209,19 @@ public final class RecorderLocator implements RecorderRegistry {
     final List<Recorder> oldList =
       locationMap.putIfAbsent(location.intern(), newList);
 
-    (oldList != null ? oldList : newList).add(recorder);
+    final List<Recorder> recorderList = oldList != null ? oldList : newList;
+
+    // Same target, location, recorder => no-op, avoiding memory leak. The
+    // Recorder implementation ignores recursive invocations, so only the
+    // first registered instance of a (target, location, recorder) tuple
+    // matters.
+    for (Recorder existingRecorder : recorderList) {
+      if (existingRecorder == recorder) {
+        return;
+      }
+    }
+
+    recorderList.add(recorder);
   }
 
   private static final class RecordingFailureException

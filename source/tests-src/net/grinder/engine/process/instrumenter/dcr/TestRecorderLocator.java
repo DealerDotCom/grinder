@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -185,11 +185,13 @@ public class TestRecorderLocator extends TestCase {
     final Object target = new Object();
 
     m_recorderRegistry.register(target, "location", m_recorder);
+
+    // Same target, location, recorder => noop.
     m_recorderRegistry.register(target, "location", m_recorder);
+
     m_recorderRegistry.register(target, "location", m_recorder2);
 
     RecorderLocator.enter(target, "location");
-    m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory2.assertSuccess("start");
     m_recorderStubFactory.assertNoMoreCalls();
@@ -197,7 +199,6 @@ public class TestRecorderLocator extends TestCase {
 
     RecorderLocator.exit(target, "location", false);
     m_recorderStubFactory2.assertSuccess("end", false);
-    m_recorderStubFactory.assertSuccess("end", false);
     m_recorderStubFactory.assertSuccess("end", false);
     m_recorderStubFactory.assertNoMoreCalls();
     m_recorderStubFactory2.assertNoMoreCalls();
