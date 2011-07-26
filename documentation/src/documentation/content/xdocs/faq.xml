@@ -1198,7 +1198,7 @@ class TestRunner:
       <p>Mark Theunissen reports that this problem occurs if
       you are using regular expressions with
       <a href="site:g3/scripts/jython-2.5">Jython 2.5</a>. Mark
-      succesfully worked around the problem my removing the Jython 2.2.1
+      succesfully worked around the problem by removing the Jython 2.2.1
       <code>jython.jar</code> from the <code>lib</code> directory.</p>
 
       </answer>
