@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009-2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -76,9 +76,40 @@ final class Jython25Instrumenter extends DCRInstrumenter {
     super(weaver, recorderRegistry);
 
     try {
+      final List<Method> methodsForPyFunction = new ArrayList<Method>();
+
+      for (Method method : PyFunction.class.getDeclaredMethods()) {
+        // Roughly identify the fundamental __call__ methods, i.e. those
+        // that call the actual func_code.
+        if ((method.getName().equals("__call__") ||
+             // Add function__call__ for refactoring in Jython 2.5.2.
+             method.getName().equals("function___call__")) &&
+            method.getParameterTypes().length >= 1 &&
+            method.getParameterTypes()[0] == ThreadState.class) {
+          methodsForPyFunction.add(method);
+        }
+      }
+
+      assertAtLeastOneMethod(methodsForPyFunction);
+
+      m_pyFunctionInstrumenter = new Instrumenter() {
+          public void transform(Recorder recorder, Object target)
+            throws NonInstrumentableTypeException {
+
+            for (Method method : methodsForPyFunction) {
+              instrument(target,
+                         method,
+                         TargetSource.FIRST_PARAMETER,
+                         recorder);
+            }
+          }
+        };
+
       final List<Method> methodsForPyInstance = new ArrayList<Method>();
 
       for (Method method : PyFunction.class.getDeclaredMethods()) {
+        // Here we're finding the fundamental __call__ methods that also
+        // take an instance argument.
         if (method.getName().equals("__call__") &&
             method.getParameterTypes().length >= 2 &&
             method.getParameterTypes()[0] == ThreadState.class &&
@@ -86,6 +117,8 @@ final class Jython25Instrumenter extends DCRInstrumenter {
           methodsForPyInstance.add(method);
         }
       }
+
+      assertAtLeastOneMethod(methodsForPyInstance);
 
       m_pyInstanceInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
@@ -100,21 +133,27 @@ final class Jython25Instrumenter extends DCRInstrumenter {
           }
         };
 
-      final List<Method> methodsForPyFunctionCall = new ArrayList<Method>();
+      final List<Method> methodsForPyMethod = new ArrayList<Method>();
 
-      for (Method method : PyFunction.class.getDeclaredMethods()) {
-        if (method.getName().equals("__call__") &&
+      for (Method method : PyMethod.class.getDeclaredMethods()) {
+        // Roughly identify the fundamental __call__ methods, i.e. those
+        // that call the actual func_code.
+        if ((method.getName().equals("__call__") ||
+             // Add instancemethod___call__ for refactoring in Jython 2.5.2.
+             method.getName().equals("instancemethod___call__")) &&
             method.getParameterTypes().length >= 1 &&
             method.getParameterTypes()[0] == ThreadState.class) {
-          methodsForPyFunctionCall.add(method);
+          methodsForPyMethod.add(method);
         }
       }
 
-      m_pyFunctionInstrumenter = new Instrumenter() {
+      assertAtLeastOneMethod(methodsForPyMethod);
+
+      m_pyMethodInstrumenter = new Instrumenter() {
           public void transform(Recorder recorder, Object target)
             throws NonInstrumentableTypeException {
 
-            for (Method method : methodsForPyFunctionCall) {
+            for (Method method : methodsForPyMethod) {
               instrument(target,
                          method,
                          TargetSource.FIRST_PARAMETER,
@@ -122,23 +161,6 @@ final class Jython25Instrumenter extends DCRInstrumenter {
             }
           }
         };
-
-      final Method pyMethodCall =
-        PyMethod.class.getDeclaredMethod("__call__",
-                                         ThreadState.class,
-                                         PyObject[].class,
-                                         String[].class);
-
-      m_pyMethodInstrumenter = new Instrumenter() {
-          public void transform(Recorder recorder, Object target)
-            throws NonInstrumentableTypeException {
-            instrument(target,
-                       pyMethodCall,
-                       TargetSource.FIRST_PARAMETER,
-                       recorder);
-          }
-        };
-
 
       final Method pyReflectedConstructorCall =
         PyReflectedConstructor.class.getDeclaredMethod("__call__",
@@ -248,6 +270,13 @@ final class Jython25Instrumenter extends DCRInstrumenter {
     }
     catch (NoSuchMethodException e) {
       throw new WeavingException("Jython 2.5 not found", e);
+    }
+  }
+
+  private static void assertAtLeastOneMethod(List<Method> methods)
+    throws WeavingException {
+    if (methods.size() == 0) {
+      throw new WeavingException("Jython 2.5 not found");
     }
   }
 

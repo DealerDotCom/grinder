@@ -8,9 +8,12 @@
 </header>
 <body>
 
-  <p>The default Jython implementation packaged with The Grinder is Jython 2.2.
-  The Grinder 3.3 and later optionally support Jython 2.5. Jython 2.5.1 has also
-  been tested and works fine.</p>
+  <p>The default Jython implementation packaged with The Grinder is
+  Jython 2.2. The Grinder 3.3 and later optionally support Jython 2.5,
+  as described on this page. Jython 2.5.1 has also been tested and
+  works fine.</p>
+
+  <p>Jython 2.5.2 works with The Grinder 3.5 or later.</p>
 
   <section>
     <title>How to use Jython 2.5</title>

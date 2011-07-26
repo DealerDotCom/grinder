@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009-2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -184,7 +184,9 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     // From Jython.
     m_interpreter.set("proxy", pyType);
 
-    m_interpreter.exec("result2 = MyClass.staticSix()");
+    // From Jython 2.5.2, static method references are bound to distinct Jython
+    // instances.
+    m_interpreter.exec("result2 = x() # MyClass.staticSix()");
     final PyObject result2 = m_interpreter.get("result2");
     assertEquals(m_six, result2);
     m_recorderStubFactory.assertSuccess("start");

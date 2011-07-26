@@ -10,6 +10,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ASM 3.2 - core"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ASM 3.2 - util"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Jython 2.2.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Jython 2.5.2"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Jython 2.5.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Jython 2.5.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
