@@ -46,15 +46,17 @@ public class JythonVersionUtilities {
   // special suite method for that version.
 
   public static TestSuite jython21Suite(Class<?> suite) throws Exception {
-    final TestSuite result = new TestSuite();
+    final TestSuite result = new TestSuite(suite.getName() + " [Jython 2.1]");
     result.addTest(jythonSuite(suite, "jython2_1.dir"));
     return result;
   }
 
   public static TestSuite jython25Suite(Class<?> suite) throws Exception {
-    final TestSuite result = new TestSuite();
+    final TestSuite result = new TestSuite(suite.getName() + " [Jython 2.5]");
+    result.addTest(jythonSuite(suite, "jython2_5_2.dir"));
     result.addTest(jythonSuite(suite, "jython2_5_0.dir"));
     result.addTest(jythonSuite(suite, "jython2_5_1.dir"));
+
     return result;
   }
 
@@ -82,7 +84,8 @@ public class JythonVersionUtilities {
         BlockingClassLoader.createClassLoader(GRINDER_AND_PYTHON_CLASSES,
                                               Arrays.asList(jythonJarURL));
 
-      return new TestSuite(classLoader.loadClass(suite.getName()));
+      return new TestSuite(classLoader.loadClass(suite.getName()),
+                           pythonHome);
     }
     finally {
       if (oldPythonHome != null) {
