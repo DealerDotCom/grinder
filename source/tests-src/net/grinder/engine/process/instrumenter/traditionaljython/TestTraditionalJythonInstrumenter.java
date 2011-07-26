@@ -47,6 +47,10 @@ public class TestTraditionalJythonInstrumenter
     super(new TraditionalJythonInstrumenter());
   }
 
+  public void testVersion() throws Exception {
+    assertVersion("2.2.1");
+  }
+
   @Override protected void assertTestReference(PyObject pyObject, Test test) {
     assertSame(test, pyObject.__getattr__("__test__").__tojava__(Test.class));
   }

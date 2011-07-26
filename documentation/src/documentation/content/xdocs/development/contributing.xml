@@ -75,10 +75,16 @@ tests, reports, and release process.</p>
       <td><a href="ext:svnant">svnant 1.0.0</a></td>
       <td>to run the Ant tasks that release The Grinder</td>
     </tr>
-
   </table>
 
   <p>Later versions of these packages should also work.</p>
+
+  <table class="noborder">
+    <tr>
+      <td><a href="ext:jython">Jython 2.1, 2.5.0, 2.5.1</a></td>
+      <td>to verify The Grinder works with alternative Jython versions</td>
+    </tr>
+  </table>
 
   </section>
 

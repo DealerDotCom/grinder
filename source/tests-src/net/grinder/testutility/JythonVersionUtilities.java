@@ -42,12 +42,20 @@ public class JythonVersionUtilities {
                   "test.*",
                   "+net.grinder.util.weave.agent.*");
 
+  // The default classloader uses Jython 2.2.1, so there's no need for a
+  // special suite method for that version.
+
   public static TestSuite jython21Suite(Class<?> suite) throws Exception {
-    return jythonSuite(suite, "jython21.dir");
+    final TestSuite result = new TestSuite();
+    result.addTest(jythonSuite(suite, "jython2_1.dir"));
+    return result;
   }
 
   public static TestSuite jython25Suite(Class<?> suite) throws Exception {
-    return jythonSuite(suite, "jython25.dir");
+    final TestSuite result = new TestSuite();
+    result.addTest(jythonSuite(suite, "jython2_5_0.dir"));
+    result.addTest(jythonSuite(suite, "jython2_5_1.dir"));
+    return result;
   }
 
   private static TestSuite jythonSuite(Class<?> suite,
@@ -57,6 +65,13 @@ public class JythonVersionUtilities {
     final String oldPythonHome = System.getProperty("python.home");
 
     final String pythonHome = System.getProperty(pythonHomeProperty);
+
+    if (pythonHome == null) {
+      System.err.println("***** " +
+                         pythonHomeProperty +
+                         " not set, skipping tests for Jython version.");
+      return new TestSuite();
+    }
 
     System.setProperty("python.home", pythonHome);
 
