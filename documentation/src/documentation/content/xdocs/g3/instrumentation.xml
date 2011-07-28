@@ -172,7 +172,7 @@ class TestRunner:
       inefficiency.
 
       </warning>
-    <section>
+    <section id="record-api">
       <title>New API - <code>record()</code>, not <code>wrap()</code></title>
 
       <p>The traditional instrumenter creates separate <em>wrapper</em> proxy objects,

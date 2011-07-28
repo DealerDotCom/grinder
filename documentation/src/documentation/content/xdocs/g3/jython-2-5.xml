@@ -27,15 +27,125 @@
     <p>The support for Jython 2.5 uses the
     <a href="site:script-instrumentation/new-instrumentation">new instrumentation engine</a>,
   and so requires that the agent processes are run using Java SE 6.</p>
+  </section>
 
+  <section>
+    <title>Known issues</title>
 
-    <section>
-      <title>Known issues</title>
-
-      <p>You may also find the need to remove or rename the <code>jython.jar</code>
+    <p>You may also find the need to remove or rename the <code>jython.jar</code>
       file from the <code>lib</code> directory.
       See this <a href="site:sre-assertion">FAQ</a>.</p>
-    </section>
   </section>
+
+  <section>
+    <title>Behavioural differences due to the new instrumentation</title>
+
+    <p>The new instrumentation differs from the traditional
+    instrumentation as reflected in its <a
+    href="site:script-instrumentation/record-api">API</a>. In
+    particular, script authors must take into account that the target
+    object is modified by the instrumentation, rather than a separate
+    proxy object.</p>
+
+    <p>The new approach is less invasive than the old as there is no
+    need to worry about invoking tests through separate proxy objects.
+    Most things work without surprises. However, there are one or two
+    traps for the unwary. These are documented below.
+    </p>
+
+    <section>
+      <title>Jython scripts instrument internal runtime objects, not
+      Java objects</title>
+
+      <p>Where a Jython script refers to a Java instance, method, or
+      class, Jython creates an internal runtime object. These runtime
+      objects are mostly invisible to scripts.</p>
+
+      <p>If a Jython script calls <code>record</code> on a Java target
+      (instance, method, or class), it is the runtime object that is
+      instrumented, not the Java code. This means that if the target
+      is called directly from Java, the instrumentation will be
+      bypassed. The reverse is not true: if you instrument something
+      in Java code, then call it from Jython, the instrumentation will
+      work fine.</p>
+
+      <p>This problem only affects script authors who need to call
+      instrumented code from Java. Today, the only work around is to
+      call <code>record</code> from Java.</p>
+
+      <p>Unfortunately, this exposes cracks between Jython and Java.
+      In an ideal world, The Grinder would unwrap the internal runtime
+      object and instrument the underlying Java object. So far, this
+      has proved too difficult to implement because the Jython runtime
+      objects don't expose the underlying Java objects, and there are
+      significant internal differences between the various Jython
+      versions.</p>
+
+    </section>
+
+    <section>
+      <title>Java instance method bindings</title>
+
+      <note>The following is true for all versions of Jython we have
+      tested, including Jython 2.2.1, 2.5.0, 2.5.1, 2.5.2.</note>
+
+      <p>For each place that a script refers to a method of a Java
+      instance, Jython creates a separate internal runtime object.
+      Consequently, if you want to instrument and call a Java method
+      from Jython, you must take care to use the same runtime object.
+      </p>
+
+      <p>For example, the following will not work as intended. There
+      are two runtime objects that reference
+      <code>grinder.logger.output</code>, and only the first is
+      instrumented. </p>
+
+       <source>
+from net.grinder.script import Test
+from net.grinder.script.Grinder import grinder
+test1 = Test(1, "Log method")
+
+test1.record(grinder.logger.output)
+
+class TestRunner:
+    def __call__(self):
+        grinder.logger.output("Hello World")
+       </source>
+
+      <p>Here's a corrected script.</p>
+
+       <source>
+from net.grinder.script import Test
+from net.grinder.script.Grinder import grinder
+test1 = Test(1, "Log method")
+
+output = grinder.logger.output
+test1.record(output)
+
+class TestRunner:
+    def __call__(self):
+        output("Hello World")
+       </source>
+
+      <p>Fortunately, you only need to remember this for Java methods.
+      Jython uses a single runtime object for other target types (Java
+      classes, Jython objects, and functions).
+      </p>
+    </section>
+
+    <section>
+      <title>Java static method bindings</title>
+
+      <p>Jython 2.5.2 behaves differently to early versions. Jython
+      2.5.1 and earlier use a single runtime object to represent
+      multiple references to a Java static method. Jython 2.5.2
+      creates a separate runtime object for each reference to a Java
+      static method. The consequences are similar to those described
+      above for Java instance method bindings.</p>
+    </section>
+
+  </section>
+
+
 </body>
 </document>
