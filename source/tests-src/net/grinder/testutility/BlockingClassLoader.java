@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2010 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,17 @@
 
 package net.grinder.testutility;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.enumeration;
+
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
 
 import net.grinder.util.IsolatingClassLoader;
 
@@ -49,8 +55,9 @@ public class BlockingClassLoader extends URLClassLoader {
    * and allow alternative implementations to be provided.
    *
    * @param blockedClasses
-   *          Classes and packages to hide. See {@link #BlockingClassLoader} for
-   *          wild card rules.
+   *          Classes and packages to hide. See
+   *          {@link #BlockingClassLoader(URLClassLoader, List)} for wild card
+   *          rules.
    * @param classPathEntries
    *          URLs from which alternative implementations can be loaded. They
    *          are prefixed to the current classloader's standard classpath.
@@ -82,17 +89,22 @@ public class BlockingClassLoader extends URLClassLoader {
   private final List<String> m_allowedClassNames = new ArrayList<String>();
   private final String[] m_allowedPrefixes;
 
-
   /**
    * Constructor.
    *
    * @param parent
    *          Parent classloader. We use its class path to load our classes.
    * @param blocked
-   *          Array of fully qualified class names, or fully qualified
-   *          prefixes ending in "*", that identify the packages or classes to
-   *          block. A leading "+" can be added to a class name or package
-   *          prefix to indicate that it is allowed, overriding blocking rules.
+   *          Array of fully qualified class names, or fully qualified prefixes
+   *          ending in "*", that identify the packages or classes to block. A
+   *          leading "+" can be added to a class name or package prefix to
+   *          indicate that it is allowed, overriding blocking rules.
+   *
+   *          <p>
+   *          Resource names may also be specified, fully qualified with '/'
+   *          separators as necessary. Any wild card package names also filter
+   *          resources; the '.' separators are translated internally to '/'s.
+   *          </p>
    */
   public BlockingClassLoader(URLClassLoader parent, List<String> blockedList) {
     super(parent.getURLs(), parent);
@@ -130,47 +142,84 @@ public class BlockingClassLoader extends URLClassLoader {
       blockedPrefixes.toArray(new String[blockedPrefixes.size()]);
   }
 
+  private boolean isBlocked(String name, boolean isResource) {
+
+    final String packageName = isResource ? name.replace('/', '.') : name;
+
+    boolean allowed = m_allowedClassNames.contains(name);
+
+    for (int i = 0; !allowed && i < m_allowedPrefixes.length; i++) {
+      if (packageName.startsWith(m_allowedPrefixes[i])) {
+        allowed = true;
+      }
+    }
+
+    if (allowed) {
+//      System.err.println("Allowing " + name);
+      return false;
+    }
+    else {
+      boolean blocked = m_blockedClassNames.contains(name);
+
+      for (int i = 0; !blocked && i < m_blockedPrefixes.length; i++) {
+        if (packageName.startsWith(m_blockedPrefixes[i])) {
+          blocked = true;
+        }
+      }
+
+      if (blocked) {
+//        System.err.println("Blocking " + name);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   /**
    * Override only to check parent ClassLoader if not blocked.
    *
-   * @param name The name of the class to load.
-   * @param resolve Whether the class should be initialised.
-   * @return The class.
-   * @throws ClassNotFoundException If the class couldn't be found.
+   * {@inheritDoc}
    */
-  protected Class<?> loadClass(String name, boolean resolve)
+  @Override protected Class<?> loadClass(String name, boolean resolve)
     throws ClassNotFoundException  {
 
     synchronized (this) {
-
-      boolean allowed = m_allowedClassNames.contains(name);
-
-      for (int i = 0; !allowed && i < m_allowedPrefixes.length; i++) {
-        if (name.startsWith(m_allowedPrefixes[i])) {
-          allowed = true;
-        }
-      }
-
-      if (allowed) {
-//        System.err.println("Allowing " + name);
-      }
-
-      if (!allowed) {
-        boolean blocked = m_blockedClassNames.contains(name);
-
-        for (int i = 0; !blocked && i < m_blockedPrefixes.length; i++) {
-          if (name.startsWith(m_blockedPrefixes[i])) {
-            blocked = true;
-          }
-        }
-
-        if (blocked) {
-//          System.err.println("Blocking " + name);
-          throw new ClassNotFoundException();
-        }
+      if (isBlocked(name, false)) {
+        throw new ClassNotFoundException();
       }
 
       return super.loadClass(name, resolve);
     }
+  }
+
+  /**
+   * Override only to check parent ClassLoader if not blocked.
+   *
+   * {@inheritDoc}
+   */
+  @Override public URL getResource(String name) {
+
+    if (isBlocked(name, true)) {
+      return null;
+    }
+
+    return super.getResource(name);
+  }
+
+  /**
+   * Override only to check parent ClassLoader if not blocked.
+   *
+   * {@inheritDoc}
+   */
+  @Override
+  public Enumeration<URL> getResources(String name) throws IOException {
+
+    if (isBlocked(name, true)) {
+      final Set<URL> empty = emptySet();
+      return enumeration(empty);
+    }
+
+    return super.getResources(name);
   }
 }
