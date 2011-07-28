@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009-2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,6 +42,7 @@ import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PyProxy;
 import org.python.core.PySystemState;
+import org.python.core.PyTuple;
 import org.python.util.PythonInterpreter;
 
 
@@ -86,6 +87,17 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
 
   protected void assertTargetReference(PyObject proxy, Object original) {
     assertTargetReference(proxy, original, false);
+  }
+
+  public static Integer[] getJythonVersion() throws Exception {
+    final PyTuple pyTuple =
+      (PyTuple) PySystemState.class.getField("version_info").get(null);
+
+    final Object[] tuple = pyTuple.toArray();
+
+    return new Integer[] { (Integer) tuple[0],
+                           (Integer) tuple[1],
+                           (Integer) tuple[2], };
   }
 
   public static void assertVersion(String expected) throws Exception {

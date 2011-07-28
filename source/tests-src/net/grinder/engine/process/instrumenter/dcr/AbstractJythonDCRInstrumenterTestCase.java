@@ -21,11 +21,6 @@
 
 package net.grinder.engine.process.instrumenter.dcr;
 
-import org.python.core.PyObject;
-import org.python.util.PythonInterpreter;
-
-import test.MyClass;
-
 import net.grinder.common.Test;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase;
@@ -34,6 +29,11 @@ import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 import net.grinder.util.weave.j2se6.ASMTransformerFactory;
 import net.grinder.util.weave.j2se6.DCRWeaver;
+
+import org.python.core.PyObject;
+import org.python.util.PythonInterpreter;
+
+import test.MyClass;
 
 
 /**
@@ -233,5 +233,70 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  /**
+   * See bug 2992248.
+   */
+  public void testPyMethodDistinctMethodBindings() throws Exception {
+    m_interpreter.exec("from java.util import Random\nx=Random()");
+
+    m_interpreter.exec("y=x.nextInt\nz=x.nextInt");
+    final PyObject pyJavaMethod = m_interpreter.get("y");
+    final PyObject pyJavaMethod2 = m_interpreter.get("z");
+    m_instrumenter
+        .createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
+
+    final PyObject result = pyJavaMethod.__call__();
+    assertTrue(result.__tojava__(Object.class) instanceof Integer);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // Jython creates distinct bindings for each reference to a Java instance
+    // method, so z() will not be instrumented.
+
+    final PyObject result2 = pyJavaMethod2.__call__();
+    assertTrue(result2.__tojava__(Object.class) instanceof Integer);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  /**
+   * See bug 2992248.
+   */
+  public void testPyReflectedFunctionDistinctMethodBindings() throws Exception {
+    m_interpreter.exec("from java.lang import System");
+
+    m_interpreter.exec(
+      "y=System.currentTimeMillis\nz=System.currentTimeMillis");
+    final PyObject pyJavaMethod = m_interpreter.get("y");
+    final PyObject pyJavaMethod2 = m_interpreter.get("z");
+
+    m_instrumenter
+        .createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
+
+    final PyObject result = pyJavaMethod.__call__();
+    assertTrue(result.__tojava__(Object.class) instanceof Number);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    final Integer[] version = getJythonVersion();
+
+    if (version[0] < 2 || version[1] < 5 || version[2] < 2) {
+      // Up to Jython 2.5.1, static bindings are resolved once...
+      assertSame(pyJavaMethod, pyJavaMethod2);
+
+      // ... so z() is instrumented.
+
+      final PyObject result2 = pyJavaMethod2.__call__();
+      assertTrue(result2.__tojava__(Object.class) instanceof Number);
+      m_recorderStubFactory.assertSuccess("start");
+      m_recorderStubFactory.assertSuccess("end", true);
+      m_recorderStubFactory.assertNoMoreCalls();
+    }
+    else {
+      assertNotSame(pyJavaMethod, pyJavaMethod2);
+    }
   }
 }
