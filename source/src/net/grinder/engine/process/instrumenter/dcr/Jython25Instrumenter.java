@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2011 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,11 +36,9 @@ import org.python.core.PyFunction;
 import org.python.core.PyInstance;
 import org.python.core.PyMethod;
 import org.python.core.PyObject;
-import org.python.core.PyObjectDerived;
 import org.python.core.PyProxy;
 import org.python.core.PyReflectedConstructor;
 import org.python.core.PyReflectedFunction;
-import org.python.core.PyType;
 import org.python.core.ThreadState;
 
 
@@ -59,7 +57,6 @@ final class Jython25Instrumenter extends DCRInstrumenter {
   private final Instrumenter m_pyReflectedFunctionInstrumenter;
   private final Instrumenter m_pyDerivedObjectInstrumenter;
   private final Instrumenter m_pyProxyInstrumenter;
-  private final Instrumenter m_pyTypeInstrumenter;
   private final Instrumenter m_pyClassInstrumenter;
 
   /**
@@ -231,28 +228,6 @@ final class Jython25Instrumenter extends DCRInstrumenter {
           }
         };
 
-      // Instrumenting a class doesn't instrument static methods.
-      // This is inconsistent with respect to the Java DCR instrumenter,
-      // but better fits Python, with its first class functions.
-
-      // Unlike other classes, the "exposed method" type___call__ for PyType
-      // does not delegate to the general __call__ method; its the other way
-      // round. It can be called directly, so we instrument it.
-      final Method pyTypeCall =
-        PyType.class.getDeclaredMethod("type___call__",
-                                       PyObject[].class,
-                                       String[].class);
-
-      m_pyTypeInstrumenter = new Instrumenter() {
-          public void transform(Recorder recorder, Object target)
-            throws NonInstrumentableTypeException {
-            instrument(target,
-                       pyTypeCall,
-                       TargetSource.FIRST_PARAMETER,
-                       recorder);
-          }
-        };
-
       final Method pyClassCall =
         PyClass.class.getDeclaredMethod("__call__",
                                         PyObject[].class,
@@ -302,23 +277,24 @@ final class Jython25Instrumenter extends DCRInstrumenter {
       else if (target instanceof PyMethod) {
         m_pyMethodInstrumenter.transform(recorder, target);
       }
-      else if (target instanceof PyObjectDerived) {
-        m_pyDerivedObjectInstrumenter.transform(recorder, target);
-      }
       else if (target instanceof PyReflectedConstructor) {
         m_pyReflectedConstructorInstrumenter.transform(recorder, target);
       }
       else if (target instanceof PyReflectedFunction) {
         m_pyReflectedFunctionInstrumenter.transform(recorder, target);
       }
-      else if (target instanceof PyType) {
-        m_pyTypeInstrumenter.transform(recorder, target);
-      }
       else if (target instanceof PyClass) {
         m_pyClassInstrumenter.transform(recorder, target);
       }
       else {
         // Fail, rather than guess a generic approach.
+
+        // We should never be called with a PyType, since it will be
+        // converted to a PyClass or Java class by the implicit __tojava__()
+        // calls as part of dispatching to the record() implementation.
+
+        // Similarly PyObjectDerived will be converted to a Java class.
+
         throw new NonInstrumentableTypeException("Unknown PyObject:" +
                                                  target.getClass());
       }
