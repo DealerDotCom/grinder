@@ -167,7 +167,8 @@ final class TraditionalJythonInstrumenter implements Instrumenter {
       }
       else {
         // Fail, rather than guess a generic approach.
-        throw new NotWrappableTypeException("Unknown PyObject");
+        throw new NotWrappableTypeException("Unknown PyObject: " +
+                                            o.getClass());
       }
     }
     else if (o instanceof PyProxy) {
