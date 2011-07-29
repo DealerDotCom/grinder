@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2010 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,8 +42,11 @@ public class TestJython25Instrumenter
   private static final Weaver s_weaver = createWeaver();
 
   public TestJython25Instrumenter() throws Exception {
-    super(new Jython25Instrumenter(s_weaver,
-                                   RecorderLocator.getRecorderRegistry()));
+    super(new CompositeInstrumenter(
+            new Jython25Instrumenter(s_weaver,
+                                     RecorderLocator.getRecorderRegistry()),
+            new JavaDCRInstrumenter(s_weaver,
+                                    RecorderLocator.getRecorderRegistry())));
   }
 
   public static TestSuite suite() throws Exception {
@@ -62,15 +65,14 @@ public class TestJython25Instrumenter
     assertNotWrappable(pyProxy);
   }
 
-
   public void testCreateProxyWithJavaClassAnd__call__() throws Exception {
     m_interpreter.exec("from test import MyClass");
     final PyObject pyJavaType = m_interpreter.get("MyClass");
-    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, pyJavaType);
+    createInstrumentedProxy(m_test, m_recorder, pyJavaType);
 
-    m_interpreter.exec("result2 = MyClass.__call__()");
+    m_interpreter.exec("result2 = MyClass.__call__(1, 2, 3)");
     final PyObject result2 = m_interpreter.get("result2");
-    assertEquals(m_zero, result2.invoke("getA"));
+    assertEquals(m_one, result2.invoke("getA"));
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();

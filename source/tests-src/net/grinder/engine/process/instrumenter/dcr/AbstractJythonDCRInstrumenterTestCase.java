@@ -33,8 +33,6 @@ import net.grinder.util.weave.j2se6.DCRWeaver;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
-import test.MyClass;
-
 
 /**
  * Common stuff for Jython DCR instrumenters.
@@ -90,7 +88,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
 
     assertNotWrappableByThisInstrumenter(null);
 
-    assertNotWrappableByThisInstrumenter(MyClass.class);
+    // assertNotWrappableByThisInstrumenter(MyClass.class);
   }
 
   public void testInstrumentationWithPyClass() throws Exception {
@@ -102,7 +100,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
                        " def six(self): return 6\n");
 
     final PyObject pyType = m_interpreter.get("Foo");
-    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, pyType);
+    createInstrumentedProxy(m_test, m_recorder, pyType);
     final PyObject result = pyType.__call__(m_two, m_three, m_one);
     assertEquals(m_two, result.__getattr__("a"));
     m_recorderStubFactory.assertSuccess("start");
@@ -139,7 +137,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
                        "x=Foo()");
 
     final PyObject pyType = m_interpreter.get("Foo");
-    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, pyType);
+    createInstrumentedProxy(m_test, m_recorder, pyType);
     final PyObject result = pyType.__call__();
     assertEquals(m_zero, result.invoke("getA"));
     m_recorderStubFactory.assertSuccess("start");
@@ -174,7 +172,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
                        "x=MyClass.staticSix");
 
     final PyObject pyType = m_interpreter.get("x");
-    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, pyType);
+    createInstrumentedProxy(m_test, m_recorder, pyType);
     final PyObject result = pyType.__call__();
     assertEquals(m_six, result);
     m_recorderStubFactory.assertSuccess("start");
@@ -200,7 +198,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
 
     final PyObject myClass = m_interpreter.get("MyClass");
     final PyObject py = m_interpreter.get("x");
-    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, py);
+    createInstrumentedProxy(m_test, m_recorder, py);
     myClass.__call__();
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
@@ -217,7 +215,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     m_interpreter.exec("f=lambda x:x+1");
 
     final PyObject pyType = m_interpreter.get("f");
-    m_instrumenter.createInstrumentedProxy(m_test, m_recorder, pyType);
+    createInstrumentedProxy(m_test, m_recorder, pyType);
     final PyObject result = pyType.__call__(m_two);
     assertEquals(m_three, result);
     m_recorderStubFactory.assertSuccess("start");
@@ -235,6 +233,58 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
+  // This doesn't work for DCR.
+  public void testCreateProxyWithPyJavaInstance() throws Exception {
+    m_interpreter.exec("from test import MyClass\nx=MyClass()");
+    final PyObject pyJava = m_interpreter.get("x");
+    createInstrumentedProxy(m_test, m_recorder, pyJava);
+
+    final PyObject result = pyJava.invoke("getA");
+    assertEquals(m_zero, result);
+
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython.
+    m_interpreter.exec("result = x.getB()");
+    final PyObject result2 = m_interpreter.get("result");
+    assertEquals(m_zero, result2);
+
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  public void testCreateProxyWithJavaClass() throws Exception {
+    m_interpreter.exec("from test import MyClass");
+    final PyObject pyJavaType = m_interpreter.get("MyClass");
+    createInstrumentedProxy(m_test, m_recorder, pyJavaType);
+
+    m_interpreter.exec("result = MyClass(2, 3, 1)");
+    final PyObject result = m_interpreter.get("result");
+
+    assertEquals(m_two, result.invoke("getA"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython.
+
+    m_interpreter.exec("result2 = MyClass(1, 2, 3)");
+    final PyObject result2 = m_interpreter.get("result2");
+    assertEquals(m_two, result2.invoke("getB"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    m_interpreter.exec("result3 = MyClass.staticSix()");
+    assertEquals(m_six, m_interpreter.get("result3"));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
   /**
    * See bug 2992248.
    */
@@ -244,8 +294,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     m_interpreter.exec("y=x.nextInt\nz=x.nextInt");
     final PyObject pyJavaMethod = m_interpreter.get("y");
     final PyObject pyJavaMethod2 = m_interpreter.get("z");
-    m_instrumenter
-        .createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
+    createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
 
     final PyObject result = pyJavaMethod.__call__();
     assertTrue(result.__tojava__(Object.class) instanceof Integer);
@@ -271,9 +320,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
       "y=System.currentTimeMillis\nz=System.currentTimeMillis");
     final PyObject pyJavaMethod = m_interpreter.get("y");
     final PyObject pyJavaMethod2 = m_interpreter.get("z");
-
-    m_instrumenter
-        .createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
+    createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
 
     final PyObject result = pyJavaMethod.__call__();
     assertTrue(result.__tojava__(Object.class) instanceof Number);

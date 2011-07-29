@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2011 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.engine.process.instrumenter;
 
 import java.lang.reflect.Field;
-import java.util.Random;
 
 import junit.framework.TestCase;
 import net.grinder.common.StubTest;
@@ -124,6 +123,18 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     assertNull(m_instrumenter.createInstrumentedProxy(null, null, o));
   }
 
+  protected final Object createInstrumentedProxy(Test test,
+                                                 Recorder recorder,
+                                                 PyObject pyTarget)
+    throws NotWrappableTypeException {
+
+    // In the real world, the Java conversion happens implicitly because
+    // wrap() and record() are implemented in Java.
+    final Object javaTarget = pyTarget.__tojava__(Object.class);
+
+    return m_instrumenter.createInstrumentedProxy(test, recorder, javaTarget);
+  }
+
   protected final Class<?> getClassForInstance(PyInstance target)
     throws IllegalArgumentException, IllegalAccessException {
 
@@ -152,8 +163,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_interpreter.exec("def return1(): return 1");
     final PyObject pyFunction = m_interpreter.get("return1");
     final PyObject pyFunctionProxy = (PyObject)
-      m_instrumenter.createInstrumentedProxy(
-        m_test, m_recorder, pyFunction);
+      createInstrumentedProxy(m_test, m_recorder, pyFunction);
 
     final PyObject result = pyFunctionProxy.invoke("__call__");
     assertEquals(m_one, result);
@@ -166,8 +176,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_interpreter.exec("def multiply(x, y): return x * y");
     final PyObject pyFunction2 = m_interpreter.get("multiply");
     final PyObject pyFunctionProxy2 = (PyObject)
-      m_instrumenter.createInstrumentedProxy(
-        m_test, m_recorder, pyFunction2);
+      createInstrumentedProxy(m_test, m_recorder, pyFunction2);
     final PyObject result2 =
       pyFunctionProxy2.invoke("__call__", m_two, m_three);
     assertEquals(m_six, result2);
@@ -186,8 +195,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_interpreter.exec("def square(x): return x * x");
     final PyObject pyFunction11 = m_interpreter.get("square");
     final PyObject pyFunctionProxy11 = (PyObject)
-      m_instrumenter.createInstrumentedProxy(
-        m_test, m_recorder, pyFunction11);
+      createInstrumentedProxy(m_test, m_recorder, pyFunction11);
     final PyObject result11 = pyFunctionProxy11.invoke("__call__", m_two);
     assertEquals(new PyInteger(4), result11);
     m_recorderStubFactory.assertSuccess("start");
@@ -218,8 +226,8 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
       "x=Foo()");
 
     final PyObject pyInstance = m_interpreter.get("x");
-    final PyObject pyInstanceProxy = (PyObject) m_instrumenter
-        .createInstrumentedProxy(m_test, m_recorder, pyInstance);
+    final PyObject pyInstanceProxy = (PyObject)
+        createInstrumentedProxy(m_test, m_recorder, pyInstance);
     final PyObject result1 = pyInstanceProxy.invoke("two");
     assertEquals(m_two, result1);
     m_recorderStubFactory.assertSuccess("start");
@@ -278,8 +286,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_interpreter.exec("y=Foo.two");
     final PyObject pyMethod = m_interpreter.get("y");
     final PyObject pyMethodProxy = (PyObject)
-      m_instrumenter.createInstrumentedProxy(
-        m_test, m_recorder, pyMethod);
+      createInstrumentedProxy(m_test, m_recorder, pyMethod);
     final PyObject result = pyMethodProxy.invoke("__call__", pyInstance);
     assertEquals(m_two, result);
     m_recorderStubFactory.assertSuccess("start");
@@ -292,8 +299,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_interpreter.exec("y=Foo.identity");
     final PyObject pyMethod2 = m_interpreter.get("y");
     final PyObject pyMethodProxy2 = (PyObject)
-      m_instrumenter.createInstrumentedProxy(
-        m_test, m_recorder, pyMethod2);
+      createInstrumentedProxy(m_test, m_recorder, pyMethod2);
     final PyObject result2 =
       pyMethodProxy2.invoke("__call__", pyInstance, m_one);
     assertEquals(m_one, result2);
@@ -304,8 +310,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_interpreter.exec("y=Foo.sum");
     final PyObject pyMethod3 = m_interpreter.get("y");
     final PyObject pyMethodProxy3 = (PyObject)
-      m_instrumenter.createInstrumentedProxy(
-        m_test, m_recorder, pyMethod3);
+      createInstrumentedProxy(m_test, m_recorder, pyMethod3);
     final PyObject result3 =
       pyMethodProxy3.invoke(
         "__call__", new PyObject[] { pyInstance, m_one, m_two });
@@ -317,8 +322,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_interpreter.exec("y=x.two"); // Bound method.
     final PyObject pyMethod4 = m_interpreter.get("y");
     final PyObject pyMethodProxy4 = (PyObject)
-      m_instrumenter.createInstrumentedProxy(
-        m_test, m_recorder, pyMethod4);
+      createInstrumentedProxy(m_test, m_recorder, pyMethod4);
     final PyObject result4 = pyMethodProxy4.invoke("__call__");
     assertEquals(m_two, result4);
     m_recorderStubFactory.assertSuccess("start");
@@ -336,75 +340,13 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  public void testCreateProxyWithPyJavaInstance() throws Exception {
-    m_interpreter.exec("from java.util import Random\nx=Random()");
-    final PyObject pyJava = m_interpreter.get("x");
-    final PyObject pyJavaProxy = (PyObject) m_instrumenter
-        .createInstrumentedProxy(m_test, m_recorder, pyJava);
-    final PyObject result = pyJavaProxy.invoke("getClass");
-    assertEquals(Random.class, result.__tojava__(Class.class));
-    m_recorderStubFactory.assertSuccess("start");
-    m_recorderStubFactory.assertSuccess("end", true);
-    m_recorderStubFactory.assertNoMoreCalls();
-    assertTestReference(pyJavaProxy, m_test);
-    assertNull(pyJavaProxy.__findattr__("__blah__"));
-    assertTargetReference(pyJavaProxy, pyJava);
-
-    // From Jython.
-    m_interpreter.set("proxy", pyJavaProxy);
-
-    m_interpreter.exec("result2 = proxy.getClass()");
-    final PyObject result2 = m_interpreter.get("result2");
-    assertEquals(Random.class, result2.__tojava__(Class.class));
-    m_recorderStubFactory.assertSuccess("start");
-    m_recorderStubFactory.assertSuccess("end", true);
-    m_recorderStubFactory.assertNoMoreCalls();
-  }
-
-  public void testCreateProxyWithJavaClass() throws Exception {
-    m_interpreter.exec("from test import MyClass");
-    final PyObject pyJavaType = m_interpreter.get("MyClass");
-    final PyObject pyJavaTypeProxy = (PyObject) m_instrumenter
-        .createInstrumentedProxy(m_test, m_recorder, pyJavaType);
-    final PyObject result = pyJavaTypeProxy.__call__(m_two, m_three, m_one);
-    assertEquals(m_two, result.invoke("getA"));
-    m_recorderStubFactory.assertSuccess("start");
-    m_recorderStubFactory.assertSuccess("end", true);
-    m_recorderStubFactory.assertNoMoreCalls();
-    assertTestReference(pyJavaTypeProxy, m_test);
-    assertNull(pyJavaTypeProxy.__findattr__("__blah__"));
-    assertTargetReference(pyJavaTypeProxy, pyJavaType);
-
-    // From Jython.
-    m_interpreter.set("proxy", pyJavaTypeProxy);
-
-    m_interpreter.exec("result2 = MyClass(1, 2, 3)");
-    final PyObject result2 = m_interpreter.get("result2");
-    assertEquals(m_two, result2.invoke("getB"));
-    m_recorderStubFactory.assertSuccess("start");
-    m_recorderStubFactory.assertSuccess("end", true);
-    m_recorderStubFactory.assertNoMoreCalls();
-
-    m_interpreter.exec("result3 = proxy()");
-    final PyObject result3 = m_interpreter.get("result3");
-    assertEquals(m_zero, result3.invoke("getB"));
-    m_recorderStubFactory.assertSuccess("start");
-    m_recorderStubFactory.assertSuccess("end", true);
-    m_recorderStubFactory.assertNoMoreCalls();
-
-    // Instrumenting a class doesn't instrument static methods.
-    m_interpreter.exec("result5 = MyClass.staticSix()");
-    assertEquals(m_six, m_interpreter.get("result5"));
-    m_recorderStubFactory.assertNoMoreCalls();
-  }
-
   public void testCreateProxyWithPyReflectedFunction() throws Exception {
     m_interpreter.exec("from java.util import Random\nx=Random()");
     final PyObject pyJava = m_interpreter.get("x");
     m_interpreter.exec("y=Random.nextInt");
     final PyObject pyJavaMethod = m_interpreter.get("y");
-    final PyObject pyJavaMethodProxy = (PyObject) m_instrumenter
-        .createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
+    final PyObject pyJavaMethodProxy = (PyObject)
+        createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
     final PyObject result = pyJavaMethodProxy.__call__(pyJava);
     assertTrue(result.__tojava__(Object.class) instanceof Integer);
     m_recorderStubFactory.assertSuccess("start");
@@ -488,8 +430,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
       "r = Recurse()");
 
     final PyObject proxy = (PyObject)
-      m_instrumenter.createInstrumentedProxy(
-        m_test, m_recorder, m_interpreter.get("r"));
+      createInstrumentedProxy(m_test, m_recorder, m_interpreter.get("r"));
 
     final PyObject result = proxy.invoke("foo");
 
@@ -508,8 +449,8 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
   public void testPyDispatcherErrorHandling() throws Exception {
     m_interpreter.exec("def blah(): raise Exception('a problem')");
     final PyObject pyFunction = m_interpreter.get("blah");
-    final PyObject pyFunctionProxy = (PyObject) m_instrumenter
-        .createInstrumentedProxy(m_test, m_recorder, pyFunction);
+    final PyObject pyFunctionProxy = (PyObject)
+      createInstrumentedProxy(m_test, m_recorder, pyFunction);
     try {
       pyFunctionProxy.invoke("__call__");
       fail("Expected PyException");

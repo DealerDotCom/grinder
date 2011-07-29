@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,6 @@ import org.python.util.PythonInterpreter;
 
 import test.MyClass;
 import test.MyExtendedClass;
-
 
 
 /**
@@ -258,6 +257,36 @@ public class TestTraditionalJythonInstrumenter
 
     assertEquals(MyClass.class, getClassForInstance((PyInstance) result9));
 
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  public void testCreateProxyWithPyJavaInstance() throws Exception {
+    m_interpreter.exec("from test import MyClass\nx=MyClass()");
+    final PyObject pyJava = m_interpreter.get("x");
+    final PyObject pyJavaProxy = (PyObject)
+        createInstrumentedProxy(m_test, m_recorder, pyJava);
+    final PyObject result = pyJavaProxy.invoke("getClass");
+    assertEquals(MyClass.class, result.__tojava__(Class.class));
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+    assertTestReference(pyJavaProxy, m_test);
+    assertNull(pyJavaProxy.__findattr__("__blah__"));
+
+    // The Java instance is instrumented, so the __target__ reference will not
+    // be to pyJava, but to an equivalent PyObject.
+    final PyObject target = pyJavaProxy.__getattr__("__target__");
+    assertEquals(pyJava, target);
+    assertNotSame(pyJavaProxy, target);
+
+    // From Jython.
+    m_interpreter.set("proxy", pyJavaProxy);
+
+    m_interpreter.exec("result2 = proxy.getClass()");
+    final PyObject result2 = m_interpreter.get("result2");
+    assertEquals(MyClass.class, result2.__tojava__(Class.class));
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();

@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,7 +37,10 @@ public class TestJython22Instrumenter
   private static final Weaver s_weaver = createWeaver();
 
   public TestJython22Instrumenter() throws Exception {
-    super(new Jython22Instrumenter(s_weaver,
-                                   RecorderLocator.getRecorderRegistry()));
+    super(new CompositeInstrumenter(
+            new Jython22Instrumenter(s_weaver,
+                                     RecorderLocator.getRecorderRegistry()),
+            new JavaDCRInstrumenter(s_weaver,
+                                    RecorderLocator.getRecorderRegistry())));
   }
 }
