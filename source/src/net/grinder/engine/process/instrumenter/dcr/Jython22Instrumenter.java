@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -77,7 +77,7 @@ final class Jython22Instrumenter extends DCRInstrumenter {
                                             String[].class);
     }
     catch (NoSuchMethodException e) {
-      throw new WeavingException("Jython 2.1/2.2 not found", e);
+      throw new WeavingException("Unknown Jython version found", e);
     }
   }
 
