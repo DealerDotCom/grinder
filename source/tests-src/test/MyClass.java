@@ -30,7 +30,7 @@ package test;
  * instrumented.
  * </p>
  */
-public class MyClass {
+public class MyClass implements Adder {
   private int m_a;
   private int m_b;
   private int m_c;

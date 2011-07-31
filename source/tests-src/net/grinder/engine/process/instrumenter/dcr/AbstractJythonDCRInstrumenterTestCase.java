@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2011 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -201,12 +201,16 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     createInstrumentedProxy(m_test, m_recorder, py);
     myClass.__call__();
     m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
 
     // From Jython.
     m_interpreter.exec("MyClass()");
     m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
   }
@@ -288,42 +292,57 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
   /**
    * See bug 2992248.
    */
-  public void testPyMethodDistinctMethodBindings() throws Exception {
-    m_interpreter.exec("from java.util import Random\nx=Random()");
+  public void testJavaBoundMethod() throws Exception {
+    m_interpreter.exec("from test import MyClass\nx=MyClass(1, 2, 3)");
 
-    m_interpreter.exec("y=x.nextInt\nz=x.nextInt");
+    m_interpreter.exec("y=x.getA");
     final PyObject pyJavaMethod = m_interpreter.get("y");
-    final PyObject pyJavaMethod2 = m_interpreter.get("z");
     createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
 
     final PyObject result = pyJavaMethod.__call__();
-    assertTrue(result.__tojava__(Object.class) instanceof Integer);
+    assertEquals(m_one, result);
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
 
-    // Jython creates distinct bindings for each reference to a Java instance
-    // method, so z() will not be instrumented.
+    // Test instrumentation works through separate references.
+    m_interpreter.exec("z=x.getA");
+    final PyObject pyJavaMethod2 = m_interpreter.get("z");
 
     final PyObject result2 = pyJavaMethod2.__call__();
-    assertTrue(result2.__tojava__(Object.class) instanceof Integer);
+    assertNotSame(result, result2);
+
+    assertEquals(m_one, result);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython
+    m_interpreter.exec("z()");
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // Other instances are not instrumented.
+    m_interpreter.exec("a=MyClass(1, 2, 3)");
+    m_interpreter.exec("a.getA()");
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
   /**
    * See bug 2992248.
    */
-  public void testPyReflectedFunctionDistinctMethodBindings() throws Exception {
-    m_interpreter.exec("from java.lang import System");
+  public void testJavaStaticMethod() throws Exception {
+    m_interpreter.exec("from test import MyClass");
 
     m_interpreter.exec(
-      "y=System.currentTimeMillis\nz=System.currentTimeMillis");
+      "y=MyClass.staticSix\nz=MyClass.staticSix");
     final PyObject pyJavaMethod = m_interpreter.get("y");
     final PyObject pyJavaMethod2 = m_interpreter.get("z");
     createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
 
     final PyObject result = pyJavaMethod.__call__();
-    assertTrue(result.__tojava__(Object.class) instanceof Number);
+    assertEquals(m_six, result);
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
@@ -333,17 +352,105 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     if (version[0] < 2 || version[1] < 5 || version[2] < 2) {
       // Up to Jython 2.5.1, static bindings are resolved once...
       assertSame(pyJavaMethod, pyJavaMethod2);
-
-      // ... so z() is instrumented.
-
-      final PyObject result2 = pyJavaMethod2.__call__();
-      assertTrue(result2.__tojava__(Object.class) instanceof Number);
-      m_recorderStubFactory.assertSuccess("start");
-      m_recorderStubFactory.assertSuccess("end", true);
-      m_recorderStubFactory.assertNoMoreCalls();
     }
     else {
       assertNotSame(pyJavaMethod, pyJavaMethod2);
     }
+
+    // ... either way, z() is instrumented.
+
+    final PyObject result2 = pyJavaMethod2.__call__();
+    assertEquals(m_six, result2);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  public void testJavaUnboundMethod() throws Exception {
+    m_interpreter.exec("from test import MyClass\n" +
+                       "x=MyClass(1, 2, 3)\n" +
+                       "y=MyClass(3, 2, 1)\n" +
+                       "m=MyClass.getA");
+
+    final PyObject instance = m_interpreter.get("x");
+    final PyObject unboundMethod = m_interpreter.get("m");
+    createInstrumentedProxy(m_test, m_recorder, unboundMethod);
+
+    final PyObject result = unboundMethod.__call__(instance);
+    assertEquals(m_one, result);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // Test instrumentation works through a separate binding.
+    final PyObject instance2 = m_interpreter.get("y");
+    final PyObject result2 = unboundMethod.__call__(instance2);
+    assertEquals(m_three, result2);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  public void testJavaBoundMethodSuperClassImplementation() throws Exception {
+    m_interpreter.exec("from test import MyExtendedClass\nx=MyExtendedClass()");
+
+    m_interpreter.exec("y=x.getA");
+    final PyObject pyJavaMethod = m_interpreter.get("y");
+    createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
+
+    final PyObject result = pyJavaMethod.__call__();
+    assertEquals(m_zero, result);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // Test instrumentation works through separate references.
+    m_interpreter.exec("z=x.getA");
+    final PyObject pyJavaMethod2 = m_interpreter.get("z");
+
+    final PyObject result2 = pyJavaMethod2.__call__();
+    assertNotSame(result, result2);
+
+    assertEquals(m_zero, result);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython
+    m_interpreter.exec("z()");
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // Other instances are not instrumented.
+    m_interpreter.exec("a=MyExtendedClass()");
+    m_interpreter.exec("a.getA()");
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  public void testJavaBoundMethodThroughInterface() throws Exception {
+    m_interpreter.exec("from test import MyExtendedClass\n"+
+                       "x=MyExtendedClass.create()");
+
+    m_interpreter.exec("y=x.addOne");
+    final PyObject pyJavaMethod = m_interpreter.get("y");
+    createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
+
+    final PyObject result = pyJavaMethod.__call__(m_one);
+    assertEquals(m_three, result);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // From Jython
+    m_interpreter.exec("x.addOne(123)");
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+
+    // Other instances are not instrumented.
+    m_interpreter.exec("a=MyExtendedClass.create()");
+    m_interpreter.exec("a.addOne(1)");
+    m_recorderStubFactory.assertNoMoreCalls();
   }
 }

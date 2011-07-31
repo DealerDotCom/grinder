@@ -114,17 +114,10 @@ public final class DCRInstrumenterFactory {
     }
     catch (WeavingException e) {
       // Jython 2.5 not available, try Jython 2.1/2.2.
-      try {
-        instrumenters.add(new Jython22Instrumenter(m_weaver,
-                                                   m_recorderRegistry));
-        return true;
-      }
-      catch (WeavingException e1) {
-        // No known version of Jython.
-      }
+      instrumenters.add(new Jython22Instrumenter(m_weaver,
+                                                 m_recorderRegistry));
+      return true;
     }
-
-    return false;
   }
 
   /**

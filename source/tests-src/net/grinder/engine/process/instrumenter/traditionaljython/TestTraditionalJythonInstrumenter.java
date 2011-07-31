@@ -134,7 +134,7 @@ public class TestTraditionalJythonInstrumenter
                                                        extendedJava);
     final PyObject result7 =
       extendedJavaProxy.invoke("addOne", Py.java2py(new Integer(10)));
-    assertEquals(new Integer(11), result7.__tojava__(Integer.class));
+    assertEquals(new Integer(12), result7.__tojava__(Integer.class));
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();

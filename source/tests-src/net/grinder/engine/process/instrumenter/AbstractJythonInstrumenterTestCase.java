@@ -341,14 +341,14 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
   }
 
   public void testCreateProxyWithPyReflectedFunction() throws Exception {
-    m_interpreter.exec("from java.util import Random\nx=Random()");
+    m_interpreter.exec("from test import MyClass\nx=MyClass(6, 5, 4)");
     final PyObject pyJava = m_interpreter.get("x");
-    m_interpreter.exec("y=Random.nextInt");
+    m_interpreter.exec("y=MyClass.getA");
     final PyObject pyJavaMethod = m_interpreter.get("y");
     final PyObject pyJavaMethodProxy = (PyObject)
         createInstrumentedProxy(m_test, m_recorder, pyJavaMethod);
     final PyObject result = pyJavaMethodProxy.__call__(pyJava);
-    assertTrue(result.__tojava__(Object.class) instanceof Integer);
+    assertEquals(m_six, result);
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
@@ -361,7 +361,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
 
     m_interpreter.exec("result2 = proxy(x)");
     final PyObject result2 = m_interpreter.get("result2");
-    assertTrue(result2.__tojava__(Object.class) instanceof Integer);
+    assertEquals(m_six, result2);
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();

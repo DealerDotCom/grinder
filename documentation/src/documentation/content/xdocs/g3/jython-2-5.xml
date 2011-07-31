@@ -35,124 +35,14 @@
     <p>You may also find the need to remove or rename the <code>jython.jar</code>
       file from the <code>lib</code> directory.
       See this <a href="site:sre-assertion">FAQ</a>.</p>
-  </section>
 
-  <section>
-    <title>Behavioural differences due to the new instrumentation</title>
-
-    <p>The new instrumentation differs from the traditional
-    instrumentation as reflected in its <a
-    href="site:script-instrumentation/record-api">API</a>. In
-    particular, script authors need to take into account that the
-    target object is modified by the instrumentation, not a separate
-    proxy object.</p>
-
-    <p>The new approach is less invasive than the old since there is
-    no need to worry about invoking tests through proxy objects. Most
-    things work without surprises. However, there are one or two traps
-    for the unwary related to the instrumention of Java methods. These
-    are documented below.
+    <p>The Grinder 3.5 improved the instrumentation of Java methods
+    from Jython. If you are using an earlier version of The Grinder,
+    instrumentation of Java methods may not work as you expect. See <a
+    href="site:sourceforge/bug2992248">bug 2992248</a>.
     </p>
 
-    <section>
-      <title>Instrumenting Java methods from Jython</title>
-
-      <p>Where a Jython script refers to a Java method, Jython creates
-      an internal runtime object. These runtime objects are mostly
-      invisible to scripts.</p>
-
-      <p>If a Jython script calls <code>record</code> on a Java
-      method, it is the runtime object that is instrumented, not the
-      Java method. If the target method is called directly from Java,
-      the instrumentation will be bypassed. The reverse is not true:
-      if you instrument a method in Java code, then call it from
-      Jython, the instrumentation will work fine.</p>
-
-      <p>This problem only affects script authors who need to
-      instrument Java methods in a Jython script and call them from
-      Java. Today, the only work around is to call <code>record</code>
-      from Java. It does not affect Java classes, Java instances, or
-      Jython classes, instances, methods, or functions, all of which
-      can be instrumented in Jython or Java and passed freely between
-      Java and Jython code.
-      </p>
-
-      <p>Unfortunately, the problem exposes cracks between Jython and
-      Java to scripts. It arises in part due to Java's lack of first
-      class functions. In an ideal world, The Grinder would unwrap the
-      Jython runtime object and instrument the underlying Java method.
-      So far, this has proved too difficult to implement because the
-      Jython runtime objects don't expose information about their
-      underlying Java methods, and there are significant internal
-      differences between the various Jython versions.</p>
-
-    </section>
-
-    <section>
-      <title>Java instance method bindings</title>
-
-      <note>The following is true for all versions of Jython we have
-      tested, including Jython 2.2.1, 2.5.0, 2.5.1, 2.5.2.</note>
-
-      <p>For each place that a script refers to a method of a Java
-      instance, Jython creates a separate internal runtime object. As
-      described above, it is the runtime object that is passed to
-      <code>record</code> and instrumented, not the Java method code.
-      Consequently, when you instrument and call a Java method from
-      Jython, you must take care to use the same runtime object.
-      </p>
-
-      <p>For example, the following will not work as intended. There
-      are two runtime objects that reference
-      <code>grinder.logger.output</code>, and only the first is
-      instrumented. </p>
-
-       <source>
-from net.grinder.script import Test
-from net.grinder.script.Grinder import grinder
-test1 = Test(1, "Log method")
-
-test1.record(grinder.logger.output)
-
-class TestRunner:
-    def __call__(self):
-        grinder.logger.output("Hello World")
-       </source>
-
-      <p>Here's a corrected script.</p>
-
-       <source>
-from net.grinder.script import Test
-from net.grinder.script.Grinder import grinder
-test1 = Test(1, "Log method")
-
-output = grinder.logger.output
-test1.record(output)
-
-class TestRunner:
-    def __call__(self):
-        output("Hello World")
-       </source>
-
-      <p>As for the previous problem, fixing this requires that we
-      find an acceptable way to unwrap the Jython runtime object and
-      instrument the underlying Java method.
-      </p>
-    </section>
-
-    <section>
-      <title>Java static method bindings</title>
-
-      <p>Jython 2.5.2 behaves differently to early versions. Jython
-      2.5.1 and earlier use a single runtime object to represent
-      multiple references to a Java static method. Jython 2.5.2
-      creates a separate runtime object for each reference to a Java
-      static method. The consequences are the same as those described
-      above for Java instance method bindings.</p>
-    </section>
-
   </section>
-
 
 </body>
 </document>

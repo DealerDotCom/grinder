@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.util.weave.Weaver;
-import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.Weaver.TargetSource;
 
 import org.python.core.PyClass;
@@ -35,8 +34,6 @@ import org.python.core.PyInstance;
 import org.python.core.PyMethod;
 import org.python.core.PyObject;
 import org.python.core.PyProxy;
-import org.python.core.PyReflectedConstructor;
-import org.python.core.PyReflectedFunction;
 
 
 /**
@@ -45,10 +42,7 @@ import org.python.core.PyReflectedFunction;
  * @author Philip Aston
  * @version $Revision:$
  */
-final class Jython22Instrumenter extends DCRInstrumenter {
-
-  private final Method m_pyReflectedConstructorCallMethod;
-  private final Method m_pyReflectedFunctionCallMethod;
+final class Jython22Instrumenter extends AbstractJythonDCRInstrumenter {
 
   /**
    * Constructor for DCRInstrumenter.
@@ -58,27 +52,8 @@ final class Jython22Instrumenter extends DCRInstrumenter {
    * @throws WeavingException If it looks like Jython 2.1/2.2 isn't available.
    */
   public Jython22Instrumenter(Weaver weaver,
-                              RecorderRegistry recorderRegistry)
-    throws WeavingException {
+                              RecorderRegistry recorderRegistry) {
     super(weaver, recorderRegistry);
-
-
-    try {
-      m_pyReflectedConstructorCallMethod =
-        PyReflectedConstructor.class.getMethod("__call__",
-                                               PyObject.class,
-                                               PyObject[].class,
-                                               String[].class);
-
-      m_pyReflectedFunctionCallMethod =
-        PyReflectedFunction.class.getMethod("__call__",
-                                            PyObject.class,
-                                            PyObject[].class,
-                                            String[].class);
-    }
-    catch (NoSuchMethodException e) {
-      throw new WeavingException("Unknown Jython version found", e);
-    }
   }
 
   /**
@@ -86,77 +61,6 @@ final class Jython22Instrumenter extends DCRInstrumenter {
    */
   public String getDescription() {
     return "byte code transforming instrumenter for Jython 2.1/2.2";
-  }
-
-  @Override
-  protected boolean instrument(Object target, Recorder recorder)
-    throws NonInstrumentableTypeException {
-
-    if (target instanceof PyObject) {
-      // Jython object.
-      if (target instanceof PyInstance) {
-        instrumentPublicMethodsByName(target,
-                                      "invoke",
-                                      TargetSource.FIRST_PARAMETER,
-                                      recorder,
-                                      true);
-      }
-      else if (target instanceof PyFunction) {
-        instrumentPublicMethodsByName(target,
-                                      "__call__",
-                                      TargetSource.FIRST_PARAMETER,
-                                      recorder,
-                                      false);
-      }
-      else if (target instanceof PyMethod) {
-        instrumentPublicMethodsByName(target,
-                                      "__call__",
-                                      TargetSource.FIRST_PARAMETER,
-                                      recorder,
-                                      false);
-      }
-      else if (target instanceof PyReflectedConstructor) {
-        instrument(target,
-                   m_pyReflectedConstructorCallMethod,
-                   TargetSource.FIRST_PARAMETER,
-                   recorder);
-      }
-      else if (target instanceof PyReflectedFunction) {
-        instrument(target,
-                   m_pyReflectedFunctionCallMethod,
-                   TargetSource.FIRST_PARAMETER,
-                   recorder);
-      }
-      else if (target instanceof PyClass) {
-        instrumentPublicMethodsByName(target,
-                                      "__call__",
-                                      TargetSource.FIRST_PARAMETER,
-                                      recorder,
-                                      false);
-      }
-      else {
-        // Fail, rather than guess a generic approach.
-        throw new NonInstrumentableTypeException("Unknown PyObject:" +
-                                                 target.getClass());
-      }
-    }
-    else if (target instanceof PyProxy) {
-      // Jython object that extends a Java class.
-      // We can't just use the Java wrapping, since then we'd miss the
-      // Jython methods.
-      final PyObject pyInstance = ((PyProxy)target)._getPyInstance();
-
-      instrumentPublicMethodsByName(pyInstance,
-                                    "invoke",
-                                    TargetSource.FIRST_PARAMETER,
-                                    recorder,
-                                    true);
-    }
-    else {
-      return false;
-    }
-
-    return true;
   }
 
   private void instrumentPublicMethodsByName(Object target,
@@ -179,5 +83,57 @@ final class Jython22Instrumenter extends DCRInstrumenter {
 
       instrument(target, method, targetSource, recorder);
     }
+  }
+
+  @Override protected void transform(Recorder recorder, PyInstance target)
+    throws NonInstrumentableTypeException {
+
+    instrumentPublicMethodsByName(target,
+                                  "invoke",
+                                  TargetSource.FIRST_PARAMETER,
+                                  recorder,
+                                  true);
+  }
+
+  @Override protected void transform(Recorder recorder, PyFunction target)
+    throws NonInstrumentableTypeException {
+
+    instrumentPublicMethodsByName(target,
+                                  "__call__",
+                                  TargetSource.FIRST_PARAMETER,
+                                  recorder,
+                                  false);
+  }
+
+  @Override protected void transform(Recorder recorder, PyMethod target)
+    throws NonInstrumentableTypeException {
+
+    instrumentPublicMethodsByName(target,
+                                  "__call__",
+                                  TargetSource.FIRST_PARAMETER,
+                                  recorder,
+                                  false);
+  }
+
+  @Override protected void transform(Recorder recorder, PyClass target)
+    throws NonInstrumentableTypeException {
+
+    instrumentPublicMethodsByName(target,
+                                  "__call__",
+                                  TargetSource.FIRST_PARAMETER,
+                                  recorder,
+                                  false);
+  }
+
+  @Override protected void transform(Recorder recorder, PyProxy target)
+    throws NonInstrumentableTypeException {
+
+    final PyObject pyInstance = target._getPyInstance();
+
+    instrumentPublicMethodsByName(pyInstance,
+                                  "invoke",
+                                  TargetSource.FIRST_PARAMETER,
+                                  recorder,
+                                  true);
   }
 }

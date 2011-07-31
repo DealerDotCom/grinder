@@ -37,7 +37,6 @@ import org.python.core.PyInstance;
 import org.python.core.PyMethod;
 import org.python.core.PyObject;
 import org.python.core.PyProxy;
-import org.python.core.PyReflectedConstructor;
 import org.python.core.PyReflectedFunction;
 import org.python.core.ThreadState;
 
@@ -48,16 +47,13 @@ import org.python.core.ThreadState;
  * @author Philip Aston
  * @version $Revision:$
  */
-final class Jython25Instrumenter extends DCRInstrumenter {
+final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
 
-  private final Instrumenter m_pyInstanceInstrumenter;
-  private final Instrumenter m_pyFunctionInstrumenter;
-  private final Instrumenter m_pyMethodInstrumenter;
-  private final Instrumenter m_pyReflectedConstructorInstrumenter;
-  private final Instrumenter m_pyReflectedFunctionInstrumenter;
-  private final Instrumenter m_pyDerivedObjectInstrumenter;
-  private final Instrumenter m_pyProxyInstrumenter;
-  private final Instrumenter m_pyClassInstrumenter;
+  private final Transformer<PyInstance> m_pyInstanceTransformer;
+  private final Transformer<PyFunction> m_pyFunctionTransformer;
+  private final Transformer<PyMethod> m_pyMethodTransformer;
+  private final Transformer<PyProxy> m_pyProxyTransformer;
+  private final Transformer<PyClass> m_pyClassTransformer;
 
   /**
    * Constructor for DCRInstrumenter.
@@ -89,8 +85,8 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       assertAtLeastOneMethod(methodsForPyFunction);
 
-      m_pyFunctionInstrumenter = new Instrumenter() {
-          public void transform(Recorder recorder, Object target)
+      m_pyFunctionTransformer = new Transformer<PyFunction>() {
+          public void transform(Recorder recorder, PyFunction target)
             throws NonInstrumentableTypeException {
 
             for (Method method : methodsForPyFunction) {
@@ -117,8 +113,8 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       assertAtLeastOneMethod(methodsForPyInstance);
 
-      m_pyInstanceInstrumenter = new Instrumenter() {
-          public void transform(Recorder recorder, Object target)
+      m_pyInstanceTransformer = new Transformer<PyInstance>() {
+          public void transform(Recorder recorder, PyInstance target)
             throws NonInstrumentableTypeException {
 
             for (Method method : methodsForPyInstance) {
@@ -146,8 +142,8 @@ final class Jython25Instrumenter extends DCRInstrumenter {
 
       assertAtLeastOneMethod(methodsForPyMethod);
 
-      m_pyMethodInstrumenter = new Instrumenter() {
-          public void transform(Recorder recorder, Object target)
+      m_pyMethodTransformer = new Transformer<PyMethod>() {
+          public void transform(Recorder recorder, PyMethod target)
             throws NonInstrumentableTypeException {
 
             for (Method method : methodsForPyMethod) {
@@ -159,47 +155,11 @@ final class Jython25Instrumenter extends DCRInstrumenter {
           }
         };
 
-      final Method pyReflectedConstructorCall =
-        PyReflectedConstructor.class.getDeclaredMethod("__call__",
-                                                       PyObject.class,
-                                                       PyObject[].class,
-                                                       String[].class);
-
-      m_pyReflectedConstructorInstrumenter = new Instrumenter() {
-          public void transform(Recorder recorder, Object target)
-            throws NonInstrumentableTypeException {
-            instrument(target,
-                       pyReflectedConstructorCall,
-                       TargetSource.FIRST_PARAMETER,
-                       recorder);
-          }
-        };
-
       final Method pyReflectedFunctionCall =
         PyReflectedFunction.class.getDeclaredMethod("__call__",
                                                     PyObject.class,
                                                     PyObject[].class,
                                                     String[].class);
-
-      m_pyReflectedFunctionInstrumenter = new Instrumenter() {
-          public void transform(Recorder recorder, Object target)
-            throws NonInstrumentableTypeException {
-            instrument(target,
-                       pyReflectedFunctionCall,
-                       TargetSource.FIRST_PARAMETER,
-                       recorder);
-          }
-        };
-
-      m_pyDerivedObjectInstrumenter = new Instrumenter() {
-        public void transform(Recorder recorder, Object target)
-            throws NonInstrumentableTypeException {
-            instrument(target,
-                       pyReflectedFunctionCall,
-                       TargetSource.SECOND_PARAMETER,
-                       recorder);
-          }
-        };
 
       // PyProxy is used for Jython objects that extend a Java class.
       // We can't just use the Java wrapping, since then we'd miss the
@@ -210,10 +170,10 @@ final class Jython25Instrumenter extends DCRInstrumenter {
       final Method pyProxyPyInstanceMethod =
         PyProxy.class.getDeclaredMethod("_getPyInstance");
 
-      m_pyProxyInstrumenter = new Instrumenter() {
-          public void transform(Recorder recorder, Object target)
+      m_pyProxyTransformer = new Transformer<PyProxy>() {
+          public void transform(Recorder recorder, PyProxy target)
             throws NonInstrumentableTypeException {
-            PyObject pyInstance;
+            final PyObject pyInstance;
 
             try {
               pyInstance = (PyObject) pyProxyPyInstanceMethod.invoke(target);
@@ -223,8 +183,17 @@ final class Jython25Instrumenter extends DCRInstrumenter {
                 "Could not call _getPyInstance", e);
             }
 
-            m_pyInstanceInstrumenter.transform(recorder, pyInstance);
-            m_pyDerivedObjectInstrumenter.transform(recorder, pyInstance);
+            for (Method method : methodsForPyInstance) {
+              instrument(pyInstance,
+                         method,
+                         TargetSource.THIRD_PARAMETER,
+                         recorder);
+            }
+
+            instrument(pyInstance,
+                       pyReflectedFunctionCall,
+                       TargetSource.SECOND_PARAMETER,
+                       recorder);
           }
         };
 
@@ -233,8 +202,8 @@ final class Jython25Instrumenter extends DCRInstrumenter {
                                         PyObject[].class,
                                         String[].class);
 
-      m_pyClassInstrumenter = new Instrumenter() {
-          public void transform(Recorder recorder, Object target)
+      m_pyClassTransformer = new Transformer<PyClass>() {
+          public void transform(Recorder recorder, PyClass target)
             throws NonInstrumentableTypeException {
             instrument(target,
                        pyClassCall,
@@ -262,56 +231,33 @@ final class Jython25Instrumenter extends DCRInstrumenter {
     return "byte code transforming instrumenter for Jython 2.5";
   }
 
-  @Override
-  protected boolean instrument(Object target, Recorder recorder)
-    throws NonInstrumentableTypeException {
-
-    if (target instanceof PyObject) {
-      // Jython object.
-      if (target instanceof PyInstance) {
-        m_pyInstanceInstrumenter.transform(recorder, target);
-      }
-      else if (target instanceof PyFunction) {
-        m_pyFunctionInstrumenter.transform(recorder, target);
-      }
-      else if (target instanceof PyMethod) {
-        m_pyMethodInstrumenter.transform(recorder, target);
-      }
-      else if (target instanceof PyReflectedConstructor) {
-        m_pyReflectedConstructorInstrumenter.transform(recorder, target);
-      }
-      else if (target instanceof PyReflectedFunction) {
-        m_pyReflectedFunctionInstrumenter.transform(recorder, target);
-      }
-      else if (target instanceof PyClass) {
-        m_pyClassInstrumenter.transform(recorder, target);
-      }
-      else {
-        // Fail, rather than guess a generic approach.
-
-        // We should never be called with a PyType, since it will be
-        // converted to a PyClass or Java class by the implicit __tojava__()
-        // calls as part of dispatching to the record() implementation.
-
-        // Similarly PyObjectDerived will be converted to a Java class.
-
-        throw new NonInstrumentableTypeException("Unknown PyObject:" +
-                                                 target.getClass());
-      }
-    }
-    else if (target instanceof PyProxy) {
-      m_pyProxyInstrumenter.transform(recorder, target);
-    }
-    else {
-      // Let the Java instrumenter have a go.
-      return false;
-    }
-
-    return true;
+  private interface Transformer<T> {
+    void transform(Recorder recorder, T target)
+      throws NonInstrumentableTypeException;
   }
 
-  private interface Instrumenter {
-    void transform(Recorder recorder, Object target)
-      throws NonInstrumentableTypeException;
+  @Override protected void transform(Recorder recorder, PyInstance target)
+    throws NonInstrumentableTypeException {
+    m_pyInstanceTransformer.transform(recorder, target);
+  }
+
+  @Override protected void transform(Recorder recorder, PyFunction target)
+    throws NonInstrumentableTypeException {
+    m_pyFunctionTransformer.transform(recorder, target);
+  }
+
+  @Override protected void transform(Recorder recorder, PyMethod target)
+    throws NonInstrumentableTypeException {
+    m_pyMethodTransformer.transform(recorder, target);
+  }
+
+  @Override protected void transform(Recorder recorder, PyClass target)
+    throws NonInstrumentableTypeException {
+    m_pyClassTransformer.transform(recorder, target);
+  }
+
+  @Override protected void transform(Recorder recorder, PyProxy target)
+    throws NonInstrumentableTypeException {
+    m_pyProxyTransformer.transform(recorder, target);
   }
 }

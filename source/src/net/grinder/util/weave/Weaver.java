@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -72,7 +72,7 @@ public interface Weaver {
    * @param method
    *          The method.
    * @param targetSource
-   *          Which object should be passed to the target as the advice.
+   *          Which object should be passed as the target to the advice.
    * @return String that uniquely identifies the pointcut.
    */
   String weave(Method method, TargetSource targetSource);
