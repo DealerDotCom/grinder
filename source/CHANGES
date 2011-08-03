@@ -41,6 +41,9 @@ The Grinder 3.5 (Not yet released)
    Invoking a script instrumented method from Java now works. Thanks to
    Kevin Connaughton for the report.
 
+   Fix bug 2958145 - DCR instrumentation fails with
+   grinder.debug.singleprocess.
+
 
 The Grinder 3.4
 ---------------

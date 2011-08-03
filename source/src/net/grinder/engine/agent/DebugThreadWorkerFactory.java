@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,6 +35,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.util.Directory;
 import net.grinder.util.IsolatingClassLoader;
+import net.grinder.util.weave.agent.ExposeInstrumentation;
 
 
 /**
@@ -78,6 +79,7 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
     final List<String> sharedClasses = new ArrayList<String>();
 
     sharedClasses.add(IsolateGrinderProcessRunner.class.getName());
+    sharedClasses.add(ExposeInstrumentation.class.getName());
 
     sharedClasses.addAll(Arrays.asList(
       properties.getProperty("grinder.debug.singleprocess.sharedclasses", "")
