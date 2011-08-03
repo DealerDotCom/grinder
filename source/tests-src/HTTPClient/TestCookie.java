@@ -99,6 +99,12 @@ public class TestCookie extends TestCase {
     Cookie.parse("foo=bah;expires=", m_roRequest);
   }
 
+  // For bug 3124963.
+  public void testCookie2Discard() throws Exception {
+    Cookie2.parse("dude=member1-13443427;Version=1;Path=/;Discard",
+                  m_roRequest);
+  }
+
   public void testDotNetHttpOnlyNonsense() throws Exception {
     Cookie.parse(".ASPXANONYMOUS=AcbBC8KU9yE3MmQyMDA1Ni0wZDlmLTQ0MjktYWI2NS0zMTUwOGQwZmZhNTk1; expires=Wed, 16-Aug-2006 04:12:47 GMT; path=/;HttpOnly, language=en-US; path=/;HttpOnly",
       m_roRequest);
