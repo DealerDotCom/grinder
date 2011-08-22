@@ -1,5 +1,5 @@
-The Grinder 3.5 (Not yet released)
-----------------------------------
+The Grinder 3.5
+---------------
 
    Fix bug 3008924 - Jython 2.5, assertion error if script has __del__
    method. Thank to Thomas Falkenberg for the report.
