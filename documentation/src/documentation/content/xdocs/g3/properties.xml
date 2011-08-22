@@ -320,7 +320,22 @@
           This is primarily a tool for debugging The Grinder engine, but it
           might also be useful to advanced users.
           <a href="site:grinderstone">GrinderStone</a> uses this property to
-          allow interactive debugging. </td>
+          allow interactive debugging.
+
+          <p>If you are using this property with the <a
+          href="site:scripts/script-instrumentation/new-instrumentation">new
+          instrumentation</a>, you must specify
+          <code>-javaagent:path/grinder-agent.jar</code> on the
+          command line. Here, <em>path</em> is the full path to
+          the agent jar file that can be found in the <code>lib</code>
+          directory. Also, you must either use The Grinder 3.5 or
+          later, or set the
+          <code>grinder.debug.singleprocess.sharedclasses</code>
+          property to share the
+          <code>net.grinder.util.weave.agent.ExposeInstrumentation</code>
+          class.
+          </p>
+          </td>
 
           <td>false</td>
     </tr>
