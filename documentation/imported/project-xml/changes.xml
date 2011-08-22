@@ -1,6 +1,32 @@
 <?xml version="1.0"  encoding="iso-8859-1"?>
 
 <changes>
+<section name='The Grinder 3.5 (Not yet released)' id='The Grinder 3.5 (Not yet released)'>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3008924&amp;group_id=18598&amp;atid=118598">bug 3008924</a> - Jython 2.5, assertion error if script has __del__ method. Thank to Thomas Falkenberg for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2988755&amp;group_id=18598&amp;atid=118598">bug 2988755</a> - NPE in JythonScriptExecutionException .tracebackToMessage(). Thanks to Brian Runck for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2952023&amp;group_id=18598&amp;atid=118598">bug 2952023</a> - Cookie.parse should recognise "httponly" (lower case). Thanks to amachang for the report and the patch. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3092275&amp;group_id=18598&amp;atid=118598">bug 3092275</a> - Incorrect TPS totals in output log. Thanks to Travis Bear for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3132643&amp;group_id=18598&amp;atid=118598">bug 3132643</a> - No statistics to report. This occurred if a clock went backwards in time during a test, and prevented the test from ever executing successfully again. Thanks to Wallander for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3132940&amp;group_id=18598&amp;atid=118598">bug 3132940</a> - Incorrect connect/DNS times when connect timeout set. This was due to an error in the fix for 3132940. Thanks to Jagdish A for the report, and to Wallander for testing. </p>
+<p>
+Work around Jython issue 1894900. If the default Jython jar is used and it looks like the Jython cachedir has not been configured, then create a cache directory in lib. </p>
+<p>
+Fulfil feature <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3324241&amp;group_id=18598&amp;atid=368598">request 3324241</a> - Upgrade to PicoContainer 2.13.6. Thanks to Alexis Bezverkhyy the request. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3287570&amp;group_id=18598&amp;atid=118598">bug 3287570</a> - Memory leak in DCR instrumentation if same target was recorded multiple times using the same Test. Thanks to John (crystalstone) for the report. </p>
+<p>
+Support Jython 2.5.2. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2992248&amp;group_id=18598&amp;atid=118598">bug 2992248</a> - DCR instrumentation of Java methods. Instrumentation of Java methods from Jython scripts has been improved. Multiple references from a script to an instrumented method now work as expected. Invoking a script instrumented method from Java now works. Thanks to Kevin Connaughton for the report. </p>
+<p>
+Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2958145&amp;group_id=18598&amp;atid=118598">bug 2958145</a> - DCR instrumentation fails with grinder.debug.singleprocess. </p>
+</section>
 <section name='The Grinder 3.4' id='The Grinder 3.4'>
 <p>
 Fix <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=2913297&amp;group_id=18598&amp;atid=118598">bug 2913297</a> - Memory leak in SSLControlImplementation. Thanks to Guido Serra for the report. </p>
