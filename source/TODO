@@ -22,8 +22,6 @@ Prove by implementing support for JavaScript (which is built into Java 6).
 
 * Java 5 upgrade
 
-** Checkstyle vs "<"
-
 ** Opportunities
 *** JUC executors, CAS etc.
 
