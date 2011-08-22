@@ -1,4 +1,222 @@
-2010-04-07 [r4239]  Philip Aston
+2011-08-22 [r4293]  Philip Aston
+
+	* TODO: Minor updates.
+
+2011-08-03 [r4285-4286]  Philip Aston
+
+	* CHANGES,
+	  src/net/grinder/engine/agent/DebugThreadWorkerFactory.java,
+	  tests-src/net/grinder/engine/agent/TestDebugThreadWorkerFactory.java:
+	  Fix bug 2958145 - DCR instrumentation fails with
+	  grinder.debug.singleprocess.
+
+	* tests-src/HTTPClient/TestCookie.java: Test for 3124963
+
+2011-07-31 [r4284]  Philip Aston
+
+	* src/net/grinder/engine/process/instrumenter/dcr/Jython22Instrumenter.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/DCRInstrumenterFactory.java,
+	  tests-src/test/MyClass.java, tests-src/test/MyExtendedClass.java,
+	  src/net/grinder/engine/process/instrumenter/dcr/Jython25Instrumenter.java,
+	  src/net/grinder/util/weave/Weaver.java,
+	  tests-src/net/grinder/engine/process/instrumenter/AbstractJythonInstrumenterTestCase.java,
+	  tests-src/test/Adder.java (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenter.java,
+	  CHANGES,
+	  src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenter.java
+	  (added): Really fix bug 2992248: introspect PyMethod,
+	  PyReflectedFunction, and PyReflectedConstructor objects and
+	  instrument the underlying Java methods.
+
+2011-07-29 [r4280-4283]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/dcr/TestJython22Instrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/CompositeInstrumenter.java
+	  (added),
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJython25Instrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/AbstractJythonInstrumenterTestCase.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenter.java:
+	  The problem behind bug 2992248 only affects method bindings.
+	  Other Java targets (classes, instances) are passed off to the
+	  Java instrumenter. I've updated the unit tests and the
+	  documentation to reflect this.
+
+	* src/net/grinder/engine/process/instrumenter/traditionaljython/TraditionalJythonInstrumenter.java:
+	  Better exception message.
+
+	* src/net/grinder/engine/process/instrumenter/dcr/Jython25Instrumenter.java:
+	  No need to support PyDerivedObject or PyType: these are filtered
+	  out by the __tojava__ unwrapping during the record() dispatch.
+
+	* src/net/grinder/engine/process/instrumenter/dcr/Jython22Instrumenter.java:
+	  Correct exception text.
+
+2011-07-28 [r4277-4278]  Philip Aston
+
+	* tests-src/net/grinder/engine/process/instrumenter/AbstractJythonInstrumenterTestCase.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java:
+	  Test Jython implementation behaviour for bug 2992248.
+
+	* tests-src/net/grinder/testutility/BlockingClassLoader.java: Block
+	  resources too.
+
+2011-07-26 [r4273-4276]  Philip Aston
+
+	* .classpath,
+	  src/net/grinder/engine/process/instrumenter/dcr/Jython25Instrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/AbstractJythonDCRInstrumenterTestCase.java,
+	  CHANGES: Support for Jython 2.5.2.
+
+	* tests-src/net/grinder/testutility/JythonVersionUtilities.java:
+	  Better names for test suites launched with alternative Jython
+	  implementations.
+
+	* build.xml, etc/localpaths.properties,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenter.java,
+	  tests-src/net/grinder/testutility/JythonVersionUtilities.java:
+	  The alternative Jython installations are now optional, only 2.2.1
+	  is required. Test both Jython 2.5.0 and 2.5.1.
+
+2011-07-21 [r4272]  Philip Aston
+
+	* CHANGES,
+	  src/net/grinder/engine/process/instrumenter/dcr/RecorderLocator.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestRecorderLocator.java:
+	  Fix bug 3287570 - Memory leak in DCR instrumentation if same
+	  target was recorded multiple times using the same Test.
+
+2011-07-13 [r4271]  Philip Aston
+
+	* src/net/grinder/TCPProxy.java, .classpath,
+	  etc/localpaths.properties,
+	  src/net/grinder/console/ConsoleFoundation.java, CHANGES,
+	  src/net/grinder/Console.java, etc/grinder-manifest.mf: Fulfil
+	  feature request 3324241 - upgrade to PicoContainer 2.13.6.
+
+2011-07-13 [r4269-4270]  Philip Aston
+
+	* tests-src/net/grinder/engine/agent/TestProcessWorker.java: Widen
+	  race.
+
+	* CHANGES: Fix spelling.
+
+2011-02-16 [r4266-4268]  Philip Aston
+
+	* build.xml, .settings/com.cenqua.clover.core.prefs: Next is 3.5.
+
+	* build.xml, LICENSE,
+	  src/net/grinder/console/common/resources/about.html: Belated
+	  Happy New Year.
+
+	* src/net/grinder/engine/agent/AgentImplementation.java,
+	  tests-src/net/grinder/engine/agent/TestAgentImplementation.java,
+	  tests-src/net/grinder/testutility/JythonVersionUtilities.java,
+	  CHANGES,
+	  src/net/grinder/engine/agent/WorkerProcessCommandLine.java,
+	  tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java,
+	  tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java,
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngine.java:
+	  Work around Jython issue 1894900. If the default Jython jar is
+	  used and it looks like the Jython cachedir has not been
+	  configured, then create a cache directory in lib.
+
+2011-01-04 [r4265]  Philip Aston
+
+	* src/HTTPClient/HTTPConnection.java, CHANGES,
+	  src/net/grinder/plugin/http/HTTPRequest.java,
+	  tests-src/net/grinder/plugin/http/TestHTTPRequest.java: Fix bug
+	  3132940 - Incorrect connect/DNS times when connect timeout set.
+
+2010-12-16 [r4264]  Philip Aston
+
+	* src/net/grinder/engine/process/TestData.java, CHANGES: Fix bug
+	  3132643 - No statistics to report.
+
+2010-11-15 [r4259-4260]  Philip Aston
+
+	* .settings/.gitignore (added): Ignore some cruft.
+
+	* src/net/grinder/statistics/StatisticsSetImplementation.java,
+	  tests-src/net/grinder/statistics/TestStatisticsSetImplementation.java,
+	  src/net/grinder/statistics/StatisticsIndexMap.java,
+	  src/net/grinder/engine/process/GrinderProcess.java,
+	  src/net/grinder/statistics/StatisticsTable.java,
+	  tests-src/net/grinder/statistics/TestStatisticsTable.java, TODO,
+	  src/net/grinder/script/Statistics.java, CHANGES: Fix bug 3092275
+	  - Incorrect TPS totals in output log. Thanks to Travis Bear for
+	  the report.
+
+2010-06-15 [r4258]  Philip Aston
+
+	* src/net/grinder/script/SSLControl.java,
+	  src/net/grinder/statistics/StatisticsSetImplementation.java,
+	  src/net/grinder/util/weave/j2se6/ASMTransformerFactory.java,
+	  src/net/grinder/util/InsecureSSLContextFactory.java,
+	  src/net/grinder/tools/tcpproxy/EchoFilter.java,
+	  src/net/grinder/util/Sleeper.java,
+	  .settings/com.cenqua.clover.core.prefs,
+	  src/net/grinder/plugin/http/tcpproxyfilter/HTTPResponseFilter.java,
+	  etc/checkstyle.xml,
+	  src/net/grinder/util/SleeperImplementation.java,
+	  src/net/grinder/common/SSLContextFactory.java,
+	  src/net/grinder/tools/tcpproxy/TCPProxyFilter.java,
+	  src/net/grinder/console/distribution/FileDistributionHandler.java,
+	  src/net/grinder/util/weave/j2se6/DCRWeaver.java,
+	  src/net/grinder/console/swingui/MnemonicHeuristics.java,
+	  src/net/grinder/tools/tcpproxy/CompositeFilter.java,
+	  .settings/de.mvmsoft.checkclipse.prefs: Re-instate
+	  WhitespaceAround check.
+
+2010-05-29 [r4253-4256]  Philip Aston
+
+	* CHANGES,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptEngineWithJython25.java
+	  (added),
+	  src/net/grinder/engine/process/jython/JythonScriptEngine.java:
+	  Fix bug 3008924 - Jython 2.5, assertion error if script has
+	  __del__ method.
+
+	* tests-src/net/grinder/testutility/BlockingClassLoader.java,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenterWithJython21.java,
+	  tests-src/net/grinder/engine/process/instrumenter/TestMasterInstrumenterWithJython25.java,
+	  tests-src/net/grinder/engine/process/instrumenter/dcr/TestJython25Instrumenter.java,
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenterWithJython25.java,
+	  tests-src/net/grinder/testutility/JythonVersionUtilities.java
+	  (added): Extract out test utilties for setting Jython version.
+
+	* .settings/org.eclipse.jdt.ui.prefs: Fix date.
+
+	* tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestJythonEngineWithJython25.java
+	  (removed),
+	  tests-src/net/grinder/engine/process/instrumenter/traditionaljython/TestTraditionalJythonInstrumenterWithJython25.java
+	  (added): Correct name.
+
+2010-04-29 [r4248-4249]  Philip Aston
+
+	* .gitignore, .settings/com.cenqua.clover.core.prefs: Ignore build
+	  artifacts.
+
+	* src/HTTPClient/Cookie.java, tests-src/HTTPClient/TestCookie.java,
+	  CHANGES: Reapply Amachang's Cookie patch (commit
+	  a60c61c6e5534946f91cc5218b191369328d3893).
+
+2010-04-17 [r4246-4247]  Philip Aston
+
+	* .pydevproject: Commit cruft.
+
+	* CHANGES,
+	  src/net/grinder/engine/process/jython/JythonScriptExecutionException.java,
+	  tests-src/net/grinder/engine/process/jython/TestJythonScriptExecutionException.java:
+	  Fix bug 2988755 - NPE in
+	  JythonScriptExecutionException.tracebackToMessage(). Thanks to
+	  Brian Runck for the report.
+
+2010-04-07 [r4239-4240]  Philip Aston
+
+	* ChangeLog: Update.
 
 	* tests-src/net/grinder/console/TestConsoleFoundation.java: Spin a
 	  little if we can't connect immediately.
