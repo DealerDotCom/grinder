@@ -121,13 +121,6 @@ See http://forrest.apache.org/docs/linking.html for more info
       <g2vsg3 href="faq.html#g2vsg3"/>
       <http-caching href="faq.html#http-caching"/>
     </common>
-    <g2faq label="The Grinder 2">
-      <g2-general label="General" href="faq.html#g2-general"/>
-      <g2-scripts label="Scripts" href="faq.html#g2-scripts"/>
-      <multicast href="faq.html#multicast"/>
-      <post-and-string-beans href="faq.html#post-and-string-beans"/>
-      <premature-eof href="faq.html#premature-eof"/>
-    </g2faq>
     <g3faq label="The Grinder 3">
       <g3-general label="General" href="faq.html#g3-general"/>
       <g3-scripts label="Scripts" href="faq.html#g3-scripts"/>
@@ -136,6 +129,13 @@ See http://forrest.apache.org/docs/linking.html for more info
       <use-the-tcpproxy href="faq.html#use-the-tcpproxy"/>
       <sre-assertion href="faq.html#sre-assertion"/>
     </g3faq>
+    <g2faq label="The Grinder 2">
+      <g2-general label="General" href="faq.html#g2-general"/>
+      <g2-scripts label="Scripts" href="faq.html#g2-scripts"/>
+      <multicast href="faq.html#multicast"/>
+      <post-and-string-beans href="faq.html#post-and-string-beans"/>
+      <premature-eof href="faq.html#premature-eof"/>
+    </g2faq>
   </gfaq>
 
   <external-refs>
