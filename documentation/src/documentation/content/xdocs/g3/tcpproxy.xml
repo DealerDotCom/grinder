@@ -85,10 +85,6 @@ Engine initialised, listening on port 8001
   that you might have so that all the traffic flows through the TCPProxy and can
   be captured.</p>
 
-    <note><a href="site:mozilla">Firefox</a> users will find Jeremy
-    Gillick's <a href="https://addons.mozilla.org/quicksearch.php?q=switchproxy&amp;section=A&amp;application=firefox"><em>SwitchProxy</em></a> extension useful for switching to and
-    from the TCPProxy.</note>
-
   <p>It might also be a good idea to clear out any cache/temporary Internet files that
     might be on your workstation. On the other hand, you might decide not to do
     this if you want to record a script representing a frequent user to your
@@ -182,7 +178,7 @@ parameters:
   <p>The console (initiated by <em>-console</em>) displays a simple control window that allows the TCPProxy
    to be shut down cleanly. This is needed because some terminal shells, e.g. Cygwin bash,
    do not allow Java processes to be interrupted cleanly, so filters cannot rely
-   on standard shutdown hooks. The console also allows a user to add ad-hoc commentary to the script
+   on standard shut down hooks. The console also allows a user to add ad-hoc commentary to the script
    during the recording. The console looks like this:</p>
 
   <figure src="../images/tcpproxy-console.png" width="503" height="60"
@@ -416,10 +412,8 @@ identifiers used for headers, URLs, pages, tokens, and so on.</p>
   <section id="ssl">
     <title>SSL and HTTPS support</title>
 
-    <p>The TCPProxy has SSL support based on the <a
-    href="ext:javasoft/jsse">JSSE</a>. The JSSE is required by The
-    Grinder, and is now part of Java 2 Standard Edition 1.4.1, see the
-    <a href="site:download">Download page</a> for further details.</p>
+    <p>The TCPProxy has SSL support based on Java's <a
+    href="ext:javasoft/jsse">JSSE</a> framework.</p>
 
     <p>SSL relationships are necessarily point to point. When you
     interpose the TCPProxy in SSL communications between a browser and
@@ -431,10 +425,11 @@ identifiers used for headers, URLs, pages, tokens, and so on.</p>
     alt="TCPProxy and SSL"/>
 
     <p>The TCPProxy will negotiate appropriate certificates for both
-    connections using built-in certificates or in a user-specified
-    Java key store. In particular, the TCPProxy needs a self-signed
-    server certificate for the connection from the browser. By
-    default, the TCPProxy will use a built-in certificate.</p>
+    connections using built-in certificates or those from a
+    user-specified Java key store. In particular, the TCPProxy needs a
+    self-signed server certificate for the connection from the
+    browser. By default, the TCPProxy will use a built-in
+    certificate.</p>
 
     <p>When first establishing a connection, your browser will present
     a warning and confirmation dialog. This is because the built-in
@@ -486,8 +481,8 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
     height="172" alt="Chained proxies"/>
 
     <p>Use the <code>-httpproxy</code> option to specify the host name
-    and port of the proxy. Use the <code>-httpsproxy</code> option if
-    your HTTPS proxy requires separate settings.</p>
+    and port of the proxy. Use the <code>-httpsproxy</code> option
+    only if your HTTPS proxy requires separate settings.</p>
   </section>
 
   <section id="port-forwarding-mode">
@@ -531,9 +526,9 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
       <td><code>-console</code></td>
 
       <td>Display a simple console that has a control button that
-      allows The TCPProxy to be shutdown cleanly. This can help in
+      allows The TCPProxy to be shut down cleanly. This can help in
       certain situations where a hard kill of the TCPProxy process
-      would loose output that is still buffered in memory.</td>
+      would lose output that is still buffered in memory.</td>
     </tr>
 
     <tr>

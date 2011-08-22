@@ -709,191 +709,50 @@ finally {
     </answer>
    </faq>
 
+   <faq id="multicast">
+    <question>
+      How to I avoid pauses due to garbage collection?
+    </question>
+
+    <answer>
+  <p>Gary Mulder writes:</p>
+
+  <p class="quote">
+    If you're seeing mysterious short random pauses in your
+    test results, add the following to the grinder.properties:
+  <br/>
+  <code>
+grinder.jvm.arguments: -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamp
+  </code>
+  <br/> and monitor the terminal output for any JVM Full GC events.
+  These completely pause the Java Virtual Machine and therefore The
+  Grinder.
+
+  <br/>
+  <br/>
+
+  To mitigate any observed GC pauses review the suggestions in the
+  Java <a href="ext:oracle/gc-tuning">Garbage Collection Tuning
+  guide</a>. If you have the memory, use plenty of Java heap space to
+  ensure there are no full GC pauses in The Grinder. The heap can be
+  set to 1 GB by adding <code>grinder.jvm.arguments: -Xmx1024m</code>
+  to grinder.properties.
+</p>
+
+  <p>
+ The command line arguments Gary suggests are for Oracle's HotSpot
+ JVM. Other Java implementations provide similar options, consult the
+ documentation.
+  </p>
+
+    </answer>
+   </faq>
+
+
    </faqsection>
 
   </faqsection>
 
-  <faqsection id="g2">
-    <title>The Grinder 2</title>
-    <faqsection id="g2-general">
-    <title>General</title>
-    <faq id="multicast">
-      <question>
-  What do I need to do to set up multicast?
-      </question>
-
-      <answer>
-  <p>You must set up multicast if you want to use the console
-  with The Grinder 2. It is used to send signals from the
-  Console to the Grinder processes (start, stop). Multicast is
-  no longer necessary for The Grinder 3.</p>
-
-  <p>Multicast addresses lie in the range <code>224.0.0.0</code>
-  to <code>239.255.255.255</code>. Ports lie in the range
-  <code>0</code> to <code>65535</code>. You should ensure that
-  the address and ports you chose does not clash with other
-  applications running on your LAN. The example files uses the
-  address <code>228.1.1.1:1234</code>:</p>
-
-<source>
-grinder.receiveConsoleSignals=true
-grinder.grinderAddress=228.1.1.1
-grinder.grinderPort=1234
-</source>
-
-  <p>For most modern TCP stacks, e.g Windows 95/98/NT, Linux,
-  multicast works out of the box.</p>
-
-  <p>Under Linux, you may also need to set up the routing table.
-  Try:</p>
-
-<source>
-route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
-</source>
-
-  <p>Some Windows VPN clients (e.g Bay Networks Extranet)
-  interfere with multicast. You may need to disable them.</p>
-      </answer>
-    </faq>
-
-    <faq id="multicast-w2k">
-      <question>
-  What do I need to do to set up multicast under Windows 2000?
-      </question>
-
-      <answer>
-  <p>With a stand alone Windows 2000 machine, you might
-  experience similar grief to myself. I found that I could only
-  get multicast to work if my LAN NIC had a carrier and the MS
-  loop-back adapter is not installed (or disabled). The
-  following links contain experiences that tally with mine:</p>
-
-  <ul>
-    <li><a
-    href="http://web.archive.org/web/20030802192353/www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html">
-    http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html</a></li>
-
-    <li><a
-    href="http://web.archive.org/web/20030802192353/www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html">
-    http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html</a></li>
-
-    <li><a
-    href="http://web.archive.org/web/20030802192353/www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html">
-    http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html</a></li>
-  </ul>
-
-  <p>The last of these says:</p>
-
-  <p class="quote">I have been looking for a solution for this
-  problem a long time without success :-( I found several dummy
-  loop-back IP stacks but none that supports multicast. The
-  solution I have been using is to bring along a tiny hub and
-  connect my laptop to that hub when doing demos. Windows is a
-  bit stupid in the way that it only checks if it has a carrier.
-  </p>
-
-  <p>I now use a slightly cheaper/lighter solution; namely I
-  have cropped a network cable short and twisted my own physical
-  loop-back adapter. Needless to say, if anyone figures out how
-  to get multicast working with a stand alone W2K machine, I'm
-  more than interested.</p>
-
-  <note>Multicast is no longer required by The Grinder 3.</note>
-      </answer>
-    </faq>
-
-    <faq id="premature-eof">
-      <question>
-  Why do I get <code>HTTPClient.RetryException: Premature EOF
-  encountered</code> errors when I increase HTTP load?
-      </question>
-
-      <answer>
-  <p>This is a known issue with The Grinder 2 that is fixed in
-  The Grinder 3.0b14. I have no plans to backport the fix to The
-  Grinder 2, but see <a
-  href="http://article.gmane.org/gmane.comp.java.grinder.user/893/match=premature+eof">this
-  e-mail</a> for details of how to do this yourself.</p>
-      </answer>
-    </faq>
-
-  </faqsection>
-  <faqsection id="g2-scripts">
-  <title>Scripts</title>
-    <faq id="string-beans">
-      <question>
-  How do I simulate different users with The Grinder 2?
-      </question>
-
-      <answer>
-  <p>You probably want to use a <a
-  href="site:g2/plugins/http-plugin/string-bean">String Bean</a>.</p>
-      </answer>
-    </faq>
-
-    <faq id="post-and-string-beans">
-      <question>
-  How do I generate POST data with a String Bean?
-      </question>
-
-      <answer>
-  <p>Sean Kroah writes:</p>
-
-  <dl>
-    <dt/>
-    <dd class="quote">
-      <p><code>grinder.test0.parameter.post=&lt;getPostData&gt;</code>
-      doesn't work.</p>
-
-      <p>I didn't really see this in the docs anywhere so if
-      anyone is interested. I needed dynamic post data and the
-      HTTP plugin post parameter only took a file name. The key
-      was that the file can optionally contain a reference to a
-      <a href="site:g2/plugins/http-plugin/string-bean">String Bean</a>
-      method. I tried it on a fluke and it worked.</p>
-
-<source>
-grinder.test0.parameter.url=&lt;getLoginUrl&gt;
-grinder.test0.parameter.post=getPostData.dat
-</source>
-      <p><code>getPostData.dat</code> has one line in it:</p>
-
-<source>
-&lt;getPostData&gt;
-</source>
-
-      <p>This tells The Grinder to call my String Bean method
-      which returns my dynamic POST content based on the test
-      description. I'm pretty pleased with that.</p>
-    </dd>
-  </dl>
-      </answer>
-    </faq>
-    <faq id="extra-line">
-      <question>
-  Why do my POSTs have an extra new line?
-      </question>
-
-      <answer>
-  <p>An anonymous user reports:</p>
-  <dl>
-    <dt/>
-    <dd class="quote">
-      <p>The Grinder 2 appends a new line character to the end
-      of file which contains post information for a test. This
-      appears to happen only under Windows.</p>
-    </dd>
-  </dl>
-
-  <p>This is a known issue with The Grinder 2 that is fixed in
-  The Grinder 3.0. I have no plans to backport the fix to The
-  Grinder 2, but see the <a
-  href="site:sourceforge/extra-line">bug report</a> for how to
-  do this yourself.</p>
-      </answer>
-    </faq>
-  </faqsection>
-  </faqsection>
 
   <faqsection id="g3">
     <title>The Grinder 3</title>
@@ -1198,7 +1057,7 @@ class TestRunner:
       <p>Mark Theunissen reports that this problem occurs if
       you are using regular expressions with
       <a href="site:g3/scripts/jython-2.5">Jython 2.5</a>. Mark
-      succesfully worked around the problem my removing the Jython 2.2.1
+      succesfully worked around the problem by removing the Jython 2.2.1
       <code>jython.jar</code> from the <code>lib</code> directory.</p>
 
       </answer>
@@ -1685,4 +1544,187 @@ modify your script to remove duplicate requests.</p>
    </faqsection>
 
   </faqsection>
+
+  <faqsection id="g2">
+    <title>The Grinder 2</title>
+    <faqsection id="g2-general">
+    <title>General</title>
+    <faq id="multicast">
+      <question>
+  What do I need to do to set up multicast?
+      </question>
+
+      <answer>
+  <p>You must set up multicast if you want to use the console
+  with The Grinder 2. It is used to send signals from the
+  Console to the Grinder processes (start, stop). Multicast is
+  no longer necessary for The Grinder 3.</p>
+
+  <p>Multicast addresses lie in the range <code>224.0.0.0</code>
+  to <code>239.255.255.255</code>. Ports lie in the range
+  <code>0</code> to <code>65535</code>. You should ensure that
+  the address and ports you chose does not clash with other
+  applications running on your LAN. The example files uses the
+  address <code>228.1.1.1:1234</code>:</p>
+
+<source>
+grinder.receiveConsoleSignals=true
+grinder.grinderAddress=228.1.1.1
+grinder.grinderPort=1234
+</source>
+
+  <p>For most modern TCP stacks, e.g Windows 95/98/NT, Linux,
+  multicast works out of the box.</p>
+
+  <p>Under Linux, you may also need to set up the routing table.
+  Try:</p>
+
+<source>
+route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
+</source>
+
+  <p>Some Windows VPN clients (e.g Bay Networks Extranet)
+  interfere with multicast. You may need to disable them.</p>
+      </answer>
+    </faq>
+
+    <faq id="multicast-w2k">
+      <question>
+  What do I need to do to set up multicast under Windows 2000?
+      </question>
+
+      <answer>
+  <p>With a stand alone Windows 2000 machine, you might
+  experience similar grief to myself. I found that I could only
+  get multicast to work if my LAN NIC had a carrier and the MS
+  loop-back adapter is not installed (or disabled). The
+  following links contain experiences that tally with mine:</p>
+
+  <ul>
+    <li><a
+    href="http://web.archive.org/web/20030802192353/www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html">
+    http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html</a></li>
+
+    <li><a
+    href="http://web.archive.org/web/20030802192353/www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html">
+    http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html</a></li>
+
+    <li><a
+    href="http://web.archive.org/web/20030802192353/www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html">
+    http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html</a></li>
+  </ul>
+
+  <p>The last of these says:</p>
+
+  <p class="quote">I have been looking for a solution for this
+  problem a long time without success :-( I found several dummy
+  loop-back IP stacks but none that supports multicast. The
+  solution I have been using is to bring along a tiny hub and
+  connect my laptop to that hub when doing demos. Windows is a
+  bit stupid in the way that it only checks if it has a carrier.
+  </p>
+
+  <p>I now use a slightly cheaper/lighter solution; namely I
+  have cropped a network cable short and twisted my own physical
+  loop-back adapter. Needless to say, if anyone figures out how
+  to get multicast working with a stand alone W2K machine, I'm
+  more than interested.</p>
+
+  <note>Multicast is no longer required by The Grinder 3.</note>
+      </answer>
+    </faq>
+
+    <faq id="premature-eof">
+      <question>
+  Why do I get <code>HTTPClient.RetryException: Premature EOF
+  encountered</code> errors when I increase HTTP load?
+      </question>
+
+      <answer>
+  <p>This is a known issue with The Grinder 2 that is fixed in
+  The Grinder 3.0b14. I have no plans to backport the fix to The
+  Grinder 2, but see <a
+  href="http://article.gmane.org/gmane.comp.java.grinder.user/893/match=premature+eof">this
+  e-mail</a> for details of how to do this yourself.</p>
+      </answer>
+    </faq>
+
+  </faqsection>
+  <faqsection id="g2-scripts">
+  <title>Scripts</title>
+    <faq id="string-beans">
+      <question>
+  How do I simulate different users with The Grinder 2?
+      </question>
+
+      <answer>
+  <p>You probably want to use a <a
+  href="site:g2/plugins/http-plugin/string-bean">String Bean</a>.</p>
+      </answer>
+    </faq>
+
+    <faq id="post-and-string-beans">
+      <question>
+  How do I generate POST data with a String Bean?
+      </question>
+
+      <answer>
+  <p>Sean Kroah writes:</p>
+
+  <dl>
+    <dt/>
+    <dd class="quote">
+      <p><code>grinder.test0.parameter.post=&lt;getPostData&gt;</code>
+      doesn't work.</p>
+
+      <p>I didn't really see this in the docs anywhere so if
+      anyone is interested. I needed dynamic post data and the
+      HTTP plugin post parameter only took a file name. The key
+      was that the file can optionally contain a reference to a
+      <a href="site:g2/plugins/http-plugin/string-bean">String Bean</a>
+      method. I tried it on a fluke and it worked.</p>
+
+<source>
+grinder.test0.parameter.url=&lt;getLoginUrl&gt;
+grinder.test0.parameter.post=getPostData.dat
+</source>
+      <p><code>getPostData.dat</code> has one line in it:</p>
+
+<source>
+&lt;getPostData&gt;
+</source>
+
+      <p>This tells The Grinder to call my String Bean method
+      which returns my dynamic POST content based on the test
+      description. I'm pretty pleased with that.</p>
+    </dd>
+  </dl>
+      </answer>
+    </faq>
+    <faq id="extra-line">
+      <question>
+  Why do my POSTs have an extra new line?
+      </question>
+
+      <answer>
+  <p>An anonymous user reports:</p>
+  <dl>
+    <dt/>
+    <dd class="quote">
+      <p>The Grinder 2 appends a new line character to the end
+      of file which contains post information for a test. This
+      appears to happen only under Windows.</p>
+    </dd>
+  </dl>
+
+  <p>This is a known issue with The Grinder 2 that is fixed in
+  The Grinder 3.0. I have no plans to backport the fix to The
+  Grinder 2, but see the <a
+  href="site:sourceforge/extra-line">bug report</a> for how to
+  do this yourself.</p>
+      </answer>
+    </faq>
+  </faqsection>
+  </faqsection>
+
 </faqs>

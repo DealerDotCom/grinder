@@ -20,15 +20,11 @@
   $ svn co https://grinder.svn.sourceforge.net/svnroot/grinder/trunk/source grinder
   </source>
 
-  <p>You can browse this repository with <a href="ext:sourceforge/vcview">VCView</a>
-  or <a href="ext:fisheye">FishEye</a>, and monitor
-  changes to the repository via <a href="ext:cia/grinder">CIA</a>. Note, the
-  published documentation refers to the latest released version of The Grinder,
-  and so can lag Subversion by a month or two.</p>
-
-  <p>You can also view the <a href="ext:headwaysoftware/grinder">structure</a>
-  of some released versions of The Grinder using
-  <a href="ext:headwaysoftware/s101">Structure 101</a>.</p>
+  <p>You can browse this repository with <a
+  href="ext:sourceforge/vcview">VCView</a>, and monitor changes to the
+  repository via <a href="ext:cia/grinder">CIA</a>. Note, the
+  published documentation refers to the latest released version of The
+  Grinder, and so can lag Subversion by a month or two.</p>
 
   </section>
 
@@ -75,10 +71,16 @@ tests, reports, and release process.</p>
       <td><a href="ext:svnant">svnant 1.0.0</a></td>
       <td>to run the Ant tasks that release The Grinder</td>
     </tr>
-
   </table>
 
   <p>Later versions of these packages should also work.</p>
+
+  <table class="noborder">
+    <tr>
+      <td><a href="ext:jython">Jython 2.1, 2.5.0, 2.5.1</a></td>
+      <td>to verify The Grinder works with alternative Jython versions</td>
+    </tr>
+  </table>
 
   </section>
 
@@ -134,7 +136,7 @@ tests, reports, and release process.</p>
   <section id="documentation">
     <title>Documentation help wanted</title>
 
-    <p>Documenation can always be improved. Tutorials and examples from
+    <p>Documentation can always be improved. Tutorials and examples from
     users of The Grinder are always welcome. Please mail suggestions,
     corrections, and improvements to the <a href="ext:mail/grinder-development">
     grinder-development@lists.sourceforge.net</a> mailing list.</p>

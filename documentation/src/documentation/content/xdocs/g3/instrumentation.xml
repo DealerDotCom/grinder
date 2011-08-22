@@ -113,16 +113,18 @@ class TestRunner:
     <section>
       <title>Motivation - why is a new instrumentation engine required?</title>
 
-      <p>The most serious limitation of the traditional instrumentation is that
-      it does not work with Jython 2.5 or
-      later. The Jython 2.5 implementation significantly changed internal
-      APIs upon which The Grinder depends. The new instrumentation <a
+      <p>The most serious limitation of the traditional
+      instrumentation is that it does not work with Jython 2.5 or
+      later. Jython 2.5 significantly changed internal APIs upon which
+      The Grinder depends in a manner that prevents the continuation
+      of the proxy wrapper approach. The new instrumentation takes a
+      different approach using a Java 6 feature, and <a
       href="site:jython-2.5">supports Jython 2.5</a>.</p>
 
-      <p>In addition, the traditional
-      instrumentation is deeply tied to Jython. It cannot
-      be used with other scripting languages, nor can it be used within
-      Java code called by the script.</p>
+      <p>In addition, the traditional instrumentation is deeply tied
+      to Jython. It cannot be used with other scripting languages, nor
+      can it be used within Java code called by the script. Both of
+      these are possible with the new instrumentation.</p>
 
     </section>
 
@@ -134,10 +136,11 @@ class TestRunner:
       using a Java
       Virtual Machine that supports transformation of already loaded classes.
       Practically, this means a Java 6 JVM or later. First check you are
-      using The Grinder 3.3 and a Java 6 JVM.</p>
+      using at least The Grinder 3.3 and a Java 6 JVM.</p>
 
-      <p>When you start up an agent process, you will normally see a line
-      like this in the <a href="site:getting-started/output">output</a> file.</p>
+      <p>When you start an agent process, you will normally see a line
+      like this in the <a
+      href="site:getting-started/output">output</a> file.</p>
 
       <source>
       16/11/09 07:49:40 (process paston01-0): instrumentation agents: traditional Jython instrumenter</source>
@@ -172,7 +175,7 @@ class TestRunner:
       inefficiency.
 
       </warning>
-    <section>
+    <section id="record-api">
       <title>New API - <code>record()</code>, not <code>wrap()</code></title>
 
       <p>The traditional instrumenter creates separate <em>wrapper</em> proxy objects,

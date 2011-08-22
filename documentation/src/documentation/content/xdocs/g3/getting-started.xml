@@ -29,24 +29,25 @@
       <li>
         <strong>Worker processes</strong>
         <ul>
-          <li>Interpret Jython test scripts and perform tests using a
-          number of <em>worker threads</em></li>
+          <li>Interprets Jython test scripts and performs the tests.<br/> Each worker process can run many tests in parallel using a
+          number of <em>worker threads</em>.</li>
         </ul>
       </li>
 
       <li>
         <strong>Agent processes</strong>
         <ul>
-          <li>Manage worker processes</li>
+          <li>Long running process that starts and stops worker processes as required.</li>
+          <li>Maintains a local cache of test scripts distributed from the console.</li>
         </ul>
       </li>
 
       <li>
-        <strong>The console</strong>
+        <strong>The Console</strong>
         <ul>
-          <li>Coordinate the other processes</li>
-          <li>Collate and display statistics</li>
-          <li>Script editing and distribution</li>
+          <li>Coordinates the other processes.</li>
+          <li>Collates and displays statistics.</li>
+          <li>Provides script editing and distribution.</li>
         </ul>
       </li>
     </ul>
@@ -116,7 +117,7 @@
     <code>grinder.consoleHost</code> and
     <code>grinder.consolePort</code> properties in the <a
     href="site:properties"><code>grinder.properties</code></a>
-    file before starting The Grinder agents. The values must match those specified
+    file before starting The Grinder agents. The values should match those specified
     in the console options dialog.</note>
   </section>
 
@@ -210,10 +211,11 @@ java net.grinder.Console
 <source>
 java net.grinder.Grinder
 </source>
-        <p>The agent will look for the <code>grinder.properties</code> file
-        in the local directory. The Jython script is usually stored alongside
-        the properties file. If you like, you can also specify an explicit
-        properties file as the first argument. For example:</p>
+        <p>The agent will look for the <code>grinder.properties</code>
+        file in the local directory. The Jython script is usually
+        stored alongside the properties file. If you like, you can
+        specify an explicit properties file as the first argument. For
+        example:</p>
 
 <source>
 java net.grinder.Grinder myproperties
@@ -250,7 +252,7 @@ java net.grinder.Grinder myproperties
 
     <p><strong>Windows</strong></p>
     <ul>
-     <li>setGrinderEnv.cmd:
+     <li>setGrinderEnv.cmd
 <source>
 set GRINDERPATH=<em>(full path to grinder install directory)</em>
 set GRINDERPROPERTIES=<em>(full path to grinder.properties)</em>\grinder.properties
@@ -259,20 +261,20 @@ set JAVA_HOME=<em>(full path to java install directory)</em>
 PATH=%JAVA_HOME%\bin;%PATH%
 </source>
      </li>
-     <li>startAgent.cmd:
+     <li>startAgent.cmd
 <source>
 call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
 echo %CLASSPATH%
 java -cp %CLASSPATH% net.grinder.Grinder %GRINDERPROPERTIES%
 </source>
      </li>
-     <li>startConsole.cmd:
+     <li>startConsole.cmd
 <source>
 call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
 java -cp %CLASSPATH% net.grinder.Console
 </source>
      </li>
-     <li>startProxy.cmd:
+     <li>startProxy.cmd
 <source>
 call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
 java -cp %CLASSPATH% net.grinder.TCPProxy -console -http > grinder.py
@@ -282,7 +284,7 @@ java -cp %CLASSPATH% net.grinder.TCPProxy -console -http > grinder.py
 
     <p><strong>Unix</strong></p>
      <ul>
-      <li>setGrinderEnv.sh:
+      <li>setGrinderEnv.sh
 <source>
 #!/usr/bin/ksh
 GRINDERPATH=<em>(full path to grinder install directory)</em>
@@ -293,21 +295,21 @@ PATH=$JAVA_HOME/bin:$PATH
 export CLASSPATH PATH GRINDERPROPERTIES
 </source>
       </li>
-      <li>startAgent.sh:
+      <li>startAgent.sh
 <source>
 #!/usr/bin/ksh
 . <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
 java -cp $CLASSPATH net.grinder.Grinder $GRINDERPROPERTIES
 </source>
       </li>
-      <li>startConsole.sh:
+      <li>startConsole.sh
 <source>
 #!/usr/bin/ksh
 . <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
 java -cp $CLASSPATH net.grinder.Console
 </source>
       </li>
-      <li>startProxy.sh:
+      <li>startProxy.sh
 <source>
 #!/usr/bin/ksh
 . <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh

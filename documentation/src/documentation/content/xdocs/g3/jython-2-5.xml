@@ -8,9 +8,12 @@
 </header>
 <body>
 
-  <p>The default Jython implementation packaged with The Grinder is Jython 2.2.
-  The Grinder 3.3 and later optionally support Jython 2.5. Jython 2.5.1 has also
-  been tested and works fine.</p>
+  <p>The default Jython implementation packaged with The Grinder is
+  Jython 2.2. The Grinder 3.3 and later optionally support Jython 2.5,
+  as described on this page. Jython 2.5.1 has also been tested and
+  works fine.</p>
+
+  <p>Jython 2.5.2 works with The Grinder 3.5 or later.</p>
 
   <section>
     <title>How to use Jython 2.5</title>
@@ -24,15 +27,22 @@
     <p>The support for Jython 2.5 uses the
     <a href="site:script-instrumentation/new-instrumentation">new instrumentation engine</a>,
   and so requires that the agent processes are run using Java SE 6.</p>
+  </section>
 
+  <section>
+    <title>Known issues</title>
 
-    <section>
-      <title>Known issues</title>
-
-      <p>You may also find the need to remove or rename the <code>jython.jar</code>
+    <p>You may find the need to remove or rename the <code>jython.jar</code>
       file from the <code>lib</code> directory.
       See this <a href="site:sre-assertion">FAQ</a>.</p>
-    </section>
+
+    <p>The Grinder 3.5 improved the instrumentation of Java methods
+    from Jython. If you are using an earlier version of The Grinder,
+    instrumentation of Java methods may not work as you expect. See <a
+    href="site:sourceforge/bug2992248">bug 2992248</a>.
+    </p>
+
   </section>
+
 </body>
 </document>
