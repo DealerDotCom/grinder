@@ -709,6 +709,46 @@ finally {
     </answer>
    </faq>
 
+   <faq id="multicast">
+    <question>
+      How to I avoid pauses due to garbage collection?
+    </question>
+
+    <answer>
+  <p>Gary Mulder writes:</p>
+
+  <p class="quote">
+    If you're seeing mysterious short random pauses in your
+    test results, add the following to the grinder.properties:
+  <br/>
+  <code>
+grinder.jvm.arguments: -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamp
+  </code>
+  <br/> and monitor the terminal output for any JVM Full GC events.
+  These completely pause the Java Virtual Machine and therefore The
+  Grinder.
+
+  <br/>
+  <br/>
+
+  To mitigate any observed GC pauses review the suggestions in the
+  Java <a href="ext:oracle/gc-tuning">Garbage Collection Tuning
+  guide</a>. If you have the memory, use plenty of Java heap space to
+  ensure there are no full GC pauses in The Grinder. The heap can be
+  set to 1 GB by adding <code>grinder.jvm.arguments: -Xmx1024m</code>
+  to grinder.properties.
+</p>
+
+  <p>
+ The command line arguments Gary suggests are for Oracle's HotSpot
+ JVM. Other Java implementations provide similar options, consult the
+ documentation.
+  </p>
+
+    </answer>
+   </faq>
+
+
    </faqsection>
 
   </faqsection>
