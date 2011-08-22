@@ -60,10 +60,10 @@
           A thread's TestRunner instance can be used to store
           information specific to that thread.</p>
 
-          <note>Although strongly recommended, strictly
-          <code>TestRunner</code> doesn't need to be a class. See the
-          <a href="site:script-gallery/helloworldfunctions">Hello
-          World with Functions</a> example.</note>
+          <note>Although recommended, strictly <code>TestRunner</code>
+          doesn't need to be a class. See the <a
+          href="site:script-gallery/helloworldfunctions">Hello World
+          with Functions</a> example.</note>
         </li>
 
         <li>
@@ -129,7 +129,7 @@ class TestRunner:
     this we need to create some tests. A <a
     href="script-javadoc/net/grinder/script/Test.html">Test</a> has a
     unique test number and description. If you are using the <a
-    href="site:console">console</a>, it will automatically update to
+    href="site:console">console</a>, it will update automatically to
     display new <code>Test</code>s as they are created.</p>
 
     <p>Let's add a <code>Test</code> to our script.</p>

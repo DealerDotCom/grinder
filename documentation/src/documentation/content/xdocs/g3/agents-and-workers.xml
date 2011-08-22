@@ -18,7 +18,7 @@
     <p>It is typical to run a single agent process on each load injector
        machine. </p>
     <p>When an agent is started, it attempts to connect to
-       the <a href="site:console">console</a>. If it can do so, it will
+       the <a href="site:console">console</a>. If it can connect, it will
        wait for a signal from the console before starting worker processes.
        Otherwise, the agent process will start a number of worker processes
        as specified by its local

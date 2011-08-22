@@ -32,7 +32,7 @@
   <section>
     <title>Known issues</title>
 
-    <p>You may also find the need to remove or rename the <code>jython.jar</code>
+    <p>You may find the need to remove or rename the <code>jython.jar</code>
       file from the <code>lib</code> directory.
       See this <a href="site:sre-assertion">FAQ</a>.</p>
 
