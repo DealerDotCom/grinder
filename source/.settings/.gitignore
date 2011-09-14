@@ -1,2 +1,3 @@
 oracle.eclipse.tools.common.services
 org.eclipse.core.resources.prefs
+org.eclipse.ltk.core.refactoring.prefs
