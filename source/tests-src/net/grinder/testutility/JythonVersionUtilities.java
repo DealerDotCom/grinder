@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
@@ -45,13 +46,17 @@ public class JythonVersionUtilities {
   // The default classloader uses Jython 2.2.1, so there's no need for a
   // special suite method for that version.
 
-  public static TestSuite jython21Suite(Class<?> suite) throws Exception {
+  public static TestSuite jython21Suite(Class<?extends TestCase> suite)
+    throws Exception {
+
     final TestSuite result = new TestSuite(suite.getName() + " [Jython 2.1]");
     result.addTest(jythonSuite(suite, "jython2_1.dir"));
     return result;
   }
 
-  public static TestSuite jython25Suite(Class<?> suite) throws Exception {
+  public static TestSuite jython25Suite(Class<? extends TestCase> suite)
+    throws Exception {
+
     final TestSuite result = new TestSuite(suite.getName() + " [Jython 2.5]");
     result.addTest(jythonSuite(suite, "jython2_5_2.dir"));
     result.addTest(jythonSuite(suite, "jython2_5_0.dir"));
@@ -60,7 +65,8 @@ public class JythonVersionUtilities {
     return result;
   }
 
-  private static TestSuite jythonSuite(Class<?> suite,
+  @SuppressWarnings("unchecked")
+  private static TestSuite jythonSuite(Class<? extends TestCase> suite,
                                        String pythonHomeProperty)
     throws Exception {
 
@@ -84,8 +90,10 @@ public class JythonVersionUtilities {
         BlockingClassLoader.createClassLoader(GRINDER_AND_PYTHON_CLASSES,
                                               Arrays.asList(jythonJarURL));
 
-      return new TestSuite(classLoader.loadClass(suite.getName()),
-                           pythonHome);
+      final Class<? extends TestCase> suiteReloaded =
+        (Class<? extends TestCase>) classLoader.loadClass(suite.getName());
+
+      return new TestSuite(suiteReloaded, pythonHome);
     }
     finally {
       if (oldPythonHome != null) {

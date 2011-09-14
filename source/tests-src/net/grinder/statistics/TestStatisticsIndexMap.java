@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.statistics;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
 
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsSet;
@@ -35,14 +34,6 @@ import net.grinder.statistics.StatisticsSet;
  * @see StatisticsSet
  */
 public class TestStatisticsIndexMap extends TestCase {
-
-  public static void main(String[] args) {
-    TestRunner.run(TestStatisticsIndexMap.class);
-  }
-
-  public TestStatisticsIndexMap(String name) {
-    super(name);
-  }
 
   private final StatisticsIndexMap m_indexMap =
     StatisticsServicesImplementation.getInstance().getStatisticsIndexMap();

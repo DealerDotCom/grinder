@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,16 +22,14 @@
 
 package net.grinder.util;
 
-import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
+
+import junit.framework.TestCase;
 
 
 /**
@@ -42,16 +40,6 @@ import java.util.Random;
  */
 public class TestSerialiser extends TestCase
 {
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestSerialiser.class);
-    }
-
-    public TestSerialiser(String name)
-    {
-	super(name);
-    }
-
     private final Random m_random = new Random();
 
     public void testUnsignedLongs() throws Exception

@@ -9,7 +9,7 @@ Introduction
 Ant
 ===
 
-The Grinder build system is based on Jakarta Ant 1.6.2.
+The Grinder build system is based on Jakarta Ant 1.7.
 
 Ant is a very handy tool that uses a build file written in XML (this
 file) as building instructions. For more information refer to
@@ -38,7 +38,7 @@ They are bundled in the lib directory:
 The following optional packages are necessary to run The Grinder unit
 tests, reports, and release process.
 
-  - JUnit 3.8.1
+  - JUnit 4.4
   - Checkstyle 4.4
   - Clover 2.0.3
   - svnant 1.0.0
@@ -221,6 +221,7 @@ what you want. Currently the conditionally built modules are:
     <path id="build.classpath">
       <pathelement path="${classes.dir}"/>
       <path refid="asm.classpath"/>
+      <path refid="junit.classpath"/>
       <path refid="jython.classpath"/>
       <path refid="picocontainer.classpath"/>
       <path refid="xmlbeans.classpath"/>
@@ -229,6 +230,12 @@ what you want. Currently the conditionally built modules are:
 
     <path id="clover.classpath">
       <pathelement path="${clover.home}/lib/clover.jar"/>
+    </path>
+
+    <path id="junit.classpath">
+      <fileset dir="${junit.home}">
+        <include name="junit-*.jar"/>
+      </fileset>
     </path>
 
     <path id="svnant.classpath">
@@ -242,7 +249,7 @@ what you want. Currently the conditionally built modules are:
                classname="com.sun.net.ssl.HostnameVerifier"
                property="have.jsse" />
 
-    <available classpathref="build.classpath"
+    <available classpathref="junit.classpath"
                classname="junit.framework.TestCase"
                property="have.junit" />
 
@@ -269,7 +276,7 @@ what you want. Currently the conditionally built modules are:
   <!-- Useful assertions                                                   -->
   <!-- =================================================================== -->
   <target name="assert-have-junit" depends="init" unless="have.junit">
-    <fail message="Add JUnit 3.8.1 to your CLASSPATH to build this target"/>
+    <fail message="To build this target, edit etc/localpaths.properties and set svnant.home to a valid JUnit installation"/>
   </target>
 
   <target name="assert-have-optional-tasks" depends="init"
@@ -503,7 +510,7 @@ what you want. Currently the conditionally built modules are:
 
     <junit printsummary="false" haltonfailure="true">
       <classpath>
-      <path refid="test.classpath"/>
+	<path refid="test.classpath"/>
       </classpath>
 
       <!-- Put Jython droppings in one place. -->
