@@ -42,6 +42,7 @@ tests, reports, and release process.
   - Checkstyle 4.4
   - Clover 2.0.3
   - svnant 1.0.0
+  - Mockito 1.8.5
 
   (You might not need these exact versions).
 
@@ -68,14 +69,10 @@ Say
 for details of other targets. The compilation targets don't depend on
 the "clean" target, to rebuild you need to say "ant clean compile".
 
-The build auto-detects what modules to build by checking your
-CLASSPATH and paths defined in the file etc/localpaths.properties for
-classes the module depends on. You may have to modify
-etc/localpaths.properties or unset your CLASSPATH if this doesn't do
-what you want. Currently the conditionally built modules are:
-
-   JUnit test cases (Needs JUnit)
-   XMLBeans compilation (Needs XMLBeans)
+The build looks for supporting libraries build by checking your
+CLASSPATH and paths defined in the file etc/localpaths.properties. You
+may have to modify etc/localpaths.properties or unset your CLASSPATH
+if this doesn't do what you want.
 -->
 
 <project name="The Grinder" default="jar" basedir=".">
@@ -221,21 +218,24 @@ what you want. Currently the conditionally built modules are:
     <path id="build.classpath">
       <pathelement path="${classes.dir}"/>
       <path refid="asm.classpath"/>
-      <path refid="junit.classpath"/>
       <path refid="jython.classpath"/>
       <path refid="picocontainer.classpath"/>
       <path refid="xmlbeans.classpath"/>
       <pathelement path="${xmlbeans.jar}"/>
     </path>
 
-    <path id="clover.classpath">
-      <pathelement path="${clover.home}/lib/clover.jar"/>
-    </path>
-
-    <path id="junit.classpath">
+    <path id="build-tests.classpath">
       <fileset dir="${junit.home}">
         <include name="junit-*.jar"/>
       </fileset>
+      <fileset dir="${mockito.home}">
+        <include name="mockito-all*.jar"/>
+      </fileset>
+      <path refid="build.classpath"/>
+    </path>
+
+    <path id="clover.classpath">
+      <pathelement path="${clover.home}/lib/clover.jar"/>
     </path>
 
     <path id="svnant.classpath">
@@ -245,15 +245,15 @@ what you want. Currently the conditionally built modules are:
     </path>
 
     <!-- options -->
-    <available classpathref="build.classpath"
-               classname="com.sun.net.ssl.HostnameVerifier"
-               property="have.jsse" />
-
-    <available classpathref="junit.classpath"
+    <available classpathref="build-tests.classpath"
                classname="junit.framework.TestCase"
                property="have.junit" />
 
-    <available classpathref="build.classpath"
+    <available classpathref="build-tests.classpath"
+               classname="org.mockito.Mockito"
+               property="have.mockito" />
+
+    <available classpathref="build-tests.classpath"
                classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
                property="have.optional.tasks" />
 
@@ -276,7 +276,11 @@ what you want. Currently the conditionally built modules are:
   <!-- Useful assertions                                                   -->
   <!-- =================================================================== -->
   <target name="assert-have-junit" depends="init" unless="have.junit">
-    <fail message="To build this target, edit etc/localpaths.properties and set svnant.home to a valid JUnit installation"/>
+    <fail message="To build this target, edit etc/localpaths.properties and set junit.home to a valid JUnit installation"/>
+  </target>
+
+  <target name="assert-have-mockito" depends="init" unless="have.mockito">
+    <fail message="To build this target, edit etc/localpaths.properties and set mockito.home to a valid Mockito installation"/>
   </target>
 
   <target name="assert-have-optional-tasks" depends="init"
@@ -429,7 +433,7 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="compile-tests"
-    depends="assert-have-junit,compile"
+    depends="assert-have-junit,assert-have-mockito,compile"
     description="Compiles the tests source">
     <mkdir dir="${test-classes.dir}"/>
 
@@ -439,7 +443,7 @@ what you want. Currently the conditionally built modules are:
            optimize="${optimize}"
            source="1.5"
            deprecation="${deprecation}">
-       <classpath refid="build.classpath"/>
+       <classpath refid="build-tests.classpath"/>
    </javac>
   </target>
 
@@ -503,7 +507,7 @@ what you want. Currently the conditionally built modules are:
     <path id="test.classpath">
       <pathelement path="${test-classes.dir}"/>
       <path refid="clover.classpath"/>
-      <path refid="build.classpath"/>
+      <path refid="build-tests.classpath"/>
     </path>
 
     <mkdir dir="${junit-report.dir}"/>
