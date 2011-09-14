@@ -1,3 +1,7 @@
+The Grinder 3.6 (Not yet released)
+---------------
+
+
 The Grinder 3.5
 ---------------
 
@@ -35,11 +39,11 @@ The Grinder 3.5
 
    Support Jython 2.5.2.
 
-   Fix bug 2992248 - DCR instrumentation of Java methods. Instrumentation
-   of Java methods from Jython scripts has been improved. Multiple
-   references from a script to an instrumented method now work as expected.
-   Invoking a script instrumented method from Java now works. Thanks to
-   Kevin Connaughton for the report.
+   Fix bug 2992248 - DCR instrumentation of Java methods.
+   Instrumentation of Java methods from Jython scripts has been
+   improved. Multiple references from a script to an instrumented
+   method now work as expected. Invoking a script instrumented method
+   from Java now works. Thanks to Kevin Connaughton for the report.
 
    Fix bug 2958145 - DCR instrumentation fails with
    grinder.debug.singleprocess.
