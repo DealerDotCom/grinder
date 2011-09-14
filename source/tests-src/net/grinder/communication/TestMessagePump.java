@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2010 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -86,7 +86,7 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
 
   public void testShutdownOnNullMessage() throws Exception {
     m_sender.send(null);
-    assertEquals(null, m_intermediateReceiver.waitForMessage());
+    assertEquals(null, m_receiver.waitForMessage());
   }
 
   public void testShutdownIfReceiverShutdown() throws Exception {

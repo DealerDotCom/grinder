@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,6 +39,8 @@ public class StreamReceiver implements Receiver {
 
   private final InputStream m_inputStream;
   private final Object m_streamLock;
+
+  // Guarded by m_streamLock.
   private boolean m_shutdown = false;
 
   /**
@@ -70,24 +72,24 @@ public class StreamReceiver implements Receiver {
    */
   public final Message waitForMessage() throws CommunicationException {
 
-    if (m_shutdown) {
-      return null;
-    }
-
     try {
       final Message message;
 
       // This blocks holding the lock, by design.
       synchronized (m_streamLock) {
+        if (m_shutdown) {
+          return null;
+        }
+
         final ObjectInputStream objectStream =
           new ObjectInputStream(m_inputStream);
 
         message = (Message)objectStream.readObject();
-      }
 
-      if (message instanceof CloseCommunicationMessage) {
-        shutdown();
-        return null;
+        if (message instanceof CloseCommunicationMessage) {
+          shutdown();
+          return null;
+        }
       }
 
       return message;
@@ -107,7 +109,9 @@ public class StreamReceiver implements Receiver {
    */
   public void shutdown() {
 
-    m_shutdown = true;
+    synchronized (m_streamLock) {
+      m_shutdown = true;
+    }
 
     Closer.close(m_inputStream);
   }
