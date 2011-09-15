@@ -486,7 +486,7 @@ public final class AgentImplementation implements Agent {
       // worker processes and our message handlers.
       fileStoreMessageDispatcher.addFallback(
         new TeeSender(messageDispatcher,
-          new IgnoreShutdownSender(m_fanOutStreamSender)));
+                      new IgnoreShutdownSender(m_fanOutStreamSender)));
 
       m_messagePump =
         new MessagePump(receiver, fileStoreMessageDispatcher, 1);

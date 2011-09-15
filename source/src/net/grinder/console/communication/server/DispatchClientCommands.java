@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2009 Philip Aston
+// Copyright (C) 2006 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -77,8 +77,8 @@ public class DispatchClientCommands {
 
     messageDispatcher.set(
       StartRecordingMessage.class,
-      new AbstractBlockingHandler() {
-        public Message blockingSend(Message message) {
+      new AbstractBlockingHandler<StartRecordingMessage>() {
+        public Message blockingSend(StartRecordingMessage message) {
           m_model.start();
           return new SuccessMessage();
         }
@@ -86,8 +86,8 @@ public class DispatchClientCommands {
 
     messageDispatcher.set(
       StopRecordingMessage.class,
-      new AbstractBlockingHandler() {
-        public Message blockingSend(Message message) {
+      new AbstractBlockingHandler<StopRecordingMessage>() {
+        public Message blockingSend(StopRecordingMessage message) {
           m_model.stop();
           return new SuccessMessage();
         }
@@ -95,8 +95,8 @@ public class DispatchClientCommands {
 
     messageDispatcher.set(
       ResetRecordingMessage.class,
-      new AbstractBlockingHandler() {
-        public Message blockingSend(Message message) {
+      new AbstractBlockingHandler<ResetRecordingMessage>() {
+        public Message blockingSend(ResetRecordingMessage message) {
           m_model.reset();
           m_sampleModelViews.resetStatisticsViews();
           return new SuccessMessage();
@@ -105,37 +105,35 @@ public class DispatchClientCommands {
 
     messageDispatcher.set(
       GetNumberOfAgentsMessage.class,
-      new AbstractBlockingHandler() {
-        public Message blockingSend(Message message) {
+      new AbstractBlockingHandler<GetNumberOfAgentsMessage>() {
+        public Message blockingSend(GetNumberOfAgentsMessage message) {
           return new ResultMessage(m_processControl.getNumberOfLiveAgents());
         }
       });
 
     messageDispatcher.set(
       StopAgentAndWorkerProcessesMessage.class,
-      new AbstractBlockingHandler() {
-        public Message blockingSend(Message message) {
-          m_processControl.stopAgentAndWorkerProcesses();
-          return new SuccessMessage();
+      new AbstractBlockingHandler<StopAgentAndWorkerProcessesMessage>() {
+        public Message
+          blockingSend(StopAgentAndWorkerProcessesMessage message) {
+            m_processControl.stopAgentAndWorkerProcesses();
+            return new SuccessMessage();
         }
       });
 
     messageDispatcher.set(
       StartWorkerProcessesMessage.class,
-      new AbstractBlockingHandler() {
-        public Message blockingSend(Message message) {
-          final StartWorkerProcessesMessage startWorkerProcessesMessage =
-            (StartWorkerProcessesMessage)message;
-          m_processControl.startWorkerProcesses(
-            startWorkerProcessesMessage.getProperties());
+      new AbstractBlockingHandler<StartWorkerProcessesMessage>() {
+        public Message blockingSend(StartWorkerProcessesMessage message) {
+          m_processControl.startWorkerProcesses(message.getProperties());
           return new SuccessMessage();
         }
       });
 
     messageDispatcher.set(
       ResetWorkerProcessesMessage.class,
-      new AbstractBlockingHandler() {
-        public Message blockingSend(Message message) {
+      new AbstractBlockingHandler<ResetWorkerProcessesMessage>() {
+        public Message blockingSend(ResetWorkerProcessesMessage message) {
           m_processControl.resetWorkerProcesses();
           return new SuccessMessage();
         }

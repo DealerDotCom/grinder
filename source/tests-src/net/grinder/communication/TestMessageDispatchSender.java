@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,10 +21,23 @@
 
 package net.grinder.communication;
 
-import junit.framework.TestCase;
-
-import net.grinder.testutility.RandomStubFactory;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import net.grinder.communication.MessageDispatchRegistry.AbstractBlockingHandler;
+import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
+import net.grinder.communication.MessageDispatchRegistry.BlockingHandler;
+import net.grinder.communication.MessageDispatchRegistry.Handler;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**
@@ -33,17 +46,25 @@ import net.grinder.communication.MessageDispatchRegistry.AbstractBlockingHandler
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestMessageDispatchSender extends TestCase {
+public class TestMessageDispatchSender {
 
-  public void testSend() throws Exception {
+  @Mock private Handler<Message> m_fallBackHandler;
+  @Mock private Handler<Message> m_handler;
+  @Mock private Handler<Message> m_handler2;
+  @Mock private BlockingHandler<OtherMessage> m_responder;
+  @Mock private Sender m_sender;
+
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
+  }
+
+  @Test public void testSend() throws Exception {
     final MessageDispatchSender messageDispatchSender =
       new MessageDispatchSender();
 
     messageDispatchSender.send(new SimpleMessage());
 
-    final RandomStubFactory<Sender> fallbackHandlerStubFactory =
-      RandomStubFactory.create(Sender.class);
-    messageDispatchSender.addFallback(fallbackHandlerStubFactory.getStub());
+    messageDispatchSender.addFallback(m_fallBackHandler);
 
     final Message m1 = new SimpleMessage();
     final Message m2 = new SimpleMessage();
@@ -51,61 +72,45 @@ public class TestMessageDispatchSender extends TestCase {
     messageDispatchSender.send(m1);
     messageDispatchSender.send(m2);
 
-    fallbackHandlerStubFactory.assertSuccess("send", m1);
-    fallbackHandlerStubFactory.assertSuccess("send", m2);
-    fallbackHandlerStubFactory.assertNoMoreCalls();
+    verify(m_fallBackHandler).handle(m1);
+    verify(m_fallBackHandler).handle(m2);
 
-    final HandlerSenderStubFactory handlerStubFactory =
-      new HandlerSenderStubFactory();
-
-    final Sender previousHandler = messageDispatchSender.set(
-      SimpleMessage.class,
-      handlerStubFactory.getStub());
+    final Handler<Message> previousHandler =
+      messageDispatchSender.set(SimpleMessage.class, m_handler);
     assertNull(previousHandler);
 
-    final RandomStubFactory<Sender> otherMessagerHandlerStubFactory =
-      RandomStubFactory.create(Sender.class);
-    Sender previousHandler2 =
-      messageDispatchSender.set(OtherMessage.class,
-                                otherMessagerHandlerStubFactory.getStub());
+    final Handler<Message> previousHandler2 =
+      messageDispatchSender.set(OtherMessage.class, m_handler2);
     assertNull(previousHandler2);
 
     messageDispatchSender.send(m1);
     messageDispatchSender.send(m2);
 
-    handlerStubFactory.assertSuccess("send", m1);
-    handlerStubFactory.assertSuccess("send", m2);
-    handlerStubFactory.assertNoMoreCalls();
-    fallbackHandlerStubFactory.assertNoMoreCalls();
-    otherMessagerHandlerStubFactory.assertNoMoreCalls();
+    verify(m_handler).handle(m1);
+    verify(m_handler).handle(m2);
 
     final OtherMessage m3 = new OtherMessage();
     messageDispatchSender.send(m3);
 
-    otherMessagerHandlerStubFactory.assertSuccess("send", m3);
-    otherMessagerHandlerStubFactory.assertNoMoreCalls();
-    fallbackHandlerStubFactory.assertNoMoreCalls();
-    handlerStubFactory.assertNoMoreCalls();
+    verify(m_handler2).handle(m3);
 
-    handlerStubFactory.setShouldThrowException(true);
+    final CommunicationException e = new CommunicationException("");
+    doThrow(e).when(m_handler).handle(m1);
 
     try {
       messageDispatchSender.send(m1);
       fail("Expected CommunicationException");
     }
-    catch (CommunicationException e) {
+    catch (CommunicationException e2) {
+      assertSame(e, e2);
     }
 
-    handlerStubFactory.assertException("send",
-                                       CommunicationException.class,
-                                       m1);
+    verify(m_handler, times(2)).handle(m1);
 
-    handlerStubFactory.assertNoMoreCalls();
-    fallbackHandlerStubFactory.assertNoMoreCalls();
-    otherMessagerHandlerStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_handler, m_handler2, m_fallBackHandler);
   }
 
-  public void testWithMessageRequiringResponse() throws Exception {
+  @Test public void testWithMessageRequiringResponse() throws Exception {
     final MessageDispatchSender messageDispatchSender =
       new MessageDispatchSender();
 
@@ -120,39 +125,35 @@ public class TestMessageDispatchSender extends TestCase {
     catch (CommunicationException e) {
     }
 
-    final RandomStubFactory<Sender> senderStubFactory =
-      RandomStubFactory.create(Sender.class);
-    messageRequiringResponse.setResponder(senderStubFactory.getStub());
+    messageRequiringResponse.setResponder(m_sender);
 
     messageDispatchSender.send(messageRequiringResponse);
-    senderStubFactory.assertSuccess("send", NoResponseMessage.class);
-    senderStubFactory.assertNoMoreCalls();
+    verify(m_sender).send(isA(NoResponseMessage.class));
 
     // Now check a handler can send a response.
     final Message responseMessage = new SimpleMessage();
 
     messageDispatchSender.set(
       SimpleMessage.class,
-      new MessageDispatchRegistry.AbstractBlockingHandler() {
-        public Message blockingSend(Message message)  {
+      new MessageDispatchRegistry.AbstractBlockingHandler<SimpleMessage>() {
+        public Message blockingSend(SimpleMessage message)  {
           return responseMessage;
         }
       });
 
     final MessageRequiringResponse messageRequiringResponse2 =
       new MessageRequiringResponse(message);
-    messageRequiringResponse2.setResponder(senderStubFactory.getStub());
+    messageRequiringResponse2.setResponder(m_sender);
 
     messageDispatchSender.send(messageRequiringResponse2);
-    senderStubFactory.assertSuccess("send", responseMessage);
-    senderStubFactory.assertNoMoreCalls();
+    verify(m_sender).send(responseMessage);
 
     // Finally, check that fallback handler can handle response.
     final Message responseMessage2 = new SimpleMessage();
 
     messageDispatchSender.addFallback(
-      new MessageDispatchRegistry.AbstractHandler() {
-        public void send(Message message) throws CommunicationException {
+      new AbstractHandler<Message>() {
+        public void handle(Message message) throws CommunicationException {
           if (message instanceof MessageRequiringResponse) {
             final MessageRequiringResponse m =
               (MessageRequiringResponse) message;
@@ -163,41 +164,25 @@ public class TestMessageDispatchSender extends TestCase {
 
     final MessageRequiringResponse messageRequiringResponse3 =
       new MessageRequiringResponse(new OtherMessage());
-    messageRequiringResponse3.setResponder(senderStubFactory.getStub());
+    messageRequiringResponse3.setResponder(m_sender);
 
     messageDispatchSender.send(messageRequiringResponse3);
-    senderStubFactory.assertSuccess("send", responseMessage2);
-    senderStubFactory.assertNoMoreCalls();
+    verify(m_sender).send(responseMessage2);
+
+    verifyNoMoreInteractions(m_sender);
   }
 
-  public void testWithBadHandlers() throws Exception {
+  @Test public void testWithBadHandlers() throws Exception {
     final MessageDispatchSender messageDispatchSender =
       new MessageDispatchSender();
 
     final Message message = new SimpleMessage();
 
-    final RandomStubFactory<Sender> senderStubFactory =
-      RandomStubFactory.create(Sender.class);
     final CommunicationException communicationException =
       new CommunicationException("");
-    senderStubFactory.setThrows("send", communicationException);
+    doThrow(communicationException).when(m_handler).handle(message);
 
-    messageDispatchSender.addFallback(senderStubFactory.getStub());
-
-    try {
-      messageDispatchSender.send(message);
-    }
-    catch (CommunicationException e) {
-      assertSame(communicationException, e);
-    }
-
-    senderStubFactory.assertException("send",
-                                      communicationException,
-                                      Message.class);
-
-    senderStubFactory.assertNoMoreCalls();
-
-    messageDispatchSender.set(SimpleMessage.class, senderStubFactory.getStub());
+    messageDispatchSender.addFallback(m_handler);
 
     try {
       messageDispatchSender.send(message);
@@ -206,80 +191,54 @@ public class TestMessageDispatchSender extends TestCase {
       assertSame(communicationException, e);
     }
 
-    senderStubFactory.assertException("send",
-                                      communicationException,
-                                      Message.class);
+    messageDispatchSender.set(SimpleMessage.class, m_handler);
 
-    senderStubFactory.assertNoMoreCalls();
+    try {
+      messageDispatchSender.send(message);
+    }
+    catch (CommunicationException e) {
+      assertSame(communicationException, e);
+    }
+
+    verify(m_handler, times(2)).handle(message);
+
+    verifyNoMoreInteractions(m_handler);
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
     final MessageDispatchSender messageDispatchSender =
       new MessageDispatchSender();
 
     messageDispatchSender.shutdown();
 
-    final HandlerSenderStubFactory handlerStubFactory =
-      new HandlerSenderStubFactory();
-
-    messageDispatchSender.set(
-      SimpleMessage.class,
-      handlerStubFactory.getStub());
+    messageDispatchSender.set(SimpleMessage.class, m_handler);
 
     messageDispatchSender.shutdown();
 
-    handlerStubFactory.assertSuccess("shutdown");
-    handlerStubFactory.assertNoMoreCalls();
+    verify(m_handler).shutdown();
 
-    final RandomStubFactory<Sender> senderStubFactory =
-      RandomStubFactory.create(Sender.class);
-    messageDispatchSender.addFallback(senderStubFactory.getStub());
-    messageDispatchSender.addFallback(senderStubFactory.getStub());
+    messageDispatchSender.addFallback(m_handler2);
+    messageDispatchSender.addFallback(m_handler2);
 
-    final RandomStubFactory<BlockingSender> responderStubFactory =
-      RandomStubFactory.create(BlockingSender.class);
-    messageDispatchSender.set(OtherMessage.class,
-                              responderStubFactory.getStub());
+    messageDispatchSender.set(OtherMessage.class, m_responder);
 
-    final BlockingSender blockingSender2 =
-      new AbstractBlockingHandler() {
+    final BlockingHandler<Message> blockingHandler2 =
+      new AbstractBlockingHandler<Message>() {
         public Message blockingSend(Message message)
           throws CommunicationException {
             return null;
         }};
-    messageDispatchSender.set(Message.class, blockingSender2);
+    messageDispatchSender.set(Message.class, blockingHandler2);
 
     messageDispatchSender.shutdown();
 
-    handlerStubFactory.assertSuccess("shutdown");
-    handlerStubFactory.assertNoMoreCalls();
-    senderStubFactory.assertSuccess("shutdown");
-    senderStubFactory.assertSuccess("shutdown"); // Registered thrice.
-    senderStubFactory.assertNoMoreCalls();
-    responderStubFactory.assertSuccess("shutdown");
-    responderStubFactory.assertNoMoreCalls();
-  }
+    verify(m_handler, times(2)).shutdown();
 
-  public static final class HandlerSenderStubFactory
-    extends RandomStubFactory<Sender> {
+    verify(m_handler2, times(2)).shutdown();
 
-    private boolean m_shouldThrowException;
+    verify(m_responder).shutdown();
 
-    public HandlerSenderStubFactory() {
-      super(Sender.class);
-    }
-
-    public void setShouldThrowException(boolean b) {
-      m_shouldThrowException = b;
-    }
-
-    public void override_send(Object proxy, Message message)
-      throws CommunicationException {
-
-      if (m_shouldThrowException) {
-        throw new CommunicationException("");
-      }
-    }
+    verifyNoMoreInteractions(m_handler, m_handler2, m_responder);
   }
 
   public static class OtherMessage implements Message {

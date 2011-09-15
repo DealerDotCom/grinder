@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,53 +19,32 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.console.communication;
+
+import net.grinder.communication.MessageDispatchRegistry;
+import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
+import net.grinder.synchronisation.BarrierGroups;
+import net.grinder.synchronisation.messages.AddBarrierMessage;
 
 
-/**
- * Passive {@link Sender} class that delegates to two other {@link
- * Sender}s.
- *
- * @author Philip Aston
- * @version $Revision$
- */
-public final class TeeSender
-  implements Sender,  MessageDispatchRegistry.Handler<Message> {
+public class Fudge {
 
-  private final Sender m_delegate1;
-  private final Sender m_delegate2;
+  private final ConsoleCommunication m_communication;
 
-  /**
-   * Constructor.
-   *
-   * @param delegate1 The first <code>Sender</code>.
-   * @param delegate2 The seconds <code>Sender</code>.
-   */
-  public TeeSender(Sender delegate1, Sender delegate2) {
-    m_delegate1 = delegate1;
-    m_delegate2 = delegate2;
+  public Fudge(BarrierGroups localBarrierGroups,
+               ConsoleCommunication communication) {
+    m_communication = communication;
+
+    final MessageDispatchRegistry messageDispatch =
+      communication.getMessageDispatchRegistry();
+
+    messageDispatch.set(AddBarrierMessage.class,
+      new AbstractHandler<AddBarrierMessage>() {
+        public void handle(AddBarrierMessage message) {
+          // TODO Auto-generated method stub
+
+        }
+      });
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void send(Message message) throws CommunicationException {
-    m_delegate1.send(message);
-    m_delegate2.send(message);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void shutdown() {
-    m_delegate1.shutdown();
-    m_delegate2.shutdown();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void handle(Message message) throws CommunicationException {
-    send(message);
-  }
 }

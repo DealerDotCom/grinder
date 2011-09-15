@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,6 @@ import java.util.Timer;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.processidentity.AgentIdentity;
-import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.messages.agent.ResetGrinderMessage;
@@ -74,20 +73,18 @@ public class ProcessControlImplementation implements ProcessControl {
 
     messageDispatchRegistry.set(
       AgentProcessReportMessage.class,
-      new AbstractHandler() {
-        public void send(Message message) {
-          m_processStatusSet.addAgentStatusReport(
-            (AgentProcessReportMessage)message);
+      new AbstractHandler<AgentProcessReportMessage>() {
+        public void handle(AgentProcessReportMessage message) {
+          m_processStatusSet.addAgentStatusReport(message);
         }
       }
     );
 
     messageDispatchRegistry.set(
       WorkerProcessReportMessage.class,
-      new AbstractHandler() {
-        public void send(Message message) {
-          m_processStatusSet.addWorkerStatusReport(
-            (WorkerProcessReportMessage)message);
+      new AbstractHandler<WorkerProcessReportMessage>() {
+        public void handle(WorkerProcessReportMessage message) {
+          m_processStatusSet.addWorkerStatusReport(message);
         }
       }
     );

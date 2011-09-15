@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,10 +22,9 @@
 package net.grinder.engine.communication;
 
 import net.grinder.common.Logger;
-import net.grinder.communication.CommunicationException;
-import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.Message;
-import net.grinder.communication.Sender;
+import net.grinder.communication.MessageDispatchRegistry;
+import net.grinder.communication.MessageDispatchRegistry.Handler;
 import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
@@ -183,18 +182,18 @@ public final class ConsoleListener {
 
     messageDispatcher.set(
       StartGrinderMessage.class,
-      new AbstractMessageHandler() {
-        public void send(Message message) throws CommunicationException {
+      new AbstractMessageHandler<StartGrinderMessage>() {
+        public void handle(StartGrinderMessage message) {
           m_logger.output("received a start message");
-          m_lastStartGrinderMessage = (StartGrinderMessage) message;
+          m_lastStartGrinderMessage = message;
           setReceived(START);
         }
       });
 
     messageDispatcher.set(
       StopGrinderMessage.class,
-      new AbstractMessageHandler() {
-        public void send(Message message) throws CommunicationException {
+      new AbstractMessageHandler<StopGrinderMessage>() {
+        public void handle(StopGrinderMessage message) {
           m_logger.output("received a stop message");
           setReceived(STOP);
         }
@@ -202,8 +201,8 @@ public final class ConsoleListener {
 
     messageDispatcher.set(
       ResetGrinderMessage.class,
-      new AbstractMessageHandler() {
-        public void send(Message message) throws CommunicationException {
+      new AbstractMessageHandler<ResetGrinderMessage>() {
+        public void handle(ResetGrinderMessage message) {
           m_logger.output("received a reset message");
           setReceived(RESET);
         }
@@ -219,7 +218,9 @@ public final class ConsoleListener {
     return m_lastStartGrinderMessage;
   }
 
-  private abstract class AbstractMessageHandler implements Sender {
+  private abstract class AbstractMessageHandler<T extends Message>
+    implements Handler<T> {
+
     public void shutdown() {
       final boolean shutdown;
 

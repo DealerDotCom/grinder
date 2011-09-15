@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2010 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,12 @@
 
 package net.grinder.console;
 
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -35,7 +41,7 @@ import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.Test;
 import net.grinder.communication.MessageDispatchRegistry;
-import net.grinder.communication.Sender;
+import net.grinder.communication.MessageDispatchRegistry.Handler;
 import net.grinder.console.ConsoleFoundation.UI;
 import net.grinder.console.client.ConsoleConnection;
 import net.grinder.console.client.ConsoleConnectionException;
@@ -59,10 +65,13 @@ import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.CallData;
-import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.StubTimer;
 import net.grinder.util.Directory;
+
+import org.junit.Before;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.MockitoAnnotations;
 
 
 /**
@@ -77,6 +86,19 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
 
   private static void setInstance(TestConsoleFoundation instance) {
     s_instance = instance;
+  }
+
+  @Captor private
+  ArgumentCaptor<Handler<RegisterTestsMessage>> m_handlerCaptor1;
+
+  @Captor private
+  ArgumentCaptor<Handler<ReportStatisticsMessage>> m_handlerCaptor2;
+
+  @Captor private
+  ArgumentCaptor<Handler<RegisterExpressionViewMessage>> m_handlerCaptor3;
+
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
   }
 
   private final Resources m_resources =
@@ -156,7 +178,7 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
 	if (i == retries - 1) {
 	  throw e;
 	}
-	
+
 	Thread.sleep(50);
       }
     }
@@ -168,113 +190,100 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
 
   public void testWireFileDistribution() throws Exception {
 
-    final RandomStubFactory<FileDistribution> fileDistributionStubFactory =
-      RandomStubFactory.create(FileDistribution.class);
+    final FileDistribution fileDistribution = mock(FileDistribution.class);
+
     final ConsoleProperties consoleProperties =
       new ConsoleProperties(m_resources, new File(getDirectory(), "props"));
 
     final StubTimer timer = new StubTimer();
 
-    new ConsoleFoundation.WireFileDistribution(
-      fileDistributionStubFactory.getStub(),
-      consoleProperties,
-      timer);
-
-    fileDistributionStubFactory.assertNoMoreCalls();
+    new ConsoleFoundation.WireFileDistribution(fileDistribution,
+                                               consoleProperties,
+                                               timer);
 
     assertEquals(6000, timer.getLastDelay());
     assertEquals(6000, timer.getLastPeriod());
 
     final TimerTask scanFileTask = timer.getLastScheduledTimerTask();
     scanFileTask.run();
-    fileDistributionStubFactory.assertSuccess("scanDistributionFiles");
-    fileDistributionStubFactory.assertNoMoreCalls();
+    verify(fileDistribution).scanDistributionFiles();
 
     consoleProperties.setDistributionFileFilterExpression(".*");
-    final CallData setFileFilterCall =
-      fileDistributionStubFactory.assertSuccess("setFileFilterPattern",
-                                                Pattern.class);
-    final Pattern pattern = (Pattern)setFileFilterCall.getParameters()[0];
-    assertEquals(".*", pattern.pattern());
-    fileDistributionStubFactory.assertNoMoreCalls();
+
+    final ArgumentCaptor<Pattern> patternCaptor =
+      ArgumentCaptor.forClass(Pattern.class);
+
+    verify(fileDistribution).setFileFilterPattern(patternCaptor.capture());
+    assertEquals(".*", patternCaptor.getValue().pattern());
+
+    final ArgumentCaptor<Directory> directoryCaptor =
+      ArgumentCaptor.forClass(Directory.class);
 
     final Directory directory = new Directory(new File(getDirectory(), "foo"));
     consoleProperties.setAndSaveDistributionDirectory(directory);
-    final CallData setDirectoryCall =
-      fileDistributionStubFactory.assertSuccess("setDirectory",
-                                                Directory.class);
-    assertSame(directory, setDirectoryCall.getParameters()[0]);
+
+    verify(fileDistribution).setDirectory(directoryCaptor.capture());
+    assertSame(directory, directoryCaptor.getValue());
 
     consoleProperties.setConsolePort(999);
-    fileDistributionStubFactory.assertNoMoreCalls();
+
+    verifyNoMoreInteractions(fileDistribution);
   }
 
   public void testWireMessageDispatch() throws Exception {
-    final RandomStubFactory<MessageDispatchRegistry>
-      messageDispatchRegistryStubFactory =
-        RandomStubFactory.create(MessageDispatchRegistry.class);
+    final MessageDispatchRegistry messageDispatchRegistry =
+      mock(MessageDispatchRegistry.class);
 
-    final RandomStubFactory<ConsoleCommunication>
-      consoleCommunicationStubFactory =
-        RandomStubFactory.create(ConsoleCommunication.class);
-    consoleCommunicationStubFactory.setResult(
-      "getMessageDispatchRegistry",
-      messageDispatchRegistryStubFactory.getStub());
+    final ConsoleCommunication consoleCommunication =
+      mock(ConsoleCommunication.class);
+    when(consoleCommunication.getMessageDispatchRegistry())
+      .thenReturn(messageDispatchRegistry);
 
-    final RandomStubFactory<SampleModel> modelStubFactory =
-      RandomStubFactory.create(SampleModel.class);
+    final SampleModel sampleModel = mock(SampleModel.class);
 
-    final RandomStubFactory<SampleModelViews> sampleModelViewsStubFactory =
-      RandomStubFactory.create(SampleModelViews.class);
+    final SampleModelViews sampleModelViews = mock(SampleModelViews.class);
 
     final DispatchClientCommands dispatchClientCommands =
       new DispatchClientCommands(null, null, null);
 
-    new ConsoleFoundation.WireMessageDispatch(
-      consoleCommunicationStubFactory.getStub(),
-      modelStubFactory.getStub(),
-      sampleModelViewsStubFactory.getStub(),
-      dispatchClientCommands);
+    new ConsoleFoundation.WireMessageDispatch(consoleCommunication,
+                                              sampleModel,
+                                              sampleModelViews,
+                                              dispatchClientCommands);
 
-    consoleCommunicationStubFactory.assertSuccess("getMessageDispatchRegistry");
-    consoleCommunicationStubFactory.assertNoMoreCalls();
+    verify(consoleCommunication).getMessageDispatchRegistry();
 
-    final CallData call1 =
-      messageDispatchRegistryStubFactory.assertSuccess(
-        "set", Class.class, Sender.class);
-    assertEquals(RegisterTestsMessage.class, call1.getParameters()[0]);
+    verify(messageDispatchRegistry).set(eq(RegisterTestsMessage.class),
+                                        m_handlerCaptor1.capture());
 
-    final Sender sender1 = (Sender) call1.getParameters()[1];
     final Collection<Test> tests = Collections.emptySet();
-    sender1.send(new RegisterTestsMessage(tests));
-    modelStubFactory.assertSuccess("registerTests", tests);
-    modelStubFactory.assertNoMoreCalls();
+    m_handlerCaptor1.getValue().handle(new RegisterTestsMessage(tests));
 
-    final CallData call2 =
-      messageDispatchRegistryStubFactory.assertSuccess(
-        "set", Class.class, Sender.class);
-    assertEquals(ReportStatisticsMessage.class, call2.getParameters()[0]);
+    verify(sampleModel).registerTests(tests);
 
-    final Sender sender2 = (Sender) call2.getParameters()[1];
+    verify(messageDispatchRegistry).set(eq(ReportStatisticsMessage.class),
+                                        m_handlerCaptor2.capture());
+
     final TestStatisticsMap delta = new TestStatisticsMap();
-    sender2.send(new ReportStatisticsMessage(delta));
-    modelStubFactory.assertSuccess("addTestReport", delta);
-    modelStubFactory.assertNoMoreCalls();
+    m_handlerCaptor2.getValue().handle(new ReportStatisticsMessage(delta));
 
-    final CallData call3 =
-      messageDispatchRegistryStubFactory.assertSuccess(
-        "set", Class.class, Sender.class);
-    assertEquals(RegisterExpressionViewMessage.class, call3.getParameters()[0]);
+    verify(sampleModel).addTestReport(delta);
 
-    final Sender sender3 = (Sender) call3.getParameters()[1];
+    verify(messageDispatchRegistry).set(
+      eq(RegisterExpressionViewMessage.class), m_handlerCaptor3.capture());
+
     final ExpressionView expressionView =
       StatisticsServicesImplementation.getInstance()
       .getStatisticExpressionFactory().createExpressionView(
         "blah", "userLong0", false);
-    sender3.send(new RegisterExpressionViewMessage(expressionView));
-    sampleModelViewsStubFactory.assertSuccess(
-      "registerStatisticExpression", expressionView);
-    sampleModelViewsStubFactory.assertNoMoreCalls();
+    m_handlerCaptor3.getValue().handle(
+      new RegisterExpressionViewMessage(expressionView));
+
+    verify(sampleModelViews).registerStatisticExpression(expressionView);
+
+    verifyNoMoreInteractions(consoleCommunication,
+                             sampleModel,
+                             sampleModelViews);
   }
 
   public static class MyUI implements UI {

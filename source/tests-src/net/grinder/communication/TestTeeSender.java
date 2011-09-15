@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,75 +21,59 @@
 
 package net.grinder.communication;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import net.grinder.testutility.RandomStubFactory;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**
- *  Unit test case for <code>TeeSender</code>.
+ *  Unit tests for {@link TeeSender.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestTeeSender extends TestCase {
+public class TestTeeSender {
 
-  public void testWithGoodSenders() throws Exception {
+  @Mock private Sender m_sender1;
+  @Mock private Sender m_sender2;
 
-    final RandomStubFactory<Sender> sender1StubFactory =
-      RandomStubFactory.create(Sender.class);
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
+  }
 
-    final RandomStubFactory<Sender> sender2StubFactory =
-      RandomStubFactory.create(Sender.class);
-    final TeeSender teeSender = new TeeSender(sender1StubFactory.getStub(),
-                                              sender2StubFactory.getStub());
+  @Test public void testWithGoodSenders() throws Exception {
+
+    final TeeSender teeSender = new TeeSender(m_sender1, m_sender2);
 
     final Message m1 = new SimpleMessage();
     final Message m2 = new SimpleMessage();
 
     teeSender.send(m1);
     teeSender.send(m2);
-    teeSender.send(m2);
+    teeSender.handle(m2);
     teeSender.shutdown();
 
-    sender1StubFactory.assertSuccess("send", m1);
-    sender1StubFactory.assertSuccess("send", m2);
-    sender1StubFactory.assertSuccess("send", m2);
-    sender1StubFactory.assertSuccess("shutdown");
-    sender1StubFactory.assertNoMoreCalls();
+    verify(m_sender1).send(m1);
+    verify(m_sender1, times(2)).send(m2);
+    verify(m_sender1).shutdown();
 
-    sender2StubFactory.assertSuccess("send", m1);
-    sender2StubFactory.assertSuccess("send", m2);
-    sender2StubFactory.assertSuccess("send", m2);
-    sender2StubFactory.assertSuccess("shutdown");
-    sender2StubFactory.assertNoMoreCalls();
+    verify(m_sender2).send(m1);
+    verify(m_sender2, times(2)).send(m2);
+    verify(m_sender2).shutdown();
+
+    verifyNoMoreInteractions(m_sender1, m_sender2);
   }
 
-  final static class BadSender implements Sender {
-
-    final CommunicationException m_exceptionToThrowFromSend;
-    final RuntimeException m_exceptionToThrowFromShutdown;
-
-    public BadSender(CommunicationException exceptionToThrowFromSend,
-                     RuntimeException exceptionToThrowFromShutdown) {
-      m_exceptionToThrowFromSend = exceptionToThrowFromSend;
-      m_exceptionToThrowFromShutdown = exceptionToThrowFromShutdown;
-    }
-
-    public void send(Message message) throws CommunicationException {
-      throw m_exceptionToThrowFromSend;
-    }
-
-    public void shutdown() {
-      throw m_exceptionToThrowFromShutdown;
-    }
-  }
-
-  public void testWithABadSender() throws Exception {
-
-    final RandomStubFactory<Sender> goodSenderStubFactory =
-      RandomStubFactory.create(Sender.class);
-    final Sender goodSender = goodSenderStubFactory.getStub();
+  @Test public void testWithABadSender() throws Exception {
 
     final CommunicationException exceptionToThrowFromSend =
       new CommunicationException("Foo");
@@ -97,11 +81,11 @@ public class TestTeeSender extends TestCase {
     final RuntimeException exceptionToThrowFromShutdown =
       new RuntimeException();
 
-    final Sender badSender =
-      new BadSender(exceptionToThrowFromSend, exceptionToThrowFromShutdown);
+    doThrow(exceptionToThrowFromSend).when(m_sender2).send(isA(Message.class));
+    doThrow(exceptionToThrowFromShutdown).when(m_sender2).shutdown();
 
-    // goodSender is first, so should be invoked before badSender fails.
-    final TeeSender teeSender1 = new TeeSender(goodSender, badSender);
+    // m_sender1 is first, so should be invoked before m_sender2 fails.
+    final TeeSender teeSender1 = new TeeSender(m_sender1, m_sender2);
 
     final Message m = new SimpleMessage();
 
@@ -113,8 +97,7 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromSend, e);
     }
 
-    goodSenderStubFactory.assertSuccess("send", m);
-    goodSenderStubFactory.assertNoMoreCalls();
+    verify(m_sender1).send(m);
 
     try {
       teeSender1.shutdown();
@@ -124,11 +107,10 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromShutdown, e);
     }
 
-    goodSenderStubFactory.assertSuccess("shutdown");
-    goodSenderStubFactory.assertNoMoreCalls();
+    verify(m_sender1).shutdown();
 
     // goodSender is second, so will never be invoked.
-    final TeeSender teeSender2 = new TeeSender(badSender, goodSender);
+    final TeeSender teeSender2 = new TeeSender(m_sender2, m_sender1);
 
     try {
       teeSender2.send(m);
@@ -138,8 +120,6 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromSend, e);
     }
 
-    goodSenderStubFactory.assertNoMoreCalls();
-
     try {
       teeSender2.shutdown();
       fail("Expected RuntimeException");
@@ -148,6 +128,6 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromShutdown, e);
     }
 
-    goodSenderStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_sender1);
   }
 }

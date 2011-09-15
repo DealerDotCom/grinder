@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,8 +21,10 @@
 
 package net.grinder.communication;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.grinder.util.ListenerSupport;
@@ -39,45 +41,39 @@ public final class MessageDispatchSender
   implements Sender, MessageDispatchRegistry {
 
   /* Guarded by m_handlers. */
-  private final Map<Class<? extends Message>, Sender> m_handlers =
+  private final Map<Class<? extends Message>, Handler<Message>> m_handlers =
     Collections.synchronizedMap(
-      new HashMap<Class<? extends Message>, Sender>());
+      new HashMap<Class<? extends Message>, Handler<Message>>());
 
   /* Guarded by m_responders. */
-  private final Map<Class<? extends Message>, BlockingSender> m_responders =
-    Collections.synchronizedMap(
-      new HashMap<Class<? extends Message>, BlockingSender>());
+  private final Map<Class<? extends Message>, BlockingHandler<Message>>
+    m_responders =
+      Collections.synchronizedMap(
+        new HashMap<Class<? extends Message>, BlockingHandler<Message>>());
 
-  private final ListenerSupport<Sender> m_fallbackHandlers =
-    new ListenerSupport<Sender>();
+  private final ListenerSupport<Handler<Message>> m_fallbackHandlers =
+    new ListenerSupport<Handler<Message>>();
 
   /**
-   * Register a message handler.
-   * @param messageType
-   *          Messages of this type will be routed to the handler.
-   * @param messageHandler
-   *          The message handler.
-   *
-   * @return The previous message handler registered for
-   *         <code>messageType</code> or <code>null</code>.
+   * {@inheritDoc}
    */
-  public Sender set(Class<? extends Message> messageType,
-                    Sender messageHandler) {
-    return m_handlers.put(messageType, messageHandler);
+  @SuppressWarnings("unchecked")
+  public <T extends Message, S extends T>
+    Handler<T> set(Class<S> messageType, Handler<T> messageHandler) {
+
+    return (Handler<T>)
+      m_handlers.put(messageType, (Handler<Message>) messageHandler);
   }
 
   /**
-   * Register a message responder.
-   * @param messageType
-   *          Messages of this type will be routed to the handler.
-   * @param messageResponder The message responder.
-   *
-   * @return The previous message handler registered for
-   *         <code>messageType</code> or <code>null</code>.
+   * {@inheritDoc}
    */
-  public BlockingSender set(Class<? extends Message> messageType,
-                            BlockingSender messageResponder) {
-    return m_responders.put(messageType, messageResponder);
+  @SuppressWarnings("unchecked")
+  public <T extends Message, S extends T>
+  BlockingHandler<T>
+    set(Class<S> messageType, BlockingHandler<T> responder) {
+    return (BlockingHandler<T>)
+      m_responders.put(messageType, (BlockingHandler<Message>)responder);
   }
 
   /**
@@ -86,7 +82,7 @@ public final class MessageDispatchSender
    *
    * @param messageHandler The sender.
    */
-  public void addFallback(Sender messageHandler) {
+  public void addFallback(Handler<Message> messageHandler) {
     m_fallbackHandlers.add(messageHandler);
   }
 
@@ -105,7 +101,7 @@ public final class MessageDispatchSender
 
       final Message requestMessage = messageRequringResponse.getMessage();
 
-      final BlockingSender responder =
+      final BlockingHandler<Message> responder =
         m_responders.get(requestMessage.getClass());
 
       if (responder != null) {
@@ -115,20 +111,20 @@ public final class MessageDispatchSender
       }
     }
     else {
-      final Sender handler = m_handlers.get(message.getClass());
+      final Handler<Message> handler = m_handlers.get(message.getClass());
 
       if (handler != null) {
-        handler.send(message);
+        handler.handle(message);
         return;
       }
     }
 
     final CommunicationException[] exception = new CommunicationException[1];
 
-    m_fallbackHandlers.apply(new ListenerSupport.Informer<Sender>() {
-        public void inform(Sender sender) {
+    m_fallbackHandlers.apply(new ListenerSupport.Informer<Handler<Message>>() {
+        public void inform(Handler<Message> handler) {
           try {
-            sender.send(message);
+            handler.handle(message);
           }
           catch (CommunicationException e) {
             exception[0] = e;
@@ -155,29 +151,30 @@ public final class MessageDispatchSender
   * Shutdown all our handlers.
   */
   public void shutdown() {
-    final Sender[] handlers;
+    final List<Handler<? extends Message>> handlers;
 
     synchronized (m_handlers) {
-      handlers = m_handlers.values().toArray(new Sender[m_handlers.size()]);
+      handlers = new ArrayList<Handler<? extends Message>>(m_handlers.values());
     }
 
-    for (int i = 0; i < handlers.length; ++i) {
-      handlers[i].shutdown();
+    for (Handler<? extends Message> handler : handlers) {
+      handler.shutdown();
     }
 
-    final BlockingSender[] responders;
+    final List<BlockingHandler<? extends Message>> responders;
 
     synchronized (m_responders) {
       responders =
-        m_responders.values().toArray(new BlockingSender[m_responders.size()]);
+        new ArrayList<BlockingHandler<? extends Message>>(
+            m_responders.values());
     }
 
-    for (int i = 0; i < responders.length; ++i) {
-      responders[i].shutdown();
+    for (BlockingHandler<? extends Message> responder : responders) {
+      responder.shutdown();
     }
 
-    m_fallbackHandlers.apply(new ListenerSupport.Informer<Sender>() {
-      public void inform(Sender sender) { sender.shutdown(); }
+    m_fallbackHandlers.apply(new ListenerSupport.Informer<Handler<Message>>() {
+      public void inform(Handler<Message> handler) { handler.shutdown(); }
     });
   }
 }

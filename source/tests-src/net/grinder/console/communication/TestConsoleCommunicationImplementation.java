@@ -48,9 +48,9 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
 import net.grinder.communication.SendToEveryoneAddress;
-import net.grinder.communication.Sender;
 import net.grinder.communication.StreamSender;
 import net.grinder.communication.StubConnector;
+import net.grinder.communication.MessageDispatchRegistry.Handler;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -95,6 +95,7 @@ public class TestConsoleCommunicationImplementation
         "net.grinder.console.common.resources.Console");
 
   private @Mock ErrorHandler m_errorHandler;
+  private @Mock Handler<Message> m_messageHandler;
 
   private ConsoleCommunicationImplementation m_consoleCommunication;
   private ConsoleProperties m_properties;
@@ -393,11 +394,8 @@ public class TestConsoleCommunicationImplementation
   }
 
   public void testProcessOneMessage() throws Exception {
-    final Sender messageHandler = mock(Sender.class);
-    //when(messageHandler).
-
     m_consoleCommunication.getMessageDispatchRegistry()
-      .addFallback(messageHandler);
+      .addFallback(m_messageHandler);
 
     m_processMessagesThread.start();
 
@@ -428,7 +426,7 @@ public class TestConsoleCommunicationImplementation
     sendMessage(socket, new MyMessage());
 
     // Message instance different due to serialisation.
-    verify(messageHandler, timeout(10000)).send(isA(MyMessage.class));
+    verify(m_messageHandler, timeout(10000)).handle(isA(MyMessage.class));
 
     assertEquals(1, processControl.getNumberOfLiveAgents());
 
@@ -438,9 +436,10 @@ public class TestConsoleCommunicationImplementation
 
     sendMessage(socket, new StopGrinderMessage());
 
-    verify(messageHandler, timeout(10000)).send(isA(StopGrinderMessage.class));
+    verify(m_messageHandler, timeout(10000))
+      .handle(isA(StopGrinderMessage.class));
 
-    verifyNoMoreInteractions(messageHandler);
+    verifyNoMoreInteractions(m_messageHandler);
   }
 
   public void testSendExceptions() throws Exception {

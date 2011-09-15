@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,7 +28,6 @@ import java.io.IOException;
 import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
-import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.engine.common.EngineException;
@@ -128,8 +127,10 @@ final class FileStore {
 
     messageDispatcher.set(
       ClearCacheMessage.class,
-      new AbstractHandler() {
-        public void send(Message message) throws CommunicationException {
+      new AbstractHandler<ClearCacheMessage>() {
+        public void handle(ClearCacheMessage message)
+          throws CommunicationException {
+
           m_logger.output("Clearing file store");
 
           try {
@@ -147,16 +148,16 @@ final class FileStore {
 
     messageDispatcher.set(
       DistributeFileMessage.class,
-      new AbstractHandler() {
-        public void send(Message message) throws CommunicationException {
+      new AbstractHandler<DistributeFileMessage>() {
+        public void handle(DistributeFileMessage message)
+          throws CommunicationException {
           try {
             synchronized (m_incomingDirectory) {
               m_incomingDirectory.create();
 
               createReadmeFile();
 
-              final FileContents fileContents =
-                ((DistributeFileMessage)message).getFileContents();
+              final FileContents fileContents = message.getFileContents();
 
               m_logger.output("Updating file store: " + fileContents);
               fileContents.create(m_incomingDirectory);
@@ -175,11 +176,9 @@ final class FileStore {
 
     messageDispatcher.set(
       DistributionCacheCheckpointMessage.class,
-      new AbstractHandler() {
-        public void send(Message message) throws CommunicationException {
-          m_cacheHighWaterMark =
-            ((DistributionCacheCheckpointMessage)message)
-            .getCacheHighWaterMark();
+      new AbstractHandler<DistributionCacheCheckpointMessage>() {
+        public void handle(DistributionCacheCheckpointMessage message) {
+          m_cacheHighWaterMark = message.getCacheHighWaterMark();
         }
       });
   }

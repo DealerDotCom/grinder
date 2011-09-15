@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
-import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.console.common.ErrorHandler;
@@ -55,12 +54,12 @@ import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.util.Directory;
 
+import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.Parameter;
 import org.picocontainer.behaviors.Caching;
 import org.picocontainer.parameters.ComponentParameter;
 import org.picocontainer.parameters.ConstantParameter;
-import org.picocontainer.DefaultPicoContainer;
 
 
 /**
@@ -293,27 +292,26 @@ public final class ConsoleFoundation {
 
       messageDispatchRegistry.set(
         RegisterTestsMessage.class,
-        new AbstractHandler() {
-          public void send(Message message) {
-            model.registerTests(((RegisterTestsMessage)message).getTests());
+        new AbstractHandler<RegisterTestsMessage>() {
+          public void handle(RegisterTestsMessage message) {
+            model.registerTests(message.getTests());
           }
         });
 
       messageDispatchRegistry.set(
         ReportStatisticsMessage.class,
-        new AbstractHandler() {
-          public void send(Message message) {
-            model.addTestReport(
-              ((ReportStatisticsMessage)message).getStatisticsDelta());
+        new AbstractHandler<ReportStatisticsMessage>() {
+          public void handle(ReportStatisticsMessage message) {
+            model.addTestReport(message.getStatisticsDelta());
           }
         });
 
       messageDispatchRegistry.set(
         RegisterExpressionViewMessage.class,
-        new AbstractHandler() {
-          public void send(Message message) {
+        new AbstractHandler<RegisterExpressionViewMessage>() {
+          public void handle(RegisterExpressionViewMessage message) {
             sampleModelViews.registerStatisticExpression(
-              ((RegisterExpressionViewMessage)message).getExpressionView());
+              message.getExpressionView());
           }
         });
 
