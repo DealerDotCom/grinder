@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,14 @@
 
 package net.grinder.console.communication;
 
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -29,6 +37,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
@@ -60,9 +70,13 @@ import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.StubTimer;
 import net.grinder.util.FileContents;
+
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 
 /**
@@ -80,20 +94,19 @@ public class TestConsoleCommunicationImplementation
       new ResourcesImplementation(
         "net.grinder.console.common.resources.Console");
 
-  private ConsoleCommunication m_consoleCommunication;
+  private @Mock ErrorHandler m_errorHandler;
+
+  private ConsoleCommunicationImplementation m_consoleCommunication;
   private ConsoleProperties m_properties;
   private ServerSocket m_usedServerSocket;
   private final ProcessMessagesThread m_processMessagesThread =
     new ProcessMessagesThread();
   private StubTimer m_timer;
 
-  private final RandomStubFactory<ErrorHandler> m_errorHandlerStubFactory =
-    RandomStubFactory.create(ErrorHandler.class);
-  private final ErrorHandler m_errorHandler =
-    m_errorHandlerStubFactory.getStub();
-
   protected void setUp() throws Exception {
     super.setUp();
+
+    MockitoAnnotations.initMocks(this);
 
     m_timer = new StubTimer();
 
@@ -202,14 +215,13 @@ public class TestConsoleCommunicationImplementation
     final ProcessControl processControl =
       new ProcessControlImplementation(m_timer, m_consoleCommunication);
 
-    final RandomStubFactory<ProcessControl.Listener> listenerStubFactory =
-      RandomStubFactory.create(ProcessControl.Listener.class);
-
     final CacheHighWaterMark cacheHighWaterMark =
       new StubCacheHighWaterMark("cache", 100);
 
-    processControl.addProcessStatusListener(listenerStubFactory.getStub());
+    final ProcessControl.Listener listener =
+      mock(ProcessControl.Listener.class);
 
+    processControl.addProcessStatusListener(listener);
     processControl.resetWorkerProcesses();
     processControl.stopAgentAndWorkerProcesses();
 
@@ -228,15 +240,26 @@ public class TestConsoleCommunicationImplementation
         AgentProcessReportMessage.STATE_RUNNING,
         cacheHighWaterMark));
 
-    // Wait until the message has been received.
+    final CountDownLatch listenerCalledLatch = new CountDownLatch(1);
+
+    doAnswer(new Answer<Void>() {
+        public Void answer(InvocationOnMock invocation) {
+          listenerCalledLatch.countDown();
+          return null;
+        }
+      }).when(listener).update(isA(ProcessReports[].class));
+
+    // Repeatedly run update task until it notifies listener that the message
+    // has been received.
+    final TimerTask processStatusUpdateTask = m_timer.getTaskByPeriod(500L);
+
     do {
-      final TimerTask timerTask = m_timer.getTaskByPeriod(500L);
-      timerTask.run();
-      Thread.sleep(10);
+      processStatusUpdateTask.run();
     }
-    while (listenerStubFactory.peekFirst() == null);
-    listenerStubFactory.assertSuccess("update", ProcessReports[].class);
-    listenerStubFactory.assertNoMoreCalls();
+    while (!listenerCalledLatch.await(10, TimeUnit.MILLISECONDS));
+
+    verify(listener).update(isA(ProcessReports[].class));
+    verifyNoMoreInteractions(listener);
 
     processControl.startWorkerProcesses(properties);
     final StartGrinderMessage startGrinderMessage =
@@ -370,11 +393,11 @@ public class TestConsoleCommunicationImplementation
   }
 
   public void testProcessOneMessage() throws Exception {
-    final MessageHandlerStubFactory messageHandlerStubFactory =
-      new MessageHandlerStubFactory();
+    final Sender messageHandler = mock(Sender.class);
+    //when(messageHandler).
 
-    m_consoleCommunication.getMessageDispatchRegistry().addFallback(
-      messageHandlerStubFactory.getStub());
+    m_consoleCommunication.getMessageDispatchRegistry()
+      .addFallback(messageHandler);
 
     m_processMessagesThread.start();
 
@@ -404,23 +427,20 @@ public class TestConsoleCommunicationImplementation
 
     sendMessage(socket, new MyMessage());
 
-    messageHandlerStubFactory.waitUntilCalled(10000);
-
-    messageHandlerStubFactory.assertSuccess("send", MyMessage.class);
+    // Message instance different due to serialisation.
+    verify(messageHandler, timeout(10000)).send(isA(MyMessage.class));
 
     assertEquals(1, processControl.getNumberOfLiveAgents());
 
     // ConsoleCommunication should have handled the original
     // AgentProcessReportMessage and WorkerProcessReportMessage. We check here
     // so we're sure the've been processed.
-    messageHandlerStubFactory.assertNoMoreCalls();
 
     sendMessage(socket, new StopGrinderMessage());
 
-    messageHandlerStubFactory.waitUntilCalled(10000);
+    verify(messageHandler, timeout(10000)).send(isA(StopGrinderMessage.class));
 
-    messageHandlerStubFactory.assertSuccess("send",
-                                            StopGrinderMessage.class);
+    verifyNoMoreInteractions(messageHandler);
   }
 
   public void testSendExceptions() throws Exception {
@@ -431,21 +451,18 @@ public class TestConsoleCommunicationImplementation
     // Cause the sender to be invalid.
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
 
-    m_errorHandlerStubFactory.assertSuccess(
-      "handleException", DisplayMessageConsoleException.class);
-    m_errorHandlerStubFactory.assertNoMoreCalls();
+    verify(m_errorHandler)
+      .handleException(isA(DisplayMessageConsoleException.class));
 
     m_consoleCommunication.sendToAddressedAgents(
       new AgentAddress(new StubAgentIdentity("agent")), new MyMessage());
 
-    m_errorHandlerStubFactory.assertSuccess(
-      "handleException", DisplayMessageConsoleException.class);
-    m_errorHandlerStubFactory.assertNoMoreCalls();
+    verify(m_errorHandler, times(2))
+      .handleException(isA(DisplayMessageConsoleException.class));
 
     m_consoleCommunication.sendToAgents(new MyMessage());
-    m_errorHandlerStubFactory.assertSuccess(
-      "handleException", DisplayMessageConsoleException.class);
-    m_errorHandlerStubFactory.assertNoMoreCalls();
+    verify(m_errorHandler, times(3))
+      .handleException(isA(DisplayMessageConsoleException.class));
 
 
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
@@ -455,18 +472,18 @@ public class TestConsoleCommunicationImplementation
                                              m_errorHandler,
                                              100);
 
-    m_errorHandlerStubFactory.assertSuccess(
-      "handleException", DisplayMessageConsoleException.class);
-    m_errorHandlerStubFactory.assertNoMoreCalls();
+    verify(m_errorHandler, times(4))
+      .handleException(isA(DisplayMessageConsoleException.class));
+
 
     brokenConsoleCommunication.sendToAddressedAgents(
       new AgentAddress(new StubAgentIdentity("agent")), new MyMessage());
-    m_errorHandlerStubFactory.assertSuccess("handleErrorMessage", String.class);
+    verify(m_errorHandler).handleErrorMessage(isA(String.class));
 
     brokenConsoleCommunication.sendToAgents(new MyMessage());
-    m_errorHandlerStubFactory.assertSuccess("handleErrorMessage", String.class);
+    verify(m_errorHandler, times(2)).handleErrorMessage(isA(String.class));
 
-    m_errorHandlerStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_errorHandler);
   }
 
   public void testErrorHandling() throws Exception {
@@ -474,43 +491,38 @@ public class TestConsoleCommunicationImplementation
     // receiver will never be shutdown correctly.
     m_processMessagesThread.start();
 
-    m_errorHandlerStubFactory.assertNoMoreCalls();
-
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
 
-    m_errorHandlerStubFactory.assertSuccess(
-      "handleException", DisplayMessageConsoleException.class);
-    m_errorHandlerStubFactory.assertNoMoreCalls();
+    verify(m_errorHandler)
+      .handleException(isA(DisplayMessageConsoleException.class));
 
     final Address address = new SendToEveryoneAddress();
 
     new DistributionControlImplementation(m_consoleCommunication)
     .clearFileCaches(address);
 
-    m_errorHandlerStubFactory.assertSuccess(
-      "handleException", DisplayMessageConsoleException.class);
-    m_errorHandlerStubFactory.assertNoMoreCalls();
+    verify(m_errorHandler, times(2))
+      .handleException(isA(DisplayMessageConsoleException.class));
+    verifyNoMoreInteractions(m_errorHandler);
 
-    final RandomStubFactory<ErrorHandler> errorHandlerStubFactory2 =
-      RandomStubFactory.create(ErrorHandler.class);
+    final ErrorHandler errorHandler2 = mock(ErrorHandler.class);
 
     // Test a ConsoleCommunication with an invalid Sender.
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
     final ConsoleCommunication brokenConsoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             errorHandlerStubFactory2.getStub(),
+                                             errorHandler2,
                                              100);
 
-    errorHandlerStubFactory2.assertSuccess(
-      "handleException", DisplayMessageConsoleException.class);
-    errorHandlerStubFactory2.assertNoMoreCalls();
+    verify(errorHandler2)
+      .handleException(isA(DisplayMessageConsoleException.class));
 
     new DistributionControlImplementation(brokenConsoleCommunication)
     .clearFileCaches(address);
 
-    errorHandlerStubFactory2.assertSuccess("handleErrorMessage", String.class);
-    errorHandlerStubFactory2.assertNoMoreCalls();
+    verify(errorHandler2).handleErrorMessage(isA(String.class));
+    verifyNoMoreInteractions(errorHandler2);
   }
 
   public void testErrorHandlingWithFurtherCommunicationProblems()
@@ -531,11 +543,8 @@ public class TestConsoleCommunicationImplementation
     socket.getOutputStream().close();
 
     // Will be called via the Acceptor problem listener.
-    m_errorHandlerStubFactory.waitUntilCalled(1000);
-
-    m_errorHandlerStubFactory.assertSuccess("handleException",
-                                          CommunicationException.class);
-    m_errorHandlerStubFactory.assertNoMoreCalls();
+    verify(m_errorHandler, timeout(1000))
+      .handleException(isA(CommunicationException.class));
 
     final Socket socket2 =
       new StubConnector(InetAddress.getByName(null).getHostName(),
@@ -545,30 +554,17 @@ public class TestConsoleCommunicationImplementation
 
     socket2.getOutputStream().write(new byte[100]);
 
-    m_errorHandlerStubFactory.waitUntilCalled(1000);
+    verify(m_errorHandler, timeout(1000).times(2))
+      .handleException(isA(CommunicationException.class));
 
-    m_errorHandlerStubFactory.assertSuccess("handleException",
-                                          CommunicationException.class);
     socket.close();
     socket2.close();
 
-    m_errorHandlerStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_errorHandler);
   }
 
   private static final class MyMessage implements Message, Serializable {
     private static final long serialVersionUID = 1L;
-  }
-
-  public static final class MessageHandlerStubFactory
-    extends RandomStubFactory<Sender> {
-
-    public MessageHandlerStubFactory() {
-      super(Sender.class);
-    }
-
-    public boolean override_process(Object proxy, Message message) {
-      return message instanceof MyMessage;
-    }
   }
 
   private final class ProcessMessagesThread extends Thread {

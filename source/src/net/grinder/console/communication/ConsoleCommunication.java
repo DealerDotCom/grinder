@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -74,11 +74,4 @@ public interface ConsoleCommunication {
    *            The message to send.
    */
   void sendToAddressedAgents(Address address, Message message);
-
-  /**
-   * The number of connections that have been accepted. Used by the unit tests.
-   *
-   * @return The number of accepted connections.
-   */
-  int getNumberOfConnections();
 }
