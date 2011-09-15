@@ -30,6 +30,7 @@ import java.util.TimerTask;
 
 import junit.framework.TestCase;
 import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.common.processidentity.ProcessIdentity;
 import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.common.processidentity.WorkerProcessReport;
@@ -386,8 +387,12 @@ public class TestProcessStatusImplementation extends TestCase {
         processReport1.getState() - processReport2.getState();
 
       if (compareState == 0) {
-        return processReport1.getIdentity().getName().compareTo(
-               processReport2.getIdentity().getName());
+        final ProcessIdentity identity1 =
+          processReport1.getProcessAddress().getIdentity();
+        final ProcessIdentity identity2 =
+          processReport2.getProcessAddress().getIdentity();
+
+        return identity1.getName().compareTo(identity2.getName());
       }
       else {
         return compareState;

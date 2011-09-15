@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -50,7 +50,7 @@ public final class ServerReceiver implements Receiver {
   /**
    * Registers a new {@link Acceptor} from which the <code>ServerReceiver</code>
    * should process messages. Actively polls connections of the given types for
-   * messages, deserialises them, and queues them for retrieval using
+   * messages, de-serialises them, and queues them for retrieval using
    * {@link #waitForMessage()}.
    *
    * <p>
@@ -262,6 +262,13 @@ public final class ServerReceiver implements Receiver {
                   continue;
                 }
 
+                if (message instanceof AddressAwareMessage) {
+                  final AddressAwareMessage addressAware =
+                    (AddressAwareMessage)message;
+
+                  addressAware.setAddress(socketWrapper.getAddress());
+                }
+
                 if (message instanceof MessageRequiringResponse) {
 
                   final MessageRequiringResponse messageRequiringResponse =
@@ -283,6 +290,10 @@ public final class ServerReceiver implements Receiver {
                 }
               }
             }
+          }
+          catch (CommunicationException e) {
+            reservation.close();
+            m_messageQueue.queue(e);
           }
           catch (IOException e) {
             reservation.close();

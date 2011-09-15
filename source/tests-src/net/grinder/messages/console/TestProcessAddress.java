@@ -42,9 +42,9 @@ public class TestProcessAddress {
   private final AgentIdentity m_agent1 = new StubAgentIdentity("agent1");
   private final AgentIdentity m_agent2 = new StubAgentIdentity("agent2");
 
-  private final Address m_address1 = new ProcessAddress(m_agent1);
-  private final Address m_address1Too = new ProcessAddress(m_agent1);
-  private final Address m_address2 = new ProcessAddress(m_agent2);
+  private final Address m_address1 = new AgentAddress(m_agent1);
+  private final Address m_address1Too = new AgentAddress(m_agent1);
+  private final Address m_address2 = new AgentAddress(m_agent2);
 
   @Test public void testIncludes() throws Exception {
     assertTrue(m_address1.includes(m_address1));

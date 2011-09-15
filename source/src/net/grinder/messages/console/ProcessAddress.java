@@ -26,23 +26,25 @@ import net.grinder.communication.Address;
 
 
 /**
- * {@link Address} for an agent or worker process.
+ * Base {@link Address} implementation for a process.
  *
+ * @param <T> Process identity type.
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ProcessAddress implements Address {
+public abstract class ProcessAddress<T extends ProcessIdentity>
+  implements Address {
 
   private static final long serialVersionUID = 1;
 
-  private final ProcessIdentity m_processIdentity;
+  private final T m_processIdentity;
 
   /**
    * Constructor.
    *
    * @param processIdentity The agent identity.
    */
-  public ProcessAddress(ProcessIdentity processIdentity) {
+  public ProcessAddress(T processIdentity) {
     m_processIdentity = processIdentity;
   }
 
@@ -61,6 +63,15 @@ public final class ProcessAddress implements Address {
    */
   public boolean includes(Address address) {
     return equals(address);
+  }
+
+  /**
+   * The process identity.
+   *
+   * @return The process identity.
+   */
+  public T getIdentity() {
+    return m_processIdentity;
   }
 
   /**
@@ -87,7 +98,7 @@ public final class ProcessAddress implements Address {
       return false;
     }
 
-    final ProcessAddress other = (ProcessAddress)o;
+    final ProcessAddress<?> other = (ProcessAddress<?>)o;
 
     return m_processIdentity.equals(other.m_processIdentity);
   }

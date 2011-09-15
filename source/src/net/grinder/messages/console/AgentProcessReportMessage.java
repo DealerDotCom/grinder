@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,9 @@
 package net.grinder.messages.console;
 
 import net.grinder.common.processidentity.AgentIdentity;
-import net.grinder.common.processidentity.ProcessIdentity;
-import net.grinder.communication.Message;
+import net.grinder.communication.Address;
+import net.grinder.communication.AddressAwareMessage;
+import net.grinder.communication.CommunicationException;
 import net.grinder.messages.agent.CacheHighWaterMark;
 
 
@@ -34,31 +35,41 @@ import net.grinder.messages.agent.CacheHighWaterMark;
  * @version $Revision$
  */
 public final class AgentProcessReportMessage
-  implements AgentAndCacheReport, Message {
+  implements AddressAwareMessage,  AgentAndCacheReport {
 
-  private static final long serialVersionUID = 3L;
+  private static final long serialVersionUID = 4L;
 
-  private final AgentIdentity m_identity;
   private final short m_state;
   private final CacheHighWaterMark m_cacheHighWaterMark;
+
+  private transient AgentAddress m_processAddress;
 
   /**
    * Creates a new <code>AgentProcessReportMessage</code> instance.
    *
-   * @param identity
-   *            Process identity.
    * @param state
-   *            The process state. See {@link
-   *            net.grinder.common.processidentity.AgentProcessReport}.
+   *          The process state. See
+   *          {@link net.grinder.common.processidentity.ProcessReport}.
    * @param cacheHighWaterMark
-   *            The current cache status.
+   *          The current cache status.
    */
-  public AgentProcessReportMessage(AgentIdentity identity,
-                                   short state,
+  public AgentProcessReportMessage(short state,
                                    CacheHighWaterMark cacheHighWaterMark) {
-    m_identity = identity;
     m_state = state;
     m_cacheHighWaterMark = cacheHighWaterMark;
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void setAddress(Address address) throws CommunicationException {
+    try {
+      m_processAddress = (AgentAddress)address;
+    }
+    catch (ClassCastException e) {
+      throw new CommunicationException("Not an agent process address", e);
+    }
   }
 
   /**
@@ -66,8 +77,8 @@ public final class AgentProcessReportMessage
    *
    * @return The process identity.
    */
-  public ProcessIdentity getIdentity() {
-    return m_identity;
+  public AgentAddress getProcessAddress() {
+    return m_processAddress;
   }
 
   /**
@@ -76,7 +87,7 @@ public final class AgentProcessReportMessage
    * @return The process identity.
    */
   public AgentIdentity getAgentIdentity() {
-    return m_identity;
+    return m_processAddress.getIdentity();
   }
 
   /**

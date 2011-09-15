@@ -32,7 +32,7 @@ import net.grinder.communication.Address;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.messages.agent.CacheHighWaterMark;
-import net.grinder.messages.console.ProcessAddress;
+import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentAndCacheReport;
 import net.grinder.util.Directory;
 
@@ -133,10 +133,10 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
     public Address getAddressOfAllAgents() throws OutOfDateException {
       checkValidity();
 
-      final Set<ProcessAddress> agentAddresses = new HashSet<ProcessAddress>();
+      final Set<AgentAddress> agentAddresses = new HashSet<AgentAddress>();
 
       for (AgentAndCacheReport report : m_agentReports) {
-        agentAddresses.add(new ProcessAddress(report.getAgentIdentity()));
+        agentAddresses.add(new AgentAddress(report.getAgentIdentity()));
       }
 
       return new AddressSet(agentAddresses);
@@ -149,8 +149,8 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
       final CacheHighWaterMark cacheState =
         m_validCacheParameters.createHighWaterMark(time);
 
-      final Set<ProcessAddress> outOfDateAgentAddresses =
-        new HashSet<ProcessAddress>();
+      final Set<AgentAddress> outOfDateAgentAddresses =
+        new HashSet<AgentAddress>();
 
       for (AgentAndCacheReport agentReport : m_agentReports) {
         final CacheHighWaterMark agentCache =
@@ -159,12 +159,12 @@ final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
         if (cacheState.isForSameCache(agentCache)) {
           if (cacheState.getTime() > agentCache.getTime()) {
             outOfDateAgentAddresses.add(
-              new ProcessAddress(agentReport.getAgentIdentity()));
+              new AgentAddress(agentReport.getAgentIdentity()));
           }
         }
         else {
           outOfDateAgentAddresses.add(
-            new ProcessAddress(agentReport.getAgentIdentity()));
+            new AgentAddress(agentReport.getAgentIdentity()));
         }
       }
 

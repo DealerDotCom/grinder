@@ -23,6 +23,7 @@ package net.grinder.console.textui;
 
 import java.util.HashMap;
 
+import junit.framework.TestCase;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.processidentity.ProcessReport;
@@ -40,7 +41,6 @@ import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
-import junit.framework.TestCase;
 
 
 /**

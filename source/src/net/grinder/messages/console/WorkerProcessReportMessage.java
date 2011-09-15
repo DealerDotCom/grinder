@@ -1,5 +1,5 @@
 // Copyright (C) 2001, 2002 Dirk Feufel
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,10 +22,11 @@
 
 package net.grinder.messages.console;
 
-import net.grinder.common.processidentity.ProcessIdentity;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.common.processidentity.WorkerProcessReport;
-import net.grinder.communication.Message;
+import net.grinder.communication.Address;
+import net.grinder.communication.AddressAwareMessage;
+import net.grinder.communication.CommunicationException;
 
 
 /**
@@ -36,32 +37,45 @@ import net.grinder.communication.Message;
  * @version $Revision$
  */
 public final class WorkerProcessReportMessage
-  implements Message, WorkerProcessReport {
+  implements AddressAwareMessage, WorkerProcessReport {
 
-  private static final long serialVersionUID = -2073574340466531680L;
+  private static final long serialVersionUID = 2L;
 
-  private final WorkerIdentity m_identity;
   private final short m_state;
   private final short m_totalNumberOfThreads;
   private final short m_numberOfRunningThreads;
 
+  private transient WorkerAddress m_processAddress;
+
   /**
    * Creates a new <code>WorkerProcessReportMessage</code> instance.
    *
-   * @param identity Process identity.
-   * @param state The process state. See {@link
-   * net.grinder.common.processidentity.WorkerProcessReport}.
-   * @param totalThreads The total number of threads.
-   * @param runningThreads The number of threads that are still running.
+   * @param state
+   *          The process state. See
+   *          {@link net.grinder.common.processidentity.ProcessReport}.
+   * @param totalThreads
+   *          The total number of threads.
+   * @param runningThreads
+   *          The number of threads that are still running.
    */
-  public WorkerProcessReportMessage(WorkerIdentity identity,
-                                    short state,
+  public WorkerProcessReportMessage(short state,
                                     short runningThreads,
                                     short totalThreads) {
-    m_identity = identity;
     m_state = state;
     m_numberOfRunningThreads = runningThreads;
     m_totalNumberOfThreads = totalThreads;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void setAddress(Address address) throws CommunicationException {
+    try {
+      m_processAddress = (WorkerAddress) address;
+    }
+    catch (ClassCastException e) {
+      throw new CommunicationException("Not a worker process address", e);
+    }
   }
 
   /**
@@ -69,8 +83,8 @@ public final class WorkerProcessReportMessage
    *
    * @return The process identity.
    */
-  public ProcessIdentity getIdentity() {
-    return m_identity;
+  public WorkerAddress getProcessAddress() {
+    return m_processAddress;
   }
 
   /**
@@ -79,7 +93,7 @@ public final class WorkerProcessReportMessage
    * @return The process identity.
    */
   public WorkerIdentity getWorkerIdentity() {
-    return m_identity;
+    return m_processAddress.getIdentity();
   }
 
   /**

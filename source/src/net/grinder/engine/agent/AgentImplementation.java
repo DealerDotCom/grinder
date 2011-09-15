@@ -50,7 +50,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.messages.agent.StartGrinderMessage;
-import net.grinder.messages.console.ProcessAddress;
+import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.Directory.DirectoryException;
@@ -456,7 +456,7 @@ public final class AgentImplementation implements Agent {
         throws CommunicationException, FileStore.FileStoreException {
 
       final ClientReceiver receiver =
-        ClientReceiver.connect(connector, new ProcessAddress(m_agentIdentity));
+        ClientReceiver.connect(connector, new AgentAddress(m_agentIdentity));
       m_sender = ClientSender.connect(receiver);
       m_connector = connector;
 
@@ -469,10 +469,8 @@ public final class AgentImplementation implements Agent {
       }
 
       m_sender.send(
-        new AgentProcessReportMessage(
-          m_agentIdentity,
-          AgentProcessReportMessage.STATE_STARTED,
-          m_fileStore.getCacheHighWaterMark()));
+        new AgentProcessReportMessage(AgentProcessReportMessage.STATE_STARTED,
+                                      m_fileStore.getCacheHighWaterMark()));
 
       final MessageDispatchSender fileStoreMessageDispatcher =
         new MessageDispatchSender();
@@ -496,7 +494,6 @@ public final class AgentImplementation implements Agent {
           try {
             m_sender.send(
               new AgentProcessReportMessage(
-                m_agentIdentity,
                 AgentProcessReportMessage.STATE_RUNNING,
                 m_fileStore.getCacheHighWaterMark()));
           }
@@ -523,7 +520,6 @@ public final class AgentImplementation implements Agent {
       try {
         m_sender.send(
           new AgentProcessReportMessage(
-            m_agentIdentity,
             AgentProcessReportMessage.STATE_FINISHED,
             m_fileStore.getCacheHighWaterMark()));
       }

@@ -66,8 +66,9 @@ import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
 import net.grinder.messages.agent.StubCacheHighWaterMark;
-import net.grinder.messages.console.ProcessAddress;
+import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
+import net.grinder.messages.console.WorkerAddress;
 import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.StubTimer;
@@ -209,7 +210,7 @@ public class TestConsoleCommunicationImplementation
       new StubConnector(InetAddress.getByName(null).getHostName(),
                         m_properties.getConsolePort(),
                         ConnectionType.AGENT)
-      .connect(new ProcessAddress(agentIdentity));
+      .connect(new AgentAddress(agentIdentity));
 
     waitForNumberOfConnections(1);
 
@@ -235,11 +236,13 @@ public class TestConsoleCommunicationImplementation
     // Need a thread to be attempting to process messages.
     m_processMessagesThread.start();
 
-    new StreamSender(socket.getOutputStream()).send(
-      new AgentProcessReportMessage(
-        agentIdentity,
-        AgentProcessReportMessage.STATE_RUNNING,
-        cacheHighWaterMark));
+    final AgentProcessReportMessage message =
+      new AgentProcessReportMessage(AgentProcessReportMessage.STATE_RUNNING,
+                                    cacheHighWaterMark);
+
+    message.setAddress(new AgentAddress(agentIdentity));
+
+    new StreamSender(socket.getOutputStream()).send(message);
 
     final CountDownLatch listenerCalledLatch = new CountDownLatch(1);
 
@@ -404,26 +407,34 @@ public class TestConsoleCommunicationImplementation
 
     assertEquals(0, processControl.getNumberOfLiveAgents());
 
-    final Socket socket =
+    final StubAgentIdentity agentIdentity = new StubAgentIdentity("agent");
+
+    final Socket agentSocket =
       new StubConnector(InetAddress.getByName(null).getHostName(),
                         m_properties.getConsolePort(),
                         ConnectionType.AGENT)
-      .connect();
+      .connect(new AgentAddress(agentIdentity));
 
-    final StubAgentIdentity agentIdentity = new StubAgentIdentity("agent");
+    final AgentProcessReportMessage agentMessage =
+      new AgentProcessReportMessage((short)0, null);
 
-    // We can currently send agent messages over a worker channel.
-    sendMessage(socket,
-      new AgentProcessReportMessage(agentIdentity, (short)0, null));
+    sendMessage(agentSocket, agentMessage);
 
-    sendMessage(
-      socket,
-      new WorkerProcessReportMessage(agentIdentity.createWorkerIdentity(),
+    final WorkerProcessReportMessage message =
+      new WorkerProcessReportMessage((short)0,
                                      (short)0,
-                                     (short)0,
-                                     (short)0));
+                                     (short)0);
 
-    sendMessage(socket, new MyMessage());
+    final Socket workerSocket =
+      new StubConnector(InetAddress.getByName(null).getHostName(),
+                        m_properties.getConsolePort(),
+                        ConnectionType.WORKER)
+      .connect(new WorkerAddress(agentIdentity.createWorkerIdentity()));
+
+
+    sendMessage(workerSocket, message);
+
+    sendMessage(workerSocket, new MyMessage());
 
     // Message instance different due to serialisation.
     verify(m_messageHandler, timeout(10000)).handle(isA(MyMessage.class));
@@ -434,7 +445,7 @@ public class TestConsoleCommunicationImplementation
     // AgentProcessReportMessage and WorkerProcessReportMessage. We check here
     // so we're sure the've been processed.
 
-    sendMessage(socket, new StopGrinderMessage());
+    sendMessage(workerSocket, new StopGrinderMessage());
 
     verify(m_messageHandler, timeout(10000))
       .handle(isA(StopGrinderMessage.class));
@@ -454,7 +465,7 @@ public class TestConsoleCommunicationImplementation
       .handleException(isA(DisplayMessageConsoleException.class));
 
     m_consoleCommunication.sendToAddressedAgents(
-      new ProcessAddress(new StubAgentIdentity("agent")), new MyMessage());
+      new AgentAddress(new StubAgentIdentity("agent")), new MyMessage());
 
     verify(m_errorHandler, times(2))
       .handleException(isA(DisplayMessageConsoleException.class));

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,8 @@
 package net.grinder.common.processidentity;
 
 import java.util.Comparator;
+
+import net.grinder.messages.console.ProcessAddress;
 
 
 /**
@@ -53,11 +55,11 @@ public interface ProcessReport {
   short STATE_UNKNOWN = 4;
 
   /**
-   * Return the unique process identity.
+   * Return the unique process address.
    *
    * @return The process identity.
    */
-  ProcessIdentity getIdentity();
+  ProcessAddress<? extends ProcessIdentity> getProcessAddress();
 
   /**
    * Return the process status.
@@ -80,13 +82,17 @@ public interface ProcessReport {
         processReport1.getState() - processReport2.getState();
 
       if (stateComparison == 0) {
+        final ProcessIdentity identity1 =
+          processReport1.getProcessAddress().getIdentity();
+
+        final ProcessIdentity identity2 =
+          processReport2.getProcessAddress().getIdentity();
+
         final int nameComparison =
-          processReport1.getIdentity().getName().compareTo(
-               processReport2.getIdentity().getName());
+          identity1.getName().compareTo(identity2.getName());
 
         if (nameComparison == 0) {
-          return processReport1.getIdentity().getNumber() -
-                 processReport2.getIdentity().getNumber();
+          return identity1.getNumber() - identity2.getNumber();
         }
         else {
           return nameComparison;

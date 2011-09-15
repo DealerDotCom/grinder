@@ -23,6 +23,7 @@ package net.grinder.console.swingui;
 
 import java.util.HashMap;
 
+import junit.framework.TestCase;
 import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.console.common.Resources;
@@ -34,7 +35,6 @@ import net.grinder.console.communication.StubProcessReports;
 import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.testutility.RandomStubFactory;
-import junit.framework.TestCase;
 
 
 /**

@@ -138,11 +138,13 @@ public class TestConsoleMessages extends TestCase {
     final WorkerIdentity workerIdentity = agentIdentity.createWorkerIdentity();
 
     final WorkerProcessReportMessage original =
-      new WorkerProcessReportMessage(
-        workerIdentity, (short)1, (short)2, (short)3);
+      new WorkerProcessReportMessage((short)1, (short)2, (short)3);
+
+    final WorkerAddress address = new WorkerAddress(workerIdentity);
+    original.setAddress(address);
 
     assertEquals(workerIdentity, original.getWorkerIdentity());
-    assertEquals(workerIdentity, original.getIdentity());
+    assertEquals(address, original.getProcessAddress());
     assertEquals(1, original.getState());
     assertEquals(2, original.getNumberOfRunningThreads());
     assertEquals(3, original.getMaximumNumberOfThreads());
@@ -150,7 +152,7 @@ public class TestConsoleMessages extends TestCase {
     final WorkerProcessReportMessage received = Serializer.serialize(original);
 
     assertEquals(workerIdentity, original.getWorkerIdentity());
-    assertEquals(workerIdentity, original.getIdentity());
+    assertEquals(address, original.getProcessAddress());
     assertEquals(1, received.getState());
     assertEquals(2, received.getNumberOfRunningThreads());
     assertEquals(3, received.getMaximumNumberOfThreads());
@@ -165,18 +167,20 @@ public class TestConsoleMessages extends TestCase {
       new StubCacheHighWaterMark("", 100);
 
     final AgentProcessReportMessage original =
-      new AgentProcessReportMessage(
-        agentIdentity, (short)1, cacheHighWaterMark);
+      new AgentProcessReportMessage((short)1, cacheHighWaterMark);
+
+    final AgentAddress address = new AgentAddress(agentIdentity);
+    original.setAddress(address);
 
     assertEquals(agentIdentity, original.getAgentIdentity());
-    assertEquals(agentIdentity, original.getIdentity());
+    assertEquals(address, original.getProcessAddress());
     assertEquals(cacheHighWaterMark, original.getCacheHighWaterMark());
     assertEquals(1, original.getState());
 
     final AgentProcessReportMessage received = Serializer.serialize(original);
 
     assertEquals(agentIdentity, original.getAgentIdentity());
-    assertEquals(agentIdentity, original.getIdentity());
+    assertEquals(address, original.getProcessAddress());
     assertEquals(1, received.getState());
     assertEquals(cacheHighWaterMark, received.getCacheHighWaterMark());
   }

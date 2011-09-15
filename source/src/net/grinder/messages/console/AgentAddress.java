@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,42 +19,25 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.common.processidentity;
+package net.grinder.messages.console;
 
 import net.grinder.common.processidentity.AgentIdentity;
-import net.grinder.messages.agent.CacheHighWaterMark;
-import net.grinder.messages.console.AgentAddress;
-import net.grinder.messages.console.AgentAndCacheReport;
 
 
-public final class StubAgentProcessReport implements AgentAndCacheReport {
+/**
+ * Agent process address.
+ *
+ * @author Philip Aston
+ * @version $Revision:$
+ */
+public final class AgentAddress extends ProcessAddress<AgentIdentity> {
 
-  private final AgentAddress m_agentAddress;
-  private final short m_state;
-  private CacheHighWaterMark m_cacheHighWaterMark = null;
-
-  public StubAgentProcessReport(AgentIdentity agentIdentity, short state) {
-    m_agentAddress = new AgentAddress(agentIdentity);
-    m_state = state;
-  }
-
-  public AgentIdentity getAgentIdentity() {
-    return m_agentAddress.getIdentity();
-  }
-
-  public AgentAddress getProcessAddress() {
-    return m_agentAddress;
-  }
-
-  public short getState() {
-    return m_state;
-  }
-
-  public CacheHighWaterMark getCacheHighWaterMark() {
-    return m_cacheHighWaterMark;
-  }
-
-  public void setCacheHighWaterMark(CacheHighWaterMark highWaterMark) {
-    m_cacheHighWaterMark = highWaterMark;
+  /**
+   * Constructor.
+   *
+   * @param processIdentity Agent process identity.
+   */
+  public AgentAddress(AgentIdentity processIdentity) {
+    super(processIdentity);
   }
 }

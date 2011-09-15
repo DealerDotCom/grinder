@@ -57,9 +57,9 @@ import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.instrumenter.MasterInstrumenter;
 import net.grinder.engine.process.jython.JythonScriptEngine;
-import net.grinder.messages.console.ProcessAddress;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.messages.console.ReportStatisticsMessage;
+import net.grinder.messages.console.WorkerAddress;
 import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.script.Grinder;
 import net.grinder.script.InternalScriptContext;
@@ -174,8 +174,8 @@ final class GrinderProcess {
       m_consoleSender =
         new QueuedSenderDecorator(
           ClientSender.connect(
-            new ConnectorFactory(ConnectionType.WORKER).create(properties)),
-            new ProcessAddress(workerIdentity)));
+            new ConnectorFactory(ConnectionType.WORKER).create(properties),
+            new WorkerAddress(workerIdentity)));
 
       globalBarrierGroups =
         new GlobalBarrierGroups(m_consoleSender,
@@ -572,7 +572,6 @@ final class GrinderProcess {
     throws CommunicationException {
 
     m_consoleSender.send(new WorkerProcessReportMessage(
-                           m_initialisationMessage.getWorkerIdentity(),
                            state,
                            numberOfThreads,
                            totalNumberOfThreads));

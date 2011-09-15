@@ -36,6 +36,7 @@ import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.console.communication.ProcessControl.Listener;
 import net.grinder.messages.agent.CacheHighWaterMark;
+import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentAndCacheReport;
 import net.grinder.util.AllocateLowestNumber;
 import net.grinder.util.ListenerSupport;
@@ -285,18 +286,18 @@ final class ProcessStatusImplementation {
   private static final class UnknownAgentProcessReport
     implements AgentAndCacheReport {
 
-    private final AgentIdentity m_identity;
+    private final AgentAddress m_address;
 
-    public UnknownAgentProcessReport(AgentIdentity identity) {
-      m_identity = identity;
+    public UnknownAgentProcessReport(AgentAddress address) {
+      m_address = address;
     }
 
-    public ProcessIdentity getIdentity() {
-      return m_identity;
+    public AgentAddress getProcessAddress() {
+      return m_address;
     }
 
     public AgentIdentity getAgentIdentity() {
-      return m_identity;
+      return m_address.getIdentity();
     }
 
     public short getState() {
@@ -323,7 +324,8 @@ final class ProcessStatusImplementation {
       m_workerReportReferences = new HashMap<WorkerIdentity, WorkerReference>();
 
     AgentAndWorkers(AgentIdentity agentIdentity) {
-      setAgentProcessStatus(new UnknownAgentProcessReport(agentIdentity));
+      setAgentProcessStatus(
+        new UnknownAgentProcessReport(new AgentAddress(agentIdentity)));
     }
 
     void setAgentProcessStatus(AgentAndCacheReport agentProcessStatus) {

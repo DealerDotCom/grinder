@@ -21,35 +21,35 @@
 
 package net.grinder.console.common.processidentity;
 
-import net.grinder.common.processidentity.ProcessIdentity;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.common.processidentity.WorkerProcessReport;
+import net.grinder.messages.console.WorkerAddress;
 
 
 public final class StubWorkerProcessReport
   implements WorkerProcessReport {
 
-  private final WorkerIdentity m_workerIdentity;
   private final short m_state;
   private final short m_totalNumberOfThreads;
   private final short m_numberOfRunningThreads;
+  private final WorkerAddress m_workerAddress;
 
   public StubWorkerProcessReport(WorkerIdentity workerIdentity,
                                  short state,
                                  int runningThreads,
                                  int totalThreads) {
-    m_workerIdentity = workerIdentity;
+    m_workerAddress = new WorkerAddress(workerIdentity);
     m_state = state;
     m_numberOfRunningThreads = (short)runningThreads;
     m_totalNumberOfThreads = (short)totalThreads;
   }
 
-  public ProcessIdentity getIdentity() {
-    return m_workerIdentity;
+  public WorkerAddress getProcessAddress() {
+    return m_workerAddress;
   }
 
   public WorkerIdentity getWorkerIdentity() {
-    return m_workerIdentity;
+    return m_workerAddress.getIdentity();
   }
 
   public short getState() {
@@ -65,7 +65,7 @@ public final class StubWorkerProcessReport
   }
 
   public int hashCode() {
-    return m_workerIdentity.hashCode();
+    return m_workerAddress.hashCode();
   }
 
   public boolean equals(Object o) {
