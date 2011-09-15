@@ -133,7 +133,7 @@
       <a href="ext:headwaysoftware/s101">Structure 101</a> license.</p>
 
       <p>This site is built with <a
-      href="ext:forrest">Apache Forrest</a>.</p>
+      href="ext:forrest">Apache Forrest</a>, and uses <a href="ext:syntaxhighlighter">SyntaxHighlighter</a>.</p>
 
       <p><strong>Philip Aston</strong></p>
    </section>

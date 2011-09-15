@@ -379,7 +379,7 @@
       systems the following command line can be used to generate log
       directories based on the current date.</p>
 
-<source>
+<source class="sh">
 java -Dgrinder.logDirectory="log/$(date +%y%m%d)" net.grinder.Grinder
 </source>
 

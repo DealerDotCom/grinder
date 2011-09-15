@@ -27,7 +27,7 @@
 
     <p>You start the TCPProxy with something like:</p>
 
-<source>
+<source class="sh">
 CLASSPATH=/opt/grinder/lib/grinder.jar
 export CLASSPATH
 
@@ -40,7 +40,7 @@ java net.grinder.TCPProxy
     <p>With no additional options, the TCPProxy will start and display
     the following information:</p>
 
-<source>
+<source class="text">
 Initialising as an HTTP/HTTPS proxy with the parameters:
    Request filters:  EchoFilter
    Response filters: EchoFilter
@@ -110,7 +110,7 @@ Engine initialised, listening on port 8001
     displayed in hexadecimal between square brackets. Here's some
     example output:</p>
 
-    <source>
+    <source class="text">
 ------ 127.0.0.1:2263->ads.osdn.com:80 ------
 GET /?ad_id=5839&amp;alloc_id=12703&amp;site_id=2&amp;request_id=8320720&amp;1102173982760 HTTP/1.1
 Host: ads.osdn.com
@@ -157,7 +157,7 @@ GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F
 
   <p>The first step is to start the TCPProxy with an HTTP filter:</p>
 
-<source>
+<source class="sh">
 java net.grinder.TCPProxy -console -http > grinder.py
 </source>
 
@@ -166,7 +166,7 @@ java net.grinder.TCPProxy -console -http > grinder.py
 
   <p>The terminal output of the TCPProxy looks like:</p>
 
-<source>
+<source class="text">
 14/03/06 17:04:25 (tcpproxy): Initialising as an HTTP/HTTPS proxy with the
 parameters:
    Request filters:    HTTPRequestFilter
@@ -198,7 +198,7 @@ parameters:
   a logical grouping of requests into pages, of the recorded tests.</p>
     <p>For example, the headers section:</p>
 
-<source>
+<source class="jython">
 # The Grinder 3.0-beta29
 # HTTP script recorded by TCPProxy at 14-Feb-2006 16:25:38
 
@@ -242,7 +242,7 @@ headers4= \
 
     <p>In the requests section each unique request is captured:</p>
 
-<source>
+<source class="jython">
 url0 = 'http://localhost:80'
 
 # Create an HTTPRequest for each request, then replace the
@@ -270,7 +270,7 @@ request105 = Test(105, 'GET forms.css').wrap(request105)
   pages and defines each page as a method, sets sleep interval between requests
   and provides an instrumented method for the return of data from the tests: </p>
 
-<source>
+<source class="jython">
 class TestRunner:
   """A TestRunner instance is created for each worker thread."""
 
@@ -364,7 +364,7 @@ instrumentMethod(Test(200, 'Page 2'), 'page2')
 
   <p>If you want to see the intermediate XML model you can use:</p>
 
-<source>java net.grinder.TCPProxy -http etc/httpToXML.xsl -console</source>
+<source class="sh">java net.grinder.TCPProxy -http etc/httpToXML.xsl -console</source>
 
   <p>The model confirms to the XML schema <code>etc/tcpproxy-http.xsd</code>.</p>
   </section>
@@ -385,13 +385,13 @@ filter doesn't directly support
 off-setting test numbers. However, its simple to do in the script.</p>
 
 <p>Edit the recorded script to replace:</p>
-<source>
+<source class="jython">
 from net.grinder.script import Test
 </source>
 
 <p>with:</p>
 
-<source>
+<source class="jython">
 from net.grinder.script import Test as StandardTest
 
 def Test(number, description):
@@ -467,7 +467,7 @@ identifiers used for headers, URLs, pages, tokens, and so on.</p>
     from the <a href="ext:javasoft/jsse-samples">JSSE samples
     distribution</a> and start the proxy using:</p>
 
-<source>
+<source class="sh">
 java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
 </source>
   </section>

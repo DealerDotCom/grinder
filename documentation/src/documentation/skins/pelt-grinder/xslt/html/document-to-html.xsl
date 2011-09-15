@@ -21,6 +21,40 @@ imported document-to-html.xsl for details.
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:import href="lm://transform.skin.common.html.document-to-html"/>
+
+   <xsl:template match="source[@class='sh']">
+    <xsl:apply-templates select="@id"/>
+    <pre class="brush: bash; gutter: false">
+      <xsl:copy-of select="@id"/>
+      <xsl:apply-templates/>
+    </pre>
+  </xsl:template>
+
+   <xsl:template match="source[@class='cmd']">
+    <xsl:apply-templates select="@id"/>
+    <!-- No cmd brush available. -->
+    <pre class="brush: bash; gutter: false">
+      <xsl:copy-of select="@id"/>
+      <xsl:apply-templates/>
+    </pre>
+  </xsl:template>
+
+   <xsl:template match="source[@class='text']">
+    <xsl:apply-templates select="@id"/>
+    <pre class="brush: text; gutter: false">
+      <xsl:copy-of select="@id"/>
+      <xsl:apply-templates/>
+    </pre>
+  </xsl:template>
+
+  <xsl:template match="source">
+    <xsl:apply-templates select="@id"/>
+    <pre class="brush: python">
+      <xsl:copy-of select="@id"/>
+      <xsl:apply-templates/>
+    </pre>
+  </xsl:template>
+
   <xsl:template match="document">
     <meta-data>
       <xsl:apply-templates select="header/meta"/>

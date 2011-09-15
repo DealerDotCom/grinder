@@ -88,6 +88,9 @@ footer, searchbar, css etc.  As input, it takes XML of the form:
                 type="text/css" media="screen" /><link rel="stylesheet" href="{$root}skin/print.css" type="text/css" 
                 media="print" /><link rel="stylesheet" href="{$root}skin/profile.css" 
                 type="text/css" />
+
+<link rel="stylesheet" href="{$root}skin/shCore.css" type="text/css" />
+<link rel="stylesheet" href="{$root}skin/shThemeDefault.css" type="text/css" />
 <!--+
   |Javascripts
   +-->
@@ -97,6 +100,11 @@ footer, searchbar, css etc.  As input, it takes XML of the form:
 				src="{$root}skin/getMenu.js"></script>
 <script type="text/javascript" language="javascript" 
 				src="{$root}skin/fontsize.js"></script>
+
+<script type="text/javascript" language="javascript"  src="{$root}skin/shCore.js"></script>
+<script type="text/javascript" langauage="javascript" src="{$root}skin/shBrushPython.js"></script>
+<script type="text/javascript" langauage="javascript" src="{$root}skin/shBrushBash.js"></script>
+<script type="text/javascript" langauage="javascript" src="{$root}skin/shBrushPlain.js"></script>
 <!--+
   |favicon
   +-->
@@ -379,6 +387,9 @@ footer, searchbar, css etc.  As input, it takes XML of the form:
     |end bottomstrip
     +</xsl:comment>
         </div>
+<script type="text/javascript">
+     SyntaxHighlighter.all()
+</script>
       </body>
     </html>
   </xsl:template>

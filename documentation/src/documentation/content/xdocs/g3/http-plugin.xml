@@ -23,7 +23,7 @@
   <p>The HTTPPlugin is built into The Grinder and is automatically initialised
   whenever a script imports one
   of its classes. For example:</p>
-  <source>
+  <source class="jython">
 from net.grinder.plugin.http import HTTPRequest
 </source>
 
@@ -99,7 +99,7 @@ from net.grinder.plugin.http import HTTPRequest
   <title>Importing the HTTPPluginControl</title>
   <p>Place the following line at the top of your grinder script along with
   your other import statements</p>
-<source>
+<source class="jython">
 from net.grinder.plugin.http import HTTPPluginControl
 </source>
   </section>
@@ -112,7 +112,7 @@ from net.grinder.plugin.http import HTTPPluginControl
     for challenges.</p>
     <p>Users who still wish to use the HTTPClient
     Authorization module can enable it using:</p>
-<source>
+<source class="jython">
 control = HTTPPluginControl.getConnectionDefaults()
 control.setUseAuthorizationModule(1)
 </source>
@@ -134,7 +134,7 @@ control.setUseAuthorizationModule(1)
     <p>Should you need to specify an HTTP proxy to route requests through
     the following code can be used to specify the default proxy.</p>
 
-<source>
+<source class="jython">
 control = HTTPPluginControl.getConnectionDefaults()
 control.setProxyServer("localhost", 8001)
 </source>
@@ -142,7 +142,7 @@ control.setProxyServer("localhost", 8001)
     <p>HTTP proxies can also be specified at the thread connection level. This
     is useful to set proxies on a per URL basis.</p>
 
-<source>
+<source class="jython">
 proxyURL1 = HTTPPluginControl.getThreadConnection("http://<em>url1</em>")
 proxyURL2 = HTTPPluginControl.getThreadConnection("http://<em>url2</em>")
 proxyURL1.setProxyServer("localhost", 8001)
@@ -151,7 +151,7 @@ proxyURL2.setProxyServer("localhost", 8002)
 
     <p>If the HTTP proxy requires authentication, enable the HTTPClient Authorization Module, as descirbed in the previous section. Having so, each worker thread can set up the appropriate authentication details using the <a href="script-javadoc/HTTPClient/AuthorizationInfo.html">AuthorizationInfo</a> API. For example:</p>
 
-<source>
+<source class="jython">
 from net.grinder.plugin.http import HTTPRequest, HTTPPluginControl
 from HTTPClient import AuthorizationInfo
 
@@ -178,14 +178,14 @@ class TestRunner:
     <title>Setting HTTP Headers</title>
     <p>The HTTPlugin allows you to set the HTTP Headers sent with requests.
     The method takes the settings as header-name/value pairs</p>
-<source>
+<source class="jython">
 control = HTTPPluginControl.getConnectionDefaults()
 control.setDefaultHeaders(NVPair("<em>(header-name)</em>", "<em>(value)</em>"),))
 </source>
     <p>Typical headers you might want to set here are <code>Accept</code> and its <code>Accept-*</code>
     relatives, <code>Connection</code>, <code>From</code>, <code>User-Agent</code>, etc.</p>
   <p> For example to disable persistent connections:</p>
-<source>
+<source class="jython">
 control = HTTPPluginControl.getConnectionDefaults()
 control.setDefaultHeaders(NVPair("Connection", "close"),))
 </source>
@@ -194,7 +194,7 @@ control.setDefaultHeaders(NVPair("Connection", "close"),))
   <section>
     <title>Setting Encoding</title>
     <p>Encoding for Content or for Transfer can be switched on and off using boolean flags</p>
-<source>
+<source class="jython">
 control = HTTPPluginControl.getConnectionDefaults()
 control.setUseContentEncoding(0)
 control.setUseTransferEncoding(1)
@@ -205,7 +205,7 @@ control.setUseTransferEncoding(1)
     <title>Setting Redirect Behaviour</title>
     <p>Setting the HTTPPlugin behaviour with regards to following redirects can
     be switched on and off using boolean flags</p>
-<source>
+<source class="jython">
 control = HTTPPluginControl.getConnectionDefaults()
 control.setFollowRedirects(0)
 </source>
@@ -215,7 +215,7 @@ control.setFollowRedirects(0)
     <title>Setting Local Address</title>
     <p>Should you be conducting your tests on a server with multiple network interfaces
     you can set the local IP address used by the HTTPPlugin for outbound connections.</p>
-<source>
+<source class="jython">
 control = HTTPPluginControl.getConnectionDefaults()
 control.setLocalAddress("<em>(local IP Address)</em>")
 </source>
@@ -226,7 +226,7 @@ control.setLocalAddress("<em>(local IP Address)</em>")
     <p>The timeout value for used for creating connections and reading responses can be
     controlled via the HTTPPlugin.</p>
     <p>The following example sets a default timeout value of 30 seconds for all connections.</p>
-<source>
+<source class="jython">
 control = HTTPPluginControl.getConnectionDefaults()
 control.setTimeout(30)
 </source>
@@ -236,7 +236,7 @@ control.setTimeout(30)
     <title>Setting Cookie Behaviour</title>
     <p>Setting the HTTPPlugin behaviour with regards to whether cookies are used or not can
     be switched on and off using boolean flags</p>
-<source>
+<source class="jython">
 control = HTTPPluginControl.getConnectionDefaults()
 control.setUseCookies(0)
 </source>
@@ -258,7 +258,7 @@ with one of { <code>gzip</code>, <code>deflate</code>, <code>compress</code>,
 <code>identity</code> }, you can automatically decrypt the responses by adding
 the following lines to the beginning of your script:</p>
 
-<source>
+<source class="jython">
 from net.grinder.plugin.http import HTTPPluginControl
 connectionDefaults = HTTPPluginControl.getConnectionDefaults()
 connectionDefaults.useContentEncoding = 1
@@ -305,20 +305,20 @@ decompression libraries from your script.</p>
 
     <p>The HTTPPlugin provides an <code>HTTPUtilties</code> class:</p>
 
-<source>net.grinder.plugin.http.HTTPUtilities</source>
+<source class="jython">net.grinder.plugin.http.HTTPUtilities</source>
   <p>This class has several methods which are useful for HTTP scripts.</p>
 
   <section>
      <title>Setting Basic Authorization</title>
      <p>The HTTPUtilities class can create an NVPair for an HTTP Basic Authorization header using the following method:</p>
-<source>
+<source class="jython">
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
 httpUtilities.basicAuthorizationHeader('<em>username</em>', '<em>password</em>')
 </source>
 
      <p>Include the header with each HTTPRequest that requires the authentication.</p>
 
-<source>
+<source class="jython">
 request101.GET('/', (),
       ( httpUtilities.basicAuthorizationHeader('prelive', 'g3tout'), ))
 </source>
@@ -327,7 +327,7 @@ request101.GET('/', (),
   <section>
      <title>Getting the Last Response</title>
     <p>The HTTPUtilities class can return the response for the last request made by the calling worker thread using the following method:</p>
-<source>
+<source class="jython">
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
 httpUtilities.getLastResponse()
 </source>
@@ -339,7 +339,7 @@ httpUtilities.getLastResponse()
     <p>The HTTPUtilities class can return the value for a path parameter or query string name-value token with
         the given <code>tokenName</code> in a Location header from the last response. If there are multiple matches, the first value is returned.
     This utility can be invoked using the following method:</p>
-<source>
+<source class="jython">
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
 httpUtilities.valueFromLocationURI(<em>tokenName</em>)
 </source>
@@ -355,7 +355,7 @@ httpUtilities.valueFromLocationURI(<em>tokenName</em>)
         the given <code>tokenName</code> in a URI in the body of the last
         response. If there are multiple matches, the first value is returned.
     This utility can be invoked using the following method:</p>
-<source>
+<source class="jython">
 httpUtilities = HTTPPluginControl.getHTTPUtilities()
 httpUtilities.valueFromBodyURI(<em>tokenName</em>)
 </source>

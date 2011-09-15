@@ -52,7 +52,7 @@
     calls will be recorded against the <code>Test</code>. Here's the example
     code again.</p>
 
-<source>
+<source class="jython">
 from net.grinder.script import Test
 from net.grinder.script.Grinder import grinder
 
@@ -142,7 +142,7 @@ class TestRunner:
       like this in the <a
       href="site:getting-started/output">output</a> file.</p>
 
-      <source>
+      <source class="text">
       16/11/09 07:49:40 (process paston01-0): instrumentation agents: traditional Jython instrumenter</source>
 
       <p>The new instrumentation is enabled by setting the
@@ -150,7 +150,7 @@ class TestRunner:
       <code>true</code>. If you start an agent with this property set, the
       line in the output file changes.</p>
 
-      <source>
+      <source class="text">
       16/11/09 08:02:18 (process paston01-0): instrumentation agents: byte code transforming instrumenter for Jython 2.1/2.2;
       byte code transforming instrumenter for Java</source>
 
@@ -158,7 +158,7 @@ class TestRunner:
       you are using The Grinder 3.3, a Java 6 JVM, and you have set the
       <code>grinder.dcrinstrumentation</code> property.</p>
 
-      <source>
+      <source class="text">
       16/11/09 07:59:42 (process paston01-0): instrumentation agents: NO INSTRUMENTER COULD BE LOADED</source>
     </section>
 
@@ -191,7 +191,7 @@ class TestRunner:
       rewritten to use <code>record</code>.
       </p>
 
-<source>
+<source class="jython">
 from net.grinder.script import Test
 from net.grinder.script.Grinder import grinder
 

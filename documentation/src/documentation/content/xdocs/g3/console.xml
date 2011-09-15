@@ -318,7 +318,7 @@
        different properties files in the directory, the file is usually called
        <code>grinder.properties</code>. If your script is not called <code>grinder.py</code>,
        add a <code>grinder.script</code> property to your properties file:</p>
-       <source>grinder.script = myscript.py</source>
+       <source class="text">grinder.script = myscript.py</source>
 
        <p>
        The properties sent from the console are combined with any set

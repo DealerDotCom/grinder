@@ -12,7 +12,7 @@
     <code>grinder.properties</code> file that uses the
     <a href="site:http-plugin">HttpPlugin</a>:</p>
 
-<source>
+<source class="text">
 grinder.plugin=net.grinder.plugin.http.HttpPlugin
 grinder.test0.parameter.url=http://localhost:80/index.html
 </source>

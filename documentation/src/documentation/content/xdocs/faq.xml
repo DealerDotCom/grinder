@@ -139,7 +139,7 @@
   per process. You shouldn't need to run more than one agent
   process per machine. The number of simulated users is then</p>
 
-  <source>
+  <source class="text">
 number of worker threads x number of worker processes x number test machines
   </source>
 
@@ -276,15 +276,19 @@ number of worker threads x number of worker processes x number test machines
   all of the threads. If I have a simple servlet or EJB that
   does the following:</p>
 
-<source>
-void doit() { Thread.sleep(1000); // 1 second }
+<source class="java">
+void doit() {
+  Thread.sleep(1000); // 1 second
+}
 </source>
 
   <p>Say with this I get 100 TPS and a 1.2 second response time.
   If I now change the code to:</p>
 
-<source>
-void doit() { Thread.sleep(10000); // 10 seconds }
+<source class="java">
+void doit() {
+  Thread.sleep(10000); // 10 seconds
+}
 </source>
 
   <p>the system isn't doing any more work and I'd expect to get
@@ -478,7 +482,7 @@ graphical and tabular views, clearly showing how the page was delivered to the b
       this, modify the following Registry values under the key
       <code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</code>:</p>
 
-<source>
+<source class="text">
 MaxUserPort       = dword:00004e20 (20,000 decimal)
 TcpTimedWaitDelay = dword:0000001e (30 decimal)
 </source>
@@ -506,12 +510,12 @@ TcpTimedWaitDelay = dword:0000001e (30 decimal)
       the TcpTimedWaitDelay, add a new registry key to the same path mentioned
       above and reboot. To query the value for ephemeral ports, in a command
       window run:</p>
-<source>
+<source class="cmd">
 netsh interface ipv4 show dynamicportrange tcp
 </source>
 
       <p>To set it, run:</p>
-<source>
+<source class="cmd">
 netsh interface ipv4 set dynamicportrange protocol=tcp startport=10000 numberofports=20000
 </source>
 
@@ -535,19 +539,19 @@ netsh interface ipv4 set dynamicportrange protocol=tcp startport=10000 numberofp
     <dd class="quote">
       <ol>
       <li>Increase the ephemeral port range:
-<source>
+<source class="sh">
 echo "32768 65535" > /proc/sys/net/ipv4/ip_local_port_range
 </source>
     </li>
 
     <li>Enable Port Recycling
-<source>
+<source class="sh">
 echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
 </source>
     </li>
 
     <li>Reduce the timeout (default is 60 seconds)
-<source>
+<source class="sh">
 echo "10" >  /proc/sys/net/ipv4/tcp_fin_timeout
 </source>
     </li>
@@ -604,7 +608,7 @@ echo "10" >  /proc/sys/net/ipv4/tcp_fin_timeout
     <p>The Grinder records test times for each successful test. By
     default, this is done by a section of code that looks like:</p>
 
-  <source>
+  <source class="java">
 context.startTimer(); // Critical section starts
 
 try {
@@ -772,7 +776,7 @@ grinder.jvm.arguments: -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamp
   similar to the following in the window you used to start The
   Grinder:</p>
 
-<source>
+<source class="text">
 *sys-package-mgr*: processing new jar, 'E:\src\grinder3\lib\jakarta-oro-2.0.6.jar'
 *sys-package-mgr*: processing new jar, 'E:\src\grinder3\lib\jython.jar'
 </source>
@@ -845,7 +849,7 @@ grinder.jvm.arguments: -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamp
       and its workers in a single process. To do this, please start the agent
       with:</p>
 
-<source>
+<source class="sh">
     java -Dgrinder.debug.singleprocess=true net.grinder.Grinder
 </source>
 
@@ -874,7 +878,7 @@ grinder.jvm.arguments: -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamp
       of scroll-back or redirect the output of the process to a file. For
       example, you might start an agent process with:
       </p>
-      <source>
+      <source class="cmd">
 C:\> java net.grinder.Grinder > output.txt
 </source>
 
@@ -915,7 +919,7 @@ C:\> java net.grinder.Grinder > output.txt
       <answer>
       <p>At start up, the agent may log a message about not being able to create
       a package cache directory:</p>
-      <source>
+      <source class="text">
 2/14/08 2:20:00 PM (agent): worker deep-0 started *sys-package-mgr*: can't create package cache dir 'D:\grinder-3.0.1\lib\jython.jar\cachedir\packages'
 </source>
 
@@ -927,7 +931,7 @@ C:\> java net.grinder.Grinder > output.txt
 
     <p>Alternatively, you can specify a cache directory by adding the following
     to grinder.properties (adjusting <code>/tmp</code> accordingly):</p>
-    <source>
+    <source class="text">
 grinder.jvm.arguments: -Dpython.cachedir=/tmp
 </source>
       </answer>
@@ -968,7 +972,7 @@ grinder.jvm.arguments: -Dpython.cachedir=/tmp
       <answer>
   <p>The directory of the distributed script is prepended to the
   Jython system path. You can do something like:</p>
-<source>
+<source class="jython">
   import sys
   f = open("%s/myresources.properties" % sys.path[0])
   # ...
@@ -987,7 +991,7 @@ grinder.jvm.arguments: -Dpython.cachedir=/tmp
       <code>re</code> module. If you fail to do this you'll get a
       <code>ValueError</code> like:</p>
 
-      <source>
+      <source class="text">
 ValueError: ('unsupported operand type', 'in')
   File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 141, in _compile
   File "D:\opt\jython\jython-2.1\Lib\sre_compile.py", line 61, in _compile
@@ -1004,7 +1008,7 @@ ValueError: ('unsupported operand type', 'in')
       example:
       </p>
 
-      <source>
+      <source class="jython">
 import re
 
 # Compile once in initialisation thread
@@ -1019,7 +1023,7 @@ class TestRunner:
       by a worker thread, so this technique doesn't work. In this case, you can
       import <code>re</code> in every worker thread:</p>
 
-      <source>
+      <source class="jython">
 class TestRunner:
   def __init__(self):
     import re
@@ -1031,7 +1035,7 @@ class TestRunner:
       </source>
 
       <p>Or equivalently:</p>
-      <source>
+      <source class="jython">
 from net.grinder.script.Grinder import grinder
 
 def getRE()
@@ -1081,13 +1085,13 @@ class TestRunner:
       <p>You need to define which script should be used. If you do not define it the default script name is "grinder.py".</p>
       <p>If your script is not called "grinder.py", either add a line to grinder.properties that specifies its name, e.g.:</p>
 
-<source>
+<source class="text">
   grinder.script: http.py
 </source>
 
       <p>or specify it on the command line, e.g.:</p>
 
-<source>
+<source class="sh">
   java -Dgrinder.script=http.py net.grinder.Grinder
 </source>
 
@@ -1110,7 +1114,7 @@ Jython. Java methods are limited to 65535 characters or less.</p>
 
   <p>You'll need to break the script up into smaller pieces. E.g. if you
   have a script that looks like</p>
-  <source>
+  <source class="jython">
 #...
 class TestRunner:
   def __call__(self):
@@ -1118,7 +1122,7 @@ class TestRunner:
 </source>
   <p>you might break it up into smaller methods (functions belonging to
   <code>TestRunner</code>) as follows:</p>
-  <source>
+  <source class="jython">
 #...
 class TestRunner:
   def part1(self):
@@ -1167,7 +1171,7 @@ class TestRunner:
       you are using hundreds or throusands of usernames then
       Jython/Java has a limitation with arrays over 64KB.</p>
 
-      <source>
+      <source class="jython">
 #
 # testRandomise.py
 #
@@ -1239,7 +1243,7 @@ class TestRunner:
   <p>I'm assuming HTTP and that the cars come back in a table
   such as</p>
 
-<source>
+<source class="text">
 &lt;td&gt;Jaguar&lt;/td&gt;&lt;td&gt;1234&lt;/td&gt;
 &lt;td&gt;Bentley&lt;/td&gt;&lt;td&gt;0012&lt;/td&gt;
 &lt;td&gt;Rolls Royce&lt;/td&gt;&lt;td&gt;8323&lt;/td&gt;
@@ -1249,7 +1253,7 @@ class TestRunner:
   <p>You can get the text of the HTTP response body with
   something like:</p>
 
-<source>
+<source class="jython">
 response = myrequest.GET(&quot;/carindex.html&quot;)
 text = response.text
 </source>
@@ -1268,7 +1272,7 @@ text = response.text
   <p>Regular expressions are faster if compiled, so we'll do
   this up front:</p>
 
-<source>
+<source class="jython">
 # Add to top of script
 import re
 expression = re.compile(r&quot;&lt;td&gt;([\w\s]*)&lt;/td&gt;\s*&lt;td&gt;(\d*)&lt;/td&gt;&quot;)
@@ -1284,7 +1288,7 @@ expression = re.compile(r&quot;&lt;td&gt;([\w\s]*)&lt;/td&gt;\s*&lt;td&gt;(\d*)&
   <p>We can then use the regular expression to parse the
   response:</p>
 
-<source>
+<source class="jython">
 response = myrequest.GET(&quot;/carindex.html&quot;)
 
 for car, id in expression.findall(response.text):
@@ -1295,7 +1299,7 @@ for car, id in expression.findall(response.text):
   in a subsequent page. Lets pick a random one and use it for a
   new request:</p>
 
-<source>
+<source class="jython">
 response = myrequest.GET(&quot;/carindex.html&quot;)
 
 # Import random for this to work.
@@ -1493,18 +1497,18 @@ modify your script to remove duplicate requests.</p>
       connect through the TCPProxy, you will need to provide a server certificate for The Grinder.
       The easiest way to provide a server certificate is to copy the <em>testkeys</em> file
       from the JSSE samples distribution and start the proxy using:</p>
-<source>
+<source class="sh">
   java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
 </source>
       <p>You can specify your own keystore containing relevant client and
       root certificates. Tell the TCPProxy to use the keystore and ssl
       by using the following parameters when invoking the TCPProxy:</p>
-<source>
+<source class="sh">
   -keystore <em>(keystore)</em> -keystorepassword <em>(password)</em> -keystoretype <em>(type)</em>
 </source>
       <p>Should you encounter further problems with your SSL connection you can
       turn on debug by using the following switch:</p>
-<source>
+<source class="sh">
   -Djavax.net.debug=ssl
 </source>
       <note>This will generate verbose output.</note>
@@ -1567,7 +1571,7 @@ modify your script to remove duplicate requests.</p>
   applications running on your LAN. The example files uses the
   address <code>228.1.1.1:1234</code>:</p>
 
-<source>
+<source class="text">
 grinder.receiveConsoleSignals=true
 grinder.grinderAddress=228.1.1.1
 grinder.grinderPort=1234
@@ -1579,7 +1583,7 @@ grinder.grinderPort=1234
   <p>Under Linux, you may also need to set up the routing table.
   Try:</p>
 
-<source>
+<source class="sh">
 route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 </source>
 
@@ -1684,13 +1688,13 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       <a href="site:g2/plugins/http-plugin/string-bean">String Bean</a>
       method. I tried it on a fluke and it worked.</p>
 
-<source>
+<source class="text">
 grinder.test0.parameter.url=&lt;getLoginUrl&gt;
 grinder.test0.parameter.post=getPostData.dat
 </source>
       <p><code>getPostData.dat</code> has one line in it:</p>
 
-<source>
+<source class="text">
 &lt;getPostData&gt;
 </source>
 

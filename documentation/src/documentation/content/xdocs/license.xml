@@ -130,7 +130,7 @@
 
     <section id="LGPL">
       <title>The GNU Lesser General Public License</title>
-<source>
+<source class="text">
  GNU LESSER GENERAL PUBLIC LICENSE
            Version 2.1, February 1999
 
@@ -638,7 +638,7 @@ That's all there is to it!
 
     <section id="JythonLicense">
       <title>The Jython and JPython Licenses</title>
-<source>
+<source class="text">
 A. TERMS AND CONDITIONS FOR ACCESSING OR OTHERWISE USING JYTHON
 =======================================================
 
@@ -843,7 +843,7 @@ License.  See the org/apache/LICENSE file for details.
     <section id="jEditSyntaxLicense">
       <title>jEdit Syntax copyright and usage statement</title>
 
-<source>
+<source class="text">
 The jEdit 2.2.1 syntax highlighting package contains code that is
 Copyright 1998-1999 Slava Pestov, Artur Biesiadowski, Clancy Malcolm,
 Jonathan Revusky, Juha Lindfors and Mike Dillon.
@@ -860,7 +860,7 @@ remains intact in all source distributions of this package.
 
     <section id="XMLBeans-NOTICE">
       <title>XMLBeans NOTICE</title>
-<source>
+<source class="text">
 =========================================================================
 ==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
 ==  Version 2.0, in this case for the Apache XmlBeans distribution.    ==
@@ -898,7 +898,7 @@ also includes:
     <section id="PicoContainerLicense">
       <title>PicoContainer License</title>
 
-<source>
+<source class="text">
 Copyright (c) 2003-2005, PicoContainer Organization
 All rights reserved.
 
@@ -933,7 +933,7 @@ POSSIBILITY OF SUCH DAMAGE.
     <section id="ASMLicense">
       <title>ASM License</title>
 
-<source>
+<source class="text">
  ASM: a very small and fast Java bytecode manipulation framework
  Copyright (c) 2000-2005 INRIA, France Telecom
  All rights reserved.

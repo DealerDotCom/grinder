@@ -140,7 +140,7 @@
     <p>The final statistics summary (in the <code>out-*</code> files
     of each process) looks something like this:</p>
 
-<source>
+<source class="text">
 Final statistics for this process:
 
               Successful
@@ -202,13 +202,13 @@ Totals        250           0             156.70       23.32
       <code>lib</code> directory.<p/></li>
 
       <li>Start the <a href="site:console">console</a> on one of the test machines:
-<source>
+<source class="sh">
 java net.grinder.Console
 </source></li>
 
       <li>For each test machine, do steps 1. and 2. and start an agent
       process:
-<source>
+<source class="sh">
 java net.grinder.Grinder
 </source>
         <p>The agent will look for the <code>grinder.properties</code>
@@ -217,7 +217,7 @@ java net.grinder.Grinder
         specify an explicit properties file as the first argument. For
         example:</p>
 
-<source>
+<source class="sh">
 java net.grinder.Grinder myproperties
 </source>
       </li>
@@ -253,31 +253,31 @@ java net.grinder.Grinder myproperties
     <p><strong>Windows</strong></p>
     <ul>
      <li>setGrinderEnv.cmd
-<source>
-set GRINDERPATH=<em>(full path to grinder install directory)</em>
+<source class="cmd">
+set GRINDERPATH=<em>(full path to grinder installation directory)</em>
 set GRINDERPROPERTIES=<em>(full path to grinder.properties)</em>\grinder.properties
 set CLASSPATH=%GRINDERPATH%\lib\grinder.jar;%CLASSPATH%
-set JAVA_HOME=<em>(full path to java install directory)</em>
+set JAVA_HOME=<em>(full path to java installation directory)</em>
 PATH=%JAVA_HOME%\bin;%PATH%
 </source>
      </li>
      <li>startAgent.cmd
-<source>
+<source class="cmd">
 call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
 echo %CLASSPATH%
-java -cp %CLASSPATH% net.grinder.Grinder %GRINDERPROPERTIES%
+java -classpath %CLASSPATH% net.grinder.Grinder %GRINDERPROPERTIES%
 </source>
      </li>
      <li>startConsole.cmd
-<source>
+<source class="cmd">
 call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
-java -cp %CLASSPATH% net.grinder.Console
+java -classpath %CLASSPATH% net.grinder.Console
 </source>
      </li>
      <li>startProxy.cmd
-<source>
+<source class="cmd">
 call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
-java -cp %CLASSPATH% net.grinder.TCPProxy -console -http > grinder.py
+java -classpath %CLASSPATH% net.grinder.TCPProxy -console -http > grinder.py
 </source>
      </li>
     </ul>
@@ -285,35 +285,35 @@ java -cp %CLASSPATH% net.grinder.TCPProxy -console -http > grinder.py
     <p><strong>Unix</strong></p>
      <ul>
       <li>setGrinderEnv.sh
-<source>
+<source class="sh">
 #!/usr/bin/ksh
-GRINDERPATH=<em>(full path to grinder install directory)</em>
+GRINDERPATH=<em>(full path to grinder installation directory)</em>
 GRINDERPROPERTIES=<em>(full path to grinder.properties)</em>/grinder.properties
 CLASSPATH=$GRINDERPATH/lib/grinder.jar:$CLASSPATH
-JAVA_HOME=<em>(full path to java install directory)</em>
+JAVA_HOME=<em>(full path to java installation directory)</em>
 PATH=$JAVA_HOME/bin:$PATH
 export CLASSPATH PATH GRINDERPROPERTIES
 </source>
       </li>
       <li>startAgent.sh
-<source>
+<source class="sh">
 #!/usr/bin/ksh
 . <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
-java -cp $CLASSPATH net.grinder.Grinder $GRINDERPROPERTIES
+java -classpath $CLASSPATH net.grinder.Grinder $GRINDERPROPERTIES
 </source>
       </li>
       <li>startConsole.sh
-<source>
+<source class="sh">
 #!/usr/bin/ksh
 . <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
-java -cp $CLASSPATH net.grinder.Console
+java -classpath $CLASSPATH net.grinder.Console
 </source>
       </li>
       <li>startProxy.sh
-<source>
+<source class="sh">
 #!/usr/bin/ksh
 . <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
-java -cp $CLASSPATH net.grinder.TCPProxy -console -http > grinder.py
+java -classpath $CLASSPATH net.grinder.TCPProxy -console -http > grinder.py
 </source>
       </li>
      </ul>

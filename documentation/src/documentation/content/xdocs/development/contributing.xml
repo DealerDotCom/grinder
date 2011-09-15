@@ -16,7 +16,7 @@
   the source code, you'll want to do something like this:
   </p>
 
-  <source>
+  <source class="sh">
   $ svn co https://grinder.svn.sourceforge.net/svnroot/grinder/trunk/source grinder
   </source>
 
@@ -161,7 +161,7 @@ tests, reports, and release process.</p>
     locale is set otherwise and you are curious to try this out,
     specify the Java <code>user.language</code> system property.</p>
 
-<source>
+<source class="sh">
 java -Duser.language="es" net.grinder.Console
 </source>
 

@@ -26,7 +26,7 @@
 
       <p>You invoke the TCPSniffer with something like:</p>
 
-<source>
+<source class="sh">
 CLASSPATH=/opt/grinder/lib/grinder.jar
 export CLASSPATH
 
@@ -40,14 +40,14 @@ java net.grinder.TCPSniffer
       host <em>server</em>, port <em>7001</em>, you should say
       something like:</p>
 
-<source>
+<source class="sh">
 java net.grinder.TCPSniffer -remoteHost server
 </source>
 
       <p>The TCPSniffer will start and display the following
       information:</p>
 
-<source>
+<source class="jython"> class="text">
 Initialising standard sniffer engine with the parameters:
    Request filter:  net.grinder.tools.tcpsniffer.EchoFilter
    Response filter: net.grinder.tools.tcpsniffer.EchoFilter
@@ -79,7 +79,7 @@ Engine initialised, listening on port 8001
       <p>When recording browser traffic, a much better way to use the
       TCPSniffer is to run it as an HTTP proxy:</p>
 
-<source>
+<source class="sh">
 java net.grinder.TCPSniffer -proxy
 </source>
 
@@ -105,13 +105,13 @@ java net.grinder.TCPSniffer -proxy
       <p>You can use the TCPSniffer to generate an HTTP plugin script
       segment suitable for use with The Grinder.</p>
 
-<source>
+<source class="sh">
 java net.grinder.TCPSniffer -proxy -httpPluginFilter
 </source>
 
       <p>The output of the HttpPluginSnifferFilter looks like:</p>
 
-<source>
+<source class="text">
 Initialising standard sniffer engine with the parameters:
    Request filter: net.grinder.plugin.http.HttpPluginSnifferFilter
    Response filter: net.grinder.tools.tcpsniffer.NullFilter
@@ -149,7 +149,7 @@ Initialising standard sniffer engine with the parameters:
       <code>stderr</code>. You can redirect the script part to a file
       if you wish:</p>
 
-<source>
+<source class="sh">
 java net.grinder.TCPSniffer -proxy -httpPluginFilter &gt; grinder.properties
 </source>
 
@@ -200,7 +200,7 @@ java net.grinder.TCPSniffer -proxy -httpPluginFilter &gt; grinder.properties
       proxy using the <em>testkeys</em> key store provided with the
       JSSE samples:</p>
 
-<source>
+<source class="sh">
 java net.grinder.TCPSniffer -ssl -proxy -keyStore testkeys -keyStorePassword passphrase
 </source>
 
@@ -220,14 +220,14 @@ java net.grinder.TCPSniffer -ssl -proxy -keyStore testkeys -keyStorePassword pas
       the <em>testkeys</em> file from the JSSE samples distribution
       and start the sniffer using:</p>
 
-<source>
+<source class="sh">
 java net.grinder.TCPSniffer -ssl -proxy -keyStore testkeys -keyStorePassword passphrase
 </source>
 
       <p>Alternatively you might want to generate your own. Here's an
       example:</p>
 
-<source>
+<source class="text">
   PASTON:philipa% keytool -genkey -keystore testkeys -storepass passphrase -keyalg rsa
   What is your first and last name?
     [Unknown]:  localhost
