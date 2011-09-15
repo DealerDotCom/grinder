@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,8 +20,6 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.communication;
-
-import net.grinder.util.thread.ThreadSafeQueue;
 
 
 /**
@@ -52,10 +50,8 @@ public final class QueuedSenderDecorator implements QueuedSender {
    * @exception CommunicationException If an error occurs.
    **/
   public void send(Message message) throws CommunicationException {
-    synchronized (m_messageQueue.getMonitor()) {
-      queue(message);
-      flush();
-    }
+    queue(message);
+    flush();
   }
 
   /**
@@ -67,13 +63,7 @@ public final class QueuedSenderDecorator implements QueuedSender {
    * @see #send
    */
   public void queue(Message message) throws CommunicationException {
-
-    try {
-      m_messageQueue.queue(message);
-    }
-    catch (ThreadSafeQueue.ShutdownException e) {
-      throw new CommunicationException("Shut down");
-    }
+    m_messageQueue.queue(message);
   }
 
   /**
@@ -83,21 +73,8 @@ public final class QueuedSenderDecorator implements QueuedSender {
    */
   public void flush() throws CommunicationException {
 
-    try {
-      synchronized (m_messageQueue.getMonitor()) {
-        while (true) {
-          final Message message = m_messageQueue.dequeue(false);
-
-          if (message == null) {
-            break;
-          }
-
-          m_delegate.send(message);
-        }
-      }
-    }
-    catch (ThreadSafeQueue.ShutdownException e) {
-      throw new CommunicationException("Shut down");
+    for (Message message : m_messageQueue.drainMessages()) {
+      m_delegate.send(message);
     }
   }
 

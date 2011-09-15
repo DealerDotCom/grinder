@@ -173,7 +173,7 @@ public final class ConsoleCommunicationImplementation
       new Thread("Acceptor problem listener") {
         public void run() {
           while (true) {
-            final Exception exception = m_acceptor.getPendingException(true);
+            final Exception exception = m_acceptor.getPendingException();
 
             if (exception == null) {
               // Acceptor is shutting down.

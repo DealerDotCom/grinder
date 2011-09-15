@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,30 +21,32 @@
 
 package net.grinder.communication;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import net.grinder.util.thread.ThreadSafeQueue;
+import net.grinder.communication.MessageQueue.ShutdownException;
+
+import org.junit.Test;
 
 
 /**
- *  Unit test case for <code>MessageQueue</code>.
+ *  Unit test case for {@code MessageQueue}.
  *
  * @author Philip Aston
  * @version $Revision$
  **/
-public class TestMessageQueue extends TestCase {
-
-  public TestMessageQueue(String name) {
-    super(name);
-  }
+public class TestMessageQueue {
 
   private final MessageQueue m_queue = new MessageQueue(false);
 
-  public void testWithOneThread() throws Exception {
+  @Test public void testWithOneThread() throws Exception {
     final Message[] messages = {
       new SimpleMessage(10),
       new SimpleMessage(0),
@@ -62,7 +64,7 @@ public class TestMessageQueue extends TestCase {
     assertNull(m_queue.dequeue(false));
   }
 
-  public void testWithActiveDequeuer() throws Exception {
+  @Test public void testWithActiveDequeuer() throws Exception {
     final Message[] messages = {
       new SimpleMessage(10),
       new SimpleMessage(0),
@@ -87,28 +89,27 @@ public class TestMessageQueue extends TestCase {
     }
   }
 
-  public void testShutdownReciever() throws Exception {
+  @Test public void testShutdownReciever() throws Exception {
 
     final DequeuerThread dequeuerThread = new DequeuerThread(1);
     dequeuerThread.start();
     m_queue.shutdown();
 
     dequeuerThread.join();
-    assertTrue(dequeuerThread.getException() instanceof
-      ThreadSafeQueue.ShutdownException);
+    assertTrue(dequeuerThread.getException() instanceof ShutdownException);
 
     try {
       m_queue.queue(new SimpleMessage(0));
       fail("Expected a ShutdownException");
     }
-    catch (ThreadSafeQueue.ShutdownException e) {
+    catch (ShutdownException e) {
     }
 
     try {
       m_queue.dequeue(true);
       fail("Expected a ShutdownException");
     }
-    catch (ThreadSafeQueue.ShutdownException e) {
+    catch (ShutdownException e) {
     }
   }
 
@@ -125,7 +126,7 @@ public class TestMessageQueue extends TestCase {
               try {
                 m_queue.queue(new SimpleMessage(0));
               }
-              catch (ThreadSafeQueue.ShutdownException e) {
+              catch (ShutdownException e) {
                 fail("Unexpected ShutdownException");
               }
 
@@ -153,7 +154,7 @@ public class TestMessageQueue extends TestCase {
     assertNull(m_queue.dequeue(false));
   }
 
-  public void testExceptionPropagation() throws Exception {
+  @Test public void testExceptionPropagation() throws Exception {
 
     // m_queue does not allow exceptions to be queued.
     try {

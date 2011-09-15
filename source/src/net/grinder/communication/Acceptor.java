@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2009 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,12 +27,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
-import net.grinder.util.thread.ThreadSafeQueue;
 
 
 /**
@@ -45,8 +46,8 @@ public final class Acceptor {
 
   private final ServerSocket m_serverSocket;
   private final ThreadPool m_threadPool;
-  private final ThreadSafeQueue<Exception> m_exceptionQueue =
-    new ThreadSafeQueue<Exception>();
+  private final BlockingQueue<Exception> m_exceptionQueue =
+    new ArrayBlockingQueue<Exception>(10);
 
   /**
    * {@link ResourcePool}s indexed by {@link ConnectionType}.
@@ -150,7 +151,7 @@ public final class Acceptor {
         socketSets[i].closeCurrentResources();
       }
 
-      m_exceptionQueue.shutdown();
+      m_exceptionQueue.clear();
     }
   }
 
@@ -175,20 +176,31 @@ public final class Acceptor {
 
   /**
    * Asynchronous exception handling.
-   * @param block <code>true</code> => block until an exception is
-   * available, <code>false</code => return <code>null</code> if no
-   * exception is available.
-   * @return The exception, or <code>null</code> if no exception is
-   * available or this Acceptor has been shut down.
+  *
+   * @return The exception, or {@code null} if this Acceptor has been shut down.
    */
-  public Exception getPendingException(boolean block) {
-    try {
-      return m_exceptionQueue.dequeue(block);
+  public Exception getPendingException() {
+    synchronized (m_socketSets) {
+      if (m_isShutdown) {
+        return null;
+      }
     }
-    catch (ThreadSafeQueue.ShutdownException e) {
-      return null;
+
+    try {
+      return m_exceptionQueue.take();
+    }
+    catch (InterruptedException e) {
+      throw new UncheckedInterruptedException(e);
     }
   }
+
+  /**
+   * For unit tests.
+   */
+  Exception peekPendingException() {
+    return m_exceptionQueue.peek();
+  }
+
 
   /**
    * The number of connections that have been accepted and are still active.
@@ -364,10 +376,10 @@ public final class Acceptor {
     }
     catch (CommunicationException e) {
       try {
-        m_exceptionQueue.queue(e);
+        m_exceptionQueue.put(e);
       }
-      catch (ThreadSafeQueue.ShutdownException shutdownException) {
-        // Can happen due to race condition with shutdown, ignore.
+      catch (InterruptedException ie) {
+        throw new UncheckedInterruptedException(ie);
       }
     }
     finally {

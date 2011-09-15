@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2009 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,29 +21,34 @@
 
 package net.grinder.communication;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
-import junit.framework.TestCase;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
+import org.junit.Test;
+
 
 /**
- *  Unit tests for <code>Acceptor</code>.
+ *  Unit tests for {@code Acceptor}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestAcceptor extends TestCase {
+public class TestAcceptor {
 
-  public TestAcceptor(String name) {
-    super(name);
-  }
-
-  public void testConstructor() throws Exception {
+  @Test public void testConstructor() throws Exception {
 
     final InetAddress[] localAddresses =
       InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
@@ -68,13 +73,13 @@ public class TestAcceptor extends TestCase {
     for (int i=0; i<testAddresses.length; ++i) {
       final Acceptor acceptor = new Acceptor(testAddresses[i], port, 2);
       assertEquals(port, acceptor.getPort());
-      assertNull(acceptor.getPendingException(false));
+      assertNull(acceptor.peekPendingException());
       acceptor.shutdown();
 
       // Should also be able to use a OS allocated port.
       final Acceptor acceptor2 = new Acceptor(testAddresses[i], 0, 2);
       assertEquals(port, acceptor.getPort());
-      assertNull(acceptor2.getPendingException(false));
+      assertNull(acceptor2.peekPendingException());
       acceptor2.shutdown();
     }
 
@@ -93,7 +98,7 @@ public class TestAcceptor extends TestCase {
     usedSocket.close();
   }
 
-  public void testGetSocketSet() throws Exception {
+  @Test public void testGetSocketSet() throws Exception {
 
     final Acceptor acceptor = createAcceptor(2);
 
@@ -179,7 +184,7 @@ public class TestAcceptor extends TestCase {
     return new Acceptor("", port, numberOfThreads);
   }
 
-  public void testGetThreadGroup() throws Exception {
+  @Test public void testGetThreadGroup() throws Exception {
 
     final Acceptor acceptor1 = createAcceptor(2);
     final Acceptor acceptor2 = createAcceptor(1);
@@ -200,7 +205,7 @@ public class TestAcceptor extends TestCase {
     }
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
 
     final Acceptor acceptor = createAcceptor(3);
 
@@ -218,7 +223,7 @@ public class TestAcceptor extends TestCase {
       Thread.sleep(i * i * 10);
     }
 
-    assertNull(acceptor.getPendingException(false));
+    assertNull(acceptor.peekPendingException());
 
     acceptor.shutdown();
 
@@ -238,12 +243,12 @@ public class TestAcceptor extends TestCase {
     assertTrue(socketSet.reserveNext().isSentinel());
   }
 
-  public void testGetPendingException() throws Exception {
+  @Test public void testGetPendingException() throws Exception {
 
     final Acceptor acceptor = createAcceptor(3);
 
     // Non blocking.
-    assertNull(acceptor.getPendingException(false));
+    assertNull(acceptor.peekPendingException());
 
     // Create a couple of problems.
     final Socket socket = new Socket("localhost", acceptor.getPort());
@@ -256,16 +261,29 @@ public class TestAcceptor extends TestCase {
 
     // Blocking, so we don't need to do fancy synchronisation to
     // ensure acceptor has encountered the problems.
-    assertTrue(acceptor.getPendingException(true)
+    assertTrue(acceptor.getPendingException()
                instanceof CommunicationException);
 
-    assertTrue(acceptor.getPendingException(true)
+    assertTrue(acceptor.getPendingException()
                instanceof CommunicationException);
 
-    assertNull(acceptor.getPendingException(false));
+    assertNull(acceptor.peekPendingException());
 
     acceptor.shutdown();
 
-    assertNull(acceptor.getPendingException(true));
+    assertNull(acceptor.getPendingException());
+  }
+
+  @Test public void testGetPendingExceptionInterrupted() throws Exception {
+    final Acceptor acceptor = createAcceptor(3);
+
+    Thread.currentThread().interrupt();
+
+    try {
+      acceptor.getPendingException();
+      fail("Expected UncheckedInterruptedException");
+    }
+    catch (UncheckedInterruptedException e) {
+    }
   }
 }

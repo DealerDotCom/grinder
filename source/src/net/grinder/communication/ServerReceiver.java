@@ -32,8 +32,6 @@ import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.ResourcePool.Reservation;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.ThreadPool;
-import net.grinder.util.thread.ThreadSafeQueue;
-import net.grinder.util.thread.ThreadSafeQueue.ShutdownException;
 
 
 /**
@@ -111,12 +109,7 @@ public final class ServerReceiver implements Receiver {
                      runnableFactory);
 
     synchronized (this) {
-      try {
-        m_messageQueue.checkIfShutdown();
-      }
-      catch (ShutdownException e) {
-        throw new CommunicationException("Shut down", e);
-      }
+      m_messageQueue.checkIfShutdown();
 
       m_threadPools.add(threadPool);
     }
@@ -139,7 +132,7 @@ public final class ServerReceiver implements Receiver {
     try {
       return m_messageQueue.dequeue(true);
     }
-    catch (ThreadSafeQueue.ShutdownException e) {
+    catch (MessageQueue.ShutdownException e) {
       return null;
     }
   }
@@ -315,7 +308,7 @@ public final class ServerReceiver implements Receiver {
           }
         }
       }
-      catch (ThreadSafeQueue.ShutdownException e) {
+      catch (MessageQueue.ShutdownException e) {
         // We've been shutdown, exit this thread.
       }
       finally {
