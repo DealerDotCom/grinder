@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -234,5 +234,29 @@ public class Grinder {
      * @return The SSL control.
      */
     SSLControl getSSLControl();
+
+    /**
+     * Create a {@link Barrier} to allow coordination of worker thread actions
+     * across all worker processes.
+     *
+     * <p>
+     * If the current worker process is running standalone (not connected to
+     * the console), this method behaves like {@link #createLocalBarrier}.
+     * </p>
+     *
+     * @param groupName
+     *          The barrier group name.
+     * @return The barrier.
+     */
+    Barrier globalBarrier(String groupName);
+
+    /**
+     * Create a {@link Barrier} to allow coordination of worker thread actions
+     * within the local worker process.
+     *
+     * @param groupName The barrier group name.
+     * @return The barrier.
+     */
+    Barrier localBarrier(String groupName);
   }
 }

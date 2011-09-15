@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,11 +26,15 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.script.Barrier;
 import net.grinder.script.InternalScriptContext;
 import net.grinder.script.InvalidContextException;
-import net.grinder.script.Statistics;
 import net.grinder.script.SSLControl;
+import net.grinder.script.Statistics;
 import net.grinder.script.TestRegistry;
+import net.grinder.synchronisation.BarrierGroups;
+import net.grinder.synchronisation.BarrierImplementation;
+import net.grinder.synchronisation.LocalBarrierGroups;
 import net.grinder.util.Sleeper;
 
 
@@ -170,5 +174,18 @@ final class ScriptContextImplementation implements InternalScriptContext {
 
   public TestRegistry getTestRegistry() {
     return m_testRegistry;
+  }
+
+  public Barrier globalBarrier(String groupName) {
+    throw new AssertionError();
+  }
+
+  private BarrierGroups temp =
+    new LocalBarrierGroups();
+
+  public Barrier localBarrier(String groupName) {
+
+    return new BarrierImplementation(temp.getGroup(groupName),
+                                     temp.getIdentityGenerator());
   }
 }
