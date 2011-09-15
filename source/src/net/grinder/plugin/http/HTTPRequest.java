@@ -218,7 +218,7 @@ public class HTTPRequest {
    * @return a string representation of the object
    */
   public String toString() {
-    final StringBuffer result = new StringBuffer("");
+    final StringBuilder result = new StringBuilder("");
 
     final URI url = m_defaultURL;
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,11 +43,11 @@ public final class HTMLText extends AbstractHTMLNode {
   /**
    * Write HTML to string buffer.
    *
-   * @param buffer The <code>StringBuffer</code>.
+   * @param buffer The <code>StringBuilder</code>.
    * @param html <code>true</code> => format as HTML;
    * <code>false</code> => format as plain text.
    */
-  protected void toStringBuffer(StringBuffer buffer, boolean html) {
+  protected void toStringBuilder(StringBuilder buffer, boolean html) {
     buffer.append(m_text);
   }
 }

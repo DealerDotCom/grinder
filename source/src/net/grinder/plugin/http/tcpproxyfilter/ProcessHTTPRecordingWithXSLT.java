@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2010 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -173,7 +173,7 @@ public class ProcessHTTPRecordingWithXSLT
   private final class LoggingErrorListener implements ErrorListener {
 
     private void logTransformerException(TransformerException e) {
-      final StringBuffer message = new StringBuffer(e.getMessage());
+      final StringBuilder message = new StringBuilder(e.getMessage());
 
       if (e.getLocationAsString() != null) {
         message.append(" at ").append(e.getLocationAsString());

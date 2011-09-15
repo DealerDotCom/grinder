@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2010 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -105,7 +105,7 @@ public final class CompositeFilter implements TCPProxyFilter {
    * @return The description.
    */
   public String toString() {
-    final StringBuffer result = new StringBuffer();
+    final StringBuilder result = new StringBuilder();
 
     for (TCPProxyFilter filter : m_filters) {
       if (result.length() > 0) {

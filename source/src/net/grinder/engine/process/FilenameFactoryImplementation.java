@@ -55,7 +55,7 @@ final class FilenameFactoryImplementation implements FilenameFactory {
   }
 
   public String createFilename(String prefix, String suffix) {
-    final StringBuffer result = new StringBuffer();
+    final StringBuilder result = new StringBuilder();
 
     result.append(m_logDirectory);
     result.append(File.separator);

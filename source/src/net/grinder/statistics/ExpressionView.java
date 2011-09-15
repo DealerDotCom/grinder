@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -171,7 +171,7 @@ public final class ExpressionView {
    * @return The <code>String</code>
    */
   public String toString() {
-    final StringBuffer result = new StringBuffer(32);
+    final StringBuilder result = new StringBuilder(32);
     result.append("ExpressionView(");
     result.append(m_displayName);
 

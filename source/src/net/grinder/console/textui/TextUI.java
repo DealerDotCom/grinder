@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -130,8 +130,8 @@ public class TextUI implements UI {
         reportString = m_noConnectedAgents;
       }
       else {
-        final StringBuffer report =
-          new StringBuffer(processReports.length * 128);
+        final StringBuilder report =
+          new StringBuilder(processReports.length * 128);
 
         Arrays.sort(processReports, m_processReportsComparator);
 

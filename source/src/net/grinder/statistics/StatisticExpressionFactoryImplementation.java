@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,7 +56,7 @@ final class StatisticExpressionFactoryImplementation
   public String normaliseExpressionString(String expression)
     throws StatisticsException {
     final ParseContext parseContext = new ParseContext(expression);
-    final StringBuffer result = new StringBuffer(expression.length());
+    final StringBuilder result = new StringBuilder(expression.length());
 
     normaliseExpressionString(parseContext, result);
 
@@ -68,7 +68,7 @@ final class StatisticExpressionFactoryImplementation
   }
 
   private void normaliseExpressionString(ParseContext parseContext,
-                                         StringBuffer result)
+                                         StringBuilder result)
     throws StatisticsException {
     if (parseContext.peekCharacter() == '(') {
       // Compound expression.

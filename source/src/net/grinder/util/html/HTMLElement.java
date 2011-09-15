@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -80,11 +80,11 @@ public class HTMLElement extends AbstractHTMLNode {
   /**
    * Write HTML to string buffer.
    *
-   * @param buffer The <code>StringBuffer</code>.
+   * @param buffer The <code>StringBuilder</code>.
    * @param html <code>true</code> => format as HTML;
    * <code>false</code> => format as plain text.
    */
-  protected final void toStringBuffer(StringBuffer buffer, boolean html) {
+  protected final void toStringBuilder(StringBuilder buffer, boolean html) {
     if (m_children.size() > 0) {
       if (!isFragment()) {
         if (html) {
@@ -97,7 +97,7 @@ public class HTMLElement extends AbstractHTMLNode {
       final Iterator<AbstractHTMLNode> iterator = m_children.iterator();
 
       while (iterator.hasNext()) {
-        iterator.next().toStringBuffer(buffer, html);
+        iterator.next().toStringBuilder(buffer, html);
       }
 
       if (!isFragment()) {

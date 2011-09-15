@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -80,7 +80,7 @@ public final class XSLTHelper {
       return "None";
     }
 
-    final StringBuffer result = new StringBuffer();
+    final StringBuilder result = new StringBuilder();
 
     final String quotes = quotes(value);
 
@@ -114,7 +114,7 @@ public final class XSLTHelper {
       return "None";
     }
 
-    final StringBuffer result = new StringBuffer();
+    final StringBuilder result = new StringBuilder();
 
     final String quotes = quotes(value);
 
@@ -138,7 +138,7 @@ public final class XSLTHelper {
    */
   public static String summariseAsLine(String value, int maximumCharacters) {
 
-    final StringBuffer result = new StringBuffer(value.length());
+    final StringBuilder result = new StringBuilder(value.length());
 
     if (value.length() > maximumCharacters) {
       result.append(value.substring(0, maximumCharacters));
@@ -194,7 +194,7 @@ public final class XSLTHelper {
   private static String escape(String value, boolean preserveEOLQuotes) {
     final int valueLength = value.length();
 
-    final StringBuffer result = new StringBuffer(valueLength);
+    final StringBuilder result = new StringBuilder(valueLength);
 
     for (int i = 0; i < valueLength; ++i) {
       final char c = value.charAt(i);
@@ -307,7 +307,7 @@ public final class XSLTHelper {
 
     final byte[] base64 = base64String.getBytes();
 
-    final StringBuffer result = new StringBuffer(base64.length * 2);
+    final StringBuilder result = new StringBuilder(base64.length * 2);
 
     result.append('"');
 

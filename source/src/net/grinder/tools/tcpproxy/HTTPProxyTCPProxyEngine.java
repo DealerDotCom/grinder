@@ -323,7 +323,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
             else {
               // Send a 200 response to send to client. Client
               // will now start sending SSL data to localSocket.
-              final StringBuffer response = new StringBuffer();
+              final StringBuilder response = new StringBuilder();
               response.append("HTTP/1.0 200 OK\r\n");
               response.append("Proxy-agent: The Grinder/");
               response.append(GrinderBuild.getVersionString());

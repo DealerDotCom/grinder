@@ -37,7 +37,7 @@ import net.grinder.statistics.StatisticsSet;
 class ThreadDataWriter {
   private final PrintWriter m_out;
   private final ExpressionView[] m_expressionViews;
-  private final StringBuffer m_buffer = new StringBuffer();
+  private final StringBuilder m_buffer = new StringBuilder();
   private final int m_bufferAfterThreadIDIndex;
 
   private int m_bufferAfterRunNumberIndex = -1;

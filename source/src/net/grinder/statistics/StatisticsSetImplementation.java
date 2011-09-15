@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -555,7 +555,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @return The <code>String</code>
    */
   public synchronized String toString() {
-    final StringBuffer result = new StringBuffer();
+    final StringBuilder result = new StringBuilder();
 
     result.append("StatisticsSet = {{");
 

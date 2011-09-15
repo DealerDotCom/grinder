@@ -39,6 +39,7 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
    * Alignment constants.
    */
   public enum Align {
+
     /** Left alignment. */
     LEFT {
       void pad(StringBuilder buffer, int remainder) {
@@ -64,6 +65,15 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
     };
 
     abstract void pad(StringBuilder buffer, int space);
+
+    /** Blank space to copy for padding. **/
+    private static final char[] s_space = new char[256];
+
+    static {
+      for (int i = 0; i < s_space.length; i++) {
+        s_space[i] = ' ';
+      }
+    }
   }
 
   /**
@@ -189,15 +199,6 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
                        int width);
   }
 
-  /** Blank space to copy for padding. **/
-  private static final char[] s_space = new char[256];
-
-  static {
-    for (int i = 0; i < s_space.length; i++) {
-      s_space[i] = ' ';
-    }
-  }
-
   private final Align m_alignment;
   private final Flow m_flow;
   private final int m_width;
@@ -240,7 +241,7 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
 
     final int length = buffer.length();
 
-    // Canonicalise remaining space.
+    // Canonicalise white space.
     for (int k = 0; k < length; k++) {
       if (Character.isWhitespace(buffer.charAt(k))) {
         buffer.setCharAt(k, ' ');
@@ -248,7 +249,7 @@ public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
     }
 
     if (length < m_width) {
-      // Buffer is less than width, have to pad.
+      // Buffer is less than width, pad.
 
       m_alignment.pad(buffer, m_width - length);
     }

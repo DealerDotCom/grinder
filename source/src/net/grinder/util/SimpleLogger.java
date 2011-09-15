@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -132,7 +132,7 @@ public final class SimpleLogger implements Logger {
 
   private void writeMessage(PrintWriter writer, String message, int where) {
     if (where != 0) {
-      final StringBuffer formattedMessage = new StringBuffer();
+      final StringBuilder formattedMessage = new StringBuilder();
 
       formattedMessage.append(m_dateFormat.format(new Date()));
       formattedMessage.append(" (");

@@ -41,7 +41,7 @@ final class HTTPResponse {
   private String m_status = "500 Internal Server Error";
   private final Map<String, String> m_responseHeaders =
     new HashMap<String, String>();
-  private final StringBuffer m_responseBody = new StringBuffer();
+  private final StringBuilder m_responseBody = new StringBuilder();
 
   public HTTPResponse() {
     setHeader("Proxy-agent", GrinderBuild.getName());
@@ -71,7 +71,7 @@ final class HTTPResponse {
   }
 
   public String toString() {
-    final StringBuffer result = new StringBuffer();
+    final StringBuilder result = new StringBuilder();
 
     result.append("HTTP/1.0 ");
     result.append(m_status);

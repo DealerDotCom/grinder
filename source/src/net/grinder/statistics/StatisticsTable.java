@@ -289,7 +289,7 @@ public class StatisticsTable {
                                       StatisticsSet statistics) {
 
       if (expressionView.getShowForCompositeStatistics()) {
-        final StringBuffer result = new StringBuffer("(");
+        final StringBuilder result = new StringBuilder("(");
         result.append(super.formatExpression(expressionView, statistics));
         result.append(")");
 

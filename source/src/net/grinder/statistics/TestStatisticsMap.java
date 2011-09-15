@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -263,7 +263,7 @@ public final class TestStatisticsMap implements java.io.Externalizable {
    * @return The <code>String</code>
    */
   public String toString() {
-    final StringBuffer result = new StringBuffer();
+    final StringBuilder result = new StringBuilder();
 
     result.append("TestStatisticsMap = {");
 

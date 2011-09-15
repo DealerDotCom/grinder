@@ -382,7 +382,7 @@ final class LoggerImplementation {
     private int m_currentTestNumber = -1;
 
     // Scratch space.
-    private final StringBuffer m_buffer = new StringBuffer();
+    private final StringBuilder m_buffer = new StringBuilder();
 
     // Reused for optimisation.
     private final char[] m_processOrThreadIDCharacters;

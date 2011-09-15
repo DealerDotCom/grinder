@@ -119,7 +119,7 @@ final class WorkerProcessCommandLine {
   public String toString() {
     final String[] commandArray = getCommandList().toArray(new String[0]);
 
-    final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
+    final StringBuilder buffer = new StringBuilder(commandArray.length * 10);
 
     for (int j = 0; j < commandArray.length; ++j) {
       if (j != 0) {

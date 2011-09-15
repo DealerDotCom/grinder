@@ -93,7 +93,7 @@ public final class ProcessReportDescriptionFactory {
 
     final AgentIdentity agentIdentity = agentProcessReport.getAgentIdentity();
 
-    final StringBuffer name = new StringBuffer(agentIdentity.getName());
+    final StringBuilder name = new StringBuilder(agentIdentity.getName());
 
     if (agentIdentity.getNumber() >= 0) {
       name.append(" (");

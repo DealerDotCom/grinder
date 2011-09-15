@@ -354,7 +354,7 @@ public final class TCPProxy extends AbstractMainClass {
     final TCPProxyFilter requestFilter = requestFilterChain.resolveFilter();
     final TCPProxyFilter responseFilter = responseFilterChain.resolveFilter();
 
-    final StringBuffer startMessage = new StringBuffer();
+    final StringBuilder startMessage = new StringBuilder();
 
     startMessage.append("Initialising as ");
 

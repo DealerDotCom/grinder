@@ -55,7 +55,7 @@ public class EchoFilter implements TCPProxyFilter {
                        byte[] buffer, int bytesRead)
     throws FilterException {
 
-    final StringBuffer stringBuffer = new StringBuffer();
+    final StringBuilder stringBuffer = new StringBuilder();
 
     boolean inHex = false;
 

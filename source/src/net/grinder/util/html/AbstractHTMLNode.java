@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,11 +33,11 @@ abstract class AbstractHTMLNode {
   /**
    * Write HTML to string buffer.
    *
-   * @param buffer The <code>StringBuffer</code>.
+   * @param buffer The <code>StringBuilder</code>.
    * @param html <code>true</code> => format as HTML;
    * <code>false</code> => format as plain text.
    */
-  protected abstract void toStringBuffer(StringBuffer buffer, boolean html);
+  protected abstract void toStringBuilder(StringBuilder buffer, boolean html);
 
   /**
    * Return a plain text version of the node.
@@ -45,8 +45,8 @@ abstract class AbstractHTMLNode {
    * @return The text.
    */
   public String toText() {
-    final StringBuffer result = new StringBuffer();
-    toStringBuffer(result, false);
+    final StringBuilder result = new StringBuilder();
+    toStringBuilder(result, false);
     return result.toString();
   }
 
@@ -56,8 +56,8 @@ abstract class AbstractHTMLNode {
    * @return The HTML text.
    */
   public String toHTML() {
-    final StringBuffer result = new StringBuffer();
-    toStringBuffer(result, true);
+    final StringBuilder result = new StringBuilder();
+    toStringBuilder(result, true);
     return result.toString();
   }
 

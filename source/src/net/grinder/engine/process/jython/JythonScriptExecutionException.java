@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -67,7 +67,7 @@ final class JythonScriptExecutionException extends ScriptExecutionException {
 
     if (javaError == null || javaError == Py.NoConversion) {
       // Duplicate logic from the package scope Py.formatException().
-      final StringBuffer pyExceptionMessage = new StringBuffer();
+      final StringBuilder pyExceptionMessage = new StringBuilder();
 
       if (e.type instanceof PyClass) {
         pyExceptionMessage.append(((PyClass) e.type).__name__);
@@ -139,7 +139,7 @@ final class JythonScriptExecutionException extends ScriptExecutionException {
    */
   private static String tracebackToMessage(String prefix,
                                            PyTraceback traceback) {
-    final StringBuffer result = new StringBuffer(prefix);
+    final StringBuilder result = new StringBuilder(prefix);
 
     if (traceback != null) {
       final String[] frames = traceback.dumpStack().split("\n");

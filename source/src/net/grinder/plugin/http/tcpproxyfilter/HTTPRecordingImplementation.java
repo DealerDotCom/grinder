@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -595,7 +595,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
           }
 
           // Build a tokenID that is also a reasonable identifier.
-          final StringBuffer tokenID = new StringBuffer();
+          final StringBuilder tokenID = new StringBuilder();
           tokenID.append("token_");
 
           for (int i = 0; i < name.length(); ++i) {
