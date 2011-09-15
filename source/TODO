@@ -23,7 +23,6 @@ Prove by implementing support for JavaScript (which is built into Java 6).
 * Java 5 upgrade
 
 ** Opportunities
-*** JUC executors, CAS etc.
 
 *** System.nanoTime() - can move to microsecond based time?
 

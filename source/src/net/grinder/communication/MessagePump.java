@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2010 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,8 +21,11 @@
 
 package net.grinder.communication;
 
+import java.util.concurrent.ExecutorService;
+
+import net.grinder.util.thread.ExecutorFactory;
 import net.grinder.util.thread.InterruptibleRunnable;
-import net.grinder.util.thread.ThreadPool;
+import net.grinder.util.thread.InterruptibleRunnableAdapter;
 
 
 /**
@@ -34,10 +37,12 @@ import net.grinder.util.thread.ThreadPool;
  */
 public final class MessagePump {
 
-  private final ThreadPool m_threadPool;
+  private final ExecutorService m_executor;
   private final Receiver m_receiver;
   private final Sender m_sender;
-  private boolean m_shutdownTriggered = false;
+  private final int m_numberOfThreads;
+
+  private volatile boolean m_shutdownTriggered = false;
 
   /**
      * Constructor.
@@ -51,23 +56,20 @@ public final class MessagePump {
 
     m_receiver = receiver;
     m_sender = sender;
+    m_numberOfThreads = numberOfThreads;
 
-    final ThreadPool.InterruptibleRunnableFactory runnableFactory =
-      new ThreadPool.InterruptibleRunnableFactory() {
-        public InterruptibleRunnable create() {
-          return new MessagePumpRunnable();
-        }
-      };
-
-    m_threadPool =
-      new ThreadPool("Message pump", numberOfThreads, runnableFactory);
+    m_executor = ExecutorFactory.createThreadPool("Message pump",
+                                                  numberOfThreads);
   }
 
   /**
    * Start the pump.
    */
   public void start() {
-    m_threadPool.start();
+    for (int i = 0; i < m_numberOfThreads; ++i) {
+      m_executor.submit(
+        new InterruptibleRunnableAdapter(new MessagePumpRunnable()));
+    }
   }
 
   /**
@@ -85,14 +87,14 @@ public final class MessagePump {
       m_sender.shutdown();
 
       // Now wait for the thread pool to finish.
-      m_threadPool.stopAndWait();
+      m_executor.shutdownNow();
     }
   }
 
   private class MessagePumpRunnable implements InterruptibleRunnable {
     public void interruptibleRun() {
       try {
-        while (!m_threadPool.isStopped()) {
+        while (!m_executor.isShutdown()) {
           final Message message = m_receiver.waitForMessage();
 
           if (message == null) {

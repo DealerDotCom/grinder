@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,12 @@
 
 package net.grinder.communication;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -28,22 +34,18 @@ import java.net.Socket;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.IsolatedObjectFactory;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 
 /**
- *  Unit tests for <code>ServerReceiver</code>.
+ *  Unit tests for {@code ServerReceiver}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestServerReceiver extends TestCase {
+public class TestServerReceiver {
 
-  public TestServerReceiver(String name) {
-    super(name);
-  }
-
-  public void testConstructor() throws Exception {
+  @Test public void testConstructor() throws Exception {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
@@ -59,7 +61,7 @@ public class TestServerReceiver extends TestCase {
     acceptor.shutdown();
   }
 
-  public void testWaitForMessage() throws Exception {
+  @Test public void testWaitForMessage() throws Exception {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
@@ -139,7 +141,7 @@ public class TestServerReceiver extends TestCase {
     acceptor.shutdown();
   }
 
-  public void testWaitForBadMessage() throws Exception {
+  @Test public void testWaitForBadMessage() throws Exception {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
@@ -181,16 +183,13 @@ public class TestServerReceiver extends TestCase {
     acceptor.shutdown();
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
     serverReceiver.receiveFrom(
       acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
-
-    assertEquals(1, acceptor.getThreadGroup().activeCount());
-    assertEquals(3, serverReceiver.getActveThreadCount());
 
     final Socket socket =
       new Connector(InetAddress.getByName(null).getHostName(),
@@ -232,16 +231,13 @@ public class TestServerReceiver extends TestCase {
     acceptor.shutdown();
   }
 
-  public void testCloseCommunicationMessage() throws Exception {
+  @Test public void testCloseCommunicationMessage() throws Exception {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
     serverReceiver.receiveFrom(
       acceptor, new ConnectionType[] { ConnectionType.AGENT }, 5, 10);
-
-    assertEquals(1, acceptor.getThreadGroup().activeCount());
-    assertEquals(5, serverReceiver.getActveThreadCount());
 
     final Socket socket =
       new Connector(InetAddress.getByName(null).getHostName(),
@@ -290,7 +286,7 @@ public class TestServerReceiver extends TestCase {
     acceptor.shutdown();
   }
 
-  public void testWithResponseSender() throws Exception {
+  @Test public void testWithResponseSender() throws Exception {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final ServerReceiver serverReceiver = new ServerReceiver();

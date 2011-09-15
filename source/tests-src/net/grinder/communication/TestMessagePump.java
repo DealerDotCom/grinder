@@ -27,7 +27,7 @@ import java.io.PipedOutputStream;
 
 
 /**
- *  Unit tests for <code>MessagePump</code>.
+ *  Unit tests for {@code MessagePump}.
  *
  * @author Philip Aston
  * @version $Revision$

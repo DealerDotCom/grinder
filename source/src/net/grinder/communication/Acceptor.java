@@ -29,11 +29,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.ListenerSupport;
+import net.grinder.util.thread.ExecutorFactory;
 import net.grinder.util.thread.InterruptibleRunnable;
-import net.grinder.util.thread.ThreadPool;
+import net.grinder.util.thread.InterruptibleRunnableAdapter;
 
 
 /**
@@ -45,7 +47,7 @@ import net.grinder.util.thread.ThreadPool;
 public final class Acceptor {
 
   private final ServerSocket m_serverSocket;
-  private final ThreadPool m_threadPool;
+  private final ExecutorService m_executor;
   private final BlockingQueue<Exception> m_exceptionQueue =
     new ArrayBlockingQueue<Exception>(10);
 
@@ -101,17 +103,12 @@ public final class Acceptor {
       }
     }
 
-    final ThreadPool.InterruptibleRunnableFactory runnableFactory =
-      new ThreadPool.InterruptibleRunnableFactory() {
-        public InterruptibleRunnable create() {
-          return new AcceptorRunnable();
-        }
-      };
+    m_executor = ExecutorFactory.createThreadPool("Acceptor", numberOfThreads);
 
-    m_threadPool =
-      new ThreadPool("Acceptor", numberOfThreads, runnableFactory);
-
-    m_threadPool.start();
+    for (int i = 0; i < numberOfThreads; ++i) {
+      m_executor.submit(
+        new InterruptibleRunnableAdapter(new AcceptorRunnable()));
+    }
   }
 
   /**
@@ -140,7 +137,7 @@ public final class Acceptor {
     }
     finally {
       // Interrupt the acceptor thread group.
-      m_threadPool.stop();
+      m_executor.shutdownNow();
 
       // We clone contents of m_socketSets and don't hold m_socketSets whilst
       // closing the ResourcePools to remove opportunity for dead lock with
@@ -335,16 +332,6 @@ public final class Acceptor {
         return newList;
       }
     }
-  }
-
-  /**
-   * Return the thread group used for our threads. Package scope; used
-   * by the unit tests.
-   *
-   * @return The thread group.
-   */
-  ThreadGroup getThreadGroup() {
-    return m_threadPool.getThreadGroup();
   }
 
   private void discriminateConnection(Socket localSocket)

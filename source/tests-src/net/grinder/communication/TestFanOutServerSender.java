@@ -184,8 +184,6 @@ public class TestFanOutServerSender extends TestCase {
     final FanOutServerSender serverSender =
       new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
 
-    assertEquals(1, acceptor.getThreadGroup().activeCount());
-
     final Socket socket =
       new Connector(InetAddress.getByName(null).getHostName(),
         acceptor.getPort(),

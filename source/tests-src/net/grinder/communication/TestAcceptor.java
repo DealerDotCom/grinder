@@ -184,27 +184,6 @@ public class TestAcceptor {
     return new Acceptor("", port, numberOfThreads);
   }
 
-  @Test public void testGetThreadGroup() throws Exception {
-
-    final Acceptor acceptor1 = createAcceptor(2);
-    final Acceptor acceptor2 = createAcceptor(1);
-
-    final ThreadGroup threadGroup = acceptor1.getThreadGroup();
-
-    assertTrue(!threadGroup.equals(acceptor2.getThreadGroup()));
-
-    assertEquals(2, acceptor1.getThreadGroup().activeCount());
-
-    acceptor1.shutdown();
-    acceptor2.shutdown();
-
-    assertEquals(threadGroup, acceptor1.getThreadGroup());
-
-    while (!threadGroup.isDestroyed()) {
-      Thread.sleep(10);
-    }
-  }
-
   @Test public void testShutdown() throws Exception {
 
     final Acceptor acceptor = createAcceptor(3);
@@ -219,7 +198,7 @@ public class TestAcceptor {
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
+    for (int i = 0; socketSet.countActive() != 1 && i < 10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
@@ -232,12 +211,6 @@ public class TestAcceptor {
       fail("Expected Acceptor.ShutdownException");
     }
     catch (Acceptor.ShutdownException e) {
-    }
-
-    final ThreadGroup threadGroup = acceptor.getThreadGroup();
-
-    while (!threadGroup.isDestroyed()) {
-      Thread.sleep(10);
     }
 
     assertTrue(socketSet.reserveNext().isSentinel());

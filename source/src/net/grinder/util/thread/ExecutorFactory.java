@@ -56,7 +56,6 @@ public class ExecutorFactory {
   /**
    * Create a fixed size thread pool.
    *
-   *
    * @param name
    *          Pool name.
    * @param numberOfThreads
@@ -67,5 +66,16 @@ public class ExecutorFactory {
                                                  int numberOfThreads) {
     return Executors.newFixedThreadPool(numberOfThreads,
                                         new NamedThreadFactory(name));
+  }
+
+  /**
+   * Create a cached thread pool.
+   *
+   * @param name
+   *          Pool name.
+   * @return The thread pool.
+   */
+  public static ExecutorService createCachedThreadPool(String name) {
+    return Executors.newCachedThreadPool(new NamedThreadFactory(name));
   }
 }

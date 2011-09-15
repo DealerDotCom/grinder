@@ -24,14 +24,13 @@ package net.grinder.communication;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.ResourcePool.Reservation;
+import net.grinder.util.thread.ExecutorFactory;
 import net.grinder.util.thread.InterruptibleRunnable;
-import net.grinder.util.thread.ThreadPool;
+import net.grinder.util.thread.InterruptibleRunnableAdapter;
 
 
 /**
@@ -43,7 +42,8 @@ import net.grinder.util.thread.ThreadPool;
 public final class ServerReceiver implements Receiver {
 
   private final MessageQueue m_messageQueue = new MessageQueue(true);
-  private final List<ThreadPool> m_threadPools = new ArrayList<ThreadPool>();
+  private final ExecutorService m_executor =
+    ExecutorFactory.createCachedThreadPool("ServerReceiver");
 
   /**
    * Registers a new {@link Acceptor} from which the <code>ServerReceiver</code>
@@ -93,28 +93,17 @@ public final class ServerReceiver implements Receiver {
       acceptedSocketSets[i] = acceptor.getSocketSet(connectionTypes[i]);
     }
 
-    final ThreadPool.InterruptibleRunnableFactory runnableFactory =
-      new ThreadPool.InterruptibleRunnableFactory() {
-        public InterruptibleRunnable create() {
-          return new ServerReceiverRunnable(
-            new CombinedResourcePool(acceptedSocketSets),
-            idleThreadPollDelay);
-        }
-      };
-
-    final ThreadPool threadPool =
-      new ThreadPool("ServerReceiver (" + acceptor.getPort() + ", " +
-                     Arrays.asList(connectionTypes) + ")",
-                     numberOfThreads,
-                     runnableFactory);
-
     synchronized (this) {
       m_messageQueue.checkIfShutdown();
 
-      m_threadPools.add(threadPool);
+      for (int i = 0; i < numberOfThreads; ++i) {
+        m_executor.submit(
+          new InterruptibleRunnableAdapter(
+            new ServerReceiverRunnable(
+              new CombinedResourcePool(acceptedSocketSets),
+              idleThreadPollDelay)));
+      }
     }
-
-    threadPool.start();
   }
 
   /**
@@ -144,24 +133,7 @@ public final class ServerReceiver implements Receiver {
 
     m_messageQueue.shutdown();
 
-    for (ThreadPool threadPool : m_threadPools) {
-      threadPool.stop();
-    }
-  }
-
-  /**
-   * Return the number of active threads. Package scope; used by the unit tests.
-   *
-   * @return The number of active threads.
-   */
-  synchronized int getActveThreadCount() {
-    int result = 0;
-
-    for (ThreadPool threadPool : m_threadPools) {
-      result += threadPool.getThreadGroup().activeCount();
-    }
-
-    return result;
+    m_executor.shutdownNow();
   }
 
   /**
