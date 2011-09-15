@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,7 @@ package net.grinder.engine.process;
 
 
 /**
- * Process life cycle callbacks.
+ * Process life cycle call backs.
  *
  * <p>Package scope</p>
  *
@@ -32,5 +32,17 @@ package net.grinder.engine.process;
  */
 interface ProcessLifeCycleListener {
 
+  /**
+   * Called from the main process thread when a new thread is created.
+   *
+   * @param threadContext The thread context.
+   */
   void threadCreated(ThreadContext threadContext);
+
+  /**
+   * Called from the worker thread when it is started.
+   *
+   * @param threadContext The thread context.
+   */
+  void threadStarted(ThreadContext threadContext);
 }

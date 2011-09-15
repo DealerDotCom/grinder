@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -91,7 +91,7 @@ public class TestRegisteredPlugin extends TestCase {
     final RandomStubFactory<TimeAuthority> timeAuthorityStubFactory =
       RandomStubFactory.create(TimeAuthority.class);
 
-    final ThreadContextLocator threadContextLocator =
+    final StubThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
     final RegisteredPlugin registeredPlugin =

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -79,7 +79,7 @@ public class TestExternalFilenameFactory extends TestCase {
     final ThreadContext threadContext1 =
       threadContextFactory1.getStub();
 
-    final ThreadContextLocator threadContextLocator =
+    final StubThreadContextLocator threadContextLocator =
        new StubThreadContextLocator();
 
     final ExternalFilenameFactory externalFilenameFactory =
@@ -125,7 +125,7 @@ public class TestExternalFilenameFactory extends TestCase {
     final RandomStubFactory<FilenameFactory> processFilenameFactoryStubFactory =
       RandomStubFactory.create(FilenameFactory.class);
 
-    final ThreadContextLocator threadContextLocator =
+    final StubThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
     final ExternalFilenameFactory externalFilenameFactory =
@@ -150,11 +150,11 @@ public class TestExternalFilenameFactory extends TestCase {
 
   private static class TestThread extends Thread {
     private final ExternalFilenameFactory m_externalFilenameFactory;
-    private final ThreadContextLocator m_threadContextLocator;
+    private final StubThreadContextLocator m_threadContextLocator;
     private volatile boolean m_ok = false;
 
     public TestThread(ExternalFilenameFactory externalFilenameFactory,
-                      ThreadContextLocator threadContextLocator) {
+                      StubThreadContextLocator threadContextLocator) {
 
       m_externalFilenameFactory = externalFilenameFactory;
       m_threadContextLocator = threadContextLocator;

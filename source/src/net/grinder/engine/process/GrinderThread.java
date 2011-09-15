@@ -28,6 +28,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.ScriptEngine.ScriptExecutionException;
 import net.grinder.engine.process.ScriptEngine.WorkerRunnable;
+import net.grinder.statistics.StatisticsServices;
 import net.grinder.util.Sleeper;
 
 
@@ -41,7 +42,9 @@ import net.grinder.util.Sleeper;
 class GrinderThread implements java.lang.Runnable {
 
   private final WorkerThreadSynchronisation m_threadSynchronisation;
-  private final ProcessContext m_processContext;
+  private final ProcessLifeCycleListener m_processLifeCycle;
+  private final GrinderProperties m_properties;
+  private final Sleeper m_sleeper;
   private final ScriptEngine m_scriptEngine;
   private final ThreadContext m_context;
   private final WorkerRunnable m_workerRunnable;
@@ -50,28 +53,34 @@ class GrinderThread implements java.lang.Runnable {
    * The constructor.
    */
   public GrinderThread(WorkerThreadSynchronisation threadSynchronisation,
-                       ProcessContext processContext,
+                       ProcessLifeCycleListener processLifeCycle,
+                       GrinderProperties properties,
+                       Sleeper sleeper,
                        LoggerImplementation loggerImplementation,
+                       StatisticsServices statisticsServices,
                        ScriptEngine scriptEngine,
                        int threadID,
                        WorkerRunnable workerRunnable)
     throws EngineException {
 
     m_threadSynchronisation = threadSynchronisation;
-    m_processContext = processContext;
+    m_processLifeCycle = processLifeCycle;
+    m_properties = properties;
+    m_sleeper = sleeper;
     m_scriptEngine = scriptEngine;
     m_workerRunnable = workerRunnable;
 
     m_context =
       new ThreadContextImplementation(
-        processContext,
+        properties,
+        statisticsServices,
         loggerImplementation.createThreadLogger(threadID),
         loggerImplementation.getFilenameFactory().
         createSubContextFilenameFactory(Integer.toString(threadID)),
         loggerImplementation.getDataWriter());
 
     // Dispatch the process context callback in the main thread.
-    m_processContext.fireThreadCreatedEvent(m_context);
+    m_processLifeCycle.threadCreated(m_context);
 
     threadSynchronisation.threadCreated();
   }
@@ -80,7 +89,7 @@ class GrinderThread implements java.lang.Runnable {
    * The thread's main loop.
    */
   public void run() {
-    m_processContext.getThreadContextLocator().set(m_context);
+    m_processLifeCycle.threadStarted(m_context);
 
     final ThreadLogger logger = m_context.getThreadLogger();
     final PrintWriter errorWriter = logger.getErrorLogWriter();
@@ -101,8 +110,7 @@ class GrinderThread implements java.lang.Runnable {
         scriptThreadRunnable = m_workerRunnable;
       }
 
-      final GrinderProperties properties = m_processContext.getProperties();
-      final int numberOfRuns = properties.getInt("grinder.runs", 1);
+      final int numberOfRuns = m_properties.getInt("grinder.runs", 1);
 
       if (numberOfRuns == 0) {
         logger.output("starting, will run forever");
@@ -114,8 +122,7 @@ class GrinderThread implements java.lang.Runnable {
 
       m_threadSynchronisation.awaitStart();
 
-      m_processContext.getSleeper().sleepFlat(
-        properties.getLong("grinder.initialSleepTime", 0));
+      m_sleeper.sleepFlat(m_properties.getLong("grinder.initialSleepTime", 0));
 
       int currentRun;
 

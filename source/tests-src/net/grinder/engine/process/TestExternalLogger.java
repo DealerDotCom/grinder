@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -87,7 +87,7 @@ public class TestExternalLogger extends TestCase {
     final ThreadContext threadContext1 =
       threadContextFactory1.getStub();
 
-    final ThreadContextLocator threadContextLocator =
+    final StubThreadContextLocator threadContextLocator =
        new StubThreadContextLocator();
 
     final ExternalLogger externalLogger =
@@ -130,7 +130,7 @@ public class TestExternalLogger extends TestCase {
     final LoggerStubFactory processLoggerFactory = new LoggerStubFactory();
     final Logger processLogger = processLoggerFactory.getLogger();
 
-    final ThreadContextLocator threadContextLocator =
+    final StubThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
     final ExternalLogger externalLogger =
@@ -153,11 +153,11 @@ public class TestExternalLogger extends TestCase {
 
   private static class TestThread extends Thread {
     private final ExternalLogger m_externalLogger;
-    private final ThreadContextLocator m_threadContextLocator;
+    private final StubThreadContextLocator m_threadContextLocator;
     private volatile boolean m_ok = false;
 
     public TestThread(ExternalLogger externalLogger,
-                      ThreadContextLocator threadContextLocator) {
+                      StubThreadContextLocator threadContextLocator) {
 
       m_externalLogger = externalLogger;
       m_threadContextLocator = threadContextLocator;

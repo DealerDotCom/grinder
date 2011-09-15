@@ -166,7 +166,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
 
   public void testRegisterStatisticsViews() throws Exception {
 
-    final ThreadContextLocator threadContextLocator =
+    final StubThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
     threadContextLocator.set(m_threadContext);
 

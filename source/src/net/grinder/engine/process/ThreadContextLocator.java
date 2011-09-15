@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,13 +38,4 @@ interface ThreadContextLocator {
    * no appropriate context could be found.
    */
   ThreadContext get();
-
-  /**
-   * Set the <code>ThreadContext</code> for the current thread.
-   *
-   * @param threadContext The <code>ThreadContext</code>, or
-   * <code>null</code> if there is no appropriate context for this
-   * thread.
-   */
-  void set(ThreadContext threadContext);
 }

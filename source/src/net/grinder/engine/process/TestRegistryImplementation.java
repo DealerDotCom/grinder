@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,7 +39,7 @@ import net.grinder.util.TimeAuthority;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class TestRegistryImplementation implements TestRegistry {
+final class TestRegistryImplementation implements TestRegistry {
 
   private final ThreadContextLocator m_threadContextLocator;
   private final StatisticsSetFactory m_statisticsSetFactory;
@@ -60,8 +60,7 @@ public final class TestRegistryImplementation implements TestRegistry {
 
   /**
    * Tests received since {@link #getNewTests} was last called.
-   * Synchronise on this <code>TestRegistryImplementation</code> before
-   * accessing.
+   * Guarded by this.
    */
   private Collection<Test> m_newTests = null;
 
@@ -71,9 +70,9 @@ public final class TestRegistryImplementation implements TestRegistry {
    * Constructor.
    */
   TestRegistryImplementation(ThreadContextLocator threadContextLocator,
-               StatisticsSetFactory statisticsSetFactory,
-               TestStatisticsHelper testStatisticsHelper,
-               TimeAuthority timeAuthority) {
+                             StatisticsSetFactory statisticsSetFactory,
+                             TestStatisticsHelper testStatisticsHelper,
+                             TimeAuthority timeAuthority) {
     m_threadContextLocator = threadContextLocator;
     m_statisticsSetFactory = statisticsSetFactory;
     m_testStatisticsHelper = testStatisticsHelper;
@@ -139,12 +138,14 @@ public final class TestRegistryImplementation implements TestRegistry {
    * Return any tests registered since the last time
    * <code>getNewTests</code> was called.
    */
-  synchronized Collection<Test> getNewTests() {
-    try {
-      return m_newTests;
-    }
-    finally {
-      m_newTests = null;
+  Collection<Test> getNewTests() {
+    synchronized (this) {
+      try {
+        return m_newTests;
+      }
+      finally {
+        m_newTests = null;
+      }
     }
   }
 }

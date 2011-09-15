@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -73,7 +73,7 @@ public class TestScriptContextImplementation extends TestCase {
       RandomStubFactory.create(ThreadStarter.class);
     final int threadNumber = 99;
     final int runNumber = 3;
-    final ThreadContextLocator threadContextLocator =
+    final StubThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
     threadContextLocator.set(m_threadContext);
 
@@ -180,7 +180,7 @@ public class TestScriptContextImplementation extends TestCase {
   }
 
   public void testStopThisWorkerThread() throws Exception {
-    final ThreadContextLocator threadContextLocator =
+    final StubThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
     final ScriptContextImplementation scriptContext =

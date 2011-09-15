@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2009 Philip Aston
+// Copyright (C) 2002 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -126,5 +126,8 @@ final class PluginRegistryImplementation
           }
         }
       });
+  }
+
+  public void threadStarted(ThreadContext threadContext) {
   }
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.grinder.common.FilenameFactory;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.common.Test;
@@ -35,6 +36,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics.StatisticsForTest;
+import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.ListenerSupport.Informer;
@@ -71,7 +73,8 @@ final class ThreadContextImplementation
   private volatile boolean m_shutdown;
   private boolean m_shutdownReported;
 
-  public ThreadContextImplementation(ProcessContext processContext,
+  public ThreadContextImplementation(GrinderProperties properties,
+                                     StatisticsServices statisticsServices,
                                      ThreadLogger threadLogger,
                                      FilenameFactory filenameFactory,
                                      PrintWriter dataWriter)
@@ -82,12 +85,11 @@ final class ThreadContextImplementation
 
     // Undocumented property. Added so Tom Barnes can investigate overhead
     // of data logging.
-    if (processContext.getProperties().getBoolean("grinder.logData", true)) {
+    if (properties.getBoolean("grinder.logData", true)) {
       final ThreadDataWriter threadDataWriter =
         new ThreadDataWriter(
           dataWriter,
-          processContext.getStatisticsServices()
-          .getDetailStatisticsView().getExpressionViews(),
+          statisticsServices.getDetailStatisticsView().getExpressionViews(),
           m_threadLogger.getThreadNumber());
 
       m_dispatchResultReporter = new DispatchResultReporter() {
