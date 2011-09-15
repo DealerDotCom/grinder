@@ -1,7 +1,7 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package extra166y;
@@ -53,10 +53,10 @@ import sun.misc.Unsafe;
  *     (STRONG,
  *      new Equivalence<Person>() {
  *          public boolean equal(Person k, Object x) {
- *            return x instanceOf Person && k.name.equals(((Person)x).name);
+ *            return x instanceof Person && k.name.equals(((Person)x).name);
  *          }
  *          public int hash(Object x) {
- *             return (x instanceOf Person)? ((Person)x).name.hashCode() : 0;
+ *             return (x instanceof Person) ? ((Person)x).name.hashCode() : 0;
  *          }
  *        },
  *      STRONG, EQUALS, 0);
@@ -236,7 +236,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
          * simple. The most common usage is to construct a new object
          * serving as an initial mapped value.
          *
-         * @param key the (nonnull) key
+         * @param key the (non-null) key
          * @return a value, or null if none
          */
         V map(K key);
@@ -533,9 +533,12 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
             int sc = (int)((1L + (4L * es) / 3) >>> SEGMENT_BITS);
             if (sc < MIN_SEGMENT_CAPACITY)
                 sc = MIN_SEGMENT_CAPACITY;
-            else if (sc > MAX_SEGMENT_CAPACITY)
-                sc = MAX_SEGMENT_CAPACITY;
-            this.initialSegmentCapacity = sc;
+            int capacity = MIN_SEGMENT_CAPACITY; // ensure power of two
+            while (capacity < sc)
+                capacity <<= 1;
+            if (capacity > MAX_SEGMENT_CAPACITY)
+                capacity = MAX_SEGMENT_CAPACITY;
+            this.initialSegmentCapacity = capacity;
         }
         this.segments = (Segment[])new Segment[NSEGMENTS];
     }
@@ -639,7 +642,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         int index = (hash >>> SEGMENT_SHIFT) & SEGMENT_MASK;
         Segment seg = segs[index];
         if (seg == null) {
-            synchronized(segs) {
+            synchronized (segs) {
                 seg = segs[index];
                 if (seg == null) {
                     seg = new Segment();
@@ -956,15 +959,15 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
                     while (p != null) {
                         Node n = p.getLinkage();
                         if (p.get() != null && p.getValue() != null) {
+                            pred = p;
+                            p = n;
+                        }
+                        else {
                             if (pred == null)
                                 tab[i] = n;
                             else
                                 pred.setLinkage(n);
                             seg.decrementCount();
-                            p = n;
-                        }
-                        else {
-                            pred = p;
                             p = n;
                         }
                     }
@@ -1007,7 +1010,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
             if (seg != null && seg.getTableForTraversal() != null)
                 sum += seg.count;
         }
-        return sum >= Integer.MAX_VALUE? Integer.MAX_VALUE : (int)sum;
+        return (sum >= Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) sum;
     }
 
     /**
@@ -1066,7 +1069,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
     /**
      * If the specified key is not already associated with a value,
      * computes its value using the given mappingFunction, and if
-     * nonnull, enters it into the map.  This is equivalent to
+     * non-null, enters it into the map.  This is equivalent to
      *
      * <pre>
      *   if (map.containsKey(key))
@@ -1155,7 +1158,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * <pre>
      * map.compute(word, new RemappingFunction&lt;String,Integer&gt;() {
      *   public Integer remap(String k, Integer v) {
-     *     return v == null? 1 : v + 1;
+     *     return (v == null) ? 1 : v + 1;
      *   }});
      * </pre>
      *
@@ -1411,7 +1414,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
             if (!(o instanceof Map.Entry))
                 return false;
             Map.Entry<?,?> e = (Map.Entry<?,?>)o;
-            return CustomConcurrentHashMap.this.remove(e.getKey(), e.getValue());
+            return CustomConcurrentHashMap.this.remove(e.getKey(),
+                                                       e.getValue());
         }
         public int size() {
             return CustomConcurrentHashMap.this.size();
@@ -1555,7 +1559,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * for each key-value mapping, followed by a null pair.
      * The key-value mappings are emitted in no particular order.
      */
-    private void writeObject(java.io.ObjectOutputStream s) throws IOException  {
+    private void writeObject(java.io.ObjectOutputStream s) throws IOException {
         s.defaultWriteObject();
         for (Map.Entry<K,V> e : entrySet()) {
             s.writeObject(e.getKey());
@@ -1566,11 +1570,11 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
     }
 
     /**
-     * Reconstitute the instance from a stream (i.e., deserialize it).
+     * Reconstitutes the instance from a stream (that is, deserializes it).
      * @param s the stream
      */
     private void readObject(java.io.ObjectInputStream s)
-        throws IOException, ClassNotFoundException  {
+        throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         this.segments = (Segment[])(new Segment[NSEGMENTS]);
         for (;;) {
@@ -1972,7 +1976,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
         public final Object getValue() {
             EmbeddedWeakReference vr = valueRef;
-            return vr == null? null : vr.get();
+            return (vr == null) ? null : vr.get();
         }
         public final void setValue(Object value) {
             if (value == null)
@@ -2040,7 +2044,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
         public final Object getValue() {
             EmbeddedSoftReference vr = valueRef;
-            return vr == null? null : vr.get();
+            return (vr == null) ? null : vr.get();
         }
         public final void setValue(Object value) {
             if (value == null)
@@ -2098,7 +2102,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         final int locator;
         final CustomConcurrentHashMap cchm;
         WeakKeyNode(int locator, Object key, CustomConcurrentHashMap cchm) {
-            super(key);
+            super(key, getReclamationQueue());
             this.locator = locator;
             this.cchm = cchm;
         }
@@ -2111,7 +2115,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
     static abstract class WeakKeySelfValueNode
         extends WeakKeyNode {
-        WeakKeySelfValueNode(int locator, Object key, CustomConcurrentHashMap cchm) {
+        WeakKeySelfValueNode(int locator, Object key,
+                             CustomConcurrentHashMap cchm) {
             super(locator, key, cchm);
         }
         public final Object getValue() { return get(); }
@@ -2120,7 +2125,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
     static final class TerminalWeakKeySelfValueNode
         extends WeakKeySelfValueNode {
-        TerminalWeakKeySelfValueNode(int locator, Object key, CustomConcurrentHashMap cchm) {
+        TerminalWeakKeySelfValueNode(int locator, Object key,
+                                     CustomConcurrentHashMap cchm) {
             super(locator, key, cchm);
         }
         public final Node getLinkage() { return null; }
@@ -2130,7 +2136,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
     static final class LinkedWeakKeySelfValueNode
         extends WeakKeySelfValueNode {
         volatile Node linkage;
-        LinkedWeakKeySelfValueNode(int locator, Object key, CustomConcurrentHashMap cchm,
+        LinkedWeakKeySelfValueNode(int locator, Object key,
+                                   CustomConcurrentHashMap cchm,
                                    Node linkage) {
             super(locator, key, cchm);
             this.linkage = linkage;
@@ -2159,7 +2166,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
     static abstract class WeakKeyStrongValueNode
         extends WeakKeyNode {
         volatile Object value;
-        WeakKeyStrongValueNode(int locator, Object key, Object value, CustomConcurrentHashMap cchm) {
+        WeakKeyStrongValueNode(int locator, Object key, Object value,
+                               CustomConcurrentHashMap cchm) {
             super(locator, key, cchm);
             this.value = value;
         }
@@ -2170,7 +2178,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
     static final class TerminalWeakKeyStrongValueNode
         extends WeakKeyStrongValueNode {
         TerminalWeakKeyStrongValueNode(int locator,
-                                       Object key, Object value, CustomConcurrentHashMap cchm) {
+                                       Object key, Object value,
+                                       CustomConcurrentHashMap cchm) {
             super(locator, key, value, cchm);
         }
         public final Node getLinkage() { return null; }
@@ -2181,7 +2190,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         extends WeakKeyStrongValueNode {
         volatile Node linkage;
         LinkedWeakKeyStrongValueNode(int locator,
-                                     Object key, Object value, CustomConcurrentHashMap cchm,
+                                     Object key, Object value,
+                                     CustomConcurrentHashMap cchm,
                                      Node linkage) {
             super(locator, key, value, cchm);
             this.linkage = linkage;
@@ -2272,7 +2282,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
         public final Object getValue() {
             EmbeddedWeakReference vr = valueRef;
-            return vr == null? null : vr.get();
+            return (vr == null) ? null : vr.get();
         }
         public final void setValue(Object value) {
             if (value == null)
@@ -2335,7 +2345,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
         public final Object getValue() {
             EmbeddedSoftReference vr = valueRef;
-            return vr == null? null : vr.get();
+            return (vr == null) ? null : vr.get();
         }
         public final void setValue(Object value) {
             if (value == null)
@@ -2393,7 +2403,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         final int locator;
         final CustomConcurrentHashMap cchm;
         SoftKeyNode(int locator, Object key, CustomConcurrentHashMap cchm) {
-            super(key);
+            super(key, getReclamationQueue());
             this.locator = locator;
             this.cchm = cchm;
         }
@@ -2406,7 +2416,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
     static abstract class SoftKeySelfValueNode
         extends SoftKeyNode {
-        SoftKeySelfValueNode(int locator, Object key, CustomConcurrentHashMap cchm) {
+        SoftKeySelfValueNode(int locator, Object key,
+                             CustomConcurrentHashMap cchm) {
             super(locator, key, cchm);
         }
         public final Object getValue() { return get(); }
@@ -2415,7 +2426,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
     static final class TerminalSoftKeySelfValueNode
         extends SoftKeySelfValueNode {
-        TerminalSoftKeySelfValueNode(int locator, Object key, CustomConcurrentHashMap cchm) {
+        TerminalSoftKeySelfValueNode(int locator, Object key,
+                                     CustomConcurrentHashMap cchm) {
             super(locator, key, cchm);
         }
         public final Node getLinkage() { return null; }
@@ -2425,7 +2437,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
     static final class LinkedSoftKeySelfValueNode
         extends SoftKeySelfValueNode {
         volatile Node linkage;
-        LinkedSoftKeySelfValueNode(int locator, Object key, CustomConcurrentHashMap cchm,
+        LinkedSoftKeySelfValueNode(int locator, Object key,
+                                   CustomConcurrentHashMap cchm,
                                    Node linkage) {
             super(locator, key, cchm);
             this.linkage = linkage;
@@ -2454,7 +2467,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
     static abstract class SoftKeyStrongValueNode
         extends SoftKeyNode {
         volatile Object value;
-        SoftKeyStrongValueNode(int locator, Object key, Object value, CustomConcurrentHashMap cchm) {
+        SoftKeyStrongValueNode(int locator, Object key, Object value,
+                               CustomConcurrentHashMap cchm) {
             super(locator, key, cchm);
             this.value = value;
         }
@@ -2465,7 +2479,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
     static final class TerminalSoftKeyStrongValueNode
         extends SoftKeyStrongValueNode {
         TerminalSoftKeyStrongValueNode(int locator,
-                                       Object key, Object value, CustomConcurrentHashMap cchm) {
+                                       Object key, Object value,
+                                       CustomConcurrentHashMap cchm) {
             super(locator, key, value, cchm);
         }
         public final Node getLinkage() { return null; }
@@ -2476,7 +2491,8 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         extends SoftKeyStrongValueNode {
         volatile Node linkage;
         LinkedSoftKeyStrongValueNode(int locator,
-                                     Object key, Object value, CustomConcurrentHashMap cchm,
+                                     Object key, Object value,
+                                     CustomConcurrentHashMap cchm,
                                      Node linkage) {
             super(locator, key, value, cchm);
             this.linkage = linkage;
@@ -2567,7 +2583,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
         public final Object getValue() {
             EmbeddedWeakReference vr = valueRef;
-            return vr == null? null : vr.get();
+            return (vr == null) ? null : vr.get();
         }
         public final void setValue(Object value) {
             if (value == null)
@@ -2630,7 +2646,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
         public final Object getValue() {
             EmbeddedSoftReference vr = valueRef;
-            return vr == null? null : vr.get();
+            return (vr == null) ? null : vr.get();
         }
         public final void setValue(Object value) {
             if (value == null)
@@ -2858,7 +2874,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
         public final Object getValue() {
             EmbeddedWeakReference vr = valueRef;
-            return vr == null? null : vr.get();
+            return (vr == null) ? null : vr.get();
         }
         public final void setValue(Object value) {
             if (value == null)
@@ -2915,7 +2931,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         volatile EmbeddedSoftReference valueRef;
         final CustomConcurrentHashMap cchm;
         IntKeySoftValueNode(int locator, Object key, Object value,
-                               CustomConcurrentHashMap cchm) {
+                            CustomConcurrentHashMap cchm) {
             super(locator, key);
             this.cchm = cchm;
             if (value != null)
@@ -2926,7 +2942,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
         public final Object getValue() {
             EmbeddedSoftReference vr = valueRef;
-            return vr == null? null : vr.get();
+            return (vr == null) ? null : vr.get();
         }
         public final void setValue(Object value) {
             if (value == null)
@@ -2981,7 +2997,7 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
     // Temporary Unsafe mechanics for preliminary release
 
-    static final Unsafe _unsafe;
+    static final Unsafe UNSAFE;
     static final long tableBase;
     static final int tableShift;
     static final long segmentsBase;
@@ -3012,14 +3028,14 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
     static {
         try {
-            _unsafe = getUnsafe();
-            tableBase = _unsafe.arrayBaseOffset(Node[].class);
-            int s = _unsafe.arrayIndexScale(Node[].class);
+            UNSAFE = getUnsafe();
+            tableBase = UNSAFE.arrayBaseOffset(Node[].class);
+            int s = UNSAFE.arrayIndexScale(Node[].class);
             if ((s & (s-1)) != 0)
                 throw new Error("data type scale not a power of two");
             tableShift = 31 - Integer.numberOfLeadingZeros(s);
-            segmentsBase = _unsafe.arrayBaseOffset(Segment[].class);
-            s = _unsafe.arrayIndexScale(Segment[].class);
+            segmentsBase = UNSAFE.arrayBaseOffset(Segment[].class);
+            s = UNSAFE.arrayIndexScale(Segment[].class);
             if ((s & (s-1)) != 0)
                 throw new Error("data type scale not a power of two");
             segmentsShift = 31 - Integer.numberOfLeadingZeros(s);
@@ -3032,13 +3048,13 @@ public class CustomConcurrentHashMap<K, V> extends AbstractMap<K, V>
     static final  void storeNode(Node[] table,
                                  int i, Node r) {
         long nodeOffset = ((long) i << tableShift) + tableBase;
-        _unsafe.putOrderedObject(table, nodeOffset, r);
+        UNSAFE.putOrderedObject(table, nodeOffset, r);
     }
 
     static final  void storeSegment(Segment[] segs,
                                     int i, Segment s) {
         long segmentOffset = ((long) i << segmentsShift) + segmentsBase;
-        _unsafe.putOrderedObject(segs, segmentOffset, s);
+        UNSAFE.putOrderedObject(segs, segmentOffset, s);
     }
 
 

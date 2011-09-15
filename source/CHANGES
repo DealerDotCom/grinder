@@ -4,6 +4,9 @@ The Grinder 3.6 (Not yet released)
    Fulfil feature request 1849150 - Synchronisation points.
    Thanks to Aditya for the request.
 
+   Fix bug 3406177 - DCR instrumented objects are not garbage
+   collected. Thanks to Gary Mulder for the report and diagnostics.
+
 
 The Grinder 3.5
 ---------------
