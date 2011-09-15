@@ -709,7 +709,7 @@ finally {
     </answer>
    </faq>
 
-   <faq id="multicast">
+   <faq id="gc-pauses">
     <question>
       How to I avoid pauses due to garbage collection?
     </question>
