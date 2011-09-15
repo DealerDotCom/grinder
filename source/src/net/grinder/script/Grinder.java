@@ -236,32 +236,38 @@ public class Grinder {
     SSLControl getSSLControl();
 
     /**
-     * Create a {@link Barrier} to allow coordination of worker thread actions
-     * across all worker processes.
+     * Create a {@link Barrier} to coordinate worker thread actions across
+     * running worker processes.
      *
      * <p>
-     * If the current worker process is running standalone (not connected to
-     * the console), this method behaves like {@link #createLocalBarrier}.
+     * Example script:
      * </p>
      *
-     * @param groupName
-     *          The barrier group name.
-     * @return The barrier.
-     * @throws GrinderException
-     *           If the barrier could not be created due to a network problem.
-     */
-    Barrier globalBarrier(String groupName) throws GrinderException;
-
-    /**
-     * Create a {@link Barrier} to allow coordination of worker thread actions
-     * within the local worker process.
+     * <pre>
+     * from net.grinder.script.Grinder import grinder
      *
-     * @param groupName
-     *          The barrier group name.
+     * class TestRunner:
+     *   def __init__(self):
+     *     # Each worker thread joins the barrier.
+     *     self.phase1CompleteBarrier = grinder.barrier("Phase 1")
+     *
+     *   def __call__(self):
+     *
+     *     # ... Phase 1 actions.
+     *
+     *     # Wait for all worker threads to reach this point before proceeding.
+     *     self.phase1CompleteBarrier.await()
+     *
+     *     # ... Further actions.
+     * </pre>
+     *
+     * @param name
+     *          The barrier name.
      * @return The barrier.
      * @throws GrinderException
      *           If the barrier could not be created due to a network problem.
+     * @see Barrier
      */
-    Barrier localBarrier(String groupName) throws GrinderException;
+    Barrier barrier(String name) throws GrinderException;
   }
 }

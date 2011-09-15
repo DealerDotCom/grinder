@@ -117,7 +117,6 @@ public class TestScriptContextImplementation {
         m_testRegistry,
         m_threadStarter,
         m_threadStopper,
-        m_barrierGroups,
         m_barrierGroups);
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
@@ -172,7 +171,7 @@ public class TestScriptContextImplementation {
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         null, null, null, null, null, null, sleeper, null, null, null, null,
-        null, null, null);
+        null, null);
 
     assertTrue(
       new Time(50, 70) {
@@ -192,7 +191,7 @@ public class TestScriptContextImplementation {
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         null, null, threadContextLocator, null, null, null, null, null, null,
-        null, null, null, null, null);
+        null, null, null, null);
 
     try {
       scriptContext.stopThisWorkerThread();
@@ -211,26 +210,13 @@ public class TestScriptContextImplementation {
     }
   }
 
-  @Test public void testLocalBarrier() throws Exception {
+  @Test public void testBarrier() throws Exception {
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         null, null, null, null, null, null, null, null, null,
-        null, null, null, m_barrierGroups, null);
+        null, null, null, m_barrierGroups);
 
-    final Barrier globalBarrier = scriptContext.localBarrier("MyBarrierGroup");
-    assertEquals("MyBarrierGroup", globalBarrier.getName());
-
-    verify(m_barrierGroups).getIdentityGenerator();
-    verify(m_identityGenerator).next();
-  }
-
-  @Test public void testGlobalBarrier() throws Exception {
-    final ScriptContextImplementation scriptContext =
-      new ScriptContextImplementation(
-        null, null, null, null, null, null, null, null, null,
-        null, null, null, null, m_barrierGroups);
-
-    final Barrier globalBarrier = scriptContext.globalBarrier("MyBarrierGroup");
+    final Barrier globalBarrier = scriptContext.barrier("MyBarrierGroup");
     assertEquals("MyBarrierGroup", globalBarrier.getName());
 
     verify(m_barrierGroups).getIdentityGenerator();

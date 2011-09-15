@@ -167,8 +167,7 @@ final class GrinderProcess {
 
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
 
-    final BarrierGroups localBarrierGroups = new LocalBarrierGroups();
-    final BarrierGroups globalBarrierGroups;
+    final BarrierGroups barrierGroups;
 
     if (m_initialisationMessage.getReportToConsole()) {
       m_consoleSender =
@@ -177,14 +176,14 @@ final class GrinderProcess {
             new ConnectorFactory(ConnectionType.WORKER).create(properties),
             new WorkerAddress(workerIdentity)));
 
-      globalBarrierGroups =
+      barrierGroups =
         new GlobalBarrierGroups(m_consoleSender,
                                 messageDispatcher,
                                 m_initialisationMessage.getWorkerIdentity());
     }
     else {
       m_consoleSender = new NullQueuedSender();
-      globalBarrierGroups = new LocalBarrierGroups();
+      barrierGroups = new LocalBarrierGroups();
     }
 
     final ThreadStarter delegatingThreadStarter = new ThreadStarter() {
@@ -251,8 +250,7 @@ final class GrinderProcess {
         m_testRegistryImplementation,
         delegatingThreadStarter,
         threadStopper,
-        localBarrierGroups,
-        globalBarrierGroups);
+        barrierGroups);
 
     Grinder.grinder = scriptContext;
 

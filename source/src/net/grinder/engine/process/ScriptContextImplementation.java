@@ -58,8 +58,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
   private final TestRegistry m_testRegistry;
   private final ThreadStarter m_threadStarter;
   private final ThreadStopper m_threadStopper;
-  private final BarrierGroups m_localBarrierGroups;
-  private final BarrierGroups m_globalBarrierGroups;
+  private final BarrierGroups m_barrierGroups;
 
   public ScriptContextImplementation(WorkerIdentity workerIdentity,
                                      WorkerIdentity firstWorkerIdentity,
@@ -73,8 +72,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
                                      TestRegistry testRegistry,
                                      ThreadStarter threadStarter,
                                      ThreadStopper threadStopper,
-                                     BarrierGroups localBarrierGroups,
-                                     BarrierGroups globalBarrierGroups) {
+                                     BarrierGroups barrierGroups) {
     m_workerIdentity = workerIdentity;
     m_firstWorkerIdentity = firstWorkerIdentity;
     m_threadContextLocator = threadContextLocator;
@@ -87,8 +85,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
     m_testRegistry = testRegistry;
     m_threadStarter = threadStarter;
     m_threadStopper = threadStopper;
-    m_localBarrierGroups = localBarrierGroups;
-    m_globalBarrierGroups = globalBarrierGroups;
+    m_barrierGroups = barrierGroups;
   }
 
   public int getAgentNumber() {
@@ -182,15 +179,8 @@ final class ScriptContextImplementation implements InternalScriptContext {
     return m_testRegistry;
   }
 
-  public Barrier localBarrier(String groupName) throws CommunicationException {
-    return new BarrierImplementation(
-      m_localBarrierGroups.getGroup(groupName),
-      m_localBarrierGroups.getIdentityGenerator());
-  }
-
-  public Barrier globalBarrier(String groupName) throws CommunicationException {
-    return new BarrierImplementation(
-      m_globalBarrierGroups.getGroup(groupName),
-      m_globalBarrierGroups.getIdentityGenerator());
+  public Barrier barrier(String name) throws CommunicationException {
+    return new BarrierImplementation(m_barrierGroups.getGroup(name),
+                                     m_barrierGroups.getIdentityGenerator());
   }
 }

@@ -31,20 +31,19 @@ import net.grinder.common.GrinderException;
  *
  * <p>
  * A {@code Barrier} is created with a particular barrier name. A thread calls
- * {@link #await} to wait for all other threads waiting on a barrier with the
- * same barrier name. For each barrier name, The Grinder tracks the total number
- * of barriers created {@code N}, and the number of barriers waiting {@code W}.
- * Whenever the two are equal, the calls to {@link #await} complete and the
- * threads can continue.
+ * {@link #await} to wait for all other threads that have created a barrier with
+ * the same barrier name to also call {@link #await}. For each barrier name, The
+ * Grinder tracks the total number of barriers created {@code N}, and the number
+ * of barriers waiting {@code W}. Whenever the two numbers are equal, the calls
+ * to {@link #await} complete and the threads can continue.
  * </p>
  *
  * <p>
  * Each cooperating thread should create its own {@code Barrier} instance using
  * an agreed barrier name. Unlike the standard Java library's
- * {@link java.util.concurrent.CyclicBarrier}, at any one time only a single
+ * {@link java.util.concurrent.CyclicBarrier}, only a single at any one time
  * thread may call {@code await} on a {@code Barrier} instance. This class is
- * thread safe, and it may be useful {@link #cancel} a barrier from another
- * thread.
+ * thread safe; it may be useful {@link #cancel} a barrier from another thread.
  * </p>
  *
  * <h3>Design note</h3>
@@ -53,10 +52,9 @@ import net.grinder.common.GrinderException;
  * {@link java.util.concurrent.CyclicBarrier}. This API supports a distributed
  * implementation, where only a central coordinator knows the total number of
  * instances. Communication between different nodes uses distributed events,
- * rather than thread synchronisation primitives, and has resulted in a more
- * loosely coupled approach. The number of parties participating for a given
- * barrier name can change dynamically. There is no concept of a broken
- * barrier.
+ * rather than thread synchronisation primitives, and results in a more loosely
+ * coupled approach. The number of parties participating for a given barrier
+ * name can change dynamically. There is no concept of a broken barrier.
  * </p>
  *
  * @author Philip Aston
@@ -69,13 +67,15 @@ public interface Barrier {
    * {@link #await}.
    *
    * <p>
-   * If this barrier is not the last with the name to call {@code await}, this
-   * method blocks until one of the following happens:
+   * If this barrier is not the last with the name to call {@code await} and has
+   * not been {@link #cancel cancelled}, this method blocks until one of the
+   * following happens:
    *
    * <ul>
    * <li>{@code await} is called for the last barrier.</li>
    * <li>All non-waiting barriers with the same name are {@link #cancel
    * cancelled}.</li>
+   * <li>This barrier is {@link #cancel cancelled}.</li>
    * <li>Some other thread {@link java.lang.Thread#interrupt() interrupts} the
    * current thread.</li>
    * </ul>
@@ -88,9 +88,7 @@ public interface Barrier {
    * </p>
    *
    * @throws CancelledBarrierException
-   *           If this instance has been {@link #cancel() cancelled}.
-   * @throws CancelledBarrierException
-   *           If this instance is{@link #cancel() cancelled} while waiting
+   *           If this barrier has been {@link #cancel() cancelled}.
    * @throws IllegalStateException
    *           If some other thread has called {@code await} on this barrier
    *           instance.
@@ -118,9 +116,7 @@ public interface Barrier {
    * @return {@code false} if and only if the waiting time detectably elapsed
    *         before return from the method.
    * @throws CancelledBarrierException
-   *           If this instance has been {@link #cancel() cancelled}.
-   * @throws CancelledBarrierException
-   *           If this instance is{@link #cancel() cancelled} while waiting
+   *           If this barrier has been {@link #cancel() cancelled}.
    * @throws IllegalStateException
    *           If some other thread has called {@code await} on this barrier
    *           instance.
@@ -133,16 +129,14 @@ public interface Barrier {
     throws CancelledBarrierException, GrinderException;
 
   /**
-   * <p>Equivalent to {@code await(timeout, TimeUnit.MILLISECONDS}.</p>
+   * <p>Equivalent to {@code await(timeout, TimeUnit.MILLISECONDS)}.</p>
    *
    * @param timeout
    *          The time to wait for the barrier.
    * @return {@code false} if and only if the waiting time detectably elapsed
    *         before return from the method.
    * @throws CancelledBarrierException
-   *           If this instance has been {@link #cancel() cancelled}.
-   * @throws CancelledBarrierException
-   *           If this instance is{@link #cancel() cancelled} while waiting
+   *           If this barrier has been {@link #cancel() cancelled}.
    * @throws IllegalStateException
    *           If some other thread has called {@code await} on this barrier
    *           instance.
