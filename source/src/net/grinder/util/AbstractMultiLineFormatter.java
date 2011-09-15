@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,11 +37,11 @@ public abstract class AbstractMultiLineFormatter implements MultiLineFormatter {
    * @return Formatted result.
    */
   public String format(String input) {
-    final StringBuffer result = new StringBuffer();
-    StringBuffer buffer = new StringBuffer(input);
+    final StringBuilder result = new StringBuilder();
+    StringBuilder buffer = new StringBuilder(input);
 
     while (buffer.length() > 0) {
-      final StringBuffer remainder = new StringBuffer();
+      final StringBuilder remainder = new StringBuilder();
       transform(buffer, remainder);
 
       if (result.length() > 0) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,7 +38,7 @@ public class NullMultiLineFormatter extends AbstractMultiLineFormatter {
    * @param buffer Buffer to transform to a single line.
    * @param remainder Leftovers.
    */
-  public void transform(StringBuffer buffer, StringBuffer remainder) {
+  public void transform(StringBuilder buffer, StringBuilder remainder) {
     // Nothing to do.
   }
 }

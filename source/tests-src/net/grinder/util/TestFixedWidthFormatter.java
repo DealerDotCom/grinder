@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,24 +21,21 @@
 
 package net.grinder.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import org.junit.Test;
 
 
 /**
- * Unit test case for <code>FixedWidthFormatter</code>.
- *
- * TO DO - test centre formatting, wrapping and word wrapping.
+ * Unit tests for {@link FixedWidthFormatter}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestFixedWidthFormatter extends TestCase {
+public class TestFixedWidthFormatter {
 
-  public TestFixedWidthFormatter(String name) {
-    super(name);
-  }
-
-  public void testTruncate() throws Exception {
+  @Test public void testTruncate() throws Exception {
     final String text = "They walked in a line, they wallked in a line";
     final String text2 = "Be on my side and I'll be on your side";
 
@@ -49,9 +46,9 @@ public class TestFixedWidthFormatter extends TestCase {
                                 width);
 
       for (int i=0; i<text.length(); ++i) {
-        final StringBuffer buffer =
-          new StringBuffer(text.substring(0, i));
-        final StringBuffer remainder = new StringBuffer(text2);
+        final StringBuilder buffer =
+          new StringBuilder(text.substring(0, i));
+        final StringBuilder remainder = new StringBuilder(text2);
 
         leftFormatter.transform(buffer, remainder);
 
@@ -80,9 +77,9 @@ public class TestFixedWidthFormatter extends TestCase {
                                 width);
 
       for (int i=1; i<text.length(); ++i) {
-        final StringBuffer buffer =
-          new StringBuffer(text.substring(0, i));
-        final StringBuffer remainder = new StringBuffer(text2);
+        final StringBuilder buffer =
+          new StringBuilder(text.substring(0, i));
+        final StringBuilder remainder = new StringBuilder(text2);
 
         rightFormatter.transform(buffer, remainder);
 
@@ -108,7 +105,7 @@ public class TestFixedWidthFormatter extends TestCase {
     }
   }
 
-  public void testFlowWrap() throws Exception {
+  @Test public void testFlowWrap() throws Exception {
     final String text1 =
       "Harness your hopes to the folks with the liquor with the ropes. " +
       "Red, red ropes, periscopes; they've got everything will ever need " +
@@ -184,9 +181,9 @@ public class TestFixedWidthFormatter extends TestCase {
     assertEquals(answerText3, answer3);
   }
 
-  public void testFlowWordWrap() throws Exception {
+  @Test public void testFlowWordWrap() throws Exception {
     final String text1 =
-      "Harness your hopes to the folks with the liquor with the ropes.\n" +
+      "Harness your\thopes\tto the folks with the liquor with the ropes.\n" +
       "Red, red ropes, periscopes;\n    they've got everything will ever " +
       "need stored under the chair.";
 
@@ -262,7 +259,7 @@ public class TestFixedWidthFormatter extends TestCase {
     assertEquals(answerText4, answer4);
   }
 
-  public void testFlowOverflow() throws Exception {
+  @Test public void testFlowOverflow() throws Exception {
     final String text1 =
       "Harness your hopes to the folks with the liquor with the ropes.\n" +
       "Red, red ropes, periscopes;\n    they've got everything will ever " +
@@ -280,5 +277,17 @@ public class TestFixedWidthFormatter extends TestCase {
 
     final String answer1 = formatter1.format(text1);
     assertEquals(answerText1, answer1);
+  }
+
+  @Test public void testConstructWithInvalidWidth() throws Exception {
+    try {
+      new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                              FixedWidthFormatter.Flow.OVERFLOW,
+                              0);
+
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
   }
 }

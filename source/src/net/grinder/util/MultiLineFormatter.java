@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,7 +38,7 @@ public interface MultiLineFormatter {
    * @param buffer Buffer to transform to a single line.
    * @param remainder Leftovers.
    */
-  void transform(StringBuffer buffer, StringBuffer remainder);
+  void transform(StringBuilder buffer, StringBuilder remainder);
 
   /**
    * Convenience method.

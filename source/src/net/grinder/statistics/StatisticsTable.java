@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -100,14 +100,14 @@ public class StatisticsTable {
 
     final int numberOfHeaderColumns = expressionViews.length + 1;
 
-    StringBuffer[] cells = new StringBuffer[numberOfHeaderColumns];
-    StringBuffer[] remainders = new StringBuffer[numberOfHeaderColumns];
+    StringBuilder[] cells = new StringBuilder[numberOfHeaderColumns];
+    StringBuilder[] remainders = new StringBuilder[numberOfHeaderColumns];
 
     for (int i = 0; i < numberOfHeaderColumns; i++) {
-      cells[i] = new StringBuffer(
+      cells[i] = new StringBuilder(
         i == 0 ? "" : expressionViews[i - 1].getDisplayName());
 
-      remainders[i] = new StringBuffer();
+      remainders[i] = new StringBuilder();
     }
 
     boolean wrapped;
@@ -129,7 +129,7 @@ public class StatisticsTable {
 
       out.println();
 
-      final StringBuffer[] otherArray = cells;
+      final StringBuilder[] otherArray = cells;
       cells = remainders;
       remainders = otherArray;
     }
@@ -184,15 +184,15 @@ public class StatisticsTable {
 
     out.println();
 
-    final StringBuffer text = new StringBuffer();
-    StringBuffer buffer = new StringBuffer(
+    final StringBuilder text = new StringBuilder();
+    StringBuilder buffer = new StringBuilder(
       "Tests resulting in error only contribute to the Errors column. " +
       "Statistics for individual tests can be found in the data file, " +
       "including (possibly incomplete) statistics for erroneous tests. " +
       "Composite tests are marked with () and not included in the totals.");
 
     while (buffer.length() > 0) {
-      final StringBuffer remainder = new StringBuffer();
+      final StringBuilder remainder = new StringBuilder();
       m_freeTextFormatter.transform(buffer, remainder);
 
       if (text.length() > 0) {
@@ -218,23 +218,23 @@ public class StatisticsTable {
     public String format(String rowLabel,
                          StatisticsSet statistics) {
 
-      final StringBuffer result = new StringBuffer();
+      final StringBuilder result = new StringBuilder();
 
-      final StringBuffer cell = new StringBuffer();
+      final StringBuilder cell = new StringBuilder();
 
       cell.append(startOfLine(statistics));
 
       cell.append(rowLabel);
 
-      final StringBuffer remainder = new StringBuffer();
+      final StringBuilder remainder = new StringBuilder();
 
       m_rowLabelFormatter.transform(cell, remainder);
       result.append(cell.toString());
       result.append(COLUMN_SEPARATOR);
 
       for (int i = 0; i < m_expressionViews.length; ++i) {
-        final StringBuffer statisticsCell =
-          new StringBuffer(formatExpression(m_expressionViews[i], statistics));
+        final StringBuilder statisticsCell =
+          new StringBuilder(formatExpression(m_expressionViews[i], statistics));
 
         if (i == m_expressionViews.length - 1) {
           statisticsCell.append(endOfLine(statistics));
