@@ -23,7 +23,6 @@ package net.grinder.synchronisation;
 
 import java.io.Serializable;
 
-
 /**
  * A barrier group.
  *
@@ -38,7 +37,13 @@ import java.io.Serializable;
  *
  * <p>
  * Whenever {@code N} is positive and becomes equal to {@code W}, {@code W} will
- * be reset to 0 and all the listeners will be notified.
+ * be reset to {@code 0} and all the listeners will be notified.
+ * </p>
+ *
+ * <p>
+ * If {@link #removeBarriers} reduces {@code N} to {@code 0}, the instance will
+ * become invalid. This allows implementations to remove barrier groups that are
+ * no longer in use.
  * </p>
  *
  * <p>
@@ -99,6 +104,10 @@ public interface BarrierGroup {
 
   /**
    * Increase the number of barriers in the group.
+   *
+   * @throws IllegalStateException
+   *           If the barrier group is invalid. A group becomes invalid if
+   *           {@link #removeBarriers} removes all of the barriers.
    */
   void addBarrier();
 
@@ -116,7 +125,7 @@ public interface BarrierGroup {
    *
    * @param barrierIdentity Identifies the barrier.
    * @throws IllegalStateException
-   *           If {@code N == 0}.
+   *           If {@code N == 0}, or the group is invalid.
    */
   void addWaiter(BarrierIdentity barrierIdentity);
 

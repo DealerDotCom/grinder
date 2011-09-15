@@ -68,6 +68,8 @@ import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
+import net.grinder.synchronisation.BarrierGroups;
+import net.grinder.synchronisation.LocalBarrierGroups;
 import net.grinder.util.JVM;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.Sleeper;
@@ -216,6 +218,10 @@ final class GrinderProcess {
       }
     };
 
+    final BarrierGroups localBarrierGroups = new LocalBarrierGroups();
+    // TODO
+    final BarrierGroups globalBarrierGroups = new LocalBarrierGroups();
+
     final InternalScriptContext scriptContext =
       new ScriptContextImplementation(
         m_initialisationMessage.getWorkerIdentity(),
@@ -230,7 +236,9 @@ final class GrinderProcess {
         scriptStatistics,
         m_testRegistryImplementation,
         delegatingThreadStarter,
-        threadStopper);
+        threadStopper,
+        localBarrierGroups,
+        globalBarrierGroups);
 
     Grinder.grinder = scriptContext;
 

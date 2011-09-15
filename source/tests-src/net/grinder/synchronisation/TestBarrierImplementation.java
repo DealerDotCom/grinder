@@ -111,6 +111,19 @@ public class TestBarrierImplementation {
     assertFalse(result);
   }
 
+  @Test public void testAwaitTimeout2() throws Exception {
+    final BarrierImplementation b =
+      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+    reset(m_barrierGroup);
+
+    final boolean result = b.await(1);
+
+    verify(m_barrierGroup).addWaiter(ID2);
+    verifyNoMoreInteractions(m_barrierGroup);
+
+    assertFalse(result);
+  }
+
   @Test public void testAwaitInterrupted() throws Exception {
     final BarrierImplementation b =
       new BarrierImplementation(m_barrierGroup, m_identityGenerator);

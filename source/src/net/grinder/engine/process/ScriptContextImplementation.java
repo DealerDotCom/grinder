@@ -34,7 +34,6 @@ import net.grinder.script.Statistics;
 import net.grinder.script.TestRegistry;
 import net.grinder.synchronisation.BarrierGroups;
 import net.grinder.synchronisation.BarrierImplementation;
-import net.grinder.synchronisation.LocalBarrierGroups;
 import net.grinder.util.Sleeper;
 
 
@@ -58,6 +57,8 @@ final class ScriptContextImplementation implements InternalScriptContext {
   private final TestRegistry m_testRegistry;
   private final ThreadStarter m_threadStarter;
   private final ThreadStopper m_threadStopper;
+  private final BarrierGroups m_localBarrierGroups;
+  private final BarrierGroups m_globalBarrierGroups;
 
   public ScriptContextImplementation(WorkerIdentity workerIdentity,
                                      WorkerIdentity firstWorkerIdentity,
@@ -70,7 +71,9 @@ final class ScriptContextImplementation implements InternalScriptContext {
                                      Statistics scriptStatistics,
                                      TestRegistry testRegistry,
                                      ThreadStarter threadStarter,
-                                     ThreadStopper threadStopper) {
+                                     ThreadStopper threadStopper,
+                                     BarrierGroups localBarrierGroups,
+                                     BarrierGroups globalBarrierGroups) {
     m_workerIdentity = workerIdentity;
     m_firstWorkerIdentity = firstWorkerIdentity;
     m_threadContextLocator = threadContextLocator;
@@ -83,6 +86,8 @@ final class ScriptContextImplementation implements InternalScriptContext {
     m_testRegistry = testRegistry;
     m_threadStarter = threadStarter;
     m_threadStopper = threadStopper;
+    m_localBarrierGroups = localBarrierGroups;
+    m_globalBarrierGroups = globalBarrierGroups;
   }
 
   public int getAgentNumber() {
@@ -176,16 +181,15 @@ final class ScriptContextImplementation implements InternalScriptContext {
     return m_testRegistry;
   }
 
-  public Barrier globalBarrier(String groupName) {
-    throw new AssertionError();
+  public Barrier localBarrier(String groupName) {
+    return new BarrierImplementation(
+      m_localBarrierGroups.getGroup(groupName),
+      m_localBarrierGroups.getIdentityGenerator());
   }
 
-  private BarrierGroups temp =
-    new LocalBarrierGroups();
-
-  public Barrier localBarrier(String groupName) {
-
-    return new BarrierImplementation(temp.getGroup(groupName),
-                                     temp.getIdentityGenerator());
+  public Barrier globalBarrier(String groupName) {
+    return new BarrierImplementation(
+      m_globalBarrierGroups.getGroup(groupName),
+      m_globalBarrierGroups.getIdentityGenerator());
   }
 }

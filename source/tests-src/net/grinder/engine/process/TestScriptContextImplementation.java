@@ -21,75 +21,81 @@
 
 package net.grinder.engine.process;
 
-import junit.framework.TestCase;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.script.Barrier;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
 import net.grinder.script.TestRegistry;
-import net.grinder.testutility.RandomStubFactory;
+import net.grinder.synchronisation.BarrierGroup;
+import net.grinder.synchronisation.BarrierGroups;
 import net.grinder.testutility.Time;
 import net.grinder.util.Sleeper;
 import net.grinder.util.SleeperImplementation;
 import net.grinder.util.StandardTimeAuthority;
+import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**
- * Unit test case for <code>ScriptContextImplementation</code>.
+ * Unit test case for {@code ScriptContextImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestScriptContextImplementation extends TestCase {
+public class TestScriptContextImplementation {
 
-  private final RandomStubFactory<ThreadContext> m_threadContextStubFactory =
-    RandomStubFactory.create(ThreadContext.class);
-  private final ThreadContext m_threadContext =
-    m_threadContextStubFactory.getStub();
+  @Mock private ThreadContext m_threadContext;
+  @Mock private Logger m_logger;
+  @Mock private FilenameFactory m_filenameFactory;
+  @Mock private ThreadStarter m_threadStarter;
+  @Mock private ThreadStopper m_threadStopper;
+  @Mock private Statistics m_statistics;
+  @Mock private SSLControl m_sslControl;
+  @Mock private TestRegistry m_testRegistry;
+  @Mock private BarrierGroups m_barrierGroups;
+  @Mock private BarrierGroup m_barrierGroup;
+  @Mock private BarrierIdentityGenerator m_identityGenerator;
 
-  public TestScriptContextImplementation(String name) {
-    super(name);
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
+
+    when(m_barrierGroup.getName()).thenReturn("MyBarrierGroup");
+    when(m_barrierGroups.getGroup("MyBarrierGroup"))
+      .thenReturn(m_barrierGroup);
+    when(m_barrierGroups.getIdentityGenerator())
+      .thenReturn(m_identityGenerator);
   }
 
-  public void testConstructorAndGetters() throws Exception {
+  @Test public void testConstructorAndGetters() throws Exception {
 
     final GrinderProperties properties = new GrinderProperties();
 
-    final RandomStubFactory<Logger> loggerStubFactory =
-      RandomStubFactory.create(Logger.class);
-    final Logger logger = loggerStubFactory.getStub();
-
-    final RandomStubFactory<FilenameFactory> filenameFactoryStubFactory =
-      RandomStubFactory.create(FilenameFactory.class);
-    final FilenameFactory filenameFactory =
-      filenameFactoryStubFactory.getStub();
-
-    final RandomStubFactory<ThreadStarter> threadStarterStubFactory =
-      RandomStubFactory.create(ThreadStarter.class);
     final int threadNumber = 99;
     final int runNumber = 3;
     final StubThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
     threadContextLocator.set(m_threadContext);
 
-    m_threadContextStubFactory.setResult("getThreadNumber", threadNumber);
-    m_threadContextStubFactory.setResult("getRunNumber", runNumber);
+    when(m_threadContext.getThreadNumber()).thenReturn(threadNumber);
+    when(m_threadContext.getRunNumber()).thenReturn(runNumber);
 
-    final RandomStubFactory<Statistics> statisticsStubFactory =
-      RandomStubFactory.create(Statistics.class);
-    final Statistics statistics = statisticsStubFactory.getStub();
-    m_threadContextStubFactory.setResult("getScriptStatistics", statistics);
-
-    final Sleeper sleeper = new SleeperImplementation(null, logger, 1, 0);
-
-    final RandomStubFactory<SSLControl> sslControlStubFactory =
-      RandomStubFactory.create(SSLControl.class);
-    final SSLControl sslControl = sslControlStubFactory.getStub();
+    final Sleeper sleeper = new SleeperImplementation(null, m_logger, 1, 0);
 
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
@@ -97,19 +103,22 @@ public class TestScriptContextImplementation extends TestCase {
     final WorkerIdentity firstWorkerIdentity =
       agentIdentity.createWorkerIdentity();
 
-    final RandomStubFactory<TestRegistry> testRegistryStubFactory =
-      RandomStubFactory.create(TestRegistry.class);
-    final TestRegistry testRegistry =
-      testRegistryStubFactory.getStub();
-
-    final RandomStubFactory<ThreadStopper> threadStopperStubFactory =
-      RandomStubFactory.create(ThreadStopper.class);
-
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        workerIdentity, firstWorkerIdentity, threadContextLocator, properties,
-        logger, filenameFactory, sleeper, sslControl, statistics, testRegistry,
-        threadStarterStubFactory.getStub(), threadStopperStubFactory.getStub());
+        workerIdentity,
+        firstWorkerIdentity,
+        threadContextLocator,
+        properties,
+        m_logger,
+        m_filenameFactory,
+        sleeper,
+        m_sslControl,
+        m_statistics,
+        m_testRegistry,
+        m_threadStarter,
+        m_threadStopper,
+        m_barrierGroups,
+        m_barrierGroups);
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
     assertEquals(workerIdentity.getNumber(),
@@ -118,17 +127,17 @@ public class TestScriptContextImplementation extends TestCase {
                  scriptContext.getFirstProcessNumber());
     assertEquals(threadNumber, scriptContext.getThreadNumber());
     assertEquals(runNumber, scriptContext.getRunNumber());
-    assertSame(logger, scriptContext.getLogger());
-    assertSame(filenameFactory, scriptContext.getFilenameFactory());
+    assertSame(m_logger, scriptContext.getLogger());
+    assertSame(m_filenameFactory, scriptContext.getFilenameFactory());
     assertSame(properties, scriptContext.getProperties());
-    assertSame(statistics, scriptContext.getStatistics());
-    assertSame(sslControl, scriptContext.getSSLControl());
-    assertSame(testRegistry, scriptContext.getTestRegistry());
+    assertSame(m_statistics, scriptContext.getStatistics());
+    assertSame(m_sslControl, scriptContext.getSSLControl());
+    assertSame(m_testRegistry, scriptContext.getTestRegistry());
 
     threadContextLocator.set(null);
     assertEquals(-1, scriptContext.getThreadNumber());
     assertEquals(-1, scriptContext.getRunNumber());
-    assertEquals(statistics, scriptContext.getStatistics());
+    assertEquals(m_statistics, scriptContext.getStatistics());
 
     assertEquals(0, scriptContext.getProcessNumber());
     assertEquals(-1, scriptContext.getAgentNumber());
@@ -137,36 +146,33 @@ public class TestScriptContextImplementation extends TestCase {
     assertEquals(0, scriptContext.getProcessNumber());
     assertEquals(10, scriptContext.getAgentNumber());
 
-    threadStarterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_threadStarter);
 
     scriptContext.startWorkerThread();
-    threadStarterStubFactory.assertSuccess("startThread", Object.class);
-    threadStarterStubFactory.assertNoMoreCalls();
+    verify(m_threadStarter).startThread(any());
 
     final Object testRunner = new Object();
     scriptContext.startWorkerThread(testRunner);
-    threadStarterStubFactory.assertSuccess("startThread", testRunner);
-    threadStarterStubFactory.assertNoMoreCalls();
+    verify(m_threadStarter).startThread(testRunner);
+    verifyNoMoreInteractions(m_threadStarter);
 
     scriptContext.stopWorkerThread(10);
-    threadStopperStubFactory.assertSuccess("stopThread", new Integer(10));
-    threadStopperStubFactory.assertNoMoreCalls();
+    verify(m_threadStopper).stopThread(10);
+    verifyNoMoreInteractions(m_threadStopper);
   }
 
-  public void testSleep() throws Exception {
+  @Test public void testSleep() throws Exception {
 
-    final RandomStubFactory<Logger> loggerStubFactory =
-      RandomStubFactory.create(Logger.class);
     final Sleeper sleeper =
       new SleeperImplementation(new StandardTimeAuthority(),
-                                loggerStubFactory.getStub(),
+                                m_logger,
                                 1,
                                 0);
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         null, null, null, null, null, null, sleeper, null, null, null, null,
-        null);
+        null, null, null);
 
     assertTrue(
       new Time(50, 70) {
@@ -179,14 +185,14 @@ public class TestScriptContextImplementation extends TestCase {
       }.run());
   }
 
-  public void testStopThisWorkerThread() throws Exception {
+  @Test public void testStopThisWorkerThread() throws Exception {
     final StubThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         null, null, threadContextLocator, null, null, null, null, null, null,
-        null, null, null);
+        null, null, null, null, null);
 
     try {
       scriptContext.stopThisWorkerThread();
@@ -203,5 +209,31 @@ public class TestScriptContextImplementation extends TestCase {
     }
     catch (ShutdownException e) {
     }
+  }
+
+  @Test public void testLocalBarrier() throws Exception {
+    final ScriptContextImplementation scriptContext =
+      new ScriptContextImplementation(
+        null, null, null, null, null, null, null, null, null,
+        null, null, null, m_barrierGroups, null);
+
+    final Barrier globalBarrier = scriptContext.localBarrier("MyBarrierGroup");
+    assertEquals("MyBarrierGroup", globalBarrier.getName());
+
+    verify(m_barrierGroups).getIdentityGenerator();
+    verify(m_identityGenerator).next();
+  }
+
+  @Test public void testGlobalBarrier() throws Exception {
+    final ScriptContextImplementation scriptContext =
+      new ScriptContextImplementation(
+        null, null, null, null, null, null, null, null, null,
+        null, null, null, null, m_barrierGroups);
+
+    final Barrier globalBarrier = scriptContext.globalBarrier("MyBarrierGroup");
+    assertEquals("MyBarrierGroup", globalBarrier.getName());
+
+    verify(m_barrierGroups).getIdentityGenerator();
+    verify(m_identityGenerator).next();
   }
 }
