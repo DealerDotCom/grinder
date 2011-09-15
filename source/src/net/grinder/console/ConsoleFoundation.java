@@ -169,7 +169,6 @@ public final class ConsoleFoundation {
 
     m_container.addComponent(ConsoleBarrierGroups.class);
     m_container.addComponent(WireDistributedBarriers.class);
-    m_container.getComponent(WireDistributedBarriers.class); // TODO
   }
 
   /**
@@ -220,6 +219,7 @@ public final class ConsoleFoundation {
     // Need to request components, or they won't be instantiated.
     m_container.getComponent(WireMessageDispatch.class);
     m_container.getComponent(WireFileDistribution.class);
+    m_container.getComponent(WireDistributedBarriers.class);
 
     while (communication.processOneMessage()) {
       // Process until communication is shut down.
@@ -549,17 +549,16 @@ public final class ConsoleFoundation {
      *
      * @param communication Console communication.
      */
-    public ConsoleBarrierGroups(ConsoleCommunication communication,
-                                Timer timer) {
+    public ConsoleBarrierGroups(ConsoleCommunication communication) {
       m_communication = communication;
 
-      timer.schedule(new TimerTask() {
-
-        @Override
-        public void run() {
-          System.out.printf("%s%n", ConsoleBarrierGroups.this);
-
-        }}, 3000, 3000);
+//      timer.schedule(new TimerTask() {
+//
+//        @Override
+//        public void run() {
+//          System.out.printf("%s%n", ConsoleBarrierGroups.this);
+//
+//        }}, 3000, 3000);
     }
 
     /**

@@ -45,7 +45,6 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
   private final BarrierIdentityGenerator m_identityGenerator;
 
   private final QueuedSender m_sender;
-  private final WorkerIdentity m_workerIdentity;
 
   /**
    * Constructor.
@@ -58,7 +57,6 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
                              MessageDispatchRegistry messageDispatch,
                              WorkerIdentity workerIdentity) {
     m_sender = sender;
-    m_workerIdentity = workerIdentity;
     m_identityGenerator = new IdentityGeneratorImplementation(workerIdentity);
 
     messageDispatch.set(
@@ -110,7 +108,7 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
     @Override public void addBarrier() throws CommunicationException {
       super.addBarrier();
 
-      m_sender.queue(new AddBarrierMessage(m_workerIdentity, getName()));
+      m_sender.queue(new AddBarrierMessage(getName()));
     }
 
     /**
@@ -119,7 +117,7 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
     @Override public void removeBarriers(long n) throws CommunicationException {
       super.removeBarriers(n);
 
-      m_sender.queue(new RemoveBarriersMessage(m_workerIdentity, getName(), n));
+      m_sender.queue(new RemoveBarriersMessage(getName(), n));
     }
 
     /**
@@ -130,9 +128,7 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
 
       super.addWaiter(barrierIdentity);
 
-      m_sender.queue(new AddWaiterMessage(m_workerIdentity,
-                                          getName(),
-                                          barrierIdentity));
+      m_sender.queue(new AddWaiterMessage(getName(), barrierIdentity));
     }
 
     /**
@@ -143,9 +139,7 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
 
       super.cancelWaiter(barrierIdentity);
 
-      m_sender.queue(new CancelWaiterMessage(m_workerIdentity,
-                                             getName(),
-                                             barrierIdentity));
+      m_sender.queue(new CancelWaiterMessage(getName(), barrierIdentity));
     }
   }
 }

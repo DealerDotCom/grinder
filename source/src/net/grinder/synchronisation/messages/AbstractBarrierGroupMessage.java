@@ -22,7 +22,10 @@
 package net.grinder.synchronisation.messages;
 
 import net.grinder.common.processidentity.WorkerIdentity;
-import net.grinder.communication.Message;
+import net.grinder.communication.Address;
+import net.grinder.communication.AddressAwareMessage;
+import net.grinder.communication.CommunicationException;
+import net.grinder.messages.console.WorkerAddress;
 
 
 /**
@@ -31,23 +34,34 @@ import net.grinder.communication.Message;
  * @author Philip Aston
  * @version $Revision:$
  */
-public abstract class AbstractBarrierGroupMessage implements Message {
+public abstract class AbstractBarrierGroupMessage
+  implements AddressAwareMessage {
 
   private static final long serialVersionUID = 1L;
 
-  private final WorkerIdentity m_processIdentity;
   private final String m_name;
+
+  private WorkerIdentity m_processIdentity;
 
   /**
    * Constructor.
    *
-   * @param processIdentity Worker process identity.
    * @param name Barrier name.
    */
-  public AbstractBarrierGroupMessage(WorkerIdentity processIdentity,
-                                     String name) {
-    m_processIdentity = processIdentity;
+  public AbstractBarrierGroupMessage(String name) {
     m_name = name;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void setAddress(Address address) throws CommunicationException {
+    try {
+      m_processIdentity = ((WorkerAddress)address).getIdentity();
+    }
+    catch (ClassCastException e) {
+      throw new CommunicationException("Not a worker process address", e);
+    }
   }
 
   /**

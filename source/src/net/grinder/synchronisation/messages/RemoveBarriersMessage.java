@@ -21,8 +21,6 @@
 
 package net.grinder.synchronisation.messages;
 
-import net.grinder.common.processidentity.WorkerIdentity;
-
 
 /**
  * Barrier group message requesting that a number of barriers be removed.
@@ -39,17 +37,14 @@ public class RemoveBarriersMessage extends AbstractBarrierGroupMessage {
   /**
    * Constructor.
    *
-   * @param processIdentity
-   *          Worker process identity.
    * @param name
    *          Barrier name.
    * @param numberOfBarriers
    *          Number of barriers to remove.
    */
-  public RemoveBarriersMessage(WorkerIdentity processIdentity,
-                               String name,
+  public RemoveBarriersMessage(String name,
                                long numberOfBarriers) {
-    super(processIdentity, name);
+    super(name);
 
     m_numberOfBarriers = numberOfBarriers;
   }

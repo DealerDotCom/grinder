@@ -21,7 +21,6 @@
 
 package net.grinder.synchronisation.messages;
 
-import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 
 
@@ -40,17 +39,14 @@ public class AddWaiterMessage extends AbstractBarrierGroupMessage {
   /**
    * Constructor.
    *
-   * @param processIdentity
-   *          Worker process identity.
    * @param name
    *          Barrier name.
    * @param barrierIdentity
    *          The identity of the waiter.
    */
-  public AddWaiterMessage(WorkerIdentity processIdentity,
-                          String name,
+  public AddWaiterMessage(String name,
                           BarrierIdentity barrierIdentity) {
-    super(processIdentity, name);
+    super(name);
     m_barrierIdentity = barrierIdentity;
   }
 
