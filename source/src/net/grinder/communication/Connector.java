@@ -88,10 +88,10 @@ public final class Connector {
       final Socket socket = new Socket(inetAddress, m_port);
 
       final OutputStream outputStream = socket.getOutputStream();
-      m_connectionType.write(outputStream);
 
       final ObjectOutputStream objectStream =
         new ObjectOutputStream(outputStream);
+      objectStream.writeObject(m_connectionType);
       objectStream.writeObject(address);
       objectStream.flush();
       return socket;
@@ -184,10 +184,12 @@ public final class Connector {
    * @throws CommunicationException If the details could not be read.
    */
   static ConnectDetails read(InputStream in) throws CommunicationException {
-    final ConnectionType type = ConnectionType.read(in);
 
     try {
-      final Address address = (Address) new ObjectInputStream(in).readObject();
+      final ObjectInputStream objectInputStream = new ObjectInputStream(in);
+      final ConnectionType type =
+        (ConnectionType) objectInputStream.readObject();
+      final Address address = (Address) objectInputStream.readObject();
       return new ConnectDetails(type, address);
     }
     catch (IOException e) {

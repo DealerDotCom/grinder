@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,12 +21,18 @@
 
 package net.grinder.console.client;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
-import junit.framework.TestCase;
-
+import net.grinder.communication.ConnectionType;
 import net.grinder.communication.SocketAcceptorThread;
+
+import org.junit.Test;
 
 
 /**
@@ -35,9 +41,9 @@ import net.grinder.communication.SocketAcceptorThread;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestConsoleConnectionFactory extends TestCase {
+public class TestConsoleConnectionFactory {
 
-  public void testConnection() throws Exception {
+  @Test public void testConnection() throws Exception {
     final ConsoleConnectionFactory consoleConnectionFactory =
       new ConsoleConnectionFactory();
 
@@ -54,9 +60,12 @@ public class TestConsoleConnectionFactory extends TestCase {
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
 
-    assertEquals(2, socketInput.read()); // ConnectionType.CONSOLE_CLIENT
+    final ObjectInputStream objectInputStream =
+      new ObjectInputStream(socketInput);
 
-    assertNull(new ObjectInputStream(socketInput).readObject());
+    assertEquals(ConnectionType.CONSOLE_CLIENT, objectInputStream.readObject());
+
+    assertNull(objectInputStream.readObject());
 
     assertEquals(0, socketInput.available());
 

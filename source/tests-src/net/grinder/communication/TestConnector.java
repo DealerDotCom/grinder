@@ -91,7 +91,9 @@ public class TestConnector extends TestCase {
     final PipedOutputStream out = new PipedOutputStream();
     final PipedInputStream in = new PipedInputStream(out);
 
-    out.write(99);
+    for (int x = 0; x < 100; ++x) {
+      out.write(99);
+    }
 
     try {
       Connector.read(in);
@@ -100,9 +102,10 @@ public class TestConnector extends TestCase {
     catch (CommunicationException e) {
     }
 
-    ConnectionType.WORKER.write(out);
-    out.write(99);
-    new ObjectOutputStream(out).writeObject(null);
+    final ObjectOutputStream objectStream = new ObjectOutputStream(out);
+    objectStream.writeObject(ConnectionType.WORKER);
+    objectStream.write(99);
+    objectStream.writeObject(null);
 
     try {
       Connector.read(in);
@@ -115,9 +118,8 @@ public class TestConnector extends TestCase {
       in.read();
     }
 
-    ConnectionType.WORKER.write(out);
-    new ObjectOutputStream(out).writeObject(
-      IsolatedObjectFactory.getIsolatedObject());
+    objectStream.writeObject(ConnectionType.WORKER);
+    objectStream.writeObject(IsolatedObjectFactory.getIsolatedObject());
 
     try {
       Connector.read(in);

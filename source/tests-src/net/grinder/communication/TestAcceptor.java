@@ -252,11 +252,19 @@ public class TestAcceptor {
 
     // Create a couple of problems.
     final Socket socket = new Socket("localhost", acceptor.getPort());
-    socket.getOutputStream().write(123);
+
+    for (int i = 0; i < 10; ++i) {
+      socket.getOutputStream().write(99);
+    }
+
     socket.getOutputStream().flush();
 
     final Socket socket2 = new Socket("localhost", acceptor.getPort());
-    socket2.getOutputStream().write(99);
+
+    for (int i = 0; i < 10; ++i) {
+      socket2.getOutputStream().write(99);
+    }
+
     socket2.getOutputStream().flush();
 
     // Blocking, so we don't need to do fancy synchronisation to
