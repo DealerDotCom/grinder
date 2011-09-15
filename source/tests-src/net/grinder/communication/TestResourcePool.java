@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2009 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,27 +21,32 @@
 
 package net.grinder.communication;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import junit.framework.TestCase;
+import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.ResourcePool.Listener;
-import net.grinder.testutility.RandomStubFactory;
+
+import org.junit.Test;
 
 
 /**
- *  Unit test case for <code>ResourcePool</code>.
+ *  Unit test case for {@code ResourcePool}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestResourcePool extends TestCase {
+public class TestResourcePool {
 
-  public TestResourcePool(String name) {
-    super(name);
-  }
-
-  public void testConstructorAndSentinel() throws Exception {
+  @Test public void testConstructorAndSentinel() throws Exception {
 
     final ResourcePool resourcePool = new ResourcePoolImplementation();
 
@@ -66,18 +71,15 @@ public class TestResourcePool extends TestCase {
     assertNull(reservation3.getResource());
   }
 
-  public void testAddAndReserveNext() throws Exception {
+  @Test public void testAddAndReserveNext() throws Exception {
 
     final ResourcePool resourcePool = new ResourcePoolImplementation();
 
-    final RandomStubFactory<Listener> listener1StubFactory =
-      RandomStubFactory.create(ResourcePool.Listener.class);
+    final Listener listener1 = mock(ResourcePool.Listener.class);
+    final Listener listener2 = mock(ResourcePool.Listener.class);
 
-    final RandomStubFactory<Listener> listener2StubFactory =
-      RandomStubFactory.create(ResourcePool.Listener.class);
-
-    resourcePool.addListener(listener1StubFactory.getStub());
-    resourcePool.addListener(listener2StubFactory.getStub());
+    resourcePool.addListener(listener1);
+    resourcePool.addListener(listener2);
 
     final MyResource resource1 = new MyResource();
     final MyResource resource2 = new MyResource();
@@ -85,12 +87,11 @@ public class TestResourcePool extends TestCase {
     resourcePool.add(resource1);
     resourcePool.add(resource2);
 
-    listener1StubFactory.assertSuccess("resourceAdded", resource1);
-    listener1StubFactory.assertSuccess("resourceAdded", resource2);
-    listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("resourceAdded", resource1);
-    listener2StubFactory.assertSuccess("resourceAdded", resource2);
-    listener2StubFactory.assertNoMoreCalls();
+    verify(listener1).resourceAdded(resource1);
+    verify(listener1).resourceAdded(resource2);
+
+    verify(listener2).resourceAdded(resource1);
+    verify(listener2).resourceAdded(resource2);
 
     final ResourcePool.Reservation reservation1 = resourcePool.reserveNext();
     final ResourcePool.Reservation reservation2 = resourcePool.reserveNext();
@@ -133,10 +134,8 @@ public class TestResourcePool extends TestCase {
     assertTrue(reservation2.isClosed());
     assertSame(sentinel, resourcePool.reserveNext());
 
-    listener1StubFactory.assertSuccess("resourceClosed", resource2);
-    listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("resourceClosed", resource2);
-    listener2StubFactory.assertNoMoreCalls();
+    verify(listener1).resourceClosed(resource2);
+    verify(listener2).resourceClosed(resource2);
 
     assertTrue(!resource1.isClosed());
     assertTrue(resource2.isClosed());
@@ -146,9 +145,11 @@ public class TestResourcePool extends TestCase {
     }
 
     assertEquals(1, resourcePool.countActive());
+
+    verifyNoMoreInteractions(listener1, listener2);
   }
 
-  public void testReserveAll() throws Exception {
+  @Test public void testReserveAll() throws Exception {
 
     final ResourcePool resourcePool = new ResourcePoolImplementation();
     assertEquals(0, resourcePool.reserveAll().size());
@@ -198,7 +199,7 @@ public class TestResourcePool extends TestCase {
       }.getException().getClass());
   }
 
-  public void testReserveAllMultiThreaded() throws Exception {
+  @Test public void testReserveAllMultiThreaded() throws Exception {
     final ResourcePool resourcePool = new ResourcePoolImplementation();
 
     resourcePool.add(new MyResource());
@@ -207,9 +208,17 @@ public class TestResourcePool extends TestCase {
     resourcePool.add(new MyResource());
     resourcePool.add(new MyResource());
 
+    final CyclicBarrier barrier = new CyclicBarrier(20);
+
     class ReserveAll implements Runnable {
       public void run() {
-        for (int i=0; i<100; ++i) {
+        try {
+          barrier.await();
+        }
+        catch (Exception e) {
+        }
+
+        for (int i = 0; i < 50; ++i) {
           final List<? extends ResourcePool.Reservation> list =
             resourcePool.reserveAll();
 
@@ -222,13 +231,13 @@ public class TestResourcePool extends TestCase {
       }
     }
 
-    final Thread[] threads = new Thread[30];
+    final Thread[] threads = new Thread[barrier.getParties()];
 
-    for (int i=0; i<threads.length; ++i) {
+    for (int i = 0; i<threads.length; ++i) {
       threads[i] = new Thread(new ReserveAll());
     }
 
-    for (int i=0; i<threads.length; ++i) {
+    for (int i = 0; i<threads.length; ++i) {
       threads[i].start();
     }
 
@@ -237,26 +246,24 @@ public class TestResourcePool extends TestCase {
     }
   }
 
-  public void testClose() throws Exception {
+  @Test public void testClose() throws Exception {
 
     final ResourcePool resourcePool = new ResourcePoolImplementation();
     assertEquals(0, resourcePool.reserveAll().size());
     assertEquals(0, resourcePool.reserveAll().size());
 
-    final RandomStubFactory<Listener> listenerStubFactory =
-      RandomStubFactory.create(ResourcePool.Listener.class);
+    final Listener listener = mock(ResourcePool.Listener.class);
 
     final MyResource resource1 = new MyResource();
     final MyResource resource2 = new MyResource();
 
-    resourcePool.addListener(listenerStubFactory.getStub());
+    resourcePool.addListener(listener);
 
     resourcePool.add(resource1);
     resourcePool.add(resource2);
 
-    listenerStubFactory.assertSuccess("resourceAdded", resource1);
-    listenerStubFactory.assertSuccess("resourceAdded", resource2);
-    listenerStubFactory.assertNoMoreCalls();
+    verify(listener).resourceAdded(resource1);
+    verify(listener).resourceAdded(resource2);
 
     final List<?> reservations = resourcePool.reserveAll();
     assertEquals(2, reservations.size());
@@ -265,18 +272,19 @@ public class TestResourcePool extends TestCase {
 
     resourcePool.closeCurrentResources();
 
-    listenerStubFactory.assertSuccess("resourceClosed", resource1);
-    listenerStubFactory.assertSuccess("resourceClosed", resource2);
-    listenerStubFactory.assertNoMoreCalls();
+    verify(listener).resourceClosed(resource1);
+    verify(listener).resourceClosed(resource2);
 
     final List<?> reservations2 = resourcePool.reserveAll();
     assertEquals(0, reservations2.size());
 
     assertTrue(resource1.isClosed());
     assertTrue(resource2.isClosed());
+
+    verifyNoMoreInteractions(listener);
   }
 
-  public void testCountActive() throws Exception {
+  @Test public void testCountActive() throws Exception {
 
     final ResourcePool resourcePool = new ResourcePoolImplementation();
     assertEquals(0, resourcePool.countActive());
