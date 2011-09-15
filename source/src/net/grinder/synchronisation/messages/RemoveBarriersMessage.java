@@ -19,32 +19,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
-
-import net.grinder.communication.MessageDispatchRegistry;
-import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
-import net.grinder.synchronisation.BarrierGroups;
-import net.grinder.synchronisation.messages.AddBarrierMessage;
+package net.grinder.synchronisation.messages;
 
 
-public class Fudge {
+/**
+ * Barrier group message requesting that a number of barriers be removed.
+ *
+ * @author Philip Aston
+ * @version $Revision:$
+ */
+public class RemoveBarriersMessage extends AbstractBarrierGroupMessage {
 
-  private final ConsoleCommunication m_communication;
+  private static final long serialVersionUID = 1L;
 
-  public Fudge(BarrierGroups localBarrierGroups,
-               ConsoleCommunication communication) {
-    m_communication = communication;
+  private final int m_numberOfBarriers;
 
-    final MessageDispatchRegistry messageDispatch =
-      communication.getMessageDispatchRegistry();
+  /**
+   * Constructor.
+   *
+   * @param name Barrier name.
+   * @param numberOfBarriers Number of barriers to remove.
+   */
+  public RemoveBarriersMessage(String name, int numberOfBarriers) {
+    super(name);
 
-    messageDispatch.set(AddBarrierMessage.class,
-      new AbstractHandler<AddBarrierMessage>() {
-        public void handle(AddBarrierMessage message) {
-          // TODO Auto-generated method stub
-
-        }
-      });
+    m_numberOfBarriers = numberOfBarriers;
   }
 
+  /**
+   * The number of barriers.
+   *
+   *
+   * @return The number of barriers.
+   */
+  public int getNumberOfBarriers() {
+    return m_numberOfBarriers;
+  }
 }

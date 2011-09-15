@@ -21,10 +21,6 @@
 
 package net.grinder.synchronisation;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
@@ -37,32 +33,10 @@ import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
  * @author Philip Aston
  * @version $Revision:$
  */
-public class LocalBarrierGroups implements BarrierGroups {
-
-  // Guarded by self.
-  private final Map<String, BarrierGroup> m_groups =
-    new HashMap<String, BarrierGroup>();
+public class LocalBarrierGroups extends AbstractBarrierGroups {
 
   private final BarrierIdentityGenerator m_identityGenerator =
     new LocalIdentityGenerator();
-
-  /**
-   * {@inheritDoc}
-   */
-  public BarrierGroup getGroup(String name) {
-    synchronized (m_groups) {
-      final BarrierGroup existing = m_groups.get(name);
-
-      if (existing != null) {
-        return existing;
-      }
-
-      final BarrierGroup newInstance = new BarrierGroupImplementation(name);
-      m_groups.put(name, newInstance);
-
-      return newInstance;
-    }
-  }
 
   /**
    * {@inheritDoc}
@@ -71,141 +45,11 @@ public class LocalBarrierGroups implements BarrierGroups {
     return m_identityGenerator;
   }
 
-  private void removeBarrierGroup(BarrierGroup barrierGroup) {
-    synchronized (m_groups) {
-      m_groups.remove(barrierGroup.getName());
-    }
-  }
-
   /**
-   * Basic {@link BarrierGroup} implementation.
+   * {@inheritDoc}
    */
-  class BarrierGroupImplementation extends AbstractBarrierGroup {
-
-    private final String m_name;
-
-    // Guarded by this. Negative <=> the group is invalid.
-    private long m_barriers = 0;
-
-    // Guarded by this.
-    private final Set<BarrierIdentity> m_waiters =
-      new HashSet<BarrierIdentity>();
-
-    /**
-     * Constructor.
-     *
-     * @param name Barrier group name.
-     */
-    public BarrierGroupImplementation(String name) {
-      m_name = name;
-    }
-
-    private void checkValid() {
-      if (m_barriers < 0) {
-        throw new IllegalStateException("BarrierGroup is invalid");
-      }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addBarrier() {
-      synchronized (this) {
-        checkValid();
-
-        ++m_barriers;
-      }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeBarriers(int n) {
-      final boolean wakeListeners;
-
-      synchronized (this) {
-        checkValid();
-
-        if (n > m_barriers - m_waiters.size()) {
-          throw new IllegalStateException(
-            "Can't remove " + n + " barriers from " +
-            m_barriers + " barriers, " + m_waiters.size() + " waiters");
-        }
-
-        m_barriers -= n;
-
-        if (m_barriers == 0) {
-          wakeListeners = false;
-          removeBarrierGroup(this);
-          m_barriers = -1;
-        }
-        else {
-          wakeListeners = checkCondition();
-        }
-      }
-
-      if (wakeListeners) {
-        awaken();
-      }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addWaiter(BarrierIdentity barrierIdentity) {
-      final boolean wakeListeners;
-
-      synchronized (this) {
-        checkValid();
-
-        if (m_barriers == 0) {
-          throw new IllegalStateException("Can't add waiter, no barriers");
-        }
-
-        assert m_waiters.size() < m_barriers;
-
-        m_waiters.add(barrierIdentity);
-
-        wakeListeners = checkCondition();
-      }
-
-      if (wakeListeners) {
-        awaken();
-      }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void cancelWaiter(BarrierIdentity barrierIdentity) {
-      synchronized (this) {
-        m_waiters.remove(barrierIdentity);
-      }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getName() {
-      return m_name;
-    }
-
-    private boolean checkCondition() {
-      if (m_barriers > 0 && m_barriers == m_waiters.size()) {
-        m_waiters.clear();
-
-        // The caller will notify the listeners after releasing the lock to
-        // minimise the length of time it is held. Otherwise the distributed
-        // nature of the communication might delay subsequent operations
-        // significantly.
-        // This does not cause a race from the perspective of an individual
-        // waiting thread, since it cannot proceed until its barrier is woken or
-        // cancelled, and once cancelled a barrier cannot be re-used.
-          return true;
-      }
-
-      return false;
-    }
+  @Override protected InternalBarrierGroup createBarrierGroup(String name) {
+    return new LocalBarrierGroup(name);
   }
 
   private class LocalIdentityGenerator implements BarrierIdentityGenerator {
@@ -217,28 +61,41 @@ public class LocalBarrierGroups implements BarrierGroups {
     }
   }
 
-  private static final class LocalBarrierIdentity implements BarrierIdentity {
-
-    private final int m_value;
-
-    public LocalBarrierIdentity(int value) {
-      m_value = value;
+  private class LocalBarrierGroup extends AbstractBarrierGroup {
+    public LocalBarrierGroup(String name) {
+      super(name);
     }
 
-    @Override public int hashCode() {
-      return m_value;
+    /**
+     * {@inheritDoc}
+     */
+    public void removeBarriers(int n) {
+      final boolean wakeListeners;
+
+      synchronized (this) {
+        super.removeBarriers(n);
+        wakeListeners = checkConditionLocal();
+      }
+
+      if (wakeListeners) {
+        fireAwaken();
+      }
     }
 
-    @Override public boolean equals(Object o) {
-      if (this == o) {
-        return true;
+    /**
+     * {@inheritDoc}
+     */
+    public void addWaiter(BarrierIdentity barrierIdentity) {
+      final boolean wakeListeners;
+
+      synchronized (this) {
+        super.addWaiter(barrierIdentity);
+        wakeListeners = checkConditionLocal();
       }
 
-      if (o == null || getClass() != o.getClass()) {
-        return false;
+      if (wakeListeners) {
+        fireAwaken();
       }
-
-      return m_value == ((LocalBarrierIdentity) o).m_value;
     }
   }
 }

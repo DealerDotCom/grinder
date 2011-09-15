@@ -19,65 +19,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.synchronisation;
+package net.grinder.synchronisation.messages;
 
-import net.grinder.synchronisation.BarrierGroup.Listener;
+import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 
 
 /**
- * {@link BarrierGroup} decorator that manages multiple local listeners, and
- * dispatches a single awake callback to all listeners.
+ * Barrier group message requesting that a waiter be removed.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class ManyLocalListenersBarrierGroup
-  extends AbstractBarrierGroup implements Listener {
+public class CancelWaiterMessage extends AbstractBarrierGroupMessage {
 
-  private final BarrierGroup m_delegate;
+  private final BarrierIdentity m_barrierIdentity;
 
   /**
    * Constructor.
    *
-   * @param delegate Delegate barrier group.
+   * @param name
+   *          Barrier name.
+   * @param barrierIdentity
+   *          The identity of the waiter.
    */
-  public ManyLocalListenersBarrierGroup(BarrierGroup delegate) {
-    m_delegate = delegate;
-    m_delegate.addListener(this);
+  public CancelWaiterMessage(String name, BarrierIdentity barrierIdentity) {
+    super(name);
+    m_barrierIdentity = barrierIdentity;
   }
 
   /**
-   * {@inheritDoc}
+   * Identifies the waiter.
+   *
+   * @return The identity of the waiter.
    */
-  public void addBarrier() {
-    m_delegate.addBarrier();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void removeBarriers(int n) {
-    m_delegate.removeBarriers(n);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void addWaiter(BarrierIdentity barrierIdentity) {
-    m_delegate.addWaiter(barrierIdentity);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void cancelWaiter(BarrierIdentity barrierIdentity) {
-    m_delegate.cancelWaiter(barrierIdentity);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public String getName() {
-    return m_delegate.getName();
+  public BarrierIdentity getBarrierIdentity() {
+    return m_barrierIdentity;
   }
 }

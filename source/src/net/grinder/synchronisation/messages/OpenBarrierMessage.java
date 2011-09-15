@@ -19,46 +19,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.synchronisation;
-
-import net.grinder.util.ListenerSupport;
+package net.grinder.synchronisation.messages;
 
 
 /**
- * Common listener support for {@link BarrierGroup} implementations.
+ * Barrier group message sent to agents when a barrier is opened.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-abstract class AbstractBarrierGroup implements BarrierGroup {
-
-  private final ListenerSupport<Listener> m_listeners =
-    new ListenerSupport<Listener>();
-
-  public AbstractBarrierGroup() {
-    super();
-  }
+public class OpenBarrierMessage extends AbstractBarrierGroupMessage {
 
   /**
-   * {@inheritDoc}
+   * Constructor.
+   *
+   * @param name
+   *          Barrier name.
    */
-  public void addListener(Listener listener) {
-    m_listeners.add(listener);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void removeListener(Listener listener) {
-    m_listeners.remove(listener);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void awaken() {
-    m_listeners.apply(new ListenerSupport.Informer<Listener>() {
-      public void inform(Listener listener) { listener.awaken(); }
-    });
+  public OpenBarrierMessage(String name) {
+    super(name);
   }
 }

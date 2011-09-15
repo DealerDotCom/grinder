@@ -69,6 +69,7 @@ import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.synchronisation.BarrierGroups;
+import net.grinder.synchronisation.GlobalBarrierGroups;
 import net.grinder.synchronisation.LocalBarrierGroups;
 import net.grinder.util.JVM;
 import net.grinder.util.ListenerSupport;
@@ -159,14 +160,25 @@ final class GrinderProcess {
     processLogger.output("time zone is " +
                          new SimpleDateFormat("z (Z)").format(new Date()));
 
+    final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
+
+    final BarrierGroups localBarrierGroups = new LocalBarrierGroups();
+    final BarrierGroups globalBarrierGroups;
+
     if (m_initialisationMessage.getReportToConsole()) {
       m_consoleSender =
         new QueuedSenderDecorator(
           ClientSender.connect(
             new ConnectorFactory(ConnectionType.WORKER).create(properties)));
+
+      globalBarrierGroups =
+        new GlobalBarrierGroups(m_consoleSender,
+                                messageDispatcher,
+                                m_initialisationMessage.getWorkerIdentity());
     }
     else {
       m_consoleSender = new NullQueuedSender();
+      globalBarrierGroups = new LocalBarrierGroups();
     }
 
     final ThreadStarter delegatingThreadStarter = new ThreadStarter() {
@@ -218,10 +230,6 @@ final class GrinderProcess {
       }
     };
 
-    final BarrierGroups localBarrierGroups = new LocalBarrierGroups();
-    // TODO
-    final BarrierGroups globalBarrierGroups = new LocalBarrierGroups();
-
     final InternalScriptContext scriptContext =
       new ScriptContextImplementation(
         m_initialisationMessage.getWorkerIdentity(),
@@ -264,7 +272,6 @@ final class GrinderProcess {
     m_consoleListener =
       new ConsoleListener(m_eventSynchronisation, processLogger);
 
-    final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
     m_consoleListener.registerMessageHandlers(messageDispatcher);
     m_messagePump = new MessagePump(agentReceiver, messageDispatcher, 1);
   }
