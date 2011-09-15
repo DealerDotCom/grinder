@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,28 +21,32 @@
 
 package net.grinder.messages.console;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.communication.Address;
 import net.grinder.engine.agent.StubAgentIdentity;
-import junit.framework.TestCase;
+
+import org.junit.Test;
 
 
 /**
- * Unit tests for {AgentAddress}.
+ * Unit tests for {ProcessAddress}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestAgentAddress extends TestCase {
+public class TestProcessAddress {
 
   private final AgentIdentity m_agent1 = new StubAgentIdentity("agent1");
   private final AgentIdentity m_agent2 = new StubAgentIdentity("agent2");
 
-  private final Address m_address1 = new AgentAddress(m_agent1);
-  private final Address m_address1Too = new AgentAddress(m_agent1);
-  private final Address m_address2 = new AgentAddress(m_agent2);
+  private final Address m_address1 = new ProcessAddress(m_agent1);
+  private final Address m_address1Too = new ProcessAddress(m_agent1);
+  private final Address m_address2 = new ProcessAddress(m_agent2);
 
-  public void testIncludes() throws Exception {
+  @Test public void testIncludes() throws Exception {
     assertTrue(m_address1.includes(m_address1));
     assertTrue(m_address1.includes(m_address1Too));
 
@@ -51,7 +55,7 @@ public class TestAgentAddress extends TestCase {
     assertFalse(m_address1.includes(null));
   }
 
-  public void testEqualityAndHashCode() throws Exception {
+  @Test public void testEqualityAndHashCode() throws Exception {
     assertEquals(m_address1, m_address1);
     assertEquals(m_address1, m_address1Too);
 

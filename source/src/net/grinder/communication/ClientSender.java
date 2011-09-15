@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,18 +31,27 @@ package net.grinder.communication;
 public final class ClientSender extends StreamSender implements BlockingSender {
 
   /**
-   * Factory method that makes a TCP connection and returns a
-   * corresponding <code>Sender</code>.
+   * Factory method that makes a TCP connection and returns a corresponding
+   * {@code Sender}.
    *
-   * @param connector Connector to use to make the connection to the
-   * server.
+   * <p>
+   * This class only supports synchronous communication, so the server can only
+   * use {@code address} for identification purposes. For asynchronous
+   * communication, see {@link ClientReceiver}.
+   * </p>
+   *
+   * @param connector
+   *          Connector to use to make the connection to the server.
+   * @param address
+   *          Identifies the client process.
    * @return The ClientSender.
-   * @throws CommunicationException If failed to connect.
+   * @throws CommunicationException
+   *           If failed to connect.
    */
-  public static ClientSender connect(Connector connector)
+  public static ClientSender connect(Connector connector, Address address)
     throws CommunicationException {
 
-    return new ClientSender(new SocketWrapper(connector.connect()));
+    return new ClientSender(new SocketWrapper(connector.connect(address)));
   }
 
   /**

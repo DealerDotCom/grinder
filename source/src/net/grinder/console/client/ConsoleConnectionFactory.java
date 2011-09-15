@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,7 +49,7 @@ public class ConsoleConnectionFactory {
     try {
       return new ConsoleConnectionImplementation(
         ClientSender.connect(
-          new Connector(host, port, ConnectionType.CONSOLE_CLIENT)));
+          new Connector(host, port, ConnectionType.CONSOLE_CLIENT), null));
     }
     catch (CommunicationException e) {
       throw new ConsoleConnectionException("Failed to connect", e);

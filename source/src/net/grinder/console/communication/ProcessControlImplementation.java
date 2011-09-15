@@ -30,7 +30,7 @@ import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
-import net.grinder.messages.console.AgentAddress;
+import net.grinder.messages.console.ProcessAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.util.AllocateLowestNumber;
@@ -103,7 +103,7 @@ public class ProcessControlImplementation implements ProcessControl {
     m_agentNumberMap.forEach(new AllocateLowestNumber.IteratorCallback() {
       public void objectAndNumber(Object object, int number) {
         m_consoleCommunication.sendToAddressedAgents(
-          new AgentAddress((AgentIdentity)object),
+          new ProcessAddress((AgentIdentity)object),
           new StartGrinderMessage(propertiesToSend, number));
         }
       });

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,7 +35,7 @@ import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.console.distribution.AgentSet.OutOfDateException;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.agent.CacheHighWaterMark;
-import net.grinder.messages.console.AgentAddress;
+import net.grinder.messages.console.ProcessAddress;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.Directory;
@@ -227,14 +227,14 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
       new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
 
     assertFalse(cacheState.getAgentSet().getAddressOfAllAgents().includes(
-      new AgentAddress(agentIdentity1)));
+      new ProcessAddress(agentIdentity1)));
 
     processListener.update(new ProcessReports[] {
       new StubProcessReports(agentReport1, null),
     });
 
     assertTrue(cacheState.getAgentSet().getAddressOfAllAgents().includes(
-      new AgentAddress(agentIdentity1)));
+      new ProcessAddress(agentIdentity1)));
   }
 
   public void testAgentSetGetAddressOfOutOfDateAgents() throws Exception {
@@ -253,7 +253,7 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
     assertFalse(
       cacheState.getAgentSet().getAddressOfOutOfDateAgents(100).includes(
-        new AgentAddress(agentIdentity1)));
+        new ProcessAddress(agentIdentity1)));
 
     processListener.update(new ProcessReports[] {
       new StubProcessReports(agentReport1, null),
@@ -261,7 +261,7 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
     assertTrue(
       cacheState.getAgentSet().getAddressOfOutOfDateAgents(100).includes(
-        new AgentAddress(agentIdentity1)));
+        new ProcessAddress(agentIdentity1)));
 
     final CacheHighWaterMark highWaterMark =
       cacheState.getCacheParameters().createHighWaterMark(1000);
@@ -274,10 +274,10 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
     assertTrue(
       cacheState.getAgentSet().getAddressOfOutOfDateAgents(1001).includes(
-        new AgentAddress(agentIdentity1)));
+        new ProcessAddress(agentIdentity1)));
 
     assertFalse(
       cacheState.getAgentSet().getAddressOfOutOfDateAgents(1000).includes(
-        new AgentAddress(agentIdentity1)));
+        new ProcessAddress(agentIdentity1)));
   }
 }

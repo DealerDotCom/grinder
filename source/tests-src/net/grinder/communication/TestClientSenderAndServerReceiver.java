@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -48,7 +48,7 @@ public class TestClientSenderAndServerReceiver
   }
 
   private Sender createSender() throws Exception {
-    return ClientSender.connect(getConnector());
+    return ClientSender.connect(getConnector(), null);
   }
 
   /**

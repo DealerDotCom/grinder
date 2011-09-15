@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,29 +21,29 @@
 
 package net.grinder.messages.console;
 
-import net.grinder.common.processidentity.AgentIdentity;
+import net.grinder.common.processidentity.ProcessIdentity;
 import net.grinder.communication.Address;
 
 
 /**
- * {@link Address} for an Agent.
+ * {@link Address} for an agent or worker process.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class AgentAddress implements Address {
+public final class ProcessAddress implements Address {
 
   private static final long serialVersionUID = 1;
 
-  private final AgentIdentity m_agentIdentity;
+  private final ProcessIdentity m_processIdentity;
 
   /**
    * Constructor.
    *
-   * @param agentIdentity The agent identity.
+   * @param processIdentity The agent identity.
    */
-  public AgentAddress(AgentIdentity agentIdentity) {
-    m_agentIdentity = agentIdentity;
+  public ProcessAddress(ProcessIdentity processIdentity) {
+    m_processIdentity = processIdentity;
   }
 
   /**
@@ -69,7 +69,7 @@ public final class AgentAddress implements Address {
    * @return The hash code.
    */
   public int hashCode() {
-    return m_agentIdentity.hashCode();
+    return m_processIdentity.hashCode();
   }
 
   /**
@@ -87,8 +87,8 @@ public final class AgentAddress implements Address {
       return false;
     }
 
-    final AgentAddress other = (AgentAddress)o;
+    final ProcessAddress other = (ProcessAddress)o;
 
-    return m_agentIdentity.equals(other.m_agentIdentity);
+    return m_processIdentity.equals(other.m_processIdentity);
   }
 }

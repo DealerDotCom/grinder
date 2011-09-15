@@ -52,7 +52,7 @@ public class TestClientSender extends TestCase {
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
                     ConnectionType.AGENT);
 
-    final Sender clientSender = ClientSender.connect(connector);
+    final Sender clientSender = ClientSender.connect(connector, null);
 
     socketAcceptor.join();
 
@@ -99,7 +99,7 @@ public class TestClientSender extends TestCase {
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
                     ConnectionType.AGENT);
 
-    final Sender clientSender = ClientSender.connect(connector);
+    final Sender clientSender = ClientSender.connect(connector, null);
 
     socketAcceptor.join();
 
@@ -141,7 +141,7 @@ public class TestClientSender extends TestCase {
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
                     ConnectionType.AGENT);
 
-    final ClientSender clientSender = ClientSender.connect(connector);
+    final ClientSender clientSender = ClientSender.connect(connector, null);
 
     socketAcceptor.join();
 
@@ -221,7 +221,7 @@ public class TestClientSender extends TestCase {
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
                     ConnectionType.AGENT);
 
-    final BlockingSender clientSender = ClientSender.connect(connector);
+    final BlockingSender clientSender = ClientSender.connect(connector, null);
 
     socketAcceptor.join();
 

@@ -40,6 +40,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.common.Test;
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationException;
@@ -56,6 +57,7 @@ import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.instrumenter.MasterInstrumenter;
 import net.grinder.engine.process.jython.JythonScriptEngine;
+import net.grinder.messages.console.ProcessAddress;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
@@ -147,8 +149,11 @@ final class GrinderProcess {
     m_reportTimesToConsole =
       properties.getBoolean("grinder.reportTimesToConsole", true);
 
+    final WorkerIdentity workerIdentity =
+      m_initialisationMessage.getWorkerIdentity();
+
     m_loggerImplementation = new LoggerImplementation(
-      m_initialisationMessage.getWorkerIdentity().getName(),
+      workerIdentity.getName(),
       properties.getProperty(GrinderProperties.LOG_DIRECTORY, "."),
       properties.getBoolean("grinder.logProcessStreams", true),
       properties.getInt("grinder.numberOfOldLogs", 1));
@@ -169,7 +174,8 @@ final class GrinderProcess {
       m_consoleSender =
         new QueuedSenderDecorator(
           ClientSender.connect(
-            new ConnectorFactory(ConnectionType.WORKER).create(properties)));
+            new ConnectorFactory(ConnectionType.WORKER).create(properties)),
+            new ProcessAddress(workerIdentity)));
 
       globalBarrierGroups =
         new GlobalBarrierGroups(m_consoleSender,
@@ -232,7 +238,7 @@ final class GrinderProcess {
 
     final InternalScriptContext scriptContext =
       new ScriptContextImplementation(
-        m_initialisationMessage.getWorkerIdentity(),
+        workerIdentity,
         m_initialisationMessage.getFirstWorkerIdentity(),
         m_threadContexts,
         properties,
@@ -307,12 +313,14 @@ final class GrinderProcess {
     // monitor. See bug 2936167.
     m_messagePump.start();
 
-    final StringBuilder numbers = new StringBuilder("worker process ");
-    numbers.append(m_initialisationMessage.getWorkerIdentity().getNumber());
+    final WorkerIdentity workerIdentity =
+      m_initialisationMessage.getWorkerIdentity();
 
-    final int agentNumber =
-      m_initialisationMessage
-      .getWorkerIdentity().getAgentIdentity().getNumber();
+    final StringBuilder numbers = new StringBuilder("worker process ");
+
+    numbers.append(workerIdentity.getNumber());
+
+    final int agentNumber = workerIdentity.getAgentIdentity().getNumber();
 
     if (agentNumber >= 0) {
       numbers.append(" of agent number ");

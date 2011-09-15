@@ -66,7 +66,7 @@ import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
 import net.grinder.messages.agent.StubCacheHighWaterMark;
-import net.grinder.messages.console.AgentAddress;
+import net.grinder.messages.console.ProcessAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.testutility.AbstractFileTestCase;
@@ -209,7 +209,7 @@ public class TestConsoleCommunicationImplementation
       new StubConnector(InetAddress.getByName(null).getHostName(),
                         m_properties.getConsolePort(),
                         ConnectionType.AGENT)
-      .connect(new AgentAddress(agentIdentity));
+      .connect(new ProcessAddress(agentIdentity));
 
     waitForNumberOfConnections(1);
 
@@ -454,7 +454,7 @@ public class TestConsoleCommunicationImplementation
       .handleException(isA(DisplayMessageConsoleException.class));
 
     m_consoleCommunication.sendToAddressedAgents(
-      new AgentAddress(new StubAgentIdentity("agent")), new MyMessage());
+      new ProcessAddress(new StubAgentIdentity("agent")), new MyMessage());
 
     verify(m_errorHandler, times(2))
       .handleException(isA(DisplayMessageConsoleException.class));
