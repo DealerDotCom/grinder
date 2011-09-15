@@ -23,6 +23,7 @@ package net.grinder.synchronisation;
 
 import java.util.concurrent.TimeUnit;
 
+import net.grinder.communication.CommunicationException;
 import net.grinder.script.Barrier;
 import net.grinder.script.CancelledBarrierException;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
@@ -94,7 +95,7 @@ public final class BarrierImplementation
     abstract boolean awoken(BarrierImplementation barrierImplementation)
       throws CancelledBarrierException;
 
-    void cancel(BarrierImplementation b) {
+    void cancel(BarrierImplementation b) throws CommunicationException {
       b.changeState(Cancelled);
       b.m_barrierGroup.cancelWaiter(b.m_identity);
       b.m_barrierGroup.removeBarriers(1);
@@ -111,11 +112,18 @@ public final class BarrierImplementation
   /**
    * Constructor.
    *
-   * @param group Barrier group.
-   * @param identityGenerator Identity generator.
+   * @param group
+   *          Barrier group.
+   * @param identityGenerator
+   *          Identity generator.
+   * @throws CommunicationException
+   *           If the barrier group could not be created due to a
+   *           network communication problem.
    */
   public BarrierImplementation(BarrierGroup group,
-                               BarrierIdentityGenerator identityGenerator) {
+                               BarrierIdentityGenerator identityGenerator)
+    throws CommunicationException {
+
     m_barrierGroup = group;
     m_identityGenerator = identityGenerator;
     m_identity = identityGenerator.next();
@@ -132,7 +140,8 @@ public final class BarrierImplementation
 
   // I hate Java. When can we have closures?
   private abstract class Waiter {
-    public boolean await() throws CancelledBarrierException {
+    public boolean await()
+      throws CancelledBarrierException, CommunicationException {
 
       synchronized (m_condition) {
         m_state.beginWait(BarrierImplementation.this);
@@ -182,7 +191,7 @@ public final class BarrierImplementation
   /**
    * {@inheritDoc}
    */
-  public void await() throws CancelledBarrierException {
+  public void await() throws CancelledBarrierException, CommunicationException {
     new ForeverWaiter().await();
   }
 
@@ -190,7 +199,7 @@ public final class BarrierImplementation
    * {@inheritDoc}
    */
   public boolean await(long timeout, TimeUnit unit)
-    throws CancelledBarrierException {
+    throws CancelledBarrierException, CommunicationException {
 
     return new TimedWaiter(Math.max(1, unit.toMillis(timeout))).await();
   }
@@ -198,7 +207,9 @@ public final class BarrierImplementation
   /**
    * {@inheritDoc}
    */
-  public boolean await(long timeout) throws CancelledBarrierException {
+  public boolean await(long timeout)
+    throws CancelledBarrierException, CommunicationException {
+
     return await(timeout, TimeUnit.MILLISECONDS);
   }
 
@@ -214,7 +225,7 @@ public final class BarrierImplementation
   /**
    * {@inheritDoc}
    */
-  public void cancel() {
+  public void cancel() throws CommunicationException {
     synchronized (m_condition) {
       m_state.cancel(this);
     }

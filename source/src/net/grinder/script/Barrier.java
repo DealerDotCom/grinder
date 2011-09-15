@@ -23,6 +23,8 @@ package net.grinder.script;
 
 import java.util.concurrent.TimeUnit;
 
+import net.grinder.common.GrinderException;
+
 /**
  * Distributed synchronisation interface that allows worker threads to
  * coordinate their actions.
@@ -92,10 +94,12 @@ public interface Barrier {
    * @throws IllegalStateException
    *           If some other thread has called {@code await} on this barrier
    *           instance.
+   * @throws GrinderException
+   *           If the operation failed due to a network issue.
    * @throws net.grinder.common.UncheckedInterruptedException
    *           If the current thread is interrupted while waiting.
    */
-  void await() throws CancelledBarrierException;
+  void await() throws CancelledBarrierException, GrinderException;
 
   /**
    * Version of {@link #await()} that allows a timeout to be specified.
@@ -120,10 +124,13 @@ public interface Barrier {
    * @throws IllegalStateException
    *           If some other thread has called {@code await} on this barrier
    *           instance.
+   * @throws GrinderException
+   *           If the operation failed due to a network issue.
    * @throws net.grinder.common.UncheckedInterruptedException
    *           If the current thread is interrupted while waiting.
    */
-  boolean await(long timeout, TimeUnit unit) throws CancelledBarrierException;
+  boolean await(long timeout, TimeUnit unit)
+    throws CancelledBarrierException, GrinderException;
 
   /**
    * <p>Equivalent to {@code await(timeout, TimeUnit.MILLISECONDS}.</p>
@@ -139,10 +146,13 @@ public interface Barrier {
    * @throws IllegalStateException
    *           If some other thread has called {@code await} on this barrier
    *           instance.
+   * @throws GrinderException
+   *           If the operation failed for some other reason.
    * @throws net.grinder.common.UncheckedInterruptedException
    *           If the current thread is interrupted while waiting.
    */
-  boolean await(long timeout) throws CancelledBarrierException;
+  boolean await(long timeout)
+    throws CancelledBarrierException, GrinderException;
 
   /**
    * Cancel this {@code Barrier} and reduce the total number of instances for
@@ -154,8 +164,11 @@ public interface Barrier {
    * Subsequent calls to {@link #await} for this {@code Barrier} will result
    * in an {@link CancelledBarrierException}.
    * </p>
+   *
+   * @throws GrinderException
+   *           If the operation failed due to a network issue.
    */
-  void cancel();
+  void cancel() throws GrinderException;
 
   /**
    * Return the name of the barrier.

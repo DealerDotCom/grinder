@@ -28,34 +28,64 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.communication.MessageDispatchRegistry;
+import net.grinder.communication.QueuedSender;
+import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
+import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.BarrierGroup.Listener;
+import net.grinder.synchronisation.messages.AddBarrierMessage;
+import net.grinder.synchronisation.messages.AddWaiterMessage;
+import net.grinder.synchronisation.messages.CancelWaiterMessage;
+import net.grinder.synchronisation.messages.OpenBarrierMessage;
+import net.grinder.synchronisation.messages.RemoveBarriersMessage;
+import net.grinder.testutility.MockingUtilities.TypedArgumentMatcher;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**
- * Unit tests for {@link LocalBarrierGroups}.
+ * Unit tests for {@link GlobalBarrierGroups}.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestLocalBarrierGroups {
+public class TestGlobalBarrierGroups {
 
   private static final BarrierIdentity ID1 = new BarrierIdentity() {};
   private static final BarrierIdentity ID2 = new BarrierIdentity() {};
 
+  @Mock private QueuedSender m_sender;
+  @Mock private MessageDispatchRegistry m_messageDispatch;
+  @Captor
+  private ArgumentCaptor<AbstractHandler<OpenBarrierMessage>> m_handlerCaptor;
+
+  private final WorkerIdentity m_identity =
+    new StubAgentIdentity("agent").createWorkerIdentity();
+
   private int m_awakenCount = 0;
 
-  private LocalBarrierGroups m_groups;
+  private GlobalBarrierGroups m_groups;
 
   @Before public void setUp() {
-    m_groups = new LocalBarrierGroups();
+    MockitoAnnotations.initMocks(this);
+
+    m_groups = new GlobalBarrierGroups(m_sender, m_messageDispatch, m_identity);
   }
 
   @Test public void testCreateAndRetrieve() throws Exception {
@@ -69,9 +99,38 @@ public class TestLocalBarrierGroups {
     assertSame(a, m_groups.getExistingGroup("A"));
 
     a.addBarrier();
+
     a.removeBarriers(1); // Invalidate a.
 
+    verify(m_sender).queue(isA(AddBarrierMessage.class));
+    verify(m_sender).queue(isA(RemoveBarriersMessage.class));
+
     assertNotSame(a, m_groups.getGroup("A"));
+
+    verifyNoMoreInteractions(m_sender);
+  }
+
+  @Test public void testMessageHandler() throws Exception {
+
+    verify(m_messageDispatch).set(eq(OpenBarrierMessage.class),
+                                  m_handlerCaptor.capture());
+
+    final AbstractHandler<OpenBarrierMessage> handler =
+      m_handlerCaptor.getValue();
+
+    final OpenBarrierMessage message = mock(OpenBarrierMessage.class);
+    when(message.getName()).thenReturn("A");
+
+    handler.handle(message);
+    assertNull(m_groups.getExistingGroup("A"));
+    assertEquals(0, m_awakenCount);
+
+    createBarrierGroup("A");
+    assertEquals(0, m_awakenCount);
+    handler.handle(message);
+    assertEquals(1, m_awakenCount);
+
+    verifyNoMoreInteractions(m_messageDispatch);
   }
 
   @Test public void testIdentityGeneration() {
@@ -132,17 +191,22 @@ public class TestLocalBarrierGroups {
     bg.addBarrier();
     bg.addBarrier();
 
+    verify(m_sender, times(2)).queue(isA(AddBarrierMessage.class));
+
     bg.addWaiter(ID1);
+
+    bg.addWaiter(ID2);
+
+    bg.addWaiter(ID2);
+
+    bg.addWaiter(ID1);
+
+    verify(m_sender, times(2)).queue(argThat(new AddWaiterMessageMatcher(ID1)));
+    verify(m_sender, times(2)).queue(argThat(new AddWaiterMessageMatcher(ID2)));
+
     assertEquals(0, m_awakenCount);
 
-    bg.addWaiter(ID2);
-    assertEquals(1, m_awakenCount);
-
-    bg.addWaiter(ID2);
-    assertEquals(1, m_awakenCount);
-
-    bg.addWaiter(ID1);
-    assertEquals(2, m_awakenCount);
+    verifyNoMoreInteractions(m_sender);
   }
 
   @Test public void testRemoveBarriers() throws Exception {
@@ -152,12 +216,21 @@ public class TestLocalBarrierGroups {
     bg.addBarrier();
     bg.addBarrier();
 
+    verify(m_sender, times(3)).queue(isA(AddBarrierMessage.class));
+
     bg.addWaiter(ID1);
     bg.addWaiter(ID2);
-    assertEquals(0, m_awakenCount);
+
+    verify(m_sender).queue(argThat(new AddWaiterMessageMatcher(ID1)));
+    verify(m_sender).queue(argThat(new AddWaiterMessageMatcher(ID2)));
 
     bg.removeBarriers(1);
-    assertEquals(1, m_awakenCount);
+
+    verify(m_sender).queue(argThat(new RemoveBarriersMessageMatcher(1)));
+
+    assertEquals(0, m_awakenCount);
+
+    verifyNoMoreInteractions(m_sender);
   }
 
   @Test public void testRemoveTooManyBarriers() throws Exception {
@@ -227,40 +300,67 @@ public class TestLocalBarrierGroups {
     bg.addBarrier();
     bg.addBarrier();
 
+    verify(m_sender, times(2)).queue(isA(AddBarrierMessage.class));
+
     bg.addWaiter(ID1);
-    assertEquals(0, m_awakenCount);
+    verify(m_sender).queue(argThat(new AddWaiterMessageMatcher(ID1)));
 
     bg.cancelWaiter(ID2); // noop
+    verify(m_sender).queue(argThat(new CancelWaiterMessageMatcher(ID2)));
 
     bg.cancelWaiter(ID1);
+    verify(m_sender).queue(argThat(new CancelWaiterMessageMatcher(ID1)));
 
     bg.addWaiter(ID2);
+    verify(m_sender).queue(argThat(new AddWaiterMessageMatcher(ID2)));
+
+    bg.addWaiter(ID1);
+    verify(m_sender, times(2)).queue(argThat(new AddWaiterMessageMatcher(ID1)));
+
     assertEquals(0, m_awakenCount);
 
-    bg.addWaiter(ID1);
-    assertEquals(1, m_awakenCount);
+    verifyNoMoreInteractions(m_sender);
   }
 
-  @Test public void testRemoveListener()  throws Exception {
-    final BarrierGroup bg = createBarrierGroup("Foo");
+  private static class RemoveBarriersMessageMatcher
+    extends TypedArgumentMatcher<RemoveBarriersMessage> {
 
-    final AtomicInteger awakenCount = new AtomicInteger();
+    private final int m_numberOfBarriers;
 
-    final Listener listener = new Listener() {
-      public void awaken() { awakenCount.incrementAndGet(); }
-    };
+    RemoveBarriersMessageMatcher(int numberOfBarriers) {
+      m_numberOfBarriers = numberOfBarriers;
+    }
 
-    bg.addListener(listener);
+    @Override protected boolean argumentMatches(RemoveBarriersMessage t) {
+      return t.getNumberOfBarriers() == m_numberOfBarriers;
+    }
+  }
 
-    bg.addBarrier();
-    bg.addWaiter(ID1);
-    assertEquals(1, m_awakenCount);
-    assertEquals(1, awakenCount.get());
+  private static class AddWaiterMessageMatcher
+    extends TypedArgumentMatcher<AddWaiterMessage> {
 
-    bg.removeListener(listener);
+    private final BarrierIdentity m_barrierIdentity;
 
-    bg.addWaiter(ID1);
-    assertEquals(2, m_awakenCount);
-    assertEquals(1, awakenCount.get());
+    AddWaiterMessageMatcher(BarrierIdentity barrierIdentity) {
+      m_barrierIdentity = barrierIdentity;
+    }
+
+    @Override protected boolean argumentMatches(AddWaiterMessage t) {
+      return t.getBarrierIdentity().equals(m_barrierIdentity);
+    }
+  }
+
+  private static class CancelWaiterMessageMatcher
+    extends TypedArgumentMatcher<CancelWaiterMessage> {
+
+    private final BarrierIdentity m_barrierIdentity;
+
+    CancelWaiterMessageMatcher(BarrierIdentity barrierIdentity) {
+      m_barrierIdentity = barrierIdentity;
+    }
+
+    @Override protected boolean argumentMatches(CancelWaiterMessage t) {
+      return t.getBarrierIdentity().equals(m_barrierIdentity);
+    }
   }
 }

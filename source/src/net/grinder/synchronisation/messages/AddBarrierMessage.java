@@ -21,6 +21,8 @@
 
 package net.grinder.synchronisation.messages;
 
+import net.grinder.common.processidentity.WorkerIdentity;
+
 
 /**
  * Barrier group message requesting that a barrier be added.
@@ -30,13 +32,15 @@ package net.grinder.synchronisation.messages;
  */
 public class AddBarrierMessage extends AbstractBarrierGroupMessage {
 
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructor.
    *
-   * @param name
-   *          Barrier name.
+   * @param processIdentity Worker process identity.
+   * @param name Barrier name.
    */
-  public AddBarrierMessage(String name) {
-    super(name);
+  public AddBarrierMessage(WorkerIdentity processIdentity, String name) {
+    super(processIdentity, name);
   }
 }

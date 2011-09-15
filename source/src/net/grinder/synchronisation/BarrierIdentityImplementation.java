@@ -19,39 +19,60 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.synchronisation.messages;
+package net.grinder.synchronisation;
 
-import net.grinder.communication.Message;
+import java.io.Serializable;
+
+import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 
 
 /**
- * Barrier group message sent to agents when a barrier is opened.
+ * Simple barrier identity implementation.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class OpenBarrierMessage implements Message {
+final class BarrierIdentityImplementation implements BarrierIdentity {
 
   private static final long serialVersionUID = 1L;
 
-  private final String m_name;
+  private final Serializable m_scope;
+  private final int m_value;
 
   /**
    * Constructor.
    *
-   * @param name
-   *          Barrier name.
+   * @param scope
+   *          Scope.
+   * @param value
+   *          Guaranteed to be unique for each instance with the same {@code
+   *          scope}.
    */
-  public OpenBarrierMessage(String name) {
-    m_name = name;
+  public BarrierIdentityImplementation(Serializable scope, int value) {
+    m_scope = scope;
+    m_value = value;
   }
 
-  /**
-   * Barrier name.
-   *
-   * @return The barrier name.
-   */
-  public String getName() {
-    return m_name;
+  @Override public int hashCode() {
+    return m_value * 17 + m_scope.hashCode();
+  }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    final BarrierIdentityImplementation other =
+      (BarrierIdentityImplementation) o;
+
+    return m_value == other.m_value && m_scope.equals(other.m_scope);
+  }
+
+  @Override public String toString() {
+    return "BarrierIdentity[" + m_scope + ", " + m_value + "]";
   }
 }

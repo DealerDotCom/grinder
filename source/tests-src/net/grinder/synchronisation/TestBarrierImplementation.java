@@ -79,7 +79,7 @@ public class TestBarrierImplementation {
     m_executor.shutdown();
   }
 
-  @Test public void testConstruction() {
+  @Test public void testConstruction() throws Exception {
     final BarrierImplementation b =
       new BarrierImplementation(m_barrierGroup, m_identityGenerator);
 
@@ -89,7 +89,7 @@ public class TestBarrierImplementation {
     verifyNoMoreInteractions(m_barrierGroup);
   }
 
-  @Test public void testGetGroupName() {
+  @Test public void testGetGroupName() throws Exception {
     final BarrierImplementation b =
       new BarrierImplementation(m_barrierGroup, m_identityGenerator);
 
@@ -223,7 +223,7 @@ public class TestBarrierImplementation {
     futureHolder[0].get();
   }
 
-  @Test public void testCancelVirginBarrier() {
+  @Test public void testCancelVirginBarrier() throws Exception {
     final BarrierImplementation b =
       new BarrierImplementation(m_barrierGroup, m_identityGenerator);
     reset(m_barrierGroup);
@@ -240,7 +240,7 @@ public class TestBarrierImplementation {
     verifyNoMoreInteractions(m_barrierGroup);
   }
 
-  @Test public void testUseCancelledBarrier() {
+  @Test public void testUseCancelledBarrier() throws Exception {
     final BarrierImplementation b =
       new BarrierImplementation(m_barrierGroup, m_identityGenerator);
     b.cancel();

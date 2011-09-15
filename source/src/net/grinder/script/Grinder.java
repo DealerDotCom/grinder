@@ -247,16 +247,21 @@ public class Grinder {
      * @param groupName
      *          The barrier group name.
      * @return The barrier.
+     * @throws GrinderException
+     *           If the barrier could not be created due to a network problem.
      */
-    Barrier globalBarrier(String groupName);
+    Barrier globalBarrier(String groupName) throws GrinderException;
 
     /**
      * Create a {@link Barrier} to allow coordination of worker thread actions
      * within the local worker process.
      *
-     * @param groupName The barrier group name.
+     * @param groupName
+     *          The barrier group name.
      * @return The barrier.
+     * @throws GrinderException
+     *           If the barrier could not be created due to a network problem.
      */
-    Barrier localBarrier(String groupName);
+    Barrier localBarrier(String groupName) throws GrinderException;
   }
 }

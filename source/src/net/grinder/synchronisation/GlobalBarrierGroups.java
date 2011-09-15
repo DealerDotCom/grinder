@@ -21,14 +21,11 @@
 
 package net.grinder.synchronisation;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.messages.AddBarrierMessage;
 import net.grinder.synchronisation.messages.AddWaiterMessage;
@@ -45,8 +42,7 @@ import net.grinder.synchronisation.messages.RemoveBarriersMessage;
  */
 public class GlobalBarrierGroups extends AbstractBarrierGroups {
 
-  private final BarrierIdentityGenerator m_identityGenerator =
-    new GlobalIdentityGenerator();
+  private final BarrierIdentityGenerator m_identityGenerator;
 
   private final QueuedSender m_sender;
   private final WorkerIdentity m_workerIdentity;
@@ -63,6 +59,7 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
                              WorkerIdentity workerIdentity) {
     m_sender = sender;
     m_workerIdentity = workerIdentity;
+    m_identityGenerator = new IdentityGeneratorImplementation(workerIdentity);
 
     messageDispatch.set(
       OpenBarrierMessage.class,
@@ -110,102 +107,45 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
     /**
      * {@inheritDoc}
      */
-    public void addBarrier() {
+    @Override public void addBarrier() throws CommunicationException {
       super.addBarrier();
 
-      try {
-        m_sender.queue(new AddBarrierMessage(getName()));
-      }
-      catch (CommunicationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+      m_sender.queue(new AddBarrierMessage(m_workerIdentity, getName()));
     }
 
     /**
      * {@inheritDoc}
      */
-    public void removeBarriers(int n) {
+    @Override public void removeBarriers(long n) throws CommunicationException {
       super.removeBarriers(n);
 
-      try {
-        m_sender.queue(new RemoveBarriersMessage(getName(), n));
-      }
-      catch (CommunicationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+      m_sender.queue(new RemoveBarriersMessage(m_workerIdentity, getName(), n));
     }
 
     /**
      * {@inheritDoc}
      */
-    public void addWaiter(BarrierIdentity barrierIdentity) {
+    @Override public void addWaiter(BarrierIdentity barrierIdentity)
+      throws CommunicationException {
+
       super.addWaiter(barrierIdentity);
 
-      try {
-        m_sender.queue(new AddWaiterMessage(getName(), barrierIdentity));
-      }
-      catch (CommunicationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+      m_sender.queue(new AddWaiterMessage(m_workerIdentity,
+                                          getName(),
+                                          barrierIdentity));
     }
 
     /**
      * {@inheritDoc}
      */
-    public void cancelWaiter(BarrierIdentity barrierIdentity) {
+    @Override public void cancelWaiter(BarrierIdentity barrierIdentity)
+      throws CommunicationException {
+
       super.cancelWaiter(barrierIdentity);
 
-      try {
-        m_sender.queue(new CancelWaiterMessage(getName(), barrierIdentity));
-      }
-      catch (CommunicationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
-  }
-
-  private class GlobalIdentityGenerator implements BarrierIdentityGenerator {
-
-    private final AtomicInteger m_next = new AtomicInteger();
-
-    public BarrierIdentity next() {
-      return new GlobalBarrierIdentity(m_workerIdentity,
-                                       m_next.getAndIncrement());
-    }
-  }
-
-  private static final class GlobalBarrierIdentity
-    extends LocalBarrierIdentity {
-
-    private final WorkerIdentity m_workerIdentity;
-
-    public GlobalBarrierIdentity(WorkerIdentity workerIdentity,
-                                 int value) {
-      super(value);
-      m_workerIdentity = workerIdentity;
-    }
-
-    @Override public int hashCode() {
-      return super.hashCode() * 17 + m_workerIdentity.hashCode();
-    }
-
-    @Override public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      final GlobalBarrierIdentity other = (GlobalBarrierIdentity)o;
-
-      return m_workerIdentity.equals(other.m_workerIdentity) &&
-             super.equals(o);
+      m_sender.queue(new CancelWaiterMessage(m_workerIdentity,
+                                             getName(),
+                                             barrierIdentity));
     }
   }
 }

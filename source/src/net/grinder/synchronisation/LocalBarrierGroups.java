@@ -21,9 +21,7 @@
 
 package net.grinder.synchronisation;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
+import net.grinder.communication.CommunicationException;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 
 
@@ -36,7 +34,7 @@ import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 public class LocalBarrierGroups extends AbstractBarrierGroups {
 
   private final BarrierIdentityGenerator m_identityGenerator =
-    new LocalIdentityGenerator();
+    new IdentityGeneratorImplementation("LOCAL");
 
   /**
    * {@inheritDoc}
@@ -52,15 +50,6 @@ public class LocalBarrierGroups extends AbstractBarrierGroups {
     return new LocalBarrierGroup(name);
   }
 
-  private class LocalIdentityGenerator implements BarrierIdentityGenerator {
-
-    private final AtomicInteger m_next = new AtomicInteger();
-
-    public BarrierIdentity next() {
-      return new LocalBarrierIdentity(m_next.getAndIncrement());
-    }
-  }
-
   private class LocalBarrierGroup extends AbstractBarrierGroup {
     public LocalBarrierGroup(String name) {
       super(name);
@@ -69,7 +58,7 @@ public class LocalBarrierGroups extends AbstractBarrierGroups {
     /**
      * {@inheritDoc}
      */
-    public void removeBarriers(int n) {
+    @Override public void removeBarriers(long n) throws CommunicationException {
       final boolean wakeListeners;
 
       synchronized (this) {
@@ -85,7 +74,9 @@ public class LocalBarrierGroups extends AbstractBarrierGroups {
     /**
      * {@inheritDoc}
      */
-    public void addWaiter(BarrierIdentity barrierIdentity) {
+    @Override public void addWaiter(BarrierIdentity barrierIdentity)
+      throws CommunicationException {
+
       final boolean wakeListeners;
 
       synchronized (this) {

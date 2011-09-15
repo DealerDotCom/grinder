@@ -23,6 +23,8 @@ package net.grinder.synchronisation;
 
 import java.io.Serializable;
 
+import net.grinder.communication.CommunicationException;
+
 /**
  * A barrier group.
  *
@@ -105,32 +107,47 @@ public interface BarrierGroup {
   /**
    * Increase the number of barriers in the group.
    *
+   * @throws CommunicationException
+   *           If the operation could not be completed due to a network
+   *           communication problem. The barrier group is left in an unknown
+   *           state.
    * @throws IllegalStateException
    *           If the barrier group is invalid. A group becomes invalid if
    *           {@link #removeBarriers} removes all of the barriers.
    */
-  void addBarrier();
+  void addBarrier() throws CommunicationException;
 
   /**
    * Decrease the number of barriers in the group.
    *
-   * @param n The number of barriers to remove.
+   * @param n
+   *          The number of barriers to remove.
+   *
+   * @throws CommunicationException
+   *           If the operation could not be completed due to a network
+   *           communication problem. The barrier group is left in an unknown
+   *           state.
    * @throws IllegalStateException
    *           If {@code n > N - W}.
    */
-  void removeBarriers(int n);
+  void removeBarriers(long n) throws CommunicationException;
 
   /**
    * Add a waiter.
    *
    * @param barrierIdentity Identifies the barrier.
+   *
+   * @throws CommunicationException
+   *           If the operation could not be completed due to a network
+   *           communication problem. The barrier group is left in an unknown
+   *           state.
    * @throws IllegalStateException
    *           If {@code N == 0}, or the group is invalid.
    */
-  void addWaiter(BarrierIdentity barrierIdentity);
+  void addWaiter(BarrierIdentity barrierIdentity) throws CommunicationException;
 
   /**
-   * Remove a waiter.
+   * Cancel a waiter.
    *
    * <p>Does nothing if the {@code barrierIdentity} refers to an unknown waiter.
    * This copes with the following cases:
@@ -141,8 +158,25 @@ public interface BarrierGroup {
    * </p>
    *
    * @param barrierIdentity Identifies the barrier.
+   *
+   * @throws CommunicationException
+   *           If the operation could not be completed due to a network
+   *           communication problem. The barrier group is left in an unknown
+   *           state.
    */
-  void cancelWaiter(BarrierIdentity barrierIdentity);
+  void cancelWaiter(BarrierIdentity barrierIdentity)
+    throws CommunicationException;
+
+  /**
+   * Cancels all waiters and removes all barriers. The instance will be
+   * left in an invalid state.
+   *
+   * @throws CommunicationException
+   *           If the operation could not be completed due to a network
+   *           communication problem. The barrier group is left in an unknown
+   *           state.
+   */
+  void cancelAll() throws CommunicationException;
 
   /**
    * Return the name of the barrier group.

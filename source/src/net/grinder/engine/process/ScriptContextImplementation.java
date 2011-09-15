@@ -26,6 +26,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.communication.CommunicationException;
 import net.grinder.script.Barrier;
 import net.grinder.script.InternalScriptContext;
 import net.grinder.script.InvalidContextException;
@@ -181,13 +182,13 @@ final class ScriptContextImplementation implements InternalScriptContext {
     return m_testRegistry;
   }
 
-  public Barrier localBarrier(String groupName) {
+  public Barrier localBarrier(String groupName) throws CommunicationException {
     return new BarrierImplementation(
       m_localBarrierGroups.getGroup(groupName),
       m_localBarrierGroups.getIdentityGenerator());
   }
 
-  public Barrier globalBarrier(String groupName) {
+  public Barrier globalBarrier(String groupName) throws CommunicationException {
     return new BarrierImplementation(
       m_globalBarrierGroups.getGroup(groupName),
       m_globalBarrierGroups.getIdentityGenerator());

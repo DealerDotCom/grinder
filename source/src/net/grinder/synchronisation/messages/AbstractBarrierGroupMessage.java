@@ -21,6 +21,7 @@
 
 package net.grinder.synchronisation.messages;
 
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.Message;
 
 
@@ -34,19 +35,32 @@ public abstract class AbstractBarrierGroupMessage implements Message {
 
   private static final long serialVersionUID = 1L;
 
+  private final WorkerIdentity m_processIdentity;
   private final String m_name;
 
   /**
    * Constructor.
    *
+   * @param processIdentity Worker process identity.
    * @param name Barrier name.
    */
-  public AbstractBarrierGroupMessage(String name) {
+  public AbstractBarrierGroupMessage(WorkerIdentity processIdentity,
+                                     String name) {
+    m_processIdentity = processIdentity;
     m_name = name;
   }
 
   /**
-   * The barrier name.
+   * Worker process identity.
+   *
+   * @return The process identity.
+   */
+  public WorkerIdentity getProcessIdentity() {
+    return m_processIdentity;
+  }
+
+  /**
+   * Barrier name.
    *
    * @return The barrier name.
    */

@@ -21,12 +21,16 @@
 
 package net.grinder.synchronisation;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import net.grinder.communication.CommunicationException;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
+import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.util.ListenerSupport;
 
 
@@ -36,7 +40,7 @@ import net.grinder.util.ListenerSupport;
  * @author Philip Aston
  * @version $Revision:$
  */
-abstract class AbstractBarrierGroups implements BarrierGroups  {
+public abstract class AbstractBarrierGroups implements BarrierGroups  {
 
   // Guarded by self.
   private final Map<String, InternalBarrierGroup> m_groups =
@@ -60,33 +64,73 @@ abstract class AbstractBarrierGroups implements BarrierGroups  {
     }
   }
 
+  /**
+   * Calls {@link BarrierGroup#cancelAll()} on all of our barrier groups.
+   *
+   * @throws CommunicationException If a network problem occurred.
+   */
+  public final void cancelAll() throws CommunicationException {
+    synchronized (m_groups) {
+      for (InternalBarrierGroup group : m_groups.values()) {
+        group.cancelAll();
+      }
+    }
+  }
+
+  /**
+   * Provide subclasses a way to access to an existing group without creating
+   * one if it doesn't exist.
+   *
+   * @param name
+   *          Barrier name.
+   * @return The barrier group, or {@code null} if none exists.
+   */
   protected final InternalBarrierGroup getExistingGroup(String name) {
     synchronized (m_groups) {
       return m_groups.get(name);
     }
   }
 
-  protected final void removeBarrierGroup(BarrierGroup barrierGroup) {
+  private void removeBarrierGroup(BarrierGroup barrierGroup) {
     synchronized (m_groups) {
       m_groups.remove(barrierGroup.getName());
     }
   }
 
   /**
-   * Factory method to allow subclasses to provide an appropriate barrier group
-   * implementation.
+   * Factory method through which subclasses provide an appropriate barrier
+   * group implementation.
    *
-   * @param name Barrier name.
+   * @param name
+   *          Barrier name.
    * @return A new barrier group instance.
    */
   protected abstract InternalBarrierGroup createBarrierGroup(String name);
 
   /**
+   * {@inheritDoc}
+   */
+  @Override public String toString() {
+    synchronized (m_groups) {
+      return getClass().getSimpleName() + "[" + m_groups + "]";
+    }
+  }
+
+  /**
    * Additional barrier group interface required by sub-classes.
    */
   protected interface InternalBarrierGroup extends BarrierGroup {
+
+    /**
+     * Check whether the barrier group should awaken.
+     *
+     * @return {@code true} if and only if the group should awaken.
+     */
     boolean checkConditionLocal();
 
+    /**
+     * Call the {@link Listener#awaken()} method for all of the listeners.
+     */
     void fireAwaken();
   }
 
@@ -148,7 +192,7 @@ abstract class AbstractBarrierGroups implements BarrierGroups  {
     /**
      * {@inheritDoc}
      */
-    public void addBarrier() {
+    public void addBarrier() throws CommunicationException {
       synchronized (this) {
         checkValid();
 
@@ -159,7 +203,7 @@ abstract class AbstractBarrierGroups implements BarrierGroups  {
     /**
      * {@inheritDoc}
      */
-    public void removeBarriers(int n) {
+    public void removeBarriers(long n) throws CommunicationException {
       synchronized (this) {
         checkValid();
 
@@ -181,7 +225,9 @@ abstract class AbstractBarrierGroups implements BarrierGroups  {
     /**
      * {@inheritDoc}
      */
-    public void addWaiter(BarrierIdentity barrierIdentity) {
+    public void addWaiter(BarrierIdentity barrierIdentity)
+      throws CommunicationException {
+
       synchronized (this) {
         checkValid();
 
@@ -198,18 +244,42 @@ abstract class AbstractBarrierGroups implements BarrierGroups  {
     /**
      * {@inheritDoc}
      */
-    public void cancelWaiter(BarrierIdentity barrierIdentity) {
+    public void cancelWaiter(BarrierIdentity barrierIdentity)
+      throws CommunicationException {
+
       synchronized (this) {
         m_waiters.remove(barrierIdentity);
       }
     }
 
-    public void fireAwaken() {
+    /**
+     * {@inheritDoc}
+     */
+    public void cancelAll() throws CommunicationException {
+      synchronized (this) {
+        final Set<BarrierIdentity> clonedWaiters =
+          new HashSet<BarrierIdentity>(m_waiters);
+
+        for (BarrierIdentity barrierIdentity : clonedWaiters) {
+          cancelWaiter(barrierIdentity);
+        }
+
+        removeBarriers(m_barriers);
+      }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public final void fireAwaken() {
       m_listeners.apply(new ListenerSupport.Informer<Listener>() {
         public void inform(Listener listener) { listener.awaken(); }
       });
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public final boolean checkConditionLocal() {
       if (m_barriers > 0 && m_barriers == m_waiters.size()) {
 
@@ -227,35 +297,42 @@ abstract class AbstractBarrierGroups implements BarrierGroups  {
 
       return false;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override public String toString() {
+      synchronized (this) {
+        return getClass().getSimpleName() +
+          "[" + m_barriers + ", " +  m_waiters + "]";
+      }
+    }
   }
 
   /**
-   * Simple barrier identity implementation.
+   * Identity generator.
    */
-  static class LocalBarrierIdentity implements BarrierIdentity {
+  protected static final class IdentityGeneratorImplementation
+    implements BarrierIdentityGenerator {
 
-    private static final long serialVersionUID = 1L;
+    private final AtomicInteger m_next = new AtomicInteger();
+    private final Serializable m_scope;
 
-    private final int m_value;
-
-    public LocalBarrierIdentity(int value) {
-      m_value = value;
+    /**
+     * Constructor.
+     *
+     * @param scope The scope of the generated identities.
+     */
+    public IdentityGeneratorImplementation(Serializable scope) {
+      m_scope = scope;
     }
 
-    @Override public int hashCode() {
-      return m_value;
-    }
-
-    @Override public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      return m_value == ((LocalBarrierIdentity) o).m_value;
+    /**
+     * {@inheritDoc}
+     */
+    public BarrierIdentity next() {
+      return new BarrierIdentityImplementation(m_scope,
+                                               m_next.getAndIncrement());
     }
   }
 }
