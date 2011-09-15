@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,9 +22,10 @@
 package net.grinder.communication;
 
 import java.io.OutputStream;
+import java.util.concurrent.ExecutorService;
 
 import net.grinder.communication.ResourcePool.Resource;
-import net.grinder.util.thread.Executor;
+import net.grinder.util.thread.ExecutorFactory;
 
 
 /**
@@ -43,22 +44,26 @@ public final class FanOutServerSender extends AbstractFanOutSender {
    * @param numberOfThreads Number of sender threads to use.
    * @throws Acceptor.ShutdownException If the acceptor has been shutdown.
    */
-  public FanOutServerSender(Acceptor acceptor, ConnectionType connectionType,
+  public FanOutServerSender(Acceptor acceptor,
+                            ConnectionType connectionType,
                             int numberOfThreads)
     throws Acceptor.ShutdownException {
 
-    this(acceptor.getSocketSet(connectionType), new Executor(numberOfThreads));
+    this(acceptor.getSocketSet(connectionType),
+         ExecutorFactory.createThreadPool(
+           "FanOutServerSender for " + connectionType, numberOfThreads));
   }
 
   /**
    * Constructor.
    *
    * @param acceptedSockets Socket set.
-   * @param executor A kernel to use.
+   * @param executor Executor service to use.
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  private FanOutServerSender(ResourcePool acceptedSockets, Executor executor) {
+  private FanOutServerSender(ResourcePool acceptedSockets,
+                             ExecutorService executor) {
 
     super(executor, acceptedSockets);
   }

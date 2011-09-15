@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2009 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,10 +23,13 @@ package net.grinder.communication;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.ResourcePool.Resource;
-import net.grinder.util.thread.Executor;
 import net.grinder.util.thread.InterruptibleRunnable;
+import net.grinder.util.thread.InterruptibleRunnableAdapter;
 
 
 /**
@@ -37,7 +40,7 @@ import net.grinder.util.thread.InterruptibleRunnable;
  */
 abstract class AbstractFanOutSender extends AbstractSender {
 
-  private final Executor m_executor;
+  private final ExecutorService m_executor;
   private final ResourcePool m_resourcePool;
 
   /**
@@ -47,7 +50,8 @@ abstract class AbstractFanOutSender extends AbstractSender {
    * @param resourcePool Pool of resources from which the output
    * streams can be reserved.
    */
-  protected AbstractFanOutSender(Executor executor, ResourcePool resourcePool) {
+  protected AbstractFanOutSender(ExecutorService executor,
+                                 ResourcePool resourcePool) {
     m_executor = executor;
     m_resourcePool = resourcePool;
   }
@@ -72,29 +76,25 @@ abstract class AbstractFanOutSender extends AbstractSender {
   protected final void writeAddressedMessage(Address address, Message message)
     throws CommunicationException {
 
-    try {
-      // We reserve all the resources here and hand off the
-      // reservations to WriteMessageToStream instances. This
-      // guarantees order of messages to a given resource for this
-      // AbstractFanOutSender.
-      for (ResourcePool.Reservation reservation : m_resourcePool.reserveAll()) {
-        final Resource resource = reservation.getResource();
+    // We reserve all the resources here and hand off the
+    // reservations to WriteMessageToStream instances. This
+    // guarantees order of messages to a given resource for this
+    // AbstractFanOutSender.
+    for (ResourcePool.Reservation reservation : m_resourcePool.reserveAll()) {
+      final Resource resource = reservation.getResource();
 
-        if (!address.includes(getAddress(resource))) {
-          reservation.free();
-          continue;
-        }
+      if (!address.includes(getAddress(resource))) {
+        reservation.free();
+        continue;
+      }
 
-        // We don't need to synchronise access to the stream; access is
-        // protected through the socket set and only we hold the reservation.
-        m_executor.execute(
+      // We don't need to synchronise access to the stream; access is
+      // protected through the socket set and only we hold the reservation.
+      m_executor.execute(
+        new InterruptibleRunnableAdapter(
           new WriteMessageToStream(message,
                                    resourceToOutputStream(resource),
-                                   reservation));
-      }
-    }
-    catch (Executor.ShutdownException e) {
-      throw new AssertionError(e);
+                                   reservation)));
     }
   }
 
@@ -135,7 +135,19 @@ abstract class AbstractFanOutSender extends AbstractSender {
   public void shutdown() {
     super.shutdown();
 
-    m_executor.gracefulShutdown();
+    m_executor.shutdown();
+
+    try {
+      final boolean terminated =
+        m_executor.awaitTermination(10, TimeUnit.SECONDS);
+
+      if (!terminated) {
+        throw new AssertionError("Failed to terminate tasks");
+      }
+    }
+    catch (InterruptedException e) {
+      throw new UncheckedInterruptedException(e);
+    }
   }
 
   private static final class SendToEveryoneAddress implements Address {

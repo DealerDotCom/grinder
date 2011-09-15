@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 
+import org.junit.After;
+
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
@@ -51,8 +53,12 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
   private AgentIdentityImplementation m_agentIdentity =
     new AgentIdentityImplementation(getClass().getName());
 
-  private FanOutStreamSender m_fanOutStreamSender = new FanOutStreamSender(0);
+  private FanOutStreamSender m_fanOutStreamSender = new FanOutStreamSender(1);
   private GrinderProperties m_properties = new GrinderProperties();
+
+  @After public void tearDown() {
+    m_fanOutStreamSender.shutdown();
+  }
 
   public void testFactory() throws Exception {
     m_properties.setProperty("grinder.logDirectory",

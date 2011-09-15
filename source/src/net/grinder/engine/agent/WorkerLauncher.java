@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,12 +21,16 @@
 
 package net.grinder.engine.agent;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+
 import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.thread.Condition;
-import net.grinder.util.thread.Executor;
+import net.grinder.util.thread.ExecutorFactory;
 import net.grinder.util.thread.InterruptibleRunnable;
+import net.grinder.util.thread.InterruptibleRunnableAdapter;
 
 
 /**
@@ -37,7 +41,7 @@ import net.grinder.util.thread.InterruptibleRunnable;
  */
 final class WorkerLauncher {
 
-  private final Executor m_executor;
+  private final ExecutorService m_executor;
   private final WorkerFactory m_workerFactory;
   private final Condition m_notifyOnFinish;
   private final Logger m_logger;
@@ -60,7 +64,7 @@ final class WorkerLauncher {
                         Condition notifyOnFinish,
                         Logger logger) {
 
-    this(new Executor(1),
+    this(ExecutorFactory.createThreadPool("WorkerLauncher", 1),
          numberOfWorkers,
          workerFactory,
          notifyOnFinish,
@@ -70,7 +74,7 @@ final class WorkerLauncher {
   /**
    * Package scope for unit tests.
    */
-  WorkerLauncher(Executor executor,
+  WorkerLauncher(ExecutorService executor,
                  int numberOfWorkers,
                  WorkerFactory workerFactory,
                  Condition notifyOnFinish,
@@ -103,10 +107,11 @@ final class WorkerLauncher {
       }
 
       try {
-        m_executor.execute(new WaitForWorkerTask(workerIndex));
+        m_executor.execute(
+          new InterruptibleRunnableAdapter(new WaitForWorkerTask(workerIndex)));
       }
-      catch (Executor.ShutdownException e) {
-        m_logger.error("Executor unexpectedly shutdown");
+      catch (RejectedExecutionException e) {
+        m_logger.error("Failed to wait for " + worker.getIdentity().getName());
         e.printStackTrace(m_logger.getErrorLogWriter());
         worker.destroy();
         return false;
@@ -174,24 +179,10 @@ final class WorkerLauncher {
   }
 
   /**
-   * Used to be done in {@link #allFinished()} if our workers hand completed.
-   * Moved to a separate method since:
-   *
-   * <ol>
-   * <li>We need to shutdown the kernel even if we never started a worker.</li>
-   * <li>Shutting down the kernel joins our
-   * {@link net.grinder.engine.agent.WorkerLauncher.WaitForWorkerTask} threads,
-   * and the last thread didn't complete as the caller of {@link #allFinished()}
-   * was holding the <em>notifyOnFinish</em> {@link Condition}.</li>
-   * </ol>
-   *
-   * <p>
-   * Do not call this whilst holding the <em>notifyOnFinish</em>
-   * {@link Condition}.
-   * </p>
+   * Request shutdown of the worker launcher threads. Returns immediately.
    */
   public void shutdown() {
-    m_executor.gracefulShutdown();
+    m_executor.shutdown();
   }
 
   public void dontStartAnyMore() {

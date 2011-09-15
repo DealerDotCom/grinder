@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +37,12 @@ public final class ThreadPool {
   private boolean m_started = false;
   private boolean m_stopped = false;
 
+  static ThreadGroup createDaemonThreadGroup(String name) {
+    final ThreadGroup threadGroup = new ThreadGroup(name);
+    threadGroup.setDaemon(true);
+    return threadGroup;
+  }
+
   /**
      * Constructor.
      *
@@ -47,9 +53,21 @@ public final class ThreadPool {
      */
   public ThreadPool(String name, int numberOfThreads,
                     InterruptibleRunnableFactory runnableFactory) {
+    this(createDaemonThreadGroup(name), numberOfThreads, runnableFactory);
+  }
 
-    m_threadGroup = new ThreadGroup(name);
-    m_threadGroup.setDaemon(true);
+  /**
+   * Constructor.
+   *
+   * @param threadGroup Thread group.
+   * @param numberOfThreads Number of threads.
+   * @param runnableFactory Factory which defines what our threads
+   * should do.
+   */
+  public ThreadPool(ThreadGroup threadGroup, int numberOfThreads,
+                    InterruptibleRunnableFactory runnableFactory) {
+
+    m_threadGroup = threadGroup;
 
     m_threads = new Thread[numberOfThreads];
 
@@ -59,7 +77,7 @@ public final class ThreadPool {
 
       m_threads[i] = new Thread(m_threadGroup,
                                 runnable,
-                                name + " thread " + i);
+                                threadGroup.getName() + " thread " + i);
       m_threads[i].setDaemon(true);
     }
   }

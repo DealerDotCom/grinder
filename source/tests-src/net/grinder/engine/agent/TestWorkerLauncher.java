@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,23 +21,36 @@
 
 package net.grinder.engine.agent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 
-import junit.framework.TestCase;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.processidentity.WorkerIdentity;
-import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RedirectStandardStreams;
 import net.grinder.util.Directory;
 import net.grinder.util.thread.Condition;
-import net.grinder.util.thread.Executor;
+
+import org.junit.Test;
 
 
 /**
@@ -46,12 +59,16 @@ import net.grinder.util.thread.Executor;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestWorkerLauncher extends TestCase {
+public class TestWorkerLauncher {
 
   private static final String s_testClasspath =
     System.getProperty("java.class.path");
 
-  public void testConstructor() throws Exception {
+  private final MyCondition m_condition = new MyCondition();
+  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
+  private final Logger m_logger = m_loggerStubFactory.getLogger();
+
+  @Test public void testConstructor() throws Exception {
     final WorkerLauncher workerLauncher1 =
       new WorkerLauncher(0, null, null, null);
 
@@ -67,18 +84,15 @@ public class TestWorkerLauncher extends TestCase {
     workerLauncher2.shutdown();
   }
 
-  public void testStartSomeProcesses() throws Exception {
+  @Test public void testStartSomeProcesses() throws Exception {
 
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
-    final Logger logger = loggerStubFactory.getLogger();
-    final MyCondition condition = new MyCondition();
     final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
     final WorkerLauncher workerLauncher =
-      new WorkerLauncher(5, myProcessFactory, condition, logger);
+      new WorkerLauncher(5, myProcessFactory, m_condition, m_logger);
 
-    condition.waitFor(workerLauncher);
-    assertFalse(condition.isFinished());
+    m_condition.waitFor(workerLauncher);
+    assertFalse(m_condition.isFinished());
 
     assertEquals(0, myProcessFactory.getNumberOfProcesses());
 
@@ -95,19 +109,19 @@ public class TestWorkerLauncher extends TestCase {
       myProcessFactory.getChildProcesses().get(0);
 
     final CallData call =
-      loggerStubFactory.assertSuccess("output", String.class);
+      m_loggerStubFactory.assertSuccess("output", String.class);
     final String s = (String)call.getParameters()[0];
     AssertUtilities.assertContains(s, childProcess.getIdentity().getName());
-    loggerStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertNoMoreCalls();
 
     workerLauncher.startSomeWorkers(10);
     assertEquals(5, myProcessFactory.getNumberOfProcesses());
 
-    loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertSuccess("output", String.class);
+    m_loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(5, myProcessFactory.getChildProcesses().size());
 
@@ -120,7 +134,7 @@ public class TestWorkerLauncher extends TestCase {
     sendTerminationMessage(processes[2]);
 
     assertFalse(workerLauncher.allFinished());
-    assertFalse(condition.isFinished());
+    assertFalse(m_condition.isFinished());
 
     sendTerminationMessage(processes[1]);
     sendTerminationMessage(processes[3]);
@@ -128,7 +142,7 @@ public class TestWorkerLauncher extends TestCase {
 
     // Can't be bothered to add another layer of synchronisation, just
     // spin.
-    while (!condition.isFinished()) {
+    while (!m_condition.isFinished()) {
       Thread.sleep(20);
     }
 
@@ -144,18 +158,15 @@ public class TestWorkerLauncher extends TestCase {
     processStdin.flush();
   }
 
-  public void testStartAllProcesses() throws Exception {
+  @Test public void testStartAllProcesses() throws Exception {
 
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
-    final Logger logger = loggerStubFactory.getLogger();
-    final MyCondition condition = new MyCondition();
     final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
     final WorkerLauncher workerLauncher =
-      new WorkerLauncher(9, myProcessFactory, condition, logger);
+      new WorkerLauncher(9, myProcessFactory, m_condition, m_logger);
 
-    condition.waitFor(workerLauncher);
-    assertFalse(condition.isFinished());
+    m_condition.waitFor(workerLauncher);
+    assertFalse(m_condition.isFinished());
 
     assertEquals(0, myProcessFactory.getNumberOfProcesses());
 
@@ -179,7 +190,7 @@ public class TestWorkerLauncher extends TestCase {
     sendTerminationMessage(processes[7]);
 
     assertFalse(workerLauncher.allFinished());
-    assertFalse(condition.isFinished());
+    assertFalse(m_condition.isFinished());
 
     sendTerminationMessage(processes[8]);
     sendTerminationMessage(processes[1]);
@@ -188,7 +199,7 @@ public class TestWorkerLauncher extends TestCase {
 
     // Can't be bothered to add another layer of synchronisation, just
     // spin.
-    while (!condition.isFinished()) {
+    while (!m_condition.isFinished()) {
       Thread.sleep(20);
     }
 
@@ -196,55 +207,15 @@ public class TestWorkerLauncher extends TestCase {
     workerLauncher.shutdown();
   }
 
-  public void testBadExecutor() throws Exception {
+  @Test public void testDestroyAllProcesses() throws Exception {
 
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
-    final Logger logger = loggerStubFactory.getLogger();
-    final MyCondition condition = new MyCondition();
-    // Can't use a ProcessWorker because we can't interrupt a thread
-    // blocking in Process.waitFor().
-    final NullWorkerFactory myProcessFactory = new NullWorkerFactory();
-    final Executor executor = new Executor(1);
-
-    final WorkerLauncher workerLauncher =
-      new WorkerLauncher(executor, 9, myProcessFactory, condition, logger);
-
-    final boolean result1 = workerLauncher.startSomeWorkers(1);
-    assertTrue(result1);
-    loggerStubFactory.assertOutputMessageContains("started");
-    loggerStubFactory.assertNoMoreCalls();
-
-    while (myProcessFactory.getNumberOfLiveProcesses() != 1) {
-      Thread.sleep(20);
-    }
-
-    executor.forceShutdown();
-    assertFalse(condition.isFinished());
-    while (myProcessFactory.getNumberOfDestroyedProcesses() != 1) {
-      Thread.sleep(20);
-    }
-
-    final boolean result2 = workerLauncher.startSomeWorkers(1);
-    assertFalse(result2);
-    loggerStubFactory.assertErrorMessageContains("shutdown");
-    loggerStubFactory.assertSuccess("getErrorLogWriter");
-    loggerStubFactory.assertNoMoreCalls();
-
-    assertEquals(2, myProcessFactory.getNumberOfDestroyedProcesses());
-  }
-
-  public void testDestroyAllProcesses() throws Exception {
-
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
-    final Logger logger = loggerStubFactory.getLogger();
-    final MyCondition condition = new MyCondition();
     final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
     final WorkerLauncher workerLauncher =
-      new WorkerLauncher(4, myProcessFactory, condition, logger);
+      new WorkerLauncher(4, myProcessFactory, m_condition, m_logger);
 
-    condition.waitFor(workerLauncher);
-    assertFalse(condition.isFinished());
+    m_condition.waitFor(workerLauncher);
+    assertFalse(m_condition.isFinished());
 
     assertEquals(0, myProcessFactory.getNumberOfProcesses());
 
@@ -269,18 +240,73 @@ public class TestWorkerLauncher extends TestCase {
     sendTerminationMessage(processes[3]);
 
     assertFalse(workerLauncher.allFinished());
-    assertFalse(condition.isFinished());
+    assertFalse(m_condition.isFinished());
 
     workerLauncher.destroyAllWorkers();
 
     // Can't be bothered to add another layer of synchronisation, just
     // spin.
-    while (!condition.isFinished()) {
+    while (!m_condition.isFinished()) {
       Thread.sleep(20);
     }
 
     assertTrue(workerLauncher.allFinished());
     workerLauncher.shutdown();
+  }
+
+  @Test public void testInteruptedWaitFor() throws Exception {
+
+    final WorkerIdentity workerIdentity =
+      new AgentIdentityImplementation("test").createWorkerIdentity();
+
+    final WorkerFactory workerFactory = mock(WorkerFactory.class);
+    final Worker worker = mock(Worker.class);
+    when(worker.getIdentity()).thenReturn(workerIdentity);
+
+    when(workerFactory.create(isA(OutputStream.class),
+                              isA(OutputStream.class))).thenReturn(worker);
+
+    final WorkerLauncher workerLauncher =
+      new WorkerLauncher(1, workerFactory, m_condition, m_logger);
+
+    doThrow(new UncheckedInterruptedException(new InterruptedException()))
+      .when(worker).waitFor();
+
+    workerLauncher.startAllWorkers();
+
+    verify(worker).getIdentity();
+    verify(worker, timeout(1000)).waitFor();
+    verify(worker).destroy();
+
+    verifyNoMoreInteractions(worker);
+  }
+
+  @Test public void testRejectedExecution() throws Exception {
+
+    final WorkerIdentity workerIdentity =
+      new AgentIdentityImplementation("test").createWorkerIdentity();
+
+    final WorkerFactory workerFactory = mock(WorkerFactory.class);
+    final Worker worker = mock(Worker.class);
+    when(worker.getIdentity()).thenReturn(workerIdentity);
+
+    when(workerFactory.create(isA(OutputStream.class),
+                              isA(OutputStream.class))).thenReturn(worker);
+
+    final ExecutorService executor = mock(ExecutorService.class);
+
+    final WorkerLauncher workerLauncher =
+      new WorkerLauncher(executor, 1, workerFactory, m_condition, m_logger);
+
+    doThrow(new RejectedExecutionException())
+      .when(executor).execute(isA(Runnable.class));
+
+    final boolean result = workerLauncher.startSomeWorkers(1);
+    assertFalse(result);
+
+    m_loggerStubFactory.assertErrorMessage("Failed to wait for test-0");
+    m_loggerStubFactory.assertSuccess("getErrorLogWriter");
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 
   private static class MyCondition extends Condition {
@@ -360,63 +386,6 @@ public class TestWorkerLauncher extends TestCase {
 
     public ArrayList<Worker> getChildProcesses() {
       return m_childProcesses;
-    }
-  }
-
-  private static class NullWorkerFactory implements WorkerFactory {
-    private StubAgentIdentity m_agentIdentity =
-      new StubAgentIdentity("process");
-    private int m_numberOfDestroyedProcesses = 0;
-    private int m_numberOfLiveProcesses = 0;
-
-    public Worker create(OutputStream outputStream, OutputStream errorStream)
-      throws EngineException {
-
-      return new NullWorker(m_agentIdentity.createWorkerIdentity());
-    }
-
-    public synchronized int getNumberOfLiveProcesses() {
-      return m_numberOfLiveProcesses;
-    }
-
-    public synchronized int getNumberOfDestroyedProcesses() {
-      return m_numberOfDestroyedProcesses;
-    }
-
-    private class NullWorker implements Worker {
-      private WorkerIdentity m_workerIdentity;
-
-      public NullWorker(WorkerIdentityImplementation workerIdentity) {
-        m_workerIdentity = workerIdentity;
-      }
-
-      public void destroy() {
-        synchronized (NullWorkerFactory.this) {
-          ++m_numberOfDestroyedProcesses;
-        }
-      }
-
-      public OutputStream getCommunicationStream() {
-        return null;
-      }
-
-      public WorkerIdentity getIdentity() {
-        return m_workerIdentity;
-      }
-
-      public int waitFor() {
-        synchronized (NullWorkerFactory.this) {
-          ++m_numberOfLiveProcesses;
-        }
-
-        final Condition condition = new Condition();
-
-        synchronized (condition) {
-          condition.waitNoInterrruptException();
-        }
-
-        return 0;
-      }
     }
   }
 }

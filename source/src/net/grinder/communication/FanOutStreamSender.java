@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,10 +22,11 @@
 package net.grinder.communication;
 
 import java.io.OutputStream;
+import java.util.concurrent.ExecutorService;
 
 import net.grinder.common.Closer;
 import net.grinder.communication.ResourcePool.Resource;
-import net.grinder.util.thread.Executor;
+import net.grinder.util.thread.ExecutorFactory;
 
 
 /**
@@ -42,15 +43,16 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
    * @param numberOfThreads Number of sender threads to use.
    */
   public FanOutStreamSender(int numberOfThreads) {
-    this(new Executor(numberOfThreads));
+    this(ExecutorFactory.createThreadPool("FanOutStreamSender",
+                                          numberOfThreads));
   }
 
   /**
    * Constructor.
    *
-   * @param executor Executor to use.
+   * @param executor Executor service to use.
    */
-  private FanOutStreamSender(Executor executor) {
+  private FanOutStreamSender(ExecutorService executor) {
     super(executor, new ResourcePoolImplementation());
   }
 
