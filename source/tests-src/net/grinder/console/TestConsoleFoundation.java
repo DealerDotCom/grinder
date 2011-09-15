@@ -143,6 +143,17 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     final ConsoleProperties consoleProperties =
       new ConsoleProperties(m_resources, new File(getDirectory(), "props"));
 
+    // Figure out a free local port.
+
+    final ServerSocket serverSocket =
+      new ServerSocket(0, 50, InetAddress.getLocalHost());
+    final String hostName = serverSocket.getInetAddress().getHostName();
+    final int port = serverSocket.getLocalPort();
+    serverSocket.close();
+
+    consoleProperties.setConsoleHost(hostName);
+    consoleProperties.setConsolePort(port);
+
     final ConsoleFoundation foundation =
       new ConsoleFoundation(m_resources, m_logger, timer, consoleProperties);
 
@@ -151,16 +162,6 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     final Thread runConsole = new Thread(new Runnable() {
       public void run() { foundation.run(); }
     });
-
-    // Figure out a free local port.
-
-    final ServerSocket serverSocket =
-      new ServerSocket(0, 50, InetAddress.getLocalHost());
-    final String hostName = serverSocket.getInetAddress().getHostName();
-    final int port = serverSocket.getLocalPort();
-    serverSocket.close();
-    consoleProperties.setConsoleHost(hostName);
-    consoleProperties.setConsolePort(port);
 
     runConsole.start();
 
