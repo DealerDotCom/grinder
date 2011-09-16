@@ -152,6 +152,29 @@ public class TestBarrierImplementation {
     future.get();
   }
 
+  @Test public void testAwaitTimeoutInterrupted() throws Exception {
+    final BarrierImplementation b =
+      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+
+    reset(m_barrierGroup);
+
+    Thread.currentThread().interrupt();
+
+    try {
+      b.await(123456);
+      fail("Expected UncheckedInterruptedException");
+    }
+    catch (UncheckedInterruptedException e) {
+    }
+
+    verify(m_barrierGroup).addWaiter(ID2);
+    verify(m_barrierGroup).cancelWaiter(ID2);
+    verify(m_barrierGroup).removeBarriers(1);
+    verify(m_barrierGroup).removeListener(b);
+
+    verifyNoMoreInteractions(m_barrierGroup);
+  }
+
   @Test public void testAwaitHappyCase() throws Exception {
     final BarrierImplementation b =
       new BarrierImplementation(m_barrierGroup, m_identityGenerator);

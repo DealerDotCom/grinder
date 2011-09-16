@@ -23,6 +23,7 @@ package net.grinder.synchronisation;
 
 import java.util.concurrent.TimeUnit;
 
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.script.Barrier;
 import net.grinder.script.CancelledBarrierException;
@@ -159,13 +160,22 @@ public final class BarrierImplementation
       }
     }
 
-    /** @return {@code true} iff the wait completed naturally. */
-    protected abstract boolean doWait();
+    /** @return {@code true} iff the wait completed naturally.
+     * @throws CommunicationException */
+    protected abstract boolean doWait() throws CommunicationException;
   }
 
   private class ForeverWaiter extends Waiter {
-    @Override public boolean doWait() {
-      m_condition.waitNoInterrruptException();
+    @Override public boolean doWait() throws CommunicationException {
+
+      try {
+        m_condition.wait();
+      }
+      catch (InterruptedException e) {
+        cancel();
+        throw new UncheckedInterruptedException(e);
+      }
+
       return true;
     }
   }
@@ -177,10 +187,16 @@ public final class BarrierImplementation
       m_time = timeMillis;
     }
 
-    @Override public boolean doWait() {
+    @Override public boolean doWait() throws CommunicationException {
       final long start = System.currentTimeMillis();
 
-      m_condition.waitNoInterrruptException(m_time);
+      try {
+        m_condition.wait(m_time);
+      }
+      catch (InterruptedException e) {
+        cancel();
+        throw new UncheckedInterruptedException(e);
+      }
 
       m_time -= System.currentTimeMillis() - start;
 

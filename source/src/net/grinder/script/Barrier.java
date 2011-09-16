@@ -24,6 +24,8 @@ package net.grinder.script;
 import java.util.concurrent.TimeUnit;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.UncheckedInterruptedException;
+
 
 /**
  * Distributed synchronisation interface that allows worker threads to
@@ -77,7 +79,8 @@ public interface Barrier {
    * cancelled}.</li>
    * <li>This barrier is {@link #cancel cancelled}.</li>
    * <li>Some other thread {@link java.lang.Thread#interrupt() interrupts} the
-   * current thread.</li>
+   * current thread. In this case, the barrier will be
+   * {@link #cancel cancelled}.</li>
    * </ul>
    * </p>
    *
@@ -94,19 +97,19 @@ public interface Barrier {
    *           instance.
    * @throws GrinderException
    *           If the operation failed due to a network issue.
-   * @throws net.grinder.common.UncheckedInterruptedException
+   * @throws UncheckedInterruptedException
    *           If the current thread is interrupted while waiting.
    */
-  void await() throws CancelledBarrierException, GrinderException;
+  void await() throws CancelledBarrierException,
+                      GrinderException,
+                      UncheckedInterruptedException;
 
   /**
    * Version of {@link #await()} that allows a timeout to be specified.
    *
    * <p>
-   * If the specified timeout elapses while the thread is waiting, this barrier
-   * will be {@link #cancel cancelled} implicitly and the method will return
-   * {@code false}. Unlike {@link java.util.concurrent.CyclicBarrier}, this will
-   * not wake other threads.
+   * If the specified timeout elapses while the thread is waiting, the method
+   * will return {@code false}. The
    * </p>
    *
    * @param timeout
@@ -122,11 +125,13 @@ public interface Barrier {
    *           instance.
    * @throws GrinderException
    *           If the operation failed due to a network issue.
-   * @throws net.grinder.common.UncheckedInterruptedException
+   * @throws UncheckedInterruptedException
    *           If the current thread is interrupted while waiting.
    */
   boolean await(long timeout, TimeUnit unit)
-    throws CancelledBarrierException, GrinderException;
+    throws CancelledBarrierException,
+           GrinderException,
+           UncheckedInterruptedException;
 
   /**
    * <p>Equivalent to {@code await(timeout, TimeUnit.MILLISECONDS)}.</p>
@@ -142,11 +147,13 @@ public interface Barrier {
    *           instance.
    * @throws GrinderException
    *           If the operation failed for some other reason.
-   * @throws net.grinder.common.UncheckedInterruptedException
+   * @throws UncheckedInterruptedException
    *           If the current thread is interrupted while waiting.
    */
   boolean await(long timeout)
-    throws CancelledBarrierException, GrinderException;
+  throws CancelledBarrierException,
+         GrinderException,
+         UncheckedInterruptedException;
 
   /**
    * Cancel this {@code Barrier} and reduce the total number of instances for
