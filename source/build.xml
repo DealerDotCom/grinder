@@ -32,7 +32,7 @@ They are bundled in the lib directory:
 
   - Apache XMLBeans 2.1.0
   - Jython 2.2.1
-  - PicoContainer 1.3
+  - PicoContainer 2.13.6
   - ASM 3.2
 
 The following optional packages are necessary to run The Grinder unit
@@ -41,14 +41,12 @@ tests, reports, and release process.
   - JUnit 4.4
   - Checkstyle 4.4
   - Clover 2.0.3
-  - svnant 1.0.0
   - Mockito 1.8.5
 
   (You might not need these exact versions).
 
-If you are using svnant and have Cygwin svn installed, ensure you put
-the javahl library in your PATH. Otherwise svnant will pass Cygwin svn
-MS Windows paths, which it won't like.
+You will also need a command line version of git if you want to
+perform a release.
 
 
 What do I do?
@@ -100,9 +98,6 @@ if this doesn't do what you want.
   <property name="contrib.dir" value="contrib"/>
   <property name="export-to-doc-build.dir"
             value="${grinder-doc.dir}/imported"/>
-
-  <property name="svn.url"
-            value="https://grinder.svn.sourceforge.net/svnroot/grinder"/>
 
   <!-- output -->
   <!-- classes.dir is calcuated in init. -->
@@ -238,12 +233,6 @@ if this doesn't do what you want.
       <pathelement path="${clover.home}/lib/clover.jar"/>
     </path>
 
-    <path id="svnant.classpath">
-      <pathelement path="${svnant.home}/lib/svnant.jar"/>
-      <pathelement path="${svnant.home}/lib/svnClientAdapter.jar"/>
-      <pathelement path="${svnant.home}/lib/svnjavahl.jar"/>
-    </path>
-
     <!-- options -->
     <available classpathref="build-tests.classpath"
                classname="junit.framework.TestCase"
@@ -259,10 +248,6 @@ if this doesn't do what you want.
 
     <available file="${grinder-doc.dir}/build.xml"
                property="have.grinder-doc-build"/>
-
-    <available classpathref="svnant.classpath"
-               resource="svntask.properties"
-               property="have.svnant"/>
 
     <!-- filter tokens -->
     <filter token="version" value="${version}"/>
@@ -290,10 +275,6 @@ if this doesn't do what you want.
 
   <target name="assert-have-grinder-doc-build" depends="init" unless="have.grinder-doc-build">
     <fail message="To build this target, edit etc/localpaths.properties and set grinder-doc.dir to a valid grinder documentation build"/>
-  </target>
-
-  <target name="assert-have-svnant" depends="init" unless="have.svnant">
-    <fail message="To build this target, edit etc/localpaths.properties and set svnant.home to a valid svnant installation"/>
   </target>
 
   <target name="assert-have-everything"
@@ -609,10 +590,7 @@ if this doesn't do what you want.
               value="${export-to-doc-build.dir}/project-xml"/>
 
     <delete>
-      <fileset dir="${xml-output.dir}">
-        <exclude name="**/.svn"/>
-        <exclude name="**/.svn/**"/>
-      </fileset>
+      <fileset dir="${xml-output.dir}"/>
     </delete>
 
     <java classname="org.python.util.jython" logError="true"
@@ -731,10 +709,7 @@ if this doesn't do what you want.
               value="${export-to-doc-build.dir}/script-javadoc"/>
 
     <delete>
-      <fileset dir="${script-javadoc-output.dir}">
-        <exclude name="**/.svn"/>
-        <exclude name="**/.svn/**"/>
-      </fileset>
+      <fileset dir="${script-javadoc-output.dir}"/>
     </delete>
 
     <javadoc destdir="${script-javadoc-output.dir}"
@@ -799,39 +774,46 @@ if this doesn't do what you want.
     </antcall>
   </target>
 
-  <target name="svn-init" depends="init,assert-have-svnant">
-    <!-- svn-init exists to ensure we do the taskdef only once, otherwise
-         javahl is not found after the second taskdef. -->
-    <taskdef resource="svntask.properties" classpathref="svnant.classpath"/>
+  <!-- Derived from http://tlrobinson.net/blog/2008/11/13/ant-tasks-for-git/
+  -->
+  <macrodef name="git">
+    <attribute name="command" />
+    <attribute default="false" name="true"/>
+    <element name="args" optional="true" />
+
+    <sequential>
+      <echo message="git @{command}" />
+
+      <exec executable="git" failonerror="@{failonerror}">
+        <arg value="@{command}"/>
+        <args/>
+      </exec>
+    </sequential>
+
+  </macrodef>
+
+  <target name="git-status">
+    <git command="status">
+      <args>
+        <arg value="--short"/>
+      </args>
+    </git>
   </target>
 
-  <target name="svn-diff" depends="svn-init">
-    <tempfile property="temp.file" prefix="svndiff"/>
-
-    <svn>
-      <diff oldTargetRevision="HEAD"
-      outFile="${temp.file}"/>
-    </svn>
-
-    <concat>
-      <fileset file="${temp.file}"/>
-    </concat>
-
-    <delete file="${temp.file}"/>
+  <target name="git-tag">
+    <git command="tag">
+      <args>
+        <arg value="-s"/>
+        <arg value="-m"/>
+        <arg value="Tag ${release.tag}"/>
+        <arg value="${release.tag}"/>
+      </args>
+    </git>
   </target>
 
-  <target name="svn-tag" depends="svn-init">
-    <svn>
-      <copy srcUrl="${svn.url}/trunk/"
-            destUrl="${svn.url}/tags/${release.tag}/"
-            message="Tag ${release.tag}"/>
-    </svn>
-  </target>
+  <target name="release" depends="realclean,all,checkstyle,test,javadoc,release-documentation" description="Generates a release.">
 
-  <target name="release" depends="realclean,all,checkstyle,test,javadoc,release-documentation,svn-init" description="Generates a release.">
-
-    <echo message="Running svn diff"/>
-    <antcall target="svn-diff"/>
+    <antcall target="git-status"/>
 
     <echo message=""/>
     <echo message=""/>
@@ -850,7 +832,7 @@ if this doesn't do what you want.
     <fail if="do.abort">Build aborted by user.</fail>
 
     <echo message="Tagging the repository"/>
-    <antcall target="svn-tag"/>
+    <antcall target="git-tag"/>
 
     <echo message="Building release"/>
     <mkdir dir="${release.dir}"/>
