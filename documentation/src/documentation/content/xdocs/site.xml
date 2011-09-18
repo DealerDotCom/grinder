@@ -245,7 +245,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <jsr166 href="http://g.oswego.edu/dl/concurrency-interest/"/>
 
-    <junit href="http://junit.sourceforge.net/"/>
+    <junit href="http://junit.org/"/>
 
     <jython href="http://www.jython.org/">
       <registry href="docs/registry.html"/>
@@ -272,6 +272,8 @@ See http://forrest.apache.org/docs/linking.html for more info
       <tcpip-reg href="http://download.microsoft.com/download/c/2/6/c26893a6-46c7-4b5c-b287-830216597340/TCPIP_Reg.doc"/>
     </microsoft>
 
+    <mockito href="http://code.google.com/p/mockito/"/>
+
     <mozilla href="http://www.mozilla.com/"/>
 
     <ncftp href="http://www.ncftp.com/">
@@ -293,7 +295,8 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <perfmetrix href="http://www.perfmetrix.com"/>
 
-    <picocontainer href="http://picocontainer.codehaus.org/"/>
+    <picocontainer href="http://picocontainer.org/">
+    </picocontainer>
 
     <python href="http://www.python.org/"/>
 

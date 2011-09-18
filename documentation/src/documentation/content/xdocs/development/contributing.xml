@@ -64,20 +64,20 @@ tests, reports, and release process.</p>
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:sourceforge/junit/">JUnit 3.8.1</a></td>
+      <td><a href="ext:junit/">JUnit 4.4</a></td>
       <td>to run the unit tests</td>
     </tr>
     <tr>
-      <td><a href="ext:checkstyle">Checkstyle 3.4</a></td>
+      <td><a href="ext:mockito">Mockito 1.8.5</a></td>
+      <td>mocking cocktail drunk by the unit tests</td>
+    </tr>
+    <tr>
+      <td><a href="ext:checkstyle">Checkstyle 4.4</a></td>
       <td>to check the formatting of changes you may make to The Grinder</td>
     </tr>
     <tr>
       <td><a href="ext:clover">Clover 2.0.3</a></td>
       <td>to check unit test coverage</td>
-    </tr>
-    <tr>
-      <td><a href="ext:svnant">svnant 1.0.0</a></td>
-      <td>to run the Ant tasks that release The Grinder</td>
     </tr>
   </table>
 
@@ -85,7 +85,7 @@ tests, reports, and release process.</p>
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:jython">Jython 2.1, 2.5.0, 2.5.1</a></td>
+      <td><a href="ext:jython">Jython 2.1, 2.5.0, 2.5.1, 2.5.2</a></td>
       <td>to verify The Grinder works with alternative Jython versions</td>
     </tr>
   </table>
