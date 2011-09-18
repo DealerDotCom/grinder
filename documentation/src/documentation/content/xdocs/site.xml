@@ -156,9 +156,11 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <checkstyle href="http://checkstyle.sourceforge.net/"/>
 
+<!--
     <cia href="http://cia.navi.cx/">
       <grinder href="stats/project/grinder"/>
     </cia>
+-->
 
     <cygwin href="http://cygwin.com/"/>
 
@@ -176,6 +178,8 @@ See http://forrest.apache.org/docs/linking.html for more info
     <fowler href="http://martinfowler.com/">
       <constructor-injection href="articles/injection.html#ConstructorInjectionWithPicocontainer"/>
     </fowler>
+
+    <git href="http://git-scm.com/"/>
 
     <gmane href="http://gmane.org/">
       <grinder-lists href="find.php?list=grinder"/>
@@ -309,10 +313,17 @@ See http://forrest.apache.org/docs/linking.html for more info
       <junit href="projects/junit"/>
       <extra-line href="tracker/index.php?func=detail&amp;aid=1081136&amp;group_id=18598&amp;atid=118598"/>
       <grinder-mail href="mail/?group_id=18598"/>
-      <svn href="svn/?group_id=18598"/>
+      <git href="scm/?type=git&amp;group_id=18598"/>
+      <gitweb href="http://grinder.git.sourceforge.net/git/gitweb.cgi?p=grinder/grinder">
+        <summary href=";a=summary"/>
+        <console-resources href=";a=tree;f=source/src/net/grinder/console/common/resources;hb=HEAD"/>
+      </gitweb>
+      <svn href="scm/?type=svn&amp;group_id=18598"/>
+<!--
       <vcview href="http://grinder.svn.sourceforge.net/viewvc/grinder/trunk/source/">
         <console-resources href="src/net/grinder/console/common/resources/"/>
       </vcview>
+-->
     </sourceforge>
 
     <sourceforge-inc href="http://www.sourceforge.com/"/>

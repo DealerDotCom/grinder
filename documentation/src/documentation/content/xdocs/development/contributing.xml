@@ -11,20 +11,28 @@
   <section>
   <title>The Source</title>
 
-  <p>The <a href="ext:svn">Subversion</a> repository for the source code and the documentation source
-  is available for <a href="ext:sourceforge/svn">read-only anonymous access from SourceForge</a>. To check out
-  the source code, you'll want to do something like this:
+  <p>From September 2011, The Grinder source code and documentation is
+  hosted in a <a href="ext:git">Git</a> repository. You can obtain a
+  copy from <a href="ext:sourceforge">Sourceforge</a> using <a
+  href="ext:sourceforge/git">read-only, anonymous access</a>. To check
+  out the source code, you'll want to do something like this:
   </p>
 
   <source class="sh">
-  $ svn co https://grinder.svn.sourceforge.net/svnroot/grinder/trunk/source grinder
+  $ git clone git://grinder.git.sourceforge.net/gitroot/grinder/grinder
   </source>
 
-  <p>You can browse this repository with <a
-  href="ext:sourceforge/vcview">VCView</a>, and monitor changes to the
-  repository via <a href="ext:cia/grinder">CIA</a>. Note, the
-  published documentation refers to the latest released version of The
-  Grinder, and so can lag Subversion by a month or two.</p>
+  <p>You can browse and monitor changes to the repository with <a
+  href="ext:sourceforge/gitweb/summary">GitWeb</a>. Note, the published
+  documentation refers to the latest released version of The Grinder,
+  and so can lag the Git <code>HEAD</code>.</p>
+
+  <p>The Grinder repository previously used <a
+  href="ext:svn">Subversion</a>. The <a
+  href="ext:sourceforge/svn">Subversion repository</a> is still
+  available, but no new code will be added there and it will be
+  removed in the future.
+  </p>
 
   </section>
 
@@ -89,14 +97,14 @@ tests, reports, and release process.</p>
 
   <p>If you feel you have something worth sharing, please first
   discuss your ideas on the <a
-  href="ext:mail/grinder-development">grinder-development list</a>.
-  If your ideas develop into code, you can submit patches to this list.
-  Patches should be in 'unified diff' (<code>diff -u</code>) format against
-  either the latest released version of The Grinder 3, or the Subversion
-  trunk (please state which revision). Patches should also
-  include updates to the relevant documentation sources. Please
-  include a statement in your email  that you, and where appropriate your
-  employer, are happy for your work to be distributed under the terms of <a
+  href="ext:mail/grinder-development">grinder-development list</a>. If
+  your ideas develop into code, you can submit patches to this list.
+  Patches should be generated using <code>git format-patch -M -B</code>
+  against either the latest released version of The Grinder 3, or the
+  Git <code>master</code> branch. Patches should also include updates
+  to the relevant documentation sources. Please include a statement in
+  your email that you, and where appropriate your employer, are happy
+  for your work to be distributed under the terms of <a
   href="site:license">The Grinder license</a>.</p>
 
   <section>
@@ -175,7 +183,7 @@ java -Duser.language="es" net.grinder.Console
       <title>How to provide or update a translation</title>
 
       <p>The translation properties files are stored in
-      <a href="ext:sourceforge/vcview/console-resources">
+      <a href="ext:sourceforge/gitweb/console-resources">
       the source repository</a>. Getting the file directly from the
       repository will make your translation is as up
       to date as possible, and avoid duplicating effort.
