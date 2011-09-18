@@ -413,7 +413,7 @@ identifiers used for headers, URLs, pages, tokens, and so on.</p>
     <title>SSL and HTTPS support</title>
 
     <p>The TCPProxy has SSL support based on Java's <a
-    href="ext:javasoft/jsse">JSSE</a> framework.</p>
+    href="ext:oracle/java/jsse">JSSE</a> framework.</p>
 
     <p>SSL relationships are necessarily point to point. When you
     interpose the TCPProxy in SSL communications between a browser and
@@ -464,7 +464,7 @@ identifiers used for headers, URLs, pages, tokens, and so on.</p>
     the TCPProxy will report "SSL peer shut down incorrectly. The
     browser will just spin away until it times out. The easiest way to
     provide a server certificate is to copy the <em>testkeys</em> file
-    from the <a href="ext:javasoft/jsse-samples">JSSE samples
+    from the <a href="ext:oracle/java/jsse-archive">JSSE samples
     distribution</a> and start the proxy using:</p>
 
 <source class="sh">

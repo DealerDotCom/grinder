@@ -8,7 +8,7 @@
 </header>
 
 <body>
-  <section>
+  <section id="source">
   <title>The Source</title>
 
   <p>From September 2011, The Grinder source code and documentation is
@@ -43,11 +43,11 @@
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:javasoft/j2se15">Java Standard Edition 5 ("Java 5") or higher</a></td>
+      <td><a href="ext:oracle/java/javase">Java Standard Edition 6 ("Java 6") or higher</a></td>
       <td></td>
     </tr>
     <tr>
-      <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.6.2</a></td>
+      <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.7</a></td>
       <td></td>
     </tr>
   </table>

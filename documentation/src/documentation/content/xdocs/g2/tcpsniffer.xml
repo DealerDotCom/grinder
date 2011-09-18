@@ -159,8 +159,9 @@ java net.grinder.TCPSniffer -proxy -httpPluginFilter &gt; grinder.properties
     <section>
       <title>SSL and HTTPS support</title>
 
-      <p>The TCPSniffer has SSL support. You must first install <a
-      href="ext:javasoft/jsse/">the JSSE</a>.</p>
+      <p>The TCPSniffer has SSL support. If you are using an old JVM,
+      (earlier than Java SE 1.4.1) you must first install <a
+      href="ext:oracle/java/jsse-archive">the JSSE</a>.</p>
 
       <p>SSL relationships are necessarily point to point. When you
       interpose the TCPSniffer you end up with:</p>

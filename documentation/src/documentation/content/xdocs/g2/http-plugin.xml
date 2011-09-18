@@ -308,14 +308,14 @@ grinder.jvm.arguments=-DHTTPClient.forceHTTP_1.0=true
       several SSL implementations. See <a
       href="ext:innovation/httpclient/https">http://www.innovation.ch/java/HTTPClient/https.html</a>
       for details. The instructions that follow assume you are using
-      JSSE 1.0.2.</p>
+      JSSE 1.0.3 or later.</p>
 
       <ol>
   <li>
-    <p>Install JSSE1.0.2. Follow the instructions in <a
-    href="ext:javasoft/jsse/install">http://java.sun.com/products/jsse/INSTALL.html</a>.
-    I recommend installing the JSSE as an installed extension
-    for simplicity.</p>
+    <p>If you are using an old JVM (earlier than 1.4.1), you'll need
+    to install <a href="ext:oracle/java/jsse-archive">JSSE1.0.3</a>. I
+    recommend installing the JSSE as an installed extension for
+    simplicity.</p>
   </li>
 
   <li>
@@ -379,7 +379,7 @@ keytool -import -v -keystore ./mycastore -file d:/wls5/myserver/ca.pem
       href="#https">above</a>.</note>
 
       <ol>
-  <li>Install JSSE1.0.2 as described above.</li>
+  <li>Install JSSE1.0.3 as described above.</li>
 
   <li>In your <code>grinder.properties</code>, use the
   HttpsPlugin rather than HttpPlugin:

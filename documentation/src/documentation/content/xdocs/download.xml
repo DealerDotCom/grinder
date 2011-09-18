@@ -14,6 +14,7 @@
   <p>The Grinder can be downloaded from <a
   href="ext:sourceforge/grinder">SourceForge.net</a>. New users are
     <a href="site:gfaq/common/g2vsg3">advised</a> to start with The Grinder 3.
+  The <a href="site:development/contributing/source">source code</a> is also available.
   </p>
 
   <p>The Grinder 3 is distributed as two zip files which you should expand
@@ -33,24 +34,21 @@
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:javasoft/j2se15">Java Standard Edition
-      5</a>, equivalent, or later</td><td>For The Grinder 3</td>
+      <td><a href="ext:oracle/java/javase">Java Standard Edition
+      5</a>, equivalent, or later</td><td>For The Grinder 3.</td>
     </tr>
     <tr>
-      <td><a href="ext:javasoft/j2se13">Java 2 Standard Edition
-      1.3</a>, equivalent, or later</td><td>For The Grinder 2</td>
+      <td><a href="ext:oracle/java/javase">Java Standard Edition
+      6</a>, equivalent, or later</td><td>For The Grinder 3 with the <a href="site:g3/scripts/script-instrumentation/new-instrumentation">new instrumentation</a>.</td>
     </tr>
-  </table>
-
-  <p>and optionally:</p>
-
-  <table class="noborder">
     <tr>
-      <td><a href="ext:javasoft/jsse/">
+      <td><a href="ext:oracle/java/javase">Java 2 Standard Edition
+      1.3</a>, equivalent, or later</td><td>For The Grinder 2.</td>
+    </tr>
+    <tr>
+      <td><a href="ext:oracle/java/jsse/">
         JSSE (Java Secure Socket Extension) 1.0.2</a></td>
-      <td>for SSL support with The Grinder 2.
-
-      <p>Note, JSSE is a standard part of Java 2 Standard Edition 1.4.1 and later.</p>
+      <td>For SSL support with The Grinder 2.<br/>JSSE is a standard part of Java 2 Standard Edition 1.4.1 and later.
       </td>
     </tr>
   </table>

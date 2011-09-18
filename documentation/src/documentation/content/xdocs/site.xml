@@ -27,6 +27,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 
   <development label="Development" tab="project" href="development/">
     <contributing label="Contributing" href="contributing.html">
+      <source href="#source"/>
       <translating href="#translating"/>
     </contributing>
     <changes label="Changes" href="changes.html"/>
@@ -240,17 +241,6 @@ See http://forrest.apache.org/docs/linking.html for more info
       <oro href="oro/index.html"/>
     </jakarta>
 
-    <javasoft href="http://java.sun.com/">
-      <j2se13 href="j2se/1.3/"/>
-      <j2se14 href="j2se/1.4/"/>
-      <j2se15 href="j2se/1.5/"/>
-      <j2e16 href="javase"/>
-      <jsse href="products/jsse/">
-        <install href="INSTALL.html"/>
-      </jsse>
-      <jsse-samples href="j2se/1.4.1/docs/guide/security/jsse/samples/"/>
-    </javasoft>
-
     <jedit-syntax href="http://syntax.jedit.org/"/>
 
     <jsr166 href="http://g.oswego.edu/dl/concurrency-interest/"/>
@@ -288,8 +278,13 @@ See http://forrest.apache.org/docs/linking.html for more info
       <ephemeral-ports href="ncftpd/doc/misc/ephemeral_ports.html"/>
     </ncftp>
 
-    <oracle href="http://www.oracle.com">
+    <oracle href="http://www.oracle.com/">
       <gc-tuning href="technetwork/java/javase/gc-tuning-6-140523.html"/>
+      <java href="technetwork/java/">
+        <javase href="javase/downloads/index.html"/>
+	<jsse href="javase/tech/index-jsp-136007.html"/>
+	<jsse-archive href="jsse-136410.html"/>
+      </java>
     </oracle>
 
     <oreilly href="http://www.oreilly.com/">
