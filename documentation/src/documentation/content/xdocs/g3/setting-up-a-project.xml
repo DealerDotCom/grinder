@@ -19,7 +19,7 @@
       <li>...etc.</li>
     </ul>
     <p>Below is given an example of a directory structure for setting up The Grinder.</p>
-<source>
+<source class="text">
 .
 `- <strong>Grinder</strong>
     |
@@ -84,7 +84,7 @@
     to be revisited with repeatability ensured, then it makes sense, in this example, to
     modularize the implementation around the projects. To do this simply create the <strong>bin</strong>, <strong>etc</strong> and <strong>logs</strong>
     directories under the respective projects like so:</p>
-<source>
+<source class="text">
     |
     `-- <strong>projects</strong>
         |-- website_project

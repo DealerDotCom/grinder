@@ -48,7 +48,7 @@
     that simply print a message to stdout.  (Your tests will likely make
     use of deeper facilities of The Grinder, such as HTTPClient, etc.)
     </p>
-    <source>
+    <source class="jython">
     def doCREATEtest():
         print 'Doing CREATE test ...'
     def doREADtest():
@@ -73,7 +73,7 @@
     For our example, we begin by defining our desired weight distribution
     in a table (Jython dictionary structure) like the following:
     </p>
-    <source>
+    <source class="jython">
     g_Weights = {
         'CREATE': 2,
         'READ'  : 4,
@@ -105,7 +105,7 @@
     All the magic of choosing which test to run according to your specified
     weight distribution is accomplished by the following "accumulator" function:
     </p>
-    <source>
+    <source class="jython">
     def weightAccumulator(i_dict):
         keyList = i_dict.keys()
         keyList.sort()  # sorting is optional - order coming-in doesn't matter, but determinism is kinda cool
@@ -139,7 +139,7 @@
     available (including Jython), but for our purposes here we'll just
     use the Java standard generator:
     </p>
-    <source>
+    <source class="jython">
     g_rng = java.util.Random(java.lang.System.currentTimeMillis())
 
     def randNum(i_min, i_max):
@@ -177,7 +177,7 @@
     <p>
     We are now ready to define our TestRunner class:
     </p>
-    <source>
+    <source class="jython">
     class TestRunner:
         def __call__(self):
             opNum = randNum(0, g_WeightsAccMax_1)
@@ -223,14 +223,14 @@
     In a Linux environment, you can do this conveniently by rerunning the
     test in a pipeline command as follows:
     </p>
-    <source>
+    <source class="sh">
     startAgent.sh |  \
         awk '/^Doing /{count[$0]+=1} END{for (test in count) print test, count[test]}'
     </source>
     <p>
     A typical run of this command will produce results similar to the following:
     </p>
-    <source>
+    <source class="text">
     Doing CREATE test ... 2006
     Doing READ   test ... 4045
     Doing UPDATE test ... 2993
@@ -245,7 +245,7 @@
   <section>
     <title>Full Script Listing</title>
 
-<source>
+<source class="jython">
 import java.lang.System, java.util.Random
 
 

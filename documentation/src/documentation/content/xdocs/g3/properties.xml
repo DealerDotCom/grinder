@@ -355,6 +355,19 @@
           <td></td>
     </tr>
 
+        <tr>
+          <td>
+            <code>grinder.dcrinstrumentation</code>
+          </td>
+
+          <td>For advanced use only. Enables the
+          <a href="site:script-instrumentation/new-instrumentation">
+          new instrumentation engine</a>.
+          </td>
+
+          <td>false</td>
+    </tr>
+
       </table>
     </section>
 
@@ -366,7 +379,7 @@
       systems the following command line can be used to generate log
       directories based on the current date.</p>
 
-<source>
+<source class="sh">
 java -Dgrinder.logDirectory="log/$(date +%y%m%d)" net.grinder.Grinder
 </source>
 

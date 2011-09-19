@@ -12,7 +12,7 @@
 
       <p>To use the HTTP plug-in, specify:</p>
 
-<source>
+<source class="text">
 grinder.plugin=net.grinder.plugin.http.HttpPlugin
 </source>
     </section>
@@ -155,7 +155,7 @@ grinder.plugin=net.grinder.plugin.http.HttpPlugin
     <li>
       <p>Write a simple bean:</p>
 
-<source>
+<source class="java">
 // MyStringBean.java
 package mystuff;
 
@@ -175,7 +175,7 @@ public class MyStringBean {
       <p>Compile this and put it in your <code>CLASSPATH</code>.
       Then alter your <code>grinder.properties</code> to include
       this line:</p>
-<source>
+<source class="text">
 grinder.plugin.parameter.stringBean=mystuff.MyStringBean
 </source>
     </li>
@@ -183,7 +183,7 @@ grinder.plugin.parameter.stringBean=mystuff.MyStringBean
     <li>
       <p>Alter the test URL parameter as follows:</p>
 
-<source>
+<source class="text">
 grinder.test0.parameter.url=http://myhost/test.jsp?n=&lt;getRandomInteger&gt;
 </source>
 
@@ -237,7 +237,7 @@ grinder.test0.parameter.url=http://myhost/test.jsp?n=&lt;getRandomInteger&gt;
       plug-in should use <code>HttpURLConnection</code> instead of
       HTTPClient:</p>
 
-<source>
+<source class="text">
 grinder.plugin.parameter.useHTTPClient=false
 </source>
 
@@ -284,7 +284,7 @@ grinder.plugin.parameter.useHTTPClient=false
   HTTPClient to use HTTP 1.0 instead of HTTP 1.1 with the
   following parameter:</p>
 
-<source>
+<source class="text">
 grinder.jvm.arguments=-DHTTPClient.forceHTTP_1.0=true
 </source>
 
@@ -308,14 +308,14 @@ grinder.jvm.arguments=-DHTTPClient.forceHTTP_1.0=true
       several SSL implementations. See <a
       href="ext:innovation/httpclient/https">http://www.innovation.ch/java/HTTPClient/https.html</a>
       for details. The instructions that follow assume you are using
-      JSSE 1.0.2.</p>
+      JSSE 1.0.3 or later.</p>
 
       <ol>
   <li>
-    <p>Install JSSE1.0.2. Follow the instructions in <a
-    href="ext:javasoft/jsse/install">http://java.sun.com/products/jsse/INSTALL.html</a>.
-    I recommend installing the JSSE as an installed extension
-    for simplicity.</p>
+    <p>If you are using an old JVM (earlier than 1.4.1), you'll need
+    to install <a href="ext:oracle/java/jsse-archive">JSSE1.0.3</a>. I
+    recommend installing the JSSE as an installed extension for
+    simplicity.</p>
   </li>
 
   <li>
@@ -326,7 +326,7 @@ grinder.jvm.arguments=-DHTTPClient.forceHTTP_1.0=true
     directory called HTTPClient, then create a jar containing
     that directory:</p>
 
-<source>
+<source class="sh">
 mkdir HTTPClient; cd HTTPClient
 jar xf /download/JSSE.zip
 cd ..
@@ -346,7 +346,7 @@ jar cf HTTPClient-JSSE.jar HTTPClient
       certificates that sign the server certificate. See the JSSE
       documentation for full details, here's a quick hint:</p>
 
-<source>
+<source class="sh">
 keytool -import -v -keystore ./mycastore -file d:/wls5/myserver/ca.pem
 </source>
 
@@ -379,12 +379,12 @@ keytool -import -v -keystore ./mycastore -file d:/wls5/myserver/ca.pem
       href="#https">above</a>.</note>
 
       <ol>
-  <li>Install JSSE1.0.2 as described above.</li>
+  <li>Install JSSE1.0.3 as described above.</li>
 
   <li>In your <code>grinder.properties</code>, use the
   HttpsPlugin rather than HttpPlugin:
 
-<source>
+<source class="text">
 grinder.plugin=net.grinder.plugin.http.HttpsPlugin
 </source>
   </li>
@@ -394,7 +394,7 @@ grinder.plugin=net.grinder.plugin.http.HttpsPlugin
 
   <li>If you want two-way authentication, add the lines like:
 
-<source>
+<source class="text">
 grinder.plugin.parameter.clientCert=./philclient.p12
 grinder.plugin.parameter.clientCertPassword=acrobat
 </source>

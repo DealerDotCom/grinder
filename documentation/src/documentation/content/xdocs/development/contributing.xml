@@ -8,23 +8,31 @@
 </header>
 
 <body>
-  <section>
+  <section id="source">
   <title>The Source</title>
 
-  <p>The <a href="ext:svn">Subversion</a> repository for the source code and the documentation source
-  is available for <a href="ext:sourceforge/svn">read-only anonymous access from SourceForge</a>. To check out
-  the source code, you'll want to do something like this:
+  <p>From September 2011, The Grinder source code and documentation is
+  hosted in a <a href="ext:git">Git</a> repository. You can obtain a
+  copy from <a href="ext:sourceforge">Sourceforge</a> using <a
+  href="ext:sourceforge/git">read-only, anonymous access</a>. To check
+  out the source code, you'll want to do something like this:
   </p>
 
-  <source>
-  $ svn co https://grinder.svn.sourceforge.net/svnroot/grinder/trunk/source grinder
+  <source class="sh">
+  $ git clone git://grinder.git.sourceforge.net/gitroot/grinder/grinder
   </source>
 
-  <p>You can browse this repository with <a
-  href="ext:sourceforge/vcview">VCView</a>, and monitor changes to the
-  repository via <a href="ext:cia/grinder">CIA</a>. Note, the
-  published documentation refers to the latest released version of The
-  Grinder, and so can lag Subversion by a month or two.</p>
+  <p>You can browse and monitor changes to the repository with <a
+  href="ext:sourceforge/gitweb/summary">GitWeb</a>. Note, the published
+  documentation refers to the latest released version of The Grinder,
+  and so can lag the Git <code>HEAD</code>.</p>
+
+  <p>The Grinder repository previously used <a
+  href="ext:svn">Subversion</a>. The <a
+  href="ext:sourceforge/svn">Subversion repository</a> is still
+  available, but no new code will be added there and it will be
+  removed in the future.
+  </p>
 
   </section>
 
@@ -35,11 +43,11 @@
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:javasoft/j2se15">Java Standard Edition 5 ("Java 5") or higher</a></td>
+      <td><a href="ext:oracle/java/javase">Java Standard Edition 6 ("Java 6") or higher</a></td>
       <td></td>
     </tr>
     <tr>
-      <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.6.2</a></td>
+      <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.7</a></td>
       <td></td>
     </tr>
   </table>
@@ -56,20 +64,20 @@ tests, reports, and release process.</p>
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:sourceforge/junit/">JUnit 3.8.1</a></td>
+      <td><a href="ext:junit/">JUnit 4.4</a></td>
       <td>to run the unit tests</td>
     </tr>
     <tr>
-      <td><a href="ext:checkstyle">Checkstyle 3.4</a></td>
+      <td><a href="ext:mockito">Mockito 1.8.5</a></td>
+      <td>mocking cocktail drunk by the unit tests</td>
+    </tr>
+    <tr>
+      <td><a href="ext:checkstyle">Checkstyle 4.4</a></td>
       <td>to check the formatting of changes you may make to The Grinder</td>
     </tr>
     <tr>
       <td><a href="ext:clover">Clover 2.0.3</a></td>
       <td>to check unit test coverage</td>
-    </tr>
-    <tr>
-      <td><a href="ext:svnant">svnant 1.0.0</a></td>
-      <td>to run the Ant tasks that release The Grinder</td>
     </tr>
   </table>
 
@@ -77,7 +85,7 @@ tests, reports, and release process.</p>
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:jython">Jython 2.1, 2.5.0, 2.5.1</a></td>
+      <td><a href="ext:jython">Jython 2.1, 2.5.0, 2.5.1, 2.5.2</a></td>
       <td>to verify The Grinder works with alternative Jython versions</td>
     </tr>
   </table>
@@ -89,14 +97,14 @@ tests, reports, and release process.</p>
 
   <p>If you feel you have something worth sharing, please first
   discuss your ideas on the <a
-  href="ext:mail/grinder-development">grinder-development list</a>.
-  If your ideas develop into code, you can submit patches to this list.
-  Patches should be in 'unified diff' (<code>diff -u</code>) format against
-  either the latest released version of The Grinder 3, or the Subversion
-  trunk (please state which revision). Patches should also
-  include updates to the relevant documentation sources. Please
-  include a statement in your email  that you, and where appropriate your
-  employer, are happy for your work to be distributed under the terms of <a
+  href="ext:mail/grinder-development">grinder-development list</a>. If
+  your ideas develop into code, you can submit patches to this list.
+  Patches should be generated using <code>git format-patch -M -B</code>
+  against either the latest released version of The Grinder 3, or the
+  Git <code>master</code> branch. Patches should also include updates
+  to the relevant documentation sources. Please include a statement in
+  your email that you, and where appropriate your employer, are happy
+  for your work to be distributed under the terms of <a
   href="site:license">The Grinder license</a>.</p>
 
   <section>
@@ -161,7 +169,7 @@ tests, reports, and release process.</p>
     locale is set otherwise and you are curious to try this out,
     specify the Java <code>user.language</code> system property.</p>
 
-<source>
+<source class="sh">
 java -Duser.language="es" net.grinder.Console
 </source>
 
@@ -175,7 +183,7 @@ java -Duser.language="es" net.grinder.Console
       <title>How to provide or update a translation</title>
 
       <p>The translation properties files are stored in
-      <a href="ext:sourceforge/vcview/console-resources">
+      <a href="ext:sourceforge/gitweb/console-resources">
       the source repository</a>. Getting the file directly from the
       repository will make your translation is as up
       to date as possible, and avoid duplicating effort.

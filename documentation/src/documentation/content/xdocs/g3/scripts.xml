@@ -102,7 +102,7 @@
       above. It doesn't do very much - every run will log <em>Hello
       World</em> to the output log.</p>
 
-<source>
+<source class="jython">
 from net.grinder.script.Grinder import grinder
 
 # An instance of this class is created for every thread.
@@ -134,7 +134,7 @@ class TestRunner:
 
     <p>Let's add a <code>Test</code> to our script.</p>
 
-<source>
+<source class="jython">
 from net.grinder.script import Test
 from net.grinder.script.Grinder import grinder
 
@@ -164,7 +164,7 @@ class TestRunner:
     additionally the time taken to do the call and the number of calls
     will be recorded and reported to the console.</p>
 
-<source>
+<source class="jython">
 from net.grinder.script import Test
 from net.grinder.script.Grinder import grinder
 
@@ -185,7 +185,7 @@ class TestRunner:
     more common to wrap objects. Here's an example using The Grinder's
     <a href="site:g3/plugins/http-plugin">HTTP plug-in</a>.</p>
 
-<source>
+<source class="jython">
 # A simple example using the HTTP plugin that shows the retrieval of a
 # single page via HTTP.
 
@@ -267,13 +267,13 @@ class TestRunner:
     adding the following to your
     <a href="site:properties">properties</a> file:</p>
 
-    <source>
+    <source class="sh">
 grinder.jvm.arguments = -Dpython.home=/opt/jython/jython2.2.1
     </source>
 
     <p>or on the agent command line:</p>
 
-    <source>
+    <source class="sh">
 java -Dgrinder.jvm.arguments=-Dpython.home=/opt/jython/jython2.2.1 net.grinder.Grinder
     </source>
 
@@ -308,9 +308,9 @@ java -Dgrinder.jvm.arguments=-Dpython.home=/opt/jython/jython2.2.1 net.grinder.G
     take a little longer to start, and ugly error messages will be displayed:
     </p>
 
-    <source>
+    <source class="text">
 28/09/08 17:57:11 (agent): worker paston01-0 started
-*sys-package-mgr*: can't create package cache dir, '/home/philipa/performance/round2/grinder-3.1/lib/jython.jar/cachedir/packages'
+*sys-package-mgr*: can't create package cache dir, '/home/performance/lib/jython.jar/cachedir/packages'
     </source>
 
     <p>You can specify the cache directory either by setting the
@@ -319,13 +319,13 @@ java -Dgrinder.jvm.arguments=-Dpython.home=/opt/jython/jython2.2.1 net.grinder.G
     <code>python.cachedir</code> in your <a href="site:properties">properties</a> file:
     </p>
 
-    <source>
+    <source class="sh">
 grinder.jvm.arguments = -Dpython.cachedir=/tmp/mycache
     </source>
 
     <p>or on the command line:</p>
 
-    <source>
+    <source class="sh">
 java -Dgrinder.jvm.arguments = -Dpython.cachedir=/tmp/mycache net.grinder.Grinder
     </source>
 
@@ -333,7 +333,7 @@ java -Dgrinder.jvm.arguments = -Dpython.cachedir=/tmp/mycache net.grinder.Grinde
     if you want to set both the cache directory and <code>python.home</code>
     either use the registry, or do this:</p>
 
-    <source>
+    <source class="sh">
 grinder.jvm.arguments = -Dpython.home=/opt/jython/jython2.2.1 -Dpython.cachedir=/tmp/mycache
     </source>
 

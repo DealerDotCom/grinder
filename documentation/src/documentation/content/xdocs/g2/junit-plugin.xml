@@ -54,7 +54,7 @@
       <p>To use the <a href="ext:junit/">JUnit</a> plug-in,
       specify:</p>
 
-<source>
+<source class="sh">
 grinder.plugin=net.grinder.plugin.junit.JUnitPlugin
 </source>
       </section>
@@ -113,7 +113,7 @@ grinder.plugin=net.grinder.plugin.junit.JUnitPlugin
       tests' sleep time as normal. For example, if you want to wait a
       second before the 6th test in the test suite, you should say</p>
 
-<source>
+<source class="text">
 grinder.test5.sleepTime=1000
 </source>
 

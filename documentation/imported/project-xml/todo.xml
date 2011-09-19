@@ -18,8 +18,6 @@ The TODO list is part of the binary distribution. I'll accept patches against it
 Implement a javax.script wrapper that is loaded if detected. Prove by implementing support for JavaScript (which is built into Java 6). </p>
 </section>
 <section name='Java 5 upgrade' depth='1' id='Java 5 upgrade'>
-<section name='Checkstyle vs "&lt;"' depth='2' id='Checkstyle vs "&lt;"'>
-</section>
 <section name='Opportunities' depth='2' id='Opportunities'>
 <section name='JUC executors, CAS etc.' depth='3' id='JUC executors, CAS etc.'>
 </section>
@@ -119,6 +117,8 @@ Resolve anomaly that Senders throw exceptions but Receivers return null. </p>
 Should TPS averages be harmonic means? http://en.wikipedia.org/wiki/Harmonic_mean </p>
 <p>
 Split out serializeable kernel of TestStatisticsMap? Look hard at where the message is deserialised. </p>
+<p>
+Simplify the index classes. Move the index implementations to nested classes of StatisticsSetImplementation and expose a single, opaque StatsiticsSet.Index interface. </p>
 <section name='Aligning data files' depth='3' id='Aligning data files'>
 <p>
 Requested by Jose Antonio Zapata: </p>
@@ -251,7 +251,7 @@ Add reset console action. </p>
 Should listen on all interfaces if -localhost is not specified. </p>
 </section>
 </section>
-<section name='Build' depth='1' id='Build'>
+<section name='Build and tooling' depth='1' id='Build and tooling'>
 <p>
 How to build clover reports during full build? </p>
 <ul>
@@ -264,6 +264,10 @@ How to build clover reports during full build? </p>
 </ul>
 <p>
 Include Clover history? </p>
+<p>
+Upgrade to JUnit 4 </p>
+<p>
+Introduce Mockito. </p>
 </section>
 <section name='Documentation' depth='1' id='Documentation'>
 <section name='Examples' depth='2' id='Examples'>

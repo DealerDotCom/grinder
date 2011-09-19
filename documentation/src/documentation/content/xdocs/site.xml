@@ -27,6 +27,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 
   <development label="Development" tab="project" href="development/">
     <contributing label="Contributing" href="contributing.html">
+      <source href="#source"/>
       <translating href="#translating"/>
     </contributing>
     <changes label="Changes" href="changes.html"/>
@@ -156,9 +157,11 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <checkstyle href="http://checkstyle.sourceforge.net/"/>
 
+<!--
     <cia href="http://cia.navi.cx/">
       <grinder href="stats/project/grinder"/>
     </cia>
+-->
 
     <cygwin href="http://cygwin.com/"/>
 
@@ -176,6 +179,8 @@ See http://forrest.apache.org/docs/linking.html for more info
     <fowler href="http://martinfowler.com/">
       <constructor-injection href="articles/injection.html#ConstructorInjectionWithPicocontainer"/>
     </fowler>
+
+    <git href="http://git-scm.com/"/>
 
     <gmane href="http://gmane.org/">
       <grinder-lists href="find.php?list=grinder"/>
@@ -236,22 +241,11 @@ See http://forrest.apache.org/docs/linking.html for more info
       <oro href="oro/index.html"/>
     </jakarta>
 
-    <javasoft href="http://java.sun.com/">
-      <j2se13 href="j2se/1.3/"/>
-      <j2se14 href="j2se/1.4/"/>
-      <j2se15 href="j2se/1.5/"/>
-      <j2e16 href="javase"/>
-      <jsse href="products/jsse/">
-        <install href="INSTALL.html"/>
-      </jsse>
-      <jsse-samples href="j2se/1.4.1/docs/guide/security/jsse/samples/"/>
-    </javasoft>
-
     <jedit-syntax href="http://syntax.jedit.org/"/>
 
     <jsr166 href="http://g.oswego.edu/dl/concurrency-interest/"/>
 
-    <junit href="http://junit.sourceforge.net/"/>
+    <junit href="http://junit.org/"/>
 
     <jython href="http://www.jython.org/">
       <registry href="docs/registry.html"/>
@@ -278,14 +272,21 @@ See http://forrest.apache.org/docs/linking.html for more info
       <tcpip-reg href="http://download.microsoft.com/download/c/2/6/c26893a6-46c7-4b5c-b287-830216597340/TCPIP_Reg.doc"/>
     </microsoft>
 
+    <mockito href="http://code.google.com/p/mockito/"/>
+
     <mozilla href="http://www.mozilla.com/"/>
 
     <ncftp href="http://www.ncftp.com/">
       <ephemeral-ports href="ncftpd/doc/misc/ephemeral_ports.html"/>
     </ncftp>
 
-    <oracle href="http://www.oracle.com">
+    <oracle href="http://www.oracle.com/">
       <gc-tuning href="technetwork/java/javase/gc-tuning-6-140523.html"/>
+      <java href="technetwork/java/">
+        <javase href="javase/downloads/index.html"/>
+	<jsse href="javase/tech/index-jsp-136007.html"/>
+	<jsse-archive href="jsse-136410.html"/>
+      </java>
     </oracle>
 
     <oreilly href="http://www.oreilly.com/">
@@ -294,7 +295,8 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <perfmetrix href="http://www.perfmetrix.com"/>
 
-    <picocontainer href="http://picocontainer.codehaus.org/"/>
+    <picocontainer href="http://picocontainer.org/">
+    </picocontainer>
 
     <python href="http://www.python.org/"/>
 
@@ -309,10 +311,17 @@ See http://forrest.apache.org/docs/linking.html for more info
       <junit href="projects/junit"/>
       <extra-line href="tracker/index.php?func=detail&amp;aid=1081136&amp;group_id=18598&amp;atid=118598"/>
       <grinder-mail href="mail/?group_id=18598"/>
-      <svn href="svn/?group_id=18598"/>
+      <git href="scm/?type=git&amp;group_id=18598"/>
+      <gitweb href="http://grinder.git.sourceforge.net/git/gitweb.cgi?p=grinder/grinder">
+        <summary href=";a=summary"/>
+        <console-resources href=";a=tree;f=source/src/net/grinder/console/common/resources;hb=HEAD"/>
+      </gitweb>
+      <svn href="scm/?type=svn&amp;group_id=18598"/>
+<!--
       <vcview href="http://grinder.svn.sourceforge.net/viewvc/grinder/trunk/source/">
         <console-resources href="src/net/grinder/console/common/resources/"/>
       </vcview>
+-->
     </sourceforge>
 
     <sourceforge-inc href="http://www.sourceforge.com/"/>
@@ -322,6 +331,8 @@ See http://forrest.apache.org/docs/linking.html for more info
     <svnant href="http://subclipse.tigris.org/svnant.html"/>
 
     <swtest-discuss href="http://lists.topica.com/lists/swtest-discuss/"/>
+
+    <syntaxhighlighter href="http://alexgorbatchev.com/SyntaxHighlighter/"/>
 
     <tejasconsulting href="http://tejasconsulting.com/"/>
 

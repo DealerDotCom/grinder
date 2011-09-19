@@ -25,7 +25,7 @@
   <section>
     <title>Script Imports</title>
 
-<source>
+<source class="jython">
 import string
 import random
 from java.lang import String
@@ -50,7 +50,7 @@ from net.grinder.common import GrinderException
   <section>
     <title>Test Definition</title>
 
-<source>
+<source class="jython">
 tests = {
     "News01"      : Test(1, "News 1 posting"),
     "Sport01"     : Test(2, "Sport 1 posting"),
@@ -70,7 +70,7 @@ tests = {
   <section>
     <title>Bread crumbs</title>
 
-<source>
+<source class="jython">
 log = grinder.logger.output
 out = grinder.logger.TERMINAL
 
@@ -94,7 +94,7 @@ URI        = "/myServlet"
   <section>
     <title>The Test Interface</title>
 
-<source>
+<source class="jython">
 class TestRunner:
     def __call__(self):
 </source>
@@ -112,7 +112,7 @@ class TestRunner:
   <section>
     <title>Using the Dictionary and Random Python Modules</title>
 
-<source>
+<source class="jython">
 for idx in range(len(tests)):
        testId = random.choice(tests.keys())
        log("Reading XML file %s " % testId, out)
@@ -138,7 +138,7 @@ for idx in range(len(tests)):
   <section>
     <title>Forget the Java IO Package when Handling Files</title>
 
-<source>
+<source class="jython">
 file = open("./CAAssets/"+testId+".xml", 'r')
 fileStr = URLEncoder.encode(String(file.read()))
 file.close()
@@ -159,7 +159,7 @@ requestString = "%s%s%s%s" % (SERVER, URI, "?xmldata=", fileStr)
     <em>Tip</em>: if you need to remove spaces from within a string,
     you can use a method like the following:</p>
 
-<source>
+<source class="jython">
 requestString = string.join(requestString.split(), "")
 </source>
 
@@ -168,7 +168,7 @@ requestString = string.join(requestString.split(), "")
   <section>
     <title>Sending the Request and the Statistics API</title>
 
-<source>
+<source class="jython">
 grinder.statistics.delayReports = 1
 request = tests[testId].wrap(HTTPRequest())
 
@@ -200,7 +200,7 @@ result = request.GET(requestString)
     these tests execute in a loop for the number of tests we have
     defined, using a random test each time.</p>
 
-<source>
+<source class="jython">
 if string.find(result.getText(), "SUCCESS") &lt; 1:
     grinder.statistics.forLastTest.setSuccess(0)
     writeToFile(result.getText(), testId)
@@ -212,7 +212,7 @@ if string.find(result.getText(), "SUCCESS") &lt; 1:
     case of an unsuccessful test, we write the HTML output to a file
     for later analysis:</p>
 
-<source>
+<source class="jython">
 def writeToFile(text, testId):
     filename = grinder.getFilenameFactory().createFilename(
         testId + "-page", "-%d.html" % grinder.runNumber)
@@ -226,7 +226,7 @@ def writeToFile(text, testId):
   <section>
     <title>Full Script Listing</title>
 
-<source>
+<source class="jython">
 # Send an HTTP request to the server with XML request values
 
 import string

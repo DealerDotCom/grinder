@@ -63,7 +63,7 @@
     can be done with the
     <code>SSLControl.setShareContextBetweenRuns()</code> method:</p>
 
-<source>
+<source class="jython">
 from net.grinder.script.Grinder import grinder
 grinder.SSLControl.shareContextBetweenRuns = 1
 </source>
@@ -81,7 +81,7 @@ grinder.SSLControl.shareContextBetweenRuns = 1
     Grinder must have some way of providing one - this involves
     specifying a key store.</p>
 
-<source>
+<source class="jython">
 from net.grinder.script.Grinder import grinder
 
 class TestRunner:
@@ -174,7 +174,7 @@ class TestRunner:
     client certificate to use. The example is hard coded to always use
     the certificate with the alias <code>myalias</code>.</p>
 
-<source>
+<source class="jython">
 from com.sun.net.ssl import KeyManagerFactory,X509KeyManager
 from java.io import FileInputStream
 from java.security import KeyStore
@@ -219,7 +219,7 @@ class TestRunner:
     <p>When debugging SSL interactions, you may find it useful to set
     the following in <code>grinder.properties</code>.</p>
 
-<source>
+<source class="sh">
 grinder.jvm.arguments=-Djavax.net.debug=ssl
 # or -Djavax.net.debug=all
 </source>
