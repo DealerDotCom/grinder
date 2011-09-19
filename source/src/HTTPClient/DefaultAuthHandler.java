@@ -2,7 +2,7 @@
  * @(#)DefaultAuthHandler.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschal‰r
+ *  Copyright (C) 1996-2001 Ronald Tschal√§r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -72,7 +72,7 @@ import java.awt.event.WindowAdapter;
  * <var>AuthorizationHandler</var> interface requires them to be).
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal‰r
+ * @author	Ronald Tschal√§r
  * @since	V0.2
  */
 public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
@@ -1461,7 +1461,7 @@ class SimpleAuthPopup implements AuthorizationPrompter
      * used for the "basic" and "digest" authentication schemes.
      *
      * @version	0.3-3  06/05/2001
-     * @author	Ronald Tschal‰r
+     * @author	Ronald Tschal√§r
      */
     private static class BasicAuthBox extends Frame
     {
@@ -1638,7 +1638,7 @@ class SimpleAuthPopup implements AuthorizationPrompter
  * schemes.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal‰r
+ * @author	Ronald Tschal√§r
  */
 class SimpleAuthPrompt implements AuthorizationPrompter
 {

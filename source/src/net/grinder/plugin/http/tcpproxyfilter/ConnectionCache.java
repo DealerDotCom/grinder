@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,12 +23,11 @@ package net.grinder.plugin.http.tcpproxyfilter;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-import org.picocontainer.Disposable;
-
 import net.grinder.tools.tcpproxy.ConnectionDetails;
+
+import org.picocontainer.Disposable;
 
 
 /**
@@ -41,7 +40,9 @@ public final class ConnectionCache
   implements HTTPFilterEventListener, Disposable {
 
   private final ConnectionHandlerFactory m_connectionHandlerFactory;
-  private final Map m_handlers = Collections.synchronizedMap(new HashMap());
+  private final Map<ConnectionDetails, ConnectionHandler> m_handlers =
+    Collections.synchronizedMap(
+      new HashMap<ConnectionDetails, ConnectionHandler>());
 
   /**
    * Constructor.
@@ -79,8 +80,7 @@ public final class ConnectionCache
   public void request(
     ConnectionDetails connectionDetails, byte[] buffer, int bytesRead) {
 
-    final ConnectionHandler handler =
-      (ConnectionHandler)m_handlers.get(connectionDetails);
+    final ConnectionHandler handler = m_handlers.get(connectionDetails);
 
     if (handler == null) {
       throw new IllegalArgumentException(
@@ -101,7 +101,7 @@ public final class ConnectionCache
     ConnectionDetails connectionDetails, byte[] buffer, int bytesRead) {
 
     final ConnectionHandler handler =
-      (ConnectionHandler)m_handlers.get(connectionDetails.getOtherEnd());
+      m_handlers.get(connectionDetails.getOtherEnd());
 
     if (handler == null) {
       throw new IllegalArgumentException(
@@ -118,8 +118,7 @@ public final class ConnectionCache
    */
   public void close(ConnectionDetails connectionDetails) {
 
-    final ConnectionHandler handler =
-      (ConnectionHandler)m_handlers.remove(connectionDetails);
+    final ConnectionHandler handler = m_handlers.remove(connectionDetails);
 
     if (handler == null) {
       throw new IllegalArgumentException(
@@ -135,10 +134,7 @@ public final class ConnectionCache
   public void dispose() {
     // Close all handlers.
     synchronized (m_handlers) {
-      final Iterator iterator = m_handlers.values().iterator();
-
-      while (iterator.hasNext()) {
-        final ConnectionHandler handler = (ConnectionHandler)iterator.next();
+      for (ConnectionHandler handler : m_handlers.values()) {
         handler.requestFinished();
       }
     }

@@ -2,7 +2,7 @@
  * @(#)HttpURLConnection.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschal‰r
+ *  Copyright (C) 1996-2001 Ronald Tschal√§r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,9 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
  */
 
 package HTTPClient;
@@ -105,7 +108,7 @@ import java.util.Enumeration;
  * switch to HTTP/1.1.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal‰r
+ * @author	Ronald Tschal√§r
  * @since	V0.3
  */
 public class HttpURLConnection extends java.net.HttpURLConnection
@@ -455,22 +458,36 @@ public class HttpURLConnection extends java.net.HttpURLConnection
 
 	    // count number of headers
 	    int num = 1;
-	    Enumeration enum = resp.listHeaders();
-	    while (enum.hasMoreElements())
-	    {
-		num++;
-		enum.nextElement();
-	    }
+	    /** ++GRINDER MODIFICATION **/
+//	    Enumeration enum = resp.listHeaders();
+//	    while (enum.hasMoreElements())
+//	    {
+//		num++;
+//		enum.nextElement();
+//	    }
+        Enumeration e = resp.listHeaders();
+        while (e.hasMoreElements())
+        {
+        num++;
+        e.nextElement();
+        }
+        /** --GRINDER MODIFICATION **/
 
 	    // allocate arrays
 	    hdr_keys   = new String[num];
 	    hdr_values = new String[num];
 
 	    // fill arrays
-	    enum = resp.listHeaders();
-	    for (int idx=1; idx<num; idx++)
-	    {
-		hdr_keys[idx]   = (String) enum.nextElement();
+	    /** ++GRINDER MODIFICATION **/
+//	    enum = resp.listHeaders();
+//	    for (int idx=1; idx<num; idx++)
+//	    {
+//		hdr_keys[idx]   = (String) enum.nextElement();
+        e = resp.listHeaders();
+        for (int idx=1; idx<num; idx++)
+        {
+        hdr_keys[idx]   = (String) e.nextElement();
+        /** --GRINDER MODIFICATION **/
 		hdr_values[idx] = resp.getHeader(hdr_keys[idx]);
 	    }
 

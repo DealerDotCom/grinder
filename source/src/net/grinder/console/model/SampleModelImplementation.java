@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -76,9 +75,10 @@ public final class SampleModelImplementation implements SampleModel {
    * The current test set. A TreeSet is used to maintain the test
    * order. Guarded by itself.
    */
-  private final Set m_tests = new TreeSet();
+  private final Set<Test> m_tests = new TreeSet<Test>();
 
-  private final ListenerSupport m_listeners = new ListenerSupport();
+  private final ListenerSupport<Listener> m_listeners =
+    new ListenerSupport<Listener>();
 
   private final StatisticsIndexMap.LongIndex m_periodIndex;
   private final StatisticExpression m_tpsExpression;
@@ -89,7 +89,8 @@ public final class SampleModelImplementation implements SampleModel {
   /**
    * A {@link SampleAccumulator} for each test. Guarded by itself.
    */
-  private final Map m_accumulators = Collections.synchronizedMap(new HashMap());
+  private final Map<Test, SampleAccumulator> m_accumulators =
+    Collections.synchronizedMap(new HashMap<Test, SampleAccumulator>());
 
   // Guarded by this.
   private InternalState m_state;
@@ -131,9 +132,7 @@ public final class SampleModelImplementation implements SampleModel {
     final StatisticExpressionFactory statisticExpressionFactory =
       m_statisticsServices.getStatisticExpressionFactory();
 
-    m_tpsExpression =
-      statisticExpressionFactory.createExpression(
-        "(* 1000 (/ (+ (count timedTests) untimedTests) period))");
+    m_tpsExpression = statisticsServices.getTPSExpression();
 
     m_peakTPSExpression =
       statisticExpressionFactory.createPeak(
@@ -169,9 +168,9 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @param tests The new tests.
    */
-  public void registerTests(Collection tests) {
+  public void registerTests(Collection<Test> tests) {
     // Need to copy collection, might be immutable.
-    final Set newTests = new HashSet(tests);
+    final Set<Test> newTests = new HashSet<Test>(tests);
 
     final Test[] testArray;
 
@@ -186,17 +185,15 @@ public final class SampleModelImplementation implements SampleModel {
       m_tests.addAll(newTests);
 
       // Create an index of m_tests sorted by test number.
-      testArray = (Test[])m_tests.toArray(new Test[m_tests.size()]);
+      testArray = m_tests.toArray(new Test[m_tests.size()]);
     }
 
     final SampleAccumulator[] accumulatorArray =
       new SampleAccumulator[testArray.length];
 
-    final Iterator newTestIterator = newTests.iterator();
-
     synchronized (m_accumulators) {
-      while (newTestIterator.hasNext()) {
-        m_accumulators.put(newTestIterator.next(),
+      for (Test test : newTests) {
+        m_accumulators.put(test,
                            new SampleAccumulator(
                              m_peakTPSExpression,
                              m_periodIndex,
@@ -204,8 +201,7 @@ public final class SampleModelImplementation implements SampleModel {
       }
 
       for (int i = 0; i < accumulatorArray.length; i++) {
-        accumulatorArray[i] =
-          (SampleAccumulator)m_accumulators.get(testArray[i]);
+        accumulatorArray[i] = m_accumulators.get(testArray[i]);
       }
     }
 
@@ -213,10 +209,8 @@ public final class SampleModelImplementation implements SampleModel {
       new ModelTestIndex(testArray, accumulatorArray);
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).newTests(newTests, modelTestIndex);
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.newTests(newTests, modelTestIndex); }
       });
   }
 
@@ -245,8 +239,7 @@ public final class SampleModelImplementation implements SampleModel {
    * @param listener The sample listener.
    */
   public void addSampleListener(Test test, SampleListener listener) {
-    final SampleAccumulator sampleAccumulator =
-      (SampleAccumulator)m_accumulators.get(test);
+    final SampleAccumulator sampleAccumulator = m_accumulators.get(test);
 
     if (sampleAccumulator != null) {
       sampleAccumulator.addSampleListener(listener);
@@ -278,10 +271,8 @@ public final class SampleModelImplementation implements SampleModel {
     m_totalSampleAccumulator.zero();
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).resetTests();
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.resetTests(); }
       });
   }
 
@@ -319,11 +310,7 @@ public final class SampleModelImplementation implements SampleModel {
 
   private void zero() {
     synchronized (m_accumulators) {
-      final Iterator iterator = m_accumulators.values().iterator();
-
-      while (iterator.hasNext()) {
-        final SampleAccumulator sampleAccumulator =
-          (SampleAccumulator)iterator.next();
+      for (SampleAccumulator sampleAccumulator : m_accumulators.values()) {
         sampleAccumulator.zero();
       }
     }
@@ -343,10 +330,8 @@ public final class SampleModelImplementation implements SampleModel {
     }
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).stateChanged();
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.stateChanged(); }
       });
   }
 
@@ -435,8 +420,7 @@ public final class SampleModelImplementation implements SampleModel {
     public void newTestReport(TestStatisticsMap testStatisticsMap) {
       testStatisticsMap.new ForEach() {
         public void next(Test test, StatisticsSet statistics) {
-          final SampleAccumulator sampleAccumulator =
-            (SampleAccumulator)m_accumulators.get(test);
+          final SampleAccumulator sampleAccumulator = m_accumulators.get(test);
 
           if (sampleAccumulator == null) {
             m_errorHandler.handleInformationMessage(
@@ -491,11 +475,7 @@ public final class SampleModelImplementation implements SampleModel {
         final long sampleInterval = m_properties.getSampleInterval();
 
         synchronized (m_accumulators) {
-          final Iterator iterator = m_accumulators.values().iterator();
-
-          while (iterator.hasNext()) {
-            final SampleAccumulator sampleAccumulator =
-              (SampleAccumulator)iterator.next();
+          for (SampleAccumulator sampleAccumulator : m_accumulators.values()) {
             sampleAccumulator.fireSample(sampleInterval, period);
           }
         }
@@ -511,10 +491,8 @@ public final class SampleModelImplementation implements SampleModel {
         setInternalState(nextState());
 
         m_listeners.apply(
-          new ListenerSupport.Informer() {
-            public void inform(Object listener) {
-              ((Listener)listener).newSample();
-            }
+          new ListenerSupport.Informer<Listener>() {
+            public void inform(Listener l) { l.newSample(); }
           });
       }
       finally {

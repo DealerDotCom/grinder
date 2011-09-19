@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,7 +34,7 @@ import java.net.Socket;
  * @author <a href="mailto:paston@bea.com">Philip Aston</a>
  * @version $Revision$
  */
-public final class EndPoint implements Comparable {
+public final class EndPoint implements Comparable<EndPoint> {
 
   private final String m_host;
   private final int m_port;
@@ -131,16 +131,12 @@ public final class EndPoint implements Comparable {
    * Implement <code>Comparable</code> so that we can order pairs of
    * EndPoint's consistently.
    *
-   * @param other Object to be compared.
+   * @param otherEndPoint Object to be compared.
    * @return A negative integer, zero, or a positive integer as this
    * object is less than, equal to, or greater than the specified
    * object.
    */
-  public int compareTo(Object other) {
-
-    // May throw ClassCastException - this is fine.
-    final EndPoint otherEndPoint = (EndPoint)other;
-
+  public int compareTo(EndPoint otherEndPoint) {
     final int c = getHost().compareTo(otherEndPoint.getHost());
 
     if (c != 0) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,13 +38,13 @@ import net.grinder.util.SignificantFigureFormat;
  * Statistics views to use with the statistics from the Sample SampleModel.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class SampleModelViewsImplementation implements SampleModelViews {
 
-  private final ListenerSupport m_listeners = new ListenerSupport();
+  private final ListenerSupport<Listener> m_listeners =
+    new ListenerSupport<Listener>();
   private final StatisticsServices m_statisticsServices;
-  private final ExpressionView m_tpsExpressionView;
   private final ExpressionView m_peakTPSExpressionView;
 
   // Guarded by this.
@@ -75,10 +75,6 @@ public class SampleModelViewsImplementation implements SampleModelViews {
     final StatisticExpressionFactory statisticExpressionFactory =
       m_statisticsServices.getStatisticExpressionFactory();
 
-    m_tpsExpressionView =
-      statisticExpressionFactory
-        .createExpressionView("TPS", model.getTPSExpression());
-
     m_peakTPSExpressionView =
       statisticExpressionFactory
         .createExpressionView("Peak TPS", model.getPeakTPSExpression());
@@ -108,20 +104,16 @@ public class SampleModelViewsImplementation implements SampleModelViews {
     synchronized (this) {
       m_intervalStatisticsView = new StatisticsView();
       m_cumulativeStatisticsView = new StatisticsView();
+
+      m_intervalStatisticsView.add(summaryStatisticsView);
+
+      m_cumulativeStatisticsView.add(summaryStatisticsView);
+      m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
     }
 
-    m_intervalStatisticsView.add(summaryStatisticsView);
-    m_intervalStatisticsView.add(m_tpsExpressionView);
-
-    m_cumulativeStatisticsView.add(summaryStatisticsView);
-    m_cumulativeStatisticsView.add(m_tpsExpressionView);
-    m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
-
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((Listener)listener).resetStatisticsViews();
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.resetStatisticsViews(); }
       });
   }
 
@@ -144,16 +136,15 @@ public class SampleModelViewsImplementation implements SampleModelViews {
   public void registerStatisticExpression(
     final ExpressionView statisticExpression) {
 
-    // The StatisticsView objects are responsible for synchronisation.
-    m_intervalStatisticsView.add(statisticExpression);
-    m_cumulativeStatisticsView.add(statisticExpression);
+    synchronized (this) {
+      m_intervalStatisticsView.add(statisticExpression);
+      m_cumulativeStatisticsView.add(statisticExpression);
+    }
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          final Listener modelListener = (Listener)listener;
-
-          modelListener.newStatisticExpression(statisticExpression);
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) {
+          l.newStatisticExpression(statisticExpression);
         }
       });
   }

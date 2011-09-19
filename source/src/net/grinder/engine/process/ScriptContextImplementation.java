@@ -43,6 +43,7 @@ import net.grinder.util.Sleeper;
 final class ScriptContextImplementation implements InternalScriptContext {
 
   private final WorkerIdentity m_workerIdentity;
+  private final WorkerIdentity m_firstWorkerIdentity;
   private final ThreadContextLocator m_threadContextLocator;
   private final GrinderProperties m_properties;
   private final Logger m_logger;
@@ -55,6 +56,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
   private final ThreadStopper m_threadStopper;
 
   public ScriptContextImplementation(WorkerIdentity workerIdentity,
+                                     WorkerIdentity firstWorkerIdentity,
                                      ThreadContextLocator threadContextLocator,
                                      GrinderProperties properties,
                                      Logger logger,
@@ -66,6 +68,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
                                      ThreadStarter threadStarter,
                                      ThreadStopper threadStopper) {
     m_workerIdentity = workerIdentity;
+    m_firstWorkerIdentity = firstWorkerIdentity;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
     m_logger = logger;
@@ -88,6 +91,10 @@ final class ScriptContextImplementation implements InternalScriptContext {
 
   public int getProcessNumber() {
     return m_workerIdentity.getNumber();
+  }
+
+  public int getFirstProcessNumber() {
+    return m_firstWorkerIdentity.getNumber();
   }
 
   public int getThreadNumber() {

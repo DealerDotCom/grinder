@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,7 +36,8 @@ import net.grinder.util.ListenerSupport;
  */
 final class SampleAccumulator {
 
-  private final ListenerSupport m_listeners = new ListenerSupport();
+  private final ListenerSupport<SampleListener> m_listeners =
+    new ListenerSupport<SampleListener>();
 
   private final PeakStatisticExpression m_peakTPSExpression;
   private final StatisticsIndexMap.LongIndex m_periodIndex;
@@ -79,10 +80,9 @@ final class SampleAccumulator {
     m_peakTPSExpression.update(m_intervalStatistics, m_cumulativeStatistics);
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((SampleListener)listener).update(m_intervalStatistics,
-                                            m_cumulativeStatistics);
+      new ListenerSupport.Informer<SampleListener>() {
+        public void inform(SampleListener l) {
+          l.update(m_intervalStatistics, m_cumulativeStatistics);
         }
       });
 

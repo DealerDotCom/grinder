@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,7 +55,7 @@ public final class AttributeStringParserImplementation
   public AttributeMap parse(String string) {
     final Matcher matcher = m_nameValuePattern.matcher(string);
 
-    final Map map = new HashMap();
+    final Map<String, String> map = new HashMap<String, String>();
 
     while (matcher.find()) {
       map.put(matcher.group(1).toLowerCase(), matcher.group(2));
@@ -67,14 +67,14 @@ public final class AttributeStringParserImplementation
   private static final class AttributeMapImplementation
     implements AttributeMap {
 
-    private final Map m_map;
+    private final Map<String, String> m_map;
 
-    public AttributeMapImplementation(Map map) {
+    public AttributeMapImplementation(Map<String, String> map) {
       m_map = map;
     }
 
     public String get(String key) {
-      return (String)m_map.get(key.toLowerCase());
+      return m_map.get(key.toLowerCase());
     }
   }
 }

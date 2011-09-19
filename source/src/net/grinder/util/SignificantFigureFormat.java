@@ -127,4 +127,28 @@ public class SignificantFigureFormat extends DecimalFormat {
 
     return format((double)number, buffer, position);
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
+
+    if (o == this) {
+      return true;
+    }
+
+    return
+      super.equals(o) &&
+      m_significantFigures == ((SignificantFigureFormat)o).m_significantFigures;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public int hashCode() {
+    return super.hashCode();
+  }
 }

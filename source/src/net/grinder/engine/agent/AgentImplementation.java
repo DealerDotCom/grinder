@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
@@ -34,6 +34,7 @@ import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.GrinderProperties.PersistenceException;
 import net.grinder.communication.ClientReceiver;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationException;
@@ -51,7 +52,6 @@ import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
-import net.grinder.util.AllocateLowestNumberImplementation;
 import net.grinder.util.Directory;
 import net.grinder.util.Directory.DirectoryException;
 import net.grinder.util.thread.Condition;
@@ -64,7 +64,7 @@ import net.grinder.util.thread.Condition;
  * @author Philip Aston
  * @author Bertrand Ave
  * @author Pawel Lacinski
- * @version $Revision: 3865 $
+ * @version $Revision$
  */
 public final class AgentImplementation implements Agent {
 
@@ -106,9 +106,7 @@ public final class AgentImplementation implements Agent {
     m_proceedWithoutConsole = proceedWithoutConsole;
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, m_logger);
-    m_agentIdentity =
-      new AgentIdentityImplementation(getHostName(),
-                                      new AllocateLowestNumberImplementation());
+    m_agentIdentity = new AgentIdentityImplementation(getHostName());
   }
 
   /**
@@ -131,13 +129,8 @@ public final class AgentImplementation implements Agent {
 
         do {
           properties =
-            new GrinderProperties(
-              m_alternateFile != null ?
-                  m_alternateFile : GrinderProperties.DEFAULT_PROPERTIES);
-
-          if (startMessage != null) {
-            properties.putAll(startMessage.getProperties());
-          }
+            createAndMergeProperties(startMessage != null ?
+                                     startMessage.getProperties() : null);
 
           m_agentIdentity.setName(
             properties.getProperty("grinder.hostID", getHostName()));
@@ -157,6 +150,7 @@ public final class AgentImplementation implements Agent {
           if (consoleCommunication == null && connector != null) {
             try {
               consoleCommunication = new ConsoleCommunication(connector);
+              consoleCommunication.start();
               m_logger.output(
                 "connected to console at " + connector.getEndpointAsString());
             }
@@ -246,6 +240,7 @@ public final class AgentImplementation implements Agent {
           final WorkerFactory workerFactory;
 
           if (!properties.getBoolean("grinder.debug.singleprocess", false)) {
+
             final WorkerProcessCommandLine workerCommandLine =
               new WorkerProcessCommandLine(properties,
                                            System.getProperties(),
@@ -322,8 +317,7 @@ public final class AgentImplementation implements Agent {
 
                 m_logger.output("forcibly terminating unresponsive processes");
 
-                // destroyAllWorkers() also prevents any more workers from
-                // starting.
+                // destroyAllWorkers() prevents further workers from starting.
                 workerLauncher.destroyAllWorkers();
               }
 
@@ -365,6 +359,33 @@ public final class AgentImplementation implements Agent {
     finally {
       shutdownConsoleCommunication(consoleCommunication);
     }
+  }
+
+  private GrinderProperties createAndMergeProperties(
+      GrinderProperties startMessageProperties)
+    throws PersistenceException {
+
+    final GrinderProperties properties =
+      new GrinderProperties(
+        m_alternateFile != null ?
+            m_alternateFile : GrinderProperties.DEFAULT_PROPERTIES);
+
+    if (startMessageProperties != null) {
+      properties.putAll(startMessageProperties);
+    }
+
+    // Ensure the log directory property is set and is absolute.
+    final File nullFile = new File("");
+
+    final File originalLogDirectory =
+      properties.getFile(GrinderProperties.LOG_DIRECTORY, nullFile);
+
+    if (!originalLogDirectory.isAbsolute()) {
+      properties.setFile(GrinderProperties.LOG_DIRECTORY,
+        new File(nullFile.getAbsoluteFile(), originalLogDirectory.getPath()));
+    }
+
+    return properties;
   }
 
   private void shutdownConsoleCommunication(
@@ -485,7 +506,10 @@ public final class AgentImplementation implements Agent {
           }
         }
       };
+    }
 
+    public void start() {
+      m_messagePump.start();
       m_timer.schedule(m_reportRunningTask, 1000, 1000);
     }
 

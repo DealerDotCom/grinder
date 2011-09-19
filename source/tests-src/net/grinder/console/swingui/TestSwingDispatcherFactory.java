@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,13 +46,11 @@ public class TestSwingDispatcherFactory extends TestCase {
   public void testPropertyChangeListenerDispatch() throws Exception {
     final MyPropertyChangeListener listener = new MyPropertyChangeListener();
 
-    final RandomStubFactory errorHandlerStubFactory =
-      new RandomStubFactory(ErrorHandler.class);
-    final ErrorHandler errorHandler =
-      (ErrorHandler)errorHandlerStubFactory.getStub();
-
+    final RandomStubFactory<ErrorHandler> errorHandlerStubFactory =
+      RandomStubFactory.create(ErrorHandler.class);
     final SwingDispatcherFactory swingDispatcherFactory =
-      new SwingDispatcherFactoryImplementation(errorHandler);
+      new SwingDispatcherFactoryImplementation(
+        errorHandlerStubFactory.getStub());
 
     final PropertyChangeListener swingDispatchedListener =
       (PropertyChangeListener)swingDispatcherFactory.create(listener);
@@ -82,13 +80,11 @@ public class TestSwingDispatcherFactory extends TestCase {
   }
 
   public void testDelegateWithMultipleInterfaces() throws Exception {
-    final RandomStubFactory errorHandlerStubFactory =
-      new RandomStubFactory(ErrorHandler.class);
-    final ErrorHandler errorHandler =
-      (ErrorHandler)errorHandlerStubFactory.getStub();
-
+    final RandomStubFactory<ErrorHandler> errorHandlerStubFactory =
+      RandomStubFactory.create(ErrorHandler.class);
     final SwingDispatcherFactory swingDispatcherFactory =
-      new SwingDispatcherFactoryImplementation(errorHandler);
+      new SwingDispatcherFactoryImplementation(
+        errorHandlerStubFactory.getStub());
 
     final Object proxy = swingDispatcherFactory.create(new FooImpl());
 
@@ -97,13 +93,11 @@ public class TestSwingDispatcherFactory extends TestCase {
   }
 
   public void testDelegateWithDuplicateInterfaces() throws Exception {
-    final RandomStubFactory errorHandlerStubFactory =
-      new RandomStubFactory(ErrorHandler.class);
-    final ErrorHandler errorHandler =
-      (ErrorHandler)errorHandlerStubFactory.getStub();
-
+    final RandomStubFactory<ErrorHandler> errorHandlerStubFactory =
+      RandomStubFactory.create(ErrorHandler.class);
     final SwingDispatcherFactory swingDispatcherFactory =
-      new SwingDispatcherFactoryImplementation(errorHandler);
+      new SwingDispatcherFactoryImplementation(
+        errorHandlerStubFactory.getStub());
 
     final Object proxy = swingDispatcherFactory.create(new FooFoo());
 

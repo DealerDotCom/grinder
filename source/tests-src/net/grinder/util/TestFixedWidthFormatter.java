@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,39 +38,14 @@ public class TestFixedWidthFormatter extends TestCase {
     super(name);
   }
 
-  public void testBadConstruction() throws Exception {
-    try {
-      new FixedWidthFormatter(-1, FixedWidthFormatter.FLOW_WRAP, 10);
-      fail("Expected IllegalArgumentException");
-    }
-    catch (IllegalArgumentException e) {
-    }
-
-    try {
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT, -1, 10);
-      fail("Expected IllegalArgumentException");
-    }
-    catch (IllegalArgumentException e) {
-    }
-
-    try {
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                              FixedWidthFormatter.FLOW_WRAP,
-                              0);
-      fail("Expected IllegalArgumentException");
-    }
-    catch (IllegalArgumentException e) {
-    }
-  }
-
   public void testTruncate() throws Exception {
     final String text = "They walked in a line, they wallked in a line";
     final String text2 = "Be on my side and I'll be on your side";
 
     for (int width=1; width<20; ++width) {
       final MultiLineFormatter leftFormatter =
-        new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                                FixedWidthFormatter.FLOW_TRUNCATE,
+        new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                                FixedWidthFormatter.Flow.TRUNCATE,
                                 width);
 
       for (int i=0; i<text.length(); ++i) {
@@ -100,8 +75,8 @@ public class TestFixedWidthFormatter extends TestCase {
       }
 
       final MultiLineFormatter rightFormatter =
-        new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
-                                FixedWidthFormatter.FLOW_TRUNCATE,
+        new FixedWidthFormatter(FixedWidthFormatter.Align.RIGHT,
+                                FixedWidthFormatter.Flow.TRUNCATE,
                                 width);
 
       for (int i=1; i<text.length(); ++i) {
@@ -156,16 +131,16 @@ public class TestFixedWidthFormatter extends TestCase {
       "the chair. ";
 
     final MultiLineFormatter formatter1 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                              FixedWidthFormatter.FLOW_WRAP,
+      new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                              FixedWidthFormatter.Flow.WRAP,
                               11);
 
     final String answer1 = formatter1.format(text1);
     assertEquals(answerText1, answer1);
 
     final MultiLineFormatter formatter2 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_CENTRE,
-                              FixedWidthFormatter.FLOW_WRAP,
+      new FixedWidthFormatter(FixedWidthFormatter.Align.CENTRE,
+                              FixedWidthFormatter.Flow.WRAP,
                               8);
 
     final String text2 =
@@ -201,8 +176,8 @@ public class TestFixedWidthFormatter extends TestCase {
       "g\ne\nn\ni\nu\ns\n.";
 
     final MultiLineFormatter formatter3 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
-                              FixedWidthFormatter.FLOW_WRAP,
+      new FixedWidthFormatter(FixedWidthFormatter.Align.RIGHT,
+                              FixedWidthFormatter.Flow.WRAP,
                               1);
 
     final String answer3 = formatter3.format(text3);
@@ -229,8 +204,8 @@ public class TestFixedWidthFormatter extends TestCase {
       "under the chair.";
 
     final MultiLineFormatter formatter1 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                              FixedWidthFormatter.FLOW_WORD_WRAP,
+      new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                              FixedWidthFormatter.Flow.WORD_WRAP,
                               16);
 
     final String answer1 = formatter1.format(text1);
@@ -250,8 +225,8 @@ public class TestFixedWidthFormatter extends TestCase {
       "under the chair.";
 
     final MultiLineFormatter formatter2 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
-                              FixedWidthFormatter.FLOW_WORD_WRAP,
+      new FixedWidthFormatter(FixedWidthFormatter.Align.RIGHT,
+                              FixedWidthFormatter.Flow.WORD_WRAP,
                               16);
 
     final String answer2 = formatter2.format(text1);
@@ -267,8 +242,8 @@ public class TestFixedWidthFormatter extends TestCase {
       "     .";
 
     final MultiLineFormatter formatter3 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
-                              FixedWidthFormatter.FLOW_WORD_WRAP,
+      new FixedWidthFormatter(FixedWidthFormatter.Align.RIGHT,
+                              FixedWidthFormatter.Flow.WORD_WRAP,
                               6);
 
     final String answer3 = formatter3.format(text3);
@@ -279,11 +254,31 @@ public class TestFixedWidthFormatter extends TestCase {
     final String answerText4 = "Space  \nlah    ";
 
     final MultiLineFormatter formatter4 =
-      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                              FixedWidthFormatter.FLOW_WORD_WRAP,
+      new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                              FixedWidthFormatter.Flow.WORD_WRAP,
                               7);
 
     final String answer4 = formatter4.format(text4);
     assertEquals(answerText4, answer4);
+  }
+
+  public void testFlowOverflow() throws Exception {
+    final String text1 =
+      "Harness your hopes to the folks with the liquor with the ropes.\n" +
+      "Red, red ropes, periscopes;\n    they've got everything will ever " +
+      "need stored under the chair.";
+
+    final String answerText1 =
+      "Harness your hopes to the folks with the liquor with the ropes. " +
+      "Red, red ropes, periscopes;     they've got everything will ever " +
+      "need stored under the chair.";
+
+    final MultiLineFormatter formatter1 =
+      new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                              FixedWidthFormatter.Flow.OVERFLOW,
+                              16);
+
+    final String answer1 = formatter1.format(text1);
+    assertEquals(answerText1, answer1);
   }
 }

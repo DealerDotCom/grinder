@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,10 +38,11 @@ public class TestURIParserImplementation extends TestCase {
   private ParseListener m_testParseListener =
     new TestParseListener();
 
-  private final DelegatingStubFactory m_parseListenerStubFactory =
-    new DelegatingStubFactory(m_testParseListener);
+  private final DelegatingStubFactory<ParseListener>
+    m_parseListenerStubFactory =
+      DelegatingStubFactory.create(m_testParseListener);
   private final ParseListener m_parseListener =
-    (ParseListener)m_parseListenerStubFactory.getStub();
+    m_parseListenerStubFactory.getStub();
 
   public void testBasicURIs() throws Exception {
     final URIParser parser = new URIParserImplementation();

@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,9 +28,8 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.FileUtilities;
@@ -163,6 +162,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       m_grinderProperties.getPropertySubset("");
 
     assertEquals(all, m_allSet);
+    assertEquals(all.hashCode(), m_allSet.hashCode());
 
     final GrinderProperties none =
       m_grinderProperties.getPropertySubset("Not there");
@@ -174,10 +174,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     assertEquals(prefixSet.size(), m_prefixSet.size());
 
-    final Iterator iterator = prefixSet.entrySet().iterator();
-
-    while (iterator.hasNext()) {
-      final Map.Entry entry = (Map.Entry)iterator.next();
+    for (Entry<?, ?> entry : prefixSet.entrySet()) {
       final String key = (String)entry.getKey();
       final String value = (String)entry.getValue();
 
@@ -604,10 +601,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     }
 
     void run() throws Exception {
-      final Iterator iterator = m_properties.entrySet().iterator();
-
-      while (iterator.hasNext()) {
-        final Map.Entry entry = (Map.Entry)iterator.next();
+      for (Entry<?, ?> entry : m_properties.entrySet()) {
         final String key = (String)entry.getKey();
         final String value = (String)entry.getValue();
 
@@ -622,8 +616,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     final GrinderProperties properties = new GrinderProperties();
     properties.setProperty("Hello", "World");
 
-    final GrinderProperties properties2 =
-      (GrinderProperties)Serializer.serialize(properties);
+    final GrinderProperties properties2 = Serializer.serialize(properties);
 
     assertEquals(properties, properties2);
   }

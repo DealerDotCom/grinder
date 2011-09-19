@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -49,15 +49,7 @@ public class EchoFilter implements TCPProxyFilter {
   }
 
   /**
-   * Handle a message fragment from the stream.
-   *
-   * @param connectionDetails Describes the connection.
-   * @param buffer Contains the data.
-   * @param bytesRead How many bytes of data in <code>buffer</code>.
-   * @return Filters can optionally return a <code>byte[]</code>
-   * which will be transmitted to the server instead of
-   * <code>buffer</code>.
-   * @throws FilterException If an error occurs.
+   * {@inheritDoc}
    */
   public byte[] handle(ConnectionDetails connectionDetails,
                        byte[] buffer, int bytesRead)
@@ -102,9 +94,7 @@ public class EchoFilter implements TCPProxyFilter {
   }
 
   /**
-   * A new connection has been opened.
-   *
-   * @param connectionDetails Describes the connection.
+   * {@inheritDoc}
    */
   public void connectionOpened(ConnectionDetails connectionDetails) {
 
@@ -112,9 +102,7 @@ public class EchoFilter implements TCPProxyFilter {
   }
 
   /**
-   * A connection has been closed.
-   *
-   * @param connectionDetails Describes the connection.
+   * {@inheritDoc}
    */
   public void connectionClosed(ConnectionDetails connectionDetails) {
 

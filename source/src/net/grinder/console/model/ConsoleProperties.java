@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,7 +28,6 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
@@ -131,10 +130,14 @@ public final class ConsoleProperties {
   public static final String FRAME_BOUNDS_PROPERTY =
     "grinder.console.frameBounds";
 
+  /** Property name. */
+  public static final String SAVE_TOTALS_WITH_RESULTS_PROPERTY =
+    "grinder.console.saveTotalsWithResults";
+
   private final PropertyChangeSupport m_changeSupport =
     new PropertyChangeSupport(this);
 
-  private final List m_propertyList = new ArrayList();
+  private final List<Property> m_propertyList = new ArrayList<Property>();
 
   private final IntProperty m_collectSampleCount =
     new IntProperty(COLLECT_SAMPLES_PROPERTY, 0);
@@ -199,6 +202,9 @@ public final class ConsoleProperties {
   private final IntProperty m_consolePort =
     new IntProperty(CONSOLE_PORT_PROPERTY, CommunicationDefaults.CONSOLE_PORT);
 
+  private final BooleanProperty m_saveTotalsWithResults =
+    new BooleanProperty(SAVE_TOTALS_WITH_RESULTS_PROPERTY, false);
+
   private final Resources m_resources;
 
   /**
@@ -229,10 +235,8 @@ public final class ConsoleProperties {
         m_resources, "couldNotLoadOptionsError.text", e);
     }
 
-    final Iterator propertyIterator = m_propertyList.iterator();
-
-    while (propertyIterator.hasNext()) {
-      ((Property)propertyIterator.next()).setFromProperties();
+    for (Property property : m_propertyList) {
+      property.setFromProperties();
     }
   }
 
@@ -278,6 +282,7 @@ public final class ConsoleProperties {
       properties.getStartWithUnsavedBuffersAsk());
     m_stopProcessesAsk.set(properties.getStopProcessesAsk());
     m_distributeOnStartAsk.set(properties.getDistributeOnStartAsk());
+    m_saveTotalsWithResults.set(properties.getSaveTotalsWithResults());
   }
 
   /**
@@ -307,10 +312,8 @@ public final class ConsoleProperties {
    * @throws ConsoleException If an error occurs.
    */
   public void save() throws ConsoleException {
-    final Iterator propertyIterator = m_propertyList.iterator();
-
-    while (propertyIterator.hasNext()) {
-      ((Property)propertyIterator.next()).setToProperties();
+    for (Property property : m_propertyList) {
+      property.setToProperties();
     }
 
     try {
@@ -481,8 +484,8 @@ public final class ConsoleProperties {
         m_resources,
         "invalidPortNumberError.text",
         new Object[] {
-          new Integer(CommunicationDefaults.MIN_PORT),
-          new Integer(CommunicationDefaults.MAX_PORT), }
+          CommunicationDefaults.MIN_PORT,
+          CommunicationDefaults.MAX_PORT, }
         );
     }
 
@@ -810,6 +813,27 @@ public final class ConsoleProperties {
     m_frameBounds.save();
   }
 
+  /**
+   * Get whether saved results files should include the Totals line.
+   *
+   * @return {@code true} => results files should include totals.
+   */
+  public boolean getSaveTotalsWithResults() {
+    return m_saveTotalsWithResults.get();
+  }
+
+  /**
+   * Set whether saved results files should include the Totals line.
+   *
+   * @param b {@code true} => results files should include totals.
+   * @throws ConsoleException If the property couldn't be persisted.
+   */
+  public void setSaveTotalsWithResults(boolean b) throws ConsoleException {
+    m_saveTotalsWithResults.set(b);
+    m_saveTotalsWithResults.save();
+  }
+
+
   private abstract class Property {
     private final String m_propertyName;
     private final Object m_defaultValue;
@@ -932,7 +956,7 @@ public final class ConsoleProperties {
 
   private final class IntProperty extends Property {
     public IntProperty(String propertyName, int defaultValue) {
-      super(propertyName, new Integer(defaultValue));
+      super(propertyName, defaultValue);
     }
 
     public void setFromProperties() {
@@ -949,7 +973,7 @@ public final class ConsoleProperties {
     }
 
     public void set(int i) {
-      setValue(new Integer(i));
+      setValue(i);
     }
   }
 
@@ -1018,7 +1042,7 @@ public final class ConsoleProperties {
 
   private final class BooleanProperty extends Property {
     public BooleanProperty(String propertyName, boolean defaultValue) {
-      super(propertyName, Boolean.valueOf(defaultValue));
+      super(propertyName, defaultValue);
     }
 
     public void setFromProperties() {
@@ -1035,7 +1059,7 @@ public final class ConsoleProperties {
     }
 
     public void set(boolean b) {
-      setValue(Boolean.valueOf(b));
+      setValue(b);
     }
   }
 

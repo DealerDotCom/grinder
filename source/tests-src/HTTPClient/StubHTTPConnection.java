@@ -28,7 +28,7 @@ import java.net.InetAddress;
  * Override HTTPConnection so unit tests can get at its internals.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class StubHTTPConnection extends HTTPConnection {
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2008 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
@@ -44,10 +44,10 @@ import HTTPClient.NVPair;
  */
 final class HTTPConnectionWrapper implements HTTPPluginConnection {
 
-  private static final Class s_authorizationModule;
-  private static final Class s_contentEncodingModule;
-  private static final Class s_redirectionModule;
-  private static final Class s_transferEncodingModule;
+  private static final Class<?> s_authorizationModule;
+  private static final Class<?> s_contentEncodingModule;
+  private static final Class<?> s_redirectionModule;
+  private static final Class<?> s_transferEncodingModule;
 
   private final HTTPConnection m_httpConnection;
   private final Sleeper m_slowClientSleeper;

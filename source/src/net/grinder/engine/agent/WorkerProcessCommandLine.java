@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,42 +41,54 @@ import net.grinder.engine.process.WorkerProcessEntryPoint;
  */
 final class WorkerProcessCommandLine {
 
-  private final List m_command;
+  private static final String AGENT_JAR_FILENAME = "grinder-agent.jar";
+
+  private final List<String> m_command;
   private final int m_commandClassIndex;
 
   public WorkerProcessCommandLine(GrinderProperties properties,
                                   Properties systemProperties,
                                   String jvmArguments) {
 
-    m_command = new ArrayList();
+    m_command = new ArrayList<String>();
     m_command.add(properties.getProperty("grinder.jvm", "java"));
+
+    final String systemClasspath =
+      systemProperties.getProperty("java.class.path");
+
+    if (systemClasspath != null) {
+      final File agent = findAgentJarFile(systemClasspath);
+
+      if (agent != null) {
+        m_command.add("-javaagent:" + agent.getAbsolutePath());
+      }
+    }
 
     if (jvmArguments != null) {
       // Really should allow whitespace to be escaped/quoted.
       final StringTokenizer tokenizer = new StringTokenizer(jvmArguments);
 
       while (tokenizer.hasMoreTokens()) {
-        m_command.add(tokenizer.nextToken());
+        final String token = tokenizer.nextToken();
+
+        m_command.add(token);
       }
     }
 
     final String additionalClasspath =
       properties.getProperty("grinder.jvm.classpath", null);
 
-    final String systemClasspath =
-      systemProperties.getProperty("java.class.path");
-
-    final StringBuffer classpath = new StringBuffer();
+    final StringBuilder classpath = new StringBuilder();
 
     if (additionalClasspath != null) {
       classpath.append(additionalClasspath);
     }
 
-    if (additionalClasspath != null && systemClasspath != null) {
-      classpath.append(File.pathSeparatorChar);
-    }
-
     if (systemClasspath != null) {
+      if (classpath.length() > 0) {
+        classpath.append(File.pathSeparatorChar);
+      }
+
       classpath.append(systemClasspath);
     }
 
@@ -89,27 +101,23 @@ final class WorkerProcessCommandLine {
     m_command.add(WorkerProcessEntryPoint.class.getName());
   }
 
-  public String[] getCommandArray() {
-    return (String[])m_command.toArray(new String[m_command.size()]);
-  }
-
   /**
    * Package scope for the unit tests.
    */
-  List getCommandList() {
+  public List<String> getCommandList() {
     return m_command;
   }
 
-  private static final Set s_unquoted = new HashSet() { {
-    add("-classpath");
-    add("-client");
-    add("-cp");
-    add("-jar");
-    add("-server");
-  } };
+  private static final Set<String> s_unquoted = new HashSet<String>() { {
+      add("-classpath");
+      add("-client");
+      add("-cp");
+      add("-jar");
+      add("-server");
+    } };
 
   public String toString() {
-    final String[] commandArray = getCommandArray();
+    final String[] commandArray = getCommandList().toArray(new String[0]);
 
     final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
 
@@ -135,5 +143,24 @@ final class WorkerProcessCommandLine {
     }
 
     return buffer.toString();
+  }
+
+  /**
+   * Package scope for unit tests.
+   *
+   * @param path The path to search.
+   */
+  static File findAgentJarFile(String path) {
+
+    for (String pathEntry : path.split(File.pathSeparator)) {
+      final File siblingFile =
+        new File(new File(pathEntry).getParent(), AGENT_JAR_FILENAME);
+
+      if (siblingFile.exists()) {
+        return siblingFile;
+      }
+    }
+
+    return null;
   }
 }

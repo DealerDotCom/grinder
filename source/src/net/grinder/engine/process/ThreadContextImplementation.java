@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,8 +49,9 @@ import net.grinder.util.ListenerSupport.Informer;
 final class ThreadContextImplementation
   implements ThreadContext, PluginThreadContext {
 
-  private final ListenerSupport m_threadLifeCycleListeners =
-    new ListenerSupport();
+  private final ListenerSupport<ThreadLifeCycleListener>
+    m_threadLifeCycleListeners =
+      new ListenerSupport<ThreadLifeCycleListener>();
 
   private final DispatchContextStack m_dispatchContextStack =
     new DispatchContextStack();
@@ -68,7 +69,7 @@ final class ThreadContextImplementation
   private StatisticsForTest m_statisticsForLastTest;
 
   private volatile boolean m_shutdown;
-  private boolean m_shutdownInProgress;
+  private boolean m_shutdownReported;
 
   public ThreadContextImplementation(ProcessContext processContext,
                                      ThreadLogger threadLogger,
@@ -150,51 +151,52 @@ final class ThreadContextImplementation
     m_threadLifeCycleListeners.add(listener);
   }
 
+  public void removeThreadLifeCycleListener(ThreadLifeCycleListener listener) {
+    m_threadLifeCycleListeners.remove(listener);
+  }
+
   public void fireBeginThreadEvent() {
-    m_threadLifeCycleListeners.apply(new Informer() {
-      public void inform(Object listener) {
-        ((ThreadLifeCycleListener)listener).beginThread();
-      } }
-    );
+    m_threadLifeCycleListeners.apply(new Informer<ThreadLifeCycleListener>() {
+      public void inform(ThreadLifeCycleListener l) { l.beginThread(); }
+    });
   }
 
   public void fireBeginRunEvent() {
-    m_threadLifeCycleListeners.apply(new Informer() {
-      public void inform(Object listener) {
-        ((ThreadLifeCycleListener)listener).beginRun();
-      } }
-    );
+    m_threadLifeCycleListeners.apply(new Informer<ThreadLifeCycleListener>() {
+      public void inform(ThreadLifeCycleListener l) { l.beginRun(); }
+    });
   }
 
   public void fireEndRunEvent() {
-    m_threadLifeCycleListeners.apply(new Informer() {
-      public void inform(Object listener) {
-        ((ThreadLifeCycleListener)listener).endRun();
-      } }
-    );
+    m_threadLifeCycleListeners.apply(new Informer<ThreadLifeCycleListener>() {
+      public void inform(ThreadLifeCycleListener l) { l.endRun(); }
+    });
   }
 
   public void fireBeginShutdownEvent() {
-    m_threadLifeCycleListeners.apply(new Informer() {
-      public void inform(Object listener) {
-        ((ThreadLifeCycleListener)listener).beginShutdown();
-      } }
-    );
+    m_threadLifeCycleListeners.apply(new Informer<ThreadLifeCycleListener>() {
+      public void inform(ThreadLifeCycleListener l) { l.beginShutdown(); }
+    });
   }
 
   public void fireEndThreadEvent() {
-    m_threadLifeCycleListeners.apply(new Informer() {
-      public void inform(Object listener) {
-        ((ThreadLifeCycleListener)listener).endThread();
-      } }
-    );
+    m_threadLifeCycleListeners.apply(new Informer<ThreadLifeCycleListener>() {
+      public void inform(ThreadLifeCycleListener l) { l.endThread(); }
+    });
+
   }
 
   public void pushDispatchContext(DispatchContext dispatchContext)
     throws ShutdownException {
 
-    if (m_shutdown && !m_shutdownInProgress) {
-      m_shutdownInProgress = true;
+    if (m_shutdown) {
+      // As soon as we're shutdown, we disable the instrumentation. This
+      // avoids reporting of misleading test failures.
+
+      // We only throw ShutdownException from pushDispatchContext. A test that
+      // was in-flight at the time of shutdown will complete normally unless
+      // the thread attempts to start a nested test.
+      m_shutdownReported = true;
       throw new ShutdownException("Thread has been shut down");
     }
 
@@ -213,6 +215,10 @@ final class ThreadContextImplementation
   }
 
   public void popDispatchContext() {
+    if (m_shutdownReported) {
+      return;
+    }
+
     final DispatchContext dispatchContext = m_dispatchContextStack.pop();
 
     if (dispatchContext == null) {
@@ -297,7 +303,8 @@ final class ThreadContextImplementation
   }
 
   private static final class DispatchContextStack {
-    private final List m_stack = new ArrayList();
+    private final List<DispatchContext> m_stack =
+      new ArrayList<DispatchContext>();
 
     public void push(DispatchContext dispatchContext) {
       m_stack.add(dispatchContext);
@@ -310,7 +317,7 @@ final class ThreadContextImplementation
         return null;
       }
 
-      return (DispatchContext)m_stack.remove(size - 1);
+      return m_stack.remove(size - 1);
     }
 
     public DispatchContext peekTop() {
@@ -320,7 +327,7 @@ final class ThreadContextImplementation
         return null;
       }
 
-      return (DispatchContext)m_stack.get(size - 1);
+      return m_stack.get(size - 1);
     }
   }
 

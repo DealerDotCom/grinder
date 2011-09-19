@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,10 +31,11 @@ import java.util.TimerTask;
  * Stub implementation of {@link Timer}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class StubTimer extends Timer {
-  private final Map m_taskByPeriod = new HashMap();
+  private final Map<Long, TimerTask> m_taskByPeriod =
+    new HashMap<Long, TimerTask>();
   private TimerTask m_lastScheduledTimerTask;
   private long m_lastDelay;
   private long m_lastPeriod;
@@ -70,6 +71,6 @@ public final class StubTimer extends Timer {
   }
 
   public TimerTask getTaskByPeriod(long period) {
-    return (TimerTask)m_taskByPeriod.get(new Long(period));
+    return m_taskByPeriod.get(new Long(period));
   }
 }

@@ -29,7 +29,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link GrinderProcess}
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestGrinderProcess extends TestCase {
 

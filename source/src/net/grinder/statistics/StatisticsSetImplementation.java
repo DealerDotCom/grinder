@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,9 +25,10 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
-import java.util.Iterator;
 
+import net.grinder.statistics.StatisticsIndexMap.DoubleIndex;
 import net.grinder.statistics.StatisticsIndexMap.DoubleSampleIndex;
+import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.statistics.StatisticsIndexMap.LongSampleIndex;
 import net.grinder.statistics.StatisticsIndexMap.SampleIndex;
 import net.grinder.util.Serialiser;
@@ -47,6 +48,10 @@ final class StatisticsSetImplementation implements StatisticsSet {
   private final long[] m_longData;
   private final double[] m_doubleData;
 
+  // Transient fields are context specific. They are not serialised, nor are
+  // they added to other statistics sets. E.g. the "period" field.
+  private transient long[] m_transientLongData;
+
   // true => all statistics are zero; false => they might be.
   private boolean m_zero = true;
 
@@ -61,6 +66,8 @@ final class StatisticsSetImplementation implements StatisticsSet {
     m_statisticsIndexMap = statisticsIndexMap;
     m_longData = new long[m_statisticsIndexMap.getNumberOfLongs()];
     m_doubleData = new double[m_statisticsIndexMap.getNumberOfDoubles()];
+    m_transientLongData =
+      new long[m_statisticsIndexMap.getNumberOfTransientLongs()];
   }
 
   /**
@@ -71,6 +78,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
     if (!m_zero) {
       Arrays.fill(m_longData, 0);
       Arrays.fill(m_doubleData, 0);
+      Arrays.fill(m_transientLongData, 0);
       m_zero = true;
       m_composite = false;
     }
@@ -92,10 +100,22 @@ final class StatisticsSetImplementation implements StatisticsSet {
 
     if (!m_zero) {
       synchronized (result) {
-        System.arraycopy(
-          m_longData, 0, result.m_longData, 0, result.m_longData.length);
-        System.arraycopy(
-          m_doubleData, 0, result.m_doubleData, 0, result.m_doubleData.length);
+        System.arraycopy(m_longData,
+                         0,
+                         result.m_longData,
+                         0,
+                         result.m_longData.length);
+
+        System.arraycopy(m_doubleData,
+                         0,
+                         result.m_doubleData,
+                         0,
+                         result.m_doubleData.length);
+
+        System.arraycopy(m_transientLongData,
+                         0,
+                         result.m_transientLongData,
+                         0, result.m_transientLongData.length);
 
         result.m_zero = false;
         result.m_composite = m_composite;
@@ -114,7 +134,11 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @return The value.
    */
-  public synchronized long getValue(StatisticsIndexMap.LongIndex index) {
+  public synchronized long getValue(LongIndex index) {
+    if (index.isTransient()) {
+      return m_transientLongData[index.getValue()];
+    }
+
     return m_longData[index.getValue()];
   }
 
@@ -127,7 +151,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @return The value.
    */
-  public synchronized double getValue(StatisticsIndexMap.DoubleIndex index) {
+  public synchronized double getValue(DoubleIndex index) {
     return m_doubleData[index.getValue()];
   }
 
@@ -140,9 +164,14 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public synchronized void setValue(StatisticsIndexMap.LongIndex index,
-                                    long value) {
-    m_longData[index.getValue()] = value;
+  public synchronized void setValue(LongIndex index, long value) {
+    if (index.isTransient()) {
+      m_transientLongData[index.getValue()] = value;
+    }
+    else {
+      m_longData[index.getValue()] = value;
+    }
+
     m_zero &= value == 0;
   }
 
@@ -155,8 +184,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public synchronized void setValue(StatisticsIndexMap.DoubleIndex index,
-                                    double value) {
+  public synchronized void setValue(DoubleIndex index, double value) {
     m_doubleData[index.getValue()] = value;
     m_zero &= value == 0;
   }
@@ -170,10 +198,11 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public synchronized void addValue(StatisticsIndexMap.LongIndex index,
-                                    long value) {
-    m_longData[index.getValue()] += value;
-    m_zero &= value == 0;
+  public synchronized void addValue(LongIndex index, long value) {
+    if (!index.isTransient()) {
+      m_longData[index.getValue()] += value;
+      m_zero &= value == 0;
+    }
   }
 
   /**
@@ -185,8 +214,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public synchronized void addValue(StatisticsIndexMap.DoubleIndex index,
-                                    double value) {
+  public synchronized void addValue(DoubleIndex index, double value) {
 
     m_doubleData[index.getValue()] += value;
     m_zero &= value == 0;
@@ -377,17 +405,10 @@ final class StatisticsSetImplementation implements StatisticsSet {
 
     final boolean[] isVarianceIndex = new boolean[m_doubleData.length];
 
-    final Iterator longSampleIndexIterator =
-      m_statisticsIndexMap.getLongSampleIndicies().iterator();
-
-    while (longSampleIndexIterator.hasNext()) {
-      final StatisticsIndexMap.LongSampleIndex index =
-        (StatisticsIndexMap.LongSampleIndex)longSampleIndexIterator.next();
-
-      final StatisticsIndexMap.LongIndex sumIndex = index.getSumIndex();
-      final StatisticsIndexMap.LongIndex countIndex = index.getCountIndex();
-      final StatisticsIndexMap.DoubleIndex varianceIndex =
-        index.getVarianceIndex();
+    for (LongSampleIndex index : m_statisticsIndexMap.getLongSampleIndicies()) {
+      final LongIndex sumIndex = index.getSumIndex();
+      final LongIndex countIndex = index.getCountIndex();
+      final DoubleIndex varianceIndex = index.getVarianceIndex();
 
       setValue(varianceIndex,
         calculateVariance(getValue(sumIndex),
@@ -400,17 +421,12 @@ final class StatisticsSetImplementation implements StatisticsSet {
       isVarianceIndex[varianceIndex.getValue()] = true;
     }
 
-    final Iterator doubleSampleIndexIterator =
-      m_statisticsIndexMap.getDoubleSampleIndicies().iterator();
+    for (DoubleSampleIndex index :
+         m_statisticsIndexMap.getDoubleSampleIndicies()) {
 
-    while (doubleSampleIndexIterator.hasNext()) {
-      final StatisticsIndexMap.DoubleSampleIndex index =
-        (StatisticsIndexMap.DoubleSampleIndex)doubleSampleIndexIterator.next();
-
-      final StatisticsIndexMap.DoubleIndex sumIndex = index.getSumIndex();
-      final StatisticsIndexMap.LongIndex countIndex = index.getCountIndex();
-      final StatisticsIndexMap.DoubleIndex varianceIndex =
-        index.getVarianceIndex();
+      final DoubleIndex sumIndex = index.getSumIndex();
+      final LongIndex countIndex = index.getCountIndex();
+      final DoubleIndex varianceIndex = index.getVarianceIndex();
 
       setValue(varianceIndex,
                calculateVariance(getValue(sumIndex),
@@ -493,6 +509,14 @@ final class StatisticsSetImplementation implements StatisticsSet {
           return false;
         }
       }
+
+      final long[] otherTransientLongData = otherStatistics.m_transientLongData;
+
+      for (int i = 0; i < m_transientLongData.length; i++) {
+        if (m_transientLongData[i] != otherTransientLongData[i]) {
+          return false;
+        }
+      }
     }
 
     return true;
@@ -515,6 +539,10 @@ final class StatisticsSetImplementation implements StatisticsSet {
 
     for (int i = 0; i < m_doubleData.length; i++) {
       result ^= Double.doubleToRawLongBits(m_doubleData[i]);
+    }
+
+    for (int i = 0; i < m_transientLongData.length; i++) {
+      result ^= m_transientLongData[i];
     }
 
     return (int)(result ^ (result >> 32));
@@ -547,6 +575,16 @@ final class StatisticsSetImplementation implements StatisticsSet {
       }
 
       result.append(m_doubleData[i]);
+    }
+
+    result.append("}, {");
+
+    for (int i = 0; i < m_transientLongData.length; i++) {
+      if (i != 0) {
+        result.append(", ");
+      }
+
+      result.append(m_transientLongData[i]);
     }
 
     result.append("}, composite = ");

@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,7 +54,8 @@ abstract class CustomAction extends AbstractAction {
   public static final String RELEVANT_TO_SELECTION = "RelevantToSelection";
 
   private final String m_key;
-  private final Set m_propertyChangeListenersByButton = new HashSet();
+  private final Set<AbstractButton> m_buttonsWithRegisteredListeners =
+    new HashSet<AbstractButton>();
 
   protected CustomAction(Resources resources, String key) {
     this(resources, key, false);
@@ -102,7 +103,7 @@ abstract class CustomAction extends AbstractAction {
   }
 
   public final void registerButton(final AbstractButton button) {
-    if (!m_propertyChangeListenersByButton.contains(button)) {
+    if (!m_buttonsWithRegisteredListeners.contains(button)) {
       addPropertyChangeListener(
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent e) {
@@ -117,7 +118,7 @@ abstract class CustomAction extends AbstractAction {
         }
         );
 
-      m_propertyChangeListenersByButton.add(button);
+      m_buttonsWithRegisteredListeners.add(button);
     }
   }
 

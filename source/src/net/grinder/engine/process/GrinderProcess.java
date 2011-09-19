@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // Copyright (C) 2004 Slavik Gnatenko
 // All rights reserved.
@@ -36,6 +36,7 @@ import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.Test;
 import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationException;
@@ -50,10 +51,12 @@ import net.grinder.engine.common.ConnectorFactory;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
+import net.grinder.engine.process.instrumenter.MasterInstrumenter;
 import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.script.InvalidContextException;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
@@ -114,7 +117,7 @@ final class GrinderProcess {
 
     m_loggerImplementation = new LoggerImplementation(
       m_initialisationMessage.getWorkerIdentity().getName(),
-      properties.getProperty("grinder.logDirectory", "."),
+      properties.getProperty(GrinderProperties.LOG_DIRECTORY, "."),
       properties.getBoolean("grinder.logProcessStreams", true),
       properties.getInt("grinder.numberOfOldLogs", 1));
 
@@ -158,6 +161,7 @@ final class GrinderProcess {
     m_context =
       new ProcessContextImplementation(
         m_initialisationMessage.getWorkerIdentity(),
+        m_initialisationMessage.getFirstWorkerIdentity(),
         properties,
         processLogger,
         m_loggerImplementation.getFilenameFactory(),
@@ -207,7 +211,13 @@ final class GrinderProcess {
 
     final ScriptEngine scriptEngine = new JythonScriptEngine();
 
-    m_context.getTestRegistry().setInstrumenter(scriptEngine);
+    // Don't start the message pump until we've initialised Jython. Jython 2.5+
+    // tests to see whether the stdin stream is a tty, and on some versions of
+    // Windows, this synchronises on the stream object's monitor. This clashes
+    // with the message pump which starts a thread to call
+    // StreamRecevier.waitForMessage(), and so also synchronises on that
+    // monitor. See bug 2936167.
+    m_messagePump.start();
 
     final StringBuffer numbers = new StringBuffer("worker process ");
     numbers.append(m_initialisationMessage.getWorkerIdentity().getNumber());
@@ -223,11 +233,6 @@ final class GrinderProcess {
 
     logger.output(numbers.toString());
 
-    logger.output("executing \"" + m_initialisationMessage.getScript() +
-      "\" using " + scriptEngine.getDescription());
-
-    scriptEngine.initialise(m_initialisationMessage.getScript());
-
     final GrinderProperties properties = m_context.getProperties();
     final short numberOfThreads =
       properties.getShort("grinder.threads", (short)1);
@@ -235,15 +240,33 @@ final class GrinderProcess {
       properties.getInt("grinder.reportToConsole.interval", 500);
     final int duration = properties.getInt("grinder.duration", 0);
 
+    final MasterInstrumenter instrumenter =
+      new MasterInstrumenter(
+        logger,
+        // This property name is poor, since it really means "If DCR
+        // instrumentation is available, use it for Jython". I'm not
+        // renaming it, since I expect it only to last a few releases,
+        // until DCR becomes the default.
+        properties.getBoolean("grinder.dcrinstrumentation", false));
+
+    m_context.getTestRegistry().setInstrumenter(instrumenter);
+
+    logger.output("executing \"" + m_initialisationMessage.getScript() +
+      "\" using " + scriptEngine.getDescription());
+
+    scriptEngine.initialise(m_initialisationMessage.getScript());
+
     // Don't initialise the data writer until now as the script may
     // declare new statistics.
     final PrintWriter dataWriter = m_loggerImplementation.getDataWriter();
 
     dataWriter.print("Thread, Run, Test, Start time (ms since Epoch)");
 
+    final StatisticsServices statisticsServices =
+      m_context.getStatisticsServices();
+
     final ExpressionView[] detailExpressionViews =
-      m_context.getStatisticsServices()
-      .getDetailStatisticsView().getExpressionViews();
+      statisticsServices.getDetailStatisticsView().getExpressionViews();
 
     for (int i = 0; i < detailExpressionViews.length; ++i) {
       dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
@@ -362,14 +385,17 @@ final class GrinderProcess {
 
     m_consoleSender.shutdown();
 
+    final long elapsedTime = m_context.getElapsedTime();
+    logger.output("elapsed time is " + elapsedTime + " ms");
+
     logger.output("Final statistics for this process:");
 
     final StatisticsTable statisticsTable =
-      new StatisticsTable(
-        m_context.getStatisticsServices().getSummaryStatisticsView(),
-        m_accumulatedStatistics);
+      new StatisticsTable(statisticsServices.getSummaryStatisticsView(),
+                          statisticsServices.getStatisticsIndexMap(),
+                          m_accumulatedStatistics);
 
-    statisticsTable.print(logger.getOutputLogWriter());
+    statisticsTable.print(logger.getOutputLogWriter(), elapsedTime);
 
     timer.cancel();
 
@@ -410,7 +436,7 @@ final class GrinderProcess {
 
           // We look up the new tests after we've taken the sample to
           // avoid a race condition when new tests are being added.
-          final Collection newTests =
+          final Collection<Test> newTests =
             m_context.getTestRegistry().getNewTests();
 
           if (newTests != null) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,8 +27,6 @@ import net.grinder.common.Test;
 import net.grinder.common.StubTest;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
-import net.grinder.engine.process.ScriptEngine.Dispatcher;
-import net.grinder.engine.process.ScriptEngine.Dispatcher.Callable;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsIndexMap;
@@ -64,22 +62,23 @@ public class TestTestData extends TestCase {
   private final StatisticsSetFactory m_statisticsSetFactory =
     StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
 
-  private final RandomStubFactory m_scriptEngineStubFactory =
-    new RandomStubFactory(ScriptEngine.class);
-  private final Instrumenter m_scriptEngine =
-    (Instrumenter)m_scriptEngineStubFactory.getStub();
+  private final RandomStubFactory<Instrumenter> m_instrumenterStubFactory =
+    RandomStubFactory.create(Instrumenter.class);
+  private final Instrumenter m_instrumenter =
+    m_instrumenterStubFactory.getStub();
 
-  private final RandomStubFactory m_testStatisticsHelperStubFactory =
-    new RandomStubFactory(TestStatisticsHelper.class);
+  private final RandomStubFactory<TestStatisticsHelper>
+    m_testStatisticsHelperStubFactory =
+      RandomStubFactory.create(TestStatisticsHelper.class);
   private final TestStatisticsHelper m_testStatisticsHelper =
-    (TestStatisticsHelper)m_testStatisticsHelperStubFactory.getStub();
+    m_testStatisticsHelperStubFactory.getStub();
 
   private final StubThreadContextLocator m_threadContextLocator =
     new StubThreadContextLocator();
-  private final RandomStubFactory m_threadContextStubFactory =
-    new RandomStubFactory(ThreadContext.class);
+  private final RandomStubFactory<ThreadContext> m_threadContextStubFactory =
+    RandomStubFactory.create(ThreadContext.class);
   private final ThreadContext m_threadContext =
-    (ThreadContext)m_threadContextStubFactory.getStub();
+    m_threadContextStubFactory.getStub();
 
   private final StandardTimeAuthority m_timeAuthority =
     new StandardTimeAuthority();
@@ -87,15 +86,15 @@ public class TestTestData extends TestCase {
   public void testCreateProxy() throws Exception {
     final TestData testData =
       new TestData(null, m_statisticsSetFactory, null,
-                   m_timeAuthority, m_scriptEngine, null);
+                   m_timeAuthority, m_instrumenter, null);
 
     final Object original = new Object();
 
     testData.createProxy(original);
 
-    m_scriptEngineStubFactory.assertSuccess(
+    m_instrumenterStubFactory.assertSuccess(
       "createInstrumentedProxy", null, testData, original);
-    m_scriptEngineStubFactory.assertNoMoreCalls();
+    m_instrumenterStubFactory.assertNoMoreCalls();
   }
 
   public void testDispatch() throws Exception {
@@ -106,39 +105,34 @@ public class TestTestData extends TestCase {
                    m_statisticsSetFactory,
                    m_testStatisticsHelper,
                    m_timeAuthority,
-                   m_scriptEngine,
+                   m_instrumenter,
                    test1);
 
     assertSame(test1, testData.getTest());
     final StatisticsSet statistics = testData.getTestStatistics();
     assertNotNull(statistics);
 
-    final RandomStubFactory callableStubFactory =
-      new RandomStubFactory(Callable.class);
-    final Callable callable = (Callable)callableStubFactory.getStub();
-
     // 1. Happy case.
     try {
-      testData.dispatch(callable);
+      testData.start();
       fail("Expected EngineException");
     }
     catch (EngineException e) {
       AssertUtilities.assertContains(e.getMessage(), "Only Worker Threads");
     }
 
-    callableStubFactory.assertNoMoreCalls();
-
     m_threadContextLocator.set(m_threadContext);
 
-    testData.dispatch(callable);
-
-    callableStubFactory.assertSuccess("call");
-    callableStubFactory.assertNoMoreCalls();
+    testData.start();
 
     m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
     final DispatchContext dispatchContext =
       (DispatchContext) m_threadContextStubFactory.assertSuccess(
       "pushDispatchContext", DispatchContext.class).getParameters()[0];
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    testData.end(true);
+
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
 
@@ -158,23 +152,19 @@ public class TestTestData extends TestCase {
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     // 2. Nested case.
-    final Callable outer = new Callable() {
+    testData.start();
 
-      public Object call() {
-        // No call to getDispatchResultReporter as dispatcher is reused.
-        m_threadContextStubFactory.assertSuccess(
-          "pushDispatchContext", DispatchContext.class);
+    m_threadContextStubFactory.assertSuccess(
+      "pushDispatchContext", DispatchContext.class);
+    m_threadContextStubFactory.assertNoMoreCalls();
 
-        try {
-          testData.dispatch(callable);
-        }
-        catch (EngineException e) {
-          fail(e.getMessage());
-        }
-        return null;
-      }};
+    testData.start();
+    m_threadContextStubFactory.assertNoMoreCalls();
 
-    testData.dispatch(outer);
+    testData.end(true);
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    testData.end(true);
 
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
@@ -193,23 +183,15 @@ public class TestTestData extends TestCase {
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     // 3. Unhappy case.
-    final RuntimeException problem = new RuntimeException();
-    callableStubFactory.setThrows("call", problem);
-
-    try {
-      testData.dispatch(callable);
-      fail("Expected RuntimeException");
-    }
-    catch (RuntimeException e) {
-      assertSame(problem, e);
-    }
+    testData.start();
+    testData.end(false);
 
     // The dispatcher's statistics (not the test statistics) are
     // marked bad.
     final StatisticsSet dispatcherStatistics =
       (StatisticsSet)
       m_testStatisticsHelperStubFactory.assertSuccess(
-      "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
+        "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
     assertNotSame(statistics, dispatcherStatistics);
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
@@ -217,32 +199,23 @@ public class TestTestData extends TestCase {
     dispatchContext.report();
     m_testStatisticsHelperStubFactory.resetCallHistory();
 
-    Callable evilCallable = new Callable() {
-      public Object call() {
-        dispatchContext.getPauseTimer().start();
-        return callable.call();
-      }};
+    testData.start();
+    dispatchContext.getPauseTimer().start();
 
-      try {
-        testData.dispatch(evilCallable);
-        fail("Expected RuntimeException");
-      }
-      catch (RuntimeException e) {
-        assertSame(problem, e);
-      }
+    testData.end(false);
 
     // The dispatcher's statistics (not the test statistics) are
     // marked bad.
     final StatisticsSet dispatcherStatistics2 =
       (StatisticsSet)
       m_testStatisticsHelperStubFactory.assertSuccess(
-      "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
+        "setSuccess", StatisticsSet.class, Boolean.class).getParameters()[0];
     assertNotSame(statistics, dispatcherStatistics2);
     m_testStatisticsHelperStubFactory.assertNoMoreCalls();
 
     // 4. Assertion failures.
     try {
-      testData.dispatch(callable);
+      testData.start();
       fail("Expected DispatchStateException");
     }
     catch (DispatchStateException e) {
@@ -278,31 +251,28 @@ public class TestTestData extends TestCase {
                    m_statisticsSetFactory,
                    testStatisticsHelper,
                    m_timeAuthority,
-                   m_scriptEngine,
+                   m_instrumenter,
                    test1);
 
     assertSame(test1, testData.getTest());
     final StatisticsSet statistics = testData.getTestStatistics();
     assertNotNull(statistics);
 
-    final RandomStubFactory callableStubFactory =
-      new RandomStubFactory(Callable.class);
-    final Callable callable = (Callable)callableStubFactory.getStub();
-
     m_threadContextLocator.set(m_threadContext);
 
     final long beforeTime = System.currentTimeMillis();
 
-    testData.dispatch(callable);
-
-    callableStubFactory.assertSuccess("call");
-    callableStubFactory.assertNoMoreCalls();
+    testData.start();
 
     m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
     final DispatchContext dispatchContext =
       (DispatchContext)
       m_threadContextStubFactory.assertSuccess(
         "pushDispatchContext", DispatchContext.class).getParameters()[0];
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    testData.end(true);
+
     m_threadContextStubFactory.assertSuccess("popDispatchContext");
     m_threadContextStubFactory.assertNoMoreCalls();
 
@@ -371,23 +341,20 @@ public class TestTestData extends TestCase {
     catch (InvalidContextException e) {
     }
 
-    final Callable longerCallable = new Callable() {
-      public Object call() {
-        assertTrue(dispatchContext.getElapsedTime() < 20);
-        try {
-          Thread.sleep(50);
-        }
-        catch (InterruptedException e) {
-          fail(e.getMessage());
-        }
+    testData.start();
 
-        assertTrue(dispatchContext.getElapsedTime() >=
-                   50 - Time.J2SE_TIME_ACCURACY_MILLIS);
-        return null;
-      }
-    };
+    assertTrue(dispatchContext.getElapsedTime() < 20);
+    try {
+      Thread.sleep(50);
+    }
+    catch (InterruptedException e) {
+      fail(e.getMessage());
+    }
 
-    testData.dispatch(longerCallable);
+    assertTrue(dispatchContext.getElapsedTime() >=
+               50 - Time.J2SE_TIME_ACCURACY_MILLIS);
+
+    testData.end(true);
 
     final long elapsedTime2 = dispatchContext.getElapsedTime();
     assertTrue(elapsedTime2 >= 50 - Time.J2SE_TIME_ACCURACY_MILLIS);
@@ -404,13 +371,9 @@ public class TestTestData extends TestCase {
                    m_statisticsSetFactory,
                    m_testStatisticsHelper,
                    m_timeAuthority,
-                   m_scriptEngine,
+                   m_instrumenter,
                    new StubTest(1, "test1"));
 
-
-    final RandomStubFactory callableStubFactory =
-      new RandomStubFactory(Callable.class);
-    final Callable callable = (Callable)callableStubFactory.getStub();
 
     m_threadContextLocator.set(m_threadContext);
 
@@ -418,42 +381,16 @@ public class TestTestData extends TestCase {
     m_threadContextStubFactory.setThrows("pushDispatchContext", se);
 
     try {
-      testData.dispatch(callable);
+      testData.start();
       fail("Expected ShutdownException");
     }
     catch (ShutdownException e) {
     }
 
     m_threadContextStubFactory.assertSuccess("getDispatchResultReporter");
-    m_threadContextStubFactory.assertException(
-      "pushDispatchContext",
-      new Class[] { DispatchContext.class, },
-      se);
+    m_threadContextStubFactory.assertException("pushDispatchContext",
+                                               se,
+                                               DispatchContext.class);
     m_threadContextStubFactory.assertNoMoreCalls();
-  }
-
-  /**
-   * Creates dynamic ThreadContext stubs which implement invokeTest by
-   * delegating directly to the callable. Must be public so
-   * override_ methods can be invoked.
-   */
-  public static class ThreadContextStubFactory extends RandomStubFactory {
-    private final TestData m_expectedTestData;
-
-    public ThreadContextStubFactory(TestData expectedTestData) {
-      super(ThreadContext.class);
-      m_expectedTestData = expectedTestData;
-    }
-
-    public Object override_invokeTest(Object proxy,
-                                      TestData testData,
-                                      Dispatcher.Callable callable) {
-      assertSame(m_expectedTestData, testData);
-      return callable.call();
-    }
-
-    public ThreadContext getThreadContext() {
-      return (ThreadContext)getStub();
-    }
   }
 }

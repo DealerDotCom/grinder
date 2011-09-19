@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,6 +28,7 @@ import net.grinder.communication.FanOutStreamSender;
 import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
+import net.grinder.util.Directory;
 
 
 /**
@@ -55,13 +56,16 @@ final class ProcessWorkerFactory extends AbstractWorkerFactory {
     m_commandLine = commandLine;
   }
 
+  @Override
   protected Worker createWorker(WorkerIdentityImplementation workerIdentity,
+                                Directory workingDirectory,
                                 OutputStream outputStream,
                                 OutputStream errorStream)
     throws EngineException {
 
     return new ProcessWorker(workerIdentity,
-                             m_commandLine.getCommandArray(),
+                             m_commandLine.getCommandList(),
+                             workingDirectory,
                              outputStream,
                              errorStream);
   }

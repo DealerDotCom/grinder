@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,7 +55,7 @@ public final class Directory implements Serializable {
     new MatchAllFilesFilter();
 
   private final File m_directory;
-  private final List m_warnings = new ArrayList();
+  private final List<String> m_warnings = new ArrayList<String>();
 
   /**
    * Returns a filter matching all files.
@@ -169,9 +169,9 @@ public final class Directory implements Serializable {
                              boolean includeDirectories,
                              boolean absolutePaths) {
 
-    final List resultList = new ArrayList();
-    final Set visited = new HashSet();
-    final List directoriesToVisit = new ArrayList();
+    final List<File> resultList = new ArrayList<File>();
+    final Set<File> visited = new HashSet<File>();
+    final List<File> directoriesToVisit = new ArrayList<File>();
 
     final File rootFile = getFile();
 
@@ -188,8 +188,7 @@ public final class Directory implements Serializable {
 
     while (directoriesToVisit.size() > 0) {
       final File[] directories =
-        (File[]) directoriesToVisit.toArray(
-          new File[directoriesToVisit.size()]);
+        directoriesToVisit.toArray(new File[directoriesToVisit.size()]);
 
       directoriesToVisit.clear();
 
@@ -234,7 +233,7 @@ public final class Directory implements Serializable {
       }
     }
 
-    return (File[])resultList.toArray(new File[resultList.size()]);
+    return resultList.toArray(new File[resultList.size()]);
   }
 
   /**
@@ -406,7 +405,7 @@ public final class Directory implements Serializable {
   public String[] getWarnings() {
     synchronized (m_warnings) {
       try {
-        return (String[])m_warnings.toArray(new String[m_warnings.size()]);
+        return m_warnings.toArray(new String[m_warnings.size()]);
       }
       finally {
         m_warnings.clear();

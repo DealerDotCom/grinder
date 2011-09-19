@@ -28,7 +28,7 @@ import junit.framework.Assert;
  * BlockingSender that wraps a Sender - used by unit tests.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class BlockingSenderWrapper implements BlockingSender {
 

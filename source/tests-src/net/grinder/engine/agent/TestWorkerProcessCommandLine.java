@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,12 +21,11 @@
 
 package net.grinder.engine.agent;
 
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.testutility.AbstractFileTestCase;
 
 
 /**
@@ -35,7 +34,7 @@ import net.grinder.common.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestWorkerProcessCommandLine extends TestCase {
+public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
 
   public void testConstructorWithEmptyProperties() throws Exception {
 
@@ -71,7 +70,30 @@ public class TestWorkerProcessCommandLine extends TestCase {
                  workerProcessCommandLine.toString());
   }
 
+  public void testConstructorWithAgent() throws Exception {
+
+    final GrinderProperties grinderProperties = new GrinderProperties();
+
+    final Properties overrideProperties = new Properties();
+
+    final File agentFile = new File(getDirectory(), "grinder-agent.jar");
+    final File someJar = new File(getDirectory(), "some.jar");
+    overrideProperties.put("java.class.path", someJar.getAbsolutePath());
+    agentFile.createNewFile();
+
+    final WorkerProcessCommandLine workerProcessCommandLine =
+      new WorkerProcessCommandLine(grinderProperties,
+                                   overrideProperties,
+                                   grinderProperties.getProperty("grinder.jvm.arguments"));
+
+    assertEquals("java '-javaagent:" + agentFile.getAbsolutePath() +
+                 "' -classpath '" + someJar.getAbsolutePath() +
+                 "' net.grinder.engine.process.WorkerProcessEntryPoint",
+                 workerProcessCommandLine.toString());
+  }
+
   public void testWithSystemProperties() throws Exception {
+
     final GrinderProperties grinderProperties = new GrinderProperties() {{
       setProperty("grinder.jvm.arguments", "-Xmx1024M");
       setProperty("grinder.jvm.classpath", "abc;def");
@@ -91,7 +113,7 @@ public class TestWorkerProcessCommandLine extends TestCase {
 
     final String expectedPrefix = "java '-Xmx1024M' ";
 
-    assertTrue(commandLine.startsWith(expectedPrefix));
+    assertTrue(commandLine, commandLine.startsWith(expectedPrefix));
 
     commandLine = commandLine.substring(expectedPrefix.length());
 
@@ -100,5 +122,29 @@ public class TestWorkerProcessCommandLine extends TestCase {
       "net.grinder.engine.process.WorkerProcessEntryPoint";
 
     assertEquals(expectedSuffix, commandLine);
+  }
+
+  public void testFindAgentJarFile() throws Exception {
+    assertNull(WorkerProcessCommandLine.findAgentJarFile("foo.jar"));
+
+    assertNull(
+     WorkerProcessCommandLine.findAgentJarFile(
+       "somewhere " + File.pathSeparatorChar + "somewhereelse"));
+
+    final File directories = new File(getDirectory(), "a/b");
+    directories.mkdirs();
+
+    assertNull(WorkerProcessCommandLine.findAgentJarFile("c.jar"));
+
+    final File f = new File(directories, "grinder-agent.jar");
+    f.createNewFile();
+    assertNotNull(WorkerProcessCommandLine.findAgentJarFile(f.getAbsolutePath()));
+
+    assertNull(
+      WorkerProcessCommandLine.findAgentJarFile(
+        new File(getDirectory().getAbsoluteFile(), "c.jar").getPath()));
+
+    // I'd like also to test with relative paths, but this is impossible to
+    // do in a platform independent manner.
   }
 }

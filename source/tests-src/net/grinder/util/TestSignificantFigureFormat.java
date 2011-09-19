@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -25,6 +25,8 @@ package net.grinder.util;
 import java.util.Locale;
 
 import junit.framework.TestCase;
+
+import static net.grinder.testutility.AssertUtilities.assertNotEquals;
 
 
 /**
@@ -76,5 +78,20 @@ public class TestSignificantFigureFormat extends TestCase {
     assertEquals("\u221e", f.format(Double.POSITIVE_INFINITY));
     assertEquals("-\u221e", f.format(Double.NEGATIVE_INFINITY));
     assertEquals("\ufffd", f.format(Double.NaN));
+  }
+
+  public void testEquality() {
+    final SignificantFigureFormat f1 = new SignificantFigureFormat(4);
+
+    assertNotEquals(f1, null);
+    assertEquals(f1, f1);
+
+    final SignificantFigureFormat f2 = new SignificantFigureFormat(4);
+    assertEquals(f1, f2);
+    assertEquals(f1.hashCode(), f2.hashCode());
+
+    final SignificantFigureFormat f3 = new SignificantFigureFormat(3);
+    assertNotEquals(f3, f2);
+    assertNotEquals(f2, f3);
   }
 }

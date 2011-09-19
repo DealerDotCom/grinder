@@ -28,7 +28,7 @@ import java.io.Serializable;
  * Interface implemented by addresses.
  *
  * @author Philip Aston
- * @version $Revision: 3762 $
+ * @version $Revision$
  */
 public interface Address extends Serializable {
 

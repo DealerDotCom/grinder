@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,15 +47,15 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestScriptStatisticsImplementation extends TestCase {
 
-  private final RandomStubFactory m_threadContextStubFactory =
-    new RandomStubFactory(ThreadContext.class);
+  private final RandomStubFactory<ThreadContext> m_threadContextStubFactory =
+    RandomStubFactory.create(ThreadContext.class);
   private final ThreadContext m_threadContext =
-    (ThreadContext)m_threadContextStubFactory.getStub();
+    m_threadContextStubFactory.getStub();
 
-  final RandomStubFactory m_queuedSenderStubFactory =
-    new RandomStubFactory(QueuedSender.class);
+  final RandomStubFactory<QueuedSender> m_queuedSenderStubFactory =
+    RandomStubFactory.create(QueuedSender.class);
   final QueuedSender m_queuedSender =
-    (QueuedSender)m_queuedSenderStubFactory.getStub();
+    m_queuedSenderStubFactory.getStub();
 
   private final StubThreadContextLocator m_threadContextLocator =
     new StubThreadContextLocator();
@@ -132,10 +132,10 @@ public class TestScriptStatisticsImplementation extends TestCase {
     }
 
     // 3. No last statistics, current statistics.
-    final RandomStubFactory statisticsForTestStubFactory1 =
-      new RandomStubFactory(StatisticsForTest.class);
+    final RandomStubFactory<StatisticsForTest> statisticsForTestStubFactory1 =
+      RandomStubFactory.create(StatisticsForTest.class);
     final StatisticsForTest statisticsForTest1 =
-      (StatisticsForTest)statisticsForTestStubFactory1.getStub();
+      statisticsForTestStubFactory1.getStub();
     m_threadContextStubFactory.setResult(
       "getStatisticsForCurrentTest", statisticsForTest1);
     assertTrue(scriptStatistics.isTestInProgress());
@@ -150,10 +150,10 @@ public class TestScriptStatisticsImplementation extends TestCase {
     }
 
     // 4. Last statistics, current statistics.
-    final RandomStubFactory statisticsForTestStubFactory2 =
-      new RandomStubFactory(StatisticsForTest.class);
+    final RandomStubFactory<StatisticsForTest> statisticsForTestStubFactory2 =
+      RandomStubFactory.create(StatisticsForTest.class);
     final StatisticsForTest statisticsForTest2 =
-      (StatisticsForTest)statisticsForTestStubFactory2.getStub();
+      statisticsForTestStubFactory2.getStub();
     m_threadContextStubFactory.setResult(
       "getStatisticsForLastTest", statisticsForTest2);
 

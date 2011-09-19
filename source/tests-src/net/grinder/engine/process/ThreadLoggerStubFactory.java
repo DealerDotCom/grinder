@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,7 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.LoggerStubFactory;
+import net.grinder.common.AbstractLoggerStubFactory;
 
 
 /**
@@ -30,13 +30,10 @@ import net.grinder.common.LoggerStubFactory;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ThreadLoggerStubFactory extends LoggerStubFactory {
+public class ThreadLoggerStubFactory
+  extends AbstractLoggerStubFactory<ThreadLogger> {
 
   public ThreadLoggerStubFactory() {
     super(ThreadLogger.class);
-  }
-
-  public final ThreadLogger getThreadLogger() {
-    return (ThreadLogger)getStub();
   }
 }

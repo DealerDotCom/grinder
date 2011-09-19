@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,13 +36,13 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link ProcessReportDescriptionFactory}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestProcessReportDescriptionFactory extends TestCase {
 
   private Resources m_resources =
-    new StubResources(
-      new HashMap() { {
+    new StubResources<String>(
+      new HashMap<String, String>() { {
         put("processTable.threads.label", "strings");
         put("processTable.agentProcess.label", "AG");
         put("processTable.workerProcess.label", "WK");
@@ -59,10 +59,10 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("my agent");
 
-    final RandomStubFactory agentProcessReportStubFactory =
-      new RandomStubFactory(AgentProcessReport.class);
+    final RandomStubFactory<AgentProcessReport> agentProcessReportStubFactory =
+      RandomStubFactory.create(AgentProcessReport.class);
     final AgentProcessReport agentProcessReport =
-      (AgentProcessReport)agentProcessReportStubFactory.getStub();
+      agentProcessReportStubFactory.getStub();
     agentProcessReportStubFactory.setResult("getAgentIdentity", agentIdentity);
     agentProcessReportStubFactory.setResult(
       "getState", new Short(AgentProcessReport.STATE_UNKNOWN));
@@ -123,11 +123,14 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     final WorkerIdentity workerIdentity =
       agentIdentity.createWorkerIdentity();
 
-    final RandomStubFactory workerProcessReportStubFactory =
-      new RandomStubFactory(WorkerProcessReport.class);
+    final RandomStubFactory<WorkerProcessReport>
+      workerProcessReportStubFactory =
+        RandomStubFactory.create(WorkerProcessReport.class);
+
     final WorkerProcessReport workerProcessReport =
-      (WorkerProcessReport)workerProcessReportStubFactory.getStub();
-    workerProcessReportStubFactory.setResult("getWorkerIdentity", workerIdentity);
+      workerProcessReportStubFactory.getStub();
+    workerProcessReportStubFactory.setResult("getWorkerIdentity",
+                                             workerIdentity);
     workerProcessReportStubFactory.setResult(
       "getState", new Short(WorkerProcessReport.STATE_UNKNOWN));
 

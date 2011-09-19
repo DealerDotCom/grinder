@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,10 +28,13 @@ import java.io.OutputStream;
 import java.util.Random;
 
 import junit.framework.TestCase;
-
 import net.grinder.common.GrinderException;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.SSLContextFactory;
+import net.grinder.common.StubTest;
+import net.grinder.common.Test;
+import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.instrumenter.MasterInstrumenter;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
@@ -48,7 +51,6 @@ import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.StandardTimeAuthority;
 import net.grinder.util.TimeAuthority;
-
 import HTTPClient.HTTPResponse;
 import HTTPClient.HttpURLConnection;
 import HTTPClient.NVPair;
@@ -64,27 +66,31 @@ import HTTPClient.ParseException;
 public class TestHTTPRequest extends TestCase {
   private static final Random s_random = new Random();
 
-  private final RandomStubFactory m_scriptContextStubFactory =
-    new RandomStubFactory(ScriptContext.class);
+  private final RandomStubFactory<ScriptContext> m_scriptContextStubFactory =
+    RandomStubFactory.create(ScriptContext.class);
 
-  private final RandomStubFactory m_statisticsStubFactory =
-    new RandomStubFactory(Statistics.class);
+  private final RandomStubFactory<Statistics> m_statisticsStubFactory =
+    RandomStubFactory.create(Statistics.class);
 
-  private final PluginThreadContext m_threadContext = (PluginThreadContext)
-    new RandomStubFactory(PluginThreadContext.class).getStub();
+  private final PluginThreadContext m_threadContext =
+    RandomStubFactory.create(PluginThreadContext.class).getStub();
 
-  private final SSLContextFactory m_sslContextFactory = (SSLContextFactory)
-    new RandomStubFactory(SSLContextFactory.class).getStub();
+  private final SSLContextFactory m_sslContextFactory =
+    RandomStubFactory.create(SSLContextFactory.class).getStub();
 
-  private final RandomStubFactory m_pluginProcessContextStubFactory =
-    new RandomStubFactory(PluginProcessContext.class);
+  private final RandomStubFactory<PluginProcessContext>
+    m_pluginProcessContextStubFactory =
+      RandomStubFactory.create(PluginProcessContext.class);
   private final PluginProcessContext m_pluginProcessContext =
-    (PluginProcessContext)m_pluginProcessContextStubFactory.getStub();
+    m_pluginProcessContextStubFactory.getStub();
 
-  private final RandomStubFactory m_statisticsForTestStubFactory =
-    new RandomStubFactory(StatisticsForTest.class);
+  private final RandomStubFactory<StatisticsForTest>
+    m_statisticsForTestStubFactory =
+      RandomStubFactory.create(StatisticsForTest.class);
   private final StatisticsForTest m_statisticsForTest =
-    (StatisticsForTest)m_statisticsForTestStubFactory.getStub();
+    m_statisticsForTestStubFactory.getStub();
+
+  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
 
   private HTTPRequestHandler m_handler;
 
@@ -126,6 +132,7 @@ public class TestHTTPRequest extends TestCase {
     m_statisticsStubFactory.resetCallHistory();
 
     m_handler = new HTTPRequestHandler();
+    m_handler.start();
   }
 
   protected void tearDown() throws Exception {
@@ -596,6 +603,15 @@ public class TestHTTPRequest extends TestCase {
     assertEquals("POST /bhxhh HTTP/1.1", m_handler.getRequestFirstHeader());
     AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
     m_handler.assertRequestContainsHeader("key: value");
+
+    headers6[0] = new NVPair("Content-Length", Integer.toString(data7.length));
+
+    final HTTPResponse response13 =
+      request.POST("/bhxhh", new ByteArrayInputStream(data7), headers6);
+    assertEquals(200, response13.getStatusCode());
+    assertEquals("POST /bhxhh HTTP/1.1", m_handler.getRequestFirstHeader());
+    AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
+    m_handler.assertRequestContainsHeader("Content-length: " + data7.length);
   }
 
   public void testPUT() throws Exception {
@@ -742,19 +758,18 @@ public class TestHTTPRequest extends TestCase {
   }
 
   public void testResponseProcessing() throws Exception {
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     m_scriptContextStubFactory.setResult("getLogger",
-                                         loggerStubFactory.getLogger());
+                                         m_loggerStubFactory.getLogger());
 
     final HTTPRequest request = new HTTPRequest();
     request.GET(m_handler.getURL());
 
     final CallData loggerCall =
-      loggerStubFactory.assertSuccess("output", String.class);
+      m_loggerStubFactory.assertSuccess("output", String.class);
     final String message = (String)loggerCall.getParameters()[0];
     assertTrue(message.indexOf("200") >= 0);
     assertEquals(-1, message.indexOf("Redirect"));
-    loggerStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(Boolean.FALSE,
       m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
@@ -780,10 +795,10 @@ public class TestHTTPRequest extends TestCase {
           response.append(" Moved Temporarily\r\n"); // whatever
         }
       };
+      handler.start();
 
-      final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
       m_scriptContextStubFactory.setResult("getLogger",
-                                           loggerStubFactory.getLogger());
+                                           m_loggerStubFactory.getLogger());
 
       m_statisticsStubFactory.setResult("isTestInProgress", Boolean.TRUE);
 
@@ -792,11 +807,11 @@ public class TestHTTPRequest extends TestCase {
       assertNotNull(response);
 
       final CallData loggerCall =
-        loggerStubFactory.assertSuccess("output", String.class);
+        m_loggerStubFactory.assertSuccess("output", String.class);
       final String message = (String)loggerCall.getParameters()[0];
       assertTrue(message.indexOf(Integer.toString(redirectCode)) >= 0);
       assertTrue(message.indexOf("Redirect") >= 0);
-      loggerStubFactory.assertNoMoreCalls();
+      m_loggerStubFactory.assertNoMoreCalls();
 
       assertEquals(Boolean.TRUE,
         m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
@@ -816,9 +831,10 @@ public class TestHTTPRequest extends TestCase {
       }
     };
 
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
+    handler.start();
+
     m_scriptContextStubFactory.setResult("getLogger",
-                                         loggerStubFactory.getLogger());
+                                         m_loggerStubFactory.getLogger());
 
     m_statisticsStubFactory.setResult("isTestInProgress", Boolean.TRUE);
 
@@ -827,10 +843,10 @@ public class TestHTTPRequest extends TestCase {
     assertNotNull(response);
 
     final CallData loggerCall =
-      loggerStubFactory.assertSuccess("output", String.class);
+      m_loggerStubFactory.assertSuccess("output", String.class);
     final String message3 = (String)loggerCall.getParameters()[0];
     assertTrue(message3.indexOf("400") >= 0);
-    loggerStubFactory.assertNoMoreCalls();
+    m_loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(Boolean.TRUE,
       m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
@@ -861,6 +877,7 @@ public class TestHTTPRequest extends TestCase {
     final ListTimeAuthority timeAuthority =
       new ListTimeAuthority(new long[] {
           100, // start time
+          101, // start time (internal to HTTPResponse - i.e. post redirect)
           123, // DNS time
           200, // connection time
           219, // time to first byte
@@ -880,6 +897,130 @@ public class TestHTTPRequest extends TestCase {
 
 
     final HTTPRequest request = new HTTPRequest();
+    final String bodyText = "Your heart's gone the colour of Coca Cola\n";
+    m_handler.setBody(bodyText);
+    final HTTPResponse response = request.GET(m_handler.getURL());
+    assertEquals(200, response.getStatusCode());
+    assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
+
+    assertEquals(Boolean.TRUE,
+      m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
+    m_statisticsStubFactory.assertSuccess("getForCurrentTest");
+    m_statisticsStubFactory.assertNoMoreCalls();
+
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY,
+      new Long(bodyText.length()));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY,
+      new Long(200));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY,
+      new Long(22));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY,
+      new Long(99));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
+      new Long(119));
+    m_statisticsForTestStubFactory.assertNoMoreCalls();
+
+    try {
+      timeAuthority.getTimeInMilliseconds();
+      fail("Not all times used");
+    }
+    catch (ArrayIndexOutOfBoundsException e) {
+    }
+
+    assertTrue(response.getInputStream() instanceof ByteArrayInputStream);
+    assertEquals(bodyText, response.getText());
+
+    // Now try again, but with invalid DNS, connect times. These will be
+    // reported as zero.
+    timeAuthority.setTimes(
+      new long[] {
+          400, // start time
+          400, // start time (internal to HTTPResponse - i.e. post redirect)
+          0,   // DNS time
+          0,   // connection time
+          419, // time to first byte
+      });
+
+    m_handler.setBody(null);
+
+    final HTTPResponse response2 = request.GET(m_handler.getURL());
+
+    assertEquals(Boolean.TRUE,
+      m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
+    m_statisticsStubFactory.assertSuccess("getForCurrentTest");
+    m_statisticsStubFactory.assertNoMoreCalls();
+
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY,
+      new Long(0));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY,
+      new Long(200));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY,
+      new Long(0));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY,
+      new Long(0));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
+      new Long(19));
+    m_statisticsForTestStubFactory.assertNoMoreCalls();
+
+    try {
+      timeAuthority.getTimeInMilliseconds();
+      fail("Not all times used");
+    }
+    catch (ArrayIndexOutOfBoundsException e) {
+    }
+
+    assertTrue(response2.getInputStream() instanceof ByteArrayInputStream);
+    assertEquals("", response2.getText());
+  }
+
+  public void testSetReadResponseBody() throws Exception {
+
+    final ListTimeAuthority timeAuthority =
+      new ListTimeAuthority(new long[] {
+          100, // start time
+          110, // start time (internal to HTTPResponse - i.e. post redirect)
+          123, // DNS time
+          200, // connection time
+          219, // time to first byte
+      });
+
+    final HTTPPluginThreadState threadState =
+      new HTTPPluginThreadState(m_threadContext,
+                                m_sslContextFactory,
+                                null,
+                                timeAuthority);
+
+    m_pluginProcessContextStubFactory.setResult("getPluginThreadListener",
+                                                threadState);
+
+    m_statisticsStubFactory.setResult("isTestInProgress", Boolean.TRUE);
+    m_statisticsStubFactory.setResult("getForCurrentTest", m_statisticsForTest);
+
+
+    final HTTPRequest request = new HTTPRequest();
+
+    assertTrue(request.getReadResponseBody());
+    request.setReadResponseBody(false);
+    assertFalse(request.getReadResponseBody());
+    request.setReadResponseBody(true);
+    assertTrue(request.getReadResponseBody());
+    request.setReadResponseBody(false);
+    assertFalse(request.getReadResponseBody());
+
+    final String bodyText =
+      "Your heart's gone the colour of a dust\nbin\n liner";
+    m_handler.setBody(bodyText);
+
     final HTTPResponse response = request.GET(m_handler.getURL());
     assertEquals(200, response.getStatusCode());
     assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
@@ -897,10 +1038,10 @@ public class TestHTTPRequest extends TestCase {
       new Long(200));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY,
-      new Long(23));
+      new Long(13));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY,
-      new Long(100));
+      new Long(90));
     m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
       new Long(119));
@@ -913,19 +1054,23 @@ public class TestHTTPRequest extends TestCase {
     catch (ArrayIndexOutOfBoundsException e) {
     }
 
+    assertTrue(!(response.getInputStream() instanceof ByteArrayInputStream));
+    assertEquals(bodyText, response.getText());
 
-    // Now try again, but with invalid DNS, connect times. Unsure how these
-    // can actually be < 0, but I've explicitly handled it so I'm not about
-    // to remove it in a hurry.
+    // Now try again, but with invalid DNS, connect times. These will be
+    // reported as zero.
     timeAuthority.setTimes(
       new long[] {
           400, // start time
+          405, // start time (internal to HTTPResponse - i.e. post redirect)
           0,   // DNS time
           0,   // connection time
           419, // time to first byte
       });
 
-    request.GET(m_handler.getURL());
+    m_handler.setBody(null);
+
+    final HTTPResponse response2 = request.GET(m_handler.getURL());
 
     assertEquals(Boolean.TRUE,
       m_statisticsStubFactory.assertSuccess("isTestInProgress").getResult());
@@ -939,6 +1084,12 @@ public class TestHTTPRequest extends TestCase {
       "setLong", StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY,
       new Long(200));
     m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY,
+      new Long(0));
+    m_statisticsForTestStubFactory.assertSuccess(
+      "addLong", StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY,
+      new Long(0));
+    m_statisticsForTestStubFactory.assertSuccess(
       "addLong", StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
       new Long(19));
     m_statisticsForTestStubFactory.assertNoMoreCalls();
@@ -949,6 +1100,9 @@ public class TestHTTPRequest extends TestCase {
     }
     catch (ArrayIndexOutOfBoundsException e) {
     }
+
+    assertTrue(!(response2.getInputStream() instanceof ByteArrayInputStream));
+    assertEquals("", response2.getText());
   }
 
   public void testWithBadStatistics() throws Exception {
@@ -982,6 +1136,143 @@ public class TestHTTPRequest extends TestCase {
     final HTTPResponse response2 = request.GET(m_handler.getURL());
     assertEquals(200, response2.getStatusCode());
     assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
+  }
+
+  public void testDCRInstrumentation() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final MasterInstrumenter masterInstrumenter =
+      new MasterInstrumenter(m_loggerStubFactory.getLogger(), true);
+
+    assertEquals("byte code transforming instrumenter for Jython 2.1/2.2; " +
+                 "byte code transforming instrumenter for Java",
+                 masterInstrumenter.getDescription());
+
+    m_loggerStubFactory.assertOutputMessageContains("byte code transforming");
+    m_loggerStubFactory.assertNoMoreCalls();
+
+    final RandomStubFactory<Recorder> recorderStubFactory =
+      RandomStubFactory.create(Recorder.class);
+    final Recorder recorder = recorderStubFactory.getStub();
+
+    final Test test = new StubTest(1, "foo");
+
+    masterInstrumenter.createInstrumentedProxy(test, recorder, request);
+
+    try {
+      request.GET();
+      fail("Expected URLException");
+    }
+    catch (URLException e) {
+    }
+
+    recorderStubFactory.assertSuccess("start");
+    consumeStartEndPairs(recorderStubFactory);
+    recorderStubFactory.assertSuccess("end", false);
+    recorderStubFactory.assertNoMoreCalls();
+
+    try {
+      request.GET("#partial");
+      fail("Expected URLException");
+    }
+    catch (URLException e) {
+    }
+
+    recorderStubFactory.assertSuccess("start");
+    consumeStartEndPairs(recorderStubFactory);
+    recorderStubFactory.assertSuccess("end", false);
+    recorderStubFactory.assertNoMoreCalls();
+
+    final HTTPResponse response = request.GET(m_handler.getURL());
+    assertEquals(200, response.getStatusCode());
+    assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
+
+    recorderStubFactory.assertSuccess("start");
+    consumeStartEndPairs(recorderStubFactory);
+    recorderStubFactory.assertSuccess("end", true);
+    recorderStubFactory.assertNoMoreCalls();
+  }
+
+  private static void consumeStartEndPairs(RandomStubFactory<?> stubFactory) {
+
+    int s = 0;
+
+    while (true) {
+      final CallData top = stubFactory.peekFirst();
+
+      if (top == null) {
+        if (s == 0) {
+          return;
+        }
+        else {
+          fail("Unbalanced start/end methods");
+        }
+      }
+
+      final String methodName = top.getMethodName();
+
+      if (methodName.equals("start")) {
+        stubFactory.assertSuccess("start");
+        ++s;
+      }
+      else if (s > 0) {
+        stubFactory.assertSuccess("end", Boolean.class);
+        --s;
+      }
+      else {
+        return;
+      }
+    }
+  }
+
+  public void testReadTimeout() throws Exception {
+
+    final HTTPRequestHandler httpServer = new HTTPRequestHandler();
+    httpServer.setResponseDelay(100);
+    httpServer.start();
+
+    final HTTPPluginConnectionDefaults connectionDefaults =
+      HTTPPluginConnectionDefaults.getConnectionDefaults();
+
+    final int originalTimeout = connectionDefaults.getTimeout();
+
+    try {
+      connectionDefaults.setTimeout(1);
+
+      try {
+        new HTTPRequest().GET(httpServer.getURL());
+        fail("Expected TimeoutException");
+      }
+      catch (TimeoutException e) {
+      }
+
+      // Need another HTTPRequestHandler - the first will have closed its
+      // socket.
+      final HTTPRequestHandler httpServer2 = new HTTPRequestHandler();
+      httpServer2.setResponseDelay(100);
+      httpServer2.start();
+
+      final HTTPPluginConnection connection =
+        HTTPPluginControl.getThreadConnection(httpServer2.getURL());
+
+      connection.setTimeout(0);
+      final HTTPResponse response = new HTTPRequest().GET(httpServer2.getURL());
+      assertEquals("", response.getText());
+
+      connection.setTimeout(1);
+
+      try {
+        new HTTPRequest().GET(httpServer2.getURL());
+        fail("Expected TimeoutException");
+      }
+      catch (TimeoutException e) {
+      }
+
+      connection.close();
+    }
+    finally {
+      connectionDefaults.setTimeout(originalTimeout);
+    }
   }
 
   private static byte[] randomBytes(int max) {

@@ -2,7 +2,7 @@
  * @(#)AuthorizationInfo.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschalär
+ *  Copyright (C) 1996-2001 Ronald TschalÃ¤r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,10 @@
  *  The HTTPClient's home page is located at:
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
+ * 
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
  *
  */
 
@@ -85,7 +89,7 @@ import java.util.Enumeration;
  * port, scheme, and realm combination (see <A HREF="#equals">equals()</A>).
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @author	Ronald Tschalï¿½r
  * @since	V0.1
  */
 public class AuthorizationInfo implements Cloneable
@@ -1205,8 +1209,12 @@ public class AuthorizationInfo implements Cloneable
 	    try
 	    {
 		// ai.extra_info  = extra_info.clone();
-		ai.extra_info = extra_info.getClass().getMethod("clone", null).
-				invoke(extra_info, null);
+		/** ++GRINDER MODIFICATION **/
+	    // ai.extra_info = extra_info.getClass().getMethod("clone", null).
+        //invoke(extra_info, null);
+	      ai.extra_info = extra_info.getClass().getMethod("clone").
+          invoke(extra_info);		
+        /** --GRINDER MODIFICATION **/		
 	    }
 	    catch (Throwable t)
 		{ }

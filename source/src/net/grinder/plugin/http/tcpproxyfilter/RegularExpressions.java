@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -81,7 +81,14 @@ public interface RegularExpressions {
   Pattern getHyperlinkURIPattern();
 
   /**
-   * A pattern that matches hidden parameters in HTML forms.
+   * A pattern that matches input parameters in HTML forms.
+   *
+   * @return The pattern.
+   */
+  Pattern getInputPattern();
+
+  /**
+   * A pattern that matches hidden input parameters in HTML forms.
    *
    * @return The pattern.
    */

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,19 +41,20 @@ import net.grinder.util.IsolatingClassLoader;
  * Unit tests for {@link HTTPPlugin}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestHTTPPlugin extends TestCase {
 
-  private final RandomStubFactory m_pluginProcessContextStubFactory =
-    new RandomStubFactory(PluginProcessContext.class);
+  private final RandomStubFactory<PluginProcessContext>
+    m_pluginProcessContextStubFactory =
+      RandomStubFactory.create(PluginProcessContext.class);
   private final PluginProcessContext m_pluginProcessContext =
-    (PluginProcessContext)m_pluginProcessContextStubFactory.getStub();
+    m_pluginProcessContextStubFactory.getStub();
 
-  private final RandomStubFactory m_scriptContextStubFactory =
-    new RandomStubFactory(ScriptContext.class);
+  private final RandomStubFactory<ScriptContext> m_scriptContextStubFactory =
+    RandomStubFactory.create(ScriptContext.class);
   private final ScriptContext m_scriptContext =
-    (ScriptContext)m_scriptContextStubFactory.getStub();
+    m_scriptContextStubFactory.getStub();
 
   {
     m_pluginProcessContextStubFactory.setResult(
@@ -65,7 +66,7 @@ public class TestHTTPPlugin extends TestCase {
     final ClassLoader classLoader =
       new IsolatingClassLoader(
         (URLClassLoader) getClass().getClassLoader(), new String[] { }, false) {
-      protected Class loadClass(String name, boolean resolve)
+      protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException  {
 
         if (name.equals("HTTPClient.RetryModule")) {
@@ -104,16 +105,15 @@ public class TestHTTPPlugin extends TestCase {
 
   public void testInitializeWithBadStatistics() throws Exception {
 
-    final RandomStubFactory statisticsStubFactory =
-      new RandomStubFactory(Statistics.class);
-    final Statistics statistics = (Statistics)statisticsStubFactory.getStub();
-
+    final RandomStubFactory<Statistics> statisticsStubFactory =
+      RandomStubFactory.create(Statistics.class);
     final GrinderException grinderException = new GrinderException("Hello") {};
 
     statisticsStubFactory.setThrows("registerDataLogExpression",
                                     grinderException);
 
-    m_scriptContextStubFactory.setResult("getStatistics", statistics);
+    m_scriptContextStubFactory.setResult("getStatistics",
+                                         statisticsStubFactory.getStub());
 
     final HTTPPlugin plugin = new HTTPPlugin();
 
@@ -133,13 +133,11 @@ public class TestHTTPPlugin extends TestCase {
 
     assertSame(m_pluginProcessContext, plugin.getPluginProcessContext());
 
-    final RandomStubFactory pluginThreadContextStubFactory =
-      new RandomStubFactory(PluginThreadContext.class);
-    final PluginThreadContext pluginThreadContext =
-      (PluginThreadContext)pluginThreadContextStubFactory.getStub();
-
+    final RandomStubFactory<PluginThreadContext>
+      pluginThreadContextStubFactory =
+        RandomStubFactory.create(PluginThreadContext.class);
     final PluginThreadListener threadListener =
-      plugin.createThreadListener(pluginThreadContext);
+      plugin.createThreadListener(pluginThreadContextStubFactory.getStub());
 
     assertNotNull(threadListener);
   }

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,11 @@
 
 package net.grinder.console.common;
 
-import junit.framework.TestCase;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.TestCase;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomObjectFactory;
 import net.grinder.testutility.RandomStubFactory;
@@ -49,7 +47,7 @@ public class TestErrorQueue extends TestCase {
 
     final Method[] methods = ErrorQueue.class.getMethods();
 
-    final List callData = new ArrayList();
+    final List<CallData> callDataList = new ArrayList<CallData>();
 
     // Call without delegate.
     for (int i = 0; i < methods.length; ++i) {
@@ -59,25 +57,18 @@ public class TestErrorQueue extends TestCase {
         final Object[] parameters =
           randomObjectFactory.generateParameters(method.getParameterTypes());
 
-        callData.add(new CallData(method, parameters, null));
+        callDataList.add(new CallData(method, (Object)null, parameters));
 
         method.invoke(errorQueue, parameters);
       }
     }
 
     // Set delegate and assert that it gets the pending events.
-    final RandomStubFactory delegateErrorHandlerStubFactory =
-      new RandomStubFactory(ErrorHandler.class);
-    final ErrorHandler delegateErrorHandler =
-      (ErrorHandler)delegateErrorHandlerStubFactory.getStub();
+    final RandomStubFactory<ErrorHandler> delegateErrorHandlerStubFactory =
+      RandomStubFactory.create(ErrorHandler.class);
+    errorQueue.setErrorHandler(delegateErrorHandlerStubFactory.getStub());
 
-    errorQueue.setErrorHandler(delegateErrorHandler);
-    
-    final Iterator iterator = callData.iterator();
-
-    while (iterator.hasNext()) {
-      final CallData data = (CallData)iterator.next();
-
+    for (CallData data : callDataList) {
       delegateErrorHandlerStubFactory.assertSuccess(data.getMethodName(),
                                                     data.getParameters());
     }
@@ -111,7 +102,7 @@ public class TestErrorQueue extends TestCase {
         final Object[] parameters =
           randomObjectFactory.generateParameters(method.getParameterTypes());
 
-        callData.add(new CallData(method, parameters, null));
+        callDataList.add(new CallData(method, null, parameters));
 
         method.invoke(errorQueue, parameters);
       }

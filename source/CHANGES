@@ -1,5 +1,165 @@
-The Grinder 3.1.1 (not yet released)
-------------------------------------
+The Grinder 3.5
+---------------
+
+   Fix bug 3008924 - Jython 2.5, assertion error if script has __del__
+   method. Thank to Thomas Falkenberg for the report.
+
+   Fix bug 2988755 - NPE in JythonScriptExecutionException
+   .tracebackToMessage(). Thanks to Brian Runck for the report.
+
+   Fix bug 2952023 - Cookie.parse should recognise "httponly" (lower
+   case). Thanks to amachang for the report and the patch.
+
+   Fix bug 3092275 - Incorrect TPS totals in output log. Thanks to
+   Travis Bear for the report.
+
+   Fix bug 3132643 - No statistics to report. This occurred if a clock
+   went backwards in time during a test, and prevented the test from
+   ever executing successfully again. Thanks to Wallander for the
+   report.
+
+   Fix bug 3132940 - Incorrect connect/DNS times when connect timeout
+   set. This was due to an error in the fix for 3132940. Thanks to
+   Jagdish A for the report, and to Wallander for testing.
+
+   Work around Jython issue 1894900. If the default Jython jar is used
+   and it looks like the Jython cachedir has not been configured, then
+   create a cache directory in lib.
+
+   Fulfil feature request 3324241 - Upgrade to PicoContainer 2.13.6.
+   Thanks to Alexis Bezverkhyy the request.
+
+   Fix bug 3287570 - Memory leak in DCR instrumentation if same target
+   was recorded multiple times using the same Test. Thanks to John
+   (crystalstone) for the report.
+
+   Support Jython 2.5.2.
+
+   Fix bug 2992248 - DCR instrumentation of Java methods. Instrumentation
+   of Java methods from Jython scripts has been improved. Multiple
+   references from a script to an instrumented method now work as expected.
+   Invoking a script instrumented method from Java now works. Thanks to
+   Kevin Connaughton for the report.
+
+   Fix bug 2958145 - DCR instrumentation fails with
+   grinder.debug.singleprocess.
+
+
+The Grinder 3.4
+---------------
+
+   Fix bug 2913297 - Memory leak in SSLControlImplementation. Thanks to
+   Guido Serra for the report.
+
+   Fix bug 1619450 - HTTPClient.TestCookie.testParse unit test fails.
+   Thanks to amachang for re-opening this bug and providing a patch.
+
+   Fix bug 2911790 - HTTP filter generates invalid code for Jython 2.5+.
+   Thanks to the anonymous reporter.
+
+   Fix bug 2921612 - DCR instrumentation did not work with
+   HTTPRequest. Thanks to Anil Jacob for the report.
+
+   Fulfil feature request 2914703 - Multipart form data support. Thanks
+   to Hitoshi Amano for the request and the implementation.
+
+   Fix bug 2919190 - setTimeout method does not effect read timeouts.
+   Thanks to Hitoshi Amano for the report and the fix.
+
+   Fulfil feature request 2923975 - added valuesFromHiddenInput() and
+   valuesFromBodyURI() methods to HTTPUtilities. Thanks to Anil Jacob
+   for the request.
+
+   Fulfil feature request 2841789 - added valueFromBodyInput() and
+   valuesFromBodyInput() methods to HTTPUtilities. Thanks to Satheesh
+   Babu Vattekkat for the request.
+
+   Fix bug 2816501 - Test numbers larger than 6 digits get truncated
+   in out file. Thanks to Vivin Paliath for the report.
+
+   Fix bug 2501418 - Handle socket lingering properly. Thanks to Dawid
+   Weiss for the report and suggested fixes.
+
+   Fix bug 2837600 - Content-type header written instead of Content-Type.
+   Thanks to Guido Serra for the report.
+
+   Implement feature request 887214 - the console now optionally includes
+   the totals line in saved results. Thanks to Karol Muszynski for
+   prompting me to implement this.
+
+   Fix bug 2945358 - Fail gracefully if the agent jar file can't be
+   found.
+
+   Fix bug 2947509 - Improve algorithm that finds agent jar.
+
+   Fix bug 2936167 - Script execution hangs when using Jython 2.5.1 and
+   Windows. Thanks to Mark Cleveland, Dave Martin, and svalkanesko for
+   their reports and assistance with the diagnosis.
+
+   Fix bug 2980291 - "Resolve host" time incorrect. The HTTP plug-in time
+   To Resolve Host and Time To Establish Connection statistics no longer
+   include the time taken for automatic redirects. Time To First Byte is
+   still based on the time the HTTPRequest call was initiated. Thanks to
+   Travis Bear for the report, and to Bryce Howard for the patch.
+
+
+The Grinder 3.3
+---------------
+
+  Changes that may be incompatible with existing scripts:
+
+    The Grinder now requires J2SE 5.0 ("Java 5"). J2SE 1.4 is no longer
+    supported.
+
+    Fix bug 2315181 - Classpath of distributed jars. When distributing
+    scripts from the console, the worker process working directory is
+    now the root of the local cache directory. This allows scripts to
+    refer to distributed resources using relative paths. Thanks to
+    ujik for reporting this.
+
+  Other changes:
+
+    The TCPProxy now supports HTTPS proxies that use
+    challenge/response authentication protocols such as NTLM and
+    Negotiate. This will allow scripts to be recorded through such a
+    proxy, but are no plans to add support for replaying scripts
+    through the proxy. Thanks to Suvendu Kumar Mohapatra for extensive
+    testing of candidate patches.
+
+    The stream support for HTTPRequest introduced in 3.2 has been
+    enhanced to use the Content-Length header if provided. This allows
+    the stream to be sent directly to the server without buffering,
+    whether or not HTTP/1.1 chunking is available. Thanks to Walter
+    Tuvell for the requirement and extensive testing.
+
+    Add HTTPRequest.getPluginProcessContext() so subclasses outside of
+    the Java package can access the process context. This is useful
+    when following the advice in the setReadResponseBody
+    documentation. Thanks to Walter Tuvell for the requirement.
+
+    Updated Spanish translation from Antonio Manuel Muñiz Martin.
+
+    Updated Polish translation from from KArol Muszynski.
+
+    The Grinder now always uses the Java 5 System.nanoTime() method for
+    timing. The grinder.useNanoTime property has been removed.
+
+    Fulfil feature request 1949447. A new, alternative instrumentation
+    engine has been introduced. This allows new capabilities, including the
+    ability to instrument code from within Java. The new instrumentation
+    engine requires Java SE 6.
+
+    Fulfil feature request 2907553. The Grinder 3.3 supports Jython 2.5 and
+    Jython 2.5.1. This support is based on the new instrumentation engine.
+    The default, included version of Jython remains Jython 2.2.1. Thanks to
+    Chris Cooper for the request.
+
+    Fix bug 2686259 - Java 1.5 compilation fails in Eclipse. Thanks to
+    A Bagehot for the report.
+
+
+The Grinder 3.2
+---------------
 
   Add net.grinder.ScriptContext startWorkerThread() and
   startWorkerThread(testRunner) methods which scripts can use to start
@@ -22,7 +182,7 @@ The Grinder 3.1.1 (not yet released)
   Fix bug 2138601 - Moving table columns results in incorrect formatting.
   Thanks to Walter Tuvell for the report.
 
-  Fulfill feature request 2201502. Add stream based versions of POST, PUT,
+  Fulfil feature request 2201502. Add stream based versions of POST, PUT,
   OPTIONS to HTTPRequest. This allows arbitrarily large amount of data can be
   sent without requiring a corresponding amount of memory. Thanks to Walter
   Tuvell for the suggestion.
@@ -40,6 +200,27 @@ The Grinder 3.1.1 (not yet released)
   GrinderStone uses the single process mode.  Classes can now be share with
   the new grinder.debug.singleprocess.sharedclasses property. Thanks to
   Fei Fan for requesting this.
+
+  Dutch console translation from Marc Van Giel.
+
+  Fulfil feature request 2412104 - Support streaming HTTP responses. Thanks
+  to Randy Shaffer for requesting this feature, and to Olivier Merlin for
+  testing an initial patch.
+
+  Fulfil feature request 2298825 - Worker number which is reset for each test
+  run. Added ScriptContext.getFirstProcessNumber() which a script can use with
+  getProcessNumber() to calculate a zero based value for indexing into test
+  data.
+
+  Fix bug 2412121 - Not compatible with servers that only provide SSLv3. I've
+  altered the TCPProxy and the HTTPClient library so that the SSL sockets they
+  create enable all the protocols and cipher suites supported by the underlying
+  JVM. These can be overridden if necessary with the https.cipherSuites and
+  https.protocols Java system properties. Thanks to Lorance Stinson for the
+  report and for testing various candidate patches.
+
+  Fulfill feature request 1677083 - Agent should produce TPS when run without
+  Console. Thanks to MattyM76 for requesting this feature.
 
 
 The Grinder 3.1
@@ -615,7 +796,7 @@ Grinder 3.0-beta23
   be overridden in scripts initialistion section.
 
   Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP
-  URLs. Thanks to Thomas B�hne for reporting problems.
+  URLs. Thanks to Thomas Býhne for reporting problems.
 
   Fix another bug in HTTPClient related to responses with a
   Content-Length of 0. Thanks to John Lee for the report.
@@ -631,7 +812,7 @@ Grinder 3.0-beta23
   new statistics measuring time to resolve host names (DNS), time to
   establish the connection, and time to first byte.
 
-  XML-RPC example from Sebasti�n Fontana.
+  XML-RPC example from Sebastiýn Fontana.
 
 
 Grinder 3.0-beta22
@@ -1469,7 +1650,7 @@ Grinder 2.6.3
   Split the documentation of the plugins and the TCPSniffer into
   separate files.
 
-  The HTTP plugin now has experimental support for Ronald Tschal�r's
+  The HTTP plugin now has experimental support for Ronald Tschalýr's
   excellent HTTPClient library instead of HttpURLConnection.
   HTTPClient has many more features than HttpURLConnection, see
   http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html

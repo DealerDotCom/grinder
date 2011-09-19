@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,18 +26,18 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.grinder.common.Test;
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
+import net.grinder.console.model.SampleModel;
 import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.StatisticsSet;
 
@@ -63,11 +63,8 @@ public class TestGraphPanel extends JPanel implements SampleModel.Listener {
   private final SwingDispatcherFactory m_swingDispatcherFactory;
   private final String m_testLabel;
 
-  /**
-   * Map of {@link net.grinder.common.Test}s to {@link
-   * javax.swing.JComponent}s.
-   **/
-  private final Map m_components = new HashMap();
+  private final Map<Test, JComponent> m_components =
+    new HashMap<Test, JComponent>();
 
   TestGraphPanel(JComponent parentComponent,
                  SampleModel model,
@@ -134,16 +131,12 @@ public class TestGraphPanel extends JPanel implements SampleModel.Listener {
    * @param modelTestIndex
    *          Updated test index.
    */
-  public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
+  public void newTests(Set<Test> newTests, ModelTestIndex modelTestIndex) {
 
     remove(m_logoLabel);
     setLayout(m_flowLayout);
 
-    final Iterator newTestIterator = newTests.iterator();
-
-    while (newTestIterator.hasNext()) {
-      final Test test = (Test)newTestIterator.next();
-
+    for (Test test : newTests) {
       final String description = test.getDescription();
 
       final String label =
@@ -177,7 +170,7 @@ public class TestGraphPanel extends JPanel implements SampleModel.Listener {
     // duplicates, but inserts the new components in the correct
     // order.
     for (int i = 0; i < numberOfTests; i++) {
-      add((JComponent)m_components.get(modelTestIndex.getTest(i)));
+      add(m_components.get(modelTestIndex.getTest(i)));
     }
 
     // Invalidate preferred size cache.

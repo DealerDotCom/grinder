@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,8 +23,8 @@ package net.grinder.tools.tcpproxy;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.util.html.HTMLDocument;
@@ -39,7 +39,8 @@ import net.grinder.util.html.HTMLElement;
  */
 final class HTTPResponse {
   private String m_status = "500 Internal Server Error";
-  private final Map m_responseHeaders = new HashMap();
+  private final Map<String, String> m_responseHeaders =
+    new HashMap<String, String>();
   private final StringBuffer m_responseBody = new StringBuffer();
 
   public HTTPResponse() {
@@ -55,7 +56,7 @@ final class HTTPResponse {
   }
 
   public void setMessage(String title, HTMLElement text) {
-    setHeader("Content-type", "text/html");
+    setHeader("Content-Type", "text/html");
     setHeader("Connection", "close");
 
     final HTMLDocument document = new HTMLDocument();
@@ -76,10 +77,7 @@ final class HTTPResponse {
     result.append(m_status);
     result.append("\r\n");
 
-    final Iterator iterator = m_responseHeaders.entrySet().iterator();
-
-    while (iterator.hasNext()) {
-      final Map.Entry header = (Map.Entry)iterator.next();
+    for (Entry<String, String> header :  m_responseHeaders.entrySet()) {
       result.append(header.getKey());
       result.append(": ");
       result.append(header.getValue());

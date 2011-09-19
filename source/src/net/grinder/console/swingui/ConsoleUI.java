@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,7 +43,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -55,6 +55,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -344,9 +345,8 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
     final FileTreeModel fileTreeModel =
       new FileTreeModel(m_editorModel,
-                        m_fileDistribution.getDistributionFileFilter());
-    fileTreeModel.setRootDirectory(
-      m_properties.getDistributionDirectory().getFile());
+                        m_fileDistribution.getDistributionFileFilter(),
+                        m_properties.getDistributionDirectory().getFile());
 
     m_properties.addPropertyChangeListener(
       new PropertyChangeListener()  {
@@ -581,12 +581,10 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
     public void populate(String key) {
       final String tokens = m_resources.getString(key);
-      final Iterator iterator =
-        Collections.list(new StringTokenizer(tokens)).iterator();
+      final List<Object> tokenList =
+        Collections.list(new StringTokenizer(tokens));
 
-      while (iterator.hasNext()) {
-        final String itemKey = (String)iterator.next();
-
+      for (Object itemKey : tokenList) {
         if ("-".equals(itemKey)) {
           dash();
         }
@@ -594,7 +592,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
           greaterThan();
         }
         else {
-          token(itemKey);
+          token((String)itemKey);
         }
       }
     }
@@ -739,14 +737,15 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
   }
 
   private static class ActionTable {
-    private final Map m_map = new HashMap();
+    private final Map<String, CustomAction> m_map =
+      new HashMap<String, CustomAction>();
 
     public void add(CustomAction action) {
       m_map.put(action.getKey(), action);
     }
 
     public void setAction(AbstractButton button, String actionKey) {
-      final CustomAction action = (CustomAction)m_map.get(actionKey);
+      final CustomAction action = m_map.get(actionKey);
 
       if (action != null) {
         button.setAction(action);
@@ -784,6 +783,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
   private final class SaveResultsAction extends CustomAction {
     private final JFileChooser m_fileChooser = new JFileChooser(".");
+    private final JCheckBox m_saveTotalsCheckBox;
 
     SaveResultsAction() {
       super(m_resources, "save-results", true);
@@ -795,13 +795,20 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
       m_fileChooser.setSelectedFile(
         new File(m_resources.getString("default.filename")));
 
+      m_saveTotalsCheckBox =
+        new JCheckBox(m_resources.getString("saveResults.includeTotals.label"));
+      m_saveTotalsCheckBox.setSelected(
+        m_properties.getSaveTotalsWithResults());
+
+      m_fileChooser.setAccessory(m_saveTotalsCheckBox);
+
       m_lookAndFeel.addListener(
         new LookAndFeel.ComponentListener(m_fileChooser));
     }
 
     public void actionPerformed(ActionEvent event) {
       if (m_fileChooser.showSaveDialog(m_frame) ==
-        JFileChooser.APPROVE_OPTION) {
+          JFileChooser.APPROVE_OPTION) {
 
         final File file = m_fileChooser.getSelectedFile();
 
@@ -817,8 +824,19 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
         FileWriter writer = null;
         try {
           writer = new FileWriter(file);
-          m_cumulativeTableModel.write(writer, "\t",
-                                       System.getProperty("line.separator"));
+
+          final String lineSeparator = System.getProperty("line.separator");
+
+          if (m_saveTotalsCheckBox.isSelected()) {
+            m_cumulativeTableModel.write(writer,
+                                         "\t",
+                                         lineSeparator);
+          }
+          else {
+            m_cumulativeTableModel.writeWithoutTotals(writer,
+                                                      "\t",
+                                                      lineSeparator);
+          }
         }
         catch (IOException e) {
           UncheckedInterruptedException.ioException(e);
@@ -828,6 +846,14 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
         }
         finally {
           Closer.close(writer);
+        }
+
+        try {
+          m_properties.setSaveTotalsWithResults(
+            m_saveTotalsCheckBox.isSelected());
+        }
+        catch (ConsoleException e) {
+          getErrorHandler().handleException(e);
         }
       }
     }
@@ -975,11 +1001,17 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
       m_editorModel.addListener(new EditorModel.AbstractListener() {
           public void bufferStateChanged(Buffer ignored) {
-            final Buffer buffer = m_editorModel.getSelectedBuffer();
-
-            setEnabled(buffer != null && buffer.isDirty());
+            setEnabled(shouldEnable());
           }
         });
+
+      setEnabled(shouldEnable());
+    }
+
+    private boolean shouldEnable() {
+      final Buffer buffer = m_editorModel.getSelectedBuffer();
+
+      return buffer != null && buffer.isDirty();
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1018,9 +1050,11 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
       m_editorModel.addListener(new EditorModel.AbstractListener() {
           public void bufferStateChanged(Buffer ignored) {
-            setEnabled(m_editorModel.getSelectedBuffer() != null);
+            setEnabled(shouldEnable());
           }
         });
+
+      setEnabled(shouldEnable());
 
       m_fileChooser.setDialogTitle(
         MnemonicHeuristics.removeMnemonicMarkers(
@@ -1042,6 +1076,10 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
       m_lookAndFeel.addListener(
         new LookAndFeel.ComponentListener(m_fileChooser));
+    }
+
+    private boolean shouldEnable() {
+      return m_editorModel.getSelectedBuffer() != null;
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1087,7 +1125,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
         final Buffer oldBuffer = m_editorModel.getBufferForFile(file);
 
         if (oldBuffer != null) {
-          final ArrayList messages = new ArrayList();
+          final List<String> messages = new ArrayList<String>();
           messages.add(
             m_resources.getString("ignoreExistingBufferConfirmation.text"));
 
@@ -1146,9 +1184,15 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
       m_editorModel.addListener(new EditorModel.AbstractListener() {
           public void bufferStateChanged(Buffer ignored) {
-            setEnabled(m_editorModel.getSelectedBuffer() != null);
+            setEnabled(shouldEnable());
           }
         });
+
+      setEnabled(shouldEnable());
+    }
+
+    private boolean shouldEnable() {
+      return m_editorModel.getSelectedBuffer() != null;
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1202,8 +1246,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
     }
   }
 
-  private class EnableIfAgentsConnected
-    implements ProcessControl.Listener {
+  private class EnableIfAgentsConnected implements ProcessControl.Listener {
 
     private final Action m_action;
 

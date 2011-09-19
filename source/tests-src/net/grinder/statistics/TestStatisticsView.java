@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -122,7 +122,8 @@ public class TestStatisticsView extends TestCase {
 
   public void testComparator() throws Exception {
     // Test the parts of the Comparator that the normal use cases don't reach.
-    final Comparator comparator = new StatisticsView.CreationOrderComparator();
+    final Comparator<ExpressionView> comparator =
+      new StatisticsView.CreationOrderComparator();
 
     assertEquals(0, comparator.compare(m_views[0], m_views[0]));
   }

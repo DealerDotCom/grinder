@@ -36,7 +36,7 @@ public class TestHTTPMethodAbsoluteURIFilterDecorator extends TestCase {
     new MyFilterStubFactory();
 
   private final TCPProxyFilter m_delegateFilter =
-    m_delegateFilterStubFactory.getFilter();
+    m_delegateFilterStubFactory.getStub();
 
   public void testHandle() throws Exception {
     final EndPoint endPoint = new EndPoint("there", 99);

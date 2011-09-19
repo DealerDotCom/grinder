@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -78,7 +78,7 @@ public class TestMessageQueue extends TestCase {
 
     dequeuerThread.join();
 
-    final List receivedMessages = dequeuerThread.getMessages();
+    final List<Message> receivedMessages = dequeuerThread.getMessages();
 
     assertEquals(messages.length, receivedMessages.size());
 
@@ -197,7 +197,7 @@ public class TestMessageQueue extends TestCase {
 
   private class DequeuerThread extends Thread {
 
-    private List m_messages = new LinkedList();
+    private List<Message> m_messages = new LinkedList<Message>();
     private Exception m_exception;
     private int m_howMany;
 
@@ -205,7 +205,7 @@ public class TestMessageQueue extends TestCase {
       m_howMany = howMany;
     }
 
-    public List getMessages() {
+    public List<Message> getMessages() {
       return m_messages;
     }
 

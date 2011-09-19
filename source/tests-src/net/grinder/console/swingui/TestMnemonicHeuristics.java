@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,7 +35,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link MnemonicHeuristics}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestMnemonicHeuristics extends TestCase {
 
@@ -54,7 +54,7 @@ public class TestMnemonicHeuristics extends TestCase {
         new Expectation("Hello", 'L'),
         new Expectation("", 0),
         new Expectation("Lovely", 'V'),
-        new Expectation("E_xplicit memonic", 'X'),
+        new Expectation("E_xplicit mnemonic", 'X'),
         new Expectation("Hello", 'E'),
         new Expectation("Hello", 'O'),
         new Expectation("Hello", 0),
@@ -68,7 +68,7 @@ public class TestMnemonicHeuristics extends TestCase {
         new Expectation("You dear about that tan line on your", 'Y'),
         new Expectation("ring finger", 'N'),
         new Expectation("Random Rules", 'D'),
-        new Expectation("Rüles that are Random", 'M'),
+        new Expectation("RÃ¼les that are Random", 'M'),
         */
         new Expectation(null, 0),
     };

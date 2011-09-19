@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,7 @@
 
 package net.grinder.statistics;
 
-import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext;
+import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext.ParseException;
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
 
@@ -68,21 +68,16 @@ public class TestCommonStatisticsViews extends TestCase {
 
   public void testGetViewsWithBrokenStatisticsExpressionFactory()
     throws Exception {
-    final RandomStubFactory statisticExpressionFactoryStubFactory =
-      new RandomStubFactory(StatisticExpressionFactory.class);
-
-    final StatisticExpressionFactory statisticExpressionFactory =
-      (StatisticExpressionFactory)
-      statisticExpressionFactoryStubFactory.getStub();
-
-    final ParseContext parseContext = new ParseContext("");
+    final RandomStubFactory<StatisticExpressionFactory>
+      statisticExpressionFactoryStubFactory =
+        RandomStubFactory.create(StatisticExpressionFactory.class);
 
     statisticExpressionFactoryStubFactory.setThrows(
-      "createExpressionView",
-      parseContext.new ParseException("Broken", 0));
+      "createExpressionView", new ParseException("Broken", "foo", 0));
 
     try {
-      new CommonStatisticsViews(statisticExpressionFactory);
+      new CommonStatisticsViews(
+        statisticExpressionFactoryStubFactory.getStub());
       fail("Expected AssertionError");
     }
     catch (AssertionError e) {

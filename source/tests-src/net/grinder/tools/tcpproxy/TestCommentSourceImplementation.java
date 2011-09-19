@@ -31,7 +31,7 @@ import net.grinder.testutility.AssertUtilities;
  * Unit test case for {@linkplain CommentSource}.
  *
  * @author Venelin Mitov
- * @version $Revision: 1 $
+ * @version $Revision$
  */
 public class TestCommentSourceImplementation extends TestCase {
 

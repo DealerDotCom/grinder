@@ -28,7 +28,7 @@ import net.grinder.messages.agent.CacheHighWaterMark;
  * Stub implementation of {@link CacheHighWaterMark}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class StubCacheHighWaterMark implements CacheHighWaterMark {
   private final String m_cacheID;

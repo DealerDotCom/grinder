@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2008 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.plugin.http;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import net.grinder.common.SSLContextFactory;
@@ -33,7 +32,6 @@ import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.util.Sleeper;
 import net.grinder.util.TimeAuthority;
-
 import HTTPClient.CookieModule;
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
@@ -54,7 +52,8 @@ class HTTPPluginThreadState
   private final PluginThreadContext m_threadContext;
   private final SSLContextFactory m_sslContextFactory;
 
-  private final Map m_httpConnectionWrappers = new HashMap();
+  private final Map<URI, HTTPConnectionWrapper> m_httpConnectionWrappers =
+    new HashMap<URI, HTTPConnectionWrapper>();
   private HTTPResponse m_lastResponse;
   private final Sleeper m_slowClientSleeper;
   private final TimeAuthorityAdapter m_timeAuthority;
@@ -83,7 +82,7 @@ class HTTPPluginThreadState
       new URI(uri.getScheme(), uri.getHost(), uri.getPort(), "");
 
     final HTTPConnectionWrapper existingConnectionWrapper =
-      (HTTPConnectionWrapper)m_httpConnectionWrappers.get(keyURI);
+      m_httpConnectionWrappers.get(keyURI);
 
     if (existingConnectionWrapper != null) {
       return existingConnectionWrapper;
@@ -117,10 +116,8 @@ class HTTPPluginThreadState
     CookieModule.discardAllCookies(this);
 
     // Close connections from previous run.
-    final Iterator i = m_httpConnectionWrappers.values().iterator();
-
-    while (i.hasNext()) {
-      ((HTTPConnectionWrapper)i.next()).close();
+    for (HTTPConnectionWrapper connection : m_httpConnectionWrappers.values()) {
+      connection.close();
     }
 
     m_httpConnectionWrappers.clear();

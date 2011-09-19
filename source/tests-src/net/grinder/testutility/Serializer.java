@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,7 +35,8 @@ import java.io.ObjectOutputStream;
  */
 public class Serializer {
 
-  public static Object serialize(Object original) throws Exception {
+  @SuppressWarnings("unchecked")
+  public static <T> T serialize(T original) throws Exception {
 
     final ByteArrayOutputStream byteOutputStream =
       new ByteArrayOutputStream();
@@ -50,6 +51,6 @@ public class Serializer {
       new ObjectInputStream(
         new ByteArrayInputStream(byteOutputStream.toByteArray()));
 
-    return objectInputStream.readObject();
+    return (T) objectInputStream.readObject();
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,14 +24,16 @@ package net.grinder.engine.agent;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import net.grinder.common.GrinderException;
+import net.grinder.util.Directory;
 
 import junit.framework.TestCase;
 
 
 /**
- *  Unit tests for <code>ChildProcess</code>.
+ *  Unit tests for {@link ProcessWorker}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -54,7 +56,8 @@ public class TestProcessWorker extends TestCase {
 
     try {
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-                        commandArray,
+                        Arrays.asList(commandArray),
+                        new Directory(),
                         m_outputStream,
                         m_errorStream);
       fail("Expected GrinderException");
@@ -75,7 +78,8 @@ public class TestProcessWorker extends TestCase {
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        commandArray,
+        Arrays.asList(commandArray),
+        new Directory(),
         m_outputStream,
         m_errorStream);
 
@@ -99,7 +103,8 @@ public class TestProcessWorker extends TestCase {
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        commandArray,
+        Arrays.asList(commandArray),
+        new Directory(),
         m_outputStream,
         m_errorStream);
 
@@ -136,7 +141,8 @@ public class TestProcessWorker extends TestCase {
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        commandArray,
+        Arrays.asList(commandArray),
+        new Directory(),
         m_outputStream,
         m_errorStream);
 
@@ -151,6 +157,8 @@ public class TestProcessWorker extends TestCase {
     t.start();
 
     childProcess.waitFor();
+
+    t.join(1000);
 
     assertTrue(!t.isAlive());
 
@@ -178,7 +186,8 @@ public class TestProcessWorker extends TestCase {
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        commandArray,
+        Arrays.asList(commandArray),
+        new Directory(),
         m_outputStream,
         m_errorStream);
 

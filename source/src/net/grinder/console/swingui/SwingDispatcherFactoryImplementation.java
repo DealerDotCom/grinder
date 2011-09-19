@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,9 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.SwingUtilities;
@@ -82,24 +80,20 @@ final class SwingDispatcherFactoryImplementation
         }
       };
 
-    final Class delegateClass = delegate.getClass();
+    final Class<?> delegateClass = delegate.getClass();
 
     return Proxy.newProxyInstance(delegateClass.getClassLoader(),
                                   getAllInterfaces(delegateClass),
                                   invocationHandler);
   }
 
-  private static Class[] getAllInterfaces(Class theClass) {
-    final Set interfaces = new HashSet();
+  private static Class<?>[] getAllInterfaces(Class<?> theClass) {
+    final Set<Class<?>> interfaces = new HashSet<Class<?>>();
 
-    Class c = theClass;
+    Class<?> c = theClass;
 
     do {
-      final Iterator iterator = Arrays.asList(c.getInterfaces()).iterator();
-
-      while (iterator.hasNext()) {
-        final Class anInterface = (Class)iterator.next();
-
+      for (Class<?> anInterface : c.getInterfaces()) {
         if (Modifier.isPublic(anInterface.getModifiers())) {
           interfaces.add(anInterface);
         }
@@ -109,6 +103,6 @@ final class SwingDispatcherFactoryImplementation
     }
     while (c != null);
 
-    return (Class[]) interfaces.toArray(new Class[interfaces.size()]);
+    return interfaces.toArray(new Class[interfaces.size()]);
   }
 }

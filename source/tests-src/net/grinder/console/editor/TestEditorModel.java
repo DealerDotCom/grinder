@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,6 +32,8 @@ import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.distribution.AgentCacheState;
 import net.grinder.console.distribution.FileChangeWatcher;
+import net.grinder.console.editor.EditorModel.Listener;
+import net.grinder.console.editor.StringTextSource.Factory;
 
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.CallData;
@@ -51,29 +53,29 @@ public class TestEditorModel extends AbstractFileTestCase {
       new ResourcesImplementation(
         "net.grinder.console.common.resources.Console");
 
-  private final RandomStubFactory m_agentCacheStateStubFactory =
-    new RandomStubFactory(AgentCacheState.class);
+  private final RandomStubFactory<AgentCacheState>
+    m_agentCacheStateStubFactory =
+      RandomStubFactory.create(AgentCacheState.class);
   private final AgentCacheState m_agentCacheState =
-    (AgentCacheState)m_agentCacheStateStubFactory.getStub();
+    m_agentCacheStateStubFactory.getStub();
 
-  private final RandomStubFactory m_fileChangeWatcherStubFactory =
-    new RandomStubFactory(FileChangeWatcher.class);
+  private final RandomStubFactory<FileChangeWatcher>
+    m_fileChangeWatcherStubFactory =
+      RandomStubFactory.create(FileChangeWatcher.class);
   private final FileChangeWatcher m_fileChangeWatcher =
-    (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
+    m_fileChangeWatcherStubFactory.getStub();
 
   public void testConstruction() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
-    final DelegatingStubFactory textSourceFactoryStubFactory =
-      new DelegatingStubFactory(stringTextSourceFactory);
-    final TextSource.Factory textSourceFactory =
-      (TextSource.Factory)textSourceFactoryStubFactory.getStub();
-
-    final EditorModel editorModel = new EditorModel(s_resources,
-                                                    textSourceFactory,
-                                                    m_agentCacheState,
-                                                    m_fileChangeWatcher);
+    final DelegatingStubFactory<Factory> textSourceFactoryStubFactory =
+      DelegatingStubFactory.create(stringTextSourceFactory);
+    final EditorModel editorModel =
+      new EditorModel(s_resources,
+                      textSourceFactoryStubFactory.getStub(),
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
 
     textSourceFactoryStubFactory.assertNoMoreCalls();
     assertNull(editorModel.getSelectedBuffer());
@@ -84,33 +86,27 @@ public class TestEditorModel extends AbstractFileTestCase {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
-    final DelegatingStubFactory textSourceFactoryStubFactory =
-      new DelegatingStubFactory(stringTextSourceFactory);
-    final TextSource.Factory textSourceFactory =
-      (TextSource.Factory)textSourceFactoryStubFactory.getStub();
-
-    final EditorModel editorModel = new EditorModel(s_resources,
-                                                    textSourceFactory,
-                                                    m_agentCacheState,
-                                                    m_fileChangeWatcher);
+    final DelegatingStubFactory<Factory> textSourceFactoryStubFactory =
+      DelegatingStubFactory.create(stringTextSourceFactory);
+    final EditorModel editorModel =
+      new EditorModel(s_resources,
+                      textSourceFactoryStubFactory.getStub(),
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
 
     textSourceFactoryStubFactory.resetCallHistory();
 
     final File file1 = createFile("myfile.txt", "blah");
     final File file2 = createFile("anotherFile.py", "Some stuff");
 
-    final RandomStubFactory listener1StubFactory =
-      new RandomStubFactory(EditorModel.Listener.class);
-    final EditorModel.Listener listener1 =
-      (EditorModel.Listener)listener1StubFactory.getStub();
+    final RandomStubFactory<Listener> listener1StubFactory =
+      RandomStubFactory.create(EditorModel.Listener.class);
 
-    final RandomStubFactory listener2StubFactory =
-      new RandomStubFactory(EditorModel.Listener.class);
-    final EditorModel.Listener listener2 =
-      (EditorModel.Listener)listener2StubFactory.getStub();
+    final RandomStubFactory<Listener> listener2StubFactory =
+      RandomStubFactory.create(EditorModel.Listener.class);
 
-    editorModel.addListener(listener1);
-    editorModel.addListener(listener2);
+    editorModel.addListener(listener1StubFactory.getStub());
+    editorModel.addListener(listener2StubFactory.getStub());
 
     editorModel.selectBufferForFile(file1);
 
@@ -179,25 +175,22 @@ public class TestEditorModel extends AbstractFileTestCase {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
-    final DelegatingStubFactory textSourceFactoryStubFactory =
-      new DelegatingStubFactory(stringTextSourceFactory);
-    final TextSource.Factory textSourceFactory =
-      (TextSource.Factory)textSourceFactoryStubFactory.getStub();
+    final DelegatingStubFactory<Factory> textSourceFactoryStubFactory =
+      DelegatingStubFactory.create(stringTextSourceFactory);
 
-    final RandomStubFactory listener1StubFactory =
-      new RandomStubFactory(EditorModel.Listener.class);
-    final EditorModel.Listener listener1 =
-      (EditorModel.Listener)listener1StubFactory.getStub();
+    final RandomStubFactory<Listener> listener1StubFactory =
+      RandomStubFactory.create(EditorModel.Listener.class);
 
-    final EditorModel editorModel = new EditorModel(s_resources,
-                                                    textSourceFactory,
-                                                    m_agentCacheState,
-                                                    m_fileChangeWatcher);
+    final EditorModel editorModel =
+      new EditorModel(s_resources,
+                      textSourceFactoryStubFactory.getStub(),
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
 
     final Buffer defaultBuffer = editorModel.getSelectedBuffer();
     assertNull(defaultBuffer);
 
-    editorModel.addListener(listener1);
+    editorModel.addListener(listener1StubFactory.getStub());
 
     textSourceFactoryStubFactory.resetCallHistory();
 
@@ -343,10 +336,8 @@ public class TestEditorModel extends AbstractFileTestCase {
                       m_agentCacheState,
                       m_fileChangeWatcher);
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(EditorModel.Listener.class);
-    final EditorModel.Listener listener =
-      (EditorModel.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<Listener> listenerStubFactory =
+      RandomStubFactory.create(EditorModel.Listener.class);
 
     final File file1 = createFile("myfile.txt", "blah");
     final File file2 = createFile("another.py", "blah");
@@ -364,7 +355,7 @@ public class TestEditorModel extends AbstractFileTestCase {
 
     assertTrue(!editorModel.isABufferDirty());
 
-    editorModel.addListener(listener);
+    editorModel.addListener(listenerStubFactory.getStub());
 
     editorModel.closeBuffer(buffer3);
 
@@ -414,10 +405,8 @@ public class TestEditorModel extends AbstractFileTestCase {
                                                     m_agentCacheState,
                                                     m_fileChangeWatcher);
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(EditorModel.Listener.class);
-    final EditorModel.Listener listener =
-      (EditorModel.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<Listener> listenerStubFactory =
+      RandomStubFactory.create(EditorModel.Listener.class);
 
     editorModel.selectNewBuffer();
     final Buffer buffer = editorModel.getSelectedBuffer();
@@ -426,7 +415,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     final File file1 = new File(getDirectory(), "a file");
     final File file2 = new File(getDirectory(), "another  file");
 
-    editorModel.addListener(listener);
+    editorModel.addListener(listenerStubFactory.getStub());
 
     buffer.save(file1);
 
@@ -538,12 +527,10 @@ public class TestEditorModel extends AbstractFileTestCase {
       (FileChangeWatcher.FileChangedListener)
       addFileChangedListenerCallData.getParameters()[0];
 
-    final RandomStubFactory editorModelListenerStubFactory =
-      new RandomStubFactory(EditorModel.Listener.class);
-    final EditorModel.Listener editorModelListener =
-      (EditorModel.Listener)editorModelListenerStubFactory.getStub();
+    final RandomStubFactory<Listener> editorModelListenerStubFactory =
+      RandomStubFactory.create(EditorModel.Listener.class);
+    editorModel.addListener(editorModelListenerStubFactory.getStub());
 
-    editorModel.addListener(editorModelListener);
     final File f1 = new File(getDirectory(), "test file");
     assertTrue(f1.createNewFile());
     final Buffer buffer = editorModel.selectBufferForFile(f1);

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,7 @@ import java.io.OutputStream;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedGrinderException;
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.StreamSender;
@@ -32,6 +33,7 @@ import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplem
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
+import net.grinder.util.Directory;
 
 
 /**
@@ -46,6 +48,7 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
   private final boolean m_reportToConsole;
   private final ScriptLocation m_script;
   private final GrinderProperties m_properties;
+  private WorkerIdentity m_firstWorkerIdentity;
 
   protected AbstractWorkerFactory(AgentIdentityImplementation agentIdentity,
                                   FanOutStreamSender fanOutStreamSender,
@@ -66,14 +69,21 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
     final WorkerIdentityImplementation workerIdentity =
       m_agentIdentity.createWorkerIdentity();
 
-    final Worker worker =
-      createWorker(workerIdentity, outputStream, errorStream);
+    if (m_firstWorkerIdentity == null) {
+      m_firstWorkerIdentity = workerIdentity;
+    }
+
+    final Worker worker = createWorker(workerIdentity,
+                                       m_script.getDirectory(),
+                                       outputStream,
+                                       errorStream);
 
     final OutputStream processStdin = worker.getCommunicationStream();
 
     try {
       final InitialiseGrinderMessage initialisationMessage =
         new InitialiseGrinderMessage(workerIdentity,
+                                     m_firstWorkerIdentity,
                                      m_reportToConsole,
                                      m_script,
                                      m_properties);
@@ -96,6 +106,7 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
 
   protected abstract Worker createWorker(
     WorkerIdentityImplementation workerIdentity,
+    Directory workingDirectory,
     OutputStream outputStream,
     OutputStream errorStream) throws EngineException;
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,6 @@
 package net.grinder.communication;
 
 import junit.framework.TestCase;
-
-import net.grinder.communication.Message;
 import net.grinder.testutility.Serializer;
 
 
@@ -35,11 +33,7 @@ import net.grinder.testutility.Serializer;
  */
 public class TestInternalMessages extends TestCase {
 
-  private static Message serialise(Message original) throws Exception {
-    return (Message) Serializer.serialize(original);
-  }
-
   public void testCloseCommunicationMessage() throws Exception {
-    serialise(new CloseCommunicationMessage());
+    Serializer.serialize(new CloseCommunicationMessage());
   }
 }

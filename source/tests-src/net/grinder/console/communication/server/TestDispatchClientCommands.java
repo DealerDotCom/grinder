@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,29 +45,25 @@ import junit.framework.TestCase;
  * Unit tests for {@link DispatchClientCommands}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestDispatchClientCommands extends TestCase {
 
   public void testRegisterMessageHandlers() throws Exception {
 
-    final RandomStubFactory modelStubFactory =
-      new RandomStubFactory(SampleModel.class);
-    final SampleModel model =
-      (SampleModel)modelStubFactory.getStub();
+    final RandomStubFactory<SampleModel> modelStubFactory =
+      RandomStubFactory.create(SampleModel.class);
 
-    final RandomStubFactory sampleModelViewsStubFactory =
-      new RandomStubFactory(SampleModelViews.class);
-    final SampleModelViews sampleModelViews =
-      (SampleModelViews)sampleModelViewsStubFactory.getStub();
+    final RandomStubFactory<SampleModelViews> sampleModelViewsStubFactory =
+      RandomStubFactory.create(SampleModelViews.class);
 
-    final RandomStubFactory processControlStubFactory =
-      new RandomStubFactory(ProcessControl.class);
-    final ProcessControl processControl =
-      (ProcessControl)processControlStubFactory.getStub();
+    final RandomStubFactory<ProcessControl> processControlStubFactory =
+      RandomStubFactory.create(ProcessControl.class);
 
     final DispatchClientCommands dispatchClientCommands =
-      new DispatchClientCommands(model, sampleModelViews, processControl);
+      new DispatchClientCommands(modelStubFactory.getStub(),
+                                 sampleModelViewsStubFactory.getStub(),
+                                 processControlStubFactory.getStub());
 
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
 

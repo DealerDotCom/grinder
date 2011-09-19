@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -58,14 +58,13 @@ interface ResourcePool {
   Reservation reserveNext();
 
   /**
-   * Returns a list of all the current resources. Blocks until all
-   * Reservations can be reserved. The Sentinel is not included in the
-   * list.
+   * Returns a list of reservations for all the current resources. Blocks until
+   * all Reservations can be reserved. The Sentinel is not included in the list.
    *
-   * @return The resources. It is up to the caller to free or close
-   * each resource.
+   * @return The resources. It is up to the caller to free or close each
+   *         resource.
    */
-  List reserveAll();
+  List<? extends Reservation> reserveAll();
 
   /**
    * Close the resources currently in the pool. Resources can be closed

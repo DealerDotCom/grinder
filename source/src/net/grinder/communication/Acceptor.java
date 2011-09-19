@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,19 +45,22 @@ public final class Acceptor {
 
   private final ServerSocket m_serverSocket;
   private final ThreadPool m_threadPool;
-  private final ThreadSafeQueue m_exceptionQueue = new ThreadSafeQueue();
+  private final ThreadSafeQueue<Exception> m_exceptionQueue =
+    new ThreadSafeQueue<Exception>();
 
   /**
    * {@link ResourcePool}s indexed by {@link ConnectionType}.
    * Guarded by m_socketSets.
    */
-  private final Map m_socketSets = new HashMap();
+  private final Map<ConnectionType, ResourcePool> m_socketSets =
+    new HashMap<ConnectionType, ResourcePool>();
 
   /**
    * {@link ListenerSupport}s indexed by {@link ConnectionType}.
    * Guarded by m_listenerMap.
    */
-  private final Map m_listenerMap = new HashMap();
+  private final Map<ConnectionType, ListenerSupport<Listener>> m_listenerMap =
+    new HashMap<ConnectionType, ListenerSupport<Listener>>();
 
   /** Guarded by m_socketSets. */
   private boolean m_isShutdown = false;
@@ -155,7 +158,7 @@ public final class Acceptor {
     final ResourcePool[] resourcePools;
 
     synchronized (m_socketSets) {
-      resourcePools = (ResourcePool[])
+      resourcePools =
         m_socketSets.values().toArray(new ResourcePool[m_socketSets.size()]);
     }
     return resourcePools;
@@ -180,7 +183,7 @@ public final class Acceptor {
    */
   public Exception getPendingException(boolean block) {
     try {
-      return (Exception) m_exceptionQueue.dequeue(block);
+      return m_exceptionQueue.dequeue(block);
     }
     catch (ThreadSafeQueue.ShutdownException e) {
       return null;
@@ -258,8 +261,7 @@ public final class Acceptor {
         throw new ShutdownException("Acceptor has been shut down");
       }
 
-      final ResourcePool original =
-        (ResourcePool)m_socketSets.get(connectionType);
+      final ResourcePool original = m_socketSets.get(connectionType);
 
       if (original != null) {
         return original;
@@ -274,10 +276,9 @@ public final class Acceptor {
                 ((SocketWrapper)resource).getConnectionIdentity();
 
               getListeners(connectionType).apply(
-                new ListenerSupport.Informer() {
-                  public void inform(Object listener) {
-                    ((Listener)listener).connectionAccepted(connectionType,
-                                                            connection);
+                new ListenerSupport.Informer<Listener>() {
+                  public void inform(Listener l) {
+                    l.connectionAccepted(connectionType, connection);
                   }
                 });
             }
@@ -287,10 +288,9 @@ public final class Acceptor {
                 ((SocketWrapper)resource).getConnectionIdentity();
 
               getListeners(connectionType).apply(
-                new ListenerSupport.Informer() {
-                  public void inform(Object listener) {
-                    ((Listener)listener).connectionClosed(connectionType,
-                                                          connection);
+                new ListenerSupport.Informer<Listener>() {
+                  public void inform(Listener l) {
+                    l.connectionClosed(connectionType, connection);
                   }
                 });
             }
@@ -305,16 +305,20 @@ public final class Acceptor {
   /**
    * Get the listener list for a particular connection type.
    */
-  private ListenerSupport getListeners(ConnectionType connectionType) {
+  private ListenerSupport<Listener> getListeners(
+    ConnectionType connectionType) {
+
     synchronized (m_listenerMap) {
-      final ListenerSupport original =
-        (ListenerSupport)m_listenerMap.get(connectionType);
+      final ListenerSupport<Listener> original =
+        m_listenerMap.get(connectionType);
 
       if (original != null) {
         return original;
       }
       else {
-        final ListenerSupport newList = new ListenerSupport();
+        final ListenerSupport<Listener> newList =
+          new ListenerSupport<Listener>();
+
         m_listenerMap.put(connectionType, newList);
         return newList;
       }

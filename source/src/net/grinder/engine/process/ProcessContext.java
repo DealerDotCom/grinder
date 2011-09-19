@@ -66,6 +66,14 @@ interface ProcessContext {
    */
   long getExecutionStartTime();
 
+  /**
+   * Elapsed time since execution was started.
+   *
+   * @return The time in milliseconds.
+   * @see #getExecutionStartTime()
+   */
+  long getElapsedTime();
+
   void shutdown();
 
   Sleeper getSleeper();

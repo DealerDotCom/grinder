@@ -33,7 +33,7 @@ import net.grinder.statistics.TestStatisticsQueries;
  * Statistics views to use with the statistics from the {@link SampleModel}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public interface SampleModelViews {
 

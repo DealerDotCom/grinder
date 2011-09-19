@@ -4,10 +4,11 @@
 <pydev_project>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">jython 2.1</pydev_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/grinder/src</path>
-<path>/grinder/build/classes</path>
+<path>/grinder-git/src</path>
+<path>/grinder-git/build/classes</path>
 </pydev_pathproperty>
 <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
 <path/>
 </pydev_pathproperty>
+<pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">Default</pydev_property>
 </pydev_project>

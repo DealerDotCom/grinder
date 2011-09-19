@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,6 @@ package net.grinder.statistics;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext.ParseException;
 import net.grinder.statistics.StatisticsIndexMap.DoubleIndex;
 import net.grinder.statistics.StatisticsIndexMap.DoubleSampleIndex;
 import net.grinder.statistics.StatisticsIndexMap.LongIndex;
@@ -62,7 +61,7 @@ final class StatisticExpressionFactoryImplementation
     normaliseExpressionString(parseContext, result);
 
     if (parseContext.hasMoreCharacters()) {
-      throw parseContext.new ParseException("Additional characters found");
+      throw parseContext.createParseException("Additional characters found");
     }
 
     return result.toString();
@@ -103,8 +102,7 @@ final class StatisticExpressionFactoryImplementation
     final StatisticExpression result = readExpression(parseContext);
 
     if (parseContext.hasMoreCharacters()) {
-      throw parseContext.new ParseException(
-        "Additional characters found");
+      throw parseContext.createParseException("Additional characters found");
     }
 
     return result;
@@ -154,12 +152,12 @@ final class StatisticExpressionFactoryImplementation
         result = createSquareRoot(readExpression(parseContext));
       }
       else {
-        throw parseContext.new ParseException(
+        throw parseContext.createParseException(
           "Unknown operation '" + operation + "'");
       }
 
       if (parseContext.readCharacter() != ')') {
-        throw parseContext.new ParseException("Expecting ')'");
+        throw parseContext.createParseException("Expecting ')'");
       }
 
       return result;
@@ -189,7 +187,7 @@ final class StatisticExpressionFactoryImplementation
         }
       }
 
-      throw parseContext.new ParseException("Unknown token '" + token + "'");
+      throw parseContext.createParseException("Unknown token '" + token + "'");
     }
   }
 
@@ -401,7 +399,7 @@ final class StatisticExpressionFactoryImplementation
         result = createPrimitive(longSampleIndex.getSumIndex());
       }
       else {
-        throw parseContext.new ParseException(
+        throw parseContext.createParseException(
           "Can't apply sum to unknown sample index '" + token + "'");
       }
     }
@@ -437,7 +435,7 @@ final class StatisticExpressionFactoryImplementation
         result = createPrimitive(longSampleIndex.getCountIndex());
       }
       else {
-        throw parseContext.new ParseException(
+        throw parseContext.createParseException(
           "Can't apply count to unknown sample index '" + token + "'");
       }
     }
@@ -473,7 +471,7 @@ final class StatisticExpressionFactoryImplementation
         result = createPrimitive(longSampleIndex.getVarianceIndex());
       }
       else {
-        throw parseContext.new ParseException(
+        throw parseContext.createParseException(
             "Can't apply variance to unknown sample index '" + token + "'");
       }
     }
@@ -570,14 +568,14 @@ final class StatisticExpressionFactoryImplementation
 
   private StatisticExpression[] readOperands(ParseContext parseContext)
     throws ParseContext.ParseException {
-    final List arrayList = new ArrayList();
+    final List<StatisticExpression> arrayList =
+      new ArrayList<StatisticExpression>();
 
     while (parseContext.peekCharacter() != ')') {
       arrayList.add(readExpression(parseContext));
     }
 
-    return (StatisticExpression[])
-      arrayList.toArray(new StatisticExpression[arrayList.size()]);
+    return arrayList.toArray(new StatisticExpression[arrayList.size()]);
   }
 
   private abstract static class DoubleStatistic
@@ -805,7 +803,7 @@ final class StatisticExpressionFactoryImplementation
       final int stringLength = m_index - start;
 
       if (stringLength == 0) {
-        throw new ParseException("Expected a token", start);
+        throw createParseException("Expected a token", start);
       }
 
       return new String(m_expression, start, stringLength);
@@ -825,17 +823,21 @@ final class StatisticExpressionFactoryImplementation
       }
     }
 
+    private ParseException createParseException(String message) {
+      return createParseException(message, m_index);
+    }
+
+    private ParseException createParseException(String message, int where) {
+      return new ParseException(message, new String(m_expression), m_index);
+    }
+
     /**
      * Exception representing a failure to parse an expression.
      */
-    public final class ParseException extends StatisticsException {
-      private ParseException(String message) {
-        this(message, m_index);
-      }
-
-      public ParseException(String message, int where) {
+    static final class ParseException extends StatisticsException {
+      public ParseException(String message, String expression, int where) {
         super("Parse exception: " + message + ", at character " + where +
-              " of '" + new String(m_expression) + "'");
+              " of '" + expression + "'");
       }
     }
   }

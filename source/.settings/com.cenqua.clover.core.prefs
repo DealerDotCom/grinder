@@ -1,5 +1,5 @@
-#Sat Oct 25 17:03:57 BST 2008
-block_filters=Source Directive
+#Tue Feb 15 07:37:16 GMT 2011
+block_filters=SourceDirective, assert
 eclipse.preferences.version=1
 exclude_filter=**/tests-src/*.java
 flush_interval=1000
@@ -8,7 +8,14 @@ include_filter=**/*.java
 init_string=
 init_string_default=true
 init_string_project_relative=true
+instrument_selected_source_folders=false
 instrumentation_enabled=true
+instrumentation_level=STATEMENT
+instrumented_source_folder_patterns[0]=tests-src\n**/*.java\n\ndisabled
+instrumented_source_folder_patterns[1]=src\n**/*.java\n\ndisabled
 output_root=.clover/bin
 output_root_same_as_project=true
+selected_test_source_folders[0]=tests-src
 should_qualify_java_lang=true
+test_include_filter=**/*Test.java,**/Test*.java
+test_source_folders=1

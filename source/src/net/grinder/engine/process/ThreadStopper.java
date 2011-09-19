@@ -26,7 +26,7 @@ package net.grinder.engine.process;
  * Something that can stop threads.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 interface ThreadStopper {
   boolean stopThread(int threadNumber);

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,13 +41,13 @@ import junit.framework.TestCase;
  * Unit tests for {@link ProcessStatusTableModel}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestProcessStatusTableModel extends TestCase {
 
   private Resources m_resources =
-    new StubResources(
-      new HashMap() { {
+    new StubResources<String>(
+      new HashMap<String, String>() { {
         put("processTable.nameColumn.label", "NaMe");
         put("processTable.processTypeColumn.label", "type");
         put("processTable.stateColumn.label", "STATE");
@@ -61,10 +61,9 @@ public class TestProcessStatusTableModel extends TestCase {
       } }
     );
 
-  final RandomStubFactory m_processControlStubFactory =
-    new RandomStubFactory(ProcessControl.class);
-  final ProcessControl m_processControl =
-    (ProcessControl)m_processControlStubFactory.getStub();
+  final RandomStubFactory<ProcessControl> m_processControlStubFactory =
+    RandomStubFactory.create(ProcessControl.class);
+  final ProcessControl m_processControl = m_processControlStubFactory.getStub();
 
   public void testConstruction() throws Exception {
 

@@ -28,7 +28,7 @@ import net.grinder.script.Grinder.ScriptContext;
  * Script context that should not be publicly documented.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public interface InternalScriptContext extends ScriptContext {
 

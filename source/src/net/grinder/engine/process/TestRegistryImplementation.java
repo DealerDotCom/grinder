@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -56,14 +56,14 @@ public final class TestRegistryImplementation implements TestRegistry {
    * package uses to store information about Tests). Synchronise on
    * instance when accessing.
    */
-  private final Map m_testMap = new TreeMap();
+  private final Map<Test, TestData> m_testMap = new TreeMap<Test, TestData>();
 
   /**
    * Tests received since {@link #getNewTests} was last called.
    * Synchronise on this <code>TestRegistryImplementation</code> before
    * accessing.
    */
-  private Collection m_newTests = null;
+  private Collection<Test> m_newTests = null;
 
   private Instrumenter m_instrumenter;
 
@@ -98,7 +98,7 @@ public final class TestRegistryImplementation implements TestRegistry {
     final TestData newTestData;
 
     synchronized (this) {
-      final TestData existing = (TestData)m_testMap.get(test);
+      final TestData existing = m_testMap.get(test);
 
       if (existing != null) {
         return existing;
@@ -115,7 +115,7 @@ public final class TestRegistryImplementation implements TestRegistry {
       m_testStatisticsMap.put(test, newTestData.getTestStatistics());
 
       if (m_newTests == null) {
-        m_newTests = new ArrayList();
+        m_newTests = new ArrayList<Test>();
       }
 
       // To avoid many minor console updates we store a collection of
@@ -139,7 +139,7 @@ public final class TestRegistryImplementation implements TestRegistry {
    * Return any tests registered since the last time
    * <code>getNewTests</code> was called.
    */
-  synchronized Collection getNewTests() {
+  synchronized Collection<Test> getNewTests() {
     try {
       return m_newTests;
     }

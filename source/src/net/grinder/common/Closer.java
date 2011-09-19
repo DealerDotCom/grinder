@@ -42,7 +42,7 @@ import java.net.Socket;
  * which are always converted to {@link UncheckedInterruptedException}s.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class Closer {
 

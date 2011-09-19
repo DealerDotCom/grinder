@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,8 @@ final class CommonStatisticsViews {
   private final StatisticsView m_summaryStatisticsView =
     new StatisticsView();
 
+  private final StatisticExpression m_tpsExpression;
+
   CommonStatisticsViews(StatisticExpressionFactory expressionFactory) {
     try {
       final ExpressionView[] detailExpressionViews = {
@@ -50,6 +52,9 @@ final class CommonStatisticsViews {
       for (int i = 0; i < detailExpressionViews.length; ++i) {
         m_detailStatisticsView.add(detailExpressionViews[i]);
       }
+
+      m_tpsExpression = expressionFactory.createExpression(
+        "(* 1000 (/ (+ (count timedTests) untimedTests) period))");
 
       final ExpressionView[] summaryExpressionViews = {
         expressionFactory.createExpressionView(
@@ -68,6 +73,7 @@ final class CommonStatisticsViews {
           "Test Time Standard Deviation (ms)",
           "(sqrt (variance timedTests))",
           false),
+        expressionFactory.createExpressionView("TPS", m_tpsExpression),
       };
 
       for (int i = 0; i < summaryExpressionViews.length; ++i) {
@@ -95,5 +101,9 @@ final class CommonStatisticsViews {
    */
   public StatisticsView getSummaryStatisticsView() {
     return m_summaryStatisticsView;
+  }
+
+  public StatisticExpression getTPSExpression() {
+    return m_tpsExpression;
   }
 }

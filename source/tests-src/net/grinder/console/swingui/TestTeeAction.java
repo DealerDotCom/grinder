@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,10 +39,10 @@ public class TestTeeAction extends TestCase {
 
   public void testTeeAction() throws Exception {
     final ActionStubFactory action1StubFactory = new ActionStubFactory();
-    final Action action1 = action1StubFactory.getAction();
+    final Action action1 = action1StubFactory.getStub();
 
     final ActionStubFactory action2StubFactory = new ActionStubFactory();
-    final Action action2 = action2StubFactory.getAction();
+    final Action action2 = action2StubFactory.getStub();
 
     final TeeAction teeAction = new TeeAction(action1, action2);
 
@@ -51,14 +51,14 @@ public class TestTeeAction extends TestCase {
 
     assertTrue(!teeAction.isEnabled());
 
-    action1StubFactory.assertSuccess("isEnabled", new Object[0]);
-    action2StubFactory.assertSuccess("isEnabled", new Object[0]);
+    action1StubFactory.assertSuccess("isEnabled");
+    action2StubFactory.assertSuccess("isEnabled");
 
     teeAction.actionPerformed(actionEvent);
 
-    action1StubFactory.assertSuccess("isEnabled", new Object[0]);
+    action1StubFactory.assertSuccess("isEnabled");
     action1StubFactory.assertNoMoreCalls();
-    action2StubFactory.assertSuccess("isEnabled", new Object[0]);
+    action2StubFactory.assertSuccess("isEnabled");
     action2StubFactory.assertNoMoreCalls();
 
     action2StubFactory.setEnabled(true);
@@ -70,11 +70,10 @@ public class TestTeeAction extends TestCase {
 
     teeAction.actionPerformed(actionEvent);
 
-    action1StubFactory.assertSuccess("isEnabled", new Object[0]);
+    action1StubFactory.assertSuccess("isEnabled");
     action1StubFactory.assertNoMoreCalls();
-    action2StubFactory.assertSuccess("isEnabled", new Object[0]);
-    action2StubFactory.assertSuccess("actionPerformed",
-                                     new Object[] { actionEvent} );
+    action2StubFactory.assertSuccess("isEnabled");
+    action2StubFactory.assertSuccess("actionPerformed", actionEvent);
     action2StubFactory.assertNoMoreCalls();
 
     action1StubFactory.setEnabled(true);
@@ -86,17 +85,16 @@ public class TestTeeAction extends TestCase {
 
     teeAction.actionPerformed(actionEvent);
 
-    action1StubFactory.assertSuccess("isEnabled", new Object[0]);
-    action1StubFactory.assertSuccess("actionPerformed",
-                                     new Object[] { actionEvent} );
+    action1StubFactory.assertSuccess("isEnabled");
+    action1StubFactory.assertSuccess("actionPerformed", actionEvent);
     action1StubFactory.assertNoMoreCalls();
-    action2StubFactory.assertSuccess("isEnabled", new Object[0]);
-    action2StubFactory.assertSuccess("actionPerformed",
-                                     new Object[] { actionEvent} );
+    action2StubFactory.assertSuccess("isEnabled");
+    action2StubFactory.assertSuccess("actionPerformed", actionEvent);
     action2StubFactory.assertNoMoreCalls();
   }
 
-  public final static class ActionStubFactory extends RandomStubFactory {
+  public final static class ActionStubFactory
+    extends RandomStubFactory<Action> {
 
     private boolean m_isEnabled = false;
 
@@ -110,10 +108,6 @@ public class TestTeeAction extends TestCase {
 
     public void setEnabled(boolean b) {
       m_isEnabled = b;
-    }
-
-    Action getAction() {
-      return (Action)getStub();
     }
   }
 }

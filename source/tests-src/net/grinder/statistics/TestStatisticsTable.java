@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2005 Martin Wagner.
 // All rights reserved.
 //
@@ -22,12 +22,11 @@
 
 package net.grinder.statistics;
 
-import junit.framework.TestCase;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
 
+import junit.framework.TestCase;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.testutility.AssertUtilities;
@@ -43,6 +42,7 @@ import net.grinder.testutility.AssertUtilities;
 public class TestStatisticsTable extends TestCase {
 
   private TestStatisticsMap m_testStatisticsMap;
+  private StatisticsIndexMap m_indexMap;
 
   private StatisticsView m_statisticsView;
 
@@ -57,13 +57,12 @@ public class TestStatisticsTable extends TestCase {
     m_testStatisticsMap =
       new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
 
-    final StatisticsIndexMap indexMap =
-      m_statisticsServices.getStatisticsIndexMap();
+    m_indexMap = m_statisticsServices.getStatisticsIndexMap();
 
     final StatisticsIndexMap.LongIndex aIndex =
-      indexMap.getLongIndex("userLong0");
+      m_indexMap.getLongIndex("userLong0");
     final StatisticsIndexMap.LongIndex bIndex =
-      indexMap.getLongIndex("userLong1");
+      m_indexMap.getLongIndex("userLong1");
 
     final StatisticExpressionFactory statisticExpressionFactory =
       StatisticsServicesImplementation.getInstance()
@@ -86,6 +85,7 @@ public class TestStatisticsTable extends TestCase {
       new StubTest(9, "Test 9"),
       new StubTest(3, null),
       new StubTest(113, "Another test"),
+      new StubTest(12345678, "A test with a long name"),
     };
 
     final StatisticsSet[] statistics = new StatisticsSet[tests.length];
@@ -121,16 +121,17 @@ public class TestStatisticsTable extends TestCase {
     in.println("Test 3       1            2            3            0.50         ");
     in.println("Test 9       0            1            1            0.00          \"Test 9\"");
     in.println("Test 113     2            3            5            0.67          \"Another test\"");
+    in.println("Test 12345678 3            4            7            0.75          \"A test with a long name\"");
     in.println();
-    in.println("Totals       3            6            9            0.50         ");
+    in.println("Totals       6            10           16           0.60         ");
     in.close();
 
     final StatisticsTable table =
-      new StatisticsTable(m_statisticsView, m_testStatisticsMap);
+      new StatisticsTable(m_statisticsView, m_indexMap, m_testStatisticsMap);
 
     final StringWriter output = new StringWriter();
     final PrintWriter out = new PrintWriter(output);
-    table.print(out);
+    table.print(out, 1234);
     out.close();
 
     AssertUtilities.assertContains(
@@ -156,17 +157,18 @@ public class TestStatisticsTable extends TestCase {
     in.println("(Test 4      0            1            1            0.00)         \"T4\"");
     in.println("Test 9       0            1            1            0.00          \"Test 9\"");
     in.println("Test 113     2            3            5            0.67          \"Another test\"");
+    in.println("Test 12345678 3            4            7            0.75          \"A test with a long name\"");
     in.println();
-    in.println("Totals       3            6            9            0.50         ");
+    in.println("Totals       6            10           16           0.60         ");
     in.println("             (0)                                                 ");
     in.close();
 
     final StatisticsTable table =
-      new StatisticsTable(m_statisticsView, m_testStatisticsMap);
+      new StatisticsTable(m_statisticsView, m_indexMap, m_testStatisticsMap);
 
     final StringWriter output = new StringWriter();
     final PrintWriter out = new PrintWriter(output);
-    table.print(out);
+    table.print(out, 1234);
     out.close();
 
     AssertUtilities.assertContains(

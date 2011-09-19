@@ -281,6 +281,7 @@
         <xs:element name="token-reference" type="tns:TokenReferenceType" />
       </xs:choice>
     </xs:sequence>
+    <xs:attribute name="multipart" type="xs:boolean"/>
   </xs:complexType>
 
   <xs:complexType name="FormFieldType">

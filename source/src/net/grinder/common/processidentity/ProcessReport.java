@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -70,10 +70,11 @@ public interface ProcessReport {
   /**
    * Comparator that compares ProcessReports by state, then by name.
    */
-  final class StateThenNameThenNumberComparator implements Comparator {
-    public int compare(Object o1, Object o2) {
-      final ProcessReport processReport1 = (ProcessReport)o1;
-      final ProcessReport processReport2 = (ProcessReport)o2;
+  final class StateThenNameThenNumberComparator
+    implements Comparator<ProcessReport> {
+
+    public int compare(ProcessReport processReport1,
+                       ProcessReport processReport2) {
 
       final int stateComparison =
         processReport1.getState() - processReport2.getState();

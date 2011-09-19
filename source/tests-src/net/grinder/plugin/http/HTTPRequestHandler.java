@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,11 +28,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import junit.framework.Assert;
+import net.grinder.common.UncheckedInterruptedException;
 import HTTPClient.NVPair;
 
 
@@ -40,10 +42,10 @@ import HTTPClient.NVPair;
  * Active class that accepts a connection on a socket, reads an HTTP request,
  * and returns a response. The details of the request can then be retrieved.
  */
-class HTTPRequestHandler implements Runnable {
+class HTTPRequestHandler extends Assert implements Runnable {
   private static final Pattern s_contentLengthPattern;
 
-  private final List m_headers = new ArrayList();
+  private final List<NVPair> m_headers = new ArrayList<NVPair>();
 
   static {
     try {
@@ -61,10 +63,24 @@ class HTTPRequestHandler implements Runnable {
   private String m_lastRequestHeaders;
   private byte[] m_lastRequestBody;
   private String m_body;
+  private AtomicBoolean m_started = new AtomicBoolean();
+
+  private long m_responseDelay = 0;
 
   public HTTPRequestHandler() throws Exception {
     m_serverSocket = new ServerSocket(0);
+  }
+
+  public void start() throws InterruptedException {
+    if (m_started.get()) {
+      throw new AssertionError("Already started");
+    }
+
     new Thread(this, getClass().getName()).start();
+
+    while (!m_started.get()) {
+      Thread.sleep(1);
+    }
   }
 
   public final void shutdown() throws Exception {
@@ -87,7 +103,7 @@ class HTTPRequestHandler implements Runnable {
     final String text = getLastRequestHeaders();
 
     final int i = text.indexOf("\r\n");
-    TestHTTPRequest.assertTrue("Has at least one line", i>=0);
+    assertTrue("Has at least one line", i>=0);
     return text.substring(0, i);
   }
 
@@ -109,7 +125,7 @@ class HTTPRequestHandler implements Runnable {
       return;
     }
 
-    TestHTTPRequest.fail(text + " does not contain " + line);
+    fail(text + " does not contain " + line);
   }
 
   public final void assertRequestDoesNotContainHeader(String line) {
@@ -119,15 +135,17 @@ class HTTPRequestHandler implements Runnable {
     int i;
 
     while((i = text.indexOf("\r\n", start)) != -1) {
-      TestHTTPRequest.assertTrue(!text.substring(start, i).equals(line));
+      assertTrue(!text.substring(start, i).equals(line));
       start = i + 2;
     }
 
-    TestHTTPRequest.assertTrue(!text.substring(start).equals(line));
+    assertTrue(!text.substring(start).equals(line));
   }
 
   public final void run() {
     try {
+      m_started.set(true);
+
       while (true) {
         final Socket localSocket;
 
@@ -204,6 +222,13 @@ class HTTPRequestHandler implements Runnable {
           m_lastRequestBody = null;
         }
 
+        try {
+          Thread.sleep(m_responseDelay);
+        }
+        catch (InterruptedException e) {
+          throw new UncheckedInterruptedException(e);
+        }
+
         final OutputStream out = localSocket.getOutputStream();
 
         final StringBuffer response = new StringBuffer();
@@ -221,7 +246,8 @@ class HTTPRequestHandler implements Runnable {
       }
     }
     catch (IOException e) {
-      e.printStackTrace();
+      // Ignore, it might be expected The caller will have to call start()
+      // again.
     }
     finally {
       try {
@@ -239,11 +265,7 @@ class HTTPRequestHandler implements Runnable {
   protected void writeHeaders(StringBuffer response) {
     response.append("HTTP/1.0 200 OK\r\n");
 
-    final Iterator iterator = m_headers.iterator();
-
-    while (iterator.hasNext()) {
-      final NVPair pair = (NVPair)iterator.next();
-
+    for (NVPair pair : m_headers) {
       response.append(pair.getName()).append(": ").append(pair.getValue());
       response.append("\r\n");
     }
@@ -259,5 +281,9 @@ class HTTPRequestHandler implements Runnable {
 
   public void setBody(String body) {
     m_body = body;
+  }
+
+  public void setResponseDelay(long responseDelay) {
+    m_responseDelay = responseDelay;
   }
 }

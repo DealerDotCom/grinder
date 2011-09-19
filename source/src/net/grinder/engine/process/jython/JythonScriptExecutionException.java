@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -141,12 +141,14 @@ final class JythonScriptExecutionException extends ScriptExecutionException {
                                            PyTraceback traceback) {
     final StringBuffer result = new StringBuffer(prefix);
 
-    final String[] frames = traceback.dumpStack().split("\n");
+    if (traceback != null) {
+      final String[] frames = traceback.dumpStack().split("\n");
 
-    for (int i = frames.length - 1; i >= 1; --i) {
-      result.append(System.getProperty("line.separator"));
-      result.append("\t");
-      result.append(frames[i].trim());
+      for (int i = frames.length - 1; i >= 1; --i) {
+        result.append(System.getProperty("line.separator"));
+        result.append("\t");
+        result.append(frames[i].trim());
+      }
     }
 
     return result.toString();

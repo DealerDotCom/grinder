@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -50,7 +50,7 @@ import net.grinder.testutility.AbstractFileTestCase;
  * TestAgent.
  *
  * @author Philip Aston
- * @version $Revision: 3828 $
+ * @version $Revision$
  */
 public class TestAgentImplementation extends AbstractFileTestCase {
 
@@ -106,6 +106,16 @@ public class TestAgentImplementation extends AbstractFileTestCase {
 
       properties.setFile("grinder.script", relativeScriptFile);
       properties.setInt("grinder.processes", 0);
+      properties.save();
+
+      agent.run();
+
+      m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+      m_loggerStubFactory.assertOutputMessageContains("command line");
+      m_loggerStubFactory.assertNoMoreCalls();
+
+      properties.setFile("grinder.logDirectory",
+                         getDirectory().getAbsoluteFile());
       properties.save();
 
       agent.run();

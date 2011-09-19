@@ -2,7 +2,7 @@
  * @(#)StreamDemultiplexor.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschal‰r
+ *  Copyright (C) 1996-2001 Ronald Tschal√§r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,10 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
+ *
  */
 
 package HTTPClient;
@@ -43,7 +47,7 @@ import java.net.SocketException;
  * for things like keep-alive in HTTP/1.0, persist in HTTP/1.1 and in HTTP-NG.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal‰r
+ * @author	Ronald Tschal√§r
  */
 class StreamDemultiplexor implements GlobalConstants
 {
@@ -729,7 +733,10 @@ class StreamDemultiplexor implements GlobalConstants
 		try
 		{
 		    try
-			{ Sock.setSoLinger(false, 0); }
+                      /** ++GRINDER MODIFICATION **/
+                        // { Sock.setSoLinger(false, 0); }
+			{ Sock.setSoLinger(true, 0); }
+                      /** --GRINDER MODIFICATION **/
 		    catch (SocketException se)
 			{ }
 

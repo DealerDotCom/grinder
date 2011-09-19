@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,22 +33,24 @@ import javax.net.ssl.SSLContext;
 public interface SSLContextFactory {
 
   /**
-   * Returns an appropriate JSSE {@link SSLContext}. This can be used
-   * to obtain an {@link javax.net.ssl.SSLSocketFactory}.
+   * Returns an appropriate JSSE {@link SSLContext}. This can be used to obtain
+   * an {@link javax.net.ssl.SSLSocketFactory}.
    *
-   * <p>The Grinder optimises client SSL processing to increase the
-   * number of simultaneous client threads it is reasonable to run. It
-   * uses an insecure source of random information, and does not
-   * perform checks on the certificates presented by a server. <b>Do
-   * not use The Grinder to implement any SSL communication that you
-   * want to be secure.</b></p>
+   * <p>
+   * The Grinder optimises client SSL processing to increase the number of
+   * simultaneous client threads it is reasonable to run. It uses an insecure
+   * source of random information, and does not perform checks on the
+   * certificates presented by a server. <b>Do not use The Grinder to implement
+   * any SSL communication that you want to be secure.</b>
+   * </p>
    *
    * @return The SSL context.
-   * @exception SSLContextFactoryException If the SSLContext could not
-   * be found/created.
+   * @exception SSLContextFactory.SSLContextFactoryException
+   *              If the SSLContext could not be found/created.
    * @see net.grinder.script.SSLControl
    */
-  SSLContext getSSLContext() throws SSLContextFactoryException;
+  SSLContext getSSLContext()
+    throws SSLContextFactory.SSLContextFactoryException;
 
   /**
    * Exception that indicates problem creating an SSLContext.

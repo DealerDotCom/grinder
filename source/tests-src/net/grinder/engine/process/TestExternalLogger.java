@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -76,16 +76,16 @@ public class TestExternalLogger extends TestCase {
 
     final ThreadLoggerStubFactory threadLoggerFactory1 =
       new ThreadLoggerStubFactory();
-    final ThreadLogger threadLogger1 = threadLoggerFactory1.getThreadLogger();
+    final ThreadLogger threadLogger1 = threadLoggerFactory1.getLogger();
 
     final ThreadLoggerStubFactory threadLoggerFactory2 =
       new ThreadLoggerStubFactory();
-    final ThreadLogger threadLogger2 = threadLoggerFactory2.getThreadLogger();
+    final ThreadLogger threadLogger2 = threadLoggerFactory2.getLogger();
 
     final ThreadContextStubFactory threadContextFactory1 =
       new ThreadContextStubFactory(threadLogger1);
     final ThreadContext threadContext1 =
-      threadContextFactory1.getThreadContext();
+      threadContextFactory1.getStub();
 
     final ThreadContextLocator threadContextLocator =
        new StubThreadContextLocator();
@@ -166,12 +166,12 @@ public class TestExternalLogger extends TestCase {
     public void run() {
       final ThreadLoggerStubFactory threadLoggerFactory =
         new ThreadLoggerStubFactory();
-      final ThreadLogger threadLogger = threadLoggerFactory.getThreadLogger();
+      final ThreadLogger threadLogger = threadLoggerFactory.getLogger();
 
       final ThreadContextStubFactory threadContextFactory =
         new ThreadContextStubFactory(threadLogger);
       final ThreadContext threadContext =
-        threadContextFactory.getThreadContext();
+        threadContextFactory.getStub();
 
       m_threadContextLocator.set(threadContext);
 
@@ -201,17 +201,14 @@ public class TestExternalLogger extends TestCase {
    * Must be public so that override_ methods can be called
    * externally.
    */
-  public static class ThreadContextStubFactory extends RandomStubFactory {
+  public static class ThreadContextStubFactory
+    extends RandomStubFactory<ThreadContext> {
 
     private final ThreadLogger m_threadLogger;
 
     public ThreadContextStubFactory(ThreadLogger threadLogger) {
       super(ThreadContext.class);
       m_threadLogger = threadLogger;
-    }
-
-    public final ThreadContext getThreadContext() {
-      return (ThreadContext)getStub();
     }
 
     public ThreadLogger override_getThreadLogger(Object proxy) {

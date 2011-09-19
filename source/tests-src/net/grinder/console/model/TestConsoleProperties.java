@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -280,7 +280,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testDistributeAutomaticallyAsk() throws Exception {
+  public void testDistributeOnStartAsk() throws Exception {
 
     new TestBooleanTemplate(
       ConsoleProperties.DISTRIBUTE_ON_START_ASK_PROPERTY) {
@@ -518,6 +518,23 @@ public class TestConsoleProperties extends AbstractFileTestCase {
                  new ConsoleProperties(s_resources, m_file).getFrameBounds());
   }
 
+  public void testSaveTotalsWithResults() throws Exception {
+    new TestBooleanTemplate(
+      ConsoleProperties.SAVE_TOTALS_WITH_RESULTS_PROPERTY) {
+
+      protected boolean get(ConsoleProperties properties) {
+        return properties.getSaveTotalsWithResults();
+      }
+
+      protected void set(ConsoleProperties properties, boolean b)
+        throws ConsoleException {
+
+        properties.setSaveTotalsWithResults(b);
+      }
+
+    }.doTest();
+  }
+
   public void testCopyConstructor() throws Exception {
     final ConsoleProperties p1 = new ConsoleProperties(s_resources, m_file);
     final ConsoleProperties p2 = new ConsoleProperties(p1);
@@ -536,6 +553,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertEquals(p1.getStartWithUnsavedBuffersAsk(),
       p2.getStartWithUnsavedBuffersAsk());
     assertEquals(p1.getStopProcessesAsk(), p2.getStopProcessesAsk());
+    assertEquals(p1.getDistributeOnStartAsk(), p2.getDistributeOnStartAsk());
     assertEquals(p1.getPropertiesFile(), p2.getPropertiesFile());
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
     assertEquals(p1.getDistributionFileFilterPattern(),
@@ -543,6 +561,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertEquals(p1.getScanDistributionFilesPeriod(),
       p2.getScanDistributionFilesPeriod());
     assertEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
+    assertEquals(p1.getSaveTotalsWithResults(), p2.getSaveTotalsWithResults());
   }
 
   public void testAssignment() throws Exception {
@@ -559,6 +578,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     p2.setPropertiesNotSetAsk(false);
     p2.setStartWithUnsavedBuffersAsk(false);
     p2.setStopProcessesAsk(false);
+    p2.setDistributeOnStartAsk(false);
     p2.setAndSavePropertiesFile(new File("foo"));
     p2.setAndSaveDistributionDirectory(new Directory(new File("bah")));
     p2.setDistributionFileFilterExpression(".*");
@@ -566,6 +586,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     p2.setLookAndFeel("something");
     p2.setExternalEditorCommand(new File("bah"));
     p2.setExternalEditorArguments("foo");
+    p2.setSaveTotalsWithResults(true);
 
     assertTrue(p1.getCollectSampleCount() != p2.getCollectSampleCount());
     assertTrue(p1.getIgnoreSampleCount() != p2.getIgnoreSampleCount());
@@ -581,6 +602,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertTrue(p1.getStartWithUnsavedBuffersAsk() !=
       p2.getStartWithUnsavedBuffersAsk());
     assertTrue(p1.getStopProcessesAsk() != p2.getStopProcessesAsk());
+    assertTrue(p1.getDistributeOnStartAsk() != p2.getDistributeOnStartAsk());
     AssertUtilities.assertNotEquals(p1.getPropertiesFile(), p2.getPropertiesFile());
     AssertUtilities.assertNotEquals(p1.getDistributionDirectory(),
       p2.getDistributionDirectory());
@@ -593,6 +615,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
                                     p2.getExternalEditorCommand());
     AssertUtilities.assertNotEquals(p1.getExternalEditorArguments(),
                                     p2.getExternalEditorArguments());
+    assertTrue(p1.getSaveTotalsWithResults() != p2.getSaveTotalsWithResults());
 
     p2.set(p1);
 
@@ -610,6 +633,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertTrue(p1.getStartWithUnsavedBuffersAsk() ==
       p2.getStartWithUnsavedBuffersAsk());
     assertTrue(p1.getStopProcessesAsk() == p2.getStopProcessesAsk());
+    assertTrue(p1.getDistributeOnStartAsk() == p2.getDistributeOnStartAsk());
     assertEquals(p1.getPropertiesFile(), p2.getPropertiesFile());
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
     assertEquals(p1.getDistributionFileFilterPattern(),
@@ -620,6 +644,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertEquals(p1.getExternalEditorCommand(), p2.getExternalEditorCommand());
     assertEquals(p1.getExternalEditorArguments(),
                  p2.getExternalEditorArguments());
+    assertTrue(p1.getSaveTotalsWithResults() == p2.getSaveTotalsWithResults());
   }
 
   public void testWithBadFile() throws Exception {

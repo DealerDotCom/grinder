@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -87,10 +87,10 @@ public class TestConsoleCommunicationImplementation
     new ProcessMessagesThread();
   private StubTimer m_timer;
 
-  private final RandomStubFactory m_errorHandlerStubFactory =
-    new RandomStubFactory(ErrorHandler.class);
+  private final RandomStubFactory<ErrorHandler> m_errorHandlerStubFactory =
+    RandomStubFactory.create(ErrorHandler.class);
   private final ErrorHandler m_errorHandler =
-    (ErrorHandler)m_errorHandlerStubFactory.getStub();
+    m_errorHandlerStubFactory.getStub();
 
   protected void setUp() throws Exception {
     super.setUp();
@@ -202,15 +202,13 @@ public class TestConsoleCommunicationImplementation
     final ProcessControl processControl =
       new ProcessControlImplementation(m_timer, m_consoleCommunication);
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ProcessControl.Listener.class);
-    final ProcessControl.Listener listener =
-      (ProcessControl.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<ProcessControl.Listener> listenerStubFactory =
+      RandomStubFactory.create(ProcessControl.Listener.class);
 
     final CacheHighWaterMark cacheHighWaterMark =
       new StubCacheHighWaterMark("cache", 100);
 
-    processControl.addProcessStatusListener(listener);
+    processControl.addProcessStatusListener(listenerStubFactory.getStub());
 
     processControl.resetWorkerProcesses();
     processControl.stopAgentAndWorkerProcesses();
@@ -376,7 +374,7 @@ public class TestConsoleCommunicationImplementation
       new MessageHandlerStubFactory();
 
     m_consoleCommunication.getMessageDispatchRegistry().addFallback(
-      messageHandlerStubFactory.getMessageHandler());
+      messageHandlerStubFactory.getStub());
 
     m_processMessagesThread.start();
 
@@ -493,17 +491,15 @@ public class TestConsoleCommunicationImplementation
       "handleException", DisplayMessageConsoleException.class);
     m_errorHandlerStubFactory.assertNoMoreCalls();
 
-    final RandomStubFactory errorHandlerStubFactory2 =
-      new RandomStubFactory(ErrorHandler.class);
-    final ErrorHandler errorHandler2 =
-      (ErrorHandler)errorHandlerStubFactory2.getStub();
+    final RandomStubFactory<ErrorHandler> errorHandlerStubFactory2 =
+      RandomStubFactory.create(ErrorHandler.class);
 
     // Test a ConsoleCommunication with an invalid Sender.
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
     final ConsoleCommunication brokenConsoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             errorHandler2,
+                                             errorHandlerStubFactory2.getStub(),
                                              100);
 
     errorHandlerStubFactory2.assertSuccess(
@@ -564,7 +560,7 @@ public class TestConsoleCommunicationImplementation
   }
 
   public static final class MessageHandlerStubFactory
-    extends RandomStubFactory {
+    extends RandomStubFactory<Sender> {
 
     public MessageHandlerStubFactory() {
       super(Sender.class);
@@ -572,10 +568,6 @@ public class TestConsoleCommunicationImplementation
 
     public boolean override_process(Object proxy, Message message) {
       return message instanceof MyMessage;
-    }
-
-    public Sender getMessageHandler() {
-      return (Sender)getStub();
     }
   }
 

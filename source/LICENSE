@@ -1,6 +1,6 @@
 The Grinder
 Copyright (c) 2000 Paco Gomez
-Copyright (c) 2000-2008 Philip Aston
+Copyright (c) 2000-2011 Philip Aston
 All rights reserved.
 
 Additional contributions have been made by individuals listed in the
@@ -35,7 +35,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.
 
 
-The Grinder includes Ronald Tschal‰r's HTTPClient library
+The Grinder includes Ronald Tschal√Ωr's HTTPClient library
 (http://www.innovation.ch/java/HTTPClient/index.html). The HTTPClient
 library is distributed under the GNU Lesser Public License. Under the
 term 6 of the GNU Lesser Public License, The Grinder is a "work that
@@ -89,3 +89,9 @@ under the terms of the Apache Software License Version 2.0.
 The Grinder includes PicoContainer
 (http://picocontainer.codehaus.org/). See the file
 LICENSE-PicoContainer for license and copyright details.
+
+The Grinder includes ASM (http://asm.objectweb.org/). See the file
+LICENSE-ASM for license and copyright details.
+
+The Grinder includes components from the extra166y package. This package
+is in the public domain. See http://g.oswego.edu/dl/concurrency-interest/.

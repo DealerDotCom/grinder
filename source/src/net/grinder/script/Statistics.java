@@ -95,8 +95,9 @@ import net.grinder.common.GrinderException;
  * <td><em>period</em></td>
  * <td>basic&nbsp;long</td>
  * <td>The sampling period duration, in milliseconds. <br/>This statistic is
- * used to define views for
- * evaluation in the console and has no meaning in a worker process.</td>
+ * used to define views for evaluation in the console and for the overall
+ * time used to calculate rates in the Totals line in the final summary
+ * table.</td>
  * </tr>
  *
  * <tr>

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -178,16 +178,7 @@ public interface SSLControl extends SSLContextFactory {
     throws GeneralSecurityException, InvalidContextException, IOException;
 
   /**
-   * Get the JSSE {@link SSLContext} for the calling worker
-   * thread/run. This can be used to obtain an {@link
-   * javax.net.ssl.SSLSocketFactory}.
-   *
-   * <p><b>Do not use The Grinder to implement any SSL communication that
-   * you want to be secure.</b></p>
-   *
-   * @return The SSL context.
-   * @exception SSLContextFactoryException If JSSE could not create
-   * the SSLContext, or if called from a non-worker thread.
+   * {@inheritDoc}
    */
   SSLContext getSSLContext() throws SSLContextFactoryException;
 

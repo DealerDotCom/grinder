@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -44,26 +44,26 @@ import net.grinder.util.TimeAuthority;
  */
 public class TestPluginRegistryImplementation extends TestCase {
 
-  private final RandomStubFactory m_loggerStubFactory =
-    new RandomStubFactory(Logger.class);
-  private final Logger m_logger = (Logger)m_loggerStubFactory.getStub();
+  private final RandomStubFactory<Logger> m_loggerStubFactory =
+    RandomStubFactory.create(Logger.class);
+  private final Logger m_logger = m_loggerStubFactory.getStub();
 
-  private final RandomStubFactory m_scriptContextStubFactory =
-    new RandomStubFactory(ScriptContext.class);
+  private final RandomStubFactory<ScriptContext> m_scriptContextStubFactory =
+    RandomStubFactory.create(ScriptContext.class);
   private final ScriptContext m_scriptContext =
-    (ScriptContext)m_scriptContextStubFactory.getStub();
+    m_scriptContextStubFactory.getStub();
 
-  private final RandomStubFactory m_timeAuthorityStubFactory =
-    new RandomStubFactory(TimeAuthority.class);
+  private final RandomStubFactory<TimeAuthority> m_timeAuthorityStubFactory =
+    RandomStubFactory.create(TimeAuthority.class);
   private final TimeAuthority m_timeAuthority =
-    (TimeAuthority)m_timeAuthorityStubFactory.getStub();
+    m_timeAuthorityStubFactory.getStub();
 
   private final ThreadContextLocator m_threadContextLocator =
     new StubThreadContextLocator();
-  private final RandomStubFactory m_grinderPluginStubFactory =
-    new RandomStubFactory(GrinderPlugin.class);
+  private final RandomStubFactory<GrinderPlugin> m_grinderPluginStubFactory =
+    RandomStubFactory.create(GrinderPlugin.class);
   private final GrinderPlugin m_grinderPlugin =
-    (GrinderPlugin)m_grinderPluginStubFactory.getStub();
+    m_grinderPluginStubFactory.getStub();
 
   public void setUp() {
     m_grinderPluginStubFactory.setIgnoreObjectMethods();
@@ -97,7 +97,7 @@ public class TestPluginRegistryImplementation extends TestCase {
 
     m_grinderPluginStubFactory.assertNoMoreCalls();
 
-    m_loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerStubFactory.assertSuccess("output", String.class);
     m_loggerStubFactory.assertNoMoreCalls();
 
     pluginRegistry.register(m_grinderPlugin);
@@ -131,12 +131,10 @@ public class TestPluginRegistryImplementation extends TestCase {
         m_logger, m_scriptContext, m_threadContextLocator,
         StatisticsServicesImplementation.getInstance(), m_timeAuthority);
 
-    final RandomStubFactory threadContextStubFactory =
-      new RandomStubFactory(ThreadContext.class);
-    final ThreadContext threadContext =
-      (ThreadContext)threadContextStubFactory.getStub();
+    final RandomStubFactory<ThreadContext> threadContextStubFactory =
+      RandomStubFactory.create(ThreadContext.class);
 
-    pluginRegistry.threadCreated(threadContext);
+    pluginRegistry.threadCreated(threadContextStubFactory.getStub());
 
     final CallData callData =
       threadContextStubFactory.assertSuccess(
@@ -160,7 +158,7 @@ public class TestPluginRegistryImplementation extends TestCase {
 
     threadListener.beginThread();
     m_grinderPluginStubFactory.assertSuccess(
-      "createThreadListener", threadContext);
+      "createThreadListener", threadContextStubFactory.getStub());
     threadContextStubFactory.assertSuccess(
       "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
 

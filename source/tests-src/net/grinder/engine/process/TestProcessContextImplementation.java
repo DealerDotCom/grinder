@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -44,29 +44,31 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link TestProcessContextImplementation}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestProcessContextImplementation extends TestCase {
 
-  private final RandomStubFactory m_threadContextStubFactory =
-    new RandomStubFactory(ThreadContext.class);
+  private final RandomStubFactory<ThreadContext> m_threadContextStubFactory =
+    RandomStubFactory.create(ThreadContext.class);
   private final ThreadContext m_threadContext =
-    (ThreadContext)m_threadContextStubFactory.getStub();
+    m_threadContextStubFactory.getStub();
 
-  private final RandomStubFactory m_loggerStubFactory =
-    new RandomStubFactory(Logger.class);
+  private final RandomStubFactory<Logger> m_loggerStubFactory =
+    RandomStubFactory.create(Logger.class);
   private final Logger m_logger =
-    (Logger)m_loggerStubFactory.getStub();
+    m_loggerStubFactory.getStub();
 
-  private final RandomStubFactory m_queuedSenderStubFactory =
-    new RandomStubFactory(QueuedSender.class);
+  private final RandomStubFactory<QueuedSender> m_queuedSenderStubFactory =
+    RandomStubFactory.create(QueuedSender.class);
   private final QueuedSender m_queuedSender =
-    (QueuedSender)m_queuedSenderStubFactory.getStub();
+    m_queuedSenderStubFactory.getStub();
 
-  private final RandomStubFactory m_workerIdentityStubFactory =
-    new RandomStubFactory(WorkerIdentity.class);
+  private final RandomStubFactory<WorkerIdentity> m_workerIdentityStubFactory =
+    RandomStubFactory.create(WorkerIdentity.class);
   private final WorkerIdentity m_workerIdentity =
-    (WorkerIdentity)m_workerIdentityStubFactory.getStub();
+    m_workerIdentityStubFactory.getStub();
+  private final WorkerIdentity m_firstWorkerIdentity =
+    m_workerIdentityStubFactory.getStub();
 
   public void testAccessors() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
@@ -77,6 +79,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         properties,
         m_logger,
         null,
@@ -95,13 +98,21 @@ public class TestProcessContextImplementation extends TestCase {
     final long t1 = System.currentTimeMillis();
     processContext.setExecutionStartTime();
     final long t2 = System.currentTimeMillis();
-    assertTrue(t1 <= processContext.getExecutionStartTime());
-    assertTrue(processContext.getExecutionStartTime() <= t2);
+
+    // Fudge required since nanoTime() is more precise that currentTimeMillis().
+    final long FUDGE = 10;
+
+    assertTrue(t1 - FUDGE <= processContext.getExecutionStartTime());
+    assertTrue(processContext.getExecutionStartTime() <= t2 + FUDGE);
+    final long elapsedTime = processContext.getElapsedTime();
+    assertTrue(elapsedTime <= (System.currentTimeMillis() - t1));
+    assertTrue(elapsedTime >= 0);
   }
 
   public void testThreadContextLocator() throws Exception {
     final ProcessContext processContext =
       new ProcessContextImplementation(
+        null,
         null,
         new GrinderProperties(),
         null,
@@ -136,6 +147,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         new GrinderProperties(),
         m_logger,
         null,
@@ -162,6 +174,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         grinderProperties,
         m_logger,
         null,
@@ -207,6 +220,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext2 =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         grinderProperties,
         m_logger,
         null,
@@ -226,6 +240,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         new GrinderProperties(),
         m_logger,
         null,
@@ -233,19 +248,15 @@ public class TestProcessContextImplementation extends TestCase {
         StatisticsServicesTestFactory.createTestInstance(),
         null);
 
-    final RandomStubFactory threadContext1StubFactory =
-      new RandomStubFactory(ThreadContext.class);
-    final ThreadContext threadContext1 =
-      (ThreadContext)threadContext1StubFactory.getStub();
+    final RandomStubFactory<ThreadContext> threadContext1StubFactory =
+      RandomStubFactory.create(ThreadContext.class);
     threadContext1StubFactory.setResult("getThreadNumber", new Integer(1));
 
-    final RandomStubFactory threadContext2StubFactory =
-      new RandomStubFactory(ThreadContext.class);
-    final ThreadContext threadContext2 =
-      (ThreadContext)threadContext2StubFactory.getStub();
+    final RandomStubFactory<ThreadContext> threadContext2StubFactory =
+      RandomStubFactory.create(ThreadContext.class);
     threadContext2StubFactory.setResult("getThreadNumber", new Integer(2));
 
-    processContext.fireThreadCreatedEvent(threadContext1);
+    processContext.fireThreadCreatedEvent(threadContext1StubFactory.getStub());
 
     threadContext1StubFactory.assertSuccess(
       "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
@@ -256,7 +267,7 @@ public class TestProcessContextImplementation extends TestCase {
       ThreadLifeCycleListener.class).getParameters()[0];
     threadContext1StubFactory.assertNoMoreCalls();
 
-    processContext.fireThreadCreatedEvent(threadContext2);
+    processContext.fireThreadCreatedEvent(threadContext2StubFactory.getStub());
 
     threadContext2StubFactory.assertSuccess(
       "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
@@ -272,13 +283,11 @@ public class TestProcessContextImplementation extends TestCase {
     threadContext2StubFactory.assertSuccess("shutdown");
     threadContext2StubFactory.assertNoMoreCalls();
 
-    final RandomStubFactory threadContext3StubFactory =
-      new RandomStubFactory(ThreadContext.class);
-    final ThreadContext threadContext3 =
-      (ThreadContext)threadContext3StubFactory.getStub();
+    final RandomStubFactory<ThreadContext> threadContext3StubFactory =
+      RandomStubFactory.create(ThreadContext.class);
     threadContext3StubFactory.setResult("getThreadNumber", new Integer(3));
 
-    processContext.fireThreadCreatedEvent(threadContext3);
+    processContext.fireThreadCreatedEvent(threadContext3StubFactory.getStub());
 
     threadContext3StubFactory.assertSuccess(
       "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
@@ -300,6 +309,7 @@ public class TestProcessContextImplementation extends TestCase {
     final ProcessContext processContext =
       new ProcessContextImplementation(
         m_workerIdentity,
+        m_firstWorkerIdentity,
         new GrinderProperties(),
         m_logger,
         null,
@@ -309,19 +319,15 @@ public class TestProcessContextImplementation extends TestCase {
 
     final ScriptContext scriptContext = Grinder.grinder;
 
-    final RandomStubFactory threadContext1StubFactory =
-      new RandomStubFactory(ThreadContext.class);
-    final ThreadContext threadContext1 =
-      (ThreadContext)threadContext1StubFactory.getStub();
+    final RandomStubFactory<ThreadContext> threadContext1StubFactory =
+      RandomStubFactory.create(ThreadContext.class);
     threadContext1StubFactory.setResult("getThreadNumber", new Integer(1));
 
-    final RandomStubFactory threadContext2StubFactory =
-      new RandomStubFactory(ThreadContext.class);
-    final ThreadContext threadContext2 =
-      (ThreadContext)threadContext2StubFactory.getStub();
+    final RandomStubFactory<ThreadContext> threadContext2StubFactory =
+      RandomStubFactory.create(ThreadContext.class);
     threadContext2StubFactory.setResult("getThreadNumber", new Integer(2));
 
-    processContext.fireThreadCreatedEvent(threadContext1);
+    processContext.fireThreadCreatedEvent(threadContext1StubFactory.getStub());
 
     threadContext1StubFactory.assertSuccess(
       "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
@@ -332,7 +338,7 @@ public class TestProcessContextImplementation extends TestCase {
       ThreadLifeCycleListener.class).getParameters()[0];
     threadContext1StubFactory.assertNoMoreCalls();
 
-    processContext.fireThreadCreatedEvent(threadContext2);
+    processContext.fireThreadCreatedEvent(threadContext2StubFactory.getStub());
 
     threadContext2StubFactory.assertSuccess(
       "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);

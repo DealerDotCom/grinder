@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,14 +43,13 @@ import junit.framework.TestCase;
  * Unit tests for ConsoleConnectionImplementation.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestConsoleConnectionImplementation extends TestCase {
 
-  private final RandomStubFactory m_senderStubFactory =
-    new RandomStubFactory(BlockingSender.class);
-  private final BlockingSender m_sender =
-    (BlockingSender)m_senderStubFactory.getStub();
+  private final RandomStubFactory<BlockingSender> m_senderStubFactory =
+    RandomStubFactory.create(BlockingSender.class);
+  private final BlockingSender m_sender = m_senderStubFactory.getStub();
 
   public void testRecordingControls() throws Exception {
     final ConsoleConnection consoleConnection =

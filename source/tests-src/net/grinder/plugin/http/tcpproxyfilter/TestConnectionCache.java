@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,10 +36,11 @@ import net.grinder.tools.tcpproxy.EndPoint;
  */
 public class TestConnectionCache extends TestCase {
 
-  final RandomStubFactory m_connectionHandlerFactoryStubFactory =
-    new RandomStubFactory(ConnectionHandlerFactory.class);
+  final RandomStubFactory<ConnectionHandlerFactory>
+    m_connectionHandlerFactoryStubFactory =
+      RandomStubFactory.create(ConnectionHandlerFactory.class);
   final ConnectionHandlerFactory m_connectionHandlerFactory =
-    (ConnectionHandlerFactory)m_connectionHandlerFactoryStubFactory.getStub();
+    m_connectionHandlerFactoryStubFactory.getStub();
 
   private final ConnectionDetails m_connectionDetails =
     new ConnectionDetails(
@@ -63,12 +64,12 @@ public class TestConnectionCache extends TestCase {
   }
 
   public void testConnectionCache() throws Exception {
-    final ConnectionCache connectionCache =
-      new ConnectionCache(m_connectionHandlerFactory);
+    final ConnectionCache connectionCache = new ConnectionCache(
+      m_connectionHandlerFactory);
 
     connectionCache.open(m_connectionDetails);
-    m_connectionHandlerFactoryStubFactory.assertSuccess(
-      "create", m_connectionDetails);
+    m_connectionHandlerFactoryStubFactory.assertSuccess("create",
+      m_connectionDetails);
 
     try {
       connectionCache.open(m_connectionDetails);
@@ -94,7 +95,8 @@ public class TestConnectionCache extends TestCase {
     }
 
     try {
-      connectionCache.response(m_connectionDetails.getOtherEnd(), new byte[100], 56);
+      connectionCache.response(m_connectionDetails.getOtherEnd(),
+        new byte[100], 56);
       fail("Expected IllegalArgumentException");
     }
     catch (IllegalArgumentException e) {
@@ -102,12 +104,12 @@ public class TestConnectionCache extends TestCase {
 
     connectionCache.dispose();
 
-    final ConnectionCache connectionCache2 =
-      new ConnectionCache(m_connectionHandlerFactory);
+    final ConnectionCache connectionCache2 = new ConnectionCache(
+      m_connectionHandlerFactory);
 
     connectionCache2.open(m_connectionDetails);
-    m_connectionHandlerFactoryStubFactory.assertSuccess(
-      "create", m_connectionDetails);
+    m_connectionHandlerFactoryStubFactory.assertSuccess("create",
+      m_connectionDetails);
 
     connectionCache2.request(m_connectionDetails, new byte[10], 0);
     connectionCache2.request(m_connectionDetails, new byte[20], 0);
@@ -119,10 +121,12 @@ public class TestConnectionCache extends TestCase {
     catch (IllegalArgumentException e) {
     }
 
-    connectionCache2.response(m_connectionDetails.getOtherEnd(), new byte[20], 0);
+    connectionCache2.response(m_connectionDetails.getOtherEnd(), new byte[20],
+      0);
 
     try {
-      connectionCache.response(m_connectionDetails2.getOtherEnd(), new byte[10], 0);
+      connectionCache.response(m_connectionDetails2.getOtherEnd(),
+        new byte[10], 0);
       fail("Expected IllegalArgumentException");
     }
     catch (IllegalArgumentException e) {
@@ -138,7 +142,8 @@ public class TestConnectionCache extends TestCase {
     }
 
     try {
-      connectionCache.response(m_connectionDetails.getOtherEnd(), new byte[10], 5);
+      connectionCache.response(m_connectionDetails.getOtherEnd(), new byte[10],
+        5);
       fail("Expected IllegalArgumentException");
     }
     catch (IllegalArgumentException e) {

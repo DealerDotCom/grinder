@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,13 +41,13 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link SampleModelViewsImplementation}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_modelStubFactory =
-    new RandomStubFactory(SampleModel.class);
-  private final SampleModel m_model = (SampleModel)m_modelStubFactory.getStub();
+  private final RandomStubFactory<SampleModel> m_modelStubFactory =
+    RandomStubFactory.create(SampleModel.class);
+  private final SampleModel m_model = m_modelStubFactory.getStub();
 
   private ConsoleProperties m_consoleProperties;
 
@@ -62,8 +62,8 @@ public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
     final StatisticsServices statisticsServices =
       StatisticsServicesImplementation.getInstance();
 
-    final Set standardSummaryExpressionViews =
-      new HashSet(Arrays.asList(
+    final Set<ExpressionView> standardSummaryExpressionViews =
+      new HashSet<ExpressionView>(Arrays.asList(
         statisticsServices.getSummaryStatisticsView().getExpressionViews()));
 
     final SampleModelViews sampleModelViews =
@@ -72,16 +72,15 @@ public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
         statisticsServices,
         m_model);
 
-    m_modelStubFactory.assertSuccess("getTPSExpression");
     m_modelStubFactory.assertSuccess("getPeakTPSExpression");
 
-    final Set cumulativeViewSet =
+    final Set<ExpressionView> cumulativeViewSet =
       expressionViewsSet(sampleModelViews.getCumulativeStatisticsView());
 
     assertTrue(cumulativeViewSet.containsAll(standardSummaryExpressionViews));
     assertFalse(standardSummaryExpressionViews.containsAll(cumulativeViewSet));
 
-    final Set intervalViewSet =
+    final Set<ExpressionView> intervalViewSet =
       expressionViewsSet(sampleModelViews.getIntervalStatisticsView());
 
     assertTrue(intervalViewSet.containsAll(standardSummaryExpressionViews));
@@ -123,8 +122,11 @@ public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
     m_modelStubFactory.assertNoMoreCalls();
   }
 
-  private HashSet expressionViewsSet(StatisticsView statisticsView) {
-    return new HashSet(Arrays.asList(statisticsView.getExpressionViews()));
+  private HashSet<ExpressionView> expressionViewsSet(
+    StatisticsView statisticsView) {
+
+    return new HashSet<ExpressionView>(
+        Arrays.asList(statisticsView.getExpressionViews()));
   }
 
   public void testListeners() throws Exception {
@@ -137,11 +139,9 @@ public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
         statisticsServices,
         m_model);
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(Listener.class);
-    final Listener listener = (Listener)listenerStubFactory.getStub();
-
-    sampleModelViews.addListener(listener);
+    final RandomStubFactory<Listener> listenerStubFactory =
+      RandomStubFactory.create(Listener.class);
+    sampleModelViews.addListener(listenerStubFactory.getStub());
 
     sampleModelViews.resetStatisticsViews();
     listenerStubFactory.assertSuccess("resetStatisticsViews");

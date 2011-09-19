@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -48,7 +48,7 @@ public class IsolatingClassLoader extends URLClassLoader {
   /**
    * Set of class names that identifies classes that shouldn't be isolated.
    */
-  private final Set m_sharedClassNames = new HashSet();
+  private final Set<String> m_sharedClassNames = new HashSet<String>();
 
   private final boolean m_isolateParentOnly;
 
@@ -68,7 +68,7 @@ public class IsolatingClassLoader extends URLClassLoader {
                               boolean isolateParentOnly) {
     super(parent.getURLs(), parent);
 
-    final List prefixes = new ArrayList();
+    final List<String> prefixes = new ArrayList<String>();
 
     for (int i = 0; i < shared.length; i++) {
       final int index = shared[i].indexOf('*');
@@ -81,7 +81,7 @@ public class IsolatingClassLoader extends URLClassLoader {
       }
     }
 
-    m_sharedPrefixes = (String[])prefixes.toArray(new String[prefixes.size()]);
+    m_sharedPrefixes = prefixes.toArray(new String[prefixes.size()]);
 
     m_isolateParentOnly = isolateParentOnly;
   }
@@ -95,7 +95,7 @@ public class IsolatingClassLoader extends URLClassLoader {
    * @return The class.
    * @throws ClassNotFoundException If the class couldn't be found.
    */
-  protected Class loadClass(String name, boolean resolve)
+  protected Class<?> loadClass(String name, boolean resolve)
     throws ClassNotFoundException  {
 
     if (m_isolateParentOnly) {
@@ -119,7 +119,7 @@ public class IsolatingClassLoader extends URLClassLoader {
       }
 
       if (!shared) {
-        Class c = findLoadedClass(name);
+        Class<?> c = findLoadedClass(name);
 
         if (c == null) {
           c = findClass(name);

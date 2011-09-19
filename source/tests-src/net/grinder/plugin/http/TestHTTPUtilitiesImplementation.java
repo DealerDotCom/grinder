@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,6 +20,10 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.plugin.http;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.Arrays.asList;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.SSLContextFactory;
@@ -46,25 +50,24 @@ import junit.framework.TestCase;
  */
 public class TestHTTPUtilitiesImplementation extends TestCase {
 
-  private final RandomStubFactory m_pluginProcessContextStubFactory =
-    new RandomStubFactory(PluginProcessContext.class);
+  private final RandomStubFactory<PluginProcessContext>
+    m_pluginProcessContextStubFactory =
+      RandomStubFactory.create(PluginProcessContext.class);
   private final PluginProcessContext m_pluginProcessContext =
-    (PluginProcessContext)m_pluginProcessContextStubFactory.getStub();
+    m_pluginProcessContextStubFactory.getStub();
 
-  private final RandomStubFactory m_scriptContextStubFactory =
-    new RandomStubFactory(ScriptContext.class);
+  private final RandomStubFactory<ScriptContext> m_scriptContextStubFactory =
+    RandomStubFactory.create(ScriptContext.class);
 
-  private final RandomStubFactory m_statisticsStubFactory =
-    new RandomStubFactory(Statistics.class);
+  private final RandomStubFactory<Statistics> m_statisticsStubFactory =
+    RandomStubFactory.create(Statistics.class);
 
   protected void setUp() throws Exception {
     final PluginThreadContext threadContext =
-      (PluginThreadContext)
-      new RandomStubFactory(PluginThreadContext.class).getStub();
+      RandomStubFactory.create(PluginThreadContext.class).getStub();
 
     final SSLContextFactory sslContextFactory =
-      (SSLContextFactory)
-      new RandomStubFactory(SSLContextFactory.class).getStub();
+      RandomStubFactory.create(SSLContextFactory.class).getStub();
 
     final TimeAuthority timeAuthority = new StandardTimeAuthority();
 
@@ -76,11 +79,11 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
 
     m_statisticsStubFactory.setResult("availableForUpdate", Boolean.FALSE);
     final Statistics statistics =
-      (Statistics)m_statisticsStubFactory.getStub();
+      m_statisticsStubFactory.getStub();
 
     m_scriptContextStubFactory.setResult("getStatistics", statistics);
     final ScriptContext scriptContext =
-      (ScriptContext)m_scriptContextStubFactory.getStub();
+      m_scriptContextStubFactory.getStub();
 
     m_pluginProcessContextStubFactory.setResult("getPluginThreadListener",
                                                 threadState);
@@ -128,6 +131,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
 
     // HTTPClient isn't hot on interfaces, so we can't stub these.
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     final HTTPRequest request = new HTTPRequest();
     final HTTPResponse httpResponse = request.GET(handler.getURL());
 
@@ -144,6 +148,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromLocationURI("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals("", httpUtilities.valueFromLocationURI("foo"));
 
@@ -183,6 +188,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromBodyURI("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals("", httpUtilities.valueFromBodyURI("foo"));
 
@@ -222,6 +228,122 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     handler.shutdown();
   }
 
+  public void testValuesFromBodyURI() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+
+    handler.setBody(
+      "<body><a href='http://www.w3.org/pub/WWW/People.html'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+
+    handler.setBody(
+      "<body><a href='http://www.w3.org/pub/WWW/People.html?foo=bah&lah=dah'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals(singletonList("bah"), httpUtilities.valuesFromBodyURI("foo"));
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("bah"));
+
+    handler.setBody(
+      "<body><a href='http://www.w3.org/pub/WWW/People.html;foo=?foo=bah&lah=dah'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals(singletonList(""), httpUtilities.valuesFromBodyURI("foo"));
+    assertEquals(singletonList("dah"), httpUtilities.valuesFromBodyURI("lah"));
+
+    handler.setBody(
+    "<body><a href='http://www.w3.org/pub/WWW/People.html;JSESSIONID=1234'>foo</a>" +
+    "<a href='http://www.w3.org/pub/WWW/People.html;JSESSIONID=5678'>foo</a></body>");
+    request.GET(handler.getURL());
+    assertEquals(asList("1234", "5678"),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID"));
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+
+    handler.addHeader("Content-Type", "garbage");
+    request.GET(handler.getURL());
+    assertEquals(asList("1234", "5678"),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID"));
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyURI("foo"));
+    assertEquals(asList("1234", "5678"),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID", "<body>"));
+    assertEquals(asList("5678"),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID", "</a>"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID", "5"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromBodyURI("JSESSIONID", "999"));
+
+    handler.shutdown();
+  }
+
+  public void testValueFromBodyInput() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals("", httpUtilities.valueFromBodyInput("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
+    request.GET(handler.getURL());
+    assertEquals("", httpUtilities.valueFromBodyInput("foo"));
+
+    handler.setBody("<body><input name='foo'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals("", httpUtilities.valueFromBodyInput("foo"));
+
+    // input tags should be empty. The content has no meaning
+    handler.setBody("<body><input type='hidden' name='foo' value='bah'>foo</input>" +
+                    "<input name='foo' value='blah'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals("bah", httpUtilities.valueFromBodyInput("foo"));
+    assertEquals("", httpUtilities.valueFromBodyInput("bah"));
+    assertEquals("bah", httpUtilities.valueFromBodyInput("foo", "<body>"));
+    assertEquals("blah", httpUtilities.valueFromBodyInput("foo", "input"));
+    assertEquals("", httpUtilities.valueFromBodyInput("foo", "not there"));
+
+    handler.shutdown();
+  }
+
+  public void testValuesFromBodyInput() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("foo"));
+
+    handler.setBody("<body><input name='foo'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("foo"));
+
+    // input tags should be empty. The content has no meaning
+    handler.setBody("<body><input name='foo' value='bah'>foo</input>" +
+                    "<input type='hidden' name='foo' value='blah'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals(asList("bah", "blah"),
+                 httpUtilities.valuesFromBodyInput("foo"));
+    assertEquals(emptyList(), httpUtilities.valuesFromBodyInput("bah"));
+    assertEquals(asList("blah"),
+                 httpUtilities.valuesFromBodyInput("foo", "bah"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromBodyInput("foo", "blah"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromBodyInput("foo", "not there"));
+
+    handler.shutdown();
+  }
+
   public void testValueFromHiddenInput() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
@@ -230,6 +352,7 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
 
     final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
     request.GET(handler.getURL());
     assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
 
@@ -238,13 +361,47 @@ public class TestHTTPUtilitiesImplementation extends TestCase {
     assertEquals("", httpUtilities.valueFromHiddenInput("foo"));
 
     // input tags should be empty. The content has no meaning
-    handler.setBody("<body><input type='hidden' name='foo' value='bah'>foo</input></body>");
+    handler.setBody("<body><input name='foo' value='blah'>foo</input>" +
+                    "<input type='hidden' name='foo' value='bah'>foo</input></body>");
     request.GET(handler.getURL());
     assertEquals("bah", httpUtilities.valueFromHiddenInput("foo"));
     assertEquals("", httpUtilities.valueFromHiddenInput("bah"));
     assertEquals("bah", httpUtilities.valueFromHiddenInput("foo", "<body>"));
     assertEquals("", httpUtilities.valueFromHiddenInput("foo", "input"));
     assertEquals("", httpUtilities.valueFromHiddenInput("foo", "not there"));
+
+    handler.shutdown();
+  }
+
+  public void testValuesFromHiddenInput() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+
+    final HTTPUtilities httpUtilities =
+      new HTTPUtilitiesImplementation(m_pluginProcessContext);
+    assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("foo"));
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    handler.start();
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("foo"));
+
+    handler.setBody("<body><input type='hidden' name='foo'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("foo"));
+
+    // input tags should be empty. The content has no meaning
+    handler.setBody("<body><input type='hidden' name='foo' value='bah'>foo</input>" +
+                    "<input type='hidden' name='foo' value='blah'>foo</input></body>");
+    request.GET(handler.getURL());
+    assertEquals(asList("bah", "blah"),
+                 httpUtilities.valuesFromHiddenInput("foo"));
+    assertEquals(emptyList(), httpUtilities.valuesFromHiddenInput("bah"));
+    assertEquals(asList("blah"),
+                 httpUtilities.valuesFromHiddenInput("foo", "bah"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromHiddenInput("foo", "blah"));
+    assertEquals(emptyList(),
+                 httpUtilities.valuesFromHiddenInput("foo", "not there"));
 
     handler.shutdown();
   }

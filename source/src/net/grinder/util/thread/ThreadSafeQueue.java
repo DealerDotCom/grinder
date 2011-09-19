@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,14 +28,16 @@ import net.grinder.common.UncheckedInterruptedException;
 
 
 /**
- * Thread-safe queue of <code>Objects</code>.
+ * Thread-safe queue.
+ *
+ * @param <T> Entry type.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ThreadSafeQueue {
+public final class ThreadSafeQueue<T> {
 
-  private final LinkedList m_messages = new LinkedList();
+  private final LinkedList<T> m_messages = new LinkedList<T>();
   private final Condition m_condition = new Condition();
   private volatile boolean m_shutdown = false;
 
@@ -47,13 +49,13 @@ public final class ThreadSafeQueue {
   }
 
   /**
-   * Queue the given Object.
+   * Queue the given item.
    *
    * @param item The object.
    * @exception ShutdownException If the queue has been shutdown.
    * @see #shutdown
    */
-  public void queue(Object item) throws ShutdownException {
+  public void queue(T item) throws ShutdownException {
     synchronized (getCondition()) {
       checkIfShutdown();
       m_messages.add(item);
@@ -62,16 +64,17 @@ public final class ThreadSafeQueue {
   }
 
   /**
-   * Dequeue an Object.
+   * Dequeue an item.
    *
-   * @param block <code>true</code> => block until message is
-   * available, <code>false</code => return <code>null</code> if no
-   * message is available.
-   * @exception ShutdownException If the queue has been shutdown.
+   * @param block
+   *          {@code true} => block until message is available, {@code false} =>
+   *          return {@code null} if no message is available.
+   * @exception ShutdownException
+   *              If the queue has been shutdown.
    * @return The dequeued object.
    * @see #shutdown
    */
-  public Object dequeue(boolean block) throws ShutdownException {
+  public T dequeue(boolean block) throws ShutdownException {
     synchronized (getCondition()) {
       while (!m_shutdown && block && m_messages.size() == 0) {
         try {
@@ -97,8 +100,7 @@ public final class ThreadSafeQueue {
   }
 
   /**
-   * Shutdown the <code>ThreadSafeQueue</code>. Any <code>Objects</code>
-   * in the queue are discarded.
+   * Shutdown the {@code ThreadSafeQueue}. Any items in the queue are discarded.
    */
   public void shutdown() {
     synchronized (getCondition()) {
@@ -145,7 +147,7 @@ public final class ThreadSafeQueue {
   /**
    * Throw an ShutdownException if we are shutdown.
    *
-   * @throws ShutdownException Thrown if the <code>ThreadSafeQueue</code> is
+   * @throws ShutdownException Thrown if the {@code ThreadSafeQueue} is
    * shutdown.
    */
   public void checkIfShutdown() throws ShutdownException {
@@ -155,8 +157,7 @@ public final class ThreadSafeQueue {
   }
 
   /**
-   * Exception that indicates <code>ThreadSafeQueue</code> has been
-   * shutdown.
+   * Exception that indicates {@code ThreadSafeQueue} has been shutdown.
    */
   public static final class ShutdownException extends GrinderException {
     private ShutdownException(String s) {

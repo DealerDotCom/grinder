@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,10 +33,12 @@ import java.util.regex.Pattern;
 
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
+import net.grinder.common.Test;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.Sender;
 import net.grinder.console.ConsoleFoundation.UI;
 import net.grinder.console.client.ConsoleConnection;
+import net.grinder.console.client.ConsoleConnectionException;
 import net.grinder.console.client.ConsoleConnectionFactory;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -67,7 +69,7 @@ import net.grinder.util.Directory;
  * Unit tests for {@link ConsoleFoundation}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestConsoleFoundation extends AbstractFileTestCase {
 
@@ -78,8 +80,7 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
   }
 
   private final Resources m_resources =
-    new StubResources(new HashMap() {{
-
+    new StubResources<Object>(new HashMap<String, Object>() {{
     }});
 
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
@@ -142,10 +143,23 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     runConsole.start();
 
     final ConsoleConnectionFactory ccf = new ConsoleConnectionFactory();
-    final ConsoleConnection client = ccf.connect(hostName, port);
 
-    assertEquals(0, client.getNumberOfAgents());
-    client.close();
+    final int retries = 3;
+
+    for (int i = 0; i < retries; ++i) {
+      try {
+	final ConsoleConnection client = ccf.connect(hostName, port);
+	assertEquals(0, client.getNumberOfAgents());
+	client.close();
+      }
+      catch (ConsoleConnectionException e) {
+	if (i == retries - 1) {
+	  throw e;
+	}
+	
+	Thread.sleep(50);
+      }
+    }
 
     foundation.shutdown();
 
@@ -154,19 +168,17 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
 
   public void testWireFileDistribution() throws Exception {
 
-    final RandomStubFactory fileDistributionStubFactory =
-      new RandomStubFactory(FileDistribution.class);
-    final FileDistribution fileDistribution =
-      (FileDistribution)fileDistributionStubFactory.getStub();
-
+    final RandomStubFactory<FileDistribution> fileDistributionStubFactory =
+      RandomStubFactory.create(FileDistribution.class);
     final ConsoleProperties consoleProperties =
       new ConsoleProperties(m_resources, new File(getDirectory(), "props"));
 
     final StubTimer timer = new StubTimer();
 
-    new ConsoleFoundation.WireFileDistribution(fileDistribution,
-                                               consoleProperties,
-                                               timer);
+    new ConsoleFoundation.WireFileDistribution(
+      fileDistributionStubFactory.getStub(),
+      consoleProperties,
+      timer);
 
     fileDistributionStubFactory.assertNoMoreCalls();
 
@@ -198,32 +210,31 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
   }
 
   public void testWireMessageDispatch() throws Exception {
-    final RandomStubFactory messageDispatchRegistryStubFactory =
-      new RandomStubFactory(MessageDispatchRegistry.class);
-    final MessageDispatchRegistry messageDispatchRegistry =
-      (MessageDispatchRegistry)messageDispatchRegistryStubFactory.getStub();
+    final RandomStubFactory<MessageDispatchRegistry>
+      messageDispatchRegistryStubFactory =
+        RandomStubFactory.create(MessageDispatchRegistry.class);
 
-    final RandomStubFactory consoleCommunicationStubFactory =
-      new RandomStubFactory(ConsoleCommunication.class);
-    final ConsoleCommunication consoleCommunication =
-      (ConsoleCommunication)consoleCommunicationStubFactory.getStub();
+    final RandomStubFactory<ConsoleCommunication>
+      consoleCommunicationStubFactory =
+        RandomStubFactory.create(ConsoleCommunication.class);
     consoleCommunicationStubFactory.setResult(
-      "getMessageDispatchRegistry", messageDispatchRegistry);
+      "getMessageDispatchRegistry",
+      messageDispatchRegistryStubFactory.getStub());
 
-    final RandomStubFactory modelStubFactory =
-      new RandomStubFactory(SampleModel.class);
-    final SampleModel model = (SampleModel)modelStubFactory.getStub();
+    final RandomStubFactory<SampleModel> modelStubFactory =
+      RandomStubFactory.create(SampleModel.class);
 
-    final RandomStubFactory sampleModelViewsStubFactory =
-      new RandomStubFactory(SampleModelViews.class);
-    final SampleModelViews sampleModelViews =
-      (SampleModelViews)sampleModelViewsStubFactory.getStub();
+    final RandomStubFactory<SampleModelViews> sampleModelViewsStubFactory =
+      RandomStubFactory.create(SampleModelViews.class);
 
     final DispatchClientCommands dispatchClientCommands =
       new DispatchClientCommands(null, null, null);
 
     new ConsoleFoundation.WireMessageDispatch(
-      consoleCommunication, model, sampleModelViews, dispatchClientCommands);
+      consoleCommunicationStubFactory.getStub(),
+      modelStubFactory.getStub(),
+      sampleModelViewsStubFactory.getStub(),
+      dispatchClientCommands);
 
     consoleCommunicationStubFactory.assertSuccess("getMessageDispatchRegistry");
     consoleCommunicationStubFactory.assertNoMoreCalls();
@@ -234,7 +245,7 @@ public class TestConsoleFoundation extends AbstractFileTestCase {
     assertEquals(RegisterTestsMessage.class, call1.getParameters()[0]);
 
     final Sender sender1 = (Sender) call1.getParameters()[1];
-    final Collection tests = Collections.EMPTY_SET;
+    final Collection<Test> tests = Collections.emptySet();
     sender1.send(new RegisterTestsMessage(tests));
     modelStubFactory.assertSuccess("registerTests", tests);
     modelStubFactory.assertNoMoreCalls();

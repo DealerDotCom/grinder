@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,43 +36,45 @@ import net.grinder.util.Sleeper;
  * Unit tests for {@link GrinderThread}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestGrinderThread extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_workerThreadSynchronisationStubFactory =
-    new RandomStubFactory(WorkerThreadSynchronisation.class);
+  private final RandomStubFactory<WorkerThreadSynchronisation>
+    m_workerThreadSynchronisationStubFactory =
+      RandomStubFactory.create(WorkerThreadSynchronisation.class);
   private final WorkerThreadSynchronisation m_workerThreadSynchronisation =
-    (WorkerThreadSynchronisation)m_workerThreadSynchronisationStubFactory.getStub();
+    m_workerThreadSynchronisationStubFactory.getStub();
 
-  private final RandomStubFactory m_sleeperStubFactory =
-    new RandomStubFactory(Sleeper.class);
+  private final RandomStubFactory<Sleeper> m_sleeperStubFactory =
+    RandomStubFactory.create(Sleeper.class);
   private final Sleeper m_sleeper =
-    (Sleeper)m_sleeperStubFactory.getStub();
+    m_sleeperStubFactory.getStub();
 
   private final GrinderProperties m_properties = new GrinderProperties();
 
   private final StatisticsServices m_statisticsServices =
     StatisticsServicesImplementation.getInstance();
 
-  private final RandomStubFactory m_processContextStubFactory =
-    new RandomStubFactory(ProcessContext.class);
+  private final RandomStubFactory<ProcessContext> m_processContextStubFactory =
+    RandomStubFactory.create(ProcessContext.class);
   private final ProcessContext m_processContext =
-    (ProcessContext)m_processContextStubFactory.getStub();
+    m_processContextStubFactory.getStub();
 
   {
     m_processContextStubFactory.setResult("getProperties", m_properties);
-    m_processContextStubFactory.setResult("getStatisticsServices", m_statisticsServices);
+    m_processContextStubFactory.setResult("getStatisticsServices",
+                                          m_statisticsServices);
     m_processContextStubFactory.setResult("getSleeper", m_sleeper);
     m_processContextStubFactory.setIgnoreMethod("getProperties");
     m_processContextStubFactory.setIgnoreMethod("getStatisticsServices");
     m_processContextStubFactory.setIgnoreMethod("getSleeper");
   }
 
-  private final RandomStubFactory m_scriptEngineStubFactory =
-    new RandomStubFactory(ScriptEngine.class);
+  private final RandomStubFactory<ScriptEngine> m_scriptEngineStubFactory =
+    RandomStubFactory.create (ScriptEngine.class);
   private final ScriptEngine scriptEngine =
-    (ScriptEngine)m_scriptEngineStubFactory.getStub();
+    m_scriptEngineStubFactory.getStub();
 
   final LoggerImplementation m_loggerImplementation;
 
@@ -116,11 +118,11 @@ public class TestGrinderThread extends AbstractFileTestCase {
     m_processContextStubFactory.assertNoMoreCalls();
 
 
-    final RandomStubFactory threadLifeCycleListenerStubFactory =
-      new RandomStubFactory(ThreadLifeCycleListener.class);
-    final ThreadLifeCycleListener threadLifeCycleListener =
-      (ThreadLifeCycleListener)threadLifeCycleListenerStubFactory.getStub();
-    threadContext.registerThreadLifeCycleListener(threadLifeCycleListener);
+    final RandomStubFactory<ThreadLifeCycleListener>
+      threadLifeCycleListenerStubFactory =
+        RandomStubFactory.create(ThreadLifeCycleListener.class);
+    threadContext.registerThreadLifeCycleListener(
+      threadLifeCycleListenerStubFactory.getStub());
 
     grinderThread.run();
 
@@ -165,14 +167,12 @@ public class TestGrinderThread extends AbstractFileTestCase {
 
 
 
-    final RandomStubFactory workerRunnableStubFactory =
-      new RandomStubFactory(ScriptEngine.WorkerRunnable.class);
-    final ScriptEngine.WorkerRunnable workerRunnable =
-      (ScriptEngine.WorkerRunnable)workerRunnableStubFactory.getStub();
-
+    final RandomStubFactory<WorkerRunnable> workerRunnableStubFactory =
+      RandomStubFactory.create(ScriptEngine.WorkerRunnable.class);
 
     m_properties.setInt("grinder.runs", 0);
-    m_scriptEngineStubFactory.setResult("createWorkerRunnable", workerRunnable);
+    m_scriptEngineStubFactory.setResult("createWorkerRunnable",
+      workerRunnableStubFactory.getStub());
     workerRunnableStubFactory.setThrows("run",
       new MyScriptEngineException(new ShutdownException("bye")));
 
@@ -232,10 +232,8 @@ public class TestGrinderThread extends AbstractFileTestCase {
   }
 
   public void testRunWithWorkerRunnable() throws Exception {
-    final RandomStubFactory workerRunnableStubFactory =
-      new RandomStubFactory(WorkerRunnable.class);
-    final WorkerRunnable workerRunnable =
-      (WorkerRunnable)workerRunnableStubFactory.getStub();
+    final RandomStubFactory<WorkerRunnable> workerRunnableStubFactory =
+      RandomStubFactory.create(WorkerRunnable.class);
 
     final GrinderThread grinderThread =
       new GrinderThread(m_workerThreadSynchronisation,
@@ -243,7 +241,7 @@ public class TestGrinderThread extends AbstractFileTestCase {
                         m_loggerImplementation,
                         scriptEngine,
                         3,
-                        workerRunnable);
+                        workerRunnableStubFactory.getStub());
 
     m_workerThreadSynchronisationStubFactory.assertSuccess("threadCreated");
 
@@ -252,11 +250,11 @@ public class TestGrinderThread extends AbstractFileTestCase {
         "fireThreadCreatedEvent", ThreadContext.class).getParameters()[0];
     m_processContextStubFactory.assertNoMoreCalls();
 
-    final RandomStubFactory threadLifeCycleListenerStubFactory =
-      new RandomStubFactory(ThreadLifeCycleListener.class);
-    final ThreadLifeCycleListener threadLifeCycleListener =
-      (ThreadLifeCycleListener)threadLifeCycleListenerStubFactory.getStub();
-    threadContext.registerThreadLifeCycleListener(threadLifeCycleListener);
+    final RandomStubFactory<ThreadLifeCycleListener>
+      threadLifeCycleListenerStubFactory =
+        RandomStubFactory.create(ThreadLifeCycleListener.class);
+    threadContext.registerThreadLifeCycleListener(
+      threadLifeCycleListenerStubFactory.getStub());
 
     grinderThread.run();
 

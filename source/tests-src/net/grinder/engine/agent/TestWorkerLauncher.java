@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.engine.agent;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import junit.framework.TestCase;
 import net.grinder.common.Logger;
@@ -34,6 +35,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RedirectStandardStreams;
+import net.grinder.util.Directory;
 import net.grinder.util.thread.Condition;
 import net.grinder.util.thread.Executor;
 
@@ -90,7 +92,7 @@ public class TestWorkerLauncher extends TestCase {
 
     assertEquals(1, myProcessFactory.getChildProcesses().size());
     final Worker childProcess =
-      (Worker)myProcessFactory.getChildProcesses().get(0);
+      myProcessFactory.getChildProcesses().get(0);
 
     final CallData call =
       loggerStubFactory.assertSuccess("output", String.class);
@@ -101,10 +103,10 @@ public class TestWorkerLauncher extends TestCase {
     workerLauncher.startSomeWorkers(10);
     assertEquals(5, myProcessFactory.getNumberOfProcesses());
 
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertSuccess("output", String.class);
     loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(5, myProcessFactory.getChildProcesses().size());
@@ -112,7 +114,6 @@ public class TestWorkerLauncher extends TestCase {
     assertFalse(workerLauncher.allFinished());
 
     final Worker[] processes =
-      (Worker[])
       myProcessFactory.getChildProcesses().toArray(new Worker[0]);
 
     sendTerminationMessage(processes[0]);
@@ -169,7 +170,6 @@ public class TestWorkerLauncher extends TestCase {
     assertEquals(9, myProcessFactory.getChildProcesses().size());
 
     final Worker[] processes =
-      (Worker[])
       myProcessFactory.getChildProcesses().toArray(new Worker[0]);
 
     sendTerminationMessage(processes[0]);
@@ -263,7 +263,6 @@ public class TestWorkerLauncher extends TestCase {
     assertEquals(4, myProcessFactory.getChildProcesses().size());
 
     final Worker[] processes =
-      (Worker[])
       myProcessFactory.getChildProcesses().toArray(new Worker[0]);
 
     sendTerminationMessage(processes[1]);
@@ -318,7 +317,7 @@ public class TestWorkerLauncher extends TestCase {
     private int m_numberOfProcesses = 0;
     private OutputStream m_lastOutputStream;
     private OutputStream m_lastErrorStream;
-    private ArrayList m_childProcesses = new ArrayList();
+    private ArrayList<Worker> m_childProcesses = new ArrayList<Worker>();
     private StubAgentIdentity m_agentIdentity =
       new StubAgentIdentity("process");
 
@@ -337,7 +336,8 @@ public class TestWorkerLauncher extends TestCase {
 
       final Worker childProcess =
         new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-                          commandArray,
+                          Arrays.asList(commandArray),
+                          new Directory(),
                           outputStream,
                           errorStream);
       ++m_numberOfProcesses;
@@ -358,7 +358,7 @@ public class TestWorkerLauncher extends TestCase {
       return m_lastErrorStream;
     }
 
-    public ArrayList getChildProcesses() {
+    public ArrayList<Worker> getChildProcesses() {
       return m_childProcesses;
     }
   }

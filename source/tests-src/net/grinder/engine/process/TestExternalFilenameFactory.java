@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,16 +37,14 @@ import net.grinder.testutility.RandomStubFactory;
 public class TestExternalFilenameFactory extends TestCase {
 
   public void testProcessFilenameFactory() throws Exception {
-    final RandomStubFactory filenameFactoryStubFactory =
-      new RandomStubFactory(FilenameFactory.class);
-    final FilenameFactory processFilenameFactory =
-      (FilenameFactory)filenameFactoryStubFactory.getStub();
+    final RandomStubFactory<FilenameFactory> filenameFactoryStubFactory =
+      RandomStubFactory.create(FilenameFactory.class);
 
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
     final ExternalFilenameFactory externalFilenameFactory =
-      new ExternalFilenameFactory(processFilenameFactory,
+      new ExternalFilenameFactory(filenameFactoryStubFactory.getStub(),
                                   threadContextLocator);
 
     final String result1 = externalFilenameFactory.createFilename("Prefix");
@@ -67,31 +65,25 @@ public class TestExternalFilenameFactory extends TestCase {
   }
 
   public void testSeveralFilenameFactories() throws Exception {
-    final RandomStubFactory processFilenameFactoryStubFactory =
-      new RandomStubFactory(FilenameFactory.class);
-    final FilenameFactory processFilenameFactory =
-      (FilenameFactory)processFilenameFactoryStubFactory.getStub();
+    final RandomStubFactory<FilenameFactory> processFilenameFactoryStubFactory =
+      RandomStubFactory.create(FilenameFactory.class);
 
-    final RandomStubFactory threadFilenameFactoryStubFactory1 =
-      new RandomStubFactory(FilenameFactory.class);
-    final FilenameFactory threadFilenameFactory1 =
-      (FilenameFactory)threadFilenameFactoryStubFactory1.getStub();
+    final RandomStubFactory<FilenameFactory> threadFilenameFactoryStubFactory1 =
+      RandomStubFactory.create(FilenameFactory.class);
 
-    final RandomStubFactory threadFilenameFactoryStubFactory2 =
-      new RandomStubFactory(FilenameFactory.class);
-    final FilenameFactory threadFilenameFactory2 =
-      (FilenameFactory)threadFilenameFactoryStubFactory2.getStub();
+    final RandomStubFactory<FilenameFactory> threadFilenameFactoryStubFactory2 =
+      RandomStubFactory.create(FilenameFactory.class);
 
     final ThreadContextStubFactory threadContextFactory1 =
-      new ThreadContextStubFactory(threadFilenameFactory1);
+      new ThreadContextStubFactory(threadFilenameFactoryStubFactory1.getStub());
     final ThreadContext threadContext1 =
-      threadContextFactory1.getThreadContext();
+      threadContextFactory1.getStub();
 
     final ThreadContextLocator threadContextLocator =
        new StubThreadContextLocator();
 
     final ExternalFilenameFactory externalFilenameFactory =
-      new ExternalFilenameFactory(processFilenameFactory,
+      new ExternalFilenameFactory(processFilenameFactoryStubFactory.getStub(),
                                   threadContextLocator);
 
     threadContextLocator.set(threadContext1);
@@ -125,21 +117,19 @@ public class TestExternalFilenameFactory extends TestCase {
     threadFilenameFactoryStubFactory1.assertNoMoreCalls();
     threadFilenameFactoryStubFactory2.assertNoMoreCalls();
 
-    threadFilenameFactory2.createFilename("lah");
+    threadFilenameFactoryStubFactory2.getStub().createFilename("lah");
     threadFilenameFactoryStubFactory1.assertNoMoreCalls();
   }
 
   public void testMultithreaded() throws Exception {
-    final RandomStubFactory processFilenameFactoryStubFactory =
-      new RandomStubFactory(FilenameFactory.class);
-    final FilenameFactory processFilenameFactory =
-      (FilenameFactory)processFilenameFactoryStubFactory.getStub();
+    final RandomStubFactory<FilenameFactory> processFilenameFactoryStubFactory =
+      RandomStubFactory.create(FilenameFactory.class);
 
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
     final ExternalFilenameFactory externalFilenameFactory =
-      new ExternalFilenameFactory(processFilenameFactory,
+      new ExternalFilenameFactory(processFilenameFactoryStubFactory.getStub(),
                                   threadContextLocator);
 
     final TestThread threads[] = new TestThread[10];
@@ -171,15 +161,14 @@ public class TestExternalFilenameFactory extends TestCase {
     }
 
     public void run() {
-      final RandomStubFactory threadFilenameFactoryStubFactory =
-        new RandomStubFactory(FilenameFactory.class);
-      final FilenameFactory threadFilenameFactory =
-        (FilenameFactory)threadFilenameFactoryStubFactory.getStub();
-
+      final RandomStubFactory<FilenameFactory>
+        threadFilenameFactoryStubFactory =
+          RandomStubFactory.create(FilenameFactory.class);
       final ThreadContextStubFactory threadContextFactory =
-        new ThreadContextStubFactory(threadFilenameFactory);
+        new ThreadContextStubFactory(
+          threadFilenameFactoryStubFactory.getStub());
       final ThreadContext threadContext =
-        threadContextFactory.getThreadContext();
+        threadContextFactory.getStub();
 
       m_threadContextLocator.set(threadContext);
 
@@ -214,17 +203,14 @@ public class TestExternalFilenameFactory extends TestCase {
    * Must be public so that override_ methods can be called
    * externally.
    */
-  public static class ThreadContextStubFactory extends RandomStubFactory {
+  public static class ThreadContextStubFactory
+    extends RandomStubFactory<ThreadContext> {
 
     private final FilenameFactory m_filenameFactory;
 
     public ThreadContextStubFactory(FilenameFactory filenameFactory) {
       super(ThreadContext.class);
       m_filenameFactory = filenameFactory;
-    }
-
-    public final ThreadContext getThreadContext() {
-      return (ThreadContext)getStub();
     }
 
     public FilenameFactory override_getFilenameFactory(Object proxy) {

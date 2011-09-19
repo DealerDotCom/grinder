@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,12 +47,12 @@ import junit.framework.TestCase;
  * Unit tests for {@link TextUI}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestTextUI extends TestCase {
 
-  private final Resources m_resources = new StubResources(
-    new HashMap() {{
+  private final Resources m_resources = new StubResources<String>(
+    new HashMap<String, String>() {{
       put("finished.text", "done");
       put("noConnectedAgents.text", "no agents!");
       put("processTable.threads.label", "strings");
@@ -70,15 +70,15 @@ public class TestTextUI extends TestCase {
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
   private final Logger m_logger = m_loggerStubFactory.getLogger();
 
-  private final RandomStubFactory m_processControlStubFactory =
-    new RandomStubFactory(ProcessControl.class);
+  private final RandomStubFactory<ProcessControl> m_processControlStubFactory =
+    RandomStubFactory.create(ProcessControl.class);
   private final ProcessControl m_processControl =
-    (ProcessControl)m_processControlStubFactory.getStub();
+    m_processControlStubFactory.getStub();
 
-  final RandomStubFactory m_sampleModelStubFactory =
-    new RandomStubFactory(SampleModel.class);
+  final RandomStubFactory<SampleModel> m_sampleModelStubFactory =
+    RandomStubFactory.create(SampleModel.class);
   final SampleModel m_sampleModel =
-    (SampleModel)m_sampleModelStubFactory.getStub();
+    m_sampleModelStubFactory.getStub();
 
   public void testErrorHandler() throws Exception {
     final TextUI textUI =

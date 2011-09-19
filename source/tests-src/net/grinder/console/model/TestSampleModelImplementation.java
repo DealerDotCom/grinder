@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,6 +36,7 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.StubResources;
 import net.grinder.console.model.SampleModel.AbstractListener;
+import net.grinder.console.model.SampleModel.Listener;
 import net.grinder.console.model.SampleModel.State;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsServices;
@@ -52,12 +53,12 @@ import net.grinder.testutility.StubTimer;
  * Unit tests for {@link SampleModelImplementation}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestSampleModelImplementation extends AbstractFileTestCase {
 
-  private final Resources m_resources = new StubResources(
-    new HashMap() {{
+  private final Resources m_resources = new StubResources<String>(
+    new HashMap<String, String>() {{
       put("state.ignoring.label", "whatever");
       put("state.waiting.label", "waiting, waiting, waiting");
       put("state.stopped.label", "done");
@@ -72,15 +73,15 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
   private StubTimer m_timer;
 
-  private final RandomStubFactory m_listenerStubFactory =
-    new RandomStubFactory(SampleModel.Listener.class);
+  private final RandomStubFactory<Listener> m_listenerStubFactory =
+    RandomStubFactory.create(SampleModel.Listener.class);
   private final SampleModel.Listener m_listener =
-    (SampleModel.Listener)m_listenerStubFactory.getStub();
+    m_listenerStubFactory.getStub();
 
-  final RandomStubFactory m_errorHandlerStubFactory =
-    new RandomStubFactory(ErrorHandler.class);
+  final RandomStubFactory<ErrorHandler> m_errorHandlerStubFactory =
+    RandomStubFactory.create(ErrorHandler.class);
   final ErrorHandler m_errorHandler =
-    (ErrorHandler)m_errorHandlerStubFactory.getStub();
+    m_errorHandlerStubFactory.getStub();
 
   protected void setUp() throws Exception {
     super.setUp();
@@ -127,6 +128,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     assertNull(m_timer.getLastScheduledTimerTask());
   }
 
+  @SuppressWarnings("unchecked")
   public void testRegisterTests() throws Exception {
     final SampleModelImplementation sampleModelImplementation =
       new SampleModelImplementation(m_consoleProperties,
@@ -137,7 +139,8 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
     sampleModelImplementation.addModelListener(m_listener);
 
-    sampleModelImplementation.registerTests(Collections.EMPTY_SET);
+    final Set<Test> emptySet = Collections.emptySet();
+    sampleModelImplementation.registerTests(emptySet);
     m_listenerStubFactory.assertNoMoreCalls();
 
     final Test test1 = new StubTest(1, "test 1");
@@ -145,7 +148,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     final Test test3 = new StubTest(3, "test 3");
     final Test test4 = new StubTest(4, "test 4");
 
-    final List testList = new ArrayList() { {
+    final List<Test> testList = new ArrayList<Test>() { {
       add(test2);
       add(test1);
       add(test3);
@@ -159,7 +162,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
     Collections.sort(testList);
 
-    final Set callbackTestSet = (Set)callbackParameters[0];
+    final Set<Test> callbackTestSet = (Set<Test>)callbackParameters[0];
     assertTrue(testList.containsAll(callbackTestSet));
     assertTrue(callbackTestSet.containsAll(testList));
 
@@ -171,7 +174,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
       assertEquals(testList.get(i), modelIndex.getTest(i));
     }
 
-    final List testList2 = new ArrayList() { {
+    final List<Test> testList2 = new ArrayList<Test>() { {
       add(test2);
       add(test4);
     } };
@@ -182,11 +185,11 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
       "newTests", Set.class, ModelTestIndex.class).getParameters();
     m_listenerStubFactory.assertNoMoreCalls();
 
-    final Set expectedNewTests = new HashSet() { {
+    final Set<Test> expectedNewTests = new HashSet<Test>() { {
       add(test4);
     } };
 
-    final Set callbackTestSet2 = (Set)callbackParameters2[0];
+    final Set<Test> callbackTestSet2 = (Set<Test>)callbackParameters2[0];
     assertTrue(expectedNewTests.containsAll(callbackTestSet2));
     assertTrue(callbackTestSet2.containsAll(expectedNewTests));
 
@@ -361,28 +364,26 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
                                     m_resources,
                                     m_errorHandler);
 
-    final RandomStubFactory totalSampleListenerStubFactory =
-      new RandomStubFactory(SampleListener.class);
-    final SampleListener totalSampleListener =
-      (SampleListener)totalSampleListenerStubFactory.getStub();
-
-    sampleModelImplementation.addTotalSampleListener(totalSampleListener);
+    final RandomStubFactory<SampleListener> totalSampleListenerStubFactory =
+      RandomStubFactory.create(SampleListener.class);
+    sampleModelImplementation.addTotalSampleListener(
+      totalSampleListenerStubFactory.getStub());
 
     final Test test1 = new StubTest(1, "test 1");
     final Test test2 = new StubTest(2, "test 2");
     final Test test3 = new StubTest(3, "test 3");
     final Test test4 = new StubTest(4, "test 4");
 
-    final RandomStubFactory sampleListenerStubFactory =
-      new RandomStubFactory(SampleListener.class);
+    final RandomStubFactory<SampleListener> sampleListenerStubFactory =
+      RandomStubFactory.create(SampleListener.class);
     final SampleListener sampleListener =
-      (SampleListener)sampleListenerStubFactory.getStub();
+      sampleListenerStubFactory.getStub();
 
     // Adding a listener for a test that isn't registered is a no-op.
     sampleModelImplementation.addSampleListener(test1, sampleListener);
 
 
-    final Set testSet = new HashSet() { {
+    final Set<Test> testSet = new HashSet<Test>() { {
       add(test2);
       add(test4);
     } };

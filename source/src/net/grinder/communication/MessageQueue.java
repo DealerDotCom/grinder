@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,8 @@
 
 package net.grinder.communication;
 
+import java.io.Serializable;
+
 import net.grinder.util.thread.ThreadSafeQueue;
 
 
@@ -32,7 +34,9 @@ import net.grinder.util.thread.ThreadSafeQueue;
  */
 final class MessageQueue {
 
-  private final ThreadSafeQueue m_queue = new ThreadSafeQueue();
+  private final ThreadSafeQueue<Serializable> m_queue =
+    new ThreadSafeQueue<Serializable>();
+
   private final boolean m_passExceptions;
 
   /**

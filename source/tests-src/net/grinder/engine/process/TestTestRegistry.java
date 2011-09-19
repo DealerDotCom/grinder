@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,15 +39,16 @@ import net.grinder.util.TimeAuthorityStubFactory;
  * @version $Revision$
  */
 public class TestTestRegistry extends TestCase {
-  private final RandomStubFactory m_testStatisticsHelperStubFactory =
-    new RandomStubFactory(TestStatisticsHelper.class);
+  private final RandomStubFactory<TestStatisticsHelper>
+    m_testStatisticsHelperStubFactory =
+      RandomStubFactory.create(TestStatisticsHelper.class);
   private final TestStatisticsHelper m_testStatisticsHelper =
-    (TestStatisticsHelper)m_testStatisticsHelperStubFactory.getStub();
+    m_testStatisticsHelperStubFactory.getStub();
 
   private final TimeAuthorityStubFactory m_timeAuthorityStubFactory =
     new TimeAuthorityStubFactory();
   private final TimeAuthority m_timeAuthority =
-    m_timeAuthorityStubFactory.getTimeAuthority();
+    m_timeAuthorityStubFactory.getStub();
 
   public TestTestRegistry(String name) {
     super(name);
@@ -93,12 +94,10 @@ public class TestTestRegistry extends TestCase {
     catch (AssertionError e) {
     }
 
-    final RandomStubFactory scriptEngineStubFactory =
-      new RandomStubFactory(ScriptEngine.class);
-    final Instrumenter scriptEngine =
-      (Instrumenter)scriptEngineStubFactory.getStub();
-
-    testRegistryImplementation.setInstrumenter(scriptEngine);
+    final RandomStubFactory<Instrumenter> instrumenterStubFactory =
+      RandomStubFactory.create(Instrumenter.class);
+    testRegistryImplementation.setInstrumenter(
+      instrumenterStubFactory.getStub());
 
     final TestRegistryImplementation.RegisteredTest registeredTest1a =
       testRegistryImplementation.register(test1);

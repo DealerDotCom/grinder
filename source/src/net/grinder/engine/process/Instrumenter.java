@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,8 @@
 package net.grinder.engine.process;
 
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Dispatcher;
+import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 
 
@@ -30,19 +31,46 @@ import net.grinder.script.NotWrappableTypeException;
  * A factory for instrumented proxies.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public interface Instrumenter {
 
   /**
    * Create a proxy object that wraps an target object for a test.
    *
-   * @param test The test.
-   * @param dispatcher The proxy should use this to dispatch the work.
-   * @param o Object to wrap.
+   * @param test
+   *          The test.
+   * @param recorder
+   *          The proxy should use this to instrument the work.
+   * @param target
+   *          Object to wrap.
    * @return The instrumented proxy.
-   * @throws NotWrappableTypeException If the target cannot be wrapped.
+   * @throws NotWrappableTypeException
+   *           If the target object cannot be wrapped.
    */
-  Object createInstrumentedProxy(Test test, Dispatcher dispatcher, Object o)
+  Object createInstrumentedProxy(Test test, Recorder recorder, Object target)
     throws NotWrappableTypeException;
+
+  /**
+   * Instrument a target object with a test.
+   *
+   * @param test
+   *          The test.
+   * @param recorder
+   *          Wire the instrumentation to this {@link Recorder}.
+   * @param target
+   *          The object to instrument.
+   * @return {@code true} if instrumentation was added.
+   * @throws NonInstrumentableTypeException
+   *           If the target object cannot be instrumented.
+   */
+  boolean instrument(Test test, Recorder recorder, Object target)
+    throws NonInstrumentableTypeException;
+
+  /**
+   * Public description of the {@code Instrumenter}.
+   *
+   * @return The description; {@code null} for internal {@code Instrumenters}.
+   */
+  String getDescription();
 }

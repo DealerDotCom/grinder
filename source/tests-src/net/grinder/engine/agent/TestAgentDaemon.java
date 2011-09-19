@@ -1,5 +1,5 @@
 // Copyright (C) 2008 Pawel Lacinski
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,16 +40,16 @@ import net.grinder.util.Sleeper.ShutdownException;
  *
  * @author
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestAgentDaemon extends AbstractFileTestCase {
 
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
   private final Logger m_logger = m_loggerStubFactory.getLogger();
 
-  private final RandomStubFactory m_agentStubFactory =
-    new RandomStubFactory(Agent.class);
-  private final Agent m_agent = (Agent)m_agentStubFactory.getStub();
+  private final RandomStubFactory<Agent> m_agentStubFactory =
+    RandomStubFactory.create(Agent.class);
+  private final Agent m_agent = m_agentStubFactory.getStub();
 
   public void testConstruction() throws Exception {
     final File propertyFile = new File(getDirectory(), "properties");
@@ -79,7 +79,7 @@ public class TestAgentDaemon extends AbstractFileTestCase {
       } );
 
     final AgentDaemon agentDaemon =
-      new AgentDaemon(m_logger, 1000, m_agent, sleeperStubFactory.getSleeper());
+      new AgentDaemon(m_logger, 1000, m_agent, sleeperStubFactory.getStub());
 
     agentDaemon.run();
 
@@ -107,7 +107,7 @@ public class TestAgentDaemon extends AbstractFileTestCase {
       assertSame(runException, e);
     }
 
-    m_agentStubFactory.assertException("run", new Object[0], runException);
+    m_agentStubFactory.assertException("run", runException);
 
     assertTrue(Runtime.getRuntime().removeShutdownHook(shutdownHook));
 
@@ -117,7 +117,12 @@ public class TestAgentDaemon extends AbstractFileTestCase {
     m_agentStubFactory.assertNoMoreCalls();
   }
 
-  public static class ActionListSleeperStubFactory extends RandomStubFactory {
+  public static class ActionListSleeperStubFactory
+    // Good grief. Some horrible javac issue means we need to fully qualify
+    // this.
+    extends net.grinder.testutility.RandomStubFactory<
+            net.grinder.util.Sleeper> {
+
     public interface SleepAction {
       void sleep(long time) throws ShutdownException;
     }
@@ -128,10 +133,6 @@ public class TestAgentDaemon extends AbstractFileTestCase {
     public ActionListSleeperStubFactory(SleepAction[] actions) {
       super(Sleeper.class);
       m_actions = actions;
-    }
-
-    public Sleeper getSleeper() {
-      return (Sleeper)getStub();
     }
 
     public void override_sleepNormal(Object proxy, long time)

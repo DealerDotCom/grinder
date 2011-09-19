@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link SlowClientBandwidthLimiterFactory}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestSlowClientBandwidthLimiterFactory extends TestCase {
 
@@ -48,12 +48,10 @@ public class TestSlowClientBandwidthLimiterFactory extends TestCase {
   }
 
   public void testSlowClientBandwidthLimiter() throws Exception {
-    final RandomStubFactory sleeperStubFactory =
-      new RandomStubFactory(Sleeper.class);
-    final Sleeper sleeper = (Sleeper)sleeperStubFactory.getStub();
-
+    final RandomStubFactory<Sleeper> sleeperStubFactory =
+      RandomStubFactory.create(Sleeper.class);
     final SlowClientBandwidthLimiterFactory slowClientBandwidthLimiterFactory =
-      new SlowClientBandwidthLimiterFactory(sleeper, 1000);
+      new SlowClientBandwidthLimiterFactory(sleeperStubFactory.getStub(), 1000);
 
     final BandwidthLimiter slowClientBandwidthLimiter =
       slowClientBandwidthLimiterFactory.create();

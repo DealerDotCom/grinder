@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,5 +38,15 @@ public class NotWrappableTypeException extends GrinderException {
    */
   public NotWrappableTypeException(String s) {
     super(s);
+  }
+
+  /**
+   * Creates a new <code>NotWrappableTypeException</code> instance.
+   *
+   * @param s Exception message.
+   * @param cause Cause.
+   */
+  public NotWrappableTypeException(String s, Throwable cause) {
+    super(s, cause);
   }
 }

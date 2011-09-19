@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
 import net.grinder.common.Test;
+import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.util.FixedWidthFormatter;
 
 
@@ -49,45 +50,51 @@ public class StatisticsTable {
   private final String m_lineSeparator = System.getProperty("line.separator");
 
   private final FixedWidthFormatter m_headingFormatter =
-    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_WORD_WRAP,
+    new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                            FixedWidthFormatter.Flow.WORD_WRAP,
                             COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_rowLabelFormatter =
-    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_TRUNCATE,
+    new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                            FixedWidthFormatter.Flow.OVERFLOW,
                             COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_rowCellFormatter =
-    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_TRUNCATE,
+    new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                            FixedWidthFormatter.Flow.TRUNCATE,
                             COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_freeTextFormatter =
-    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                            FixedWidthFormatter.FLOW_WORD_WRAP,
+    new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                            FixedWidthFormatter.Flow.WORD_WRAP,
                             72);
 
   private final StatisticsView m_statisticsView;
+  private final LongIndex m_periodIndex;
 
   /**
    * Creates a new <code>StatisticsTable</code> instance.
    *
    * @param statisticsView Views.
+   * @param statisticsIndexMap The statistics index map.
    * @param testStatisticsMap Tests and associated statistics.
    */
   public StatisticsTable(StatisticsView statisticsView,
+                         StatisticsIndexMap statisticsIndexMap,
                          TestStatisticsMap testStatisticsMap) {
     m_statisticsView = statisticsView;
     m_testStatisticsMap = testStatisticsMap;
+
+    m_periodIndex = statisticsIndexMap.getLongIndex("period");
   }
 
   /**
    * Write the table out an output writer.
    *
    * @param out The output writer
+   * @param elapsedTime  The elapsed time.
    */
-  public final void print(final PrintWriter out) {
+  public final void print(final PrintWriter out, final long elapsedTime) {
   final ExpressionView[] expressionViews =
       m_statisticsView.getExpressionViews();
 
@@ -139,6 +146,7 @@ public class StatisticsTable {
 
       m_testStatisticsMap.new ForEach() {
         public void next(Test test, StatisticsSet statistics) {
+          statistics.setValue(m_periodIndex, elapsedTime);
           out.print(formatter.format("Test " + test.getNumber(), statistics));
 
           final String testDescription = test.getDescription();
@@ -154,14 +162,21 @@ public class StatisticsTable {
       .iterate();
 
       out.println();
+
+      final StatisticsSet nonCompositeStatisticsTotals =
+        m_testStatisticsMap.nonCompositeStatisticsTotals();
+      nonCompositeStatisticsTotals.setValue(m_periodIndex, elapsedTime);
+
       out.println(
         formatter.format(
-          "Totals", m_testStatisticsMap.nonCompositeStatisticsTotals()));
+          "Totals", nonCompositeStatisticsTotals));
 
       final StatisticsSet compositeStatisticsTotals =
         m_testStatisticsMap.compositeStatisticsTotals();
 
       if (!compositeStatisticsTotals.isZero()) {
+        compositeStatisticsTotals.setValue(m_periodIndex, elapsedTime);
+
         out.println(
           compositeTotalsFormatter.format("", compositeStatisticsTotals));
       }

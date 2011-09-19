@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,18 +31,22 @@ import java.lang.reflect.Method;
  *
  * @author    Philip Aston
  */
-public final class DelegatingStubFactory extends AbstractStubFactory {
+public final class DelegatingStubFactory<T> extends AbstractStubFactory<T> {
 
-  public DelegatingStubFactory(Object delegate) {
-    super(delegate.getClass(), new DelegatingInvocationHandler(delegate));
+  public static <T> DelegatingStubFactory<T> create(T delegate) {
+    return new DelegatingStubFactory<T>(delegate);
   }
 
-  private static final class DelegatingInvocationHandler
+  private DelegatingStubFactory(T delegate) {
+    super(getClass(delegate), new DelegatingInvocationHandler<T>(delegate));
+  }
+
+  private static final class DelegatingInvocationHandler<T>
     implements InvocationHandler {
 
-    private final Object m_delegate;
+    private final T m_delegate;
 
-    public DelegatingInvocationHandler(Object delegate) {
+    public DelegatingInvocationHandler(T delegate) {
       m_delegate = delegate;
     }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,7 +33,9 @@ import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplem
 import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
+import net.grinder.util.Directory;
 import net.grinder.util.IsolatingClassLoader;
+import net.grinder.util.weave.agent.ExposeInstrumentation;
 
 
 /**
@@ -45,7 +47,7 @@ import net.grinder.util.IsolatingClassLoader;
  */
 final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
 
-  private static Class s_isolatedRunnerClass =
+  private static Class<?> s_isolatedRunnerClass =
     IsolatedGrinderProcessRunner.class;
 
   private String[] m_sharedClassArray;
@@ -53,7 +55,7 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
   /**
    * Allow unit tests to change the IsolateGrinderProcessRunner.
    */
-  static void setIsolatedRunnerClass(Class isolatedRunnerClass) {
+  static void setIsolatedRunnerClass(Class<?> isolatedRunnerClass) {
     if (isolatedRunnerClass != null) {
       s_isolatedRunnerClass = isolatedRunnerClass;
     }
@@ -74,30 +76,34 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
           script,
           properties);
 
-    final List sharedClasses = new ArrayList();
+    final List<String> sharedClasses = new ArrayList<String>();
 
     sharedClasses.add(IsolateGrinderProcessRunner.class.getName());
+    sharedClasses.add(ExposeInstrumentation.class.getName());
 
     sharedClasses.addAll(Arrays.asList(
       properties.getProperty("grinder.debug.singleprocess.sharedclasses", "")
       .split(",")));
 
-
-    m_sharedClassArray = (String[])
+    m_sharedClassArray =
       sharedClasses.toArray(new String[sharedClasses.size()]);
   }
 
+  @Override
   protected Worker createWorker(WorkerIdentityImplementation workerIdentity,
+                                Directory workingDirectory,
                                 OutputStream outputStream,
                                 OutputStream errorStream)
     throws EngineException {
+
+    // Unfortunately, we can't respect the working directory.
 
     final ClassLoader classLoader =
       new IsolatingClassLoader((URLClassLoader)getClass().getClassLoader(),
                                m_sharedClassArray,
                                true);
 
-    final Class isolatedRunnerClass;
+    final Class<?> isolatedRunnerClass;
 
     try {
       isolatedRunnerClass =

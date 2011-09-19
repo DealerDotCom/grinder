@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,9 +24,9 @@ package net.grinder.console.swingui;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -46,7 +46,9 @@ import javax.swing.tree.TreePath;
  */
 final class CompositeTreeModel implements TreeModel {
 
-  private final List m_wrappers = new ArrayList();
+  private final List<DelegateWrapper> m_wrappers =
+    new ArrayList<DelegateWrapper>();
+
   private final EventListenerList m_listeners = new EventListenerList();
 
   private final Object m_rootNode = new Object();
@@ -86,11 +88,7 @@ final class CompositeTreeModel implements TreeModel {
     else if (parent.equals(getRoot())) {
       int base = 0;
 
-      final Iterator iterator = m_wrappers.iterator();
-
-      while (iterator.hasNext()) {
-        final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
-
+      for (DelegateWrapper wrapper : m_wrappers) {
         final int numberOfTopLevelNodes = wrapper.getNumberOfTopLevelNodes();
 
         if (index - base < numberOfTopLevelNodes) {
@@ -101,11 +99,7 @@ final class CompositeTreeModel implements TreeModel {
       }
     }
     else {
-      final Iterator iterator = m_wrappers.iterator();
-
-      while (iterator.hasNext()) {
-        final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
-
+      for (DelegateWrapper wrapper : m_wrappers) {
         final Object delegateAnswer = wrapper.getChild(parent, index);
 
         if (delegateAnswer != null) {
@@ -121,21 +115,14 @@ final class CompositeTreeModel implements TreeModel {
     if (parent.equals(getRoot())) {
       int answer = 0;
 
-      final Iterator iterator = m_wrappers.iterator();
-
-      while (iterator.hasNext()) {
-        final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
+      for (DelegateWrapper wrapper : m_wrappers) {
         answer += wrapper.getNumberOfTopLevelNodes();
       }
 
       return answer;
     }
     else {
-      final Iterator iterator = m_wrappers.iterator();
-
-      while (iterator.hasNext()) {
-        final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
-
+      for (DelegateWrapper wrapper : m_wrappers) {
         final int delegateAnswer = wrapper.getChildCount(parent);
 
         if (delegateAnswer != 0) {
@@ -157,11 +144,7 @@ final class CompositeTreeModel implements TreeModel {
     if (parent.equals(getRoot())) {
       int base = 0;
 
-      final Iterator iterator = m_wrappers.iterator();
-
-      while (iterator.hasNext()) {
-        final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
-
+      for (DelegateWrapper wrapper : m_wrappers) {
         final int delegateAnswer = wrapper.getIndexOfTopLevelNode(child);
 
         if (delegateAnswer != -1) {
@@ -172,13 +155,8 @@ final class CompositeTreeModel implements TreeModel {
       }
     }
     else {
-      final Iterator iterator = m_wrappers.iterator();
-
-      while (iterator.hasNext()) {
-        final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
-
-        final int delegateAnswer =
-          wrapper.getIndexOfChild(parent, child);
+      for (DelegateWrapper wrapper : m_wrappers) {
+        final int delegateAnswer = wrapper.getIndexOfChild(parent, child);
 
         if (delegateAnswer != -1) {
           return delegateAnswer;
@@ -190,11 +168,7 @@ final class CompositeTreeModel implements TreeModel {
   }
 
   public boolean isLeaf(Object node) {
-    final Iterator iterator = m_wrappers.iterator();
-
-    while (iterator.hasNext()) {
-      final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
-
+    for (DelegateWrapper wrapper : m_wrappers) {
       if (wrapper.isLeaf(node)) {
         return true;
       }
@@ -206,10 +180,7 @@ final class CompositeTreeModel implements TreeModel {
   public void addTreeModelListener(TreeModelListener listener) {
     m_listeners.add(TreeModelListener.class, listener);
 
-    final Iterator iterator = m_wrappers.iterator();
-
-    while (iterator.hasNext()) {
-      final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
+    for (DelegateWrapper wrapper : m_wrappers) {
       wrapper.addTreeModelListener(listener);
     }
   }
@@ -217,10 +188,7 @@ final class CompositeTreeModel implements TreeModel {
   public void removeTreeModelListener(TreeModelListener listener) {
     m_listeners.remove(TreeModelListener.class, listener);
 
-    final Iterator iterator = m_wrappers.iterator();
-
-    while (iterator.hasNext()) {
-      final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
+    for (DelegateWrapper wrapper : m_wrappers) {
       wrapper.removeTreeModelListener(listener);
     }
   }
@@ -231,7 +199,9 @@ final class CompositeTreeModel implements TreeModel {
 
   private abstract static class DelegateWrapper {
     private final TreeModel m_model;
-    private final Map m_delegateListenerMap = new HashMap();
+    private final
+      Map<TreeModelListener, TreeModelListener> m_delegateListenerMap =
+        new HashMap<TreeModelListener, TreeModelListener>();
 
     protected DelegateWrapper(TreeModel model) {
       m_model = model;
@@ -311,7 +281,7 @@ final class CompositeTreeModel implements TreeModel {
 
     public void removeTreeModelListener(TreeModelListener listener) {
       final TreeModelListener delegateListener =
-        (TreeModelListener) m_delegateListenerMap.remove(listener);
+        m_delegateListenerMap.remove(listener);
 
       if (delegateListener != null) {
         getModel().removeTreeModelListener(delegateListener);

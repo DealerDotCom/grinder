@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -57,9 +57,10 @@ import net.grinder.util.Directory;
 
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.Parameter;
-import org.picocontainer.defaults.ComponentParameter;
-import org.picocontainer.defaults.ConstantParameter;
-import org.picocontainer.defaults.DefaultPicoContainer;
+import org.picocontainer.behaviors.Caching;
+import org.picocontainer.parameters.ComponentParameter;
+import org.picocontainer.parameters.ConstantParameter;
+import org.picocontainer.DefaultPicoContainer;
 
 
 /**
@@ -115,30 +116,20 @@ public final class ConsoleFoundation {
 
     m_timer = timer;
 
-    m_container = new DefaultPicoContainer();
-    m_container.registerComponentInstance(logger);
-    m_container.registerComponentInstance(resources);
-    m_container.registerComponentInstance(properties);
-    m_container.registerComponentInstance(timer);
-    m_container.registerComponentInstance(
-      StatisticsServicesImplementation.getInstance());
+    m_container = new DefaultPicoContainer(new Caching());
+    m_container.addComponent(logger);
+    m_container.addComponent(resources);
+    m_container.addComponent(properties);
+    m_container.addComponent(timer);
+    m_container.addComponent(StatisticsServicesImplementation.getInstance());
 
-    m_container.registerComponentImplementation(
-      SampleModelImplementation.class);
+    m_container.addComponent(SampleModelImplementation.class);
+    m_container.addComponent(SampleModelViewsImplementation.class);
+    m_container.addComponent(ConsoleCommunicationImplementation.class);
+    m_container.addComponent(DistributionControlImplementation.class);
+    m_container.addComponent(ProcessControlImplementation.class);
 
-    m_container.registerComponentImplementation(
-      SampleModelViewsImplementation.class);
-
-    m_container.registerComponentImplementation(
-      ConsoleCommunicationImplementation.class);
-
-    m_container.registerComponentImplementation(
-      DistributionControlImplementation.class);
-
-    m_container.registerComponentImplementation(
-      ProcessControlImplementation.class);
-
-    m_container.registerComponentImplementation(
+    m_container.addComponent(
       FileDistributionImplementation.class,
       FileDistributionImplementation.class,
       new Parameter[] {
@@ -148,13 +139,13 @@ public final class ConsoleFoundation {
         new ConstantParameter(properties.getDistributionFileFilterPattern()),
       });
 
-    m_container.registerComponentImplementation(DispatchClientCommands.class);
+    m_container.addComponent(DispatchClientCommands.class);
 
-    m_container.registerComponentImplementation(WireFileDistribution.class);
+    m_container.addComponent(WireFileDistribution.class);
 
-    m_container.registerComponentImplementation(WireMessageDispatch.class);
+    m_container.addComponent(WireMessageDispatch.class);
 
-    m_container.registerComponentImplementation(ErrorQueue.class);
+    m_container.addComponent(ErrorQueue.class);
   }
 
   /**
@@ -167,13 +158,12 @@ public final class ConsoleFoundation {
    *            {@link ConsoleFoundation.UI}.
    * @return An instance of the user interface class.
    */
-  public UI createUI(Class uiClass) {
-    m_container.registerComponentImplementation(uiClass);
+  public UI createUI(Class<? extends UI> uiClass) {
+    m_container.addComponent(uiClass);
 
-    final UI ui = (UI) m_container.getComponentInstanceOfType(uiClass);
+    final UI ui = m_container.getComponent(uiClass);
 
-    final ErrorQueue errorQueue =
-      (ErrorQueue)m_container.getComponentInstanceOfType(ErrorQueue.class);
+    final ErrorQueue errorQueue = m_container.getComponent(ErrorQueue.class);
 
     errorQueue.setErrorHandler(ui.getErrorHandler());
 
@@ -186,8 +176,7 @@ public final class ConsoleFoundation {
    */
   public void shutdown() {
     final ConsoleCommunication communication =
-      (ConsoleCommunication)m_container.getComponentInstanceOfType(
-        ConsoleCommunication.class);
+      m_container.getComponent(ConsoleCommunication.class);
 
     communication.shutdown();
 
@@ -202,12 +191,11 @@ public final class ConsoleFoundation {
     m_container.start();
 
     final ConsoleCommunication communication =
-      (ConsoleCommunication)m_container.getComponentInstanceOfType(
-        ConsoleCommunication.class);
+      m_container.getComponent(ConsoleCommunication.class);
 
     // Need to request components, or they won't be instantiated.
-    m_container.getComponentInstanceOfType(WireMessageDispatch.class);
-    m_container.getComponentInstanceOfType(WireFileDistribution.class);
+    m_container.getComponent(WireMessageDispatch.class);
+    m_container.getComponent(WireFileDistribution.class);
 
     while (communication.processOneMessage()) {
       // Process until communication is shut down.

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,6 +39,7 @@ import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.editor.StringTextSource;
 import net.grinder.console.editor.TextSource;
+import net.grinder.console.editor.StringTextSource.Factory;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.DelegatingStubFactory;
 import net.grinder.testutility.RandomStubFactory;
@@ -48,25 +49,28 @@ public class TestFileTree extends AbstractFileTestCase {
   private static final Resources s_resources =
     new ResourcesImplementation(
       "net.grinder.console.common.resources.Console");
-  private final RandomStubFactory m_errorHandlerStubFactory =
-    new RandomStubFactory(ErrorHandler.class);
+  private final RandomStubFactory<ErrorHandler> m_errorHandlerStubFactory =
+    RandomStubFactory.create(ErrorHandler.class);
   private final ErrorHandler m_errorHandler =
-    (ErrorHandler)m_errorHandlerStubFactory.getStub();
+    m_errorHandlerStubFactory.getStub();
 
   private final StringTextSource.Factory m_stringTextSourceFactory =
     new StringTextSource.Factory();
-  private final DelegatingStubFactory m_textSourceFactoryStubFactory =
-    new DelegatingStubFactory(m_stringTextSourceFactory);
+  private final DelegatingStubFactory<Factory>
+    m_textSourceFactoryStubFactory =
+      DelegatingStubFactory.create(m_stringTextSourceFactory);
   private final TextSource.Factory m_textSourceFactory =
-    (TextSource.Factory)m_textSourceFactoryStubFactory.getStub();
-  private final RandomStubFactory m_agentCacheStateStubFactory =
-    new RandomStubFactory(AgentCacheState.class);
+    m_textSourceFactoryStubFactory.getStub();
+  private final RandomStubFactory<AgentCacheState>
+    m_agentCacheStateStubFactory =
+      RandomStubFactory.create(AgentCacheState.class);
   private final AgentCacheState m_agentCacheState =
-    (AgentCacheState)m_agentCacheStateStubFactory.getStub();
-  private final RandomStubFactory m_fileChangeWatcherStubFactory =
-    new RandomStubFactory(FileChangeWatcher.class);
+    m_agentCacheStateStubFactory.getStub();
+  private final RandomStubFactory<FileChangeWatcher>
+    m_fileChangeWatcherStubFactory =
+      RandomStubFactory.create(FileChangeWatcher.class);
   private final FileChangeWatcher m_fileChangeWatcher =
-    (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
+    m_fileChangeWatcherStubFactory.getStub();
 
   private final FileFilter m_nullFileFilter = new FileFilter() {
       public boolean accept(File pathname) {
@@ -82,8 +86,7 @@ public class TestFileTree extends AbstractFileTestCase {
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel =
-      new FileTreeModel(editorModel, m_nullFileFilter);
-    fileTreeModel.setRootDirectory(new File("c:"));
+      new FileTreeModel(editorModel, m_nullFileFilter, new File("c:"));
 
     final FileTree fileTree = new FileTree(s_resources,
       m_errorHandler, editorModel, bufferTreeModel, fileTreeModel,
@@ -103,9 +106,7 @@ public class TestFileTree extends AbstractFileTestCase {
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel =
-      new FileTreeModel(editorModel, m_nullFileFilter);
-
-    fileTreeModel.setRootDirectory(new File("c:"));
+      new FileTreeModel(editorModel, m_nullFileFilter, new File("c:"));
 
     new FileTree(s_resources, m_errorHandler, editorModel, bufferTreeModel,
                  fileTreeModel, new JLabel().getFont(), new JPopupMenu(), null);
@@ -148,9 +149,7 @@ public class TestFileTree extends AbstractFileTestCase {
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel =
-      new FileTreeModel(editorModel, m_nullFileFilter);
-
-    fileTreeModel.setRootDirectory(getDirectory());
+      new FileTreeModel(editorModel, m_nullFileFilter, getDirectory());
 
     final FileTree fileTree =
       new FileTree(s_resources, m_errorHandler, editorModel,

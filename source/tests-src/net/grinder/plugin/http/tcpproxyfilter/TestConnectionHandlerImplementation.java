@@ -1,5 +1,6 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
+// Copyright (C) 2009 Hitoshi Amano
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,10 +55,10 @@ import net.grinder.util.URIParserImplementation;
  */
 public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_httpRecordingStubFactory =
-    new RandomStubFactory(HTTPRecording.class);
+  private final RandomStubFactory<HTTPRecording> m_httpRecordingStubFactory =
+    RandomStubFactory.create(HTTPRecording.class);
   private final HTTPRecording m_httpRecording =
-    (HTTPRecording) m_httpRecordingStubFactory.getStub();
+    m_httpRecordingStubFactory.getStub();
 
   private final LoggerStubFactory m_loggerStubFactory =
     new LoggerStubFactory();
@@ -624,6 +625,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     assertEquals(2, formFieldArray.length);
     assertEquals("red", formFieldArray[0].getName());
     assertEquals("10", formFieldArray[1].getValue());
+    assertFalse(request.getBody().getForm().getMultipart());
     assertFalse(request.getBody().isSetBinary());
     assertFalse(request.getBody().isSetEscapedString());
     assertFalse(request.getBody().isSetFile());
@@ -649,6 +651,7 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     handler.requestFinished(); // Force body to be flushed.
 
     assertEquals(0, request2.getBody().getForm().getFormFieldArray().length);
+    assertFalse(request2.getBody().getForm().getMultipart());
     assertFalse(request2.getBody().isSetBinary());
     assertFalse(request2.getBody().isSetEscapedString());
     assertFalse(request2.getBody().isSetFile());
@@ -657,6 +660,191 @@ public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
     assertEquals(2, tokenReferenceArray.length);
     assertFalse(tokenReferenceArray[0].isSetSource());
     assertFalse(tokenReferenceArray[0].isSetNewValue());
+
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  public void testRequestMultipartFormBody() throws Exception {
+    final ConnectionHandler handler =
+      new ConnectionHandlerImplementation(
+            m_httpRecording,
+            m_loggerStubFactory.getLogger(),
+            m_regularExpressions,
+            m_uriParser,
+            m_attributeStringParser, null,
+            m_commentSource,
+            m_connectionDetails);
+
+    final RequestType request = RequestType.Factory.newInstance();
+    request.addNewHeaders();
+    request.setMethod(RequestType.Method.Enum.forString("POST"));
+
+    m_httpRecordingStubFactory.setResult("addRequest", request);
+    m_httpRecordingStubFactory.setResult("tokenReferenceExists", Boolean.FALSE);
+
+    final String message =
+        "POST /something HTTP/1.0\r\n" +
+        "Content-Type: multipart/form-data; charset=UTF-8; boundary=---------------------------6549821653387387991112192755\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"csrf_ticket\"\r\n" +
+        "\r\n" +
+        "XXXXXXXXXXXXXXXXXXXX\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"title\"\r\n" +
+        "\r\n" +
+        "test\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"enable_term\"\r\n" +
+        "\r\n" +
+        "0\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_year\"\r\n" +
+        "\r\n" +
+        "2009\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_month\"\r\n" +
+        "\r\n" +
+        "12\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_day\"\r\n" +
+        "\r\n" +
+        "3\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_hour\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_minute\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_year\"\r\n" +
+        "\r\n" +
+        "2009\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_month\"\r\n" +
+        "\r\n" +
+        "12\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_day\"\r\n" +
+        "\r\n" +
+        "3\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_hour\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_minute\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"sterm_\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"eterm_\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"published\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"editor\"\r\n" +
+        "\r\n" +
+        "0\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"data\"\r\n" +
+        "\r\n" +
+        "testtesttesttesttesttesttesttesttesttesttest\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"file0\"; filename=\"\"\r\n" +
+        "Content-Type: application/octet-stream\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"can_follow\"\r\n" +
+        "\r\n" +
+        "1\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"send\"\r\n" +
+        "\r\n" +
+        "AAA\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"cid\"\r\n" +
+        "\r\n" +
+        "2\r\n" +
+        "-----------------------------6549821653387387991112192755\r\n" +
+        "Content-Disposition: form-data; name=\"aid\"\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "-----------------------------6549821653387387991112192755--\r\n";
+
+    final byte[] buffer = message.getBytes("UTF-8");
+    handler.handleRequest(buffer, buffer.length);
+
+    m_httpRecordingStubFactory.assertSuccess("addRequest",
+      m_connectionDetails, "POST", "/something");
+    m_httpRecordingStubFactory.assertNoMoreCalls();
+
+    handler.requestFinished(); // Force body to be flushed.
+
+    final FormFieldType[] formFieldArray =
+      request.getBody().getForm().getFormFieldArray();
+    assertEquals(23, formFieldArray.length);
+    assertEquals("csrf_ticket", formFieldArray[0].getName());
+    assertEquals("XXXXXXXXXXXXXXXXXXXX", formFieldArray[0].getValue());
+    assertEquals("title", formFieldArray[1].getName());
+    assertEquals("test", formFieldArray[1].getValue());
+    assertEquals("enable_term", formFieldArray[2].getName());
+    assertEquals("0", formFieldArray[2].getValue());
+    assertEquals("sterm_year", formFieldArray[3].getName());
+    assertEquals("2009", formFieldArray[3].getValue());
+    assertEquals("sterm_month", formFieldArray[4].getName());
+    assertEquals("12", formFieldArray[4].getValue());
+    assertEquals("sterm_day", formFieldArray[5].getName());
+    assertEquals("3", formFieldArray[5].getValue());
+    assertEquals("sterm_hour", formFieldArray[6].getName());
+    assertEquals("", formFieldArray[6].getValue());
+    assertEquals("sterm_minute", formFieldArray[7].getName());
+    assertEquals("", formFieldArray[7].getValue());
+    assertEquals("eterm_year", formFieldArray[8].getName());
+    assertEquals("2009", formFieldArray[8].getValue());
+    assertEquals("eterm_month", formFieldArray[9].getName());
+    assertEquals("12", formFieldArray[9].getValue());
+    assertEquals("eterm_day", formFieldArray[10].getName());
+    assertEquals("3", formFieldArray[10].getValue());
+    assertEquals("eterm_hour", formFieldArray[11].getName());
+    assertEquals("", formFieldArray[11].getValue());
+    assertEquals("eterm_minute", formFieldArray[12].getName());
+    assertEquals("", formFieldArray[12].getValue());
+    assertEquals("sterm_", formFieldArray[13].getName());
+    assertEquals("", formFieldArray[13].getValue());
+    assertEquals("eterm_", formFieldArray[14].getName());
+    assertEquals("", formFieldArray[14].getValue());
+    assertEquals("published", formFieldArray[15].getName());
+    assertEquals("", formFieldArray[15].getValue());
+    assertEquals("editor", formFieldArray[16].getName());
+    assertEquals("0", formFieldArray[16].getValue());
+    assertEquals("data", formFieldArray[17].getName());
+    assertEquals("testtesttesttesttesttesttesttesttesttesttest", formFieldArray[17].getValue());
+    assertEquals("file0", formFieldArray[18].getName());
+    assertEquals("", formFieldArray[18].getValue());
+    assertEquals("can_follow", formFieldArray[19].getName());
+    assertEquals("1", formFieldArray[19].getValue());
+    assertEquals("send", formFieldArray[20].getName());
+    assertEquals("AAA", formFieldArray[20].getValue());
+    assertEquals("cid", formFieldArray[21].getName());
+    assertEquals("2", formFieldArray[21].getValue());
+    assertEquals("aid", formFieldArray[22].getName());
+    assertEquals("", formFieldArray[22].getValue());
+    assertEquals(23, formFieldArray.length);
+    assertTrue(request.getBody().getForm().getMultipart());
+    assertFalse(request.getBody().isSetBinary());
+    assertFalse(request.getBody().isSetEscapedString());
+    assertFalse(request.getBody().isSetFile());
+    assertEquals(0, request.getBody().getForm().getTokenReferenceArray().length);
 
     m_loggerStubFactory.assertNoMoreCalls();
   }

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,8 +21,6 @@
 
 package net.grinder.engine.agent;
 
-import junit.framework.TestCase;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,6 +31,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
 
+import junit.framework.TestCase;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.FanOutStreamSender;
@@ -41,8 +40,6 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.WorkerProcessEntryPoint;
-import net.grinder.util.AllocateLowestNumber;
-import net.grinder.util.AllocateLowestNumberImplementation;
 import net.grinder.util.Directory;
 
 
@@ -72,21 +69,18 @@ public class TestProcessWorkerFactory extends TestCase {
       new WorkerProcessCommandLine(
         grinderProperties, systemProperties, "");
 
-    final List commandList = commandLine.getCommandList();
+    final List<String> commandList = commandLine.getCommandList();
 
     commandList.set(
       commandList.indexOf(WorkerProcessEntryPoint.class.getName()),
       ReadMessageEchoClass.class.getName());
 
     final ScriptLocation script =
-      new ScriptLocation(new Directory(new File("b")), new File("a"));
+      new ScriptLocation(new Directory(new File(".")), new File("a"));
     final boolean reportToConsole = false;
 
-    final AllocateLowestNumber workerNumberMap =
-      new AllocateLowestNumberImplementation();
-
     final AgentIdentityImplementation agentIdentityImplementation =
-      new AgentIdentityImplementation(getClass().getName(), workerNumberMap);
+      new AgentIdentityImplementation(getClass().getName());
 
     final ProcessWorkerFactory processWorkerFactory =
       new ProcessWorkerFactory(commandLine,
@@ -131,20 +125,21 @@ public class TestProcessWorkerFactory extends TestCase {
   }
 
   public void testBadWorker() throws Exception {
-    final AllocateLowestNumber workerNumberMap =
-      new AllocateLowestNumberImplementation();
-
     // Test a dusty code path through AbstractWorkerFactory where
     // the Worker communication stream doesn't work.
     final AgentIdentityImplementation agentIdentityImplementation =
-      new AgentIdentityImplementation(getClass().getName(), workerNumberMap);
+      new AgentIdentityImplementation(getClass().getName());
 
     final AbstractWorkerFactory myWorkerFactory =
       new AbstractWorkerFactory(agentIdentityImplementation,
-                                null, false, null, null) {
+                                null,
+                                false,
+                                new ScriptLocation(new File(".")),
+                                null) {
 
         protected Worker
           createWorker(WorkerIdentityImplementation workerIdentity,
+                       Directory directory,
                        OutputStream outputStream,
                        OutputStream errorStream)
         throws EngineException {

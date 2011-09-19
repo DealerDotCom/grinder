@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,16 +38,6 @@ import net.grinder.plugininterface.PluginProcessContext;
  **/
 public final class HTTPPluginControl {
 
-  private static final PluginProcessContext s_pluginProcessContext;
-
-  static {
-    // Ensure that the HTTPPlugin is registered.
-    s_pluginProcessContext = HTTPPlugin.getPlugin().getPluginProcessContext();
-  }
-
-  private static final HTTPUtilities s_utilties =
-    new HTTPUtilitiesImplementation(s_pluginProcessContext);
-
   private HTTPPluginControl() {
   }
 
@@ -83,7 +73,7 @@ public final class HTTPPluginControl {
     throws GrinderException, ParseException, ProtocolNotSuppException {
 
     final HTTPPluginThreadState threadState =
-      (HTTPPluginThreadState)s_pluginProcessContext.getPluginThreadListener();
+      (HTTPPluginThreadState)getProcessContext().getPluginThreadListener();
 
     return threadState.getConnectionWrapper(new URI(url));
   }
@@ -101,8 +91,7 @@ public final class HTTPPluginControl {
    * @exception GrinderException If an error occurs.
    */
   public static Object getThreadHTTPClientContext() throws GrinderException {
-
-    return s_pluginProcessContext.getPluginThreadListener();
+    return getProcessContext().getPluginThreadListener();
   }
 
   /**
@@ -111,6 +100,10 @@ public final class HTTPPluginControl {
    * @return The utilities instance.
    */
   public static HTTPUtilities getHTTPUtilities() {
-    return s_utilties;
+    return new HTTPUtilitiesImplementation(getProcessContext());
+  }
+
+  private static PluginProcessContext getProcessContext() {
+    return HTTPPlugin.getPlugin().getPluginProcessContext();
   }
 }

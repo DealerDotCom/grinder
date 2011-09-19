@@ -28,7 +28,7 @@ import net.grinder.messages.agent.CacheHighWaterMark;
  * Report of the cache status.
  *
  * @author Philip Aston
- * @version $Revision: 3865 $
+ * @version $Revision$
  */
 public interface CacheStatusReport {
 

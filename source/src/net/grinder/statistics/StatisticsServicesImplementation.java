@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -75,56 +75,51 @@ public final class StatisticsServicesImplementation
   }
 
   /**
-   * Get the detail {@link StatisticsView}.
-   *
-   * @return The {@link StatisticsView}.
+   * {@inheritDoc}
    */
   public StatisticsView getDetailStatisticsView() {
     return m_commonStatisticsViews.getDetailStatisticsView();
   }
 
   /**
-   * Get the summary {@link StatisticsView}.
-   *
-   * @return The {@link StatisticsView}.
+   * {@inheritDoc}
    */
   public StatisticsView getSummaryStatisticsView() {
     return m_commonStatisticsViews.getSummaryStatisticsView();
   }
 
   /**
-   * Return a {@link StatisticExpression} factory.
-   *
-   * @return A {@link StatisticExpressionFactoryImplementation}.
+   * {@inheritDoc}
    */
   public StatisticExpressionFactory getStatisticExpressionFactory() {
     return m_statisticExpressionFactory;
   }
 
   /**
-   * Return a {@link StatisticsSet} factory.
-   *
-   * @return A {@link StatisticExpressionFactoryImplementation}.
+   * {@inheritDoc}
    */
   public StatisticsSetFactory getStatisticsSetFactory() {
     return m_statisticsSetFactory;
   }
 
   /**
-   * Return the {@link StatisticsIndexMap} for the current process.
-   *
-   * @return The {@link StatisticsIndexMap}.
+   * {@inheritDoc}
    */
   public StatisticsIndexMap getStatisticsIndexMap() {
     return m_statisticsIndexMap;
   }
 
   /**
-   * Return an object allowing access to common functions of test statistics.
-   *
-   * @return The {@link TestStatisticsQueries}.
+   * {@inheritDoc}
    */
   public TestStatisticsQueries getTestStatisticsQueries() {
     return m_testStatisticsQueries;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public StatisticExpression getTPSExpression() {
+    return m_commonStatisticsViews.getTPSExpression();
   }
 }

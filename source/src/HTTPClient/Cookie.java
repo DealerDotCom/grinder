@@ -2,7 +2,7 @@
  * @(#)Cookie.java					0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschal�r
+ *  Copyright (C) 1996-2001 Ronald Tschalär
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -65,7 +65,7 @@ import java.util.Date;
  * </ul>
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal�r
+ * @author	Ronald Tschalär
  * @since	V0.3
  */
 public class Cookie implements Serializable
@@ -157,7 +157,7 @@ public class Cookie implements Serializable
         /** ++GRINDER MODIFICATION **/
         // Cope with .NET nonsense.
         // See http://www.hanselman.com/blog/HttpOnlyCookiesOnASPNET11.aspx
-        if (set_cookie.indexOf("HttpOnly") != -1) {
+        if (set_cookie.toLowerCase().indexOf("httponly") != -1) {
           // Typical section of a .NET cookie:
           //    ... ; path=/;HttpOnly, language=en-US; path=/;HttpOnly
           //
@@ -165,8 +165,8 @@ public class Cookie implements Serializable
           // and all instances of HttpOnly following a semi-colon at the end of
           // the cookie. This leaves something that is more conventional
           // This shouldn't break any valid cookies.
-          set_cookie = set_cookie.replaceAll(";\\s*HttpOnly,",";,");
-          set_cookie = set_cookie.replaceAll(";\\s*HttpOnly$",";");
+          set_cookie = set_cookie.replaceAll("(?i);\\s*HttpOnly,",";,");
+          set_cookie = set_cookie.replaceAll("(?i);\\s*HttpOnly$",";");
         }
         /** --GRINDER MODIFICATION **/
 
@@ -441,7 +441,7 @@ public class Cookie implements Serializable
       }
 
       /** ++GRINDER MODIFICATION **/
-      // Despite Roland's comment above, RFC-2965 is not followed in practice.
+      // Despite Ronald's comment above, RFC-2965 is not followed in practice.
       // Browsers seem to be adopting increasingly complicated heuristics for
       // whether a domain matches - see
       // http://my.opera.com/yngve/blog/show.dml/26741.

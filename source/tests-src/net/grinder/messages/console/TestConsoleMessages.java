@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,8 +30,8 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import junit.framework.TestCase;
+import net.grinder.common.Test;
 import net.grinder.common.processidentity.WorkerIdentity;
-import net.grinder.communication.Message;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.agent.StubCacheHighWaterMark;
@@ -51,10 +51,6 @@ import net.grinder.testutility.Serializer;
  */
 public class TestConsoleMessages extends TestCase {
 
-  private static Message serialise(Message original) throws Exception {
-    return (Message) Serializer.serialize(original);
-  }
-
   public void testRegisterStatisticsViewMessage() throws Exception {
 
     final StatisticExpressionFactory statisticExpressionFactory =
@@ -62,13 +58,14 @@ public class TestConsoleMessages extends TestCase {
       .getStatisticExpressionFactory();
 
     final ExpressionView expressionView =
-      statisticExpressionFactory.createExpressionView("One", "userLong0", false);
+      statisticExpressionFactory.createExpressionView(
+        "One", "userLong0", false);
 
     final RegisterExpressionViewMessage original =
       new RegisterExpressionViewMessage(expressionView);
 
     final RegisterExpressionViewMessage received =
-      (RegisterExpressionViewMessage) serialise(original);
+      Serializer.serialize(original);
 
     assertEquals(original.getExpressionView(),
                  received.getExpressionView());
@@ -78,7 +75,7 @@ public class TestConsoleMessages extends TestCase {
         .createExpressionView("My view2",
           statisticExpressionFactory.createExpression("userLong0"));
     try {
-      serialise(new RegisterExpressionViewMessage(view2));
+      Serializer.serialize(new RegisterExpressionViewMessage(view2));
       fail("Expected IOException");
     }
     catch (IOException e) {
@@ -106,14 +103,13 @@ public class TestConsoleMessages extends TestCase {
 
   public void testRegisterTestsMessage() throws Exception {
 
-    final Collection c = new HashSet();
+    final Collection<Test> c = new HashSet<Test>();
 
     final RegisterTestsMessage original = new RegisterTestsMessage(c);
 
     assertEquals(c, original.getTests());
 
-    final RegisterTestsMessage received =
-      (RegisterTestsMessage) serialise(original);
+    final RegisterTestsMessage received = Serializer.serialize(original);
 
     assertEquals(original.getTests(), received.getTests());
   }
@@ -130,8 +126,7 @@ public class TestConsoleMessages extends TestCase {
 
     assertEquals(statisticsDelta, original.getStatisticsDelta());
 
-    final ReportStatisticsMessage received =
-      (ReportStatisticsMessage) serialise(original);
+    final ReportStatisticsMessage received = Serializer.serialize(original);
 
     assertEquals(original.getStatisticsDelta(), received.getStatisticsDelta());
   }
@@ -152,8 +147,7 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(2, original.getNumberOfRunningThreads());
     assertEquals(3, original.getMaximumNumberOfThreads());
 
-    final WorkerProcessReportMessage received =
-      (WorkerProcessReportMessage) serialise(original);
+    final WorkerProcessReportMessage received = Serializer.serialize(original);
 
     assertEquals(workerIdentity, original.getWorkerIdentity());
     assertEquals(workerIdentity, original.getIdentity());
@@ -179,8 +173,7 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(cacheHighWaterMark, original.getCacheHighWaterMark());
     assertEquals(1, original.getState());
 
-    final AgentProcessReportMessage received =
-      (AgentProcessReportMessage) serialise(original);
+    final AgentProcessReportMessage received = Serializer.serialize(original);
 
     assertEquals(agentIdentity, original.getAgentIdentity());
     assertEquals(agentIdentity, original.getIdentity());

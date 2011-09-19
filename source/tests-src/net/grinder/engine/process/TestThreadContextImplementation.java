@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,64 +43,36 @@ public class TestThreadContextImplementation extends TestCase {
   private final StatisticsServices m_statisticsServices =
     StatisticsServicesImplementation.getInstance();
 
-  private final RandomStubFactory m_threadLoggerStubFactory =
-    new RandomStubFactory(ThreadLogger.class);
+  private final RandomStubFactory<ThreadLogger> m_threadLoggerStubFactory =
+    RandomStubFactory.create(ThreadLogger.class);
   private final ThreadLogger m_threadLogger =
-    (ThreadLogger) m_threadLoggerStubFactory.getStub();
+    m_threadLoggerStubFactory.getStub();
 
-  private final RandomStubFactory m_filenameFactoryStubFactory =
-    new RandomStubFactory(FilenameFactory.class);
+  private final RandomStubFactory<FilenameFactory> m_filenameFactoryStubFactory =
+    RandomStubFactory.create(FilenameFactory.class);
   private final FilenameFactory m_filenameFactory =
-    (FilenameFactory)m_filenameFactoryStubFactory.getStub();
+    m_filenameFactoryStubFactory.getStub();
 
   private final ProcessContextStubFactory m_processContextStubFactory =
     new ProcessContextStubFactory();
   private final ProcessContext m_processContext =
-    m_processContextStubFactory.getProcessContext();
+    m_processContextStubFactory.getStub();
 
-  private final RandomStubFactory m_sslContextFactoryStubFactory =
-    new RandomStubFactory(SSLContextFactory.class);
+  private final RandomStubFactory<SSLContextFactory>
+    m_sslContextFactoryStubFactory =
+      RandomStubFactory.create(SSLContextFactory.class);
   private final SSLContextFactory m_sslContextFactory =
-    (SSLContextFactory)m_sslContextFactoryStubFactory.getStub();
+    m_sslContextFactoryStubFactory.getStub();
 
-  private final RandomStubFactory m_dispatchContextStubFactory =
-    new RandomStubFactory(DispatchContext.class);
+  private final RandomStubFactory<DispatchContext>
+    m_dispatchContextStubFactory =
+      RandomStubFactory.create(DispatchContext.class);
   private final DispatchContext m_dispatchContext =
-    (DispatchContext)m_dispatchContextStubFactory.getStub();
+    m_dispatchContextStubFactory.getStub();
 
   public void setUp() {
     m_processContextStubFactory.setResult(
       "getStatisticsServices", m_statisticsServices);
-  }
-
-  public void testShutdownOnlyOnce() throws Exception {
-
-    // pushDispatchContext() should throw one ShutdownException exception after
-    // the thread has been shut down.
-
-    final ThreadContext threadContext =
-      new ThreadContextImplementation(
-        m_processContext, m_threadLogger, m_filenameFactory, null);
-
-    final Test test = new StubTest(14, "test");
-    m_dispatchContextStubFactory.setResult("getTest", test);
-
-    for (int i = 0; i < 2; ++i) {
-      threadContext.pushDispatchContext(m_dispatchContext);
-    }
-
-    threadContext.shutdown();
-
-    try {
-      threadContext.pushDispatchContext(m_dispatchContext);
-      fail("Expected ShutdownException");
-    }
-    catch (ShutdownException e) {
-    }
-
-    for (int i = 0; i < 2; ++i) {
-      threadContext.pushDispatchContext(m_dispatchContext);
-    }
   }
 
   public void testBasics() throws Exception {
@@ -192,10 +164,10 @@ public class TestThreadContextImplementation extends TestCase {
 
     m_threadLoggerStubFactory.resetCallHistory();
 
-    final RandomStubFactory statisticsForTestStubFactory =
-      new RandomStubFactory(StatisticsForTest.class);
+    final RandomStubFactory<StatisticsForTest> statisticsForTestStubFactory =
+      RandomStubFactory.create(StatisticsForTest.class);
     final StatisticsForTest statisticsForTest =
-      (StatisticsForTest)statisticsForTestStubFactory.getStub();
+      statisticsForTestStubFactory.getStub();
     m_dispatchContextStubFactory.setResult(
       "getStatisticsForTest", statisticsForTest);
 
@@ -221,20 +193,16 @@ public class TestThreadContextImplementation extends TestCase {
     assertSame(statisticsForTest, threadContext.getStatisticsForLastTest());
     assertNull(threadContext.getStatisticsForCurrentTest());
 
-    final RandomStubFactory anotherDispatchContextStubFactory =
-      new RandomStubFactory(DispatchContext.class);
-    final DispatchContext anotherDispatchContext =
-      (DispatchContext)anotherDispatchContextStubFactory.getStub();
+    final RandomStubFactory<DispatchContext> anotherDispatchContextStubFactory =
+      RandomStubFactory.create(DispatchContext.class);
     final Test test2 = new StubTest(3, "another test");
     anotherDispatchContextStubFactory.setResult("getTest", test2);
 
-    final RandomStubFactory stopWatchStubFactory =
-      new RandomStubFactory(StopWatch.class);
-    final StopWatch stopWatch =
-      (StopWatch)stopWatchStubFactory.getStub();
-    anotherDispatchContextStubFactory.setResult("getPauseTimer", stopWatch);
+    final RandomStubFactory<StopWatch> stopWatchStubFactory =
+      RandomStubFactory.create(StopWatch.class);
+    anotherDispatchContextStubFactory.setResult("getPauseTimer", stopWatchStubFactory.getStub());
 
-    threadContext.pushDispatchContext(anotherDispatchContext);
+    threadContext.pushDispatchContext(anotherDispatchContextStubFactory.getStub());
     threadContext.pushDispatchContext(m_dispatchContext);
     m_dispatchContextStubFactory.resetCallHistory();
     anotherDispatchContextStubFactory.resetCallHistory();
@@ -287,16 +255,14 @@ public class TestThreadContextImplementation extends TestCase {
   }
 
   public void testEvents() throws Exception {
-    final RandomStubFactory threadLifeCycleListenerStubFactory =
-      new RandomStubFactory(ThreadLifeCycleListener.class);
-    final ThreadLifeCycleListener threadLifeCycleListener =
-      (ThreadLifeCycleListener)threadLifeCycleListenerStubFactory.getStub();
-
+    final RandomStubFactory<ThreadLifeCycleListener> threadLifeCycleListenerStubFactory =
+      RandomStubFactory.create(ThreadLifeCycleListener.class);
     final ThreadContext threadContext =
       new ThreadContextImplementation(
         m_processContext, m_threadLogger, m_filenameFactory, null);
 
-    threadContext.registerThreadLifeCycleListener(threadLifeCycleListener);
+    threadContext.registerThreadLifeCycleListener(
+      threadLifeCycleListenerStubFactory.getStub());
 
     threadContext.fireBeginThreadEvent();
     threadLifeCycleListenerStubFactory.assertSuccess("beginThread");
@@ -313,6 +279,17 @@ public class TestThreadContextImplementation extends TestCase {
     threadContext.fireEndThreadEvent();
     threadLifeCycleListenerStubFactory.assertSuccess("endThread");
 
+    threadLifeCycleListenerStubFactory.assertNoMoreCalls();
+
+    threadContext.fireEndThreadEvent();
+    threadLifeCycleListenerStubFactory.assertSuccess("endThread");
+    threadLifeCycleListenerStubFactory.assertNoMoreCalls();
+
+    threadLifeCycleListenerStubFactory.setIgnoreObjectMethods();
+    threadContext.removeThreadLifeCycleListener(
+      threadLifeCycleListenerStubFactory.getStub());
+
+    threadContext.fireEndThreadEvent();
     threadLifeCycleListenerStubFactory.assertNoMoreCalls();
   }
 
@@ -404,6 +381,27 @@ public class TestThreadContextImplementation extends TestCase {
     m_dispatchContextStubFactory.assertNoMoreCalls();
   }
 
+  public void testDispatchContextWhenShuttingDown() throws Exception {
+    final ThreadContext threadContext =
+      new ThreadContextImplementation(
+        m_processContext, m_threadLogger, m_filenameFactory, null);
+
+    threadContext.shutdown();
+
+    for (int i=0; i<2; ++i) {
+      try {
+        threadContext.pushDispatchContext(m_dispatchContext);
+        fail("Expected ShutdownException");
+      }
+      catch (ShutdownException e) {
+      }
+
+      threadContext.popDispatchContext(); // No-op.
+
+      m_dispatchContextStubFactory.assertNoMoreCalls();
+    }
+  }
+
   public void testWithBadDispatchContext() throws Exception {
     final ThreadContext threadContext =
       new ThreadContextImplementation(
@@ -428,7 +426,7 @@ public class TestThreadContextImplementation extends TestCase {
       assertSame(t, e.getCause());
     }
 
-    m_dispatchContextStubFactory.assertException("report", new Class[0], t);
+    m_dispatchContextStubFactory.assertException("report", t);
     m_dispatchContextStubFactory.assertNoMoreCalls();
   }
 
@@ -458,21 +456,17 @@ public class TestThreadContextImplementation extends TestCase {
       assertSame(t, e.getCause());
     }
 
-    m_dispatchContextStubFactory.assertException("report", new Class[0], t);
+    m_dispatchContextStubFactory.assertException("report", t);
     m_dispatchContextStubFactory.assertNoMoreCalls();
   }
 
   public static final class ProcessContextStubFactory
-    extends RandomStubFactory {
+    extends RandomStubFactory<ProcessContext> {
 
     private GrinderProperties m_properties = new GrinderProperties();
 
     public ProcessContextStubFactory() {
       super(ProcessContext.class);
-    }
-
-    public ProcessContext getProcessContext() {
-      return (ProcessContext)getStub();
     }
 
     public GrinderProperties override_getProperties(Object proxy) {

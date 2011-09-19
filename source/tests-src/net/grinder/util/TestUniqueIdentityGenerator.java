@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,7 +38,7 @@ public class TestUniqueIdentityGenerator extends TestCase {
     final UniqueIdentityGenerator uniqueIdentityGenerator =
       new UniqueIdentityGenerator();
 
-    final Set set = new HashSet();
+    final Set<String> set = new HashSet<String>();
 
     final int numberOfIdentities = 100;
 

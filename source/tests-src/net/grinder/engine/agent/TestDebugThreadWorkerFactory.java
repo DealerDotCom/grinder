@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,9 @@
 
 package net.grinder.engine.agent;
 
+import java.io.File;
 import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationException;
@@ -29,11 +31,13 @@ import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.StreamReceiver;
 import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
+import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.RedirectStandardStreams;
-import net.grinder.util.AllocateLowestNumberImplementation;
+import net.grinder.util.weave.agent.ExposeInstrumentation;
 
 
 /**
@@ -45,9 +49,7 @@ import net.grinder.util.AllocateLowestNumberImplementation;
 public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
 
   private AgentIdentityImplementation m_agentIdentity =
-    new AgentIdentityImplementation(
-      getClass().getName(),
-      new AllocateLowestNumberImplementation());
+    new AgentIdentityImplementation(getClass().getName());
 
   private FanOutStreamSender m_fanOutStreamSender = new FanOutStreamSender(0);
   private GrinderProperties m_properties = new GrinderProperties();
@@ -60,7 +62,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
       new DebugThreadWorkerFactory(m_agentIdentity,
                                    m_fanOutStreamSender,
                                    false,
-                                   null,
+                                   new ScriptLocation(new File(".")),
                                    m_properties);
 
     new RedirectStandardStreams() {
@@ -83,7 +85,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       try {
@@ -100,7 +102,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       try {
@@ -117,7 +119,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       try {
@@ -140,7 +142,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       final RedirectStandardStreams rss0 = new RedirectStandardStreams() {
@@ -183,7 +185,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         new DebugThreadWorkerFactory(m_agentIdentity,
                                      m_fanOutStreamSender,
                                      false,
-                                     null,
+                                     new ScriptLocation(new File(".")),
                                      m_properties);
 
       final RedirectStandardStreams rss0 = new RedirectStandardStreams() {
@@ -215,6 +217,52 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
     }
   }
 
+  // Bug 2958145.
+  public void testExposeInstrumentationNotIsolated() throws Exception {
+
+    final Instrumentation originalInstrumentation =
+      ExposeInstrumentation.getInstrumentation();
+
+    final RandomStubFactory<Instrumentation> instrumentationStubFactory =
+      RandomStubFactory.create(Instrumentation.class);
+    final Instrumentation instrumentation =
+      instrumentationStubFactory.getStub();
+
+    DebugThreadWorkerFactory.setIsolatedRunnerClass(
+      AccessInstrumentationRunner.class);
+
+    try {
+      ExposeInstrumentation.premain("", instrumentation);
+
+      final DebugThreadWorkerFactory factory =
+        new DebugThreadWorkerFactory(m_agentIdentity,
+                                     m_fanOutStreamSender,
+                                     false,
+                                     new ScriptLocation(new File(".")),
+                                     m_properties);
+
+      final RedirectStandardStreams rss0 = new RedirectStandardStreams() {
+        protected void runWithRedirectedStreams() throws Exception {
+          final Worker worker = factory.create(null, null);
+          worker.waitFor();
+        }
+      };
+
+      rss0.run();
+
+      final String worker0Result = new String(rss0.getStdoutBytes());
+
+      AssertUtilities.assertContains(
+        worker0Result,
+        Integer.toString(instrumentation.hashCode()));
+    }
+    finally {
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
+      ExposeInstrumentation.premain("", originalInstrumentation);
+    }
+  }
+
+
   public static class BadClassInaccesible {
     BadClassInaccesible() { }
   }
@@ -237,25 +285,42 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
     }
   }
 
-  public static class GoodRunner implements IsolateGrinderProcessRunner {
-    public int run(InputStream agentInputStream) {
-      final StreamReceiver streamReceiver =
-        new StreamReceiver(agentInputStream);
+  public abstract static class AbstractGoodRunner
+    implements IsolateGrinderProcessRunner {
+    protected InitialiseGrinderMessage initialise(InputStream inputStream) {
 
-      InitialiseGrinderMessage message;
+      final StreamReceiver streamReceiver = new StreamReceiver(inputStream);
 
       try {
-        message = (InitialiseGrinderMessage)streamReceiver.waitForMessage();
+        return (InitialiseGrinderMessage)streamReceiver.waitForMessage();
       }
       catch (CommunicationException e) {
         throw new AssertionError(e);
       }
+    }
+  }
+
+  public static class GoodRunner extends AbstractGoodRunner{
+    public int run(InputStream agentInputStream) {
+      final InitialiseGrinderMessage message = initialise(agentInputStream);
 
       MyStaticHolder.incrementNumber();
 
       System.out.println(
         "Hello from " + message.getWorkerIdentity().getNumber() +
         " count is " + MyStaticHolder.getNumber());
+
+      return 0;
+    }
+  }
+
+  public static class AccessInstrumentationRunner
+    extends AbstractGoodRunner {
+
+    public int run(InputStream agentInputStream) {
+      initialise(agentInputStream);
+
+      System.out.println(ExposeInstrumentation.getInstrumentation().hashCode());
 
       return 0;
     }

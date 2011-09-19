@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,6 +49,11 @@ public class GrinderProperties extends Properties {
    * Key to use for the script property.
    */
   public static final String SCRIPT = "grinder.script";
+
+  /**
+   * Key to use for the log directory property.
+   */
+  public static final String LOG_DIRECTORY = "grinder.logDirectory";
 
   /**
    * Key to use for the console host property.
@@ -113,7 +118,7 @@ public class GrinderProperties extends Properties {
       }
     }
 
-    final Enumeration systemProperties =
+    final Enumeration<?> systemProperties =
       System.getProperties().propertyNames();
 
     while (systemProperties.hasMoreElements()) {
@@ -255,7 +260,7 @@ public class GrinderProperties extends Properties {
     getPropertySubset(String prefix) {
     final GrinderProperties result = new GrinderProperties();
 
-    final Enumeration propertyNames = propertyNames();
+    final Enumeration<?> propertyNames = propertyNames();
 
     while (propertyNames.hasMoreElements()) {
       final String name = (String)propertyNames.nextElement();
@@ -513,5 +518,19 @@ public class GrinderProperties extends Properties {
     throws IOException, ClassNotFoundException {
     in.defaultReadObject();
     setErrorWriter(new PrintWriter(System.err, true));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public boolean equals(Object o) {
+    return super.equals(o);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public int hashCode() {
+    return super.hashCode();
   }
 }

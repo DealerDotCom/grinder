@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,15 +39,15 @@ import HTTPClient.HTTPConnection.BandwidthLimiterFactory;
  * Unit tests for {@link HTTPConnectionWrapper}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestHTTPConnectionWrapper extends TestCase {
 
   public void testHTTPConnectionWrapper() throws Exception {
 
-    final RandomStubFactory sleeperStubFactory =
-      new RandomStubFactory(Sleeper.class);
-    final Sleeper sleeper = (Sleeper)sleeperStubFactory.getStub();
+    final RandomStubFactory<Sleeper> sleeperStubFactory =
+      RandomStubFactory.create(Sleeper.class);
+    final Sleeper sleeper = sleeperStubFactory.getStub();
 
     final StubHTTPConnection connection = new StubHTTPConnection("foo");
 
@@ -132,11 +132,11 @@ public class TestHTTPConnectionWrapper extends TestCase {
   private void assertModule(HTTPConnection connection,
                             String className,
                             boolean present) {
-    final Class[] modules = connection.getModules();
-    final Set classNames = new HashSet();
+    final Class<?>[] modules = connection.getModules();
+    final Set<String> classNames = new HashSet<String>();
 
-    for (int i = 0; i < modules.length; ++i) {
-      classNames.add(modules[i].getName());
+    for (Class<?> module : modules) {
+      classNames.add(module.getName());
     }
 
     assertEquals(present, classNames.contains(className));
@@ -149,7 +149,7 @@ public class TestHTTPConnectionWrapper extends TestCase {
     final ClassLoader classLoader =
       new IsolatingClassLoader(
         (URLClassLoader) getClass().getClassLoader(), shared, false) {
-      protected Class loadClass(String name, boolean resolve)
+      protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException  {
 
         if (name.equals("HTTPClient.AuthorizationModule")) {

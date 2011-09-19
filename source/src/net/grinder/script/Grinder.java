@@ -72,16 +72,10 @@ public class Grinder {
      * Return the process number. The agent allocates a unique number to that
      * each worker process it starts.
      *
-     * <p>
-     * The lowest possible number is allocated. When an worker process stops,
-     * its number will be reused. Script authors can assume that the worker
-     * number lies between <code>0</code> and the number of currently
-     * connected agents.
-     * </p>
-     *
      * @return The process number.
      * @see #getAgentNumber()
      * @see #getThreadNumber()
+     * @see #getFirstProcessNumber()
      */
     int getProcessNumber();
 
@@ -92,6 +86,21 @@ public class Grinder {
      * @see #getProcessNumber()
      */
     String getProcessName();
+
+    /**
+     * Return the process number of the first worker process. The first process
+     * is one our agent started first upon receiving a start signal from the
+     * console.
+     *
+     * <p>Process numbers are assigned incrementally, so the expression
+     * {@code (grinder.getProcessNumber() - grinder.getFirstProcessNumber())}
+     * can be used to as a zero based index for this process against an array
+     * of test data.</p>
+     *
+     * @return The first process number.
+     * @see #getProcessNumber()
+     */
+    int getFirstProcessNumber();
 
     /**
      * Return the thread number, or <code>-1</code> if not called from a

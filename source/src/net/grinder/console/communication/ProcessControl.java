@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -110,14 +110,13 @@ public interface ProcessControl {
    * Comparator for {@link ProcessControl.ProcessReports} that sorts according
    * to the agent report.
    */
-  final class ProcessReportsComparator implements Comparator {
-    private final Comparator m_processReportComparator =
+  final class ProcessReportsComparator implements Comparator<ProcessReports> {
+    private final Comparator<ProcessReport> m_processReportComparator =
       new ProcessReport.StateThenNameThenNumberComparator();
 
-    public int compare(Object o1, Object o2) {
+    public int compare(ProcessReports o1, ProcessReports o2) {
       return m_processReportComparator.compare(
-        ((ProcessReports)o1).getAgentProcessReport(),
-        ((ProcessReports)o2).getAgentProcessReport());
+        o1.getAgentProcessReport(), o2.getAgentProcessReport());
     }
   }
 }

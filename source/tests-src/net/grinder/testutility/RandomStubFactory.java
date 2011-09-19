@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,9 +33,13 @@ import java.lang.reflect.Method;
  *
  * @author    Philip Aston
  */
-public class RandomStubFactory extends AbstractStubFactory {
+public class RandomStubFactory<T> extends AbstractStubFactory<T> {
 
-  public RandomStubFactory(Class stubbedInterface) {
+  public static <T> RandomStubFactory<T> create(Class<T> stubbedInterface) {
+    return new RandomStubFactory<T>(stubbedInterface);
+  }
+
+  protected RandomStubFactory(Class<T> stubbedInterface) {
     super(stubbedInterface,
           new OverrideInvocationHandlerDecorator(
             new RandomResultInvocationHandler(),

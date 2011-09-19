@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
@@ -42,27 +42,29 @@ import net.grinder.util.URIParser;
  */
 public class TestConnectionHandlerFactoryImplementation extends TestCase {
 
-  private final RandomStubFactory m_httpRecordingStubFactory =
-    new RandomStubFactory(HTTPRecording.class);
+  private final RandomStubFactory<HTTPRecording> m_httpRecordingStubFactory =
+    RandomStubFactory.create(HTTPRecording.class);
   private final HTTPRecording m_httpRecording =
-    (HTTPRecording) m_httpRecordingStubFactory.getStub();
+    m_httpRecordingStubFactory.getStub();
 
   private final LoggerStubFactory m_loggerStubFactory =
     new LoggerStubFactory();
 
-  final RandomStubFactory m_regularExpressionsStubFactory =
-    new RandomStubFactory(RegularExpressions.class);
+  final RandomStubFactory<RegularExpressions>
+    m_regularExpressionsStubFactory =
+      RandomStubFactory.create(RegularExpressions.class);
   final RegularExpressions m_regularExpressions =
-    (RegularExpressions)m_regularExpressionsStubFactory.getStub();
+    m_regularExpressionsStubFactory.getStub();
 
-  final RandomStubFactory m_uriParserStubFactory =
-    new RandomStubFactory(URIParser.class);
-  final URIParser m_uriParser = (URIParser)m_uriParserStubFactory.getStub();
+  final RandomStubFactory<URIParser> m_uriParserStubFactory =
+    RandomStubFactory.create(URIParser.class);
+  final URIParser m_uriParser = m_uriParserStubFactory.getStub();
 
-  final RandomStubFactory m_attributeStringParserStubFactory =
-    new RandomStubFactory(AttributeStringParser.class);
+  final RandomStubFactory<AttributeStringParser>
+    m_attributeStringParserStubFactory =
+      RandomStubFactory.create(AttributeStringParser.class);
   final AttributeStringParser m_attributeStringParser =
-    (AttributeStringParser)m_attributeStringParserStubFactory.getStub();
+    m_attributeStringParserStubFactory.getStub();
 
   final CommentSource m_commentSource = new CommentSourceImplementation();
 

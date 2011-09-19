@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,7 +27,6 @@ import java.net.Socket;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
@@ -100,12 +99,10 @@ public class TestAcceptor extends TestCase {
 
     assertEquals(0, acceptor.getNumberOfConnections());
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(Acceptor.Listener.class);
-    final Acceptor.Listener listener =
-      (Acceptor.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<Acceptor.Listener> listenerStubFactory =
+      RandomStubFactory.create(Acceptor.Listener.class);
 
-    acceptor.addListener(ConnectionType.WORKER, listener);
+    acceptor.addListener(ConnectionType.WORKER, listenerStubFactory.getStub());
 
     final ResourcePool controlSocketSet =
       acceptor.getSocketSet(ConnectionType.AGENT);
@@ -143,7 +140,7 @@ public class TestAcceptor extends TestCase {
     assertSame(controlSocketSet,
                acceptor.getSocketSet(ConnectionType.AGENT));
 
-    final List controlSocketResources = controlSocketSet.reserveAll();
+    final List<?> controlSocketResources = controlSocketSet.reserveAll();
     assertEquals(2, controlSocketResources.size());
 
     // Now do a similar checks with report socket set.
@@ -158,7 +155,7 @@ public class TestAcceptor extends TestCase {
 
     assertSame(reportSocketSet, acceptor.getSocketSet(ConnectionType.WORKER));
 
-    final List reportSocketResources = reportSocketSet.reserveAll();
+    final List<?> reportSocketResources = reportSocketSet.reserveAll();
     assertEquals(1, reportSocketResources.size());
 
     acceptor.shutdown();

@@ -5,6 +5,10 @@
  * You may use and modify this package for any purpose. Redistribution is
  * permitted, in both source and binary form, provided that this notice
  * remains intact in all source distributions of this package.
+ * 
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net). They are marked below with the comment
+ * "GRINDER MODIFICATION".
  */
 
 package org.syntax.jedit;
@@ -142,10 +146,17 @@ public abstract class InputHandler extends KeyAdapter
 	 */
 	public static String getActionName(ActionListener listener)
 	{
-		Enumeration enum = getActions();
-		while(enum.hasMoreElements())
-		{
-			String name = (String)enum.nextElement();
+	  /** ++GRINDER MODIFICATION **/
+//		Enumeration enum = getActions();
+//		while(enum.hasMoreElements())
+//		{
+//			String name = (String)enum.nextElement();
+			
+        Enumeration e= getActions();
+        while(e.hasMoreElements())
+        {
+            String name = (String)e.nextElement();
+      /** --GRINDER MODIFICATION **/
 			ActionListener _listener = getAction(name);
 			if(_listener == listener)
 				return name;

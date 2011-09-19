@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.tools.tcpproxy;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -34,31 +33,20 @@ import java.util.List;
  */
 public final class CompositeFilter implements TCPProxyFilter {
 
-  private final List m_filters = new ArrayList();
+  private final List<TCPProxyFilter> m_filters =
+    new ArrayList<TCPProxyFilter>();
 
   /**
-   * Handle a message fragment from the stream.
-   *
-   * @param connectionDetails Describes the connection.
-   * @param originalBuffer Contains the data.
-   * @param bytesRead How many bytes of data in <code>buffer</code>.
-   * @return Filters can optionally return a <code>byte[]</code>
-   * which will be transmitted to the server instead of
-   * <code>buffer</code>.
-   * @throws FilterException If an error occurs.
+   * {@inheritDoc}
    */
   public byte[] handle(ConnectionDetails connectionDetails,
                        byte[] originalBuffer, int bytesRead)
     throws FilterException {
 
-    final Iterator iterator = m_filters.iterator();
-
     byte[] nextBuffer = originalBuffer;
     int nextBytesRead = bytesRead;
 
-    while (iterator.hasNext()) {
-      final TCPProxyFilter filter = (TCPProxyFilter) iterator.next();
-
+    for (TCPProxyFilter filter : m_filters) {
       final byte[] buffer =
         filter.handle(connectionDetails, nextBuffer, nextBytesRead);
 
@@ -72,35 +60,23 @@ public final class CompositeFilter implements TCPProxyFilter {
   }
 
   /**
-   * A new connection has been opened.
-   *
-   * @param connectionDetails Describes the connection.
-   * @throws FilterException If an error occurs.
+   * {@inheritDoc}
    */
   public void connectionOpened(final ConnectionDetails connectionDetails)
     throws FilterException {
 
-    final Iterator iterator = m_filters.iterator();
-
-    while (iterator.hasNext()) {
-      final TCPProxyFilter filter = (TCPProxyFilter) iterator.next();
+    for (TCPProxyFilter filter : m_filters) {
       filter.connectionOpened(connectionDetails);
     }
   }
 
   /**
-   * A connection has been closed.
-   *
-   * @param connectionDetails Describes the connection.
-   * @throws FilterException If an error occurs.x
+   * {@inheritDoc}
    */
   public void connectionClosed(final ConnectionDetails connectionDetails)
     throws FilterException {
 
-    final Iterator iterator = m_filters.iterator();
-
-    while (iterator.hasNext()) {
-      final TCPProxyFilter filter = (TCPProxyFilter) iterator.next();
+    for (TCPProxyFilter filter : m_filters) {
       filter.connectionClosed(connectionDetails);
     }
   }
@@ -120,8 +96,7 @@ public final class CompositeFilter implements TCPProxyFilter {
    * @return The filters.
    */
   TCPProxyFilter[] getFilters() {
-    return (TCPProxyFilter[])
-      m_filters.toArray(new TCPProxyFilter[m_filters.size()]);
+    return m_filters.toArray(new TCPProxyFilter[m_filters.size()]);
   }
 
   /**
@@ -132,14 +107,10 @@ public final class CompositeFilter implements TCPProxyFilter {
   public String toString() {
     final StringBuffer result = new StringBuffer();
 
-    final Iterator iterator = m_filters.iterator();
-
-    while (iterator.hasNext()) {
+    for (TCPProxyFilter filter : m_filters) {
       if (result.length() > 0) {
         result.append(", ");
       }
-
-      final TCPProxyFilter filter = (TCPProxyFilter)iterator.next();
 
       final String fullName = filter.getClass().getName();
       final int lastDot = fullName.lastIndexOf(".");

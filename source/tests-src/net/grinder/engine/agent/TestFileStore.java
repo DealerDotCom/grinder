@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -170,14 +170,14 @@ public class TestFileStore extends AbstractFileTestCase {
 
     FileUtilities.setCanAccess(getDirectory(), true);
 
-    //loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertSuccess("error", new Class[] { String.class });
+    //loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertSuccess("error", String.class);
     loggerStubFactory.assertNoMoreCalls();
 
     assertFalse(incomingDirectoryFile.delete());
 
     messageDispatcher.send(message1);
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    loggerStubFactory.assertSuccess("output", String.class);
     loggerStubFactory.assertNoMoreCalls();
 
     // Message has been sent, the incoming directory and the read me exist.
@@ -221,8 +221,8 @@ public class TestFileStore extends AbstractFileTestCase {
     catch (CommunicationException e) {
     }
 
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertSuccess("error", new Class[] { String.class });
+    loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertSuccess("error", String.class);
     loggerStubFactory.assertNoMoreCalls();
 
     final Message message2 = new ClearCacheMessage();
@@ -241,12 +241,12 @@ public class TestFileStore extends AbstractFileTestCase {
     FileUtilities.setCanAccess(targetFile.getParentFile(), true);
     FileUtilities.setCanAccess(targetFile, true);
 
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertSuccess("error", new Class[] { String.class });
+    loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertSuccess("error", String.class);
     loggerStubFactory.assertNoMoreCalls();
 
     messageDispatcher.send(message2);
-    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    loggerStubFactory.assertSuccess("output", String.class);
     loggerStubFactory.assertNoMoreCalls();
 
     assertTrue(!targetFile.canRead());

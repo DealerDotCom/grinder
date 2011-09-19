@@ -36,7 +36,7 @@ import net.grinder.util.Sleeper.ShutdownException;
  *
  * @author Pawel Lacinski
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class AgentDaemon implements Agent {
 

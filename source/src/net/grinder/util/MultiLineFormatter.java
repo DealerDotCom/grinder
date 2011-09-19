@@ -26,7 +26,7 @@ package net.grinder.util;
  * Convert a string to one or more other strings.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public interface MultiLineFormatter {
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
@@ -57,10 +57,11 @@ import junit.framework.TestCase;
  */
 public class TestHTTPRecordingImplementation extends TestCase {
 
-  private final RandomStubFactory m_resultProcessorStubFactory =
-    new RandomStubFactory(HTTPRecordingResultProcessor.class);
+  private final RandomStubFactory<HTTPRecordingResultProcessor>
+    m_resultProcessorStubFactory =
+      RandomStubFactory.create(HTTPRecordingResultProcessor.class);
   private final HTTPRecordingResultProcessor m_resultProcessor =
-    (HTTPRecordingResultProcessor)m_resultProcessorStubFactory.getStub();
+    m_resultProcessorStubFactory.getStub();
 
   private final RegularExpressions m_regularExpressions =
     new RegularExpressionsImplementation();
@@ -113,8 +114,8 @@ public class TestHTTPRecordingImplementation extends TestCase {
 
     m_resultProcessorStubFactory.assertException(
       "process",
-      new Class[] { HttpRecordingDocument.class},
-      exception);
+      exception,
+      HttpRecordingDocument.class);
     loggerStubFactory.assertSuccess("error", exception.getMessage());
     loggerStubFactory.assertSuccess("getErrorLogWriter");
     loggerStubFactory.assertNoMoreCalls();

@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,10 +42,10 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestStatisticsForTestImplementation extends TestCase {
 
-  final RandomStubFactory m_dispatchContextStubFactory =
-    new RandomStubFactory(DispatchContext.class);
+  final RandomStubFactory<DispatchContext> m_dispatchContextStubFactory =
+    RandomStubFactory.create(DispatchContext.class);
   final DispatchContext m_dispatchContext =
-    (DispatchContext)m_dispatchContextStubFactory.getStub();
+    m_dispatchContextStubFactory.getStub();
 
   public void testStatisticsForTestImplementation() throws Exception {
     final StatisticsServices statisticsServices =
@@ -126,7 +126,7 @@ public class TestStatisticsForTestImplementation extends TestCase {
     }
     catch (InvalidContextException e) {
     }
-    
+
     assertEquals(10, statisticsForTest.getLong("userLong0"));
   }
 }

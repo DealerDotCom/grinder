@@ -1,5 +1,6 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2009 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
+// Copyright (C) 2009 Hitoshi Amano
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -48,6 +49,7 @@ import net.grinder.plugin.http.xml.ResponseType;
 import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
 import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.plugin.http.xml.TokenResponseLocationType;
+import net.grinder.plugin.http.xml.RequestType.Method.Enum;
 import net.grinder.tools.tcpproxy.CommentSource;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.util.AttributeStringParser;
@@ -72,29 +74,31 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
   /**
    * Headers which we record.
    */
-  private static final Set MIRRORED_HEADERS = new HashSet(Arrays.asList(
-    new String[] {
-      "Accept",
-      "Accept-Charset",
-      "Accept-Encoding",
-      "Accept-Language",
-      "Cache-Control",
-      "Content-Type",
-      "Content-type", // Common misspelling.
-      "If-Modified-Since",
-      "If-None-Match",
-      "Referer", // Deliberate misspelling to match specification.
-      "User-Agent",
-    }
-  ));
+  private static final Set<String> MIRRORED_HEADERS = new HashSet<String>(
+      Arrays.asList(
+        new String[] {
+          "Accept",
+          "Accept-Charset",
+          "Accept-Encoding",
+          "Accept-Language",
+          "Cache-Control",
+          "Content-Type",
+          "Content-type", // Common misspelling.
+          "If-Modified-Since",
+          "If-None-Match",
+          "Referer", // Deliberate misspelling to match specification.
+          "User-Agent",
+        }
+      ));
 
-  private static final Set HTTP_METHODS_WITH_BODY = new HashSet(Arrays.asList(
-    new RequestType.Method.Enum[] {
-        RequestType.Method.OPTIONS,
-        RequestType.Method.POST,
-        RequestType.Method.PUT,
-    }
-  ));
+  private static final Set<Enum> HTTP_METHODS_WITH_BODY =
+    new HashSet<Enum>(Arrays.asList(
+        new RequestType.Method.Enum[] {
+            RequestType.Method.OPTIONS,
+            RequestType.Method.POST,
+            RequestType.Method.PUT,
+        }
+      ));
 
   private final HTTPRecording m_httpRecording;
 
@@ -469,14 +473,18 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
         final BodyType body = m_requestXML.addNewBody();
 
         final boolean isFormData;
+        final boolean isMultipart;
 
         if (m_contentType != null) {
           body.setContentType(m_contentType);
+          isMultipart = m_contentType.startsWith("multipart/form-data");
           isFormData =
+            isMultipart ||
             m_contentType.startsWith("application/x-www-form-urlencoded");
         }
         else {
           isFormData = false;
+          isMultipart = false;
         }
 
         final byte[] bytes = toByteArray();
@@ -516,9 +524,12 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           if (isFormData) {
             try {
               final NVPair[] formNameValuePairs =
-                Codecs.query2nv(iso88591String);
+                isMultipart ?
+                    Codecs.mpFormDataDecode(bytes, m_contentType, "/tmp") :
+                    Codecs.query2nv(iso88591String);
 
               final FormBodyType formData = body.addNewForm();
+              formData.setMultipart(isMultipart);
 
               for (int i = 0; i < formNameValuePairs.length; ++i) {
                 final String name = formNameValuePairs[i].getName();
@@ -545,6 +556,10 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
             }
             catch (ParseException e) {
               // Failed to parse form data as name-value pairs, we'll
+              // treat it as raw data instead.
+            }
+            catch (IOException e) {
+              // Failed to parse multipart form data, we'll
               // treat it as raw data instead.
             }
           }
@@ -586,7 +601,8 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
     private final ResponseType m_responseXML;
     private ResponseBody m_body;
-    private final Map m_tokensInResponseMap = new HashMap();
+    private final Map<String, ResponseTokenReferenceType> m_tokensInResponseMap
+     = new HashMap<String, ResponseTokenReferenceType>();
 
     public Response(ResponseType responseXML) {
       m_responseXML = responseXML;
@@ -606,7 +622,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       TokenResponseLocationType.Enum source) {
 
       final ResponseTokenReferenceType existingTokenReference =
-        (ResponseTokenReferenceType)m_tokensInResponseMap.get(name);
+        m_tokensInResponseMap.get(name);
 
       if (existingTokenReference == null) {
         final ResponseTokenReferenceType newTokenReference =

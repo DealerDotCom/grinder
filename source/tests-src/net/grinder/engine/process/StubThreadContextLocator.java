@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.engine.process;
 
+
 /**
  * Stub <code>ThreadContextLocator</code>.
  *
@@ -29,10 +30,11 @@ package net.grinder.engine.process;
  */
 public class StubThreadContextLocator implements ThreadContextLocator {
 
-  private final ThreadLocal m_threadContextThreadLocal = new ThreadLocal();
+  private final ThreadLocal<ThreadContext> m_threadContextThreadLocal =
+    new ThreadLocal<ThreadContext>();
 
   public ThreadContext get() {
-    return (ThreadContext)m_threadContextThreadLocal.get();
+    return m_threadContextThreadLocal.get();
   }
 
   public void set(ThreadContext threadContext) {

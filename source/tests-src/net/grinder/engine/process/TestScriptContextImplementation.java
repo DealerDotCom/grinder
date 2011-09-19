@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,10 +47,10 @@ import net.grinder.util.StandardTimeAuthority;
  */
 public class TestScriptContextImplementation extends TestCase {
 
-  private final RandomStubFactory m_threadContextStubFactory =
-    new RandomStubFactory(ThreadContext.class);
+  private final RandomStubFactory<ThreadContext> m_threadContextStubFactory =
+    RandomStubFactory.create(ThreadContext.class);
   private final ThreadContext m_threadContext =
-    (ThreadContext)m_threadContextStubFactory.getStub();
+    m_threadContextStubFactory.getStub();
 
   public TestScriptContextImplementation(String name) {
     super(name);
@@ -60,62 +60,62 @@ public class TestScriptContextImplementation extends TestCase {
 
     final GrinderProperties properties = new GrinderProperties();
 
-    final RandomStubFactory loggerStubFactory =
-      new RandomStubFactory(Logger.class);
-    final Logger logger = (Logger)loggerStubFactory.getStub();
+    final RandomStubFactory<Logger> loggerStubFactory =
+      RandomStubFactory.create(Logger.class);
+    final Logger logger = loggerStubFactory.getStub();
 
-    final RandomStubFactory filenameFactoryStubFactory =
-      new RandomStubFactory(FilenameFactory.class);
-
+    final RandomStubFactory<FilenameFactory> filenameFactoryStubFactory =
+      RandomStubFactory.create(FilenameFactory.class);
     final FilenameFactory filenameFactory =
-      (FilenameFactory)filenameFactoryStubFactory.getStub();
+      filenameFactoryStubFactory.getStub();
 
-    final RandomStubFactory threadStarterStubFactory =
-      new RandomStubFactory(ThreadStarter.class);
-    final ThreadStarter threadStarter =
-      (ThreadStarter)threadStarterStubFactory.getStub();
-
+    final RandomStubFactory<ThreadStarter> threadStarterStubFactory =
+      RandomStubFactory.create(ThreadStarter.class);
     final int threadNumber = 99;
     final int runNumber = 3;
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
     threadContextLocator.set(m_threadContext);
 
-    m_threadContextStubFactory.setResult("getThreadNumber", new Integer(threadNumber));
-    m_threadContextStubFactory.setResult("getRunNumber", new Integer(runNumber));
+    m_threadContextStubFactory.setResult("getThreadNumber", threadNumber);
+    m_threadContextStubFactory.setResult("getRunNumber", runNumber);
 
-    final RandomStubFactory statisticsStubFactory =
-      new RandomStubFactory(Statistics.class);
-    final Statistics statistics = (Statistics)statisticsStubFactory.getStub();
+    final RandomStubFactory<Statistics> statisticsStubFactory =
+      RandomStubFactory.create(Statistics.class);
+    final Statistics statistics = statisticsStubFactory.getStub();
     m_threadContextStubFactory.setResult("getScriptStatistics", statistics);
 
     final Sleeper sleeper = new SleeperImplementation(null, logger, 1, 0);
 
-    final RandomStubFactory sslControlStubFactory =
-      new RandomStubFactory(SSLControl.class);
-    final SSLControl sslControl = (SSLControl)sslControlStubFactory.getStub();
+    final RandomStubFactory<SSLControl> sslControlStubFactory =
+      RandomStubFactory.create(SSLControl.class);
+    final SSLControl sslControl = sslControlStubFactory.getStub();
 
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
     final WorkerIdentity workerIdentity = agentIdentity.createWorkerIdentity();
+    final WorkerIdentity firstWorkerIdentity =
+      agentIdentity.createWorkerIdentity();
 
-    final RandomStubFactory testRegistryStubFactory =
-      new RandomStubFactory(TestRegistry.class);
+    final RandomStubFactory<TestRegistry> testRegistryStubFactory =
+      RandomStubFactory.create(TestRegistry.class);
     final TestRegistry testRegistry =
-      (TestRegistry)testRegistryStubFactory.getStub();
+      testRegistryStubFactory.getStub();
 
-    final RandomStubFactory threadStopperStubFactory =
-      new RandomStubFactory(ThreadStopper.class);
-    final ThreadStopper threadStopper =
-      (ThreadStopper)threadStopperStubFactory.getStub();
+    final RandomStubFactory<ThreadStopper> threadStopperStubFactory =
+      RandomStubFactory.create(ThreadStopper.class);
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        workerIdentity, threadContextLocator, properties, logger,
-        filenameFactory, sleeper, sslControl, statistics, testRegistry,
-        threadStarter, threadStopper);
+        workerIdentity, firstWorkerIdentity, threadContextLocator, properties,
+        logger, filenameFactory, sleeper, sslControl, statistics, testRegistry,
+        threadStarterStubFactory.getStub(), threadStopperStubFactory.getStub());
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
+    assertEquals(workerIdentity.getNumber(),
+                 scriptContext.getProcessNumber());
+    assertEquals(firstWorkerIdentity.getNumber(),
+                 scriptContext.getFirstProcessNumber());
     assertEquals(threadNumber, scriptContext.getThreadNumber());
     assertEquals(runNumber, scriptContext.getRunNumber());
     assertSame(logger, scriptContext.getLogger());
@@ -155,16 +155,18 @@ public class TestScriptContextImplementation extends TestCase {
 
   public void testSleep() throws Exception {
 
-    final RandomStubFactory loggerStubFactory =
-      new RandomStubFactory(Logger.class);
-    final Logger logger = (Logger)loggerStubFactory.getStub();
-
+    final RandomStubFactory<Logger> loggerStubFactory =
+      RandomStubFactory.create(Logger.class);
     final Sleeper sleeper =
-      new SleeperImplementation(new StandardTimeAuthority(), logger, 1, 0);
+      new SleeperImplementation(new StandardTimeAuthority(),
+                                loggerStubFactory.getStub(),
+                                1,
+                                0);
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        null, null, null, null, null, sleeper, null, null, null, null, null);
+        null, null, null, null, null, null, sleeper, null, null, null, null,
+        null);
 
     assertTrue(
       new Time(50, 70) {
@@ -183,8 +185,8 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        null, threadContextLocator, null, null, null, null, null, null, null,
-        null, null);
+        null, null, threadContextLocator, null, null, null, null, null, null,
+        null, null, null);
 
     try {
       scriptContext.stopThisWorkerThread();

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,12 +36,11 @@ public class TestIgnoreShutdownSender extends TestCase {
 
   public void testIgnoreShudtonwSender() throws Exception {
 
-    final RandomStubFactory senderStubFactory =
-      new RandomStubFactory(Sender.class);
-    final Sender sender = (Sender)senderStubFactory.getStub();
+    final RandomStubFactory<Sender> senderStubFactory =
+      RandomStubFactory.create(Sender.class);
 
     final IgnoreShutdownSender ignoreShutdownSender =
-      new IgnoreShutdownSender(sender);
+      new IgnoreShutdownSender(senderStubFactory.getStub());
 
     final Message m1 = new SimpleMessage();
     final Message m2 = new SimpleMessage();
@@ -51,9 +50,9 @@ public class TestIgnoreShutdownSender extends TestCase {
     ignoreShutdownSender.send(m2);
     ignoreShutdownSender.shutdown();
 
-    senderStubFactory.assertSuccess("send", new Object[] { m1 });
-    senderStubFactory.assertSuccess("send", new Object[] { m2 });
-    senderStubFactory.assertSuccess("send", new Object[] { m2 });
+    senderStubFactory.assertSuccess("send", m1);
+    senderStubFactory.assertSuccess("send", m2);
+    senderStubFactory.assertSuccess("send", m2);
     senderStubFactory.assertNoMoreCalls();
   }
 }

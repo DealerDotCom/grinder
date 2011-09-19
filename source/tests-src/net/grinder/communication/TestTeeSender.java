@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,15 +36,13 @@ public class TestTeeSender extends TestCase {
 
   public void testWithGoodSenders() throws Exception {
 
-    final RandomStubFactory sender1StubFactory =
-      new RandomStubFactory(Sender.class);
-    final Sender sender1 = (Sender)sender1StubFactory.getStub();
+    final RandomStubFactory<Sender> sender1StubFactory =
+      RandomStubFactory.create(Sender.class);
 
-    final RandomStubFactory sender2StubFactory =
-      new RandomStubFactory(Sender.class);
-    final Sender sender2 = (Sender)sender2StubFactory.getStub();
-
-    final TeeSender teeSender = new TeeSender(sender1, sender2);
+    final RandomStubFactory<Sender> sender2StubFactory =
+      RandomStubFactory.create(Sender.class);
+    final TeeSender teeSender = new TeeSender(sender1StubFactory.getStub(),
+                                              sender2StubFactory.getStub());
 
     final Message m1 = new SimpleMessage();
     final Message m2 = new SimpleMessage();
@@ -54,16 +52,16 @@ public class TestTeeSender extends TestCase {
     teeSender.send(m2);
     teeSender.shutdown();
 
-    sender1StubFactory.assertSuccess("send", new Object[] { m1 });
-    sender1StubFactory.assertSuccess("send", new Object[] { m2 });
-    sender1StubFactory.assertSuccess("send", new Object[] { m2 });
-    sender1StubFactory.assertSuccess("shutdown", new Object[] { });
+    sender1StubFactory.assertSuccess("send", m1);
+    sender1StubFactory.assertSuccess("send", m2);
+    sender1StubFactory.assertSuccess("send", m2);
+    sender1StubFactory.assertSuccess("shutdown");
     sender1StubFactory.assertNoMoreCalls();
 
-    sender2StubFactory.assertSuccess("send", new Object[] { m1 });
-    sender2StubFactory.assertSuccess("send", new Object[] { m2 });
-    sender2StubFactory.assertSuccess("send", new Object[] { m2 });
-    sender2StubFactory.assertSuccess("shutdown", new Object[] { });
+    sender2StubFactory.assertSuccess("send", m1);
+    sender2StubFactory.assertSuccess("send", m2);
+    sender2StubFactory.assertSuccess("send", m2);
+    sender2StubFactory.assertSuccess("shutdown");
     sender2StubFactory.assertNoMoreCalls();
   }
 
@@ -89,9 +87,9 @@ public class TestTeeSender extends TestCase {
 
   public void testWithABadSender() throws Exception {
 
-    final RandomStubFactory goodSenderStubFactory =
-      new RandomStubFactory(Sender.class);
-    final Sender goodSender = (Sender)goodSenderStubFactory.getStub();
+    final RandomStubFactory<Sender> goodSenderStubFactory =
+      RandomStubFactory.create(Sender.class);
+    final Sender goodSender = goodSenderStubFactory.getStub();
 
     final CommunicationException exceptionToThrowFromSend =
       new CommunicationException("Foo");
@@ -115,7 +113,7 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromSend, e);
     }
 
-    goodSenderStubFactory.assertSuccess("send", new Object[] { m });
+    goodSenderStubFactory.assertSuccess("send", m);
     goodSenderStubFactory.assertNoMoreCalls();
 
     try {
@@ -126,7 +124,7 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromShutdown, e);
     }
 
-    goodSenderStubFactory.assertSuccess("shutdown", new Object[] {});
+    goodSenderStubFactory.assertSuccess("shutdown");
     goodSenderStubFactory.assertNoMoreCalls();
 
     // goodSender is second, so will never be invoked.

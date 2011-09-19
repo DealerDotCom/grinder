@@ -1,4 +1,4 @@
-// Copyright (C) 2006, 2007 Philip Aston
+// Copyright (C) 2006 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,7 +47,7 @@ import javax.swing.SwingUtilities;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 final class MnemonicHeuristics {
 
@@ -281,7 +281,7 @@ final class MnemonicHeuristics {
     }
   }
 
-  private abstract class AbstactEarliestMatchHeuristic implements Heuristic {
+  private abstract class AbstractEarliestMatchHeuristic implements Heuristic {
     public int apply(String text) {
       final char[] characters = text.toCharArray();
 
@@ -301,11 +301,11 @@ final class MnemonicHeuristics {
     protected abstract boolean matches(char c);
   }
 
-  private class UpperCaseHeuristic extends AbstactEarliestMatchHeuristic {
+  private class UpperCaseHeuristic extends AbstractEarliestMatchHeuristic {
     protected boolean matches(char c) { return Character.isUpperCase(c); }
   }
 
-  private class LetterOrDigitHeuristic extends AbstactEarliestMatchHeuristic {
+  private class LetterOrDigitHeuristic extends AbstractEarliestMatchHeuristic {
     protected boolean matches(char c) { return Character.isLetterOrDigit(c); }
   }
 
@@ -325,19 +325,19 @@ final class MnemonicHeuristics {
   }
 
   private static class MnemonicMap {
-    private final Map m_map = new HashMap();
+    private final Map<Integer, ButtonWrapper> m_map =
+      new HashMap<Integer, ButtonWrapper>();
 
     public void add(int mnemonic, AbstractButton button) {
-      m_map.put(new Integer(mnemonic), new ButtonWrapper(button, false));
+      m_map.put(mnemonic, new ButtonWrapper(button, false));
     }
 
     public void addExplicit(int mnemonic, AbstractButton button) {
-      m_map.put(new Integer(mnemonic), new ButtonWrapper(button, true));
+      m_map.put(mnemonic, new ButtonWrapper(button, true));
     }
 
     public AbstractButton getExplicit(int mnemonic) {
-      final ButtonWrapper wrapper =
-        (ButtonWrapper)m_map.get(new Integer(mnemonic));
+      final ButtonWrapper wrapper = m_map.get(mnemonic);
 
       if (wrapper != null && wrapper.isExplicit()) {
         return wrapper.getButton();
@@ -347,8 +347,7 @@ final class MnemonicHeuristics {
     }
 
     public AbstractButton remove(int mnemonic) {
-      final ButtonWrapper wrapper =
-        (ButtonWrapper)m_map.remove(new Integer(mnemonic));
+      final ButtonWrapper wrapper = m_map.remove(mnemonic);
 
       return wrapper != null ? wrapper.getButton() : null;
     }
@@ -358,8 +357,7 @@ final class MnemonicHeuristics {
      * for a particular button.
      */
     public AbstractButton remove(int mnemonic, AbstractButton button) {
-      final ButtonWrapper wrapper =
-        (ButtonWrapper)m_map.get(new Integer(mnemonic));
+      final ButtonWrapper wrapper = m_map.get(mnemonic);
 
       if (wrapper != null && wrapper.getButton() == button) {
         return remove(mnemonic);
@@ -369,7 +367,7 @@ final class MnemonicHeuristics {
     }
 
     public boolean contains(int mnemonic) {
-      return m_map.containsKey(new Integer(mnemonic));
+      return m_map.containsKey(mnemonic);
     }
 
     private static class ButtonWrapper {

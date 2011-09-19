@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,12 +35,13 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link ProcessStatus}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestProcessControlImplementation extends TestCase {
 
   public void testProcessReportsComparator() throws Exception {
-    final Comparator comparator = new ProcessControl.ProcessReportsComparator();
+    final Comparator<ProcessReports> comparator =
+      new ProcessControl.ProcessReportsComparator();
 
     final AgentIdentity agentIdentity1 =
       new StubAgentIdentity("my agent");
@@ -49,10 +50,10 @@ public class TestProcessControlImplementation extends TestCase {
       new StubAgentProcessReport(agentIdentity1,
                                  AgentProcessReport.STATE_RUNNING);
 
-    final RandomStubFactory processReportsStubFactory1 =
-      new RandomStubFactory(ProcessReports.class);
+    final RandomStubFactory<ProcessReports> processReportsStubFactory1 =
+      RandomStubFactory.create(ProcessReports.class);
     final ProcessReports processReports1 =
-      (ProcessReports)processReportsStubFactory1.getStub();
+      processReportsStubFactory1.getStub();
     processReportsStubFactory1.setResult("getAgentProcessReport",
                                          agentProcessReport1);
 
@@ -62,10 +63,10 @@ public class TestProcessControlImplementation extends TestCase {
       new StubAgentProcessReport(agentIdentity1,
                                  AgentProcessReport.STATE_FINISHED);
 
-    final RandomStubFactory processReportsStubFactory2 =
-      new RandomStubFactory(ProcessReports.class);
+    final RandomStubFactory<ProcessReports> processReportsStubFactory2 =
+      RandomStubFactory.create(ProcessReports.class);
     final ProcessReports processReports2 =
-      (ProcessReports)processReportsStubFactory2.getStub();
+      processReportsStubFactory2.getStub();
     processReportsStubFactory2.setResult("getAgentProcessReport",
                                          agentProcessReport2);
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,7 @@ import net.grinder.engine.common.ScriptLocation;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ScriptEngine extends Instrumenter {
+public interface ScriptEngine {
 
   /**
    * Run any process initialisation required by the script. Called once
@@ -122,23 +122,22 @@ public interface ScriptEngine extends Instrumenter {
   }
 
   /**
-   * Call back interface that proxies use to dispatch work.
+   * Interface to the test instrumentation.
    */
-  interface Dispatcher {
+  interface Recorder {
 
     /**
-     * Dispatch method.
+     * Call before instrumented code to initiate test recording.
      *
-     * <p>If called multiple times for the same test and thread, only the outer
-     * invocation should be recorded.</p>
+     * @throws EngineException Test recording could not be initiated.
      */
-    Object dispatch(Callable callable) throws EngineException;
+    void start() throws EngineException;
 
     /**
-     * Interface for things that can be called.
+     * Call after instrumented code to complete test recording.
+     *
+     * @throws EngineException Test recording could not be completed.
      */
-    interface Callable {
-      Object call();
-    }
+    void end(boolean success) throws EngineException;
   }
 }

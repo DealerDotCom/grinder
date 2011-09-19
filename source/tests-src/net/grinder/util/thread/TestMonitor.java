@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -142,9 +142,9 @@ public class TestMonitor extends TestCase {
       Assert.assertNull(m_threw);
     }
 
-    public void assertException(Class c) throws InterruptedException {
+    public void assertException(Class<?> c) throws InterruptedException {
       waitUntilWaiting(false);
-       Assert.assertTrue(c.isAssignableFrom(m_threw.getClass()));
+      Assert.assertTrue(c.isAssignableFrom(m_threw.getClass()));
     }
   }
 }

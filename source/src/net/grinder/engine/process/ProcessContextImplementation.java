@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,7 +32,6 @@ import net.grinder.common.Logger;
 import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.QueuedSender;
-import net.grinder.engine.common.EngineException;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.messages.console.WorkerProcessReportMessage;
 import net.grinder.script.Grinder;
@@ -41,7 +40,6 @@ import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.util.JVM;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.Sleeper;
 import net.grinder.util.SleeperImplementation;
@@ -57,8 +55,10 @@ import net.grinder.util.ListenerSupport.Informer;
  * @version $Revision$
  */
 final class ProcessContextImplementation implements ProcessContext {
-  private final ListenerSupport m_processLifeCycleListeners =
-    new ListenerSupport();
+  private final ListenerSupport<ProcessLifeCycleListener>
+    m_processLifeCycleListeners =
+      new ListenerSupport<ProcessLifeCycleListener>();
+
   private final ThreadContexts m_threadContexts = new ThreadContexts();
 
   private final WorkerIdentity m_workerIdentity;
@@ -75,14 +75,14 @@ final class ProcessContextImplementation implements ProcessContext {
 
   private volatile long m_executionStartTime;
 
-  ProcessContextImplementation(
-                 WorkerIdentity workerIdentity,
-                 GrinderProperties properties,
-                 Logger logger,
-                 FilenameFactory filenameFactory,
-                 QueuedSender consoleSender,
-                 StatisticsServices statisticsServices,
-                 ThreadStarter threadStarter)
+  ProcessContextImplementation(WorkerIdentity workerIdentity,
+                               WorkerIdentity firstWorkerIdentity,
+                               GrinderProperties properties,
+                               Logger logger,
+                               FilenameFactory filenameFactory,
+                               QueuedSender consoleSender,
+                               StatisticsServices statisticsServices,
+                               ThreadStarter threadStarter)
     throws GrinderException {
 
     m_workerIdentity = workerIdentity;
@@ -94,33 +94,7 @@ final class ProcessContextImplementation implements ProcessContext {
       new TestStatisticsHelperImplementation(
         m_statisticsServices.getStatisticsIndexMap());
 
-    TimeAuthority alternateTimeAuthority = null;
-
-    if (properties.getBoolean("grinder.useNanoTime", false)) {
-      if (!JVM.getInstance().isAtLeastVersion(1, 5)) {
-        logger.output("grinder.useNanoTime=true requires J2SE 5 or later, " +
-                      "ignoring this setting",
-                      Logger.LOG | Logger.TERMINAL);
-      }
-      else {
-        try {
-          final Class nanoTimeClass =
-            Class.forName("net.grinder.util.NanoTimeTimeAuthority");
-          alternateTimeAuthority = (TimeAuthority)nanoTimeClass.newInstance();
-          logger.output("Using System.nanoTime()");
-        }
-        catch (Exception e) {
-          throw new EngineException("Failed to load nanoTime() support", e);
-        }
-      }
-    }
-
-    if (alternateTimeAuthority != null) {
-      m_timeAuthority = alternateTimeAuthority;
-    }
-    else {
-      m_timeAuthority = new StandardTimeAuthority();
-    }
+    m_timeAuthority = new StandardTimeAuthority();
 
     final Logger externalLogger =
       new ExternalLogger(m_processLogger, m_threadContextLocator);
@@ -156,6 +130,7 @@ final class ProcessContextImplementation implements ProcessContext {
 
     m_scriptContext = new ScriptContextImplementation(
       m_workerIdentity,
+      firstWorkerIdentity,
       m_threadContextLocator,
       properties,
       externalLogger,
@@ -225,6 +200,10 @@ final class ProcessContextImplementation implements ProcessContext {
     return m_executionStartTime;
   }
 
+  public long getElapsedTime() {
+    return m_timeAuthority.getTimeInMilliseconds() - getExecutionStartTime();
+  }
+
   public void shutdown() {
     // Interrupt any sleepers.
     SleeperImplementation.shutdownAllCurrentSleepers();
@@ -241,20 +220,21 @@ final class ProcessContextImplementation implements ProcessContext {
   }
 
   public void fireThreadCreatedEvent(final ThreadContext threadContext) {
-    m_processLifeCycleListeners.apply(new Informer() {
-      public void inform(Object listener) {
-        ((ProcessLifeCycleListener)listener).threadCreated(threadContext);
-      } }
-    );
+    m_processLifeCycleListeners.apply(new Informer<ProcessLifeCycleListener>() {
+      public void inform(ProcessLifeCycleListener listener) {
+        listener.threadCreated(threadContext);
+      }
+    });
   }
 
   private static final class ThreadContextLocatorImplementation
     implements ThreadContextLocator  {
 
-    private final ThreadLocal m_threadContextThreadLocal = new ThreadLocal();
+    private final ThreadLocal<ThreadContext> m_threadContextThreadLocal =
+      new ThreadLocal<ThreadContext>();
 
     public ThreadContext get() {
-      return (ThreadContext)m_threadContextThreadLocal.get();
+      return m_threadContextThreadLocal.get();
     }
 
     public void set(ThreadContext threadContext) {
@@ -266,14 +246,14 @@ final class ProcessContextImplementation implements ProcessContext {
     implements ProcessLifeCycleListener {
 
     // Guarded by self.
-    private final Map m_threadContexts = new HashMap();
+    private final Map<Integer, ThreadContext> m_threadContexts =
+      new HashMap<Integer, ThreadContext>();
 
     // Guarded by m_threadContexts.
     private boolean m_allShutdown;
 
     public void threadCreated(ThreadContext threadContext) {
-      final Integer threadNumber =
-        new Integer(threadContext.getThreadNumber());
+      final Integer threadNumber = threadContext.getThreadNumber();
 
       final boolean shutdown;
 
@@ -304,8 +284,7 @@ final class ProcessContextImplementation implements ProcessContext {
       final ThreadContext threadContext;
 
       synchronized (m_threadContexts) {
-        threadContext =
-          (ThreadContext)m_threadContexts.get(new Integer(threadNumber));
+        threadContext = m_threadContexts.get(threadNumber);
       }
 
       if (threadContext != null) {
@@ -322,7 +301,7 @@ final class ProcessContextImplementation implements ProcessContext {
       synchronized (m_threadContexts) {
         m_allShutdown = true;
 
-        threadContexts = (ThreadContext[])
+        threadContexts =
           m_threadContexts.values().toArray(
             new ThreadContext[m_threadContexts.size()]);
       }

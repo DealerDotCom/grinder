@@ -40,7 +40,7 @@ public class TestStopWatchImplementation extends TestCase {
     final TimeAuthorityStubFactory timeAuthorityStubFactory =
       new TimeAuthorityStubFactory();
     final TimeAuthority timeAuthority =
-      timeAuthorityStubFactory.getTimeAuthority();
+      timeAuthorityStubFactory.getStub();
     timeAuthorityStubFactory.nextTime(2000);
 
     final StopWatch stopWatch = new StopWatchImplementation(timeAuthority);

@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,7 @@ package net.grinder.messages.console;
 
 import java.util.Collection;
 
+import net.grinder.common.Test;
 import net.grinder.communication.Message;
 
 
@@ -36,14 +37,14 @@ public final class RegisterTestsMessage implements Message {
 
   private static final long serialVersionUID = -4005260033024209616L;
 
-  private final Collection m_tests;
+  private final Collection<Test> m_tests;
 
   /**
    * Constructor.
    *
    * @param tests The test set to register.
    */
-  public RegisterTestsMessage(Collection tests) {
+  public RegisterTestsMessage(Collection<Test> tests) {
     m_tests = tests;
   }
 
@@ -52,7 +53,7 @@ public final class RegisterTestsMessage implements Message {
    *
    * @return The test set.
    */
-  public Collection getTests() {
+  public Collection<Test> getTests() {
     return m_tests;
   }
 }

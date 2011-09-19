@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,7 +28,7 @@ import net.grinder.common.Test;
  * Registry of Tests.
  *
  * @author Philip Aston
- * @version $Revision: 3642 $
+ * @version $Revision$
  */
 public interface TestRegistry {
 
@@ -54,5 +54,15 @@ public interface TestRegistry {
      * @throws NotWrappableTypeException If the target could not be wrapped.
      */
     Object createProxy(Object o) throws NotWrappableTypeException;
+
+    /**
+     * Instrument the given object.
+     *
+     * @param target
+     *          The object to instrument.
+     * @throws NonInstrumentableTypeException
+     *           If the target could not be instrumented.
+     */
+    void instrument(Object target) throws NonInstrumentableTypeException;
   }
 }

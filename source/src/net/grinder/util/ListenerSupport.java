@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.util;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,21 +29,36 @@ import java.util.List;
 /**
  * Generic support for listeners.
  *
+ * @param <T> Listener type.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ListenerSupport {
+public final class ListenerSupport<T> {
 
-  private final List m_listeners = new LinkedList();
+  private final List<T> m_listeners = new LinkedList<T>();
 
   /**
    * Add a listener.
    *
    * @param listener The listener.
    */
-  public void add(Object listener) {
+  public void add(T listener) {
     synchronized (m_listeners) {
       m_listeners.add(listener);
+    }
+  }
+
+  /**
+   * Remove all instances of the given listener.
+   *
+   * @param listener The listener.
+   */
+  public void remove(T listener) {
+    synchronized (m_listeners) {
+      while (m_listeners.remove(listener)) {
+        // Keep checking.
+      }
     }
   }
 
@@ -51,14 +67,14 @@ public final class ListenerSupport {
    * {@link
    * ListenerSupport#apply(net.grinder.util.ListenerSupport.Informer)}.
    */
-  public interface Informer {
+  public interface Informer<K> {
 
     /**
      * Should notify the listener appropriately.
      *
      * @param listener The listener.
      */
-    void inform(Object listener);
+    void inform(K listener);
   }
 
   /**
@@ -66,7 +82,7 @@ public final class ListenerSupport {
    * {@link
    * ListenerSupport#apply(net.grinder.util.ListenerSupport.HandlingInformer)}.
    */
-  public interface HandlingInformer {
+  public interface HandlingInformer<K> {
 
     /**
      * Should notify the listener appropriately.
@@ -76,7 +92,7 @@ public final class ListenerSupport {
      * @return <code>true</code> => event handled, do not delegate to further
      *          Handlers.
      */
-    boolean inform(Object listener);
+    boolean inform(K listener);
   }
 
   /**
@@ -84,15 +100,9 @@ public final class ListenerSupport {
    *
    * @param informer An adapter to be applied to each listener.
    */
-  public void apply(Informer informer) {
-    final Object[] cloneList;
-
-    synchronized (m_listeners) {
-      cloneList = m_listeners.toArray(new Object[m_listeners.size()]);
-    }
-
-    for (int i = 0; i < cloneList.length; ++i) {
-      informer.inform(cloneList[i]);
+  public void apply(Informer<? super T> informer) {
+    for (T listener : cloneListenerList()) {
+      informer.inform(listener);
     }
   }
 
@@ -102,19 +112,19 @@ public final class ListenerSupport {
    * @param handler An adapter to be applied to each listener.
    * @return <code>true</code> => a listener handled the event.
    */
-  public boolean apply(HandlingInformer handler) {
-    final Object[] cloneList;
-
-    synchronized (m_listeners) {
-      cloneList = m_listeners.toArray(new Object[m_listeners.size()]);
-    }
-
-    for (int i = 0; i < cloneList.length; ++i) {
-      if (handler.inform(cloneList[i])) {
+  public boolean apply(HandlingInformer<? super T> handler) {
+    for (T listener : cloneListenerList()) {
+      if (handler.inform(listener)) {
         return true;
       }
     }
 
     return false;
+  }
+
+  private List<T> cloneListenerList() {
+    synchronized (m_listeners) {
+      return new ArrayList<T>(m_listeners);
+    }
   }
 }

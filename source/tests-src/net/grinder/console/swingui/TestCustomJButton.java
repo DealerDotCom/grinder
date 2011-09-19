@@ -34,7 +34,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link CustomJButton}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestCustomJButton extends TestCase {
 

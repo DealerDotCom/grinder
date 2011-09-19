@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,7 +38,7 @@ public abstract class AbstractTestSemantics implements Test {
    * @return <code>-1</code> if <code>o</code> is less, <code>0</code>
    * if its equal, <code>1</code> if its greater.
    */
-  public final int compareTo(Object o) {
+  public final int compareTo(Test o) {
     final int ours = getNumber();
     final int others = ((AbstractTestSemantics)o).getNumber();
     return ours < others ? -1 : (ours == others ? 0 : 1);

@@ -2,7 +2,7 @@
  * @(#)CIHashtable.java					0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschal‰r
+ *  Copyright (C) 1996-2001 Ronald Tschal√§r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,9 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
  */
 
 package HTTPClient;
@@ -39,7 +42,7 @@ import java.util.Enumeration;
  * This class implements a Hashtable with case-insensitive Strings as keys.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal‰r
+ * @author	Ronald Tschal√§r
  */
 class CIHashtable extends Hashtable
 {
@@ -163,10 +166,16 @@ final class CIHashtableEnumeration implements Enumeration
 {
     Enumeration HTEnum;
 
-    public CIHashtableEnumeration(Enumeration enum)
+    /** ++GRINDER MODIFICIATION **/
+//    public CIHashtableEnumeration(Enumeration enum)
+//    {
+//   	HTEnum = enum;
+//    }
+    public CIHashtableEnumeration(Enumeration e)
     {
-	HTEnum = enum;
+    HTEnum = e;
     }
+    /** --GRINDER MODIFICIATION **/
 
     public boolean hasMoreElements()
     {

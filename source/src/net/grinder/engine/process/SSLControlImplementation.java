@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,7 +38,7 @@ import net.grinder.util.InsecureSSLContextFactory;
 
 
 /**
- * Implementation of {@link SSLControlImplementation}.
+ * Implementation of {@link SSLControl}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -161,6 +161,14 @@ final class SSLControlImplementation implements SSLControl {
   private void setThreadSSLContextFactory(
     ThreadContext threadContext,
     CachingSSLContextFactory cachingSSLContextFactory) {
+
+    final SSLContextFactory oldSSLContextFactory =
+      threadContext.getThreadSSLContextFactory();
+
+    if (oldSSLContextFactory instanceof CachingSSLContextFactory) {
+      threadContext.removeThreadLifeCycleListener(
+        (CachingSSLContextFactory) oldSSLContextFactory);
+    }
 
     threadContext.setThreadSSLContextFactory(cachingSSLContextFactory);
     threadContext.registerThreadLifeCycleListener(cachingSSLContextFactory);

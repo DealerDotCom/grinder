@@ -1,4 +1,5 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
+// Copyright (C) 2005 - 2010 Hitoshi Amano
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +26,7 @@ import java.net.ProtocolException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
@@ -40,7 +42,7 @@ public class TestCookie extends TestCase {
 
   private final RoRequestStubFactory m_roRequestStubFactory =
     new RoRequestStubFactory();
-  private final RoRequest m_roRequest = m_roRequestStubFactory.getRoRequest();
+  private final RoRequest m_roRequest = m_roRequestStubFactory.getStub();
 
   public void testParse() throws Exception {
     // No cookies, nothing to do.
@@ -72,6 +74,7 @@ public class TestCookie extends TestCase {
     final DateFormat df =
       DateFormat.getDateTimeInstance(
         DateFormat.SHORT, DateFormat.MEDIUM, Locale.UK);
+    df.setTimeZone(TimeZone.getTimeZone("GMT"));
     final Date result = df.parse("25/03/06 16:53:28");
     assertEquals(result, cookies2[0].expires());
   }
@@ -96,8 +99,16 @@ public class TestCookie extends TestCase {
     Cookie.parse("foo=bah;expires=", m_roRequest);
   }
 
+  // For bug 3124963.
+  public void testCookie2Discard() throws Exception {
+    Cookie2.parse("dude=member1-13443427;Version=1;Path=/;Discard",
+                  m_roRequest);
+  }
+
   public void testDotNetHttpOnlyNonsense() throws Exception {
     Cookie.parse(".ASPXANONYMOUS=AcbBC8KU9yE3MmQyMDA1Ni0wZDlmLTQ0MjktYWI2NS0zMTUwOGQwZmZhNTk1; expires=Wed, 16-Aug-2006 04:12:47 GMT; path=/;HttpOnly, language=en-US; path=/;HttpOnly",
+      m_roRequest);
+    Cookie.parse(".ASPXANONYMOUS=AcbBC8KU9yE3MmQyMDA1Ni0wZDlmLTQ0MjktYWI2NS0zMTUwOGQwZmZhNTk1; expires=Wed, 16-Aug-2006 04:12:47 GMT; path=/;httponly, language=en-US; path=/;httponly",
       m_roRequest);
   }
 
@@ -119,16 +130,14 @@ public class TestCookie extends TestCase {
     assertEquals(0, cookies2.length);
   }
 
-  public static final class RoRequestStubFactory extends RandomStubFactory {
+  public static final class RoRequestStubFactory
+    extends RandomStubFactory<RoRequest> {
+
     private String m_host = "host";
     private String m_requestURI = "/path/sub;blah=blah";
 
     public RoRequestStubFactory() {
       super(RoRequest.class);
-    }
-
-    public RoRequest getRoRequest() {
-      return (RoRequest)getStub();
     }
 
     public HTTPConnection override_getConnection(Object proxy) {

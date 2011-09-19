@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2007 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,14 @@
 
 package net.grinder.statistics;
 
-import junit.framework.TestCase;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import junit.framework.TestCase;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.testutility.RandomStubFactory;
@@ -82,7 +83,7 @@ public class TestTestStatisticsMap extends TestCase {
     assertEquals(2, map.size());
 
     final StatisticsSet bogusStatisticsSetImplementation =
-      (StatisticsSet)new RandomStubFactory(StatisticsSet.class).getStub();
+      RandomStubFactory.create(StatisticsSet.class).getStub();
 
     try {
       map.put(m_test1, bogusStatisticsSetImplementation);
@@ -121,48 +122,6 @@ public class TestTestStatisticsMap extends TestCase {
     assertFalse(map0.hashCode() == map1.hashCode());
   }
 
-  public void testIteratorAndOrder() throws Exception {
-
-    final TestStatisticsMap map =
-      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
-
-    final TestStatisticsMap.Iterator iterator1 = map.new Iterator();
-    assertFalse(iterator1.hasNext());
-
-    map.put(m_test1, m_statistics1);
-
-    final TestStatisticsMap.Iterator iterator2 = map.new Iterator();
-    assertTrue(iterator2.hasNext());
-    assertFalse(iterator1.hasNext());
-
-    final TestStatisticsMap.Pair pair1 = iterator2.next();
-    assertFalse(iterator2.hasNext());
-    assertEquals(m_test1, pair1.getTest());
-    assertEquals(m_statistics1, pair1.getStatistics());
-
-    map.put(m_test0, m_statistics0);
-
-    final TestStatisticsMap.Iterator iterator3 = map.new Iterator();
-    assertTrue(iterator3.hasNext());
-
-    final TestStatisticsMap.Pair pair2 = iterator3.next();
-    assertTrue(iterator3.hasNext());
-    assertEquals(m_test0, pair2.getTest());
-    assertEquals(m_statistics0, pair2.getStatistics());
-
-    final TestStatisticsMap.Pair pair3 = iterator3.next();
-    assertFalse(iterator3.hasNext());
-    assertEquals(m_test1, pair3.getTest());
-    assertEquals(m_statistics1, pair3.getStatistics());
-
-    try {
-      iterator3.next();
-      fail("Expected a NoSuchElementException");
-    }
-    catch (java.util.NoSuchElementException e) {
-    }
-  }
-
   public void testAdd() throws Exception {
     final TestStatisticsMap map0 =
       new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
@@ -181,9 +140,10 @@ public class TestTestStatisticsMap extends TestCase {
     map1.add(map0);
 
     assertEquals(1, map1.size());
-    final TestStatisticsMap.Iterator iterator = map1.new Iterator();
-    final StatisticsSet statistics = iterator.next().getStatistics();
-    assertEquals(20, statistics.getValue(m_index));
+
+    final Pair content = extract(map1).get(0);
+    assertEquals(m_test0, content.getTest());
+    assertEquals(20, content.getStatisticsSet().getValue(m_index));
   }
 
   public void testReset() throws Exception {
@@ -203,11 +163,13 @@ public class TestTestStatisticsMap extends TestCase {
     assertEquals(1, snapshot1.size());
     assertEquals(1, map.size());
 
-    assertEquals(0,
-        map.new Iterator().next().getStatistics().getValue(m_index));
+    final Pair content = extract(map).get(0);
+    assertEquals(m_test0, content.getTest());
+    assertEquals(0, content.getStatisticsSet().getValue(m_index));
 
-    assertEquals(10,
-        snapshot1.new Iterator().next().getStatistics().getValue(m_index));
+    final Pair snapShotContent = extract(snapshot1).get(0);
+    assertEquals(m_test0, snapShotContent.getTest());
+    assertEquals(10, snapShotContent.getStatisticsSet().getValue(m_index));
 
     // The map was reset, so the statistics will be zero and reset()
     // will not copy them through.
@@ -265,11 +227,9 @@ public class TestTestStatisticsMap extends TestCase {
     assertEquals(original1, received1);
 
     assertEquals(2, received0.size());
-    final TestStatisticsMap.Iterator iterator = received0.new Iterator();
 
-    while (iterator.hasNext()) {
-      final TestStatisticsMap.Pair pair = iterator.next();
-      assertEquals(m_statistics0, pair.getStatistics());
+    for (Pair pair : extract(received0)) {
+      assertEquals(m_statistics0, pair.getStatisticsSet());
       // We get a simplified test object.
       assertEquals("", pair.getTest().getDescription());
     }
@@ -350,5 +310,32 @@ public class TestTestStatisticsMap extends TestCase {
     }
 
     assertEquals(1000, map.size());
+  }
+
+  private static final class Pair {
+    private final Test m_test;
+    private final StatisticsSet m_statisticsSet;
+
+    public Pair(Test test, StatisticsSet statisticsSet) {
+      m_test = test;
+      m_statisticsSet = statisticsSet;
+    }
+
+    public Test getTest() { return m_test; }
+    public StatisticsSet getStatisticsSet() { return m_statisticsSet; }
+  }
+
+  private static final List<Pair> extract(final TestStatisticsMap map) {
+
+    final List<Pair> result = new ArrayList<Pair>();
+
+    map.new ForEach() {
+      @Override
+      protected void next(Test test, StatisticsSet statistics) {
+        result.add(new Pair(test, statistics));
+      }
+    }.iterate();
+
+    return result;
   }
 }

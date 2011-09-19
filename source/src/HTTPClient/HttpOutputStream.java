@@ -2,7 +2,7 @@
  * @(#)HttpOutputStream.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschal‰r
+ *  Copyright (C) 1996-2001 Ronald Tschal√§r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -26,8 +26,11 @@
  *
  *  The HTTPClient's home page is located at:
  *
- *  http://www.innovation.ch/java/HTTPClient/ 
+ *  http://www.innovation.ch/java/HTTPClient/
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
  */
 
 package HTTPClient;
@@ -89,7 +92,7 @@ import java.io.IOException;
  * solution.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal‰r
+ * @author	Ronald Tschal√§r
  * @since	V0.3
  */
 public class HttpOutputStream extends OutputStream
@@ -98,10 +101,15 @@ public class HttpOutputStream extends OutputStream
     private static final NVPair[] empty = new NVPair[0];
 
     /** the length of the data to be sent */
-    private int length;
+
+    /** ++GRINDER MODIFICATION **/
+    //private int length;
+    private long length;
 
     /** the length of the data received so far */
-    private int rcvd = 0;
+    // private int rcvd = 0;
+    private long rcvd = 0;
+    /** --GRINDER MODIFICATION **/
 
     /** the request this stream is associated with */
     private Request req = null;
@@ -146,7 +154,7 @@ public class HttpOutputStream extends OutputStream
      *
      * @param length the number of bytes which will be sent over this stream
      */
-    public HttpOutputStream(int length)
+    public HttpOutputStream(long /*GRINDER MODIFICATION int */ length)
     {
 	if (length < 0)
 	   throw new IllegalArgumentException("Length must be greater equal 0");
@@ -216,7 +224,7 @@ public class HttpOutputStream extends OutputStream
      *
      * @return the number of bytes
      */
-    public int getLength()
+    public long /* GRINDER MODIFICICATION int */ getLength()
     {
 	return length;
     }

@@ -2,7 +2,7 @@
  * @(#)HTTPConnection.java				0.3-3E 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschal‰r
+ *  Copyright (C) 1996-2001 Ronald Tschal√§r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -50,6 +50,7 @@ import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.net.NoRouteToHostException;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicLong;
 import java.applet.Applet;
 
 import javax.net.ssl.SSLSocket;
@@ -200,7 +201,7 @@ import javax.security.cert.X509Certificate;
  * </ul>
  *
  * @version	0.3-3E  06/05/2001
- * @author	Ronald Tschal‰r
+ * @author	Ronald Tschal√§r
  */
 public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstants
 {
@@ -307,10 +308,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     private static boolean       noTrailers = false;
 
     /** hack to capture DNS lookup time */
-    private        long          DNS_time = 0;
+    private        AtomicLong          DNS_time = new AtomicLong();
 
     /** hack to capture Initial Connection time */
-    private        long          con_time = 0;
+    private        AtomicLong          con_time = new AtomicLong();
 
     public interface TimeAuthority {
       long getTimeInMilliseconds();
@@ -571,6 +572,64 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    { }
     }
 
+    /** ++GRINDER MODIFICATION **/
+    private static final String[] sslCipherSuites;
+    private static final String[] sslProtocols;
+
+    static {
+      final String cipherSuiteProperty =
+        System.getProperty("https.cipherSuites");
+
+      if (cipherSuiteProperty != null) {
+        sslCipherSuites = cipherSuiteProperty.split(",");
+      }
+      else {
+        sslCipherSuites = defaultSSLFactory.getSupportedCipherSuites();
+      }
+
+      final String protocolProperty = System.getProperty("https.protocols");
+
+      if (protocolProperty != null) {
+        sslProtocols = protocolProperty.split(",");
+      }
+      else {
+        try {
+          final SSLSocket socket = (SSLSocket)defaultSSLFactory.createSocket();
+          sslProtocols = socket.getSupportedProtocols();
+          socket.close();
+        }
+        catch (IOException e) {
+          throw new ExceptionInInitializerError(e);
+        }
+      }
+    }
+
+    /**
+     * The list of cipher suites that will used for SSL sockets.
+     *
+     * <p>By default, this is the list of all cipher suites supported by the
+     * JVM. It can be overridden with the system property {@code
+     * https.cipherSuites}.</p>
+     *
+     * @return The list of cipher suites.
+     */
+    public static String[] getSSLCipherSuites() {
+      return sslCipherSuites;
+    }
+
+    /**
+     * The list of protocols that will used for SSL sockets.
+     *
+     * <p>By default, this is the list of all protocols supported by the
+     * JVM. It can be overridden with the system property {@code
+     * https.protocols}.</p>
+     *
+     * @return The list of protocols.
+     */
+    public static String[] getSSLProtocols() {
+      return sslProtocols;
+    }
+    /** --GRINDER MODIFICATION **/
 
     // Constructors
 
@@ -998,7 +1057,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		throws IOException, ModuleException
     {
 	NVPair[] headers =
-	    { new NVPair("Content-type", "application/x-www-form-urlencoded") };
+        /** ++GRINDER MODIFICATION **/
+        // { new NVPair("Content-type", "application/x-www-form-urlencoded") };
+        { new NVPair("Content-Type", "application/x-www-form-urlencoded") };
+        /** --GRINDER MODIFICATION **/
 
 	return Post(file, Codecs.nv2query(form_data), headers);
     }
@@ -1029,7 +1091,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	{
 	    headers = Util.resizeArray(headers, idx+1);
 	    headers[idx] =
-		new NVPair("Content-type", "application/x-www-form-urlencoded");
+	    /** ++GRINDER MODIFICATION **/
+	    // new NVPair("Content-type", "application/x-www-form-urlencoded");
+	    new NVPair("Content-Type", "application/x-www-form-urlencoded");
+        /** --GRINDER MODIFICATION **/
 	}
 
 	return Post(file, Codecs.nv2query(form_data), headers);
@@ -3041,6 +3106,11 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			sock = sslFactory.createSocket(sock, Host, Port, true);
 
 			/** GRINDER MODIFICATION++ **/
+			final SSLSocket sslSocket = (SSLSocket)sock;
+
+			sslSocket.setEnabledCipherSuites(getSSLCipherSuites());
+			sslSocket.setEnabledProtocols(getSSLProtocols());
+
 			if (getCheckCertificates()) {
                         /** --GRINDER MODIFICATION **/
 
@@ -3051,6 +3121,11 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			}
                         /** --GRINDER MODIFICATION **/
 		    }
+		    /** GRINDER MODIFICATION++ **/
+		    else {
+		      sock.setSoTimeout(con_timeout);
+		    }
+		    /** --GRINDER MODIFICATION **/
 
 		    input_demux = new StreamDemultiplexor(Protocol, sock, this);
 		    DemuxList.addToEnd(input_demux);
@@ -3123,10 +3198,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			    keep_alive = false;		// Uh oh!
 		    }
 		    else
-            /** GRINDER MODIFICATION++ **/
+		      /** GRINDER MODIFICATION++ **/
 			//sock_out.write(req.getData());
-            writeData(sock_out, req.getData());
-            /** GRINDER MODIFICATION-- **/
+		      writeData(sock_out, req.getData());
+		      /** GRINDER MODIFICATION-- **/
 
 		}
 
@@ -3157,7 +3232,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
           // hence kicking off connection re-establishment.
           // This breaks pipelining, but The Grinder doesn't
           // use that.
-          if (getTestConnectionHealthWithBlockingRead()) {
+          if (getTestConnectionHealthWithBlockingRead() &&
+              // But we won't get a response if we haven't committed our
+              // stream yet....
+              req.getStream() == null) {
 		      r.getVersion();
 		  }
 
@@ -3309,11 +3387,18 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		sock = Socks_client.getSocket(actual_host, actual_port);
 	    else
 	    {
+                /** ++GRINDER MODIFICATION **/
+	            final long startTime =
+	              getTimeAuthority().getTimeInMilliseconds();
+                /** --GRINDER MODIFICATION **/
 		// try all A records
 		InetAddress[] addr_list = InetAddress.getAllByName(actual_host);
                 /** ++GRINDER MODIFICATION **/
                 // capture time for DNS Lookup
-                DNS_time = getTimeAuthority().getTimeInMilliseconds();
+                DNS_time.set(
+                  Math.max(getTimeAuthority().getTimeInMilliseconds() -
+                           startTime,
+                           0));
                 /** --GRINDER MODIFICATION **/
 		for (int idx=0; idx<addr_list.length; idx++)
 		{
@@ -3325,9 +3410,15 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			    sock = new Socket(addr_list[idx], actual_port,
 					      LocalAddr, LocalPort);
                         /** ++GRINDER MODIFICATION **/
-			// capture time for initial connection
-			con_time = getTimeAuthority().getTimeInMilliseconds();
-			/** --GRINDER MODIFICATION **/
+                        sock.setSoLinger(true, 0);
+                        sock.setKeepAlive(false);
+
+                        // capture time for initial connection
+                        con_time.set(
+                          Math.max(getTimeAuthority().getTimeInMilliseconds() -
+                                   startTime,
+                                   0));
+                        /** --GRINDER MODIFICATION **/
 			break;		// success
 		    }
 		    catch (SocketException se)
@@ -3363,13 +3454,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
     /** ++GRINDER-MODIFICATION++ */
     public long getDnsTime(){
-           return DNS_time;
+           return DNS_time.get();
     }
     /** --GRINDER-MODIFICATION++ */
 
     /** ++GRINDER-MODIFICATION++ */
     public long getConnectTime(){
-           return con_time;
+           return con_time.get();
     }
     /** --GRINDER-MODIFICATION++ */
 
@@ -3731,7 +3822,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
 	if (req.getData() != null  ||  req.getStream() != null)
 	{
-	    dataout.writeBytes("Content-type: ");
+        /* ++GRINDER MDDIFICATION */
+        // dataout.writeBytes("Content-type: ");
+        dataout.writeBytes("Content-Type: ");
+        /* --GRINDER MDDIFICATION */
 	    if (ct_idx != -1)
 		dataout.writeBytes(hdrs[ct_idx].getValue().trim());
 	    else
@@ -3966,11 +4060,19 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		    sock = Socks_client.getSocket(actual_host, actual_port);
 		else
 		{
+            /** ++GRINDER MODIFICATION **/
+            final long startTime =
+              getTimeAuthority().getTimeInMilliseconds();
+            /** --GRINDER MODIFICATION **/
+
 		    // try all A records
 		    InetAddress[] addr_list = InetAddress.getAllByName(actual_host);
                     /** ++GRINDER MODIFICATION **/
                     // capture time for DNS Lookup
-                    DNS_time = getTimeAuthority().getTimeInMilliseconds();
+                    DNS_time.set(
+                       Math.max(getTimeAuthority().getTimeInMilliseconds()
+                                - startTime,
+                                0));
                     /** --GRINDER MODIFICATION **/
 		    for (int idx=0; idx<addr_list.length; idx++)
 		    {
@@ -3982,10 +4084,16 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 				sock = new Socket(addr_list[idx], actual_port,
 						  LocalAddr, LocalPort);
                             /** ++GRINDER MODIFICATION */
+                            sock.setSoLinger(true, 0);
+                            sock.setKeepAlive(false);
+
                             // capture time for initial connection
-                            con_time =
-                              getTimeAuthority().getTimeInMilliseconds();
-                            /** --GRINDER MODIFICATION */
+                            con_time.set(
+                              Math.max(
+                                getTimeAuthority().getTimeInMilliseconds()
+                                - startTime,
+                                0));
+                           /** --GRINDER MODIFICATION */
 			    break;		// success
 			}
 			catch (SocketException se)

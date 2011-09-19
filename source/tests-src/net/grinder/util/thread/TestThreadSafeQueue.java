@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,14 +40,16 @@ public class TestThreadSafeQueue extends TestCase {
   }
 
   public void testConstructionAndBasicAccessors() throws Exception {
-    final ThreadSafeQueue threadSafeQueue = new ThreadSafeQueue();
+    final ThreadSafeQueue<Object> threadSafeQueue =
+      new ThreadSafeQueue<Object>();
     assertNotNull(threadSafeQueue.getCondition());
     assertSame(threadSafeQueue.getCondition(), threadSafeQueue.getCondition());
     assertEquals(0, threadSafeQueue.getSize());
   }
 
   public void testQueueAndDequeSingleThreaded() throws Exception {
-    final ThreadSafeQueue threadSafeQueue = new ThreadSafeQueue();
+    final ThreadSafeQueue<Object> threadSafeQueue =
+      new ThreadSafeQueue<Object>();
 
     final Object o1 = new Object();
     final Object o2 = new Object();
@@ -76,8 +78,9 @@ public class TestThreadSafeQueue extends TestCase {
 
   public void testQueueAndDequeMultiThreaded() throws Exception {
 
-    final ThreadSafeQueue threadSafeQueue = new ThreadSafeQueue();
-    final List answerList = new ArrayList();
+    final ThreadSafeQueue<MyMessage> threadSafeQueue =
+      new ThreadSafeQueue<MyMessage>();
+    final List<Object> answerList = new ArrayList<Object>();
 
     final Queuer[] queuers = new Queuer[10];
     final Dequeuer dequeuer = new Dequeuer(100, threadSafeQueue, answerList);
@@ -131,7 +134,8 @@ public class TestThreadSafeQueue extends TestCase {
 
   public void testQueueWithMutex() throws Exception {
 
-    final ThreadSafeQueue threadSafeQueue = new ThreadSafeQueue();
+    final ThreadSafeQueue<MyMessage> threadSafeQueue =
+      new ThreadSafeQueue<MyMessage>();
 
     final Queuer[] queuers = new Queuer[10];
     final Thread[] threads = new Thread[queuers.length ];
@@ -161,7 +165,7 @@ public class TestThreadSafeQueue extends TestCase {
     }
 
     for (int i=0; i<100; ++i) {
-      final MyMessage message = (MyMessage)threadSafeQueue.dequeue(true);
+      final MyMessage message = threadSafeQueue.dequeue(true);
       assertEquals(i % 10, message.getMessageNumber());
     }
 
@@ -192,12 +196,12 @@ public class TestThreadSafeQueue extends TestCase {
 
   private class Queuer implements Runnable {
     private final int m_queuerNumber;
-    private final ThreadSafeQueue m_queue;
+    private final ThreadSafeQueue<MyMessage> m_queue;
     private final int m_numberOfMessages;
     private Exception m_exception;
 
     public Queuer(int queuerNumber, int numberOfMessages,
-                  ThreadSafeQueue queue) {
+                  ThreadSafeQueue<MyMessage> queue) {
       m_queuerNumber = queuerNumber;
       m_numberOfMessages = numberOfMessages;
       m_queue = queue;
@@ -225,12 +229,12 @@ public class TestThreadSafeQueue extends TestCase {
 
   private static final class Dequeuer implements Runnable {
     private final int m_numberOfMessages;
-    private final ThreadSafeQueue m_queue;
-    private final List m_answerList;
+    private final ThreadSafeQueue<MyMessage> m_queue;
+    private final List<Object> m_answerList;
     private Exception m_exception;
 
-    public Dequeuer(int numberOfMessages, ThreadSafeQueue queue,
-                    List answerList) {
+    public Dequeuer(int numberOfMessages, ThreadSafeQueue<MyMessage> queue,
+                    List<Object> answerList) {
       m_numberOfMessages = numberOfMessages;
       m_queue = queue;
       m_answerList = answerList;
@@ -261,7 +265,7 @@ public class TestThreadSafeQueue extends TestCase {
   }
 
   public void testShutdownSingleThreaded() throws Exception {
-    final ThreadSafeQueue threadSafeQueue = new ThreadSafeQueue();
+    final ThreadSafeQueue<Object> threadSafeQueue = new ThreadSafeQueue<Object>();
     threadSafeQueue.shutdown();
 
     try {
@@ -291,7 +295,7 @@ public class TestThreadSafeQueue extends TestCase {
   }
 
   public void testShutdownMultiThreaded() throws Exception {
-    final ThreadSafeQueue threadSafeQueue = new ThreadSafeQueue();
+    final ThreadSafeQueue<Object> threadSafeQueue = new ThreadSafeQueue<Object>();
 
     synchronized(threadSafeQueue.getCondition()) {
       new Thread() {

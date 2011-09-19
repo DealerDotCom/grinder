@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -53,17 +53,17 @@ import net.grinder.util.TerminalColour;
  */
 public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
-  private final List m_echoers = new java.util.LinkedList();
+  private final List<AcceptAndEcho> m_echoers = new java.util.LinkedList<AcceptAndEcho>();
 
   private final MyFilterStubFactory m_requestFilterStubFactory =
     new MyFilterStubFactory();
   private final TCPProxyFilter m_requestFilter =
-    m_requestFilterStubFactory.getFilter();
+    m_requestFilterStubFactory.getStub();
 
   private final MyFilterStubFactory m_responseFilterStubFactory =
     new MyFilterStubFactory();
   private final TCPProxyFilter m_responseFilter =
-    m_responseFilterStubFactory.getFilter();
+    m_responseFilterStubFactory.getStub();
 
   private final LoggerStubFactory m_loggerStubFactory =
     new LoggerStubFactory();
@@ -95,10 +95,10 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
   }
 
   protected void tearDown() throws Exception {
-    final Iterator iterator = m_echoers.iterator();
+    final Iterator<AcceptAndEcho> iterator = m_echoers.iterator();
 
     while (iterator.hasNext()) {
-      ((AcceptAndEcho)iterator.next()).shutdown();
+      iterator.next().shutdown();
     }
   }
 
@@ -241,7 +241,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     AssertUtilities.assertStartsWith(response, "HTTP/1.0 400 Bad Request");
     AssertUtilities.assertContainsHeader(response, "Connection", "close");
-    AssertUtilities.assertContainsHeader(response, "Content-type", "text/html");
+    AssertUtilities.assertContainsHeader(response, "Content-Type", "text/html");
     AssertUtilities.assertContains(response, message);
 
     clientSocket.close();
@@ -281,7 +281,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     AssertUtilities.assertStartsWith(response3, "HTTP/1.0 400 Bad Request");
     AssertUtilities.assertContainsHeader(response3, "Connection", "close");
-    AssertUtilities.assertContainsHeader(response3, "Content-type", "text/html");
+    AssertUtilities.assertContainsHeader(response3, "Content-Type", "text/html");
 
     clientSocket3.close();
 

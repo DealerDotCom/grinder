@@ -41,7 +41,7 @@ import net.grinder.console.communication.server.messages.StopRecordingMessage;
  * {@link BlockingSender} to communicate with the console.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 final class ConsoleConnectionImplementation implements ConsoleConnection {
 

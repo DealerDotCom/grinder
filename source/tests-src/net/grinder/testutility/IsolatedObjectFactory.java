@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007, 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,7 +39,7 @@ import net.grinder.util.StreamCopier;
  */
 public class IsolatedObjectFactory {
 
-  public static Class getIsolatedObjectClass() {
+  public static Class<?> getIsolatedObjectClass() {
     try {
       return new SimpleObjectClassLoader().loadClass("SimpleObject");
     }
@@ -59,11 +59,11 @@ public class IsolatedObjectFactory {
 
   private static class SimpleObjectClassLoader extends ClassLoader {
 
-    protected synchronized Class loadClass(String name, boolean resolve)
+    protected synchronized Class<?> loadClass(String name, boolean resolve)
       throws ClassNotFoundException {
 
       if (name.equals("SimpleObject")) {
-        Class c = findLoadedClass(name);
+        Class<?> c = findLoadedClass(name);
 
         if (c == null) {
           final InputStream resource =

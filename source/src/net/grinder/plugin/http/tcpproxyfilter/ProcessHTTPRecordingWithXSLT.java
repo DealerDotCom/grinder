@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -163,8 +163,8 @@ public class ProcessHTTPRecordingWithXSLT
                          new PrintWriter(System.out),
                          new PrintWriter(System.err),
                          new FixedWidthFormatter(
-                           FixedWidthFormatter.ALIGN_LEFT,
-                           FixedWidthFormatter.FLOW_WORD_WRAP,
+                           FixedWidthFormatter.Align.LEFT,
+                           FixedWidthFormatter.Flow.WORD_WRAP,
                            80)));
 
     processor.process(recording);

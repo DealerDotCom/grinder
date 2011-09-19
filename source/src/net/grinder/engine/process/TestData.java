@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +26,8 @@ import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
+import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.script.TestRegistry.RegisteredTest;
@@ -43,7 +45,7 @@ import net.grinder.util.TimeAuthority;
  * @author Philip Aston
  * @version $Revision$
  */
-final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
+final class TestData implements RegisteredTest, Recorder {
 
   private final StatisticsSetFactory m_statisticsSetFactory;
   private final TestStatisticsHelper m_testStatisticsHelper;
@@ -58,8 +60,8 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
    */
   private final StatisticsSet m_testStatistics;
 
-  private final DispatcherHolderThreadLocal m_dispatcherHolderThreadLocal =
-    new DispatcherHolderThreadLocal();
+  private final RecorderHolderThreadLocal m_recorderHolderTL =
+    new RecorderHolderThreadLocal();
 
   TestData(ThreadContextLocator threadContextLocator,
            StatisticsSetFactory statisticsSetFactory,
@@ -85,47 +87,53 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
   }
 
   /**
-   * Create a proxy object that wraps an target object for this test.
-   *
-   * @param o Object to wrap.
-   * @return The proxy.
-   * @throws NotWrappableTypeException If the target could not be wrapped.
+   * {@inheritDoc}.
    */
   public Object createProxy(Object o) throws NotWrappableTypeException {
     return m_instrumenter.createInstrumentedProxy(getTest(), this, o);
   }
 
-  public Object dispatch(Callable callable) throws EngineException {
-    final DispatcherHolder dispatcherHolder =
-      m_dispatcherHolderThreadLocal.getDispatcherHolder();
+  /**
+   * {@inheritDoc}.
+   */
+  public void instrument(Object target) throws NonInstrumentableTypeException {
+    m_instrumenter.instrument(getTest(), this, target);
+  }
 
-    return dispatcherHolder.dispatch(callable);
+  public void start() throws EngineException {
+    m_recorderHolderTL.getHolder().start();
+  }
+
+  public void end(boolean success) throws EngineException {
+    m_recorderHolderTL.getHolder().end(success);
   }
 
   /**
-   * Thread local storage which keeps a {@link DispatcherHolder} for each worker
-   * thread that has ever used this test.
+   * Thread local storage which keeps a {@link RecorderHolder} for each
+   * worker thread that has ever used this test.
    */
-  private final class DispatcherHolderThreadLocal {
-    private final ThreadLocal m_threadLocal = new ThreadLocal() {
-      public Object initialValue() {
+  private final class RecorderHolderThreadLocal {
+    private final ThreadLocal<RecorderHolder> m_threadLocal =
+      new ThreadLocal<RecorderHolder>() {
+
+      public RecorderHolder initialValue() {
         final ThreadContext threadContext = m_threadContextLocator.get();
 
         if (threadContext == null) {
           throw new UncheckedException("Only Worker Threads can invoke tests");
         }
 
-        final Dispatcher dispatcher =
-          new Dispatcher(threadContext.getDispatchResultReporter(),
-                         new StopWatchImplementation(m_timeAuthority));
+        final TestRecorder recorder =
+          new TestRecorder(threadContext.getDispatchResultReporter(),
+                           new StopWatchImplementation(m_timeAuthority));
 
-        return new DispatcherHolder(threadContext, dispatcher);
+        return new RecorderHolder(threadContext, recorder);
       }
     };
 
-    public DispatcherHolder getDispatcherHolder() throws EngineException {
+    public RecorderHolder getHolder() throws EngineException {
       try {
-        return (DispatcherHolder)m_threadLocal.get();
+        return m_threadLocal.get();
       }
       catch (UncheckedException e) {
         throw new EngineException(e.getMessage());
@@ -134,45 +142,45 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
   }
 
   /**
-   * Caches a single Dispatcher for a particular worker thread. Used by
-   * {@link TestData#dispatch}.
+   * Cache a single {@link TestRecorder} for a particular worker thread.
    *
    * <p>
-   * Only allowing a single Dispatcher prevents nested invocations for the same
-   * test/thread from being recorded multiple times. This makes life simpler for
-   * the user, and for the script engine instrumentation.
+   * Ensure each worker thread ignores any nested methods instrumented with the
+   * our Test. That is, if the thread makes nested calls to methods instrumented
+   * with the same Test, the instrumentation is applied only at the outermost
+   * stack frame,
+   * </p>
+   *
+   * <p>
+   * This prevents nested invocations for the same test/thread from being
+   * recorded multiple times, making life simpler for the user, and for the
+   * script engine instrumentation.
    * </p>
    */
-  private static final class DispatcherHolder {
-    private final ThreadContext m_threadContext;
-    private Dispatcher m_dispatcher;
+  private static final class RecorderHolder implements Recorder {
 
-    public DispatcherHolder(ThreadContext threadContext,
-                            Dispatcher dispatcher) {
+    private final ThreadContext m_threadContext;
+    private final TestRecorder m_recorder;
+    private int m_nestingDepth = 0;
+
+    public RecorderHolder(ThreadContext threadContext, TestRecorder recorder) {
       m_threadContext = threadContext;
-      m_dispatcher = dispatcher;
+      m_recorder = recorder;
     }
 
-    public Object dispatch(Callable callable)
-      throws DispatchStateException, ShutdownException {
-
-      if (m_dispatcher != null) {
-        final Dispatcher dispatcher = m_dispatcher;
-
-        m_threadContext.pushDispatchContext(dispatcher);
-        m_dispatcher = null;
-
-        try {
-          return dispatcher.dispatch(callable);
-        }
-        finally {
-          m_threadContext.popDispatchContext();
-          m_dispatcher = dispatcher;
-        }
+    public void start() throws DispatchStateException {
+      if (m_nestingDepth++ == 0) {
+        // Entering outer frame.
+        m_threadContext.pushDispatchContext(m_recorder);
+        m_recorder.start();
       }
-      else {
-        // Already in a dispatch.
-        return callable.call();
+    }
+
+    public void end(boolean success)  {
+      if (--m_nestingDepth == 0) {
+        // Leaving outer frame.
+        m_recorder.end(success);
+        m_threadContext.popDispatchContext();
       }
     }
   }
@@ -192,7 +200,9 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
    * return references to Dispatchers that are <em>dispatching</em> or
    * <em>complete</em>.
    */
-  private final class Dispatcher implements DispatchContext {
+  private final class TestRecorder
+    implements DispatchContext, Recorder {
+
     private final DispatchResultReporter m_resultReporter;
     private final StopWatch m_pauseTimer;
 
@@ -200,14 +210,14 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
     private long m_dispatchTime = -1;
     private StatisticsForTestImplementation m_statisticsForTest;
 
-    public Dispatcher(DispatchResultReporter resultReporter,
-                      StopWatch pauseTimer) {
+    public TestRecorder(DispatchResultReporter resultReporter,
+                           StopWatch pauseTimer) {
 
       m_resultReporter = resultReporter;
       m_pauseTimer = pauseTimer;
     }
 
-    public Object dispatch(Callable callable) throws DispatchStateException {
+    public void start() throws DispatchStateException {
       if (m_startTime != -1 || m_dispatchTime != -1) {
         throw new DispatchStateException("Last statistics were not reported");
       }
@@ -219,26 +229,21 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
         m_testStatisticsHelper,
         m_statisticsSetFactory.create());
 
-      try {
-        // Make it more likely that the timed section has a "clear run".
-        Thread.yield();
+      // Make it more likely that the timed section has a "clear run".
+      Thread.yield();
 
-        m_startTime = m_timeAuthority.getTimeInMilliseconds();
+      m_startTime = m_timeAuthority.getTimeInMilliseconds();
+    }
 
-        try {
-          return callable.call();
-        }
-        finally {
-          m_dispatchTime =
-            m_timeAuthority.getTimeInMilliseconds() - m_startTime;
-        }
+    public void end(boolean success) {
+      m_dispatchTime =
+        Math.max(m_timeAuthority.getTimeInMilliseconds() - m_startTime, 0);
+
+      if (m_pauseTimer.isRunning()) {
+        m_pauseTimer.stop();
       }
-      catch (RuntimeException e) {
 
-        if (m_pauseTimer.isRunning()) {
-          m_pauseTimer.stop();
-        }
-
+      if (!success && m_statisticsForTest != null) {
         // Always mark as an error if the test threw an exception.
         m_testStatisticsHelper.setSuccess(
           m_statisticsForTest.getStatistics(), false);
@@ -247,7 +252,6 @@ final class TestData implements RegisteredTest, ScriptEngine.Dispatcher {
         // exception it will be logged when the run is aborted,
         // otherwise we assume the script writer knows what they're
         // doing.
-        throw e;
       }
     }
 

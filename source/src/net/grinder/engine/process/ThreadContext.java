@@ -48,6 +48,8 @@ interface ThreadContext extends PluginThreadContext {
 
   void registerThreadLifeCycleListener(ThreadLifeCycleListener listener);
 
+  void removeThreadLifeCycleListener(ThreadLifeCycleListener listener);
+
   void fireBeginThreadEvent();
 
   void fireBeginRunEvent();

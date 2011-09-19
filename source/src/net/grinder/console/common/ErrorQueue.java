@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,7 +35,8 @@ import java.util.LinkedList;
 public final class ErrorQueue implements ErrorHandler {
 
   private ErrorHandler m_delegate = null;
-  private final LinkedList m_queue = new LinkedList();
+  private final LinkedList<DelayedError> m_queue =
+    new LinkedList<DelayedError>();
 
   /**
    * Set the delegate error handler. Any queued up errors will be
@@ -50,10 +51,7 @@ public final class ErrorQueue implements ErrorHandler {
       if (m_delegate != null) {
         synchronized (m_queue) {
           while (m_queue.size() > 0) {
-            final DelayedError delayedError =
-              (DelayedError)m_queue.removeFirst();
-
-            delayedError.apply(m_delegate);
+            m_queue.removeFirst().apply(m_delegate);
           }
         }
       }

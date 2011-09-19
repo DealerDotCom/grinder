@@ -28,7 +28,7 @@ import net.grinder.communication.Message;
  * Message requesting the number of live agents.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public final class GetNumberOfAgentsMessage implements Message {
   private static final long serialVersionUID = 1;

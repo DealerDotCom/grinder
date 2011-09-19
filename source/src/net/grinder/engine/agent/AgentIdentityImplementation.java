@@ -23,8 +23,6 @@ package net.grinder.engine.agent;
 
 import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.common.processidentity.WorkerIdentity;
-import net.grinder.util.AllocateLowestNumber;
-import net.grinder.util.UniqueIdentityGenerator;
 
 
 /**
@@ -40,11 +38,6 @@ class AgentIdentityImplementation
 
   private static final long serialVersionUID = 2;
 
-  private static final UniqueIdentityGenerator s_identityGenerator =
-    new UniqueIdentityGenerator();
-
-  private final transient AllocateLowestNumber m_workerProcessNumberMap;
-
   private int m_number = -1;
   private int m_nextWorkerNumber = 0;
 
@@ -53,10 +46,8 @@ class AgentIdentityImplementation
    *
    * @param name The public name of the agent.
    */
-  AgentIdentityImplementation(String name,
-                              AllocateLowestNumber workerProcessNumberMap) {
-    super(s_identityGenerator.createUniqueString(name), name);
-    m_workerProcessNumberMap = workerProcessNumberMap;
+  AgentIdentityImplementation(String name) {
+    super(name);
   }
 
   /**
@@ -82,10 +73,7 @@ class AgentIdentityImplementation
    * @return The worker identity.
    */
   WorkerIdentityImplementation createWorkerIdentity() {
-    final WorkerIdentityImplementation result =
-      new WorkerIdentityImplementation(getName() + "-" + m_nextWorkerNumber++);
-    result.setNumber(m_workerProcessNumberMap.add(result));
-    return result;
+    return new WorkerIdentityImplementation(getName(), m_nextWorkerNumber++);
   }
 
   /**
@@ -101,16 +89,9 @@ class AgentIdentityImplementation
     private static final long serialVersionUID = 3;
     private int m_number;
 
-    private WorkerIdentityImplementation(String name) {
-      super(s_identityGenerator.createUniqueString(name), name);
-    }
-
-    private void setNumber(int number) {
+    private WorkerIdentityImplementation(String agentName, int number) {
+      super(agentName + "-" + number);
       m_number = number;
-      // We could call setName() here to ensure that our name was always
-      // based on the worker process number. This might not be desriable
-      // in future when worker process numbers may be reused. Deferring
-      // making a decision until its important.
     }
 
     public AgentIdentity getAgentIdentity() {
@@ -119,11 +100,6 @@ class AgentIdentityImplementation
 
     public int getNumber() {
       return m_number;
-    }
-
-    public void destroy() {
-      assert m_workerProcessNumberMap != null;
-      m_workerProcessNumberMap.remove(this);
     }
   }
 }

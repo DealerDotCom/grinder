@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.engine.process;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.security.UnrecoverableKeyException;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -40,25 +41,29 @@ import net.grinder.util.StreamCopier;
 
 
 /**
- * Unit tests for {@link TestSSLControlImplementation}.
+ * Unit tests for {@link SSLControlImplementation}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestSSLControlImplementation extends AbstractFileTestCase {
 
-  private final RandomStubFactory m_threadContextStubFactory =
-    new RandomStubFactory(ThreadContext.class);
+  private final RandomStubFactory<ThreadContext> m_threadContextStubFactory =
+    RandomStubFactory.create(ThreadContext.class);
   private final ThreadContext m_threadContext =
-    (ThreadContext)m_threadContextStubFactory.getStub();
-  private final RandomStubFactory m_threadContextLocatorStubFactory =
-    new RandomStubFactory(ThreadContextLocator.class);
-  private final ThreadContextLocator m_threadContextLocator =
-    (ThreadContextLocator)m_threadContextLocatorStubFactory.getStub();
-  private final RandomStubFactory m_keyManagerStubFactory =
-    new RandomStubFactory(KeyManager.class);
-  private final KeyManager m_keyManager =
-    (KeyManager)m_keyManagerStubFactory.getStub();
+    m_threadContextStubFactory.getStub();
+
+  private final StubThreadContextLocator m_threadContextLocator=
+      new StubThreadContextLocator();
+
+  {
+    m_threadContextLocator.set(m_threadContext);
+    m_threadContextStubFactory.setIgnoreMethod("getThreadSSLContextFactory");
+  }
+
+  private final RandomStubFactory<KeyManager> m_keyManagerStubFactory =
+    RandomStubFactory.create(KeyManager.class);
+  private final KeyManager m_keyManager = m_keyManagerStubFactory.getStub();
 
   public void testShareContextBetweenRuns() throws Exception {
     final SSLControl sslControl =
@@ -69,8 +74,6 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
     assertTrue(sslControl.getShareContextBetweenRuns());
     sslControl.setShareContextBetweenRuns(false);
     assertFalse(sslControl.getShareContextBetweenRuns());
-
-    m_threadContextLocatorStubFactory.setResult("get", m_threadContext);
 
     sslControl.setKeyManagers(new KeyManager[] { m_keyManager });
 
@@ -115,18 +118,49 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
     m_threadContextStubFactory.assertNoMoreCalls();
   }
 
+  public void testSetKeyManagersDoesNotLeak() throws Exception {
+    final SSLControl sslControl =
+      new SSLControlImplementation(m_threadContextLocator);
+
+    sslControl.setKeyManagers(new KeyManager[] { m_keyManager });
+
+    final SSLContextFactory threadSSLContextFactory =
+      (SSLContextFactory)
+      m_threadContextStubFactory.assertSuccess("setThreadSSLContextFactory",
+                                               SSLContextFactory.class)
+                                               .getParameters()[0];
+
+    m_threadContextStubFactory.assertSuccess("registerThreadLifeCycleListener",
+                                             SSLContextFactory.class);
+
+    m_threadContextStubFactory.assertNoMoreCalls();
+
+    m_threadContextStubFactory.setResult("getThreadSSLContextFactory",
+                                         threadSSLContextFactory);
+
+    sslControl.setKeyManagers(new KeyManager[] { m_keyManager });
+
+    m_threadContextStubFactory.assertSuccess("removeThreadLifeCycleListener",
+                                             threadSSLContextFactory);
+
+    m_threadContextStubFactory.assertSuccess("setThreadSSLContextFactory",
+                                             SSLContextFactory.class);
+
+    m_threadContextStubFactory.assertSuccess("registerThreadLifeCycleListener",
+                                             SSLContextFactory.class);
+
+    m_threadContextStubFactory.assertNoMoreCalls();
+  }
+
   public void testGetSSLContext() throws Exception {
     final SSLControl sslControl =
       new SSLControlImplementation(m_threadContextLocator);
 
     // Call 1.
-    m_threadContextLocatorStubFactory.setResult("get", m_threadContext);
     m_threadContextStubFactory.setResult("getThreadSSLContextFactory", null);
 
     final SSLContext context = sslControl.getSSLContext();
     assertNotNull(context);
-
-    m_threadContextStubFactory.assertSuccess("getThreadSSLContextFactory");
 
     final CallData call =
       m_threadContextStubFactory.assertSuccess("setThreadSSLContextFactory",
@@ -141,8 +175,8 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
     m_threadContextStubFactory.assertNoMoreCalls();
 
     // Call 2.
-    m_threadContextStubFactory.setResult(
-      "getThreadSSLContextFactory", contextFactory);
+    m_threadContextStubFactory.setResult("getThreadSSLContextFactory",
+                                         contextFactory);
 
     final SSLContext context2 = sslControl.getSSLContext();
     assertNotNull(context2);
@@ -153,7 +187,6 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
   public void testSetKeyStoreMethods() throws Exception {
     final SSLControl sslControl =
       new SSLControlImplementation(m_threadContextLocator);
-    m_threadContextLocatorStubFactory.setResult("get", m_threadContext);
 
     final InputStream keystoreStream = getClass().getResourceAsStream(
             "/net/grinder/tools/tcpproxy/resources/default.keystore");
@@ -164,11 +197,19 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
 
     keystoreStream.close();
 
-    m_threadContextStubFactory.assertSuccess(
-      "setThreadSSLContextFactory", SSLContextFactory.class);
-    m_threadContextStubFactory.assertSuccess(
-      "registerThreadLifeCycleListener", SSLContextFactory.class);
+    final SSLContextFactory threadSSLContextFactory =
+      (SSLContextFactory)
+      m_threadContextStubFactory.assertSuccess("setThreadSSLContextFactory",
+                                               SSLContextFactory.class)
+                                               .getParameters()[0];
+
+    m_threadContextStubFactory.assertSuccess("registerThreadLifeCycleListener",
+                                             SSLContextFactory.class);
+
     m_threadContextStubFactory.assertNoMoreCalls();
+
+    m_threadContextStubFactory.setResult("getThreadSSLContextFactory",
+                                         threadSSLContextFactory);
 
     final File myKeyStore = new File(getDirectory(), "my.jks");
 
@@ -181,20 +222,34 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
     try {
       // Will fail since JKS doesn't support null passwords.
       sslControl.setKeyStoreFile(myKeyStore.getAbsolutePath(), null, "jks");
-      fail("Expected IllegalArgumentException");
+      fail("Expected IllegalArgumentException or UnrecoverableKeyException");
     }
-    catch (IllegalArgumentException e) {
+    catch (Exception e) {
+      assertTrue("Unexpected exception type: " + e.getClass(),
+                 e instanceof UnrecoverableKeyException ||
+                 e instanceof IllegalArgumentException);
     }
 
     sslControl.setKeyStoreFile(
       myKeyStore.getAbsolutePath(), "passphrase", "jks");
+
+    m_threadContextStubFactory.assertSuccess("removeThreadLifeCycleListener",
+                                             threadSSLContextFactory);
+
+    m_threadContextStubFactory.assertSuccess("setThreadSSLContextFactory",
+                                             SSLContextFactory.class);
+
+    m_threadContextStubFactory.assertSuccess("registerThreadLifeCycleListener",
+                                             SSLContextFactory.class);
+
+    m_threadContextStubFactory.assertNoMoreCalls();
   }
 
   public void testWithBadContext() throws Exception {
     final SSLControl sslControl =
       new SSLControlImplementation(m_threadContextLocator);
 
-    m_threadContextLocatorStubFactory.setResult("get", null);
+    m_threadContextLocator.set(null);
 
     try {
       sslControl.setKeyManagers(new KeyManager[0]);
@@ -226,5 +281,4 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
 
     m_threadContextStubFactory.assertNoMoreCalls();
   }
-
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -51,7 +51,7 @@ import net.grinder.testutility.StubTimer;
  * Unit tests for {@link CumulativeStatisticsTableModel}.
  *
  * @author Philip Aston
- * @version $Revision: 3869 $
+ * @version $Revision$
  */
 public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
 
@@ -73,9 +73,9 @@ public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
   private final SwingDispatcherFactory m_swingDispatcherFactoryDelegate =
     new NullSwingDispatcherFactory();
 
-  private final StubResources m_resources =
-    new StubResources(
-      new HashMap() { {
+  private final StubResources<String> m_resources =
+    new StubResources<String>(
+      new HashMap<String, String>() { {
         put("table.test.label", "t3st");
         put("table.testColumn.label", "Test Column");
         put("table.descriptionColumn.label", "Test Description Column");
@@ -83,19 +83,21 @@ public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
       } }
     );
 
-  private final DelegatingStubFactory m_swingDispatcherFactoryStubFactory =
-    new DelegatingStubFactory(m_swingDispatcherFactoryDelegate);
+  private final DelegatingStubFactory<SwingDispatcherFactory>
+    m_swingDispatcherFactoryStubFactory =
+      DelegatingStubFactory.create(m_swingDispatcherFactoryDelegate);
   private final SwingDispatcherFactory m_swingDispatcherFactory =
-    (SwingDispatcherFactory)m_swingDispatcherFactoryStubFactory.getStub();
-  private final RandomStubFactory m_sampleModelStubFactory =
-    new RandomStubFactory(SampleModel.class);
-  private final SampleModel m_sampleModel =
-    (SampleModel)m_sampleModelStubFactory.getStub();
+    m_swingDispatcherFactoryStubFactory.getStub();
 
-  private final RandomStubFactory m_sampleModelViewsStubFactory =
-    new RandomStubFactory(SampleModelViews.class);
+  private final RandomStubFactory<SampleModel> m_sampleModelStubFactory =
+    RandomStubFactory.create(SampleModel.class);
+  private final SampleModel m_sampleModel = m_sampleModelStubFactory.getStub();
+
+  private final RandomStubFactory<SampleModelViews>
+    m_sampleModelViewsStubFactory =
+      RandomStubFactory.create(SampleModelViews.class);
   private final SampleModelViews m_sampleModelViews =
-    (SampleModelViews)m_sampleModelViewsStubFactory.getStub();
+    m_sampleModelViewsStubFactory.getStub();
 
   private final StatisticsServices m_statisticsServices =
     StatisticsServicesTestFactory.createTestInstance();
@@ -131,7 +133,7 @@ public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
     assertSame(m_sampleModel, model.getModel());
     assertSame(m_sampleModelViews, model.getModelViews());
 
-    assertEquals(6, model.getColumnCount());
+    assertEquals(7, model.getColumnCount());
     assertEquals(1, model.getRowCount());
     assertEquals(0, model.getLastModelTestIndex().getNumberOfTests());
 
@@ -169,7 +171,22 @@ public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
 
     model.write(writer, "::", "**");
 
-    assertEquals("Test Column::Test Description Column::Tests::Errors::Mean Test Time (ms)::Test Time Standard Deviation (ms)::**",
+    assertEquals("Test Column::Test Description Column::Tests::Errors::Mean Test Time (ms)::Test Time Standard Deviation (ms)::TPS::**Total Label::::0::0::::0.0::::**",
+                 writer.toString());
+  }
+
+  public void testWriteWithoutTotals() throws Exception {
+    final CumulativeStatisticsTableModel model =
+      new CumulativeStatisticsTableModel(m_sampleModel,
+                                         m_sampleModelViews,
+                                         m_resources,
+                                         m_swingDispatcherFactory);
+
+    final StringWriter writer = new StringWriter();
+
+    model.writeWithoutTotals(writer, "::", "**");
+
+    assertEquals("Test Column::Test Description Column::Tests::Errors::Mean Test Time (ms)::Test Time Standard Deviation (ms)::TPS::**",
                  writer.toString());
   }
 
@@ -183,19 +200,19 @@ public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
     m_resources.put("statistic.Errors", "Blah");
     m_resources.put("statistic.Mean_Test_Time_(ms)", "meantime");
 
-    assertEquals(6, model.getColumnCount());
+    assertEquals(7, model.getColumnCount());
 
     model.addColumns(m_statisticsServices.getSummaryStatisticsView());
 
     // Adding same columns again is a no-op.
-    assertEquals(6, model.getColumnCount());
+    assertEquals(7, model.getColumnCount());
     assertEquals("Tests", model.getColumnName(2));
     assertEquals("Errors", model.getColumnName(3));
     assertEquals("Mean Test Time (ms)", model.getColumnName(4));
 
     model.addColumns(m_statisticsServices.getDetailStatisticsView());
 
-    assertEquals(7, model.getColumnCount());
+    assertEquals(8, model.getColumnCount());
     assertEquals("Test time", model.getColumnName(2));
     assertEquals("Blah", model.getColumnName(4));
     assertEquals("meantime", model.getColumnName(5));

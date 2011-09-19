@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -24,15 +24,17 @@ package net.grinder.console.communication;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Map.Entry;
 
 import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.common.processidentity.ProcessIdentity;
+import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.common.processidentity.WorkerProcessReport;
+import net.grinder.console.communication.ProcessControl.Listener;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.console.AgentAndCacheReport;
 import net.grinder.util.AllocateLowestNumber;
@@ -67,7 +69,9 @@ final class ProcessStatusImplementation {
    * Map of agent identities to AgentAndWorkers instances. Access is
    * synchronised on the map itself.
    */
-  private final Map m_agentIdentityToAgentAndWorkers = new HashMap();
+  private final Map<ProcessIdentity, AgentAndWorkers>
+    m_agentIdentityToAgentAndWorkers =
+      new HashMap<ProcessIdentity, AgentAndWorkers>();
 
   /**
    * We have exclusive write access to m_agentNumberMap.We rely on our
@@ -77,7 +81,8 @@ final class ProcessStatusImplementation {
    */
   private final AllocateLowestNumber m_agentNumberMap;
 
-  private final ListenerSupport m_listeners = new ListenerSupport();
+  private final ListenerSupport<Listener> m_listeners =
+    new ListenerSupport<Listener>();
 
   private volatile boolean m_newData = false;
 
@@ -112,7 +117,7 @@ final class ProcessStatusImplementation {
    *
    * @param listener A listener.
    */
-  public void addListener(ProcessControl.Listener listener) {
+  public void addListener(Listener listener) {
     m_listeners.add(listener);
   }
 
@@ -137,16 +142,14 @@ final class ProcessStatusImplementation {
     final AgentAndWorkers[] processStatuses;
 
     synchronized (m_agentIdentityToAgentAndWorkers) {
-      processStatuses = (AgentAndWorkers[])
+      processStatuses =
         m_agentIdentityToAgentAndWorkers.values().toArray(
           new AgentAndWorkers[m_agentIdentityToAgentAndWorkers.size()]);
     }
 
     m_listeners.apply(
-      new ListenerSupport.Informer() {
-        public void inform(Object listener) {
-          ((ProcessControl.Listener)listener).update(processStatuses);
-        }
+      new ListenerSupport.Informer<Listener>() {
+        public void inform(Listener l) { l.update(processStatuses); }
       });
   }
 
@@ -154,7 +157,7 @@ final class ProcessStatusImplementation {
 
     synchronized (m_agentIdentityToAgentAndWorkers) {
       final AgentAndWorkers existing =
-        (AgentAndWorkers)m_agentIdentityToAgentAndWorkers.get(agentIdentity);
+        m_agentIdentityToAgentAndWorkers.get(agentIdentity);
 
       if (existing != null) {
         return existing;
@@ -203,18 +206,16 @@ final class ProcessStatusImplementation {
   /**
    * Callers are responsible for synchronisation.
    */
-  private void purge(Map purgableMap) {
-    final Set zombies = new HashSet();
+  private void purge(Map<? extends ProcessIdentity,
+                     ? extends Purgable> purgableMap) {
 
-    final Iterator iterator = purgableMap.entrySet().iterator();
+    final Set<ProcessIdentity> zombies = new HashSet<ProcessIdentity>();
 
-    while (iterator.hasNext()) {
-      final Map.Entry entry = (Map.Entry)iterator.next();
-      final Object key = entry.getKey();
-      final Purgable purgable = (Purgable)entry.getValue();
+    for (Entry<? extends ProcessIdentity, ? extends Purgable> entry :
+         purgableMap.entrySet()) {
 
-      if (purgable.shouldPurge()) {
-        zombies.add(key);
+      if (entry.getValue().shouldPurge()) {
+        zombies.add(entry.getKey());
       }
     }
 
@@ -318,7 +319,8 @@ final class ProcessStatusImplementation {
     private volatile AgentReference m_agentReportReference;
 
     // Synchronise on map before accessing.
-    private final Map m_workerReportReferences = new HashMap();
+    private final Map<WorkerIdentity, WorkerReference>
+      m_workerReportReferences = new HashMap<WorkerIdentity, WorkerReference>();
 
     AgentAndWorkers(AgentIdentity agentIdentity) {
       setAgentProcessStatus(new UnknownAgentProcessReport(agentIdentity));
@@ -346,12 +348,10 @@ final class ProcessStatusImplementation {
         final WorkerProcessReport[] result =
           new WorkerProcessReport[m_workerReportReferences.size()];
 
-        final Iterator iterator = m_workerReportReferences.values().iterator();
         int i = 0;
 
-        while (iterator.hasNext()) {
-          result[i++] =
-            ((WorkerReference)iterator.next()).getWorkerProcessReport();
+        for (WorkerReference worker : m_workerReportReferences.values()) {
+          result[i++] = worker.getWorkerProcessReport();
         }
 
         return result;

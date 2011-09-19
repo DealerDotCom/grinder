@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,6 +35,7 @@ import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.console.common.processidentity.StubAgentProcessReport;
 import net.grinder.console.common.processidentity.StubWorkerProcessReport;
+import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.console.communication.ProcessStatusImplementation.AgentAndWorkers;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.console.AgentAndCacheReport;
@@ -54,15 +55,16 @@ public class TestProcessStatusImplementation extends TestCase {
   private final ProcessReportComparator m_processReportComparator =
     new ProcessReportComparator();
 
-  private final Comparator m_processReportsComparator =
+  private final Comparator<ProcessReports> m_processReportsComparator =
     new ProcessReportsComparator();
 
   private final MyTimer m_timer = new MyTimer();
 
-  private final RandomStubFactory m_allocateLowestNumberStubFactory =
-    new RandomStubFactory(AllocateLowestNumber.class);
+  private final RandomStubFactory<AllocateLowestNumber>
+    m_allocateLowestNumberStubFactory =
+      RandomStubFactory.create(AllocateLowestNumber.class);
   private final AllocateLowestNumber m_allocateLowestNumber =
-    (AllocateLowestNumber)m_allocateLowestNumberStubFactory.getStub();
+    m_allocateLowestNumberStubFactory.getStub();
 
   protected void tearDown() {
     m_timer.cancel();
@@ -78,17 +80,15 @@ public class TestProcessStatusImplementation extends TestCase {
 
   public void testUpdate() throws Exception {
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ProcessControl.Listener.class);
-    final ProcessControl.Listener listener =
-      (ProcessControl.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<ProcessControl.Listener> listenerStubFactory =
+      RandomStubFactory.create(ProcessControl.Listener.class);
 
     final ProcessStatusImplementation processStatusSet =
       new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
 
     final TimerTask updateTask = m_timer.getTaskByPeriod(500L);
 
-    processStatusSet.addListener(listener);
+    processStatusSet.addListener(listenerStubFactory.getStub());
 
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
@@ -133,10 +133,8 @@ public class TestProcessStatusImplementation extends TestCase {
   }
 
   public void testUpdateWithManyProcessStatusesAndFlush() throws Exception {
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ProcessControl.Listener.class);
-    final ProcessControl.Listener listener =
-      (ProcessControl.Listener)listenerStubFactory.getStub();
+    final RandomStubFactory<ProcessControl.Listener> listenerStubFactory =
+      RandomStubFactory.create(ProcessControl.Listener.class);
 
     final ProcessStatusImplementation processStatus =
       new ProcessStatusImplementation(m_timer, m_allocateLowestNumber);
@@ -144,7 +142,7 @@ public class TestProcessStatusImplementation extends TestCase {
     final TimerTask updateTask = m_timer.getTaskByPeriod(500L);
     final TimerTask flushTask = m_timer.getTaskByPeriod(2000L);
 
-    processStatus.addListener(listener);
+    processStatus.addListener(listenerStubFactory.getStub());
 
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
@@ -353,7 +351,9 @@ public class TestProcessStatusImplementation extends TestCase {
   }
 
   private static final class MyTimer extends Timer {
-    private final Map m_taskByPeriod = new HashMap();
+    private final Map<Long, TimerTask> m_taskByPeriod =
+      new HashMap<Long, TimerTask>();
+
     private int m_numberOfScheduledTasks;
 
     MyTimer() {
@@ -368,7 +368,7 @@ public class TestProcessStatusImplementation extends TestCase {
     }
 
     public TimerTask getTaskByPeriod(long period) {
-      return (TimerTask)m_taskByPeriod.get(new Long(period));
+      return m_taskByPeriod.get(new Long(period));
     }
 
     public int getNumberOfScheduledTasks() {
@@ -377,11 +377,11 @@ public class TestProcessStatusImplementation extends TestCase {
   }
 
 
-  private static final class ProcessReportComparator implements Comparator {
-    public int compare(Object o1, Object o2) {
-      final ProcessReport processReport1 = (ProcessReport)o1;
-      final ProcessReport processReport2 = (ProcessReport)o2;
+  private static final class ProcessReportComparator
+    implements Comparator<ProcessReport> {
 
+    public int compare(ProcessReport processReport1,
+                       ProcessReport processReport2) {
       final int compareState =
         processReport1.getState() - processReport2.getState();
 
@@ -395,11 +395,12 @@ public class TestProcessStatusImplementation extends TestCase {
     }
   }
 
-  private final class ProcessReportsComparator implements Comparator {
-    public int compare(Object o1, Object o2) {
-      return m_processReportComparator.compare(
-        ((ProcessControl.ProcessReports)o1).getAgentProcessReport(),
-        ((ProcessControl.ProcessReports)o2).getAgentProcessReport());
+  private final class ProcessReportsComparator
+    implements Comparator<ProcessReports> {
+
+    public int compare(ProcessReports o1, ProcessReports o2) {
+      return m_processReportComparator.compare(o1.getAgentProcessReport(),
+                                               o2.getAgentProcessReport());
     }
   }
 }

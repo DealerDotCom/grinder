@@ -1,5 +1,5 @@
 // Copyright (C) 2007 Venelin Mitov
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,11 +31,11 @@ import java.util.List;
  * interfaces. Manages a FIFO of comments.
  *
  * @author Venelin Mitov
- * @version $Revision: 1 $
+ * @version $Revision$
  */
 public class CommentSourceImplementation implements UpdatableCommentSource {
 
-  private final List m_commentQueue = new ArrayList(10);
+  private final List<String> m_commentQueue = new ArrayList<String>(10);
 
   /**
    * @param comment The comment-string to be added.
@@ -58,7 +58,7 @@ public class CommentSourceImplementation implements UpdatableCommentSource {
    */
   public synchronized String[] getComments() {
     final String[] res =
-      (String[]) m_commentQueue.toArray(new String[m_commentQueue.size()]);
+      m_commentQueue.toArray(new String[m_commentQueue.size()]);
     m_commentQueue.clear();
     return res;
   }

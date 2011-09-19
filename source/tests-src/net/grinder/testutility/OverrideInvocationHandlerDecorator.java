@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,7 @@ package net.grinder.testutility;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+
 
 /**
  * <code>InvocationHandler</code> decorator that allows a supplied
@@ -77,10 +78,10 @@ public final class OverrideInvocationHandlerDecorator
 
   private Method getOverriddenMethod(Method method) {
     try {
-      final Class[] methodParameterTypes = method.getParameterTypes();
+      final Class<?>[] methodParameterTypes = method.getParameterTypes();
 
-      final Class[] parameterTypes =
-        new Class[methodParameterTypes.length + 1];
+      final Class<?>[] parameterTypes =
+        new Class<?>[methodParameterTypes.length + 1];
       parameterTypes[0] = Object.class;
       System.arraycopy(methodParameterTypes, 0, parameterTypes, 1,
                        methodParameterTypes.length);

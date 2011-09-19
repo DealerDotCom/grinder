@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,6 @@ package net.grinder.statistics;
 
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -44,7 +43,7 @@ public final class StatisticsView {
    * rather than having the <code>ExpressionView</code> implement
    * <code>Comparable</code> because our sort order is inconsistent with equals.
    */
-  private static final Comparator s_expressionViewComparator =
+  private static final Comparator<ExpressionView> s_expressionViewComparator =
     new CreationOrderComparator();
 
   /**
@@ -52,15 +51,15 @@ public final class StatisticsView {
    * do this with a SortedSet because our sort order is inconsistent
    * with equals.
    */
-  private final Set m_unique = new HashSet();
+  private final Set<ExpressionView> m_unique = new HashSet<ExpressionView>();
 
-  private final SortedSet m_columns;
+  private final SortedSet<ExpressionView> m_columns;
 
   /**
    * Creates a new <code>StatisticsView</code> instance.
    */
   public StatisticsView() {
-    m_columns = new TreeSet(s_expressionViewComparator);
+    m_columns = new TreeSet<ExpressionView>(s_expressionViewComparator);
   }
 
   /**
@@ -70,10 +69,8 @@ public final class StatisticsView {
    * @param other Another <code>StatisticsView</code>.
    */
   public synchronized void add(StatisticsView other) {
-    final Iterator iterator = other.m_columns.iterator();
-
-    while (iterator.hasNext()) {
-      add((ExpressionView)iterator.next());
+    for (ExpressionView expressionView : other.m_columns) {
+      add(expressionView);
     }
   }
 
@@ -96,17 +93,16 @@ public final class StatisticsView {
    * @return The {@link ExpressionView}s.
    */
   public synchronized ExpressionView[] getExpressionViews() {
-    return (ExpressionView[])
-      m_columns.toArray(new ExpressionView[m_columns.size()]);
+    return m_columns.toArray(new ExpressionView[m_columns.size()]);
   }
 
   /**
    * Package scope for unit tests.
    */
-  static final class CreationOrderComparator implements Comparator {
-    public int compare(Object a, Object b) {
-      final ExpressionView viewA = (ExpressionView)a;
-      final ExpressionView viewB = (ExpressionView)b;
+  static final class CreationOrderComparator
+    implements Comparator<ExpressionView> {
+
+    public int compare(ExpressionView viewA, ExpressionView viewB) {
 
       if (viewA.getCreationOrder() < viewB.getCreationOrder()) {
         return -1;

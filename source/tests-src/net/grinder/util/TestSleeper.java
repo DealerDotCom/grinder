@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2008 Philip Aston
+// Copyright (C) 2001 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -157,12 +157,13 @@ public class TestSleeper extends TestCase {
         public void doIt() throws Exception  { sleep2.sleepFlat(50); }
       }.run());
 
-    final RandomStubFactory loggerStubFactory =
-      new RandomStubFactory(Logger.class);
-    final Logger logger = (Logger)loggerStubFactory.getStub();
-
+    final RandomStubFactory<Logger> loggerStubFactory =
+      RandomStubFactory.create(Logger.class);
     final Sleeper sleep3 =
-      new SleeperImplementation(m_timeAuthority, logger, 1, 0);
+      new SleeperImplementation(m_timeAuthority,
+                                loggerStubFactory.getStub(),
+                                1,
+                                0);
     sleep3.sleepFlat(10);
     loggerStubFactory.assertSuccess("output", String.class);
     loggerStubFactory.assertNoMoreCalls();

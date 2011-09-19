@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2007 Philip Aston
+// Copyright (C) 2000 - 2010 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -66,29 +66,29 @@ public interface TCPProxyFilter {
    * @return Filters can optionally return a <code>byte[]</code>
    * which will be transmitted to the server instead of
    * <code>buffer</code>.
-   * @throws FilterException If an error occurs.
+   * @throws TCPProxyFilter.FilterException If an error occurs.
    */
   byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
                 int bytesRead)
-    throws FilterException;
+    throws TCPProxyFilter.FilterException;
 
   /**
    * A new connection has been opened.
    *
    * @param connectionDetails Describes the connection.
-   * @throws FilterException If an error occurs.
+   * @throws TCPProxyFilter.FilterException If an error occurs.
    */
   void connectionOpened(ConnectionDetails connectionDetails)
-    throws FilterException;
+  throws TCPProxyFilter.FilterException;
 
   /**
    * A connection has been closed.
    *
    * @param connectionDetails Describes the connection.
-   * @throws FilterException If an error occurs.
+   * @throws TCPProxyFilter.FilterException If an error occurs.
    */
   void connectionClosed(ConnectionDetails connectionDetails)
-    throws FilterException;
+  throws TCPProxyFilter.FilterException;
 
   /**
    * Exception type for filter problems.

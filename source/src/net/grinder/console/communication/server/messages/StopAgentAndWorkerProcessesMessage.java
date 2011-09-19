@@ -28,7 +28,7 @@ import net.grinder.communication.Message;
  * Message indicating that all agent and worker processes should be stopped.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class StopAgentAndWorkerProcessesMessage implements Message {
   private static final long serialVersionUID = 1;

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -72,19 +72,24 @@ final class FileTreeModel implements TreeModel {
   /**
    * Map from a File value to the latest Node to be created for the File.
    */
-  private final WeakValueHashMap m_filesToNodes = new WeakValueHashMap();
+  private final WeakValueHashMap<File, Node> m_filesToNodes =
+    new WeakValueHashMap<File, Node>();
 
   /**
    * Map from a Buffer to the FileNode that is associated with the
    * buffer.
    */
-  private final WeakValueHashMap m_buffersToFileNodes = new WeakValueHashMap();
+  private final WeakValueHashMap<Buffer, FileNode> m_buffersToFileNodes =
+    new WeakValueHashMap<Buffer, FileNode>();
 
   private RootNode m_rootNode;
 
-  FileTreeModel(EditorModel editorModel, FileFilter distributionFileFilter) {
+  FileTreeModel(EditorModel editorModel,
+                FileFilter distributionFileFilter,
+                File initialRootDirectory) {
     m_editorModel = editorModel;
     m_distributionFileFilter = distributionFileFilter;
+    setRootDirectory(initialRootDirectory);
   }
 
   public void setRootDirectory(File rootDirectory) {
@@ -198,7 +203,7 @@ final class FileTreeModel implements TreeModel {
    * @return The node, or <code>null</code> if the file could not be found.
    */
   public Node findNode(File file) {
-    final Node existingNode = (Node)m_filesToNodes.get(file);
+    final Node existingNode = m_filesToNodes.get(file);
 
     if (existingNode != null) {
       return existingNode;
@@ -210,7 +215,7 @@ final class FileTreeModel implements TreeModel {
     Node treeStructureChangedNode = null;
 
     for (int i = 0; i < paths.length - 1; ++i) {
-      final Node node = (Node)m_filesToNodes.get(paths[i]);
+      final Node node = m_filesToNodes.get(paths[i]);
 
       if (node instanceof DirectoryNode) {
         final DirectoryNode directoryNode = (DirectoryNode)node;
@@ -230,11 +235,11 @@ final class FileTreeModel implements TreeModel {
       fireTreeStructureChanged(treeStructureChangedNode);
     }
 
-    return (Node)m_filesToNodes.get(file);
+    return m_filesToNodes.get(file);
   }
 
   private File[] fileToArrayOfParentPaths(File file) {
-    final List list = new ArrayList();
+    final List<File> list = new ArrayList<File>();
 
     File f = file;
 
@@ -245,11 +250,11 @@ final class FileTreeModel implements TreeModel {
 
     Collections.reverse(list);
 
-    return (File[])list.toArray(new File[list.size()]);
+    return list.toArray(new File[list.size()]);
   }
 
   public FileNode findFileNode(Buffer buffer) {
-    return (FileNode)m_buffersToFileNodes.get(buffer);
+    return m_buffersToFileNodes.get(buffer);
   }
 
   /**

@@ -23,6 +23,8 @@ package net.grinder.engine.agent;
 
 import java.io.Serializable;
 
+import net.grinder.util.UniqueIdentityGenerator;
+
 
 /**
  * Common process identity implementation.
@@ -32,12 +34,14 @@ import java.io.Serializable;
  */
 abstract class AbstractProcessIdentityImplementation implements Serializable {
 
+  private static final UniqueIdentityGenerator s_identityGenerator =
+    new UniqueIdentityGenerator();
+
   private final String m_identity;
   private String m_name;
 
-  protected AbstractProcessIdentityImplementation(String identity,
-                                                  String name) {
-    m_identity = identity;
+  protected AbstractProcessIdentityImplementation(String name) {
+    m_identity = s_identityGenerator.createUniqueString(name);
     m_name = name;
   }
 

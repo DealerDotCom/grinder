@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -48,16 +48,16 @@ public class TestFileDistribution extends AbstractFileTestCase {
     Pattern.compile("^.grinder/$");
   private final Pattern m_matchAllPattern = Pattern.compile(".*");
 
-  private final RandomStubFactory m_processControlStubFactory =
-    new RandomStubFactory(ProcessControl.class);
+  private final RandomStubFactory<ProcessControl> m_processControlStubFactory =
+    RandomStubFactory.create(ProcessControl.class);
   private final ProcessControl m_processControl =
-    (ProcessControl)m_processControlStubFactory.getStub();
+    m_processControlStubFactory.getStub();
 
   public void testGetHandler() throws Exception {
-    final RandomStubFactory distributionControlStubFactory =
-      new RandomStubFactory(DistributionControl.class);
+    final RandomStubFactory<DistributionControl> distributionControlStubFactory =
+      RandomStubFactory.create(DistributionControl.class);
     final DistributionControl distributionControl =
-      (DistributionControl)distributionControlStubFactory.getStub();
+      distributionControlStubFactory.getStub();
 
     final Directory directory1 = new Directory(getDirectory());
 
@@ -100,22 +100,19 @@ public class TestFileDistribution extends AbstractFileTestCase {
   }
 
   public void testScanDistributionFiles() throws Exception {
-    final RandomStubFactory distributionControlStubFactory =
-      new RandomStubFactory(DistributionControl.class);
-    final DistributionControl distributionControl =
-      (DistributionControl)distributionControlStubFactory.getStub();
+    final RandomStubFactory<DistributionControl>
+      distributionControlStubFactory =
+        RandomStubFactory.create(DistributionControl.class);
 
     final UpdateableAgentCacheStateStubFactory
       agentCacheStateStubFactory =
         new UpdateableAgentCacheStateStubFactory();
 
     final UpdateableAgentCacheState agentCacheState =
-      agentCacheStateStubFactory.getUpdateableAgentCacheState();
+      agentCacheStateStubFactory.getStub();
 
-    final RandomStubFactory fileListenerStubFactory =
-      new RandomStubFactory(FileChangedListener.class);
-    final FileChangedListener filesChangedListener =
-      (FileChangedListener)fileListenerStubFactory.getStub();
+    final RandomStubFactory<FileChangedListener> fileListenerStubFactory =
+      RandomStubFactory.create(FileChangedListener.class);
 
     final Directory directory = new Directory(getDirectory());
     agentCacheStateStubFactory.override_setDirectory(null, directory);
@@ -123,9 +120,10 @@ public class TestFileDistribution extends AbstractFileTestCase {
       null, m_matchIgnoredPattern);
 
     final FileDistributionImplementation fileDistribution =
-      new FileDistributionImplementation(distributionControl,
-                                         agentCacheState);
-    fileDistribution.addFileChangedListener(filesChangedListener);
+      new FileDistributionImplementation(
+        distributionControlStubFactory.getStub(),
+        agentCacheState);
+    fileDistribution.addFileChangedListener(fileListenerStubFactory.getStub());
 
     fileDistribution.scanDistributionFiles();
 
@@ -244,7 +242,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
   }
 
   public static class UpdateableAgentCacheStateStubFactory
-    extends RandomStubFactory {
+    extends RandomStubFactory<UpdateableAgentCacheState> {
 
     private long m_earliestOutOfDateTime = Long.MAX_VALUE;
     private Directory m_directory;
@@ -252,10 +250,6 @@ public class TestFileDistribution extends AbstractFileTestCase {
 
     public UpdateableAgentCacheStateStubFactory() {
       super(UpdateableAgentCacheState.class);
-    }
-
-    public UpdateableAgentCacheState getUpdateableAgentCacheState() {
-      return (UpdateableAgentCacheState)getStub();
     }
 
     public long getEarliestOutOfDateTime() {

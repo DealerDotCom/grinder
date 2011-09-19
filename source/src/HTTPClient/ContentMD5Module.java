@@ -2,7 +2,7 @@
  * @(#)ContentMD5Module.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschal‰r
+ *  Copyright (C) 1996-2001 Ronald Tschal√§r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -44,7 +44,7 @@ import java.io.IOException;
  * closed. An IOException is thrown at that point if the digests don't match.
  *
  * @version	0.3-3  06/05/2001
- * @author	Ronald Tschal‰r
+ * @author	Ronald Tschal√§r
  */
 class ContentMD5Module implements HTTPClientModule
 {

@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,7 +37,7 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link ExternalEditor}.
  *
  * @author Philip Aston
- * @version $Revision:$
+ * @version $Revision$
  */
 public class TestExternalEditor extends AbstractFileTestCase {
 
@@ -48,10 +48,11 @@ public class TestExternalEditor extends AbstractFileTestCase {
     new ResourcesImplementation(
       "net.grinder.console.common.resources.Console");
 
-  private final RandomStubFactory m_fileChangeWatcherStubFactory =
-    new RandomStubFactory(FileChangeWatcher.class);
+  private final RandomStubFactory<FileChangeWatcher>
+    m_fileChangeWatcherStubFactory =
+      RandomStubFactory.create(FileChangeWatcher.class);
   private final FileChangeWatcher m_fileChangeWatcher =
-    (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
+    m_fileChangeWatcherStubFactory.getStub();
 
   public void testFileToCommandLine() throws Exception {
     final File commandFile = new File("foo");
