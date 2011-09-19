@@ -41,12 +41,19 @@ for details of other targets.
 
   <!-- source of all evil -->
   <property name="src.dir" value="src"/>
+  <property name="source.dir" value="../source"/>
+  <property name="lib.dir" value="${source.dir}/lib"/>
   <property name="etc.dir" value="etc"/>
-  <property name="imported.dir" value="imported"/>
-  <property name="imported-script-javadoc.dir" value="${imported.dir}/script-javadoc"/>
+  <property name="generated.dir" value="generated"/>
+  <property name="generated-script-javadoc.dir" value="${generated.dir}/script-javadoc"/>
 
   <!-- local settings -->
+  <property file="${source.dir}/etc/localpaths.properties"/>
   <property file="${etc.dir}/localpaths.properties"/>
+
+  <!-- javadoc -->
+  <property name="javadoc.css" value="${source.dir}/etc/javadoc.css"/>
+  <property name="package-lists.dir" value="${source.dir}/etc/packagelists"/>
 
   <!-- output -->
   <property name="release.dir" value="releases"/>
@@ -65,13 +72,143 @@ for details of other targets.
     <record name="${build.log}" loglevel="verbose" append="false"/>
 
     <echo message="** Building ${Name} on ${TODAY} **"/>
+
+    <path id="jython.classpath">
+      <pathelement path="${lib.dir}/jython.jar"/>
+    </path>
   </target>
 
   <!-- =================================================================== -->
   <!-- Rules to create the documentation                               -->
   <!-- =================================================================== -->
 
-  <target name="forrest" depends="init"
+  <target name="project-xml"
+          depends="init"
+          description="Generates the project XML files for a documentation build.">
+
+    <property name="xml-output.dir"
+              value="${generated.dir}/project-xml"/>
+
+    <mkdir dir="${xml-output.dir}"/>
+
+    <delete>
+      <fileset dir="${xml-output.dir}"/>
+    </delete>
+
+    <java classname="org.python.util.jython" logError="true"
+      output="${xml-output.dir}/changes.xml">
+
+      <sysproperty key="python.home" path="${jython.dir}"/>
+      <classpath refid="jython.classpath"/>
+
+      <arg path="${etc.dir}/changes2xml.py"/>
+      <arg value="${source.dir}/CHANGES"/>
+    </java>
+
+    <java classname="org.python.util.jython" logError="true"
+      output="${xml-output.dir}/todo.xml">
+
+      <sysproperty key="python.home" path="${jython.dir}"/>
+      <classpath refid="jython.classpath"/>
+
+      <arg path="${etc.dir}/outline2xml.py"/>
+      <arg value="${source.dir}/TODO"/>
+    </java>
+
+    <java classname="org.python.util.jython" logError="true"
+      output="${xml-output.dir}/scripts.xml">
+
+      <sysproperty key="python.home" path="${jython.dir}"/>
+      <classpath refid="jython.classpath"/>
+
+      <arg path="${etc.dir}/scripts2XML.py"/>
+      <arg value="${source.dir}/examples/helloworld.py"/>
+      <arg value="${source.dir}/examples/http.py"/>
+      <arg value="${source.dir}/examples/scenario.py"/>
+      <arg value="${source.dir}/examples/fba.py"/>
+      <arg value="${source.dir}/examples/digestauthentication.py"/>
+      <arg value="${source.dir}/examples/cookies.py"/>
+      <arg value="${source.dir}/examples/form.py"/>
+      <arg value="${source.dir}/examples/ejb.py"/>
+      <arg value="${source.dir}/examples/jdbc.py"/>
+      <arg value="${source.dir}/examples/amazon.py"/>
+      <arg value="${source.dir}/examples/jaxrpc.py"/>
+      <arg value="${source.dir}/examples/xml-rpc.py"/>
+      <arg value="${source.dir}/examples/helloworldfunctions.py"/>
+      <arg value="${source.dir}/examples/scriptlifecycle.py"/>
+      <arg value="${source.dir}/examples/statistics.py"/>
+      <arg value="${source.dir}/examples/jmssender.py"/>
+      <arg value="${source.dir}/examples/jmsreceiver.py"/>
+      <arg value="${source.dir}/examples/httpunit.py"/>
+      <arg value="${source.dir}/examples/email.py"/>
+      <arg value="${source.dir}/examples/sequence.py"/>
+      <arg value="${source.dir}/examples/parallel.py"/>
+      <arg value="${source.dir}/examples/threadrampup.py"/>
+    </java>
+  </target>
+
+  <target name="script-javadoc" depends="init"
+          description="Generates the script javadoc for a documentation build.">
+
+    <property name="script-javadoc-src.dir"
+        value="${build.dir}/script-javadoc-src"/>
+
+    <!-- Sigh, I'm tired of convincing the javadoc task to do the right thing
+         so instead let's create a copy of the source it should process.
+         This is faster too. -->
+    <copy todir="${script-javadoc-src.dir}">
+      <fileset dir="${source.dir}/src">
+        <include name="HTTPClient/*.java"/>
+        <exclude name="HTTPClient/HttpURLConnection.java"/>
+        <include name="net/grinder/common/AbstractTestSemantics.java"/>
+        <include name="net/grinder/common/FilenameFactory.java"/>
+        <include name="net/grinder/common/GrinderBuild.java"/>
+        <include name="net/grinder/common/GrinderException.java"/>
+        <include name="net/grinder/common/GrinderProperties.java"/>
+        <include name="net/grinder/common/Logger.java"/>
+        <include name="net/grinder/common/SSLContextFactory.java"/>
+        <include name="net/grinder/common/Test.java"/>
+        <include name="net/grinder/plugin/http/*.java"/>
+        <exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
+        <exclude name="net/grinder/plugin/http/HTTPPluginThreadState.java"/>
+        <exclude name="net/grinder/plugin/http/HTTPPluginTCPProxy*.java"/>
+        <include name="net/grinder/script/*.java"/>
+        <exclude name="net/grinder/script/InternalScriptContext.java"/>
+        <exclude name="net/grinder/script/TestRegistry.java"/>
+        <include name="**/*.html"/>
+      </fileset>
+    </copy>
+
+    <mkdir dir="${generated-script-javadoc.dir}"/>
+
+    <delete>
+      <fileset dir="${generated-script-javadoc.dir}"/>
+    </delete>
+
+    <javadoc destdir="${generated-script-javadoc.dir}"
+             packagenames="net.grinder.*,HTTPClient.*"
+             author="true"
+             version="false"
+             use="false"
+             noindex="false"
+             windowtitle="${Name}"
+             doctitle="${Name}"
+             stylesheetfile="${javadoc.css}"
+             protected="true"
+             overview="${script-javadoc-src.dir}/net/grinder/script/overview.html"
+             source="1.5"
+             sourcepath="${script-javadoc-src.dir}">
+        <group title="The Grinder Scripting API"
+               packages="net.grinder.common,net.grinder.script,net.grinder.statistics"/>
+        <group title="HTTP Plug-in"
+               packages="net.grinder.plugin.http,HTTPClient"/>
+        <link offline="true"
+              href="http://java.sun.com/j2se/1.5/docs/api/"
+              packagelistLoc="${package-lists.dir}/jdk1.5"/>
+    </javadoc>
+  </target>
+
+  <target name="forrest" depends="init,project-xml,script-javadoc"
           description="Generates the documentation.">
 
     <delete quiet="true">
@@ -79,7 +216,7 @@ for details of other targets.
     </delete>
 
     <copy todir="${script-javadoc.dir}">
-      <fileset dir="${imported-script-javadoc.dir}"/>
+      <fileset dir="${generated-script-javadoc.dir}"/>
     </copy>
 
     <!-- Quick hack for now. -->
@@ -97,32 +234,6 @@ for details of other targets.
 
   <target name="all" depends="clean,forrest,tidy-up-forrest-output"/>
 
-  <target name="release" depends="all" description="Generates a release.">
-
-    <echo message=""/>
-    <echo message=""/>
-    <echo message="****************************************************"/>
-    <echo message="*** Have you checked everything in?              ***"/>
-    <echo message="****************************************************"/>
-    <echo message=""/>
-
-    <input message="Continue? " validargs="y,n" addproperty="do.release"/>
-
-    <condition property="do.abort">
-      <equals arg1="n" arg2="${do.release}"/>
-    </condition>
-
-    <fail if="do.abort">Build aborted by user.</fail>
-
-    <echo message="Building release"/>
-    <mkdir dir="${release.dir}"/>
-
-    <zip zipfile="${release.dir}/${name}-${DSTAMP}.zip">
-      <zipfileset dir="${doc.dir}">
-      </zipfileset>
-    </zip>
-  </target>
-
   <!-- =================================================================== -->
   <!-- Clean targets                                                       -->
   <!-- =================================================================== -->
@@ -131,6 +242,7 @@ for details of other targets.
   <target name="clean" description="Removes build files.">
     <delete dir="${build.dir}"/>
     <delete dir="${doc.dir}"/>
+    <delete dir="${generated.dir}"/>
     <delete>
       <fileset dir="." includes="**/*~" defaultexcludes="false"/>
     </delete>

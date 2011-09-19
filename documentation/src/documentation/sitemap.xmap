@@ -9,7 +9,7 @@
 
     <map:pipeline>
       <map:match pattern="development/changes.xml">
-        <map:generate type="file" src="../../imported/project-xml/changes.xml"/>
+        <map:generate type="file" src="../../generated/project-xml/changes.xml"/>
         <map:transform src="changes2doc.xsl"/>
         <map:serialize type="xml"/>
       </map:match>
@@ -17,7 +17,7 @@
 
     <map:pipeline>
       <map:match pattern="development/todo.xml">
-        <map:generate type="file" src="../../imported/project-xml/todo.xml"/>
+        <map:generate type="file" src="../../generated/project-xml/todo.xml"/>
         <map:transform src="todo2doc.xsl"/>
         <map:serialize type="xml"/>
       </map:match>
@@ -25,7 +25,7 @@
 
     <map:pipeline>
       <map:match pattern="g3/script-gallery.xml">
-        <map:generate type="file" src="../../imported/project-xml/scripts.xml"/>
+        <map:generate type="file" src="../../generated/project-xml/scripts.xml"/>
         <map:transform src="scripts2doc.xsl"/>
         <map:serialize type="xml"/>
       </map:match>
