@@ -96,8 +96,6 @@ if this doesn't do what you want.
   <property name="etc.dir" value="etc"/>
   <property name="examples.dir" value="examples"/>
   <property name="contrib.dir" value="contrib"/>
-  <property name="export-to-doc-build.dir"
-            value="${grinder-doc.dir}/imported"/>
 
   <!-- output -->
   <!-- classes.dir is calcuated in init. -->
@@ -582,70 +580,6 @@ if this doesn't do what you want.
   <!-- Rules to create the documentation                               -->
   <!-- =================================================================== -->
 
-  <target name="project-xml"
-          depends="init,assert-have-grinder-doc-build"
-          description="Generates the project XML files for a documentation build.">
-
-    <property name="xml-output.dir"
-              value="${export-to-doc-build.dir}/project-xml"/>
-
-    <delete>
-      <fileset dir="${xml-output.dir}"/>
-    </delete>
-
-    <java classname="org.python.util.jython" logError="true"
-      output="${xml-output.dir}/changes.xml">
-
-      <sysproperty key="python.home" path="${jython.dir}"/>
-      <classpath refid="jython.classpath"/>
-
-      <arg path="${etc.dir}/changes2xml.py"/>
-      <arg value="CHANGES"/>
-    </java>
-
-    <java classname="org.python.util.jython" logError="true"
-      output="${xml-output.dir}/todo.xml">
-
-      <sysproperty key="python.home" path="${jython.dir}"/>
-      <classpath refid="jython.classpath"/>
-
-      <arg path="${etc.dir}/outline2xml.py"/>
-      <arg value="TODO"/>
-    </java>
-
-    <java classname="org.python.util.jython" logError="true"
-      output="${xml-output.dir}/scripts.xml">
-
-      <sysproperty key="python.home" path="${jython.dir}"/>
-      <classpath refid="jython.classpath"/>
-
-      <arg path="${etc.dir}/scripts2XML.py"/>
-      <arg value="examples/helloworld.py"/>
-      <arg value="examples/http.py"/>
-      <arg value="examples/scenario.py"/>
-      <arg value="examples/fba.py"/>
-      <arg value="examples/digestauthentication.py"/>
-      <arg value="examples/cookies.py"/>
-      <arg value="examples/form.py"/>
-      <arg value="examples/ejb.py"/>
-      <arg value="examples/jdbc.py"/>
-      <arg value="examples/amazon.py"/>
-      <arg value="examples/jaxrpc.py"/>
-      <arg value="examples/xml-rpc.py"/>
-      <arg value="examples/helloworldfunctions.py"/>
-      <arg value="examples/scriptlifecycle.py"/>
-      <arg value="examples/statistics.py"/>
-      <arg value="examples/jmssender.py"/>
-      <arg value="examples/jmsreceiver.py"/>
-      <arg value="examples/httpunit.py"/>
-      <arg value="examples/email.py"/>
-      <arg value="examples/sequence.py"/>
-      <arg value="examples/parallel.py"/>
-      <arg value="examples/threadrampup.py"/>
-    </java>
-
-  </target>
-
   <target name="javadoc" depends="init" description="Generates the javadoc.">
     <mkdir dir="${javadoc.dir}"/>
     <javadoc packagenames="net.grinder.*"
@@ -671,76 +605,6 @@ if this doesn't do what you want.
             href="http://java.sun.com/j2se/1.5/docs/api/"
             packagelistLoc="${package-lists.dir}/jdk1.5"/>
     </javadoc>
-  </target>
-
-  <target name="script-javadoc" depends="init,assert-have-grinder-doc-build"
-          description="Generates the script javadoc for a documentation build.">
-
-    <property name="script-javadoc-src.dir"
-        value="${build.dir}/script-javadoc-src"/>
-
-    <!-- Sigh, I'm tired of convincing the javadoc task to do the right thing
-         so instead let's create a copy of the source it should process.
-         This is faster too. -->
-    <copy todir="${script-javadoc-src.dir}">
-      <fileset dir="${src.dir}">
-        <include name="HTTPClient/*.java"/>
-        <exclude name="HTTPClient/HttpURLConnection.java"/>
-        <include name="net/grinder/common/AbstractTestSemantics.java"/>
-        <include name="net/grinder/common/FilenameFactory.java"/>
-        <include name="net/grinder/common/GrinderBuild.java"/>
-        <include name="net/grinder/common/GrinderException.java"/>
-        <include name="net/grinder/common/GrinderProperties.java"/>
-        <include name="net/grinder/common/Logger.java"/>
-        <include name="net/grinder/common/SSLContextFactory.java"/>
-        <include name="net/grinder/common/Test.java"/>
-        <include name="net/grinder/plugin/http/*.java"/>
-        <exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
-        <exclude name="net/grinder/plugin/http/HTTPPluginThreadState.java"/>
-        <exclude name="net/grinder/plugin/http/HTTPPluginTCPProxy*.java"/>
-        <include name="net/grinder/script/*.java"/>
-        <exclude name="net/grinder/script/InternalScriptContext.java"/>
-        <exclude name="net/grinder/script/TestRegistry.java"/>
-        <include name="**/*.html"/>
-      </fileset>
-    </copy>
-
-    <property name="script-javadoc-output.dir"
-              value="${export-to-doc-build.dir}/script-javadoc"/>
-
-    <delete>
-      <fileset dir="${script-javadoc-output.dir}"/>
-    </delete>
-
-    <javadoc destdir="${script-javadoc-output.dir}"
-             packagenames="net.grinder.*,HTTPClient.*"
-             author="true"
-             version="false"
-             use="false"
-             noindex="false"
-             windowtitle="${Name}"
-             doctitle="${Name}"
-             stylesheetfile="${javadoc.css}"
-             protected="true"
-             overview="${script-javadoc-src.dir}/net/grinder/script/overview.html"
-             source="1.5"
-             sourcepath="${script-javadoc-src.dir}">
-        <group title="The Grinder Scripting API"
-               packages="net.grinder.common,net.grinder.script,net.grinder.statistics"/>
-        <group title="HTTP Plug-in"
-               packages="net.grinder.plugin.http,HTTPClient"/>
-        <link offline="true"
-              href="http://java.sun.com/j2se/1.5/docs/api/"
-              packagelistLoc="${package-lists.dir}/jdk1.5"/>
-    </javadoc>
-  </target>
-
-  <target name="release-documentation"
-          depends="init,assert-have-grinder-doc-build,project-xml,script-javadoc"
-          description="Update separate documentation build, run it.">
-
-    <ant dir="${grinder-doc.dir}" target="release" inheritAll="false"/>
-
   </target>
 
   <!-- =================================================================== -->
@@ -811,7 +675,7 @@ if this doesn't do what you want.
     </git>
   </target>
 
-  <target name="release" depends="realclean,all,checkstyle,test,javadoc,release-documentation" description="Generates a release.">
+  <target name="release" depends="realclean,all,checkstyle,test,javadoc" description="Generates a release.">
 
     <antcall target="git-status"/>
 
