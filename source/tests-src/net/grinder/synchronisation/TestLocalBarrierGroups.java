@@ -31,9 +31,9 @@ import static org.junit.Assert.fail;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.BarrierGroup.Listener;
+import net.grinder.synchronisation.messages.BarrierIdentity;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -21,40 +21,23 @@
 
 package net.grinder.synchronisation.messages;
 
-
+import java.io.Serializable;
 
 /**
- * Barrier group message requesting that a waiter be added.
+ * Opaque token that identifies a waiting barrier.
+ *
+ * <p>
+ * A {@code net.grinder.script.Barrier} can {@code await()} multiple times in
+ * succession. It should use a globally unique identity for each call to
+ * addWaiter.
+ * </p>
+ *
+ * <p>
+ * Implementations are compared to each other using {link #equals}.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class AddWaiterMessage extends AbstractBarrierGroupMessage {
-
-  private static final long serialVersionUID = 1L;
-
-  private final BarrierIdentity m_barrierIdentity;
-
-  /**
-   * Constructor.
-   *
-   * @param name
-   *          Barrier name.
-   * @param barrierIdentity
-   *          The identity of the waiter.
-   */
-  public AddWaiterMessage(String name,
-                          BarrierIdentity barrierIdentity) {
-    super(name);
-    m_barrierIdentity = barrierIdentity;
-  }
-
-  /**
-   * Identifies the waiter.
-   *
-   * @return The identity of the waiter.
-   */
-  public BarrierIdentity getBarrierIdentity() {
-    return m_barrierIdentity;
-  }
+public interface BarrierIdentity extends Serializable {
 }

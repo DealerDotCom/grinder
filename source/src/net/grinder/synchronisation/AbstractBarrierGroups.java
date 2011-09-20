@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.grinder.communication.CommunicationException;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
+import net.grinder.synchronisation.messages.BarrierIdentity;
 import net.grinder.util.ListenerSupport;
 
 

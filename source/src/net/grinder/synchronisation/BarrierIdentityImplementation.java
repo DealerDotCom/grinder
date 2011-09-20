@@ -23,7 +23,8 @@ package net.grinder.synchronisation;
 
 import java.io.Serializable;
 
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
+import net.grinder.synchronisation.messages.BarrierIdentity;
+
 
 
 /**

@@ -21,7 +21,6 @@
 
 package net.grinder.synchronisation.messages;
 
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 
 
 /**

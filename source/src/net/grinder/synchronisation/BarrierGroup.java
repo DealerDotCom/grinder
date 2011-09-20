@@ -21,9 +21,9 @@
 
 package net.grinder.synchronisation;
 
-import java.io.Serializable;
 
 import net.grinder.communication.CommunicationException;
+import net.grinder.synchronisation.messages.BarrierIdentity;
 
 /**
  * A barrier group.
@@ -65,22 +65,6 @@ public interface BarrierGroup {
    */
   interface Listener {
     void awaken();
-  }
-
-  /**
-   * Opaque token that identifies a waiting barrier.
-   *
-   * <p>
-   * A {@code net.grinder.script.Barrier} can {@code await()} multiple times in
-   * succession. It should use a globally unique identity for each call to
-   * addWaiter.
-   * </p>
-   *
-   * <p>
-   * Implementations are compared to each other using {link #equals}.
-   * </p>
-   */
-  interface BarrierIdentity extends Serializable {
   }
 
   /**

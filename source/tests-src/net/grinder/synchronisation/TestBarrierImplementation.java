@@ -39,8 +39,8 @@ import java.util.concurrent.TimeUnit;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.script.CancelledBarrierException;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
+import net.grinder.synchronisation.messages.BarrierIdentity;
 
 import org.junit.AfterClass;
 import org.junit.Before;

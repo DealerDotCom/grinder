@@ -70,6 +70,7 @@ import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.BarrierGroup.Listener;
 import net.grinder.synchronisation.messages.AddBarrierMessage;
 import net.grinder.synchronisation.messages.AddWaiterMessage;
+import net.grinder.synchronisation.messages.BarrierIdentity;
 import net.grinder.synchronisation.messages.CancelWaiterMessage;
 import net.grinder.synchronisation.messages.OpenBarrierMessage;
 import net.grinder.synchronisation.messages.RemoveBarriersMessage;

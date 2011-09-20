@@ -23,6 +23,7 @@ package net.grinder.synchronisation;
 
 import net.grinder.communication.CommunicationException;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
+import net.grinder.synchronisation.messages.BarrierIdentity;
 
 
 /**

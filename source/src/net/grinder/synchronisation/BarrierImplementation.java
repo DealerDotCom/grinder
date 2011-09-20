@@ -27,8 +27,8 @@ import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.script.Barrier;
 import net.grinder.script.CancelledBarrierException;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentity;
 import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
+import net.grinder.synchronisation.messages.BarrierIdentity;
 import net.grinder.util.thread.Condition;
 
 
