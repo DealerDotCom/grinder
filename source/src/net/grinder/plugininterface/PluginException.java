@@ -29,7 +29,6 @@ import net.grinder.common.GrinderException;
  * Exception that can be thrown by plugins.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class PluginException extends GrinderException {
 

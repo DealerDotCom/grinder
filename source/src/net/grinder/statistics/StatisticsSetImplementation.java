@@ -40,7 +40,6 @@ import net.grinder.util.Serialiser;
  * StatisticsIndexMap}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class StatisticsSetImplementation implements StatisticsSet {
 

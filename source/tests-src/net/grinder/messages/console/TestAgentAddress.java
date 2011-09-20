@@ -35,7 +35,6 @@ import org.junit.Test;
  * Unit tests for {@link AgentAddress}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAgentAddress {
 

@@ -36,7 +36,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link ProcessReportDescriptionFactory}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestProcessReportDescriptionFactory extends TestCase {
 

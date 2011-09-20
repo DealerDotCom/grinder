@@ -29,7 +29,6 @@ import junit.framework.TestCase;
  * Unit tests for <code>TestResponseSender</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestResponseSender extends TestCase {
 

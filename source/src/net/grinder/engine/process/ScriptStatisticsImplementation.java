@@ -37,7 +37,6 @@ import net.grinder.statistics.StatisticsServicesImplementation;
  * <p>Package scope.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ScriptStatisticsImplementation implements Statistics {
 

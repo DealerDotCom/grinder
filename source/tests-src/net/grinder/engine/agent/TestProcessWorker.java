@@ -36,7 +36,6 @@ import junit.framework.TestCase;
  *  Unit tests for {@link ProcessWorker}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestProcessWorker extends TestCase {
 

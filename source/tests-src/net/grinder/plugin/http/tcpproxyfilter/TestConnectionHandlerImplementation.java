@@ -51,7 +51,6 @@ import net.grinder.util.URIParserImplementation;
  * Unit tests for {@link ConnectionHandlerImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConnectionHandlerImplementation extends AbstractFileTestCase {
 

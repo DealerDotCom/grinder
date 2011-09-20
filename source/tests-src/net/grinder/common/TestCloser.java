@@ -36,7 +36,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link Closer}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestCloser extends TestCase {
   private final IOException[] m_ioexception = new IOException[1];

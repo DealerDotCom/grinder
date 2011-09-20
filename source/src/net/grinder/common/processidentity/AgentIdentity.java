@@ -26,7 +26,6 @@ package net.grinder.common.processidentity;
  * Agent process identity.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface AgentIdentity extends ProcessIdentity {
 

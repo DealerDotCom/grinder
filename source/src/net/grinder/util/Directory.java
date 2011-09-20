@@ -46,7 +46,6 @@ import net.grinder.common.Closer;
  * {@link #create}.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class Directory implements Serializable {
   private static final long serialVersionUID = 1;

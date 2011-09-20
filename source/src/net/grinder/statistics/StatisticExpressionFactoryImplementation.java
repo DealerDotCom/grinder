@@ -34,7 +34,6 @@ import net.grinder.statistics.StatisticsIndexMap.LongSampleIndex;
  * Factory for StatisticExpressions.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class StatisticExpressionFactoryImplementation
   implements StatisticExpressionFactory {

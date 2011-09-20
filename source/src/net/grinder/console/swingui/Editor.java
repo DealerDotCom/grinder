@@ -58,7 +58,6 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
  * Text editor.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class Editor {
 

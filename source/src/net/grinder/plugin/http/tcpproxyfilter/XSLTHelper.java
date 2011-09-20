@@ -45,7 +45,6 @@ import HTTPClient.Codecs;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class XSLTHelper {
   private static int s_indentLevel;

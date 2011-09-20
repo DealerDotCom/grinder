@@ -45,7 +45,6 @@ import net.grinder.util.StreamCopier;
  * received from the console.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class FileStore {
   private final Logger m_logger;

@@ -31,7 +31,6 @@ import java.util.Properties;
  * Accessor for build version information.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class GrinderBuild {
 

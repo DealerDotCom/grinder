@@ -32,7 +32,6 @@ import net.grinder.messages.agent.CacheHighWaterMark;
  * Message for informing the console of agent process status.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class AgentProcessReportMessage
   implements AddressAwareMessage,  AgentAndCacheReport {

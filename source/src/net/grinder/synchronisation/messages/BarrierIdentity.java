@@ -37,7 +37,6 @@ import java.io.Serializable;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public interface BarrierIdentity extends Serializable {
 }

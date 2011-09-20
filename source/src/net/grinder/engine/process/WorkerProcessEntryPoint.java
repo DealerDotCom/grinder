@@ -32,7 +32,6 @@ import net.grinder.communication.StreamReceiver;
  * Entry point for processes launched by the agent.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class WorkerProcessEntryPoint {
 

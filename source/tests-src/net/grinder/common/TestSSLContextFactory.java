@@ -28,7 +28,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link SSLContextFactory}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestSSLContextFactory extends TestCase {
   public void testException() throws Exception {

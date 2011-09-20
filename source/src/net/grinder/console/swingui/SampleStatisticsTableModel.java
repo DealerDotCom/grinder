@@ -31,7 +31,6 @@ import net.grinder.statistics.StatisticsSet;
  * <code>TableModel</code> for the sample statistics table.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
 

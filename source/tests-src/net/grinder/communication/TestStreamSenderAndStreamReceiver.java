@@ -30,7 +30,6 @@ import java.io.PipedOutputStream;
  *  <code>StreamReceiver</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestStreamSenderAndStreamReceiver
   extends AbstractSenderAndReceiverTests {

@@ -47,7 +47,6 @@ import net.grinder.util.Directory;
  *  Unit tests for <code>ProcessWorkerFactory</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestProcessWorkerFactory extends TestCase {
 

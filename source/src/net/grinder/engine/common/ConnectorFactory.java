@@ -31,7 +31,6 @@ import net.grinder.communication.Connector;
  * ConnectorFactory.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class ConnectorFactory {
 

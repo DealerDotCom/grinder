@@ -32,7 +32,6 @@ import net.grinder.messages.console.WorkerAddress;
  * Common implementation for barrier group messages.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public abstract class AbstractBarrierGroupMessage
   implements AddressAwareMessage {

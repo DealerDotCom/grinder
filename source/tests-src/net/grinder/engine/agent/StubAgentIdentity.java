@@ -28,7 +28,6 @@ package net.grinder.engine.agent;
  * packages can use it.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class StubAgentIdentity extends AgentIdentityImplementation {
 

@@ -41,7 +41,6 @@ import net.grinder.util.thread.Condition;
  * Unit test case for <code>ConsoleListener</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConsoleListener extends TestCase {
 

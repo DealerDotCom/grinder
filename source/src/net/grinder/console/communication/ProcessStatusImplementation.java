@@ -47,7 +47,6 @@ import net.grinder.util.ListenerSupport;
  *
  * @author Dirk Feufel
  * @author Philip Aston
- * @version $Revision$
  */
 final class ProcessStatusImplementation {
 

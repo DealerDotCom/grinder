@@ -43,7 +43,6 @@ import net.grinder.util.TimeAuthority;
  * Package scope.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class TestData implements RegisteredTest, Recorder {
 

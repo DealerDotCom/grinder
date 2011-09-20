@@ -41,7 +41,6 @@ import net.grinder.util.StreamCopier;
  *
  * @author Paco Gomez
  * @author Philip Aston
- * @version $Revision$
  * @see net.grinder.engine.process.WorkerProcessEntryPoint
  *
  */

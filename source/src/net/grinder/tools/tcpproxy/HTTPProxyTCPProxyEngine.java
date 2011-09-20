@@ -68,7 +68,6 @@ import net.grinder.util.thread.InterruptibleRunnable;
  * @author Paddy Spencer
  * @author Philip Aston
  * @author Bertrand Ave
- * @version $Revision$
  */
 public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 

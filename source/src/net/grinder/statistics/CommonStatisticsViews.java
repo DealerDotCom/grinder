@@ -26,7 +26,6 @@ package net.grinder.statistics;
  * Provides references to commonly used {@link StatisticsView}s.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class CommonStatisticsViews {
   private final StatisticsView m_detailStatisticsView = new StatisticsView();

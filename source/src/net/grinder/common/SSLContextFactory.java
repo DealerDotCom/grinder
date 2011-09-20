@@ -28,7 +28,6 @@ import javax.net.ssl.SSLContext;
  * Factory for {@link SSLContext}s.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface SSLContextFactory {
 

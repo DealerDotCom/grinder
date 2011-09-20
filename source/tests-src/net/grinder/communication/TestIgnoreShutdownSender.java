@@ -30,7 +30,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link IgnoreShutdownSender}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestIgnoreShutdownSender extends TestCase {
 

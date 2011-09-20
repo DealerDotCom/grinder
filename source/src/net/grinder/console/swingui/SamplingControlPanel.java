@@ -42,7 +42,6 @@ import net.grinder.console.model.ConsoleProperties;
  * Panel containing sampling controls.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class SamplingControlPanel extends JPanel {
   private final JSlider m_intervalSlider  = new JSlider(100, 10000, 100);

@@ -31,7 +31,6 @@ import java.net.Socket;
  * Socket factory interface.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface TCPProxySocketFactory {
 

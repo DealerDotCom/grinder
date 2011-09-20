@@ -37,7 +37,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link CustomAction}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestCustomAction extends TestCase {
 

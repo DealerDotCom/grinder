@@ -32,7 +32,6 @@ import net.grinder.util.Directory;
  * Unit tests for {@link  ScriptLocation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestScriptLocation extends AbstractFileTestCase {
 

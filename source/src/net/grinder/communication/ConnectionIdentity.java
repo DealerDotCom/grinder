@@ -29,7 +29,6 @@ import java.net.InetAddress;
  * connection.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ConnectionIdentity {
 

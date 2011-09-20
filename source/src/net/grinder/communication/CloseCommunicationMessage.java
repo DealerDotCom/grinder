@@ -27,7 +27,6 @@ package net.grinder.communication;
  * channel should be terminated.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class CloseCommunicationMessage implements Message {
   private static final long serialVersionUID = -6184308536094181215L;

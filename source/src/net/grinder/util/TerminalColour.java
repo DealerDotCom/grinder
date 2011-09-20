@@ -25,7 +25,6 @@ package net.grinder.util;
  * Creates ANSI colour control strings.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class TerminalColour {
 

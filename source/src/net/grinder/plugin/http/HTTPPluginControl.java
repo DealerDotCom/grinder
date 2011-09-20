@@ -34,7 +34,6 @@ import net.grinder.plugininterface.PluginProcessContext;
  * HTTP plug-in.
  *
  * @author Philip Aston
- * @version $Revision$
  **/
 public final class HTTPPluginControl {
 

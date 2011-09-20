@@ -27,7 +27,6 @@ package net.grinder.communication;
  * Sender}s.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class TeeSender
   implements Sender,  MessageDispatchRegistry.Handler<Message> {

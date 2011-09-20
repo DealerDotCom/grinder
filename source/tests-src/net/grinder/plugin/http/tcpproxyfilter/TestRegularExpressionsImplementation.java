@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link RegularExpressionsImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestRegularExpressionsImplementation extends TestCase {
 

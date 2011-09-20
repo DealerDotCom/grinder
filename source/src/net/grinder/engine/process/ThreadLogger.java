@@ -28,7 +28,6 @@ import net.grinder.common.Logger;
  * A {@link Logger} that knows some thread specific context.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface ThreadLogger extends Logger {
   /**

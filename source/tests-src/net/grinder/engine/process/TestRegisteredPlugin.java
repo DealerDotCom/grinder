@@ -39,7 +39,6 @@ import net.grinder.util.TimeAuthority;
  * Unit test case for <code>RegisteredPlugin</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestRegisteredPlugin extends TestCase {
   public TestRegisteredPlugin(String name) {

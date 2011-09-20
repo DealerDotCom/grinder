@@ -46,7 +46,6 @@ import junit.framework.TestCase;
  * Unit test case for <code>HTTPUtilitiesImplementation</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPUtilitiesImplementation extends TestCase {
 

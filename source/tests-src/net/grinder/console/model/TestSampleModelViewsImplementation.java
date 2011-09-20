@@ -41,7 +41,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link SampleModelViewsImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestSampleModelViewsImplementation extends AbstractFileTestCase {
 

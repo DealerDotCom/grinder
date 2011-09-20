@@ -36,7 +36,6 @@ import net.grinder.statistics.StatisticsServicesImplementation;
  * Message used to register a expression view with Console.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class RegisterExpressionViewMessage
   implements Message, Externalizable {

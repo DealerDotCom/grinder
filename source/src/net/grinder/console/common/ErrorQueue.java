@@ -30,7 +30,6 @@ import java.util.LinkedList;
  * on when a delegate is available.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ErrorQueue implements ErrorHandler {
 

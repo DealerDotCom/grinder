@@ -32,7 +32,6 @@ import net.grinder.tools.tcpproxy.ConnectionDetails;
  * Interface for recording HTTP stream information.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface HTTPRecording {
 

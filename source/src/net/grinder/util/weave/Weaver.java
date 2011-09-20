@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
  * Something that can instrument classes.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public interface Weaver {
 

@@ -28,7 +28,6 @@ import net.grinder.communication.Message;
  * Pass a cache check point to the agent.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class DistributionCacheCheckpointMessage implements Message {
 

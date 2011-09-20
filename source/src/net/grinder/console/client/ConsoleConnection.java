@@ -32,7 +32,6 @@ import net.grinder.common.GrinderProperties;
  * change.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface ConsoleConnection {
 

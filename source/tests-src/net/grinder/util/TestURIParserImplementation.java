@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link URIParserImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestURIParserImplementation extends TestCase {
 

@@ -41,7 +41,6 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  *
  * @author Philip Aston
  * @author Bertrand Ave
- * @version $Revision$
  */
 public final class HTTPRequestFilter implements TCPProxyFilter {
 

@@ -38,7 +38,6 @@ import net.grinder.util.SignificantFigureFormat;
  * Statistics views to use with the statistics from the Sample SampleModel.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class SampleModelViewsImplementation implements SampleModelViews {
 

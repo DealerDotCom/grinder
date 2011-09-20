@@ -112,7 +112,6 @@ import net.grinder.util.thread.Condition;
  * http://madbean.com/blog/2004/17/totallygridbag.html first.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ConsoleUI implements ConsoleFoundation.UI {
 

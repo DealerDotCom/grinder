@@ -40,7 +40,6 @@ import net.grinder.util.TimeAuthority;
  * for plugin process and thread initialisation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class PluginRegistryImplementation
   extends PluginRegistry implements ProcessLifeCycleListener {

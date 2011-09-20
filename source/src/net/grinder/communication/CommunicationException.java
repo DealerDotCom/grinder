@@ -28,7 +28,6 @@ import net.grinder.common.GrinderException;
  * Exception thrown by communication package.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class CommunicationException extends GrinderException {
 

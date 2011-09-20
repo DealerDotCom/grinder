@@ -30,7 +30,6 @@ import net.grinder.testutility.StubPrintWriter;
  *  Unit test case for {@link DisplayMessageConsoleException}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestDisplayMessageConsoleException extends TestCase {
 

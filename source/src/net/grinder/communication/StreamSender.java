@@ -32,7 +32,6 @@ import net.grinder.common.Closer;
  * Class that manages the sending of messages to a server.
  *
  * @author Philip Aston
- * @version $Revision$
  **/
 public class StreamSender extends AbstractSender {
 

@@ -45,7 +45,6 @@ import org.python.core.ThreadState;
  * DCRInstrumenter for Jython 2.5+.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
 

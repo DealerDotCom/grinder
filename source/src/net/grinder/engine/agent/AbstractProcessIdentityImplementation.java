@@ -30,7 +30,6 @@ import net.grinder.util.UniqueIdentityGenerator;
  * Common process identity implementation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 abstract class AbstractProcessIdentityImplementation implements Serializable {
 

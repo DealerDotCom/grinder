@@ -43,7 +43,6 @@ import net.grinder.console.editor.EditorModel;
  * Builds a panel containing status information and controls for the editor.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class EditorControls {
 

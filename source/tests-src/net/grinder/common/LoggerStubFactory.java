@@ -26,7 +26,6 @@ package net.grinder.common;
  * Factory for <code>Logger</code> stubs.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class LoggerStubFactory extends AbstractLoggerStubFactory<Logger> {
 

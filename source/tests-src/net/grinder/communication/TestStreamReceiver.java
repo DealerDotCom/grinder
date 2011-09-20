@@ -36,7 +36,6 @@ import junit.framework.TestCase;
  *  Unit test case for <code>StreamReceiver</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestStreamReceiver extends TestCase {
 

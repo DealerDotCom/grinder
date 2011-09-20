@@ -27,7 +27,6 @@ package net.grinder.common;
  * Creates context-specific filenames.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface FilenameFactory {
   /**

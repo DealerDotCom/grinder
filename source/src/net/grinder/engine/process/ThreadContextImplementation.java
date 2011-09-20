@@ -46,7 +46,6 @@ import net.grinder.util.ListenerSupport.Informer;
  * Package scope.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ThreadContextImplementation
   implements ThreadContext, PluginThreadContext {

@@ -86,7 +86,6 @@ import org.mockito.stubbing.Answer;
  * {@link DistributionControlImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConsoleCommunicationImplementation
   extends AbstractFileTestCase {

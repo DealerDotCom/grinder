@@ -28,7 +28,6 @@ package net.grinder.tools.tcpproxy;
  * TCPProxy.
  *
  * @author Venelin Mitov
- * @version $Revision$
  */
 public interface UpdatableCommentSource extends CommentSource {
 

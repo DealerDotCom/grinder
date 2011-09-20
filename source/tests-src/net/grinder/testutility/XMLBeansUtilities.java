@@ -34,7 +34,6 @@ import org.apache.xmlbeans.XmlOptions;
  * Test utilities for XML beans.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class XMLBeansUtilities {
   public static final void validate(XmlObject o) {

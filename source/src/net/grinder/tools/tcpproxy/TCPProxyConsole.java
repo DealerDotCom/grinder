@@ -41,7 +41,6 @@ import javax.swing.SwingConstants;
  *
  * @author Bertrand Ave
  * @author Venelin Mitov
- * @version $Revision$
  */
 public final class TCPProxyConsole extends JFrame {
   /**

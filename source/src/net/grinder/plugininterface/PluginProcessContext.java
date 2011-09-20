@@ -34,7 +34,6 @@ import net.grinder.util.TimeAuthority;
  *
  * @author Paco Gomez
  * @author Philip Aston
- * @version $Revision$
  */
 public interface PluginProcessContext {
 

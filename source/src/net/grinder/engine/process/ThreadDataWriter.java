@@ -32,7 +32,6 @@ import net.grinder.statistics.StatisticsSet;
  * Writes lines to the data file on behalf of a particular thread.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class ThreadDataWriter {
   private final PrintWriter m_out;

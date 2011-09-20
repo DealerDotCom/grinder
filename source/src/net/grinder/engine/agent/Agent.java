@@ -30,7 +30,6 @@ import net.grinder.common.GrinderException;
  *
  * @author Pawel Lacinski
  * @author Philip Aston
- * @version $Revision$
  */
 public interface Agent {
 

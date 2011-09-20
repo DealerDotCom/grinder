@@ -42,7 +42,6 @@ import net.grinder.util.Sleeper;
  * Implementation of <code>ScriptContext</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ScriptContextImplementation implements InternalScriptContext {
 

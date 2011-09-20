@@ -30,7 +30,6 @@ import net.grinder.common.processidentity.WorkerIdentity;
  * A worker.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface Worker {
 

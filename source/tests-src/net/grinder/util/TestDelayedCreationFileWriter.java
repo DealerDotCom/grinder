@@ -34,7 +34,6 @@ import net.grinder.testutility.AbstractFileTestCase;
  * Unit tests for {@link DelayedCreationFileWriter}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class TestDelayedCreationFileWriter extends AbstractFileTestCase {
 

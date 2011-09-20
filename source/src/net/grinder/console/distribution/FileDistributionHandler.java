@@ -28,7 +28,6 @@ import net.grinder.util.FileContents.FileContentsException;
  * Something that can handle the distribution of files.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface FileDistributionHandler {
 

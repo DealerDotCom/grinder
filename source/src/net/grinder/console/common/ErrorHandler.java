@@ -27,7 +27,6 @@ package net.grinder.console.common;
  * exceptions.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface ErrorHandler {
 

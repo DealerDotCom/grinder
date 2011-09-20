@@ -30,7 +30,6 @@ import net.grinder.communication.Message;
  * Message used to start the Grinder processes.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class StartGrinderMessage implements Message {
 

@@ -29,7 +29,6 @@ import net.grinder.script.InvalidContextException;
  * Something that can start threads.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface ThreadStarter {
   int startThread(Object testRunner)

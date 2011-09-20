@@ -47,7 +47,6 @@ import net.grinder.util.FileContents;
  *  Unit tests for <code>FileStore</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFileStore extends AbstractFileTestCase {
 

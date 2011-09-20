@@ -39,7 +39,6 @@ import net.grinder.util.SimpleLogger;
  * This is the entry point of The Grinder console.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class Console extends AbstractMainClass {
 

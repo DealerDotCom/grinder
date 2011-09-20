@@ -47,7 +47,6 @@ import net.grinder.util.DelayedCreationFileWriter;
  * <p>Relies on underlying streams for synchronisation.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class LoggerImplementation {
 

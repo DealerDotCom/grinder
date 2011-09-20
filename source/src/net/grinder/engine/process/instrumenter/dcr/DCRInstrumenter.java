@@ -38,7 +38,6 @@ import net.grinder.util.weave.Weaver.TargetSource;
  * DCRInstrumenter.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 abstract class DCRInstrumenter implements Instrumenter {
 

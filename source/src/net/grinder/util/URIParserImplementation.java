@@ -34,7 +34,6 @@ import HTTPClient.URI;
  * <p>Does not handle opaque URIs.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class URIParserImplementation implements URIParser {
 

@@ -26,7 +26,6 @@ package net.grinder.util.html;
  * Text node for simple HTML model.
  *
  *  @author Philip Aston
- * @version $Revision$
  */
 public final class HTMLText extends AbstractHTMLNode {
   private final String m_text;

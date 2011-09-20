@@ -32,7 +32,6 @@ import net.grinder.testutility.Time;
  * Unit tests for {@link SleeperImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestSleeper extends TestCase {
 

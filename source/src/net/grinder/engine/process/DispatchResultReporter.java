@@ -28,7 +28,6 @@ import net.grinder.statistics.StatisticsSet;
  * Something that can report the results of a test dispatch.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface DispatchResultReporter {
 

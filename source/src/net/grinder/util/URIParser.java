@@ -26,7 +26,6 @@ package net.grinder.util;
  * Parse URI for interesting things, such as name-value pairs.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface URIParser {
 

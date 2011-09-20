@@ -35,7 +35,6 @@ import net.grinder.common.Logger;
  * instructions to write to {@link Logger#LOG}.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class SimpleLogger implements Logger {
 

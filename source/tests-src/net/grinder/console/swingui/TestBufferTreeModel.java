@@ -43,7 +43,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link BufferTreeModel}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestBufferTreeModel extends TestCase {
 

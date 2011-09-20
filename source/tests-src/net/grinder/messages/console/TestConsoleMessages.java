@@ -47,7 +47,6 @@ import net.grinder.testutility.Serializer;
  *  Unit test case for console messages.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConsoleMessages extends TestCase {
 

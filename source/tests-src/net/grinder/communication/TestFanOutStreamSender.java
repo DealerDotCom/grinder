@@ -33,7 +33,6 @@ import junit.framework.TestCase;
  *  Unit tests for <code>FanOutStreamSender</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFanOutStreamSender extends TestCase {
 

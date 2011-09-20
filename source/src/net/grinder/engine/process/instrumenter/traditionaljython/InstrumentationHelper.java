@@ -33,7 +33,6 @@ import net.grinder.common.Test;
  * Common instrumentation logic.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 abstract class InstrumentationHelper {
   /** The field name that allows the test to be obtained from a proxy. */

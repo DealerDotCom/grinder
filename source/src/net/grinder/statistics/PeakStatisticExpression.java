@@ -30,7 +30,6 @@ package net.grinder.statistics;
  * StatisticExpressionFactoryImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticExpressionFactoryImplementation
  **/
 public interface PeakStatisticExpression extends StatisticExpression {

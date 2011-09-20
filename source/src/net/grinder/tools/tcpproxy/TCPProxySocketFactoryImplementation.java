@@ -34,7 +34,6 @@ import java.net.Socket;
  * {@link TCPProxySocketFactory} for plain connections.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class TCPProxySocketFactoryImplementation
   implements TCPProxySocketFactory {

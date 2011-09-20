@@ -33,7 +33,6 @@ import static net.grinder.testutility.AssertUtilities.assertNotEquals;
  * Unit tests for {@link SignificantFigureFormat}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestSignificantFigureFormat extends TestCase {
 

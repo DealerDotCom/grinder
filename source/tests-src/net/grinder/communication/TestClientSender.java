@@ -36,7 +36,6 @@ import net.grinder.util.StreamCopier;
  *  Unit test case for <code>ClientSender</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestClientSender extends TestCase {
 

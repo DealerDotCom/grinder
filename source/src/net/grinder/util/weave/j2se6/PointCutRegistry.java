@@ -31,7 +31,6 @@ import java.util.Map;
  * Something that remembers all the point cuts.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 interface PointCutRegistry {
   /**

@@ -38,7 +38,6 @@ import net.grinder.util.StreamCopier;
  * {@link TCPProxySSLSocketFactoryImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestTCPProxySocketFactories extends AbstractFileTestCase {
 

@@ -37,7 +37,6 @@ import net.grinder.testutility.IsolatedObjectFactory;
  *  Unit test case for <code>Connector</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConnector extends TestCase {
 

@@ -38,7 +38,6 @@ import javax.swing.JOptionPane;
  * <code>JOptionPane.createDialog()</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class JOptionPaneDialog extends JDialog {
 

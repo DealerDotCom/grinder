@@ -56,7 +56,6 @@ import java.util.Map;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class StatisticsIndexMap implements Serializable {
 

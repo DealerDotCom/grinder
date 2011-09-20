@@ -28,7 +28,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link NullFilter}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestNullFilter extends TestCase {
 

@@ -27,7 +27,6 @@ package net.grinder.common;
  * tests.
  * 
  * @author Philip Aston
- * @version $Revision$
  */
 public class StubTest extends AbstractTestSemantics {
 

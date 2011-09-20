@@ -35,7 +35,6 @@ import net.grinder.messages.console.AgentAndCacheReport;
  *
  * @author Philip Aston
  * @author Dirk Feufel
- * @version $Revision$
  */
 public interface ProcessControl {
 

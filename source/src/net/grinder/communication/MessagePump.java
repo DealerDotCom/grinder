@@ -33,7 +33,6 @@ import net.grinder.util.thread.InterruptibleRunnableAdapter;
  * {@link Sender}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class MessagePump {
 

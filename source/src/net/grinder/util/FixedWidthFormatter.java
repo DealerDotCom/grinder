@@ -31,7 +31,6 @@ package net.grinder.util;
  * source are treated as preferred line breaks.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class FixedWidthFormatter extends AbstractMultiLineFormatter {
 

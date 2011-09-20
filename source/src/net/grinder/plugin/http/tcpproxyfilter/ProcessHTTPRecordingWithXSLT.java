@@ -47,7 +47,6 @@ import net.grinder.util.SimpleLogger;
  * XSLT transformation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class ProcessHTTPRecordingWithXSLT
   implements HTTPRecordingResultProcessor {
@@ -201,7 +200,6 @@ public class ProcessHTTPRecordingWithXSLT
    * Wrapper for an {@link InputStream} to a style sheet.
    *
    * @author Philip Aston
-   * @version $Revision$
    */
   public static final class StyleSheetInputStream {
     private final InputStream m_inputStream;

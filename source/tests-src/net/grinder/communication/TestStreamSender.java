@@ -32,7 +32,6 @@ import junit.framework.TestCase;
  *  Unit test case for <code>StreamSender</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestStreamSender extends TestCase {
 

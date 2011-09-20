@@ -27,7 +27,6 @@ package net.grinder.testutility;
  * executed within the given range.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class Time {
 

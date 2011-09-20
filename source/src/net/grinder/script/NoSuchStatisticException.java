@@ -28,7 +28,6 @@ import net.grinder.common.GrinderException;
  * Exception thrown if the requested statistic does not exist.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class NoSuchStatisticException extends GrinderException {
   /**

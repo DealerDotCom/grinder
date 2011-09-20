@@ -29,7 +29,6 @@ import java.io.PrintStream;
  * Utility template which redirects and restores stdout and stderr.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class RedirectStandardStreams {
 

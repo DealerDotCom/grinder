@@ -39,7 +39,6 @@ import org.mockito.MockitoAnnotations;
  *  Unit tests for {@link TeeSender.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestTeeSender {
 

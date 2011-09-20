@@ -35,7 +35,6 @@ import java.util.Random;
  * Unit test case for <code>StatisticsSetFactory</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticsSet
  */
 public class TestStatisticsSetFactory extends TestCase {

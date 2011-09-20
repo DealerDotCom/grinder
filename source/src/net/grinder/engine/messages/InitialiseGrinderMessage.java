@@ -31,7 +31,6 @@ import net.grinder.engine.common.ScriptLocation;
  * Message used by the agent to initialise the worker processes.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class InitialiseGrinderMessage implements Message {
 

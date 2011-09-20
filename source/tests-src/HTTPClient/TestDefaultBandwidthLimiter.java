@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * implementation.
  * 
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestDefaultBandwidthLimiter extends TestCase {
   

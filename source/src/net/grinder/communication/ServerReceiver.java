@@ -37,7 +37,6 @@ import net.grinder.util.thread.InterruptibleRunnableAdapter;
  * Manages the receipt of messages from many clients.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ServerReceiver implements Receiver {
 
@@ -141,7 +140,6 @@ public final class ServerReceiver implements Receiver {
    * to the next resource pool.
    *
    * @author Philip Aston
-   * @version $Revision$
    */
   private static final class CombinedResourcePool {
     private final ResourcePool[] m_resourcePools;

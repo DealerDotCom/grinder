@@ -30,7 +30,6 @@ import java.util.List;
  * Element node for simple HTML model.
  *
  *  @author Philip Aston
- * @version $Revision$
  */
 public class HTMLElement extends AbstractHTMLNode {
 

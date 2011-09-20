@@ -33,7 +33,6 @@ import net.grinder.engine.messages.InitialiseGrinderMessage;
  * Simple process for <code>TestChildProcess</code> to play with.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class ReadMessageEchoClass {
 

@@ -36,7 +36,6 @@ import net.grinder.testutility.AssertUtilities;
  * Unit test case for <code>StatisticsTable</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticsSet
  */
 public class TestStatisticsTable extends TestCase {

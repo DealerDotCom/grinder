@@ -44,7 +44,6 @@ import org.mockito.MockitoAnnotations;
  * Unit tests for {@link MessageDispatchSender}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestMessageDispatchSender {
 

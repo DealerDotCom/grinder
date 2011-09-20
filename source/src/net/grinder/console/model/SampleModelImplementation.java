@@ -56,7 +56,6 @@ import net.grinder.util.ListenerSupport;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class SampleModelImplementation implements SampleModel {
 

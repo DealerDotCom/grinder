@@ -39,7 +39,6 @@ import net.grinder.synchronisation.messages.RemoveBarriersMessage;
  * {@link BarrierGroups} implementation which delegates to a remote instance.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class GlobalBarrierGroups extends AbstractBarrierGroups {
 

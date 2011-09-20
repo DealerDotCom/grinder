@@ -28,7 +28,6 @@ import java.util.EventListener;
  * Something that can edit text.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface TextSource {
 

@@ -29,7 +29,6 @@ import net.grinder.util.weave.Weaver.TargetSource;
  * Weaving details.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 final class WeavingDetails extends Pair<String, TargetSource> {
   WeavingDetails(String location, TargetSource targetSource) {

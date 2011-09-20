@@ -37,7 +37,6 @@ import net.grinder.testutility.StubPrintStream;
  * Unit test case for <code>LoggerImplementation</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestLoggerImplementation extends AbstractFileTestCase {
 

@@ -46,7 +46,6 @@ import net.grinder.util.Directory;
  * Class encapsulating the console options.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ConsoleProperties {
 

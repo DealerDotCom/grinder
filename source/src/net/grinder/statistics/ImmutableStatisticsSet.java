@@ -26,7 +26,6 @@ package net.grinder.statistics;
  * Read-only view of a statistics set, see {@link StatisticsSet}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface ImmutableStatisticsSet {
 

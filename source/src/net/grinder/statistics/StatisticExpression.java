@@ -27,7 +27,6 @@ package net.grinder.statistics;
  * StatisticsSet}.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticExpressionFactoryImplementation
  **/
 public interface StatisticExpression {

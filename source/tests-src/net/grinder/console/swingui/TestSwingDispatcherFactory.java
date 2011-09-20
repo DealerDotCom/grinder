@@ -37,7 +37,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link SwingDispatcherFactoryImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestSwingDispatcherFactory extends TestCase {
 

@@ -31,7 +31,6 @@ import net.grinder.communication.Connector;
  * Something that can create {@link ConsoleConnection} instances.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class ConsoleConnectionFactory {
 

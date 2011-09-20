@@ -30,7 +30,6 @@ import net.grinder.common.FilenameFactory;
  * Implementation of {@link FilenameFactory}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class FilenameFactoryImplementation implements FilenameFactory {
   private final String m_logDirectory;

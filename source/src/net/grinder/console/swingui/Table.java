@@ -38,7 +38,6 @@ import javax.swing.UIManager;
  * TableModel specifies some cell rendering.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class Table extends JTable {
 

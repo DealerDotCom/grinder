@@ -32,7 +32,6 @@ import net.grinder.util.Directory;
  * copies of the cache are invalid.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface CacheParameters {
 

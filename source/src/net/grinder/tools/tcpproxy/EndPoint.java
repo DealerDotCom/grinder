@@ -32,7 +32,6 @@ import java.net.Socket;
  * <code>java.net.InetSocketAddress</code>.
  *
  * @author <a href="mailto:paston@bea.com">Philip Aston</a>
- * @version $Revision$
  */
 public final class EndPoint implements Comparable<EndPoint> {
 

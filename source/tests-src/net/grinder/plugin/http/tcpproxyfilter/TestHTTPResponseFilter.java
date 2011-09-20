@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link HTTPResponseFilter}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPResponseFilter extends TestCase {
 

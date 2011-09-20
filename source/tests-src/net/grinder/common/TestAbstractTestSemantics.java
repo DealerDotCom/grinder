@@ -28,7 +28,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link AbstractTestSemantics}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAbstractTestSemantics extends TestCase {
 

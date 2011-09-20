@@ -39,7 +39,6 @@ import java.util.Properties;
  * Has an optional associated file.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see net.grinder.script.Grinder.ScriptContext#getProperties
  */
 public class GrinderProperties extends Properties {

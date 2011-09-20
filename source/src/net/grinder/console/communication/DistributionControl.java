@@ -31,7 +31,6 @@ import net.grinder.util.FileContents;
  * Interface for sending files to the agent process caches.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface DistributionControl {
 

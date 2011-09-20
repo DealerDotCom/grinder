@@ -33,7 +33,6 @@ import net.grinder.util.thread.ExecutorFactory;
  * Manages the sending of messages to many streams.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class FanOutStreamSender extends AbstractFanOutSender {
 

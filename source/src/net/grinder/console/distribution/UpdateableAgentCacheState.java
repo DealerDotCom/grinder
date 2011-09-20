@@ -30,7 +30,6 @@ import net.grinder.util.Directory;
  * Package interface to the AgentCacheStateImplementation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface UpdateableAgentCacheState extends AgentCacheState {
 

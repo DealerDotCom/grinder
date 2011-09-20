@@ -26,7 +26,6 @@ package net.grinder.statistics;
  * Statistics services.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticsServicesImplementation
  */
 public interface StatisticsServices {

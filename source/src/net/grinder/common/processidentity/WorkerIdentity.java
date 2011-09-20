@@ -26,7 +26,6 @@ package net.grinder.common.processidentity;
  * Worker process identity.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface WorkerIdentity extends ProcessIdentity {
 

@@ -28,7 +28,6 @@ package net.grinder.tools.tcpproxy;
  *
  * @author Philip Aston
  * @author Bertrand Ave
- * @version $Revision$
  */
 public interface TCPProxyEngine extends Runnable {
 

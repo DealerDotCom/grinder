@@ -28,7 +28,6 @@ import java.io.Serializable;
  * Marker interface implemented by messages.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface Message extends Serializable {
 }

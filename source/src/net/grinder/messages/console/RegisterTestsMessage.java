@@ -31,7 +31,6 @@ import net.grinder.communication.Message;
  * Message used to register tests with Console.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class RegisterTestsMessage implements Message {
 

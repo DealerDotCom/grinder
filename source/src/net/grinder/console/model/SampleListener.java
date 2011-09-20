@@ -30,7 +30,6 @@ import net.grinder.statistics.StatisticsSet;
  * Listener interface for sample statistics notifications.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface SampleListener extends EventListener {
 

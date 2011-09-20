@@ -63,7 +63,6 @@ import net.grinder.util.InsecureSSLContextFactory;
  *
  * @author Philip Aston
  * @author Phil Dawes
- * @version $Revision$
  */
 public final class TCPProxySSLSocketFactoryImplementation
   implements TCPProxySSLSocketFactory {

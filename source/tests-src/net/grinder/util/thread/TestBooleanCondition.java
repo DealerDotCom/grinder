@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link BooleanCondition}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestBooleanCondition extends TestCase {
 

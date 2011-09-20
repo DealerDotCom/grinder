@@ -26,7 +26,6 @@ package net.grinder.statistics;
  * Common queries against the standard statistics.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class TestStatisticsQueries {
 

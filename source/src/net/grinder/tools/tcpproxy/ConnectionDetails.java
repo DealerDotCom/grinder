@@ -29,7 +29,6 @@ package net.grinder.tools.tcpproxy;
  * @see #equals for identity semantics.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ConnectionDetails {
   private final EndPoint m_localEndPoint;

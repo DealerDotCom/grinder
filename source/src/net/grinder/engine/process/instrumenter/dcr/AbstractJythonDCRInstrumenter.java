@@ -47,7 +47,6 @@ import org.python.core.PyReflectedFunction;
  * Common code used by the Jython DCR instrumenters.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 abstract class AbstractJythonDCRInstrumenter extends DCRInstrumenter {
 

@@ -53,7 +53,6 @@ import net.grinder.common.GrinderException;
  *
  * @author Philip Aston
  * @author Bertrand Ave
- * @version $Revision$
  */
 public interface TCPProxyFilter {
 

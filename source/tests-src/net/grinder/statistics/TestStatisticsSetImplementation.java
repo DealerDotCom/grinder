@@ -40,7 +40,6 @@ import net.grinder.util.Serialiser;
  * Unit test case for <code>StatisticsSetImplementation</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticsSetImplementation
  */
 public class TestStatisticsSetImplementation extends TestCase {

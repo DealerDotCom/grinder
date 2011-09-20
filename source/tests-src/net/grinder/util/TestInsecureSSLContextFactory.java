@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit test for {@link InsecureSSLContextFactory}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestInsecureSSLContextFactory extends TestCase {
 

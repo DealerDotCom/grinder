@@ -31,7 +31,6 @@ import net.grinder.console.editor.BufferImplementation.Listener;
  * Buffer state.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface Buffer {
 

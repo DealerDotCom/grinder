@@ -32,7 +32,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit test case for {@link JVM}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestJVM extends TestCase {
 

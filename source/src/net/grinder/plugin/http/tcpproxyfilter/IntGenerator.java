@@ -26,7 +26,6 @@ package net.grinder.plugin.http.tcpproxyfilter;
  * Simple ID generator.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class IntGenerator {
   private int m_value = -1;

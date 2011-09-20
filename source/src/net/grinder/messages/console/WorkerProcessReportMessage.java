@@ -34,7 +34,6 @@ import net.grinder.communication.CommunicationException;
  *
  * @author Dirk Feufel
  * @author Philip Aston
- * @version $Revision$
  */
 public final class WorkerProcessReportMessage
   implements AddressAwareMessage, WorkerProcessReport {

@@ -28,7 +28,6 @@ import net.grinder.engine.process.ScriptEngine.Recorder;
  * Recorder registry.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 interface RecorderRegistry {
 

@@ -38,7 +38,6 @@ import net.grinder.script.NotWrappableTypeException;
  * Master instrumenter.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public final class MasterInstrumenter implements Instrumenter {
 

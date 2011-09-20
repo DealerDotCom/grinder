@@ -47,7 +47,6 @@ import HTTPClient.NVPair;
  * {@link HTTPUtilities} implementation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class HTTPUtilitiesImplementation implements HTTPUtilities {
 

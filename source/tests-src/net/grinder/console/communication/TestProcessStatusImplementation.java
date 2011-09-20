@@ -50,7 +50,6 @@ import net.grinder.util.AllocateLowestNumber;
  * Unit test case for {@link ProcessStatusImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestProcessStatusImplementation extends TestCase {
   private final ProcessReportComparator m_processReportComparator =

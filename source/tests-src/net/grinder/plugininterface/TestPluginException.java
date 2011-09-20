@@ -28,7 +28,6 @@ import junit.framework.TestCase;
  *  Unit test case for {@link PluginException}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestPluginException extends TestCase {
 

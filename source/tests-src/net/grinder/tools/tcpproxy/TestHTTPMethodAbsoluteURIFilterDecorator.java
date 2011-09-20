@@ -28,7 +28,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link HTTPMethodAbsoluteURIFilterDecorator}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPMethodAbsoluteURIFilterDecorator extends TestCase {
 

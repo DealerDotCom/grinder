@@ -36,7 +36,6 @@ import java.util.Random;
  * Abstract test case that manages a temporary directory.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class AbstractFileTestCase extends TestCase {
 

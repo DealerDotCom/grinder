@@ -33,7 +33,6 @@ import net.grinder.common.Logger;
  *
  * @author Philip Aston
  * @author Bertrand Ave
- * @version $Revision$
  */
 public class EchoFilter implements TCPProxyFilter {
 

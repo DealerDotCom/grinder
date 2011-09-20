@@ -41,7 +41,6 @@ import net.grinder.util.InsecureSSLContextFactory;
  * Implementation of {@link SSLControl}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class SSLControlImplementation implements SSLControl {
 

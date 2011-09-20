@@ -33,7 +33,6 @@ import net.grinder.statistics.StatisticsSet;
  * Unit test case for <code>StatisticsView</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticsSet
  */
 public class TestStatisticsView extends TestCase {

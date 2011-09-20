@@ -29,7 +29,6 @@ import java.util.Random;
  *  <code>ServerReceiver</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestClientSenderAndServerReceiver
   extends AbstractSenderAndReceiverTests {

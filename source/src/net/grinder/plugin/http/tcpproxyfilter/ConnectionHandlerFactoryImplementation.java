@@ -34,7 +34,6 @@ import net.grinder.util.URIParser;
  * Factory for {@link ConnectionHandler}s.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ConnectionHandlerFactoryImplementation
   implements ConnectionHandlerFactory {

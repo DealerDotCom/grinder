@@ -35,7 +35,6 @@ import net.grinder.util.Directory;
  * Class that starts workers as separate processes.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ProcessWorkerFactory extends AbstractWorkerFactory {
 

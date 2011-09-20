@@ -28,7 +28,6 @@ import java.io.File;
  * Simple class for {@link TestExternalEditor} to play with.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TouchClass {
 

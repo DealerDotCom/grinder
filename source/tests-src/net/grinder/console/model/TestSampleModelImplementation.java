@@ -53,7 +53,6 @@ import net.grinder.testutility.StubTimer;
  * Unit tests for {@link SampleModelImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestSampleModelImplementation extends AbstractFileTestCase {
 

@@ -43,7 +43,6 @@ import net.grinder.util.StandardTimeAuthority;
  * Unit test case for <code>TestData</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestTestData extends TestCase {
 

@@ -33,7 +33,6 @@ import net.grinder.tools.tcpproxy.ConnectionDetails;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface HTTPFilterEventListener {
 

@@ -42,7 +42,6 @@ import javax.swing.tree.TreePath;
  * don't belong to them.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class CompositeTreeModel implements TreeModel {
 

@@ -28,7 +28,6 @@ package net.grinder.plugininterface;
  * thread can make on a plugin.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface GrinderPlugin {
 

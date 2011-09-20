@@ -29,7 +29,6 @@ package net.grinder.util;
  * @param <S> The type of the first item.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class Pair<F, S> {
   private final F m_first;

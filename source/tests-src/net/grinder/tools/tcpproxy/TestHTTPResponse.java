@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link HTTPResponse}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPResponse extends TestCase {
 

@@ -31,7 +31,6 @@ import javax.swing.Action;
  * delegates.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class TeeAction extends AbstractAction {
 

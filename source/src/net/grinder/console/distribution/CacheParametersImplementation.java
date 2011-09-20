@@ -11,7 +11,6 @@ import net.grinder.util.Directory;
  * Implementation of {@link CacheParameters}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class CacheParametersImplementation
   implements CacheParameters, Serializable {

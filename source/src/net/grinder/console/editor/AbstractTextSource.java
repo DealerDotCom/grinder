@@ -30,7 +30,6 @@ import net.grinder.util.ListenerSupport;
  * #setClean} for important subclass responsibilities.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class AbstractTextSource implements TextSource {
 

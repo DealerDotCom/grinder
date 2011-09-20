@@ -27,7 +27,6 @@ package net.grinder.synchronisation.messages;
  * Barrier group message requesting that a waiter be added.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class AddWaiterMessage extends AbstractBarrierGroupMessage {
 

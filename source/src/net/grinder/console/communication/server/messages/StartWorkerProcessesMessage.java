@@ -29,7 +29,6 @@ import net.grinder.communication.Message;
  * Message indicating that all worker processes should be started.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class StartWorkerProcessesMessage implements Message {
   private static final long serialVersionUID = 1;

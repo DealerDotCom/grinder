@@ -28,7 +28,6 @@ import net.grinder.util.TimeAuthority;
  * Implementation of {@link StopWatch}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class StopWatchImplementation implements StopWatch {
 

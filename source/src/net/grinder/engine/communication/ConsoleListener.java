@@ -35,7 +35,6 @@ import net.grinder.util.thread.Condition;
  * Process console messages and allows them to be asynchronously queried.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ConsoleListener {
 

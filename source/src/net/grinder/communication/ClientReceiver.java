@@ -26,7 +26,6 @@ package net.grinder.communication;
  * Manages receipt of messages from a server over a TCP connection.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ClientReceiver extends StreamReceiver {
 

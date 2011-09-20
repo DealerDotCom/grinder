@@ -36,7 +36,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link Serialiser}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestSerialiser extends TestCase
 {

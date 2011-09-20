@@ -37,7 +37,6 @@ import net.grinder.util.Sleeper;
  *
  * @author Paco Gomez
  * @author Philip Aston
- * @version $Revision$
  */
 class GrinderThread implements java.lang.Runnable {
 

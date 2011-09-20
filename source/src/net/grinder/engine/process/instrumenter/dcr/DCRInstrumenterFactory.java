@@ -37,7 +37,6 @@ import net.grinder.util.weave.j2se6.DCRWeaver;
  * Factory which instantiates the DCR instrumenters.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public final class DCRInstrumenterFactory {
 

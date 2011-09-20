@@ -29,7 +29,6 @@ import java.util.List;
  * Composite TCPProxyFilter.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class CompositeFilter implements TCPProxyFilter {
 

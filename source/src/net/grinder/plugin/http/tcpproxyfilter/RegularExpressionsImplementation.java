@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
  * Compiled regular expressions.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class RegularExpressionsImplementation
   implements RegularExpressions {

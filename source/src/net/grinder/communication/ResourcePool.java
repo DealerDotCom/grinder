@@ -32,7 +32,6 @@ import java.util.List;
  * through {@link Reservation}s.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface ResourcePool {
 

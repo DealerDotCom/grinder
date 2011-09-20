@@ -30,7 +30,6 @@ import net.grinder.messages.console.AgentAndCacheReport;
  * Stub implementation of {@link ProcessReports}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class StubProcessReports implements ProcessReports {
 

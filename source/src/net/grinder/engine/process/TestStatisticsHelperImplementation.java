@@ -32,7 +32,6 @@ import net.grinder.statistics.TestStatisticsMap;
  * TestStatisticsHelper implementation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class TestStatisticsHelperImplementation
   implements TestStatisticsHelper {

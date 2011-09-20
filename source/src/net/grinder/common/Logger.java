@@ -33,7 +33,6 @@ import java.io.PrintWriter;
  * specified by a mask of constant values.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface Logger {
   /** Destination constant that represents the log files. **/

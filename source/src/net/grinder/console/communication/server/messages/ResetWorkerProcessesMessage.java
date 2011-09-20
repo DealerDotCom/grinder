@@ -28,7 +28,6 @@ import net.grinder.communication.Message;
  * Message indicating that all worker processes should be reset.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class ResetWorkerProcessesMessage implements Message {
   private static final long serialVersionUID = 1;

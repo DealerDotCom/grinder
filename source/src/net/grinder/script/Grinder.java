@@ -31,7 +31,6 @@ import net.grinder.common.Logger;
  * Name space for <code>grinder</code> script context object.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class Grinder {
 
@@ -46,7 +45,6 @@ public class Grinder {
    * object that supports this interface.
    *
    * @author Philip Aston
-   * @version $Revision$
    */
   public interface ScriptContext {
 

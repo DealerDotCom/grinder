@@ -41,7 +41,6 @@ import net.grinder.util.AllocateLowestNumberImplementation;
  * Implementation of {@link ProcessControl}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class ProcessControlImplementation implements ProcessControl {
 

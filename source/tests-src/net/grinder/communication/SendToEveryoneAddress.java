@@ -26,7 +26,6 @@ package net.grinder.communication;
  * Stub implementation of {@link Address}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class SendToEveryoneAddress implements Address {
   public boolean includes(Address address) {

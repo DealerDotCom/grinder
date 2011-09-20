@@ -26,7 +26,6 @@ package net.grinder.communication;
  * Default communication constants.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class CommunicationDefaults {
 

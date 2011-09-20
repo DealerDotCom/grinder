@@ -33,7 +33,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit test for {@link TeeAction}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestTeeAction extends TestCase {
 

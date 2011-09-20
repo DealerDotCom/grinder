@@ -26,7 +26,6 @@ package net.grinder.engine.process;
  * Stub <code>ThreadContextLocator</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class StubThreadContextLocator implements ThreadContextLocator {
 

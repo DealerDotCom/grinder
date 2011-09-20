@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link UniqueIdentityGenerator}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestUniqueIdentityGenerator extends TestCase {
   public void testUniqueIdentityGenerator() {

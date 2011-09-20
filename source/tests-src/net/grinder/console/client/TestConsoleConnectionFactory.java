@@ -39,7 +39,6 @@ import org.junit.Test;
  * Unit tests for {@link ConsoleConnectionFactory}.
 *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConsoleConnectionFactory {
 

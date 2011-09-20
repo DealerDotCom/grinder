@@ -37,7 +37,6 @@ import java.io.Writer;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class DelayedCreationFileWriter extends Writer {
 

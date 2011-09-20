@@ -35,7 +35,6 @@ import net.grinder.util.FileContents;
  * Unit test for {@link FileDistributionHandlerImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFileDistributionHandlerImplementation
   extends AbstractFileTestCase {

@@ -27,7 +27,6 @@ package net.grinder.common;
  * {@link Test} implementations.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class AbstractTestSemantics implements Test {
 

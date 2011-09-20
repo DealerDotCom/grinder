@@ -41,7 +41,6 @@ import net.grinder.common.Test;
  * on the <code>TestStatisticsMap</code> itself.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class TestStatisticsMap implements java.io.Externalizable {
 

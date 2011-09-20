@@ -26,7 +26,6 @@ package net.grinder.communication;
  * Interface for classes that manage the sending of messages.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface BlockingSender {
 
@@ -57,7 +56,6 @@ public interface BlockingSender {
    * to a {@link BlockingSender#blockingSend(Message)}.
    *
    * @author Philip Aston
-   * @version $Revision$
    */
   class NoResponseException extends CommunicationException {
 

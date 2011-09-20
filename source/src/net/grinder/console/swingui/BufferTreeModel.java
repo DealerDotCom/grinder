@@ -38,7 +38,6 @@ import net.grinder.util.WeakValueHashMap;
  * Simple {@link TreeModel} that lists buffers.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class BufferTreeModel implements TreeModel {
 

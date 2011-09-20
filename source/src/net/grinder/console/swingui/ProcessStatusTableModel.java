@@ -48,7 +48,6 @@ import net.grinder.console.communication.ProcessControl.ProcessReports;
  *
  * @author Dirk Feufel
  * @author Philip Aston
- * @version $Revision$
  */
 class ProcessStatusTableModel
   extends AbstractTableModel implements Table.TableModel {

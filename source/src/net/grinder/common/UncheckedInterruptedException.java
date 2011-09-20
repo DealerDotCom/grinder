@@ -66,7 +66,6 @@ import java.net.SocketTimeoutException;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class UncheckedInterruptedException extends UncheckedGrinderException {
 

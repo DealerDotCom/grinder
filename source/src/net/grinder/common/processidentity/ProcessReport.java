@@ -28,7 +28,6 @@ import java.util.Comparator;
  * Common interface for enquiring about a process.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface ProcessReport {
 

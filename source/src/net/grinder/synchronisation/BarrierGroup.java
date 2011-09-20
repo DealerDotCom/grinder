@@ -55,7 +55,6 @@ import net.grinder.synchronisation.messages.BarrierIdentity;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision:$
  * @see net.grinder.script.Barrier
  */
 public interface BarrierGroup {

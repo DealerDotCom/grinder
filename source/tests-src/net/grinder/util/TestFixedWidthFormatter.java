@@ -31,7 +31,6 @@ import org.junit.Test;
  * Unit tests for {@link FixedWidthFormatter}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFixedWidthFormatter {
 

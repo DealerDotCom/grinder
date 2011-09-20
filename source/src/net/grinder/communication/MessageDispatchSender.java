@@ -35,7 +35,6 @@ import net.grinder.util.ListenerSupport;
  * appropriate handler.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class MessageDispatchSender
   implements Sender, MessageDispatchRegistry {

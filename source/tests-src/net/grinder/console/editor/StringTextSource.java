@@ -26,7 +26,6 @@ package net.grinder.console.editor;
  * Simple {@link TextSource} for the unit tests.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class StringTextSource extends AbstractTextSource {
 

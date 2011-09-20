@@ -33,7 +33,6 @@ import net.grinder.common.Logger;
  *  Unit tests for <code>SimpleLogger</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestSimpleLogger extends TestCase {
 

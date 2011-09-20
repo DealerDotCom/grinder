@@ -39,7 +39,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link CompositeTreeModel}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestCompositeTreeModel extends TestCase {
 

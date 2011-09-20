@@ -28,7 +28,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link BooleanProperty}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestBooleanProperty extends TestCase {
 

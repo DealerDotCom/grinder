@@ -30,7 +30,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit test for {@link AbstractTextSource}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAbstractTextSource extends TestCase {
 

@@ -41,7 +41,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link ProcessStatusTableModel}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestProcessStatusTableModel extends TestCase {
 

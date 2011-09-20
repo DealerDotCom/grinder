@@ -54,7 +54,6 @@ import org.objectweb.asm.Type;
  * advise methods.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public final class ASMTransformerFactory
   implements ClassFileTransformerFactory {
@@ -123,7 +122,6 @@ public final class ASMTransformerFactory
    * {@link ClassFileTransformer} that advise methods using ASM.
    *
    * @author Philip Aston
-   * @version $Revision:$
    */
   private class ASMTransformer implements ClassFileTransformer {
 
@@ -364,7 +362,6 @@ public final class ASMTransformerFactory
    * </ul>
    *
    * @author Philip Aston
-   * @version $Revision:$
    */
   private final class AdviceMethodVisitor
     extends MethodAdapter implements ContextMethodVisitor, Opcodes {

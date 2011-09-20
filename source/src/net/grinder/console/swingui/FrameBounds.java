@@ -36,7 +36,6 @@ import net.grinder.console.model.ConsoleProperties;
  * properties.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class FrameBounds {
 

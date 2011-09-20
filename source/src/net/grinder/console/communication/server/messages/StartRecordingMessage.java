@@ -28,7 +28,6 @@ import net.grinder.communication.Message;
  * Message indicating that the console recording should be started.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class StartRecordingMessage implements Message {
   private static final long serialVersionUID = 1;

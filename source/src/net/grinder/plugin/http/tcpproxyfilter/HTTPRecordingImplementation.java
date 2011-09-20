@@ -66,7 +66,6 @@ import HTTPClient.URI;
  * Contains common state for HTTP recording.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 

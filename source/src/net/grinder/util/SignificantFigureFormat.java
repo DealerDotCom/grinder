@@ -31,7 +31,6 @@ import java.text.FieldPosition;
  * extensively tested.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class SignificantFigureFormat extends DecimalFormat {
 

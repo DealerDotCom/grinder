@@ -29,7 +29,6 @@ import junit.framework.TestCase;
  * Unit test case for <code>TestStatisticsImplementation</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticsSet
  */
 public class TestTestStatisticsQueries extends TestCase {

@@ -50,7 +50,6 @@ import net.grinder.util.SleeperImplementation;
  * @author Paco Gomez
  * @author Philip Aston
  * @author Bertrand Ave
- * @version $Revision$
  */
 public class HTTPPlugin implements GrinderPlugin {
 

@@ -29,7 +29,6 @@ import java.lang.instrument.Instrumentation;
  * and transformation functions.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public final class ExposeInstrumentation {
   private static Instrumentation s_instrumentation;

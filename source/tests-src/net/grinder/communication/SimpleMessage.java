@@ -28,7 +28,6 @@ import java.util.Random;
  *  Simple Message implementation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class SimpleMessage implements Message {
 

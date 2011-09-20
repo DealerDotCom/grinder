@@ -44,7 +44,6 @@ import net.grinder.util.weave.WeavingException;
  * {@link Weaver} that uses Java 6 dynamic class retransformation.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public final class DCRWeaver implements Weaver {
 

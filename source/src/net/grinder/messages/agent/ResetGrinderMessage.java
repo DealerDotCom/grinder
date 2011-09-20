@@ -28,7 +28,6 @@ import net.grinder.communication.Message;
  * Message used to reset the Grinder processes.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ResetGrinderMessage implements Message {
   private static final long serialVersionUID = 7654366493026824236L;

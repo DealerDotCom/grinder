@@ -30,7 +30,6 @@ import java.io.IOException;
  * Utility methods for efficient serialisation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class Serialiser {
 

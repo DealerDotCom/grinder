@@ -28,7 +28,6 @@ import java.util.EventListener;
  * Something that can raise events about file changes.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface FileChangeWatcher {
 

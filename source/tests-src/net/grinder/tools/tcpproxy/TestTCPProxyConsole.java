@@ -35,7 +35,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link TCPProxyConsole}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestTCPProxyConsole extends TestCase {
 

@@ -89,7 +89,6 @@ import org.picocontainer.parameters.ConstantParameter;
  *
  * @author Paco Gomez
  * @author Philip Aston
- * @version $Revision$
  **/
 public final class ConsoleFoundation {
 
@@ -231,7 +230,6 @@ public final class ConsoleFoundation {
    * Contract for user interfaces.
    *
    * @author Philip Aston
-   * @version $Revision$
    */
   public interface UI {
     /**

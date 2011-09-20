@@ -32,7 +32,6 @@ import net.grinder.util.AllocateLowestNumber.IteratorCallback;
  * Unit tests for {@link AllocateLowestNumberImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAllocateLowestNumberImplementation extends TestCase {
 

@@ -34,7 +34,6 @@ import org.picocontainer.Disposable;
  * Map of {@link ConnectionDetails} to handlers.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ConnectionCache
   implements HTTPFilterEventListener, Disposable {

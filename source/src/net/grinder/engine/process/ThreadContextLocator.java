@@ -26,7 +26,6 @@ package net.grinder.engine.process;
  * Locator for an appropriate {@link ThreadContext} implementation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface ThreadContextLocator {
 

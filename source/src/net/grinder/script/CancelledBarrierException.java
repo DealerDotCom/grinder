@@ -28,7 +28,6 @@ import net.grinder.common.GrinderException;
  * Exception thrown when attempting to wait on a cancelled barrier.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class CancelledBarrierException extends GrinderException {
   /**

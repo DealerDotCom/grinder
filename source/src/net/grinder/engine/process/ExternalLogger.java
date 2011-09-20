@@ -35,7 +35,6 @@ import net.grinder.common.Logger;
  * unless the script creates its own threads.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ExternalLogger implements Logger {
 

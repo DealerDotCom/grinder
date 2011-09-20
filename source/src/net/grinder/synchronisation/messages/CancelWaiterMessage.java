@@ -27,7 +27,6 @@ package net.grinder.synchronisation.messages;
  * Barrier group message requesting that a waiter be removed.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class CancelWaiterMessage extends AbstractBarrierGroupMessage {
 

@@ -34,7 +34,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link GrinderBuild}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestGrinderBuild extends TestCase {
   public void testGrinderBuildStrings() throws Exception {

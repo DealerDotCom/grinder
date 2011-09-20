@@ -33,7 +33,6 @@ import net.grinder.testutility.FileUtilities;
  *  Unit test case for {@link ResourcesImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestResources extends TestCase {
 

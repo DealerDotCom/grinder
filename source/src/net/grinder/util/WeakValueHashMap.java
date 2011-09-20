@@ -33,7 +33,6 @@ import java.util.Map;
  * @param <V> Value type.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class WeakValueHashMap<K, V>  {
   private final Map<K, WeakReference<V>> m_map =

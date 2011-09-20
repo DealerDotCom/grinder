@@ -39,7 +39,6 @@ import org.python.core.PyObject;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class InstrumentedPyJavaInstanceForJavaInstances
   extends AbstractInstrumentedPyJavaInstance {

@@ -53,7 +53,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link HTTPRecordingImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPRecordingImplementation extends TestCase {
 

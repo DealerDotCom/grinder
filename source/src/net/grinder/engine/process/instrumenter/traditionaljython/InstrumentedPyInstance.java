@@ -33,7 +33,6 @@ import org.python.core.PyObject;
  * An instrumented <code>PyInstance</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class InstrumentedPyInstance extends ClonePyInstance {
   private final InstrumentationHelper m_instrumentationHelper;

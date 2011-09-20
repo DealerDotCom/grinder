@@ -32,7 +32,6 @@ import net.grinder.common.FilenameFactory;
  * Unit test case for <code>FilenameFactoryImplementation</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFilenameFactoryImplementation extends TestCase {
   public TestFilenameFactoryImplementation(String name) {

@@ -35,7 +35,6 @@ import junit.framework.TestCase;
  *  Unit tests for {@link ClientReceiver}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestClientReceiver extends TestCase {
 

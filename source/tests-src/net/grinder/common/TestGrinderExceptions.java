@@ -35,7 +35,6 @@ import net.grinder.testutility.RedirectStandardStreams;
  * Unit test for {@link GrinderException}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestGrinderExceptions extends TestCase {
 

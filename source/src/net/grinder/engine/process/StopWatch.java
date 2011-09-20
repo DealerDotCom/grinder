@@ -41,7 +41,6 @@ import net.grinder.common.UncheckedGrinderException;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface StopWatch {
 

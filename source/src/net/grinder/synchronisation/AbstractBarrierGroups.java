@@ -38,7 +38,6 @@ import net.grinder.util.ListenerSupport;
  * Common barrier group implementation.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public abstract class AbstractBarrierGroups implements BarrierGroups  {
 

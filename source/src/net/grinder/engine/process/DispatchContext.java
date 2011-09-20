@@ -30,7 +30,6 @@ import net.grinder.script.Statistics.StatisticsForTest;
  * Access state related to a particular dispatch of a test by a worker thread.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface DispatchContext {
 

@@ -32,7 +32,6 @@ import java.util.List;
  * @param <T> Listener type.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ListenerSupport<T> {
 

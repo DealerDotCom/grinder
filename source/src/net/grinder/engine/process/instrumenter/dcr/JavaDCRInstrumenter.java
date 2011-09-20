@@ -35,7 +35,6 @@ import net.grinder.util.weave.Weaver.TargetSource;
  * DCRInstrumenter.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 final class JavaDCRInstrumenter extends DCRInstrumenter {
 

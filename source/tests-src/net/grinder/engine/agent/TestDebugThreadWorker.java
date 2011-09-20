@@ -36,7 +36,6 @@ import net.grinder.testutility.RedirectStandardStreams;
  * Unit tests for <code>DebugThreadWorker</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestDebugThreadWorker extends TestCase {
 

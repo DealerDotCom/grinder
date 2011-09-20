@@ -51,7 +51,6 @@ import net.grinder.util.thread.InterruptibleRunnableAdapter;
  * @author Phil Dawes
  * @author Philip Aston
  * @author Bertrand Ave
- * @version $Revision$
  */
 public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 

@@ -34,7 +34,6 @@ import net.grinder.console.distribution.AgentCacheState;
  * Handles opening a file in external editor.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class ExternalEditor {
 

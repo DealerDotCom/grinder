@@ -36,7 +36,6 @@ import net.grinder.util.thread.InterruptibleRunnableAdapter;
  * Manages the sending of messages to many Receivers.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 abstract class AbstractFanOutSender extends AbstractSender {
 

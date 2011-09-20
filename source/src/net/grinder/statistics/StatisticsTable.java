@@ -36,7 +36,6 @@ import net.grinder.util.FixedWidthFormatter;
  * <p>Package scope</p>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class StatisticsTable {
 

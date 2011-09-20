@@ -33,7 +33,6 @@ import javax.swing.JComponent;
  *
  * @author Paco Gomez
  * @author Philip Aston
- * @version $Revision$
  */
 class Graph extends JComponent {
 

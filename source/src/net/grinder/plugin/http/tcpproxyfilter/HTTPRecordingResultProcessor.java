@@ -31,7 +31,6 @@ import net.grinder.plugin.http.xml.HttpRecordingDocument;
  * {@link HTTPRecordingImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface HTTPRecordingResultProcessor {
 

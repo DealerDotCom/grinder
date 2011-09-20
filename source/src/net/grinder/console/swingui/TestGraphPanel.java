@@ -46,7 +46,6 @@ import net.grinder.statistics.StatisticsSet;
  * A panel of test graphs.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestGraphPanel extends JPanel implements SampleModel.Listener {
 

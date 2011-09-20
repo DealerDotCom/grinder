@@ -31,7 +31,6 @@ import org.python.core.PyObject;
  * An instrumented <code>PyJavaInstance</code>, used to wrap PyMethods.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class InstrumentedPyJavaInstanceForPyMethods
   extends AbstractInstrumentedPyJavaInstance {

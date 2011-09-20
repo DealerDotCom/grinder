@@ -32,7 +32,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link EndPoint}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestEndPoint extends TestCase {
 

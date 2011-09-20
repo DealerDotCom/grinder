@@ -30,7 +30,6 @@ package net.grinder.common;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface ThreadLifeCycleListener {
 

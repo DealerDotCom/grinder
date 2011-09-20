@@ -28,7 +28,6 @@ import net.grinder.common.GrinderException;
  * Something that can sleep.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface Sleeper extends TimeAuthority {
 

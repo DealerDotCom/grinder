@@ -26,7 +26,6 @@ package net.grinder.common.processidentity;
  * Interface for enquiring about an agent process.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface AgentProcessReport extends ProcessReport {
 

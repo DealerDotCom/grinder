@@ -34,7 +34,6 @@ import net.grinder.common.FilenameFactory;
  * unless the script creates its own threads.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ExternalFilenameFactory implements FilenameFactory {
 

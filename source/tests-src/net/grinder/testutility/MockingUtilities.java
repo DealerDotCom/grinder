@@ -32,7 +32,6 @@ import static org.mockito.Mockito.argThat;
  * Mocking utility classes for use with Mockito.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class MockingUtilities {
 

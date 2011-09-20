@@ -26,7 +26,6 @@ package net.grinder.console.model;
  * Console property default value constants.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ConsolePropertyDefaults {
 

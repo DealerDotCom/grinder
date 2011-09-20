@@ -35,7 +35,6 @@ import net.grinder.util.FileContents;
  * <p>Not thread safe.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class FileDistributionHandlerImplementation
   implements FileDistributionHandler {

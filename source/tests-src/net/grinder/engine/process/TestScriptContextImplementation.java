@@ -56,7 +56,6 @@ import org.mockito.MockitoAnnotations;
  * Unit test case for {@code ScriptContextImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestScriptContextImplementation {
 

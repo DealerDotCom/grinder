@@ -44,7 +44,6 @@ import org.junit.Test;
  *  Unit tests for {@code Acceptor}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAcceptor {
 

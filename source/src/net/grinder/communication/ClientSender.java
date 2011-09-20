@@ -26,7 +26,6 @@ package net.grinder.communication;
  * Class that manages the sending of messages to a server.
  *
  * @author Philip Aston
- * @version $Revision$
  **/
 public final class ClientSender extends StreamSender implements BlockingSender {
 

@@ -39,7 +39,6 @@ import net.grinder.common.GrinderException;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class PluginRegistry {
   private static PluginRegistry s_instance;

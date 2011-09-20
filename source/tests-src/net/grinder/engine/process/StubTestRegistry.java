@@ -33,7 +33,6 @@ import net.grinder.testutility.RandomStubFactory;
  * package.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class StubTestRegistry {
 

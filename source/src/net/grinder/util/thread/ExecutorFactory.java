@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Create suitable {@Executor} implementations.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class ExecutorFactory {
 

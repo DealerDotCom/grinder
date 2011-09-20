@@ -29,7 +29,6 @@ package net.grinder.plugininterface;
  *
  * @author Paco Gomez
  * @author Philip Aston
- * @version $Revision$
  */
 public interface PluginThreadContext {
 

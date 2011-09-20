@@ -29,7 +29,6 @@ import net.grinder.common.processidentity.ProcessAddress;
  * Agent process address.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public final class AgentAddress extends ProcessAddress<AgentIdentity> {
 

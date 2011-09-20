@@ -27,7 +27,6 @@ import net.grinder.common.UncheckedGrinderException;
  * Exception used to indicate that the process has been shutdown.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ShutdownException extends UncheckedGrinderException {
   public ShutdownException(String message) {

@@ -31,7 +31,6 @@ package net.grinder.util;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class StandardTimeAuthority implements TimeAuthority {
 

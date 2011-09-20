@@ -31,7 +31,6 @@ import net.grinder.synchronisation.messages.BarrierIdentity;
  * Simple barrier identity implementation.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 final class BarrierIdentityImplementation implements BarrierIdentity {
 

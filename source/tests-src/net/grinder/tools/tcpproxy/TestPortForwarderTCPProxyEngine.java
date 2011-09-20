@@ -42,7 +42,6 @@ import net.grinder.util.TerminalColour;
  * Unit test case for {@link PortForwarderTCPProxyEngine}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestPortForwarderTCPProxyEngine extends TestCase {
 

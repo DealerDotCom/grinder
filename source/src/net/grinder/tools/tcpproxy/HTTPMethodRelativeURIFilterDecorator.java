@@ -48,7 +48,6 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class HTTPMethodRelativeURIFilterDecorator extends AbstractFilterDecorator {
 

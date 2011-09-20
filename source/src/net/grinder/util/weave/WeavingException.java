@@ -28,7 +28,6 @@ import net.grinder.common.GrinderException;
  * Exception indicating an weaving failure.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class WeavingException extends GrinderException {
 

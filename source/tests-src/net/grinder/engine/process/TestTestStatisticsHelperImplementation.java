@@ -34,7 +34,6 @@ import junit.framework.TestCase;
  * Unit test case for <code>TestStatisticsHelperImplementation</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestTestStatisticsHelperImplementation extends TestCase {
 

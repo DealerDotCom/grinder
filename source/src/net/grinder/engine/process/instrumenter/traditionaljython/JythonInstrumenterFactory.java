@@ -31,7 +31,6 @@ import net.grinder.engine.process.Instrumenter;
  * Factory for {@link TraditionalJythonInstrumenter}s.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class JythonInstrumenterFactory {
 

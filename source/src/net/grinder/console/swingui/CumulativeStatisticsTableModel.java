@@ -35,7 +35,6 @@ import net.grinder.statistics.StatisticsSet;
  * Table model for cumulative statistics table.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel {
 

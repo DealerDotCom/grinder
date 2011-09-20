@@ -78,7 +78,6 @@ import org.mockito.MockitoAnnotations;
  * Unit tests for {@link ConsoleFoundation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConsoleFoundation extends AbstractFileTestCase {
 

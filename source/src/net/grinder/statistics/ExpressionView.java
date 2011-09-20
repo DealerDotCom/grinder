@@ -49,7 +49,6 @@ package net.grinder.statistics;
  * represents the mean test time in milliseconds.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ExpressionView {
 

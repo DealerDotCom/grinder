@@ -74,7 +74,6 @@ import org.picocontainer.monitors.WriterComponentMonitor;
  * @author Philip Aston
  * @author Bertrand Ave
  * @author Venelin Mitov
- * @version $Revision$
  */
 public final class TCPProxy extends AbstractMainClass {
 

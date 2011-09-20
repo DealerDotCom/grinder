@@ -39,7 +39,6 @@ import net.grinder.statistics.StatisticsIndexMap.LongIndex;
  * a read-only statistics set.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class StatisticsForTestImplementation implements StatisticsForTest {
 

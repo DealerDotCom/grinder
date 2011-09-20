@@ -46,7 +46,6 @@ import net.grinder.util.weave.agent.ExposeInstrumentation;
  * Unit tests for <code>DebugThreadWorkerFactory</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
 

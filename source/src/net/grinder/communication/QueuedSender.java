@@ -26,7 +26,6 @@ package net.grinder.communication;
  * <code>Sender</code> that allows messages to be queued.
  *
  * @author Philip Aston
- * @version $Revision$
  **/
 public interface QueuedSender extends Sender {
 

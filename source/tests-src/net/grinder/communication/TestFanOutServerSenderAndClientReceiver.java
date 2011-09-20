@@ -27,7 +27,6 @@ package net.grinder.communication;
  *  <code>ClientReceiver</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFanOutServerSenderAndClientReceiver
   extends AbstractSenderAndReceiverTests {

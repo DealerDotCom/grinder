@@ -46,7 +46,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link FileTreeModel}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFileTreeModel extends AbstractFileTestCase {
 

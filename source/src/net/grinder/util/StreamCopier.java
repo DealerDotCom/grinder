@@ -38,7 +38,6 @@ import net.grinder.util.thread.InterruptibleRunnableAdapter;
  * active thread - see {@link #getInterruptibleRunnable}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class StreamCopier {
 

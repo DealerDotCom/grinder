@@ -29,7 +29,6 @@ import net.grinder.common.GrinderException;
  * Base for exceptions thrown by the engine.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class EngineException extends GrinderException {
   /**

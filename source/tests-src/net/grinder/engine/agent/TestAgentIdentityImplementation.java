@@ -30,7 +30,6 @@ import junit.framework.TestCase;
  * TestAgentIdentityImplementation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAgentIdentityImplementation extends TestCase {
 

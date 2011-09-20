@@ -26,7 +26,6 @@ package net.grinder.common;
  * Base unchecked exception class for The Grinder.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class UncheckedGrinderException extends RuntimeException {
 

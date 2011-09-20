@@ -29,7 +29,6 @@ import java.net.ConnectException;
  * message.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class VerboseConnectException extends ConnectException {
 

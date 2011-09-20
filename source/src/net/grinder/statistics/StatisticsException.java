@@ -28,7 +28,6 @@ import net.grinder.common.GrinderException;
  * Base type for exceptions raised by the statistics package.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class StatisticsException extends GrinderException {
 

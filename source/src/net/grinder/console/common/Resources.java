@@ -27,7 +27,6 @@ import javax.swing.ImageIcon;
  * Type safe interface to resource bundle.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface Resources {
 

@@ -43,7 +43,6 @@ package net.grinder.util;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class SimpleStringEscaper implements StringEscaper {
 

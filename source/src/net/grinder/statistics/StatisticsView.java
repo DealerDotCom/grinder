@@ -32,7 +32,6 @@ import java.util.TreeSet;
  * An ordered collection of {@link ExpressionView}s.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see net.grinder.script.Statistics#registerDataLogExpression
  * @see net.grinder.script.Statistics#registerSummaryExpression
  */

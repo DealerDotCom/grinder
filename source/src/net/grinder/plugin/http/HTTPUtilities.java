@@ -32,7 +32,6 @@ import HTTPClient.NVPair;
  * Things that HTTP scripts find useful.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see HTTPPluginControl#getHTTPUtilities()
  */
 public interface HTTPUtilities {

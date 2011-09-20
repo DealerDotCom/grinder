@@ -43,7 +43,6 @@ import java.util.regex.Pattern;
  * receive relative URIs. </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class HTTPMethodAbsoluteURIFilterDecorator extends AbstractFilterDecorator {
 

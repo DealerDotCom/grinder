@@ -46,7 +46,6 @@ import net.grinder.common.SSLContextFactory;
  * front can help on some platforms.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class InsecureSSLContextFactory implements SSLContextFactory {
 

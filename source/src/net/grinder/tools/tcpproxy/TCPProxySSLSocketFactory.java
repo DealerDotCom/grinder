@@ -30,7 +30,6 @@ import java.net.Socket;
  * Socket factory interface for SSL sockets.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface TCPProxySSLSocketFactory extends TCPProxySocketFactory {
 

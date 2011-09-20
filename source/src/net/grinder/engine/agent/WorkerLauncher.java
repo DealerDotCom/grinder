@@ -37,7 +37,6 @@ import net.grinder.util.thread.InterruptibleRunnableAdapter;
  * Manages launching a set of workers.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class WorkerLauncher {
 

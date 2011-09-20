@@ -35,7 +35,6 @@ import java.util.Set;
  * packages are isolated from other class loaders.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class IsolatingClassLoader extends URLClassLoader {
 

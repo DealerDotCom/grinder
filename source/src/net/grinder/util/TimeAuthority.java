@@ -26,7 +26,6 @@ package net.grinder.util;
  * Something that knows the time.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface TimeAuthority {
 

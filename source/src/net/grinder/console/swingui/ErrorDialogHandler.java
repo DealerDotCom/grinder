@@ -45,7 +45,6 @@ import net.grinder.console.common.Resources;
  * Wrap up all the machinery used to show an error dialog.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ErrorDialogHandler implements ErrorHandler {
 

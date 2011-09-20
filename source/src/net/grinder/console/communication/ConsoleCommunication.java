@@ -30,7 +30,6 @@ import net.grinder.communication.MessageDispatchRegistry;
  * Handles communication for the console.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface ConsoleCommunication {
 

@@ -28,7 +28,6 @@ import java.io.Serializable;
  * A timed checkpoint of the agent cache state.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface CacheHighWaterMark extends Serializable {
 

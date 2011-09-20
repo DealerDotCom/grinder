@@ -26,7 +26,6 @@ package net.grinder.common;
  * Base exception class for The Grinder.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class GrinderException extends Exception {
 

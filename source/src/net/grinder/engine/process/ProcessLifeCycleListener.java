@@ -28,7 +28,6 @@ package net.grinder.engine.process;
  * <p>Package scope</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface ProcessLifeCycleListener {
 

@@ -28,7 +28,6 @@ package net.grinder.statistics;
  * StatisticsIndexMap}.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see net.grinder.script.Grinder.ScriptContext#getStatistics
  */
 public interface StatisticsSet extends ImmutableStatisticsSet {

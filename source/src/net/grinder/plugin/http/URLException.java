@@ -28,7 +28,6 @@ import net.grinder.common.GrinderException;
  * Represents errors in URLs.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class URLException extends GrinderException {
 

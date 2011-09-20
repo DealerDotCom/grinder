@@ -45,7 +45,6 @@ import net.grinder.util.WeakValueHashMap;
  * {@link TreeModel} that walks file system.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class FileTreeModel implements TreeModel {
 

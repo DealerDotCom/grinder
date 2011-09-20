@@ -32,7 +32,6 @@ import net.grinder.common.UncheckedInterruptedException;
  * Abstract class that manages the sending of messages.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 abstract class AbstractSender implements Sender {
 

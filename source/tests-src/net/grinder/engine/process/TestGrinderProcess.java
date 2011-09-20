@@ -56,7 +56,6 @@ import org.mockito.ArgumentCaptor;
  * Unit tests for {@link GrinderProcess}
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestGrinderProcess {
   private static final ExecutorService s_executor =

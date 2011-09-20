@@ -34,7 +34,6 @@ import net.grinder.common.GrinderException;
  * and getter methods.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class BooleanProperty {
   private final Object m_bean;

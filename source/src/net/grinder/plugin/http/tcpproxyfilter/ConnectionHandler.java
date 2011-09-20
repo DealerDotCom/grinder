@@ -28,7 +28,6 @@ package net.grinder.plugin.http.tcpproxyfilter;
  * <p>Public, so unit tests can stub.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface ConnectionHandler {
 

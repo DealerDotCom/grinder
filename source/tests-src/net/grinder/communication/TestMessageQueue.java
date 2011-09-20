@@ -40,7 +40,6 @@ import org.junit.Test;
  *  Unit test case for {@code MessageQueue}.
  *
  * @author Philip Aston
- * @version $Revision$
  **/
 public class TestMessageQueue {
 

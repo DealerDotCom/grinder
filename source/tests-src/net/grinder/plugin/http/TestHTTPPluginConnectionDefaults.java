@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link HTTPPluginConnectionDefaults}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPPluginConnectionDefaults extends TestCase {
 

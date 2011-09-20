@@ -29,7 +29,6 @@ package net.grinder.util.thread;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  * @see net.grinder.common.UncheckedInterruptedException For policy on handling
  *  interrupted threads.
  */

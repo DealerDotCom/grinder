@@ -45,7 +45,6 @@ import net.grinder.util.ListenerSupport;
  * Implementation of {@link Buffer}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class BufferImplementation implements Buffer {
 

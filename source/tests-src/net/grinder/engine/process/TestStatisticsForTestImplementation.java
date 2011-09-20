@@ -38,7 +38,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit test for {@link TestStatisticsForTestImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestStatisticsForTestImplementation extends TestCase {
 

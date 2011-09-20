@@ -27,7 +27,6 @@ package net.grinder.engine.process;
  * {@link GrinderProcess}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface WorkerThreadSynchronisation {
 

@@ -32,7 +32,6 @@ import net.grinder.script.Statistics.StatisticsForTest;
  * Package scope.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface ThreadContext extends PluginThreadContext {
 

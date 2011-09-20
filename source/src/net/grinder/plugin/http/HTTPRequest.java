@@ -87,7 +87,6 @@ import HTTPClient.URI;
  * the reading of response bodies, and managed them yourself.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class HTTPRequest {
 

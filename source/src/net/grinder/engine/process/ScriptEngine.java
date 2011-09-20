@@ -29,7 +29,6 @@ import net.grinder.engine.common.ScriptLocation;
  * Factory for proxies.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface ScriptEngine {
 

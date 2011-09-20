@@ -31,7 +31,6 @@ import net.grinder.common.processidentity.WorkerIdentity;
  * Non-final so unit tests can extend.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class AgentIdentityImplementation
   extends AbstractProcessIdentityImplementation implements AgentIdentity {
@@ -80,7 +79,6 @@ class AgentIdentityImplementation
    * Worker process identity.
    *
    * @author Philip Aston
-   * @version $Revision$
    */
   final class WorkerIdentityImplementation
     extends AbstractProcessIdentityImplementation

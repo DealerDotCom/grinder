@@ -60,7 +60,6 @@ import net.grinder.common.UncheckedInterruptedException;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public interface Barrier {
 

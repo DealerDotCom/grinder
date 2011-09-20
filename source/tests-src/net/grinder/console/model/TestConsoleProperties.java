@@ -48,7 +48,6 @@ import net.grinder.util.Directory;
  * Unit test for {@link ConsoleProperties}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConsoleProperties extends AbstractFileTestCase {
 

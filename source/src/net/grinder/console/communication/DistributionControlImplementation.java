@@ -33,7 +33,6 @@ import net.grinder.util.FileContents;
  * Implementation of {@link DistributionControl}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class DistributionControlImplementation
   implements DistributionControl {

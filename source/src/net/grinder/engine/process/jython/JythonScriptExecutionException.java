@@ -34,7 +34,6 @@ import net.grinder.engine.process.ScriptEngine.ScriptExecutionException;
  * scripts.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class JythonScriptExecutionException extends ScriptExecutionException {
 

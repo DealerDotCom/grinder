@@ -32,7 +32,6 @@ import net.grinder.tools.tcpproxy.EndPoint;
  * Unit tests for {@link HTTPRequestFilter}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPRequestFilter extends TestCase {
 

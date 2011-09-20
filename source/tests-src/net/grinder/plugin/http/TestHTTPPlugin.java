@@ -41,7 +41,6 @@ import net.grinder.util.IsolatingClassLoader;
  * Unit tests for {@link HTTPPlugin}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPPlugin extends TestCase {
 

@@ -42,7 +42,6 @@ import net.grinder.util.ListenerSupport;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class SocketWrapper implements ResourcePool.Resource {
 

@@ -44,7 +44,6 @@ import net.grinder.util.ListenerSupport;
  * Editor model.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class EditorModel {
 

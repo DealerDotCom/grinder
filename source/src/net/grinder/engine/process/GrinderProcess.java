@@ -91,7 +91,6 @@ import net.grinder.util.thread.Condition;
  *
  * @author Paco Gomez
  * @author Philip Aston
- * @version $Revision$
  * @see net.grinder.engine.process.GrinderThread
  */
 final class GrinderProcess {

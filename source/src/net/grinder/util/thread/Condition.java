@@ -28,7 +28,6 @@ import net.grinder.common.UncheckedInterruptedException;
  * Object used for synchronisation.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see UncheckedInterruptedException
  */
 public class Condition {

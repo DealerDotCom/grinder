@@ -40,7 +40,6 @@ import net.grinder.testutility.Serializer;
  *  Unit test case for <code>GrinderProperties</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestGrinderProperties extends AbstractFileTestCase {
 

@@ -27,7 +27,6 @@ package net.grinder.util.thread;
  * to a particular value, but can also be woken by another thread.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class BooleanCondition {
   private final Condition m_condition = new Condition();

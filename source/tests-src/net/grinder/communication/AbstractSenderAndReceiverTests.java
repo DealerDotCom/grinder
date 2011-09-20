@@ -34,7 +34,6 @@ import junit.framework.TestCase;
  *  <code>Receiver</code> implementations..
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class AbstractSenderAndReceiverTests extends TestCase {
 

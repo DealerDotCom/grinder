@@ -28,7 +28,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link URIParser.AbstractParseListener}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAbstractParseListener extends TestCase {
 

@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link EchoFilter}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestEchoFilter extends TestCase {
 

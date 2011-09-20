@@ -32,7 +32,6 @@ import net.grinder.util.ListenerSupport;
  * Manages the cumulative statistics for a single test or set of tests.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class SampleAccumulator {
 

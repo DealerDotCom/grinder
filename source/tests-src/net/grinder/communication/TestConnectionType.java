@@ -33,7 +33,6 @@ import org.junit.Test;
  *  Unit tests for {@code ConnectionType}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConnectionType {
 

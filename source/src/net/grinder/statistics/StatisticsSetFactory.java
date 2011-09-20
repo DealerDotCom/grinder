@@ -32,7 +32,6 @@ import net.grinder.util.Serialiser;
  * Factory for {@link StatisticsSet} objects.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class StatisticsSetFactory {
 

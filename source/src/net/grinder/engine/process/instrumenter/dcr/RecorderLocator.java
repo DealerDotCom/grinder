@@ -42,7 +42,6 @@ import extra166y.CustomConcurrentHashMap;
  * appropriate {@link Recorder}.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public final class RecorderLocator implements RecorderRegistry {
 

@@ -32,7 +32,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link StopWatchImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestStopWatchImplementation extends TestCase {
 

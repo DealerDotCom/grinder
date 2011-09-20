@@ -35,7 +35,6 @@ import net.grinder.statistics.TestStatisticsMap;
  * Interface to {@link SampleModelImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface SampleModel {
 

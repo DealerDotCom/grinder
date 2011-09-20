@@ -43,7 +43,6 @@ import org.python.util.PythonInterpreter;
  * Unit tests for {@link JythonScriptEngine}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestJythonScriptEngine extends AbstractFileTestCase {
 

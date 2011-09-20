@@ -57,7 +57,6 @@ import net.grinder.console.model.ConsoleProperties;
  * Wrap up all the machinery used to show the options dialog.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 abstract class OptionsDialogHandler {
   private final JFrame m_parentFrame;

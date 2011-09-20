@@ -28,7 +28,6 @@ import net.grinder.tools.tcpproxy.ConnectionDetails;
  * Factory for {@link ConnectionHandler}s.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface ConnectionHandlerFactory {
 

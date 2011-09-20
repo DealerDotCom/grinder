@@ -34,7 +34,6 @@ import java.beans.PropertyChangeListener;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface AgentCacheState {
 

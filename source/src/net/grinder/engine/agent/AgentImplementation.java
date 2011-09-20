@@ -64,7 +64,6 @@ import net.grinder.util.thread.Condition;
  * @author Philip Aston
  * @author Bertrand Ave
  * @author Pawel Lacinski
- * @version $Revision$
  */
 public final class AgentImplementation implements Agent {
 

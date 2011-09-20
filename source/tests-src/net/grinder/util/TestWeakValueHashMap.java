@@ -28,7 +28,6 @@ import junit.framework.TestCase;
  * Unit test case for {@link WeakValueHashMap}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestWeakValueHashMap extends TestCase {
 

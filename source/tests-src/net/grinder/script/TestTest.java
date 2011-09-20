@@ -40,7 +40,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit test case for <code>Test</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestTest extends TestCase {
 

@@ -34,7 +34,6 @@ import junit.framework.TestCase;
  *  Unit tests for <code>FanOutServerSender</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFanOutServerSender extends TestCase {
 

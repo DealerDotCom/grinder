@@ -36,7 +36,6 @@ import junit.framework.TestCase;
  * Unit tests for our modifications to {@link Cookie}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestCookie extends TestCase {
 

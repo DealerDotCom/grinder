@@ -26,7 +26,6 @@ package net.grinder.util.html;
  * Document node for simple HTML model.
  *
  *  @author Philip Aston
- * @version $Revision$
  */
 public final class HTMLDocument extends HTMLElement {
 

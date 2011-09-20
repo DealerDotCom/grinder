@@ -31,7 +31,6 @@ import org.python.core.PyReflectedFunction;
  * An instrumented <code>PyReflectedFunction</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class InstrumentedPyReflectedFunction extends PyReflectedFunction {
   private final InstrumentationHelper m_instrumentationHelper;

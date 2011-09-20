@@ -50,7 +50,6 @@ import net.grinder.testutility.AbstractFileTestCase;
  * TestAgent.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAgentImplementation extends AbstractFileTestCase {
 

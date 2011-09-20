@@ -36,7 +36,6 @@ import HTTPClient.NVPair;
  * @author Philip Aston
  * @author Richard Perks
  * @author Bertrand Ave
- * @version $Revision$
  */
 final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 

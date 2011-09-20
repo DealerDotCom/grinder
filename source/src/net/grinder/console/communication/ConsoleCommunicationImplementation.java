@@ -44,7 +44,6 @@ import net.grinder.util.thread.BooleanCondition;
  * Handles communication for the console.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ConsoleCommunicationImplementation
   implements ConsoleCommunication {

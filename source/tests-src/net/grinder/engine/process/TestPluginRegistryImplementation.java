@@ -53,7 +53,6 @@ import org.mockito.MockitoAnnotations;
  * Unit test case for <code>PluginRegistry</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestPluginRegistryImplementation {
 

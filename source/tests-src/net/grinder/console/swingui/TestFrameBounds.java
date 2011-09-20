@@ -39,7 +39,6 @@ import net.grinder.testutility.AssertUtilities;
  * Unit tests for {@link FrameBounds}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFrameBounds extends AbstractFileTestCase {
   private static final Resources s_resources =

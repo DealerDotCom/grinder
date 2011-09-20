@@ -31,7 +31,6 @@ import org.python.core.PyObject;
  * An instrumented <code>PyJavaClass</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class InstrumentedPyJavaClass extends PyJavaClass {
   private final InstrumentationHelper m_instrumentationHelper;

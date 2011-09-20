@@ -28,7 +28,6 @@ package net.grinder.communication;
  * <p>Package scope.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class NoResponseMessage implements Message {
   private static final long serialVersionUID = 1;

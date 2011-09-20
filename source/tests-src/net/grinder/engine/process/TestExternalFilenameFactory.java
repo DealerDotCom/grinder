@@ -32,7 +32,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit test case for <code>ExternalFilenameFactory</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestExternalFilenameFactory extends TestCase {
 

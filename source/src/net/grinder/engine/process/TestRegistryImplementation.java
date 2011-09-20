@@ -37,7 +37,6 @@ import net.grinder.util.TimeAuthority;
  * Registry of Tests.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class TestRegistryImplementation implements TestRegistry {
 

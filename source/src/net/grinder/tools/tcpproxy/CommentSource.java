@@ -28,7 +28,6 @@ package net.grinder.tools.tcpproxy;
  * the TCPProxy, to the TCPProxyFilters.
  *
  * @author Venelin Mitov
- * @version $Revision$
  */
 public interface CommentSource {
 

@@ -39,7 +39,6 @@ import net.grinder.console.model.ConsoleProperties;
  * Manage Look and Feel.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class LookAndFeel {
 

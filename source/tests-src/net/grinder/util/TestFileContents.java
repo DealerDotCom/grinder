@@ -34,7 +34,6 @@ import net.grinder.testutility.Serializer;
  * Unit test case for {@link FileContents}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFileContents extends AbstractFileTestCase {
 

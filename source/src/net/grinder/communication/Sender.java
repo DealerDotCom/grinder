@@ -26,7 +26,6 @@ package net.grinder.communication;
  * Interface for classes that manage the sending of messages.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface Sender {
 

@@ -45,7 +45,6 @@ import net.grinder.util.Directory;
  * Unit test for {@link AgentCacheStateImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 

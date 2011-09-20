@@ -29,7 +29,6 @@ import net.grinder.testutility.Serializer;
  *  Unit test case for application messages.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestInternalMessages extends TestCase {
 

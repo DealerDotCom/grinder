@@ -37,7 +37,6 @@ import net.grinder.util.BooleanProperty;
  * Optional confirmation dialogs.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class OptionalConfirmDialog {
 

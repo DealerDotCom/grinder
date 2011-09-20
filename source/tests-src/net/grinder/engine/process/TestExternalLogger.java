@@ -33,7 +33,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit test case for <code>ExternalLogger</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestExternalLogger extends TestCase {
 

@@ -27,7 +27,6 @@ package net.grinder.plugininterface;
  * <code>GrinderPlugin</code> stub.
  *
  * @author Philip Aston
- * @version $Revision$
  **/
 public class StubGrinderPlugin implements GrinderPlugin
 {

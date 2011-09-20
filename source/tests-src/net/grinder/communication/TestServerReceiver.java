@@ -41,7 +41,6 @@ import org.junit.Test;
  *  Unit tests for {@code ServerReceiver}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestServerReceiver {
 

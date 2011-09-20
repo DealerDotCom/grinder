@@ -26,7 +26,6 @@ package net.grinder.tools.tcpproxy;
  * Abstract decorator for {@link TCPProxyFilter}s.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 abstract class AbstractFilterDecorator implements TCPProxyFilter {
   private final TCPProxyFilter m_delegate;

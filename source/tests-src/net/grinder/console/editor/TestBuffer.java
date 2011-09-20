@@ -39,7 +39,6 @@ import net.grinder.testutility.AssertUtilities;
  * Unit test for {@link BufferImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestBuffer extends AbstractFileTestCase {
 

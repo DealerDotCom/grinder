@@ -30,7 +30,6 @@ import net.grinder.communication.Address;
  *
  * @param <T> Process identity type.
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class ProcessAddress<T extends ProcessIdentity>
   implements Address {

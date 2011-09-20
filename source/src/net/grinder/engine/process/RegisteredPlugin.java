@@ -38,7 +38,6 @@ import net.grinder.util.TimeAuthority;
  * Handle returned from plugin registration.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class RegisteredPlugin implements PluginProcessContext {
 

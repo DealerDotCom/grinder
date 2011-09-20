@@ -27,7 +27,6 @@ package net.grinder.communication;
  * connections.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public enum ConnectionType {
 

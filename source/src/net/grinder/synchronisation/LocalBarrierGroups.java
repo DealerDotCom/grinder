@@ -30,7 +30,6 @@ import net.grinder.synchronisation.messages.BarrierIdentity;
  * {@link BarrierGroups} implementation for use within the local JVM.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class LocalBarrierGroups extends AbstractBarrierGroups {
 

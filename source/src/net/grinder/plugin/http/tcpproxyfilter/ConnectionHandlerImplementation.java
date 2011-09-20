@@ -67,7 +67,6 @@ import HTTPClient.ParseException;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class ConnectionHandlerImplementation implements ConnectionHandler {
 

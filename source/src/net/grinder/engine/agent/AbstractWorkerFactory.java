@@ -40,7 +40,6 @@ import net.grinder.util.Directory;
  * Core implementation of {@link WorkerFactory}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 abstract class AbstractWorkerFactory implements WorkerFactory {
   private final AgentIdentityImplementation m_agentIdentity;

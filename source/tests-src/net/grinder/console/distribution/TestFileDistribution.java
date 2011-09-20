@@ -40,7 +40,6 @@ import net.grinder.util.Directory;
  * Unit test for {@link FileDistributionImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestFileDistribution extends AbstractFileTestCase {
 

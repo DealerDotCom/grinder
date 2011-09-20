@@ -33,7 +33,6 @@ import net.grinder.util.Directory;
  * {@link FileDistributionHandler}s.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface FileDistribution extends FileChangeWatcher {
 

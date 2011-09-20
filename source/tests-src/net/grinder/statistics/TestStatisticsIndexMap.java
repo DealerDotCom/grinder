@@ -30,7 +30,6 @@ import net.grinder.statistics.StatisticsSet;
  * Unit test case for <code>StatisticsIndexMap</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticsSet
  */
 public class TestStatisticsIndexMap extends TestCase {

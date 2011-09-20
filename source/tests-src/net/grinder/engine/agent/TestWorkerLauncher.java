@@ -57,7 +57,6 @@ import org.junit.Test;
  *  Unit tests for <code>WorkerLauncher</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestWorkerLauncher {
 

@@ -37,7 +37,6 @@ import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplem
  * {@link net.grinder.util.IsolatingClassLoader}. Used for debugging.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class DebugThreadWorker implements Worker {
 

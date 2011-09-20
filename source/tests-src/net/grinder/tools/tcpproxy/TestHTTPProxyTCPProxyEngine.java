@@ -49,7 +49,6 @@ import net.grinder.util.TerminalColour;
  * Unit test case for {@link HTTPProxyTCPProxyEngine}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPProxyTCPProxyEngine extends TestCase {
 

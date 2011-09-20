@@ -48,7 +48,6 @@ import net.grinder.statistics.TestStatisticsQueries;
  *
  * @author Paco Gomez
  * @author Philip Aston
- * @version $Revision$
  */
 class LabelledGraph extends JPanel {
   private static double s_peak = 0d;

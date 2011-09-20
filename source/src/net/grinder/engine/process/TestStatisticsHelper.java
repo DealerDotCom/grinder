@@ -31,7 +31,6 @@ import net.grinder.statistics.TestStatisticsMap;
  * Things the engine wants to do with test statistics.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface TestStatisticsHelper {
 

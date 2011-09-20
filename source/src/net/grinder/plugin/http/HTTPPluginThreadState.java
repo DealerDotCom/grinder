@@ -44,7 +44,6 @@ import HTTPClient.URI;
  * HTTP plug-in thread state.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class HTTPPluginThreadState
   extends SkeletonThreadLifeCycleListener implements PluginThreadListener {

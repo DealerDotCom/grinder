@@ -28,7 +28,6 @@ import net.grinder.communication.Message;
  * Message indicating that the console recording should be reset.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class ResetRecordingMessage implements Message {
   private static final long serialVersionUID = 1;

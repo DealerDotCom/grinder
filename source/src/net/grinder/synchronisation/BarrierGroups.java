@@ -28,7 +28,6 @@ import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
  * Collection of barrier groups.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public interface BarrierGroups {
 

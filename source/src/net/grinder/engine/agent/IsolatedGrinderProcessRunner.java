@@ -33,7 +33,6 @@ import net.grinder.engine.process.WorkerProcessEntryPoint;
  * {@link DebugThreadWorker}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class IsolatedGrinderProcessRunner
   implements IsolateGrinderProcessRunner {

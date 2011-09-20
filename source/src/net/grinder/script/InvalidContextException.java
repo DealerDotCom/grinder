@@ -30,7 +30,6 @@ import net.grinder.common.GrinderException;
  * invalid context.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class InvalidContextException extends GrinderException {
   /**

@@ -47,7 +47,6 @@ import net.grinder.testutility.RandomStubFactory;
  * Unit tests for {@link TextUI}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestTextUI extends TestCase {
 

@@ -29,7 +29,6 @@ import java.awt.SystemColor;
  * Some standard colours.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class Colours {
 

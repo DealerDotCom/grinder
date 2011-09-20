@@ -42,7 +42,6 @@ import net.grinder.util.thread.InterruptibleRunnableAdapter;
  * Active object that accepts connections on a ServerSocket.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class Acceptor {
 

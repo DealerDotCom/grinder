@@ -29,7 +29,6 @@ import net.grinder.statistics.TestStatisticsMap;
  * Message used to report test statistics to the console.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ReportStatisticsMessage implements Message {
 

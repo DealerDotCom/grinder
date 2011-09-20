@@ -26,7 +26,6 @@ package net.grinder.util.html;
  * Abstract node for simple HTML model.
  *
  *  @author Philip Aston
- * @version $Revision$
  */
 abstract class AbstractHTMLNode {
 

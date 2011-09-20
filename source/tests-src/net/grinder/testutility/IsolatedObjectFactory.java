@@ -35,7 +35,6 @@ import net.grinder.util.StreamCopier;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class IsolatedObjectFactory {
 

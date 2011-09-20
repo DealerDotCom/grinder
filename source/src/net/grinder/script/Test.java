@@ -43,7 +43,6 @@ import net.grinder.common.AbstractTestSemantics;
  * description.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class Test extends AbstractTestSemantics implements Serializable {
 

@@ -38,7 +38,6 @@ import net.grinder.util.URIParser;
  * Unit tests for {@link ConnectionHandlerFactoryImplementation}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConnectionHandlerFactoryImplementation extends TestCase {
 

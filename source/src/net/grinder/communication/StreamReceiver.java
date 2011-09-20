@@ -33,7 +33,6 @@ import net.grinder.common.UncheckedInterruptedException;
  * Manages receipt of messages from a server over a stream.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class StreamReceiver implements Receiver {
 

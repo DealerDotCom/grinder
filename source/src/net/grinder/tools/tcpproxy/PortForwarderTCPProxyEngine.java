@@ -35,7 +35,6 @@ import net.grinder.common.UncheckedInterruptedException;
  *
  * @author Phil Dawes
  * @author Philip Aston
- * @version $Revision$
  */
 public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
 

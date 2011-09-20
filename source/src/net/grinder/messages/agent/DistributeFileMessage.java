@@ -30,7 +30,6 @@ import net.grinder.util.FileContents;
  * processes.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class DistributeFileMessage implements Message {
 

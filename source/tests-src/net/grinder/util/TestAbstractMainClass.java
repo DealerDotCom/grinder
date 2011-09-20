@@ -35,7 +35,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link AbstractMainClass}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestAbstractMainClass extends TestCase {
 

@@ -29,7 +29,6 @@ import junit.framework.TestCase;
  * Unit test case for <code>StatisticExpressionFactoryImplementation</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  * @see StatisticsSet
  */
 public class TestExpressionView extends TestCase {

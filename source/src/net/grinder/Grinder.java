@@ -42,7 +42,6 @@ import net.grinder.util.SimpleLogger;
  * @author Paco Gomez
  * @author Philip Aston
  * @author Pawel Lacinski
- * @version $Revision$
  */
 public final class Grinder extends AbstractMainClass {
 

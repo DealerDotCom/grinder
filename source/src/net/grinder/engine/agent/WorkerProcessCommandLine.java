@@ -37,7 +37,6 @@ import net.grinder.engine.process.WorkerProcessEntryPoint;
  * Builds the worker process command line.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class WorkerProcessCommandLine {
 

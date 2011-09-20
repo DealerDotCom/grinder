@@ -35,7 +35,6 @@ import net.grinder.testutility.RandomStubFactory;
  *  Unit test case for {@link ErrorQueue}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestErrorQueue extends TestCase {
 

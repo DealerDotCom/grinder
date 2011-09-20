@@ -36,7 +36,6 @@ import net.grinder.util.TimeAuthorityStubFactory;
  * Unit test case for <code>TestRegistryImplementation</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestTestRegistry extends TestCase {
   private final RandomStubFactory<TestStatisticsHelper>

@@ -29,7 +29,6 @@ import java.text.MessageFormat;
  * Supports internationalised text through {@link Resources}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class DisplayMessageConsoleException extends ConsoleException {
 

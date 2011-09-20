@@ -28,7 +28,6 @@ package net.grinder.common.processidentity;
  * Interface for enquiring about a worker process.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface WorkerProcessReport extends ProcessReport {
 

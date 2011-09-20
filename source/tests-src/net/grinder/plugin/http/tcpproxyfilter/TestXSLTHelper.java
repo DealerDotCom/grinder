@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link XSLTHelper}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestXSLTHelper extends TestCase {
 

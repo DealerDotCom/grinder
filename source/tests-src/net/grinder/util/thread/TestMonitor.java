@@ -34,7 +34,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link Condition}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestMonitor extends TestCase {
 

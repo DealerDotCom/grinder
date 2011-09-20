@@ -39,7 +39,6 @@ import net.grinder.util.ListenerSupport.Informer;
  * {@link FileDistribution} implementation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class FileDistributionImplementation implements FileDistribution {
 

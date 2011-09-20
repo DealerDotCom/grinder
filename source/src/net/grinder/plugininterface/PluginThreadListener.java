@@ -30,6 +30,5 @@ import net.grinder.common.ThreadLifeCycleListener;
  * thread can make on a plugin.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface PluginThreadListener extends ThreadLifeCycleListener { }

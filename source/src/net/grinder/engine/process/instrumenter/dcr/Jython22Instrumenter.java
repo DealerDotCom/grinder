@@ -40,7 +40,6 @@ import org.python.core.PyProxy;
  * DCRInstrumenter for Jython 2.1, 2.2.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 final class Jython22Instrumenter extends AbstractJythonDCRInstrumenter {
 

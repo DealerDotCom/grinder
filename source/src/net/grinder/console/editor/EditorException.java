@@ -28,7 +28,6 @@ import net.grinder.console.common.ConsoleException;
  * Exception that indicates an editor model related problem.
  *
  * @author Philip Aston.
- * @version $Revision$
  */
 public class EditorException extends ConsoleException {
   EditorException(String message) {

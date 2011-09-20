@@ -45,7 +45,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link DispatchClientCommands}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestDispatchClientCommands extends TestCase {
 

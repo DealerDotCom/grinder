@@ -31,7 +31,6 @@ import junit.framework.TestCase;
  * Unit tests for <code>QueuedSenderDecorator</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestQueuedSenderDecorator extends TestCase {
 

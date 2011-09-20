@@ -41,7 +41,6 @@ import net.grinder.util.Directory;
  * {@link AgentCacheState} implementation.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class AgentCacheStateImplementation implements UpdateableAgentCacheState {
 

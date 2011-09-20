@@ -42,7 +42,6 @@ import org.junit.Test;
  *  Unit test case for {@code ResourcePool}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestResourcePool {
 

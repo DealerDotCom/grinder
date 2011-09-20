@@ -28,7 +28,6 @@ package net.grinder.common;
  * implement value based equality and a well defined ordering.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface Test extends Comparable<Test> {
   /**

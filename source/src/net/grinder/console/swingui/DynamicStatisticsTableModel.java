@@ -43,7 +43,6 @@ import net.grinder.statistics.StatisticsView;
  * Abstract table model for statistics tables.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 abstract class DynamicStatisticsTableModel
   extends AbstractTableModel

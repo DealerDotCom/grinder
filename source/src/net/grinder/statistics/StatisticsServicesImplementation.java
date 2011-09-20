@@ -25,7 +25,6 @@ package net.grinder.statistics;
  * <p>Singleton that is the point of entry for {@link StatisticsServices}.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class StatisticsServicesImplementation
   implements StatisticsServices {

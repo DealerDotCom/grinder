@@ -34,7 +34,6 @@ import net.grinder.engine.agent.StubAgentIdentity;
  * Unit tests for {@link ProcessReport}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestProcessReport extends TestCase {
 

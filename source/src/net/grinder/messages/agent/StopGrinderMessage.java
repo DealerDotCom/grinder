@@ -29,7 +29,6 @@ import net.grinder.communication.Message;
  * Message used to stop the Grinder processes.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class StopGrinderMessage implements Message {
   private static final long serialVersionUID = -8016761595308568610L;

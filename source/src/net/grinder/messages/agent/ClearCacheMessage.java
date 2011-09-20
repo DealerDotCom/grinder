@@ -28,7 +28,6 @@ import net.grinder.communication.Message;
  * Message that instructs the agent to clear its file cache.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ClearCacheMessage implements Message {
 

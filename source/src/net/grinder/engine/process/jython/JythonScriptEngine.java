@@ -42,7 +42,6 @@ import org.python.util.PythonInterpreter;
  * Package scope.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class JythonScriptEngine implements ScriptEngine {
   private static final String TEST_RUNNER_CALLABLE_NAME = "TestRunner";

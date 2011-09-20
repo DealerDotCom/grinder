@@ -28,7 +28,6 @@ import net.grinder.communication.Message;
  * Barrier group message sent to agents when a barrier is opened.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class OpenBarrierMessage implements Message {
 

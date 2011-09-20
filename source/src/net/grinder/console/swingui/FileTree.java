@@ -68,7 +68,6 @@ import net.grinder.console.swingui.FileTreeModel.FileNode;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class FileTree {
 

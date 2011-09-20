@@ -29,7 +29,6 @@ import net.grinder.common.Logger;
  * Basic functionality for a main class. Crudely extracted for now.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public abstract class AbstractMainClass {
 

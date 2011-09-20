@@ -27,7 +27,6 @@ import java.util.Random;
  * Stub implementation of {@link Address}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class StubAddress implements Address {
   private static final Random s_random = new Random();

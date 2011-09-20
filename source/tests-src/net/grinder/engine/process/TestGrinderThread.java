@@ -48,7 +48,6 @@ import org.mockito.MockitoAnnotations;
  * Unit tests for {@link GrinderThread}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestGrinderThread extends AbstractFileTestCase {
 

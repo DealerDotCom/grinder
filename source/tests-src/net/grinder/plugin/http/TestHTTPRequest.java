@@ -61,7 +61,6 @@ import HTTPClient.ParseException;
  * Unit test case for <code>HTTPRequest</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPRequest extends TestCase {
   private static final Random s_random = new Random();

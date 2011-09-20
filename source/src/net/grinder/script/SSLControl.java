@@ -75,7 +75,6 @@ import net.grinder.common.SSLContextFactory;
  * making connections for a particular run.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface SSLControl extends SSLContextFactory {
 

@@ -34,7 +34,6 @@ import net.grinder.statistics.StatisticsSet;
  * <p>Package scope.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  * @see SampleModel.Listener#newTests
  */
 public final class ModelTestIndex {

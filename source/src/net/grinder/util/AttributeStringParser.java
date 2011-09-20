@@ -31,7 +31,6 @@ package net.grinder.util;
  * the value will be taken from the last one.</p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface AttributeStringParser {
 

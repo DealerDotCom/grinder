@@ -36,7 +36,6 @@ import net.grinder.util.thread.Condition;
  * Barrier implementation.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public final class BarrierImplementation
   implements Barrier, BarrierGroup.Listener {

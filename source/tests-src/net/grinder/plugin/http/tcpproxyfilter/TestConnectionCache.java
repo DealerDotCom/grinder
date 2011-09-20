@@ -32,7 +32,6 @@ import net.grinder.tools.tcpproxy.EndPoint;
  * Unit tests for {@link ConnectionCache}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConnectionCache extends TestCase {
 

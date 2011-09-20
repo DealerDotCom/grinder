@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
  * Parse attribute strings from HTML tokens.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class AttributeStringParserImplementation
   implements AttributeStringParser {

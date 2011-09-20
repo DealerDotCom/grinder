@@ -26,7 +26,6 @@ package net.grinder.synchronisation.messages;
  * Barrier group message requesting that a barrier be added.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class AddBarrierMessage extends AbstractBarrierGroupMessage {
 

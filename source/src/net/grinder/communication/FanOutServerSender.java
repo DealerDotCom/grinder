@@ -32,7 +32,6 @@ import net.grinder.util.thread.ExecutorFactory;
  * Manages the sending of messages to many TCP clients.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class FanOutServerSender extends AbstractFanOutSender {
 

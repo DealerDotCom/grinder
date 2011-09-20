@@ -33,7 +33,6 @@ import net.grinder.common.UncheckedInterruptedException;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class InterruptibleRunnableAdapter implements Runnable {
 

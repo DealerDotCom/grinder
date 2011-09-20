@@ -39,7 +39,6 @@ import net.grinder.common.UncheckedInterruptedException;
  * Type safe interface to resource bundle.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class ResourcesImplementation implements Resources {
 

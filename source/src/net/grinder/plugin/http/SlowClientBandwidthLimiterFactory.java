@@ -34,7 +34,6 @@ import HTTPClient.HTTPConnection.BandwidthLimiterFactory;
  * {@link HTTPClient.HTTPConnection.BandwidthLimiter#maximumBytes} by sleeping.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class SlowClientBandwidthLimiterFactory
   implements BandwidthLimiterFactory {

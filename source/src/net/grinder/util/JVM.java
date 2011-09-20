@@ -33,7 +33,6 @@ import net.grinder.common.Logger;
  * Utility class for querying JVM environment.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class JVM {
 

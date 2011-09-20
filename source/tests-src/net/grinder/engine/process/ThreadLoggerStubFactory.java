@@ -28,7 +28,6 @@ import net.grinder.common.AbstractLoggerStubFactory;
  * Factory for <code>ThreadLogger</code> stubs.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class ThreadLoggerStubFactory
   extends AbstractLoggerStubFactory<ThreadLogger> {

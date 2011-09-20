@@ -31,7 +31,6 @@ import javax.swing.JButton;
  * Customised JButton.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class CustomJButton extends JButton {
 

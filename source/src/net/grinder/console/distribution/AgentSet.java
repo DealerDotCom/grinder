@@ -28,7 +28,6 @@ import net.grinder.communication.Address;
  * Snapshot of the agents that were connected at a particular time.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 interface AgentSet {
 

@@ -35,7 +35,6 @@ import net.grinder.util.html.HTMLElement;
  * Simple HTTP response formatting.
  *
  *  @author Philip Aston
- * @version $Revision$
  */
 final class HTTPResponse {
   private String m_status = "500 Internal Server Error";

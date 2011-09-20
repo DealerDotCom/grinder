@@ -34,7 +34,6 @@ import net.grinder.common.UncheckedInterruptedException;
  * Thread-safe queue of {@link Message}s.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class MessageQueue {
 

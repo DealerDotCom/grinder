@@ -45,7 +45,6 @@ import net.grinder.statistics.StatisticsSetFactory;
 
 /**
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestGraph extends TestCase {
 

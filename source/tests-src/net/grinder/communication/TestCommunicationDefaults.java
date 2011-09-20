@@ -30,7 +30,6 @@ import junit.framework.TestCase;
  *  Unit tests for <code>CommunicationDefaults</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestCommunicationDefaults extends TestCase {
 

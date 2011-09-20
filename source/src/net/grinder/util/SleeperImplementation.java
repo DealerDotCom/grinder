@@ -37,7 +37,6 @@ import net.grinder.util.thread.Condition;
  * </p>
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class SleeperImplementation implements Sleeper {
 

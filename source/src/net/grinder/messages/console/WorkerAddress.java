@@ -29,7 +29,6 @@ import net.grinder.common.processidentity.WorkerIdentity;
  * Worker process address.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public final class WorkerAddress extends ProcessAddress<WorkerIdentity> {
 

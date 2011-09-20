@@ -38,7 +38,6 @@ import net.grinder.console.common.ErrorHandler;
  * Factory for dynamic proxies that dispatch work in the Swing thread.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class SwingDispatcherFactoryImplementation
   implements SwingDispatcherFactory {

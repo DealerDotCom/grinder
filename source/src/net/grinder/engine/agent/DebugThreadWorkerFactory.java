@@ -43,7 +43,6 @@ import net.grinder.util.weave.agent.ExposeInstrumentation;
  * debugging.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
 

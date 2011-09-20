@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
  * Common regular expressions.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public interface RegularExpressions {
 

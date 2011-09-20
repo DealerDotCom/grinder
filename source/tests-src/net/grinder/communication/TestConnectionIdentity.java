@@ -30,7 +30,6 @@ import java.net.InetAddress;
  *  Unit test case for <code>ConnectionIdentity</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestConnectionIdentity extends TestCase {
 

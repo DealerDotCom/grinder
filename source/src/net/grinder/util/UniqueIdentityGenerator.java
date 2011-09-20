@@ -28,7 +28,6 @@ import java.util.Random;
  * Simple generator of unique Strings.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class UniqueIdentityGenerator {
 

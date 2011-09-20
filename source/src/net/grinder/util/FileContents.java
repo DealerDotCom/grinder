@@ -38,7 +38,6 @@ import net.grinder.common.UncheckedInterruptedException;
  * Pairing of relative filename and file contents.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public final class FileContents implements Serializable {
 

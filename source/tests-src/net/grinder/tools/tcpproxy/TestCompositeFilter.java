@@ -30,7 +30,6 @@ import net.grinder.testutility.AssertUtilities;
  * Unit test case for {@link CompositeFilter}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestCompositeFilter extends TestCase {
 

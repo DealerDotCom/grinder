@@ -38,7 +38,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link HTTPPluginThreadState}.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestHTTPPluginThreadState extends TestCase {
 

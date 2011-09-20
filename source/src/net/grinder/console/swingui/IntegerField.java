@@ -36,7 +36,6 @@ import javax.swing.text.PlainDocument;
  * JTextField that only accepts integers within a particular range.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 class IntegerField extends JTextField {
 

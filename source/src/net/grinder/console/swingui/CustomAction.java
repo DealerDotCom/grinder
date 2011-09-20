@@ -37,7 +37,6 @@ import net.grinder.console.common.Resources;
  * Customised Action.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 abstract class CustomAction extends AbstractAction {
 

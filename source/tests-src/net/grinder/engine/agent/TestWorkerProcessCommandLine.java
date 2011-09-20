@@ -32,7 +32,6 @@ import net.grinder.testutility.AbstractFileTestCase;
  *  Unit tests for <code>WorkerProcessCommandLine</code>.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
 
