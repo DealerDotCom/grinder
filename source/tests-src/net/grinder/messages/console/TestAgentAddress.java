@@ -32,12 +32,12 @@ import org.junit.Test;
 
 
 /**
- * Unit tests for {ProcessAddress}.
+ * Unit tests for {@link AgentAddress}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestProcessAddress {
+public class TestAgentAddress {
 
   private final AgentIdentity m_agent1 = new StubAgentIdentity("agent1");
   private final AgentIdentity m_agent2 = new StubAgentIdentity("agent2");

@@ -23,8 +23,6 @@ package net.grinder.common.processidentity;
 
 import java.util.Comparator;
 
-import net.grinder.messages.console.ProcessAddress;
-
 
 /**
  * Common interface for enquiring about a process.

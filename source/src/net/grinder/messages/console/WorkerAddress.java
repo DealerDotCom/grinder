@@ -21,6 +21,7 @@
 
 package net.grinder.messages.console;
 
+import net.grinder.common.processidentity.ProcessAddress;
 import net.grinder.common.processidentity.WorkerIdentity;
 
 
