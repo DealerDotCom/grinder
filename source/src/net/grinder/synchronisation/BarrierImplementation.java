@@ -60,9 +60,9 @@ public final class BarrierImplementation
         throw new IllegalStateException("Another thread has called await()");
       }
 
-      boolean awoken(BarrierImplementation b) {
+      boolean awoken(BarrierImplementation b) throws CommunicationException {
         // Timed out.
-        b.changeState(Idle);
+        b.cancel();
         return false;
       }
     },
@@ -93,13 +93,13 @@ public final class BarrierImplementation
     }
 
     abstract boolean awoken(BarrierImplementation barrierImplementation)
-      throws CancelledBarrierException;
+      throws CancelledBarrierException, CommunicationException;
 
     void cancel(BarrierImplementation b) throws CommunicationException {
       b.changeState(Cancelled);
+      b.m_barrierGroup.removeListener(b);
       b.m_barrierGroup.cancelWaiter(b.m_identity);
       b.m_barrierGroup.removeBarriers(1);
-      b.m_barrierGroup.removeListener(b);
     }
   }
 
@@ -159,8 +159,9 @@ public final class BarrierImplementation
       }
     }
 
-    /** @return {@code true} iff the wait completed naturally.
-     * @throws CommunicationException */
+    /**
+     * @return {@code true} iff the wait completed naturally.
+     */
     protected abstract boolean doWait() throws CommunicationException;
   }
 

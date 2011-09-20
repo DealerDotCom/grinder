@@ -78,7 +78,7 @@ public interface Barrier {
    * cancelled}.</li>
    * <li>This barrier is {@link #cancel cancelled}.</li>
    * <li>Some other thread {@link java.lang.Thread#interrupt() interrupts} the
-   * current thread. In this case, the barrier will be
+   * current thread. In this case, the barrier instance will be
    * {@link #cancel cancelled}.</li>
    * </ul>
    * </p>
@@ -108,7 +108,8 @@ public interface Barrier {
    *
    * <p>
    * If the specified timeout elapses while the thread is waiting, the method
-   * will return {@code false}. The
+   * will return {@code false}, and the barrier instance will be
+   * {@link #cancel() cancelled}.
    * </p>
    *
    * @param timeout

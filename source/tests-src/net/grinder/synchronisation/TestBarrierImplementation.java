@@ -106,6 +106,10 @@ public class TestBarrierImplementation {
     final boolean result = b.await(1, TimeUnit.MICROSECONDS);
 
     verify(m_barrierGroup).addWaiter(ID2);
+    verify(m_barrierGroup).cancelWaiter(ID2);
+    verify(m_barrierGroup).removeBarriers(1);
+    verify(m_barrierGroup).removeListener(b);
+
     verifyNoMoreInteractions(m_barrierGroup);
 
     assertFalse(result);
@@ -119,6 +123,12 @@ public class TestBarrierImplementation {
     final boolean result = b.await(1);
 
     verify(m_barrierGroup).addWaiter(ID2);
+
+    verify(m_barrierGroup).addWaiter(ID2);
+    verify(m_barrierGroup).cancelWaiter(ID2);
+    verify(m_barrierGroup).removeBarriers(1);
+    verify(m_barrierGroup).removeListener(b);
+
     verifyNoMoreInteractions(m_barrierGroup);
 
     assertFalse(result);
