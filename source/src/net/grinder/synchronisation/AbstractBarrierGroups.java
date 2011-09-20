@@ -281,21 +281,24 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
      * {@inheritDoc}
      */
     public final boolean checkConditionLocal() {
-      if (m_barriers > 0 && m_barriers == m_waiters.size()) {
+      synchronized (this) {
+        if (m_barriers > 0 && m_barriers == m_waiters.size()) {
 
-        m_waiters.clear();
+          m_waiters.clear();
 
-        // The caller will notify the listeners after releasing the lock to
-        // minimise the length of time it is held. Otherwise the distributed
-        // nature of the communication might delay subsequent operations
-        // significantly.
-        // This does not cause a race from the perspective of an individual
-        // waiting thread, since it cannot proceed until its barrier is woken or
-        // cancelled, and once cancelled a barrier cannot be re-used.
-          return true;
+          // The caller will notify the listeners after releasing the lock to
+          // minimise the length of time it is held. Otherwise the distributed
+          // nature of the communication might delay subsequent operations
+          // significantly.
+          //
+          // This does not cause a race from the perspective of an individual
+          // waiting thread, since it cannot proceed until its barrier is woken
+          // or cancelled, and once cancelled a barrier cannot be re-used.
+            return true;
+        }
+
+        return false;
       }
-
-      return false;
     }
 
     /**
