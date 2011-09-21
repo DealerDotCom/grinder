@@ -26,11 +26,15 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.communication.CommunicationException;
+import net.grinder.script.Barrier;
 import net.grinder.script.InternalScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
 import net.grinder.script.TestRegistry;
+import net.grinder.synchronisation.BarrierGroups;
+import net.grinder.synchronisation.BarrierImplementation;
 import net.grinder.util.Sleeper;
 
 
@@ -53,6 +57,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
   private final TestRegistry m_testRegistry;
   private final ThreadStarter m_threadStarter;
   private final ThreadStopper m_threadStopper;
+  private final BarrierGroups m_barrierGroups;
 
   public ScriptContextImplementation(WorkerIdentity workerIdentity,
                                      WorkerIdentity firstWorkerIdentity,
@@ -65,7 +70,8 @@ final class ScriptContextImplementation implements InternalScriptContext {
                                      Statistics scriptStatistics,
                                      TestRegistry testRegistry,
                                      ThreadStarter threadStarter,
-                                     ThreadStopper threadStopper) {
+                                     ThreadStopper threadStopper,
+                                     BarrierGroups barrierGroups) {
     m_workerIdentity = workerIdentity;
     m_firstWorkerIdentity = firstWorkerIdentity;
     m_threadContextLocator = threadContextLocator;
@@ -78,6 +84,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
     m_testRegistry = testRegistry;
     m_threadStarter = threadStarter;
     m_threadStopper = threadStopper;
+    m_barrierGroups = barrierGroups;
   }
 
   public int getAgentNumber() {
@@ -169,5 +176,10 @@ final class ScriptContextImplementation implements InternalScriptContext {
 
   public TestRegistry getTestRegistry() {
     return m_testRegistry;
+  }
+
+  public Barrier barrier(String name) throws CommunicationException {
+    return new BarrierImplementation(m_barrierGroups.getGroup(name),
+                                     m_barrierGroups.getIdentityGenerator());
   }
 }

@@ -28,21 +28,24 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.engine.agent.StubAgentIdentity;
+import net.grinder.script.Barrier;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
 import net.grinder.script.TestRegistry;
+import net.grinder.synchronisation.BarrierGroup;
+import net.grinder.synchronisation.BarrierGroups;
 import net.grinder.testutility.Time;
 import net.grinder.util.Sleeper;
 import net.grinder.util.SleeperImplementation;
 import net.grinder.util.StandardTimeAuthority;
-
+import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -64,9 +67,18 @@ public class TestScriptContextImplementation {
   @Mock private Statistics m_statistics;
   @Mock private SSLControl m_sslControl;
   @Mock private TestRegistry m_testRegistry;
+  @Mock private BarrierGroups m_barrierGroups;
+  @Mock private BarrierGroup m_barrierGroup;
+  @Mock private BarrierIdentityGenerator m_identityGenerator;
 
   @Before public void setUp() {
     MockitoAnnotations.initMocks(this);
+
+    when(m_barrierGroup.getName()).thenReturn("MyBarrierGroup");
+    when(m_barrierGroups.getGroup("MyBarrierGroup"))
+      .thenReturn(m_barrierGroup);
+    when(m_barrierGroups.getIdentityGenerator())
+      .thenReturn(m_identityGenerator);
   }
 
   @Test public void testConstructorAndGetters() throws Exception {
@@ -103,7 +115,8 @@ public class TestScriptContextImplementation {
         m_statistics,
         m_testRegistry,
         m_threadStarter,
-        m_threadStopper);
+        m_threadStopper,
+        m_barrierGroups);
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
     assertEquals(workerIdentity.getNumber(),
@@ -157,7 +170,7 @@ public class TestScriptContextImplementation {
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         null, null, null, null, null, null, sleeper, null, null, null, null,
-        null);
+        null, null);
 
     assertTrue(
       new Time(50, 70) {
@@ -177,7 +190,7 @@ public class TestScriptContextImplementation {
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         null, null, threadContextLocator, null, null, null, null, null, null,
-        null, null, null);
+        null, null, null, null);
 
     try {
       scriptContext.stopThisWorkerThread();
@@ -194,5 +207,18 @@ public class TestScriptContextImplementation {
     }
     catch (ShutdownException e) {
     }
+  }
+
+  @Test public void testBarrier() throws Exception {
+    final ScriptContextImplementation scriptContext =
+      new ScriptContextImplementation(
+        null, null, null, null, null, null, null, null, null,
+        null, null, null, m_barrierGroups);
+
+    final Barrier globalBarrier = scriptContext.barrier("MyBarrierGroup");
+    assertEquals("MyBarrierGroup", globalBarrier.getName());
+
+    verify(m_barrierGroups).getIdentityGenerator();
+    verify(m_identityGenerator).next();
   }
 }

@@ -70,6 +70,9 @@ import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
+import net.grinder.synchronisation.BarrierGroups;
+import net.grinder.synchronisation.GlobalBarrierGroups;
+import net.grinder.synchronisation.LocalBarrierGroups;
 import net.grinder.util.JVM;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.Sleeper;
@@ -163,15 +166,23 @@ final class GrinderProcess {
 
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
 
+    final BarrierGroups barrierGroups;
+
     if (m_initialisationMessage.getReportToConsole()) {
       m_consoleSender =
         new QueuedSenderDecorator(
           ClientSender.connect(
             new ConnectorFactory(ConnectionType.WORKER).create(properties),
             new WorkerAddress(workerIdentity)));
+
+      barrierGroups =
+        new GlobalBarrierGroups(m_consoleSender,
+                                messageDispatcher,
+                                m_initialisationMessage.getWorkerIdentity());
     }
     else {
       m_consoleSender = new NullQueuedSender();
+      barrierGroups = new LocalBarrierGroups();
     }
 
     final ThreadStarter delegatingThreadStarter = new ThreadStarter() {
@@ -237,7 +248,8 @@ final class GrinderProcess {
         scriptStatistics,
         m_testRegistryImplementation,
         delegatingThreadStarter,
-        threadStopper);
+        threadStopper,
+        barrierGroups);
 
     Grinder.grinder = scriptContext;
 
