@@ -50,6 +50,7 @@ public class LocalBarrierGroups extends AbstractBarrierGroups {
     return new LocalBarrierGroup(name);
   }
 
+  // TODO: could be a wrapper. Is this really a win?
   private class LocalBarrierGroup extends AbstractBarrierGroup {
     public LocalBarrierGroup(String name) {
       super(name);

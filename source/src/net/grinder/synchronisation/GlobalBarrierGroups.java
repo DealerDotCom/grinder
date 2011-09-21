@@ -87,6 +87,7 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
     return new GlobalBarrierGroup(name);
   }
 
+  // TODO could be a wrapper.
   /**
    * Extends {@link AbstractBarrierGroups} which verifies the consistency of the
    * local partition of the barrier group.

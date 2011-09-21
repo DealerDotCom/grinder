@@ -64,6 +64,13 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public BarrierIdentityGenerator getIdentityGenerator() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Calls {@link BarrierGroup#cancelAll()} on all of our barrier groups.
    *
    * @throws CommunicationException If a network problem occurred.

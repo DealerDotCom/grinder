@@ -66,7 +66,6 @@ import net.grinder.synchronisation.AbstractBarrierGroups;
 import net.grinder.synchronisation.BarrierGroup;
 import net.grinder.synchronisation.BarrierGroups;
 import net.grinder.synchronisation.LocalBarrierGroups;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.BarrierGroup.Listener;
 import net.grinder.synchronisation.messages.AddBarrierMessage;
 import net.grinder.synchronisation.messages.AddWaiterMessage;
@@ -488,13 +487,6 @@ public final class ConsoleFoundation {
         return new ProcessBarrierGroup(name);
       }
 
-      /**
-       * {@inheritDoc}
-       */
-      public BarrierIdentityGenerator getIdentityGenerator() {
-        throw new UnsupportedOperationException();
-      }
-
       private final class ProcessBarrierGroup
         extends AbstractBarrierGroup {
 
@@ -574,13 +566,6 @@ public final class ConsoleFoundation {
       });
 
       return group;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override public BarrierIdentityGenerator getIdentityGenerator() {
-      throw new UnsupportedOperationException();
     }
   }
 }
