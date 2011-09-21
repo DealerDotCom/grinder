@@ -25,20 +25,12 @@ package net.grinder.console;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
-import net.grinder.common.processidentity.WorkerIdentity;
-import net.grinder.common.processidentity.WorkerProcessReport;
-import net.grinder.communication.CommunicationException;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.console.common.ErrorHandler;
@@ -47,9 +39,7 @@ import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.communication.DistributionControlImplementation;
-import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.communication.ProcessControlImplementation;
-import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.console.communication.server.DispatchClientCommands;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionImplementation;
@@ -62,17 +52,6 @@ import net.grinder.messages.console.RegisterExpressionViewMessage;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.statistics.StatisticsServicesImplementation;
-import net.grinder.synchronisation.AbstractBarrierGroups;
-import net.grinder.synchronisation.BarrierGroup;
-import net.grinder.synchronisation.BarrierGroups;
-import net.grinder.synchronisation.LocalBarrierGroups;
-import net.grinder.synchronisation.BarrierGroup.Listener;
-import net.grinder.synchronisation.messages.AddBarrierMessage;
-import net.grinder.synchronisation.messages.AddWaiterMessage;
-import net.grinder.synchronisation.messages.BarrierIdentity;
-import net.grinder.synchronisation.messages.CancelWaiterMessage;
-import net.grinder.synchronisation.messages.OpenBarrierMessage;
-import net.grinder.synchronisation.messages.RemoveBarriersMessage;
 import net.grinder.util.Directory;
 
 import org.picocontainer.DefaultPicoContainer;
@@ -165,9 +144,6 @@ public final class ConsoleFoundation {
     m_container.addComponent(WireMessageDispatch.class);
 
     m_container.addComponent(ErrorQueue.class);
-
-    m_container.addComponent(ConsoleBarrierGroups.class);
-    m_container.addComponent(WireDistributedBarriers.class);
   }
 
   /**
@@ -218,7 +194,6 @@ public final class ConsoleFoundation {
     // Need to request components, or they won't be instantiated.
     m_container.getComponent(WireMessageDispatch.class);
     m_container.getComponent(WireFileDistribution.class);
-    m_container.getComponent(WireDistributedBarriers.class);
 
     while (communication.processOneMessage()) {
       // Process until communication is shut down.
@@ -339,233 +314,6 @@ public final class ConsoleFoundation {
         });
 
       dispatchClientCommands.registerMessageHandlers(messageDispatchRegistry);
-    }
-  }
-
-  /**
-   * Factory that wires up the support for global barriers.
-   *
-   * <p>Must be public for PicoContainer.</p>
-   *
-   * @see ConsoleFoundation.WireFileDistribution
-   */
-  public static class WireDistributedBarriers {
-    // Guarded by self.
-    private final Map<WorkerIdentity, ProcessBarrierGroups>
-      m_barrierProcessState =
-        new HashMap<WorkerIdentity, ProcessBarrierGroups>();
-
-    private final ConsoleBarrierGroups m_consoleBarrierGroups;
-
-    /**
-     * Constructor for WireFileDistribution.
-     *
-     * @param communication Console communication.
-     * @param consoleBarrierGroups
-     *          The central barrier groups, owned by the console.
-     * @param processControl Console process control.
-     */
-    public WireDistributedBarriers(ConsoleCommunication communication,
-                                   ConsoleBarrierGroups consoleBarrierGroups,
-                                   ProcessControl processControl) {
-
-      m_consoleBarrierGroups = consoleBarrierGroups;
-
-      final MessageDispatchRegistry messageDispatch =
-        communication.getMessageDispatchRegistry();
-
-      messageDispatch.set(
-        AddBarrierMessage.class,
-        new AbstractHandler<AddBarrierMessage>() {
-          public void handle(AddBarrierMessage message)
-            throws CommunicationException {
-
-            getBarrierGroupsForProcess(message.getProcessIdentity())
-              .getGroup(message.getName()).addBarrier();
-          }
-        });
-
-      messageDispatch.set(
-        RemoveBarriersMessage.class,
-        new AbstractHandler<RemoveBarriersMessage>() {
-          public void handle(RemoveBarriersMessage message)
-            throws CommunicationException {
-
-            getBarrierGroupsForProcess(message.getProcessIdentity())
-              .getGroup(message.getName())
-              .removeBarriers(message.getNumberOfBarriers());
-          }
-        });
-
-      messageDispatch.set(
-        AddWaiterMessage.class,
-        new AbstractHandler<AddWaiterMessage>() {
-          public void handle(AddWaiterMessage message)
-            throws CommunicationException {
-
-            getBarrierGroupsForProcess(message.getProcessIdentity())
-              .getGroup(message.getName())
-              .addWaiter(message.getBarrierIdentity());
-          }
-        });
-
-      messageDispatch.set(
-        CancelWaiterMessage.class,
-        new AbstractHandler<CancelWaiterMessage>() {
-          public void handle(CancelWaiterMessage message)
-            throws CommunicationException {
-
-            getBarrierGroupsForProcess(message.getProcessIdentity())
-              .getGroup(message.getName())
-              .cancelWaiter(message.getBarrierIdentity());
-          }
-        });
-
-      processControl.addProcessStatusListener(
-        new ProcessControl.Listener() {
-
-          public void update(ProcessReports[] processReports) {
-            final Set<WorkerIdentity> liveWorkers =
-              new HashSet<WorkerIdentity>();
-
-            for (ProcessReports agentReport : processReports) {
-              for (WorkerProcessReport workerReport :
-                  agentReport.getWorkerProcessReports()) {
-                liveWorkers.add(workerReport.getWorkerIdentity());
-              }
-            }
-
-            final Set<ProcessBarrierGroups> deadProcesses =
-              new HashSet<ProcessBarrierGroups>();
-
-            synchronized (m_barrierProcessState) {
-              for (Entry<WorkerIdentity, ProcessBarrierGroups> p :
-                   m_barrierProcessState.entrySet()) {
-                if (!liveWorkers.contains(p.getKey())) {
-                  deadProcesses.add(p.getValue());
-                }
-              }
-            }
-
-            for (ProcessBarrierGroups p : deadProcesses) {
-              try {
-                p.cancelAll();
-              }
-              catch (CommunicationException e) {
-                throw new AssertionError(e);
-              }
-            }
-          }
-        });
-    }
-
-    private BarrierGroups
-      getBarrierGroupsForProcess(WorkerIdentity processIdentity) {
-
-      synchronized (m_barrierProcessState) {
-        final BarrierGroups existing =
-          m_barrierProcessState.get(processIdentity);
-
-        if (existing != null) {
-          return existing;
-        }
-
-        final ProcessBarrierGroups newState = new ProcessBarrierGroups();
-        m_barrierProcessState.put(processIdentity, newState);
-
-        return newState;
-      }
-    }
-
-    private final class ProcessBarrierGroups
-      extends AbstractBarrierGroups {
-
-      /**
-       * {@inheritDoc}
-       */
-      @Override protected InternalBarrierGroup createBarrierGroup(String name) {
-        return new ProcessBarrierGroup(name);
-      }
-
-      private final class ProcessBarrierGroup
-        extends AbstractBarrierGroup {
-
-        public ProcessBarrierGroup(String name) {
-          super(name);
-        }
-
-        @Override public void addBarrier() throws CommunicationException {
-          super.addBarrier();
-          delegate().addBarrier();
-        }
-
-        @Override public void removeBarriers(long n)
-          throws CommunicationException {
-
-          super.removeBarriers(n);
-          delegate().removeBarriers(n);
-        }
-
-
-        @Override public void addWaiter(BarrierIdentity barrierIdentity)
-          throws CommunicationException {
-
-          super.addWaiter(barrierIdentity);
-          delegate().addWaiter(barrierIdentity);
-        }
-
-        @Override public void cancelWaiter(BarrierIdentity barrierIdentity)
-          throws CommunicationException {
-
-          super.cancelWaiter(barrierIdentity);
-          delegate().cancelWaiter(barrierIdentity);
-        }
-
-        private BarrierGroup delegate() {
-          return m_consoleBarrierGroups.getGroup(getName());
-        }
-      }
-    }
-  }
-
-  /**
-   * Centralised record of distributed barriers.
-   */
-  public static final class ConsoleBarrierGroups extends LocalBarrierGroups {
-
-    private final ConsoleCommunication m_communication;
-
-    /**
-     * Constructor for WireFileDistribution.
-     *
-     * @param communication Console communication.
-     */
-    public ConsoleBarrierGroups(ConsoleCommunication communication) {
-      m_communication = communication;
-
-//      timer.schedule(new TimerTask() {
-//
-//        @Override
-//        public void run() {
-//          System.out.printf("%s%n", ConsoleBarrierGroups.this);
-//
-//        }}, 3000, 3000);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected InternalBarrierGroup createBarrierGroup(final String name) {
-      final InternalBarrierGroup group = super.createBarrierGroup(name);
-
-      group.addListener(new Listener() {
-        public void awaken() {
-          m_communication.sendToAgents(new OpenBarrierMessage(name));
-        }
-      });
-
-      return group;
     }
   }
 }

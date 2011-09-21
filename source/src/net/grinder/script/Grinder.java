@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2011 Philip Aston
+// Copyright (C) 2001 - 2008 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,6 +45,7 @@ public class Grinder {
    * object that supports this interface.
    *
    * @author Philip Aston
+   * @version $Revision$
    */
   public interface ScriptContext {
 
@@ -232,40 +233,5 @@ public class Grinder {
      * @return The SSL control.
      */
     SSLControl getSSLControl();
-
-    /**
-     * Create a {@link Barrier} to coordinate worker thread actions across
-     * running worker processes.
-     *
-     * <p>
-     * Example script:
-     * </p>
-     *
-     * <pre>
-     * from net.grinder.script.Grinder import grinder
-     *
-     * class TestRunner:
-     *   def __init__(self):
-     *     # Each worker thread joins the barrier.
-     *     self.phase1CompleteBarrier = grinder.barrier("Phase 1")
-     *
-     *   def __call__(self):
-     *
-     *     # ... Phase 1 actions.
-     *
-     *     # Wait for all worker threads to reach this point before proceeding.
-     *     self.phase1CompleteBarrier.await()
-     *
-     *     # ... Further actions.
-     * </pre>
-     *
-     * @param name
-     *          The barrier name.
-     * @return The barrier.
-     * @throws GrinderException
-     *           If the barrier could not be created due to a network problem.
-     * @see Barrier
-     */
-    Barrier barrier(String name) throws GrinderException;
   }
 }
