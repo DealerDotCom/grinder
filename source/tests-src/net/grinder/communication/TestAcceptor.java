@@ -21,6 +21,8 @@
 
 package net.grinder.communication;
 
+
+import static net.grinder.testutility.SocketUtilities.findFreePort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -64,10 +66,7 @@ public class TestAcceptor {
       testAddresses[i + 2] = localAddresses[i].getHostName();
     }
 
-    // Figure out a free local port.
-    final ServerSocket serverSocket = new ServerSocket(0);
-    final int port = serverSocket.getLocalPort();
-    serverSocket.close();
+    final int port = findFreePort();
 
     for (int i=0; i<testAddresses.length; ++i) {
       final Acceptor acceptor = new Acceptor(testAddresses[i], port, 2);

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,10 +21,11 @@
 
 package net.grinder.communication;
 
+import static net.grinder.testutility.SocketUtilities.findFreePort;
+
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.net.ServerSocket;
 
 import junit.framework.TestCase;
 
@@ -54,10 +55,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
   private final void initialiseSockets() throws Exception {
 
     if (m_connector == null) {
-      // Find a free port.
-      final ServerSocket socket = new ServerSocket(0);
-      final int port = socket.getLocalPort();
-      socket.close();
+      final int port = findFreePort();
 
       m_connectionType = ConnectionType.AGENT;
       m_connector = new Connector("localhost", port, m_connectionType);

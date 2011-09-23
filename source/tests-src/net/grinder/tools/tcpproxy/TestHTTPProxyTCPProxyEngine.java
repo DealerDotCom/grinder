@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2010 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,6 +20,8 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.tools.tcpproxy;
+
+import static net.grinder.testutility.SocketUtilities.findFreePort;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,7 +48,7 @@ import net.grinder.util.TerminalColour;
 
 
 /**
- * Unit test case for {@link HTTPProxyTCPProxyEngine}.
+ * Unit tests for {@link HTTPProxyTCPProxyEngine}.
  *
  * @author Philip Aston
  */
@@ -73,11 +75,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
   private TCPProxySSLSocketFactory m_sslSocketFactory;
 
   private EndPoint createFreeLocalEndPoint() throws IOException {
-    final ServerSocket serverSocket = new ServerSocket(0);
-    final EndPoint result =
-      new EndPoint("localhost", serverSocket.getLocalPort());
-    serverSocket.close();
-    return result;
+    return new EndPoint("localhost", findFreePort());
   }
 
   protected void setUp() throws Exception {

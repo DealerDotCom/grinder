@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,6 +20,8 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.tools.tcpproxy;
+
+import static net.grinder.testutility.SocketUtilities.findFreePort;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,9 +63,7 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
   private int m_localPort;
 
   protected void setUp() throws Exception {
-    final ServerSocket serverSocket = new ServerSocket(0);
-    m_localPort = serverSocket.getLocalPort();
-    serverSocket.close();
+    m_localPort = findFreePort();
   }
 
   public void testBadLocalPort() throws Exception {
@@ -125,7 +125,7 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
 
     final OutputStreamWriter outputStreamWriter =
       new OutputStreamWriter(clientSocket.getOutputStream());
-    
+
     final PrintWriter clientWriter =
       new PrintWriter(outputStreamWriter, true);
 

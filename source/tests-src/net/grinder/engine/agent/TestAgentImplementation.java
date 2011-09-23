@@ -21,10 +21,11 @@
 
 package net.grinder.engine.agent;
 
+import static net.grinder.testutility.SocketUtilities.findFreePort;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ServerSocket;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
@@ -450,10 +451,7 @@ public class TestAgentImplementation extends AbstractFileTestCase {
     private final Sender m_sender;
 
     public ConsoleStub() throws CommunicationException, IOException {
-      // Figure out a free local port.
-      final ServerSocket serverSocket = new ServerSocket(0);
-      final int port = serverSocket.getLocalPort();
-      serverSocket.close();
+      final int port = findFreePort();
 
       m_acceptor = new Acceptor("", port, 1);
       m_receiver = new ServerReceiver();

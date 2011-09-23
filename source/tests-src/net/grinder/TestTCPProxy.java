@@ -78,6 +78,8 @@ public class TestTCPProxy {
 
   @Test public void testHTTP() throws Exception {
 
+    // TODO - use unique port.
+
     final String[] arguments = { "-http", };
 
     final TCPProxy tcpProxy = new TCPProxy(arguments, m_logger);
@@ -129,7 +131,7 @@ public class TestTCPProxy {
     m_loggerStubFactory.assertErrorMessageContains("does not implement");
     m_loggerStubFactory.assertNoMoreCalls();
   }
-  
+
   @Test public void testProperties() throws Exception {
   }
 }
