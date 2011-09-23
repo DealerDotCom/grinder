@@ -23,19 +23,29 @@ package net.grinder;
 
 import static net.grinder.testutility.AssertUtilities.assertContains;
 import static net.grinder.testutility.AssertUtilities.assertContainsPattern;
+import static net.grinder.testutility.SocketUtilities.findFreePort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.Properties;
+
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRequestFilter;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPResponseFilter;
+import net.grinder.testutility.TemporaryDirectory;
 import net.grinder.tools.tcpproxy.EchoFilter;
 import net.grinder.tools.tcpproxy.UpdatableCommentSource;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.picocontainer.PicoContainer;
+
 
 
 /**
@@ -78,9 +88,11 @@ public class TestTCPProxy {
 
   @Test public void testHTTP() throws Exception {
 
-    // TODO - use unique port.
+    final int port = findFreePort();
 
-    final String[] arguments = { "-http", };
+    final String[] arguments = { "-http",
+                                 "-localPort",
+                                 Integer.toString(port) };
 
     final TCPProxy tcpProxy = new TCPProxy(arguments, m_logger);
 
@@ -93,7 +105,7 @@ public class TestTCPProxy {
     assertContainsPattern(message,
                           "Response filters:\\s+HTTPResponseFilter\\s*\n");
 
-    m_loggerStubFactory.assertErrorMessageContains("listening on port 8001");
+    m_loggerStubFactory.assertErrorMessageContains("listening on port " + port);
     m_loggerStubFactory.assertNoMoreCalls();
 
     final PicoContainer filterContainer = tcpProxy.getFilterContainer();
@@ -133,5 +145,36 @@ public class TestTCPProxy {
   }
 
   @Test public void testProperties() throws Exception {
+    final TemporaryDirectory directory = new TemporaryDirectory();
+
+    Writer out = null;
+
+    try {
+      assertNull(System.getProperty("myproperty"));
+
+      final Properties properties = new Properties();
+      properties.setProperty("myproperty", "myvalue");
+
+      final File propertiesFile = directory.newFile("properties");
+      out = new FileWriter(propertiesFile);
+      properties.store(out, "");
+
+      final String[] arguments = { "-localPort",
+                                   Integer.toString(findFreePort()),
+                                   "-properties",
+                                   propertiesFile.getAbsolutePath() };
+
+      new TCPProxy(arguments, m_logger);
+
+      assertEquals("myvalue", System.getProperty("myproperty"));
+    }
+    finally {
+      if (out != null) {
+        out.close();
+      }
+
+      directory.delete();
+      System.getProperties().remove("myproperty");
+    }
   }
 }
