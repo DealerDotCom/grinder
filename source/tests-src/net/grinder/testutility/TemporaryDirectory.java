@@ -21,31 +21,44 @@
 
 package net.grinder.testutility;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
-
-import junit.framework.TestCase;
 
 
 /**
- * Abstract test case that manages a temporary directory.
+ * Temporary directory for use by unit tests.
  *
  * @author Philip Aston
  */
-public abstract class AbstractFileTestCase extends TestCase {
-
-  protected static Random s_random  = new Random();
+public final class TemporaryDirectory {
 
   private File m_directory;
 
-  protected void tearDown() throws Exception {
+  public final File getDirectory() throws IOException {
+    if (m_directory == null) {
+      m_directory = File.createTempFile(getClass().getName(), "test");
+      assertTrue(m_directory.delete());
+      assertTrue(m_directory.mkdir());
+      m_directory.deleteOnExit();
+    }
+
+    return m_directory;
+  }
+
+  public void delete() throws Exception {
     if (m_directory != null) {
       delete(m_directory);
+      m_directory = null;
     }
   }
 
-  private static void delete(File f) throws Exception {
+  public final File newFile(String filename) throws IOException {
+    return new File(getDirectory(), "logs");
+  }
+
+  private static void delete(File f) throws IOException {
 
     if (f.isDirectory()) {
       final File[] children = f.listFiles();
@@ -63,16 +76,5 @@ public abstract class AbstractFileTestCase extends TestCase {
     if (!f.delete()) {
       System.err.println("Could not delete file '" + f + "'");
     }
-  }
-
-  protected final File getDirectory() throws IOException {
-    if (m_directory == null) {
-      m_directory = File.createTempFile(getClass().getName(), "test");
-      assertTrue(m_directory.delete());
-      assertTrue(m_directory.mkdir());
-      m_directory.deleteOnExit();
-    }
-
-    return m_directory;
   }
 }

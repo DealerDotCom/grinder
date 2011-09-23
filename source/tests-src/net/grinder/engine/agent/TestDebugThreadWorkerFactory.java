@@ -55,7 +55,8 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
   private FanOutStreamSender m_fanOutStreamSender = new FanOutStreamSender(1);
   private GrinderProperties m_properties = new GrinderProperties();
 
-  @After public void tearDown() {
+  @After public void tearDown() throws Exception {
+    super.tearDown();
     m_fanOutStreamSender.shutdown();
   }
 

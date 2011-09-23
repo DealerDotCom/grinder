@@ -129,4 +129,7 @@ public class TestTCPProxy {
     m_loggerStubFactory.assertErrorMessageContains("does not implement");
     m_loggerStubFactory.assertNoMoreCalls();
   }
+  
+  @Test public void testProperties() throws Exception {
+  }
 }
