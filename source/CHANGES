@@ -1,8 +1,11 @@
 The Grinder 3.6 (Not yet released)
----------------
+----------------------------------
 
    Fix bug 3406177 - DCR instrumented objects are not garbage
    collected. Thanks to Gary Mulder for the report and diagnostics.
+
+   Fix bug 3413171 - TCPProxy broken in The Grinder 3.5. Thanks to
+   Lonnie Choset for the report.
 
 
 The Grinder 3.5
