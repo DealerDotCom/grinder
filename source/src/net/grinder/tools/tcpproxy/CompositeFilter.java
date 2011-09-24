@@ -111,9 +111,7 @@ public final class CompositeFilter implements TCPProxyFilter {
         result.append(", ");
       }
 
-      final String fullName = filter.getClass().getName();
-      final int lastDot = fullName.lastIndexOf(".");
-      result.append(fullName.substring(lastDot + 1)); // Works for -1 too.
+      result.append(filter.getClass().getSimpleName());
     }
 
     return result.toString();

@@ -34,12 +34,14 @@ import java.io.FileWriter;
 import java.io.Writer;
 import java.util.Properties;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRequestFilter;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPResponseFilter;
 import net.grinder.testutility.TemporaryDirectory;
 import net.grinder.tools.tcpproxy.EchoFilter;
+import net.grinder.tools.tcpproxy.NullFilter;
 import net.grinder.tools.tcpproxy.UpdatableCommentSource;
 
 import org.junit.Before;
@@ -144,6 +146,76 @@ public class TestTCPProxy {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
+  public static class TestFilter extends NullFilter {}
+
+  @Test public void testCustomFilter() throws Exception {
+    final String[] arguments = { "-localPort",
+                                 Integer.toString(findFreePort()),
+                                 "-requestFilter",
+                                 TestFilter.class.getName() };
+
+    final TCPProxy tcpProxy = new TCPProxy(arguments, m_logger);
+    assertNotNull(tcpProxy.getFilterContainer().getComponent(TestFilter.class));
+
+    final String message =
+      m_loggerStubFactory.assertSuccess("error", String.class)
+      .getParameters()[0].toString();
+    assertContainsPattern(message, "Request filters:\\s+TestFilter\\s*\n");
+  }
+
+  @Test public void testNoneFilter() throws Exception {
+
+    final String[] arguments = { "-localPort",
+                                 Integer.toString(findFreePort()),
+                                 "-responseFilter",
+                                 "NONE" };
+
+    final TCPProxy tcpProxy = new TCPProxy(arguments, m_logger);
+    assertNotNull(tcpProxy.getFilterContainer().getComponent(NullFilter.class));
+
+    final String message =
+      m_loggerStubFactory.assertSuccess("error", String.class)
+      .getParameters()[0].toString();
+    assertContainsPattern(message, "Response filters:\\s+NullFilter\\s*\n");
+  }
+
+  @Test public void testEchoFilter() throws Exception {
+
+    final String[] arguments = { "-localPort",
+                                 Integer.toString(findFreePort()),
+                                 "-requestFilter",
+                                 "ECHO" };
+
+    final TCPProxy tcpProxy = new TCPProxy(arguments, m_logger);
+    final PicoContainer filterContainer = tcpProxy.getFilterContainer();
+    assertEquals(2, filterContainer.getComponents(EchoFilter.class).size());
+
+    final String message =
+      m_loggerStubFactory.assertSuccess("error", String.class)
+      .getParameters()[0].toString();
+    assertContainsPattern(message, "Request filters:\\s+EchoFilter\\s*\n");
+  }
+
+  @Test public void testChainedFilter() throws Exception {
+    final String[] arguments = { "-localPort",
+                                 Integer.toString(findFreePort()),
+                                 "-requestFilter",
+                                 TestFilter.class.getName(),
+                                 "-requestFilter",
+                                 "ECHO" };
+
+    final TCPProxy tcpProxy = new TCPProxy(arguments, m_logger);
+    assertNotNull(tcpProxy.getFilterContainer().getComponent(TestFilter.class));
+
+    final String message =
+      m_loggerStubFactory.assertSuccess("error", String.class)
+      .getParameters()[0].toString();
+    assertContainsPattern(message,
+                          "Request filters:\\s+TestFilter" +
+                          "\\s*,\\s*EchoFilter" +
+                          "\\s*\n");
+  }
+
   @Test public void testProperties() throws Exception {
     final TemporaryDirectory directory = new TemporaryDirectory();
 
@@ -176,5 +248,132 @@ public class TestTCPProxy {
       directory.delete();
       System.getProperties().remove("myproperty");
     }
+  }
+
+  @Test public void testBadOption() throws Exception {
+
+    final String[] arguments = { "-http",
+                                 "-foobar" };
+
+    try {
+      new TCPProxy(arguments, m_logger);
+      fail("Expected exception");
+    }
+    catch (GrinderException e) {
+    }
+
+    m_loggerStubFactory.assertErrorMessageContains("Usage");
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  @Test public void testBadOption2() throws Exception {
+
+    final String[] arguments = { "-storetype" };
+
+    try {
+      new TCPProxy(arguments, m_logger);
+      fail("Expected exception");
+    }
+    catch (GrinderException e) {
+    }
+
+    m_loggerStubFactory.assertErrorMessageContains("Usage");
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  @Test public void testBadOption3() throws Exception {
+
+    final String[] arguments = { "-properties", "nonexistent" };
+
+    try {
+      new TCPProxy(arguments, m_logger);
+      fail("Expected exception");
+    }
+    catch (GrinderException e) {
+    }
+
+    m_loggerStubFactory.assertErrorMessageContains("No such file or directory");
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  @Test public void testBadOption4() throws Exception {
+
+    final String[] arguments = { "-timeout", "blah" };
+
+    try {
+      new TCPProxy(arguments, m_logger);
+      fail("Expected exception");
+    }
+    catch (GrinderException e) {
+    }
+
+    m_loggerStubFactory.assertErrorMessageContains("Usage");
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  @Test public void testBadOption5() throws Exception {
+
+    final String[] arguments = { "-timeout", "-10" };
+
+    try {
+      new TCPProxy(arguments, m_logger);
+      fail("Expected exception");
+    }
+    catch (GrinderException e) {
+    }
+
+    m_loggerStubFactory.assertErrorMessageContains("must be non-negative");
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  @Test public void testPortForwardingArguments() throws Exception {
+
+    final int port = findFreePort();
+
+    final String[] arguments = { "-localHost", "localhost",
+                                 "-localPort", "" + port,
+                                 "-remoteHost", "r",
+                                 "-remotePort", "1234" };
+
+    new TCPProxy(arguments, m_logger);
+
+    final String message =
+      m_loggerStubFactory.assertSuccess("error", String.class)
+      .getParameters()[0].toString();
+    assertContains(message, "TCP port forwarder");
+    assertContainsPattern(message, "Remote address:\\s+r:1234");
+
+    m_loggerStubFactory.assertErrorMessageContains("listening on port " + port);
+
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  @Test public void testBadComponent() throws Exception {
+
+    final String[] arguments = { "-component",
+                                 "***abc" };
+
+    try {
+      new TCPProxy(arguments, m_logger);
+      fail("Expected exception");
+    }
+    catch (GrinderException e) {
+    }
+
+    m_loggerStubFactory.assertErrorMessageContains("class '***abc' not found");
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  public static class TestClass { }
+
+  @Test public void testGoodComponent() throws Exception {
+
+    final String[] arguments = { "-component",
+                                 TestClass.class.getName(),
+                                 "-localPort",
+                                 Integer.toString(findFreePort()),};
+
+    final TCPProxy tcpProxy = new TCPProxy(arguments, m_logger);
+    assertNotNull(tcpProxy.getFilterContainer().getComponent(TestClass.class));
   }
 }
