@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2011 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,27 +19,37 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.instrumenter.dcr;
+package net.grinder.util;
 
-import net.grinder.engine.process.Recorder;
+import java.io.File;
+import java.io.FileFilter;
+import java.util.Locale;
 
 
 /**
- * Recorder registry.
+ * Simple {@link FileFilter} that checks the file name ends with a given string.
+ * The comparison is case insensitive.
  *
  * @author Philip Aston
  */
-interface RecorderRegistry {
+public class FileExtensionMatcher implements FileFilter {
+
+  private final String m_extension;
 
   /**
-   * Registration method.
+   * Constructor.
    *
-   * @param target
-   *          The target reference, or {@code null} for static methods.
-   * @param location
-   *          String that uniquely identifies the instrumentation location.
-   * @param recorder
-   *          The recorder to register.
+   * @param extension
+   *          String to check for, including any '.' characters if necessary.
    */
-  void register(Object target, String location, Recorder recorder);
+  public FileExtensionMatcher(String extension) {
+    m_extension = extension.toLowerCase(Locale.ENGLISH);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean accept(File pathname) {
+    return pathname.getName().toLowerCase(Locale.ENGLISH).endsWith(m_extension);
+  }
 }

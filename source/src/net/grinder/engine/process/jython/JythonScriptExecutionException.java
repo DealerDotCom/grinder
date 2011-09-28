@@ -26,7 +26,7 @@ import org.python.core.PyClass;
 import org.python.core.PyException;
 import org.python.core.PyTraceback;
 
-import net.grinder.engine.process.ScriptEngine.ScriptExecutionException;
+import net.grinder.engine.process.ScriptEngineService.ScriptExecutionException;
 
 
 /**

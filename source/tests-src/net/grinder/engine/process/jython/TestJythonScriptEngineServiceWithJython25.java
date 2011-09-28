@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2011 Philip Aston
+// Copyright (C) 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,27 +19,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.instrumenter.dcr;
+package net.grinder.engine.process.jython;
 
-import net.grinder.engine.process.Recorder;
+import static net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase.assertVersion;
+import static net.grinder.testutility.JythonVersionUtilities.jython25Suite;
+import junit.framework.TestSuite;
 
 
 /**
- * Recorder registry.
+ * Miscellaneous unit tests for Jython instrumentation.
  *
  * @author Philip Aston
+ * @version $Revision:$
  */
-interface RecorderRegistry {
+public class TestJythonScriptEngineServiceWithJython25
+  extends TestJythonScriptEngineService {
 
-  /**
-   * Registration method.
-   *
-   * @param target
-   *          The target reference, or {@code null} for static methods.
-   * @param location
-   *          String that uniquely identifies the instrumentation location.
-   * @param recorder
-   *          The recorder to register.
-   */
-  void register(Object target, String location, Recorder recorder);
+  public static TestSuite suite() throws Exception {
+    return jython25Suite(TestJythonScriptEngineServiceWithJython25.class);
+  }
+
+  public void testVersion() throws Exception {
+    assertVersion("2.5");
+  }
 }

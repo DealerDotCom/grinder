@@ -22,11 +22,12 @@
 
 package net.grinder.engine.process.jython;
 
-import java.io.File;
-
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
-import net.grinder.engine.process.ScriptEngine;
+import net.grinder.engine.process.ScriptEngineService;
+import net.grinder.engine.process.ScriptEngineService.ScriptEngine;
+import net.grinder.engine.process.ScriptEngineService.ScriptExecutionException;
+import net.grinder.engine.process.ScriptEngineService.WorkerRunnable;
 
 import org.python.core.PyClass;
 import org.python.core.PyException;
@@ -43,11 +44,8 @@ import org.python.util.PythonInterpreter;
  *
  * @author Philip Aston
  */
-public final class JythonScriptEngine implements ScriptEngine {
+final class JythonScriptEngine implements ScriptEngine {
   private static final String TEST_RUNNER_CALLABLE_NAME = "TestRunner";
-  private static final String PYTHON_HOME = "python.home";
-  private static final String PYTHON_CACHEDIR = "python.cachedir";
-  private static final String CACHEDIR_DEFAULT_NAME = "cachedir";
 
   private final PySystemState m_systemState;
   private final PythonInterpreter m_interpreter;
@@ -58,35 +56,14 @@ public final class JythonScriptEngine implements ScriptEngine {
 
   /**
    * Constructor for JythonScriptEngine.
+   * @param pySystemState Python system state.
    *
    * @throws EngineException If the script engine could not be created.
    */
-  public JythonScriptEngine() throws EngineException {
+  public JythonScriptEngine(PySystemState pySystemState)
+    throws EngineException {
 
-    // Work around Jython issue 1894900.
-    // If the python.cachedir has not been specified, and Jython is loaded
-    // via the manifest classpath or the jar in the lib directory is
-    // explicitly mentioned in the CLASSPATH, then set the cache directory to
-    // be alongside jython.jar.
-    if (System.getProperty(PYTHON_HOME) == null &&
-        System.getProperty(PYTHON_CACHEDIR) == null) {
-      final String classpath = System.getProperty("java.class.path");
-
-      final File grinderJar = findFileInPath(classpath, "grinder.jar");
-      final File grinderJarDirectory =
-        grinderJar != null ? grinderJar.getParentFile() : new File(".");
-
-      final File jythonJar = findFileInPath(classpath, "jython.jar");
-      final File jythonHome =
-        jythonJar != null ? jythonJar.getParentFile() : grinderJarDirectory;
-
-      if (grinderJarDirectory.equals(jythonHome)) {
-        final File cacheDir = new File(jythonHome, CACHEDIR_DEFAULT_NAME);
-        System.setProperty("python.cachedir", cacheDir.getAbsolutePath());
-      }
-    }
-
-    m_systemState = new PySystemState();
+    m_systemState = pySystemState;
     m_interpreter = new PythonInterpreter(null, m_systemState);
 
     m_interpreter.exec("class ___DieQuietly___: pass");
@@ -138,7 +115,26 @@ public final class JythonScriptEngine implements ScriptEngine {
    * {@inheritDoc}
    */
   public WorkerRunnable createWorkerRunnable() throws EngineException {
-    return new JythonWorkerRunnable();
+
+    final PyObject pyTestRunner;
+
+    try {
+      // Script does per-thread initialisation here and
+      // returns a callable object.
+      pyTestRunner = m_testRunnerFactory.__call__();
+    }
+    catch (PyException e) {
+      throw new JythonScriptExecutionException(
+        "creating per-thread TestRunner object", e);
+    }
+
+    if (!pyTestRunner.isCallable()) {
+      throw new JythonScriptExecutionException(
+        "The result of '" + TEST_RUNNER_CALLABLE_NAME +
+        "()' is not callable");
+    }
+
+    return new JythonWorkerRunnable(pyTestRunner);
   }
 
   /**
@@ -199,27 +195,9 @@ public final class JythonScriptEngine implements ScriptEngine {
    * Wrapper for script's TestRunner.
    */
   private final class JythonWorkerRunnable
-    implements ScriptEngine.WorkerRunnable {
+    implements ScriptEngineService.WorkerRunnable {
 
     private final PyObject m_testRunner;
-
-    private JythonWorkerRunnable() throws EngineException {
-      try {
-        // Script does per-thread initialisation here and
-        // returns a callable object.
-        m_testRunner = m_testRunnerFactory.__call__();
-      }
-      catch (PyException e) {
-        throw new JythonScriptExecutionException(
-          "creating per-thread TestRunner object", e);
-      }
-
-      if (!m_testRunner.isCallable()) {
-        throw new JythonScriptExecutionException(
-          "The result of '" + TEST_RUNNER_CALLABLE_NAME +
-          "()' is not callable");
-      }
-    }
 
     public JythonWorkerRunnable(PyObject testRunner) {
       m_testRunner = testRunner;
@@ -289,24 +267,5 @@ public final class JythonScriptEngine implements ScriptEngine {
         }
       }
     }
-  }
-
-  /**
-   * Package scope for unit tests.
-   *
-   * @param path The path to search.
-   * @param fileName Name of the jar file to find.
-   */
-  static File findFileInPath(String path, String fileName) {
-
-    for (String pathEntry : path.split(File.pathSeparator)) {
-      final File file = new File(pathEntry);
-
-     if (file.exists() && file.getName().equals(fileName)) {
-        return file;
-      }
-    }
-
-    return null;
   }
 }

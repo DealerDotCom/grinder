@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.Weaver.TargetSource;

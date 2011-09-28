@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,6 @@ import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
-import net.grinder.engine.process.ScriptEngine.Recorder;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Statistics.StatisticsForTest;

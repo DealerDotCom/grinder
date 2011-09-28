@@ -29,7 +29,7 @@ import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.process.Instrumenter;
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;

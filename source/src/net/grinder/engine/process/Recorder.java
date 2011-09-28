@@ -1,4 +1,5 @@
-// Copyright (C) 2009 - 2011 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
+// Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,27 +20,29 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.instrumenter.dcr;
+package net.grinder.engine.process;
 
-import net.grinder.engine.process.Recorder;
-
+import net.grinder.engine.common.EngineException;
 
 /**
- * Recorder registry.
+ * Interface to the test instrumentation.
  *
  * @author Philip Aston
  */
-interface RecorderRegistry {
+public interface Recorder {
 
   /**
-   * Registration method.
+   * Call before instrumented code to initiate test recording.
    *
-   * @param target
-   *          The target reference, or {@code null} for static methods.
-   * @param location
-   *          String that uniquely identifies the instrumentation location.
-   * @param recorder
-   *          The recorder to register.
+   * @throws EngineException Test recording could not be initiated.
    */
-  void register(Object target, String location, Recorder recorder);
+  void start() throws EngineException;
+
+  /**
+   * Call after instrumented code to complete test recording.
+   *
+   * @param success {@code true} if the test completed successfully.
+   * @throws EngineException Test recording could not be completed.
+   */
+  void end(boolean success) throws EngineException;
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2010 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,15 +21,17 @@
 
 package net.grinder.engine.process.instrumenter;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.StubTest;
-import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.RandomStubFactory;
 
+import org.junit.Test;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 
@@ -40,7 +42,7 @@ import org.python.core.PySystemState;
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestMasterInstrumenter extends TestCase {
+public class TestMasterInstrumenter {
 
   {
     PySystemState.initialize();
@@ -52,9 +54,9 @@ public class TestMasterInstrumenter extends TestCase {
 
   private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
 
-  private final Test m_test = new StubTest(1, "foo");
+  private final net.grinder.common.Test m_test = new StubTest(1, "foo");
 
-  public void testCreateInstrumentedProxyWithDefaults() throws Exception {
+  @Test public void testCreateInstrumentedProxyWithDefaults() throws Exception {
     final MasterInstrumenter masterInstrumenter =
       new MasterInstrumenter(m_loggerStubFactory.getLogger(), false);
 
@@ -90,7 +92,7 @@ public class TestMasterInstrumenter extends TestCase {
     }
   }
 
-  public void testInstrumentWithDefaults() throws Exception {
+  @Test public void testInstrumentWithDefaults() throws Exception {
     final MasterInstrumenter masterInstrumenter =
       new MasterInstrumenter(m_loggerStubFactory.getLogger(), false);
 
@@ -118,7 +120,7 @@ public class TestMasterInstrumenter extends TestCase {
     }
   }
 
-  public void testWithForcedDCRInsstrumentation() throws Exception {
+  @Test public void testWithForcedDCRInsstrumentation() throws Exception {
     final MasterInstrumenter masterInstrumenter =
       new MasterInstrumenter(m_loggerStubFactory.getLogger(), true);
 

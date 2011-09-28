@@ -23,7 +23,7 @@ package net.grinder.engine.process.instrumenter.dcr;
 
 import java.lang.reflect.Method;
 
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.Weaver.TargetSource;

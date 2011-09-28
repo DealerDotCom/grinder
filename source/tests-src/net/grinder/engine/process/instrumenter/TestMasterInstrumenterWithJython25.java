@@ -31,7 +31,7 @@ import junit.framework.TestSuite;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.RandomStubFactory;

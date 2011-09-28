@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;

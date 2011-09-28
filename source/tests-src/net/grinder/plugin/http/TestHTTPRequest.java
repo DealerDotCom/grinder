@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,7 +33,7 @@ import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import net.grinder.engine.process.instrumenter.MasterInstrumenter;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
@@ -58,7 +58,7 @@ import HTTPClient.ParseException;
 
 
 /**
- * Unit test case for <code>HTTPRequest</code>.
+ * Unit test case for {@link HTTPRequest}.
  *
  * @author Philip Aston
  */

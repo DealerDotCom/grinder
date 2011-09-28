@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -91,6 +91,12 @@ public class WorkerProcessEntryPoint {
                    Logger.LOG | Logger.TERMINAL);
       e.printStackTrace(logger.getErrorLogWriter());
       return -3;
+    }
+    catch (Error t) {
+      logger.error("Error running worker process (" + t.getMessage() + ")",
+                   Logger.LOG | Logger.TERMINAL);
+      t.printStackTrace(logger.getErrorLogWriter());
+      throw t;
     }
     finally {
       grinderProcess.shutdown(agentCommunicationStream == System.in);

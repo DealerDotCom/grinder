@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2011 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,27 +19,34 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.instrumenter.dcr;
+package net.grinder.util;
 
-import net.grinder.engine.process.Recorder;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.FileFilter;
+
+import org.junit.Test;
 
 
 /**
- * Recorder registry.
+ * Unit tests for {@link FileExtensionMatcher}.
  *
  * @author Philip Aston
  */
-interface RecorderRegistry {
+public class TestFileExtensionMatcher {
 
-  /**
-   * Registration method.
-   *
-   * @param target
-   *          The target reference, or {@code null} for static methods.
-   * @param location
-   *          String that uniquely identifies the instrumentation location.
-   * @param recorder
-   *          The recorder to register.
-   */
-  void register(Object target, String location, Recorder recorder);
+  @Test public void testFilter() {
+    final FileFilter f = new FileExtensionMatcher(".aBc");
+
+    assertTrue(f.accept(new File("foo.abc")));
+    assertTrue(f.accept(new File(".abc")));
+    assertTrue(f.accept(new File(".aBC")));
+
+    assertFalse(f.accept(new File("fooabc")));
+    assertFalse(f.accept(new File("foo.abcblah")));
+    assertFalse(f.accept(new File("")));
+    assertFalse(f.accept(new File(".abc", "x")));
+  }
 }

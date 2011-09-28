@@ -31,7 +31,7 @@ import java.util.Arrays;
 import test.MyClass;
 import test.MyExtendedClass;
 import junit.framework.TestCase;
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.BlockingClassLoader;
 import net.grinder.testutility.RandomStubFactory;

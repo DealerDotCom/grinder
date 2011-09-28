@@ -72,7 +72,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
       new DebugThreadWorkerFactory(m_agentIdentity,
                                    m_fanOutStreamSender,
                                    false,
-                                   new ScriptLocation(new File(".")),
+                                   new ScriptLocation(new File("missing.py")),
                                    m_properties);
 
     new RedirectStandardStreams() {

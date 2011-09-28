@@ -22,7 +22,7 @@
 package net.grinder.engine.process.instrumenter.traditionaljython;
 
 import net.grinder.common.UncheckedGrinderException;
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 
 import org.python.core.Py;
 import org.python.core.PyObject;

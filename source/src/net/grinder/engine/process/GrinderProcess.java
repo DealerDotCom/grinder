@@ -24,6 +24,7 @@
 
 package net.grinder.engine.process;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -53,10 +55,11 @@ import net.grinder.communication.QueuedSenderDecorator;
 import net.grinder.communication.Receiver;
 import net.grinder.engine.common.ConnectorFactory;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
+import net.grinder.engine.process.ScriptEngineService.ScriptEngine;
 import net.grinder.engine.process.instrumenter.MasterInstrumenter;
-import net.grinder.engine.process.jython.JythonScriptEngine;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.messages.console.WorkerAddress;
@@ -115,6 +118,9 @@ final class GrinderProcess {
   private final ListenerSupport<ProcessLifeCycleListener>
     m_processLifeCycleListeners =
       new ListenerSupport<ProcessLifeCycleListener>();
+
+  private final ServiceLoader<ScriptEngineService> m_scriptEngineServices =
+    ServiceLoader.load(ScriptEngineService.class);
 
   // Guarded by m_eventSynchronisation.
   private ThreadStarter m_threadStarter = m_invalidThreadStarter;
@@ -288,14 +294,15 @@ final class GrinderProcess {
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
 
-    final ScriptEngine scriptEngine = new JythonScriptEngine();
-
-    // Don't start the message pump until we've initialised Jython. Jython 2.5+
-    // tests to see whether the stdin stream is a tty, and on some versions of
-    // Windows, this synchronises on the stream object's monitor. This clashes
-    // with the message pump which starts a thread to call
-    // StreamRecevier.waitForMessage(), and so also synchronises on that
+    // Force initialisation of the Jython script engine before we start the
+    // message pump. Jython 2.5+ tests to see whether the stdin stream is a tty,
+    // and on some versions of Windows, this synchronises on the stream object's
+    // monitor. This clashes with the message pump which starts a thread to
+    // call StreamRecevier.waitForMessage(), and so also synchronises on that
     // monitor. See bug 2936167.
+    getScriptEngine(new ScriptLocation(new File("blah.py")));
+
+    // Don't start the message pump until we've initialised Jython.
     m_messagePump.start();
 
     final WorkerIdentity workerIdentity =
@@ -333,8 +340,11 @@ final class GrinderProcess {
 
     m_testRegistryImplementation.setInstrumenter(instrumenter);
 
+    final ScriptEngine scriptEngine =
+      getScriptEngine(m_initialisationMessage.getScript());
+
     logger.output("executing \"" + m_initialisationMessage.getScript() +
-      "\" using " + scriptEngine.getDescription());
+                  "\" using " + scriptEngine.getDescription());
 
     scriptEngine.initialise(m_initialisationMessage.getScript());
 
@@ -498,6 +508,21 @@ final class GrinderProcess {
 
   public Logger getLogger() {
     return m_loggerImplementation.getProcessLogger();
+  }
+
+  private ScriptEngine getScriptEngine(ScriptLocation script)
+    throws EngineException {
+
+    for (ScriptEngineService service : m_scriptEngineServices) {
+      final ScriptEngine engine = service.getScriptEngine(script);
+
+      if (engine != null) {
+        return engine;
+      }
+    }
+
+    throw new EngineException("No suitable script engine installed for " +
+                              script);
   }
 
   private class ReportToConsoleTimerTask extends TimerTask {

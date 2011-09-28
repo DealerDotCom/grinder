@@ -33,7 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import extra166y.CustomConcurrentHashMap;
 
 

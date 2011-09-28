@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
 import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.Instrumenter;
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.engine.process.Recorder;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 
