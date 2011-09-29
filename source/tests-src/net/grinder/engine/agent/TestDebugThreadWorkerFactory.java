@@ -21,11 +21,13 @@
 
 package net.grinder.engine.agent;
 
+import static net.grinder.testutility.AssertUtilities.assertContains;
+import static net.grinder.testutility.FileUtilities.fileContents;
+
 import java.io.File;
+import java.io.FileFilter;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
-
-import org.junit.After;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationException;
@@ -40,6 +42,8 @@ import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.RedirectStandardStreams;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
+
+import org.junit.After;
 
 
 /**
@@ -76,10 +80,22 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         final Worker worker = factory.create(null, null);
         worker.waitFor();
       }
-    }.run();
+    }.run()
+     .assertNoStdout()
+     .assertNoStderr();
 
     // Should have output and error files.
     assertEquals(2, getDirectory().list().length);
+
+    final File[] errorFiles = getDirectory().listFiles(new FileFilter() {
+      public boolean accept(File f) {
+        return f.getName().startsWith("error");
+      }});
+
+    assertEquals(1, errorFiles.length);
+
+    assertContains(fileContents(errorFiles[0]),
+                   "File not found"); // Script not found.
   }
 
   public void testWithBadIsolatedRunner() throws Exception {

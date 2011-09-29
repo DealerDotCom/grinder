@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
+import org.junit.After;
+
 import junit.framework.TestCase;
 
 
@@ -39,7 +41,7 @@ public abstract class AbstractFileTestCase extends TestCase {
 
   private File m_directory;
 
-  protected void tearDown() throws Exception {
+  @After protected void tearDown() throws Exception {
     if (m_directory != null) {
       delete(m_directory);
     }

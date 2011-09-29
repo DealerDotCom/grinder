@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -65,6 +65,9 @@ final class DebugThreadWorker implements Worker {
           }
         };
     m_thread.setDaemon(true);
+  }
+
+  public void start() {
     m_thread.start();
   }
 

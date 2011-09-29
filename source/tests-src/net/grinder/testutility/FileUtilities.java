@@ -25,7 +25,9 @@ package net.grinder.testutility;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,6 +36,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import net.grinder.common.GrinderException;
+import net.grinder.util.StreamCopier;
 
 
 /**
@@ -144,4 +147,13 @@ public class FileUtilities {
     out.close();
   }
 
+  public static String fileContents(File file) throws IOException {
+
+    final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+
+    new StreamCopier(4096, true)
+      .copy(new FileInputStream(file), byteOutputStream);
+
+    return new String(byteOutputStream.toByteArray());
+  }
 }

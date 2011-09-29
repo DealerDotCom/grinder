@@ -49,7 +49,7 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
   private static Class<?> s_isolatedRunnerClass =
     IsolatedGrinderProcessRunner.class;
 
-  private String[] m_sharedClassArray;
+  private final String[] m_sharedClassArray;
 
   /**
    * Allow unit tests to change the IsolateGrinderProcessRunner.
@@ -128,6 +128,22 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
         "Failed to create IsolateGrinderProcessRunner", e);
     }
 
-    return new DebugThreadWorker(workerIdentity, runner);
+    final Thread currentThread = Thread.currentThread();
+
+    final ClassLoader contextLoader = currentThread.getContextClassLoader();
+
+    try {
+      currentThread.setContextClassLoader(classLoader);
+
+      final DebugThreadWorker worker =
+        new DebugThreadWorker(workerIdentity, runner);
+
+      worker.start();
+
+      return worker;
+    }
+    finally {
+      currentThread.setContextClassLoader(contextLoader);
+    }
   }
 }
