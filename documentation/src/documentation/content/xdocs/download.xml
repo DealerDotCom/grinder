@@ -35,11 +35,7 @@
   <table class="noborder">
     <tr>
       <td><a href="ext:oracle/java/javase">Java Standard Edition
-      5</a>, equivalent, or later</td><td>For The Grinder 3.</td>
-    </tr>
-    <tr>
-      <td><a href="ext:oracle/java/javase">Java Standard Edition
-      6</a>, equivalent, or later</td><td>For The Grinder 3 with the <a href="site:g3/scripts/script-instrumentation/new-instrumentation">new instrumentation</a>.</td>
+      6</a>, equivalent, or later</td><td>For The Grinder 3.</td>
     </tr>
     <tr>
       <td><a href="ext:oracle/java/javase">Java 2 Standard Edition

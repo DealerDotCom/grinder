@@ -25,8 +25,7 @@
     point to the installation directory.</p>
 
     <p>The support for Jython 2.5 uses the
-    <a href="site:script-instrumentation/new-instrumentation">new instrumentation engine</a>,
-  and so requires that the agent processes are run using Java SE 6.</p>
+    <a href="site:script-instrumentation/new-instrumentation">new instrumentation engine</a>.</p>
   </section>
 
   <section>
