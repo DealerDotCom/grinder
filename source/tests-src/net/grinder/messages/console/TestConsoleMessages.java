@@ -163,7 +163,7 @@ public class TestConsoleMessages {
     assertEquals(3, received.getMaximumNumberOfThreads());
   }
 
-  public void testWorkerReportMessageBadAddress() throws Exception {
+  @Test public void testWorkerReportMessageBadAddress() throws Exception {
 
     final WorkerProcessReportMessage message =
       new WorkerProcessReportMessage((short)1, (short)2, (short)3);
@@ -179,7 +179,7 @@ public class TestConsoleMessages {
     }
   }
 
-  public void testAgentReportMessage() throws Exception {
+  @Test public void testAgentReportMessage() throws Exception {
 
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
@@ -206,7 +206,7 @@ public class TestConsoleMessages {
     assertEquals(cacheHighWaterMark, received.getCacheHighWaterMark());
   }
 
-  public void testAgentReportMessageBadAddress() throws Exception {
+  @Test public void testAgentReportMessageBadAddress() throws Exception {
 
     final AgentProcessReportMessage message =
       new AgentProcessReportMessage((short)1, null);
