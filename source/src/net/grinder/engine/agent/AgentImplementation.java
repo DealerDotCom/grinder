@@ -53,7 +53,6 @@ import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.util.Directory;
-import net.grinder.util.Directory.DirectoryException;
 import net.grinder.util.thread.Condition;
 
 
@@ -214,13 +213,7 @@ public final class AgentImplementation implements Agent {
                 properties.getFile(GrinderProperties.SCRIPT,
                                    GrinderProperties.DEFAULT_SCRIPT));
 
-            try {
-              script = new ScriptLocation(scriptFile);
-            }
-            catch (DirectoryException e) {
-              m_logger.error("The script '" + scriptFile + "' does not exist.");
-              break;
-            }
+            script = new ScriptLocation(scriptFile);
           }
 
           if (!script.getFile().canRead()) {
