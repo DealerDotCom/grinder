@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,16 @@
 
 package net.grinder.util;
 
-import junit.framework.TestCase;
-
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import net.grinder.common.Logger;
-import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.Time;
+
+import org.junit.Test;
 
 
 /**
@@ -33,15 +38,11 @@ import net.grinder.testutility.Time;
  *
  * @author Philip Aston
  */
-public class TestSleeper extends TestCase {
+public class TestSleeper {
 
   private final TimeAuthority m_timeAuthority = new StandardTimeAuthority();
 
-  public TestSleeper(String name) {
-    super(name);
-  }
-
-  public void testConstruction() throws Exception {
+  @Test public void testConstruction() throws Exception {
     try {
       new SleeperImplementation(m_timeAuthority, null, -1, 1);
       fail("IllegalArgumentException expected");
@@ -59,14 +60,12 @@ public class TestSleeper extends TestCase {
     new SleeperImplementation(m_timeAuthority, null, 1, 1);
   }
 
-  public void testSleepNormal() throws Exception {
+  @Test public void testSleepNormal() throws Exception {
     // Warm up Hot Spot.
     final Sleeper sleep0 =
       new SleeperImplementation(m_timeAuthority, null, 1, 0);
 
-    final long now = System.currentTimeMillis();
     final long t1 = sleep0.getTimeInMilliseconds();
-    assertTrue(t1 >= now);
 
     Time time0 = new Time(0, 1000) {
         public void doIt() throws Exception { sleep0.sleepNormal(10); }
@@ -123,7 +122,7 @@ public class TestSleeper extends TestCase {
     assertTrue(sleep0.getTimeInMilliseconds() > t1);
   }
 
-  public void testSleepFlat() throws Exception {
+  @Test public void testSleepFlat() throws Exception {
     // Warm up Hot Spot.
     final Sleeper sleep0 =
       new SleeperImplementation(m_timeAuthority, null, 1, 0);
@@ -156,19 +155,17 @@ public class TestSleeper extends TestCase {
         public void doIt() throws Exception  { sleep2.sleepFlat(50); }
       }.run());
 
-    final RandomStubFactory<Logger> loggerStubFactory =
-      RandomStubFactory.create(Logger.class);
+    final Logger logger = mock(Logger.class);
+
     final Sleeper sleep3 =
-      new SleeperImplementation(m_timeAuthority,
-                                loggerStubFactory.getStub(),
-                                1,
-                                0);
+      new SleeperImplementation(m_timeAuthority, logger, 1, 0);
     sleep3.sleepFlat(10);
-    loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertNoMoreCalls();
+
+    verify(logger).output(isA(String.class));
+    verifyNoMoreInteractions(logger);
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
     final TakeFifty t1 = new TakeFifty();
 
     assertTrue(
@@ -189,7 +186,7 @@ public class TestSleeper extends TestCase {
     }
   }
 
-  public void testShutdownAllCurrentSleepers() throws Exception {
+  @Test public void testShutdownAllCurrentSleepers() throws Exception {
     final Thread t1 = new TakeFifty();
     final Thread t2 = new TakeFifty();
 
