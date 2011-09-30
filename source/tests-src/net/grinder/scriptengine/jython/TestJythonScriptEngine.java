@@ -36,6 +36,7 @@ import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.util.Directory;
 
+import org.junit.Test;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
@@ -57,7 +58,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
   private final PythonInterpreter m_interpreter =
     new PythonInterpreter(null, new PySystemState());
 
-  public void testInitialise() throws Exception {
+  @Test public void testInitialise() throws Exception {
     final JythonScriptEngine scriptEngine =
       new JythonScriptEngine(new PySystemState());
 
@@ -134,7 +135,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     scriptEngine2.shutdown();
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
     final JythonScriptEngine scriptEngine =
       new JythonScriptEngine(new PySystemState());
 
@@ -189,7 +190,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     }
   }
 
-  public void testWorkerRunnable() throws Exception {
+  @Test public void testWorkerRunnable() throws Exception {
     final JythonScriptEngine scriptEngine =
       new JythonScriptEngine(new PySystemState());
 
@@ -277,7 +278,7 @@ public class TestJythonScriptEngine extends AbstractFileTestCase {
     runnable5.shutdown();
   }
 
-  public void testNewWorkerRunnableWithTestRunner() throws Exception {
+  @Test public void testNewWorkerRunnableWithTestRunner() throws Exception {
     final JythonScriptEngine scriptEngine =
       new JythonScriptEngine(new PySystemState());
 
