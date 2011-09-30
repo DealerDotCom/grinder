@@ -34,7 +34,7 @@ They are bundled in the lib directory:
 The following optional packages are necessary to run The Grinder unit
 tests, reports, and release process.
 
-  - JUnit 4.4
+  - JUnit 4.5
   - Checkstyle 4.4
   - Clover 2.0.3
   - Mockito 1.8.5

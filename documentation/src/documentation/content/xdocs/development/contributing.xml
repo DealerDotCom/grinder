@@ -64,7 +64,7 @@ tests, reports, and release process.</p>
 
   <table class="noborder">
     <tr>
-      <td><a href="ext:junit/">JUnit 4.4</a></td>
+      <td><a href="ext:junit/">JUnit 4.5</a></td>
       <td>to run the unit tests</td>
     </tr>
     <tr>
