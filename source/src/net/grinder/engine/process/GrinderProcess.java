@@ -28,9 +28,11 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Timer;
@@ -60,6 +62,7 @@ import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.ScriptEngineService.ScriptEngine;
 import net.grinder.engine.process.instrumenter.MasterInstrumenter;
+import net.grinder.engine.process.instrumenter.dcr.DCRContext;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.messages.console.WorkerAddress;
@@ -302,7 +305,6 @@ final class GrinderProcess {
     // monitor. See bug 2936167.
     getScriptEngine(new ScriptLocation(new File("blah.py")));
 
-    // Don't start the message pump until we've initialised Jython.
     m_messagePump.start();
 
     final WorkerIdentity workerIdentity =
@@ -329,16 +331,24 @@ final class GrinderProcess {
       properties.getInt("grinder.reportToConsole.interval", 500);
     final int duration = properties.getInt("grinder.duration", 0);
 
-    final MasterInstrumenter instrumenter =
-      new MasterInstrumenter(
-        logger,
-        // This property name is poor, since it really means "If DCR
-        // instrumentation is available, use it for Jython". I'm not
-        // renaming it, since I expect it only to last a few releases,
-        // until DCR becomes the default.
-        properties.getBoolean("grinder.dcrinstrumentation", false));
+    final DCRContext dcrContext = DCRContext.create(logger);
+
+    final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
+
+    for (ScriptEngineService service : m_scriptEngineServices) {
+      final Instrumenter instrumenter =
+        service.createInstrumenter(properties, dcrContext);
+
+      if (instrumenter != null) {
+        instrumenters.add(instrumenter);
+      }
+    }
+
+    final Instrumenter instrumenter = new MasterInstrumenter(instrumenters);
 
     m_testRegistryImplementation.setInstrumenter(instrumenter);
+
+    logger.output("instrumentation agents: " + instrumenter.getDescription());
 
     final ScriptEngine scriptEngine =
       getScriptEngine(m_initialisationMessage.getScript());

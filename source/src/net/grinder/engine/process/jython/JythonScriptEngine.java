@@ -82,11 +82,7 @@ final class JythonScriptEngine implements ScriptEngine {
   }
 
   /**
-   * Run any process initialisation required by the script. Called once
-   * per ScriptEngine instance.
-   *
-   * @param script The script.
-   * @throws EngineException If process initialisation failed.
+   * {@inheritDoc}
    */
   public void initialise(ScriptLocation script) throws EngineException {
 

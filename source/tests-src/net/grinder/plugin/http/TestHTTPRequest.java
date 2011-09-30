@@ -33,8 +33,10 @@ import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
+import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.Recorder;
-import net.grinder.engine.process.instrumenter.MasterInstrumenter;
+import net.grinder.engine.process.instrumenter.dcr.DCRContext;
+import net.grinder.engine.process.java.JavaScriptEngineService;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
@@ -1140,15 +1142,9 @@ public class TestHTTPRequest extends TestCase {
   public void testDCRInstrumentation() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
-    final MasterInstrumenter masterInstrumenter =
-      new MasterInstrumenter(m_loggerStubFactory.getLogger(), true);
-
-    assertEquals("byte code transforming instrumenter for Jython 2.1/2.2; " +
-                 "byte code transforming instrumenter for Java",
-                 masterInstrumenter.getDescription());
-
-    m_loggerStubFactory.assertOutputMessageContains("byte code transforming");
-    m_loggerStubFactory.assertNoMoreCalls();
+    final Instrumenter instrumenter =
+      new JavaScriptEngineService().createInstrumenter(null,
+                                                       DCRContext.create(null));
 
     final RandomStubFactory<Recorder> recorderStubFactory =
       RandomStubFactory.create(Recorder.class);
@@ -1156,7 +1152,7 @@ public class TestHTTPRequest extends TestCase {
 
     final Test test = new StubTest(1, "foo");
 
-    masterInstrumenter.createInstrumentedProxy(test, recorder, request);
+    instrumenter.createInstrumentedProxy(test, recorder, request);
 
     try {
       request.GET();

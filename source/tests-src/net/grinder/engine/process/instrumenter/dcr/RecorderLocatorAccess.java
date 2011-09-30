@@ -1,5 +1,4 @@
-// Copyright (C) 2003 - 2011 Philip Aston
-// Copyright (C) 2005 Martin Wagner
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,37 +19,15 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package org.python.core;
+package net.grinder.engine.process.instrumenter.dcr;
 
 
 /**
- * A <code>PyInstance</code> that shares the same class, dictionary, and
- * (optional) Java Proxy as another. <code>ClonePyInstance</code> is sub-classed
- * by
- * {@link net.grinder.engine.process.jython.instrumentation.traditional.InstrumentedPyInstance}
- * which customises the invocation behaviour and becomes the "wrapped" object
- * for Python classes. It is in the <code>org.python.core</code> package so that
- * it can access the <code>javaProxy</code> field.
- *
- * @author Philip Aston
- * @version $Revision$
+ * Scope tunnel.
  */
-public class ClonePyInstance extends PyInstance {
+public final class RecorderLocatorAccess {
 
-  private final PyInstance m_target;
-
-  public ClonePyInstance(PyClass targetClass, PyInstance target) {
-    super(targetClass, target.__dict__);
-
-    javaProxy = target.javaProxy;
-
-    // Keep a reference to the target so it doesn't get gc'd until we
-    // do.
-    m_target = target;
-  }
-
-  protected final PyInstance getTarget() {
-    return m_target;
+  public static void clearRecorders() {
+    RecorderLocator.clearRecorders();
   }
 }
-

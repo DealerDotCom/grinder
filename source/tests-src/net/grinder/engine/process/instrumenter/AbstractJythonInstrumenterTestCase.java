@@ -21,11 +21,15 @@
 
 package net.grinder.engine.process.instrumenter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+
 import java.lang.reflect.Field;
 
-import junit.framework.TestCase;
 import net.grinder.common.StubTest;
-import net.grinder.common.Test;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.process.Instrumenter;
@@ -34,6 +38,7 @@ import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 
+import org.junit.Test;
 import org.python.core.PyClass;
 import org.python.core.PyException;
 import org.python.core.PyInstance;
@@ -51,7 +56,7 @@ import org.python.util.PythonInterpreter;
  * @author Philip Aston
  * @version $Revision:$
  */
-public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
+public abstract class AbstractJythonInstrumenterTestCase {
 
   {
     PySystemState.initialize();
@@ -67,7 +72,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
   protected final PyObject m_two = new PyInteger(2);
   protected final PyObject m_three = new PyInteger(3);
   protected final PyObject m_six = new PyInteger(6);
-  protected final Test m_test = new StubTest(1, "test");
+  protected final net.grinder.common.Test m_test = new StubTest(1, "test");
 
   protected final RandomStubFactory<Recorder> m_recorderStubFactory =
       RandomStubFactory.create(Recorder.class);
@@ -78,7 +83,8 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
       m_instrumenter = instrumenter;
   }
 
-  protected abstract void assertTestReference(PyObject proxy, Test test);
+  protected abstract void assertTestReference(PyObject proxy,
+                                              net.grinder.common.Test test);
 
   protected abstract void assertTargetReference(PyObject proxy,
                                                 Object original,
@@ -123,7 +129,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     assertNull(m_instrumenter.createInstrumentedProxy(null, null, o));
   }
 
-  protected final Object createInstrumentedProxy(Test test,
+  protected final Object createInstrumentedProxy(net.grinder.common.Test test,
                                                  Recorder recorder,
                                                  PyObject pyTarget)
     throws NotWrappableTypeException {
@@ -159,7 +165,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     return (Class<?>) pyClass.__tojava__(Class.class);
   }
 
-  public void testCreateProxyWithPyFunction() throws Exception {
+  @Test public void testCreateProxyWithPyFunction() throws Exception {
     m_interpreter.exec("def return1(): return 1");
     final PyObject pyFunction = m_interpreter.get("return1");
     final PyObject pyFunctionProxy = (PyObject)
@@ -215,7 +221,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  public void testCreateProxyWithPyInstance() throws Exception {
+  @Test public void testCreateProxyWithPyInstance() throws Exception {
     // PyInstance.
     m_interpreter.exec(
       "class Foo:\n" +
@@ -274,7 +280,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  public void testCreateProxyWithPyMethod() throws Exception {
+  @Test public void testCreateProxyWithPyMethod() throws Exception {
     m_interpreter.exec(
       "class Foo:\n" +
       " def two(self): return 2\n" +
@@ -340,7 +346,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  public void testCreateProxyWithPyReflectedFunction() throws Exception {
+  @Test public void testCreateProxyWithPyReflectedFunction() throws Exception {
     m_interpreter.exec("from test import MyClass\nx=MyClass(6, 5, 4)");
     final PyObject pyJava = m_interpreter.get("x");
     m_interpreter.exec("y=MyClass.getA");
@@ -372,7 +378,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     return (PyObject) PyProxy.class.getMethod("_getPyInstance").invoke(pyProxy);
   }
 
-  public void testCreateProxyWithPyProxy() throws Exception {
+  @Test public void testCreateProxyWithPyProxy() throws Exception {
     m_interpreter.exec("from java.util import Random");
     m_interpreter.exec(
       "class PyRandom(Random):\n" +
@@ -418,7 +424,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  public void testCreateProxyWithRecursiveCode() throws Exception {
+  @Test public void testCreateProxyWithRecursiveCode() throws Exception {
     m_interpreter.exec(
       "class Recurse:\n" +
       "  def __init__(self):\n" +
@@ -446,7 +452,7 @@ public abstract class AbstractJythonInstrumenterTestCase extends TestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  public void testPyDispatcherErrorHandling() throws Exception {
+  @Test public void testPyDispatcherErrorHandling() throws Exception {
     m_interpreter.exec("def blah(): raise Exception('a problem')");
     final PyObject pyFunction = m_interpreter.get("blah");
     final PyObject pyFunctionProxy = (PyObject)

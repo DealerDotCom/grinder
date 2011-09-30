@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2011 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,8 +21,6 @@
 
 package net.grinder.engine.process.instrumenter;
 
-import java.util.List;
-
 import net.grinder.common.Test;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.Recorder;
@@ -31,19 +29,16 @@ import net.grinder.script.NotWrappableTypeException;
 
 
 /**
- * Composite instrumenter that knows all other instrumenters.
+ * Null instrumenter.
  *
  * @author Philip Aston
  */
-public final class MasterInstrumenter extends CompositeInstrumenter {
+public class NullInstrumenter implements Instrumenter {
 
   /**
-   * Constructor for MasterInstrumenter.
-   *
-   * @param instrumenters Ordered list of instrumenters.
+   * Constructor.
    */
-  public MasterInstrumenter(List<Instrumenter> instrumenters) {
-    super(instrumenters);
+  public NullInstrumenter() {
   }
 
   /**
@@ -54,17 +49,7 @@ public final class MasterInstrumenter extends CompositeInstrumenter {
                                         Object target)
     throws NotWrappableTypeException {
 
-    if (target == null) {
-      throw new NotWrappableTypeException("Can't wrap null/None");
-    }
-
-    final Object result = super.createInstrumentedProxy(test, recorder, target);
-
-    if (result != null) {
-      return result;
-    }
-
-    throw new NotWrappableTypeException("Failed to wrap " + target);
+    return null;
   }
 
   /**
@@ -73,29 +58,13 @@ public final class MasterInstrumenter extends CompositeInstrumenter {
   public boolean instrument(Test test, Recorder recorder, Object target)
     throws NonInstrumentableTypeException {
 
-    if (target == null) {
-      throw new NonInstrumentableTypeException("Can't instrument null/None");
-    }
-
-    final boolean result = super.instrument(test, recorder, target);
-
-    if (result) {
-      return true;
-    }
-
-    throw new NonInstrumentableTypeException("Failed to wrap " + target);
+    return false;
   }
 
   /**
    * {@inheritDoc}
    */
   public String getDescription() {
-    final String result = super.getDescription();
-
-    if (result.length() == 0) {
-      return "NO INSTRUMENTER COULD BE LOADED";
-    }
-
-    return result.toString();
+    return null;
   }
 }

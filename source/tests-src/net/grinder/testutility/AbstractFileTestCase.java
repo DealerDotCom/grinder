@@ -41,7 +41,7 @@ public abstract class AbstractFileTestCase extends TestCase {
 
   private File m_directory;
 
-  @After protected void tearDown() throws Exception {
+  @After public void tearDown() throws Exception {
     if (m_directory != null) {
       delete(m_directory);
     }

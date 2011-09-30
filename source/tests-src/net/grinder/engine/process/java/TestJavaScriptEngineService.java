@@ -19,57 +19,52 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process.jython;
+package net.grinder.engine.process.java;
 
-import static net.grinder.engine.process.instrumenter.AbstractJythonInstrumenterTestCase.assertVersion;
-import net.grinder.common.GrinderProperties;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.io.File;
+
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.instrumenter.dcr.DCRContext;
-import net.grinder.testutility.Jython25Runner;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.python.core.PyInstance;
 
 
 /**
- * Unit tests for {@link JythonScriptEngineService}.
+ * Unit tests for {@link JavaScriptEngineService}.
  *
  * @author Philip Aston
  */
-@RunWith(Jython25Runner.class)
-public class TestJythonScriptEngineServiceWithJython25
-  extends AbstractJythonScriptEngineTests {
+public class TestJavaScriptEngineService {
 
-  @Test public void testVersion() throws Exception {
-    assertVersion("2.5");
-  }
+  @Test public void testCreateInstrumenter()
+    throws Exception {
 
-  @Test public void testCreateInstrumentedProxy() throws Exception {
-    final GrinderProperties properties = new GrinderProperties();
     final DCRContext context = DCRContext.create(null);
 
     final Instrumenter instrumenter =
-      new JythonScriptEngineService().createInstrumenter(properties, context);
+      new JavaScriptEngineService().createInstrumenter(null, context);
 
-    assertEquals("byte code transforming instrumenter for Jython 2.5",
+    assertEquals("byte code transforming instrumenter for Java",
                  instrumenter.getDescription());
-
-    final Object original = new PyInstance();
-
-    final Object proxy =
-      instrumenter.createInstrumentedProxy(m_test, m_recorder, original);
-
-    assertSame(original, proxy);
   }
 
-  @Test public void testInstrument() throws Exception {
-    final GrinderProperties properties = new GrinderProperties();
-    final DCRContext context = DCRContext.create(null);
+  @Test public void testCreateInstrumenterWithNoInstrumentation()
+    throws Exception {
 
     final Instrumenter instrumenter =
-      new JythonScriptEngineService().createInstrumenter(properties, context);
+      new JavaScriptEngineService().createInstrumenter(null, null);
 
-    instrumenter.instrument(m_test, m_recorder, new PyInstance());
+    assertNull(instrumenter.getDescription());
   }
+
+  @Test public void testGetScriptEngine() throws Exception {
+    final ScriptLocation script = new ScriptLocation(new File("foo.java"));
+
+    assertNull(new JavaScriptEngineService().getScriptEngine(script));
+  }
+
 }

@@ -28,12 +28,12 @@ import java.util.List;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+
 /**
  * Various test utilities for setting the context for different Jython
  * installations.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class JythonVersionUtilities {
 

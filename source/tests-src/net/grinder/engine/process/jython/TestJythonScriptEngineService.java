@@ -23,12 +23,14 @@ package net.grinder.engine.process.jython;
 
 import java.io.File;
 
-import net.grinder.engine.common.ScriptLocation;
-import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.util.Directory.DirectoryException;
+import net.grinder.common.GrinderProperties;
+import net.grinder.engine.process.Instrumenter;
+import net.grinder.engine.process.instrumenter.dcr.DCRContext;
+import net.grinder.script.NonInstrumentableTypeException;
+import net.grinder.script.NotWrappableTypeException;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.python.core.PyObject;
 
 
 /**
@@ -36,31 +38,8 @@ import org.junit.Test;
  *
  * @author Philip Aston
  */
-public class TestJythonScriptEngineService extends AbstractFileTestCase {
-
-  private ScriptLocation m_pyScript;
-
-  @Before public void setUp() throws DirectoryException {
-    m_pyScript = new ScriptLocation(new File("some.py"));
-  }
-
-  @Test public void testInitialisationWithEmptyClasspath() throws Exception {
-    System.clearProperty("python.cachedir");
-    final String originalClasspath = System.getProperty("java.class.path");
-
-    System.setProperty("java.class.path", "");
-
-    try {
-      new JythonScriptEngineService().getScriptEngine(m_pyScript);
-
-      assertNotNull(System.getProperty("python.cachedir"));
-      System.clearProperty("python.cachedir");
-    }
-    finally {
-      System.setProperty("java.class.path", originalClasspath);
-      System.clearProperty("python.cachedir");
-    }
-  }
+public class TestJythonScriptEngineService
+  extends AbstractJythonScriptEngineTests {
 
   @Test public void testInitialisationWithCollocatedGrinderAndJythonJars()
     throws Exception {
@@ -88,47 +67,72 @@ public class TestJythonScriptEngineService extends AbstractFileTestCase {
     }
   }
 
-  @Test public void testInitialisationWithNonCollocatedGrinderAndJythonJars()
-    throws Exception {
+  @Test public void testCreateInstrumentedProxy() throws Exception {
+    final GrinderProperties properties = new GrinderProperties();
+    final DCRContext context = DCRContext.create(null);
 
-    final String temporaryCacheDir = getDirectory().getPath();
+    final Instrumenter instrumenter =
+      new JythonScriptEngineService().createInstrumenter(properties, context);
 
-    System.setProperty("python.cachedir", temporaryCacheDir);
+    assertEquals("traditional Jython instrumenter",
+                 instrumenter.getDescription());
 
-    new JythonScriptEngineService().getScriptEngine(m_pyScript);
+    final Object foo = new Object();
 
-    assertEquals(temporaryCacheDir, System.getProperty("python.cachedir"));
+    final PyObject proxy =
+      (PyObject)
+      instrumenter.createInstrumentedProxy(m_test, m_recorder, foo);
+
+    assertSame(proxy.__getattr__("__target__").__tojava__(Object.class), foo);
+
+    try {
+      instrumenter.createInstrumentedProxy(m_test,
+                                           m_recorder,
+                                           new PyObject());
+      fail("Expected NotWrappableTypeException");
+    }
+    catch (NotWrappableTypeException e) {
+    }
   }
 
-  @Test public void testInitialisationWithCacheDir()
-  throws Exception {
+  @Test public void testInstrument() throws Exception {
+    final GrinderProperties properties = new GrinderProperties();
+    final DCRContext context = DCRContext.create(null);
 
-  System.clearProperty("python.cachedir");
-  final String originalClasspath = System.getProperty("java.class.path");
+    final Instrumenter instrumenter =
+      new JythonScriptEngineService().createInstrumenter(properties, context);
 
-  final File anotherDirectory = new File(getDirectory(), "foo");
-  anotherDirectory.mkdirs();
-  final File grinderJar = new File(anotherDirectory, "grinder.jar");
-  grinderJar.createNewFile();
-  final File jythonJar = new File(getDirectory(), "jython.jar");
-  jythonJar.createNewFile();
+    final Object foo = new Object();
 
-  System.setProperty("java.class.path",
-                     grinderJar.getAbsolutePath() + File.pathSeparator +
-                     jythonJar.getAbsolutePath());
-
-  try {
-    new JythonScriptEngineService().getScriptEngine(m_pyScript);
-    assertNull(System.getProperty("python.cachedir"));
+    // instrument() is not supported by the traditional instrumenter.
+    try {
+      instrumenter.instrument(m_test, m_recorder, foo);
+      fail("Expected NonInstrumentableTypeException");
+    }
+    catch (NonInstrumentableTypeException e) {
+    }
   }
-  finally {
-    System.setProperty("java.class.path", originalClasspath);
+
+  @Test public void testWithForcedDCRInsstrumentation() throws Exception {
+    final GrinderProperties properties = new GrinderProperties();
+    properties.setBoolean("grinder.dcrinstrumentation", true);
+
+    final DCRContext context = DCRContext.create(null);
+
+    final Instrumenter instrumenter =
+      new JythonScriptEngineService().createInstrumenter(properties, context);
+
+    assertEquals("byte code transforming instrumenter for Jython 2.1/2.2",
+                 instrumenter.getDescription());
   }
-}
 
-  @Test public void testNoMatch() throws Exception {
-    final ScriptLocation notPyScript = new ScriptLocation(new File("blah.clj"));
+  @Test public void testWithNoInstrumenters() throws Exception {
+    final GrinderProperties properties = new GrinderProperties();
+    properties.setBoolean("grinder.dcrinstrumentation", true);
 
-    assertNull(new JythonScriptEngineService().getScriptEngine(notPyScript));
+    final Instrumenter instrumenter =
+      new JythonScriptEngineService().createInstrumenter(properties, null);
+
+    assertEquals("", instrumenter.getDescription());
   }
 }

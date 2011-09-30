@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2011 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.engine.process.instrumenter;
 
+import java.util.Arrays;
 import java.util.List;
 
 import net.grinder.common.Test;
@@ -31,19 +32,30 @@ import net.grinder.script.NotWrappableTypeException;
 
 
 /**
- * Composite instrumenter that knows all other instrumenters.
+ * Composite instrumenter.
  *
  * @author Philip Aston
  */
-public final class MasterInstrumenter extends CompositeInstrumenter {
+public class CompositeInstrumenter implements Instrumenter {
+
+  private final List<Instrumenter> m_instrumenters;
 
   /**
-   * Constructor for MasterInstrumenter.
+   * Constructor.
    *
    * @param instrumenters Ordered list of instrumenters.
    */
-  public MasterInstrumenter(List<Instrumenter> instrumenters) {
-    super(instrumenters);
+  public CompositeInstrumenter(Instrumenter... instrumenters) {
+    this(Arrays.asList(instrumenters));
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param instrumenters Ordered list of instrumenters.
+   */
+  public CompositeInstrumenter(List<Instrumenter> instrumenters) {
+    m_instrumenters = instrumenters;
   }
 
   /**
@@ -54,17 +66,19 @@ public final class MasterInstrumenter extends CompositeInstrumenter {
                                         Object target)
     throws NotWrappableTypeException {
 
-    if (target == null) {
-      throw new NotWrappableTypeException("Can't wrap null/None");
+    for (Instrumenter instrumenter : m_instrumenters) {
+      final Object result = instrumenter.createInstrumentedProxy(test,
+                                                                 recorder,
+                                                                 target);
+
+      if (result != null) {
+        return result;
+      }
     }
 
-    final Object result = super.createInstrumentedProxy(test, recorder, target);
-
-    if (result != null) {
-      return result;
-    }
-
-    throw new NotWrappableTypeException("Failed to wrap " + target);
+    // Don't throw, unlike MasterInstrumenter, we don't claim to know the
+    // entire chain.
+    return null;
   }
 
   /**
@@ -73,27 +87,33 @@ public final class MasterInstrumenter extends CompositeInstrumenter {
   public boolean instrument(Test test, Recorder recorder, Object target)
     throws NonInstrumentableTypeException {
 
-    if (target == null) {
-      throw new NonInstrumentableTypeException("Can't instrument null/None");
+    for (Instrumenter instrumenter : m_instrumenters) {
+      if (instrumenter.instrument(test, recorder, target)) {
+        return true;
+      }
     }
 
-    final boolean result = super.instrument(test, recorder, target);
-
-    if (result) {
-      return true;
-    }
-
-    throw new NonInstrumentableTypeException("Failed to wrap " + target);
+    // Don't throw, unlike MasterInstrumenter, we don't claim to know the
+    // entire chain.
+    return false;
   }
 
   /**
    * {@inheritDoc}
    */
   public String getDescription() {
-    final String result = super.getDescription();
+    final StringBuilder result = new StringBuilder();
 
-    if (result.length() == 0) {
-      return "NO INSTRUMENTER COULD BE LOADED";
+    for (Instrumenter instrumenter : m_instrumenters) {
+      final String description = instrumenter.getDescription();
+
+      if (description != null) {
+        if (result.length() > 0) {
+          result.append("; ");
+        }
+
+        result.append(description);
+      }
     }
 
     return result.toString();

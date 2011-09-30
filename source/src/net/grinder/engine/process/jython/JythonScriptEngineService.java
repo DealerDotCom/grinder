@@ -1,13 +1,23 @@
 package net.grinder.engine.process.jython;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.python.core.PySystemState;
-
+import net.grinder.common.GrinderProperties;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
+import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.ScriptEngineService;
+import net.grinder.engine.process.instrumenter.CompositeInstrumenter;
+import net.grinder.engine.process.instrumenter.dcr.DCRContext;
+import net.grinder.engine.process.jython.instrumentation.dcr.Jython22Instrumenter;
+import net.grinder.engine.process.jython.instrumentation.dcr.Jython25Instrumenter;
+import net.grinder.engine.process.jython.instrumentation.traditional.TraditionalJythonInstrumenter;
 import net.grinder.util.FileExtensionMatcher;
+import net.grinder.util.weave.WeavingException;
+
+import org.python.core.PySystemState;
 
 
 /**
@@ -26,6 +36,47 @@ public final class JythonScriptEngineService implements ScriptEngineService {
 
   // Guarded by this.
   private PySystemState m_pySystemState;
+
+  /**
+   * {@inheritDoc}
+   */
+  public Instrumenter createInstrumenter(GrinderProperties properties,
+                                         DCRContext dcrContext)
+    throws EngineException {
+
+    final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
+
+    // This property name is poor, since it really means "If DCR
+    // instrumentation is available, avoid the traditional Jython
+    // instrumenter". I'm not renaming it, since I expect it only to last
+    // a few releases, until DCR becomes the default.
+    if (!properties.getBoolean("grinder.dcrinstrumentation", false)) {
+
+      try {
+        instrumenters.add(new TraditionalJythonInstrumenter());
+      }
+      catch (EngineException e) {
+        // Ignore.
+      }
+      catch (VerifyError e) {
+        // Ignore.
+      }
+    }
+
+    if (dcrContext != null) {
+      if (instrumenters.size() == 0) {
+        try {
+          instrumenters.add(new Jython25Instrumenter(dcrContext));
+        }
+        catch (WeavingException e) {
+          // Jython 2.5 not available, try Jython 2.1/2.2.
+          instrumenters.add(new Jython22Instrumenter(dcrContext));
+        }
+      }
+    }
+
+    return new CompositeInstrumenter(instrumenters);
+  }
 
   /**
    * {@inheritDoc}

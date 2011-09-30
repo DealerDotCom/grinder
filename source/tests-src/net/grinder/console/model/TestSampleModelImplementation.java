@@ -89,7 +89,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
       new ConsoleProperties(null, new File(getDirectory(), "props"));
   }
 
-  protected void tearDown() throws Exception {
+  public void tearDown() throws Exception {
     super.tearDown();
     m_timer.cancel();
   }

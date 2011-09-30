@@ -21,8 +21,10 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
+import net.grinder.engine.process.instrumenter.dcr.DCRContext;
 
 
 /**
@@ -36,6 +38,31 @@ import net.grinder.engine.common.ScriptLocation;
  * @author Philip Aston
  */
 public interface ScriptEngineService {
+
+  /**
+   * Initialises script engine instrumentation.
+   *
+   * <p>
+   * Each script engine can provide instrumenters, irrespective of the engine
+   * used to execute the script. Multiple instrumenters can be returned using
+   * {@link net.grinder.engine.process.instrumenter.CompositeInstrumenter}. The
+   * instrumenters provided by each engine are consulted according to service
+   * registration order in the META-INF file.
+   * </p>
+   *
+   * @param properties
+   *          Properties.
+   * @param dcrContext
+   *          DCR context; {@code null} if DCR is unavailable.
+   * @return The instrumenter to use. Engines that do not provide
+   *         instrumentation should return a
+   *         {@link net.grinder.engine.process.instrumenter.NullInstrumenter}.
+   * @throws EngineException
+   *           If process initialisation failed.
+   */
+  Instrumenter createInstrumenter(GrinderProperties properties,
+                                  DCRContext dcrContext)
+     throws EngineException;
 
   /**
    * If the script engine service can handle the given script, it should return
@@ -60,11 +87,14 @@ public interface ScriptEngineService {
    * Handler for a particular type of script.
    */
   interface ScriptEngine {
+
     /**
      * Run any process initialisation required by the script. Called once
      * per ScriptEngine instance, before any of the other methods.
      *
      * @param script The script.
+     * @param properties Properties.
+     * @param logger Logger.
      * @throws EngineException If process initialisation failed.
      */
     void initialise(ScriptLocation script) throws EngineException;

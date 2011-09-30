@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2011 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,19 +22,14 @@
 package net.grinder.engine.process.instrumenter;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-
 import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.Recorder;
-import net.grinder.script.NonInstrumentableTypeException;
-import net.grinder.script.NotWrappableTypeException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,11 +39,11 @@ import org.mockito.MockitoAnnotations;
 
 
 /**
- * Unit tests for {@link MasterInstrumenter}.
+ * Unit tests for {@link CompositeInstrumenter}.
  *
  * @author Philip Aston
  */
-public class TestMasterInstrumenter {
+public class TestCompositeInstrumenter {
 
   @Mock private Recorder m_recorder;
   @Mock private Instrumenter m_instrumenter1;
@@ -67,7 +62,7 @@ public class TestMasterInstrumenter {
       .thenReturn(m_target);
 
     final Instrumenter instrumenter =
-      new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
+      new CompositeInstrumenter(m_instrumenter1, m_instrumenter2);
 
     instrumenter.createInstrumentedProxy(m_test, m_recorder, m_target);
 
@@ -83,26 +78,20 @@ public class TestMasterInstrumenter {
 
   @Test public void testCreateInstrumentedProxyWithNull() throws Exception {
     final Instrumenter instrumenter =
-      new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
+      new CompositeInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
-    try {
+    final Object result =
       instrumenter.createInstrumentedProxy(m_test, m_recorder, null);
-      fail("Expected NotWrappableTypeException");
-    }
-    catch (NotWrappableTypeException e) {
-    }
+    assertNull(result);
   }
 
   @Test public void testCreateInstrumentedProxyFailure() throws Exception {
     final Instrumenter instrumenter =
-      new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
+      new CompositeInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
-    try {
+    final Object result =
       instrumenter.createInstrumentedProxy(m_test, m_recorder, m_target);
-      fail("Expected NotWrappableTypeException");
-    }
-    catch (NotWrappableTypeException e) {
-    }
+    assertNull(result);
   }
 
   @Test public void testInstrument() throws Exception {
@@ -110,7 +99,7 @@ public class TestMasterInstrumenter {
       .thenReturn(true);
 
     final Instrumenter instrumenter =
-      new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
+      new CompositeInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
     instrumenter.instrument(m_test, m_recorder, m_target);
 
@@ -124,45 +113,37 @@ public class TestMasterInstrumenter {
 
   @Test public void testInstrumentWithNull() throws Exception {
     final Instrumenter instrumenter =
-      new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
+      new CompositeInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
-    try {
-      instrumenter.instrument(m_test, m_recorder, null);
-      fail("Expected NonInstrumentableTypeException");
-    }
-    catch (NonInstrumentableTypeException e) {
-    }
+    final boolean result = instrumenter.instrument(m_test, m_recorder, null);
+    assertFalse(result);
   }
 
   @Test public void testCreateInstrumentedFailure() throws Exception {
     final Instrumenter instrumenter =
-      new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
+      new CompositeInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
-    try {
-      instrumenter.instrument(m_test, m_recorder, m_target);
-      fail("Expected NonInstrumentableTypeException");
-    }
-    catch (NonInstrumentableTypeException e) {
-    }
+    final boolean result = instrumenter.instrument(m_test, m_recorder, null);
+    assertFalse(result);
   }
 
   @Test public void testGetDescription() throws Exception {
     when(m_instrumenter1.getDescription()).thenReturn("I1");
     when(m_instrumenter2.getDescription()).thenReturn("I2");
 
-    final Instrumenter instrumenter =
-      new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
+    assertEquals("I1; I2",
+                 new CompositeInstrumenter(m_instrumenter1, m_instrumenter2)
+                 .getDescription());
 
-    assertEquals("I1; I2", instrumenter.getDescription());
+    assertEquals("I1",
+                 new CompositeInstrumenter(m_instrumenter1).getDescription());
 
-    final Instrumenter instrumenter2 =
-      new MasterInstrumenter(asList(m_instrumenter1));
+    assertEquals("", new CompositeInstrumenter().getDescription());
 
-    assertEquals("I1", instrumenter2.getDescription());
+    when(m_instrumenter2.getDescription()).thenReturn(null);
 
-    final List<Instrumenter> e = emptyList();
-
-    assertEquals("NO INSTRUMENTER COULD BE LOADED",
-                 new MasterInstrumenter(e).getDescription());
+    assertEquals("I1",
+                 new CompositeInstrumenter(m_instrumenter1, m_instrumenter2)
+                 .getDescription());
   }
 }
