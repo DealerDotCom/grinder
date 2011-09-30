@@ -313,6 +313,7 @@ if this doesn't do what you want.
       <fileset dir="${src.dir}"  includes="**/resources/*.keystore"/>
       <fileset dir="${src.dir}"  includes="**/resources/*.png"/>
       <fileset dir="${src.dir}"  includes="**/resources/*.xsl"/>
+      <fileset dir="${src.dir}"  includes="META-INF/**"/>
     </copy>
 
     <copy todir="${classes.dir}" filtering="on">
