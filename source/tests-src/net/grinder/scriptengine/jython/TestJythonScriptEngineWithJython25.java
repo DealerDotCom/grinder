@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +19,26 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.scriptengine.jython;
+
+import static net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase.assertVersion;
+import static net.grinder.testutility.JythonVersionUtilities.jython25Suite;
+import junit.framework.TestSuite;
+
 
 /**
- * Test class used by
- * {@link net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase}.
+ * Miscellaneous unit tests for Jython instrumentation.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
+ * @version $Revision:$
  */
-public class MyExtendedClass extends MyClass {
+public class TestJythonScriptEngineWithJython25 extends TestJythonScriptEngine {
 
-  public static MyClass create() {
-    return new MyExtendedClass();
+  public static TestSuite suite() throws Exception {
+    return jython25Suite(TestJythonScriptEngineWithJython25.class);
   }
 
-  public int addOne(int i) {
-    return i + 2;
+  public void testVersion() throws Exception {
+    assertVersion("2.5");
   }
 }

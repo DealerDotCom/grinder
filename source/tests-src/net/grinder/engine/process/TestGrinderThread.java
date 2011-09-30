@@ -31,8 +31,9 @@ import static org.mockito.Mockito.when;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.process.ScriptEngineService.ScriptEngine;
-import net.grinder.engine.process.ScriptEngineService.WorkerRunnable;
+import net.grinder.scriptengine.ScriptExecutionException;
+import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
+import net.grinder.scriptengine.ScriptEngineService.WorkerRunnable;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.AbstractFileTestCase;
@@ -262,7 +263,7 @@ public class TestGrinderThread extends AbstractFileTestCase {
   }
 
   private static final class MyScriptEngineException
-    extends ScriptEngineService.ScriptExecutionException {
+    extends ScriptExecutionException {
     public MyScriptEngineException(Throwable t) {
       super("whoops", t);
     }

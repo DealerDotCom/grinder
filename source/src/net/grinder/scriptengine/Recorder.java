@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
+// Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +20,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.scriptengine;
+
+import net.grinder.engine.common.EngineException;
+
 
 /**
- * Test class used by
- * {@link net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase}.
+ * Interface to the test instrumentation.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
  */
-public class MyExtendedClass extends MyClass {
+public interface Recorder {
 
-  public static MyClass create() {
-    return new MyExtendedClass();
-  }
+  /**
+   * Call before instrumented code to initiate test recording.
+   *
+   * @throws EngineException Test recording could not be initiated.
+   */
+  void start() throws EngineException;
 
-  public int addOne(int i) {
-    return i + 2;
-  }
+  /**
+   * Call after instrumented code to complete test recording.
+   *
+   * @param success {@code true} if the test completed successfully.
+   * @throws EngineException Test recording could not be completed.
+   */
+  void end(boolean success) throws EngineException;
 }

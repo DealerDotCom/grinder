@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +19,20 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.engine.process.dcr;
+
 
 /**
- * Test class used by
- * {@link net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase}.
+ * Test class for {@link TestJavaDCRInstrumenter}.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
  */
-public class MyExtendedClass extends MyClass {
-
-  public static MyClass create() {
-    return new MyExtendedClass();
+public class AnotherClass {
+  public static int getOne() {
+    return 1;
   }
 
-  public int addOne(int i) {
-    return i + 2;
+  public int getTwo() {
+    return 2;
   }
 }

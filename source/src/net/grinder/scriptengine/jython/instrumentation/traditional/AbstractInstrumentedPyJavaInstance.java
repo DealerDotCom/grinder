@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2002 - 2009 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +19,43 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.scriptengine.jython.instrumentation.traditional;
+
+import net.grinder.common.Test;
+
+import org.python.core.PyJavaInstance;
+import org.python.core.PyObject;
+
 
 /**
- * Test class used by
- * {@link net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase}.
+ * An instrumented <code>PyJavaInstance</code>.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
  */
-public class MyExtendedClass extends MyClass {
+abstract class AbstractInstrumentedPyJavaInstance extends PyJavaInstance {
+  private final InstrumentationHelper m_instrumentationHelper;
 
-  public static MyClass create() {
-    return new MyExtendedClass();
+  public AbstractInstrumentedPyJavaInstance(
+    Test test,
+    Object target,
+    PyDispatcher dispatcher) {
+
+    super(target);
+
+    m_instrumentationHelper =
+      new InstrumentationHelper(test, target, dispatcher) {
+        protected PyObject doFindAttr(String name) {
+          return AbstractInstrumentedPyJavaInstance.super.__findattr__(name);
+        }
+      };
   }
 
-  public int addOne(int i) {
-    return i + 2;
+  protected final InstrumentationHelper getInstrumentationHelper() {
+    return m_instrumentationHelper;
+  }
+
+  public PyObject __findattr__(String name) {
+    return m_instrumentationHelper.findAttr(name);
   }
 }
+

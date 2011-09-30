@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +19,28 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.scriptengine.jython.instrumentation.dcr;
+
+import net.grinder.engine.process.dcr.DCRContextImplementation;
+import net.grinder.scriptengine.CompositeInstrumenter;
+import net.grinder.scriptengine.java.JavaScriptEngineService;
+import net.grinder.scriptengine.jython.instrumentation.dcr.Jython22Instrumenter;
+
 
 /**
- * Test class used by
- * {@link net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase}.
+ * Unit tests for {@link Jython22Instrumenter}.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
  */
-public class MyExtendedClass extends MyClass {
+public class TestJython22Instrumenter
+  extends AbstractJythonDCRInstrumenterTestCase {
 
-  public static MyClass create() {
-    return new MyExtendedClass();
-  }
+  private static final DCRContextImplementation s_context =
+    DCRContextImplementation.create(null);
 
-  public int addOne(int i) {
-    return i + 2;
+  public TestJython22Instrumenter() throws Exception {
+    super(new CompositeInstrumenter(
+            new Jython22Instrumenter(s_context),
+            new JavaScriptEngineService().createInstrumenter(null, s_context)));
   }
 }

@@ -60,9 +60,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
-import net.grinder.engine.process.ScriptEngineService.ScriptEngine;
-import net.grinder.engine.process.instrumenter.MasterInstrumenter;
-import net.grinder.engine.process.instrumenter.dcr.DCRContext;
+import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.messages.console.WorkerAddress;
@@ -71,6 +69,9 @@ import net.grinder.script.Grinder;
 import net.grinder.script.InternalScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
+import net.grinder.scriptengine.Instrumenter;
+import net.grinder.scriptengine.ScriptEngineService;
+import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -331,7 +332,8 @@ final class GrinderProcess {
       properties.getInt("grinder.reportToConsole.interval", 500);
     final int duration = properties.getInt("grinder.duration", 0);
 
-    final DCRContext dcrContext = DCRContext.create(logger);
+    final DCRContextImplementation dcrContext =
+      DCRContextImplementation.create(logger);
 
     final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
 

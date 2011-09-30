@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +19,41 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.scriptengine;
+
+import net.grinder.engine.common.EngineException;
+
 
 /**
- * Test class used by
- * {@link net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase}.
+ * Indicates a script execution problem.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
  */
-public class MyExtendedClass extends MyClass {
-
-  public static MyClass create() {
-    return new MyExtendedClass();
+public abstract class ScriptExecutionException extends EngineException {
+  /**
+   * Creates a new <code>ScriptExecutionException</code> instance.
+   *
+   * @param s Message.
+   */
+  public ScriptExecutionException(String s) {
+    super(s);
   }
 
-  public int addOne(int i) {
-    return i + 2;
+  /**
+   * Creates a new <code>ScriptExecutionException</code> instance.
+   *
+   * @param s Message.
+   * @param t Nested {@link Throwable}.
+   */
+  public ScriptExecutionException(String s, Throwable t)  {
+    super(s, t);
   }
+
+  /**
+   * Subclasses abuse getMessage() to include stack trace information in
+   * printStackTrace output.
+   *
+   * @return A short message, without a stack trace.
+   */
+  public abstract String getShortMessage();
 }

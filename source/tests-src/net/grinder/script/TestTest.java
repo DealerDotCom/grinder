@@ -30,9 +30,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import junit.framework.TestCase;
-import net.grinder.engine.process.Instrumenter;
-import net.grinder.engine.process.Recorder;
 import net.grinder.engine.process.StubTestRegistry;
+import net.grinder.scriptengine.Instrumenter;
+import net.grinder.scriptengine.Recorder;
 import net.grinder.testutility.RandomStubFactory;
 
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +19,50 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.scriptengine;
+
+import net.grinder.common.Test;
+import net.grinder.script.NonInstrumentableTypeException;
+import net.grinder.script.NotWrappableTypeException;
+
 
 /**
- * Test class used by
- * {@link net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase}.
+ * Null instrumenter.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
  */
-public class MyExtendedClass extends MyClass {
+public class NullInstrumenter implements Instrumenter {
 
-  public static MyClass create() {
-    return new MyExtendedClass();
+  /**
+   * Constructor.
+   */
+  public NullInstrumenter() {
   }
 
-  public int addOne(int i) {
-    return i + 2;
+  /**
+   * {@inheritDoc}
+   */
+  public Object createInstrumentedProxy(Test test,
+                                        Recorder recorder,
+                                        Object target)
+    throws NotWrappableTypeException {
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean instrument(Test test, Recorder recorder, Object target)
+    throws NonInstrumentableTypeException {
+
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String getDescription() {
+    return null;
   }
 }

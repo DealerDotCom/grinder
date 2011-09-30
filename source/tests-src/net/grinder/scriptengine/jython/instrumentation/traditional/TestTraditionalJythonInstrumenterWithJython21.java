@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2005 - 2010 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +19,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.scriptengine.jython.instrumentation.traditional;
+
+import net.grinder.testutility.Jython21Runner;
+
+import org.junit.runner.RunWith;
+
 
 /**
- * Test class used by
- * {@link net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase}.
+ * Unit tests for {@link JythonInstrumenter}.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
  */
-public class MyExtendedClass extends MyClass {
+@RunWith(Jython21Runner.class)
+public class TestTraditionalJythonInstrumenterWithJython21
+  extends TestTraditionalJythonInstrumenter {
 
-  public static MyClass create() {
-    return new MyExtendedClass();
+  public TestTraditionalJythonInstrumenterWithJython21() throws Exception {
+    super();
   }
 
-  public int addOne(int i) {
-    return i + 2;
+  public void testVersion() throws Exception {
+    assertVersion("2.1");
   }
 }

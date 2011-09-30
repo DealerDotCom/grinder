@@ -26,9 +26,9 @@ import java.io.PrintWriter;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.process.ScriptEngineService.ScriptEngine;
-import net.grinder.engine.process.ScriptEngineService.ScriptExecutionException;
-import net.grinder.engine.process.ScriptEngineService.WorkerRunnable;
+import net.grinder.scriptengine.ScriptExecutionException;
+import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
+import net.grinder.scriptengine.ScriptEngineService.WorkerRunnable;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.util.Sleeper;
 

@@ -33,10 +33,7 @@ import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
-import net.grinder.engine.process.Instrumenter;
-import net.grinder.engine.process.Recorder;
-import net.grinder.engine.process.instrumenter.dcr.DCRContext;
-import net.grinder.engine.process.java.JavaScriptEngineService;
+import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
@@ -46,6 +43,9 @@ import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics.StatisticsForTest;
+import net.grinder.scriptengine.Instrumenter;
+import net.grinder.scriptengine.Recorder;
+import net.grinder.scriptengine.java.JavaScriptEngineService;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.AssertUtilities;
@@ -1144,7 +1144,7 @@ public class TestHTTPRequest extends TestCase {
 
     final Instrumenter instrumenter =
       new JavaScriptEngineService().createInstrumenter(null,
-                                                       DCRContext.create(null));
+                                                       DCRContextImplementation.create(null));
 
     final RandomStubFactory<Recorder> recorderStubFactory =
       RandomStubFactory.create(Recorder.class);

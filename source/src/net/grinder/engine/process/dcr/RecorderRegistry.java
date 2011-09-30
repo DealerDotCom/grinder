@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +19,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package test;
+package net.grinder.engine.process.dcr;
+
+import net.grinder.scriptengine.Recorder;
+
 
 /**
- * Test class used by
- * {@link net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase}.
+ * Recorder registry.
  *
- * <p>
- * Needs to be outside of the {@code net.grinder} package so it can be
- * instrumented.
- * </p>
+ * @author Philip Aston
  */
-public class MyExtendedClass extends MyClass {
+interface RecorderRegistry {
 
-  public static MyClass create() {
-    return new MyExtendedClass();
-  }
-
-  public int addOne(int i) {
-    return i + 2;
-  }
+  /**
+   * Registration method.
+   *
+   * @param target
+   *          The target reference, or {@code null} for static methods.
+   * @param location
+   *          String that uniquely identifies the instrumentation location.
+   * @param recorder
+   *          The recorder to register.
+   */
+  void register(Object target, String location, Recorder recorder);
 }

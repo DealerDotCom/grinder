@@ -28,6 +28,7 @@ import java.util.TreeMap;
 
 import net.grinder.common.Test;
 import net.grinder.script.TestRegistry;
+import net.grinder.scriptengine.Instrumenter;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.TimeAuthority;

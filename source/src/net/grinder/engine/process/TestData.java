@@ -30,6 +30,8 @@ import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.script.TestRegistry.RegisteredTest;
+import net.grinder.scriptengine.Instrumenter;
+import net.grinder.scriptengine.Recorder;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.util.TimeAuthority;
