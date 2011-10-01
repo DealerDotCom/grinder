@@ -23,6 +23,10 @@ As well as Ant, to build The Grinder you need a version of Java that supports:
 
   - Java SE 6.0 ("Java 6") or later
 
+(Java SE 6.0 is required by the new instrumentation engine introduced in The
+Grinder 3.3. If you are not using this feature, Java SE 5.0 is sufficient at
+runtime).
+
 The following additional packages are necessary to build and run The Grinder.
 They are bundled in the lib directory:
 

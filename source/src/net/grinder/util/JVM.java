@@ -62,9 +62,9 @@ public final class JVM {
 
     final String name = "The Grinder " + GrinderBuild.getVersionString();
 
-    if (!isAtLeastVersion(1, 6)) {
+    if (!isAtLeastVersion(1, 5)) {
       logger.error("Fatal Error - incompatible version of Java (" + this +
-                   ")\n" + name + " requires at least Java 1.6.");
+                   ")\n" + name + " requires at least Java 1.5.");
       return false;
     }
 
