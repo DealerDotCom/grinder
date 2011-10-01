@@ -21,6 +21,8 @@
 
 package net.grinder.plugin.http;
 
+import static java.util.Arrays.asList;
+
 import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
@@ -34,7 +36,7 @@ import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.script.Statistics;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.testutility.RandomStubFactory;
-import net.grinder.util.IsolatingClassLoader;
+import net.grinder.util.BlockingClassLoader;
 
 
 /**
@@ -62,23 +64,26 @@ public class TestHTTPPlugin extends TestCase {
 
   public void testInitialiseWithBadHTTPClient() throws Exception {
 
-    final ClassLoader classLoader =
-      new IsolatingClassLoader(
-        (URLClassLoader) getClass().getClassLoader(), new String[] { }, false) {
-      protected Class<?> loadClass(String name, boolean resolve)
+    final String pluginName = HTTPPlugin.class.getName();
+
+    final URLClassLoader blockingClassLoader =
+      new BlockingClassLoader(
+        (URLClassLoader) getClass().getClassLoader(),
+         asList(pluginName),
+         false);
+
+    final URLClassLoader classLoader =
+      new URLClassLoader(blockingClassLoader.getURLs(),
+                         blockingClassLoader) {
+
+      @Override protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException  {
 
         if (name.equals("HTTPClient.RetryModule")) {
           return null;
         }
 
-        if (name.equals("net.grinder.plugin.http.HTTPPlugin")) {
-          // Isolate HTTPPlugin.
-          return super.loadClass(name, resolve);
-        }
-
-        // Share everything else.
-        return Class.forName(name, resolve, getParent());
+        return super.loadClass(name, resolve);
       }
     };
 

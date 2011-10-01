@@ -48,7 +48,7 @@ import net.grinder.engine.process.dcr.RecorderLocatorAccess;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.scriptengine.Recorder;
 import net.grinder.scriptengine.java.JavaDCRInstrumenter;
-import net.grinder.testutility.BlockingClassLoader;
+import net.grinder.util.BlockingClassLoader;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 
 import org.junit.After;
@@ -232,7 +232,8 @@ public class TestJavaDCRInstrumenter {
     final BlockingClassLoader blockingClassLoader =
       new BlockingClassLoader(ourClassLoader,
                               Arrays.<String>asList(
-                               AnotherClass.class.getName()));
+                               AnotherClass.class.getName()),
+                              true);
 
     final NoPackageURLClassLoader cl =
       new NoPackageURLClassLoader(ourClassLoader.getURLs(),

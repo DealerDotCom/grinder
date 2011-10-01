@@ -21,10 +21,12 @@
 
 package net.grinder.engine.agent;
 
+import static net.grinder.util.BlockingClassLoader.isolatingLoader;
+import static java.util.Arrays.asList;
+
 import java.io.OutputStream;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.grinder.common.GrinderProperties;
@@ -34,7 +36,6 @@ import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.util.Directory;
-import net.grinder.util.IsolatingClassLoader;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 
 
@@ -49,7 +50,7 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
   private static Class<?> s_isolatedRunnerClass =
     IsolatedGrinderProcessRunner.class;
 
-  private final String[] m_sharedClassArray;
+  private final List<String> m_blockedClasses = new ArrayList<String>();
 
   /**
    * Allow unit tests to change the IsolateGrinderProcessRunner.
@@ -80,12 +81,20 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
     sharedClasses.add(IsolateGrinderProcessRunner.class.getName());
     sharedClasses.add(ExposeInstrumentation.class.getName());
 
-    sharedClasses.addAll(Arrays.asList(
-      properties.getProperty("grinder.debug.singleprocess.sharedclasses", "")
-      .split(",")));
+    final String additionalSharedClasses =
+      properties.getProperty("grinder.debug.singleprocess.sharedclasses");
 
-    m_sharedClassArray =
-      sharedClasses.toArray(new String[sharedClasses.size()]);
+    if (additionalSharedClasses != null) {
+      sharedClasses.addAll(asList(additionalSharedClasses.split(",")));
+    }
+
+    //  Block everything...
+    m_blockedClasses.add("*");
+
+    // .. except for the shared classes.
+    for (String sharedClass : sharedClasses) {
+      m_blockedClasses.add("+" + sharedClass);
+    }
   }
 
   @Override
@@ -98,9 +107,8 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
     // Unfortunately, we can't respect the working directory.
 
     final ClassLoader classLoader =
-      new IsolatingClassLoader((URLClassLoader)getClass().getClassLoader(),
-                               m_sharedClassArray,
-                               true);
+      isolatingLoader((URLClassLoader)getClass().getClassLoader(),
+                          m_blockedClasses);
 
     final Class<?> isolatedRunnerClass;
 

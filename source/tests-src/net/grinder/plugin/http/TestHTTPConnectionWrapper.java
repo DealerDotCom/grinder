@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,8 @@
 
 package net.grinder.plugin.http;
 
+import static java.util.Arrays.asList;
+
 import java.net.InetAddress;
 import java.net.URLClassLoader;
 import java.util.HashSet;
@@ -28,7 +30,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import net.grinder.testutility.RandomStubFactory;
-import net.grinder.util.IsolatingClassLoader;
+import net.grinder.util.BlockingClassLoader;
 import net.grinder.util.Sleeper;
 import HTTPClient.HTTPConnection;
 import HTTPClient.StubHTTPConnection;
@@ -143,12 +145,20 @@ public class TestHTTPConnectionWrapper extends TestCase {
 
   /** Dumb check to cover static initialisation error handling. */
   public void testClassInitialisation() throws Exception {
-    final String[] shared = { "java.*", };
 
-    final ClassLoader classLoader =
-      new IsolatingClassLoader(
-        (URLClassLoader) getClass().getClassLoader(), shared, false) {
-      protected Class<?> loadClass(String name, boolean resolve)
+    final String wrapperName = HTTPConnectionWrapper.class.getName();
+
+    final URLClassLoader blockingClassLoader =
+      new BlockingClassLoader(
+        (URLClassLoader) getClass().getClassLoader(),
+         asList(wrapperName),
+         false);
+
+    final URLClassLoader classLoader =
+      new URLClassLoader(blockingClassLoader.getURLs(),
+                         blockingClassLoader) {
+
+      @Override protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException  {
 
         if (name.equals("HTTPClient.AuthorizationModule")) {
@@ -160,9 +170,9 @@ public class TestHTTPConnectionWrapper extends TestCase {
     };
 
     try {
-      Class.forName("net.grinder.plugin.http.HTTPConnectionWrapper",
-                     true,
-                     classLoader);
+      Class.forName(wrapperName,
+                    true,
+                    classLoader);
       fail("Expected ExceptionInInitializerError");
     }
     catch (ExceptionInInitializerError e) {

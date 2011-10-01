@@ -30,7 +30,7 @@ import javax.xml.stream.XMLStreamException;
 
 import junit.framework.TestCase;
 import net.grinder.plugin.http.xml.CommentType;
-import net.grinder.testutility.BlockingClassLoader;
+import net.grinder.util.BlockingClassLoader;
 
 import org.apache.xmlbeans.XmlBeans;
 import org.objectweb.asm.ClassReader;
@@ -39,11 +39,11 @@ import org.python.core.PyObject;
 
 import extra166y.CustomConcurrentHashMap;
 
+
 /**
  * Unit test that checks the manifest classpath is correct.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class TestManifestClasspath extends TestCase {
 
@@ -61,7 +61,7 @@ public class TestManifestClasspath extends TestCase {
       (URLClassLoader)TestManifestClasspath.class.getClassLoader();
 
     final BlockingClassLoader blockingClassLoader =
-      new BlockingClassLoader(ourClassLoader, blockedClasses);
+      new BlockingClassLoader(ourClassLoader, blockedClasses, false);
 
     final ClassLoader classLoader =
       new URLClassLoader(new URL[] { new URL("file:lib/grinder.jar") },

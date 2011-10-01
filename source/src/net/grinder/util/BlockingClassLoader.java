@@ -19,8 +19,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.testutility;
+package net.grinder.util;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.enumeration;
 
@@ -28,59 +29,78 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
-import net.grinder.util.IsolatingClassLoader;
-
 
 /**
- * Classloader that prevents its parent from loading certain classes.
+ * Class loader that prevents its parent from loading certain classes.
  *
  * <p>
- * Unlike {@link IsolatingClassLoader}, it doesn't load classes itself, so we
- * can load alternative implementations of the blocked classes in a child
- * classloader.
+ * The class loader doesn't load classes itself, so we can load alternative
+ * implementations of the blocked classes in a child classloader. Utility
+ * methods are provided to create such class loader hierarchies.
  * </p>
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class BlockingClassLoader extends URLClassLoader {
 
+  private final boolean m_blockParentOnly;
+
   /**
-   * Utility method that creates a classloader that will hide a set of classes,
-   * and allow alternative implementations to be provided.
+   * Utility method that creates a class loader that will hide a set of classes
+   * from the parent class loader and allow alternative implementations to be
+   * provided.
    *
+   * @param parent Parent URL class loader.
    * @param blockedClasses
    *          Classes and packages to hide. See
    *          {@link #BlockingClassLoader(URLClassLoader, List)} for wild card
    *          rules.
    * @param classPathEntries
    *          URLs from which alternative implementations can be loaded. They
-   *          are prefixed to the current classloader's standard classpath.
-   * @return The classloader.
+   *          are prefixed to the parent classloader's classpath.
+   * @return The class loader.
    */
-  public static URLClassLoader createClassLoader(List<String> blockedClasses,
-                                                 List<URL> classPathEntries) {
-
-    final URLClassLoader ourClassLoader =
-      (URLClassLoader)BlockingClassLoader.class.getClassLoader();
+  public static URLClassLoader isolatingLoader(URLClassLoader parent,
+                                               List<String> blockedClasses,
+                                               List<URL> classPathEntries) {
 
     final BlockingClassLoader blockingClassLoader =
-      new BlockingClassLoader(ourClassLoader, blockedClasses);
+      new BlockingClassLoader(parent, blockedClasses, true);
 
-    final List<URL> ourClassPath = Arrays.asList(ourClassLoader.getURLs());
-    final List<URL> classPath = new ArrayList<URL>(classPathEntries.size() +
-                                                   ourClassPath.size());
+    final List<URL> classPath = new ArrayList<URL>();
 
     classPath.addAll(classPathEntries);
-    classPath.addAll(ourClassPath);
+    classPath.addAll(asList(parent.getURLs()));
 
     return new URLClassLoader(classPath.toArray(new URL[0]),
                               blockingClassLoader);
+  }
+
+  /**
+   * Version of {@link #isolatingLoader(URLClassLoader, List, List)} that
+   * provides no additional implementation class path. It will load isolated
+   * instances of the blocked classes, but share their implementations with the
+   * parent class loader.
+   *
+   * @param parent
+   *          Parent URL class loader.
+   * @param blockedClasses
+   *          Classes and packages to hide. See
+   *          {@link #BlockingClassLoader(URLClassLoader, List)} for wild card
+   *          rules.
+   * @return The class loader.
+   */
+
+  public static URLClassLoader isolatingLoader(URLClassLoader parent,
+                                               List<String> blockedClasses) {
+    return isolatingLoader(parent,
+                                blockedClasses,
+                                Collections.<URL>emptyList());
   }
 
   private final List<String> m_blockedClassNames = new ArrayList<String>();
@@ -94,8 +114,8 @@ public class BlockingClassLoader extends URLClassLoader {
    *
    * @param parent
    *          Parent classloader. We use its class path to load our classes.
-   * @param blocked
-   *          Array of fully qualified class names, or fully qualified prefixes
+   * @param blockedList
+   *          List of fully qualified class names, or fully qualified prefixes
    *          ending in "*", that identify the packages or classes to block. A
    *          leading "+" can be added to a class name or package prefix to
    *          indicate that it is allowed, overriding blocking rules.
@@ -105,9 +125,15 @@ public class BlockingClassLoader extends URLClassLoader {
    *          separators as necessary. Any wild card package names also filter
    *          resources; the '.' separators are translated internally to '/'s.
    *          </p>
+   * @param blockParentOnly
+   *          Only block classes from the parent class loader.
    */
-  public BlockingClassLoader(URLClassLoader parent, List<String> blockedList) {
+  public BlockingClassLoader(URLClassLoader parent,
+                             List<String> blockedList,
+                             boolean blockParentOnly) {
     super(parent.getURLs(), parent);
+
+    m_blockParentOnly = blockParentOnly;
 
     final List<String> allowedPrefixes = new ArrayList<String>();
     final List<String> blockedPrefixes = new ArrayList<String>();
@@ -155,7 +181,7 @@ public class BlockingClassLoader extends URLClassLoader {
     }
 
     if (allowed) {
-//      System.err.println("Allowing " + name);
+      System.err.println(this + " allowing " + name);
       return false;
     }
     else {
@@ -168,7 +194,7 @@ public class BlockingClassLoader extends URLClassLoader {
       }
 
       if (blocked) {
-//        System.err.println("Blocking " + name);
+        System.err.println(this + " blocking " + name);
         return true;
       }
     }
@@ -183,6 +209,16 @@ public class BlockingClassLoader extends URLClassLoader {
    */
   @Override protected Class<?> loadClass(String name, boolean resolve)
     throws ClassNotFoundException  {
+
+    if (m_blockParentOnly) {
+      try {
+        // We always have a grandparent classloader.
+        return Class.forName(name, resolve, getParent().getParent());
+      }
+      catch (ClassNotFoundException e) {
+        // Grandparent knows nothing.
+      }
+    }
 
     synchronized (this) {
       if (isBlocked(name, false)) {
@@ -201,6 +237,12 @@ public class BlockingClassLoader extends URLClassLoader {
   @Override public URL getResource(String name) {
 
     if (isBlocked(name, true)) {
+
+      if (m_blockParentOnly) {
+        // We always have a grandparent classloader.
+        return getParent().getParent().getResource(name);
+      }
+
       return null;
     }
 
@@ -216,6 +258,12 @@ public class BlockingClassLoader extends URLClassLoader {
   public Enumeration<URL> getResources(String name) throws IOException {
 
     if (isBlocked(name, true)) {
+
+      if (m_blockParentOnly) {
+        // We always have a grandparent classloader.
+        return getParent().getParent().getResources(name);
+      }
+
       final Set<URL> empty = emptySet();
       return enumeration(empty);
     }

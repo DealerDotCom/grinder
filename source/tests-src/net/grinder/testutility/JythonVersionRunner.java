@@ -22,9 +22,11 @@
 package net.grinder.testutility;
 
 import static java.util.Arrays.asList;
+import static net.grinder.util.BlockingClassLoader.isolatingLoader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -89,8 +91,10 @@ public abstract class JythonVersionRunner extends Suite {
         new URL("file://" + pythonHome + "/jython.jar");
 
       final ClassLoader loader =
-        BlockingClassLoader.createClassLoader(GRINDER_AND_PYTHON_CLASSES,
-                                              Arrays.asList(jythonJarURL));
+        isolatingLoader(
+          (URLClassLoader) JythonVersionRunner.class.getClassLoader(),
+          GRINDER_AND_PYTHON_CLASSES,
+          Arrays.asList(jythonJarURL));
 
       final Class<?> isolatedClass = loader.loadClass(testClass.getName());
 
