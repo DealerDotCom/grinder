@@ -24,7 +24,10 @@
 
 package net.grinder.engine.process;
 
+import static net.grinder.util.ClassLoaderUtilities.allResourceLines;
+
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -34,7 +37,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -122,9 +124,6 @@ final class GrinderProcess {
   private final ListenerSupport<ProcessLifeCycleListener>
     m_processLifeCycleListeners =
       new ListenerSupport<ProcessLifeCycleListener>();
-
-  private final ServiceLoader<ScriptEngineService> m_scriptEngineServices =
-    ServiceLoader.load(ScriptEngineService.class);
 
   // Guarded by m_eventSynchronisation.
   private ThreadStarter m_threadStarter = m_invalidThreadStarter;
@@ -295,6 +294,23 @@ final class GrinderProcess {
   public void run() throws GrinderException {
     final Logger logger = m_loggerImplementation.getProcessLogger();
 
+    final List<String> scriptEngineComponents;
+
+    try {
+      scriptEngineComponents = allResourceLines(
+        getClass().getClassLoader(),
+        "META-INF/services/net.grinder.scriptengine.ScriptEngineService");
+    }
+    catch (IOException e) {
+      throw new EngineException("Failed to load script engine", e);
+    }
+
+    System.err.println(scriptEngineComponents);
+
+    final ScriptEngineContainer scriptEngineContainer =
+      new ScriptEngineContainer(logger,
+                                scriptEngineComponents);
+
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
 
@@ -304,7 +320,8 @@ final class GrinderProcess {
     // monitor. This clashes with the message pump which starts a thread to
     // call StreamRecevier.waitForMessage(), and so also synchronises on that
     // monitor. See bug 2936167.
-    getScriptEngine(new ScriptLocation(new File("blah.py")));
+    getScriptEngine(scriptEngineContainer,
+                    new ScriptLocation(new File("blah.py")));
 
     m_messagePump.start();
 
@@ -337,7 +354,7 @@ final class GrinderProcess {
 
     final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
 
-    for (ScriptEngineService service : m_scriptEngineServices) {
+    for (ScriptEngineService service : scriptEngineContainer.getServices()) {
       final Instrumenter instrumenter =
         service.createInstrumenter(properties, dcrContext);
 
@@ -353,7 +370,8 @@ final class GrinderProcess {
     logger.output("instrumentation agents: " + instrumenter.getDescription());
 
     final ScriptEngine scriptEngine =
-      getScriptEngine(m_initialisationMessage.getScript());
+      getScriptEngine(scriptEngineContainer,
+                      m_initialisationMessage.getScript());
 
     logger.output("executing \"" + m_initialisationMessage.getScript() +
                   "\" using " + scriptEngine.getDescription());
@@ -522,10 +540,11 @@ final class GrinderProcess {
     return m_loggerImplementation.getProcessLogger();
   }
 
-  private ScriptEngine getScriptEngine(ScriptLocation script)
+  private ScriptEngine getScriptEngine(ScriptEngineContainer container,
+                                       ScriptLocation script)
     throws EngineException {
 
-    for (ScriptEngineService service : m_scriptEngineServices) {
+    for (ScriptEngineService service : container.getServices()) {
       final ScriptEngine engine = service.getScriptEngine(script);
 
       if (engine != null) {
