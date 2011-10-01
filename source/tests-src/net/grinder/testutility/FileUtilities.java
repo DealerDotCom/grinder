@@ -30,9 +30,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import net.grinder.common.GrinderException;
@@ -155,5 +158,23 @@ public class FileUtilities {
       .copy(new FileInputStream(file), byteOutputStream);
 
     return new String(byteOutputStream.toByteArray());
+  }
+
+  public static void createFile(File file, List<String> lines)
+    throws IOException {
+
+    file.getParentFile().mkdirs();
+    file.createNewFile();
+
+    final PrintWriter out = new PrintWriter(new FileWriter(file));
+
+    try {
+      for (String line : lines) {
+        out.println(line);
+      }
+    }
+    finally {
+      out.close();
+    }
   }
 }
