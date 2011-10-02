@@ -21,7 +21,13 @@
 
 package net.grinder.scriptengine.jython;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+
 import java.io.File;
+import java.util.List;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
@@ -29,8 +35,6 @@ import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.scriptengine.DCRContext;
 import net.grinder.scriptengine.Instrumenter;
-import net.grinder.scriptengine.jython.JythonScriptEngine;
-import net.grinder.scriptengine.jython.JythonScriptEngineService;
 
 import org.junit.Test;
 import org.python.core.PyObject;
@@ -42,7 +46,7 @@ import org.python.core.PyObject;
  * @author Philip Aston
  */
 public class TestJythonScriptEngineService
-  extends AbstractJythonScriptEngineTests {
+  extends AbstractJythonScriptEngineServiceTests {
 
   @Test public void testInitialisationWithCollocatedGrinderAndJythonJars()
     throws Exception {
@@ -60,7 +64,7 @@ public class TestJythonScriptEngineService
                        jythonJar.getAbsolutePath());
 
     try {
-      new JythonScriptEngineService().getScriptEngine(m_pyScript);
+      m_jythonScriptEngineService.createScriptEngine(m_pyScript);
 
       assertNotNull(System.getProperty("python.cachedir"));
       System.clearProperty("python.cachedir");
@@ -74,8 +78,12 @@ public class TestJythonScriptEngineService
     final GrinderProperties properties = new GrinderProperties();
     final DCRContext context = DCRContextImplementation.create(null);
 
-    final Instrumenter instrumenter =
-      new JythonScriptEngineService().createInstrumenter(properties, context);
+    final List<Instrumenter> instrumenters =
+      new JythonScriptEngineService(properties, context).createInstrumenters();
+
+    assertEquals(1, instrumenters.size());
+
+    final Instrumenter instrumenter = instrumenters.get(0);
 
     assertEquals("traditional Jython instrumenter",
                  instrumenter.getDescription());
@@ -102,8 +110,12 @@ public class TestJythonScriptEngineService
     final GrinderProperties properties = new GrinderProperties();
     final DCRContextImplementation context = DCRContextImplementation.create(null);
 
-    final Instrumenter instrumenter =
-      new JythonScriptEngineService().createInstrumenter(properties, context);
+    final List<Instrumenter> instrumenters =
+      new JythonScriptEngineService(properties, context).createInstrumenters();
+
+    assertEquals(1, instrumenters.size());
+
+    final Instrumenter instrumenter = instrumenters.get(0);
 
     final Object foo = new Object();
 
@@ -122,8 +134,12 @@ public class TestJythonScriptEngineService
 
     final DCRContextImplementation context = DCRContextImplementation.create(null);
 
-    final Instrumenter instrumenter =
-      new JythonScriptEngineService().createInstrumenter(properties, context);
+    final List<Instrumenter> instrumenters =
+      new JythonScriptEngineService(properties, context).createInstrumenters();
+
+    assertEquals(1, instrumenters.size());
+
+    final Instrumenter instrumenter = instrumenters.get(0);
 
     assertEquals("byte code transforming instrumenter for Jython 2.1/2.2",
                  instrumenter.getDescription());
@@ -133,9 +149,9 @@ public class TestJythonScriptEngineService
     final GrinderProperties properties = new GrinderProperties();
     properties.setBoolean("grinder.dcrinstrumentation", true);
 
-    final Instrumenter instrumenter =
-      new JythonScriptEngineService().createInstrumenter(properties, null);
+    final List<Instrumenter> instrumenters =
+      new JythonScriptEngineService(properties).createInstrumenters();
 
-    assertEquals("", instrumenter.getDescription());
+    assertEquals(0, instrumenters.size());
   }
 }

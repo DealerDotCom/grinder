@@ -28,7 +28,9 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -41,6 +43,16 @@ public class ClassLoaderUtilities {
   /**
    * Find all the resources with the given path, load them, and return their
    * contents as a list of Strings.
+   *
+   * <p>Property file style comments can be added using "#".</p>
+   *
+   * <p>Lines are processed as follows:
+   * <ul>
+   * <li>Comments are removed from each line.</li>
+   * <li>Leading and trailing white space is removed from each line.</li>
+   * <li>Blank lines are discarded.</li>
+   * </ul>
+   * </p>
    *
    * @param classLoader
    *          Starting class loader to search. The parent class loaders will be
@@ -60,23 +72,41 @@ public class ClassLoaderUtilities {
 
     final Enumeration<URL> resources = classLoader.getResources(resourceName);
 
-    while (resources.hasMoreElements()) {
-      final URL nextElement = resources.nextElement();
+    final Set<URL> seenURLs = new HashSet<URL>();
 
-      final InputStream in = nextElement.openStream();
+    while (resources.hasMoreElements()) {
+      final URL url = resources.nextElement();
+
+      if (seenURLs.contains(url)) {
+        continue;
+      }
+
+      seenURLs.add(url);
+
+      final InputStream in = url.openStream();
 
       try {
         final BufferedReader reader =
           new BufferedReader(new InputStreamReader(in, "utf-8"));
 
         while (true) {
-          final String line = reader.readLine();
+          String line = reader.readLine();
 
           if (line == null) {
             break;
           }
 
-          result.add(line);
+          final int comment = line.indexOf('#');
+
+          if (comment >= 0) {
+            line = line.substring(0, comment);
+          }
+
+          line = line.trim();
+
+          if (line.length() > 0) {
+            result.add(line);
+          }
         }
 
         reader.close();
@@ -88,5 +118,4 @@ public class ClassLoaderUtilities {
 
     return result;
   }
-
 }

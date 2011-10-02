@@ -30,7 +30,7 @@ import java.util.List;
 
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.scriptengine.DCRContext;
-import net.grinder.scriptengine.DCRInstrumenter;
+import net.grinder.scriptengine.AbstractDCRInstrumenter;
 import net.grinder.scriptengine.Recorder;
 import net.grinder.util.weave.Weaver.TargetSource;
 
@@ -49,7 +49,7 @@ import org.python.core.PyReflectedFunction;
  *
  * @author Philip Aston
  */
-abstract class AbstractJythonDCRInstrumenter extends DCRInstrumenter {
+abstract class AbstractJythonDCRInstrumenter extends AbstractDCRInstrumenter {
 
   /**
    * Constructor.

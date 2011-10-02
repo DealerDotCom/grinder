@@ -1,0 +1,6 @@
+# Script engine implementations.
+#
+# The order of lines is important; see net.grinder.scriptengine.ScriptEngine.
+
+net.grinder.scriptengine.jython.JythonScriptEngineService
+net.grinder.scriptengine.java.JavaScriptEngineService

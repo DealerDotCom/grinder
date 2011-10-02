@@ -22,6 +22,8 @@
 
 package net.grinder.scriptengine.jython;
 
+import java.io.File;
+
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.ScriptEngineService;
@@ -45,6 +47,11 @@ import org.python.util.PythonInterpreter;
  * @author Philip Aston
  */
 final class JythonScriptEngine implements ScriptEngine {
+
+  private static final String PYTHON_HOME = "python.home";
+  private static final String PYTHON_CACHEDIR = "python.cachedir";
+  private static final String CACHEDIR_DEFAULT_NAME = "cachedir";
+
   private static final String TEST_RUNNER_CALLABLE_NAME = "TestRunner";
 
   private final PySystemState m_systemState;
@@ -60,10 +67,32 @@ final class JythonScriptEngine implements ScriptEngine {
    *
    * @throws EngineException If the script engine could not be created.
    */
-  public JythonScriptEngine(PySystemState pySystemState)
-    throws EngineException {
+  public JythonScriptEngine(ScriptLocation script) throws EngineException {
 
-    m_systemState = pySystemState;
+    // Work around Jython issue 1894900.
+    // If the python.cachedir has not been specified, and Jython is loaded
+    // via the manifest classpath or the jar in the lib directory is
+    // explicitly mentioned in the CLASSPATH, then set the cache directory to
+    // be alongside jython.jar.
+    if (System.getProperty(PYTHON_HOME) == null &&
+        System.getProperty(PYTHON_CACHEDIR) == null) {
+      final String classpath = System.getProperty("java.class.path");
+
+      final File grinderJar = findFileInPath(classpath, "grinder.jar");
+      final File grinderJarDirectory =
+        grinderJar != null ? grinderJar.getParentFile() : new File(".");
+
+      final File jythonJar = findFileInPath(classpath, "jython.jar");
+      final File jythonHome =
+        jythonJar != null ? jythonJar.getParentFile() : grinderJarDirectory;
+
+      if (grinderJarDirectory.equals(jythonHome)) {
+        final File cacheDir = new File(jythonHome, CACHEDIR_DEFAULT_NAME);
+        System.setProperty("python.cachedir", cacheDir.getAbsolutePath());
+      }
+    }
+
+    m_systemState = new PySystemState();
     m_interpreter = new PythonInterpreter(null, m_systemState);
 
     m_interpreter.exec("class ___DieQuietly___: pass");
@@ -79,12 +108,6 @@ final class JythonScriptEngine implements ScriptEngine {
     }
 
     m_version = version;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void initialise(ScriptLocation script) throws EngineException {
 
     m_systemState.path.insert(0,
       new PyString(script.getDirectory().getFile().getPath()));
@@ -105,6 +128,25 @@ final class JythonScriptEngine implements ScriptEngine {
         "There is no callable (class or function) named '" +
         TEST_RUNNER_CALLABLE_NAME + "' in " + script);
     }
+  }
+
+  /**
+   * Find a file, given a search path.
+   *
+   * @param path The path to search.
+   * @param fileName Name of the jar file to find.
+   */
+  private static File findFileInPath(String path, String fileName) {
+
+    for (String pathEntry : path.split(File.pathSeparator)) {
+      final File file = new File(pathEntry);
+
+     if (file.exists() && file.getName().equals(fileName)) {
+        return file;
+      }
+    }
+
+    return null;
   }
 
   /**

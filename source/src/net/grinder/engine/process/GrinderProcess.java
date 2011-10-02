@@ -24,18 +24,12 @@
 
 package net.grinder.engine.process;
 
-import static net.grinder.util.ClassLoaderUtilities.allResourceLines;
-
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -59,7 +53,6 @@ import net.grinder.communication.QueuedSenderDecorator;
 import net.grinder.communication.Receiver;
 import net.grinder.engine.common.ConnectorFactory;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
@@ -72,7 +65,6 @@ import net.grinder.script.InternalScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.scriptengine.Instrumenter;
-import net.grinder.scriptengine.ScriptEngineService;
 import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServices;
@@ -294,36 +286,16 @@ final class GrinderProcess {
   public void run() throws GrinderException {
     final Logger logger = m_loggerImplementation.getProcessLogger();
 
-    final List<String> scriptEngineComponents;
-
-    try {
-      scriptEngineComponents = allResourceLines(
-        getClass().getClassLoader(),
-        "META-INF/services/net.grinder.scriptengine.ScriptEngineService");
-    }
-    catch (IOException e) {
-      throw new EngineException("Failed to load script engine", e);
-    }
-
-    System.err.println(scriptEngineComponents);
+    final GrinderProperties properties =
+      m_initialisationMessage.getProperties();
 
     final ScriptEngineContainer scriptEngineContainer =
-      new ScriptEngineContainer(logger,
-                                scriptEngineComponents);
+      new ScriptEngineContainer(properties,
+                                logger,
+                                DCRContextImplementation.create(logger));
 
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
-
-    // Force initialisation of the Jython script engine before we start the
-    // message pump. Jython 2.5+ tests to see whether the stdin stream is a tty,
-    // and on some versions of Windows, this synchronises on the stream object's
-    // monitor. This clashes with the message pump which starts a thread to
-    // call StreamRecevier.waitForMessage(), and so also synchronises on that
-    // monitor. See bug 2936167.
-    getScriptEngine(scriptEngineContainer,
-                    new ScriptLocation(new File("blah.py")));
-
-    m_messagePump.start();
 
     final WorkerIdentity workerIdentity =
       m_initialisationMessage.getWorkerIdentity();
@@ -341,42 +313,34 @@ final class GrinderProcess {
 
     logger.output(numbers.toString());
 
-    final GrinderProperties properties =
-      m_initialisationMessage.getProperties();
     final short numberOfThreads =
       properties.getShort("grinder.threads", (short)1);
     final int reportToConsoleInterval =
       properties.getInt("grinder.reportToConsole.interval", 500);
     final int duration = properties.getInt("grinder.duration", 0);
 
-    final DCRContextImplementation dcrContext =
-      DCRContextImplementation.create(logger);
-
-    final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
-
-    for (ScriptEngineService service : scriptEngineContainer.getServices()) {
-      final Instrumenter instrumenter =
-        service.createInstrumenter(properties, dcrContext);
-
-      if (instrumenter != null) {
-        instrumenters.add(instrumenter);
-      }
-    }
-
-    final Instrumenter instrumenter = new MasterInstrumenter(instrumenters);
+    final Instrumenter instrumenter =
+      scriptEngineContainer.createInstrumenter();
 
     m_testRegistryImplementation.setInstrumenter(instrumenter);
 
     logger.output("instrumentation agents: " + instrumenter.getDescription());
 
-    final ScriptEngine scriptEngine =
-      getScriptEngine(scriptEngineContainer,
-                      m_initialisationMessage.getScript());
+    // Force initialisation of the script engine before we start the message
+    // pump. Jython 2.5+ tests to see whether the stdin stream is a tty, and
+    // on some versions of Windows, this synchronises on the stream object's
+    // monitor. This clashes with the message pump which starts a thread to
+    // call StreamRecevier.waitForMessage(), and so also synchronises on that
+    // monitor. See bug 2936167.
 
-    logger.output("executing \"" + m_initialisationMessage.getScript() +
+    final ScriptEngine scriptEngine =
+      scriptEngineContainer.getScriptEngine(
+        m_initialisationMessage.getScript());
+
+    logger.output("running \"" + m_initialisationMessage.getScript() +
                   "\" using " + scriptEngine.getDescription());
 
-    scriptEngine.initialise(m_initialisationMessage.getScript());
+    m_messagePump.start();
 
     // Don't initialise the data writer until now as the script may
     // declare new statistics.
@@ -538,22 +502,6 @@ final class GrinderProcess {
 
   public Logger getLogger() {
     return m_loggerImplementation.getProcessLogger();
-  }
-
-  private ScriptEngine getScriptEngine(ScriptEngineContainer container,
-                                       ScriptLocation script)
-    throws EngineException {
-
-    for (ScriptEngineService service : container.getServices()) {
-      final ScriptEngine engine = service.getScriptEngine(script);
-
-      if (engine != null) {
-        return engine;
-      }
-    }
-
-    throw new EngineException("No suitable script engine installed for " +
-                              script);
   }
 
   private class ReportToConsoleTimerTask extends TimerTask {

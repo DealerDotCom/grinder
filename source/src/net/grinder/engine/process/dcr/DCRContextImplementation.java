@@ -38,7 +38,7 @@ import net.grinder.util.weave.j2se6.DCRWeaver;
 
 /**
  * Wrap up the DCR context for use by
- * {@link net.grinder.scriptengine.DCRInstrumenter}
+ * {@link net.grinder.scriptengine.AbstractDCRInstrumenter}
  * implementations.
  *
  * @author Philip Aston

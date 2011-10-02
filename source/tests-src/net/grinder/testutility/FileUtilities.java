@@ -22,6 +22,7 @@
 
 package net.grinder.testutility;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
@@ -176,5 +177,9 @@ public class FileUtilities {
     finally {
       out.close();
     }
+  }
+
+  public static void createFile(File file, String... lines) throws IOException {
+    createFile(file, asList(lines));
   }
 }

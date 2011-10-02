@@ -1,11 +1,14 @@
 package net.grinder.scriptengine.java;
 
-import net.grinder.common.GrinderProperties;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+
+import java.util.List;
+
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.DCRContext;
 import net.grinder.scriptengine.Instrumenter;
-import net.grinder.scriptengine.NullInstrumenter;
 import net.grinder.scriptengine.ScriptEngineService;
 
 
@@ -16,24 +19,41 @@ import net.grinder.scriptengine.ScriptEngineService;
  */
 public final class JavaScriptEngineService implements ScriptEngineService {
 
+  private final DCRContext m_dcrContext;
+
   /**
-   * {@inheritDoc}
+   * Constructor.
+   *
+   * @param dcrContext DCR context.
    */
-  public Instrumenter createInstrumenter(GrinderProperties properties,
-                                         DCRContext dcrContext)
-    throws EngineException {
+  public JavaScriptEngineService(DCRContext dcrContext) {
+    m_dcrContext = dcrContext;
+  }
 
-    if (dcrContext != null) {
-      return new JavaDCRInstrumenter(dcrContext);
-    }
-
-    return new NullInstrumenter();
+  /**
+   * Constructor used when DCR is unavailable.
+   */
+  public JavaScriptEngineService() {
+    this(null);
   }
 
   /**
    * {@inheritDoc}
    */
-  public ScriptEngine getScriptEngine(ScriptLocation script)
+  public List<? extends Instrumenter> createInstrumenters()
+    throws EngineException {
+
+    if (m_dcrContext != null) {
+      return asList(new JavaDCRInstrumenter(m_dcrContext));
+    }
+
+    return emptyList();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public ScriptEngine createScriptEngine(ScriptLocation script)
     throws EngineException {
     return null;
   }

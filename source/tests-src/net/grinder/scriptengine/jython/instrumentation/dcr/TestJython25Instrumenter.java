@@ -22,10 +22,14 @@
 package net.grinder.scriptengine.jython.instrumentation.dcr;
 
 import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.scriptengine.CompositeInstrumenter;
+import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.java.JavaScriptEngineService;
-import net.grinder.scriptengine.jython.instrumentation.dcr.Jython25Instrumenter;
 import net.grinder.testutility.Jython25Runner;
 import net.grinder.testutility.RandomStubFactory;
 
@@ -44,13 +48,21 @@ import org.python.core.PyProxy;
 public class TestJython25Instrumenter
   extends AbstractJythonDCRInstrumenterTestCase {
 
-  private static final DCRContextImplementation s_context =
-    DCRContextImplementation.create(null);
+  private static Instrumenter createInstrumenter() throws Exception {
+    final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
+
+    instrumenters.add(
+      new Jython25Instrumenter(DCRContextImplementation.create(null)));
+
+    instrumenters.addAll(
+      new JavaScriptEngineService(DCRContextImplementation.create(null))
+      .createInstrumenters());
+
+    return new CompositeInstrumenter(instrumenters);
+  }
 
   public TestJython25Instrumenter() throws Exception {
-    super(new CompositeInstrumenter(
-            new Jython25Instrumenter(s_context),
-            new JavaScriptEngineService().createInstrumenter(null, s_context)));
+    super(createInstrumenter());
   }
 
   @Test public void testVersion() throws Exception {

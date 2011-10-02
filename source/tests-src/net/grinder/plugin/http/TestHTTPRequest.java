@@ -1143,8 +1143,8 @@ public class TestHTTPRequest extends TestCase {
     final HTTPRequest request = new HTTPRequest();
 
     final Instrumenter instrumenter =
-      new JavaScriptEngineService().createInstrumenter(null,
-                                                       DCRContextImplementation.create(null));
+      new JavaScriptEngineService(DCRContextImplementation.create(null))
+      .createInstrumenters().get(0);
 
     final RandomStubFactory<Recorder> recorderStubFactory =
       RandomStubFactory.create(Recorder.class);

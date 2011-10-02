@@ -21,8 +21,13 @@
 
 package net.grinder.scriptengine.jython.instrumentation.dcr;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.scriptengine.CompositeInstrumenter;
+import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.java.JavaScriptEngineService;
 import net.grinder.scriptengine.jython.instrumentation.dcr.Jython22Instrumenter;
 
@@ -35,12 +40,20 @@ import net.grinder.scriptengine.jython.instrumentation.dcr.Jython22Instrumenter;
 public class TestJython22Instrumenter
   extends AbstractJythonDCRInstrumenterTestCase {
 
-  private static final DCRContextImplementation s_context =
-    DCRContextImplementation.create(null);
+  private static Instrumenter createInstrumenter() throws EngineException {
+    final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
+
+    instrumenters.add(
+      new Jython22Instrumenter(DCRContextImplementation.create(null)));
+
+    instrumenters.addAll(
+      new JavaScriptEngineService(DCRContextImplementation.create(null))
+      .createInstrumenters());
+
+    return new CompositeInstrumenter(instrumenters);
+  }
 
   public TestJython22Instrumenter() throws Exception {
-    super(new CompositeInstrumenter(
-            new Jython22Instrumenter(s_context),
-            new JavaScriptEngineService().createInstrumenter(null, s_context)));
+    super(createInstrumenter());
   }
 }

@@ -27,7 +27,7 @@ import java.lang.reflect.Modifier;
 
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.scriptengine.DCRContext;
-import net.grinder.scriptengine.DCRInstrumenter;
+import net.grinder.scriptengine.AbstractDCRInstrumenter;
 import net.grinder.scriptengine.Recorder;
 import net.grinder.util.weave.Weaver.TargetSource;
 
@@ -37,7 +37,7 @@ import net.grinder.util.weave.Weaver.TargetSource;
  *
  * @author Philip Aston
  */
-final class JavaDCRInstrumenter extends DCRInstrumenter {
+final class JavaDCRInstrumenter extends AbstractDCRInstrumenter {
 
   /**
    * Constructor.

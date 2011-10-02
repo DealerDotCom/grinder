@@ -21,57 +21,64 @@
 
 package net.grinder.scriptengine;
 
-import net.grinder.common.GrinderProperties;
+import java.util.List;
+
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 
-
 /**
- * Service interface that script engine implementations should implement and
- * register using the {@link ServiceLocator Java service mechanism}.
+ * Service interface that script engines should implement.
  *
  * <p>
- * Script engines will be {@link ScriptEngine#initialise initialised) once and
- * cached.</p>
+ * The Grinder discovers script engine implementations from the {@code
+ * META-INF/net.grinder.scriptengines} resource files. Each engine should
+ * register its class name as a line in such a resource file. The order of the
+ * search engines is important, since it determines priority. The engines are
+ * ordered first by the class path search order used to load the resource files,
+ * and then the order of lines in the resource files. Earlier engines have
+ * higher priority.
+ * </p>
+ *
+ * <p>
+ * Each script engine is injected with framework services using PicoContainer.
+ * The use of PicoContainer should be transparent; implementations simply need
+ * to declare the services they require as constructor parameters.
+ * </p>
+ *
+ * <p>
+ * Available services include:
+ * </p>
+ *
+ * <ul>
+ * <li><code>net.grinder.common.Logger</code></li>
+ * <li><code>net.grinder.common.GrinderProperties</code></li>
+ * <li><code>net.grinder.script.ScriptContext</code></li>
+ * <li><code>net.grinder.scriptengine.DCRContext</code></li>
+ * </ul>
+ *
+ * <p>
+ * A {@code DCRContext} will be provided only if DCR is available. Engines that
+ * use DCR should have two constructors, one of them requiring a {@code
+ * DCRContext}, and one of them not. The latter constructor will be used if DCR
+ * is unavailable.
+ * </p>
  *
  * @author Philip Aston
  */
 public interface ScriptEngineService {
 
   /**
-   * Initialises script engine instrumentation.
-   *
-   * <p>
-   * Each script engine can provide instrumenters, irrespective of the engine
-   * used to execute the script. Multiple instrumenters can be returned using
-   * {@link net.grinder.scriptengine.CompositeInstrumenter}. The
-   * instrumenters provided by each engine are consulted according to service
-   * registration order in the META-INF file.
-   * </p>
-   *
-   * @param properties
-   *          Properties.
-   * @param dcrContext
-   *          DCR context; {@code null} if DCR is unavailable.
-   * @return The instrumenter to use. Engines that do not provide
-   *         instrumentation should return a
-   *         {@link net.grinder.scriptengine.NullInstrumenter}.
-   * @throws EngineException
-   *           If process initialisation failed.
+   * All resources with this name are loaded to discover implementations.
    */
-  Instrumenter createInstrumenter(GrinderProperties properties,
-                                  DCRContext dcrContext)
-     throws EngineException;
+  String RESOURCE_NAME = "META-INF/net.grinder.scriptengine";
 
   /**
    * If the script engine service can handle the given script, it should return
    * a suitable implementation.
    *
    * <p>
-   * This method should check it can process the script as cheaply as possible
-   * (typically based on the file extension name, or by parsing the first few
-   * lines of the script). Execution of the script should be deferred until
-   * {@link ScriptEngine#initialise} is called.
+   * Implementations typically will execute the script and perform any
+   * process level initialisation.
    * </p>
    *
    * @param script
@@ -80,7 +87,23 @@ public interface ScriptEngineService {
    * @throws EngineException
    *           If an implementation could not be created.
    */
-  ScriptEngine getScriptEngine(ScriptLocation script) throws EngineException;
+  ScriptEngine createScriptEngine(ScriptLocation script) throws EngineException;
+
+  /**
+   * Initialises script engine instrumentation.
+   *
+   * <p>
+   * Each script engine can provide instrumenters, irrespective of the engine
+   * used to execute the script. The instrumenters provided by each engine are
+   * consulted according to service registration order in the META-INF file.
+   * </p>
+   *
+   * @return Additional instrumenters to use. Engines that do not provide
+   *         instrumentation should return an empty list.
+   * @throws EngineException
+   *           If a problem occurred creating instrumenters.
+   */
+  List<? extends Instrumenter> createInstrumenters() throws EngineException;
 
   /**
    * Handler for a particular type of script.
@@ -88,22 +111,10 @@ public interface ScriptEngineService {
   interface ScriptEngine {
 
     /**
-     * Run any process initialisation required by the script. Called once
-     * per ScriptEngine instance, before any of the other methods.
-     *
-     * @param script The script.
-     * @param properties Properties.
-     * @param logger Logger.
-     * @throws EngineException If process initialisation failed.
-     */
-    void initialise(ScriptLocation script) throws EngineException;
-
-    /**
      * Create a {@link WorkerRunnable} that will be used to run the work
      * for one worker thread. The {@link WorkerRunnable} will forward to
-     * a new instance of the script's <code>TestRunner</code> class.
+     * a new instance of the script's {@code TestRunner} class.
      *
-     * of the script's <code>TestRunner</code> class should be used.
      * @return The runnable.
      * @throws EngineException If the runnable could not be created.
      */
@@ -112,7 +123,7 @@ public interface ScriptEngineService {
     /**
      * Create a {@link WorkerRunnable} that will be used to run the work
      * for one worker thread. The {@link WorkerRunnable} will forward to
-     * a the supplied <code>testRunner</code>.
+     * a the supplied {@code TestRunner}.
      *
      * @param testRunner An existing script instance that is callable.
      * @return The runnable.

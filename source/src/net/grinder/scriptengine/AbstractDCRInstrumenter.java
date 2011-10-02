@@ -32,16 +32,16 @@ import net.grinder.util.weave.WeavingException;
  *
  * @author Philip Aston
  */
-public abstract class DCRInstrumenter implements Instrumenter {
+public abstract class AbstractDCRInstrumenter implements Instrumenter {
 
   private final DCRContext m_context;
 
   /**
-   * Constructor for DCRInstrumenter.
+   * Constructor for AbstractDCRInstrumenter.
    *
    * @param context The DCR context.
    */
-  protected DCRInstrumenter(DCRContext context) {
+  protected AbstractDCRInstrumenter(DCRContext context) {
     m_context = context;
   }
 

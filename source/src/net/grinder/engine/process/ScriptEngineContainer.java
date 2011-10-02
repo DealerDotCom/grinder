@@ -21,11 +21,20 @@
 
 package net.grinder.engine.process;
 
+import static net.grinder.util.ClassLoaderUtilities.allResourceLines;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
+import net.grinder.scriptengine.DCRContext;
+import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.ScriptEngineService;
+import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
 
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
@@ -37,20 +46,45 @@ import org.picocontainer.behaviors.Caching;
  *
  * @author Philip Aston
  */
-class ScriptEngineContainer {
+final class ScriptEngineContainer {
 
   private final MutablePicoContainer m_container =
     new DefaultPicoContainer(new Caching());
 
-  public ScriptEngineContainer(Logger logger,
-                               List<String> implementationNames)
+  public ScriptEngineContainer(GrinderProperties properties,
+                               Logger logger,
+                               DCRContext dcrContext)
     throws EngineException {
 
+    m_container.addComponent(properties);
     m_container.addComponent(logger);
+    if (dcrContext != null) {
+      m_container.addComponent(dcrContext);
+    }
+
+    final List<String> implementationNames;
+
+    try {
+      implementationNames =
+        allResourceLines(getClass().getClassLoader(),
+                         ScriptEngineService.RESOURCE_NAME);
+    }
+    catch (IOException e) {
+      throw new EngineException("Failed to load script engine", e);
+    }
 
     for (String implementationName : implementationNames) {
       try {
-        m_container.addComponent(Class.forName(implementationName));
+        final Class<?> implementationClass = Class.forName(implementationName);
+
+        if (ScriptEngineService.class.isAssignableFrom(implementationClass)) {
+          m_container.addComponent(implementationClass);
+        }
+        else {
+          throw new EngineException(implementationName +
+                                    " does not implement " +
+                                    ScriptEngineService.class.getName());
+        }
       }
       catch (ClassNotFoundException e) {
         throw new EngineException("Could not load '" + implementationName + "'",
@@ -59,7 +93,35 @@ class ScriptEngineContainer {
     }
   }
 
-  public final List<ScriptEngineService> getServices() {
-    return m_container.getComponents(ScriptEngineService.class);
+  public ScriptEngine getScriptEngine(ScriptLocation script)
+    throws EngineException {
+
+    for (ScriptEngineService service :
+         m_container.getComponents(ScriptEngineService.class)) {
+
+      final ScriptEngine engine = service.createScriptEngine(script);
+
+      if (engine != null) {
+        return engine;
+      }
+    }
+
+    throw new EngineException("No suitable script engine installed for " +
+                              script);
+  }
+
+  public Instrumenter createInstrumenter() throws EngineException {
+
+    final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
+
+    for (ScriptEngineService service :
+         m_container.getComponents(ScriptEngineService.class)) {
+
+      for (Instrumenter instrumenter : service.createInstrumenters()) {
+        instrumenters.add(instrumenter);
+      }
+    }
+
+    return new MasterInstrumenter(instrumenters);
   }
 }

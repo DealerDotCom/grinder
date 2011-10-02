@@ -181,7 +181,7 @@ public class BlockingClassLoader extends URLClassLoader {
     }
 
     if (allowed) {
-      System.err.println(this + " allowing " + name);
+      // System.err.println(this + " allowing " + name);
       return false;
     }
     else {
@@ -194,7 +194,7 @@ public class BlockingClassLoader extends URLClassLoader {
       }
 
       if (blocked) {
-        System.err.println(this + " blocking " + name);
+        // System.err.println(this + " blocking " + name);
         return true;
       }
     }

@@ -21,46 +21,71 @@
 
 package net.grinder.scriptengine.jython;
 
+import static net.grinder.testutility.FileUtilities.createFile;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.io.File;
+import java.io.IOException;
+
+import net.grinder.common.GrinderProperties;
+import net.grinder.common.StubTest;
+import net.grinder.engine.common.ScriptLocation;
+import net.grinder.scriptengine.Recorder;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
+import net.grinder.util.Directory;
+import net.grinder.util.Directory.DirectoryException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import net.grinder.common.StubTest;
-import net.grinder.engine.common.ScriptLocation;
-import net.grinder.scriptengine.Recorder;
-import net.grinder.scriptengine.jython.JythonScriptEngineService;
-import net.grinder.testutility.AbstractFileTestCase;
 
-public abstract class AbstractJythonScriptEngineTests extends
-                                                     AbstractFileTestCase {
+/**
+ * Common tests for Jython script engine services.
+ *
+ * @author Philip Aston
+ */
+public abstract class AbstractJythonScriptEngineServiceTests
+  extends AbstractJUnit4FileTestCase {
 
-  protected final net.grinder.common.Test m_test = new StubTest(1, "foo");
-  protected final ScriptLocation m_pyScript = new ScriptLocation(new File("some.py"));
-  @Mock
-  protected Recorder m_recorder;
+  protected final net.grinder.common.Test m_test =
+    new StubTest(1, "foo");
 
-  public AbstractJythonScriptEngineTests() {
+  protected ScriptLocation m_pyScript;
+
+  protected JythonScriptEngineService m_jythonScriptEngineService =
+    new JythonScriptEngineService(new GrinderProperties());
+
+  @Mock protected Recorder m_recorder;
+
+  public AbstractJythonScriptEngineServiceTests() {
     super();
   }
 
   @Before
-  public void setUp() {
+  public void setUp() throws DirectoryException, IOException {
     MockitoAnnotations.initMocks(this);
+
+    m_pyScript =
+      new ScriptLocation(new Directory(getDirectory()), new File("some.py"));
+
+    createFile(m_pyScript.getFile(),
+               "class TestRunner: pass");
   }
 
   @Test
   public void testInitialisationWithEmptyClasspath() throws Exception {
     System.clearProperty("python.cachedir");
     final String originalClasspath = System.getProperty("java.class.path");
-  
+
     System.setProperty("java.class.path", "");
-  
+
     try {
-      new JythonScriptEngineService().getScriptEngine(m_pyScript);
-  
+      m_jythonScriptEngineService.createScriptEngine(m_pyScript);
+
       assertNotNull(System.getProperty("python.cachedir"));
       System.clearProperty("python.cachedir");
     }
@@ -70,37 +95,36 @@ public abstract class AbstractJythonScriptEngineTests extends
     }
   }
 
-  @Test
-  public void testInitialisationWithNonCollocatedGrinderAndJythonJars() throws Exception {
-  
+  @Test public void testInitialisationWithNonCollocatedGrinderAndJythonJars()
+    throws Exception {
+
     final String temporaryCacheDir = getDirectory().getPath();
-  
+
     System.setProperty("python.cachedir", temporaryCacheDir);
-  
-    new JythonScriptEngineService().getScriptEngine(m_pyScript);
-  
+
+    m_jythonScriptEngineService.createScriptEngine(m_pyScript);
+
     assertEquals(temporaryCacheDir, System.getProperty("python.cachedir"));
   }
 
-  @Test
-  public void testInitialisationWithCacheDir() throws Exception {
-  
+  @Test public void testInitialisationWithCacheDir() throws Exception {
+
     System.clearProperty("python.cachedir");
     final String originalClasspath = System.getProperty("java.class.path");
-  
+
     final File anotherDirectory = new File(getDirectory(), "foo");
     anotherDirectory.mkdirs();
     final File grinderJar = new File(anotherDirectory, "grinder.jar");
     grinderJar.createNewFile();
     final File jythonJar = new File(getDirectory(), "jython.jar");
     jythonJar.createNewFile();
-  
+
     System.setProperty("java.class.path",
                        grinderJar.getAbsolutePath() + File.pathSeparator +
                        jythonJar.getAbsolutePath());
-  
+
     try {
-      new JythonScriptEngineService().getScriptEngine(m_pyScript);
+      m_jythonScriptEngineService.createScriptEngine(m_pyScript);
       assertNull(System.getProperty("python.cachedir"));
     }
     finally {
@@ -108,11 +132,10 @@ public abstract class AbstractJythonScriptEngineTests extends
     }
   }
 
-  @Test
-  public void testNoMatch() throws Exception {
+  @Test public void testNoMatch() throws Exception {
     final ScriptLocation notPyScript = new ScriptLocation(new File("blah.clj"));
-  
-    assertNull(new JythonScriptEngineService().getScriptEngine(notPyScript));
+
+    assertNull(m_jythonScriptEngineService.createScriptEngine(notPyScript));
   }
 
 }

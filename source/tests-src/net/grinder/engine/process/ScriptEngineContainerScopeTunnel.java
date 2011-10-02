@@ -19,50 +19,26 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.scriptengine;
+package net.grinder.engine.process;
 
-import net.grinder.common.Test;
-import net.grinder.script.NonInstrumentableTypeException;
-import net.grinder.script.NotWrappableTypeException;
+import net.grinder.common.GrinderProperties;
+import net.grinder.common.Logger;
+import net.grinder.engine.common.EngineException;
+import net.grinder.scriptengine.DCRContext;
 
 
 /**
- * Null instrumenter.
+ * Scope tunnel required by TestScriptEngineContainer due to class loader
+ * stunts.
  *
  * @author Philip Aston
  */
-public class NullInstrumenter implements Instrumenter {
+public class ScriptEngineContainerScopeTunnel {
 
-  /**
-   * Constructor.
-   */
-  public NullInstrumenter() {
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Object createInstrumentedProxy(Test test,
-                                        Recorder recorder,
-                                        Object target)
-    throws NotWrappableTypeException {
-
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean instrument(Test test, Recorder recorder, Object target)
-    throws NonInstrumentableTypeException {
-
-    return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public String getDescription() {
-    return null;
+  public static ScriptEngineContainer createScriptEngineContainer(
+    GrinderProperties properties,
+    Logger logger,
+    DCRContext dcrContext) throws EngineException {
+    return new ScriptEngineContainer(properties, logger, dcrContext);
   }
 }

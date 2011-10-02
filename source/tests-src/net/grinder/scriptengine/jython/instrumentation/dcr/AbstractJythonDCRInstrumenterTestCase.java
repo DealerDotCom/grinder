@@ -53,14 +53,14 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
   @Override
   protected void assertTestReference(PyObject pyObject,
                                      net.grinder.common.Test test) {
-    // No-op, DCRInstrumenter doesn't support __test__.
+    // No-op, AbstractDCRInstrumenter doesn't support __test__.
   }
 
   @Override
   protected void assertTargetReference(PyObject proxy,
                                        Object original,
                                        boolean unwrapTarget) {
-    // DCRInstrumenter doesn't support __target__.
+    // AbstractDCRInstrumenter doesn't support __target__.
   }
 
   @Test public void testInstrumentationWithNonWrappableParameters()

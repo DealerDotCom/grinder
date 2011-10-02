@@ -24,13 +24,14 @@ package net.grinder.util;
 import static java.util.Arrays.asList;
 import static net.grinder.testutility.FileUtilities.createFile;
 import static net.grinder.util.ClassLoaderUtilities.allResourceLines;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 
 import org.junit.Test;
 
@@ -40,7 +41,7 @@ import org.junit.Test;
  *
  * @author Philip Aston
  */
-public class TestClassLoaderUtilities extends AbstractFileTestCase {
+public class TestClassLoaderUtilities extends AbstractJUnit4FileTestCase {
 
   @Test public void testAllResourceLinesNoResources() throws Exception {
     final List<String> resourceLines =
@@ -51,10 +52,16 @@ public class TestClassLoaderUtilities extends AbstractFileTestCase {
 
   @Test public void testAllResourceLinesResources() throws Exception {
     final File d1 = new File(getDirectory(), "one");
-    createFile(new File(d1, "test/foo"), asList("a", "b"));
+    createFile(new File(d1, "test/foo"),
+               "a",
+               "# Some comment",
+               "b",
+               "");
 
     final File d2 = new File(getDirectory(), "two");
-    createFile(new File(d2, "test/foo"), asList("a", "c"));
+    createFile(new File(d2, "test/foo"),
+               "a",
+               "c # Another comment");
 
     final ClassLoader cl1 =
       new URLClassLoader(new URL[] { d1.toURI().toURL() });
@@ -65,5 +72,19 @@ public class TestClassLoaderUtilities extends AbstractFileTestCase {
     assertEquals(asList("a", "b"), allResourceLines(cl1, "test/foo"));
 
     assertEquals(asList("a", "b", "a", "c"), allResourceLines(cl2, "test/foo"));
+  }
+
+  @Test public void filterDuplicateURLs() throws Exception {
+
+    final File d1 = new File(getDirectory(), "one");
+    createFile(new File(d1, "test/foo"),
+               "a");
+
+    final URLClassLoader cl1 =
+      new URLClassLoader(new URL[] { d1.toURI().toURL() });
+
+    final URLClassLoader cl2 = new URLClassLoader(cl1.getURLs(), cl1);
+
+    assertEquals(asList("a"), allResourceLines(cl2, "test/foo"));
   }
 }

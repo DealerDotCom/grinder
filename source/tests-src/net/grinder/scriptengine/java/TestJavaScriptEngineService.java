@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
+import java.util.List;
 
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
@@ -47,26 +48,26 @@ public class TestJavaScriptEngineService {
 
     final DCRContext context = DCRContextImplementation.create(null);
 
-    final Instrumenter instrumenter =
-      new JavaScriptEngineService().createInstrumenter(null, context);
+    final List<? extends Instrumenter> instrumenters =
+      new JavaScriptEngineService(context).createInstrumenters();
 
+    assertEquals(1, instrumenters.size());
     assertEquals("byte code transforming instrumenter for Java",
-                 instrumenter.getDescription());
+                 instrumenters.get(0).getDescription());
   }
 
   @Test public void testCreateInstrumenterWithNoInstrumentation()
     throws Exception {
 
-    final Instrumenter instrumenter =
-      new JavaScriptEngineService().createInstrumenter(null, null);
+    final List<? extends Instrumenter> instrumenters =
+      new JavaScriptEngineService().createInstrumenters();
 
-    assertNull(instrumenter.getDescription());
+    assertEquals(0, instrumenters.size());
   }
 
   @Test public void testGetScriptEngine() throws Exception {
     final ScriptLocation script = new ScriptLocation(new File("foo.java"));
 
-    assertNull(new JavaScriptEngineService().getScriptEngine(script));
+    assertNull(new JavaScriptEngineService(null).createScriptEngine(script));
   }
-
 }

@@ -36,7 +36,7 @@ import net.grinder.scriptengine.Recorder;
  *
  * @author Philip Aston
  */
-public final class MasterInstrumenter extends CompositeInstrumenter {
+final class MasterInstrumenter extends CompositeInstrumenter {
 
   /**
    * Constructor for MasterInstrumenter.

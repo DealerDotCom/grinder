@@ -22,11 +22,15 @@
 package net.grinder.scriptengine.jython;
 
 import static net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase.assertVersion;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
+import java.util.List;
+
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.scriptengine.DCRContext;
 import net.grinder.scriptengine.Instrumenter;
-import net.grinder.scriptengine.jython.JythonScriptEngineService;
 import net.grinder.testutility.Jython25Runner;
 
 import org.junit.Test;
@@ -41,7 +45,7 @@ import org.python.core.PyInstance;
  */
 @RunWith(Jython25Runner.class)
 public class TestJythonScriptEngineServiceWithJython25
-  extends AbstractJythonScriptEngineTests {
+  extends AbstractJythonScriptEngineServiceTests {
 
   @Test public void testVersion() throws Exception {
     assertVersion("2.5");
@@ -51,8 +55,12 @@ public class TestJythonScriptEngineServiceWithJython25
     final GrinderProperties properties = new GrinderProperties();
     final DCRContext context = DCRContextImplementation.create(null);
 
-    final Instrumenter instrumenter =
-      new JythonScriptEngineService().createInstrumenter(properties, context);
+    final List<Instrumenter> instrumenters =
+      new JythonScriptEngineService(properties, context).createInstrumenters();
+
+    assertEquals(1, instrumenters.size());
+
+    final Instrumenter instrumenter = instrumenters.get(0);
 
     assertEquals("byte code transforming instrumenter for Jython 2.5",
                  instrumenter.getDescription());
@@ -69,9 +77,9 @@ public class TestJythonScriptEngineServiceWithJython25
     final GrinderProperties properties = new GrinderProperties();
     final DCRContextImplementation context = DCRContextImplementation.create(null);
 
-    final Instrumenter instrumenter =
-      new JythonScriptEngineService().createInstrumenter(properties, context);
+    final List<Instrumenter> instrumenters =
+      new JythonScriptEngineService(properties, context).createInstrumenters();
 
-    instrumenter.instrument(m_test, m_recorder, new PyInstance());
+    instrumenters.get(0).instrument(m_test, m_recorder, new PyInstance());
   }
 }
