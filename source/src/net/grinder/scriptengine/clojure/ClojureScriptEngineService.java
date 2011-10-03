@@ -19,43 +19,47 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.scriptengine;
+package net.grinder.scriptengine.clojure;
+
+import static java.util.Collections.emptyList;
+
+import java.util.List;
 
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
+import net.grinder.scriptengine.Instrumenter;
+import net.grinder.scriptengine.ScriptEngineService;
+import net.grinder.util.FileExtensionMatcher;
 
 
 /**
- * Indicates a script execution problem.
+ * Clojure script engine.
  *
  * @author Philip Aston
  */
-public abstract class ScriptExecutionException extends EngineException {
+public class ClojureScriptEngineService implements ScriptEngineService {
+
+  private final FileExtensionMatcher m_cljFileMatcher =
+    new FileExtensionMatcher(".clj");
+
   /**
-   * Creates a new <code>ScriptExecutionException</code> instance.
-   *
-   * @param s Message.
+   * {@inheritDoc}
    */
-  public ScriptExecutionException(String s) {
-    super(s);
+  public ScriptEngine createScriptEngine(ScriptLocation script)
+    throws EngineException {
+
+    if (m_cljFileMatcher.accept(script.getFile())) {
+      return new ClojureScriptEngine(script);
+    }
+
+    return null;
   }
 
   /**
-   * Creates a new <code>ScriptExecutionException</code> instance.
-   *
-   * @param s Message.
-   * @param t Nested {@link Throwable}.
+   * {@inheritDoc}
    */
-  public ScriptExecutionException(String s, Throwable t)  {
-    super(s, t);
-  }
-
-  /**
-   * Some subclasses abuse getMessage() to include stack trace information in
-   * printStackTrace output.
-   *
-   * @return A short message, without a stack trace.
-   */
-  public String getShortMessage() {
-    return getMessage();
+  public List<? extends Instrumenter> createInstrumenters()
+    throws EngineException {
+    return emptyList();
   }
 }
