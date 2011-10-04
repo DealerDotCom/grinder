@@ -20,7 +20,7 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.scriptengine.java;
-
+import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -39,7 +39,7 @@ import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
+import java.util.Collections;
 
 import net.grinder.common.Logger;
 import net.grinder.engine.process.dcr.AnotherClass;
@@ -47,7 +47,6 @@ import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.engine.process.dcr.RecorderLocatorAccess;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.scriptengine.Recorder;
-import net.grinder.scriptengine.java.JavaDCRInstrumenter;
 import net.grinder.util.BlockingClassLoader;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 
@@ -226,18 +225,16 @@ public class TestJavaDCRInstrumenter {
 
     RecorderLocatorAccess.clearRecorders();
 
-    final URLClassLoader ourClassLoader =
-      (URLClassLoader)BlockingClassLoader.class.getClassLoader();
-
     final BlockingClassLoader blockingClassLoader =
-      new BlockingClassLoader(ourClassLoader,
-                              Arrays.<String>asList(
-                               AnotherClass.class.getName()),
+      new BlockingClassLoader(singleton(AnotherClass.class.getName()),
+                              Collections.<String>emptySet(),
+                              Collections.<String>emptySet(),
                               true);
 
     final NoPackageURLClassLoader cl =
-      new NoPackageURLClassLoader(ourClassLoader.getURLs(),
-                                  blockingClassLoader);
+      new NoPackageURLClassLoader(
+        ((URLClassLoader)getClass().getClassLoader()).getURLs(),
+        blockingClassLoader);
 
     final Class<?> noPackageClass = cl.loadClass(AnotherClass.class.getName());
     final Method noPackageMethod = noPackageClass.getMethod("getOne");

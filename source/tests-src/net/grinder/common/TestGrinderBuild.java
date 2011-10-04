@@ -21,7 +21,7 @@
 
 package net.grinder.common;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.Collections;
 
 import net.grinder.util.BlockingClassLoader;
 
@@ -60,16 +60,11 @@ public class TestGrinderBuild {
   }
 
   @Test public void testGrinderBuildExceptions() throws Exception {
-    final URLClassLoader parentLoader =
-      (URLClassLoader) getClass().getClassLoader();
-
     final ClassLoader blockingLoader =
-      new BlockingClassLoader(parentLoader,
-                              asList(GrinderBuild.class.getName()),
-                              false);
-
-    final ClassLoader loader = new URLClassLoader(parentLoader.getURLs(),
-                                                  blockingLoader) {
+      new BlockingClassLoader(Collections.<String>emptySet(),
+                              singleton(GrinderBuild.class.getName()),
+                              Collections.<String>emptySet(),
+                              false) {
         @Override public URL getResource(String name) {
           // Be evil.
           return null;
@@ -77,7 +72,7 @@ public class TestGrinderBuild {
       };
 
     try {
-      Class.forName(GrinderBuild.class.getName(), true, loader);
+      Class.forName(GrinderBuild.class.getName(), true, blockingLoader);
       fail("Expected ExceptionInInitializerError");
     }
     catch (ExceptionInInitializerError e) {

@@ -21,13 +21,13 @@
 
 package net.grinder.engine.agent;
 
-import static net.grinder.util.BlockingClassLoader.isolatingLoader;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 
 import java.io.OutputStream;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
@@ -35,6 +35,7 @@ import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplem
 import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
+import net.grinder.util.BlockingClassLoader;
 import net.grinder.util.Directory;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 
@@ -47,20 +48,21 @@ import net.grinder.util.weave.agent.ExposeInstrumentation;
  */
 final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
 
-  private static Class<?> s_isolatedRunnerClass =
-    IsolatedGrinderProcessRunner.class;
+  private static String s_isolatedRunnerClassName =
+    IsolatedGrinderProcessRunner.class.getName();
 
-  private final List<String> m_blockedClasses = new ArrayList<String>();
+  private final Set<String> m_isolatedClasses;
+  private final Set<String> m_sharedClasses;
 
   /**
    * Allow unit tests to change the IsolateGrinderProcessRunner.
    */
-  static void setIsolatedRunnerClass(Class<?> isolatedRunnerClass) {
-    if (isolatedRunnerClass != null) {
-      s_isolatedRunnerClass = isolatedRunnerClass;
+  static void setIsolatedRunnerClass(String isolatedRunnerClassName) {
+    if (isolatedRunnerClassName != null) {
+      s_isolatedRunnerClassName = isolatedRunnerClassName;
     }
     else {
-      s_isolatedRunnerClass = IsolatedGrinderProcessRunner.class;
+      s_isolatedRunnerClassName = IsolatedGrinderProcessRunner.class.getName();
     }
   }
 
@@ -76,24 +78,20 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
           script,
           properties);
 
-    final List<String> sharedClasses = new ArrayList<String>();
+    //  Isolate everything...
+    m_isolatedClasses = singleton("*");
 
-    sharedClasses.add(IsolateGrinderProcessRunner.class.getName());
-    sharedClasses.add(ExposeInstrumentation.class.getName());
+    // .. except for the shared classes.
+    m_sharedClasses = new HashSet<String>();
+
+    m_sharedClasses.add(IsolateGrinderProcessRunner.class.getName());
+    m_sharedClasses.add(ExposeInstrumentation.class.getName());
 
     final String additionalSharedClasses =
       properties.getProperty("grinder.debug.singleprocess.sharedclasses");
 
     if (additionalSharedClasses != null) {
-      sharedClasses.addAll(asList(additionalSharedClasses.split(",")));
-    }
-
-    //  Block everything...
-    m_blockedClasses.add("*");
-
-    // .. except for the shared classes.
-    for (String sharedClass : sharedClasses) {
-      m_blockedClasses.add("+" + sharedClass);
+      m_sharedClasses.addAll(asList(additionalSharedClasses.split(",")));
     }
   }
 
@@ -107,14 +105,16 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
     // Unfortunately, we can't respect the working directory.
 
     final ClassLoader classLoader =
-      isolatingLoader((URLClassLoader)getClass().getClassLoader(),
-                          m_blockedClasses);
+      new BlockingClassLoader(Collections.<String>emptySet(),
+                              m_isolatedClasses,
+                              m_sharedClasses,
+                              true);
 
     final Class<?> isolatedRunnerClass;
 
     try {
       isolatedRunnerClass =
-        Class.forName(s_isolatedRunnerClass.getName(),
+        Class.forName(s_isolatedRunnerClassName,
                       true,
                       classLoader);
     }

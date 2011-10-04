@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,9 +21,10 @@
 
 package net.grinder.plugin.http;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 
 import java.net.URLClassLoader;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 import net.grinder.common.GrinderException;
@@ -66,26 +67,11 @@ public class TestHTTPPlugin extends TestCase {
 
     final String pluginName = HTTPPlugin.class.getName();
 
-    final URLClassLoader blockingClassLoader =
-      new BlockingClassLoader(
-        (URLClassLoader) getClass().getClassLoader(),
-         asList(pluginName),
-         false);
-
-    final URLClassLoader classLoader =
-      new URLClassLoader(blockingClassLoader.getURLs(),
-                         blockingClassLoader) {
-
-      @Override protected Class<?> loadClass(String name, boolean resolve)
-        throws ClassNotFoundException  {
-
-        if (name.equals("HTTPClient.RetryModule")) {
-          return null;
-        }
-
-        return super.loadClass(name, resolve);
-      }
-    };
+    final URLClassLoader blockingLoader =
+      new BlockingClassLoader(singleton("HTTPClient.RetryModule"),
+                              singleton(pluginName),
+                              Collections.<String>emptySet(),
+                              false);
 
     new PluginRegistry() {
       {
@@ -98,7 +84,7 @@ public class TestHTTPPlugin extends TestCase {
     };
 
     try {
-      Class.forName("net.grinder.plugin.http.HTTPPlugin", true, classLoader);
+      Class.forName(pluginName, true, blockingLoader);
       fail("Expected PluginException");
     }
     catch (ExceptionInInitializerError e) {

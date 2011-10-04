@@ -58,7 +58,7 @@ public class TestAgentImplementation extends AbstractFileTestCase {
   private final Logger m_logger = m_loggerStubFactory.getLogger();
 
   protected void setUp() throws Exception {
-    DebugThreadWorkerFactory.setIsolatedRunnerClass(TestRunner.class);
+    DebugThreadWorkerFactory.setIsolatedRunnerClass(TestRunner.class.getName());
     super.setUp();
   }
 

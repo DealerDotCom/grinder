@@ -33,8 +33,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
@@ -70,18 +72,14 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
   }
 
   @Test public void testBadResourceLoading() throws Exception {
-    final URLClassLoader parentLoader =
-      (URLClassLoader) getClass().getClassLoader();
-
     final ClassLoader blockingLoader =
       new BlockingClassLoader(
-         parentLoader,
-         asList(ScriptEngineContainer.class.getName(),
-                ScriptEngineContainerScopeTunnel.class.getName()),
-         false);
-
-    final ClassLoader loader = new URLClassLoader(parentLoader.getURLs(),
-                                                  blockingLoader) {
+         Collections.<String>emptySet(),
+         new HashSet<String>(
+             asList(ScriptEngineContainer.class.getName(),
+                    ScriptEngineContainerScopeTunnel.class.getName())),
+         Collections.<String>emptySet(),
+         false) {
         @Override public Enumeration<URL> getResources(String name)
           throws IOException {
           // Be evil.
@@ -90,7 +88,7 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
       };
 
     try {
-      constructInClassLoader(loader);
+      constructInClassLoader(blockingLoader);
       fail("Expected EngineException");
     }
     catch (InvocationTargetException e) {
@@ -113,25 +111,27 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
 
   @Test public void testUnknownImplementation() throws Exception {
 
-    final File additionalClasspath = new File(getDirectory(), "cp");
+    final File path = new File(getDirectory(), "cp");
 
-    createFile(new File(additionalClasspath,
-                        ScriptEngineService.RESOURCE_NAME),
+    createFile(new File(path, ScriptEngineService.RESOURCE_NAME),
                "bobbins");
 
-    final URLClassLoader parentLoader =
-      (URLClassLoader) getClass().getClassLoader();
+    final List<URL> additionalClasspath =
+      asList(new File(getDirectory(), "cp").toURI().toURL());
 
-    final ClassLoader loader =
-      BlockingClassLoader.isolatingLoader(
-         parentLoader,
-         asList(ScriptEngineContainer.class.getName(),
-                ScriptEngineContainerScopeTunnel.class.getName(),
-                ScriptEngineService.RESOURCE_NAME),
-         asList(additionalClasspath.toURI().toURL()));
+    final ClassLoader blockingLoader =
+      new BlockingClassLoader(
+         additionalClasspath,
+         Collections.<String>emptySet(),
+         new HashSet<String>(
+             asList(ScriptEngineContainer.class.getName(),
+                    ScriptEngineContainerScopeTunnel.class.getName(),
+                    ScriptEngineService.RESOURCE_NAME)),
+         Collections.<String>emptySet(),
+         true);
 
     try {
-      constructInClassLoader(loader);
+      constructInClassLoader(blockingLoader);
       fail("Expected EngineException");
     }
     catch (InvocationTargetException e) {
@@ -142,25 +142,27 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
 
   @Test public void testBadImplementation() throws Exception {
 
-    final File additionalClasspath = new File(getDirectory(), "cp");
+    final File path = new File(getDirectory(), "cp");
 
-    createFile(new File(additionalClasspath,
-                        ScriptEngineService.RESOURCE_NAME),
+    createFile(new File(path, ScriptEngineService.RESOURCE_NAME),
                "java.lang.Object");
 
-    final URLClassLoader parentLoader =
-      (URLClassLoader) getClass().getClassLoader();
+    final List<URL> additionalClasspath =
+      asList(new File(getDirectory(), "cp").toURI().toURL());
 
-    final ClassLoader loader =
-      BlockingClassLoader.isolatingLoader(
-         parentLoader,
-         asList(ScriptEngineContainer.class.getName(),
-                ScriptEngineContainerScopeTunnel.class.getName(),
-                ScriptEngineService.RESOURCE_NAME),
-         asList(additionalClasspath.toURI().toURL()));
+    final ClassLoader blockingLoader =
+      new BlockingClassLoader(
+         additionalClasspath,
+         Collections.<String>emptySet(),
+         new HashSet<String>(
+           asList(ScriptEngineContainer.class.getName(),
+                  ScriptEngineContainerScopeTunnel.class.getName(),
+                  ScriptEngineService.RESOURCE_NAME)),
+         Collections.<String>emptySet(),
+         true);
 
     try {
-      constructInClassLoader(loader);
+      constructInClassLoader(blockingLoader);
       fail("Expected EngineException");
     }
     catch (InvocationTargetException e) {
@@ -168,6 +170,7 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
       assertContains(e.getCause().getMessage(), "does not implement");
     }
   }
+
   @Test public void testStandardInstrumentationNoDCR() throws Exception {
     final ScriptEngineContainer container =
       new ScriptEngineContainer(m_properties, m_logger, null);

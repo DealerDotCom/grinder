@@ -22,14 +22,17 @@
 package net.grinder.testutility;
 
 import static java.util.Arrays.asList;
-import static net.grinder.util.BlockingClassLoader.isolatingLoader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import net.grinder.util.BlockingClassLoader;
 
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
@@ -66,12 +69,14 @@ public abstract class JythonVersionRunner extends Suite {
     return homes;
   }
 
-  private static final List<String> GRINDER_AND_PYTHON_CLASSES =
-    asList("net.grinder.*",
-           "org.python.*",
-           "test.*",
-           "+net.grinder.util.weave.agent.*",
-           "org.mockito.*");
+  private static final Set<String> ISOLATED_CLASSES =
+    new HashSet<String>(asList("net.grinder.*",
+                               "org.python.*",
+                               "test.*",
+                               "org.mockito.*"));
+
+  private static final Set<String> SHARED_CLASSES =
+    new HashSet<String>(asList("net.grinder.util.weave.agent.*"));
 
   public JythonVersionRunner(Class<?> testClass,
                              List<String> pythonHomes)
@@ -91,10 +96,11 @@ public abstract class JythonVersionRunner extends Suite {
         new URL("file://" + pythonHome + "/jython.jar");
 
       final ClassLoader loader =
-        isolatingLoader(
-          (URLClassLoader) JythonVersionRunner.class.getClassLoader(),
-          GRINDER_AND_PYTHON_CLASSES,
-          Arrays.asList(jythonJarURL));
+        new BlockingClassLoader(Arrays.asList(jythonJarURL),
+                                Collections.<String>emptySet(),
+                                ISOLATED_CLASSES,
+                                SHARED_CLASSES,
+                                true);
 
       final Class<?> isolatedClass = loader.loadClass(testClass.getName());
 

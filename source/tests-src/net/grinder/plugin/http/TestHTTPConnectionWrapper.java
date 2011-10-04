@@ -21,10 +21,10 @@
 
 package net.grinder.plugin.http;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 
 import java.net.InetAddress;
-import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -148,31 +148,17 @@ public class TestHTTPConnectionWrapper extends TestCase {
 
     final String wrapperName = HTTPConnectionWrapper.class.getName();
 
-    final URLClassLoader blockingClassLoader =
+    final ClassLoader blockingLoader =
       new BlockingClassLoader(
-        (URLClassLoader) getClass().getClassLoader(),
-         asList(wrapperName),
+         singleton("HTTPClient.AuthorizationModule"),
+         singleton(wrapperName),
+         Collections.<String>emptySet(),
          false);
-
-    final URLClassLoader classLoader =
-      new URLClassLoader(blockingClassLoader.getURLs(),
-                         blockingClassLoader) {
-
-      @Override protected Class<?> loadClass(String name, boolean resolve)
-        throws ClassNotFoundException  {
-
-        if (name.equals("HTTPClient.AuthorizationModule")) {
-          return null;
-        }
-
-        return super.loadClass(name, resolve);
-      }
-    };
 
     try {
       Class.forName(wrapperName,
                     true,
-                    classLoader);
+                    blockingLoader);
       fail("Expected ExceptionInInitializerError");
     }
     catch (ExceptionInInitializerError e) {
