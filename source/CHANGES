@@ -15,6 +15,9 @@ The Grinder 3.6 (Not yet released)
    Fix bug 3411728 - helloworld.py doesn't work with DCR
    instrumentation. Thanks to Jeff Vincent for the report.
 
+   Fulfill feature request 3389028 - XSLTHelper API to control indent.
+   Thanks to Jean-Francois Poilpret for the request.
+
 
 The Grinder 3.5
 ---------------

@@ -48,8 +48,10 @@ import HTTPClient.Codecs;
  */
 public final class XSLTHelper {
   private static int s_indentLevel;
+  private static String s_indentString = "  ";
 
-  private XSLTHelper() {
+  XSLTHelper() {
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -250,9 +252,17 @@ public final class XSLTHelper {
    * @return The string.
    * @see #changeIndent
    * @see #resetIndent
+   * @see #setIndentString(String)
    */
   public static String indent() {
-    return "                ".substring(0, s_indentLevel * 2);
+    final StringBuilder result =
+      new StringBuilder(s_indentString.length() * s_indentLevel);
+
+    for (int i = 0; i < s_indentLevel; ++i) {
+      result.append(s_indentString);
+    }
+
+    return result.toString();
   }
 
   /**
@@ -283,7 +293,6 @@ public final class XSLTHelper {
     s_indentLevel += indentChange;
     return "";
   }
-
 
   /**
    * Reset the indent level.
@@ -336,5 +345,18 @@ public final class XSLTHelper {
     result.append('"');
 
     return result.toString();
+  }
+
+  /**
+   * Allow the indentation string to be overridden. The string will be repeated
+   * in front of indented lines, according to the current indentation level.
+   *
+   * @param indentString The indentation string.
+   * @see #indent()
+   * @see #changeIndent
+   * @see #resetIndent
+   */
+  public static void setIndentString(String indentString) {
+    s_indentString = indentString;
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,10 +21,16 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.text.ParseException;
 
+import org.junit.After;
+import org.junit.Test;
+
 import HTTPClient.Codecs;
-import junit.framework.TestCase;
 
 
 /**
@@ -32,13 +38,14 @@ import junit.framework.TestCase;
  *
  * @author Philip Aston
  */
-public class TestXSLTHelper extends TestCase {
+public class TestXSLTHelper {
 
-  protected void setUp() throws Exception {
+  @After public void setUp() throws Exception {
     XSLTHelper.resetIndent();
+    XSLTHelper.setIndentString("  ");
   }
 
-  public void testBase64ToPython() throws Exception {
+  @Test public void testBase64ToPython() throws Exception {
     final byte[] bytes0 = { 0, -42, 1, 22, };
 
     assertEquals("\"\\x00\\xD6\\x01\\x16\"",
@@ -81,7 +88,7 @@ public class TestXSLTHelper extends TestCase {
       XSLTHelper.base64ToPython(new String(Codecs.base64Encode(bytes1))));
   }
 
-  public void testFormatTime() throws Exception {
+  @Test public void testFormatTime() throws Exception {
     try {
       XSLTHelper.formatTime("abc");
       fail("Expected ParseException");
@@ -93,7 +100,7 @@ public class TestXSLTHelper extends TestCase {
     assertNotNull(s);
   }
 
-  public void testQuoteForPython() throws Exception {
+  @Test public void testQuoteForPython() throws Exception {
     assertEquals("None", XSLTHelper.quoteForPython(null));
     assertEquals("''", XSLTHelper.quoteForPython(""));
     assertEquals("\'\\\"\'", XSLTHelper.quoteForPython("\""));
@@ -105,7 +112,7 @@ public class TestXSLTHelper extends TestCase {
     assertEquals("'foo \\\\n bah'", XSLTHelper.quoteForPython("foo \\n bah"));
   }
 
-  public void testQuoteEOLEscapedStringForPython() throws Exception {
+  @Test public void testQuoteEOLEscapedStringForPython() throws Exception {
     assertEquals("None", XSLTHelper.quoteEOLEscapedStringForPython(null));
     assertEquals("''", XSLTHelper.quoteEOLEscapedStringForPython(""));
     assertEquals("\'\\\"\'", XSLTHelper.quoteEOLEscapedStringForPython("\""));
@@ -119,7 +126,7 @@ public class TestXSLTHelper extends TestCase {
 
   }
 
-  public void testEscape() throws Exception {
+  @Test public void testEscape() throws Exception {
     assertEquals("", XSLTHelper.escape(""));
     assertEquals("\\'", XSLTHelper.escape("'"));
     assertEquals("\\\"", XSLTHelper.escape("\""));
@@ -128,11 +135,26 @@ public class TestXSLTHelper extends TestCase {
                  XSLTHelper.escape("Hello 'quoted\" \\world"));
   }
 
-  public void testSummariseAsLine() throws Exception {
+  @Test public void testSummariseAsLine() throws Exception {
     assertEquals("blah, blah", XSLTHelper.summariseAsLine("blah, blah", 20));
     assertEquals("blah,...", XSLTHelper.summariseAsLine("blah, blah", 5));
     assertEquals("blah,\\nblah", XSLTHelper.summariseAsLine("blah,\nblah", 20));
     assertEquals("\\r blah,\\t", XSLTHelper.summariseAsLine("\r blah,\t", 20));
     assertEquals("..bla...", XSLTHelper.summariseAsLine("\0\0blah", 5));
+  }
+
+  @Test public void testIndent() throws Exception {
+    assertEquals("", XSLTHelper.indent());
+
+    XSLTHelper.changeIndent(2);
+    assertEquals("    ", XSLTHelper.indent());
+
+    XSLTHelper.setIndentString("\t");
+    assertEquals("\t\t", XSLTHelper.indent());
+  }
+
+  @Test(expected=UnsupportedOperationException.class)
+  public void coverConstructor() throws Exception {
+    new XSLTHelper();
   }
 }
