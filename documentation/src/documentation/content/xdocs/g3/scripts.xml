@@ -16,7 +16,7 @@
   <section>
     <title>Jython and Python</title>
 
-    <p>The Grinder 3 scripting engine is Jython - the Java
+    <p>The default scripting engine is Jython - the Java
     implementation of Python. Python is powerful, popular and easy on
     the eye. If you've never seen any Python before, don't panic. Take
     a look at the <a href="site:script-gallery">script gallery</a> and
@@ -34,15 +34,22 @@
     Essentials</a> book; you can read the <a
     href="ext:oreilly/jython-essentials-c1">introductory chapter</a>
     for free.</p>
+
+    <section>
+      <title>Alternative languages</title>
+
+      <p>The Grinder 3.6 also supports test scripts written in <a
+      href="site:clojure">Clojure</a>.</p>
+    </section>
   </section>
 
   <section>
     <title>Scripting for The Grinder</title>
 
     <section>
-      <title>Script structure</title>
+      <title>Jython Script structure</title>
 
-      <p>Scripts must conform to a few conventions in order to work
+      <p>Jython scripts must conform to a few conventions in order to work
       with The Grinder framework. I'll lay the rules out in fairly dry
       terms before proceeding with an example. Don't worry if this
       makes no sense to you at first, the examples are much easier to
@@ -91,6 +98,13 @@
           class and provides access to context information (such as
           the worker thread ID) and services (such as logging and
           statistics).</p>
+        </li>
+
+        <li>
+          <strong>The script file name must end in <code>.py</code></strong>
+
+          <p>The file name suffix is used to identify Jython
+          scripts.</p>
         </li>
       </ol>
     </section>

@@ -104,6 +104,7 @@ footer, searchbar, css etc.  As input, it takes XML of the form:
 <script type="text/javascript" language="javascript"  src="{$root}skin/shCore.js"></script>
 <script type="text/javascript" langauage="javascript" src="{$root}skin/shBrushPython.js"></script>
 <script type="text/javascript" langauage="javascript" src="{$root}skin/shBrushBash.js"></script>
+<script type="text/javascript" langauage="javascript" src="{$root}skin/shBrushClojure.js"></script>
 <script type="text/javascript" langauage="javascript" src="{$root}skin/shBrushPlain.js"></script>
 <!--+
   |favicon

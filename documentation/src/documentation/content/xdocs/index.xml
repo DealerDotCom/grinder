@@ -27,7 +27,7 @@
     includes common cases such as HTTP web servers, SOAP and REST web services,
     and application servers (CORBA, RMI, JMS, EJBs), as well as custom
     protocols.</li>
-    <li><strong>Flexible Scripting</strong> Tests are written in the powerful Jython
+    <li><strong>Flexible Scripting</strong> Tests are written in the powerful <a href="ext:jython">Jython</a>
     scripting language.</li>
     <li><strong>Distributed Framework</strong> A graphical console allows multiple
       load injectors to be monitored and controlled, and provides centralised script editing

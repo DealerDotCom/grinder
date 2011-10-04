@@ -14,12 +14,6 @@ against it too :-).
 - Philip Aston
 
 
-* Other languages
-
-Implement a javax.script wrapper that is loaded if detected.
-Prove by implementing support for JavaScript (which is built into Java 6).
-
-
 * Java 5 upgrade
 
 ** Opportunities
@@ -218,7 +212,8 @@ Pablo Estades Fernýndez says:
 
 ** Scripting
 
-Consider forcing TestRunner to be registered with grinder.
+Consider removing need to name TestRunner - instead use the result of
+the script.
 
 Add per-run statistics. This would also allow number of aborted runs
 to be recorded.

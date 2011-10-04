@@ -1,9 +1,10 @@
 The Grinder 3.6 (Not yet released)
 ----------------------------------
 
-   Clojure is supported as an alternative language for test scripts.
    The script engine API has been improved so that adding support
    for other languages is straightforward.
+
+   Clojure is supported as an alternative test script language.
 
    Fix bug 3406177 - DCR instrumented objects are not garbage
    collected. Thanks to Gary Mulder for the report and diagnostics.

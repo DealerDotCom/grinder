@@ -144,6 +144,7 @@ for details of other targets.
       <arg value="${source.dir}/examples/sequence.py"/>
       <arg value="${source.dir}/examples/parallel.py"/>
       <arg value="${source.dir}/examples/threadrampup.py"/>
+      <arg value="${source.dir}/examples/helloworld.clj"/>
     </java>
   </target>
 

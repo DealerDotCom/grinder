@@ -44,7 +44,7 @@
   <xsl:template match="script">
     <section id="{@id}">
       <title><xsl:value-of select="@title"/></title>
-      <source class="jython">
+      <source class="{@language}">
         <xsl:apply-templates/>
       </source>
     </section>
