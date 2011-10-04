@@ -23,14 +23,18 @@ package net.grinder.engine.process.dcr;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.lang.instrument.Instrumentation;
 
-import net.grinder.common.LoggerStubFactory;
-import net.grinder.engine.process.dcr.DCRContextImplementation;
-import net.grinder.engine.process.dcr.RecorderLocator;
+import net.grinder.common.Logger;
+import net.grinder.engine.process.ExternalLoggerScopeTunnel;
+import net.grinder.scriptengine.DCRContext;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 
 import org.junit.After;
@@ -51,8 +55,7 @@ public class TestDCRContextImplementation {
 
   @Mock private Instrumentation m_instrumentation;
 
-  private final LoggerStubFactory m_loggerStubFactory =
-    new LoggerStubFactory();
+  @Mock private Logger m_logger;
 
   @Before public void setUp() throws Exception {
     m_originalInstrumentation = ExposeInstrumentation.getInstrumentation();
@@ -69,11 +72,10 @@ public class TestDCRContextImplementation {
   @Test public void testCreateWithNoInstrumentation() throws Exception {
     ExposeInstrumentation.premain("", null);
 
-    assertNull(DCRContextImplementation.create(
-                 m_loggerStubFactory.getLogger()));
+    assertNull(DCRContextImplementation.create(m_logger));
 
-    m_loggerStubFactory.assertOutputMessageContains("does not support");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).output(contains("does not support"));
+    verifyNoMoreInteractions(m_logger);
   }
 
   @Test public void testCreateWithNoRetransformation() throws Exception {
@@ -81,10 +83,10 @@ public class TestDCRContextImplementation {
 
     when(m_instrumentation.isRetransformClassesSupported()).thenReturn(false);
 
-    assertNull(DCRContextImplementation.create(m_loggerStubFactory.getLogger()));
+    assertNull(DCRContextImplementation.create(m_logger));
 
-    m_loggerStubFactory.assertOutputMessageContains("does not support");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).output(contains("does not support"));
+    verifyNoMoreInteractions(m_logger);
   }
 
   @Test public void testCreateWithBadRetransformation() throws Exception {
@@ -93,10 +95,10 @@ public class TestDCRContextImplementation {
     when(m_instrumentation.isRetransformClassesSupported())
       .thenThrow(new NoSuchMethodError());
 
-    assertNull(DCRContextImplementation.create(m_loggerStubFactory.getLogger()));
+    assertNull(DCRContextImplementation.create(m_logger));
 
-    m_loggerStubFactory.assertOutputMessageContains("does not support");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).output(contains("does not support"));
+    verifyNoMoreInteractions(m_logger);
   }
 
   @Test public void testWithBadAdvice() throws Exception {
@@ -108,5 +110,15 @@ public class TestDCRContextImplementation {
     }
     catch (AssertionError e) {
     }
+  }
+
+  // Bug 3411728.
+  @Test public void testExternalLoggerIsInstrumentable() throws Exception {
+    final DCRContext context = DCRContextImplementation.create(m_logger);
+
+    final Class<? extends Logger> loggerClass =
+      ExternalLoggerScopeTunnel.getExternalLogger(m_logger).getClass();
+
+    assertTrue(context.isInstrumentable(loggerClass));
   }
 }

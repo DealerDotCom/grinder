@@ -97,8 +97,8 @@ public final class DCRContextImplementation implements DCRContext {
    * <p>Package scope for unit tests.</p>
    */
   DCRContextImplementation(Instrumentation instrumentation,
-             Class<?> recorderLocatorClass,
-             RecorderRegistry recorderRegistry) {
+                           Class<?> recorderLocatorClass,
+                           RecorderRegistry recorderRegistry) {
 
     final ASMTransformerFactory transformerFactory;
 
@@ -174,6 +174,13 @@ public final class DCRContextImplementation implements DCRContext {
     // refer to RecorderLocator.
     if (targetClass.getClassLoader() == BOOTSTRAP_CLASSLOADER) {
       return "it belongs to the bootstrap classloader";
+    }
+
+    // Hack to allow the classic hello world examples work.
+    // See bug 3411728.
+    if (targetClass.getName().equals(
+      "net.grinder.engine.process.ExternalLogger")) {
+      return null;
     }
 
     final Package thePackage = targetClass.getPackage();

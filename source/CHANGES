@@ -12,6 +12,9 @@ The Grinder 3.6 (Not yet released)
    Fix bug 3413171 - TCPProxy broken in The Grinder 3.5. Thanks to
    Lonnie Choset for the report.
 
+   Fix bug 3411728 - helloworld.py doesn't work with DCR
+   instrumentation. Thanks to Jeff Vincent for the report.
+
 
 The Grinder 3.5
 ---------------
