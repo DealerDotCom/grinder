@@ -158,22 +158,22 @@ public final class DCRContextImplementation implements DCRContext {
   private void checkWrappable(Class<?> theClass)
     throws NonInstrumentableTypeException {
 
-    if (!isInstrumentable(theClass)) {
-      throw new NonInstrumentableTypeException("Cannot instrument " + theClass);
+    final String whyNot = whyCantIInstrument(theClass);
+
+    if (whyNot != null) {
+      throw new NonInstrumentableTypeException(
+        "Cannot instrument " + theClass + " because " + whyNot);
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isInstrumentable(Class<?> targetClass) {
+  private String whyCantIInstrument(Class<?> targetClass) {
 
     // We disallow instrumentation of these classes to avoid the need for
     // complex protection against recursion in the engine itself.
     // Also, classes from the bootstrap classloader can't statically
     // refer to RecorderLocator.
     if (targetClass.getClassLoader() == BOOTSTRAP_CLASSLOADER) {
-      return false;
+      return "it belongs to the bootstrap classloader";
     }
 
     final Package thePackage = targetClass.getPackage();
@@ -183,12 +183,19 @@ public final class DCRContextImplementation implements DCRContext {
 
       for (String prefix : NON_INSTRUMENTABLE_PACKAGES) {
         if (packageName.startsWith(prefix)) {
-          return false;
+          return "it belongs to the " + prefix + " package";
         }
       }
     }
 
-    return true;
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isInstrumentable(Class<?> targetClass) {
+    return whyCantIInstrument(targetClass) == null;
   }
 
   /**
