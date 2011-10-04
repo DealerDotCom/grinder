@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.List;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
@@ -79,7 +80,8 @@ public class TestJythonScriptEngineService
     final DCRContext context = DCRContextImplementation.create(null);
 
     final List<Instrumenter> instrumenters =
-      new JythonScriptEngineService(properties, context).createInstrumenters();
+      new JythonScriptEngineService(properties, context, m_pyScript)
+      .createInstrumenters();
 
     assertEquals(1, instrumenters.size());
 
@@ -111,7 +113,8 @@ public class TestJythonScriptEngineService
     final DCRContextImplementation context = DCRContextImplementation.create(null);
 
     final List<Instrumenter> instrumenters =
-      new JythonScriptEngineService(properties, context).createInstrumenters();
+      new JythonScriptEngineService(properties, context, m_pyScript)
+      .createInstrumenters();
 
     assertEquals(1, instrumenters.size());
 
@@ -135,7 +138,8 @@ public class TestJythonScriptEngineService
     final DCRContextImplementation context = DCRContextImplementation.create(null);
 
     final List<Instrumenter> instrumenters =
-      new JythonScriptEngineService(properties, context).createInstrumenters();
+      new JythonScriptEngineService(properties, context, m_pyScript)
+      .createInstrumenters();
 
     assertEquals(1, instrumenters.size());
 
@@ -146,11 +150,11 @@ public class TestJythonScriptEngineService
   }
 
   @Test public void testWithNoInstrumenters() throws Exception {
-    final GrinderProperties properties = new GrinderProperties();
-    properties.setBoolean("grinder.dcrinstrumentation", true);
-
     final List<Instrumenter> instrumenters =
-      new JythonScriptEngineService(properties).createInstrumenters();
+      new JythonScriptEngineService(new GrinderProperties(),
+                                    null,
+                                    new ScriptLocation(new File("notpy.blah")))
+      .createInstrumenters();
 
     assertEquals(0, instrumenters.size());
   }

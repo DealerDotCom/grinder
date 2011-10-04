@@ -67,6 +67,9 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
   @Mock private GrinderProperties m_properties;
   @Mock private Logger m_logger;
 
+  private final ScriptLocation m_pyScript =
+    new ScriptLocation(new File("foo.py"));
+
   @Before public void initialise() {
     MockitoAnnotations.initMocks(this);
   }
@@ -104,9 +107,12 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
 
     final Method method =
       c.getMethod("createScriptEngineContainer",
-                  GrinderProperties.class, Logger.class, DCRContext.class);
+                  GrinderProperties.class,
+                  Logger.class,
+                  DCRContext.class,
+                  ScriptLocation.class);
 
-    method.invoke(null, m_properties, m_logger, m_dcrContext);
+    method.invoke(null, m_properties, m_logger, m_dcrContext, m_pyScript);
   }
 
   @Test public void testUnknownImplementation() throws Exception {
@@ -173,7 +179,7 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
 
   @Test public void testStandardInstrumentationNoDCR() throws Exception {
     final ScriptEngineContainer container =
-      new ScriptEngineContainer(m_properties, m_logger, null);
+      new ScriptEngineContainer(m_properties, m_logger, null, m_pyScript);
 
     final Instrumenter instrumenter = container.createInstrumenter();
     assertEquals("traditional Jython instrumenter",
@@ -182,7 +188,10 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
 
   @Test public void testStandardInstrumentationDCR() throws Exception {
     final ScriptEngineContainer container =
-      new ScriptEngineContainer(m_properties, m_logger, m_dcrContext);
+      new ScriptEngineContainer(m_properties,
+                                m_logger,
+                                m_dcrContext,
+                                m_pyScript);
 
     final Instrumenter instrumenter = container.createInstrumenter();
     assertEquals("traditional Jython instrumenter; " +
@@ -192,7 +201,10 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
 
   @Test public void testUnknownScriptType() throws Exception {
     final ScriptEngineContainer container =
-      new ScriptEngineContainer(m_properties, m_logger, m_dcrContext);
+      new ScriptEngineContainer(m_properties,
+                                m_logger,
+                                m_dcrContext,
+                                m_pyScript);
 
     try {
       container.getScriptEngine(new ScriptLocation(new File("foo.xxx")));
@@ -212,7 +224,10 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
                "class TestRunner: pass");
 
     final ScriptEngineContainer container =
-      new ScriptEngineContainer(m_properties, m_logger, m_dcrContext);
+      new ScriptEngineContainer(m_properties,
+                                m_logger,
+                                m_dcrContext,
+                                m_pyScript);
 
     final ScriptEngine scriptEngine = container.getScriptEngine(pyScript);
     assertContains(scriptEngine.getDescription(), "Jython");

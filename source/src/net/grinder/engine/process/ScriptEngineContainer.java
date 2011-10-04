@@ -53,11 +53,14 @@ final class ScriptEngineContainer {
 
   public ScriptEngineContainer(GrinderProperties properties,
                                Logger logger,
-                               DCRContext dcrContext)
+                               DCRContext dcrContext,
+                               ScriptLocation scriptLocation)
     throws EngineException {
 
     m_container.addComponent(properties);
     m_container.addComponent(logger);
+    m_container.addComponent(scriptLocation);
+
     if (dcrContext != null) {
       m_container.addComponent(dcrContext);
     }

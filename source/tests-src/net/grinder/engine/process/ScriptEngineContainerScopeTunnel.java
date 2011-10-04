@@ -24,6 +24,7 @@ package net.grinder.engine.process;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.DCRContext;
 
 
@@ -38,7 +39,12 @@ public class ScriptEngineContainerScopeTunnel {
   public static ScriptEngineContainer createScriptEngineContainer(
     GrinderProperties properties,
     Logger logger,
-    DCRContext dcrContext) throws EngineException {
-    return new ScriptEngineContainer(properties, logger, dcrContext);
+    DCRContext dcrContext,
+    ScriptLocation scriptLocation) throws EngineException {
+
+    return new ScriptEngineContainer(properties,
+                                     logger,
+                                     dcrContext,
+                                     scriptLocation);
   }
 }

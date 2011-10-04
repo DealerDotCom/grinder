@@ -292,7 +292,8 @@ final class GrinderProcess {
     final ScriptEngineContainer scriptEngineContainer =
       new ScriptEngineContainer(properties,
                                 logger,
-                                DCRContextImplementation.create(logger));
+                                DCRContextImplementation.create(logger),
+                                m_initialisationMessage.getScript());
 
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);

@@ -34,34 +34,36 @@ public final class JythonScriptEngineService implements ScriptEngineService {
    *
    * @param properties Properties.
    * @param dcrContext DCR context.
+   * @param scriptLocation Script location.
    */
   public JythonScriptEngineService(GrinderProperties properties,
-                                   DCRContext dcrContext) {
+                                   DCRContext dcrContext,
+                                   ScriptLocation scriptLocation) {
 
     // This property name is poor, since it really means "If DCR
     // instrumentation is available, avoid the traditional Jython
     // instrumenter". I'm not renaming it, since I expect it only to last
     // a few releases, until DCR becomes the default.
     m_forceDCRInstrumentation =
-      properties.getBoolean("grinder.dcrinstrumentation", false);
+      properties.getBoolean("grinder.dcrinstrumentation", false) ||
+      // Hack: force DCR instrumentation for non-Jython scripts.
+      !m_pyFileMatcher.accept(scriptLocation.getFile());
 
     m_dcrContext = dcrContext;
   }
 
   /**
    * Constructor used when DCR is unavailable.
-   *
-   * @param properties Properties.
    */
-  public JythonScriptEngineService(GrinderProperties properties) {
-    this(properties, null);
+  public JythonScriptEngineService() {
+    m_dcrContext = null;
+    m_forceDCRInstrumentation = false;
   }
 
   /**
    * {@inheritDoc}
    */
-  public List<Instrumenter> createInstrumenters()
-    throws EngineException {
+  public List<Instrumenter> createInstrumenters() throws EngineException {
 
     final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
 

@@ -29,7 +29,6 @@ import static org.junit.Assert.assertNull;
 import java.io.File;
 import java.io.IOException;
 
-import net.grinder.common.GrinderProperties;
 import net.grinder.common.StubTest;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.Recorder;
@@ -57,7 +56,7 @@ public abstract class AbstractJythonScriptEngineServiceTests
   protected ScriptLocation m_pyScript;
 
   protected JythonScriptEngineService m_jythonScriptEngineService =
-    new JythonScriptEngineService(new GrinderProperties());
+    new JythonScriptEngineService();
 
   @Mock protected Recorder m_recorder;
 
