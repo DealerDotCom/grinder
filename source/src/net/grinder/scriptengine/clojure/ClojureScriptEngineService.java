@@ -49,7 +49,12 @@ public class ClojureScriptEngineService implements ScriptEngineService {
     throws EngineException {
 
     if (m_cljFileMatcher.accept(script.getFile())) {
-      return new ClojureScriptEngine(script);
+      try {
+        return new ClojureScriptEngine(script);
+      }
+      catch (LinkageError e) {
+        throw new EngineException("Clojure is not on the classpath", e);
+      }
     }
 
     return null;
