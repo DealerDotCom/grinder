@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,12 +21,15 @@
 
 package net.grinder.console.editor;
 
+import static java.util.Arrays.asList;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import net.grinder.common.GrinderProperties;
@@ -47,10 +50,12 @@ import net.grinder.util.ListenerSupport;
  */
 public final class EditorModel {
 
+  private static final List<String> s_knownScriptTypes =
+    asList("py", "clj");
+
   private final Resources m_resources;
   private final TextSource.Factory m_textSourceFactory;
   private final AgentCacheState m_agentCacheState;
-  //private final Buffer m_defaultBuffer;
 
   private final ListenerSupport<Listener> m_listeners =
     new ListenerSupport<Listener>();
@@ -420,17 +425,26 @@ public final class EditorModel {
   }
 
   /**
-   * Return whether the given file should be considered to be a Python
+   * Return whether the given file should be considered to be a script
    * file. For now this is just based on name.
    *
    * @param f The file.
    * @return <code>true</code> => its a Python file.
    */
-  public boolean isPythonFile(File f) {
-    return
-      f != null &&
-      (!f.exists() || f.isFile()) &&
-      f.getName().toLowerCase().endsWith(".py");
+  public boolean isScriptFile(File f) {
+    if (f != null  &&
+        (!f.exists() || f.isFile())) {
+
+      final int lastDot = f.getName().lastIndexOf('.');
+
+      if (lastDot >= 0) {
+        final String suffix = f.getName().substring(lastDot + 1).toLowerCase();
+
+        return s_knownScriptTypes.contains(suffix);
+      }
+    }
+
+    return false;
   }
 
   /**

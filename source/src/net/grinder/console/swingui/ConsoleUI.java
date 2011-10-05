@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -1059,13 +1059,12 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
         MnemonicHeuristics.removeMnemonicMarkers(
           m_resources.getString("save-file-as.label")));
 
-      final String pythonFilesText =
-        m_resources.getString("pythonScripts.label");
+      final String pythonFilesText = m_resources.getString("scripts.label");
 
       m_fileChooser.addChoosableFileFilter(
         new FileFilter() {
           public boolean accept(File file) {
-            return m_editorModel.isPythonFile(file) || file.isDirectory();
+            return m_editorModel.isScriptFile(file) || file.isDirectory();
           }
 
           public String getDescription() {

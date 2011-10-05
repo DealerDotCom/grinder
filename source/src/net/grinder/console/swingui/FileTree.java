@@ -513,10 +513,10 @@ final class FileTree {
       m_resources.getImageIcon("file.properties.image");
     private final ImageIcon m_markedPropertiesIcon =
       m_resources.getImageIcon("file.selectedproperties.image");
-    private final ImageIcon m_pythonIcon =
-      m_resources.getImageIcon("file.python.image");
-    private final ImageIcon m_selectedPythonIcon =
-      m_resources.getImageIcon("file.selectedpython.image");
+    private final ImageIcon m_scriptIcon =
+      m_resources.getImageIcon("file.script.image");
+    private final ImageIcon m_selectedScriptIcon =
+      m_resources.getImageIcon("file.selectedscript.image");
 
     private boolean m_active;
 
@@ -547,13 +547,13 @@ final class FileTree {
           icon = m_markedPropertiesIcon;
         }
         else if (m_editorModel.isSelectedScript(file)) {
-          icon = m_selectedPythonIcon;
+          icon = m_selectedScriptIcon;
         }
         else if (m_editorModel.isPropertiesFile(file)) {
           icon = m_propertiesIcon;
         }
-        else if (m_editorModel.isPythonFile(file)) {
-          icon = m_pythonIcon;
+        else if (m_editorModel.isScriptFile(file)) {
+          icon = m_scriptIcon;
         }
         else {
           icon = m_defaultRenderer.getLeafIcon();

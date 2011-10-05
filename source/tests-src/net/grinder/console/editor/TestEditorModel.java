@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,15 @@
 
 package net.grinder.console.editor;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,11 +43,12 @@ import net.grinder.console.distribution.AgentCacheState;
 import net.grinder.console.distribution.FileChangeWatcher;
 import net.grinder.console.editor.EditorModel.Listener;
 import net.grinder.console.editor.StringTextSource.Factory;
-
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.DelegatingStubFactory;
 import net.grinder.testutility.RandomStubFactory;
+
+import org.junit.Test;
 
 
 /**
@@ -46,7 +56,7 @@ import net.grinder.testutility.RandomStubFactory;
  *
  * @author Philip Aston
  */
-public class TestEditorModel extends AbstractFileTestCase {
+public class TestEditorModel extends AbstractJUnit4FileTestCase {
 
   private static final Resources s_resources =
       new ResourcesImplementation(
@@ -64,7 +74,7 @@ public class TestEditorModel extends AbstractFileTestCase {
   private final FileChangeWatcher m_fileChangeWatcher =
     m_fileChangeWatcherStubFactory.getStub();
 
-  public void testConstruction() throws Exception {
+  @Test public void testConstruction() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
@@ -81,7 +91,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertEquals(0, editorModel.getBuffers().length);
   }
 
-  public void testSelectBufferForFile() throws Exception {
+  @Test public void testSelectBufferForFile() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
@@ -170,7 +180,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     listener2StubFactory.assertNoMoreCalls();
   }
 
-  public void testSelectNewBuffer() throws Exception {
+  @Test public void testSelectNewBuffer() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
@@ -224,7 +234,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     return file;
   }
 
-  public void testIsBoringFile() throws Exception {
+  @Test public void testIsBoringFile() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
@@ -262,26 +272,28 @@ public class TestEditorModel extends AbstractFileTestCase {
     }
   }
 
-  public void testIsPythonFile() throws Exception {
+  @Test public void testIsScriptFile() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
                       m_agentCacheState,
                       m_fileChangeWatcher);
 
-    final File[] python = {
+    final File[] script = {
       new File("my file.py"),
       new File(".blah.py"),
       new File("python.PY"),
       new File("~python.py"),
+      new File("clojure.clj"),
+      new File(".clj"),
     };
 
-    for (int i = 0; i < python.length; ++i) {
-      assertTrue("Is python: " + python[i],
-                 editorModel.isPythonFile(python[i]));
+    for (int i = 0; i < script.length; ++i) {
+      assertTrue("Is script: " + script[i],
+                 editorModel.isScriptFile(script[i]));
     }
 
-    final File[] notPython = {
+    final File[] notScript = {
       null,
       new File("script.python"),
       new File("script.py "),
@@ -289,13 +301,13 @@ public class TestEditorModel extends AbstractFileTestCase {
       new File("x.text"),
     };
 
-    for (int i = 0; i < notPython.length; ++i) {
-      assertTrue("Isn't python: " + notPython[i],
-                 !editorModel.isPythonFile(notPython[i]));
+    for (int i = 0; i < notScript.length; ++i) {
+      assertTrue("Isn't script: " + notScript[i],
+                 !editorModel.isScriptFile(notScript[i]));
     }
   }
 
-  public void testIsPropertiesFile() throws Exception {
+  @Test public void testIsPropertiesFile() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
@@ -328,7 +340,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     }
   }
 
-  public void testCloseBufferAndIsABufferDirty() throws Exception {
+  @Test public void testCloseBufferAndIsABufferDirty() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
@@ -395,7 +407,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     listenerStubFactory.assertNoMoreCalls();
   }
 
-  public void testSaveBufferAs() throws Exception {
+  @Test public void testSaveBufferAs() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
@@ -446,7 +458,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertEquals(buffer, editorModel.getBufferForFile(file2));
   }
 
-  public void testGetAndSelectProperties() throws Exception {
+  @Test public void testGetAndSelectProperties() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
@@ -501,7 +513,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertFalse(editorModel.isSelectedScript(script));
   }
 
-  public void testAbstractListener() throws Exception {
+  @Test public void testAbstractListener() throws Exception {
     final EditorModel.Listener listener = new EditorModel.AbstractListener() {};
 
     listener.bufferAdded(null);
@@ -510,7 +522,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     listener.bufferStateChanged(null);
   }
 
-  public void testChangedFilesMonitoring() throws Exception {
+  @Test public void testChangedFilesMonitoring() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
@@ -555,7 +567,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     editorModelListenerStubFactory.assertNoMoreCalls();
   }
 
-  public void testOpenWithExternalEditor() throws Exception {
+  @Test public void testOpenWithExternalEditor() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
