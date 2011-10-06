@@ -29,7 +29,7 @@
       <li>
         <strong>Worker processes</strong>
         <ul>
-          <li>Interprets Jython test scripts and performs the tests.<br/> Each worker process can run many tests in parallel using a
+          <li>Interprets test scripts and performs the tests.<br/> Each worker process can run many tests in parallel using a
           number of <em>worker threads</em>.</li>
         </ul>
       </li>
@@ -71,7 +71,7 @@
     <p>A <em>test</em> is a unit of work against which statistics are
     recorded. Tests are uniquely defined by
     a <em>test number</em> and also have a <em>description</em>.
-    Users specify which tests to run using a Jython <a
+    Users specify which tests to run using a <a
     href="site:scripts-intro">test script</a>.
     If you wish your scripts can report many different actions (e.g.
     different web page requests) against the same test, The Grinder
@@ -194,7 +194,7 @@ Totals        250           0             156.70       23.32
       href="site:properties"><code>grinder.properties</code></a> file.
       This file specifies general control information (how the worker
       processes should contact the console, how many worker processes
-      to use, ..), as well as the name of the Jython script that will
+      to use, ..), as well as the name of the test script that will
       be used to run the tests.<p/></li>
 
       <li>Set your <code>CLASSPATH</code> to include the
@@ -212,7 +212,7 @@ java net.grinder.Console
 java net.grinder.Grinder
 </source>
         <p>The agent will look for the <code>grinder.properties</code>
-        file in the local directory. The Jython script is usually
+        file in the local directory. The test script is usually
         stored alongside the properties file. If you like, you can
         specify an explicit properties file as the first argument. For
         example:</p>

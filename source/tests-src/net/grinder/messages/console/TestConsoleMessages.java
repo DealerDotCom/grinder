@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,9 @@
 
 package net.grinder.messages.console;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,9 +32,9 @@ import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 
-import junit.framework.TestCase;
-import net.grinder.common.Test;
 import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.communication.Address;
+import net.grinder.communication.CommunicationException;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.messages.agent.StubCacheHighWaterMark;
@@ -42,15 +45,17 @@ import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.testutility.Serializer;
 
+import org.junit.Test;
+
 
 /**
  *  Unit test case for console messages.
  *
  * @author Philip Aston
  */
-public class TestConsoleMessages extends TestCase {
+public class TestConsoleMessages {
 
-  public void testRegisterStatisticsViewMessage() throws Exception {
+  @Test public void testRegisterStatisticsViewMessage() throws Exception {
 
     final StatisticExpressionFactory statisticExpressionFactory =
       StatisticsServicesImplementation.getInstance()
@@ -100,9 +105,10 @@ public class TestConsoleMessages extends TestCase {
     }
   }
 
-  public void testRegisterTestsMessage() throws Exception {
+  @Test public void testRegisterTestsMessage() throws Exception {
 
-    final Collection<Test> c = new HashSet<Test>();
+    final Collection<net.grinder.common.Test> c =
+      new HashSet<net.grinder.common.Test>();
 
     final RegisterTestsMessage original = new RegisterTestsMessage(c);
 
@@ -113,7 +119,7 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(original.getTests(), received.getTests());
   }
 
-  public void testReportStatisticsMessage() throws Exception {
+  @Test public void testReportStatisticsMessage() throws Exception {
 
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
@@ -130,7 +136,7 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(original.getStatisticsDelta(), received.getStatisticsDelta());
   }
 
-  public void testWorkerReportMessage() throws Exception {
+  @Test public void testWorkerReportMessage() throws Exception {
 
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
@@ -157,7 +163,23 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(3, received.getMaximumNumberOfThreads());
   }
 
-  public void testAgentReportMessage() throws Exception {
+  @Test public void testWorkerReportMessageBadAddress() throws Exception {
+
+    final WorkerProcessReportMessage message =
+      new WorkerProcessReportMessage((short)1, (short)2, (short)3);
+
+    final Address badAddress =
+      new AgentAddress(new StubAgentIdentity("Agent"));
+
+    try {
+      message.setAddress(badAddress);
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+  }
+
+  @Test public void testAgentReportMessage() throws Exception {
 
     final StubAgentIdentity agentIdentity =
       new StubAgentIdentity("Agent");
@@ -182,5 +204,21 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(address, original.getProcessAddress());
     assertEquals(1, received.getState());
     assertEquals(cacheHighWaterMark, received.getCacheHighWaterMark());
+  }
+
+  @Test public void testAgentReportMessageBadAddress() throws Exception {
+
+    final AgentProcessReportMessage message =
+      new AgentProcessReportMessage((short)1, null);
+
+    final Address badAddress =
+      new WorkerAddress(new StubAgentIdentity("Agent").createWorkerIdentity());
+
+    try {
+      message.setAddress(badAddress);
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
   }
 }

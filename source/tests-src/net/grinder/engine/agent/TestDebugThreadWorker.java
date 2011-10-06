@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,9 +21,13 @@
 
 package net.grinder.engine.agent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.InputStream;
 
-import junit.framework.TestCase;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.StreamSender;
 import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
@@ -31,30 +35,34 @@ import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.testutility.DelegatingStubFactory;
 import net.grinder.testutility.RedirectStandardStreams;
 
+import org.junit.Test;
+
 
 /**
- * Unit tests for <code>DebugThreadWorker</code>.
+ * Unit tests for {@link DebugThreadWorker}/
  *
  * @author Philip Aston
  */
-public class TestDebugThreadWorker extends TestCase {
+public class TestDebugThreadWorker {
 
   private final WorkerIdentityImplementation m_workerIdentity =
     new AgentIdentityImplementation(getClass().getName())
     .createWorkerIdentity();
 
-  public void testDebugThreadWorker() throws Exception {
+  @Test public void testDebugThreadWorker() throws Exception {
 
     final DelegatingStubFactory<IsolatedGrinderProcessRunner>
       isolateGrinderProcessRunnerStubFactory =
         DelegatingStubFactory.create(new IsolatedGrinderProcessRunner());
 
-    final Worker worker =
+    final DebugThreadWorker worker =
       new DebugThreadWorker(m_workerIdentity,
                             isolateGrinderProcessRunnerStubFactory.getStub());
 
     assertEquals(m_workerIdentity, worker.getIdentity());
     assertNotNull(worker.getCommunicationStream());
+
+    worker.start();
 
     final int[] resultHolder = { -1 };
 
@@ -88,7 +96,7 @@ public class TestDebugThreadWorker extends TestCase {
     worker.destroy();
   }
 
-  public void testInterruption() throws Exception {
+  @Test public void testInterruption() throws Exception {
 
     final DebugThreadWorker debugThreadWorker =
       new DebugThreadWorker(
@@ -102,6 +110,8 @@ public class TestDebugThreadWorker extends TestCase {
             }
             return 0;
           }});
+
+    debugThreadWorker.start();
 
     Thread.currentThread().interrupt();
 

@@ -39,7 +39,7 @@ imported document-to-html.xsl for details.
     </pre>
   </xsl:template>
 
-   <xsl:template match="source[@class='text']">
+  <xsl:template match="source[@class='text']">
     <xsl:apply-templates select="@id"/>
     <pre class="brush: text; gutter: false">
       <xsl:copy-of select="@id"/>
@@ -47,13 +47,26 @@ imported document-to-html.xsl for details.
     </pre>
   </xsl:template>
 
-  <xsl:template match="source">
+  <xsl:template match="source[@class='jython']">
     <xsl:apply-templates select="@id"/>
     <pre class="brush: python">
       <xsl:copy-of select="@id"/>
       <xsl:apply-templates/>
     </pre>
   </xsl:template>
+
+  <xsl:template match="source[@class='clojure']">
+    <xsl:apply-templates select="@id"/>
+    <pre class="brush: clojure">
+      <xsl:copy-of select="@id"/>
+      <xsl:apply-templates/>
+    </pre>
+  </xsl:template>
+
+  <xsl:template match="source">
+    <H1>FIXME</H1>
+  </xsl:template>
+
 
   <xsl:template match="document">
     <meta-data>

@@ -1,4 +1,4 @@
-// Copyright (C) 2007, 2008 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.Serializable;
 
 import net.grinder.util.Directory;
-import net.grinder.util.Directory.DirectoryException;
 
 
 /**
@@ -77,10 +76,8 @@ public final class ScriptLocation implements Serializable {
    *
    * @param file
    *            The script file.
-   * @throws DirectoryException
-   *            If the parent directory is invalid.
    */
-  public ScriptLocation(File file) throws DirectoryException {
+  public ScriptLocation(File file) {
     this(new Directory(), file);
   }
 

@@ -21,6 +21,8 @@
 
 package net.grinder.console.communication;
 
+import static net.grinder.testutility.FileUtilities.createRandomFile;
+import static net.grinder.testutility.SocketUtilities.findFreePort;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -130,7 +132,7 @@ public class TestConsoleCommunicationImplementation
                                              10);
   }
 
-  protected void tearDown() throws Exception {
+  public void tearDown() throws Exception {
     super.tearDown();
 
     m_consoleCommunication.shutdown();
@@ -281,9 +283,7 @@ public class TestConsoleCommunicationImplementation
     m_properties.setIgnoreSampleCount(99);
 
     // Reset by changing properties and do another test.
-    final ServerSocket freeServerSocket = new ServerSocket(0);
-    freeServerSocket.close();
-    m_properties.setConsolePort(freeServerSocket.getLocalPort());
+    m_properties.setConsolePort(findFreePort());
 
     // Changing the port drops the existing connections.
     waitForNumberOfConnections(0);

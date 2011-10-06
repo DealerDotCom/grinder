@@ -1,11 +1,25 @@
 The Grinder 3.6 (Not yet released)
----------------
+----------------------------------
+
+   The script engine API has been improved so that adding support
+   for other languages is straightforward.
+
+   Clojure is supported as an alternative test script language.
 
    Fulfil feature request 1849150 - Synchronisation points.
    Thanks to Aditya for the request.
 
    Fix bug 3406177 - DCR instrumented objects are not garbage
    collected. Thanks to Gary Mulder for the report and diagnostics.
+
+   Fix bug 3413171 - TCPProxy broken in The Grinder 3.5. Thanks to
+   Lonnie Choset for the report.
+
+   Fix bug 3411728 - helloworld.py doesn't work with DCR
+   instrumentation. Thanks to Jeff Vincent for the report.
+
+   Fulfill feature request 3389028 - XSLTHelper API to control indent.
+   Thanks to Jean-Francois Poilpret for the request.
 
 
 The Grinder 3.5

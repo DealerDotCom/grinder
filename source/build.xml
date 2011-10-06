@@ -35,10 +35,16 @@ They are bundled in the lib directory:
   - PicoContainer 2.13.6
   - ASM 3.2
 
+The following additional packages are necessary to build The Grinder.
+They must be added to the run-time CLASSPATH to enable the relevant
+feature.
+
+  - Clojure 1.3.0.
+
 The following optional packages are necessary to run The Grinder unit
 tests, reports, and release process.
 
-  - JUnit 4.4
+  - JUnit 4.5
   - Checkstyle 4.4
   - Clover 2.0.3
   - Mockito 1.8.5
@@ -203,6 +209,13 @@ if this doesn't do what you want.
       </fileset>
     </path>
 
+    <path id="clojure.classpath">
+      <!-- Must use fileset, pathelement doesn't accept wildcards. -->
+      <fileset dir="${clojure.home}">
+        <include name="clojure*slim.jar"/>
+      </fileset>
+    </path>
+
     <path id="xmlbeans.classpath">
       <pathelement path="${lib.dir}/xbean.jar"/>
       <pathelement path="${lib.dir}/jsr173_1.0_api.jar"/>
@@ -211,6 +224,7 @@ if this doesn't do what you want.
     <path id="build.classpath">
       <pathelement path="${classes.dir}"/>
       <path refid="asm.classpath"/>
+      <path refid="clojure.classpath"/>
       <path refid="jython.classpath"/>
       <path refid="picocontainer.classpath"/>
       <path refid="xmlbeans.classpath"/>
@@ -317,6 +331,7 @@ if this doesn't do what you want.
       <fileset dir="${src.dir}"  includes="**/resources/*.keystore"/>
       <fileset dir="${src.dir}"  includes="**/resources/*.png"/>
       <fileset dir="${src.dir}"  includes="**/resources/*.xsl"/>
+      <fileset dir="${src.dir}"  includes="META-INF/**"/>
     </copy>
 
     <copy todir="${classes.dir}" filtering="on">

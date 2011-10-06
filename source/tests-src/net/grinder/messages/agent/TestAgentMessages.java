@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,6 +28,8 @@ import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
 import net.grinder.util.FileContents;
 
+import org.junit.Test;
+
 
 /**
  * Unit test case for messages that are sent to the agent processes.
@@ -36,11 +38,11 @@ import net.grinder.util.FileContents;
  */
 public class TestAgentMessages extends AbstractFileTestCase {
 
-  public void testResetGrinderMessage() throws Exception {
+  @Test public void testResetGrinderMessage() throws Exception {
     Serializer.serialize(new ResetGrinderMessage());
   }
 
-  public void testStartGrinderMessage() throws Exception {
+  @Test public void testStartGrinderMessage() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
     properties.setProperty("foo", "bah");
     properties.setInt("lah", 123);
@@ -51,11 +53,11 @@ public class TestAgentMessages extends AbstractFileTestCase {
     assertEquals(properties, received.getProperties());
   }
 
-  public void testStopGrinderMessage() throws Exception {
+  @Test public void testStopGrinderMessage() throws Exception {
     Serializer.serialize(new StopGrinderMessage());
   }
 
-  public void testDistributeFileMessage() throws Exception {
+  @Test public void testDistributeFileMessage() throws Exception {
     final File file = new File("test");
     assertTrue(new File(getDirectory(), file.getPath()).createNewFile());
 
@@ -68,7 +70,7 @@ public class TestAgentMessages extends AbstractFileTestCase {
                  received.getFileContents().toString());
   }
 
-  public void testClearCacheMessage() throws Exception {
+  @Test public void testClearCacheMessage() throws Exception {
     Serializer.serialize(new ClearCacheMessage());
   }
 }

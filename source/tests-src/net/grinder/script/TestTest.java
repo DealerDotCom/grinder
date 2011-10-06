@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2009 Philip Aston
+// Copyright (C) 2002 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,9 +30,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import junit.framework.TestCase;
-import net.grinder.engine.process.Instrumenter;
 import net.grinder.engine.process.StubTestRegistry;
-import net.grinder.engine.process.ScriptEngine.Recorder;
+import net.grinder.scriptengine.Instrumenter;
+import net.grinder.scriptengine.Recorder;
 import net.grinder.testutility.RandomStubFactory;
 
 

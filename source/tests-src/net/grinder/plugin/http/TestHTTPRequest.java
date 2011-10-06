@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,8 +33,7 @@ import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
-import net.grinder.engine.process.ScriptEngine.Recorder;
-import net.grinder.engine.process.instrumenter.MasterInstrumenter;
+import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
@@ -44,6 +43,9 @@ import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics.StatisticsForTest;
+import net.grinder.scriptengine.Instrumenter;
+import net.grinder.scriptengine.Recorder;
+import net.grinder.scriptengine.java.JavaScriptEngineService;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.AssertUtilities;
@@ -58,7 +60,7 @@ import HTTPClient.ParseException;
 
 
 /**
- * Unit test case for <code>HTTPRequest</code>.
+ * Unit test case for {@link HTTPRequest}.
  *
  * @author Philip Aston
  */
@@ -1140,15 +1142,9 @@ public class TestHTTPRequest extends TestCase {
   public void testDCRInstrumentation() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
-    final MasterInstrumenter masterInstrumenter =
-      new MasterInstrumenter(m_loggerStubFactory.getLogger(), true);
-
-    assertEquals("byte code transforming instrumenter for Jython 2.1/2.2; " +
-                 "byte code transforming instrumenter for Java",
-                 masterInstrumenter.getDescription());
-
-    m_loggerStubFactory.assertOutputMessageContains("byte code transforming");
-    m_loggerStubFactory.assertNoMoreCalls();
+    final Instrumenter instrumenter =
+      new JavaScriptEngineService(DCRContextImplementation.create(null))
+      .createInstrumenters().get(0);
 
     final RandomStubFactory<Recorder> recorderStubFactory =
       RandomStubFactory.create(Recorder.class);
@@ -1156,7 +1152,7 @@ public class TestHTTPRequest extends TestCase {
 
     final Test test = new StubTest(1, "foo");
 
-    masterInstrumenter.createInstrumentedProxy(test, recorder, request);
+    instrumenter.createInstrumentedProxy(test, recorder, request);
 
     try {
       request.GET();

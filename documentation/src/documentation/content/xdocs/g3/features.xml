@@ -10,7 +10,7 @@
 
 <body>
   <p>Thanks to <strong>Edwin DeSouza</strong> for his help in
-  compiling this feature list.<br/>Last updated: 5 January 2008</p>
+  compiling this feature list.<br/>Last updated: 4 October 2011</p>
 
   <section>
     <title>Capabilities of The Grinder</title>
@@ -75,6 +75,8 @@
         <li><a href="ext:xmlbeans">Apache XMLBeans</a></li>
 
         <li><a href="ext:picocontainer">PicoContainer</a></li>
+
+        <li><a href="ext:clojure">Clojure</a></li>
 
         </ul>
 
@@ -278,8 +280,7 @@
       <tr>
         <td>Access to any Java API</td>
 
-        <td>Jython allows any Java-based API to be used directly from
-        the test script.</td>
+        <td>Test scripts can directly access any Java API.</td>
       </tr>
 
       <tr>

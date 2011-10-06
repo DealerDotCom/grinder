@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,10 @@
 
 package net.grinder.plugin.http;
 
+import static java.util.Collections.singleton;
+
 import java.net.URLClassLoader;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 import net.grinder.common.GrinderException;
@@ -34,7 +37,7 @@ import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.script.Statistics;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.testutility.RandomStubFactory;
-import net.grinder.util.IsolatingClassLoader;
+import net.grinder.util.BlockingClassLoader;
 
 
 /**
@@ -62,25 +65,13 @@ public class TestHTTPPlugin extends TestCase {
 
   public void testInitialiseWithBadHTTPClient() throws Exception {
 
-    final ClassLoader classLoader =
-      new IsolatingClassLoader(
-        (URLClassLoader) getClass().getClassLoader(), new String[] { }, false) {
-      protected Class<?> loadClass(String name, boolean resolve)
-        throws ClassNotFoundException  {
+    final String pluginName = HTTPPlugin.class.getName();
 
-        if (name.equals("HTTPClient.RetryModule")) {
-          return null;
-        }
-
-        if (name.equals("net.grinder.plugin.http.HTTPPlugin")) {
-          // Isolate HTTPPlugin.
-          return super.loadClass(name, resolve);
-        }
-
-        // Share everything else.
-        return Class.forName(name, resolve, getParent());
-      }
-    };
+    final URLClassLoader blockingLoader =
+      new BlockingClassLoader(singleton("HTTPClient.RetryModule"),
+                              singleton(pluginName),
+                              Collections.<String>emptySet(),
+                              false);
 
     new PluginRegistry() {
       {
@@ -93,7 +84,7 @@ public class TestHTTPPlugin extends TestCase {
     };
 
     try {
-      Class.forName("net.grinder.plugin.http.HTTPPlugin", true, classLoader);
+      Class.forName(pluginName, true, blockingLoader);
       fail("Expected PluginException");
     }
     catch (ExceptionInInitializerError e) {

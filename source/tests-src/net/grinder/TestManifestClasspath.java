@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,16 +21,21 @@
 
 package net.grinder;
 
+import static java.util.Arrays.asList;
+
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
 import junit.framework.TestCase;
 import net.grinder.plugin.http.xml.CommentType;
-import net.grinder.testutility.BlockingClassLoader;
+import net.grinder.util.BlockingClassLoader;
 
 import org.apache.xmlbeans.XmlBeans;
 import org.objectweb.asm.ClassReader;
@@ -39,29 +44,29 @@ import org.python.core.PyObject;
 
 import extra166y.CustomConcurrentHashMap;
 
+
 /**
  * Unit test that checks the manifest classpath is correct.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class TestManifestClasspath extends TestCase {
 
   public void testManifest() throws Exception {
-    final List<String> blockedClasses =
-      Arrays.<String>asList("org.objectweb.asm.*",
-                            "extra166y.*",
-                            "net.grinder.*",
-                            "org.python.*",
-                            "javax.xml.stream.*",
-                            "org.picocontainer.*",
-                            "org.apache.xmlbeans.*");
-
-    final URLClassLoader ourClassLoader =
-      (URLClassLoader)TestManifestClasspath.class.getClassLoader();
+    final Set<String> blockedClasses =
+      new HashSet<String>(asList("org.objectweb.asm.*",
+                                 "extra166y.*",
+                                 "net.grinder.*",
+                                 "org.python.*",
+                                 "javax.xml.stream.*",
+                                 "org.picocontainer.*",
+                                 "org.apache.xmlbeans.*"));
 
     final BlockingClassLoader blockingClassLoader =
-      new BlockingClassLoader(ourClassLoader, blockedClasses);
+      new BlockingClassLoader(blockedClasses,
+                              Collections.<String>emptySet(),
+                              Collections.<String>emptySet(),
+                              false);
 
     final ClassLoader classLoader =
       new URLClassLoader(new URL[] { new URL("file:lib/grinder.jar") },

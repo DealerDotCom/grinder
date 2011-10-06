@@ -21,11 +21,16 @@
 
 package net.grinder.engine.agent;
 
+import static net.grinder.testutility.AssertUtilities.assertContains;
+import static net.grinder.testutility.FileUtilities.fileContents;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+
 import java.io.File;
+import java.io.FileFilter;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
-
-import org.junit.After;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationException;
@@ -35,19 +40,21 @@ import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.RedirectStandardStreams;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 
+import org.junit.After;
+import org.junit.Test;
+
 
 /**
- * Unit tests for <code>DebugThreadWorkerFactory</code>.
+ * Unit tests for {@link DebugThreadWorkerFactory}/
  *
  * @author Philip Aston
  */
-public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
+public class TestDebugThreadWorkerFactory extends AbstractJUnit4FileTestCase {
 
   private AgentIdentityImplementation m_agentIdentity =
     new AgentIdentityImplementation(getClass().getName());
@@ -55,11 +62,11 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
   private FanOutStreamSender m_fanOutStreamSender = new FanOutStreamSender(1);
   private GrinderProperties m_properties = new GrinderProperties();
 
-  @After public void tearDown() {
+  @After public void shutdownStreamSender() throws Exception {
     m_fanOutStreamSender.shutdown();
   }
 
-  public void testFactory() throws Exception {
+  @Test public void testFactory() throws Exception {
     m_properties.setProperty("grinder.logDirectory",
                            getDirectory().getAbsolutePath());
 
@@ -67,7 +74,7 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
       new DebugThreadWorkerFactory(m_agentIdentity,
                                    m_fanOutStreamSender,
                                    false,
-                                   new ScriptLocation(new File(".")),
+                                   new ScriptLocation(new File("missing.py")),
                                    m_properties);
 
     new RedirectStandardStreams() {
@@ -75,16 +82,28 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
         final Worker worker = factory.create(null, null);
         worker.waitFor();
       }
-    }.run();
+    }.run()
+     .assertNoStdout()
+     .assertNoStderr();
 
     // Should have output and error files.
     assertEquals(2, getDirectory().list().length);
+
+    final File[] errorFiles = getDirectory().listFiles(new FileFilter() {
+      public boolean accept(File f) {
+        return f.getName().startsWith("error");
+      }});
+
+    assertEquals(1, errorFiles.length);
+
+    assertContains(fileContents(errorFiles[0]),
+                   "File not found"); // Script not found.
   }
 
-  public void testWithBadIsolatedRunner() throws Exception {
+  @Test public void testWithBadIsolatedRunner() throws Exception {
     try {
       DebugThreadWorkerFactory.setIsolatedRunnerClass(
-        BadClassInaccesible.class);
+        BadClassInaccesible.class.getName());
 
       final DebugThreadWorkerFactory factory =
         new DebugThreadWorkerFactory(m_agentIdentity,
@@ -99,9 +118,16 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
       }
       catch (EngineException e) {
       }
+    }
+    finally {
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
+    }
+  }
 
+  @Test public void testWithBadIsolatedRunner2() throws Exception {
+    try {
       DebugThreadWorkerFactory.setIsolatedRunnerClass(
-        BadClassCantInstantiate.class);
+        BadClassCantInstantiate.class.getName());
 
       final DebugThreadWorkerFactory factory2 =
         new DebugThreadWorkerFactory(m_agentIdentity,
@@ -116,9 +142,16 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
       }
       catch (EngineException e) {
       }
+    }
+    finally {
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
+    }
+  }
 
+  @Test public void testWithBadIsolatedRunner3() throws Exception {
+    try {
       DebugThreadWorkerFactory.setIsolatedRunnerClass(
-        BadClassNotAnIsolateGrinderProcessRunner.class);
+        BadClassNotAnIsolateGrinderProcessRunner.class.getName());
 
       final DebugThreadWorkerFactory factory3 =
         new DebugThreadWorkerFactory(m_agentIdentity,
@@ -139,9 +172,33 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
     }
   }
 
-  public void testIsolation() throws Exception {
+  @Test public void testWithBadIsolatedRunner4() throws Exception {
     try {
-      DebugThreadWorkerFactory.setIsolatedRunnerClass(GoodRunner.class);
+      DebugThreadWorkerFactory.setIsolatedRunnerClass("Not a class");
+
+      final DebugThreadWorkerFactory factory3 =
+        new DebugThreadWorkerFactory(m_agentIdentity,
+                                     m_fanOutStreamSender,
+                                     false,
+                                     new ScriptLocation(new File(".")),
+                                     m_properties);
+
+      try {
+        factory3.create(null, null);
+        fail("Expected AssertionError");
+      }
+      catch (AssertionError e) {
+      }
+    }
+    finally {
+      DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
+    }
+  }
+
+  @Test public void testIsolation() throws Exception {
+    try {
+      DebugThreadWorkerFactory
+        .setIsolatedRunnerClass(GoodRunner.class.getName());
 
       final DebugThreadWorkerFactory factory =
         new DebugThreadWorkerFactory(m_agentIdentity,
@@ -179,12 +236,13 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
     }
   }
 
-  public void testIsolationWithSharedClasses() throws Exception {
+  @Test public void testIsolationWithSharedClasses() throws Exception {
     try {
       m_properties.setProperty("grinder.debug.singleprocess.sharedclasses",
                                MyStaticHolder.class.getName());
 
-      DebugThreadWorkerFactory.setIsolatedRunnerClass(GoodRunner.class);
+      DebugThreadWorkerFactory
+        .setIsolatedRunnerClass(GoodRunner.class.getName());
 
       final DebugThreadWorkerFactory factory =
         new DebugThreadWorkerFactory(m_agentIdentity,
@@ -223,18 +281,15 @@ public class TestDebugThreadWorkerFactory extends AbstractFileTestCase {
   }
 
   // Bug 2958145.
-  public void testExposeInstrumentationNotIsolated() throws Exception {
+  @Test public void testExposeInstrumentationNotIsolated() throws Exception {
 
     final Instrumentation originalInstrumentation =
       ExposeInstrumentation.getInstrumentation();
 
-    final RandomStubFactory<Instrumentation> instrumentationStubFactory =
-      RandomStubFactory.create(Instrumentation.class);
-    final Instrumentation instrumentation =
-      instrumentationStubFactory.getStub();
+    final Instrumentation instrumentation = mock(Instrumentation.class);
 
     DebugThreadWorkerFactory.setIsolatedRunnerClass(
-      AccessInstrumentationRunner.class);
+      AccessInstrumentationRunner.class.getName());
 
     try {
       ExposeInstrumentation.premain("", instrumentation);

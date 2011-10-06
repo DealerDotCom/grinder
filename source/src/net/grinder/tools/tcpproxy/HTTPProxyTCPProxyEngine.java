@@ -158,13 +158,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
     m_proxySSLEngineThread =
       new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine");
-    m_proxySSLEngineThread.start();
   }
 
   /**
    * Main event loop.
    */
   public void run() {
+
+    m_proxySSLEngineThread.start();
 
     // I've seen pathological messages with huge tracking cookies that are
     // bigger than 4K. Let's super-size this.

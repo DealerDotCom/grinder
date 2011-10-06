@@ -8260,151 +8260,151 @@
     </Class>
   </BugInstance>
   <BugInstance type="ES_COMPARING_STRINGS_WITH_EQ" priority="3" abbrev="ES" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.AbstractInstrumentedPyJavaInstance">
-      <SourceLine classname="net.grinder.engine.process.jython.AbstractInstrumentedPyJavaInstance" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="AbstractInstrumentedPyJavaInstance.java" sourcepath="net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java"/>
+    <Class classname="net.grinder.scriptengine.jython.AbstractInstrumentedPyJavaInstance">
+      <SourceLine classname="net.grinder.scriptengine.jython.AbstractInstrumentedPyJavaInstance" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="AbstractInstrumentedPyJavaInstance.java" sourcepath="net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.AbstractInstrumentedPyJavaInstance" name="__findattr__" signature="(Ljava/lang/String;)Lorg/python/core/PyObject;" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.AbstractInstrumentedPyJavaInstance" start="59" end="67" startBytecode="0" endBytecode="16" sourcefile="AbstractInstrumentedPyJavaInstance.java" sourcepath="net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java"/>
+    <Method classname="net.grinder.scriptengine.jython.AbstractInstrumentedPyJavaInstance" name="__findattr__" signature="(Ljava/lang/String;)Lorg/python/core/PyObject;" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.AbstractInstrumentedPyJavaInstance" start="59" end="67" startBytecode="0" endBytecode="16" sourcefile="AbstractInstrumentedPyJavaInstance.java" sourcepath="net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java"/>
     </Method>
     <Class classname="java.lang.String" role="CLASS_REFTYPE">
       <SourceLine classname="java.lang.String" start="-1" end="-1" startBytecode="-1" endBytecode="-1"/>
     </Class>
-    <SourceLine classname="net.grinder.engine.process.jython.AbstractInstrumentedPyJavaInstance" start="59" end="59" startBytecode="3" endBytecode="3" sourcefile="AbstractInstrumentedPyJavaInstance.java" sourcepath="net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.AbstractInstrumentedPyJavaInstance" start="59" end="59" startBytecode="3" endBytecode="3" sourcefile="AbstractInstrumentedPyJavaInstance.java" sourcepath="net/grinder/engine/process/jython/AbstractInstrumentedPyJavaInstance.java"/>
   </BugInstance>
   <BugInstance type="ES_COMPARING_STRINGS_WITH_EQ" priority="3" abbrev="ES" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyInstance">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyInstance" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyInstance.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyInstance.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyInstance">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyInstance" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyInstance.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyInstance.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.InstrumentedPyInstance" name="__findattr__" signature="(Ljava/lang/String;)Lorg/python/core/PyObject;" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyInstance" start="71" end="98" startBytecode="0" endBytecode="30" sourcefile="InstrumentedPyInstance.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyInstance.java"/>
+    <Method classname="net.grinder.scriptengine.jython.InstrumentedPyInstance" name="__findattr__" signature="(Ljava/lang/String;)Lorg/python/core/PyObject;" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyInstance" start="71" end="98" startBytecode="0" endBytecode="30" sourcefile="InstrumentedPyInstance.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyInstance.java"/>
     </Method>
     <Class classname="java.lang.String" role="CLASS_REFTYPE">
       <SourceLine classname="java.lang.String" start="-1" end="-1" startBytecode="-1" endBytecode="-1"/>
     </Class>
-    <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyInstance" start="71" end="71" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyInstance.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyInstance.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyInstance" start="71" end="71" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyInstance.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyInstance.java"/>
   </BugInstance>
   <BugInstance type="SE_NO_SERIALVERSIONID" priority="2" abbrev="SnVI" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyInstance">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyInstance" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyInstance.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyInstance.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyInstance">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyInstance" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyInstance.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyInstance.java"/>
     </Class>
   </BugInstance>
   <BugInstance type="SE_NO_SUITABLE_CONSTRUCTOR_FOR_EXTERNALIZATION" priority="2" abbrev="Se" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForJavaInstances">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForJavaInstances" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForJavaInstances.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForJavaInstances">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForJavaInstances" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForJavaInstances.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForJavaInstances.java"/>
     </Class>
   </BugInstance>
   <BugInstance type="ES_COMPARING_STRINGS_WITH_EQ" priority="3" abbrev="ES" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" name="invoke" signature="(Ljava/lang/String;)Lorg/python/core/PyObject;" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="66" end="78" startBytecode="0" endBytecode="22" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <Method classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" name="invoke" signature="(Ljava/lang/String;)Lorg/python/core/PyObject;" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="66" end="78" startBytecode="0" endBytecode="22" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
     </Method>
     <Class classname="java.lang.String" role="CLASS_REFTYPE">
       <SourceLine classname="java.lang.String" start="-1" end="-1" startBytecode="-1" endBytecode="-1"/>
     </Class>
-    <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="66" end="66" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="66" end="66" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
   </BugInstance>
   <BugInstance type="ES_COMPARING_STRINGS_WITH_EQ" priority="3" abbrev="ES" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" name="invoke" signature="(Ljava/lang/String;Lorg/python/core/PyObject;)Lorg/python/core/PyObject;" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="90" end="99" startBytecode="0" endBytecode="25" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <Method classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" name="invoke" signature="(Ljava/lang/String;Lorg/python/core/PyObject;)Lorg/python/core/PyObject;" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="90" end="99" startBytecode="0" endBytecode="25" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
     </Method>
     <Class classname="java.lang.String" role="CLASS_REFTYPE">
       <SourceLine classname="java.lang.String" start="-1" end="-1" startBytecode="-1" endBytecode="-1"/>
     </Class>
-    <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="90" end="90" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="90" end="90" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
   </BugInstance>
   <BugInstance type="ES_COMPARING_STRINGS_WITH_EQ" priority="3" abbrev="ES" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" name="invoke" signature="(Ljava/lang/String;Lorg/python/core/PyObject;Lorg/python/core/PyObject;)Lorg/python/core/PyObject;" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="112" end="121" startBytecode="0" endBytecode="28" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <Method classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" name="invoke" signature="(Ljava/lang/String;Lorg/python/core/PyObject;Lorg/python/core/PyObject;)Lorg/python/core/PyObject;" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="112" end="121" startBytecode="0" endBytecode="28" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
     </Method>
     <Class classname="java.lang.String" role="CLASS_REFTYPE">
       <SourceLine classname="java.lang.String" start="-1" end="-1" startBytecode="-1" endBytecode="-1"/>
     </Class>
-    <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="112" end="112" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="112" end="112" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
   </BugInstance>
   <BugInstance type="ES_COMPARING_STRINGS_WITH_EQ" priority="3" abbrev="ES" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" name="invoke" signature="(Ljava/lang/String;[Lorg/python/core/PyObject;)Lorg/python/core/PyObject;" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="133" end="142" startBytecode="0" endBytecode="25" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <Method classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" name="invoke" signature="(Ljava/lang/String;[Lorg/python/core/PyObject;)Lorg/python/core/PyObject;" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="133" end="142" startBytecode="0" endBytecode="25" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
     </Method>
     <Class classname="java.lang.String" role="CLASS_REFTYPE">
       <SourceLine classname="java.lang.String" start="-1" end="-1" startBytecode="-1" endBytecode="-1"/>
     </Class>
-    <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="133" end="133" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="133" end="133" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
   </BugInstance>
   <BugInstance type="SE_NO_SUITABLE_CONSTRUCTOR_FOR_EXTERNALIZATION" priority="2" abbrev="Se" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyJavaInstanceForPyMethodsAndPyFunctions.java"/>
     </Class>
   </BugInstance>
   <BugInstance type="ES_COMPARING_STRINGS_WITH_EQ" priority="3" abbrev="ES" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyReflectedFunction">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyReflectedFunction" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyReflectedFunction.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyReflectedFunction">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyReflectedFunction" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyReflectedFunction.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.InstrumentedPyReflectedFunction" name="__findattr__" signature="(Ljava/lang/String;)Lorg/python/core/PyObject;" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyReflectedFunction" start="62" end="70" startBytecode="0" endBytecode="15" sourcefile="InstrumentedPyReflectedFunction.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java"/>
+    <Method classname="net.grinder.scriptengine.jython.InstrumentedPyReflectedFunction" name="__findattr__" signature="(Ljava/lang/String;)Lorg/python/core/PyObject;" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyReflectedFunction" start="62" end="70" startBytecode="0" endBytecode="15" sourcefile="InstrumentedPyReflectedFunction.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java"/>
     </Method>
     <Class classname="java.lang.String" role="CLASS_REFTYPE">
       <SourceLine classname="java.lang.String" start="-1" end="-1" startBytecode="-1" endBytecode="-1"/>
     </Class>
-    <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyReflectedFunction" start="62" end="62" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyReflectedFunction.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyReflectedFunction" start="62" end="62" startBytecode="3" endBytecode="3" sourcefile="InstrumentedPyReflectedFunction.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java"/>
   </BugInstance>
   <BugInstance type="SE_NO_SERIALVERSIONID" priority="2" abbrev="SnVI" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.InstrumentedPyReflectedFunction">
-      <SourceLine classname="net.grinder.engine.process.jython.InstrumentedPyReflectedFunction" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyReflectedFunction.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java"/>
+    <Class classname="net.grinder.scriptengine.jython.InstrumentedPyReflectedFunction">
+      <SourceLine classname="net.grinder.scriptengine.jython.InstrumentedPyReflectedFunction" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="InstrumentedPyReflectedFunction.java" sourcepath="net/grinder/engine/process/jython/InstrumentedPyReflectedFunction.java"/>
     </Class>
   </BugInstance>
   <BugInstance type="IMA_INEFFICIENT_MEMBER_ACCESS" priority="3" abbrev="IMA" category="PERFORMANCE">
-    <Class classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <Class classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable" name="&lt;init&gt;" signature="(Lnet/grinder/engine/process/jython/JythonScriptEngine;)V" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable" start="338" end="334" startBytecode="0" endBytecode="55" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <Method classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable" name="&lt;init&gt;" signature="(Lnet/grinder/engine/process/jython/JythonScriptEngine;)V" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable" start="338" end="334" startBytecode="0" endBytecode="55" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
     </Method>
-    <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable" start="326" end="326" startBytecode="11" endBytecode="11" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable" start="326" end="326" startBytecode="11" endBytecode="11" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
   </BugInstance>
   <BugInstance type="IMA_INEFFICIENT_MEMBER_ACCESS" priority="3" abbrev="IMA" category="PERFORMANCE">
-    <Class classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <Class classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable" name="shutdown" signature="()V" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable" start="376" end="392" startBytecode="0" endBytecode="65" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <Method classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable" name="shutdown" signature="()V" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable" start="376" end="392" startBytecode="0" endBytecode="65" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
     </Method>
-    <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$JythonWorkerRunnable" start="389" end="389" startBytecode="39" endBytecode="39" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$JythonWorkerRunnable" start="389" end="389" startBytecode="39" endBytecode="39" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
   </BugInstance>
   <BugInstance type="IMA_INEFFICIENT_MEMBER_ACCESS" priority="3" abbrev="IMA" category="PERFORMANCE">
-    <Class classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <Class classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory" name="instrumentObject" signature="(Lnet/grinder/common/Test;Lnet/grinder/engine/process/jython/JythonScriptEngine$PyDispatcher;Ljava/lang/Object;)Lorg/python/core/PyObject;" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="221" end="267" startBytecode="0" endBytecode="227" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <Method classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory" name="instrumentObject" signature="(Lnet/grinder/common/Test;Lnet/grinder/engine/process/jython/JythonScriptEngine$PyDispatcher;Ljava/lang/Object;)Lorg/python/core/PyObject;" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="221" end="267" startBytecode="0" endBytecode="227" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
     </Method>
-    <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="226" end="226" startBytecode="24" endBytecode="24" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="226" end="226" startBytecode="24" endBytecode="24" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
   </BugInstance>
   <BugInstance type="IMA_INEFFICIENT_MEMBER_ACCESS" priority="3" abbrev="IMA" category="PERFORMANCE">
-    <Class classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <Class classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory" name="instrumentObject" signature="(Lnet/grinder/common/Test;Lnet/grinder/engine/process/jython/JythonScriptEngine$PyDispatcher;Ljava/lang/Object;)Lorg/python/core/PyObject;" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="221" end="267" startBytecode="0" endBytecode="227" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <Method classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory" name="instrumentObject" signature="(Lnet/grinder/common/Test;Lnet/grinder/engine/process/jython/JythonScriptEngine$PyDispatcher;Ljava/lang/Object;)Lorg/python/core/PyObject;" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="221" end="267" startBytecode="0" endBytecode="227" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
     </Method>
-    <SourceLine classname="net.grinder.engine.process.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="246" end="246" startBytecode="134" endBytecode="134" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptEngine$PyInstrumentedProxyFactory" start="246" end="246" startBytecode="134" endBytecode="134" sourcefile="JythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/JythonScriptEngine.java"/>
   </BugInstance>
   <BugInstance type="BC_UNCONFIRMED_CAST" priority="3" abbrev="BC" category="STYLE">
-    <Class classname="net.grinder.engine.process.jython.JythonScriptExecutionException">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptExecutionException" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/JythonScriptExecutionException.java"/>
+    <Class classname="net.grinder.scriptengine.jython.JythonScriptExecutionException">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptExecutionException" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="JythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/JythonScriptExecutionException.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.JythonScriptExecutionException" name="&lt;init&gt;" signature="(Ljava/lang/String;Lorg/python/core/PyException;)V" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.JythonScriptExecutionException" start="51" end="87" startBytecode="0" endBytecode="113" sourcefile="JythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/JythonScriptExecutionException.java"/>
+    <Method classname="net.grinder.scriptengine.jython.JythonScriptExecutionException" name="&lt;init&gt;" signature="(Ljava/lang/String;Lorg/python/core/PyException;)V" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptExecutionException" start="51" end="87" startBytecode="0" endBytecode="113" sourcefile="JythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/JythonScriptExecutionException.java"/>
     </Method>
     <Class classname="org.python.core.PyObject">
       <SourceLine classname="org.python.core.PyObject" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="PyObject.java" sourcepath="org/python/core/PyObject.java"/>
@@ -8412,72 +8412,72 @@
     <Class classname="org.python.core.PyClass">
       <SourceLine classname="org.python.core.PyClass" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="PyClass.java" sourcepath="org/python/core/PyClass.java"/>
     </Class>
-    <SourceLine classname="net.grinder.engine.process.jython.JythonScriptExecutionException" start="61" end="61" startBytecode="90" endBytecode="90" sourcefile="JythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/JythonScriptExecutionException.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.JythonScriptExecutionException" start="61" end="61" startBytecode="90" endBytecode="90" sourcefile="JythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/JythonScriptExecutionException.java"/>
   </BugInstance>
   <BugInstance type="DM_STRING_VOID_CTOR" priority="2" abbrev="Dm" category="PERFORMANCE">
-    <Class classname="net.grinder.engine.process.jython.TestJythonScriptEngine">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <Class classname="net.grinder.scriptengine.jython.TestJythonScriptEngine">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.TestJythonScriptEngine" name="testCreateProxyWithNonWrappableParameters" signature="()V" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="846" end="872" startBytecode="0" endBytecode="170" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <Method classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" name="testCreateProxyWithNonWrappableParameters" signature="()V" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="846" end="872" startBytecode="0" endBytecode="170" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
     </Method>
-    <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="851" end="851" startBytecode="54" endBytecode="54" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="851" end="851" startBytecode="54" endBytecode="54" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
   </BugInstance>
   <BugInstance type="OS_OPEN_STREAM_EXCEPTION_PATH" priority="3" abbrev="OS" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.TestJythonScriptEngine">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <Class classname="net.grinder.scriptengine.jython.TestJythonScriptEngine">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.TestJythonScriptEngine" name="testInitialise" signature="()V" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="88" end="152" startBytecode="0" endBytecode="130" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <Method classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" name="testInitialise" signature="()V" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="88" end="152" startBytecode="0" endBytecode="130" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
     </Method>
-    <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="113" end="113" startBytecode="88" endBytecode="88" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="113" end="113" startBytecode="88" endBytecode="88" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
   </BugInstance>
   <BugInstance type="RV_RETURN_VALUE_IGNORED" priority="3" abbrev="RV" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.TestJythonScriptEngine">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <Class classname="net.grinder.scriptengine.jython.TestJythonScriptEngine">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.TestJythonScriptEngine" name="testInitialise" signature="()V" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="88" end="152" startBytecode="0" endBytecode="268" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <Method classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" name="testInitialise" signature="()V" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="88" end="152" startBytecode="0" endBytecode="268" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
     </Method>
     <Method classname="java.io.File" name="createNewFile" signature="()Z" isStatic="false" role="METHOD_CALLED">
       <SourceLine classname="java.io.File" start="848" end="850" startBytecode="0" endBytecode="58" sourcefile="File.java" sourcepath="java/io/File.java"/>
     </Method>
-    <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="103" end="103" startBytecode="60" endBytecode="60" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="103" end="103" startBytecode="60" endBytecode="60" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
   </BugInstance>
   <BugInstance type="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" priority="1" abbrev="ST" category="STYLE">
-    <Class classname="net.grinder.engine.process.jython.TestJythonScriptEngine">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <Class classname="net.grinder.scriptengine.jython.TestJythonScriptEngine">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.TestJythonScriptEngine" name="testShutdown" signature="()V" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="155" end="206" startBytecode="0" endBytecode="265" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <Method classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" name="testShutdown" signature="()V" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="155" end="206" startBytecode="0" endBytecode="265" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
     </Method>
-    <Field classname="net.grinder.engine.process.jython.TestJythonScriptEngine" name="s_lastCallbackObject" signature="Ljava/lang/Object;" isStatic="true">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <Field classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" name="s_lastCallbackObject" signature="Ljava/lang/Object;" isStatic="true">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
     </Field>
-    <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptEngine" start="167" end="167" startBytecode="63" endBytecode="63" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptEngine" start="167" end="167" startBytecode="63" endBytecode="63" sourcefile="TestJythonScriptEngine.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptEngine.java"/>
   </BugInstance>
   <BugInstance type="NM_CLASS_NOT_EXCEPTION" priority="2" abbrev="Nm" category="STYLE">
-    <Class classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
+    <Class classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
     </Class>
   </BugInstance>
   <BugInstance type="RV_CHECK_FOR_POSITIVE_INDEXOF" priority="3" abbrev="RV" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
+    <Class classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException" name="testWithWrappedJavaException" signature="()V" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException" start="74" end="90" startBytecode="0" endBytecode="133" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
+    <Method classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException" name="testWithWrappedJavaException" signature="()V" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException" start="74" end="90" startBytecode="0" endBytecode="133" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
     </Method>
-    <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException" start="86" end="86" startBytecode="76" endBytecode="76" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException" start="86" end="86" startBytecode="76" endBytecode="76" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
   </BugInstance>
   <BugInstance type="RV_CHECK_FOR_POSITIVE_INDEXOF" priority="3" abbrev="RV" category="CORRECTNESS">
-    <Class classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
+    <Class classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException" start="-1" end="-1" startBytecode="-1" endBytecode="-1" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
     </Class>
-    <Method classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException" name="testWithWrappedJavaException" signature="()V" isStatic="false">
-      <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException" start="74" end="90" startBytecode="0" endBytecode="133" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
+    <Method classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException" name="testWithWrappedJavaException" signature="()V" isStatic="false">
+      <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException" start="74" end="90" startBytecode="0" endBytecode="133" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
     </Method>
-    <SourceLine classname="net.grinder.engine.process.jython.TestJythonScriptExecutionException" start="87" end="87" startBytecode="94" endBytecode="94" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
+    <SourceLine classname="net.grinder.scriptengine.jython.TestJythonScriptExecutionException" start="87" end="87" startBytecode="94" endBytecode="94" sourcefile="TestJythonScriptExecutionException.java" sourcepath="net/grinder/engine/process/jython/TestJythonScriptExecutionException.java"/>
   </BugInstance>
   <BugInstance type="PZLA_PREFER_ZERO_LENGTH_ARRAYS" priority="3" abbrev="PZLA" category="STYLE">
     <Class classname="net.grinder.plugin.http.HTTPPluginTCPProxyFilter">

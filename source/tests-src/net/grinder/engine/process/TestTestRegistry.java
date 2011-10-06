@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
+import net.grinder.scriptengine.Instrumenter;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.RandomStubFactory;

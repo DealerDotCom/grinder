@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,15 +21,13 @@
 
 package net.grinder.testutility;
 
-import junit.framework.TestCase;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Random;
+
+import org.junit.After;
+
+import junit.framework.TestCase;
 
 
 /**
@@ -43,7 +41,7 @@ public abstract class AbstractFileTestCase extends TestCase {
 
   private File m_directory;
 
-  protected void tearDown() throws Exception {
+  @After public void tearDown() throws Exception {
     if (m_directory != null) {
       delete(m_directory);
     }
@@ -78,55 +76,5 @@ public abstract class AbstractFileTestCase extends TestCase {
     }
 
     return m_directory;
-  }
-
-  protected final void createRandomFile(File file) throws IOException {
-    file.getParentFile().mkdirs();
-
-    final OutputStream out = new FileOutputStream(file);
-    final byte[] bytes = new byte[s_random.nextInt(2000)];
-    s_random.nextBytes(bytes);
-    out.write(bytes);
-    out.close();
-  }
-
-  protected String readLastLine(File file) throws IOException {
-    final BufferedReader reader = new BufferedReader(new FileReader(file));
-
-    try {
-      String last = null;
-
-      while (true) {
-        final String line = reader.readLine();
-        if (line == null) {
-          return last;
-        }
-
-        last = line;
-      }
-    }
-    finally {
-      reader.close();
-    }
-  }
-
-  protected int countLines(File file) throws IOException {
-    final BufferedReader reader = new BufferedReader(new FileReader(file));
-
-    try {
-      int result = 0;
-
-      while (true) {
-        final String line = reader.readLine();
-        if (line == null) {
-          return result;
-        }
-
-        ++result;
-      }
-    }
-    finally {
-      reader.close();
-    }
   }
 }

@@ -68,7 +68,7 @@
        serializable. We don't care. -->
   <Match>
     <Or>
-      <Class name="~net.grinder.engine.process.jython.*"/>
+      <Class name="~net.grinder.scriptengine.jython.*"/>
     </Or>
     <Or>
       <Bug pattern="SE_BAD_FIELD"/>

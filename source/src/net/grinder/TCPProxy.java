@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -61,8 +62,8 @@ import net.grinder.util.SimpleLogger;
 import net.grinder.util.SimpleStringEscaper;
 import net.grinder.util.URIParserImplementation;
 
-import org.picocontainer.ComponentAdapter;
 import org.picocontainer.DefaultPicoContainer;
+import org.picocontainer.PicoContainer;
 import org.picocontainer.behaviors.Caching;
 import org.picocontainer.monitors.WriterComponentMonitor;
 
@@ -175,7 +176,10 @@ public final class TCPProxy extends AbstractMainClass {
 
   private final TCPProxyEngine m_proxyEngine;
 
-  private TCPProxy(String[] args, Logger logger) throws Exception {
+  /**
+   * Package scope for unit tests.
+   */
+  TCPProxy(String[] args, Logger logger) throws Exception {
     super(logger, USAGE);
 
     m_filterContainer.addComponent(logger);
@@ -484,16 +488,20 @@ public final class TCPProxy extends AbstractMainClass {
 
   private final class FilterChain {
     private final String m_type;
+    private final List<String> m_filterKeys = new ArrayList<String>();
     private int m_value;
 
     public FilterChain(String type) {
       m_type = type;
     }
 
-    public void add(Class<?> theClass) {
-      m_filterContainer.addComponent(m_type + ++m_value, theClass);
+    public void add(Class<? extends TCPProxyFilter> theClass) {
+      final String key = m_type + ++m_value;
+      m_filterContainer.addComponent(key, theClass);
+      m_filterKeys.add(key);
     }
 
+    @SuppressWarnings("unchecked")
     public void add(String filterClassName)
       throws LoggedInitialisationException {
 
@@ -519,27 +527,29 @@ public final class TCPProxy extends AbstractMainClass {
                           TCPProxyFilter.class.getName() + "'.");
         }
 
-        add(filterClass);
+        add((Class<? extends TCPProxyFilter>) filterClass);
       }
     }
 
     public TCPProxyFilter resolveFilter() {
-      final List<ComponentAdapter<TCPProxyFilter>> adapterList =
-        m_filterContainer.getComponentAdapters(TCPProxyFilter.class);
-
-      if (adapterList.size() == 0) {
+      if (m_filterKeys.size() == 0) {
         add(EchoFilter.class);
       }
 
       final CompositeFilter result = new CompositeFilter();
 
-      for (ComponentAdapter<TCPProxyFilter> adapter : adapterList) {
-        result.add(
-          adapter.getComponentInstance(m_filterContainer,
-                                       TCPProxyFilter.class));
+      for (String key : m_filterKeys) {
+        result.add((TCPProxyFilter) m_filterContainer.getComponent(key));
       }
 
       return result;
     }
+  }
+
+  /**
+   *  Accessor for unit tests.
+   */
+  PicoContainer getFilterContainer() {
+    return m_filterContainer;
   }
 }

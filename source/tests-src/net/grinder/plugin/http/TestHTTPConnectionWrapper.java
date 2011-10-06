@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,14 +21,16 @@
 
 package net.grinder.plugin.http;
 
+import static java.util.Collections.singleton;
+
 import java.net.InetAddress;
-import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import net.grinder.testutility.RandomStubFactory;
-import net.grinder.util.IsolatingClassLoader;
+import net.grinder.util.BlockingClassLoader;
 import net.grinder.util.Sleeper;
 import HTTPClient.HTTPConnection;
 import HTTPClient.StubHTTPConnection;
@@ -143,26 +145,20 @@ public class TestHTTPConnectionWrapper extends TestCase {
 
   /** Dumb check to cover static initialisation error handling. */
   public void testClassInitialisation() throws Exception {
-    final String[] shared = { "java.*", };
 
-    final ClassLoader classLoader =
-      new IsolatingClassLoader(
-        (URLClassLoader) getClass().getClassLoader(), shared, false) {
-      protected Class<?> loadClass(String name, boolean resolve)
-        throws ClassNotFoundException  {
+    final String wrapperName = HTTPConnectionWrapper.class.getName();
 
-        if (name.equals("HTTPClient.AuthorizationModule")) {
-          return null;
-        }
-
-        return super.loadClass(name, resolve);
-      }
-    };
+    final ClassLoader blockingLoader =
+      new BlockingClassLoader(
+         singleton("HTTPClient.AuthorizationModule"),
+         singleton(wrapperName),
+         Collections.<String>emptySet(),
+         false);
 
     try {
-      Class.forName("net.grinder.plugin.http.HTTPConnectionWrapper",
-                     true,
-                     classLoader);
+      Class.forName(wrapperName,
+                    true,
+                    blockingLoader);
       fail("Expected ExceptionInInitializerError");
     }
     catch (ExceptionInInitializerError e) {

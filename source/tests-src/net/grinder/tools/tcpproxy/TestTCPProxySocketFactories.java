@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,6 +20,8 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.tools.tcpproxy;
+
+import static net.grinder.testutility.SocketUtilities.findFreePort;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,9 +48,7 @@ public class TestTCPProxySocketFactories extends AbstractFileTestCase {
   protected void setUp() throws Exception {
     super.setUp();
 
-    final ServerSocket serverSocket = new ServerSocket(0);
-    m_freeLocalPort = serverSocket.getLocalPort();
-    serverSocket.close();
+    m_freeLocalPort = findFreePort();
   }
 
   public void testTCPProxySocketFactoryImplementation() throws Exception {

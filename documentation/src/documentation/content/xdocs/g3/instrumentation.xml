@@ -122,7 +122,8 @@ class TestRunner:
       href="site:jython-2.5">supports Jython 2.5</a>.</p>
 
       <p>In addition, the traditional instrumentation is deeply tied
-      to Jython. It cannot be used with other scripting languages, nor
+      to Jython. It cannot be used with other scripting languages such
+      as <a href="site:clojure">Clojure</a>, nor
       can it be used within Java code called by the script. Both of
       these are possible with the new instrumentation.</p>
 
@@ -143,7 +144,7 @@ class TestRunner:
       href="site:getting-started/output">output</a> file.</p>
 
       <source class="text">
-      16/11/09 07:49:40 (process paston01-0): instrumentation agents: traditional Jython instrumenter</source>
+      16/11/09 07:49:40 (process paston01-0)  instrumentation agents: traditional Jython instrumenter</source>
 
       <p>The new instrumentation is enabled by setting the
       <a href="site:properties">grinder.dcrinstrumentation</a> property to
@@ -151,8 +152,8 @@ class TestRunner:
       line in the output file changes.</p>
 
       <source class="text">
-      16/11/09 08:02:18 (process paston01-0): instrumentation agents: byte code transforming instrumenter for Jython 2.1/2.2;
-      byte code transforming instrumenter for Java</source>
+      16/11/09 08:02:18 (process paston01-0): instrumentation agents:
+       byte code transforming instrumenter for Jython 2.1/2.2; byte code transforming instrumenter for Java</source>
 
       <p>If you see the following line, you should check
       you are using The Grinder 3.3, a Java 6 JVM, and you have set the
@@ -238,16 +239,6 @@ class TestRunner:
         </tr>
 
         <tr>
-        <td>Jython instance</td>
-        <td>Each call to an instance method is recorded.</td>
-        </tr>
-
-        <tr>
-        <td>Jython function or method</td>
-        <td>Each call of the function of method is recorded.</td>
-        </tr>
-
-        <tr>
         <td>Java class</td>
         <td>Each call made to a constructor or a static method declared by
         the class is recorded. Calls of non-static methods or static methods
@@ -255,15 +246,32 @@ class TestRunner:
         </tr>
 
         <tr>
+        <td>Jython instance</td>
+        <td>Each call to an instance method is recorded.</td>
+        </tr>
+
+        <tr>
+        <td>Jython function or method</td>
+        <td>Each call of the function or method is recorded.</td>
+        </tr>
+
+        <tr>
         <td>Jython class</td>
         <td>Each call made to the Jython class (i.e. constructor calls) is
         recorded.</td>
         </tr>
+
+        <tr>
+        <td>Clojure function</td>
+        <td>Each call of the function is recorded.</td>
+        </tr>
       </table>
 
       <p>In addition to the above rules, JVM classes loaded in the
-      bootstrap classloader, and classes from The Grinder's implementation
-      packages cannot be instrumented.</p>
+      bootstrap classloader, and classes from The Grinder's
+      <code>net.grinder.engine.process</code> implementation package
+      cannot be instrumented.</p>
+
     </section>
 
     <section>

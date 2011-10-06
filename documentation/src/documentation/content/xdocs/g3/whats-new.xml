@@ -17,29 +17,35 @@
   2 or The Grinder 3</a>?</note>
 
   <section>
-    <title>Jython</title>
+    <title>Dynamic Scripting</title>
 
-    <p><icon src="images/PythonPoweredSmall.gif" alt="Python
-    powered"/> The most significant change that The Grinder 3
-    introduces is a <a href="ext:jython">Jython</a> scripting engine that is
-    used to execute test scripts. Jython is a Java implementation of the popular
-    Python language. Test scripts specify the tests to run. In The Grinder 2,
-    tests were specified in the <code>grinder.properties</code> file. The
+    <p>The most significant change in The Grinder 3 is that test
+    scripts are written using a dynamic scripting language. Test
+    scripts specify the tests to run. In The Grinder 2, tests were
+    specified in the <code>grinder.properties</code> file. The
     <code>grinder.properties</code> file is still used to specify
     general control information (how to contact the console, how many
     worker processes to use, ..), as well as the name of the test
     script. Many other key features of The Grinder 2, such as the
     console and the process architecture, remain unchanged.</p>
 
-    <p>The scripting engine provides the following new
+    <p><icon src="images/PythonPoweredSmall.gif" alt="Python
+    powered"/> The default script language is <a
+    href="ext:jython">Jython</a>. Jython is a Java implementation of
+    the popular Python language. </p>
+
+    <p>The Grinder 3.6 added support for <a
+    href="ext:clojure">Clojure</a> as an alternative script language.</p>
+
+    <p>The script languages provide the following new
     capabilities:</p>
 
     <dl>
       <dt><strong>Test any Java code</strong></dt>
 
-      <dd><p>The Grinder 3 allows any Java (or Jython) code to be
-      encapsulated as a test. This practically removes the need to
-      write custom plug-ins. Although plug-ins are no longer
+      <dd><p>The Grinder 3 allows any code (Java, Jython, or Clojure)
+      code to be encapsulated as a test. This practically removes the
+      need to write custom plug-ins. Although plug-ins are no longer
       responsible for performing tests, they can still be useful to
       manage objects that the tests use. For example, the HTTP plug-in
       manages a pool of connections for each worker thread, and
@@ -58,10 +64,11 @@
         be taken depending on the outcome of each test.</p>
 
         <p>The Grinder 2 HTTP plug-in's <a
-        href="site:g2/plugins/http-plugin/string-bean">string bean</a> feature
-        provides simple support for requests that contain dynamic
-        data. The Grinder 3 can use the full power of Jython to create
-        dynamic requests of arbitrary complexity.</p>
+        href="site:g2/plugins/http-plugin/string-bean">string bean</a>
+        feature provides simple support for requests that contain
+        dynamic data. The Grinder 3 can use the full power of Jython
+        or Clojure to create dynamic requests of arbitrary
+        complexity.</p>
       </dd>
     </dl>
 

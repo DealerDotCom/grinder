@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -25,11 +25,11 @@ package org.python.core;
 
 /**
  * A <code>PyInstance</code> that shares the same class, dictionary, and
- * (optional) Java Proxy as another. <code>ClonePyInstance</code> is
- * sub-classed by
- * {@link net.grinder.engine.process.instrumenter.traditionaljython.InstrumentedPyInstance} which
- * customises the invocation behaviour and becomes the "wrapped" object for
- * Python classes. It is in the <code>org.python.core</code> package so that
+ * (optional) Java Proxy as another. <code>ClonePyInstance</code> is sub-classed
+ * by
+ * {@link net.grinder.scriptengine.jython.instrumentation.traditional.InstrumentedPyInstance}
+ * which customises the invocation behaviour and becomes the "wrapped" object
+ * for Python classes. It is in the <code>org.python.core</code> package so that
  * it can access the <code>javaProxy</code> field.
  *
  * @author Philip Aston

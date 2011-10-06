@@ -70,6 +70,7 @@ See http://forrest.apache.org/docs/linking.html for more info
         <record-api href="#record-api"/>
       </script-instrumentation>
       <jython-2.5 label="Jython 2.5" href="jython-2-5.html"/>
+      <clojure label="Clojure" href="clojure.html"/>
       <script-gallery label="Script Gallery" href="script-gallery.html">
         <digestauthentication href="#digestauthentication"/>
         <helloworldfunctions href="#helloworldfunctions"/>
@@ -162,6 +163,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <grinder href="stats/project/grinder"/>
     </cia>
 -->
+    <clojure href="http://clojure.org/"/>
 
     <cygwin href="http://cygwin.com/"/>
 

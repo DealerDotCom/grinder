@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,8 @@
 
 package net.grinder.console.distribution;
 
+import static net.grinder.testutility.FileUtilities.createRandomFile;
+
 import java.io.File;
 
 import net.grinder.communication.Address;
@@ -29,7 +31,6 @@ import net.grinder.messages.agent.CacheHighWaterMark;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.FileContents;
-
 
 /**
  * Unit test for {@link FileDistributionHandlerImplementation}.

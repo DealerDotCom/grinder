@@ -26,8 +26,9 @@ import java.io.PrintWriter;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.process.ScriptEngine.ScriptExecutionException;
-import net.grinder.engine.process.ScriptEngine.WorkerRunnable;
+import net.grinder.scriptengine.ScriptExecutionException;
+import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
+import net.grinder.scriptengine.ScriptEngineService.WorkerRunnable;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.util.Sleeper;
 
@@ -147,7 +148,7 @@ class GrinderThread implements java.lang.Runnable {
 
           // Sadly PrintWriter only exposes its lock object to subclasses.
           synchronized (errorWriter) {
-            logger.error("Aborted run due to " + e.getShortMessage());
+            logger.error("Aborted run: " + e.getShortMessage());
             e.printStackTrace(errorWriter);
           }
         }
@@ -169,7 +170,7 @@ class GrinderThread implements java.lang.Runnable {
         // Sadly PrintWriter only exposes its lock object to subclasses.
         synchronized (errorWriter) {
           logger.error(
-            "Aborted test runner shut down due to " + e.getShortMessage());
+            "Aborted test runner shut down: " + e.getShortMessage());
           e.printStackTrace(errorWriter);
         }
       }
@@ -178,13 +179,13 @@ class GrinderThread implements java.lang.Runnable {
     }
     catch (ScriptExecutionException e) {
       synchronized (errorWriter) {
-        logger.error("Aborting thread due to " + e.getShortMessage());
+        logger.error("Aborting thread: " + e.getShortMessage());
         e.printStackTrace(errorWriter);
       }
     }
     catch (Exception e) {
       synchronized (errorWriter) {
-        logger.error("Aborting thread due to " + e);
+        logger.error("Aborting thread: " + e);
         e.printStackTrace(errorWriter);
       }
     }

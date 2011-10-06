@@ -29,6 +29,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics.StatisticsForTest;
+import net.grinder.scriptengine.Instrumenter;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;

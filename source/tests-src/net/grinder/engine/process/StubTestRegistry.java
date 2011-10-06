@@ -23,6 +23,7 @@ package net.grinder.engine.process;
 
 import net.grinder.script.Grinder;
 import net.grinder.script.InternalScriptContext;
+import net.grinder.scriptengine.Instrumenter;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.RandomStubFactory;

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -22,21 +22,35 @@
 
 package net.grinder.testutility;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.Assert;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 import net.grinder.common.GrinderException;
+import net.grinder.util.StreamCopier;
 
 
 /**
- * File utilities missing from Java.
+ * File utilities used by the unit tests.
  *
- * @author    Philip Aston
+ * @author Philip Aston
  */
-public class FileUtilities extends Assert {
+public class FileUtilities {
+
+  private static Random s_random  = new Random();
 
   public static void setCanAccess(File file, boolean canAccess)
     throws Exception {
@@ -85,5 +99,87 @@ public class FileUtilities extends Assert {
 
     assertEquals("exec of " + Arrays.asList(command) +
       " succeeded", 0, process.exitValue());
+  }
+
+  public static String readLastLine(File file) throws IOException {
+    final BufferedReader reader = new BufferedReader(new FileReader(file));
+
+    try {
+      String last = null;
+
+      while (true) {
+        final String line = reader.readLine();
+        if (line == null) {
+          return last;
+        }
+
+        last = line;
+      }
+    }
+    finally {
+      reader.close();
+    }
+  }
+
+  public static int countLines(File file) throws IOException {
+    final BufferedReader reader = new BufferedReader(new FileReader(file));
+
+    try {
+      int result = 0;
+
+      while (true) {
+        final String line = reader.readLine();
+        if (line == null) {
+          return result;
+        }
+
+        ++result;
+      }
+    }
+    finally {
+      reader.close();
+    }
+  }
+
+  public static void createRandomFile(File file) throws IOException {
+    file.getParentFile().mkdirs();
+
+    final OutputStream out = new FileOutputStream(file);
+    final byte[] bytes = new byte[s_random.nextInt(2000)];
+    s_random.nextBytes(bytes);
+    out.write(bytes);
+    out.close();
+  }
+
+  public static String fileContents(File file) throws IOException {
+
+    final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+
+    new StreamCopier(4096, true)
+      .copy(new FileInputStream(file), byteOutputStream);
+
+    return new String(byteOutputStream.toByteArray());
+  }
+
+  public static void createFile(File file, List<String> lines)
+    throws IOException {
+
+    file.getParentFile().mkdirs();
+    file.createNewFile();
+
+    final PrintWriter out = new PrintWriter(new FileWriter(file));
+
+    try {
+      for (String line : lines) {
+        out.println(line);
+      }
+    }
+    finally {
+      out.close();
+    }
+  }
+
+  public static void createFile(File file, String... lines) throws IOException {
+    createFile(file, asList(lines));
   }
 }

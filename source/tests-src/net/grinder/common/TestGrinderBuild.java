@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005, 2006 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,19 @@
 
 package net.grinder.common;
 
+import static java.util.Collections.singleton;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.Collections;
 
-import net.grinder.util.IsolatingClassLoader;
+import net.grinder.util.BlockingClassLoader;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 
 /**
@@ -35,8 +41,8 @@ import junit.framework.TestCase;
  *
  * @author Philip Aston
  */
-public class TestGrinderBuild extends TestCase {
-  public void testGrinderBuildStrings() throws Exception {
+public class TestGrinderBuild {
+  @Test public void testGrinderBuildStrings() throws Exception {
     final String expectedVersion = System.getProperty("grinder.version");
 
     if (expectedVersion != null) {
@@ -53,23 +59,20 @@ public class TestGrinderBuild extends TestCase {
     assertTrue(GrinderBuild.getName().indexOf("The Grinder") >= 0);
   }
 
-  public void testGrinderBuildExceptions() throws Exception {
-    String[] shared = {
-        "java.*",
-    };
-
-    final ClassLoader classLoader =
-      new IsolatingClassLoader(
-        (URLClassLoader) getClass().getClassLoader(), shared, false) {
-
-        public URL getResource(String name) {
+  @Test public void testGrinderBuildExceptions() throws Exception {
+    final ClassLoader blockingLoader =
+      new BlockingClassLoader(Collections.<String>emptySet(),
+                              singleton(GrinderBuild.class.getName()),
+                              Collections.<String>emptySet(),
+                              false) {
+        @Override public URL getResource(String name) {
           // Be evil.
           return null;
         }
-    };
+      };
 
     try {
-      Class.forName("net.grinder.common.GrinderBuild", true, classLoader);
+      Class.forName(GrinderBuild.class.getName(), true, blockingLoader);
       fail("Expected ExceptionInInitializerError");
     }
     catch (ExceptionInInitializerError e) {

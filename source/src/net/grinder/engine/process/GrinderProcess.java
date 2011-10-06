@@ -55,8 +55,7 @@ import net.grinder.engine.common.ConnectorFactory;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.communication.ConsoleListener;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
-import net.grinder.engine.process.instrumenter.MasterInstrumenter;
-import net.grinder.engine.process.jython.JythonScriptEngine;
+import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.messages.console.WorkerAddress;
@@ -65,6 +64,8 @@ import net.grinder.script.Grinder;
 import net.grinder.script.InternalScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
+import net.grinder.scriptengine.Instrumenter;
+import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
@@ -297,18 +298,17 @@ final class GrinderProcess {
   public void run() throws GrinderException {
     final Logger logger = m_loggerImplementation.getProcessLogger();
 
+    final GrinderProperties properties =
+      m_initialisationMessage.getProperties();
+
+    final ScriptEngineContainer scriptEngineContainer =
+      new ScriptEngineContainer(properties,
+                                logger,
+                                DCRContextImplementation.create(logger),
+                                m_initialisationMessage.getScript());
+
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
-
-    final ScriptEngine scriptEngine = new JythonScriptEngine();
-
-    // Don't start the message pump until we've initialised Jython. Jython 2.5+
-    // tests to see whether the stdin stream is a tty, and on some versions of
-    // Windows, this synchronises on the stream object's monitor. This clashes
-    // with the message pump which starts a thread to call
-    // StreamRecevier.waitForMessage(), and so also synchronises on that
-    // monitor. See bug 2936167.
-    m_messagePump.start();
 
     final WorkerIdentity workerIdentity =
       m_initialisationMessage.getWorkerIdentity();
@@ -326,29 +326,34 @@ final class GrinderProcess {
 
     logger.output(numbers.toString());
 
-    final GrinderProperties properties =
-      m_initialisationMessage.getProperties();
     final short numberOfThreads =
       properties.getShort("grinder.threads", (short)1);
     final int reportToConsoleInterval =
       properties.getInt("grinder.reportToConsole.interval", 500);
     final int duration = properties.getInt("grinder.duration", 0);
 
-    final MasterInstrumenter instrumenter =
-      new MasterInstrumenter(
-        logger,
-        // This property name is poor, since it really means "If DCR
-        // instrumentation is available, use it for Jython". I'm not
-        // renaming it, since I expect it only to last a few releases,
-        // until DCR becomes the default.
-        properties.getBoolean("grinder.dcrinstrumentation", false));
+    final Instrumenter instrumenter =
+      scriptEngineContainer.createInstrumenter();
 
     m_testRegistryImplementation.setInstrumenter(instrumenter);
 
-    logger.output("executing \"" + m_initialisationMessage.getScript() +
-      "\" using " + scriptEngine.getDescription());
+    logger.output("instrumentation agents: " + instrumenter.getDescription());
 
-    scriptEngine.initialise(m_initialisationMessage.getScript());
+    // Force initialisation of the script engine before we start the message
+    // pump. Jython 2.5+ tests to see whether the stdin stream is a tty, and
+    // on some versions of Windows, this synchronises on the stream object's
+    // monitor. This clashes with the message pump which starts a thread to
+    // call StreamRecevier.waitForMessage(), and so also synchronises on that
+    // monitor. See bug 2936167.
+
+    final ScriptEngine scriptEngine =
+      scriptEngineContainer.getScriptEngine(
+        m_initialisationMessage.getScript());
+
+    logger.output("running \"" + m_initialisationMessage.getScript() +
+                  "\" using " + scriptEngine.getDescription());
+
+    m_messagePump.start();
 
     // Don't initialise the data writer until now as the script may
     // declare new statistics.

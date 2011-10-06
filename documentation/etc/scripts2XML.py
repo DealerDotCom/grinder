@@ -5,7 +5,14 @@ from changes2xml import XMLOutput, quote
 
 class Script:
     def __init__(self, filename):
-        self.id = filename.split("/")[-1].split(".")[0]
+        self.id = filename.split("/")[-1]
+
+        suffix = filename.split(".")[-1]
+
+        if suffix == "clj":
+            self.language = "clojure"
+        else:
+            self.language = "jython"
 
         f = open(filename, "rt")
         self.title = ""
@@ -16,7 +23,12 @@ class Script:
 
         while 1:
             line, self.text = self.text.split("\n", 1)
-            line = line.split("#")[-1].strip()
+
+            if line.strip().startswith("#"):
+                line = line.split("#")[-1].strip()
+            elif line.strip().startswith(";"):
+                line = line.split(";")[-1].strip()
+                
             if not line: break
             if self.title: self.title += " "
             self.title += line
@@ -28,7 +40,7 @@ def scripts2xml(filenames):
 
     for filename in filenames:
         script = Script(filename)
-        output.addLiteral("script", script.text, id=script.id, title=script.title)
+        output.addLiteral("script", script.text, id=script.id, title=script.title, language=script.language)
 
     return output.result()
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2008 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,24 +21,39 @@
 
 package net.grinder.engine.process;
 
+import static net.grinder.testutility.FileUtilities.countLines;
+import static net.grinder.testutility.FileUtilities.readLastLine;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
-import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.FileUtilities;
 import net.grinder.testutility.StubPrintStream;
+import net.grinder.testutility.TemporaryDirectory;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
- * Unit test case for <code>LoggerImplementation</code>.
+ * Unit tests for {@code LoggerImplementation}/
  *
  * @author Philip Aston
  */
-public class TestLoggerImplementation extends AbstractFileTestCase {
+public class TestLoggerImplementation {
+
+  private TemporaryDirectory m_directory = new TemporaryDirectory();
 
   private PrintStream m_oldStdout;
   private PrintStream m_oldStderr;
@@ -46,9 +61,7 @@ public class TestLoggerImplementation extends AbstractFileTestCase {
   private StubPrintStream m_stdout;
   private StubPrintStream m_stderr;
 
-  protected void setUp() throws Exception {
-    super.setUp();
-
+  @Before public void setUp() throws Exception {
     m_oldStdout = System.out;
     m_oldStderr = System.err;
 
@@ -59,15 +72,15 @@ public class TestLoggerImplementation extends AbstractFileTestCase {
     System.setErr(m_stderr);
   }
 
-  protected void tearDown() throws Exception {
+  @After public void tearDown() throws Exception {
     System.setOut(m_oldStdout);
     System.setErr(m_oldStderr);
 
-    super.tearDown();
+    m_directory.delete();
   }
 
-  public void testBasics() throws Exception {
-    final File directory = new File(getDirectory(), "logs");
+  @Test public void testBasics() throws Exception {
+    final File directory = m_directory.newFile("logs");
 
     assertTrue(directory.mkdir());
     FileUtilities.setCanAccess(directory, false);
@@ -99,8 +112,8 @@ public class TestLoggerImplementation extends AbstractFileTestCase {
     LoggerImplementation.tick();
   }
 
-  public void testDataWriter() throws Exception {
-    final File directory = new File(getDirectory(), "logs");
+  @Test public void testDataWriter() throws Exception {
+    final File directory = m_directory.newFile("logs");
 
     final LoggerImplementation logger =
       new LoggerImplementation("grinder123",
@@ -126,8 +139,8 @@ public class TestLoggerImplementation extends AbstractFileTestCase {
     assertEquals("data_grinder123.log", files[0].getName());
   }
 
-  public void testProcessLogger() throws Exception {
-    final File directory = new File(getDirectory(), "logs");
+  @Test public void testProcessLogger() throws Exception {
+    final File directory = m_directory.newFile("logs");
 
     final LoggerImplementation logger =
       new LoggerImplementation("grinder123",
@@ -227,8 +240,8 @@ public class TestLoggerImplementation extends AbstractFileTestCase {
     assertEquals(2, directory.listFiles().length);
   }
 
-  public void testThreadLogger() throws Exception {
-    final File directory = new File(getDirectory(), "logs");
+  @Test public void testThreadLogger() throws Exception {
+    final File directory = m_directory.newFile("logs");
 
     final LoggerImplementation logger =
       new LoggerImplementation("grinder123",
@@ -290,8 +303,8 @@ public class TestLoggerImplementation extends AbstractFileTestCase {
     assertEquals(0, m_stderr.getOutputAndReset().length);
   }
 
-  public void testFileManagement() throws Exception {
-    final File directory = new File(getDirectory(), "logs");
+  @Test public void testFileManagement() throws Exception {
+    final File directory = m_directory.newFile("logs");
 
     final LoggerImplementation logger1 =
       new LoggerImplementation("grinder123",

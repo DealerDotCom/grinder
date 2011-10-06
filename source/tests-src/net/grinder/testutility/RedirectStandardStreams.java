@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,7 @@ package net.grinder.testutility;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import static org.junit.Assert.*;
 
 
 /**
@@ -37,7 +38,7 @@ public abstract class RedirectStandardStreams {
   private final ByteArrayOutputStream m_stderrContent =
     new ByteArrayOutputStream();
 
-  public final void run() throws Exception {
+  public final RedirectStandardStreams run() throws Exception {
     final PrintStream oldStdout = System.out;
     final PrintStream oldStderr = System.err;
 
@@ -51,6 +52,26 @@ public abstract class RedirectStandardStreams {
       System.setOut(oldStdout);
       System.setErr(oldStderr);
     }
+
+    return this;
+  }
+
+  public final RedirectStandardStreams assertNoStdout() {
+    final byte[] stdout = getStdoutBytes();
+
+    assertTrue("stdout = " + new String(stdout),
+               stdout.length == 0);
+
+    return this;
+  }
+
+  public final RedirectStandardStreams assertNoStderr() {
+    final byte[] stdout = getStdoutBytes();
+
+    assertTrue("stdout = " + new String(stdout),
+               stdout.length == 0);
+
+    return this;
   }
 
   public final byte[] getStdoutBytes() {
