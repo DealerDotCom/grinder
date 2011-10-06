@@ -21,8 +21,6 @@
 
 package net.grinder.synchronisation;
 
-import static net.grinder.testutility.AssertUtilities.assertNotEquals;
-import static net.grinder.testutility.Serializer.serialize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -31,7 +29,6 @@ import static org.junit.Assert.fail;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.BarrierGroup.Listener;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 
@@ -72,39 +69,6 @@ public class TestLocalBarrierGroups {
     a.removeBarriers(1); // Invalidate a.
 
     assertNotSame(a, m_groups.getGroup("A"));
-  }
-
-  @Test public void testIdentityGeneration() {
-    final BarrierIdentityGenerator generator = m_groups.getIdentityGenerator();
-
-    final BarrierIdentity one = generator.next();
-    final BarrierIdentity two = generator.next();
-
-    assertNotEquals(one, two);
-  }
-
-  @Test public void testIdentityIsSerializable() throws Exception {
-    final BarrierIdentityGenerator generator = m_groups.getIdentityGenerator();
-
-    final BarrierIdentity id = generator.next();
-
-    final BarrierIdentity serializedID = serialize(id);
-
-    assertEquals(id, serializedID);
-  }
-
-  @Test public void testIdentityEquality() throws Exception {
-    final BarrierIdentityGenerator generator = m_groups.getIdentityGenerator();
-
-    final BarrierIdentity one = generator.next();
-    final BarrierIdentity two = generator.next();
-
-    assertEquals(one, one);
-    assertEquals(one.hashCode(), one.hashCode());
-
-    assertNotEquals(one, two);
-    assertNotEquals(one, this);
-    assertNotEquals(one, null);
   }
 
   private BarrierGroup createBarrierGroup(String groupName) {

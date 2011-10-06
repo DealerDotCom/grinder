@@ -21,12 +21,10 @@
 
 package net.grinder.synchronisation;
 
-import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.messages.AddBarrierMessage;
 import net.grinder.synchronisation.messages.AddWaiterMessage;
 import net.grinder.synchronisation.messages.BarrierIdentity;
@@ -40,9 +38,7 @@ import net.grinder.synchronisation.messages.RemoveBarriersMessage;
  *
  * @author Philip Aston
  */
-public class GlobalBarrierGroups extends AbstractBarrierGroups {
-
-  private final BarrierIdentityGenerator m_identityGenerator;
+public class ClientBarrierGroups extends AbstractBarrierGroups {
 
   private final QueuedSender m_sender;
 
@@ -51,19 +47,16 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
    *
    * @param sender Used to send messages to the remote instance (the console).
    * @param messageDispatch Used to receive messages from the remote instance.
-   * @param workerIdentity Unique process identity.
    */
-  public GlobalBarrierGroups(QueuedSender sender,
-                             MessageDispatchRegistry messageDispatch,
-                             WorkerIdentity workerIdentity) {
+  public ClientBarrierGroups(QueuedSender sender,
+                             MessageDispatchRegistry messageDispatch) {
     m_sender = sender;
-    m_identityGenerator = new IdentityGeneratorImplementation(workerIdentity);
 
     messageDispatch.set(
       OpenBarrierMessage.class,
       new AbstractHandler<OpenBarrierMessage>() {
         public void handle(OpenBarrierMessage message) {
-          final InternalBarrierGroup existingGroup =
+          final BarrierGroupImplementation existingGroup =
             getExistingGroup(message.getName());
 
           if (existingGroup != null) {
@@ -76,71 +69,49 @@ public class GlobalBarrierGroups extends AbstractBarrierGroups {
   /**
    * {@inheritDoc}
    */
-  public BarrierIdentityGenerator getIdentityGenerator() {
-    return m_identityGenerator;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override protected InternalBarrierGroup createBarrierGroup(String name) {
-    return new GlobalBarrierGroup(name);
-  }
-
-  // TODO could be a wrapper.
-  /**
-   * Extends {@link AbstractBarrierGroups} which verifies the consistency of the
-   * local partition of the barrier group.
-   */
-  private class GlobalBarrierGroup extends AbstractBarrierGroup {
+  @Override
+  protected BarrierGroupImplementation createBarrierGroup(String name) {
 
     /**
-     * Constructor.
-     *
-     * @param name Barrier group name.
+     * Extending {@link AbstractBarrierGroups} verifies the consistency of the
+     * local partition of the barrier group.
      */
-    public GlobalBarrierGroup(String name) {
-      super(name);
-    }
+    return new BarrierGroupImplementation(name) {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override public void addBarrier() throws CommunicationException {
-      super.addBarrier();
+      @Override
+      public void addBarrier()
+        throws CommunicationException {
 
-      m_sender.queue(new AddBarrierMessage(getName()));
-    }
+        super.addBarrier();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override public void removeBarriers(long n) throws CommunicationException {
-      super.removeBarriers(n);
+        m_sender.queue(new AddBarrierMessage(getName()));
+      }
 
-      m_sender.queue(new RemoveBarriersMessage(getName(), n));
-    }
+      @Override
+      public void removeBarriers(long n) throws CommunicationException {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override public void addWaiter(BarrierIdentity barrierIdentity)
-      throws CommunicationException {
+        super.removeBarriers(n);
 
-      super.addWaiter(barrierIdentity);
+        m_sender.queue(new RemoveBarriersMessage(getName(), n));
+      }
 
-      m_sender.queue(new AddWaiterMessage(getName(), barrierIdentity));
-    }
+      @Override
+      public void addWaiter(BarrierIdentity barrierIdentity)
+        throws CommunicationException {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override public void cancelWaiter(BarrierIdentity barrierIdentity)
-      throws CommunicationException {
+        super.addWaiter(barrierIdentity);
 
-      super.cancelWaiter(barrierIdentity);
+        m_sender.queue(new AddWaiterMessage(getName(), barrierIdentity));
+      }
 
-      m_sender.queue(new CancelWaiterMessage(getName(), barrierIdentity));
-    }
+      @Override
+      public void cancelWaiter(BarrierIdentity barrierIdentity)
+        throws CommunicationException {
+
+        super.cancelWaiter(barrierIdentity);
+
+        m_sender.queue(new CancelWaiterMessage(getName(), barrierIdentity));
+      }
+    };
   }
 }

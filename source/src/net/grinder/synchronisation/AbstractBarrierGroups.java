@@ -21,15 +21,12 @@
 
 package net.grinder.synchronisation;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import net.grinder.communication.CommunicationException;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 import net.grinder.util.ListenerSupport;
 
@@ -42,8 +39,8 @@ import net.grinder.util.ListenerSupport;
 public abstract class AbstractBarrierGroups implements BarrierGroups  {
 
   // Guarded by self.
-  private final Map<String, InternalBarrierGroup> m_groups =
-    new HashMap<String, InternalBarrierGroup>();
+  private final Map<String, BarrierGroupImplementation> m_groups =
+    new HashMap<String, BarrierGroupImplementation>();
 
   /**
    * {@inheritDoc}
@@ -56,18 +53,11 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
         return existing;
       }
 
-      final InternalBarrierGroup newInstance = createBarrierGroup(name);
+      final BarrierGroupImplementation newInstance = createBarrierGroup(name);
       m_groups.put(name, newInstance);
 
       return newInstance;
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public BarrierIdentityGenerator getIdentityGenerator() {
-    throw new UnsupportedOperationException();
   }
 
   /**
@@ -77,7 +67,7 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
    */
   public final void cancelAll() throws CommunicationException {
     synchronized (m_groups) {
-      for (InternalBarrierGroup group : m_groups.values()) {
+      for (BarrierGroupImplementation group : m_groups.values()) {
         group.cancelAll();
       }
     }
@@ -91,7 +81,7 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
    *          Barrier name.
    * @return The barrier group, or {@code null} if none exists.
    */
-  protected final InternalBarrierGroup getExistingGroup(String name) {
+  protected final BarrierGroupImplementation getExistingGroup(String name) {
     synchronized (m_groups) {
       return m_groups.get(name);
     }
@@ -111,7 +101,7 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
    *          Barrier name.
    * @return A new barrier group instance.
    */
-  protected abstract InternalBarrierGroup createBarrierGroup(String name);
+  protected abstract BarrierGroupImplementation createBarrierGroup(String name);
 
   /**
    * {@inheritDoc}
@@ -123,28 +113,9 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
   }
 
   /**
-   * Additional barrier group interface required by sub-classes.
-   */
-  protected interface InternalBarrierGroup extends BarrierGroup {
-
-    /**
-     * Check whether the barrier group should awaken.
-     *
-     * @return {@code true} if and only if the group should awaken.
-     */
-    boolean checkConditionLocal();
-
-    /**
-     * Call the {@link Listener#awaken()} method for all of the listeners.
-     */
-    void fireAwaken();
-  }
-
-  /**
    * Basic {@link BarrierGroup} implementation.
    */
-  protected abstract class AbstractBarrierGroup
-    implements InternalBarrierGroup {
+  protected class BarrierGroupImplementation implements BarrierGroup {
 
     private final String m_name;
 
@@ -164,7 +135,7 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
      *
      * @param name Barrier group name.
      */
-    public AbstractBarrierGroup(String name) {
+    public BarrierGroupImplementation(String name) {
       m_name = name;
     }
 
@@ -275,18 +246,20 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
     }
 
     /**
-     * {@inheritDoc}
+     * Call the {@link Listener#awaken()} method for all of the listeners.
      */
-    public final void fireAwaken() {
+    protected final void fireAwaken() {
       m_listeners.apply(new ListenerSupport.Informer<Listener>() {
         public void inform(Listener listener) { listener.awaken(); }
       });
     }
 
     /**
-     * {@inheritDoc}
+     * Check whether the barrier group should awaken.
+     *
+     * @return {@code true} if and only if the group should awaken.
      */
-    public final boolean checkConditionLocal() {
+    protected final boolean checkConditionLocal() {
       synchronized (this) {
         if (m_barriers > 0 && m_barriers == m_waiters.size()) {
 
@@ -315,33 +288,6 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
         return getClass().getSimpleName() +
           "[" + m_barriers + ", " +  m_waiters + "]";
       }
-    }
-  }
-
-  /**
-   * Identity generator.
-   */
-  protected static final class IdentityGeneratorImplementation
-    implements BarrierIdentityGenerator {
-
-    private final AtomicInteger m_next = new AtomicInteger();
-    private final Serializable m_scope;
-
-    /**
-     * Constructor.
-     *
-     * @param scope The scope of the generated identities.
-     */
-    public IdentityGeneratorImplementation(Serializable scope) {
-      m_scope = scope;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public BarrierIdentity next() {
-      return new BarrierIdentityImplementation(m_scope,
-                                               m_next.getAndIncrement());
     }
   }
 }

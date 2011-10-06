@@ -21,8 +21,6 @@
 
 package net.grinder.synchronisation;
 
-import static net.grinder.testutility.AssertUtilities.assertNotEquals;
-import static net.grinder.testutility.Serializer.serialize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -36,12 +34,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
-import net.grinder.engine.agent.StubAgentIdentity;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.BarrierGroup.Listener;
 import net.grinder.synchronisation.messages.AddBarrierMessage;
 import net.grinder.synchronisation.messages.AddWaiterMessage;
@@ -60,12 +55,12 @@ import org.mockito.MockitoAnnotations;
 
 
 /**
- * Unit tests for {@link GlobalBarrierGroups}.
+ * Unit tests for {@link ClientBarrierGroups}.
  *
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestGlobalBarrierGroups {
+public class TestClientlBarrierGroups {
 
   private static final BarrierIdentity ID1 = new BarrierIdentity() {};
   private static final BarrierIdentity ID2 = new BarrierIdentity() {};
@@ -75,17 +70,14 @@ public class TestGlobalBarrierGroups {
   @Captor
   private ArgumentCaptor<AbstractHandler<OpenBarrierMessage>> m_handlerCaptor;
 
-  private final WorkerIdentity m_identity =
-    new StubAgentIdentity("agent").createWorkerIdentity();
-
   private int m_awakenCount = 0;
 
-  private GlobalBarrierGroups m_groups;
+  private ClientBarrierGroups m_groups;
 
   @Before public void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    m_groups = new GlobalBarrierGroups(m_sender, m_messageDispatch, m_identity);
+    m_groups = new ClientBarrierGroups(m_sender, m_messageDispatch);
   }
 
   @Test public void testCreateAndRetrieve() throws Exception {
@@ -131,39 +123,6 @@ public class TestGlobalBarrierGroups {
     assertEquals(1, m_awakenCount);
 
     verifyNoMoreInteractions(m_messageDispatch);
-  }
-
-  @Test public void testIdentityGeneration() {
-    final BarrierIdentityGenerator generator = m_groups.getIdentityGenerator();
-
-    final BarrierIdentity one = generator.next();
-    final BarrierIdentity two = generator.next();
-
-    assertNotEquals(one, two);
-  }
-
-  @Test public void testIdentityIsSerializable() throws Exception {
-    final BarrierIdentityGenerator generator = m_groups.getIdentityGenerator();
-
-    final BarrierIdentity id = generator.next();
-
-    final BarrierIdentity serializedID = serialize(id);
-
-    assertEquals(id, serializedID);
-  }
-
-  @Test public void testIdentityEquality() throws Exception {
-    final BarrierIdentityGenerator generator = m_groups.getIdentityGenerator();
-
-    final BarrierIdentity one = generator.next();
-    final BarrierIdentity two = generator.next();
-
-    assertEquals(one, one);
-    assertEquals(one.hashCode(), one.hashCode());
-
-    assertNotEquals(one, two);
-    assertNotEquals(one, this);
-    assertNotEquals(one, null);
   }
 
   private BarrierGroup createBarrierGroup(String groupName) {

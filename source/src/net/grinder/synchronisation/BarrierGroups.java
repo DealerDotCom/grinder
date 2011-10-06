@@ -21,8 +21,6 @@
 
 package net.grinder.synchronisation;
 
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
-
 
 /**
  * Collection of barrier groups.
@@ -38,11 +36,4 @@ public interface BarrierGroups {
    * @return The barrier group.
    */
   BarrierGroup getGroup(String name);
-
-  /**
-   * Obtain a suitable identity generator for use with our groups.
-   *
-   * @return The generator.
-   */
-  BarrierIdentityGenerator getIdentityGenerator();
 }

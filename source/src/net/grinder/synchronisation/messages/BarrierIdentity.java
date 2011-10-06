@@ -23,6 +23,7 @@ package net.grinder.synchronisation.messages;
 
 import java.io.Serializable;
 
+
 /**
  * Opaque token that identifies a waiting barrier.
  *
@@ -39,4 +40,16 @@ import java.io.Serializable;
  * @author Philip Aston
  */
 public interface BarrierIdentity extends Serializable {
+
+  /**
+   * Factory for {@link BarrierIdentity}s.
+   */
+  interface Factory {
+    /**
+     * Create a new barrier identity.
+     *
+     * @return The new barrier identity.
+     */
+    BarrierIdentity next();
+  }
 }

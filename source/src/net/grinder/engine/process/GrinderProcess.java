@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import net.grinder.scriptengine.ScriptEngineService.WorkerRunnable;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
@@ -67,13 +66,15 @@ import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
+import net.grinder.scriptengine.ScriptEngineService.WorkerRunnable;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.synchronisation.BarrierGroups;
-import net.grinder.synchronisation.GlobalBarrierGroups;
+import net.grinder.synchronisation.BarrierIdentityGenerator;
+import net.grinder.synchronisation.ClientBarrierGroups;
 import net.grinder.synchronisation.LocalBarrierGroups;
 import net.grinder.util.JVM;
 import net.grinder.util.ListenerSupport;
@@ -178,14 +179,16 @@ final class GrinderProcess {
             new WorkerAddress(workerIdentity)));
 
       barrierGroups =
-        new GlobalBarrierGroups(m_consoleSender,
-                                messageDispatcher,
-                                m_initialisationMessage.getWorkerIdentity());
+        new ClientBarrierGroups(m_consoleSender,
+                                messageDispatcher);
     }
     else {
       m_consoleSender = new NullQueuedSender();
       barrierGroups = new LocalBarrierGroups();
     }
+
+    final BarrierIdentityGenerator barrierIdentityGenerator =
+      new BarrierIdentityGenerator(m_initialisationMessage.getWorkerIdentity());
 
     final ThreadStarter delegatingThreadStarter = new ThreadStarter() {
       public int startThread(Object testRunner)
@@ -251,7 +254,8 @@ final class GrinderProcess {
         m_testRegistryImplementation,
         delegatingThreadStarter,
         threadStopper,
-        barrierGroups);
+        barrierGroups,
+        barrierIdentityGenerator);
 
     Grinder.grinder = scriptContext;
 

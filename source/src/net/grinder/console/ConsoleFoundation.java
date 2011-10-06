@@ -298,7 +298,7 @@ public final class ConsoleFoundation {
   public static class WireMessageDispatch {
 
     /**
-     * Constructor for WireFileDistribution.
+     * Constructor.
      *
      * @param communication Console communication.
      * @param model Console sample model.
@@ -352,13 +352,12 @@ public final class ConsoleFoundation {
   public static class WireDistributedBarriers {
     // Guarded by self.
     private final Map<WorkerIdentity, ProcessBarrierGroups>
-      m_barrierProcessState =
-        new HashMap<WorkerIdentity, ProcessBarrierGroups>();
+      m_processBarriers = new HashMap<WorkerIdentity, ProcessBarrierGroups>();
 
     private final ConsoleBarrierGroups m_consoleBarrierGroups;
 
     /**
-     * Constructor for WireFileDistribution.
+     * Constructor.
      *
      * @param communication Console communication.
      * @param consoleBarrierGroups
@@ -435,21 +434,25 @@ public final class ConsoleFoundation {
               }
             }
 
-            final Set<ProcessBarrierGroups> deadProcesses =
-              new HashSet<ProcessBarrierGroups>();
+            final Set<Entry<WorkerIdentity, ProcessBarrierGroups>>
+              dead = new HashSet<Entry<WorkerIdentity, ProcessBarrierGroups>>();
 
-            synchronized (m_barrierProcessState) {
+            synchronized (m_processBarriers) {
               for (Entry<WorkerIdentity, ProcessBarrierGroups> p :
-                   m_barrierProcessState.entrySet()) {
+                   m_processBarriers.entrySet()) {
                 if (!liveWorkers.contains(p.getKey())) {
-                  deadProcesses.add(p.getValue());
+                  dead.add(p);
                 }
+              }
+
+              for (Entry<WorkerIdentity, ProcessBarrierGroups> p : dead) {
+                m_processBarriers.remove(p.getKey());
               }
             }
 
-            for (ProcessBarrierGroups p : deadProcesses) {
+            for (Entry<WorkerIdentity, ProcessBarrierGroups> p : dead) {
               try {
-                p.cancelAll();
+                p.getValue().cancelAll();
               }
               catch (CommunicationException e) {
                 throw new AssertionError(e);
@@ -462,16 +465,15 @@ public final class ConsoleFoundation {
     private BarrierGroups
       getBarrierGroupsForProcess(WorkerIdentity processIdentity) {
 
-      synchronized (m_barrierProcessState) {
-        final BarrierGroups existing =
-          m_barrierProcessState.get(processIdentity);
+      synchronized (m_processBarriers) {
+        final BarrierGroups existing = m_processBarriers.get(processIdentity);
 
         if (existing != null) {
           return existing;
         }
 
         final ProcessBarrierGroups newState = new ProcessBarrierGroups();
-        m_barrierProcessState.put(processIdentity, newState);
+        m_processBarriers.put(processIdentity, newState);
 
         return newState;
       }
@@ -483,47 +485,46 @@ public final class ConsoleFoundation {
       /**
        * {@inheritDoc}
        */
-      @Override protected InternalBarrierGroup createBarrierGroup(String name) {
-        return new ProcessBarrierGroup(name);
-      }
+      @Override
+      protected BarrierGroupImplementation createBarrierGroup(String name) {
+        return new BarrierGroupImplementation(name) {
 
-      private final class ProcessBarrierGroup
-        extends AbstractBarrierGroup {
+          @Override
+          public void addBarrier()
+            throws CommunicationException {
 
-        public ProcessBarrierGroup(String name) {
-          super(name);
-        }
+            super.addBarrier();
+            delegate().addBarrier();
+          }
 
-        @Override public void addBarrier() throws CommunicationException {
-          super.addBarrier();
-          delegate().addBarrier();
-        }
+          @Override
+          public void removeBarriers(long n)
+            throws CommunicationException {
 
-        @Override public void removeBarriers(long n)
-          throws CommunicationException {
+            super.removeBarriers(n);
+            delegate().removeBarriers(n);
+          }
 
-          super.removeBarriers(n);
-          delegate().removeBarriers(n);
-        }
+          @Override
+          public void addWaiter(BarrierIdentity barrierIdentity)
+            throws CommunicationException {
 
+            super.addWaiter(barrierIdentity);
+            delegate().addWaiter(barrierIdentity);
+          }
 
-        @Override public void addWaiter(BarrierIdentity barrierIdentity)
-          throws CommunicationException {
+          @Override
+          public void cancelWaiter(BarrierIdentity barrierIdentity)
+            throws CommunicationException {
 
-          super.addWaiter(barrierIdentity);
-          delegate().addWaiter(barrierIdentity);
-        }
+            super.cancelWaiter(barrierIdentity);
+            delegate().cancelWaiter(barrierIdentity);
+          }
 
-        @Override public void cancelWaiter(BarrierIdentity barrierIdentity)
-          throws CommunicationException {
-
-          super.cancelWaiter(barrierIdentity);
-          delegate().cancelWaiter(barrierIdentity);
-        }
-
-        private BarrierGroup delegate() {
-          return m_consoleBarrierGroups.getGroup(getName());
-        }
+          private BarrierGroup delegate() {
+            return m_consoleBarrierGroups.getGroup(getName());
+          }
+        };
       }
     }
   }
@@ -536,7 +537,7 @@ public final class ConsoleFoundation {
     private final ConsoleCommunication m_communication;
 
     /**
-     * Constructor for WireFileDistribution.
+     * Constructor.
      *
      * @param communication Console communication.
      */
@@ -556,8 +557,8 @@ public final class ConsoleFoundation {
      * {@inheritDoc}
      */
     @Override
-    protected InternalBarrierGroup createBarrierGroup(final String name) {
-      final InternalBarrierGroup group = super.createBarrierGroup(name);
+    protected BarrierGroupImplementation createBarrierGroup(final String name) {
+      final BarrierGroupImplementation group = super.createBarrierGroup(name);
 
       group.addListener(new Listener() {
         public void awaken() {

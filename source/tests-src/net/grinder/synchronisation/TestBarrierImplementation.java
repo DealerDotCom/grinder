@@ -39,7 +39,6 @@ import java.util.concurrent.TimeUnit;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.script.CancelledBarrierException;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 
 import org.junit.AfterClass;
@@ -67,12 +66,12 @@ public class TestBarrierImplementation {
   private static final BarrierIdentity ID3 = new BarrierIdentity() {};
 
   private @Mock BarrierGroup m_barrierGroup;
-  private @Mock BarrierIdentityGenerator m_identityGenerator;
+  private @Mock BarrierIdentity.Factory m_identityFactory;
 
   @Before public void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    when(m_identityGenerator.next()).thenReturn(ID1, ID2, ID3);
+    when(m_identityFactory.next()).thenReturn(ID1, ID2, ID3);
   }
 
   @AfterClass public static void tearDownClass() {
@@ -81,7 +80,7 @@ public class TestBarrierImplementation {
 
   @Test public void testConstruction() throws Exception {
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
 
     verify(m_barrierGroup).addListener(b);
     verify(m_barrierGroup).addBarrier();
@@ -91,7 +90,7 @@ public class TestBarrierImplementation {
 
   @Test public void testGetGroupName() throws Exception {
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
 
     when(m_barrierGroup.getName()).thenReturn("mygroup");
 
@@ -100,7 +99,7 @@ public class TestBarrierImplementation {
 
   @Test public void testAwaitTimeout() throws Exception {
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
     reset(m_barrierGroup);
 
     final boolean result = b.await(1, TimeUnit.MICROSECONDS);
@@ -117,7 +116,7 @@ public class TestBarrierImplementation {
 
   @Test public void testAwaitTimeout2() throws Exception {
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
     reset(m_barrierGroup);
 
     final boolean result = b.await(1);
@@ -136,7 +135,7 @@ public class TestBarrierImplementation {
 
   @Test public void testAwaitInterrupted() throws Exception {
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
 
     final CyclicBarrier sync = new CyclicBarrier(2);
     final Thread mainThread = Thread.currentThread();
@@ -164,7 +163,7 @@ public class TestBarrierImplementation {
 
   @Test public void testAwaitTimeoutInterrupted() throws Exception {
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
 
     reset(m_barrierGroup);
 
@@ -187,7 +186,7 @@ public class TestBarrierImplementation {
 
   @Test public void testAwaitHappyCase() throws Exception {
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
     reset(m_barrierGroup);
 
     final Future<?>[] futureHolder = { null };
@@ -215,7 +214,7 @@ public class TestBarrierImplementation {
     throws Exception {
 
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
     reset(m_barrierGroup);
 
     final Future<?>[] futureHolder = { null };
@@ -258,7 +257,7 @@ public class TestBarrierImplementation {
 
   @Test public void testCancelVirginBarrier() throws Exception {
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
     reset(m_barrierGroup);
 
     b.cancel();
@@ -275,7 +274,7 @@ public class TestBarrierImplementation {
 
   @Test public void testUseCancelledBarrier() throws Exception {
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
     b.cancel();
     reset(m_barrierGroup);
 
@@ -290,7 +289,7 @@ public class TestBarrierImplementation {
   @Test public void testCancelWaiterThenAwaken() throws Exception {
 
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
     reset(m_barrierGroup);
 
     final Future<?>[] futureHolder = { null };
@@ -328,7 +327,7 @@ public class TestBarrierImplementation {
   @Test public void testCancelTimedWaiter() throws Exception {
 
     final BarrierImplementation b =
-      new BarrierImplementation(m_barrierGroup, m_identityGenerator);
+      new BarrierImplementation(m_barrierGroup, m_identityFactory);
     reset(m_barrierGroup);
 
     final Future<?>[] futureHolder = { null };

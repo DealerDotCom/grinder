@@ -22,7 +22,6 @@
 package net.grinder.synchronisation;
 
 import net.grinder.communication.CommunicationException;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 
 
@@ -33,61 +32,43 @@ import net.grinder.synchronisation.messages.BarrierIdentity;
  */
 public class LocalBarrierGroups extends AbstractBarrierGroups {
 
-  private final BarrierIdentityGenerator m_identityGenerator =
-    new IdentityGeneratorImplementation("LOCAL");
-
   /**
    * {@inheritDoc}
    */
-  public BarrierIdentityGenerator getIdentityGenerator() {
-    return m_identityGenerator;
-  }
+  @Override
+  protected BarrierGroupImplementation createBarrierGroup(String name) {
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override protected InternalBarrierGroup createBarrierGroup(String name) {
-    return new LocalBarrierGroup(name);
-  }
+    return new BarrierGroupImplementation(name) {
 
-  // TODO: could be a wrapper. Is this really a win?
-  private class LocalBarrierGroup extends AbstractBarrierGroup {
-    public LocalBarrierGroup(String name) {
-      super(name);
-    }
+      @Override public void removeBarriers(long n)
+        throws CommunicationException {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override public void removeBarriers(long n) throws CommunicationException {
-      final boolean wakeListeners;
+        final boolean wakeListeners;
 
-      synchronized (this) {
-        super.removeBarriers(n);
-        wakeListeners = checkConditionLocal();
+        synchronized (this) {
+          super.removeBarriers(n);
+          wakeListeners = checkConditionLocal();
+        }
+
+        if (wakeListeners) {
+          fireAwaken();
+        }
       }
 
-      if (wakeListeners) {
-        fireAwaken();
+      @Override public void addWaiter(BarrierIdentity barrierIdentity)
+        throws CommunicationException {
+
+        final boolean wakeListeners;
+
+        synchronized (this) {
+          super.addWaiter(barrierIdentity);
+          wakeListeners = checkConditionLocal();
+        }
+
+        if (wakeListeners) {
+          fireAwaken();
+        }
       }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override public void addWaiter(BarrierIdentity barrierIdentity)
-      throws CommunicationException {
-
-      final boolean wakeListeners;
-
-      synchronized (this) {
-        super.addWaiter(barrierIdentity);
-        wakeListeners = checkConditionLocal();
-      }
-
-      if (wakeListeners) {
-        fireAwaken();
-      }
-    }
+    };
   }
 }

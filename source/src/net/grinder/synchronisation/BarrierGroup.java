@@ -25,6 +25,7 @@ package net.grinder.synchronisation;
 import net.grinder.communication.CommunicationException;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 
+
 /**
  * A barrier group.
  *
@@ -64,13 +65,6 @@ public interface BarrierGroup {
    */
   interface Listener {
     void awaken();
-  }
-
-  /**
-   * Factory for {@link BarrierIdentity}s.
-   */
-  interface BarrierIdentityGenerator {
-    BarrierIdentity next();
   }
 
   /**

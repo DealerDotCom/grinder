@@ -35,6 +35,7 @@ import net.grinder.script.Statistics;
 import net.grinder.script.TestRegistry;
 import net.grinder.synchronisation.BarrierGroups;
 import net.grinder.synchronisation.BarrierImplementation;
+import net.grinder.synchronisation.messages.BarrierIdentity;
 import net.grinder.util.Sleeper;
 
 
@@ -58,20 +59,24 @@ final class ScriptContextImplementation implements InternalScriptContext {
   private final ThreadStarter m_threadStarter;
   private final ThreadStopper m_threadStopper;
   private final BarrierGroups m_barrierGroups;
+  private final BarrierIdentity.Factory m_barrierIdentityFactory;
 
-  public ScriptContextImplementation(WorkerIdentity workerIdentity,
-                                     WorkerIdentity firstWorkerIdentity,
-                                     ThreadContextLocator threadContextLocator,
-                                     GrinderProperties properties,
-                                     Logger logger,
-                                     FilenameFactory filenameFactory,
-                                     Sleeper sleeper,
-                                     SSLControl sslControl,
-                                     Statistics scriptStatistics,
-                                     TestRegistry testRegistry,
-                                     ThreadStarter threadStarter,
-                                     ThreadStopper threadStopper,
-                                     BarrierGroups barrierGroups) {
+  public ScriptContextImplementation(
+     WorkerIdentity workerIdentity,
+     WorkerIdentity firstWorkerIdentity,
+     ThreadContextLocator threadContextLocator,
+     GrinderProperties properties,
+     Logger logger,
+     FilenameFactory filenameFactory,
+     Sleeper sleeper,
+     SSLControl sslControl,
+     Statistics scriptStatistics,
+     TestRegistry testRegistry,
+     ThreadStarter threadStarter,
+     ThreadStopper threadStopper,
+     BarrierGroups barrierGroups,
+     BarrierIdentity.Factory barrierIdentityFactory) {
+
     m_workerIdentity = workerIdentity;
     m_firstWorkerIdentity = firstWorkerIdentity;
     m_threadContextLocator = threadContextLocator;
@@ -85,6 +90,7 @@ final class ScriptContextImplementation implements InternalScriptContext {
     m_threadStarter = threadStarter;
     m_threadStopper = threadStopper;
     m_barrierGroups = barrierGroups;
+    m_barrierIdentityFactory = barrierIdentityFactory;
   }
 
   public int getAgentNumber() {
@@ -180,6 +186,6 @@ final class ScriptContextImplementation implements InternalScriptContext {
 
   public Barrier barrier(String name) throws CommunicationException {
     return new BarrierImplementation(m_barrierGroups.getGroup(name),
-                                     m_barrierGroups.getIdentityGenerator());
+                                     m_barrierIdentityFactory);
   }
 }

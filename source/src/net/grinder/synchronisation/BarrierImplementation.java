@@ -27,7 +27,6 @@ import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.script.Barrier;
 import net.grinder.script.CancelledBarrierException;
-import net.grinder.synchronisation.BarrierGroup.BarrierIdentityGenerator;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 import net.grinder.util.thread.Condition;
 
@@ -41,7 +40,7 @@ public final class BarrierImplementation
   implements Barrier, BarrierGroup.Listener {
 
   private final BarrierGroup m_barrierGroup;
-  private final BarrierIdentityGenerator m_identityGenerator;
+  private final BarrierIdentity.Factory m_identityFactory;
   private final Condition m_condition = new Condition();
 
   private enum State {
@@ -114,19 +113,19 @@ public final class BarrierImplementation
    *
    * @param group
    *          Barrier group.
-   * @param identityGenerator
+   * @param identityFactory
    *          Identity generator.
    * @throws CommunicationException
    *           If the barrier group could not be created due to a
    *           network communication problem.
    */
   public BarrierImplementation(BarrierGroup group,
-                               BarrierIdentityGenerator identityGenerator)
+                               BarrierIdentity.Factory identityFactory)
     throws CommunicationException {
 
     m_barrierGroup = group;
-    m_identityGenerator = identityGenerator;
-    m_identity = identityGenerator.next();
+    m_identityFactory = identityFactory;
+    m_identity = identityFactory.next();
 
     m_barrierGroup.addListener(this);
 
@@ -146,7 +145,7 @@ public final class BarrierImplementation
       synchronized (m_condition) {
         m_state.beginWait(BarrierImplementation.this);
 
-        m_identity = m_identityGenerator.next();
+        m_identity = m_identityFactory.next();
         m_barrierGroup.addWaiter(m_identity);
 
         while (m_state == State.Waiting) {
