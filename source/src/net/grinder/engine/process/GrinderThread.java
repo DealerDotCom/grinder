@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,9 +27,7 @@ import java.io.PrintWriter;
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.common.EngineException;
 import net.grinder.scriptengine.ScriptExecutionException;
-import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
 import net.grinder.scriptengine.ScriptEngineService.WorkerRunnable;
-import net.grinder.statistics.StatisticsServices;
 import net.grinder.util.Sleeper;
 
 
@@ -39,50 +37,37 @@ import net.grinder.util.Sleeper;
  * @author Paco Gomez
  * @author Philip Aston
  */
-class GrinderThread implements java.lang.Runnable {
+class GrinderThread implements Runnable {
 
   private final WorkerThreadSynchronisation m_threadSynchronisation;
   private final ProcessLifeCycleListener m_processLifeCycle;
   private final GrinderProperties m_properties;
   private final Sleeper m_sleeper;
-  private final ScriptEngine m_scriptEngine;
   private final ThreadContext m_context;
-  private final WorkerRunnable m_workerRunnable;
+  private final WorkerRunnableFactory m_workerRunnableFactory;
 
   /**
    * The constructor.
    */
-  public GrinderThread(WorkerThreadSynchronisation threadSynchronisation,
+  public GrinderThread(ThreadContext context,
+                       WorkerThreadSynchronisation threadSynchronisation,
                        ProcessLifeCycleListener processLifeCycle,
                        GrinderProperties properties,
                        Sleeper sleeper,
-                       LoggerImplementation loggerImplementation,
-                       StatisticsServices statisticsServices,
-                       ScriptEngine scriptEngine,
-                       int threadID,
-                       WorkerRunnable workerRunnable)
+                       WorkerRunnableFactory workerRunnableFactory)
     throws EngineException {
 
+    m_context = context;
     m_threadSynchronisation = threadSynchronisation;
     m_processLifeCycle = processLifeCycle;
     m_properties = properties;
     m_sleeper = sleeper;
-    m_scriptEngine = scriptEngine;
-    m_workerRunnable = workerRunnable;
-
-    m_context =
-      new ThreadContextImplementation(
-        properties,
-        statisticsServices,
-        loggerImplementation.createThreadLogger(threadID),
-        loggerImplementation.getFilenameFactory().
-        createSubContextFilenameFactory(Integer.toString(threadID)),
-        loggerImplementation.getDataWriter());
+    m_workerRunnableFactory = workerRunnableFactory;
 
     // Dispatch the process context callback in the main thread.
     m_processLifeCycle.threadCreated(m_context);
 
-    threadSynchronisation.threadCreated();
+    m_threadSynchronisation.threadCreated();
   }
 
   /**
@@ -101,14 +86,7 @@ class GrinderThread implements java.lang.Runnable {
     m_context.fireBeginThreadEvent();
 
     try {
-      final WorkerRunnable scriptThreadRunnable;
-
-      if (m_workerRunnable == null) {
-        scriptThreadRunnable = m_scriptEngine.createWorkerRunnable();
-      }
-      else {
-        scriptThreadRunnable = m_workerRunnable;
-      }
+      final WorkerRunnable workerRunnable = m_workerRunnableFactory.create();
 
       final int numberOfRuns = m_properties.getInt("grinder.runs", 1);
 
@@ -135,7 +113,7 @@ class GrinderThread implements java.lang.Runnable {
         m_context.fireBeginRunEvent();
 
         try {
-          scriptThreadRunnable.run();
+          workerRunnable.run();
         }
         catch (ScriptExecutionException e) {
           final Throwable cause = e.getCause();
@@ -164,7 +142,7 @@ class GrinderThread implements java.lang.Runnable {
       m_context.fireBeginShutdownEvent();
 
       try {
-        scriptThreadRunnable.shutdown();
+        workerRunnable.shutdown();
       }
       catch (ScriptExecutionException e) {
         // Sadly PrintWriter only exposes its lock object to subclasses.

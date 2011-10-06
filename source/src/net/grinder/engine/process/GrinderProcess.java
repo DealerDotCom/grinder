@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import net.grinder.scriptengine.ScriptEngineService.WorkerRunnable;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
@@ -674,6 +675,7 @@ final class GrinderProcess {
   private final class ThreadStarterImplementation implements ThreadStarter {
     private final ThreadSynchronisation m_threadSynchronisation;
     private final ScriptEngine m_scriptEngine;
+    private final WorkerRunnableFactory m_defaultWorkerRunnableFactory;
 
     private final ProcessLifeCycleListener m_threadLifeCycleCallbacks =
       new ProcessLifeCycleListener() {
@@ -703,40 +705,51 @@ final class GrinderProcess {
       ScriptEngine scriptEngine) {
       m_threadSynchronisation = threadSynchronisation;
       m_scriptEngine = scriptEngine;
+
+      m_defaultWorkerRunnableFactory = new WorkerRunnableFactory() {
+        public WorkerRunnable create() throws EngineException {
+          return m_scriptEngine.createWorkerRunnable();
+        }
+      };
     }
 
-    public int startThread(Object testRunner) throws EngineException {
+    public int startThread(final Object testRunner) throws EngineException {
       final int threadNumber;
       synchronized (this) {
         threadNumber = ++m_i;
       }
 
-      final GrinderThread runnable;
+      final ThreadContext threadContext =
+        new ThreadContextImplementation(
+          m_initialisationMessage.getProperties(),
+          m_statisticsServices,
+          m_loggerImplementation.createThreadLogger(threadNumber),
+          m_loggerImplementation.getFilenameFactory().
+            createSubContextFilenameFactory(Integer.toString(threadNumber)),
+          m_loggerImplementation.getDataWriter());
+
+
+      final WorkerRunnableFactory workerRunnableFactory;
 
       if (testRunner != null) {
-        runnable =
-          new GrinderThread(m_threadSynchronisation,
-                            m_threadLifeCycleCallbacks,
-                            m_initialisationMessage.getProperties(),
-                            m_sleeper,
-                            m_loggerImplementation,
-                            m_statisticsServices,
-                            m_scriptEngine,
-                            threadNumber,
-                            m_scriptEngine.createWorkerRunnable(testRunner));
+        workerRunnableFactory =
+          new WorkerRunnableFactory() {
+            public WorkerRunnable create() throws EngineException {
+              return m_scriptEngine.createWorkerRunnable(testRunner);
+            }
+          };
       }
       else {
-        runnable =
-          new GrinderThread(m_threadSynchronisation,
+        workerRunnableFactory = m_defaultWorkerRunnableFactory;
+      }
+
+      final GrinderThread runnable =
+          new GrinderThread(threadContext,
+                            m_threadSynchronisation,
                             m_threadLifeCycleCallbacks,
                             m_initialisationMessage.getProperties(),
                             m_sleeper,
-                            m_loggerImplementation,
-                            m_statisticsServices,
-                            m_scriptEngine,
-                            threadNumber,
-                            null);
-      }
+                            workerRunnableFactory);
 
       final Thread t = new Thread(runnable, "Grinder thread " + threadNumber);
       t.setDaemon(true);
