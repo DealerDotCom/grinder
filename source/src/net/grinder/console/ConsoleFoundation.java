@@ -354,7 +354,7 @@ public final class ConsoleFoundation {
     private final Map<WorkerIdentity, ProcessBarrierGroups>
       m_processBarriers = new HashMap<WorkerIdentity, ProcessBarrierGroups>();
 
-    private final ConsoleBarrierGroups m_consoleBarrierGroups;
+    private final BarrierGroups m_consoleBarrierGroups;
 
     /**
      * Constructor.
@@ -365,7 +365,7 @@ public final class ConsoleFoundation {
      * @param processControl Console process control.
      */
     public WireDistributedBarriers(ConsoleCommunication communication,
-                                   ConsoleBarrierGroups consoleBarrierGroups,
+                                   BarrierGroups consoleBarrierGroups,
                                    ProcessControl processControl) {
 
       m_consoleBarrierGroups = consoleBarrierGroups;

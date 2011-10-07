@@ -21,6 +21,8 @@
 
 package net.grinder.synchronisation;
 
+import static net.grinder.testutility.AssertUtilities.assertContains;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -44,8 +46,20 @@ import org.junit.Test;
  */
 public class TestLocalBarrierGroups {
 
-  private static final BarrierIdentity ID1 = new BarrierIdentity() {};
-  private static final BarrierIdentity ID2 = new BarrierIdentity() {};
+  private static final BarrierIdentity ID1 = new MyBarrierIdentity("ID1");
+  private static final BarrierIdentity ID2 = new MyBarrierIdentity("ID2");
+
+  private static class MyBarrierIdentity implements BarrierIdentity {
+    private final String m_name;
+
+    public MyBarrierIdentity(String name) {
+      m_name = name;
+    }
+
+    @Override public String toString() {
+      return m_name;
+    }
+  }
 
   private int m_awakenCount = 0;
 
@@ -66,7 +80,10 @@ public class TestLocalBarrierGroups {
     assertSame(a, m_groups.getExistingGroup("A"));
 
     a.addBarrier();
+    assertEquals("(1 [])", a.toString());
+
     a.removeBarriers(1); // Invalidate a.
+    assertEquals("(cancelled)", a.toString());
 
     assertNotSame(a, m_groups.getGroup("A"));
   }
@@ -99,8 +116,12 @@ public class TestLocalBarrierGroups {
     bg.addWaiter(ID1);
     assertEquals(0, m_awakenCount);
 
+    assertEquals("(2 [ID1])", bg.toString());
+
     bg.addWaiter(ID2);
     assertEquals(1, m_awakenCount);
+
+    assertEquals("(2 [])", bg.toString());
 
     bg.addWaiter(ID2);
     assertEquals(1, m_awakenCount);
@@ -205,6 +226,27 @@ public class TestLocalBarrierGroups {
     assertEquals(1, m_awakenCount);
   }
 
+  @Test public void testCancelAll() throws Exception {
+    final BarrierGroup bg = createBarrierGroup("Foo");
+    final BarrierGroup bg2 = createBarrierGroup("bah");
+
+    bg.addBarrier();
+    bg.addBarrier();
+    bg2.addBarrier();
+
+    bg.addWaiter(ID1);
+    assertEquals(0, m_awakenCount);
+
+    m_groups.cancelAll();
+
+    try {
+      bg.addWaiter(ID2);
+      fail("Expected IllegalStateException");
+    }
+    catch (IllegalStateException e) {
+    }
+  }
+
   @Test public void testRemoveListener()  throws Exception {
     final BarrierGroup bg = createBarrierGroup("Foo");
 
@@ -226,5 +268,15 @@ public class TestLocalBarrierGroups {
     bg.addWaiter(ID1);
     assertEquals(2, m_awakenCount);
     assertEquals(1, awakenCount.get());
+  }
+
+  @Test public void testGroupsToString() {
+    assertEquals("LocalBarrierGroups[{}]", m_groups.toString());
+
+    createBarrierGroup("foo");
+    createBarrierGroup("bar");
+
+    assertContains(m_groups.toString(), "foo");
+    assertContains(m_groups.toString(), "bar");
   }
 }

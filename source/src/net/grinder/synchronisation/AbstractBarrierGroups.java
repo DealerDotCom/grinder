@@ -288,8 +288,13 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
      */
     @Override public String toString() {
       synchronized (this) {
-        return getClass().getSimpleName() +
-          "[" + m_barriers + ", " +  m_waiters + "]";
+
+        if (m_barriers < 0) {
+          return "(cancelled)";
+        }
+        else {
+          return "(" + m_barriers + " " + m_waiters + ")";
+        }
       }
     }
   }

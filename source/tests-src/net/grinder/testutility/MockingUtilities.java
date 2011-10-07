@@ -70,4 +70,18 @@ public class MockingUtilities {
         }
       });
   }
+
+  public static <T> Class<T> subclass(final Class<T> superClass) {
+    return argThat(
+      new TypedArgumentMatcher<Class<T>>() {
+        @Override protected boolean argumentMatches(Class<T> t) {
+          return superClass.isAssignableFrom(t);
+        }
+
+        @Override public void describeTo(Description description) {
+          description.appendText("subclass(" + superClass.getName() + ")");
+        }
+      });
+  }
+
 }
