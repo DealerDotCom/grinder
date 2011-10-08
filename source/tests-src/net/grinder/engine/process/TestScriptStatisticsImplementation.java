@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2009 Philip Aston
+// Copyright (C) 2006 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,19 @@
 
 package net.grinder.engine.process;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 
-import junit.framework.TestCase;
-
-import net.grinder.communication.QueuedSender;
+import net.grinder.communication.Sender;
 import net.grinder.messages.console.RegisterExpressionViewMessage;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
@@ -35,8 +43,13 @@ import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesTestFactory;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.CallData;
-import net.grinder.testutility.RandomStubFactory;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**
@@ -44,17 +57,12 @@ import net.grinder.testutility.RandomStubFactory;
  *
  * @author Philip Aston
  */
-public class TestScriptStatisticsImplementation extends TestCase {
+public class TestScriptStatisticsImplementation {
 
-  private final RandomStubFactory<ThreadContext> m_threadContextStubFactory =
-    RandomStubFactory.create(ThreadContext.class);
-  private final ThreadContext m_threadContext =
-    m_threadContextStubFactory.getStub();
+  @Mock private ThreadContext m_threadContext;
+  @Mock private Sender m_sender;
 
-  final RandomStubFactory<QueuedSender> m_queuedSenderStubFactory =
-    RandomStubFactory.create(QueuedSender.class);
-  final QueuedSender m_queuedSender =
-    m_queuedSenderStubFactory.getStub();
+  @Captor ArgumentCaptor<RegisterExpressionViewMessage> m_messageCaptor;
 
   private final StubThreadContextLocator m_threadContextLocator =
     new StubThreadContextLocator();
@@ -62,14 +70,17 @@ public class TestScriptStatisticsImplementation extends TestCase {
   private final StatisticsServices m_statisticsServices =
     StatisticsServicesTestFactory.createTestInstance();
 
+  @Before public void setup() {
+    MockitoAnnotations.initMocks(this);
+  }
 
-  public void testContextChecks() throws Exception {
+  @Test public void testContextChecks() throws Exception {
 
     final ScriptStatisticsImplementation scriptStatistics =
       new ScriptStatisticsImplementation(
         m_threadContextLocator,
         m_statisticsServices,
-        m_queuedSender);
+        m_sender);
 
     // 1. Null thread context.
     assertFalse(scriptStatistics.isTestInProgress());
@@ -108,8 +119,8 @@ public class TestScriptStatisticsImplementation extends TestCase {
 
     // 2. No last statistics, no current statistics.
     m_threadContextLocator.set(m_threadContext);
-    m_threadContextStubFactory.setResult("getStatisticsForCurrentTest", null);
-    m_threadContextStubFactory.setResult("getStatisticsForLastTest", null);
+    when(m_threadContext.getStatisticsForCurrentTest()).thenReturn(null);
+    when(m_threadContext.getStatisticsForLastTest()).thenReturn(null);
     assertFalse(scriptStatistics.isTestInProgress());
 
     scriptStatistics.setDelayReports(false);
@@ -131,12 +142,11 @@ public class TestScriptStatisticsImplementation extends TestCase {
     }
 
     // 3. No last statistics, current statistics.
-    final RandomStubFactory<StatisticsForTest> statisticsForTestStubFactory1 =
-      RandomStubFactory.create(StatisticsForTest.class);
-    final StatisticsForTest statisticsForTest1 =
-      statisticsForTestStubFactory1.getStub();
-    m_threadContextStubFactory.setResult(
-      "getStatisticsForCurrentTest", statisticsForTest1);
+    final StatisticsForTest statisticsForTest1 = mock(StatisticsForTest.class);
+
+    when(m_threadContext.getStatisticsForCurrentTest())
+      .thenReturn(statisticsForTest1);
+
     assertTrue(scriptStatistics.isTestInProgress());
     assertSame(statisticsForTest1, scriptStatistics.getForCurrentTest());
 
@@ -149,21 +159,19 @@ public class TestScriptStatisticsImplementation extends TestCase {
     }
 
     // 4. Last statistics, current statistics.
-    final RandomStubFactory<StatisticsForTest> statisticsForTestStubFactory2 =
-      RandomStubFactory.create(StatisticsForTest.class);
-    final StatisticsForTest statisticsForTest2 =
-      statisticsForTestStubFactory2.getStub();
-    m_threadContextStubFactory.setResult(
-      "getStatisticsForLastTest", statisticsForTest2);
+    final StatisticsForTest statisticsForTest2 = mock(StatisticsForTest.class);
+
+    when(m_threadContext.getStatisticsForLastTest())
+      .thenReturn(statisticsForTest2);
 
     assertTrue(scriptStatistics.isTestInProgress());
     assertSame(statisticsForTest1, scriptStatistics.getForCurrentTest());
     assertSame(statisticsForTest2, scriptStatistics.getForLastTest());
 
-    m_queuedSenderStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_sender);
   }
 
-  public void testRegisterStatisticsViews() throws Exception {
+  @Test public void testRegisterStatisticsViews() throws Exception {
 
     final StubThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
@@ -173,21 +181,21 @@ public class TestScriptStatisticsImplementation extends TestCase {
       new ScriptStatisticsImplementation(
         threadContextLocator,
         m_statisticsServices,
-        m_queuedSender);
+        m_sender);
 
     final ExpressionView expressionView =
       m_statisticsServices.getStatisticExpressionFactory()
       .createExpressionView("display", "errors", false);
     scriptStatistics.registerSummaryExpression("display", "errors");
 
-    final CallData callData =
-      m_queuedSenderStubFactory.assertSuccess(
-        "queue", RegisterExpressionViewMessage.class);
+    verify(m_sender).send(m_messageCaptor.capture());
+
     final RegisterExpressionViewMessage message =
-      (RegisterExpressionViewMessage)callData.getParameters()[0];
+      m_messageCaptor.getValue();
     assertEquals("display", message.getExpressionView().getDisplayName());
     assertEquals("errors", message.getExpressionView().getExpressionString());
-    m_queuedSenderStubFactory.assertNoMoreCalls();
+
+    verifyNoMoreInteractions(m_sender);
 
     final StatisticsView summaryStatisticsView =
       m_statisticsServices.getSummaryStatisticsView();

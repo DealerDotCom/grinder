@@ -113,17 +113,12 @@ public class TestConsoleCommunicationImplementation
 
     m_timer = new StubTimer();
 
-    // Figure out a used and free local port.
     m_usedServerSocket = new ServerSocket(0, 50, InetAddress.getByName(null));
-    final ServerSocket freeSocket =
-      new ServerSocket(0, 50, InetAddress.getByName(null));
-    freeSocket.close();
-
 
     final File file = new File(getDirectory(), "properties");
     m_properties = new ConsoleProperties(s_resources, file);
 
-    m_properties.setConsolePort(freeSocket.getLocalPort());
+    m_properties.setConsolePort(findFreePort());
 
     m_consoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,

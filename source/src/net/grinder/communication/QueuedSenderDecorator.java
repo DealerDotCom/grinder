@@ -26,7 +26,7 @@ package net.grinder.communication;
  * QueuedSender implementation.
  *
  * @author Philip Aston
- **/
+ */
 public final class QueuedSenderDecorator implements QueuedSender {
 
   private final Sender m_delegate;
@@ -42,33 +42,17 @@ public final class QueuedSenderDecorator implements QueuedSender {
   }
 
   /**
-   * First flush any pending messages queued with {@link #queue} and
-   * then send the given message.
-   *
-   * @param message A {@link Message}.
-   * @exception CommunicationException If an error occurs.
-   **/
-  public void send(Message message) throws CommunicationException {
-    queue(message);
-    flush();
-  }
-
-  /**
    * Queue the given message for later sending.
    *
    * @param message A {@link Message}.
-   * @exception CommunicationException If an error occurs.
-   * @see #flush
-   * @see #send
-   */
-  public void queue(Message message) throws CommunicationException {
+   * @throws CommunicationException If an error occurs.
+   **/
+  public void send(Message message) throws CommunicationException {
     m_messageQueue.queue(message);
   }
 
   /**
-   * Flush any pending messages queued with {@link #queue}.
-   *
-   * @exception CommunicationException if an error occurs
+   * {@inheritDoc}
    */
   public void flush() throws CommunicationException {
 

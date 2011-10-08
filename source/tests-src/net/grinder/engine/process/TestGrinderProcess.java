@@ -261,12 +261,12 @@ public class TestGrinderProcess {
     final QueuedSender sender = new GrinderProcess.NullQueuedSender();
 
     sender.send(null);
-    sender.queue(null);
+    sender.send(null);
     sender.flush();
     sender.shutdown();
 
     sender.send(null);
-    sender.queue(null);
+    sender.send(null);
     sender.flush();
     sender.shutdown();
   }

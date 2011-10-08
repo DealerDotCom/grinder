@@ -147,7 +147,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
     for (int i=0; i<messages.length; ++i) {
       messages[i] = new SimpleMessage();
-      sender.queue(messages[i]);
+      sender.send(messages[i]);
     }
 
     sender.flush();
@@ -168,11 +168,12 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
     for (int i=0; i<messages.length; ++i) {
       messages[i] = new SimpleMessage();
-      sender.queue(messages[i]);
+      sender.send(messages[i]);
     }
 
     final SimpleMessage finalMessage = new SimpleMessage();
     sender.send(finalMessage);
+    sender.flush();
 
     for (int i=0; i<messages.length; ++i) {
       final Message receivedMessage = m_executeThread.waitForMessage();

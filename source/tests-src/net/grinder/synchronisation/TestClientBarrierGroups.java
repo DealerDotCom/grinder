@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import net.grinder.communication.MessageDispatchRegistry;
-import net.grinder.communication.QueuedSender;
+import net.grinder.communication.Sender;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.synchronisation.BarrierGroup.Listener;
 import net.grinder.synchronisation.messages.AddBarrierMessage;
@@ -60,12 +60,12 @@ import org.mockito.MockitoAnnotations;
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestClientlBarrierGroups {
+public class TestClientBarrierGroups {
 
   private static final BarrierIdentity ID1 = new BarrierIdentity() {};
   private static final BarrierIdentity ID2 = new BarrierIdentity() {};
 
-  @Mock private QueuedSender m_sender;
+  @Mock private Sender m_sender;
   @Mock private MessageDispatchRegistry m_messageDispatch;
   @Captor
   private ArgumentCaptor<AbstractHandler<OpenBarrierMessage>> m_handlerCaptor;
@@ -94,8 +94,8 @@ public class TestClientlBarrierGroups {
 
     a.removeBarriers(1); // Invalidate a.
 
-    verify(m_sender).queue(isA(AddBarrierMessage.class));
-    verify(m_sender).queue(isA(RemoveBarriersMessage.class));
+    verify(m_sender).send(isA(AddBarrierMessage.class));
+    verify(m_sender).send(isA(RemoveBarriersMessage.class));
 
     assertNotSame(a, m_groups.getGroup("A"));
 
@@ -150,7 +150,7 @@ public class TestClientlBarrierGroups {
     bg.addBarrier();
     bg.addBarrier();
 
-    verify(m_sender, times(2)).queue(isA(AddBarrierMessage.class));
+    verify(m_sender, times(2)).send(isA(AddBarrierMessage.class));
 
     bg.addWaiter(ID1);
 
@@ -160,8 +160,8 @@ public class TestClientlBarrierGroups {
 
     bg.addWaiter(ID1);
 
-    verify(m_sender, times(2)).queue(argThat(new AddWaiterMessageMatcher(ID1)));
-    verify(m_sender, times(2)).queue(argThat(new AddWaiterMessageMatcher(ID2)));
+    verify(m_sender, times(2)).send(argThat(new AddWaiterMessageMatcher(ID1)));
+    verify(m_sender, times(2)).send(argThat(new AddWaiterMessageMatcher(ID2)));
 
     assertEquals(0, m_awakenCount);
 
@@ -175,17 +175,17 @@ public class TestClientlBarrierGroups {
     bg.addBarrier();
     bg.addBarrier();
 
-    verify(m_sender, times(3)).queue(isA(AddBarrierMessage.class));
+    verify(m_sender, times(3)).send(isA(AddBarrierMessage.class));
 
     bg.addWaiter(ID1);
     bg.addWaiter(ID2);
 
-    verify(m_sender).queue(argThat(new AddWaiterMessageMatcher(ID1)));
-    verify(m_sender).queue(argThat(new AddWaiterMessageMatcher(ID2)));
+    verify(m_sender).send(argThat(new AddWaiterMessageMatcher(ID1)));
+    verify(m_sender).send(argThat(new AddWaiterMessageMatcher(ID2)));
 
     bg.removeBarriers(1);
 
-    verify(m_sender).queue(argThat(new RemoveBarriersMessageMatcher(1)));
+    verify(m_sender).send(argThat(new RemoveBarriersMessageMatcher(1)));
 
     assertEquals(0, m_awakenCount);
 
@@ -259,22 +259,22 @@ public class TestClientlBarrierGroups {
     bg.addBarrier();
     bg.addBarrier();
 
-    verify(m_sender, times(2)).queue(isA(AddBarrierMessage.class));
+    verify(m_sender, times(2)).send(isA(AddBarrierMessage.class));
 
     bg.addWaiter(ID1);
-    verify(m_sender).queue(argThat(new AddWaiterMessageMatcher(ID1)));
+    verify(m_sender).send(argThat(new AddWaiterMessageMatcher(ID1)));
 
     bg.cancelWaiter(ID2); // noop
-    verify(m_sender).queue(argThat(new CancelWaiterMessageMatcher(ID2)));
+    verify(m_sender).send(argThat(new CancelWaiterMessageMatcher(ID2)));
 
     bg.cancelWaiter(ID1);
-    verify(m_sender).queue(argThat(new CancelWaiterMessageMatcher(ID1)));
+    verify(m_sender).send(argThat(new CancelWaiterMessageMatcher(ID1)));
 
     bg.addWaiter(ID2);
-    verify(m_sender).queue(argThat(new AddWaiterMessageMatcher(ID2)));
+    verify(m_sender).send(argThat(new AddWaiterMessageMatcher(ID2)));
 
     bg.addWaiter(ID1);
-    verify(m_sender, times(2)).queue(argThat(new AddWaiterMessageMatcher(ID1)));
+    verify(m_sender, times(2)).send(argThat(new AddWaiterMessageMatcher(ID1)));
 
     assertEquals(0, m_awakenCount);
 

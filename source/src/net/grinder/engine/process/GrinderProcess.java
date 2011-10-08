@@ -544,7 +544,7 @@ final class GrinderProcess {
             m_testRegistryImplementation.getNewTests();
 
           if (newTests != null) {
-            m_consoleSender.queue(new RegisterTestsMessage(newTests));
+            m_consoleSender.send(new RegisterTestsMessage(newTests));
           }
 
           if (sample.size() > 0) {
@@ -552,7 +552,7 @@ final class GrinderProcess {
               m_testStatisticsHelper.removeTestTimeFromSample(sample);
             }
 
-            m_consoleSender.queue(new ReportStatisticsMessage(sample));
+            m_consoleSender.send(new ReportStatisticsMessage(sample));
           }
 
           sendStatusMessage(WorkerProcessReport.STATE_RUNNING,
@@ -582,6 +582,8 @@ final class GrinderProcess {
                            state,
                            numberOfThreads,
                            totalNumberOfThreads));
+
+    m_consoleSender.flush();
   }
 
   private class ShutdownTimerTask extends TimerTask {
@@ -920,8 +922,6 @@ final class GrinderProcess {
     public void send(Message message) { }
 
     public void flush() { }
-
-    public void queue(Message message) { }
 
     public void shutdown() { }
   }

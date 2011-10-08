@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,26 +23,16 @@ package net.grinder.communication;
 
 
 /**
- * <code>Sender</code> that allows messages to be queued.
+ * {@code Sender} that queues its messages.
  *
  * @author Philip Aston
- **/
+ */
 public interface QueuedSender extends Sender {
 
   /**
-   * Flush any pending messages queued with {@link #queue}.
+   * Send any pending messages queued with {@link #send}.
    *
-   * @exception CommunicationException If an error occurs.
-   **/
+   * @throws CommunicationException If an error occurs.
+   */
   void flush() throws CommunicationException;
-
-  /**
-   * Queue the given message for later sending.
-   *
-   * @param message A {@link Message}.
-   * @exception CommunicationException If an error occurs.
-   * @see #flush
-   * @see Sender#send
-   **/
-  void queue(Message message) throws CommunicationException;
 }

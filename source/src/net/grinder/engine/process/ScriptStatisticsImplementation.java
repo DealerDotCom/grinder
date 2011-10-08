@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,7 @@
 package net.grinder.engine.process;
 
 import net.grinder.common.GrinderException;
-import net.grinder.communication.QueuedSender;
+import net.grinder.communication.Sender;
 import net.grinder.messages.console.RegisterExpressionViewMessage;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
@@ -42,12 +42,12 @@ final class ScriptStatisticsImplementation implements Statistics {
 
   private final ThreadContextLocator m_threadContextLocator;
   private final StatisticsServices m_statisticsServices;
-  private final QueuedSender m_consoleSender;
+  private final Sender m_consoleSender;
 
   public ScriptStatisticsImplementation(
     ThreadContextLocator threadContextLocator,
     StatisticsServices statisticsServices,
-    QueuedSender consoleSender) {
+    Sender consoleSender) {
 
     m_threadContextLocator = threadContextLocator;
     m_statisticsServices = statisticsServices;
@@ -94,7 +94,7 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     // Queue up, will get flushed with next process status or
     // statistics report.
-    m_consoleSender.queue(new RegisterExpressionViewMessage(expressionView));
+    m_consoleSender.send(new RegisterExpressionViewMessage(expressionView));
   }
 
   public void registerDataLogExpression(String displayName, String expression)

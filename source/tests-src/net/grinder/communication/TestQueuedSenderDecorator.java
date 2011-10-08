@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2009 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,22 +21,23 @@
 
 package net.grinder.communication;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 
 /**
- * Unit tests for <code>QueuedSenderDecorator</code>.
+ * Unit tests for {@link QueuedSenderDecorator}.
  *
  * @author Philip Aston
  */
-public class TestQueuedSenderDecorator extends TestCase {
-
-  public TestQueuedSenderDecorator(String name) {
-    super(name);
-  }
+public class TestQueuedSenderDecorator {
 
   private final static class StubSender implements Sender {
 
@@ -65,13 +66,13 @@ public class TestQueuedSenderDecorator extends TestCase {
     }
   }
 
-  public void testConstructor() throws Exception {
+  @Test public void testConstructor() throws Exception {
     final StubSender sender = new StubSender();
 
     new QueuedSenderDecorator(sender);
   }
 
-  public void testSend() throws Exception {
+  @Test public void testSend() throws Exception {
     final StubSender sender = new StubSender();
 
     final QueuedSender queuedSender = new QueuedSenderDecorator(sender);
@@ -81,6 +82,7 @@ public class TestQueuedSenderDecorator extends TestCase {
 
     queuedSender.send(message1);
     queuedSender.send(message2);
+    queuedSender.flush();
 
     final Message[] messagesReceived = sender.getMessagesReceived();
 
@@ -89,7 +91,7 @@ public class TestQueuedSenderDecorator extends TestCase {
     assertSame(message2, messagesReceived[1]);
   }
 
-  public void testQueueAndFlush() throws Exception {
+  @Test public void testQueueAndFlush() throws Exception {
     final StubSender sender = new StubSender();
 
     final QueuedSender queuedSender = new QueuedSenderDecorator(sender);
@@ -99,7 +101,7 @@ public class TestQueuedSenderDecorator extends TestCase {
     final Message message3 = new SimpleMessage();
     final Message message4 = new SimpleMessage();
 
-    queuedSender.queue(message1);
+    queuedSender.send(message1);
 
     assertEquals(0, sender.getMessagesReceived().length);
 
@@ -110,10 +112,11 @@ public class TestQueuedSenderDecorator extends TestCase {
     assertEquals(1, messagesReceived.length);
     assertSame(message1, messagesReceived[0]);
 
-    queuedSender.queue(message1);
-    queuedSender.queue(message2);
+    queuedSender.send(message1);
+    queuedSender.send(message2);
     queuedSender.send(message3);
-    queuedSender.queue(message4);
+    queuedSender.flush();
+    queuedSender.send(message4);
 
     final Message[] messagesReceived2 = sender.getMessagesReceived();
 
@@ -130,7 +133,7 @@ public class TestQueuedSenderDecorator extends TestCase {
     assertSame(message4, messagesReceived3[0]);
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
     final StubSender sender = new StubSender();
 
     final QueuedSender queuedSender = new QueuedSenderDecorator(sender);
@@ -142,7 +145,7 @@ public class TestQueuedSenderDecorator extends TestCase {
     assertTrue(sender.getIsShutdown());
 
     try {
-      queuedSender.queue(new SimpleMessage());
+      queuedSender.send(new SimpleMessage());
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {

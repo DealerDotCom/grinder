@@ -23,7 +23,7 @@ package net.grinder.synchronisation;
 
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.MessageDispatchRegistry;
-import net.grinder.communication.QueuedSender;
+import net.grinder.communication.Sender;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.synchronisation.messages.AddBarrierMessage;
 import net.grinder.synchronisation.messages.AddWaiterMessage;
@@ -40,7 +40,7 @@ import net.grinder.synchronisation.messages.RemoveBarriersMessage;
  */
 public class ClientBarrierGroups extends AbstractBarrierGroups {
 
-  private final QueuedSender m_sender;
+  private final Sender m_sender;
 
   /**
    * Constructor.
@@ -48,7 +48,7 @@ public class ClientBarrierGroups extends AbstractBarrierGroups {
    * @param sender Used to send messages to the remote instance (the console).
    * @param messageDispatch Used to receive messages from the remote instance.
    */
-  public ClientBarrierGroups(QueuedSender sender,
+  public ClientBarrierGroups(Sender sender,
                              MessageDispatchRegistry messageDispatch) {
     m_sender = sender;
 
@@ -84,7 +84,7 @@ public class ClientBarrierGroups extends AbstractBarrierGroups {
 
         super.addBarrier();
 
-        m_sender.queue(new AddBarrierMessage(getName()));
+        m_sender.send(new AddBarrierMessage(getName()));
       }
 
       @Override
@@ -92,7 +92,7 @@ public class ClientBarrierGroups extends AbstractBarrierGroups {
 
         super.removeBarriers(n);
 
-        m_sender.queue(new RemoveBarriersMessage(getName(), n));
+        m_sender.send(new RemoveBarriersMessage(getName(), n));
       }
 
       @Override
@@ -101,7 +101,7 @@ public class ClientBarrierGroups extends AbstractBarrierGroups {
 
         super.addWaiter(barrierIdentity);
 
-        m_sender.queue(new AddWaiterMessage(getName(), barrierIdentity));
+        m_sender.send(new AddWaiterMessage(getName(), barrierIdentity));
       }
 
       @Override
@@ -110,7 +110,7 @@ public class ClientBarrierGroups extends AbstractBarrierGroups {
 
         super.cancelWaiter(barrierIdentity);
 
-        m_sender.queue(new CancelWaiterMessage(getName(), barrierIdentity));
+        m_sender.send(new CancelWaiterMessage(getName(), barrierIdentity));
       }
     };
   }
