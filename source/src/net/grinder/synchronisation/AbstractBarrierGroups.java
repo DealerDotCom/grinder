@@ -67,7 +67,10 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
    */
   public final void cancelAll() throws CommunicationException {
     synchronized (m_groups) {
-      for (BarrierGroupImplementation group : m_groups.values()) {
+      final Set<BarrierGroupImplementation> clonedGroups =
+        new HashSet<BarrierGroupImplementation>(m_groups.values());
+
+      for (BarrierGroupImplementation group : clonedGroups) {
         group.cancelAll();
       }
     }
