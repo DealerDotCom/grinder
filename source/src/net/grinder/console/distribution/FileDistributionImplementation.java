@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +37,8 @@ import net.grinder.util.ListenerSupport.Informer;
 
 /**
  * {@link FileDistribution} implementation.
+ *
+ * <p>Instantiated by PicoContainer.</p>
  *
  * @author Philip Aston
  */
