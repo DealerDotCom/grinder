@@ -541,8 +541,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     assertNotNull(engine.getSocketFactory());
     m_requestFilterStubFactory.assertIsWrappedBy(engine.getRequestFilter());
     m_responseFilterStubFactory.assertIsWrappedBy(engine.getResponseFilter());
-    assertEquals("", engine.getRequestColour());
-    assertEquals("", engine.getResponseColour());
+    assertEquals(TerminalColour.NONE, engine.getRequestColour());
+    assertEquals(TerminalColour.NONE, engine.getResponseColour());
 
     m_loggerStubFactory.resetCallHistory();
     m_requestFilterStubFactory.resetCallHistory();

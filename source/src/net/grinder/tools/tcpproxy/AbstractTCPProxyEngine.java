@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -56,8 +56,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
   private final TCPProxyFilter m_requestFilter;
   private final TCPProxyFilter m_responseFilter;
-  private final String m_requestColour;
-  private final String m_responseColour;
+  private final TerminalColour m_requestColour;
+  private final TerminalColour m_responseColour;
   private final Logger m_logger;
   private final PrintWriter m_outputWriter;
   private final TCPProxySocketFactory m_socketFactory;
@@ -105,8 +105,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       m_responseColour = TerminalColour.BLUE;
     }
     else {
-      m_requestColour = "";
-      m_responseColour = "";
+      m_requestColour = TerminalColour.NONE;
+      m_responseColour = TerminalColour.NONE;
     }
 
     m_serverSocket =
@@ -252,7 +252,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    *
    * @return The filter.
    */
-  protected final String getRequestColour() {
+  protected final TerminalColour getRequestColour() {
     return m_requestColour;
   }
 
@@ -262,7 +262,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    *
    * @return The filter.
    */
-  protected final String getResponseColour() {
+  protected final TerminalColour getResponseColour() {
     return m_responseColour;
   }
 
@@ -488,8 +488,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     private final ConnectionDetails m_connectionDetails;
     private final OutputStream m_out;
     private final TCPProxyFilter m_filter;
-    private final String m_colour;
-    private final String m_resetColour;
+    private final TerminalColour m_colour;
 
     /**
      * Constructor.
@@ -497,18 +496,17 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
      * @param connectionDetails Connection details.
      * @param out The output stream.
      * @param filter The user filter.
-     * @param colourString Terminal control code which sets appropriate
+     * @param colour Terminal control code which sets appropriate
      * colours for this stream.
      */
     public OutputStreamFilterTee(ConnectionDetails connectionDetails,
                                  OutputStream out, TCPProxyFilter filter,
-                                 String colourString) {
+                                 TerminalColour colour) {
 
       m_connectionDetails = connectionDetails;
       m_out = out;
       m_filter = filter;
-      m_colour = colourString;
-      m_resetColour = m_colour.length() > 0 ? TerminalColour.NONE : "";
+      m_colour = colour;
     }
 
     /**
@@ -593,11 +591,11 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     }
 
     private void preOutput() {
-      m_outputWriter.print(m_colour);
+      m_outputWriter.print(m_colour.pre());
     }
 
     private void postOutput() {
-      m_outputWriter.print(m_resetColour);
+      m_outputWriter.print(m_colour.post());
       m_outputWriter.flush();
     }
   }

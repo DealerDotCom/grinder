@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2006 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,102 +26,130 @@ package net.grinder.util;
  *
  * @author Philip Aston
  */
-public final class TerminalColour {
+public enum TerminalColour {
 
-  private TerminalColour() {
+  /**
+   * Constant control string for colour.
+   */
+  BLACK("30"),
+
+  /**
+   * Constant control string for colour.
+   */
+  RED("31"),
+
+  /**
+   * Constant control string for colour.
+   */
+  GREEN("32"),
+
+  /**
+   * Constant control string for colour.
+   */
+  YELLOW("33"),
+
+  /**
+   * Constant control string for colour.
+   */
+  BLUE("34"),
+
+  /**
+   * Constant control string for colour.
+   */
+  MAGENTA("35"),
+
+  /**
+   * Constant control string for colour.
+   */
+  CYAN("36"),
+
+  /**
+   * Constant control string for colour.
+   */
+  WHITE("37"),
+
+  /**
+   * Constant control string for colour.
+   */
+  BLACK_BACKGROUND("40"),
+
+  /**
+   * Constant control string for colour.
+   */
+  RED_BACKGROUND("41"),
+
+  /**
+   * Constant control string for colour.
+   */
+  GREEN_BACKGROUND("42"),
+
+  /**
+   * Constant control string for colour.
+   */
+  YELLOW_BACKGROUND("43"),
+
+  /**
+   * Constant control string for colour.
+   */
+  BLUE_BACKGROUND("44"),
+
+  /**
+   * Constant control string for colour.
+   */
+  MAGENTA_BACKGROUND("45"),
+
+  /**
+   * Constant control string for colour.
+   */
+  CYAN_BACKGROUND("46"),
+
+  /**
+   * Constant control string for colour.
+   */
+  WHITE_BACKGROUND("47"),
+
+  /**
+   * Constant control string for colour.
+   */
+  NONE();
+
+  private final String m_preString;
+  private final String m_postString;
+
+  private TerminalColour(String body) {
+    m_preString = controlString(body);
+
+    // Quoting from Thomas E. Dickey's vttest: "Some terminals will reset
+    // colors with SGR-0; I've added the 39, 49 codes for those that are ISO
+    // compliant. (The black/white codes are for emulators written by people
+    // who don't bother reading standards)."
+    m_postString = controlString("0;40;37;39;49");
   }
 
-  /**
-   * Constant control string for colour.
-   */
-  public static final String BLACK = controlString("30");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String RED = controlString("31");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String GREEN = controlString("32");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String YELLOW = controlString("33");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String BLUE = controlString("34");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String MAGENTA = controlString("35");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String CYAN = controlString("36");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String WHITE = controlString("37");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String BLACK_BACKGROUND = controlString("40");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String RED_BACKGROUND = controlString("41");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String GREEN_BACKGROUND = controlString("42");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String YELLOW_BACKGROUND = controlString("43");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String BLUE_BACKGROUND = controlString("44");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String MAGENTA_BACKGROUND = controlString("45");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String CYAN_BACKGROUND = controlString("46");
-
-  /**
-   * Constant control string for colour.
-   */
-  public static final String WHITE_BACKGROUND = controlString("47");
-
-  /**
-   * Control string for no formatting.
-   *
-   * <p>Quoting from Thomas E. Dickey's vttest: "Some terminals will *
-   * reset colors with SGR-0; I've added the 39, 49 codes for those *
-   * that are ISO compliant. (The black/white codes are for emulators
-   * written by people who don't bother reading standards)."</p>
-   */
-  public static final String NONE = controlString("0;40;37;39;49");
+  private TerminalColour() {
+    m_preString = "";
+    m_postString = "";
+  }
 
   private static String controlString(String body) {
     return (char)0033 + "[" + body + 'm';
+  }
+
+  /**
+   * Control string which enables colour.
+   *
+   * @return The control string.
+   */
+  public String pre() {
+    return m_preString;
+  }
+
+  /**
+   * Control string which resets colour.
+   *
+   * @return The control string.
+   */
+  public String post() {
+    return m_postString;
   }
 }
