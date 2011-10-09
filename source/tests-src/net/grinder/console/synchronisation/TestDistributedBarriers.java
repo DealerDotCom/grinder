@@ -31,6 +31,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.ClientReceiver;
@@ -62,8 +63,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import clover.retrotranslator.edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
