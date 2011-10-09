@@ -186,7 +186,7 @@ class TestRunner:
       un-instrumented form.</p>
 
       <p>To reflect this change in behaviour, a new
-      <a  href="script-javadoc/net/grinder/script/Test.html#record(java.lang.Object)">record</a>
+      <a  href="site:api/Test/record">record</a>
       method has been introduced into the script API. This method does not return
       a value, since there is no separate wrapper. Here's our example script
       rewritten to use <code>record</code>.
@@ -212,14 +212,13 @@ class TestRunner:
       reference. Additionally, the <code>__test__</code> reference is not
       supported.</p>
 
-      <p>If you call
-      <a href="script-javadoc/net/grinder/script/Test.html#record(java.lang.Object)">record</a>
-      without enabling the new instrumentation, an exception will be thrown.
-      To allow existing scripts to be reused with the new instrumentation, the
-      reverse is not true. That is,
-      <a href="script-javadoc/net/grinder/script/Test.html#record(java.lang.Object)">wrap</a>
-      will use the new instrumentation engine if it is enabled. Since
-      <code>wrap</code> will return its parameter, and not a separate wrapper object,
+      <p>If you call <a href="site:api/Test/record">record</a> without
+      enabling the new instrumentation, an exception will be thrown.
+      To allow existing scripts to be reused with the new
+      instrumentation, the reverse is not true. That is, <a
+      href="site:api/Test/wrap">wrap</a> will use the new
+      instrumentation engine if it is enabled. Since <code>wrap</code>
+      will return its parameter, and not a separate wrapper object,
       the script may behave differently.</p>
 
     </section>

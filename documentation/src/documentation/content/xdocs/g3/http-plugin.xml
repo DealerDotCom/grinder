@@ -28,7 +28,7 @@ from net.grinder.plugin.http import HTTPRequest
 </source>
 
   <p>The key class provided by the plug-in is
-  <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html">HTTPRequest</a>.
+  <a href="site:api/HTTPRequest">HTTPRequest</a>.
   The best way to see how to use this class is to record a script with the
   TCPProxy.</p>
 
@@ -58,7 +58,7 @@ from net.grinder.plugin.http import HTTPRequest
   <section>
   <title>Controlling the HTTPPlugin</title>
   <p>The behaviour of the plug-in can be controlled from within scripts run by
-  The Grinder through the use of the <a href="script-javadoc/net/grinder/plugin/http/HTTPPluginControl.html">
+  The Grinder through the use of the <a href="site:api/HTTPPluginControl">
   HTTPPluginControl</a> facade.</p>
 
   <section>
@@ -118,7 +118,7 @@ control.setUseAuthorizationModule(1)
 </source>
 
      <p>The authentication details can be set using the <a
-     href="script-javadoc/HTTPClient/AuthorizationInfo.html">AuthorizationInfo</a>
+     href="site:api/AuthorizationInfo">AuthorizationInfo</a>
      API. HTTPClient maintains authentication information separately
      in each context, so the API must be called by each worker thread.
      See the <a href="site:script-gallery/digestauthentication">
@@ -149,7 +149,7 @@ proxyURL1.setProxyServer("localhost", 8001)
 proxyURL2.setProxyServer("localhost", 8002)
 </source>
 
-    <p>If the HTTP proxy requires authentication, enable the HTTPClient Authorization Module, as descirbed in the previous section. Having so, each worker thread can set up the appropriate authentication details using the <a href="script-javadoc/HTTPClient/AuthorizationInfo.html">AuthorizationInfo</a> API. For example:</p>
+    <p>If the HTTP proxy requires authentication, enable the HTTPClient Authorization Module, as descirbed in the previous section. Having so, each worker thread can set up the appropriate authentication details using the <a href="site:api/AuthorizationInfo">AuthorizationInfo</a> API. For example:</p>
 
 <source class="jython">
 from net.grinder.plugin.http import HTTPRequest, HTTPPluginControl
@@ -280,19 +280,19 @@ decompression libraries from your script.</p>
   <section>
 	 <title>Streaming requests and response</title>
 
-	 <p>The <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html">HTTPRequest</a>
+	 <p>The <a href="site:api/HTTPRequest">HTTPRequest</a>
 	 class has support for sending request data from a stream. This allows an
 	 arbitrarily large amount of data to be sent without requiring a corresponding
 	 amount of memory. To do this, use these versions of the
-    <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html#POST(java.lang.String, InputStream)">POST</a>,
-    <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html#PUT(java.lang.String, InputStream)">PUT</a>, and
-    <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html#OPTIONS(java.lang.String, InputStream)">OPTIONS</a>
+    <a href="site:api/HTTPRequest/POSTStream">POST</a>,
+    <a href="site:api/HTTPRequest/PUTStream">PUT</a>,
+    <a href="site:api/HTTPRequest/OPTIONSStream">OPTIONS</a>,
     methods.
    </p>
 
    <p><code>HTTPRequest</code> allows the response body to be handled as a
    stream. Refer to the Javadoc for the
-   <a href="script-javadoc/net/grinder/plugin/http/HTTPRequest.html#setReadResponseBody(boolean)">
+   <a href="site:api/HTTPRequest/setReadResponseBody">
    setReadResponseBody</a> method for more details.</p>
 
   </section>

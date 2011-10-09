@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+<header>
+  <title>Jython</title>
+</header>
+<body>
+
+
+  <section>
+    <title>Scripts</title>
+
+    <p>The requirements for Jython scripts can be found in the <a
+    href="site:scripts-intro/jython-scripts/">introduction</a>. </p>
+
+  </section>
+
+  <section id="jython-installation">
+    <title>The Jython distribution and installation</title>
+
+    <p>The Grinder is shipped with a version of Jython but does not
+    package the Jython implementation of the standard Python library. If
+    you want to use the standard library, or if you want to use a
+    different version of Jython, you should first obtain and install
+    Jython.</p>
+
+    <section>
+    <title>Traditional Jython installation</title>
+
+
+    <p>If you use its standard options, the Jython installer will
+    create a new directory containing the Jython jar file, the library
+    modules, examples, and documentation. You need to tell The Grinder
+    the location of this directory. You can do this either by adding
+    the following to your <a href="site:properties">properties</a>
+    file:</p>
+
+    <source class="sh">
+grinder.jvm.arguments = -Dpython.home=/opt/jython/jython2.2.1
+    </source>
+
+    <p>or on the agent command line:</p>
+
+    <source class="sh">
+java -Dgrinder.jvm.arguments=-Dpython.home=/opt/jython/jython2.2.1 net.grinder.Grinder
+    </source>
+
+    <p>In both cases, change <code>/opt/jython/jython2.2.1</code> to the
+    directory in which you installed Jython. You must install Jython on all
+    of the agent machines. If the version of Jython is different to that
+    included with The Grinder (2.2.1), you should also add the
+    installation's <code>jython.jar</code>  to the start of the
+    <code>CLASSPATH</code> used to launch the agent.</p>
+
+    <note>
+    Adding the installation's <code>jython.jar</code>
+    to the start of the <code>CLASSPATH</code> used to be sufficient for
+    Jython to calculate its install directory, but this no longer appears
+    to work with Jython 2.2.1. You must explicitly set <code>python.home</code>
+    as described above.
+    </note>
+
+    <p>Jython picks up user and site preferences from several sources
+    (see <a
+    href="ext:jython/registry">http://www.jython.org/docs/registry.html</a>).
+    A side effect of setting <code>python.home</code> is that the
+    installed registry file will be used.</p>
+    </section>
+
+    <section id="jython-standalone-jar">
+    <title>Simpler installation using Jython's standalone jar</title>
+
+    <p>Newer versions of Jython have a <em>standalone</em>
+    installation mode. The Jython installer can be used to create a
+    <code>jython.jar</code> file that includes the standard library.</p>
+
+    <p>
+    You can generate a standalone <code>jython.jar</code> and use it
+    to replace the file in The Grinder's <code>lib</code> directory.
+    This is simple, and does not require you to set
+    <code>python.home</code>.</p>
+
+    </section>
+
+    <section id="jython-cachedir">
+    <title>Setting the Jython cache directory</title>
+
+    <p>Another feature that is not working in later versions of Jython is the
+    correct calculation of the cache directory. If you don't have a Jython
+    cache directory, wild card imports of Java packages (e.g.
+    <code> from java.util import *</code>) may not work, The Grinder will
+    take a little longer to start, and ugly error messages will be displayed:
+    </p>
+
+    <source class="text">
+28/09/08 17:57:11 (agent): worker paston01-0 started
+*sys-package-mgr*: can't create package cache dir, '/home/performance/lib/jython.jar/cachedir/packages'
+    </source>
+
+    <p>You can specify the cache directory either by setting the
+    <code>python.home</code> as above (in which case the directory will
+    that specified in the Python registry), or by setting the Java property
+    <code>python.cachedir</code> in your <a href="site:properties">properties</a> file:
+    </p>
+
+    <source class="sh">
+grinder.jvm.arguments = -Dpython.cachedir=/tmp/mycache
+    </source>
+
+    <p>or on the command line:</p>
+
+    <source class="sh">
+java -Dgrinder.jvm.arguments = -Dpython.cachedir=/tmp/mycache net.grinder.Grinder
+    </source>
+
+    <p>You can only set <code>grinder.jvm.arguments</code> once, so
+    if you want to set both the cache directory and <code>python.home</code>
+    either use the registry, or do this:</p>
+
+    <source class="sh">
+grinder.jvm.arguments = -Dpython.home=/opt/jython/jython2.2.1 -Dpython.cachedir=/tmp/mycache
+    </source>
+
+    </section>
+  </section>
+
+  <section id="jython-2.5">
+    <title>Jython 2.5</title>
+
+  <p>The default Jython implementation packaged with The Grinder is
+  Jython 2.2. The Grinder 3.3 and later optionally support Jython 2.5,
+  as described on this page. Jython 2.5.1 has also been tested and
+  works fine.</p>
+
+  <p>Jython 2.5.2 works with The Grinder 3.5 or later.</p>
+
+  <section>
+    <title>How to use Jython 2.5</title>
+
+    <p>Download and install Jython 2.5. Add the path to the installation's jython.jar
+    file to the start of the <code>CLASSPATH</code> you use for The Grinder agent processes.
+    If you wish to use the library modules, you should also
+    <a href="site:jython-installation">set the python.home</a> property to
+    point to the installation directory.</p>
+
+    <p>The support for Jython 2.5 uses the
+    <a href="site:new-instrumentation">new instrumentation engine</a>,
+  and requires that the agent processes are run using Java SE 6.</p>
+  </section>
+
+  <section>
+    <title>Known issues</title>
+
+    <p>You may find the need to remove or rename the <code>jython.jar</code>
+      file from the <code>lib</code> directory.
+      See this <a href="site:sre-assertion">FAQ</a>.</p>
+
+    <p>The Grinder 3.5 improved the instrumentation of Java methods
+    from Jython. If you are using an earlier version of The Grinder,
+    instrumentation of Java methods may not work as you expect. See <a
+    href="site:sourceforge/bug2992248">bug 2992248</a>.
+    </p>
+
+  </section>
+
+  </section>
+
+</body>
+</document>

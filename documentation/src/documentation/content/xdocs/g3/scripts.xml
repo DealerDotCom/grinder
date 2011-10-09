@@ -43,11 +43,11 @@
     </section>
   </section>
 
-  <section>
-    <title>Scripting for The Grinder</title>
+  <section id="jython-scripts">
+    <title>Jython scripting</title>
 
     <section>
-      <title>Jython Script structure</title>
+      <title>Script structure</title>
 
       <p>Jython scripts must conform to a few conventions in order to work
       with The Grinder framework. I'll lay the rules out in fairly dry
@@ -94,7 +94,7 @@
           available for the script to import. It can also be imported
           by any modules that the script calls. This is an instance of
           the <a
-          href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a>
+          href="site:api/ScriptContext">Grinder.ScriptContext</a>
           class and provides access to context information (such as
           the worker thread ID) and services (such as logging and
           statistics).</p>
@@ -141,8 +141,8 @@ class TestRunner:
     framework and can easily be started in many times in many worker
     processes on many machines, it doesn't report any statistics. For
     this we need to create some tests. A <a
-    href="script-javadoc/net/grinder/script/Test.html">Test</a> has a
-    unique test number and description. If you are using the <a
+    href="site:api/Test">Test</a> has a unique test number and
+    description. If you are using the <a
     href="site:console">console</a>, it will update automatically to
     display new <code>Test</code>s as they are created.</p>
 
@@ -225,40 +225,42 @@ class TestRunner:
     Python code in your test scripts.</p>
 
     <p>The Grinder script API can be used to access services from The
-    Grinder. The <a href="script-javadoc/index.html">Javadoc</a>
-    contains full information on all the packages, classes and
-    interfaces that make up the core API, as well as additional
-    packages added by the shipped plug-ins. This section provides
-    overview information on various areas of the API. See also the <a
-    href="site:g3/plugins/http-plugin">HTTP plugin documentation</a>.</p>
+    Grinder. The <a href="site:api/index">Javadoc</a> contains full
+    information on all the packages, classes and interfaces that make
+    up the core API, as well as additional packages added by the
+    shipped plug-ins. This section provides overview information on
+    various areas of the API. See also the <a
+    href="site:g3/plugins/http-plugin">HTTP plugin
+    documentation</a>.</p>
 
     <dl>
-      <dt><strong>The <a href="script-javadoc/net/grinder/script/package-summary.html">net.grinder.script</a> package</strong></dt>
+      <dt><strong>The <a
+      href="site:api/script-package">net.grinder.script</a>
+      package</strong></dt>
 
       <dd>
         <p>An instance of <a
-        href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a>
-        called <code>grinder</code> is automatically available to all
+        href="site:api/ScriptContext">Grinder.ScriptContext</a> called
+        <code>grinder</code> is automatically available to all
         scripts. This object provides access to context information
         and acts a starting point for accessing other services. The
         instance can be explicitly imported from other Python modules
         as <code>net.grinder.script.Grinder.grinder</code>.</p>
 
         <p>We have described the use of the <a
-        href="script-javadoc/net/grinder/script/Test.html">Test</a>
-        class <a href="#tests">above</a>.</p>
+        href="site:api/Test">Test</a> class <a
+        href="#tests">above</a>.</p>
 
-        <p>The <a
-        href="script-javadoc/net/grinder/script/Statistics.html">Statistics</a>
-        interface allows scripts to query and modify
-        <a href="site:g3/statistics">statistics</a>, provide
-        custom statistics, and register additional views of standard and
+        <p>The <a href="site:api/Statistics">Statistics</a> interface
+        allows scripts to query and modify <a
+        href="site:g3/statistics">statistics</a>, provide custom
+        statistics, and register additional views of standard and
         custom statistics.</p>
 
       </dd>
 
       <dt><strong>The <a
-      href="script-javadoc/net/grinder/common/package-summary.html">net.grinder.common</a>
+      href="site:api/common-package">net.grinder.common</a>
       package</strong></dt>
 
       <dd>
@@ -270,88 +272,5 @@ class TestRunner:
     </dl>
   </section>
 
-  <section id="jython-installation">
-    <title>The Jython distribution and installation</title>
-
-    <p>The Grinder is shipped with a version of Jython but does not
-    package the Jython distribution of the standard Python library. If
-    you want to use the standard library, or if you want to use a
-    different version of Jython, obtain and install Jython and tell
-    The Grinder where you installed it. You can do this either by
-    adding the following to your
-    <a href="site:properties">properties</a> file:</p>
-
-    <source class="sh">
-grinder.jvm.arguments = -Dpython.home=/opt/jython/jython2.2.1
-    </source>
-
-    <p>or on the agent command line:</p>
-
-    <source class="sh">
-java -Dgrinder.jvm.arguments=-Dpython.home=/opt/jython/jython2.2.1 net.grinder.Grinder
-    </source>
-
-    <p>In both cases, change <code>/opt/jython/jython2.2.1</code> to the
-    directory in which you installed Jython. You must install Jython on all
-    of the agent machines. If the version of Jython is different to that
-    included with The Grinder (2.2.1), you should also add the
-    installation's <code>jython.jar</code>  to the start of the
-    <code>CLASSPATH</code> used to launch the agent.</p>
-
-    <note>
-    Adding the installation's <code>jython.jar</code>
-    to the start of the <code>CLASSPATH</code> used to be sufficient for
-    Jython to calculate its install directory, but this no longer appears
-    to work with Jython 2.2.1. You must explicitly set <code>python.home</code>
-    as described above.
-    </note>
-
-    <p>Jython picks up user and site preferences from several sources
-    (see <a
-    href="ext:jython/registry">http://www.jython.org/docs/registry.html</a>).
-    A side effect of setting <code>python.home</code> is that the
-    installed registry file will be used.</p>
-
-    <section id="jython-cachedir">
-    <title>Setting the Jython cache directory</title>
-
-    <p>Another feature that is not working in later versions of Jython is the
-    correct calculation of the cache directory. If you don't have a Jython
-    cache directory, wild card imports of Java packages (e.g.
-    <code> from java.util import *</code>) may not work, The Grinder will
-    take a little longer to start, and ugly error messages will be displayed:
-    </p>
-
-    <source class="text">
-28/09/08 17:57:11 (agent): worker paston01-0 started
-*sys-package-mgr*: can't create package cache dir, '/home/performance/lib/jython.jar/cachedir/packages'
-    </source>
-
-    <p>You can specify the cache directory either by setting the
-    <code>python.home</code> as above (in which case the directory will
-    that specified in the Python registry), or by setting the Java property
-    <code>python.cachedir</code> in your <a href="site:properties">properties</a> file:
-    </p>
-
-    <source class="sh">
-grinder.jvm.arguments = -Dpython.cachedir=/tmp/mycache
-    </source>
-
-    <p>or on the command line:</p>
-
-    <source class="sh">
-java -Dgrinder.jvm.arguments = -Dpython.cachedir=/tmp/mycache net.grinder.Grinder
-    </source>
-
-    <p>You can only set <code>grinder.jvm.arguments</code> once, so
-    if you want to set both the cache directory and <code>python.home</code>
-    either use the registry, or do this:</p>
-
-    <source class="sh">
-grinder.jvm.arguments = -Dpython.home=/opt/jython/jython2.2.1 -Dpython.cachedir=/tmp/mycache
-    </source>
-
-    </section>
-  </section>
 </body>
 </document>

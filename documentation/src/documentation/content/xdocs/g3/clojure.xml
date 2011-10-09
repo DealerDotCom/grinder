@@ -59,7 +59,7 @@
           available for the script to import. It can also be imported
           by any modules that the script calls. This is an instance of
           the <a
-          href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a>
+          href="site:api/ScriptContext">Grinder.ScriptContext</a>
           class and provides access to context information (such as
           the worker thread ID) and services (such as logging and
           statistics).</p>
