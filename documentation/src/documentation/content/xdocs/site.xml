@@ -67,15 +67,16 @@ See http://forrest.apache.org/docs/linking.html for more info
          <jython-scripts href="#jython-scripts"/>
          <tests href="#tests"/>
       </scripts-intro>
-      <script-instrumentation label="Instrumentation" href="instrumentation.html">
-        <new-instrumentation href="#new-instrumentation"/>
-        <record-api href="#record-api"/>
-      </script-instrumentation>
       <jython label="Jython" href="jython.html">
          <jython-installation href="#jython-installation"/>
          <jython-2.5 href="#jython-2.5"/>
       </jython>
       <clojure label="Clojure" href="clojure.html"/>
+      <script-instrumentation label="Instrumentation" href="instrumentation.html">
+        <new-instrumentation href="#new-instrumentation"/>
+        <record-api href="#record-api"/>
+      </script-instrumentation>
+      <coordination label="Coordination" href="coordination.html"/>
       <script-gallery label="Script Gallery" href="script-gallery.html">
         <digestauthentication href="#digestauthentication.py"/>
         <helloworldfunctions href="#helloworldfunctions.py"/>
@@ -212,6 +213,10 @@ See http://forrest.apache.org/docs/linking.html for more info
           <script-package href="net/grinder/script/package-summary.html"/>
 
 	  <AuthorizationInfo href="HTTPClient/AuthirizationInfo.html"/>
+	  <Barrier href="net/grinder/script/Barrier.html">
+            <await href="#await()"/>
+            <cancel href="#cancel()"/>
+          </Barrier>
 	  <HTTPRequest href="net/grinder/plugin/http/HTTPRequest.html">
             <POSTStream href="#POST(java.lang.String, InputStream)"/>
             <PUTStream href="#POST(java.lang.String, InputStream)"/>
@@ -222,6 +227,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 	  <ScriptContext href="net/grinder/script/Grinder.ScriptContext.html">
             <getThreadNumber href="#getThreadNumber()"/>
             <getProcessNumber href="#getProcessNumber()"/>
+            <barrier href="#barrier(java.lang.String)"/>
 	  </ScriptContext>
           <Statistics href="net/grinder/script/Statistics.html">
             <getForLastTest href="#getForLastTest()"/>
