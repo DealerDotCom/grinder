@@ -781,11 +781,10 @@ grinder.jvm.arguments: -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamp
 *sys-package-mgr*: processing new jar, 'E:\src\grinder3\lib\jython.jar'
 </source>
 
-  <p>Jython caches the result of this processing, so subsequent
-  start up times are much reduced. You can control the location
-  of the cache directory, see the information on <a
-  href="site:g3/scripts/scripts-intro/jython-installation">Jython
-  installation</a>.</p>
+  <p>Jython caches the result of this processing, so subsequent start
+  up times are much reduced. You can control the location of the cache
+  directory, see the information on <a
+  href="site:jython-installation">Jython installation</a>.</p>
 
       </answer>
     </faq>
@@ -957,12 +956,11 @@ grinder.jvm.arguments: -Dpython.cachedir=/tmp
       modules in my scripts?</question>
 
       <answer>
-  <p>The Python standard library contains a number of very
-  useful modules. For example the regular expression module
-  <code>re</code>, the <code>threading</code> module, and the
-  <code>random</code> module. To use these modules you must <a
-  href="site:g3/scripts/scripts-intro/jython-installation">install
-  Jython</a>.</p>
+  <p>The Python standard library contains a number of very useful
+  modules. For example the regular expression module <code>re</code>,
+  the <code>threading</code> module, and the <code>random</code>
+  module. To use these modules you must <a
+  href="site:jython-installation">install Jython</a>.</p>
       </answer>
     </faq>
 
@@ -1058,11 +1056,11 @@ class TestRunner:
       </question>
 
       <answer>
-      <p>Mark Theunissen reports that this problem occurs if
-      you are using regular expressions with
-      <a href="site:g3/scripts/jython-2.5">Jython 2.5</a>. Mark
-      succesfully worked around the problem by removing the Jython 2.2.1
-      <code>jython.jar</code> from the <code>lib</code> directory.</p>
+      <p>Mark Theunissen reports that this problem occurs if you are
+      using regular expressions with <a href="site:jython-2.5">Jython
+      2.5</a>. Mark succesfully worked around the problem by removing
+      the Jython 2.2.1 <code>jython.jar</code> from the
+      <code>lib</code> directory.</p>
 
       </answer>
     </faq>

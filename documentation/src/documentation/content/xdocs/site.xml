@@ -64,14 +64,17 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <scripts label="Scripts">
       <scripts-intro label="Introduction" href="scripts.html">
+         <jython-scripts href="#jython-scripts"/>
          <tests href="#tests"/>
-         <jython-installation href="#jython-installation"/>
       </scripts-intro>
       <script-instrumentation label="Instrumentation" href="instrumentation.html">
         <new-instrumentation href="#new-instrumentation"/>
         <record-api href="#record-api"/>
       </script-instrumentation>
-      <jython-2.5 label="Jython 2.5" href="jython-2-5.html"/>
+      <jython label="Jython" href="jython.html">
+         <jython-installation href="#jython-installation"/>
+         <jython-2.5 href="#jython-2.5"/>
+      </jython>
       <clojure label="Clojure" href="clojure.html"/>
       <script-gallery label="Script Gallery" href="script-gallery.html">
         <digestauthentication href="#digestauthentication.py"/>
