@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,8 +21,19 @@
 
 package net.grinder.util.weave.j2se6;
 
-import static net.grinder.testutility.AssertUtilities.assertArraysEqual;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Constructor;
@@ -30,13 +41,17 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import net.grinder.testutility.CallData;
-import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.weave.Weaver;
 import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.Weaver.TargetSource;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**
@@ -46,17 +61,12 @@ import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
  * @author Philip Aston
  * @version $Revision:$
  */
-public class TestDCRWeaver extends TestCase {
-  final RandomStubFactory<ClassFileTransformerFactory>
-    m_classFileTransformerFactoryStubFactory =
-      RandomStubFactory.create(ClassFileTransformerFactory.class);
-  final ClassFileTransformerFactory m_classFileTransformerFactory =
-    m_classFileTransformerFactoryStubFactory.getStub();
+public class TestDCRWeaver {
 
-  final RandomStubFactory<Instrumentation> m_instrumentationStubFactory =
-    RandomStubFactory.create(Instrumentation.class);
-  final Instrumentation m_instrumentation =
-    m_instrumentationStubFactory.getStub();
+  @Mock private ClassFileTransformerFactory m_classFileTransformerFactory;
+  @Mock private ClassFileTransformer m_transformer;
+  @Mock private Instrumentation m_instrumentation;
+  @Captor private ArgumentCaptor<PointCutRegistry> m_pointCutRegistryCaptor;
 
   @SuppressWarnings("unused")
   private void myMethod() {
@@ -66,20 +76,20 @@ public class TestDCRWeaver extends TestCase {
   private void myOtherMethod() {
   }
 
-  public void testMethodRegistration() throws Exception {
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
+
+    when(m_classFileTransformerFactory.create(isA(PointCutRegistry.class)))
+      .thenReturn(m_transformer);
+  }
+
+  @Test public void testMethodRegistration() throws Exception {
     final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
                                         m_instrumentation);
 
-    final CallData createCall =
-      m_classFileTransformerFactoryStubFactory.assertSuccess(
-        "create", PointCutRegistry.class);
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
-
-    final Object transformer = createCall.getResult();
-
-    m_instrumentationStubFactory.assertSuccess(
-      "addTransformer", transformer, true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    verify(m_classFileTransformerFactory)
+      .create(m_pointCutRegistryCaptor.capture());
+    verify(m_instrumentation).addTransformer(m_transformer, true);
 
     final Method method = getClass().getDeclaredMethod("myMethod");
 
@@ -89,11 +99,8 @@ public class TestDCRWeaver extends TestCase {
 
     weaver.weave(method, TargetSource.FIRST_PARAMETER);
 
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
-    m_instrumentationStubFactory.assertNoMoreCalls();
-
     final PointCutRegistry pointCutRegistry =
-      (PointCutRegistry) createCall.getParameters()[0];
+      m_pointCutRegistryCaptor.getValue();
 
     final String internalClassName = getClass().getName().replace('.', '/');
 
@@ -117,9 +124,6 @@ public class TestDCRWeaver extends TestCase {
     weaver.weave(method, TargetSource.FIRST_PARAMETER);
     weaver.weave(method2, TargetSource.FIRST_PARAMETER);
 
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
-    m_instrumentationStubFactory.assertNoMoreCalls();
-
     final Map<Method, List<WeavingDetails>> pointCuts2 =
       pointCutRegistry.getMethodPointCutsForClass(internalClassName);
 
@@ -131,16 +135,17 @@ public class TestDCRWeaver extends TestCase {
     assertEquals(new WeavingDetails(location1, TargetSource.FIRST_PARAMETER),
                  locations2.get(0));
     assertNotNull(pointCuts2.get(method2));
+
+    verifyNoMoreInteractions(m_classFileTransformerFactory, m_instrumentation);
   }
 
-  public void testConstructorRegistration() throws Exception {
+  @Test public void testConstructorRegistration() throws Exception {
     final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
                                         m_instrumentation);
 
-    final CallData createCall =
-      m_classFileTransformerFactoryStubFactory.assertSuccess(
-        "create", PointCutRegistry.class);
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
+
+    verify(m_classFileTransformerFactory)
+      .create(m_pointCutRegistryCaptor.capture());
 
     final Constructor<?> constructor = getClass().getDeclaredConstructor();
 
@@ -150,10 +155,8 @@ public class TestDCRWeaver extends TestCase {
 
     weaver.weave(constructor);
 
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
-
     final PointCutRegistry pointCutRegistry =
-      (PointCutRegistry) createCall.getParameters()[0];
+      m_pointCutRegistryCaptor.getValue();
 
     final String internalClassName = getClass().getName().replace('.', '/');
 
@@ -176,46 +179,52 @@ public class TestDCRWeaver extends TestCase {
     assertNotNull(location1);
   }
 
-  public void testWeavingWithInstrumentation() throws Exception {
+  @Test public void testWeavingWithInstrumentation() throws Exception {
     final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
                                         m_instrumentation);
 
-    final CallData createCall =
-      m_classFileTransformerFactoryStubFactory.assertSuccess(
-        "create", PointCutRegistry.class);
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
-
-    final Object transformer = createCall.getResult();
-
-    m_instrumentationStubFactory.assertSuccess(
-      "addTransformer", transformer, true);
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    verify(m_classFileTransformerFactory)
+      .create(m_pointCutRegistryCaptor.capture());
+    verify(m_instrumentation).addTransformer(m_transformer, true);
 
     final Method method = getClass().getDeclaredMethod("myMethod");
     weaver.weave(method, TargetSource.FIRST_PARAMETER);
 
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
-
     weaver.applyChanges();
 
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
-
-    final CallData retransformClassesCall =
-      m_instrumentationStubFactory.assertSuccess("retransformClasses",
-                                                 new Class[0].getClass());
-    assertArraysEqual((Class[])retransformClassesCall.getParameters()[0],
-                      new Class[] { getClass(),});
-
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    verify(m_instrumentation).retransformClasses(new Class[] { getClass(),});
 
     weaver.weave(method, TargetSource.FIRST_PARAMETER);
     weaver.applyChanges();
 
-    m_classFileTransformerFactoryStubFactory.assertNoMoreCalls();
-    m_instrumentationStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_classFileTransformerFactory,
+                             m_instrumentation);
   }
 
-  public void testWeavingWithBadInstrumentation() throws Exception {
+  // Cover case where location key is different.
+  @Test public void testWeavingWithInstrumentation2() throws Exception {
+    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
+                                        m_instrumentation);
+
+    verify(m_classFileTransformerFactory)
+      .create(m_pointCutRegistryCaptor.capture());
+    verify(m_instrumentation).addTransformer(m_transformer, true);
+
+    final Method method = getClass().getDeclaredMethod("myMethod");
+
+    weaver.weave(method, TargetSource.FIRST_PARAMETER);
+    weaver.applyChanges();
+    weaver.weave(method, TargetSource.CLASS);
+    weaver.applyChanges();
+
+    verify(m_instrumentation, times(2))
+      .retransformClasses(new Class[] { getClass(),});
+
+    verifyNoMoreInteractions(m_classFileTransformerFactory,
+                             m_instrumentation);
+  }
+
+  @Test public void testWeavingWithBadInstrumentation() throws Exception {
     final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
                                         m_instrumentation);
 
@@ -225,10 +234,13 @@ public class TestDCRWeaver extends TestCase {
     weaver.weave(method, TargetSource.FIRST_PARAMETER);
 
     final Exception uce = new UnmodifiableClassException();
-    m_instrumentationStubFactory.setThrows("retransformClasses", uce);
+
+    doThrow(uce)
+      .when(m_instrumentation).retransformClasses(isA(Class.class));
 
     try {
       weaver.applyChanges();
+      verifyNoMoreInteractions(m_instrumentation);
       fail("Expected WeavingException");
     }
     catch (WeavingException e) {

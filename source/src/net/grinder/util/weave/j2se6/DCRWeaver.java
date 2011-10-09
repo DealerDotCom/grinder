@@ -190,18 +190,18 @@ public final class DCRWeaver implements Weaver {
       final String location = generateLocationString();
 
       synchronized (this) {
-        final Map<T, List<WeavingDetails>> methodNameToWeavingDetails;
+        final Map<T, List<WeavingDetails>> memberToWeavingDetails;
 
         final Map<T, List<WeavingDetails>> existingMap =
           classNameToMemberToLocation.get(internalClassName);
 
         if (existingMap != null) {
-          methodNameToWeavingDetails = existingMap;
+          memberToWeavingDetails = existingMap;
         }
         else {
-          methodNameToWeavingDetails = new HashMap<T, List<WeavingDetails>>();
+          memberToWeavingDetails = new HashMap<T, List<WeavingDetails>>();
           classNameToMemberToLocation.put(internalClassName,
-                                          methodNameToWeavingDetails);
+                                          memberToWeavingDetails);
         }
 
         m_wovenMembers.put(locationKey, location);
@@ -209,14 +209,14 @@ public final class DCRWeaver implements Weaver {
         final List<WeavingDetails> weavingDetailsList;
 
         final List<WeavingDetails> existingList =
-          methodNameToWeavingDetails.get(member);
+          memberToWeavingDetails.get(member);
 
         if (existingList != null) {
           weavingDetailsList = existingList;
         }
         else {
           weavingDetailsList = new ArrayList<WeavingDetails>();
-          methodNameToWeavingDetails.put(member, weavingDetailsList);
+          memberToWeavingDetails.put(member, weavingDetailsList);
         }
 
         weavingDetailsList.add(new WeavingDetails(location, targetSource));

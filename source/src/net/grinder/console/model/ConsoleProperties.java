@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2010 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -109,6 +109,15 @@ public final class ConsoleProperties {
   public static final String DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY =
     "grinder.console.distributionFileFilterExpression";
 
+  /**
+   * Default regular expression for filtering distribution files.
+   */
+  public static final String DEFAULT_DISTRIBUTION_FILE_FILTER_EXPRESSION =
+    "^CVS/$|" +
+    "^\\.svn/$|" +
+    "^.*~$|" +
+    "^(out_|error_|data_)\\w+-\\d+\\.log\\d*$";
+
   /** Property name. */
   public static final String SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY =
     "grinder.console.scanDistributionFilesPeriod";
@@ -162,7 +171,7 @@ public final class ConsoleProperties {
   private final PatternProperty m_distributionFileFilterPattern =
     new PatternProperty(
       DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
-      ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION);
+      DEFAULT_DISTRIBUTION_FILE_FILTER_EXPRESSION);
 
   private final IntProperty m_scanDistributionFilesPeriod =
     new IntProperty(SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY, 6000);

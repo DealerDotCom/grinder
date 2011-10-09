@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
 // All rights reserved.
@@ -23,9 +23,12 @@
 
 package net.grinder.statistics;
 
+import static java.util.Arrays.asList;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -126,44 +129,63 @@ public final class StatisticsIndexMap implements Serializable {
     // Set up standard statistic index values. When adding new values
     // or changing the order, you should also change the serialVersionUID
     // of TestStatisticsMap.
+    this(asList("errors",
+                "untimedTests",
+                HTTP_PLUGIN_RESPONSE_STATUS_KEY,
+                HTTP_PLUGIN_RESPONSE_LENGTH_KEY,
+                HTTP_PLUGIN_RESPONSE_ERRORS_KEY,
+                HTTP_PLUGIN_DNS_TIME_KEY,
+                HTTP_PLUGIN_CONNECT_TIME_KEY,
+                HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
+                "userLong0",
+                "userLong1",
+                "userLong2",
+                "userLong3",
+                "userLong4"),
+         asList("peakTPS",
+                "userDouble0",
+                "userDouble1",
+                "userDouble2",
+                "userDouble3",
+                "userDouble4"),
+         asList("period"));
+  }
+
+  /**
+   * Open constructor for use by unit tests.
+   *
+   * @param longNames
+   *          Names of long statistics.
+   * @param doubleNames
+   *          Names of double statistics.
+   * @param transientLongNames
+   *          Names of transient long statistics.
+   */
+  StatisticsIndexMap(List<String> longNames,
+                     List<String> doubleNames,
+                     List<String> transientLongNames) {
     int nextLongIndex = 0;
-    int nextDoubleIndex = 0;
     int nextTransientLongIndex = 0;
 
-    m_longMap.put("errors", new LongIndex(nextLongIndex++));
-    m_longMap.put("untimedTests", new LongIndex(nextLongIndex++));
-    m_longMap.put(HTTP_PLUGIN_RESPONSE_STATUS_KEY,
-                  new LongIndex(nextLongIndex++));
-    m_longMap.put(HTTP_PLUGIN_RESPONSE_LENGTH_KEY,
-                  new LongIndex(nextLongIndex++));
-    m_longMap.put(HTTP_PLUGIN_RESPONSE_ERRORS_KEY,
-                  new LongIndex(nextLongIndex++));
-    m_longMap.put(HTTP_PLUGIN_DNS_TIME_KEY,
-                  new LongIndex(nextLongIndex++));
-    m_longMap.put(HTTP_PLUGIN_CONNECT_TIME_KEY,
-                  new LongIndex(nextLongIndex++));
-    m_longMap.put(HTTP_PLUGIN_FIRST_BYTE_TIME_KEY,
-                  new LongIndex(nextLongIndex++));
-    m_longMap.put("userLong0", new LongIndex(nextLongIndex++));
-    m_longMap.put("userLong1", new LongIndex(nextLongIndex++));
-    m_longMap.put("userLong2", new LongIndex(nextLongIndex++));
-    m_longMap.put("userLong3", new LongIndex(nextLongIndex++));
-    m_longMap.put("userLong4", new LongIndex(nextLongIndex++));
+    for (String longName : longNames) {
+      m_longMap.put(longName, new LongIndex(++nextLongIndex));
+    }
 
-    m_doubleMap.put("peakTPS", new DoubleIndex(nextDoubleIndex++));
-    m_doubleMap.put("userDouble0", new DoubleIndex(nextDoubleIndex++));
-    m_doubleMap.put("userDouble1", new DoubleIndex(nextDoubleIndex++));
-    m_doubleMap.put("userDouble2", new DoubleIndex(nextDoubleIndex++));
-    m_doubleMap.put("userDouble3", new DoubleIndex(nextDoubleIndex++));
-    m_doubleMap.put("userDouble4", new DoubleIndex(nextDoubleIndex++));
+    int nextDoubleIndex = 0;
+
+    for (String doubleName : doubleNames) {
+      m_doubleMap.put(doubleName, new DoubleIndex(++nextDoubleIndex));
+    }
 
     createLongSampleIndex("timedTests",
                           new LongIndex(nextLongIndex++),
                           new LongIndex(nextLongIndex++),
                           new DoubleIndex(nextDoubleIndex++));
 
-    m_transientLongMap.put("period", new LongIndex(nextTransientLongIndex++,
-                                                   true));
+    for (String transientLongName : transientLongNames) {
+      m_transientLongMap.put(transientLongName,
+                             new LongIndex(nextTransientLongIndex++, true));
+    }
 
     m_numberOfDoubles = nextDoubleIndex;
     m_numberOfLongs = nextLongIndex;

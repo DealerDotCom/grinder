@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,12 @@
 
 package net.grinder.console.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -38,10 +44,13 @@ import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.FileUtilities;
 import net.grinder.util.Directory;
+
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -49,7 +58,7 @@ import net.grinder.util.Directory;
  *
  * @author Philip Aston
  */
-public class TestConsoleProperties extends AbstractFileTestCase {
+public class TestConsoleProperties extends AbstractJUnit4FileTestCase {
 
   private static final Resources s_resources = new ResourcesImplementation(
     "net.grinder.console.common.resources.Console");
@@ -58,12 +67,11 @@ public class TestConsoleProperties extends AbstractFileTestCase {
 
   private Random m_random = new Random();
 
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before public void setup() throws Exception {
     m_file = new File(getDirectory(), "properties");
   }
 
-  public void testCollectSamples() throws Exception {
+  @Test public void testCollectSamples() throws Exception {
 
     new TestIntTemplate(ConsoleProperties.COLLECT_SAMPLES_PROPERTY, 0,
       Integer.MAX_VALUE) {
@@ -79,7 +87,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testIgnoreSamples() throws Exception {
+  @Test public void testIgnoreSamples() throws Exception {
 
     new TestIntTemplate(ConsoleProperties.IGNORE_SAMPLES_PROPERTY, 0,
       Integer.MAX_VALUE) {
@@ -95,7 +103,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testSampleInterval() throws Exception {
+  @Test public void testSampleInterval() throws Exception {
 
     new TestIntTemplate(ConsoleProperties.SAMPLE_INTERVAL_PROPERTY, 1,
       Integer.MAX_VALUE) {
@@ -111,7 +119,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testSignificantFigures() throws Exception {
+  @Test public void testSignificantFigures() throws Exception {
 
     new TestIntTemplate(ConsoleProperties.SIG_FIG_PROPERTY, 0,
       Integer.MAX_VALUE) {
@@ -127,7 +135,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testConsoleHost() throws Exception {
+  @Test public void testConsoleHost() throws Exception {
 
     final String propertyName = ConsoleProperties.CONSOLE_HOST_PROPERTY;
 
@@ -186,7 +194,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertEquals("", properties.getConsoleHost());
   }
 
-  public void testConsolePort() throws Exception {
+  @Test public void testConsolePort() throws Exception {
 
     new TestIntTemplate(ConsoleProperties.CONSOLE_PORT_PROPERTY,
       CommunicationDefaults.MIN_PORT, CommunicationDefaults.MAX_PORT) {
@@ -202,7 +210,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testResetConsoleWithProcesses() throws Exception {
+  @Test public void testResetConsoleWithProcesses() throws Exception {
     new TestBooleanTemplate(
       ConsoleProperties.RESET_CONSOLE_WITH_PROCESSES_PROPERTY) {
 
@@ -217,7 +225,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testResetConsoleWithProcessesAsk() throws Exception {
+  @Test public void testResetConsoleWithProcessesAsk() throws Exception {
 
     new TestBooleanTemplate(
       ConsoleProperties.RESET_CONSOLE_WITH_PROCESSES_ASK_PROPERTY) {
@@ -233,7 +241,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testSetScriptNotSetAsk() throws Exception {
+  @Test public void testSetScriptNotSetAsk() throws Exception {
 
     new TestBooleanTemplate(ConsoleProperties.PROPERTIES_NOT_SET_ASK_PROPERTY) {
 
@@ -248,7 +256,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testStartWithUnsavedBuffersAsk() throws Exception {
+  @Test public void testStartWithUnsavedBuffersAsk() throws Exception {
 
     new TestBooleanTemplate(
       ConsoleProperties.START_WITH_UNSAVED_BUFFERS_ASK_PROPERTY) {
@@ -264,7 +272,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testStopProcessesAsk() throws Exception {
+  @Test public void testStopProcessesAsk() throws Exception {
 
     new TestBooleanTemplate(ConsoleProperties.STOP_PROCESSES_ASK_PROPERTY) {
 
@@ -279,7 +287,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testDistributeOnStartAsk() throws Exception {
+  @Test public void testDistributeOnStartAsk() throws Exception {
 
     new TestBooleanTemplate(
       ConsoleProperties.DISTRIBUTE_ON_START_ASK_PROPERTY) {
@@ -295,7 +303,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testPropertiesFile() throws Exception {
+  @Test public void testPropertiesFile() throws Exception {
 
     new TestFileTemplate(ConsoleProperties.PROPERTIES_FILE_PROPERTY) {
 
@@ -332,7 +340,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertNull(properties3.getPropertiesFile());
   }
 
-  public void testDistributionDirectory() throws Exception {
+  @Test public void testDistributionDirectory() throws Exception {
 
     new TestDirectoryTemplate(
       ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY) {
@@ -386,7 +394,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }
   }
 
-  public void testDistributionFileFilter() throws Exception {
+  @Test public void testDistributionFileFilter() throws Exception {
 
     new TestPatternTemplate(
       ConsoleProperties.DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY) {
@@ -402,7 +410,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testScanDistributionFilesPeriod() throws Exception {
+  @Test public void testScanDistributionFilesPeriod() throws Exception {
 
     new TestIntTemplate(
       ConsoleProperties.SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY, 0,
@@ -419,7 +427,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testLookAndFeel() throws Exception {
+  @Test public void testLookAndFeel() throws Exception {
 
     new TestStringTemplate(ConsoleProperties.LOOK_AND_FEEL_PROPERTY, true) {
 
@@ -433,7 +441,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testExternalEditorCommand() throws Exception {
+  @Test public void testExternalEditorCommand() throws Exception {
 
     new TestFileTemplate(
       ConsoleProperties.EXTERNAL_EDITOR_COMMAND_PROPERTY) {
@@ -448,8 +456,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-
-  public void testExternalEditorArguments() throws Exception {
+  @Test public void testExternalEditorArguments() throws Exception {
 
     new TestStringTemplate(
       ConsoleProperties.EXTERNAL_EDITOR_ARGUMENTS_PROPERTY, true) {
@@ -464,7 +471,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testFrameBounds() throws Exception {
+  @Test public void testFrameBounds() throws Exception {
 
     final ConsoleProperties properties =
       new ConsoleProperties(s_resources, m_file);
@@ -517,7 +524,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
                  new ConsoleProperties(s_resources, m_file).getFrameBounds());
   }
 
-  public void testSaveTotalsWithResults() throws Exception {
+  @Test public void testSaveTotalsWithResults() throws Exception {
     new TestBooleanTemplate(
       ConsoleProperties.SAVE_TOTALS_WITH_RESULTS_PROPERTY) {
 
@@ -534,7 +541,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     }.doTest();
   }
 
-  public void testCopyConstructor() throws Exception {
+  @Test public void testCopyConstructor() throws Exception {
     final ConsoleProperties p1 = new ConsoleProperties(s_resources, m_file);
     final ConsoleProperties p2 = new ConsoleProperties(p1);
 
@@ -563,7 +570,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertEquals(p1.getSaveTotalsWithResults(), p2.getSaveTotalsWithResults());
   }
 
-  public void testAssignment() throws Exception {
+  @Test public void testAssignment() throws Exception {
     final ConsoleProperties p1 = new ConsoleProperties(s_resources, m_file);
     final ConsoleProperties p2 = new ConsoleProperties(s_resources, m_file);
     p2.setCollectSampleCount(99);
@@ -646,7 +653,7 @@ public class TestConsoleProperties extends AbstractFileTestCase {
     assertTrue(p1.getSaveTotalsWithResults() == p2.getSaveTotalsWithResults());
   }
 
-  public void testWithBadFile() throws Exception {
+  @Test public void testWithBadFile() throws Exception {
 
     final File badFile = new File(getDirectory(), "bad");
     assertTrue(badFile.createNewFile());
@@ -1102,7 +1109,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
       listener2.assertCalledOnce();
 
       set(properties, null);
-      assertEquals(ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION,
+      assertEquals(
+        ConsoleProperties.DEFAULT_DISTRIBUTION_FILE_FILTER_EXPRESSION,
         get(properties).pattern());
 
       try {
@@ -1114,7 +1122,8 @@ public class TestConsoleProperties extends AbstractFileTestCase {
           e.getCause() instanceof PatternSyntaxException);
       }
 
-      assertEquals(ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION,
+      assertEquals(
+        ConsoleProperties.DEFAULT_DISTRIBUTION_FILE_FILTER_EXPRESSION,
         get(properties).pattern());
     }
 

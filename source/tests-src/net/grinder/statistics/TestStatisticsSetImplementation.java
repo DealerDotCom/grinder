@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,11 @@
 
 package net.grinder.statistics;
 
+import static java.util.Arrays.asList;
 import static net.grinder.testutility.AssertUtilities.assertNotEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,19 +34,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
 
-import junit.framework.TestCase;
 import net.grinder.statistics.StatisticsIndexMap.DoubleIndex;
 import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.util.Serialiser;
 
+import org.junit.Before;
+import org.junit.Test;
+
 
 /**
- * Unit test case for <code>StatisticsSetImplementation</code>.
+ * Unit tests for {@link StatisticsSetImplementation}/
  *
  * @author Philip Aston
  * @see StatisticsSetImplementation
  */
-public class TestStatisticsSetImplementation extends TestCase {
+public class TestStatisticsSetImplementation {
 
   private StatisticsIndexMap m_indexMap;
 
@@ -55,7 +61,7 @@ public class TestStatisticsSetImplementation extends TestCase {
   private DoubleIndex m_doubleIndex1;
   private DoubleIndex m_doubleIndex2;
 
-  protected void setUp() throws Exception {
+  @Before public void setUp() throws Exception {
     m_indexMap = StatisticsServicesImplementation.getInstance()
         .getStatisticsIndexMap();
 
@@ -68,7 +74,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     m_doubleIndex2 = m_indexMap.getDoubleIndex("userDouble2");
   }
 
-  public void testCreation() {
+  @Test public void testCreation() {
     final StatisticsSetImplementation statistics =
       new StatisticsSetImplementation(m_indexMap);
 
@@ -78,7 +84,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertFalse(statistics.isComposite());
   }
 
-  public void testReset() throws Exception {
+  @Test public void testReset() throws Exception {
     final StatisticsSetImplementation statistics0 =
       new StatisticsSetImplementation(m_indexMap);
 
@@ -105,7 +111,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertFalse(statistics0.isComposite());
   }
 
-  public void testGetValueSetValueAndEquals() throws Exception {
+  @Test public void testGetValueSetValueAndEquals() throws Exception {
     final StatisticsSetImplementation statistics0 =
       new StatisticsSetImplementation(m_indexMap);
     final StatisticsSetImplementation statistics1 =
@@ -173,7 +179,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertEquals(statistics0, statistics1);
   }
 
-  public void testAddValue() throws Exception {
+  @Test public void testAddValue() throws Exception {
     final StatisticsSetImplementation statistics0 =
       new StatisticsSetImplementation(m_indexMap);
     final StatisticsSetImplementation statistics1 =
@@ -196,7 +202,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertEquals(statistics0, statistics1);
   }
 
-  public void testAddTransientValue() throws Exception {
+  @Test public void testAddTransientValue() throws Exception {
     final StatisticsSetImplementation statistics0 =
       new StatisticsSetImplementation(m_indexMap);
     final StatisticsSetImplementation statistics1 =
@@ -208,7 +214,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertEquals(0, statistics1.getValue(m_transientLongIndex));
   }
 
-  public void testAdd() throws Exception {
+  @Test public void testAdd() throws Exception {
     final StatisticsSetImplementation statistics0 =
       new StatisticsSetImplementation(m_indexMap);
     final StatisticsSetImplementation statistics1 =
@@ -245,7 +251,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertDoublesEqual(-11d, statistics0.getValue(m_doubleIndex2));
   }
 
-  public void testSnapshot() throws Exception {
+  @Test public void testSnapshot() throws Exception {
     final StatisticsSetImplementation original =
       new StatisticsSetImplementation(m_indexMap);
     original.addValue(m_longIndex0, 10);
@@ -281,7 +287,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertTrue(snapshot2.isZero());
   }
 
-  public void testLongSampleReadAndWrite() throws Exception {
+  @Test public void testLongSampleReadAndWrite() throws Exception {
     final StatisticsSet rawStatistics0 =
       new StatisticsSetImplementation(m_indexMap);
 
@@ -329,7 +335,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertDoublesEqual(0, rawStatistics1.getVariance(longSampleIndex));
   }
 
-  public void testDoubleSampleReadAndWrite() throws Exception {
+  @Test public void testDoubleSampleReadAndWrite() throws Exception {
     try {
       final StatisticsIndexMap.DoubleIndex sumIndex = m_indexMap
           .getDoubleIndex("userDouble0");
@@ -399,7 +405,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     }
   }
 
-  public void testSerialisation() throws Exception {
+  @Test public void testSerialisation() throws Exception {
     final Random random = new Random();
 
     final StatisticsSetImplementation original0 =
@@ -445,7 +451,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertEquals(original1, received1);
   }
 
-  public void testEqualsMiscellanea() throws Exception {
+  @Test public void testEqualsMiscellanea() throws Exception {
     final StatisticsSet rawStatistics0 =
       new StatisticsSetImplementation(m_indexMap);
     final StatisticsSet rawStatistics1 =
@@ -460,7 +466,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertFalse(rawStatistics0.hashCode() == hashCode0);
   }
 
-  private String commaSeparate(int n, String value) {
+  private static String commaSeparate(int n, String value) {
     final StringBuilder result = new StringBuilder();
 
     result.append("{");
@@ -478,7 +484,7 @@ public class TestStatisticsSetImplementation extends TestCase {
     return result.toString();
   }
 
-  public void testToString() throws Exception {
+  @Test public void testToString() throws Exception {
 
     final StatisticsSet rawStatistics =
       new StatisticsSetImplementation(m_indexMap);
@@ -497,6 +503,21 @@ public class TestStatisticsSetImplementation extends TestCase {
     assertTrue(s0.indexOf("composite = false") >= 0);
     rawStatistics.setIsComposite();
     assertTrue(rawStatistics.toString().indexOf("composite = true") >= 0);
+  }
+
+  @Test public void testToString2() throws Exception {
+
+    final StatisticsIndexMap statisticsIndexMap2 =
+      new StatisticsIndexMap(asList("a"),
+                             asList("b"),
+                             asList("c", "d"));
+
+    final StatisticsSet rawStatistics =
+      new StatisticsSetImplementation(statisticsIndexMap2);
+
+    assertEquals(
+      "StatisticsSet = {{0, 0, 0}, {0.0, 0.0}, {0, 0}, composite = false}",
+      rawStatistics.toString().toString());
   }
 
   private void assertDoublesEqual(double a, double b) {
