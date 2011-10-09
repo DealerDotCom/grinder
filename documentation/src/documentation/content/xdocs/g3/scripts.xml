@@ -94,7 +94,7 @@
           available for the script to import. It can also be imported
           by any modules that the script calls. This is an instance of
           the <a
-          href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a>
+          href="site:api/ScriptContext">Grinder.ScriptContext</a>
           class and provides access to context information (such as
           the worker thread ID) and services (such as logging and
           statistics).</p>
@@ -141,8 +141,8 @@ class TestRunner:
     framework and can easily be started in many times in many worker
     processes on many machines, it doesn't report any statistics. For
     this we need to create some tests. A <a
-    href="script-javadoc/net/grinder/script/Test.html">Test</a> has a
-    unique test number and description. If you are using the <a
+    href="site:api/Test">Test</a> has a unique test number and
+    description. If you are using the <a
     href="site:console">console</a>, it will update automatically to
     display new <code>Test</code>s as they are created.</p>
 
@@ -225,40 +225,42 @@ class TestRunner:
     Python code in your test scripts.</p>
 
     <p>The Grinder script API can be used to access services from The
-    Grinder. The <a href="script-javadoc/index.html">Javadoc</a>
-    contains full information on all the packages, classes and
-    interfaces that make up the core API, as well as additional
-    packages added by the shipped plug-ins. This section provides
-    overview information on various areas of the API. See also the <a
-    href="site:g3/plugins/http-plugin">HTTP plugin documentation</a>.</p>
+    Grinder. The <a href="site:api/index">Javadoc</a> contains full
+    information on all the packages, classes and interfaces that make
+    up the core API, as well as additional packages added by the
+    shipped plug-ins. This section provides overview information on
+    various areas of the API. See also the <a
+    href="site:g3/plugins/http-plugin">HTTP plugin
+    documentation</a>.</p>
 
     <dl>
-      <dt><strong>The <a href="script-javadoc/net/grinder/script/package-summary.html">net.grinder.script</a> package</strong></dt>
+      <dt><strong>The <a
+      href="site:api/script-package">net.grinder.script</a>
+      package</strong></dt>
 
       <dd>
         <p>An instance of <a
-        href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a>
-        called <code>grinder</code> is automatically available to all
+        href="site:api/ScriptContext">Grinder.ScriptContext</a> called
+        <code>grinder</code> is automatically available to all
         scripts. This object provides access to context information
         and acts a starting point for accessing other services. The
         instance can be explicitly imported from other Python modules
         as <code>net.grinder.script.Grinder.grinder</code>.</p>
 
         <p>We have described the use of the <a
-        href="script-javadoc/net/grinder/script/Test.html">Test</a>
-        class <a href="#tests">above</a>.</p>
+        href="site:api/Test">Test</a> class <a
+        href="#tests">above</a>.</p>
 
-        <p>The <a
-        href="script-javadoc/net/grinder/script/Statistics.html">Statistics</a>
-        interface allows scripts to query and modify
-        <a href="site:g3/statistics">statistics</a>, provide
-        custom statistics, and register additional views of standard and
+        <p>The <a href="site:api/Statistics">Statistics</a> interface
+        allows scripts to query and modify <a
+        href="site:g3/statistics">statistics</a>, provide custom
+        statistics, and register additional views of standard and
         custom statistics.</p>
 
       </dd>
 
       <dt><strong>The <a
-      href="script-javadoc/net/grinder/common/package-summary.html">net.grinder.common</a>
+      href="site:api/common-package">net.grinder.common</a>
       package</strong></dt>
 
       <dd>

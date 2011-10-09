@@ -1258,9 +1258,8 @@ response = myrequest.GET(&quot;/carindex.html&quot;)
 text = response.text
 </source>
 
-  <p>See the <a href="g3/script-javadoc/index.html">script
-  API</a> for other things you can do with the
-  <code>HTTPResponse</code> object.</p>
+  <p>See the <a href="site:g3/api/index">script API</a> for other
+  things you can do with the <code>HTTPResponse</code> object.</p>
 
   <p>Now you have the choice of using Java or Python to extract
   the appropriate ID. Lets do it in Python. Rather than write
