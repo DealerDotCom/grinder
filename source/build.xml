@@ -212,7 +212,8 @@ if this doesn't do what you want.
     <path id="clojure.classpath">
       <!-- Must use fileset, pathelement doesn't accept wildcards. -->
       <fileset dir="${clojure.home}">
-        <include name="clojure*slim.jar"/>
+        <include name="clojure*.jar"/>
+        <exclude name="clojure*slim.jar"/>
       </fileset>
     </path>
 
