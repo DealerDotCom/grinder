@@ -45,7 +45,7 @@ public class TestConnectionType {
     AssertUtilities.assertNotEquals(ConnectionType.WORKER.toString(),
                                     ConnectionType.AGENT.toString());  }
 
-  public void testEquality() throws Exception {
+  @Test public void testEquality() throws Exception {
     assertEquals(ConnectionType.AGENT.hashCode(),
                  ConnectionType.AGENT.hashCode());
 

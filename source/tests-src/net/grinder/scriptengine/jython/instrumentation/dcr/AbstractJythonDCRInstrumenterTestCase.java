@@ -118,7 +118,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  public void testInstrumentationWithPyDerivedClass() throws Exception {
+  @Test public void testInstrumentationWithPyDerivedClass() throws Exception {
     m_interpreter.exec("from test import MyClass\n" +
                        "class Foo(MyClass):\n" +
                        " def six(self): return 6\n" +
@@ -226,7 +226,7 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
   }
 
   // This doesn't work for DCR.
-  public void testCreateProxyWithPyJavaInstance() throws Exception {
+  @Test public void testCreateProxyWithPyJavaInstance() throws Exception {
     m_interpreter.exec("from test import MyClass\nx=MyClass()");
     final PyObject pyJava = m_interpreter.get("x");
     createInstrumentedProxy(m_test, m_recorder, pyJava);

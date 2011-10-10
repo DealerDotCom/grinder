@@ -112,7 +112,7 @@ public class TestMessageQueue {
     }
   }
 
-  public void testManyQueuersAndDequeuers() throws Exception {
+  @Test public void testManyQueuersAndDequeuers() throws Exception {
 
     final Thread[] queuers = new Thread[6];
     final Thread[] dequeuers = new Thread[3];
