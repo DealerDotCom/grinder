@@ -2,7 +2,7 @@
 
 import re, os
 
-log = os.popen('git log --name-status --date=short --pretty="format:%ad  %aN %d%n%n      %s%n"  master', 'r')
+log = os.popen('git log --name-status --date=short --pretty="format:%ad  %aN %d%n%n%w(80,4,4)%s%n"  master', 'r')
 
 previous=""
 skipNext = 0

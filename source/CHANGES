@@ -1,5 +1,5 @@
-The Grinder 3.6 (Not yet released)
-----------------------------------
+The Grinder 3.6
+---------------
 
    The script engine API has been improved so that adding support
    for other languages is straightforward.
