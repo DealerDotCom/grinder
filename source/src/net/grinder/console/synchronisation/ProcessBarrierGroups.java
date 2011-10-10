@@ -21,6 +21,8 @@
 
 package net.grinder.console.synchronisation;
 
+import java.util.Set;
+
 import net.grinder.communication.CommunicationException;
 import net.grinder.synchronisation.AbstractBarrierGroups;
 import net.grinder.synchronisation.BarrierGroup;
@@ -58,8 +60,8 @@ final class ProcessBarrierGroups extends AbstractBarrierGroups {
     return new BarrierGroupImplementation(name) {
       {
         delegateGroup.addListener(new Listener() {
-          public void awaken() {
-            clearWaiters();
+          public void awaken(Set<BarrierIdentity> waiters) {
+            clearWaiters(waiters);
           }
         });
       }

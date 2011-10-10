@@ -21,6 +21,8 @@
 
 package net.grinder.synchronisation;
 
+import java.util.Set;
+
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.Sender;
@@ -60,8 +62,9 @@ public class ClientBarrierGroups extends AbstractBarrierGroups {
             getExistingGroup(message.getName());
 
           if (existingGroup != null) {
-            existingGroup.clearWaiters();
-            existingGroup.fireAwaken();
+            final Set<BarrierIdentity> removedWaiters =
+              existingGroup.clearWaiters(message.getWaiters());
+            existingGroup.fireAwaken(removedWaiters);
           }
         }
       });

@@ -22,6 +22,8 @@
 package net.grinder.synchronisation;
 
 
+import java.util.Set;
+
 import net.grinder.communication.CommunicationException;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 
@@ -64,7 +66,7 @@ public interface BarrierGroup {
    * Callback used to notify listeners.
    */
   interface Listener {
-    void awaken();
+    void awaken(Set<BarrierIdentity> waiters);
   }
 
   /**

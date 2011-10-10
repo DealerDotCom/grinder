@@ -21,6 +21,8 @@
 
 package net.grinder.synchronisation;
 
+import java.util.Set;
+
 import net.grinder.communication.CommunicationException;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 
@@ -43,30 +45,30 @@ public class LocalBarrierGroups extends AbstractBarrierGroups {
       @Override public void removeBarriers(long n)
         throws CommunicationException {
 
-        final boolean wakeListeners;
+        final Set<BarrierIdentity> waiters;
 
         synchronized (this) {
           super.removeBarriers(n);
-          wakeListeners = checkConditionLocal();
+          waiters = checkCondition();
         }
 
-        if (wakeListeners) {
-          fireAwaken();
+        if (waiters.size() > 0) {
+          fireAwaken(waiters);
         }
       }
 
       @Override public void addWaiter(BarrierIdentity barrierIdentity)
         throws CommunicationException {
 
-        final boolean wakeListeners;
+        final Set<BarrierIdentity> waiters;
 
         synchronized (this) {
           super.addWaiter(barrierIdentity);
-          wakeListeners = checkConditionLocal();
+          waiters = checkCondition();
         }
 
-        if (wakeListeners) {
-          fireAwaken();
+        if (waiters.size() > 0) {
+          fireAwaken(waiters);
         }
       }
     };

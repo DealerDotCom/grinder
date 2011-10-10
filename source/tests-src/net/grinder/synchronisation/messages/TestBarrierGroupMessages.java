@@ -21,11 +21,16 @@
 
 package net.grinder.synchronisation.messages;
 
+import static java.util.Arrays.asList;
 import static net.grinder.testutility.Serializer.serialize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.CommunicationException;
@@ -47,11 +52,18 @@ public class TestBarrierGroupMessages {
     new BarrierIdentityGenerator(new Integer(1));
 
   @Test public void testOpenBarrierMessage() throws Exception {
-    final OpenBarrierMessage message = new OpenBarrierMessage("abc");
+
+    final Set<BarrierIdentity> waiters =
+      new HashSet<BarrierIdentity>(asList(m_identityFactory.next(),
+                                          m_identityFactory.next()));
+
+    final OpenBarrierMessage message = new OpenBarrierMessage("abc",
+                                                              waiters);
 
     final OpenBarrierMessage serialized = serialize(message);
 
     assertEquals("abc", serialized.getName());
+    assertEquals(waiters, message.getWaiters());
   }
 
   @Test public void testAddWaiterMessage() throws Exception {

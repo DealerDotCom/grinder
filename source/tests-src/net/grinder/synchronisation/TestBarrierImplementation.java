@@ -21,6 +21,7 @@
 
 package net.grinder.synchronisation;
 
+import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -195,7 +196,8 @@ public class TestBarrierImplementation {
       public Void answer(InvocationOnMock invocation) throws Throwable {
         futureHolder[0] = m_executor.submit(new Callable<Void>() {
           public Void call() throws Exception {
-            b.awaken();
+            b.awaken(singleton(ID1));
+            b.awaken(singleton(ID2));
             return null;
           }});
 
@@ -300,7 +302,7 @@ public class TestBarrierImplementation {
           public Void call() throws Exception {
             b.cancel();
 
-            b.awaken(); // No-op.
+            b.awaken(singleton(ID2)); // No-op.
 
             return null;
           }});

@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.grinder.synchronisation.BarrierGroup.Listener;
@@ -92,7 +93,7 @@ public class TestLocalBarrierGroups {
     final BarrierGroup bg = m_groups.getGroup(groupName);
 
     bg.addListener(new Listener() {
-        public void awaken() {
+        public void awaken(Set<BarrierIdentity> waiters) {
           ++m_awakenCount;
         }
       });
@@ -253,7 +254,9 @@ public class TestLocalBarrierGroups {
     final AtomicInteger awakenCount = new AtomicInteger();
 
     final Listener listener = new Listener() {
-      public void awaken() { awakenCount.incrementAndGet(); }
+      public void awaken(Set<BarrierIdentity> waiters) {
+        awakenCount.incrementAndGet();
+      }
     };
 
     bg.addListener(listener);

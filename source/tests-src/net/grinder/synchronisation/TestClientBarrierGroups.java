@@ -34,6 +34,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+import java.util.Set;
+
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.Sender;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
@@ -129,7 +132,7 @@ public class TestClientBarrierGroups {
     final BarrierGroup bg = m_groups.getGroup(groupName);
 
     bg.addListener(new Listener() {
-        public void awaken() {
+        public void awaken(Set<BarrierIdentity> waiters) {
           ++m_awakenCount;
         }
       });

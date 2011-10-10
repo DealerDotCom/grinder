@@ -1,8 +1,11 @@
 package net.grinder.console.synchronisation;
 
+import java.util.Set;
+
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.synchronisation.LocalBarrierGroups;
 import net.grinder.synchronisation.BarrierGroup.Listener;
+import net.grinder.synchronisation.messages.BarrierIdentity;
 import net.grinder.synchronisation.messages.OpenBarrierMessage;
 
 
@@ -22,14 +25,6 @@ final class ConsoleBarrierGroups extends LocalBarrierGroups {
    */
   public ConsoleBarrierGroups(ConsoleCommunication communication) {
     m_communication = communication;
-
-//      timer.schedule(new TimerTask() {
-//
-//        @Override
-//        public void run() {
-//          System.out.printf("%s%n", ConsoleBarrierGroups.this);
-//
-//        }}, 3000, 3000);
   }
 
   /**
@@ -40,10 +35,10 @@ final class ConsoleBarrierGroups extends LocalBarrierGroups {
     final BarrierGroupImplementation group = super.createBarrierGroup(name);
 
     group.addListener(new Listener() {
-      public void awaken() {
-        m_communication.sendToAgents(new OpenBarrierMessage(name));
-      }
-    });
+        public void awaken(Set<BarrierIdentity> waiters) {
+          m_communication.sendToAgents(new OpenBarrierMessage(name, waiters));
+        }
+      });
 
     return group;
   }

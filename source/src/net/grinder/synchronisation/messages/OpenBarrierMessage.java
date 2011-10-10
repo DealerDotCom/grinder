@@ -21,6 +21,8 @@
 
 package net.grinder.synchronisation.messages;
 
+import java.util.Set;
+
 import net.grinder.communication.Message;
 
 
@@ -34,15 +36,19 @@ public class OpenBarrierMessage implements Message {
   private static final long serialVersionUID = 1L;
 
   private final String m_name;
+  private final Set<BarrierIdentity> m_waiters;
 
   /**
    * Constructor.
    *
    * @param name
    *          Barrier name.
+   * @param waiters
+   *          Waiters to wake.
    */
-  public OpenBarrierMessage(String name) {
+  public OpenBarrierMessage(String name, Set<BarrierIdentity> waiters) {
     m_name = name;
+    m_waiters = waiters;
   }
 
   /**
@@ -52,5 +58,14 @@ public class OpenBarrierMessage implements Message {
    */
   public String getName() {
     return m_name;
+  }
+
+  /**
+   * Waiters to wake.
+   *
+   * @return The waiters.
+   */
+  public Set<BarrierIdentity> getWaiters() {
+    return m_waiters;
   }
 }

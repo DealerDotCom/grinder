@@ -21,6 +21,8 @@
 
 package net.grinder.synchronisation;
 
+import static java.util.Collections.emptySet;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -252,32 +254,53 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
 
     /**
      * Call the {@link Listener#awaken()} method for all of the listeners.
+     *
+     * @param oldWaiters The previous waiters.
      */
-    protected final void fireAwaken() {
+    protected final void fireAwaken(final Set<BarrierIdentity> oldWaiters) {
       m_listeners.apply(new ListenerSupport.Informer<Listener>() {
-        public void inform(Listener listener) { listener.awaken(); }
+        public void inform(Listener listener) { listener.awaken(oldWaiters); }
       });
     }
 
     /**
      * Clear waiters.
+     *
+     * @param waiters Waiters to removed, if they exist.
+     * @return The waiters that were removed.
      */
-    protected final void clearWaiters() {
+    protected final Set<BarrierIdentity>
+      clearWaiters(Set<BarrierIdentity> waiters) {
+
       synchronized (this) {
-        m_waiters.clear();
+        final Set<BarrierIdentity> removed =
+          new HashSet<BarrierIdentity>(m_waiters.size());
+
+        for (BarrierIdentity waiter : waiters) {
+          if (m_waiters.remove(waiter)) {
+            removed.add(waiter);
+          }
+        }
+
+        return removed;
       }
     }
 
     /**
-     * Check whether the barrier group should awaken.
+     * Check whether the barrier condition is satisfied. If so, clear our
+     * waiters.
      *
-     * @return {@code true} if and only if the group should awaken.
+     * <p>
+     * The caller is responsible for taking whatever other action necessary such
+     * as notifying the listeners.
+     * </p>
+     *
+     * @return The set of waiters to be woken. If the barrier condition was not
+     *         satisfied, an empty set will be returned.
      */
-    protected final boolean checkConditionLocal() {
+    protected final Set<BarrierIdentity> checkCondition() {
       synchronized (this) {
         if (m_barriers > 0 && m_barriers == m_waiters.size()) {
-
-          m_waiters.clear();
 
           // The caller will notify the listeners after releasing the lock to
           // minimise the length of time it is held. Otherwise the distributed
@@ -287,10 +310,16 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
           // This does not cause a race from the perspective of an individual
           // waiting thread, since it cannot proceed until its barrier is woken
           // or cancelled, and once cancelled a barrier cannot be re-used.
-            return true;
+
+          final Set<BarrierIdentity> result =
+            new HashSet<BarrierIdentity>(m_waiters);
+
+          m_waiters.clear();
+
+          return result;
         }
 
-        return false;
+        return emptySet();
       }
     }
 

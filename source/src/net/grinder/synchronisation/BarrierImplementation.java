@@ -21,6 +21,7 @@
 
 package net.grinder.synchronisation;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import net.grinder.common.UncheckedInterruptedException;
@@ -231,9 +232,11 @@ public final class BarrierImplementation
   /**
    * {@inheritDoc}
    */
-  public void awaken() {
+  public void awaken(Set<BarrierIdentity> waiters) {
     synchronized (m_condition) {
-      m_state.awaken(BarrierImplementation.this);
+      if (waiters.contains(m_identity)) {
+        m_state.awaken(BarrierImplementation.this);
+      }
     }
   }
 
