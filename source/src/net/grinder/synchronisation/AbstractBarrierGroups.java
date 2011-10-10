@@ -215,7 +215,9 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
           throw new IllegalStateException("Can't add waiter, no barriers");
         }
 
-        assert m_waiters.size() < m_barriers;
+        if (m_waiters.size() >= m_barriers) {
+          throw new AssertionError(toString());
+        }
 
         m_waiters.add(barrierIdentity);
       }
@@ -255,6 +257,15 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
       m_listeners.apply(new ListenerSupport.Informer<Listener>() {
         public void inform(Listener listener) { listener.awaken(); }
       });
+    }
+
+    /**
+     * Clear waiters.
+     */
+    protected final void clearWaiters() {
+      synchronized (this) {
+        m_waiters.clear();
+      }
     }
 
     /**

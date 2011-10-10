@@ -27,6 +27,7 @@ import net.grinder.synchronisation.BarrierGroup;
 import net.grinder.synchronisation.BarrierGroups;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 
+
 /**
  * Keeps track of the barrier values for a particular worker process.
  *
@@ -55,6 +56,13 @@ final class ProcessBarrierGroups extends AbstractBarrierGroups {
     final BarrierGroup delegateGroup = m_delegate.getGroup(name);
 
     return new BarrierGroupImplementation(name) {
+      {
+        delegateGroup.addListener(new Listener() {
+          public void awaken() {
+            clearWaiters();
+          }
+        });
+      }
 
       @Override
       public void addBarrier() throws CommunicationException {

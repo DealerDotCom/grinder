@@ -145,8 +145,7 @@ public interface BarrierGroup {
     throws CommunicationException;
 
   /**
-   * Cancels all waiters and removes all barriers. The instance will be
-   * left in an invalid state.
+   * Cancels all waiters and removes all barriers.
    *
    * @throws CommunicationException
    *           If the operation could not be completed due to a network

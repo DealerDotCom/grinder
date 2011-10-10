@@ -28,7 +28,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerIdentity;
@@ -126,7 +125,6 @@ public class TestWireDistributedBarriers {
     m_handlerCaptor.getValue().handle(new RemoveBarriersMessage("hello", 1));
 
     verify(barrierGroup).removeBarriers(1);
-    verifyNoMoreInteractions(barrierGroup);
   }
 
   @Test public void testBarriersCleanUp() throws Exception {
@@ -178,7 +176,6 @@ public class TestWireDistributedBarriers {
     verify(group1).addWaiter(m_barrierIdentity);
 
     verify(group2).addBarrier();
-    verifyNoMoreInteractions(group1, group2);
 
     verify(m_processControl).addProcessStatusListener(
       m_processStatusListenerCaptor.capture());
@@ -195,7 +192,6 @@ public class TestWireDistributedBarriers {
     });
 
     verify(group1).removeBarriers(2);
-    verifyNoMoreInteractions(group1);
 
     // All workers have gone away.
     listener.update(new ProcessReports[0]);
@@ -204,8 +200,6 @@ public class TestWireDistributedBarriers {
     verify(group1).removeBarriers(1);
 
     verify(group2).removeBarriers(1);
-
-    verifyNoMoreInteractions(group1, group2);
   }
 
   @Test public void testBarriersCleanUpAssertion() throws Exception {

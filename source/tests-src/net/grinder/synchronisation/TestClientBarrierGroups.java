@@ -156,16 +156,26 @@ public class TestClientBarrierGroups {
 
     bg.addWaiter(ID2);
 
-    bg.addWaiter(ID2);
-
-    bg.addWaiter(ID1);
-
-    verify(m_sender, times(2)).send(argThat(new AddWaiterMessageMatcher(ID1)));
-    verify(m_sender, times(2)).send(argThat(new AddWaiterMessageMatcher(ID2)));
+    verify(m_sender).send(argThat(new AddWaiterMessageMatcher(ID1)));
+    verify(m_sender).send(argThat(new AddWaiterMessageMatcher(ID2)));
 
     assertEquals(0, m_awakenCount);
 
     verifyNoMoreInteractions(m_sender);
+  }
+
+  @Test public void testBarrierGroupAddTooManyWaiters() throws Exception {
+    final BarrierGroup bg = createBarrierGroup("Foo");
+
+    bg.addBarrier();
+    bg.addWaiter(ID1);
+
+    try {
+      bg.addWaiter(ID2);
+      fail("Expected AssertionError");
+    }
+    catch (AssertionError e) {
+    }
   }
 
   @Test public void testRemoveBarriers() throws Exception {

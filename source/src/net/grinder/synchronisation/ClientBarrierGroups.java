@@ -60,6 +60,7 @@ public class ClientBarrierGroups extends AbstractBarrierGroups {
             getExistingGroup(message.getName());
 
           if (existingGroup != null) {
+            existingGroup.clearWaiters();
             existingGroup.fireAwaken();
           }
         }

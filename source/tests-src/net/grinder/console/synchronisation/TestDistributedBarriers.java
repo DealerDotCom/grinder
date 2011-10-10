@@ -28,6 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -226,7 +227,7 @@ public class TestDistributedBarriers {
     }
   }
 
-  @Test public void testDistributed() throws Exception {
+  @Test public void testDistributed() throws Throwable {
 
     final List<ClientProcess> processes = new ArrayList<ClientProcess>();
     final List<ClientThread> threads = new ArrayList<ClientThread>();
@@ -241,7 +242,12 @@ public class TestDistributedBarriers {
       }
     }
 
-    for (Future<Void> f : m_exector.invokeAll(threads)) { f.get(); }
+    try {
+      for (Future<Void> f : m_exector.invokeAll(threads)) { f.get(); }
+    }
+    catch (ExecutionException e) {
+      throw e.getCause();
+    }
 
     for (ClientProcess p : processes) { p.stop(); }
   }
