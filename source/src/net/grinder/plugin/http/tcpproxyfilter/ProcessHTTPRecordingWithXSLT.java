@@ -130,18 +130,6 @@ public class ProcessHTTPRecordingWithXSLT
     finally {
       m_styleSheetInputStream.close();
     }
-
-    /*
-    if (properties != null) {
-      // Set an XSLT parameter for each domain parameter.
-      final Iterator parameterIterator = properties.entrySet().iterator();
-
-      while (parameterIterator.hasNext()) {
-        final Map.Entry entry = (Map.Entry)parameterIterator.next();
-        transformer.setParameter((String)entry.getKey(), entry.getValue());
-      }
-    }
-    */
   }
 
   /**
