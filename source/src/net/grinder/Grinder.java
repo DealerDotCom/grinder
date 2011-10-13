@@ -46,7 +46,8 @@ import net.grinder.util.SimpleLogger;
 public final class Grinder extends AbstractMainClass {
 
   private static final String USAGE =
-    "\n  java " + Grinder.class + " <options> [alternatePropertiesFilename]" +
+    "\n  java " + Grinder.class.getName() +
+    " <options> [alternatePropertiesFilename]" +
     "\n\n" +
     "Options:" +
     "\n  [-daemon [n]]                Run agent in deamon mode; try to" +

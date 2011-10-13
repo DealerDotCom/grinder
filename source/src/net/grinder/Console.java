@@ -43,7 +43,7 @@ import net.grinder.util.SimpleLogger;
 public final class Console extends AbstractMainClass {
 
   private static final String USAGE =
-    "\n  java " + TCPProxy.class + " [-headless]" +
+    "\n  java " + Console.class.getName() + " [-headless]" +
     "\n" +
     "\n  -headless                    Don't use a graphical user interface.";
 

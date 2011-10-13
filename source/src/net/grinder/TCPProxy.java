@@ -79,7 +79,7 @@ import org.picocontainer.monitors.WriterComponentMonitor;
 public final class TCPProxy extends AbstractMainClass {
 
   private static final String USAGE =
-    "\n  java " + TCPProxy.class + " <options>" +
+    "\n  java " + TCPProxy.class.getName() + " <options>" +
     "\n\n" +
     "Commonly used options:" +
     "\n  [-http [<stylesheet>]]       See below." +
