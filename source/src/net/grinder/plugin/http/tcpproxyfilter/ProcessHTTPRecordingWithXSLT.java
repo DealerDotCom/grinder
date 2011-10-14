@@ -38,8 +38,6 @@ import javax.xml.transform.stream.StreamSource;
 
 import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
-import net.grinder.util.FixedWidthFormatter;
-import net.grinder.util.SimpleLogger;
 
 
 /**
@@ -130,31 +128,6 @@ public class ProcessHTTPRecordingWithXSLT
     finally {
       m_styleSheetInputStream.close();
     }
-  }
-
-  /**
-   * Allow command line invocation for testing purposes.
-   *
-   * @param arguments Command line arguments.
-   * @throws Exception If something went wrong.
-   */
-  public static void main(String[] arguments) throws Exception {
-    final HttpRecordingDocument recording =
-      HttpRecordingDocument.Factory.parse(
-        ProcessHTTPRecordingWithXSLT.class.getResourceAsStream(
-          "resources/recording.xml"));
-
-    final ProcessHTTPRecordingWithXSLT processor =
-      new ProcessHTTPRecordingWithXSLT(
-        new SimpleLogger("test",
-                         new PrintWriter(System.out),
-                         new PrintWriter(System.err),
-                         new FixedWidthFormatter(
-                           FixedWidthFormatter.Align.LEFT,
-                           FixedWidthFormatter.Flow.WORD_WRAP,
-                           80)));
-
-    processor.process(recording);
   }
 
   private final class LoggingErrorListener implements ErrorListener {
