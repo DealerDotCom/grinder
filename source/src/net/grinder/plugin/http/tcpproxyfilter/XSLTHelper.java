@@ -83,7 +83,7 @@ public final class XSLTHelper {
 
     final StringBuilder result = new StringBuilder();
 
-    final String quotes = quotes(value);
+    final String quotes = pythonQuotes(value);
 
     result.append(quotes).append(escape(value, false)).append(quotes);
 
@@ -97,7 +97,7 @@ public final class XSLTHelper {
    * @param s The string to quote.
    * @return The quotes.
    */
-  private static String quotes(String s) {
+  private static String pythonQuotes(String s) {
     return s.indexOf("\n") > -1 || s.indexOf("\r") > -1 ? "'''" : "'";
   }
 
@@ -117,9 +117,48 @@ public final class XSLTHelper {
 
     final StringBuilder result = new StringBuilder();
 
-    final String quotes = quotes(value);
+    final String quotes = pythonQuotes(value);
 
     result.append(quotes).append(escape(value, true)).append(quotes);
+
+    return result.toString();
+  }
+
+  /**
+   * Wrap string in appropriate quotes for Clojure.
+   *
+   * @param value The string.
+   * @return The quoted string.
+   */
+  public static String quoteForClojure(String value) {
+    if (value == null) {
+      return "nil";
+    }
+
+    final StringBuilder result = new StringBuilder();
+
+    result.append('"').append(escape(value, false)).append('"');
+
+    return result.toString();
+  }
+
+  /**
+   * Wrap string in appropriate quotes for Clojure, passing through existing EOL
+   * escapes {"\n", "\r"}, and quoting real new lines.
+   *
+   * @param value
+   *          The string.
+   * @return The quoted string.
+   * @see net.grinder.util.SimpleStringEscaper
+   */
+  public static String quoteEOLEscapedStringForClojure(String value) {
+    if (value == null) {
+      return "nil";
+    }
+
+    final StringBuilder result = new StringBuilder();
+
+    result.append('"').append(escape(value, true)).append('"');
 
     return result.toString();
   }
@@ -181,7 +220,7 @@ public final class XSLTHelper {
   }
 
   /**
-   * Escape quotes and back slashes for Python.
+   * Escape quotes and back slashes.
    *
    * @param value
    *            The string.
@@ -256,7 +295,7 @@ public final class XSLTHelper {
    */
   public static String indent() {
     final StringBuilder result =
-      new StringBuilder(s_indentString.length() * s_indentLevel);
+      new StringBuilder(Math.max(0, s_indentString.length() * s_indentLevel));
 
     for (int i = 0; i < s_indentLevel; ++i) {
       result.append(s_indentString);
