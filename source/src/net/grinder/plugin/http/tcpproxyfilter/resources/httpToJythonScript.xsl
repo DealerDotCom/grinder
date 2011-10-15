@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
- Copyright (C) 2006 - 2009 Philip Aston
+ Copyright (C) 2006 - 2011 Philip Aston
  Copyright (C) 2007 Venelin Mitov
  All rights reserved.
 
@@ -247,8 +247,8 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:apply-templates select="g:uri/g:path" mode="request-uri"/>
     <xsl:apply-templates select="g:uri/g:query-string" mode="request-uri"/>
     <xsl:apply-templates select="g:uri/g:fragment" mode="request-uri"/>
-    <xsl:apply-templates select="g:body" mode="request-uri"/>
-    <xsl:apply-templates select="g:headers" mode="request-uri"/>
+    <xsl:apply-templates select="g:body" mode="request-parameter"/>
+    <xsl:apply-templates select="g:headers" mode="request-parameter"/>
 
     <xsl:if test="string(g:body/g:form/@multipart) = 'true'">
       <xsl:text>,</xsl:text>
@@ -537,7 +537,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   stream anyway. -->
   <xsl:template match="g:fragment" mode="request-uri"/>
 
-  <xsl:template match="g:body/g:binary" mode="request-uri">
+  <xsl:template match="g:body/g:binary" mode="request-parameter">
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -546,7 +546,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:file" mode="request-uri">
+  <xsl:template match="g:body/g:file" mode="request-parameter">
 
     <!-- Data file is read at top level. We provide a parameter here
     to disambiguate the POST call if per-request headers are
@@ -562,13 +562,13 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
  </xsl:template>
 
 
-  <xsl:template match="g:body/g:form" mode="request-uri">
+  <xsl:template match="g:body/g:form" mode="request-parameter">
     <xsl:text>,</xsl:text>
     <xsl:call-template name="tuple"/>
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:escaped-string" mode="request-uri">
+  <xsl:template match="g:body/g:escaped-string" mode="request-parameter">
     <xsl:text>,</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -577,10 +577,10 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   </xsl:template>
 
 
-  <xsl:template match="g:body/g:content-type" mode="request-uri"/>
+  <xsl:template match="g:body/g:content-type" mode="request-parameter"/>
 
 
-  <xsl:template match="g:headers[node()]" mode="request-uri">
+  <xsl:template match="g:headers[node()]" mode="request-parameter">
     <xsl:if test="../g:method='GET' or
                   ../g:method='HEAD' or
                   (../g:method='OPTIONS' or
@@ -685,6 +685,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
   <xsl:template match="text()|@*" mode="page-description"/>
   <xsl:template match="text()|@*" mode="request"/>
   <xsl:template match="text()|@*" mode="request-uri"/>
+  <xsl:template match="text()|@*" mode="request-parameter"/>
   <xsl:template match="text()|@*" mode="TestRunner"/>
   <xsl:template match="text()|@*" mode="instrumentMethod"/>
 
