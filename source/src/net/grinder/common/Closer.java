@@ -45,7 +45,10 @@ import java.net.Socket;
  */
 public final class Closer {
 
-  private Closer() { }
+  /** Disabled constructor. Package scope for unit tests. */
+  Closer() {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Close the resource.

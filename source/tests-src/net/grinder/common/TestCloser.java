@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,9 @@
 
 package net.grinder.common;
 
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -29,7 +32,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.net.Socket;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 
 /**
@@ -37,10 +40,10 @@ import junit.framework.TestCase;
  *
  * @author Philip Aston
  */
-public class TestCloser extends TestCase {
+public class TestCloser {
   private final IOException[] m_ioexception = new IOException[1];
 
-  public void testCloseReader() throws Exception {
+  @Test public void testCloseReader() throws Exception {
     Closer.close((Reader)null);
 
     final Reader reader = new Reader() {
@@ -69,7 +72,7 @@ public class TestCloser extends TestCase {
     }
   }
 
-  public void testCloseWriter() throws Exception {
+  @Test public void testCloseWriter() throws Exception {
     Closer.close((Writer)null);
 
     final Writer writer = new Writer() {
@@ -100,7 +103,7 @@ public class TestCloser extends TestCase {
     }
   }
 
-  public void testCloseInputStream() throws Exception {
+  @Test public void testCloseInputStream() throws Exception {
     Closer.close((InputStream)null);
 
     final InputStream in = new InputStream() {
@@ -129,7 +132,7 @@ public class TestCloser extends TestCase {
     }
   }
 
-  public void testCloseOutputStream() throws Exception {
+  @Test public void testCloseOutputStream() throws Exception {
     Closer.close((OutputStream)null);
 
     final OutputStream outputStream = new OutputStream() {
@@ -160,7 +163,7 @@ public class TestCloser extends TestCase {
     }
   }
 
-  public void testCloser() throws Exception {
+  @Test public void testCloser() throws Exception {
     Closer.close((Socket)null);
 
     final Socket socket = new Socket() {
@@ -189,5 +192,10 @@ public class TestCloser extends TestCase {
     if (m_ioexception[0] != null) {
       throw m_ioexception[0];
     }
+  }
+
+  @Test(expected=UnsupportedOperationException.class)
+  public void coverConstructor() throws Exception {
+    new Closer();
   }
 }

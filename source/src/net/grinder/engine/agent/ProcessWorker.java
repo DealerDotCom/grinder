@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -131,12 +131,7 @@ final class ProcessWorker implements Worker {
       m_stderrRedirector.stop();
     }
 
-    try {
-      return m_process.exitValue();
-    }
-    catch (IllegalThreadStateException e) {
-      throw new AssertionError(e);
-    }
+    return m_process.exitValue();
   }
 
   /**

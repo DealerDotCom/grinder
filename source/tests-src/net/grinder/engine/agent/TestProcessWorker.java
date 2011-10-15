@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,23 +21,28 @@
 
 package net.grinder.engine.agent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.Directory;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 
 /**
- *  Unit tests for {@link ProcessWorker}.
+ * Unit tests for {@link ProcessWorker}.
  *
  * @author Philip Aston
  */
-public class TestProcessWorker extends TestCase {
+public class TestProcessWorker {
 
   private static final String s_testClasspath =
     System.getProperty("java.class.path");
@@ -47,7 +52,7 @@ public class TestProcessWorker extends TestCase {
   private final StubAgentIdentity m_agentIdentity =
     new StubAgentIdentity("test");
 
-  public void testWithInvalidProcess() throws Exception {
+  @Test public void testWithInvalidProcess() throws Exception {
     final String[] commandArray = {
       "No such process blah blah blah",
       "some argument",
@@ -68,7 +73,7 @@ public class TestProcessWorker extends TestCase {
     assertEquals(0, m_errorStream.toByteArray().length);
   }
 
-  public void testWithInvalidJavaClass() throws Exception {
+  @Test public void testWithInvalidJavaClass() throws Exception {
 
     final String[] commandArray = {
       "java",
@@ -89,7 +94,7 @@ public class TestProcessWorker extends TestCase {
     assertTrue(m_errorStream.toByteArray().length > 0);
   }
 
-  public void testArguments() throws Exception {
+  @Test public void testArguments() throws Exception {
     final String[] commandArray = {
       "java",
       "-classpath",
@@ -130,7 +135,7 @@ public class TestProcessWorker extends TestCase {
     assertEquals("test-0", childProcess.getIdentity().getName());
   }
 
-  public void testConcurrentProcessing() throws Exception {
+  @Test public void testConcurrentProcessing() throws Exception {
     final String[] commandArray = {
       "java",
       "-classpath",
@@ -175,7 +180,7 @@ public class TestProcessWorker extends TestCase {
     out.close();
   }
 
-  public void testDestroy() throws Exception {
+  @Test public void testDestroy() throws Exception {
     final String[] commandArray = {
       "java",
       "-classpath",
@@ -191,6 +196,68 @@ public class TestProcessWorker extends TestCase {
         m_errorStream);
 
     childProcess.destroy();
+
+    // Won't return if process is running. Actual exit value is
+    // platform specific, and sometimes 0 on win32!
+    childProcess.waitFor();
+  }
+
+  @Test public void testDestroyInterrupted() throws Exception {
+    final String[] commandArray = {
+      "java",
+      "-classpath",
+      s_testClasspath,
+      EchoClass.class.getName(),
+    };
+
+    final ProcessWorker childProcess =
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+        Arrays.asList(commandArray),
+        new Directory(),
+        m_outputStream,
+        m_errorStream);
+
+    Thread.currentThread().interrupt();
+
+    try {
+      childProcess.destroy();
+      fail("Expected UncheckedInterruptedException");
+    }
+    catch (UncheckedInterruptedException e) {
+    }
+
+    childProcess.destroy();
+
+    // Won't return if process is running. Actual exit value is
+    // platform specific, and sometimes 0 on win32!
+    childProcess.waitFor();
+  }
+
+  @Test public void testWaitForInterrupted() throws Exception {
+    final String[] commandArray = {
+      "java",
+      "-classpath",
+      s_testClasspath,
+      EchoClass.class.getName(),
+    };
+
+    final ProcessWorker childProcess =
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+        Arrays.asList(commandArray),
+        new Directory(),
+        m_outputStream,
+        m_errorStream);
+
+    childProcess.destroy();
+
+    Thread.currentThread().interrupt();
+
+    try {
+      childProcess.waitFor();
+      fail("Expected UncheckedInterruptedException");
+    }
+    catch (UncheckedInterruptedException e) {
+    }
 
     // Won't return if process is running. Actual exit value is
     // platform specific, and sometimes 0 on win32!

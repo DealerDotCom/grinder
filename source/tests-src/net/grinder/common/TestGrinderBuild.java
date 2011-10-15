@@ -42,6 +42,7 @@ import org.junit.Test;
  * @author Philip Aston
  */
 public class TestGrinderBuild {
+
   @Test public void testGrinderBuildStrings() throws Exception {
     final String expectedVersion = System.getProperty("grinder.version");
 
@@ -78,5 +79,10 @@ public class TestGrinderBuild {
     catch (ExceptionInInitializerError e) {
       assertTrue(e.getCause() instanceof IOException);
     }
+  }
+
+  @Test(expected=UnsupportedOperationException.class)
+  public void coverConstructor() throws Exception {
+    new GrinderBuild();
   }
 }

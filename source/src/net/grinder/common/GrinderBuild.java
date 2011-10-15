@@ -59,7 +59,9 @@ public final class GrinderBuild {
     }
   }
 
-  private GrinderBuild() {
+  /** Disabled constructor. Package scope for unit tests. */
+  GrinderBuild() {
+    throw new UnsupportedOperationException();
   }
 
   /**
