@@ -22,6 +22,7 @@
 package net.grinder.scriptengine.clojure;
 
 import java.io.StringReader;
+import java.util.concurrent.Callable;
 
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
@@ -29,7 +30,6 @@ import net.grinder.scriptengine.ScriptExecutionException;
 import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
 import net.grinder.scriptengine.ScriptEngineService.WorkerRunnable;
 import clojure.lang.Compiler;
-import clojure.lang.IFn;
 
 
 /**
@@ -39,7 +39,7 @@ import clojure.lang.IFn;
  */
 class ClojureScriptEngine implements ScriptEngine {
 
-  private final IFn m_runnerFactory;
+  private final Callable<?> m_runnerFactory;
 
   public ClojureScriptEngine(ScriptLocation script) throws EngineException {
     final Object result;
@@ -51,14 +51,14 @@ class ClojureScriptEngine implements ScriptEngine {
       throw new ClojureScriptExecutionException("Failed to load " + script, e);
     }
 
-    if (!(result instanceof IFn)) {
+    if (!(result instanceof Callable<?>)) {
       throw new ClojureScriptExecutionException(
         "The script should return a function that creates a test runner " +
         "function " +
         "[It returned " + result.getClass().getName() + "]");
     }
 
-    m_runnerFactory = (IFn)result;
+    m_runnerFactory = (Callable<?>)result;
   }
 
   public WorkerRunnable createWorkerRunnable() throws EngineException {
@@ -73,21 +73,21 @@ class ClojureScriptEngine implements ScriptEngine {
         "Failed to create test runner function", e);
     }
 
-    if (!(result instanceof IFn)) {
+    if (!(result instanceof Callable<?>)) {
       throw new ClojureScriptExecutionException(
         "The script should return a function that creates a test runner " +
         "function " +
         "[When called, it returned " + result.getClass().getName() + "]");
     }
 
-    return new ClojureWorkerRunnable((IFn) result);
+    return new ClojureWorkerRunnable((Callable<?>) result);
   }
 
   public WorkerRunnable createWorkerRunnable(Object testRunner)
     throws EngineException {
 
-    if (testRunner instanceof IFn) {
-      return new ClojureWorkerRunnable((IFn) testRunner);
+    if (testRunner instanceof Callable<?>) {
+      return new ClojureWorkerRunnable((Callable<?>) testRunner);
     }
 
     throw new ClojureScriptExecutionException(
@@ -107,10 +107,10 @@ class ClojureScriptEngine implements ScriptEngine {
   }
 
   private final class ClojureWorkerRunnable implements WorkerRunnable {
-    private final IFn m_workerFn;
+    private final Callable<?> m_workerFn;
 
-    private ClojureWorkerRunnable(IFn workerFn) {
-      m_workerFn = workerFn;
+    private ClojureWorkerRunnable(Callable<?> result) {
+      m_workerFn = result;
     }
 
     public void run() throws ScriptExecutionException {
