@@ -23,12 +23,6 @@
  OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-
-<!--
-TODO - what happens when 2 threads def the same var?
--->
-
-
 <xsl:stylesheet
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
   xmlns:g="http://grinder.sourceforge.net/tcpproxy/http/1.0"
@@ -40,7 +34,8 @@ TODO - what happens when 2 threads def the same var?
 
   <xsl:template match="g:http-recording">
     <xsl:value-of select="helper:resetIndent()"/>
-    <xsl:value-of select="concat(';; ', g:metadata/g:version)"/>
+    <xsl:text>;; </xsl:text>
+    <xsl:value-of select="g:metadata/g:version"/>
 
     <xsl:text>
 ;; HTTP script recorded by TCPProxy at </xsl:text>
@@ -51,8 +46,7 @@ TODO - what happens when 2 threads def the same var?
 (ns user
  (:import (net.grinder.script Test Grinder)
           (net.grinder.plugin.http HTTPPluginControl HTTPRequest)
-          (HTTPClient NVPair)))
-
+          (HTTPClient NVPair Codecs)))
 
 (def grinder (Grinder/grinder))
 (def connectionDefaults (HTTPPluginControl/getConnectionDefaults))
@@ -60,6 +54,30 @@ TODO - what happens when 2 threads def the same var?
 
 ; To use a proxy server, uncomment the next line and set the host and port.
 ; (.setProxyServer connectionDefaults "localhost" 8001)
+
+; Worker thread state is stored in a map using a dynamic var.
+(def ^:dynamic *tokens*)
+(defn set-token [k v] (set! *tokens* (assoc *tokens* k v)))
+(defn token [k] (*tokens* k))
+
+(defn nvpairs [c] (into-array
+  (map (fn [[k v]] (NVPair. k v)) (partition 2 c))))
+
+(defn httprequest [url headers]
+  (doto (HTTPRequest.) (.setUrl url) (.setHeaders (nvpairs headers))))
+
+(defn basic-authorization [u p]
+  (str "Basic " (Codecs/base64Encode  (str u ":" p))))
+
+</xsl:text>
+
+<xsl:text>
+; Offline debug
+(use '[clojure.string :only (join)])
+(defmacro .GET [&amp; k] `(.. grinder (getLogger) (output (str "GET " (join ", " `(~~@k))))))
+(defmacro .POST [&amp; k] `(.. grinder (getLogger) (output (str "POST " (join ", " `(~~@k))))))
+
+
 </xsl:text>
 
     <xsl:apply-templates select="*" mode="file"/>
@@ -73,21 +91,17 @@ TODO - what happens when 2 threads def the same var?
     <xsl:text>(defn run</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>"This function is called for every run performed by the worker thread." [] </xsl:text>
+    <xsl:text>"Called for every run performed by the worker thread." [] </xsl:text>
     <xsl:value-of select="helper:newLineAndIndent()"/>
 
     <xsl:apply-templates select="*" mode="run-function"/>
 
     <xsl:if test="not(//g:request)">
-      <xsl:value-of select="helper:newLine()"/>
       <xsl:value-of select="helper:newLineAndIndent()"/>
       <xsl:text>; Empty recording!</xsl:text>
-      <xsl:value-of select="helper:newLineAndIndent()"/>
-      <xsl:text>pass</xsl:text>
     </xsl:if>
 
     <xsl:value-of select="helper:newLine()"/>
-
     <xsl:value-of select="helper:changeIndent(-1)"/>
 
     <xsl:text>)</xsl:text>
@@ -95,13 +109,14 @@ TODO - what happens when 2 threads def the same var?
     <xsl:value-of select="helper:newLine()"/>
 
     <xsl:text>(defn runner-factory</xsl:text>
+
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>"This function is called to create a run function for each worker thread." []</xsl:text>
+    <xsl:text>"Create a run function. Called for each worker thread." []</xsl:text>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>run)</xsl:text>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
+    <xsl:text>(binding [*tokens* {}] (bound-fn* run)))</xsl:text>
 
+    <xsl:value-of select="helper:changeIndent(-1)"/>
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
@@ -122,16 +137,19 @@ TODO - what happens when 2 threads def the same var?
 
   <xsl:template match="g:common-headers[@headers-id='defaultHeaders']" mode="file">
     <xsl:value-of select="helper:newLine()"/>
-    <xsl:text>(.setDefaultHeaders connectionDefaults </xsl:text>
+    <xsl:text>(.setDefaultHeaders connectionDefaults (nvpairs </xsl:text>
     <xsl:call-template name="list"/>
-    <xsl:text>)</xsl:text>
+    <xsl:text>))</xsl:text>
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
 
   <xsl:template match="g:common-headers" mode="file">
     <xsl:value-of select="helper:newLine()"/>
-    <xsl:value-of select="concat('(def ', @headers-id)"/>
+    <xsl:text>(def </xsl:text>
+    <xsl:value-of select="@headers-id"/>
+    <xsl:text> </xsl:text>
+
     <xsl:call-template name="list"/>
     <xsl:text>)</xsl:text>
     <xsl:value-of select="helper:newLine()"/>
@@ -164,21 +182,22 @@ TODO - what happens when 2 threads def the same var?
       <xsl:value-of select="."/>
     </xsl:for-each>
     <xsl:value-of select="helper:newLineAndIndent()"/>
+
     <xsl:text>(def </xsl:text>
     <xsl:value-of select="$request-name"/>
-
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat('(doto (HTTPRequest.) (.setUrl ', g:uri/@extends, ')')"/>
-    <xsl:value-of select="concat('(.setHeaders ', g:headers/@extends, ')))')"/>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
+    <xsl:text> (httprequest </xsl:text>
+    <xsl:value-of select="g:uri/@extends"/>
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="g:headers/@extends"/>
+    <xsl:text>))</xsl:text>
 
     <xsl:if test="g:body/g:file">
       <xsl:value-of select="helper:newLineAndIndent()"/>
+      <xsl:text>(.setDataFromFile </xsl:text>
       <xsl:value-of select="$request-name"/>
-      <xsl:text>.setDataFromFile('</xsl:text>
+      <xsl:text> "</xsl:text>
       <xsl:value-of select="g:body/g:file"/>
-      <xsl:text>')</xsl:text>
+      <xsl:text>")</xsl:text>
     </xsl:if>
 
     <xsl:value-of select="helper:newLine()"/>
@@ -187,15 +206,12 @@ TODO - what happens when 2 threads def the same var?
     <xsl:text> </xsl:text>
     <xsl:value-of select="helper:quoteForClojure(g:description)"/>
     <xsl:text>) </xsl:text>
-    <xsl:value-of select="concat($request-name, ')')"/>
+    <xsl:value-of select="$request-name"/>
+    <xsl:text>)</xsl:text>
 
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
 
-
-  <xsl:template match="g:request[position() = 1 and position() = last()]" mode="page-description">
-    <xsl:value-of select="g:description"/>
-  </xsl:template>
 
   <xsl:template match="g:request[position() = 1]" mode="page-description">
     <xsl:value-of select="g:description"/>
@@ -206,10 +222,14 @@ TODO - what happens when 2 threads def the same var?
 
     <xsl:choose>
       <xsl:when test="position() = last()">
-        <xsl:value-of select="concat(' (request ', $request-number, ')')"/>
+        <xsl:text> (request </xsl:text>
+        <xsl:value-of select="$request-number"/>
+        <xsl:text>)</xsl:text>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat(' (requests ', $request-number, '-')"/>
+        <xsl:text> (requests </xsl:text>
+        <xsl:value-of select="$request-number"/>
+        <xsl:text>-</xsl:text>
         <xsl:apply-templates select ="following-sibling::g:request[position()=last()]" mode="generate-test-number"/>
         <xsl:text>)</xsl:text>
       </xsl:otherwise>
@@ -221,46 +241,53 @@ TODO - what happens when 2 threads def the same var?
   <xsl:template match="g:request" mode="page-function">
     <xsl:apply-templates select="g:sleep-time" mode="request"/>
 
+    <!-- Request token references. -->
     <xsl:apply-templates select=".//g:token-reference[not(../../g:response)]" mode="request"/>
 
     <xsl:apply-templates select="g:annotation" mode="request"/>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:if test="position() = 1">
-      <xsl:text>(def result </xsl:text>
-    </xsl:if>
-    <xsl:text>(</xsl:text>
-    <xsl:text>.</xsl:text>
+
+    <xsl:text>(.</xsl:text>
     <xsl:value-of select="g:method"/>
     <xsl:text> </xsl:text>
     <xsl:text>request</xsl:text>
     <xsl:apply-templates select="." mode="generate-test-number"/>
 
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>(str </xsl:text>
+    <xsl:choose>
+	    <xsl:when test="count(g:uri/*[not(g:unparsed)]/*) > 1">
+	      <xsl:value-of select="helper:changeIndent(1)"/>
+	      <xsl:value-of select="helper:newLineAndIndent()"/>
+	      <xsl:text>(str </xsl:text>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:text> </xsl:text>
+	    </xsl:otherwise>
+    </xsl:choose>
+
     <xsl:apply-templates select="g:uri/g:path" mode="request-uri"/>
     <xsl:apply-templates select="g:uri/g:query-string" mode="request-uri"/>
     <xsl:apply-templates select="g:uri/g:fragment" mode="request-uri"/>
-    <xsl:text>)</xsl:text>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
 
+    <xsl:if test="count(g:uri/*[not(g:unparsed)]/*) > 1">
+      <xsl:text>)</xsl:text>
+      <xsl:value-of select="helper:changeIndent(-1)"/>
+    </xsl:if>
+
+    <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:apply-templates select="g:body" mode="request-parameter"/>
     <xsl:apply-templates select="g:headers" mode="request-parameter"/>
 
     <xsl:if test="string(g:body/g:form/@multipart) = 'true'">
-      <xsl:text>,</xsl:text>
       <xsl:value-of select="helper:newLineAndIndent()"/>
-      <xsl:text>  True</xsl:text>
+      <xsl:text>true</xsl:text>
     </xsl:if>
 
     <xsl:text>)</xsl:text>
 
-    <xsl:if test="position() = 1">
-      <xsl:text>)</xsl:text>
-    </xsl:if>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
 
-
+    <!--  Response token references may also supply new token values. -->
     <xsl:apply-templates select="g:response/g:token-reference" mode="request"/>
     <xsl:value-of select="helper:newLine()"/>
 
@@ -325,18 +352,18 @@ TODO - what happens when 2 threads def the same var?
 
     <xsl:if test="not(preceding::g:page)">
       <xsl:value-of select="helper:newLineAndIndent()"/>
-      <xsl:text>; A method for each recorded page.</xsl:text>
+      <xsl:text>; A function for each recorded page.</xsl:text>
     </xsl:if>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat('(defn ', $page-function-name)"/>
+    <xsl:text>(defn </xsl:text>
+    <xsl:value-of select="$page-function-name"/>
     <xsl:text> "</xsl:text>
     <xsl:apply-templates select="*" mode="page-description"/>
     <xsl:text>." []</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:apply-templates select="*" mode="page-function"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>result)</xsl:text>
+    <xsl:text>)</xsl:text>
     <xsl:value-of select="helper:changeIndent(-1)"/>
     <xsl:value-of select="helper:newLine()"/>
 
@@ -360,7 +387,10 @@ TODO - what happens when 2 threads def the same var?
     </xsl:variable>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat('(', $page-function-name, ')')"/>
+    <xsl:text>(</xsl:text>
+    <xsl:value-of select="$page-function-name"/>
+    <xsl:text>)</xsl:text>
+
     <xsl:call-template name="indent">
       <xsl:with-param name="characters" select="12-string-length($page-function-name)"/>
     </xsl:call-template>
@@ -371,7 +401,9 @@ TODO - what happens when 2 threads def the same var?
 
   <xsl:template match="g:sleep-time[../preceding-sibling::g:request]" mode="request">
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat('(.sleep grinder ', ., ')')"/>
+    <xsl:text>(.sleep grinder </xsl:text>
+    <xsl:value-of select="."/>
+    <xsl:text>)</xsl:text>
   </xsl:template>
 
 
@@ -387,7 +419,9 @@ TODO - what happens when 2 threads def the same var?
   <xsl:template match="g:sleep-time[not(../preceding-sibling::g:request)]" mode="run-function">
     <xsl:value-of select="helper:newLine()"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:value-of select="concat('(.sleep grinder ', ., ')')"/>
+    <xsl:text>(.sleep grinder </xsl:text>
+    <xsl:value-of select="."/>
+    <xsl:text>)</xsl:text>
   </xsl:template>
 
 
@@ -396,28 +430,29 @@ TODO - what happens when 2 threads def the same var?
     <xsl:apply-templates select=".//g:conflicting-value" mode="request"/>
 
     <xsl:variable name="token-id" select="@token-id"/>
-    <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
+    <xsl:variable name="name" select="'//g:token[@token-id=$token-id]/g:name'"/>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>(def </xsl:text>
+    <xsl:text>(set-token :</xsl:text>
     <xsl:value-of select="$token-id"/>
     <xsl:text> </xsl:text>
 
     <xsl:choose>
       <xsl:when test="@source">
-        <xsl:text>httpUtilities.</xsl:text>
         <xsl:choose>
           <xsl:when test="@source = 'RESPONSE_LOCATION_HEADER_PATH_PARAMETER' or
                           @source = 'RESPONSE_LOCATION_HEADER_QUERY_STRING'">
-            <xsl:text>valueFromLocationURI(</xsl:text>
+            <xsl:text>(.valueFromLocationURI </xsl:text>
           </xsl:when>
           <xsl:when test="@source = 'RESPONSE_BODY_HIDDEN_INPUT'">
-            <xsl:text>valueFromHiddenInput(</xsl:text>
+            <xsl:text>(. valueFromHiddenInput</xsl:text>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>valueFromBodyURI(</xsl:text>
+            <xsl:text>(. valueFromBodyURI</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
+
+        <xsl:text>httpUtilities </xsl:text>
 
         <xsl:value-of select="helper:quoteForClojure($name)"/>
         <xsl:text>)</xsl:text>
@@ -499,12 +534,9 @@ TODO - what happens when 2 threads def the same var?
 
     <!-- A previous token-reference will have defined a variable. -->
     <xsl:value-of select="//g:token[@token-id=$token-id]/g:name"/>
-    <xsl:text>="</xsl:text>
-
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>=" (token :</xsl:text>
     <xsl:value-of select="$token-id"/>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
+    <xsl:text>)</xsl:text>
 
   </xsl:template>
 
@@ -517,48 +549,55 @@ TODO - what happens when 2 threads def the same var?
 
   <xsl:template match="g:body/g:binary" mode="request-parameter">
     <xsl:text> </xsl:text>
-    <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
+    <!-- TODO
+    Need a clojure version - whats the literal char syntax? -->
     <xsl:value-of select="helper:base64ToPython(.)"/>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 
 
   <xsl:template match="g:body/g:file" mode="request-parameter">
+<!-- TODO
 
+How to provide uninstrumented access to the HTTPRequest methods?
+
+Idea 1:
+  - Allow record() to provide a filter controlling what to instrument.
+
+Idea 2:
+  - Refactor HTTPRequest into control and dispatch objects.
+
+ -->
     <!-- Data file is read at top level. We provide a parameter here
     to disambiguate the POST call if per-request headers are
     specified.-->
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
+    <xsl:text>(.getData </xsl:text>
     <xsl:text>request</xsl:text>
     <xsl:apply-templates select="../.." mode="generate-test-number"/>
-    <xsl:text>.__target__.data</xsl:text>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
+    <xsl:text>)</xsl:text>
 
  </xsl:template>
 
 
   <xsl:template match="g:body/g:form" mode="request-parameter">
-    <xsl:text> </xsl:text>
-    <xsl:call-template name="tuple"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+
+    <xsl:text>(nvpairs </xsl:text>
+    <xsl:call-template name="list"/>
+    <xsl:text>)</xsl:text>
   </xsl:template>
 
 
   <xsl:template match="g:body/g:escaped-string" mode="request-parameter">
-    <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>(.getBytes </xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:value-of select="helper:quoteEOLEscapedStringForClojure(.)"/>
     <xsl:text>)</xsl:text>
-    <xsl:value-of select="helper:changeIndent(-2)"/>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
-
-
-  <xsl:template match="g:body/g:content-type" mode="request-parameter"/>
 
 
   <xsl:template match="g:headers[node()]" mode="request-parameter">
@@ -573,7 +612,11 @@ TODO - what happens when 2 threads def the same var?
       <xsl:text> nil</xsl:text>
     </xsl:if>
 
-    <xsl:call-template name="tuple"/>
+    <xsl:value-of select="helper:newLineAndIndent()"/>
+
+    <xsl:text>(nvpairs </xsl:text>
+    <xsl:call-template name="list"/>
+    <xsl:text>)</xsl:text>
   </xsl:template>
 
 
@@ -581,11 +624,9 @@ TODO - what happens when 2 threads def the same var?
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
 
-    <xsl:text>(NVPair. </xsl:text>
     <xsl:value-of select="helper:quoteForClojure(@name)"/>
-    <xsl:text> </xsl:text>
+    <xsl:text>, </xsl:text>
     <xsl:value-of select="helper:quoteForClojure(@value)"/>
-    <xsl:text>)</xsl:text>
   </xsl:template>
 
   <xsl:template match="g:token-reference" mode="list-item">
@@ -594,48 +635,32 @@ TODO - what happens when 2 threads def the same var?
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
 
-    <xsl:text>(NVPair. </xsl:text>
+    <xsl:text>(</xsl:text>
     <xsl:value-of select="helper:quoteForClojure($name)"/>
-    <xsl:text> </xsl:text>
+    <xsl:text> (token :</xsl:text>
     <xsl:value-of select="$token-id"/>
-    <xsl:text>)</xsl:text>
+    <xsl:text>))</xsl:text>
   </xsl:template>
 
   <xsl:template match="g:authorization/g:basic" mode="list-item">
     <xsl:value-of select="helper:newLineAndIndent()"/>
 
-    <xsl:text>httpUtilities.basicAuthorizationHeader(</xsl:text>
-    <xsl:value-of select="helper:quoteForPython(@userid)"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="helper:quoteForPython(@password)"/>
-    <xsl:text>),</xsl:text>
+    <xsl:text>"Authorization", (basic-authorization </xsl:text>
+    <xsl:value-of select="helper:quoteForClojure(@userid)"/>
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="helper:quoteForClojure(@password)"/>
+    <xsl:text>)</xsl:text>
   </xsl:template>
 
 
   <xsl:template name="list">
     <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>(into-array [</xsl:text>
-    <xsl:value-of select="helper:changeIndent(1)"/>
-
+    <xsl:text>[</xsl:text>
     <xsl:apply-templates mode="list-item"/>
-
-    <xsl:text>])</xsl:text>
-    <xsl:value-of select="helper:changeIndent(-2)"/>
+    <xsl:text>]</xsl:text>
+    <xsl:value-of select="helper:changeIndent(-1)"/>
   </xsl:template>
 
-
-  <xsl:template name="tuple">
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>(into-array [</xsl:text>
-    <xsl:value-of select="helper:changeIndent(1)"/>
-
-    <xsl:apply-templates mode="list-item"/>
-
-    <xsl:text>])</xsl:text>
-    <xsl:value-of select="helper:changeIndent(-2)"/>
-  </xsl:template>
 
   <xsl:template name="indent">
     <xsl:param name="characters" select="1"/>
@@ -644,13 +669,12 @@ TODO - what happens when 2 threads def the same var?
 
 
   <xsl:template match="text()|@*"/>
-  <xsl:template match="text()|@*" mode="run-function"/>
   <xsl:template match="text()|@*" mode="file"/>
+  <xsl:template match="text()|@*" mode="run-function"/>
   <xsl:template match="text()|@*" mode="page-function"/>
   <xsl:template match="text()|@*" mode="page-description"/>
   <xsl:template match="text()|@*" mode="request"/>
   <xsl:template match="text()|@*" mode="request-uri"/>
   <xsl:template match="text()|@*" mode="request-parameter"/>
-  <xsl:template match="text()|@*" mode="instrumentMethod"/>
 
 </xsl:stylesheet>
