@@ -218,9 +218,9 @@ See http://forrest.apache.org/docs/linking.html for more info
             <cancel href="#cancel()"/>
           </Barrier>
 	  <HTTPRequest href="net/grinder/plugin/http/HTTPRequest.html">
-            <POSTStream href="#POST(java.lang.String, InputStream)"/>
-            <PUTStream href="#POST(java.lang.String, InputStream)"/>
-            <OPTIONSStream href="#POST(java.lang.String, InputStream)"/>
+            <POSTStream href="#POST(java.lang.String, java.io.InputStream)"/>
+            <PUTStream href="#POST(java.lang.String, java.io.InputStream)"/>
+            <OPTIONSStream href="#POST(java.lang.String, java.io.InputStream)"/>
             <setReadResponseBody href="#setReadResponseBody(boolean)"/>
           </HTTPRequest>
 	  <HTTPPluginControl href="net/grinder/plugin/http/HTTPPluginControl.html"/>
@@ -238,6 +238,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 	  <StatisticsForTest href="net/grinder/script/Statistics.StatisticsForTest.html"/>
           <Test href="net/grinder/script/Test.html">
             <record href="#record(java.lang.Object)"/>
+            <record-filter href="#record(java.lang.Object, net.grinder.script.Test.InstrumentationFilter)"/>
             <wrap href="#wrap(java.lang.Object)"/>
           </Test>
         </api>

@@ -221,6 +221,41 @@ class TestRunner:
       will return its parameter, and not a separate wrapper object,
       the script may behave differently.</p>
 
+      <p>The Grinder 3.7 adds an overloaded version of <a
+      href="site:api/Test/record-filter">record</a> that allows the
+      target object to be instrumented selectively.</p>
+
+      <p>Selective instrumentation is useful for instrumenting
+      instances of the <a href="site:api/HTTPRequest">HTTPRequest</a>
+      class, which has ancilliary methods that typically need to be
+      called without affecting test statistics. With the traditional
+      instrumentation, this could be avoided through the
+      <code>__target__</code> reference. Here's an example of how to
+      use selective instrumentation.
+      </p>
+
+<source class="jython">
+from net.grinder.script import Test
+from net.grinder.plugin.http import HTTPRequest
+ 
+test = Test(1, "my test")
+ 
+class GetAndPostFilter(Test.InstrumentationFilter):
+  def matches(self, method):
+    return method.name in ["GET", "POST"]
+ 
+request = HTTPRequest(url="http://grinder.sourceforge.net")
+test.record(request, GetAndPostFilter())
+ 
+class TestRunner:
+    def __call__(self):
+        # Call to request.GET() is instrumented.
+        request.GET()
+ 
+        # Call to request.getUrl() is not instrumented.
+        print "Called %s" % request.url
+</source>
+
     </section>
 
     <section>
