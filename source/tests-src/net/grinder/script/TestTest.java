@@ -21,6 +21,13 @@
 
 package net.grinder.script;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -29,39 +36,47 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import junit.framework.TestCase;
 import net.grinder.engine.process.StubTestRegistry;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.Recorder;
-import net.grinder.testutility.RandomStubFactory;
+
+import org.junit.Before;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**
- * Unit test case for <code>Test</code>.
+ * Unit tests for {@code Test}.
  *
  * @author Philip Aston
  */
-public class TestTest extends TestCase {
+public class TestTest {
 
-  private RandomStubFactory<Instrumenter> s_instrumenterStubFactory;
+  @Mock private Instrumenter m_instrumenter;
+  @Mock private InstrumentationFilter m_instrumentationFilter;
+  @Mock private InternalScriptContext m_scriptContext;
 
-  public TestTest(String name) {
-    super(name);
+
+  @Before public void setUp() throws Exception {
+    MockitoAnnotations.initMocks(this);
+
+    final TestRegistry testRegistry =
+      StubTestRegistry.stubTestRegistry(m_instrumenter);
+
+    when(m_scriptContext.getTestRegistry()).thenReturn(testRegistry);
+
+    Grinder.grinder = m_scriptContext;
   }
 
-  protected void setUp() throws Exception {
-    StubTestRegistry.stubTestRegistry();
-    s_instrumenterStubFactory = StubTestRegistry.getInstrumenterStubFactory();
-  }
-
-  public void testGetters() throws Exception {
-    final Test test  = new Test(1, "description");
+  @org.junit.Test public void testGetters() throws Exception {
+    final Test test = new Test(1, "description");
 
     assertEquals(1, test.getNumber());
     assertEquals("description", test.getDescription());
   }
 
-  public void testOrdering() throws Exception {
+  @org.junit.Test public void testOrdering() throws Exception {
     final int size = 100;
 
     final Set<Test> sorted = new TreeSet<Test>();
@@ -84,7 +99,7 @@ public class TestTest extends TestCase {
     }
   }
 
-  public void testEquality() throws Exception {
+  @org.junit.Test public void testEquality() throws Exception {
 
     // Equality depends only on test number.
     final Test t1 = new Test(57, "one thing");
@@ -99,7 +114,7 @@ public class TestTest extends TestCase {
     assertTrue(!t3.equals(t2));
   }
 
-  public void testIsSerializable() throws Exception {
+  @org.junit.Test public void testIsSerializable() throws Exception {
 
     final Test test = new Test(123, "test");
 
@@ -112,45 +127,39 @@ public class TestTest extends TestCase {
     objectOutputStream.writeObject(test);
   }
 
-  public void testWrap() throws Exception {
+  @org.junit.Test public void testWrap() throws Exception {
     final Test t1 = new Test(1, "six cars");
     final Test t2 = new Test(2, "house in ireland");
 
     final Integer i = new Integer(10);
 
-    s_instrumenterStubFactory.assertNoMoreCalls();
-
     final Object proxy1 = t1.wrap(i);
 
-    final Object[] parameters =
-      s_instrumenterStubFactory.assertSuccess("createInstrumentedProxy",
-                                              Test.class,
-                                              Recorder.class,
-                                              Object.class).getParameters();
-
-    assertSame(t1, parameters[0]);
-    assertSame(i, parameters[2]);
-
-    final Object proxy2 = t2.wrap(i);
-    assertNotSame(proxy1, proxy2);
+    verify(m_instrumenter).createInstrumentedProxy(same(t1),
+                                                   isA(Recorder.class),
+                                                   same(i));
   }
 
-  public void testRecord() throws Exception {
+  @org.junit.Test public void testRecord() throws Exception {
     final Test t1 = new Test(1, "bigger than your dad");
 
     final Integer i = new Integer(10);
 
-    s_instrumenterStubFactory.assertNoMoreCalls();
-
     t1.record(i);
 
-    final Object[] parameters =
-      s_instrumenterStubFactory.assertSuccess("instrument",
-                                              Test.class,
-                                              Recorder.class,
-                                              Object.class).getParameters();
+    verify(m_instrumenter).instrument(same(t1), isA(Recorder.class), same(i));
+  }
 
-    assertSame(t1, parameters[0]);
-    assertSame(i, parameters[2]);
+  @org.junit.Test public void testSelectiveRecord() throws Exception {
+    final Test t1 = new Test(1, "travelling funk band");
+
+    final Integer i = new Integer(10);
+
+    t1.record(i, m_instrumentationFilter);
+
+    verify(m_instrumenter).instrument(same(t1),
+                                      isA(Recorder.class),
+                                      same(i),
+                                      same(m_instrumentationFilter));
   }
 }

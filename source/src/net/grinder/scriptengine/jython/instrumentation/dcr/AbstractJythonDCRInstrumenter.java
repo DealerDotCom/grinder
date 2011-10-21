@@ -29,8 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.grinder.script.NonInstrumentableTypeException;
-import net.grinder.scriptengine.DCRContext;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.scriptengine.AbstractDCRInstrumenter;
+import net.grinder.scriptengine.DCRContext;
 import net.grinder.scriptengine.Recorder;
 import net.grinder.util.weave.Weaver.TargetSource;
 
@@ -103,10 +104,13 @@ abstract class AbstractJythonDCRInstrumenter extends AbstractDCRInstrumenter {
   }
 
   @Override protected boolean instrument(Object target,
-                                         Recorder recorder)
+                                         Recorder recorder,
+                                         InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     if (target instanceof PyObject) {
+      disallowSelectiveFilter(filter);
+
       // Jython object.
       if (target instanceof PyInstance) {
         transform(recorder, (PyInstance)target);
@@ -160,6 +164,8 @@ abstract class AbstractJythonDCRInstrumenter extends AbstractDCRInstrumenter {
       }
     }
     else if (target instanceof PyProxy) {
+      disallowSelectiveFilter(filter);
+
       transform(recorder, (PyProxy)target);
     }
     else {
@@ -168,6 +174,15 @@ abstract class AbstractJythonDCRInstrumenter extends AbstractDCRInstrumenter {
     }
 
     return true;
+  }
+
+  private void disallowSelectiveFilter(InstrumentationFilter filter)
+    throws NonInstrumentableTypeException {
+
+    if (filter != ALL_INSTRUMENTATION) {
+      throw new NonInstrumentableTypeException(
+        "The Jython instrumenters do not support selective instrumenters");
+    }
   }
 
   protected abstract void transform(Recorder recorder, PyInstance target)

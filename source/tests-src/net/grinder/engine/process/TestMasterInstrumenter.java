@@ -31,9 +31,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import net.grinder.engine.process.MasterInstrumenter;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.Recorder;
 
@@ -54,6 +54,7 @@ public class TestMasterInstrumenter {
   @Mock private Recorder m_recorder;
   @Mock private Instrumenter m_instrumenter1;
   @Mock private Instrumenter m_instrumenter2;
+  @Mock private InstrumentationFilter m_filter;
   @Mock private net.grinder.common.Test m_test;
 
   private Object m_target = new Object();
@@ -107,18 +108,20 @@ public class TestMasterInstrumenter {
   }
 
   @Test public void testInstrument() throws Exception {
-    when(m_instrumenter2.instrument(m_test, m_recorder, m_target))
+    when(m_instrumenter2.instrument(m_test, m_recorder, m_target, m_filter))
       .thenReturn(true);
 
     final Instrumenter instrumenter =
       new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
-    instrumenter.instrument(m_test, m_recorder, m_target);
+    instrumenter.instrument(m_test, m_recorder, m_target, m_filter);
 
     final InOrder inOrder = inOrder(m_instrumenter1, m_instrumenter2);
 
-    inOrder.verify(m_instrumenter1).instrument(m_test, m_recorder, m_target);
-    inOrder.verify(m_instrumenter2).instrument(m_test, m_recorder, m_target);
+    inOrder.verify(m_instrumenter1)
+      .instrument(m_test, m_recorder, m_target, m_filter);
+    inOrder.verify(m_instrumenter2)
+      .instrument(m_test, m_recorder, m_target, m_filter);
 
     verifyNoMoreInteractions(m_instrumenter1, m_instrumenter2);
   }
@@ -128,7 +131,7 @@ public class TestMasterInstrumenter {
       new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
     try {
-      instrumenter.instrument(m_test, m_recorder, null);
+      instrumenter.instrument(m_test, m_recorder, null, null);
       fail("Expected NonInstrumentableTypeException");
     }
     catch (NonInstrumentableTypeException e) {
@@ -140,7 +143,7 @@ public class TestMasterInstrumenter {
       new MasterInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
     try {
-      instrumenter.instrument(m_test, m_recorder, m_target);
+      instrumenter.instrument(m_test, m_recorder, m_target, null);
       fail("Expected NonInstrumentableTypeException");
     }
     catch (NonInstrumentableTypeException e) {

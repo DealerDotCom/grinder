@@ -1,6 +1,12 @@
 The Grinder 3.7 (not yet released)
 ----------------------------------
 
+   The Java instrumenter supports selective instrumentation of a target
+   object through an overloaded version of Test.record(). The full
+   HTTPRequest interface can now be used with DCR instrumentation without
+   requiring a replacement for the traditional instrumenter's __target__.
+
+
 The Grinder 3.6
 ---------------
 

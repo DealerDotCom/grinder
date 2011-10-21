@@ -29,6 +29,7 @@ import net.grinder.engine.process.DispatchContext.DispatchStateException;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.script.Statistics.StatisticsForTest;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.script.TestRegistry.RegisteredTest;
 import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.Recorder;
@@ -87,17 +88,26 @@ final class TestData implements RegisteredTest, Recorder {
   }
 
   /**
-   * {@inheritDoc}.
+   * {@inheritDoc}
    */
   public Object createProxy(Object o) throws NotWrappableTypeException {
     return m_instrumenter.createInstrumentedProxy(getTest(), this, o);
   }
 
   /**
-   * {@inheritDoc}.
+   * {@inheritDoc}
    */
   public void instrument(Object target) throws NonInstrumentableTypeException {
     m_instrumenter.instrument(getTest(), this, target);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void instrument(Object target,
+                         InstrumentationFilter filter)
+    throws NonInstrumentableTypeException {
+    m_instrumenter.instrument(getTest(), this, target, filter);
   }
 
   public void start() throws EngineException {

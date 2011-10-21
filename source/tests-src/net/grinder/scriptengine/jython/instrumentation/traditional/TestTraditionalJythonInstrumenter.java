@@ -25,6 +25,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.scriptengine.jython.instrumentation.AbstractJythonInstrumenterTestCase;
 
 import org.junit.Test;
@@ -41,7 +43,6 @@ import test.MyExtendedClass;
  * Unit tests for {@link JythonInstrumenter}.
  *
  * @author Philip Aston
- * @version $Revision: 4057 $
  */
 public class TestTraditionalJythonInstrumenter
   extends AbstractJythonInstrumenterTestCase {
@@ -329,5 +330,24 @@ public class TestTraditionalJythonInstrumenter
 
     // Can't wrap None.
     assertNotWrappableByThisInstrumenter(null);
+  }
+
+  @Test public void testInstrumentUnsupported() throws Exception {
+    m_interpreter.exec(
+      "class Foo:\n" +
+      " def two(self): return 2\n" +
+      " def identity(self, x): return x\n" +
+      " def sum(self, x, y): return x + y\n" +
+      " def sum3(self, x, y, z): return x + y + z\n" +
+      "x=Foo()");
+
+    final PyObject pyInstance = m_interpreter.get("x");
+
+    try {
+      m_instrumenter.instrument(m_test, m_recorder, pyInstance);
+      fail("Expected NonInstrumentableTypeException");
+    }
+    catch (NonInstrumentableTypeException e) {
+    }
   }
 }

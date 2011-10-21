@@ -46,6 +46,7 @@ import net.grinder.engine.process.dcr.AnotherClass;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.engine.process.dcr.RecorderLocatorAccess;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.scriptengine.Recorder;
 import net.grinder.util.BlockingClassLoader;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
@@ -195,6 +196,38 @@ public class TestJavaDCRInstrumenter {
 
     verifyNoMoreInteractions(m_recorder);
   }
+
+  @Test public void testSelectivelyInstrumentInstance() throws Exception {
+
+    RecorderLocatorAccess.clearRecorders();
+
+    final MyClass c1 = new MyExtendedClass();
+
+    assertEquals(0, c1.getA());
+
+    final InstrumentationFilter filter =
+      new InstrumentationFilter() {
+        public boolean matches(Object item) {
+          return ((Method)item).getName().equals("getA");
+        }
+    };
+
+    m_instrumenter.instrument(null, m_recorder, c1, filter);
+
+    MyClass.staticSix();
+
+    assertEquals(0, c1.getA());
+    assertEquals(0, c1.getB());
+
+    verify(m_recorder).start();
+    verify(m_recorder).end(true);
+
+    final MyClass c2 = new MyClass();
+    assertEquals(0, c2.getA());
+
+    verifyNoMoreInteractions(m_recorder);
+  }
+
 
   @Test public void testWithNull() throws Exception {
     assertNull(m_instrumenter.createInstrumentedProxy(null, null, null));

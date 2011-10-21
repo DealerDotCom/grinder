@@ -24,6 +24,7 @@ package net.grinder.scriptengine;
 import net.grinder.common.Test;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.util.weave.WeavingException;
 
 
@@ -63,7 +64,7 @@ public abstract class AbstractDCRInstrumenter implements Instrumenter {
     throws NotWrappableTypeException {
 
     try {
-      return instrument(test, recorder, target) ? target : null;
+      return instrument(test, recorder, target)? target : null;
     }
     catch (NonInstrumentableTypeException e) {
       throw new NotWrappableTypeException(e.getMessage(), e);
@@ -73,10 +74,23 @@ public abstract class AbstractDCRInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public final boolean instrument(Test test, Recorder recorder, Object target)
+  public boolean instrument(Test test,
+                            Recorder recorder,
+                            Object target)
+    throws NonInstrumentableTypeException {
+    return instrument(test, recorder, target, ALL_INSTRUMENTATION);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public final boolean instrument(Test test,
+                                  Recorder recorder,
+                                  Object target,
+                                  InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
-    final boolean changed = instrument(target, recorder);
+    final boolean changed = instrument(target, recorder, filter);
 
     if (changed) {
       try {
@@ -97,11 +111,15 @@ public abstract class AbstractDCRInstrumenter implements Instrumenter {
    *          Target object.
    * @param recorder
    *          Recorder.
+   * @param filter
+   *          Selects the parts of {@code target} to instrument.
    * @return {@code true} If this instrumenter successfully processed {@code
    *         target}, otherwise {@code false}.
    * @throws NonInstrumentableTypeException
    *           If the target object is not of an instrumentable type.
    */
-  protected abstract boolean instrument(Object target, Recorder recorder)
+  protected abstract boolean instrument(Object target,
+                                        Recorder recorder,
+                                        InstrumentationFilter filter)
     throws NonInstrumentableTypeException;
 }

@@ -27,6 +27,7 @@ import java.util.List;
 import net.grinder.common.Test;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.Test.InstrumentationFilter;
 
 
 /**
@@ -82,11 +83,24 @@ public class CompositeInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public boolean instrument(Test test, Recorder recorder, Object target)
+  public boolean instrument(Test test,
+                            Recorder recorder,
+                            Object target)
+    throws NonInstrumentableTypeException {
+    return instrument(test, recorder, target, ALL_INSTRUMENTATION);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean instrument(Test test,
+                            Recorder recorder,
+                            Object target,
+                            InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     for (Instrumenter instrumenter : m_instrumenters) {
-      if (instrumenter.instrument(test, recorder, target)) {
+      if (instrumenter.instrument(test, recorder, target, filter)) {
         return true;
       }
     }

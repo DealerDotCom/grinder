@@ -32,7 +32,9 @@ import java.lang.reflect.Field;
 import net.grinder.common.StubTest;
 import net.grinder.common.UncheckedGrinderException;
 import net.grinder.common.UncheckedInterruptedException;
+import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.Recorder;
 import net.grinder.testutility.AssertUtilities;
@@ -481,6 +483,31 @@ public abstract class AbstractJythonInstrumenterTestCase {
     }
     catch (PyException e3) {
       assertSame(e, e3.value.__tojava__(Exception.class));
+    }
+  }
+
+  @Test public void testSelectiveInstrumentUnsupported() throws Exception {
+    m_interpreter.exec(
+      "class Foo:\n" +
+      " def two(self): return 2\n" +
+      " def identity(self, x): return x\n" +
+      " def sum(self, x, y): return x + y\n" +
+      " def sum3(self, x, y, z): return x + y + z\n" +
+      "x=Foo()");
+
+    final PyObject pyInstance = m_interpreter.get("x");
+
+    final InstrumentationFilter filter = new InstrumentationFilter() {
+        public boolean matches(Object item) {
+          return true;
+        }
+      };
+
+    try {
+      m_instrumenter.instrument(m_test, m_recorder, pyInstance, filter);
+      fail("Expected NonInstrumentableTypeException");
+    }
+    catch (NonInstrumentableTypeException e) {
     }
   }
 }

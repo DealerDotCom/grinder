@@ -24,6 +24,7 @@ package net.grinder.scriptengine;
 import net.grinder.common.Test;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.Test.InstrumentationFilter;
 
 
 /**
@@ -62,7 +63,31 @@ public interface Instrumenter {
    * @throws NonInstrumentableTypeException
    *           If the target object cannot be instrumented.
    */
-  boolean instrument(Test test, Recorder recorder, Object target)
+  boolean instrument(Test test,
+                     Recorder recorder,
+                     Object target)
+    throws NonInstrumentableTypeException;
+
+
+  /**
+   * Selectively instrument a target object with a test.
+   *
+   * @param test
+   *          The test.
+   * @param recorder
+   *          Wire the instrumentation to this {@link Recorder}.
+   * @param target
+   *          The object to instrument.
+   * @param filter
+   *          Selects the parts of {@code target} to instrument.
+   * @return {@code true} if instrumentation was added.
+   * @throws NonInstrumentableTypeException
+   *           If the target object cannot be instrumented.
+   */
+  boolean instrument(Test test,
+                     Recorder recorder,
+                     Object target,
+                     InstrumentationFilter filter)
     throws NonInstrumentableTypeException;
 
   /**
@@ -71,4 +96,13 @@ public interface Instrumenter {
    * @return The description; {@code null} for internal {@code Instrumenters}.
    */
   String getDescription();
+
+  /**
+   * Instrumentation filter that matches everything.
+   */
+  InstrumentationFilter ALL_INSTRUMENTATION = new InstrumentationFilter() {
+      public boolean matches(Object item) {
+        return true;
+      }
+    };
 }

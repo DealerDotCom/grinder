@@ -26,6 +26,7 @@ import java.util.List;
 import net.grinder.common.Test;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.scriptengine.CompositeInstrumenter;
 import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.Recorder;
@@ -71,14 +72,17 @@ final class MasterInstrumenter extends CompositeInstrumenter {
   /**
    * {@inheritDoc}
    */
-  public boolean instrument(Test test, Recorder recorder, Object target)
+  public boolean instrument(Test test,
+                            Recorder recorder,
+                            Object target,
+                            InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     if (target == null) {
       throw new NonInstrumentableTypeException("Can't instrument null/None");
     }
 
-    final boolean result = super.instrument(test, recorder, target);
+    final boolean result = super.instrument(test, recorder, target, filter);
 
     if (result) {
       return true;

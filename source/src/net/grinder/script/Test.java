@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2009 Philip Aston
+// Copyright (C) 2002 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -111,6 +111,60 @@ public class Test extends AbstractTestSemantics implements Serializable {
   public final void record(Object target)
     throws NonInstrumentableTypeException {
     m_registeredTest.instrument(target);
+  }
+
+  /**
+   * Selective instrumentation.
+   *
+   * @see Test#record(Object, InstrumentationFilter)
+   */
+  public interface InstrumentationFilter {
+
+    /**
+     * Filter the parts of an object.
+     *
+     * @param item
+     *          Part to test. The type depends on the instrumenter.
+     * @return {@code true} if the item should be instrumented.
+     */
+    boolean matches(Object item);
+  }
+
+  /**
+   * Version of {@link #record(Object) record} that allows selective
+   * instrumentation of an object.
+   *
+   * <p>
+   * The instrumenter will pass candidate items for instrumentation to the
+   * supplied {@code filter}. Only items for which the filter returns {@code
+   * true} will be instrumented.
+   * </p>
+   *
+   * <p>
+   * The type of item passed to the filter depends upon the instrumenter, and in
+   * turn this depends on the type of {@code target}. For example, the Java DCR
+   * instrumenter will pass {@link java.lang.reflect.Method}s to the filter.
+   * </p>
+   *
+   * <p>
+   * Some instrumenters, including the Jython instrumenter, do not support
+   * selective instrumentation. If an instrumenter can handle the {@code target}
+   * , but does not support selective instrumentation, this method will throw
+   * {@link NonInstrumentableTypeException}. The non-selective version of
+   * {@link #record(Object)} should be used instead.
+   * </p>
+   *
+   * @param target
+   *          Object to instrument.
+   * @param filter
+   *          Filter that selects the parts of {@code target} to instrument.
+   * @throws NonInstrumentableTypeException
+   *           If {@code target} could not be instrumented.
+   * @since 3.7
+   */
+  public final void record(Object target, InstrumentationFilter filter)
+    throws NonInstrumentableTypeException {
+    m_registeredTest.instrument(target, filter);
   }
 }
 

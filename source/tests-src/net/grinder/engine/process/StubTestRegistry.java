@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,11 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.script.Grinder;
-import net.grinder.script.InternalScriptContext;
+import static org.mockito.Mockito.mock;
+import net.grinder.script.TestRegistry;
 import net.grinder.scriptengine.Instrumenter;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
-import net.grinder.testutility.RandomStubFactory;
-
 
 /**
  * Test utility that allows TestRegistryImplementation to be set from outside
@@ -37,34 +35,22 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class StubTestRegistry {
 
-  private static RandomStubFactory<Instrumenter> s_instrumenterStubFactory;
+  public static TestRegistry stubTestRegistry(Instrumenter instrumenter) {
 
-  public static void stubTestRegistry() {
+    final TestStatisticsHelper testStatisticsHelper =
+      mock(TestStatisticsHelper.class);
+
     final StatisticsSetFactory statisticsSetFactory =
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
-
-    final RandomStubFactory<TestStatisticsHelper>
-      testStatisticsHelperStubFactory =
-        RandomStubFactory.create(TestStatisticsHelper.class);
 
     final TestRegistryImplementation testRegistry =
       new TestRegistryImplementation(null,
                                      statisticsSetFactory,
-                                     testStatisticsHelperStubFactory.getStub(),
+                                     testStatisticsHelper,
                                      null);
 
-    s_instrumenterStubFactory = RandomStubFactory.create(Instrumenter.class);
+    testRegistry.setInstrumenter(instrumenter);
 
-    testRegistry.setInstrumenter(s_instrumenterStubFactory.getStub());
-
-    final RandomStubFactory<InternalScriptContext> scriptContextStubFactory =
-      RandomStubFactory.create(InternalScriptContext.class);
-    scriptContextStubFactory.setResult("getTestRegistry", testRegistry);
-
-    Grinder.grinder = scriptContextStubFactory.getStub();
-  }
-
-  public static RandomStubFactory<Instrumenter> getInstrumenterStubFactory() {
-    return s_instrumenterStubFactory;
+    return testRegistry;
   }
 }

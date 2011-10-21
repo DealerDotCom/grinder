@@ -26,8 +26,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import net.grinder.script.NonInstrumentableTypeException;
-import net.grinder.scriptengine.DCRContext;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.scriptengine.AbstractDCRInstrumenter;
+import net.grinder.scriptengine.DCRContext;
 import net.grinder.scriptengine.Recorder;
 import net.grinder.util.weave.Weaver.TargetSource;
 
@@ -59,20 +60,24 @@ final class JavaDCRInstrumenter extends AbstractDCRInstrumenter {
    * {@inheritDoc}
    */
   @Override
-  protected boolean instrument(Object target, Recorder recorder)
+  protected boolean instrument(Object target,
+                               Recorder recorder,
+                               InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     if (target instanceof Class<?>) {
-      instrumentClass((Class<?>)target, recorder);
+      instrumentClass((Class<?>)target, recorder, filter);
     }
     else if (target != null) {
-      instrumentInstance(target, recorder);
+      instrumentInstance(target, recorder, filter);
     }
 
     return true;
   }
 
-  private void instrumentClass(Class<?> targetClass, Recorder recorder)
+  private void instrumentClass(Class<?> targetClass,
+                               Recorder recorder,
+                               InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     if (targetClass.isArray()) {
@@ -86,7 +91,8 @@ final class JavaDCRInstrumenter extends AbstractDCRInstrumenter {
     // Instrument the static methods declared by the target class. Ignore
     // any parent class.
     for (Method method : targetClass.getDeclaredMethods()) {
-      if (Modifier.isStatic(method.getModifiers())) {
+      if (Modifier.isStatic(method.getModifiers()) &&
+          filter.matches(method)) {
         getContext().add(targetClass, method, TargetSource.CLASS, recorder);
       }
     }
@@ -105,7 +111,9 @@ final class JavaDCRInstrumenter extends AbstractDCRInstrumenter {
 //    while (isInstrumentable(c));
   }
 
-  private void instrumentInstance(Object target, Recorder recorder)
+  private void instrumentInstance(Object target,
+                                  Recorder recorder,
+                                  InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     Class<?> c = target.getClass();
@@ -116,7 +124,8 @@ final class JavaDCRInstrumenter extends AbstractDCRInstrumenter {
 
     do {
       for (Method method : c.getDeclaredMethods()) {
-        if (!Modifier.isStatic(method.getModifiers())) {
+        if (!Modifier.isStatic(method.getModifiers()) &&
+            filter.matches(method)) {
           getContext().add(target,
                            method,
                            TargetSource.FIRST_PARAMETER,

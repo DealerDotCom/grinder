@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -28,6 +28,7 @@ import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.Recorder;
 
@@ -79,7 +80,22 @@ public final class TraditionalJythonInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public boolean instrument(Test test, Recorder recorder, Object target)
+  public boolean instrument(Test test,
+                            Recorder recorder,
+                            Object target)
+    throws NonInstrumentableTypeException {
+
+    throw new NonInstrumentableTypeException(
+      "record() is not supported by the Traditional Jython instrumentor");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean instrument(Test test,
+                            Recorder recorder,
+                            Object target,
+                            InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     throw new NonInstrumentableTypeException(

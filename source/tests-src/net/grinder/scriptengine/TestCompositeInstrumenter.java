@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.scriptengine.CompositeInstrumenter;
 import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.Recorder;
@@ -49,6 +50,7 @@ public class TestCompositeInstrumenter {
   @Mock private Recorder m_recorder;
   @Mock private Instrumenter m_instrumenter1;
   @Mock private Instrumenter m_instrumenter2;
+  @Mock private InstrumentationFilter m_filter;
   @Mock private net.grinder.common.Test m_test;
 
   private Object m_target = new Object();
@@ -106,8 +108,10 @@ public class TestCompositeInstrumenter {
 
     final InOrder inOrder = inOrder(m_instrumenter1, m_instrumenter2);
 
-    inOrder.verify(m_instrumenter1).instrument(m_test, m_recorder, m_target);
-    inOrder.verify(m_instrumenter2).instrument(m_test, m_recorder, m_target);
+    inOrder.verify(m_instrumenter1)
+      .instrument(m_test, m_recorder, m_target, Instrumenter.ALL_INSTRUMENTATION);
+    inOrder.verify(m_instrumenter2)
+      .instrument(m_test, m_recorder, m_target, Instrumenter.ALL_INSTRUMENTATION);
 
     verifyNoMoreInteractions(m_instrumenter1, m_instrumenter2);
   }
@@ -116,7 +120,8 @@ public class TestCompositeInstrumenter {
     final Instrumenter instrumenter =
       new CompositeInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
-    final boolean result = instrumenter.instrument(m_test, m_recorder, null);
+    final boolean result =
+      instrumenter.instrument(m_test, m_recorder, null, m_filter);
     assertFalse(result);
   }
 
@@ -124,7 +129,8 @@ public class TestCompositeInstrumenter {
     final Instrumenter instrumenter =
       new CompositeInstrumenter(asList(m_instrumenter1, m_instrumenter2));
 
-    final boolean result = instrumenter.instrument(m_test, m_recorder, null);
+    final boolean result =
+      instrumenter.instrument(m_test, m_recorder, null, m_filter);
     assertFalse(result);
   }
 

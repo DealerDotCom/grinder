@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,7 @@
 package net.grinder.script;
 
 import net.grinder.common.Test;
+import net.grinder.script.Test.InstrumentationFilter;
 
 
 /**
@@ -63,5 +64,18 @@ public interface TestRegistry {
      *           If the target could not be instrumented.
      */
     void instrument(Object target) throws NonInstrumentableTypeException;
+
+    /**
+     * Selectively instrument the given object.
+     *
+     * @param target
+     *          The object to instrument.
+     * @param filter
+     *          Selects the parts of {@code target} to instrument.
+     * @throws NonInstrumentableTypeException
+     *           If the target could not be instrumented.
+     */
+    void instrument(Object target, InstrumentationFilter filter)
+      throws NonInstrumentableTypeException;
   }
 }

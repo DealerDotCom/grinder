@@ -124,7 +124,7 @@ public class TestJythonScriptEngineService
 
     // instrument() is not supported by the traditional instrumenter.
     try {
-      instrumenter.instrument(m_test, m_recorder, foo);
+      instrumenter.instrument(m_test, m_recorder, foo, null);
       fail("Expected NonInstrumentableTypeException");
     }
     catch (NonInstrumentableTypeException e) {
