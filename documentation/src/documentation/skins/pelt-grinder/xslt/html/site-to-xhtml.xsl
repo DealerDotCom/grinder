@@ -583,11 +583,13 @@ document.write("]]><i18n:text >Last Published:</i18n:text><![CDATA[ " + document
   +</xsl:comment>
       <div id="credit2">
         <xsl:if test="$config/credits and ($config/credits/credit/@box-location = 'alt2')">
-          <xsl:for-each select="$config/credits/credit[not(@role='pdf')]">
-            <xsl:if test="@box-location = 'alt2'">
+          <xsl:for-each select="$config/credits/credit[not(@role='pdf')  and @box-location = 'alt2']">
+            <xsl:variable name="url" select="url"/>
+            <xsl:variable name="image" select="image"/>
+
+            <xsl:choose>
+            <xsl:when test="$image">
               <xsl:variable name="name" select="name"/>
-              <xsl:variable name="url" select="url"/>
-              <xsl:variable name="image" select="image"/>
               <xsl:variable name="width" select="width"/>
               <xsl:variable name="height" select="height"/><a href="{$url}">
               <img alt="{$name} - logo" title="{$name}" border="0">
@@ -602,7 +604,12 @@ document.write("]]><i18n:text >Last Published:</i18n:text><![CDATA[ " + document
                   <xsl:if test="$height">height: <xsl:value-of select="$height"/>px;</xsl:if>
                 </xsl:attribute>
               </img></a>
-            </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+              <script type="text/javascript" src="{url}"/>
+            </xsl:otherwise>
+            </xsl:choose>
+            
           </xsl:for-each>
         </xsl:if>
       </div>
