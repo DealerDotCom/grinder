@@ -265,6 +265,7 @@ public class Grinder {
      * @throws GrinderException
      *           If the barrier could not be created due to a network problem.
      * @see Barrier
+     * @since 3.6
      */
     Barrier barrier(String name) throws GrinderException;
   }

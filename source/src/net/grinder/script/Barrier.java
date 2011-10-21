@@ -59,6 +59,7 @@ import net.grinder.common.GrinderException;
  * </p>
  *
  * @author Philip Aston
+ * @since 3.6
  */
 public interface Barrier {
 
