@@ -34,7 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -162,35 +164,27 @@ public class HTTPRequest {
    * @param overridePairs
    *          Array to merge. Entries take precedence over
    *          <code>defaultPairs</code> entries with the same name.
-   * @return The merged arrays. For efficiency's sake, we do not filter out
-   *         <code>null</code> entries.
+   * @return The merged arrays.
    */
   private NVPair[] mergeArrays(NVPair[] defaultPairs, NVPair[] overridePairs) {
 
-    if (defaultPairs.length == 0) {
-      return overridePairs;
-    }
+    final List<NVPair> result =
+      new ArrayList<NVPair>(defaultPairs.length + overridePairs.length);
 
-    if (overridePairs.length == 0) {
-      return defaultPairs;
-    }
-
-    final NVPair[] result =
-      new NVPair[defaultPairs.length + overridePairs.length];
     final Set<String> seen = new HashSet<String>();
 
-    for (int i = 0; i < overridePairs.length; ++i) {
-      result[i] = overridePairs[i];
-      seen.add(overridePairs[i].getName());
+    for (NVPair p : overridePairs) {
+      result.add(p);
+      seen.add(p.getName());
     }
 
-    for (int i = 0; i < defaultPairs.length; ++i) {
-      if (!seen.contains(defaultPairs[i].getName())) {
-        result[overridePairs.length + i] = defaultPairs[i];
+    for (NVPair p : defaultPairs) {
+      if (!seen.contains(p.getName())) {
+        result.add(p);
       }
     }
 
-    return result;
+    return result.toArray(new NVPair[result.size()]);
   }
 
   private NVPair[] mergeHeaders(NVPair[] headers) {

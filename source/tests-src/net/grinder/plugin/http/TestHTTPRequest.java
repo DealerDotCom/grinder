@@ -21,18 +21,24 @@
 
 package net.grinder.plugin.http;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Random;
 
-import junit.framework.TestCase;
 import net.grinder.common.GrinderException;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.StubTest;
-import net.grinder.common.Test;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
@@ -53,6 +59,11 @@ import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.StandardTimeAuthority;
 import net.grinder.util.TimeAuthority;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import HTTPClient.HTTPResponse;
 import HTTPClient.HttpURLConnection;
 import HTTPClient.NVPair;
@@ -60,11 +71,11 @@ import HTTPClient.ParseException;
 
 
 /**
- * Unit test case for {@link HTTPRequest}.
+ * Unit tests for {@link HTTPRequest}.
  *
  * @author Philip Aston
  */
-public class TestHTTPRequest extends TestCase {
+public class TestHTTPRequest {
   private static final Random s_random = new Random();
 
   private final RandomStubFactory<ScriptContext> m_scriptContextStubFactory =
@@ -95,7 +106,7 @@ public class TestHTTPRequest extends TestCase {
 
   private HTTPRequestHandler m_handler;
 
-  protected void setUp() throws Exception {
+  @Before public void setUp() throws Exception {
 
     final HTTPPluginThreadState threadState =
       new HTTPPluginThreadState(m_threadContext,
@@ -136,11 +147,11 @@ public class TestHTTPRequest extends TestCase {
     m_handler.start();
   }
 
-  protected void tearDown() throws Exception {
+  @After public void tearDown() throws Exception {
     m_handler.shutdown();
   }
 
-  public void testTimeout() throws Exception {
+  @Test public void testTimeout() throws Exception {
     final HTTPPluginConnectionDefaults connectionDefaults =
       HTTPPluginConnectionDefaults.getConnectionDefaults();
 
@@ -174,7 +185,7 @@ public class TestHTTPRequest extends TestCase {
     }
   }
 
-  public void testSetUrl() throws Exception {
+  @Test public void testSetUrl() throws Exception {
     final HTTPRequest httpRequest = new HTTPRequest();
 
     assertNull(httpRequest.getUrl());
@@ -202,7 +213,7 @@ public class TestHTTPRequest extends TestCase {
     assertEquals("http://foo/bah", httpRequest.getUrl());
   }
 
-  public void testSetHeaders() {
+  @Test public void testSetHeaders() {
     final HTTPRequest httpRequest = new HTTPRequest();
 
     assertEquals(0, httpRequest.getHeaders().length);
@@ -216,7 +227,7 @@ public class TestHTTPRequest extends TestCase {
     AssertUtilities.assertArraysEqual(newHeaders, httpRequest.getHeaders());
   }
 
-  public void testDELETE() throws Exception {
+  @Test public void testDELETE() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -272,7 +283,7 @@ public class TestHTTPRequest extends TestCase {
     m_handler.assertRequestDoesNotContainHeader("y: 2");
   }
 
-  public void testGET() throws Exception {
+  @Test public void testGET() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -356,7 +367,7 @@ public class TestHTTPRequest extends TestCase {
     m_handler.assertRequestContainsHeader("key: value");
   }
 
-  public void testHEAD() throws Exception {
+  @Test public void testHEAD() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -418,7 +429,7 @@ public class TestHTTPRequest extends TestCase {
     m_handler.assertRequestContainsHeader("key: value");
   }
 
-  public void testOPTIONS() throws Exception {
+  @Test public void testOPTIONS() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -492,7 +503,7 @@ public class TestHTTPRequest extends TestCase {
     m_handler.assertRequestContainsHeader("key: value");
   }
 
-  public void testPOST() throws Exception {
+  @Test public void testPOST() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -615,7 +626,33 @@ public class TestHTTPRequest extends TestCase {
     m_handler.assertRequestContainsHeader("Content-length: " + data7.length);
   }
 
-  public void testPUT() throws Exception {
+  @Test public void testPOSTMultiPart() throws Exception {
+    final HTTPRequest request = new HTTPRequest();
+    request.setUrl(m_handler.getURL());
+
+    final NVPair[] formData = {
+        new NVPair("Vessel", "Grace of Lefkas"),
+      };
+
+    request.setHeaders(new NVPair[] { new NVPair("key", "value"), });
+
+    final NVPair[] headers2 = {
+        new NVPair("Content-Type", "multipart/form-data; boundary=---------------------------7db2b32b130706"),
+      };
+
+    final HTTPResponse response =
+      request.POST("/foo?abc=def", formData, headers2, true);
+    assertEquals(200, response.getStatusCode());
+    assertEquals("POST /foo?abc=def HTTP/1.1",
+                 m_handler.getRequestFirstHeader());
+
+    m_handler.assertRequestContainsHeader("key: value");
+
+    final String bodyText = new String(m_handler.getLastRequestBody());
+    assertTrue(bodyText.indexOf("Grace of Lefkas") > -1);
+  }
+
+  @Test public void testPUT() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -680,7 +717,7 @@ public class TestHTTPRequest extends TestCase {
     AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
   }
 
-  public void testTRACE() throws Exception {
+  @Test public void testTRACE() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -722,7 +759,7 @@ public class TestHTTPRequest extends TestCase {
     m_handler.assertRequestContainsHeader("key: value");
   }
 
-  public void testToString() throws Exception {
+  @Test public void testToString() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     assertEquals("<Undefined URL>\n", request.toString());
@@ -739,7 +776,7 @@ public class TestHTTPRequest extends TestCase {
                  request.toString());
   }
 
-  public void testSetDataFromFile() throws Exception {
+  @Test public void testSetDataFromFile() throws Exception {
 
     final File file = File.createTempFile("testing", "123");
     file.deleteOnExit();
@@ -758,7 +795,7 @@ public class TestHTTPRequest extends TestCase {
 
   }
 
-  public void testResponseProcessing() throws Exception {
+  @Test public void testResponseProcessing() throws Exception {
     m_scriptContextStubFactory.setResult("getLogger",
                                          m_loggerStubFactory.getLogger());
 
@@ -777,7 +814,7 @@ public class TestHTTPRequest extends TestCase {
     m_statisticsStubFactory.assertNoMoreCalls();
   }
 
-  public void testRedirectResponseProcessing() throws Exception {
+  @Test public void testRedirectResponseProcessing() throws Exception {
 
     final int[] redirectCodes = {
         302,
@@ -825,7 +862,7 @@ public class TestHTTPRequest extends TestCase {
     }
   }
 
-  public void testBadRequestResponseProcessing() throws Exception {
+  @Test public void testBadRequestResponseProcessing() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler() {
       protected void writeHeaders(StringBuffer response) {
         response.append("HTTP/1.0 400 Bad Request\r\n");
@@ -859,7 +896,7 @@ public class TestHTTPRequest extends TestCase {
     handler.shutdown();
   }
 
-  public void testSubclassProcessResponse() throws Exception {
+  @Test public void testSubclassProcessResponse() throws Exception {
     final Object[] resultHolder = new Object[1];
 
     final HTTPRequest request = new HTTPRequest() {
@@ -873,7 +910,7 @@ public class TestHTTPRequest extends TestCase {
     assertSame(response, resultHolder[0]);
   }
 
-  public void testConnectionTimingsAndStatistics() throws Exception {
+  @Test public void testConnectionTimingsAndStatistics() throws Exception {
 
     final ListTimeAuthority timeAuthority =
       new ListTimeAuthority(new long[] {
@@ -984,7 +1021,7 @@ public class TestHTTPRequest extends TestCase {
     assertEquals("", response2.getText());
   }
 
-  public void testSetReadResponseBody() throws Exception {
+  @Test public void testSetReadResponseBody() throws Exception {
 
     final ListTimeAuthority timeAuthority =
       new ListTimeAuthority(new long[] {
@@ -1106,7 +1143,7 @@ public class TestHTTPRequest extends TestCase {
     assertEquals("", response2.getText());
   }
 
-  public void testWithBadStatistics() throws Exception {
+  @Test public void testWithBadStatistics() throws Exception {
 
     m_statisticsStubFactory.setResult("isTestInProgress", Boolean.TRUE);
     m_statisticsStubFactory.setResult("getForCurrentTest", m_statisticsForTest);
@@ -1125,7 +1162,7 @@ public class TestHTTPRequest extends TestCase {
     }
   }
 
-  public void testConnectionClose() throws Exception {
+  @Test public void testConnectionClose() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     final HTTPResponse response = request.GET(m_handler.getURL());
@@ -1139,7 +1176,7 @@ public class TestHTTPRequest extends TestCase {
     assertEquals("GET / HTTP/1.1", m_handler.getRequestFirstHeader());
   }
 
-  public void testDCRInstrumentation() throws Exception {
+  @Test public void testDCRInstrumentation() throws Exception {
     final HTTPRequest request = new HTTPRequest();
 
     final Instrumenter instrumenter =
@@ -1150,7 +1187,7 @@ public class TestHTTPRequest extends TestCase {
       RandomStubFactory.create(Recorder.class);
     final Recorder recorder = recorderStubFactory.getStub();
 
-    final Test test = new StubTest(1, "foo");
+    final net.grinder.common.Test test = new StubTest(1, "foo");
 
     instrumenter.createInstrumentedProxy(test, recorder, request);
 
@@ -1220,7 +1257,7 @@ public class TestHTTPRequest extends TestCase {
     }
   }
 
-  public void testReadTimeout() throws Exception {
+  @Test public void testReadTimeout() throws Exception {
 
     final HTTPRequestHandler httpServer = new HTTPRequestHandler();
     httpServer.setResponseDelay(100);
