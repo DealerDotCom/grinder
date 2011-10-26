@@ -7,7 +7,8 @@ The Grinder 3.7 (not yet released)
    requiring a replacement for the traditional instrumenter's __target__.
 
    Fix bug 3006631 - Null pointer exeception when posting multipart
-   form data. Thanks to Edwin Clubb for the report.
+   form data. Thanks to Edwin Clubb for the report, and to Ouray Viney
+   for testing the fix.
 
 
 The Grinder 3.6
