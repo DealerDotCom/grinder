@@ -387,6 +387,52 @@ public final class XSLTHelper {
   }
 
   /**
+   * Convert a base64 string of binary data to a vector of bytes scriptlet.
+   *
+   *
+   * @param base64String The binary data.
+   * @return The scriptlet.
+   */
+  public static String base64ToClojure(String base64String) {
+
+    final byte[] base64 = base64String.getBytes();
+
+    final StringBuilder result = new StringBuilder(base64.length * 2);
+
+    result.append('[');
+
+    if (base64.length > 0) {
+      final byte[] bytes = Codecs.base64Decode(base64);
+
+      for (int i = 0; i < bytes.length; ++i) {
+        if (i % 16 == 0) {
+          if (i > 0) {
+            result.append(newLineAndIndent());
+          }
+        }
+        else {
+          result.append(" ");
+        }
+
+        final int b = bytes[i] < 0 ? 0x100 + bytes[i] : bytes[i];
+
+        if (b <= 0xF) {
+          result.append("0x0");
+        }
+        else {
+          result.append("0x");
+        }
+
+        result.append(Integer.toHexString(b).toUpperCase());
+      }
+    }
+
+    result.append(']');
+
+    return result.toString();
+  }
+
+  /**
    * Allow the indentation string to be overridden. The string will be repeated
    * in front of indented lines, according to the current indentation level.
    *

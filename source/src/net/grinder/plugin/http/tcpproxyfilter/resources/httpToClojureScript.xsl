@@ -44,9 +44,9 @@
     <xsl:text>
 
 (ns user
- (:import (net.grinder.script Test Grinder)
-          (net.grinder.plugin.http HTTPPluginControl HTTPRequest)
-          (HTTPClient NVPair Codecs)))
+  (:import (net.grinder.script Test Grinder)
+           (net.grinder.plugin.http HTTPPluginControl HTTPRequest)
+           (HTTPClient NVPair Codecs)))
 
 (def grinder (Grinder/grinder))
 (def connectionDefaults (HTTPPluginControl/getConnectionDefaults))
@@ -69,16 +69,21 @@
 (defn basic-authorization [u p]
   (str "Basic " (Codecs/base64Encode  (str u ":" p))))
 
+(defn to-bytes [s]
+  (letfn [(to-byte[x] (byte (if (> x 0x7f) (- x 0x100) x)))]
+    (byte-array (map to-byte s))))
+
 </xsl:text>
 
+<!--
 <xsl:text>
 ; Offline debug
 (use '[clojure.string :only (join)])
 (defmacro .GET [&amp; k] `(.. grinder (getLogger) (output (str "GET " (join ", " `(~~@k))))))
 (defmacro .POST [&amp; k] `(.. grinder (getLogger) (output (str "POST " (join ", " `(~~@k))))))
 
-
 </xsl:text>
+-->
 
     <xsl:apply-templates select="*" mode="file"/>
 
@@ -207,6 +212,7 @@
     <xsl:value-of select="helper:quoteForClojure(g:description)"/>
     <xsl:text>) </xsl:text>
     <xsl:value-of select="$request-name"/>
+    <xsl:text> (HTTPRequest/getHttpMethodFilter)</xsl:text>
     <xsl:text>)</xsl:text>
 
     <xsl:value-of select="helper:newLine()"/>
@@ -550,24 +556,14 @@
   <xsl:template match="g:body/g:binary" mode="request-parameter">
     <xsl:text> </xsl:text>
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <!-- TODO
-    Need a clojure version - whats the literal char syntax? -->
-    <xsl:value-of select="helper:base64ToPython(.)"/>
+
+    <xsl:text>(to-bytes </xsl:text>
+    <xsl:value-of select="helper:base64ToClojure(.)"/>
+    <xsl:text>)</xsl:text>
   </xsl:template>
 
 
   <xsl:template match="g:body/g:file" mode="request-parameter">
-<!-- TODO
-
-How to provide uninstrumented access to the HTTPRequest methods?
-
-Idea 1:
-  - Allow record() to provide a filter controlling what to instrument.
-
-Idea 2:
-  - Refactor HTTPRequest into control and dispatch objects.
-
- -->
     <!-- Data file is read at top level. We provide a parameter here
     to disambiguate the POST call if per-request headers are
     specified.-->
@@ -576,8 +572,7 @@ Idea 2:
     <xsl:text>request</xsl:text>
     <xsl:apply-templates select="../.." mode="generate-test-number"/>
     <xsl:text>)</xsl:text>
-
- </xsl:template>
+  </xsl:template>
 
 
   <xsl:template match="g:body/g:form" mode="request-parameter">
@@ -635,11 +630,10 @@ Idea 2:
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
 
-    <xsl:text>(</xsl:text>
     <xsl:value-of select="helper:quoteForClojure($name)"/>
     <xsl:text> (token :</xsl:text>
     <xsl:value-of select="$token-id"/>
-    <xsl:text>))</xsl:text>
+    <xsl:text>)</xsl:text>
   </xsl:template>
 
   <xsl:template match="g:authorization/g:basic" mode="list-item">

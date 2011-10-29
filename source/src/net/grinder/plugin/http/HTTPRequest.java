@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2010 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
@@ -27,14 +27,18 @@
 
 package net.grinder.plugin.http;
 
+import static java.util.Arrays.asList;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,11 +52,12 @@ import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
+import net.grinder.script.Test;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics.StatisticsForTest;
+import net.grinder.script.Test.InstrumentationFilter;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.util.StreamCopier;
-
 import HTTPClient.Codecs;
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
@@ -1397,5 +1402,20 @@ public class HTTPRequest {
 
   private static boolean isAbsolute(String uri) {
     return s_absoluteURIPattern.matcher(uri).matches();
+  }
+
+  private static Collection<String> s_httpMethodNames =
+    asList("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE");
+
+  private static InstrumentationFilter s_httpMethodFilter =
+    new InstrumentationFilter() {
+
+      public boolean matches(Object item) {
+        return s_httpMethodNames.contains(((Method)item).getName());
+      }
+    };
+
+  public static Test.InstrumentationFilter getHttpMethodFilter() {
+    return s_httpMethodFilter;
   }
 }
