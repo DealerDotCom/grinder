@@ -73,9 +73,17 @@
   (letfn [(to-byte[x] (byte (if (> x 0x7f) (- x 0x100) x)))]
     (byte-array (map to-byte s))))
 
+(defmacro defrequest [name test &amp; args]
+  `(do
+     (def ~name (httprequest ~@args))
+     (.record ~test ~name (HTTPRequest/getHttpMethodFilter))))
+
+(defmacro defpage [name description test &amp; rest]
+  `(do
+     (defn ~name ~description ~@rest)
+     (.record ~test ~name)))
 </xsl:text>
 
-<!--
 <xsl:text>
 ; Offline debug
 (use '[clojure.string :only (join)])
@@ -83,7 +91,7 @@
 (defmacro .POST [&amp; k] `(.. grinder (getLogger) (output (str "POST " (join ", " `(~~@k))))))
 
 </xsl:text>
--->
+
 
     <xsl:apply-templates select="*" mode="file"/>
 
@@ -188,13 +196,17 @@
     </xsl:for-each>
     <xsl:value-of select="helper:newLineAndIndent()"/>
 
-    <xsl:text>(def </xsl:text>
+    <xsl:text>(defrequest </xsl:text>
     <xsl:value-of select="$request-name"/>
-    <xsl:text> (httprequest </xsl:text>
+    <xsl:text> (Test. </xsl:text>
+    <xsl:value-of select="$request-number"/>
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="helper:quoteForClojure(g:description)"/>
+    <xsl:text>) </xsl:text>
     <xsl:value-of select="g:uri/@extends"/>
     <xsl:text> </xsl:text>
     <xsl:value-of select="g:headers/@extends"/>
-    <xsl:text>))</xsl:text>
+    <xsl:text>)</xsl:text>
 
     <xsl:if test="g:body/g:file">
       <xsl:value-of select="helper:newLineAndIndent()"/>
@@ -204,16 +216,6 @@
       <xsl:value-of select="g:body/g:file"/>
       <xsl:text>")</xsl:text>
     </xsl:if>
-
-    <xsl:value-of select="helper:newLine()"/>
-    <xsl:text>(.record (Test. </xsl:text>
-    <xsl:value-of select="$request-number"/>
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="helper:quoteForClojure(g:description)"/>
-    <xsl:text>) </xsl:text>
-    <xsl:value-of select="$request-name"/>
-    <xsl:text> (HTTPRequest/getHttpMethodFilter)</xsl:text>
-    <xsl:text>)</xsl:text>
 
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
@@ -362,26 +364,20 @@
     </xsl:if>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>(defn </xsl:text>
+    <xsl:text>(defpage </xsl:text>
     <xsl:value-of select="$page-function-name"/>
     <xsl:text> "</xsl:text>
     <xsl:apply-templates select="*" mode="page-description"/>
-    <xsl:text>." []</xsl:text>
+    <xsl:text>." (Test. </xsl:text>
+    <xsl:value-of select="$page-test-number"/>
+    <xsl:text> "Page </xsl:text>
+    <xsl:value-of select="$page-number"/>
+    <xsl:text>") []</xsl:text>
     <xsl:value-of select="helper:changeIndent(1)"/>
     <xsl:apply-templates select="*" mode="page-function"/>
     <xsl:text>)</xsl:text>
     <xsl:value-of select="helper:changeIndent(-1)"/>
     <xsl:value-of select="helper:newLine()"/>
-
-    <xsl:text>(.record (Test. </xsl:text>
-    <xsl:value-of select="$page-test-number"/>
-    <xsl:text> "Page </xsl:text>
-    <xsl:value-of select="$page-number"/>
-    <xsl:text>") </xsl:text>
-    <xsl:value-of select="$page-function-name"/>
-    <xsl:text>)</xsl:text>
-
-    <xsl:value-of select="helper:newLineAndIndent()"/>
 
   </xsl:template>
 
