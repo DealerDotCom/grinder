@@ -166,7 +166,27 @@ public class TestXSLTHelper {
       XSLTHelper.quoteEOLEscapedStringForPython("foo \n \r bah"));
     assertEquals("'foo \\n bah\\\\'",
       XSLTHelper.quoteEOLEscapedStringForPython("foo \\n bah\\"));
+  }
 
+  @Test public void testQuoteForClojure() throws Exception {
+    assertEquals("nil", XSLTHelper.quoteForClojure(null));
+    assertEquals("\"\"", XSLTHelper.quoteForClojure(""));
+    assertEquals("\"\\\"\"", XSLTHelper.quoteForClojure("\""));
+    assertEquals("\"\\\"\"", XSLTHelper.quoteForClojure("\""));
+    assertEquals("\"foo\"", XSLTHelper.quoteForClojure("foo"));
+    assertEquals("\"foo\\'\"", XSLTHelper.quoteForClojure("foo'"));
+    assertEquals("\" \\\\ \"", XSLTHelper.quoteForClojure(" \\ "));
+    assertEquals("\"foo \n bah\"", XSLTHelper.quoteForClojure("foo \n bah"));
+    assertEquals("\"foo \\r bah\"", XSLTHelper.quoteForClojure("foo \r bah"));
+    assertEquals("\"foo \\\\n bah\"", XSLTHelper.quoteForClojure("foo \\n bah"));
+  }
+
+  @Test public void testQuoteEOLEscapedStringForClojure() throws Exception {
+    assertEquals("nil", XSLTHelper.quoteEOLEscapedStringForClojure(null));
+    assertEquals("\"\"", XSLTHelper.quoteEOLEscapedStringForClojure(""));
+    assertEquals("\"\\\"\"", XSLTHelper.quoteEOLEscapedStringForClojure("\""));
+    assertEquals("\"foo\"", XSLTHelper.quoteEOLEscapedStringForClojure("foo"));
+    assertEquals("\"foo\\'\"", XSLTHelper.quoteEOLEscapedStringForClojure("foo'"));
   }
 
   @Test public void testEscape() throws Exception {

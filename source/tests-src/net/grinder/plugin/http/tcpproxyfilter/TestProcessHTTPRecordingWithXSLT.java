@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,8 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,21 +30,24 @@ import java.io.InputStream;
 import java.util.Calendar;
 
 import net.grinder.common.LoggerStubFactory;
-import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.StyleSheetInputStream;
+import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.BuiltInStyleSheet;
+import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.StyleSheetFile;
 import net.grinder.plugin.http.xml.HTTPRecordingType;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RedirectStandardStreams;
 import net.grinder.util.StreamCopier;
 
+import org.junit.Test;
 
-public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
+
+public class TestProcessHTTPRecordingWithXSLT extends AbstractJUnit4FileTestCase {
 
   private final LoggerStubFactory m_loggerStubFactory =
     new LoggerStubFactory();
 
-  public void testWithIdentityTransform() throws Exception {
+  @Test public void testWithIdentityTransform() throws Exception {
 
     final StreamCopier streamCopier = new StreamCopier(4096, true);
 
@@ -55,8 +60,8 @@ public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
     streamCopier.copy(identityStyleSheetStream,
                       new FileOutputStream(identityStyleSheetFile));
 
-    final StyleSheetInputStream styleSheetInputStream =
-      new StyleSheetInputStream(identityStyleSheetFile);
+    final StyleSheetFile styleSheetInputStream =
+      new StyleSheetFile(identityStyleSheetFile);
 
     final ProcessHTTPRecordingWithXSLT processor =
       new ProcessHTTPRecordingWithXSLT(
@@ -76,7 +81,7 @@ public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
 
     try {
-      styleSheetInputStream.getInputStream().read();
+      styleSheetInputStream.open().read();
       fail("Input stream not closed");
     }
     catch (IOException e) {
@@ -84,7 +89,7 @@ public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
 
     final ProcessHTTPRecordingWithXSLT processor2 =
       new ProcessHTTPRecordingWithXSLT(
-        new StyleSheetInputStream(identityStyleSheetFile),
+        new StyleSheetFile(identityStyleSheetFile),
         m_loggerStubFactory.getLogger());
 
     final HttpRecordingDocument document2 =
@@ -108,7 +113,7 @@ public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
-  public void testWithStandardTransform() throws Exception {
+  @Test public void testWithStandardTransform() throws Exception {
     final ProcessHTTPRecordingWithXSLT processor =
       new ProcessHTTPRecordingWithXSLT(m_loggerStubFactory.getLogger());
 
@@ -143,13 +148,34 @@ public class TestProcessHTTPRecordingWithXSLT extends AbstractFileTestCase {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
-  public void testWithBadTransform() throws Exception {
+  @Test public void testWithClojureTransform() throws Exception {
+    final ProcessHTTPRecordingWithXSLT processor =
+      new ProcessHTTPRecordingWithXSLT(BuiltInStyleSheet.Clojure,
+                                       m_loggerStubFactory.getLogger());
+
+    final HttpRecordingDocument document =
+      HttpRecordingDocument.Factory.newInstance();
+    final HTTPRecordingType recording = document.addNewHttpRecording();
+    recording.addNewMetadata().setVersion("blah");
+
+    recording.addNewMetadata().setTime(Calendar.getInstance());
+
+    processor.process(document);
+    m_loggerStubFactory.assertSuccess("getOutputLogWriter");
+    m_loggerStubFactory.assertNoMoreCalls();
+
+    final String output2 =
+      m_loggerStubFactory.getOutputLogWriter().getOutputAndReset();
+    AssertUtilities.assertContains(output2, ";; blah");
+  }
+
+  @Test public void testWithBadTransform() throws Exception {
     final File badStyleSheetFile = new File(getDirectory(), "bad.xsl");
     badStyleSheetFile.createNewFile();
 
     final ProcessHTTPRecordingWithXSLT processor =
       new ProcessHTTPRecordingWithXSLT(
-        new StyleSheetInputStream(badStyleSheetFile),
+        new StyleSheetFile(badStyleSheetFile),
         m_loggerStubFactory.getLogger());
 
     final HttpRecordingDocument emptyDocument =

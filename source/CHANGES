@@ -6,9 +6,12 @@ The Grinder 3.7 (not yet released)
    HTTPRequest interface can now be used with DCR instrumentation without
    requiring a replacement for the traditional instrumenter's __target__.
 
-   Fix bug 3006631 - Null pointer exeception when posting multipart
+   Fix bug 3006631 - Null pointer exception when posting multipart
    form data. Thanks to Edwin Clubb for the report, and to Ouray Viney
    for testing the fix.
+
+   The TCPProxy can be called with "-http clojure" to generate a
+   Clojure script.
 
 
 The Grinder 3.6

@@ -64,7 +64,7 @@ public class ProcessHTTPRecordingWithXSLT
   private final Logger m_logger;
 
   private ProcessHTTPRecordingWithXSLT(InputStream styleSheetInputStream,
-                                       Logger logger) {
+                                      Logger logger) {
     m_styleSheetInputStream = styleSheetInputStream;
     m_logger = logger;
 
@@ -89,14 +89,27 @@ public class ProcessHTTPRecordingWithXSLT
   /**
    * Constructor.
    *
-   * @param styleSheetFile
+   * @param styleSheet
+   *          Built in style sheet.
+   * @param logger
+   *          Where to direct the output.
+   */
+  public ProcessHTTPRecordingWithXSLT(BuiltInStyleSheet styleSheet,
+                                      Logger logger) {
+    this(styleSheet.open(), logger);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param styleSheet
    *          File name of an alternative style sheet.
    * @param logger
    *          Where to direct the output.
    */
-  public ProcessHTTPRecordingWithXSLT(StyleSheetInputStream styleSheetFile,
+  public ProcessHTTPRecordingWithXSLT(StyleSheetFile styleSheet,
                                       Logger logger) {
-    this(styleSheetFile.getInputStream(), logger);
+    this(styleSheet.open(), logger);
   }
 
   /**
@@ -158,26 +171,47 @@ public class ProcessHTTPRecordingWithXSLT
   }
 
   /**
+   * Built in style sheets.
+   */
+  public enum BuiltInStyleSheet {
+    /** Generate a Jython script. */
+    Jython("resources/httpToJythonScript.xsl"),
+
+    /** Generate a Clojure script. */
+    Clojure("resources/httpToClojureScript.xsl");
+
+    private final String m_resourceName;
+
+    private BuiltInStyleSheet(String resourceName) {
+      m_resourceName = resourceName;
+    }
+
+    InputStream open() {
+      return getClass().getResourceAsStream(m_resourceName);
+    }
+  }
+
+  /**
    * Wrapper for an {@link InputStream} to a style sheet.
    *
    * @author Philip Aston
    */
-  public static final class StyleSheetInputStream {
+  public static final class StyleSheetFile {
     private final InputStream m_inputStream;
 
     /**
-     * Constructor for StyleSheetFile.
+     * Constructor.
      *
      * @param file
      *          The file.
      * @throws FileNotFoundException
-     *           If <code>file</code> cannot be read.
+     *           If {@code file} cannot be read.
      */
-    public StyleSheetInputStream(File file) throws FileNotFoundException {
+    public StyleSheetFile(File file) throws FileNotFoundException {
       m_inputStream = new FileInputStream(file);
     }
 
-    InputStream getInputStream() {
+    InputStream open() {
       return m_inputStream;
     }
   }

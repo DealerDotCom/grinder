@@ -40,6 +40,8 @@ import net.grinder.plugin.http.tcpproxyfilter.HTTPRecordingImplementation;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRequestFilter;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPResponseFilter;
 import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT;
+import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.StyleSheetFile;
+import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.BuiltInStyleSheet;
 import net.grinder.plugin.http.tcpproxyfilter.RegularExpressionsImplementation;
 import net.grinder.tools.tcpproxy.CommentSourceImplementation;
 import net.grinder.tools.tcpproxy.CompositeFilter;
@@ -82,7 +84,8 @@ public final class TCPProxy extends AbstractMainClass {
     "\n  java " + TCPProxy.class.getName() + " <options>" +
     "\n\n" +
     "Commonly used options:" +
-    "\n  [-http [<stylesheet>]]       See below." +
+    "\n  [-http [jython|clojure|<stylesheet>]]" +
+    "\n                               See below." +
     "\n  [-console]                   Display the console." +
     "\n  [-requestfilter <filter>]    Add a request filter." +
     "\n  [-responsefilter <filter>]   Add a response filter." +
@@ -118,8 +121,9 @@ public final class TCPProxy extends AbstractMainClass {
     "<remotehost:remoteport>. Specify -ssl for SSL support." +
     "\n\n" +
     "-http sets up request and response filters to produce a test script " +
-    "suitable for use with the HTTP plugin. The output can be customised " +
-    "by specifying the file name of an alternative XSLT style sheet." +
+    "suitable for use with the HTTP plugin. The keywords 'jython' or " +
+    "'clojure' can be used to set the script language; or the file name of " +
+    "an alternative XSLT style sheet can be provided." +
     "\n\n" +
     "-timeout is how long the TCPProxy will wait for a request " +
     "before timing out and freeing the local port. The TCPProxy will " +
@@ -258,9 +262,17 @@ public final class TCPProxy extends AbstractMainClass {
           m_filterContainer.addComponent(SimpleStringEscaper.class);
 
           if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
-            m_filterContainer.addComponent(
-              new ProcessHTTPRecordingWithXSLT.StyleSheetInputStream(
-                new File(args[++i])));
+            final String s = args[++i];
+
+            if (s.equals("jython")) {
+              // Default.
+            }
+            else if (s.equals("clojure")) {
+              m_filterContainer.addComponent(BuiltInStyleSheet.Clojure);
+            }
+            else {
+              m_filterContainer.addComponent(new StyleSheetFile(new File(s)));
+            }
           }
         }
         else if (args[i].equalsIgnoreCase("-localhost")) {

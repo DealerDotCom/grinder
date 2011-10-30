@@ -29,7 +29,7 @@ import java.io.PrintWriter;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
-import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.StyleSheetInputStream;
+import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.StyleSheetFile;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
 import net.grinder.util.AbstractMainClass;
 import net.grinder.util.FixedWidthFormatter;
@@ -96,7 +96,7 @@ public final class ProcessRecording extends AbstractMainClass {
       else if (arguments.length == 2) {
         m_processor =
           new ProcessHTTPRecordingWithXSLT(
-            new StyleSheetInputStream(new File(arguments[1])),
+            new StyleSheetFile(new File(arguments[1])),
             getLogger());
       }
       else {
