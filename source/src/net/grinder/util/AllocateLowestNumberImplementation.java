@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,8 +33,6 @@ import java.util.Map.Entry;
  */
 public final class AllocateLowestNumberImplementation
   implements AllocateLowestNumber {
-
-  private static final long serialVersionUID = 1L;
 
   /** Guarded by self. */
   private Map<Object, Integer> m_map = new HashMap<Object, Integer>();

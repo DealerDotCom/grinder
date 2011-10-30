@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -213,6 +213,7 @@ public abstract class AbstractStubFactory<T> extends CallRecorder {
         return m_hashcode;
       }
 
+      @SuppressWarnings("unchecked")
       @Override
       public boolean equals(Object other) {
         final Object object = this.get();

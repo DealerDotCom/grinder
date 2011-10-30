@@ -22,7 +22,6 @@
 package net.grinder.script;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
@@ -129,11 +128,11 @@ public class TestTest {
 
   @org.junit.Test public void testWrap() throws Exception {
     final Test t1 = new Test(1, "six cars");
-    final Test t2 = new Test(2, "house in ireland");
+    new Test(2, "house in ireland");
 
     final Integer i = new Integer(10);
 
-    final Object proxy1 = t1.wrap(i);
+    t1.wrap(i);
 
     verify(m_instrumenter).createInstrumentedProxy(same(t1),
                                                    isA(Recorder.class),
