@@ -13,6 +13,9 @@ The Grinder 3.7 (not yet released)
    The TCPProxy can be called with "-http clojure" to generate a
    Clojure script.
 
+   Fix bug 3431764 - DCR instrumentation fails with Java 7. Thanks to
+   Gary Mulder for the report.
+
 
 The Grinder 3.6
 ---------------
