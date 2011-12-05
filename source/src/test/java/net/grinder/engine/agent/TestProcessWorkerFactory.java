@@ -21,6 +21,10 @@
 
 package net.grinder.engine.agent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,7 +35,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
 
-import junit.framework.TestCase;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.FanOutStreamSender;
@@ -42,23 +45,22 @@ import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.WorkerProcessEntryPoint;
 import net.grinder.util.Directory;
 
+import org.junit.Test;
+
 
 /**
- *  Unit tests for <code>ProcessWorkerFactory</code>.
+ *  Unit tests for {@code ProcessWorkerFactory}.
  *
  * @author Philip Aston
  */
-public class TestProcessWorkerFactory extends TestCase {
+public class TestProcessWorkerFactory {
 
-  private static final String s_classesDir = System.getProperty("classes.dir");
   private static final String s_testClasspath =
     System.getProperty("java.class.path");
 
-  public void testCreate() throws Exception {
+  @Test public void testCreate() throws Exception {
     final GrinderProperties grinderProperties = new GrinderProperties();
-    grinderProperties.setProperty(
-      "grinder.jvm.classpath",
-      s_testClasspath + File.pathSeparatorChar + s_classesDir);
+    grinderProperties.setProperty("grinder.jvm.classpath", s_testClasspath);
 
     final Properties systemProperties = new Properties();
 
@@ -123,7 +125,7 @@ public class TestProcessWorkerFactory extends TestCase {
     fanOutStreamSender.shutdown();
   }
 
-  public void testBadWorker() throws Exception {
+  @Test public void testBadWorker() throws Exception {
     // Test a dusty code path through AbstractWorkerFactory where
     // the Worker communication stream doesn't work.
     final AgentIdentityImplementation agentIdentityImplementation =

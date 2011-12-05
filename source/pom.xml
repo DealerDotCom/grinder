@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+TODO:
+  Agent build.
+  Packaging.
+  Tag.
+
+NTH:
+  Clover?
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -78,8 +88,29 @@
       <plugin>
 	<groupId>org.apache.maven.plugins</groupId>
 	<artifactId>maven-surefire-plugin</artifactId>
+	<version>2.7.2</version>
 	<configuration>
-	  <argline>-javaagent:${basedir}/lib/grinder-agent.jar</argline>
+	  <argLine>-javaagent:${basedir}/lib/grinder-agent.jar -XX:MaxPermSize=256m</argLine>
+          <systemPropertyVariables>
+
+	    <!-- Put Jython droppings in one place. -->
+	    <python.cachedir>${project.basedir}/target/python.cache</python.cachedir>
+
+	    <!-- Alternative Jython implementations for unit tests. If you
+	         don't have these, comment out the property.
+	      -->
+	    <jython2_1.dir>/opt/jython/jython-2.1</jython2_1.dir>
+	    <jython2_5_0.dir>/opt/jython/jython2.5.0</jython2_5_0.dir>
+	    <jython2_5_1.dir>/opt/jython/jython2.5.1</jython2_5_1.dir>
+	    <jython2_5_2.dir>/opt/jython/jython2.5.2</jython2_5_2.dir>
+	  </systemPropertyVariables>
+
+	  <excludes>
+	    <!-- Skipping due to "Duplicated LocalVariableTable" issue
+                 that only occurs when run by surefire, in a group of tests.
+             -->
+	    <exclude>**/TestTraditionalJythonInstrumenterWithJython21.java</exclude>
+	  </excludes>
 	</configuration>
       </plugin>
     </plugins>

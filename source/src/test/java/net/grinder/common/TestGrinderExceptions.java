@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2008 Philip Aston
+// Copyright (C) 2002 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,8 @@
 
 package net.grinder.common;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -30,13 +31,15 @@ import java.io.StringWriter;
 
 import net.grinder.testutility.RedirectStandardStreams;
 
+import org.junit.Test;
+
 
 /**
  * Unit test for {@link GrinderException}.
  *
  * @author Philip Aston
  */
-public class TestGrinderExceptions extends TestCase {
+public class TestGrinderExceptions {
 
   // Calculate the callers method name. This is so the tests still work when
   // this class is instrumented by Clover.
@@ -45,7 +48,7 @@ public class TestGrinderExceptions extends TestCase {
     return callersFrame.toString().replaceAll("\\(.*", "");
   }
 
-  public void testPrintStackTrace() throws Exception {
+  @Test public void testPrintStackTrace() throws Exception {
     final StringWriter stringWriter = new StringWriter();
     final PrintWriter printWriter = new PrintWriter(stringWriter);
 
@@ -58,10 +61,9 @@ public class TestGrinderExceptions extends TestCase {
     assertEquals(1, countOccurrences("createException", s));
     assertEquals(1, countOccurrences("createDeeperException", s));
     assertEquals(2, countOccurrences(getMethodName(), s));
-    assertEquals(1, countOccurrences("Method.invoke", s));
   }
 
-  public void testPrintStackTraceWithNestedNonGrinderException()
+  @Test public void testPrintStackTraceWithNestedNonGrinderException()
     throws Exception {
 
     final StringWriter stringWriter = new StringWriter();
@@ -75,7 +77,6 @@ public class TestGrinderExceptions extends TestCase {
 
     assertEquals(1, countOccurrences("RuntimeException", s));
     assertEquals(2, countOccurrences(getMethodName(), s));
-    assertEquals(1, countOccurrences("Method.invoke", s));
   }
 
   private static class WeirdException extends RuntimeException {
@@ -85,7 +86,7 @@ public class TestGrinderExceptions extends TestCase {
     }
   }
 
-  public void testPrintStackTraceWithNestedUnconventionalException()
+  @Test public void testPrintStackTraceWithNestedUnconventionalException()
     throws Exception {
 
     final StringWriter stringWriter = new StringWriter();
@@ -98,11 +99,10 @@ public class TestGrinderExceptions extends TestCase {
     final String s = stringWriter.toString();
 
     assertEquals(2, countOccurrences(getMethodName(), s));
-    assertEquals(1, countOccurrences("Method.invoke", s));
     assertEquals(1, countOccurrences("...", s));
   }
 
-  public void testPrintStackTraceWithPrintStream() throws Exception {
+  @Test public void testPrintStackTraceWithPrintStream() throws Exception {
     final ByteArrayOutputStream byteArrayOutputStream =
       new ByteArrayOutputStream();
     final PrintStream printStream = new PrintStream(byteArrayOutputStream);
@@ -116,10 +116,9 @@ public class TestGrinderExceptions extends TestCase {
     assertEquals(1, countOccurrences("createException", s));
     assertEquals(1, countOccurrences("createDeeperException", s));
     assertEquals(2, countOccurrences(getMethodName(), s));
-    assertEquals(1, countOccurrences("Method.invoke", s));
   }
 
-  public void testPrintStackTraceWithDefaultStream() throws Exception {
+  @Test public void testPrintStackTraceWithDefaultStream() throws Exception {
 
     final GrinderException e1 = createDeeperException();
     final GrinderException e2 = new MyGrinderException("Exception 2", e1);
@@ -137,7 +136,6 @@ public class TestGrinderExceptions extends TestCase {
     assertEquals(1, countOccurrences("createException", s));
     assertEquals(1, countOccurrences("createDeeperException", s));
     assertEquals(2, countOccurrences(getMethodName(), s));
-    assertEquals(1, countOccurrences("Method.invoke", s));
   }
 
   private GrinderException createException() {
@@ -170,7 +168,7 @@ public class TestGrinderExceptions extends TestCase {
     }
   }
 
-  public void testUncheckedGrinderException() throws Exception {
+  @Test public void testUncheckedGrinderException() throws Exception {
     final RuntimeException e1 = new UncheckedGrinderException("test") {};
     assertEquals("test", e1.getMessage());
 

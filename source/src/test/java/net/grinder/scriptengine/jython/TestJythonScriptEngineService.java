@@ -39,6 +39,7 @@ import net.grinder.scriptengine.Instrumenter;
 
 import org.junit.Test;
 import org.python.core.PyObject;
+import org.python.core.PySystemState;
 
 
 /**
@@ -91,6 +92,8 @@ public class TestJythonScriptEngineService
                  instrumenter.getDescription());
 
     final Object foo = new Object();
+
+    PySystemState.initialize();
 
     final PyObject proxy =
       (PyObject)
