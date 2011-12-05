@@ -1,8 +1,8 @@
-#Tue Sep 20 17:31:26 EEST 2011
+#Mon Dec 05 08:38:24 GMT 2011
 filenames.properties=etc/checkstyle.properties
 filenames.suppression=/grinder/etc/checkstyle-suppressions.xml
+file_filter=in\:\\.java$\nin\:\\.properties$\nex\:src/test/.*\nex\:src/main/java/HTTPClient/.*\nex\:src/main/java/org/.*\nex\:Console.properties\nex\:src/main/java/extra166y/.*\n
 enabled=true
-file_filter=in\:\\.java$\nin\:\\.properties$\nex\:tests-src/.*\nex\:src/HTTPClient/.*\nex\:src/org/.*\nex\:Console.properties\nex\:src/extra166y/.*\n
 projectclassloader=true
 filenames.config=etc/checkstyle.xml
 filenames.filter=/grinder/etc/checkstyle.filters
