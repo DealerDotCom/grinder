@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <!-- TODO: Licenses. -->
+  <!-- TODO: Issue management. -->
+  <!-- TODO: Can go back to building for 1.5? -->
+  <!-- TODO: Can get jedit from repo? -->
+  <!-- TODO: Can get cchm from repo? -->
+  <!-- TODO: Move licenses to appropriate packages. -->
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.grinder</groupId>
+  <artifactId>grinder-parent</artifactId>
+  <packaging>pom</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>${project.artifactId}</name>
+
+  <url>http://grinder.sourceforge.net</url>
+  <inceptionYear>2000</inceptionYear>
+  <mailingLists>
+    <mailingList>
+      <name>The Grinder User List</name>
+      <subscribe>https://lists.sourceforge.net/mailman/listinfo/grinder-use</subscribe>
+      <unsubscribe>https://lists.sourceforge.net/mailman/listinfo/grinder-use</unsubscribe>
+      <post>grinder-use@openjpa.apache.org</post>
+      <archive>https://lists.sourceforge.net/mailman/listinfo/grinder-use</archive>
+    </mailingList>
+  </mailingLists>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+	<version>2.3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <modules>
+        <module>grinder-agent</module>
+        <module>grinder-cchm</module>
+        <module>grinder-httpclient</module>
+        <module>grinder-jedit</module>
+        <module>grinder-xmlbeans</module>
+        <module>grinder</module>
+        <module>grinder-packaging</module>
+      </modules>
+    </profile>
+  </profiles>
+</project>
