@@ -45,7 +45,7 @@
       </outputFileNameMapping>
       <includes>
         <include>net.grinder:grinder</include>
-        <include>net.grinder:grinder-agent</include>
+        <include>net.grinder:grinder-dcr-agent</include>
       </includes>
     </dependencySet>
     <dependencySet>
