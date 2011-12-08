@@ -10,7 +10,6 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder</artifactId>
   <packaging>jar</packaging>
-  <name>The Grinder</name>
 
   <parent>
     <groupId>net.grinder</groupId>
@@ -116,6 +115,43 @@
             <exclude>**/TestTraditionalJythonInstrumenterWithJython21.java</exclude>
           </excludes>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>1.5</version>
+        <configuration>
+          <filters>
+            <filter>
+              <artifact>net.sf.jedit-syntax:jedit-syntax</artifact>
+              <excludes>
+                <exclude>README.txt</exclude>
+              </excludes>
+            </filter>
+            <filter>
+              <artifact>org.codehaus.jsr166-mirror:extra166y</artifact>
+              <includes>
+                <include>**/CustomConcurrentHashMap.class</include>
+              </includes>
+            </filter>
+          </filters>
+          <artifactSet>
+            <includes>
+              <include>net.grinder:grinder-httpclient</include>
+              <include>net.grinder:grinder-xmlbeans</include>
+              <include>net.sf.jedit-syntax:jedit-syntax</include>
+              <include>org.codehaus.jsr166-mirror:extra166y</include>
+            </includes>
+          </artifactSet>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
