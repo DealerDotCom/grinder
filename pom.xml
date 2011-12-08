@@ -6,7 +6,6 @@
   <!-- TODO: Licenses. -->
   <!-- TODO: Issue management. -->
   <!-- TODO: Can go back to building for 1.5? -->
-  <!-- TODO: Can get jedit from repo? -->
   <!-- TODO: Can get cchm from repo? -->
   <!-- TODO: Move licenses to appropriate packages. -->
   <modelVersion>4.0.0</modelVersion>
@@ -52,7 +51,6 @@
         <module>grinder-agent</module>
         <module>grinder-cchm</module>
         <module>grinder-httpclient</module>
-        <module>grinder-jedit</module>
         <module>grinder-xmlbeans</module>
         <module>grinder</module>
         <module>grinder-packaging</module>
