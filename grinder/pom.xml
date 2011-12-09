@@ -18,12 +18,14 @@
       <groupId>net.grinder</groupId>
       <artifactId>grinder-dcr-agent</artifactId>
       <version>1.0-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>net.grinder</groupId>
       <artifactId>grinder-httpclient</artifactId>
       <version>1.0-SNAPSHOT</version>
+      <scope>provided</scope> <!-- Because we shade into our jar. -->
     </dependency>
 
     <dependency>
@@ -35,51 +37,57 @@
     <dependency>
       <groupId>asm</groupId>
       <artifactId>asm</artifactId>
-      <version>3.2</version>
     </dependency>
 
     <dependency>
       <groupId>net.sf.jedit-syntax</groupId>
       <artifactId>jedit-syntax</artifactId>
-      <version>2.2.2</version>
+      <scope>provided</scope> <!-- Because we shade into our jar. -->
     </dependency>
 
     <dependency>
       <groupId>org.codehaus.jsr166-mirror</groupId>
       <artifactId>extra166y</artifactId>
-      <version>1.7.0</version>
+      <scope>provided</scope> <!-- Because we shade into our jar. -->
     </dependency>
 
     <dependency>
       <groupId>org.picocontainer</groupId>
       <artifactId>picocontainer</artifactId>
-      <version>2.13.6</version>
     </dependency>
 
     <dependency>
       <groupId>org.python</groupId>
       <artifactId>jython</artifactId>
-      <version>2.2.1</version>
+    </dependency>
+
+    <!-- grinder-xmlbeans only exports these at compile time, we change
+         their scope to make them available at runtime and to set our
+         manifest classpath correctly. -->
+    <dependency>
+      <groupId>javax.xml</groupId>
+      <artifactId>jsr173</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>xmlbeans</groupId>
+      <artifactId>xbean</artifactId>
+      <version>2.1.0</version>
     </dependency>
 
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.3.0</version>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.5</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
-      <version>1.8.5</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -114,7 +122,6 @@
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.7.2</version>
         <configuration>
           <argLine>-javaagent:${project.build.directory}/grinder-agent.jar
             -XX:MaxPermSize=256m</argLine>
@@ -147,11 +154,6 @@
             <index>true</index>
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              <!-- Unfortunately, the maven archive plugin does not provide a way
-                   to filter the list of dependencies used to generate the classpath.
-                   This means we redundantly add the things we shade into our jar,
-                   as well as the agent jar.
-                -->
               <addClasspath>true</addClasspath>
             </manifest>
 
@@ -186,7 +188,6 @@
           <artifactSet>
             <includes>
               <include>net.grinder:grinder-httpclient</include>
-              <include>net.grinder:grinder-xmlbeans</include>
               <include>net.sf.jedit-syntax:jedit-syntax</include>
               <include>org.codehaus.jsr166-mirror:extra166y</include>
             </includes>

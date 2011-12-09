@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Created-By: The Grinder build
-Class-Path: asm-3.2.jar grinder-xmlbeans.jar jsr173_api.jar
-  jython-2.2.1.jar picocontainer-2.13.6.jar xbean-2.1.0.jar
