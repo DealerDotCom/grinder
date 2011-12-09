@@ -3,10 +3,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-
-  <!-- TODO: manifest. -->
-  <!-- NTH: Clover? -->
-
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder</artifactId>
   <packaging>jar</packaging>
@@ -140,6 +136,32 @@
               occurs when run by surefire, in a group of tests. -->
             <exclude>**/TestTraditionalJythonInstrumenterWithJython21.java</exclude>
           </excludes>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <archive>
+            <index>true</index>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <!-- Unfortunately, the maven archive plugin does not provide a way
+                   to filter the list of dependencies used to generate the classpath.
+                   This means we redundantly add the things we shade into our jar,
+                   as well as the agent jar.
+                -->
+              <addClasspath>true</addClasspath>
+            </manifest>
+
+            <manifest-entries>
+              <!-- Add jython.jar up front, so uses cane continue to override by
+                   dropping a new version into the lib directory.
+                -->
+              <Class-Path>jython.jar</Class-Path>
+            </manifest-entries>
+          </archive>
         </configuration>
       </plugin>
 

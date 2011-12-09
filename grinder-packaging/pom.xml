@@ -10,6 +10,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder-packaging</artifactId>
+  <!-- How to change to "pom" and still have our tests compile and run? -->
   <packaging>jar</packaging>
 
   <parent>
@@ -23,6 +24,27 @@
       <groupId>net.grinder</groupId>
       <artifactId>grinder</artifactId>
       <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <!-- Not sure why the xmlbeans dependencies aren't brought in transitively.
+      -->
+    <dependency>
+      <groupId>javax.xml</groupId>
+      <artifactId>jsr173</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>xmlbeans</groupId>
+      <artifactId>xbean</artifactId>
+      <version>2.1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.5</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

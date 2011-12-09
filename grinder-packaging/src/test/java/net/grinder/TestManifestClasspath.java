@@ -68,6 +68,9 @@ public class TestManifestClasspath extends TestCase {
                               Collections.<String>emptySet(),
                               false);
 
+    // TODO - need to pull grinder jar in somewhere we can test this.
+    // Or perhaps use surefire to set up custom classpath and ditch
+    // our use of BCL.
     final ClassLoader classLoader =
       new URLClassLoader(new URL[] { new URL("file:lib/grinder.jar") },
                          blockingClassLoader);
