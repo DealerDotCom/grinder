@@ -25,6 +25,11 @@
       <archive>https://lists.sourceforge.net/mailman/listinfo/grinder-use</archive>
     </mailingList>
   </mailingLists>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
