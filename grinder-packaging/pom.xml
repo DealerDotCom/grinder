@@ -77,11 +77,37 @@
               </unpack>
             </configuration>
           </execution>
+          <execution>
+            <id>copy-license</id>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <phase>prepare-package</phase>
+            <configuration>
+              <unpack>
+                <artifact>net.grinder:grinder-httpclient:jar</artifact>
+                <overwrite>true</overwrite>
+                <resources>
+                  <resource>
+                    <destination>unpacked</destination>
+                    <flat>true</flat>
+                    <include>META-INF/LICENSE</include>
+                    <name>LICENSE-HTTPClient</name>
+                  </resource>
+                </resources>
+              </unpack>
+            </configuration>
+          </execution>
         </executions>
         <dependencies>
           <dependency>
             <groupId>net.grinder</groupId>
             <artifactId>grinder</artifactId>
+            <version>1.0-SNAPSHOT</version>
+          </dependency>
+          <dependency>
+            <groupId>net.grinder</groupId>
+            <artifactId>grinder-httpclient</artifactId>
             <version>1.0-SNAPSHOT</version>
           </dependency>
           <dependency>
