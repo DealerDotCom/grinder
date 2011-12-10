@@ -35,13 +35,12 @@ import java.util.Properties;
 public final class GrinderBuild {
 
   private static final String s_versionString;
-  private static final String s_dateString;
 
   static {
     try {
       final InputStream buildPropertiesStream =
-        GrinderBuild.class.getClassLoader().getResourceAsStream(
-          "net/grinder/common/resources/build.properties");
+        GrinderBuild.class.getResourceAsStream(
+          "resources/build.properties");
 
       if (buildPropertiesStream == null) {
         throw new IOException("Could not find build.properties");
@@ -51,7 +50,6 @@ public final class GrinderBuild {
       properties.load(buildPropertiesStream);
 
       s_versionString = properties.getProperty("version");
-      s_dateString = properties.getProperty("date");
     }
     catch (IOException e) {
       UncheckedInterruptedException.ioException(e);
@@ -80,14 +78,5 @@ public final class GrinderBuild {
    */
   public static String getVersionString() {
     return s_versionString;
-  }
-
-  /**
-   * Return the build date.
-   *
-   * @return The build date as a String.
-   */
-  public static String getDateString() {
-    return s_dateString;
   }
 }

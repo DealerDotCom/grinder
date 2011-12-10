@@ -49,12 +49,9 @@ public class TestGrinderBuild {
     if (expectedVersion != null) {
       // Our build has told us what to expect.
       assertEquals(expectedVersion, GrinderBuild.getVersionString());
-      assertEquals(System.getProperty("grinder.date"),
-                   GrinderBuild.getDateString());
     }
     else {
       assertNotNull(GrinderBuild.getVersionString());
-      assertNotNull(GrinderBuild.getDateString());
     }
 
     assertTrue(GrinderBuild.getName().indexOf("The Grinder") >= 0);

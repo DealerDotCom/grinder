@@ -9,6 +9,8 @@
   <!-- TODO: Move licenses to appropriate packages. -->
   <!-- TODO: Release plugin. -->
   <!-- TODO: Move AUTHORS to contributors. -->
+  <!-- TODO: Checkstyle. -->
+  <!-- TODO: javadoc. -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.grinder</groupId>
   <artifactId>grinder-parent</artifactId>
@@ -101,6 +103,7 @@
           <configuration>
             <source>1.6</source>
             <target>1.6</target>
+            <optimize>true</optimize>
           </configuration>
         </plugin>
         <plugin>
