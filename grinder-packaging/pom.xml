@@ -3,14 +3,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-
+  <!-- TODO: Package name. -->
+  <!-- TODO: Make unit test work. -->
   <!-- TODO: Filtered copy of resources. -->
   <!-- TODO: Source xsd, xsl from dependencies. -->
   <!-- TODO: Tag. -->
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder-packaging</artifactId>
-  <!-- How to change to "pom" and still have our tests compile and run? -->
+  <!-- TODO: How to change to "pom" and still have our tests compile and run? -->
   <packaging>jar</packaging>
 
   <parent>

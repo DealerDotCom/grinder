@@ -53,11 +53,14 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
+        <include>net.grinder:grinder-httpclient</include>
+        <include>net.grinder:grinder-xmlbeans</include>
         <include>asm:asm</include>
         <include>org.picocontainer:picocontainer</include>
         <include>org.python:jython</include>
         <include>javax.xml:jsr173</include>
         <include>xmlbeans:xbean</include>
+        <include>net.sf.jedit-syntax:jedit-syntax</include>
       </includes>
     </dependencySet>
   </dependencySets>

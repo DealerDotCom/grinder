@@ -25,7 +25,6 @@
       <groupId>net.grinder</groupId>
       <artifactId>grinder-httpclient</artifactId>
       <version>1.0-SNAPSHOT</version>
-      <scope>provided</scope> <!-- Because we shade into our jar. -->
     </dependency>
 
     <dependency>
@@ -42,7 +41,6 @@
     <dependency>
       <groupId>net.sf.jedit-syntax</groupId>
       <artifactId>jedit-syntax</artifactId>
-      <scope>provided</scope> <!-- Because we shade into our jar. -->
     </dependency>
 
     <dependency>
@@ -173,12 +171,6 @@
         <configuration>
           <filters>
             <filter>
-              <artifact>net.sf.jedit-syntax:jedit-syntax</artifact>
-              <excludes>
-                <exclude>README.txt</exclude>
-              </excludes>
-            </filter>
-            <filter>
               <artifact>org.codehaus.jsr166-mirror:extra166y</artifact>
               <includes>
                 <include>**/CustomConcurrentHashMap.class</include>
@@ -187,8 +179,6 @@
           </filters>
           <artifactSet>
             <includes>
-              <include>net.grinder:grinder-httpclient</include>
-              <include>net.sf.jedit-syntax:jedit-syntax</include>
               <include>org.codehaus.jsr166-mirror:extra166y</include>
             </includes>
           </artifactSet>
