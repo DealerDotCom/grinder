@@ -49,7 +49,7 @@ public class FileExtensionMatcher implements FileFilter {
   /**
    * {@inheritDoc}
    */
-  public boolean accept(File pathname) {
+  @Override public boolean accept(File pathname) {
     return pathname.getName().toLowerCase(Locale.ENGLISH).endsWith(m_extension);
   }
 }

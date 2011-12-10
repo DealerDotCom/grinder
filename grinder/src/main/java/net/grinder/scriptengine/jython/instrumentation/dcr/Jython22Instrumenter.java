@@ -55,7 +55,7 @@ public final class Jython22Instrumenter extends AbstractJythonDCRInstrumenter {
   /**
    * {@inheritDoc}
    */
-  public String getDescription() {
+  @Override public String getDescription() {
     return "byte code transforming instrumenter for Jython 2.1/2.2";
   }
 

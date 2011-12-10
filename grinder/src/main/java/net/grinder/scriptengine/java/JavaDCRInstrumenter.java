@@ -52,7 +52,7 @@ final class JavaDCRInstrumenter extends AbstractDCRInstrumenter {
   /**
    * {@inheritDoc}
    */
-  public String getDescription() {
+  @Override public String getDescription() {
     return "byte code transforming instrumenter for Java";
   }
 

@@ -119,7 +119,8 @@ public final class InsecureSSLContextFactory implements SSLContextFactory {
   /**
    * {@inheritDoc}
    */
-  public SSLContext getSSLContext() throws SSLContextFactoryException {
+  @Override public SSLContext getSSLContext()
+    throws SSLContextFactoryException {
 
     try {
       final SSLContext sslContext = SSLContext.getInstance("SSL");

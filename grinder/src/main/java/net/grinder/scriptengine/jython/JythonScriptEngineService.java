@@ -63,7 +63,8 @@ public final class JythonScriptEngineService implements ScriptEngineService {
   /**
    * {@inheritDoc}
    */
-  public List<Instrumenter> createInstrumenters() throws EngineException {
+  @Override public List<Instrumenter> createInstrumenters()
+    throws EngineException {
 
     final List<Instrumenter> instrumenters = new ArrayList<Instrumenter>();
 
@@ -97,7 +98,7 @@ public final class JythonScriptEngineService implements ScriptEngineService {
   /**
    * {@inheritDoc}
    */
-  public ScriptEngine createScriptEngine(ScriptLocation script)
+  @Override public ScriptEngine createScriptEngine(ScriptLocation script)
     throws EngineException {
 
     if (m_pyFileMatcher.accept(script.getFile())) {

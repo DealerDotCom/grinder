@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -50,8 +50,9 @@ public class EchoFilter implements TCPProxyFilter {
   /**
    * {@inheritDoc}
    */
-  public byte[] handle(ConnectionDetails connectionDetails,
-                       byte[] buffer, int bytesRead)
+  @Override public byte[] handle(ConnectionDetails connectionDetails,
+                                 byte[] buffer,
+                                 int bytesRead)
     throws FilterException {
 
     final StringBuilder stringBuffer = new StringBuilder();
@@ -95,7 +96,7 @@ public class EchoFilter implements TCPProxyFilter {
   /**
    * {@inheritDoc}
    */
-  public void connectionOpened(ConnectionDetails connectionDetails) {
+  @Override public void connectionOpened(ConnectionDetails connectionDetails) {
 
     m_out.println("--- " +  connectionDetails + " opened --");
   }
@@ -103,7 +104,7 @@ public class EchoFilter implements TCPProxyFilter {
   /**
    * {@inheritDoc}
    */
-  public void connectionClosed(ConnectionDetails connectionDetails) {
+  @Override public void connectionClosed(ConnectionDetails connectionDetails) {
 
     m_out.println("--- " +  connectionDetails + " closed --");
   }

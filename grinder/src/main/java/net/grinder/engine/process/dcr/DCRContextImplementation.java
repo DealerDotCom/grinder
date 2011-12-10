@@ -117,9 +117,9 @@ public final class DCRContextImplementation implements DCRContext {
   /**
    * {@inheritDoc}
    */
-  public void add(Object target,
-                  Constructor<?> constructor,
-                  Recorder recorder)
+  @Override public void add(Object target,
+                            Constructor<?> constructor,
+                            Recorder recorder)
    throws NonInstrumentableTypeException {
 
     checkWrappable(constructor.getDeclaringClass());
@@ -137,10 +137,10 @@ public final class DCRContextImplementation implements DCRContext {
   /**
    * {@inheritDoc}
    */
-  public void add(Object target,
-                  Method method,
-                  TargetSource targetSource,
-                  Recorder recorder)
+  @Override public void add(Object target,
+                            Method method,
+                            TargetSource targetSource,
+                            Recorder recorder)
     throws NonInstrumentableTypeException {
 
     checkWrappable(method.getDeclaringClass());
@@ -178,8 +178,8 @@ public final class DCRContextImplementation implements DCRContext {
 
     // Hack to allow the classic hello world examples work.
     // See bug 3411728.
-    if (targetClass.getName().equals(
-      "net.grinder.engine.process.ExternalLogger")) {
+    if ("net.grinder.engine.process.ExternalLogger".equals(
+        targetClass.getName())) {
       return null;
     }
 
@@ -201,14 +201,14 @@ public final class DCRContextImplementation implements DCRContext {
   /**
    * {@inheritDoc}
    */
-  public boolean isInstrumentable(Class<?> targetClass) {
+  @Override public boolean isInstrumentable(Class<?> targetClass) {
     return whyCantIInstrument(targetClass) == null;
   }
 
   /**
    * {@inheritDoc}
    */
-  public void applyChanges() throws WeavingException {
+  @Override public void applyChanges() throws WeavingException {
     m_weaver.applyChanges();
   }
 }

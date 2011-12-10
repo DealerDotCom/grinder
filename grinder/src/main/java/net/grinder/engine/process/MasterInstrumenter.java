@@ -51,9 +51,9 @@ final class MasterInstrumenter extends CompositeInstrumenter {
   /**
    * {@inheritDoc}
    */
-  public Object createInstrumentedProxy(Test test,
-                                        Recorder recorder,
-                                        Object target)
+  @Override public Object createInstrumentedProxy(Test test,
+                                                  Recorder recorder,
+                                                  Object target)
     throws NotWrappableTypeException {
 
     if (target == null) {
@@ -72,10 +72,10 @@ final class MasterInstrumenter extends CompositeInstrumenter {
   /**
    * {@inheritDoc}
    */
-  public boolean instrument(Test test,
-                            Recorder recorder,
-                            Object target,
-                            InstrumentationFilter filter)
+  @Override public boolean instrument(Test test,
+                                      Recorder recorder,
+                                      Object target,
+                                      InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     if (target == null) {
@@ -94,7 +94,7 @@ final class MasterInstrumenter extends CompositeInstrumenter {
   /**
    * {@inheritDoc}
    */
-  public String getDescription() {
+  @Override public String getDescription() {
     final String result = super.getDescription();
 
     if (result.length() == 0) {

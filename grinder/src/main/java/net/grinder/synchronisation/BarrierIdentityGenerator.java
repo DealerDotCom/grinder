@@ -49,7 +49,7 @@ public final class BarrierIdentityGenerator
   /**
    * {@inheritDoc}
    */
-  public BarrierIdentity next() {
+  @Override public BarrierIdentity next() {
     return new BarrierIdentityImplementation(m_scope,
                                              m_next.getAndIncrement());
   }

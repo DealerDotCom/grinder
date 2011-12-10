@@ -54,7 +54,7 @@ public final class QueuedSenderDecorator implements QueuedSender {
   /**
    * {@inheritDoc}
    */
-  public void flush() throws CommunicationException {
+  @Override public void flush() throws CommunicationException {
 
     for (Message message : m_messageQueue.drainMessages()) {
       m_delegate.send(message);

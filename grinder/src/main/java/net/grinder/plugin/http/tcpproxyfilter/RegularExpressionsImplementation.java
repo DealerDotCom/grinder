@@ -107,63 +107,63 @@ public final class RegularExpressionsImplementation
   /**
    * {@inheritDoc}
    */
-  public Pattern getRequestLinePattern() {
+  @Override public Pattern getRequestLinePattern() {
     return m_requestLinePattern;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Pattern getResponseLinePattern() {
+  @Override public Pattern getResponseLinePattern() {
     return m_responseLinePattern;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Pattern getMessageBodyPattern() {
+  @Override public Pattern getMessageBodyPattern() {
     return m_messageBodyPattern;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Pattern getHeaderPattern() {
+  @Override public Pattern getHeaderPattern() {
     return m_headerPattern;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Pattern getBasicAuthorizationHeaderPattern() {
+  @Override public Pattern getBasicAuthorizationHeaderPattern() {
     return m_basicAuthorizationHeaderPattern;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Pattern getLastPathElementPathPattern() {
+  @Override public Pattern getLastPathElementPathPattern() {
     return m_lastPathElementPathPattern;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Pattern getHyperlinkURIPattern() {
+  @Override public Pattern getHyperlinkURIPattern() {
     return m_hrefURIPattern;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Pattern getInputPattern() {
+  @Override public Pattern getInputPattern() {
     return m_inputPattern;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Pattern getHiddenInputPattern() {
+  @Override public Pattern getHiddenInputPattern() {
     return m_hiddenInputPattern;
   }
 }

@@ -58,9 +58,9 @@ public abstract class AbstractDCRInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public final Object createInstrumentedProxy(Test test,
-                                              Recorder recorder,
-                                              Object target)
+  @Override public final Object createInstrumentedProxy(Test test,
+                                                        Recorder recorder,
+                                                        Object target)
     throws NotWrappableTypeException {
 
     try {
@@ -74,9 +74,9 @@ public abstract class AbstractDCRInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public boolean instrument(Test test,
-                            Recorder recorder,
-                            Object target)
+  @Override public boolean instrument(Test test,
+                                      Recorder recorder,
+                                      Object target)
     throws NonInstrumentableTypeException {
     return instrument(test, recorder, target, ALL_INSTRUMENTATION);
   }
@@ -84,10 +84,10 @@ public abstract class AbstractDCRInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public final boolean instrument(Test test,
-                                  Recorder recorder,
-                                  Object target,
-                                  InstrumentationFilter filter)
+  @Override public final boolean instrument(Test test,
+                                            Recorder recorder,
+                                            Object target,
+                                            InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     final boolean changed = instrument(target, recorder, filter);

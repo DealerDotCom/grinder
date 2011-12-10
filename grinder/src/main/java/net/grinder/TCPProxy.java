@@ -214,7 +214,7 @@ public final class TCPProxy extends AbstractMainClass {
     try {
       // Parse 1.
       for (int i = 0; i < args.length; i++) {
-        if (args[i].equalsIgnoreCase("-properties")) {
+        if ("-properties".equalsIgnoreCase(args[i])) {
           final Properties properties = new Properties();
           final FileInputStream in = new FileInputStream(new File(args[++i]));
           try {
@@ -229,13 +229,13 @@ public final class TCPProxy extends AbstractMainClass {
 
       // Parse 2.
       for (int i = 0; i < args.length; i++) {
-        if (args[i].equalsIgnoreCase("-requestfilter")) {
+        if ("-requestfilter".equalsIgnoreCase(args[i])) {
           requestFilterChain.add(args[++i]);
         }
-        else if (args[i].equalsIgnoreCase("-responsefilter")) {
+        else if ("-responsefilter".equalsIgnoreCase(args[i])) {
           responseFilterChain.add(args[++i]);
         }
-        else if (args[i].equalsIgnoreCase("-component")) {
+        else if ("-component".equalsIgnoreCase(args[i])) {
           final Class<?> componentClass;
 
           try {
@@ -246,7 +246,7 @@ public final class TCPProxy extends AbstractMainClass {
           }
           m_filterContainer.addComponent(componentClass);
         }
-        else if (args[i].equalsIgnoreCase("-http")) {
+        else if ("-http".equalsIgnoreCase(args[i])) {
           requestFilterChain.add(HTTPRequestFilter.class);
           responseFilterChain.add(HTTPResponseFilter.class);
           m_filterContainer.addComponent(
@@ -264,10 +264,10 @@ public final class TCPProxy extends AbstractMainClass {
           if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
             final String s = args[++i];
 
-            if (s.equals("jython")) {
+            if ("jython".equals(s)) {
               // Default.
             }
-            else if (s.equals("clojure")) {
+            else if ("clojure".equals(s)) {
               m_filterContainer.addComponent(BuiltInStyleSheet.Clojure);
             }
             else {
@@ -275,61 +275,61 @@ public final class TCPProxy extends AbstractMainClass {
             }
           }
         }
-        else if (args[i].equalsIgnoreCase("-localhost")) {
+        else if ("-localhost".equalsIgnoreCase(args[i])) {
           localHost = args[++i];
         }
-        else if (args[i].equalsIgnoreCase("-localport")) {
+        else if ("-localport".equalsIgnoreCase(args[i])) {
           localPort = Integer.parseInt(args[++i]);
         }
-        else if (args[i].equalsIgnoreCase("-remotehost")) {
+        else if ("-remotehost".equalsIgnoreCase(args[i])) {
           remoteHost = args[++i];
           isHTTPProxy = false;
         }
-        else if (args[i].equalsIgnoreCase("-remoteport")) {
+        else if ("-remoteport".equalsIgnoreCase(args[i])) {
           remotePort = Integer.parseInt(args[++i]);
           isHTTPProxy = false;
         }
-        else if (args[i].equalsIgnoreCase("-ssl")) {
+        else if ("-ssl".equalsIgnoreCase(args[i])) {
           useSSLPortForwarding = true;
         }
-        else if (args[i].equalsIgnoreCase("-keystore")) {
+        else if ("-keystore".equalsIgnoreCase(args[i])) {
           keyStoreFile = new File(args[++i]);
         }
-        else if (args[i].equalsIgnoreCase("-keystorepassword") ||
-                 args[i].equalsIgnoreCase("-storepass")) {
+        else if ("-keystorepassword".equalsIgnoreCase(args[i]) ||
+                 "-storepass".equalsIgnoreCase(args[i])) {
           keyStorePassword = args[++i].toCharArray();
         }
-        else if (args[i].equalsIgnoreCase("-keystoretype") ||
-                 args[i].equalsIgnoreCase("-storetype")) {
+        else if ("-keystoretype".equalsIgnoreCase(args[i]) ||
+                 "-storetype".equalsIgnoreCase(args[i])) {
           keyStoreType = args[++i];
         }
-        else if (args[i].equalsIgnoreCase("-timeout")) {
+        else if ("-timeout".equalsIgnoreCase(args[i])) {
           timeout = Integer.parseInt(args[++i]) * 1000;
         }
-        else if (args[i].equalsIgnoreCase("-console")) {
+        else if ("-console".equalsIgnoreCase(args[i])) {
           console = true;
         }
-        else if (args[i].equalsIgnoreCase("-colour") ||
-                 args[i].equalsIgnoreCase("-color")) {
+        else if ("-colour".equalsIgnoreCase(args[i]) ||
+                 "-color".equalsIgnoreCase(args[i])) {
           useColour = true;
         }
-        else if (args[i].equalsIgnoreCase("-properties")) {
+        else if ("-properties".equalsIgnoreCase(args[i])) {
           /* Already handled */
           ++i;
         }
-        else if (args[i].equalsIgnoreCase("-httpproxy")) {
+        else if ("-httpproxy".equalsIgnoreCase(args[i])) {
           chainedHTTPProxy =
             new EndPoint(args[++i], Integer.parseInt(args[++i]));
         }
-        else if (args[i].equalsIgnoreCase("-httpsproxy")) {
+        else if ("-httpsproxy".equalsIgnoreCase(args[i])) {
           chainedHTTPSProxy =
             new EndPoint(args[++i], Integer.parseInt(args[++i]));
         }
-        else if (args[i].equalsIgnoreCase("-debug")) {
+        else if ("-debug".equalsIgnoreCase(args[i])) {
           m_filterContainer.changeMonitor(
             new WriterComponentMonitor(logger.getErrorLogWriter()));
         }
-        else if (args[i].equalsIgnoreCase("-initialtest")) {
+        else if ("-initialtest".equalsIgnoreCase(args[i])) {
           final String argument = i + 1 < args.length ? args[++i] : "123";
           throw barfError("-initialTest is no longer supported. " +
                           "Use -DHTTPPlugin.initialTest=" + argument +
@@ -517,10 +517,10 @@ public final class TCPProxy extends AbstractMainClass {
     public void add(String filterClassName)
       throws LoggedInitialisationException {
 
-      if (filterClassName.equals("NONE")) {
+      if ("NONE".equals(filterClassName)) {
         add(NullFilter.class);
       }
-      else if (filterClassName.equals("ECHO")) {
+      else if ("ECHO".equals(filterClassName)) {
         add(EchoFilter.class);
       }
       else {

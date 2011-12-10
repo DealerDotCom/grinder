@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2010 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -179,7 +179,7 @@ public interface SSLControl extends SSLContextFactory {
   /**
    * {@inheritDoc}
    */
-  SSLContext getSSLContext() throws SSLContextFactoryException;
+  @Override SSLContext getSSLContext() throws SSLContextFactoryException;
 
   /**
    * Get whether SSL contexts are shared between runs.

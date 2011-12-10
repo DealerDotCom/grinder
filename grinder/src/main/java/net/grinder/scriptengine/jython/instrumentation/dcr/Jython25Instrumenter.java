@@ -71,9 +71,9 @@ public final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
       for (Method method : PyFunction.class.getDeclaredMethods()) {
         // Roughly identify the fundamental __call__ methods, i.e. those
         // that call the actual func_code.
-        if ((method.getName().equals("__call__") ||
+        if (("__call__".equals(method.getName()) ||
              // Add function__call__ for refactoring in Jython 2.5.2.
-             method.getName().equals("function___call__")) &&
+             "function___call__".equals(method.getName())) &&
             method.getParameterTypes().length >= 1 &&
             method.getParameterTypes()[0] == ThreadState.class) {
           methodsForPyFunction.add(method);
@@ -100,7 +100,7 @@ public final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
       for (Method method : PyFunction.class.getDeclaredMethods()) {
         // Here we're finding the fundamental __call__ methods that also
         // take an instance argument.
-        if (method.getName().equals("__call__") &&
+        if ("__call__".equals(method.getName()) &&
             method.getParameterTypes().length >= 2 &&
             method.getParameterTypes()[0] == ThreadState.class &&
             method.getParameterTypes()[1] == PyObject.class) {
@@ -128,9 +128,9 @@ public final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
       for (Method method : PyMethod.class.getDeclaredMethods()) {
         // Roughly identify the fundamental __call__ methods, i.e. those
         // that call the actual func_code.
-        if ((method.getName().equals("__call__") ||
+        if (("__call__".equals(method.getName()) ||
              // Add instancemethod___call__ for refactoring in Jython 2.5.2.
-             method.getName().equals("instancemethod___call__")) &&
+             "instancemethod___call__".equals(method.getName())) &&
             method.getParameterTypes().length >= 1 &&
             method.getParameterTypes()[0] == ThreadState.class) {
           methodsForPyMethod.add(method);
@@ -224,7 +224,7 @@ public final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
   /**
    * {@inheritDoc}
    */
-  public String getDescription() {
+  @Override public String getDescription() {
     return "byte code transforming instrumenter for Jython 2.5";
   }
 

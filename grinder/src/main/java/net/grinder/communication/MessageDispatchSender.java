@@ -57,7 +57,7 @@ public final class MessageDispatchSender
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
-  public <T extends Message, S extends T>
+  @Override public <T extends Message, S extends T>
     Handler<T> set(Class<S> messageType, Handler<T> messageHandler) {
 
     return (Handler<T>)
@@ -68,7 +68,7 @@ public final class MessageDispatchSender
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
-  public <T extends Message, S extends T>
+  @Override public <T extends Message, S extends T>
   BlockingHandler<T>
     set(Class<S> messageType, BlockingHandler<T> responder) {
     return (BlockingHandler<T>)

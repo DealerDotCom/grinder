@@ -207,14 +207,15 @@ public final class BarrierImplementation
   /**
    * {@inheritDoc}
    */
-  public void await() throws CancelledBarrierException, CommunicationException {
+  @Override public void await()
+    throws CancelledBarrierException, CommunicationException {
     new ForeverWaiter().await();
   }
 
   /**
    * {@inheritDoc}
    */
-  public boolean await(long timeout, TimeUnit unit)
+  @Override public boolean await(long timeout, TimeUnit unit)
     throws CancelledBarrierException, CommunicationException {
 
     return new TimedWaiter(Math.max(1, unit.toMillis(timeout))).await();
@@ -223,7 +224,7 @@ public final class BarrierImplementation
   /**
    * {@inheritDoc}
    */
-  public boolean await(long timeout)
+  @Override public boolean await(long timeout)
     throws CancelledBarrierException, CommunicationException {
 
     return await(timeout, TimeUnit.MILLISECONDS);
@@ -232,7 +233,7 @@ public final class BarrierImplementation
   /**
    * {@inheritDoc}
    */
-  public void awaken(Set<BarrierIdentity> waiters) {
+  @Override public void awaken(Set<BarrierIdentity> waiters) {
     synchronized (m_condition) {
       if (waiters.contains(m_identity)) {
         m_state.awaken(BarrierImplementation.this);
@@ -243,7 +244,7 @@ public final class BarrierImplementation
   /**
    * {@inheritDoc}
    */
-  public void cancel() throws CommunicationException {
+  @Override public void cancel() throws CommunicationException {
     synchronized (m_condition) {
       m_state.cancel(this);
     }
@@ -252,7 +253,7 @@ public final class BarrierImplementation
   /**
    * {@inheritDoc}
    */
-  public String getName() {
+  @Override public String getName() {
     return m_barrierGroup.getName();
   }
 }

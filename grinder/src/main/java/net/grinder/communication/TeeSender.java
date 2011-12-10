@@ -48,7 +48,7 @@ public final class TeeSender
   /**
    * {@inheritDoc}
    */
-  public void send(Message message) throws CommunicationException {
+  @Override public void send(Message message) throws CommunicationException {
     m_delegate1.send(message);
     m_delegate2.send(message);
   }
@@ -56,7 +56,7 @@ public final class TeeSender
   /**
    * {@inheritDoc}
    */
-  public void shutdown() {
+  @Override public void shutdown() {
     m_delegate1.shutdown();
     m_delegate2.shutdown();
   }
@@ -64,7 +64,7 @@ public final class TeeSender
   /**
    * {@inheritDoc}
    */
-  public void handle(Message message) throws CommunicationException {
+  @Override public void handle(Message message) throws CommunicationException {
     send(message);
   }
 }

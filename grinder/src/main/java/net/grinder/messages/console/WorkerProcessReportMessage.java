@@ -68,7 +68,9 @@ public final class WorkerProcessReportMessage
   /**
    * {@inheritDoc}
    */
-  public void setAddress(Address address) throws CommunicationException {
+  @Override public void setAddress(Address address)
+    throws CommunicationException {
+
     try {
       m_processAddress = (WorkerAddress) address;
     }

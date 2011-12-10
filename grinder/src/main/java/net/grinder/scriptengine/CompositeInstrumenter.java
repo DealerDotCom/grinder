@@ -60,9 +60,9 @@ public class CompositeInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public Object createInstrumentedProxy(Test test,
-                                        Recorder recorder,
-                                        Object target)
+  @Override public Object createInstrumentedProxy(Test test,
+                                                  Recorder recorder,
+                                                  Object target)
     throws NotWrappableTypeException {
 
     for (Instrumenter instrumenter : m_instrumenters) {
@@ -83,9 +83,9 @@ public class CompositeInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public boolean instrument(Test test,
-                            Recorder recorder,
-                            Object target)
+  @Override public boolean instrument(Test test,
+                                      Recorder recorder,
+                                      Object target)
     throws NonInstrumentableTypeException {
     return instrument(test, recorder, target, ALL_INSTRUMENTATION);
   }
@@ -93,10 +93,10 @@ public class CompositeInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public boolean instrument(Test test,
-                            Recorder recorder,
-                            Object target,
-                            InstrumentationFilter filter)
+  @Override public boolean instrument(Test test,
+                                      Recorder recorder,
+                                      Object target,
+                                      InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     for (Instrumenter instrumenter : m_instrumenters) {
@@ -113,7 +113,7 @@ public class CompositeInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public String getDescription() {
+  @Override public String getDescription() {
     final StringBuilder result = new StringBuilder();
 
     for (Instrumenter instrumenter : m_instrumenters) {

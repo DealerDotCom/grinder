@@ -90,22 +90,24 @@ final class TestData implements RegisteredTest, Recorder {
   /**
    * {@inheritDoc}
    */
-  public Object createProxy(Object o) throws NotWrappableTypeException {
+  @Override public Object createProxy(Object o)
+    throws NotWrappableTypeException {
     return m_instrumenter.createInstrumentedProxy(getTest(), this, o);
   }
 
   /**
    * {@inheritDoc}
    */
-  public void instrument(Object target) throws NonInstrumentableTypeException {
+  @Override public void instrument(Object target)
+    throws NonInstrumentableTypeException {
     m_instrumenter.instrument(getTest(), this, target);
   }
 
   /**
    * {@inheritDoc}
    */
-  public void instrument(Object target,
-                         InstrumentationFilter filter)
+  @Override public void instrument(Object target,
+                                   InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
     m_instrumenter.instrument(getTest(), this, target, filter);
   }

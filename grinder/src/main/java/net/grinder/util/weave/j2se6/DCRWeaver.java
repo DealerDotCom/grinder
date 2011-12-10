@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -75,21 +75,21 @@ public final class DCRWeaver implements Weaver {
   /**
    * {@inheritDoc}
    */
-  public String weave(Constructor<?> constructor) {
+  @Override public String weave(Constructor<?> constructor) {
     return m_pointCutRegistry.add(constructor);
   }
 
   /**
    * {@inheritDoc}
    */
-  public String weave(Method method, TargetSource targetSource) {
+  @Override public String weave(Method method, TargetSource targetSource) {
     return m_pointCutRegistry.add(method, targetSource);
   }
 
   /**
    * {@inheritDoc}
    */
-  public void applyChanges() throws WeavingException {
+  @Override public void applyChanges() throws WeavingException {
     synchronized (this) {
       if (m_pendingClasses.size() > 0) {
         try {

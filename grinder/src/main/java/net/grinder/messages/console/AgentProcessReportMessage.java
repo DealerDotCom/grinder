@@ -58,11 +58,12 @@ public final class AgentProcessReportMessage
     m_cacheHighWaterMark = cacheHighWaterMark;
   }
 
-
   /**
    * {@inheritDoc}
    */
-  public void setAddress(Address address) throws CommunicationException {
+  @Override public void setAddress(Address address)
+    throws CommunicationException {
+
     try {
       m_processAddress = (AgentAddress)address;
     }

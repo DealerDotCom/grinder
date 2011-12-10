@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,8 +54,7 @@ final class SwingDispatcherFactoryImplementation
       new InvocationHandler() {
         public Object invoke(Object proxy,
                              final Method method,
-                             final Object[] args)
-          throws Throwable {
+                             final Object[] args) {
 
           SwingUtilities.invokeLater(
             new Runnable() {

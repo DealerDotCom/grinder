@@ -21,7 +21,6 @@
 
 package net.grinder.common.processidentity;
 
-import net.grinder.common.processidentity.ProcessIdentity;
 import net.grinder.communication.Address;
 
 

@@ -47,7 +47,7 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
   /**
    * {@inheritDoc}
    */
-  public final BarrierGroup getGroup(String name) {
+  @Override public final BarrierGroup getGroup(String name) {
     synchronized (m_groups) {
       final BarrierGroup existing = m_groups.get(name);
 
@@ -153,28 +153,28 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
     /**
      * {@inheritDoc}
      */
-    public String getName() {
+    @Override public String getName() {
       return m_name;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void addListener(Listener listener) {
+    @Override public void addListener(Listener listener) {
       m_listeners.add(listener);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void removeListener(Listener listener) {
+    @Override public void removeListener(Listener listener) {
       m_listeners.remove(listener);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void addBarrier() throws CommunicationException {
+    @Override public void addBarrier() throws CommunicationException {
       synchronized (this) {
         checkValid();
 
@@ -185,7 +185,7 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
     /**
      * {@inheritDoc}
      */
-    public void removeBarriers(long n) throws CommunicationException {
+    @Override public void removeBarriers(long n) throws CommunicationException {
       synchronized (this) {
         checkValid();
 
@@ -207,7 +207,7 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
     /**
      * {@inheritDoc}
      */
-    public void addWaiter(BarrierIdentity barrierIdentity)
+    @Override public void addWaiter(BarrierIdentity barrierIdentity)
       throws CommunicationException {
 
       synchronized (this) {
@@ -228,7 +228,7 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
     /**
      * {@inheritDoc}
      */
-    public void cancelWaiter(BarrierIdentity barrierIdentity)
+    @Override public void cancelWaiter(BarrierIdentity barrierIdentity)
       throws CommunicationException {
 
       synchronized (this) {
@@ -239,7 +239,7 @@ public abstract class AbstractBarrierGroups implements BarrierGroups  {
     /**
      * {@inheritDoc}
      */
-    public void cancelAll() throws CommunicationException {
+    @Override public void cancelAll() throws CommunicationException {
       synchronized (this) {
         final Set<BarrierIdentity> clonedWaiters =
           new HashSet<BarrierIdentity>(m_waiters);

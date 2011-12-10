@@ -152,7 +152,8 @@ final class JythonScriptEngine implements ScriptEngine {
   /**
    * {@inheritDoc}
    */
-  public WorkerRunnable createWorkerRunnable() throws EngineException {
+  @Override public WorkerRunnable createWorkerRunnable()
+    throws EngineException {
 
     final PyObject pyTestRunner;
 
@@ -178,7 +179,7 @@ final class JythonScriptEngine implements ScriptEngine {
   /**
    * {@inheritDoc}
    */
-  public WorkerRunnable createWorkerRunnable(Object testRunner)
+  @Override public WorkerRunnable createWorkerRunnable(Object testRunner)
     throws EngineException {
 
     if (testRunner instanceof PyObject) {
@@ -272,8 +273,8 @@ final class JythonScriptEngine implements ScriptEngine {
      * <li>Some JVM's may chose not to finalise the test runner in response to
      * {@code gc()}.</li>
      * <li>{@code __del__} would be called by a GC thread.</li>
-     * <li>The standard Jython finalizer wrapping around {@code __del__} logs to
-     * {@code stderr}.</li>
+     * <li>The standard Jython finalizer wrapping around {@code __del__} logs
+     * to {@code stderr}.</li>
      * </ol>
      * </p>
      *

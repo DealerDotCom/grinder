@@ -54,7 +54,9 @@ public abstract class AbstractBarrierGroupMessage
   /**
    * {@inheritDoc}
    */
-  public void setAddress(Address address) throws CommunicationException {
+  @Override public void setAddress(Address address)
+    throws CommunicationException {
+
     try {
       m_processIdentity = ((WorkerAddress)address).getIdentity();
     }

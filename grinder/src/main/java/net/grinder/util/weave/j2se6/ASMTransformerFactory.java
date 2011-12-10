@@ -114,6 +114,7 @@ public final class ASMTransformerFactory
   /**
    * {@inheritDoc}
    */
+  @Override
   public ClassFileTransformer create(PointCutRegistry pointCutRegistry) {
     return new ASMTransformer(pointCutRegistry);
   }
@@ -147,11 +148,11 @@ public final class ASMTransformerFactory
     /**
      * {@inheritDoc}
      */
-    public byte[] transform(ClassLoader loader,
-                            final String internalClassName,
-                            Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain,
-                            byte[] originalBytes)
+    @Override public byte[] transform(ClassLoader loader,
+                                      final String internalClassName,
+                                      Class<?> classBeingRedefined,
+                                      ProtectionDomain protectionDomain,
+                                      byte[] originalBytes)
       throws IllegalClassFormatException {
 
       // The PointCutRegistry provides us the constructors and methods to advise

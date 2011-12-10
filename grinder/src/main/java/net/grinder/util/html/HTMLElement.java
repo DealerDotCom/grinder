@@ -126,8 +126,8 @@ public class HTMLElement extends AbstractHTMLNode {
 
   private boolean isNewLineElement() {
     return
-      m_name.equalsIgnoreCase("p") ||
-      m_name.equalsIgnoreCase("br");
+      "p".equalsIgnoreCase(m_name) ||
+      "br".equalsIgnoreCase(m_name);
   }
 
   private boolean isFragment() {

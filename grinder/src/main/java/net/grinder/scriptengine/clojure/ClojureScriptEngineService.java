@@ -45,7 +45,7 @@ public class ClojureScriptEngineService implements ScriptEngineService {
   /**
    * {@inheritDoc}
    */
-  public ScriptEngine createScriptEngine(ScriptLocation script)
+  @Override public ScriptEngine createScriptEngine(ScriptLocation script)
     throws EngineException {
 
     if (m_cljFileMatcher.accept(script.getFile())) {
@@ -63,7 +63,7 @@ public class ClojureScriptEngineService implements ScriptEngineService {
   /**
    * {@inheritDoc}
    */
-  public List<? extends Instrumenter> createInstrumenters()
+  @Override public List<? extends Instrumenter> createInstrumenters()
     throws EngineException {
     return emptyList();
   }

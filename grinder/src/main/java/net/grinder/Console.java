@@ -57,7 +57,7 @@ public final class Console extends AbstractMainClass {
     Class<? extends ConsoleFoundation.UI> ui = ConsoleUI.class;
 
     for (int i = 0; i < args.length; i++) {
-      if (args[i].equalsIgnoreCase("-headless")) {
+      if ("-headless".equalsIgnoreCase(args[i])) {
         ui = TextUI.class;
       }
       else {

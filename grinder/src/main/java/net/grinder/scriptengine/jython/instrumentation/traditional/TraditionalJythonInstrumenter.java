@@ -62,16 +62,16 @@ public final class TraditionalJythonInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public String getDescription() {
+  @Override public String getDescription() {
     return "traditional Jython instrumenter";
   }
 
   /**
    * {@inheritDoc}
    */
-  public Object createInstrumentedProxy(Test test,
-                                        Recorder recorder,
-                                        Object o)
+  @Override public Object createInstrumentedProxy(Test test,
+                                                  Recorder recorder,
+                                                  Object o)
     throws NotWrappableTypeException {
 
     return instrumentObject(test, new PyDispatcher(recorder), o);
@@ -80,9 +80,9 @@ public final class TraditionalJythonInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public boolean instrument(Test test,
-                            Recorder recorder,
-                            Object target)
+  @Override public boolean instrument(Test test,
+                                      Recorder recorder,
+                                      Object target)
     throws NonInstrumentableTypeException {
 
     throw new NonInstrumentableTypeException(
@@ -92,10 +92,10 @@ public final class TraditionalJythonInstrumenter implements Instrumenter {
   /**
    * {@inheritDoc}
    */
-  public boolean instrument(Test test,
-                            Recorder recorder,
-                            Object target,
-                            InstrumentationFilter filter)
+  @Override public boolean instrument(Test test,
+                                      Recorder recorder,
+                                      Object target,
+                                      InstrumentationFilter filter)
     throws NonInstrumentableTypeException {
 
     throw new NonInstrumentableTypeException(

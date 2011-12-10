@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2010 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -98,7 +98,7 @@ public final class SleeperImplementation implements Sleeper {
   /**
    * {@inheritDoc}
    */
-  public void shutdown() {
+  @Override public void shutdown() {
 
     synchronized (m_condition) {
       m_shutdown = true;
@@ -109,14 +109,14 @@ public final class SleeperImplementation implements Sleeper {
   /**
    * {@inheritDoc}
    */
-  public long getTimeInMilliseconds() {
+  @Override public long getTimeInMilliseconds() {
     return m_timeAuthority.getTimeInMilliseconds();
   }
 
   /**
    * {@inheritDoc}
    */
-  public void sleepNormal(long meanTime) throws ShutdownException {
+  @Override public void sleepNormal(long meanTime) throws ShutdownException {
 
     sleepNormal(meanTime, (long)((meanTime * m_limit9975Factor) / 3.0));
   }
@@ -124,7 +124,8 @@ public final class SleeperImplementation implements Sleeper {
   /**
    * {@inheritDoc}
    */
-  public void sleepNormal(long meanTime, long sigma) throws ShutdownException {
+  @Override public void sleepNormal(long meanTime, long sigma)
+    throws ShutdownException {
 
     checkShutdown();
 
@@ -141,7 +142,7 @@ public final class SleeperImplementation implements Sleeper {
   /**
    * {@inheritDoc}
    */
-  public void sleepFlat(long maximumTime) throws ShutdownException {
+  @Override public void sleepFlat(long maximumTime) throws ShutdownException {
 
     checkShutdown();
 

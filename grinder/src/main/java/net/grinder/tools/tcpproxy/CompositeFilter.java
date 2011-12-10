@@ -38,8 +38,9 @@ public final class CompositeFilter implements TCPProxyFilter {
   /**
    * {@inheritDoc}
    */
-  public byte[] handle(ConnectionDetails connectionDetails,
-                       byte[] originalBuffer, int bytesRead)
+  @Override public byte[] handle(ConnectionDetails connectionDetails,
+                                 byte[] originalBuffer,
+                                 int bytesRead)
     throws FilterException {
 
     byte[] nextBuffer = originalBuffer;
@@ -61,6 +62,7 @@ public final class CompositeFilter implements TCPProxyFilter {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void connectionOpened(final ConnectionDetails connectionDetails)
     throws FilterException {
 
@@ -72,6 +74,7 @@ public final class CompositeFilter implements TCPProxyFilter {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void connectionClosed(final ConnectionDetails connectionDetails)
     throws FilterException {
 

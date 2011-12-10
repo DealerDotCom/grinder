@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -93,7 +93,7 @@ class IntegerField extends JTextField {
   }
 
   /**
-   * Extend <code>PlainDocument</code> to perform our checks..
+   * Extend {@code PlainDocument} to perform our checks.
    */
   public class FormattedDocument extends PlainDocument {
 
@@ -107,7 +107,7 @@ class IntegerField extends JTextField {
         currentText.substring(0, offset) + string +
         currentText.substring(offset);
 
-      if (m_minimumValue >= 0 || !result.equals("-")) {
+      if (m_minimumValue >= 0 || !"-".equals(result)) {
         try {
           final int x = Integer.parseInt(result);
 

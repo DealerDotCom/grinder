@@ -186,7 +186,9 @@ public final class RecorderLocator implements RecorderRegistry {
   /**
    * {@inheritDoc}.
    */
-  public void register(Object target, String location, Recorder recorder) {
+  @Override public void register(Object target,
+                                 String location,
+                                 Recorder recorder) {
 
     // We will create and quickly discard many maps and lists here to avoid
     // needing to lock the ConcurrentMaps. It is important that the

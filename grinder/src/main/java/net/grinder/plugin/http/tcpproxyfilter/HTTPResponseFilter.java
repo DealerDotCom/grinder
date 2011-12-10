@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2010 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -52,12 +52,15 @@ public class HTTPResponseFilter implements TCPProxyFilter {
   /**
    * {@inheritDoc}
    *
-   * <p>NOTE, this is called for message fragments, don't assume
-   * that its passed a complete HTTP message at a time.</p>
+   * <p>
+   * This is called for message fragments, don't assume that its passed a
+   * complete HTTP message at a time.
+   * </p>
    *
    */
-  public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-                       int bytesRead)
+  @Override public byte[] handle(ConnectionDetails connectionDetails,
+                                 byte[] buffer,
+                                 int bytesRead)
     throws FilterException {
 
     m_eventListener.response(connectionDetails, buffer, bytesRead);
@@ -68,12 +71,12 @@ public class HTTPResponseFilter implements TCPProxyFilter {
   /**
    * {@inheritDoc}
    */
-  public void connectionOpened(ConnectionDetails connectionDetails) {
+  @Override public void connectionOpened(ConnectionDetails connectionDetails) {
   }
 
   /**
    * {@inheritDoc}
    */
-  public void connectionClosed(ConnectionDetails connectionDetails) {
+  @Override public void connectionClosed(ConnectionDetails connectionDetails) {
   }
 }

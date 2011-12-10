@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,25 +33,25 @@ public abstract class SkeletonThreadLifeCycleListener
   /**
    * {@inheritDoc}
    */
-  public void beginRun() { }
+  @Override public void beginRun() { }
 
   /**
    * {@inheritDoc}
    */
-  public void beginShutdown() { }
+  @Override public void beginShutdown() { }
 
   /**
    * {@inheritDoc}
    */
-  public void beginThread() { }
+  @Override public void beginThread() { }
 
   /**
    * {@inheritDoc}
    */
-  public void endRun() { }
+  @Override public void endRun() { }
 
   /**
    * {@inheritDoc}
    */
-  public void endThread() { }
+  @Override public void endThread() { }
 }

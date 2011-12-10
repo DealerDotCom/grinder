@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003 Bertrand Ave
@@ -782,7 +782,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         if (statusCodeMatcher.find()) {
           final String statusCode = statusCodeMatcher.group(1);
 
-          if (statusCode.equals("200")) {
+          if ("200".equals(statusCode)) {
             synchronized (this) {
               m_nextRawClientSocket = socket;
             }

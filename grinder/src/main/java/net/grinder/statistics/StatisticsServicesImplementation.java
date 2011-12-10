@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,7 @@
 package net.grinder.statistics;
 
 /**
- * <p>Singleton that is the point of entry for {@link StatisticsServices}.</p>
+ * Singleton that is the point of entry for {@link StatisticsServices}.
  *
  * @author Philip Aston
  */
@@ -76,49 +76,49 @@ public final class StatisticsServicesImplementation
   /**
    * {@inheritDoc}
    */
-  public StatisticsView getDetailStatisticsView() {
+  @Override public StatisticsView getDetailStatisticsView() {
     return m_commonStatisticsViews.getDetailStatisticsView();
   }
 
   /**
    * {@inheritDoc}
    */
-  public StatisticsView getSummaryStatisticsView() {
+  @Override public StatisticsView getSummaryStatisticsView() {
     return m_commonStatisticsViews.getSummaryStatisticsView();
   }
 
   /**
    * {@inheritDoc}
    */
-  public StatisticExpressionFactory getStatisticExpressionFactory() {
+  @Override public StatisticExpressionFactory getStatisticExpressionFactory() {
     return m_statisticExpressionFactory;
   }
 
   /**
    * {@inheritDoc}
    */
-  public StatisticsSetFactory getStatisticsSetFactory() {
+  @Override public StatisticsSetFactory getStatisticsSetFactory() {
     return m_statisticsSetFactory;
   }
 
   /**
    * {@inheritDoc}
    */
-  public StatisticsIndexMap getStatisticsIndexMap() {
+  @Override public StatisticsIndexMap getStatisticsIndexMap() {
     return m_statisticsIndexMap;
   }
 
   /**
    * {@inheritDoc}
    */
-  public TestStatisticsQueries getTestStatisticsQueries() {
+  @Override public TestStatisticsQueries getTestStatisticsQueries() {
     return m_testStatisticsQueries;
   }
 
   /**
    * {@inheritDoc}
    */
-  public StatisticExpression getTPSExpression() {
+  @Override public StatisticExpression getTPSExpression() {
     return m_commonStatisticsViews.getTPSExpression();
   }
 }
