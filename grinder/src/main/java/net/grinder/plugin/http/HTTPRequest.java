@@ -1415,6 +1415,12 @@ public class HTTPRequest {
       }
     };
 
+  /**
+   * Return an instrumentation filter that selects only the HTTP request
+   * methods, i.e. {@code DELETE}, {@code GET}, and so on.
+   *
+   * @return An instrumentation filter that selects the HTTP request methods.
+   */
   public static Test.InstrumentationFilter getHttpMethodFilter() {
     return s_httpMethodFilter;
   }

@@ -24,21 +24,26 @@ package org.python.core;
 
 
 /**
- * A <code>PyInstance</code> that shares the same class, dictionary, and
- * (optional) Java Proxy as another. <code>ClonePyInstance</code> is sub-classed
- * by
- * {@link net.grinder.scriptengine.jython.instrumentation.traditional.InstrumentedPyInstance}
+ * A {@code PyInstance} that shares the same class, dictionary, and
+ * (optional) Java Proxy as another. {@code ClonePyInstance} is sub-classed
+ * by {@link
+ * net.grinder.scriptengine.jython.instrumentation.traditional.InstrumentedPyInstance}
  * which customises the invocation behaviour and becomes the "wrapped" object
- * for Python classes. It is in the <code>org.python.core</code> package so that
- * it can access the <code>javaProxy</code> field.
+ * for Python classes. It is in the {@code org.python.core} package so that
+ * it can access the {@code javaProxy} field.
  *
  * @author Philip Aston
- * @version $Revision$
  */
 public class ClonePyInstance extends PyInstance {
 
   private final PyInstance m_target;
 
+  /**
+   * Constructor.
+   *
+   * @param targetClass The target class.
+   * @param target The target instance.
+   */
   public ClonePyInstance(PyClass targetClass, PyInstance target) {
     super(targetClass, target.__dict__);
 
@@ -49,6 +54,11 @@ public class ClonePyInstance extends PyInstance {
     m_target = target;
   }
 
+  /**
+   * Return the target instance.
+   *
+   * @return Th etarget instance.
+   */
   protected final PyInstance getTarget() {
     return m_target;
   }

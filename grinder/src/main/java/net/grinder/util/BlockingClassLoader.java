@@ -22,7 +22,8 @@
 package net.grinder.util;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.*;
+import static java.util.Collections.enumeration;
+import static java.util.Collections.list;
 
 import java.io.IOException;
 import java.net.URL;
