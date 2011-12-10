@@ -21,15 +21,13 @@
   <suppress checks="MethodName" files="InstrumentedPyReflectedFunction.java"/>
 
   <!-- Avoid Checkstyle bug 1547726. -->
+<!--
   <suppress checks="JavadocMethod" files="Buffer.java"/>
   <suppress checks="JavadocMethod" files="HTTPPluginControl.java"/>
   <suppress checks="JavadocMethod" files="HTTPRequest.java"/>
   <suppress checks="JavadocMethod" files="Statistics.java"/>
+-->
 
   <!-- Requires a large number of parameters. -->
   <suppress checks="ParameterNumber" files="ScriptContextImplementation.java"/>
-
-  <!-- Appears to be broken with Checkstyle 4.4 -->
-  <suppress checks="HideUtilityClassConstructor" files=".*.java"/>
-
 </suppressions>

@@ -8,8 +8,6 @@
   <!-- TODO: Can go back to building for 1.5? -->
   <!-- TODO: Release plugin. -->
   <!-- TODO: Move AUTHORS to contributors. -->
-  <!-- TODO: Checkstyle. -->
-  <!-- TODO: javadoc. -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.grinder</groupId>
   <artifactId>grinder-parent</artifactId>
@@ -97,6 +95,10 @@
           <version>2.2.2</version>
         </plugin>
         <plugin>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>2.8</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>2.3.2</version>
           <configuration>
@@ -110,8 +112,20 @@
           <version>2.3.2</version>
         </plugin>
         <plugin>
+          <artifactId>maven-jxr-plugin</artifactId>
+          <version>2.3</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.0</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.7.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-report-plugin</artifactId>
+          <version>2.9</version>
         </plugin>
         <plugin>
           <groupId>org.apache.portals.jetspeed-2</groupId>

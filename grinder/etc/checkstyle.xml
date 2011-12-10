@@ -4,7 +4,6 @@
     "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
 
 <module name="Checker">
-
     <module name="SuppressionFilter">
         <property name="file" value="${checkstyle.suppressions.file}"/>
     </module>
@@ -13,7 +12,13 @@
         <property name="lineSeparator" value="lf"/>
     </module>
 
-    <module name="PackageHtml"/>
+    <module name="FileLength"/>
+    <module name="FileTabCharacter"/>
+
+    <module name="JavadocPackage">
+      <property name="allowLegacy" value="true"/>
+    </module>
+
     <!-- No good as it matches the common header comments.
     <module name="StrictDuplicateCode"/> -->
 
@@ -38,9 +43,10 @@
           This has gone away with later versions of Checklipse. However,
           it appears I need them to run checkstyle from the Ant build.
           -->
+<!--
           <property name="logLoadErrors" value="true"/>
           <property name="suppressLoadErrors" value="true"/>
-
+-->
         </module>
 
         <module name="JavadocStyle"/>
@@ -95,9 +101,8 @@
         <module name="ExecutableStatementCount">
           <property name="max" value="200"/>
         </module>
-        <module name="FileLength"/>
         <module name="LineLength">
-           <property name="ignorePattern" value="^import"/>
+           <property name="ignorePattern" value="^import|^ *\* *[^ ]+$"/>
         </module>
         <module name="MethodLength">
           <property name="tokens" value="METHOD_DEF"/>
@@ -125,7 +130,6 @@
         </module>
 
         <module name="ParenPad"/>
-        <module name="TabCharacter"/>
         <module name="TypecastParenPad"/>
         <module name="WhitespaceAfter">
           <property name="tokens" value="COMMA,SEMI"/>
@@ -139,9 +143,6 @@
 
         <module name="ModifierOrder"/>
 
-        <!-- Sadly Checkstyle 3.2 has made this stricter such that
-        methods in final classes can't be declared final. No way to
-        select the older, less strict approach. -->
         <module name="RedundantModifier"/>
 
         <module name="AvoidNestedBlocks"/>
@@ -190,7 +191,7 @@
         <module name="UnnecessaryParentheses"/>
 
         <module name="FinalClass"/>
-        <module name="HideUtilityClassConstructor"/>
+        <!-- <module name="HideUtilityClassConstructor"/> -->
         <module name="InterfaceIsType"/>
         <module name="MutableException"/>
         <module name="VisibilityModifier"/>
@@ -206,7 +207,7 @@
         -->
 
         <module name="ArrayTypeStyle"/>
-        <module name="GenericIllegalRegexp">
+        <module name="RegexpSinglelineJava">
             <property name="format" value="\s+$"/>
             <property name="message" value="Line has trailing spaces."/>
         </module>
@@ -229,14 +230,6 @@
             <property name="format" value="TODO"/>
         </module>
         <module name="UpperEll"/>
-
-        <!-- I would like to use the following, but they require J2SE
-        1.4.1. Checkstyle bug 910892. -->
-        <!-- <module name="usage.OneMethodPrivateField"/> -->
-        <!-- <module name="usage.UnusedLocalVariable"/> -->
-        <!-- <module name="usage.UnusedParameter"/> -->
-        <!-- <module name="usage.UnusedPrivateField"/> -->
-        <!-- <module name="usage.UnusedPrivateMethod"/> -->
 
         <!-- There are currently problems with multi-line headers and
         RegexpHeader. -->

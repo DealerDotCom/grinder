@@ -218,6 +218,40 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+        <configuration>
+          <reportPlugins>
+            <plugin>
+              <artifactId>maven-checkstyle-plugin</artifactId>
+              <reportSets>
+                <reportSet>
+                  <reports>
+                    <report>checkstyle</report>
+                  </reports>
+                </reportSet>
+              </reportSets>
+              <configuration>
+                <configLocation>etc/checkstyle.xml</configLocation>
+                <suppressionsLocation>etc/checkstyle-suppressions.xml</suppressionsLocation>
+                <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+              </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+            <plugin>
+              <artifactId>maven-jxr-plugin</artifactId>
+            </plugin>
+            <plugin>
+              <artifactId>maven-surefire-report-plugin</artifactId>
+            </plugin>
+          </reportPlugins>
+        </configuration>
+      </plugin>
+
     </plugins>
 
     <pluginManagement>
