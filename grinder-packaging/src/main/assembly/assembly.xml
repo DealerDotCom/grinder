@@ -27,10 +27,8 @@
       </excludes>
     </fileSet>
     <fileSet>
-      <directory>etc</directory>
-      <includes>
-        <include>*.xsl</include>
-      </includes>
+      <directory>${project.build.directory}/unpacked</directory>
+      <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>contrib</directory>
