@@ -59,9 +59,9 @@
       <artifactId>jython</artifactId>
     </dependency>
 
-    <!-- grinder-xmlbeans only exports these at compile time, we change
-         their scope to make them available at runtime and to set our
-         manifest classpath correctly. -->
+    <!-- grinder-xmlbeans only exports these at compile time, we change their
+      scope to make them available at runtime and to set our manifest classpath
+      correctly. -->
     <dependency>
       <groupId>javax.xml</groupId>
       <artifactId>jsr173</artifactId>
@@ -110,7 +110,7 @@
                   <overWrite>true</overWrite>
 
                   <outputDirectory>${project.build.directory}</outputDirectory>
-                  <destFileName>grinder-agent.jar</destFileName>
+                  <destFileName>grinder-dcr-agent.jar</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>
@@ -121,7 +121,7 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <argLine>-javaagent:${project.build.directory}/grinder-agent.jar
+          <argLine>-javaagent:${project.build.directory}/grinder-dcr-agent.jar
             -XX:MaxPermSize=256m</argLine>
           <systemPropertyVariables>
 
@@ -146,7 +146,6 @@
 
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.3.2</version>
         <configuration>
           <archive>
             <index>true</index>
@@ -157,8 +156,7 @@
 
             <manifest-entries>
               <!-- Add jython.jar up front, so uses cane continue to override by
-                   dropping a new version into the lib directory.
-                -->
+                dropping a new version into the lib directory. -->
               <Class-Path>jython.jar</Class-Path>
             </manifest-entries>
           </archive>
@@ -193,6 +191,37 @@
         </executions>
       </plugin>
     </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <versionRange>[1.0.0,)</versionRange>
+                    <goals>
+                      <goal>copy</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <execute>
+                      <runOnIncremental>false</runOnIncremental>
+                    </execute>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
 </project>
