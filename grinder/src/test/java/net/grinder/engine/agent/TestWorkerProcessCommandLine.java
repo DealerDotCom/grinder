@@ -75,7 +75,7 @@ public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
 
     final Properties overrideProperties = new Properties();
 
-    final File agentFile = new File(getDirectory(), "grinder-agent.jar");
+    final File agentFile = new File(getDirectory(), "grinder-dcr-agent.jar");
     final File someJar = new File(getDirectory(), "some.jar");
     overrideProperties.put("java.class.path", someJar.getAbsolutePath());
     agentFile.createNewFile();
@@ -133,9 +133,10 @@ public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
     final File directories = new File(getDirectory(), "a/b");
     directories.mkdirs();
 
-    assertNull(WorkerProcessCommandLine.findAgentJarFile("c.jar"));
+    assertNull(WorkerProcessCommandLine.findAgentJarFile(directories.getPath()
+                                                         + "/c.jar"));
 
-    final File f = new File(directories, "grinder-agent.jar");
+    final File f = new File(directories, "grinder-dcr-agent.jar");
     f.createNewFile();
     assertNotNull(WorkerProcessCommandLine.findAgentJarFile(f.getAbsolutePath()));
 

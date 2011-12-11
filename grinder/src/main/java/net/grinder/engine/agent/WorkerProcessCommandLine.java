@@ -40,7 +40,7 @@ import net.grinder.engine.process.WorkerProcessEntryPoint;
  */
 final class WorkerProcessCommandLine {
 
-  private static final String AGENT_JAR_FILENAME = "grinder-agent.jar";
+  private static final String AGENT_JAR_FILENAME_PREFIX = "grinder-dcr-agent";
 
   private final List<String> m_command;
   private final int m_commandClassIndex;
@@ -59,7 +59,7 @@ final class WorkerProcessCommandLine {
       final File agent = findAgentJarFile(systemClasspath);
 
       if (agent != null) {
-        m_command.add("-javaagent:" + agent.getAbsolutePath());
+        m_command.add("-javaagent:" + agent.getPath());
       }
     }
 
@@ -150,13 +150,14 @@ final class WorkerProcessCommandLine {
    * @param path The path to search.
    */
   static File findAgentJarFile(String path) {
-
     for (String pathEntry : path.split(File.pathSeparator)) {
-      final File siblingFile =
-        new File(new File(pathEntry).getParent(), AGENT_JAR_FILENAME);
+      final File f = new File(pathEntry).getParentFile();
+      final File parentFile = f != null? f : new File("/");
 
-      if (siblingFile.exists()) {
-        return siblingFile;
+      for (File candidate : parentFile.listFiles()) {
+        if (candidate.getName().startsWith(AGENT_JAR_FILENAME_PREFIX)) {
+          return candidate;
+        }
       }
     }
 
