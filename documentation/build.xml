@@ -41,19 +41,15 @@ for details of other targets.
 
   <!-- source of all evil -->
   <property name="src.dir" value="src"/>
-  <property name="source.dir" value="../source"/>
-  <property name="lib.dir" value="${source.dir}/lib"/>
+  <property name="grinder.dir" value="../grinder"/>
+  <property name="grinder-httpclient.dir" value="../grinder-httpclient"/>
+  <property name="lib.dir" value="${grinder.dir}/lib"/>
   <property name="etc.dir" value="etc"/>
   <property name="generated.dir" value="generated"/>
   <property name="generated-script-javadoc.dir" value="${generated.dir}/script-javadoc"/>
 
   <!-- local settings -->
-  <property file="${source.dir}/etc/localpaths.properties"/>
   <property file="${etc.dir}/localpaths.properties"/>
-
-  <!-- javadoc -->
-  <property name="javadoc.css" value="${source.dir}/etc/javadoc.css"/>
-  <property name="package-lists.dir" value="${source.dir}/etc/packagelists"/>
 
   <!-- output -->
   <property name="release.dir" value="releases"/>
@@ -74,7 +70,7 @@ for details of other targets.
     <echo message="** Building ${Name} on ${TODAY} **"/>
 
     <path id="jython.classpath">
-      <pathelement path="${lib.dir}/jython.jar"/>
+      <pathelement path="${jython.dir}/jython.jar"/>
     </path>
   </target>
 
@@ -102,7 +98,7 @@ for details of other targets.
       <classpath refid="jython.classpath"/>
 
       <arg path="${etc.dir}/changes2xml.py"/>
-      <arg value="${source.dir}/CHANGES"/>
+      <arg value="${grinder.dir}/CHANGES"/>
     </java>
 
     <java classname="org.python.util.jython" logError="true"
@@ -112,7 +108,7 @@ for details of other targets.
       <classpath refid="jython.classpath"/>
 
       <arg path="${etc.dir}/outline2xml.py"/>
-      <arg value="${source.dir}/TODO"/>
+      <arg value="${grinder.dir}/TODO"/>
     </java>
 
     <java classname="org.python.util.jython" logError="true"
@@ -122,29 +118,29 @@ for details of other targets.
       <classpath refid="jython.classpath"/>
 
       <arg path="${etc.dir}/scripts2XML.py"/>
-      <arg value="${source.dir}/examples/helloworld.py"/>
-      <arg value="${source.dir}/examples/http.py"/>
-      <arg value="${source.dir}/examples/scenario.py"/>
-      <arg value="${source.dir}/examples/fba.py"/>
-      <arg value="${source.dir}/examples/digestauthentication.py"/>
-      <arg value="${source.dir}/examples/cookies.py"/>
-      <arg value="${source.dir}/examples/form.py"/>
-      <arg value="${source.dir}/examples/ejb.py"/>
-      <arg value="${source.dir}/examples/jdbc.py"/>
-      <arg value="${source.dir}/examples/amazon.py"/>
-      <arg value="${source.dir}/examples/jaxrpc.py"/>
-      <arg value="${source.dir}/examples/xml-rpc.py"/>
-      <arg value="${source.dir}/examples/helloworldfunctions.py"/>
-      <arg value="${source.dir}/examples/scriptlifecycle.py"/>
-      <arg value="${source.dir}/examples/statistics.py"/>
-      <arg value="${source.dir}/examples/jmssender.py"/>
-      <arg value="${source.dir}/examples/jmsreceiver.py"/>
-      <arg value="${source.dir}/examples/httpunit.py"/>
-      <arg value="${source.dir}/examples/email.py"/>
-      <arg value="${source.dir}/examples/sequence.py"/>
-      <arg value="${source.dir}/examples/parallel.py"/>
-      <arg value="${source.dir}/examples/threadrampup.py"/>
-      <arg value="${source.dir}/examples/helloworld.clj"/>
+      <arg value="${grinder.dir}/examples/helloworld.py"/>
+      <arg value="${grinder.dir}/examples/http.py"/>
+      <arg value="${grinder.dir}/examples/scenario.py"/>
+      <arg value="${grinder.dir}/examples/fba.py"/>
+      <arg value="${grinder.dir}/examples/digestauthentication.py"/>
+      <arg value="${grinder.dir}/examples/cookies.py"/>
+      <arg value="${grinder.dir}/examples/form.py"/>
+      <arg value="${grinder.dir}/examples/ejb.py"/>
+      <arg value="${grinder.dir}/examples/jdbc.py"/>
+      <arg value="${grinder.dir}/examples/amazon.py"/>
+      <arg value="${grinder.dir}/examples/jaxrpc.py"/>
+      <arg value="${grinder.dir}/examples/xml-rpc.py"/>
+      <arg value="${grinder.dir}/examples/helloworldfunctions.py"/>
+      <arg value="${grinder.dir}/examples/scriptlifecycle.py"/>
+      <arg value="${grinder.dir}/examples/statistics.py"/>
+      <arg value="${grinder.dir}/examples/jmssender.py"/>
+      <arg value="${grinder.dir}/examples/jmsreceiver.py"/>
+      <arg value="${grinder.dir}/examples/httpunit.py"/>
+      <arg value="${grinder.dir}/examples/email.py"/>
+      <arg value="${grinder.dir}/examples/sequence.py"/>
+      <arg value="${grinder.dir}/examples/parallel.py"/>
+      <arg value="${grinder.dir}/examples/threadrampup.py"/>
+      <arg value="${grinder.dir}/examples/helloworld.clj"/>
     </java>
   </target>
 
@@ -158,9 +154,7 @@ for details of other targets.
          so instead let's create a copy of the source it should process.
          This is faster too. -->
     <copy todir="${script-javadoc-src.dir}">
-      <fileset dir="${source.dir}/src">
-        <include name="HTTPClient/*.java"/>
-        <exclude name="HTTPClient/HttpURLConnection.java"/>
+      <fileset dir="${grinder.dir}/src/main/java">
         <include name="net/grinder/common/AbstractTestSemantics.java"/>
         <include name="net/grinder/common/FilenameFactory.java"/>
         <include name="net/grinder/common/GrinderBuild.java"/>
@@ -176,6 +170,12 @@ for details of other targets.
         <include name="net/grinder/script/*.java"/>
         <exclude name="net/grinder/script/InternalScriptContext.java"/>
         <exclude name="net/grinder/script/TestRegistry.java"/>
+        <include name="**/*.html"/>
+      </fileset>
+
+      <fileset dir="${grinder-httpclient.dir}/src/main/java">
+        <include name="HTTPClient/*.java"/>
+        <exclude name="HTTPClient/HttpURLConnection.java"/>
         <include name="**/*.html"/>
       </fileset>
     </copy>
@@ -194,7 +194,6 @@ for details of other targets.
              noindex="false"
              windowtitle="${Name}"
              doctitle="${Name}"
-             stylesheetfile="${javadoc.css}"
              protected="true"
              overview="${script-javadoc-src.dir}/net/grinder/script/overview.html"
              source="1.5"
@@ -203,13 +202,10 @@ for details of other targets.
                packages="net.grinder.common,net.grinder.script,net.grinder.statistics"/>
         <group title="HTTP Plug-in"
                packages="net.grinder.plugin.http,HTTPClient"/>
-        <link offline="true"
-              href="http://java.sun.com/j2se/1.5/docs/api/"
-              packagelistLoc="${package-lists.dir}/jdk1.5"/>
     </javadoc>
   </target>
 
-  <target name="forrest" depends="init,project-xml,script-javadoc"
+  <target name="forrest" depends="init,project-xml,script-javadoc" 
           description="Generates the documentation.">
 
     <delete quiet="true">

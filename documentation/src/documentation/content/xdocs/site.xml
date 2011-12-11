@@ -281,7 +281,6 @@ See http://forrest.apache.org/docs/linking.html for more info
     </innovation>
 
     <jakarta href="http://jakarta.apache.org/">
-      <ant href="ant/index.html"/>
       <oro href="oro/index.html"/>
     </jakarta>
 
@@ -319,6 +318,8 @@ See http://forrest.apache.org/docs/linking.html for more info
     <mockito href="http://code.google.com/p/mockito/"/>
 
     <mozilla href="http://www.mozilla.com/"/>
+
+    <mvn href="http://maven.apache.org/"/>
 
     <ncftp href="http://www.ncftp.com/">
       <ephemeral-ports href="ncftpd/doc/misc/ephemeral_ports.html"/>
@@ -390,9 +391,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <xmlbeans href="http://xmlbeans.apache.org/"/>
 
-    <webflange href="http://webflange.sourceforge.net/">
-      <maven href="maven"/>
-    </webflange>
+    <webflange href="http://webflange.sourceforge.net/"/>
 
   </external-refs>
 </site>
