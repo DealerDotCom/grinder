@@ -24,7 +24,6 @@
       <groupId>net.grinder</groupId>
       <artifactId>grinder-dcr-agent</artifactId>
       <version>1.0-SNAPSHOT</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -52,7 +51,6 @@
     <dependency>
       <groupId>org.codehaus.jsr166-mirror</groupId>
       <artifactId>extra166y</artifactId>
-      <scope>provided</scope> <!-- Because we shade into our jar. -->
     </dependency>
 
     <dependency>
@@ -124,9 +122,9 @@
         </configuration>
       </plugin>
 
-      <!-- Sigh, because of MDEP-259 we have to always install for this to
-           work when running from the parent project, even if we don't care.
-           That is "mvn install site", not "mvn site". -->
+      <!-- Sigh, because of MDEP-259 we have to always install for this to work
+        when running from the parent project, even if we don't care. That is "mvn
+        install site", not "mvn site". -->
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -144,10 +142,10 @@
                   <version>1.0-SNAPSHOT</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
+                  <destFileName>grinder-dcr-agent.jar</destFileName>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}</outputDirectory>
-              <strip-version>true</strip-version>
             </configuration>
           </execution>
         </executions>
@@ -187,6 +185,17 @@
             <index>true</index>
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+
+              <!-- Unfortunately, the maven archive plugin does not provide a
+                   way to filter the list of dependencies used to generate the
+                   classpath. This means the classpath has redundant entries
+                   for things we shade into the jar.
+                -->
+
+              <!-- On the other hand, we've placed the DCR agent in the
+                   "compile" scope, not "provided", specifically so it's in the
+                   manifest classpath and its classes can be loaded if the
+                   agent is not loaded. -->
               <addClasspath>true</addClasspath>
             </manifest>
 
@@ -202,27 +211,27 @@
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <version>1.5</version>
-        <configuration>
-          <filters>
-            <filter>
-              <artifact>org.codehaus.jsr166-mirror:extra166y</artifact>
-              <includes>
-                <include>**/CustomConcurrentHashMap.class</include>
-              </includes>
-            </filter>
-          </filters>
-          <artifactSet>
-            <includes>
-              <include>org.codehaus.jsr166-mirror:extra166y</include>
-            </includes>
-          </artifactSet>
-        </configuration>
         <executions>
           <execution>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
+            <configuration>
+              <filters>
+                <filter>
+                  <artifact>org.codehaus.jsr166-mirror:extra166y</artifact>
+                  <includes>
+                    <include>**/CustomConcurrentHashMap*</include>
+                  </includes>
+                </filter>
+              </filters>
+              <artifactSet>
+                <includes>
+                  <include>org.codehaus.jsr166-mirror:extra166y</include>
+                </includes>
+              </artifactSet>
+            </configuration>
           </execution>
         </executions>
       </plugin>
