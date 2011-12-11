@@ -6,6 +6,9 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder-httpclient</artifactId>
   <packaging>jar</packaging>
+  <name>${project.artifactId}</name>
+  <description>Modified version of HTTPClient used by The Grinder. The original
+  can be found at http://www.innovation.ch/java/HTTPClient/.</description>
 
   <parent>
     <groupId>net.grinder</groupId>

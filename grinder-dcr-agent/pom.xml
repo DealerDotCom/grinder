@@ -6,7 +6,8 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder-dcr-agent</artifactId>
   <packaging>jar</packaging>
-
+  <name>${project.artifactId}</name>
+  <description>A Java agent that exposes the byte code instrumentation API.</description>
   <parent>
     <groupId>net.grinder</groupId>
     <artifactId>grinder-parent</artifactId>

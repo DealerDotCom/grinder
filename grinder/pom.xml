@@ -6,6 +6,12 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder</artifactId>
   <packaging>jar</packaging>
+  <name>${project.artifactId}</name>
+
+  <description>The Grinder load testing framework. The Grinder is a load testing
+  framework that makes it easy to run a distributed test using many load
+  injector machines. Test scripts are written in Jython or Clojure. HTTP
+  scripts can be recorded easily from a browser session. </description>
 
   <parent>
     <groupId>net.grinder</groupId>
@@ -118,11 +124,14 @@
         </configuration>
       </plugin>
 
+      <!-- Sigh, because of MDEP-259 we have to always install for this to
+           work when running from the parent project, even if we don't care.
+           That is "mvn install site", not "mvn site". -->
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
-            <id>copy</id>
+            <id>copy-dcr-agent</id>
             <phase>generate-test-resources</phase>
             <goals>
               <goal>copy</goal>
@@ -135,11 +144,10 @@
                   <version>1.0-SNAPSHOT</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                  <destFileName>grinder-dcr-agent.jar</destFileName>
                 </artifactItem>
               </artifactItems>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+              <strip-version>true</strip-version>
             </configuration>
           </execution>
         </executions>
@@ -225,21 +233,6 @@
           <reportPlugins>
             <plugin>
               <artifactId>maven-project-info-reports-plugin</artifactId>
-              <reportSets>
-                <reportSet>
-                  <reports>
-                    <report>index</report>
-                    <report>dependencies</report>
-                    <report>dependency-convergence</report>
-                    <report>cim</report>
-                    <report>scm</report>
-                    <report>issue-tracking</report>
-                    <report>license</report>
-                    <report>mailing-list</report>
-                    <report>summary</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
             </plugin>
             <plugin>
               <artifactId>maven-checkstyle-plugin</artifactId>
@@ -251,13 +244,12 @@
                 </reportSet>
               </reportSets>
               <configuration>
-                <configLocation>etc/checkstyle.xml</configLocation>
-                <suppressionsLocation>etc/checkstyle-suppressions.xml</suppressionsLocation>
+                <configLocation>${basedir}/etc/checkstyle.xml</configLocation>
+                <suppressionsLocation>${basedir}/etc/checkstyle-suppressions.xml</suppressionsLocation>
                 <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
               </configuration>
             </plugin>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
             <plugin>

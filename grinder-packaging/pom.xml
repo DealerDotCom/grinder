@@ -9,6 +9,8 @@
   <artifactId>grinder-packaging</artifactId>
   <!-- TODO: How to not export our jar? -->
   <packaging>jar</packaging>
+  <name>${project.artifactId}</name>
+  <description>Package up The Grinder for distribution.</description>
 
   <parent>
     <groupId>net.grinder</groupId>
