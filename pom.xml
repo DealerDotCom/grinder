@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- TODO: Licenses. -->
   <!-- TODO: Can go back to building for 1.5? -->
@@ -58,8 +59,8 @@
   <!-- Required so site:stage works. -->
   <distributionManagement>
     <site>
-    <id>blah</id>
-    <url>file:///tmp/bah</url>
+      <id>blah</id>
+      <url>file:///tmp/bah</url>
     </site>
   </distributionManagement>
 
@@ -139,7 +140,6 @@
       </plugin>
     </plugins>
 
-
     <pluginManagement>
       <plugins>
         <plugin>
@@ -149,6 +149,10 @@
         <plugin>
           <artifactId>maven-checkstyle-plugin</artifactId>
           <version>2.8</version>
+          <configuration>
+            <configLocation>${project.parent.basedir}/etc/checkstyle.xml</configLocation>
+            <propertyExpansion>config_loc=${project.parent.basedir}/etc/</propertyExpansion>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -231,7 +235,7 @@
           <reportSet>
             <reports>
               <report>index</report>
-              <!--  <report>dependencies</report> -->
+              <!-- <report>dependencies</report> -->
               <report>dependency-convergence</report>
               <report>dependency-management</report>
               <report>project-team</report>

@@ -252,9 +252,8 @@
                 </reportSet>
               </reportSets>
               <configuration>
-                <configLocation>${basedir}/etc/checkstyle.xml</configLocation>
-                <suppressionsLocation>${basedir}/etc/checkstyle-suppressions.xml</suppressionsLocation>
-                <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+                <configLocation>${project.parent.basedir}/etc/checkstyle.xml</configLocation>
+                <propertyExpansion>config_loc=${project.parent.basedir}/etc/</propertyExpansion>
               </configuration>
             </plugin>
             <plugin>
