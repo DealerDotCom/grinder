@@ -36,7 +36,7 @@ import org.mockito.MockitoAnnotations;
 
 
 /**
- *  Unit tests for {@link TeeSender.
+ *  Unit tests for {@link TeeSender}.
  *
  * @author Philip Aston
  */
