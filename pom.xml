@@ -4,7 +4,6 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- TODO: Licenses. -->
-  <!-- TODO: Issue management. -->
   <!-- TODO: Can go back to building for 1.5? -->
   <!-- TODO: Release plugin. -->
   <!-- TODO: Move AUTHORS to contributors. -->
@@ -16,13 +15,35 @@
 
   <url>http://grinder.sourceforge.net</url>
   <inceptionYear>2000</inceptionYear>
+
+  <issueManagement>
+    <system>sourceforge</system>
+    <url>http://sourceforge.net/tracker/?group_id=18598&amp;atid=118598</url>
+  </issueManagement>
+
   <mailingLists>
+    <mailingList>
+      <name>The Grinder Announcement List</name>
+      <subscribe>https://lists.sourceforge.net/mailman/listinfo/grinder-announce</subscribe>
+      <unsubscribe>https://lists.sourceforge.net/mailman/listinfo/grinder-announce</unsubscribe>
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=grinder-announce</archive>
+    </mailingList>
     <mailingList>
       <name>The Grinder User List</name>
       <subscribe>https://lists.sourceforge.net/mailman/listinfo/grinder-use</subscribe>
       <unsubscribe>https://lists.sourceforge.net/mailman/listinfo/grinder-use</unsubscribe>
       <post>grinder-use@lists.sourceforge.net</post>
-      <archive>https://lists.sourceforge.net/mailman/listinfo/grinder-use</archive>
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=grinder-use</archive>
+      <otherArchives>
+        <otherArchive>http://blog.gmane.org/gmane.comp.java.grinder.user</otherArchive>
+      </otherArchives>
+    </mailingList>
+    <mailingList>
+      <name>The Grinder Development List [Discussion related to the development of The Grinder itself]</name>
+      <subscribe>https://lists.sourceforge.net/lists/listinfo/grinder-development</subscribe>
+      <unsubscribe>https://lists.sourceforge.net/lists/listinfo/grinder-development</unsubscribe>
+      <post>grinder-development@lists.sourceforge.net</post>
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=grinder-development</archive>
     </mailingList>
   </mailingLists>
 
@@ -112,8 +133,16 @@
           <version>2.3.2</version>
         </plugin>
         <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.8</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-jxr-plugin</artifactId>
           <version>2.3</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>2.4</version>
         </plugin>
         <plugin>
           <artifactId>maven-site-plugin</artifactId>
@@ -121,11 +150,11 @@
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.7.2</version>
+          <version>2.11</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>2.9</version>
+          <version>2.11</version>
         </plugin>
         <plugin>
           <groupId>org.apache.portals.jetspeed-2</groupId>
