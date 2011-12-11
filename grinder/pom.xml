@@ -224,6 +224,24 @@
         <configuration>
           <reportPlugins>
             <plugin>
+              <artifactId>maven-project-info-reports-plugin</artifactId>
+              <reportSets>
+                <reportSet>
+                  <reports>
+                    <report>index</report>
+                    <report>dependencies</report>
+                    <report>dependency-convergence</report>
+                    <report>cim</report>
+                    <report>scm</report>
+                    <report>issue-tracking</report>
+                    <report>license</report>
+                    <report>mailing-list</report>
+                    <report>summary</report>
+                  </reports>
+                </reportSet>
+              </reportSets>
+            </plugin>
+            <plugin>
               <artifactId>maven-checkstyle-plugin</artifactId>
               <reportSets>
                 <reportSet>
