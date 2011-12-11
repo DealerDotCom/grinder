@@ -51,7 +51,6 @@
       <scope>runtime</scope>
       <excludes>
         <exclude>net.grinder:grinder</exclude>
-        <exclude>net.grinder:grinder-packaging</exclude>
         <exclude>org.clojure:clojure</exclude>
       </excludes>
     </dependencySet>
