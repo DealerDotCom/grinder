@@ -32,6 +32,7 @@ See http://forrest.apache.org/docs/linking.html for more info
     </contributing>
     <changes label="Changes" href="changes.html"/>
     <todo label="To Do" href="todo.html"/>
+    <mvn-reports label="Maven Reports" href="ext:grinder/mvn/index"/>
   </development>
 
   <g3 label="The Grinder 3" href="g3/" tab="manual">
@@ -244,6 +245,10 @@ See http://forrest.apache.org/docs/linking.html for more info
         </api>
         <manual href="getting-started.html"/>
       </g3>
+
+      <mvn href="mvn-site/">
+	<index href="index.html"/>
+      </mvn>
     </grinder>
 
     <grinder-analyzer href="http://sourceforge.net/project/showfiles.php?group_id=160220"/>

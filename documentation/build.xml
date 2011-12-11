@@ -34,7 +34,11 @@ Say
 for details of other targets.
 -->
 
-<project name="The Grinder Documentation" default="all" basedir=".">
+<project
+  name="The Grinder Documentation"
+  default="all"
+  basedir="."
+  xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
   <property name="Name" value="The Grinder Documentation"/>
   <property name="name" value="grinder-documentation"/>
@@ -58,6 +62,8 @@ for details of other targets.
   <property name="script-javadoc.dir" value="${doc.dir}/g3/script-javadoc"/>
   <property name="build.log" value="${build.dir}/build.log"/>
 
+  <property name="mvn-site.dir" location="${doc.dir}/mvn-site"/>
+
   <!-- =================================================================== -->
   <!-- Initialization target                                               -->
   <!-- =================================================================== -->
@@ -70,13 +76,26 @@ for details of other targets.
     <echo message="** Building ${Name} on ${TODAY} **"/>
 
     <path id="jython.classpath">
-      <pathelement path="${jython.dir}/jython.jar"/>
+      <pathelement path="${jython.home}/jython.jar"/>
     </path>
   </target>
 
   <!-- =================================================================== -->
   <!-- Rules to create the documentation                               -->
   <!-- =================================================================== -->
+
+  <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+           uri="antlib:org.apache.maven.artifact.ant"
+           classpath="${maven-ant-tasks.jar}" />
+
+  <target name="mvn-site">
+    <artifact:mvn pom="../pom.xml" mavenHome="${mvn.home}">
+      <arg value="clean"/>
+      <arg value="site"/>
+      <arg value="site:stage"/>
+      <arg value="-DstagingDirectory=${mvn-site.dir}"/>
+    </artifact:mvn>
+  </target>
 
   <target name="project-xml"
           depends="init"
@@ -94,7 +113,7 @@ for details of other targets.
     <java classname="org.python.util.jython" logError="true"
       output="${xml-output.dir}/changes.xml">
 
-      <sysproperty key="python.home" path="${jython.dir}"/>
+      <sysproperty key="python.home" path="${jython.home}"/>
       <classpath refid="jython.classpath"/>
 
       <arg path="${etc.dir}/changes2xml.py"/>
@@ -104,7 +123,7 @@ for details of other targets.
     <java classname="org.python.util.jython" logError="true"
       output="${xml-output.dir}/todo.xml">
 
-      <sysproperty key="python.home" path="${jython.dir}"/>
+      <sysproperty key="python.home" path="${jython.home}"/>
       <classpath refid="jython.classpath"/>
 
       <arg path="${etc.dir}/outline2xml.py"/>
@@ -114,7 +133,7 @@ for details of other targets.
     <java classname="org.python.util.jython" logError="true"
       output="${xml-output.dir}/scripts.xml">
 
-      <sysproperty key="python.home" path="${jython.dir}"/>
+      <sysproperty key="python.home" path="${jython.home}"/>
       <classpath refid="jython.classpath"/>
 
       <arg path="${etc.dir}/scripts2XML.py"/>
@@ -205,7 +224,7 @@ for details of other targets.
     </javadoc>
   </target>
 
-  <target name="forrest" depends="init,project-xml,script-javadoc" 
+  <target name="forrest" depends="init,mvn-site,project-xml,script-javadoc" 
           description="Generates the documentation.">
 
     <delete quiet="true">

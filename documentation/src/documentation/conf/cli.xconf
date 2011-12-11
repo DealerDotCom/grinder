@@ -209,6 +209,7 @@
    <exclude pattern="**apidocs**"/>
    <exclude pattern="api/**"/>
    <exclude pattern="**/script-javadoc/**"/>
+   <exclude pattern="mvn-site/**"/>
 
 <!--
   This is a workaround for FOR-284 "link rewriting broken when
