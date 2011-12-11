@@ -7,7 +7,7 @@
   <artifactId>grinder</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
-
+  <url>http://grinder.sourceforge.net</url>
   <description>The Grinder load testing framework. The Grinder is a load testing
   framework that makes it easy to run a distributed test using many load
   injector machines. Test scripts are written in Jython or Clojure. HTTP

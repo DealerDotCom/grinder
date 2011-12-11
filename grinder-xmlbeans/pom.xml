@@ -8,6 +8,7 @@
   <artifactId>grinder-xmlbeans</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
+  <url>http://grinder.sourceforge.net</url>
   <description>Generate the XMLBeans used by the TCPProxy.</description>
 
   <parent>

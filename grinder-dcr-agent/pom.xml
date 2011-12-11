@@ -7,7 +7,9 @@
   <artifactId>grinder-dcr-agent</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
+  <url>http://grinder.sourceforge.net</url>
   <description>A Java agent that exposes the byte code instrumentation API.</description>
+
   <parent>
     <groupId>net.grinder</groupId>
     <artifactId>grinder-parent</artifactId>

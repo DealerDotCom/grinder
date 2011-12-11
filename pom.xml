@@ -7,15 +7,15 @@
   <!-- TODO: Can go back to building for 1.5? -->
   <!-- TODO: Release plugin. -->
   <!-- TODO: Move AUTHORS to contributors. -->
+  <!-- TODO: Tag. -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.grinder</groupId>
   <artifactId>grinder-parent</artifactId>
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>${project.artifactId}</name>
-  <description>Parent Maven project for The Grinder load testing framework.</description>
-
   <url>http://grinder.sourceforge.net</url>
+  <description>Parent Maven project for The Grinder load testing framework.</description>
   <inceptionYear>2000</inceptionYear>
 
   <developers>
