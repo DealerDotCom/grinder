@@ -46,8 +46,8 @@ for details of other targets.
   <!-- source of all evil -->
   <property name="src.dir" value="src"/>
   <property name="grinder.dir" value="../grinder"/>
+  <property name="grinder-core.dir" value="../grinder-core"/>
   <property name="grinder-httpclient.dir" value="../grinder-httpclient"/>
-  <property name="lib.dir" value="${grinder.dir}/lib"/>
   <property name="etc.dir" value="etc"/>
   <property name="generated.dir" value="generated"/>
   <property name="generated-script-javadoc.dir" value="${generated.dir}/script-javadoc"/>
@@ -89,8 +89,9 @@ for details of other targets.
            classpath="${maven-ant-tasks.jar}" />
 
   <target name="mvn-site">
-    <artifact:mvn pom="../pom.xml" mavenHome="${mvn.home}">
+    <artifact:mvn pom="../pom.xml" mavenHome="${mvn.home}" fork="true">
       <arg value="clean"/>
+      <arg value="install"/>
       <arg value="site"/>
       <arg value="site:stage"/>
       <arg value="-DstagingDirectory=${mvn-site.dir}"/>
@@ -173,7 +174,7 @@ for details of other targets.
          so instead let's create a copy of the source it should process.
          This is faster too. -->
     <copy todir="${script-javadoc-src.dir}">
-      <fileset dir="${grinder.dir}/src/main/java">
+      <fileset dir="${grinder-core.dir}/src/main/java">
         <include name="net/grinder/common/AbstractTestSemantics.java"/>
         <include name="net/grinder/common/FilenameFactory.java"/>
         <include name="net/grinder/common/GrinderBuild.java"/>
@@ -241,14 +242,7 @@ for details of other targets.
     </exec>
   </target>
 
-  <target name="tidy-up-forrest-output" depends="init">
-    <!-- No idea why Forrest generates these bogus files, get rid off them. -->
-    <delete>
-      <fileset dir="${doc.dir}" includes="*/index.html"/>
-    </delete>
-  </target>
-
-  <target name="all" depends="clean,forrest,tidy-up-forrest-output"/>
+  <target name="all" depends="clean,forrest"/>
 
   <!-- =================================================================== -->
   <!-- Clean targets                                                       -->
