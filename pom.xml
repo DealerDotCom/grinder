@@ -219,6 +219,7 @@
 
       <modules>
         <module>grinder</module>
+        <module>grinder-core</module>
         <module>grinder-dcr-agent</module>
         <module>grinder-httpclient</module>
         <module>grinder-xmlbeans</module>

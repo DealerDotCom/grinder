@@ -12,6 +12,7 @@
   injector machines. Test scripts are written in Jython or Clojure. HTTP
   scripts can be recorded easily from a browser session. </description>
 
+<!-- TODO: don't depend on extra166y -->
   <parent>
     <groupId>net.grinder</groupId>
     <artifactId>grinder-parent</artifactId>
@@ -27,39 +28,8 @@
 
     <dependency>
       <groupId>net.grinder</groupId>
-      <artifactId>grinder-httpclient</artifactId>
+      <artifactId>grinder-core</artifactId>
       <version>3.7-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>net.grinder</groupId>
-      <artifactId>grinder-xmlbeans</artifactId>
-      <version>3.7-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>net.sf.jedit-syntax</groupId>
-      <artifactId>jedit-syntax</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.codehaus.jsr166-mirror</groupId>
-      <artifactId>extra166y</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.picocontainer</groupId>
-      <artifactId>picocontainer</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.python</groupId>
-      <artifactId>jython</artifactId>
     </dependency>
 
     <!-- grinder-xmlbeans only exports these at compile time, we change their
@@ -75,108 +45,10 @@
       <artifactId>xbean</artifactId>
       <version>2.1.0</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>clojure</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/*.html</include>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-        <excludes>
-          <exclude>**/*.html</exclude>
-          <exclude>**/*.properties</exclude>
-        </excludes>
-      </resource>
-    </resources>
-
     <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <showDeprecation>true</showDeprecation>
-          <showWarnings>true</showWarnings>
-        </configuration>
-      </plugin>
-
-      <!-- Sigh, because of MDEP-259 we have to always install for this to work
-        when running from the parent project, even if we don't care. That is "mvn
-        install site", not "mvn site". -->
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-dcr-agent</id>
-            <phase>generate-test-resources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>net.grinder</groupId>
-                  <artifactId>grinder-dcr-agent</artifactId>
-                  <version>1.0-SNAPSHOT</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                  <destFileName>grinder-dcr-agent.jar</destFileName>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <argLine>-javaagent:${project.build.directory}/grinder-dcr-agent.jar
-            -XX:MaxPermSize=256m</argLine>
-          <systemPropertyVariables>
-            <grinder.version>${project.version}</grinder.version>
-
-            <!-- Put Jython droppings in one place. -->
-            <python.cachedir>${project.basedir}/target/python.cache</python.cachedir>
-
-            <!-- Alternative Jython implementations for unit tests. If you don't
-              have these, comment out the property. -->
-            <jython2_1.dir>/opt/jython/jython-2.1</jython2_1.dir>
-            <jython2_5_0.dir>/opt/jython/jython2.5.0</jython2_5_0.dir>
-            <jython2_5_1.dir>/opt/jython/jython2.5.1</jython2_5_1.dir>
-            <jython2_5_2.dir>/opt/jython/jython2.5.2</jython2_5_2.dir>
-          </systemPropertyVariables>
-
-          <excludes>
-            <!-- Skipping due to "Duplicated LocalVariableTable" issue that only
-              occurs when run by surefire, in a group of tests. -->
-            <exclude>**/TestTraditionalJythonInstrumenterWithJython21.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
@@ -236,40 +108,6 @@
       </plugin>
 
       <plugin>
-        <artifactId>maven-site-plugin</artifactId>
-        <configuration>
-          <reportPlugins>
-            <plugin>
-              <artifactId>maven-project-info-reports-plugin</artifactId>
-            </plugin>
-            <plugin>
-              <artifactId>maven-checkstyle-plugin</artifactId>
-              <reportSets>
-                <reportSet>
-                  <reports>
-                    <report>checkstyle</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-              <configuration>
-                <configLocation>${project.parent.basedir}/etc/checkstyle.xml</configLocation>
-                <propertyExpansion>config_loc=${project.parent.basedir}/etc/</propertyExpansion>
-              </configuration>
-            </plugin>
-            <plugin>
-              <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
-            <plugin>
-              <artifactId>maven-jxr-plugin</artifactId>
-            </plugin>
-            <plugin>
-              <artifactId>maven-surefire-report-plugin</artifactId>
-            </plugin>
-          </reportPlugins>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.portals.jetspeed-2</groupId>
         <artifactId>jetspeed-unpack-maven-plugin</artifactId>
         <executions>
@@ -281,7 +119,7 @@
             <phase>prepare-package</phase>
             <configuration>
               <unpack>
-                <artifact>net.grinder:grinder:jar</artifact>
+                <artifact>net.grinder:grinder-core:jar</artifact>
                 <overwrite>true</overwrite>
                 <resources>
                   <resource>
@@ -336,20 +174,21 @@
           </execution>
         </executions>
         <dependencies>
+        <!-- TODO: How to update these versions with the release plugin? -->
           <dependency>
             <groupId>net.grinder</groupId>
-            <artifactId>grinder</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>grinder-core</artifactId>
+            <version>3.7-SNAPSHOT</version>
           </dependency>
           <dependency>
             <groupId>net.grinder</groupId>
             <artifactId>grinder-httpclient</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>3.7-SNAPSHOT</version>
           </dependency>
           <dependency>
             <groupId>net.grinder</groupId>
             <artifactId>grinder-xmlbeans</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>3.7-SNAPSHOT</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -371,39 +210,8 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
 
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <versionRange>[1.0.0,)</versionRange>
-                    <goals>
-                      <goal>copy</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <execute>
-                      <runOnIncremental>false</runOnIncremental>
-                    </execute>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 
 </project>
