@@ -23,7 +23,7 @@ package net.grinder.util;
 
 
 /**
- * <p>{@link StringFormatter} for fixed width text cells.</p>
+ * <p>{@link MultiLineFormatter} for fixed width text cells.</p>
  *
  * <p>All white space is converted to plain spaces.</p>
  *

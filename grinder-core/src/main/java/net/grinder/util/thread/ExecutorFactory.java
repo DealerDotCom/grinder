@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
- * Create suitable {@Executor} implementations.
+ * Create suitable {@link java.util.concurrent.Executor} implementations.
  *
  * @author Philip Aston
  */

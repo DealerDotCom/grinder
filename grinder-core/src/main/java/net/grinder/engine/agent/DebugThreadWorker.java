@@ -33,8 +33,8 @@ import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplem
 
 
 /**
- * Class that starts a worker in a separate thread and an
- * {@link net.grinder.util.IsolatingClassLoader}. Used for debugging.
+ * Class that starts a worker in a separate thread and a
+ * {@link net.grinder.util.BlockingClassLoader}. Used for debugging.
  *
  * @author Philip Aston
  */

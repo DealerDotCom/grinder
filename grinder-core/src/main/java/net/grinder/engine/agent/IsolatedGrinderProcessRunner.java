@@ -29,7 +29,7 @@ import net.grinder.engine.process.WorkerProcessEntryPoint;
 
 /**
  * Implementation of {@link DebugThreadWorker.IsolateGrinderProcessRunner} that
- * is loaded in separate {@link net.grinder.util.IsolatingClassLoader}s by
+ * is loaded in separate {@link net.grinder.util.BlockingClassLoader}s by
  * {@link DebugThreadWorker}.
  *
  * @author Philip Aston
