@@ -28,7 +28,7 @@
 
     <dependency>
       <groupId>net.grinder</groupId>
-      <artifactId>grinder-core</artifactId>
+      <artifactId>grinder-http</artifactId>
       <version>3.7-SNAPSHOT</version>
     </dependency>
 
@@ -80,34 +80,6 @@
       </plugin>
 
       <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>1.5</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <filters>
-                <filter>
-                  <artifact>org.codehaus.jsr166-mirror:extra166y</artifact>
-                  <includes>
-                    <include>**/CustomConcurrentHashMap*</include>
-                  </includes>
-                </filter>
-              </filters>
-              <artifactSet>
-                <includes>
-                  <include>org.codehaus.jsr166-mirror:extra166y</include>
-                </includes>
-              </artifactSet>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.portals.jetspeed-2</groupId>
         <artifactId>jetspeed-unpack-maven-plugin</artifactId>
         <executions>
@@ -119,7 +91,7 @@
             <phase>prepare-package</phase>
             <configuration>
               <unpack>
-                <artifact>net.grinder:grinder-core:jar</artifact>
+                <artifact>net.grinder:grinder-http:jar</artifact>
                 <overwrite>true</overwrite>
                 <resources>
                   <resource>
@@ -177,7 +149,7 @@
         <!-- TODO: How to update these versions with the release plugin? -->
           <dependency>
             <groupId>net.grinder</groupId>
-            <artifactId>grinder-core</artifactId>
+            <artifactId>grinder-http</artifactId>
             <version>3.7-SNAPSHOT</version>
           </dependency>
           <dependency>

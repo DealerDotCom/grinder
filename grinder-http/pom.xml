@@ -2,13 +2,12 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-<!-- TODO: Why does surefire find 865 tests, but Eclipse JUnit launcher finds 879?  -->
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>grinder-core</artifactId>
+  <artifactId>grinder-http</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <url>http://grinder.sourceforge.net</url>
-  <description>The Grinder.</description>
+  <description>The Grinder HTTP plugin.</description>
 
   <parent>
     <groupId>net.grinder</groupId>
@@ -19,15 +18,19 @@
   <dependencies>
     <dependency>
       <groupId>net.grinder</groupId>
-      <artifactId>grinder-dcr-agent</artifactId>
+      <artifactId>grinder-core</artifactId>
       <version>3.7-SNAPSHOT</version>
-      <scope>provided</scope>
     </dependency>
 
-    <!-- TODO: Remove this dependency. -->
     <dependency>
       <groupId>net.grinder</groupId>
       <artifactId>grinder-httpclient</artifactId>
+      <version>3.7-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>net.grinder</groupId>
+      <artifactId>grinder-xmlbeans</artifactId>
       <version>3.7-SNAPSHOT</version>
     </dependency>
 
@@ -37,58 +40,9 @@
       <version>3.7-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>net.sf.jedit-syntax</groupId>
-      <artifactId>jedit-syntax</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.codehaus.jsr166-mirror</groupId>
-      <artifactId>extra166y</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.picocontainer</groupId>
-      <artifactId>picocontainer</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.python</groupId>
-      <artifactId>jython</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>clojure</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/*.html</include>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-        <excludes>
-          <exclude>**/*.html</exclude>
-          <exclude>**/*.properties</exclude>
-        </excludes>
-      </resource>
-    </resources>
-
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -99,8 +53,8 @@
       </plugin>
 
       <!-- Sigh, because of MDEP-259 we have to always install for this to work
-        when running from the parent project, even if we don't care. That is
-        "mvn install site", not "mvn site". -->
+        when running from the parent project, even if we don't care. That is "mvn
+        install site", not "mvn site". -->
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -133,56 +87,10 @@
         <configuration>
           <argLine>-javaagent:${project.build.directory}/grinder-dcr-agent.jar
             -XX:MaxPermSize=256m</argLine>
-          <systemPropertyVariables>
-            <grinder.version>${project.version}</grinder.version>
-
-            <!-- Put Jython droppings in one place. -->
-            <python.cachedir>${project.basedir}/target/python.cache</python.cachedir>
-
-            <!-- Alternative Jython implementations for unit tests. If you don't
-              have these, comment out the property. -->
-            <jython2_1.dir>/opt/jython/jython-2.1</jython2_1.dir>
-            <jython2_5_0.dir>/opt/jython/jython2.5.0</jython2_5_0.dir>
-            <jython2_5_1.dir>/opt/jython/jython2.5.1</jython2_5_1.dir>
-            <jython2_5_2.dir>/opt/jython/jython2.5.2</jython2_5_2.dir>
-          </systemPropertyVariables>
-
-          <excludes>
-            <!-- Skipping due to "Duplicated LocalVariableTable" issue that only
-              occurs when run by surefire, in a group of tests. -->
-            <exclude>**/TestTraditionalJythonInstrumenterWithJython21.java</exclude>
-          </excludes>
         </configuration>
       </plugin>
 
-      <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>1.5</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <filters>
-                <filter>
-                  <artifact>org.codehaus.jsr166-mirror:extra166y</artifact>
-                  <includes>
-                    <include>**/CustomConcurrentHashMap*</include>
-                  </includes>
-                </filter>
-              </filters>
-              <artifactSet>
-                <includes>
-                  <include>org.codehaus.jsr166-mirror:extra166y</include>
-                </includes>
-              </artifactSet>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
+      <!-- TODO: Can push this up to parent? -->
       <plugin>
         <artifactId>maven-site-plugin</artifactId>
         <configuration>

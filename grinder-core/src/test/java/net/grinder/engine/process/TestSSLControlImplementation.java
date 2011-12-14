@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2009 Philip Aston
+// Copyright (C) 2007 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -187,8 +187,8 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
     final SSLControl sslControl =
       new SSLControlImplementation(m_threadContextLocator);
 
-    final InputStream keystoreStream = getClass().getResourceAsStream(
-            "/net/grinder/tools/tcpproxy/resources/default.keystore");
+    final InputStream keystoreStream =
+      getClass().getResourceAsStream("default.keystore");
     sslControl.setKeyStore(
       keystoreStream,
         "passphrase",
@@ -214,8 +214,7 @@ public class TestSSLControlImplementation extends AbstractFileTestCase {
 
     new StreamCopier(4096, true).
     copy(
-      getClass().getResourceAsStream(
-        "/net/grinder/tools/tcpproxy/resources/default.keystore"),
+      getClass().getResourceAsStream("default.keystore"),
       new FileOutputStream(myKeyStore));
 
     try {
