@@ -54,14 +54,7 @@ public final class ScriptLocation implements Serializable {
     m_directory = directory;
 
     // Try to shorten the name.
-    final File relativeFile = directory.getRelativePath(file);
-
-    if (relativeFile != null) {
-      m_shortFile = relativeFile;
-    }
-    else {
-      m_shortFile = file;
-    }
+    m_shortFile = directory.getRelativeChildPath(file);
 
     if (file.isAbsolute()) {
       m_absoluteFile = file;

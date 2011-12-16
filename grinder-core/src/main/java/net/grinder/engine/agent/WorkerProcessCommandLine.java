@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.process.WorkerProcessEntryPoint;
+import net.grinder.util.Directory;
 
 
 /**
@@ -38,17 +39,20 @@ import net.grinder.engine.process.WorkerProcessEntryPoint;
  *
  * @author Philip Aston
  */
-final class WorkerProcessCommandLine {
+final class WorkerProcessCommandLine implements CommandLine {
 
   private static final String AGENT_JAR_FILENAME_PREFIX = "grinder-dcr-agent";
 
+  private final Directory m_workingDirectory;
   private final List<String> m_command;
   private final int m_commandClassIndex;
 
   public WorkerProcessCommandLine(GrinderProperties properties,
                                   Properties systemProperties,
-                                  String jvmArguments) {
+                                  String jvmArguments,
+                                  Directory workingDirectory) {
 
+    m_workingDirectory = workingDirectory;
     m_command = new ArrayList<String>();
     m_command.add(properties.getProperty("grinder.jvm", "java"));
 
@@ -59,7 +63,8 @@ final class WorkerProcessCommandLine {
       final File agent = findAgentJarFile(systemClasspath);
 
       if (agent != null) {
-        m_command.add("-javaagent:" + agent.getPath());
+        // TODO use directory.
+        m_command.add("-javaagent:" + agent.getAbsolutePath());
       }
     }
 
@@ -74,6 +79,7 @@ final class WorkerProcessCommandLine {
       }
     }
 
+    // TODO relativise CP. Does this allow us to remove previous hacks?
     final String additionalClasspath =
       properties.getProperty("grinder.jvm.classpath", null);
 
@@ -101,7 +107,14 @@ final class WorkerProcessCommandLine {
   }
 
   /**
-   * Package scope for the unit tests.
+   * {@inheritDoc}
+   */
+  @Override public Directory getWorkingDirectory() {
+    return m_workingDirectory;
+  }
+
+  /**
+   * {@inheritDoc}
    */
   public List<String> getCommandList() {
     return m_command;

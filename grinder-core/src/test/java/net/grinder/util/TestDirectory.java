@@ -22,16 +22,22 @@
 package net.grinder.util;
 
 import static net.grinder.testutility.FileUtilities.createRandomFile;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.FileUtilities;
 import net.grinder.testutility.Serializer;
+
+import org.junit.Test;
 
 
 /**
@@ -39,9 +45,9 @@ import net.grinder.testutility.Serializer;
  *
  * @author Philip Aston
  */
-public class TestDirectory extends AbstractFileTestCase {
+public class TestDirectory extends AbstractJUnit4FileTestCase {
 
-  public void testConstruction() throws Exception {
+  @Test public void testConstruction() throws Exception {
 
     final File file = new File(getDirectory(), "x");
     assertTrue(file.createNewFile());
@@ -61,7 +67,7 @@ public class TestDirectory extends AbstractFileTestCase {
     assertEquals(new File("."), new Directory(null).getFile());
   }
 
-  public void testDefaultConstructor() throws Exception {
+  @Test public void testDefaultConstructor() throws Exception {
 
     final Directory directory = new Directory();
     final File cwd = new File(System.getProperty("user.dir"));
@@ -69,7 +75,7 @@ public class TestDirectory extends AbstractFileTestCase {
                  directory.getFile().getCanonicalPath());
   }
 
-  public void testEquality() throws Exception {
+  @Test public void testEquality() throws Exception {
 
     final Directory d1 = new Directory(getDirectory());
     final Directory d2 = new Directory(getDirectory());
@@ -90,7 +96,7 @@ public class TestDirectory extends AbstractFileTestCase {
     AssertUtilities.assertNotEquals(d1, f);
   }
 
-  public void testListContents() throws Exception {
+  @Test public void testListContents() throws Exception {
 
     final Directory directory = new Directory(getDirectory());
 
@@ -171,7 +177,7 @@ public class TestDirectory extends AbstractFileTestCase {
     assertEquals(files.length, allFiles.length);
   }
 
-  public void testDeleteContents() throws Exception {
+  @Test public void testDeleteContents() throws Exception {
 
     final Directory directory = new Directory(getDirectory());
 
@@ -203,7 +209,7 @@ public class TestDirectory extends AbstractFileTestCase {
     // permissions on W2K.
   }
 
-  public void testCreate() throws Exception {
+  @Test public void testCreate() throws Exception {
     final String[] directories = {
       "toplevel",
       "down/a/few",
@@ -229,7 +235,7 @@ public class TestDirectory extends AbstractFileTestCase {
     }
   }
 
-  public void testDelete() throws Exception {
+  @Test public void testDelete() throws Exception {
     final Directory directory1 =
       new Directory(new File(getDirectory(), "a/directory"));
     directory1.create();
@@ -251,8 +257,9 @@ public class TestDirectory extends AbstractFileTestCase {
     }
   }
 
-  public void testGetRelativePath() throws Exception {
+  @Test public void testGetRelativeChildPath() throws Exception {
     final String[] files = {
+      ".",
       "path1",
       "some/other/path",
     };
@@ -262,22 +269,31 @@ public class TestDirectory extends AbstractFileTestCase {
     for (int i = 0; i < files.length; ++i) {
       final File absoluteFile = new File(getDirectory(), files[i]);
 
-      final File result = directory.getRelativePath(absoluteFile);
+      final File result = directory.getRelativeChildPath(absoluteFile);
       assertFalse(result.isAbsolute());
       assertEquals(absoluteFile, new File(getDirectory(), result.getPath()));
 
       final File relativeFile = new File(files[i]);
 
-      final File result2 = directory.getRelativePath(relativeFile);
+      final File result2 = directory.getRelativeChildPath(relativeFile);
       assertFalse(result2.isAbsolute());
       assertEquals(relativeFile, result2);
     }
-
-    // Absolute file outside of directory.
-    assertNull(directory.getRelativePath(new File("blah").getAbsoluteFile()));
   }
 
-  public void testIsParentOf() throws Exception {
+  @Test public void testGetRelativeChildPathWithExternalPath()
+    throws Exception {
+
+    // Absolute file outside of directory.
+
+    final Directory directory = new Directory(getDirectory());
+
+    final File absoluteFile = new File("blah").getAbsoluteFile();
+
+    assertEquals(absoluteFile, directory.getRelativeChildPath(absoluteFile));
+  }
+
+  @Test public void testIsParentOf() throws Exception {
     final File f1 = new File("xfoo");
     final File f2 = new File("xfoo/bah");
     final File f3 = new File("xfoo/bah/blah");
@@ -292,7 +308,7 @@ public class TestDirectory extends AbstractFileTestCase {
     assertFalse(new Directory(f3).isParentOf(f4));
   }
 
-  public void testCopyTo() throws Exception {
+  @Test public void testCopyTo() throws Exception {
     final Set<File> files = new HashSet<File>() {{
       add(new File("a file"));
       add(new File("directory/.afile"));
@@ -373,7 +389,7 @@ public class TestDirectory extends AbstractFileTestCase {
     assertFalse(missingOutputDirectory.getFile().exists());
   }
 
-  public void testSerialization() throws Exception {
+  @Test public void testSerialization() throws Exception {
     final Directory original = new Directory(getDirectory());
 
     assertEquals(original, Serializer.serialize(original));

@@ -236,7 +236,8 @@ public final class AgentImplementation implements Agent {
             final WorkerProcessCommandLine workerCommandLine =
               new WorkerProcessCommandLine(properties,
                                            System.getProperties(),
-                                           jvmArguments);
+                                           jvmArguments,
+                                           script.getDirectory());
 
             m_logger.output(
               "Worker process command line: " + workerCommandLine);

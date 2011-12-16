@@ -68,7 +68,7 @@ public class TestProcessWorkerFactory {
 
     final WorkerProcessCommandLine commandLine =
       new WorkerProcessCommandLine(
-        grinderProperties, systemProperties, "");
+        grinderProperties, systemProperties, "", new Directory());
 
     final List<String> commandList = commandLine.getCommandList();
 
@@ -140,7 +140,6 @@ public class TestProcessWorkerFactory {
 
         protected Worker
           createWorker(WorkerIdentityImplementation workerIdentity,
-                       Directory directory,
                        OutputStream outputStream,
                        OutputStream errorStream)
         throws EngineException {

@@ -35,7 +35,6 @@ import static org.mockito.Mockito.when;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -47,7 +46,6 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RedirectStandardStreams;
-import net.grinder.util.Directory;
 import net.grinder.util.thread.Condition;
 
 import org.junit.Test;
@@ -352,19 +350,18 @@ public class TestWorkerLauncher {
       m_lastOutputStream = outputStream;
       m_lastErrorStream = errorStream;
 
-      final String[] commandArray = {
-        "java",
-        "-classpath",
-        s_testClasspath,
-        EchoClass.class.getName(),
-      };
+      final CommandLine commandLine =
+        new MyCommandLine("java",
+                          "-classpath",
+                          s_testClasspath,
+                          EchoClass.class.getName());
 
       final Worker childProcess =
         new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-                          Arrays.asList(commandArray),
-                          new Directory(),
+                          commandLine,
                           outputStream,
                           errorStream);
+
       ++m_numberOfProcesses;
       m_childProcesses.add(childProcess);
 

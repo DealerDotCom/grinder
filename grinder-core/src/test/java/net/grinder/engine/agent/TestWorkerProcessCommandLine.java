@@ -21,11 +21,18 @@
 
 package net.grinder.engine.agent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
+
+import org.junit.Test;
 
 
 /**
@@ -33,13 +40,14 @@ import net.grinder.testutility.AbstractFileTestCase;
  *
  * @author Philip Aston
  */
-public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
+public class TestWorkerProcessCommandLine extends AbstractJUnit4FileTestCase {
 
-  public void testConstructorWithEmptyProperties() throws Exception {
+  @Test public void testConstructorWithEmptyProperties() throws Exception {
 
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(new GrinderProperties(),
                                    new Properties(),
+                                   null,
                                    null);
 
     assertEquals(
@@ -47,7 +55,7 @@ public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
       workerProcessCommandLine.toString());
   }
 
-  public void testConstructorWithProperties() throws Exception {
+  @Test public void testConstructorWithProperties() throws Exception {
 
     final GrinderProperties grinderProperties = new GrinderProperties() {{
       setProperty("grinder.jvm.arguments", "-server -Xmx1024M");
@@ -59,7 +67,8 @@ public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(grinderProperties,
                                    overrideProperties,
-                                   grinderProperties.getProperty("grinder.jvm.arguments"));
+                                   grinderProperties.getProperty("grinder.jvm.arguments"),
+                                   null);
 
     assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.WorkerProcessEntryPoint",
                  workerProcessCommandLine.toString());
@@ -69,7 +78,7 @@ public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
                  workerProcessCommandLine.toString());
   }
 
-  public void testConstructorWithAgent() throws Exception {
+  @Test public void testConstructorWithAgent() throws Exception {
 
     final GrinderProperties grinderProperties = new GrinderProperties();
 
@@ -83,7 +92,8 @@ public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(grinderProperties,
                                    overrideProperties,
-                                   grinderProperties.getProperty("grinder.jvm.arguments"));
+                                   grinderProperties.getProperty("grinder.jvm.arguments"),
+                                   null);
 
     assertEquals("java '-javaagent:" + agentFile.getAbsolutePath() +
                  "' -classpath '" + someJar.getAbsolutePath() +
@@ -91,7 +101,7 @@ public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
                  workerProcessCommandLine.toString());
   }
 
-  public void testWithSystemProperties() throws Exception {
+  @Test public void testWithSystemProperties() throws Exception {
 
     final GrinderProperties grinderProperties = new GrinderProperties() {{
       setProperty("grinder.jvm.arguments", "-Xmx1024M");
@@ -106,7 +116,8 @@ public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(grinderProperties,
                                    systemProperties,
-                                   grinderProperties.getProperty("grinder.jvm.arguments"));
+                                   grinderProperties.getProperty("grinder.jvm.arguments"),
+                                   null);
 
     String commandLine = workerProcessCommandLine.toString();
 
@@ -123,7 +134,7 @@ public class TestWorkerProcessCommandLine extends AbstractFileTestCase {
     assertEquals(expectedSuffix, commandLine);
   }
 
-  public void testFindAgentJarFile() throws Exception {
+  @Test public void testFindAgentJarFile() throws Exception {
     assertNull(WorkerProcessCommandLine.findAgentJarFile("foo.jar"));
 
     assertNull(

@@ -29,7 +29,6 @@ import java.io.PipedOutputStream;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.processidentity.WorkerIdentity;
-import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 
 
 /**
@@ -40,12 +39,12 @@ import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplem
  */
 final class DebugThreadWorker implements Worker {
 
-  private final WorkerIdentityImplementation m_workerIdentity;
+  private final WorkerIdentity m_workerIdentity;
   private final Thread m_thread;
   private final PipedOutputStream m_communicationStream;
   private int m_result;
 
-  public DebugThreadWorker(WorkerIdentityImplementation workerIdentity,
+  public DebugThreadWorker(WorkerIdentity workerIdentity,
                            final IsolateGrinderProcessRunner runner) {
     m_workerIdentity = workerIdentity;
 

@@ -36,7 +36,6 @@ import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.util.BlockingClassLoader;
-import net.grinder.util.Directory;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 
 
@@ -97,12 +96,9 @@ final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
 
   @Override
   protected Worker createWorker(WorkerIdentityImplementation workerIdentity,
-                                Directory workingDirectory,
                                 OutputStream outputStream,
                                 OutputStream errorStream)
     throws EngineException {
-
-    // Unfortunately, we can't respect the working directory.
 
     final ClassLoader classLoader =
       new BlockingClassLoader(Collections.<String>emptySet(),

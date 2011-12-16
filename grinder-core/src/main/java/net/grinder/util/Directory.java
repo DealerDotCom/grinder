@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -275,20 +275,36 @@ public final class Directory implements Serializable {
   }
 
   /**
-   * Find the given file in the directory and return a <code>File</code>
-   * representing its path relative to the root of the directory.
+   * Calculate a {@code File} representing a file's path relative to the root of
+   * the directory, assuming the file is a child of the directory.
+   *
+   * <p>
+   * If {@code file} is relative, and the directory is not one of its parents,
+   * it is assumed to represent a relative path within the directory and is
+   * returned as the result.
+   * </p>
+   *
+   * <p>
+   * Otherwise, if this directory is not a parent of {@code file}, then
+   * {@code file} must represent an absolute path.
    *
    * @param file
-   *            The file to search for.
-   * @return The relative file, or <code>null</code> if the directory does not
-   *         exist or <code>absoluteFile</code> was not found.
+   *          The file to search for.
+   * @return The relative path if it was found. Otherwise {@code file}.
    */
-  public File getRelativePath(File file) {
-    return getRelative(getFile(), file, null);
+  public File getRelativeChildPath(File file) {
+    return getRelativeChild(getFile(), file, new File(""));
   }
 
-  private static File getRelative(File parent, File child, File result) {
-    final File immediateParent = child.getParentFile();
+  /**
+   * Recurse up the parents of {@code} child, pushing each level onto
+   * {@code result}, until we run out of parents, or {@code parent} is found.
+   */
+  private static File getRelativeChild(File parent, File child, File result) {
+
+    if (parent.equals(child)) {
+      return result;
+    }
 
     final File nextResult;
 
@@ -299,20 +315,13 @@ public final class Directory implements Serializable {
       nextResult = new File(child.getName(), result.getPath());
     }
 
-    if (parent.equals(immediateParent)) {
+    final File immediateParent = child.getParentFile();
+
+    if (immediateParent == null) {
       return nextResult;
     }
 
-    if (immediateParent == null) {
-      if (child.isAbsolute()) {
-        return null;
-      }
-      else {
-        return nextResult;
-      }
-    }
-
-    return getRelative(parent, immediateParent, nextResult);
+    return getRelativeChild(parent, immediateParent, nextResult);
   }
 
   /**

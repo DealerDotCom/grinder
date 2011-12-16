@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,7 +33,6 @@ import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplem
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
-import net.grinder.util.Directory;
 
 
 /**
@@ -73,7 +72,6 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
     }
 
     final Worker worker = createWorker(workerIdentity,
-                                       m_script.getDirectory(),
                                        outputStream,
                                        errorStream);
 
@@ -105,7 +103,6 @@ abstract class AbstractWorkerFactory implements WorkerFactory {
 
   protected abstract Worker createWorker(
     WorkerIdentityImplementation workerIdentity,
-    Directory workingDirectory,
     OutputStream outputStream,
     OutputStream errorStream) throws EngineException;
 }

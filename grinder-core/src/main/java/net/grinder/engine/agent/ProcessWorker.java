@@ -25,13 +25,10 @@ package net.grinder.engine.agent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.processidentity.WorkerIdentity;
-import net.grinder.engine.agent.AgentIdentityImplementation.WorkerIdentityImplementation;
 import net.grinder.engine.common.EngineException;
-import net.grinder.util.Directory;
 import net.grinder.util.StreamCopier;
 
 
@@ -46,7 +43,7 @@ import net.grinder.util.StreamCopier;
  */
 final class ProcessWorker implements Worker {
 
-  private final WorkerIdentityImplementation m_workerIdentity;
+  private final WorkerIdentity m_workerIdentity;
   private final Process m_process;
   private final Redirector m_stdoutRedirector;
   private final Redirector m_stderrRedirector;
@@ -55,25 +52,25 @@ final class ProcessWorker implements Worker {
    * Constructor.
    *
    * @param workerIdentity The process identity.
-   * @param command Command line arguments.
-   * @param workingDirectory The working directory for the process.
+   * @param commandLine Command line arguments and working directory.
    * @param outputStream Output stream to which child process stdout
    * should be redirected. Will not be closed by this class.
    * @param errorStream Output stream to which child process stderr
    * should be redirected. Will not be closed by this class.
    * @throws EngineException If an error occurs.
    */
-  public ProcessWorker(WorkerIdentityImplementation workerIdentity,
-                       List<String> command,
-                       Directory workingDirectory,
+  public ProcessWorker(WorkerIdentity workerIdentity,
+                       CommandLine commandLine,
                        OutputStream outputStream,
                        OutputStream errorStream)
     throws EngineException {
 
     m_workerIdentity = workerIdentity;
 
-    final ProcessBuilder processBuilder = new ProcessBuilder(command);
-    processBuilder.directory(workingDirectory.getFile());
+    final ProcessBuilder processBuilder =
+      new ProcessBuilder(commandLine.getCommandList());
+
+    processBuilder.directory(commandLine.getWorkingDirectory().getFile());
 
     try {
       m_process = processBuilder.start();

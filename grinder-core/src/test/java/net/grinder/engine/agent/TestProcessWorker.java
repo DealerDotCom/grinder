@@ -28,11 +28,10 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.util.List;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.UncheckedInterruptedException;
-import net.grinder.util.Directory;
 
 import org.junit.Test;
 
@@ -53,15 +52,14 @@ public class TestProcessWorker {
     new StubAgentIdentity("test");
 
   @Test public void testWithInvalidProcess() throws Exception {
-    final String[] commandArray = {
-      "No such process blah blah blah",
-      "some argument",
-    };
+
+    final CommandLine commandLine =
+      new MyCommandLine("No such process blah blah blah",
+                        "some argument");
 
     try {
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-                        Arrays.asList(commandArray),
-                        new Directory(),
+                        commandLine,
                         m_outputStream,
                         m_errorStream);
       fail("Expected GrinderException");
@@ -75,17 +73,15 @@ public class TestProcessWorker {
 
   @Test public void testWithInvalidJavaClass() throws Exception {
 
-    final String[] commandArray = {
-      "java",
-      "some nonsense class",
-    };
+    final CommandLine commandLine =
+      new MyCommandLine("java",
+                        "some nonsense class");
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        Arrays.asList(commandArray),
-        new Directory(),
-        m_outputStream,
-        m_errorStream);
+                        commandLine,
+                        m_outputStream,
+                        m_errorStream);
 
     childProcess.waitFor();
 
@@ -95,22 +91,21 @@ public class TestProcessWorker {
   }
 
   @Test public void testArguments() throws Exception {
-    final String[] commandArray = {
-      "java",
-      "-classpath",
-      s_testClasspath,
-      EchoClass.class.getName(),
-      "some stuff",
-      "blah",
-      "3810 32190 130100''''",
-    };
+
+    final CommandLine commandLine =
+      new MyCommandLine("java",
+                        "-classpath",
+                        s_testClasspath,
+                        EchoClass.class.getName(),
+                        "some stuff",
+                        "blah",
+                        "3810 32190 130100''''");
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        Arrays.asList(commandArray),
-        new Directory(),
-        m_outputStream,
-        m_errorStream);
+                        commandLine,
+                        m_outputStream,
+                        m_errorStream);
 
     final PrintWriter out =
       new PrintWriter(childProcess.getCommunicationStream());
@@ -123,8 +118,10 @@ public class TestProcessWorker {
 
     final StringBuffer expected = new StringBuffer();
 
-    for (int i=4; i<commandArray.length; ++i) {
-      expected.append(commandArray[i]);
+    final List<String> command = commandLine.getCommandList();
+
+    for (String argument : command.subList(4, command.size())) {
+      expected.append(argument);
     }
 
     assertEquals("", new String(m_errorStream.toByteArray()));
@@ -136,19 +133,17 @@ public class TestProcessWorker {
   }
 
   @Test public void testConcurrentProcessing() throws Exception {
-    final String[] commandArray = {
-      "java",
-      "-classpath",
-      s_testClasspath,
-      EchoClass.class.getName(),
-    };
+    final CommandLine commandLine =
+      new MyCommandLine("java",
+                        "-classpath",
+                        s_testClasspath,
+                        EchoClass.class.getName());
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        Arrays.asList(commandArray),
-        new Directory(),
-        m_outputStream,
-        m_errorStream);
+                        commandLine,
+                        m_outputStream,
+                        m_errorStream);
 
     final PrintWriter out =
       new PrintWriter(childProcess.getCommunicationStream());
@@ -181,19 +176,17 @@ public class TestProcessWorker {
   }
 
   @Test public void testDestroy() throws Exception {
-    final String[] commandArray = {
-      "java",
-      "-classpath",
-      s_testClasspath,
-      EchoClass.class.getName(),
-    };
+    final CommandLine commandLine =
+      new MyCommandLine("java",
+                        "-classpath",
+                        s_testClasspath,
+                        EchoClass.class.getName());
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        Arrays.asList(commandArray),
-        new Directory(),
-        m_outputStream,
-        m_errorStream);
+                        commandLine,
+                        m_outputStream,
+                        m_errorStream);
 
     childProcess.destroy();
 
@@ -203,19 +196,17 @@ public class TestProcessWorker {
   }
 
   @Test public void testDestroyInterrupted() throws Exception {
-    final String[] commandArray = {
-      "java",
-      "-classpath",
-      s_testClasspath,
-      EchoClass.class.getName(),
-    };
+    final CommandLine commandLine =
+      new MyCommandLine("java",
+                        "-classpath",
+                        s_testClasspath,
+                        EchoClass.class.getName());
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        Arrays.asList(commandArray),
-        new Directory(),
-        m_outputStream,
-        m_errorStream);
+                        commandLine,
+                        m_outputStream,
+                        m_errorStream);
 
     Thread.currentThread().interrupt();
 
@@ -234,19 +225,17 @@ public class TestProcessWorker {
   }
 
   @Test public void testWaitForInterrupted() throws Exception {
-    final String[] commandArray = {
-      "java",
-      "-classpath",
-      s_testClasspath,
-      EchoClass.class.getName(),
-    };
+    final CommandLine commandLine =
+      new MyCommandLine("java",
+                        "-classpath",
+                        s_testClasspath,
+                        EchoClass.class.getName());
 
     final ProcessWorker childProcess =
       new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
-        Arrays.asList(commandArray),
-        new Directory(),
-        m_outputStream,
-        m_errorStream);
+                        commandLine,
+                        m_outputStream,
+                        m_errorStream);
 
     childProcess.destroy();
 
