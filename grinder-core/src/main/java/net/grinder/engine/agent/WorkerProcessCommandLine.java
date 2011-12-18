@@ -129,7 +129,7 @@ final class WorkerProcessCommandLine implements CommandLine {
   /**
    * {@inheritDoc}
    */
-  public List<String> getCommandList() {
+  @Override public List<String> getCommandList() {
     return m_command;
   }
 
