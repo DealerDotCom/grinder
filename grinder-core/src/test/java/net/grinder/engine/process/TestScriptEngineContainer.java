@@ -67,11 +67,11 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
   @Mock private GrinderProperties m_properties;
   @Mock private Logger m_logger;
 
-  private final ScriptLocation m_pyScript =
-    new ScriptLocation(new File("foo.py"));
+  private ScriptLocation m_pyScript;
 
-  @Before public void initialise() {
+  @Before public void initialise() throws Exception {
     MockitoAnnotations.initMocks(this);
+    m_pyScript = new ScriptLocation(new File("foo.py"));
   }
 
   @Test public void testBadResourceLoading() throws Exception {

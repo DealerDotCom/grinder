@@ -276,7 +276,7 @@ public final class Directory implements Serializable {
 
   /**
    * Calculate a {@code File} representing a file's path relative to the root of
-   * the directory, assuming the file is a child of the directory.
+   * the directory.
    *
    * <p>
    * If {@code file} is relative, and the directory is not one of its parents,
@@ -284,44 +284,102 @@ public final class Directory implements Serializable {
    * returned as the result.
    * </p>
    *
-   * <p>
-   * Otherwise, if this directory is not a parent of {@code file}, then
-   * {@code file} must represent an absolute path.
-   *
    * @param file
    *          The file to search for.
    * @return The relative path if it was found. Otherwise {@code file}.
+   * @throws IOException
+   *           If a canonical path could not be calculated.
    */
-  public File getRelativeChildPath(File file) {
-    return getRelativeChild(getFile(), file, new File(""));
+  public File rebaseFile(File file) throws IOException {
+    final File result = relativePath(getFile(), file);
+
+    if (result.isAbsolute() && !file.isAbsolute()) {
+      return file;
+    }
+
+    return result;
   }
 
   /**
-   * Recurse up the parents of {@code} child, pushing each level onto
-   * {@code result}, until we run out of parents, or {@code parent} is found.
+   * Calculate a relative path from {@code from} to {@code to}.
+   *
+   * <p>Package scope for unit tests.</p>
+   *
+   * @param from
+   *          Source file or directory.
+   * @param to
+   *          Target file or directory.
+   * @return The relative path, or if no relative path exists, an absolute path
+   *         to {@code to}.
+   * @throws IOException
+   *           If a canonical path could not be calculated.
    */
-  private static File getRelativeChild(File parent, File child, File result) {
+  static File relativePath(File from, File to) throws IOException {
+    final String[] fromPaths = from.getCanonicalPath().split(File.separator);
+    final File canonicalTo = to.getCanonicalFile();
+    final String[] toPaths = canonicalTo.getPath().split(File.separator);
 
-    if (parent.equals(child)) {
-      return result;
+    int i = 0;
+
+    while (i < fromPaths.length &&
+           i < toPaths.length &&
+           fromPaths[i].equals(toPaths[i])) {
+      ++i;
     }
 
-    final File nextResult;
-
-    if (result == null) {
-      nextResult = new File(child.getName());
-    }
-    else {
-      nextResult = new File(child.getName(), result.getPath());
+    // i == 0: The root file is different.
+    // i == 1: The root file is the same, but there's no common path.
+    if (i <= 1) {
+      return canonicalTo;
     }
 
-    final File immediateParent = child.getParentFile();
+    final StringBuilder result = new StringBuilder();
 
-    if (immediateParent == null) {
-      return nextResult;
+    for (int j = i; j < fromPaths.length; ++j) {
+      result.append("..");
+      result.append(File.separator);
     }
 
-    return getRelativeChild(parent, immediateParent, nextResult);
+    for (int j = i; j < toPaths.length; ++j) {
+      result.append(toPaths[j]);
+
+      if (j != toPaths.length - 1) {
+        result.append(File.separator);
+      }
+    }
+
+    return new File(result.toString());
+  }
+
+  /**
+   * Rebase a whole path by calling {@link #rebaseFile} on each of its
+   * elements and joining the result.
+   *
+   * @param path
+   *          The path.
+   * @return The result.
+   * @throws IOException
+   *           If a canonical path could not be calculated.
+   */
+  public String rebasePath(String path) throws IOException {
+    final String[] elements = path.split(File.pathSeparator);
+
+    final StringBuilder result = new StringBuilder(path.length());
+
+    boolean first = true;
+
+    for (String e : elements) {
+      if (first) {
+        first = false;
+      }
+      else {
+        result.append(File.pathSeparator);
+      }
+
+      result.append(rebaseFile(new File(e)));
+    }
+
+    return result.toString();
   }
 
   /**
@@ -329,7 +387,7 @@ public final class Directory implements Serializable {
    * the directory.
    *
    * @param file File to test.
-   * @return <code>boolean</code> => file is a descendant.
+   * @return {@code boolean} => file is a descendant.
    */
   public boolean isParentOf(File file) {
     final File thisFile = getFile();

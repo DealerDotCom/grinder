@@ -22,6 +22,7 @@
 package net.grinder.engine.agent;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.WorkerProcessEntryPoint;
 import net.grinder.util.Directory;
 
@@ -50,7 +52,8 @@ final class WorkerProcessCommandLine implements CommandLine {
   public WorkerProcessCommandLine(GrinderProperties properties,
                                   Properties systemProperties,
                                   String jvmArguments,
-                                  Directory workingDirectory) {
+                                  Directory workingDirectory)
+    throws EngineException {
 
     m_workingDirectory = workingDirectory;
     m_command = new ArrayList<String>();
@@ -63,8 +66,13 @@ final class WorkerProcessCommandLine implements CommandLine {
       final File agent = findAgentJarFile(systemClasspath);
 
       if (agent != null) {
-        // TODO use directory.
-        m_command.add("-javaagent:" + agent.getAbsolutePath());
+        try {
+          m_command.add("-javaagent:" +
+                        workingDirectory.rebaseFile(agent));
+        }
+        catch (IOException e) {
+          throw new EngineException(e.getMessage(), e);
+        }
       }
     }
 
@@ -79,9 +87,8 @@ final class WorkerProcessCommandLine implements CommandLine {
       }
     }
 
-    // TODO relativise CP. Does this allow us to remove previous hacks?
     final String additionalClasspath =
-      properties.getProperty("grinder.jvm.classpath", null);
+      properties.getProperty("grinder.jvm.classpath");
 
     final StringBuilder classpath = new StringBuilder();
 
@@ -99,7 +106,13 @@ final class WorkerProcessCommandLine implements CommandLine {
 
     if (classpath.length() > 0) {
       m_command.add("-classpath");
-      m_command.add(classpath.toString());
+
+      try {
+        m_command.add(workingDirectory.rebasePath(classpath.toString()));
+      }
+      catch (IOException e) {
+        throw new EngineException(e.getMessage(), e);
+      }
     }
 
     m_commandClassIndex = m_command.size();
@@ -165,7 +178,7 @@ final class WorkerProcessCommandLine implements CommandLine {
   static File findAgentJarFile(String path) {
     for (String pathEntry : path.split(File.pathSeparator)) {
       final File f = new File(pathEntry).getParentFile();
-      final File parentFile = f != null? f : new File("/");
+      final File parentFile = f != null ? f : new File(".");
 
       for (File candidate : parentFile.listFiles()) {
         if (candidate.getName().startsWith(AGENT_JAR_FILENAME_PREFIX)) {

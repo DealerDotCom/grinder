@@ -27,14 +27,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
-import java.io.IOException;
 
 import net.grinder.common.StubTest;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.Recorder;
 import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.util.Directory;
-import net.grinder.util.Directory.DirectoryException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +63,7 @@ public abstract class AbstractJythonScriptEngineServiceTests
   }
 
   @Before
-  public void setUp() throws DirectoryException, IOException {
+  public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
     m_pyScript =

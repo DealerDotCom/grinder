@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.IOException;
 
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
@@ -64,7 +63,7 @@ public class TestJythonScriptEngine extends AbstractJUnit4FileTestCase {
 
   private ScriptLocation m_script;
 
-  @Before public void initialise() throws IOException {
+  @Before public void initialise() throws Exception {
     final File scriptFile = new File(getDirectory(), "script");
 
     m_script = new ScriptLocation(new Directory(getDirectory()), scriptFile);

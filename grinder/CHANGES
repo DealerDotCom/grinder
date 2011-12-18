@@ -16,6 +16,11 @@ The Grinder 3.7 (not yet released)
    Fix bug 3431764 - DCR instrumentation fails with Java 7. Thanks to
    Gary Mulder for the report.
 
+   Fix bug 3133650 - Relative classpath issues when using the console. The
+   agent process now translates relative paths in the classpath to the
+   different working directory when workers are launched with scripts
+   distributed by the console. Thanks to Jared C for the report.
+
 
 The Grinder 3.6
 ---------------

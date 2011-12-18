@@ -22,6 +22,7 @@
 package net.grinder.engine.common;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 
 import net.grinder.util.Directory;
@@ -41,20 +42,27 @@ public final class ScriptLocation implements Serializable {
   private final File m_absoluteFile;
 
   /**
-   * Constructor for ScriptLocation.
+   * Constructor.
    *
    * @param directory
    *            Script working directory. May be relative (to the CWD).
    * @param file
-   *            The script file. May be relative (to <code>directory</code>).
+   *            The script file. May be relative (to {@code directory}).
    *            If absolute, it needn't be below the root directory.
+   * @throws EngineException
+   *    If a file operation failed.
    */
-  public ScriptLocation(Directory directory, File file) {
+  public ScriptLocation(Directory directory, File file) throws EngineException {
 
     m_directory = directory;
 
     // Try to shorten the name.
-    m_shortFile = directory.getRelativeChildPath(file);
+    try {
+      m_shortFile = directory.rebaseFile(file);
+    }
+    catch (IOException e) {
+      throw new EngineException(e.getMessage(), e);
+    }
 
     if (file.isAbsolute()) {
       m_absoluteFile = file;
@@ -65,12 +73,14 @@ public final class ScriptLocation implements Serializable {
   }
 
   /**
-   * Constructor for ScriptLocation based on the current working directory.
+   * Constructor, based on the current working directory.
    *
    * @param file
    *            The script file.
+   * @throws EngineException
+   *    If a file operation failed.
    */
-  public ScriptLocation(File file) {
+  public ScriptLocation(File file) throws EngineException {
     this(new Directory(), file);
   }
 

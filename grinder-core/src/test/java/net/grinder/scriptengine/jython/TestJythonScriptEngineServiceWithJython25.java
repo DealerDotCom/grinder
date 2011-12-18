@@ -25,11 +25,9 @@ import static net.grinder.scriptengine.jython.instrumentation.AbstractJythonInst
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
-import java.io.File;
 import java.util.List;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.engine.common.ScriptLocation;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.scriptengine.DCRContext;
 import net.grinder.scriptengine.Instrumenter;
@@ -48,9 +46,6 @@ import org.python.core.PyInstance;
 @RunWith(Jython25Runner.class)
 public class TestJythonScriptEngineServiceWithJython25
   extends AbstractJythonScriptEngineServiceTests {
-
-  private final ScriptLocation m_pyScript =
-    new ScriptLocation(new File("foo.py"));
 
   @Test public void testVersion() throws Exception {
     assertVersion("2.5");

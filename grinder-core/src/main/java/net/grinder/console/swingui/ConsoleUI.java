@@ -1344,12 +1344,11 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
           final Directory directory = m_properties.getDistributionDirectory();
 
-          final File path = directory.getRelativeChildPath(scriptFile);
+          final File path = directory.rebaseFile(scriptFile);
 
           // If path is absolute, it is not a child of the directory. We allow
           // this, since it is fairly obvious to the user what is going on.
-          if (!path.isAbsolute() &&
-              !directory.getFile(path).isFile()) {
+          if (path.getPath().contains("..")) {
             getErrorHandler().handleErrorMessage(
               m_resources.getString("scriptNotInDirectoryError.text"),
               (String) getValue(NAME));
@@ -1360,12 +1359,15 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
           // Ensure the properties passed to the agent has a relative
           // associated path.
           properties.setAssociatedFile(
-            directory.getRelativeChildPath(propertiesFile));
+            directory.rebaseFile(propertiesFile));
 
           m_processControl.startWorkerProcesses(properties);
         }
       }
       catch (GrinderException e) {
+        getErrorHandler().handleException(e);
+      }
+      catch (IOException e) {
         getErrorHandler().handleException(e);
       }
     }

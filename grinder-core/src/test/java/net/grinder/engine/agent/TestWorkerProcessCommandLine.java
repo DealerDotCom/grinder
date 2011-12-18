@@ -31,6 +31,7 @@ import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.testutility.AbstractJUnit4FileTestCase;
+import net.grinder.util.Directory;
 
 import org.junit.Test;
 
@@ -48,7 +49,7 @@ public class TestWorkerProcessCommandLine extends AbstractJUnit4FileTestCase {
       new WorkerProcessCommandLine(new GrinderProperties(),
                                    new Properties(),
                                    null,
-                                   null);
+                                   new Directory());
 
     assertEquals(
       "java net.grinder.engine.process.WorkerProcessEntryPoint",
@@ -68,7 +69,7 @@ public class TestWorkerProcessCommandLine extends AbstractJUnit4FileTestCase {
       new WorkerProcessCommandLine(grinderProperties,
                                    overrideProperties,
                                    grinderProperties.getProperty("grinder.jvm.arguments"),
-                                   null);
+                                   new Directory());
 
     assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.WorkerProcessEntryPoint",
                  workerProcessCommandLine.toString());
@@ -93,7 +94,7 @@ public class TestWorkerProcessCommandLine extends AbstractJUnit4FileTestCase {
       new WorkerProcessCommandLine(grinderProperties,
                                    overrideProperties,
                                    grinderProperties.getProperty("grinder.jvm.arguments"),
-                                   null);
+                                   new Directory());
 
     assertEquals("java '-javaagent:" + agentFile.getAbsolutePath() +
                  "' -classpath '" + someJar.getAbsolutePath() +
@@ -117,7 +118,7 @@ public class TestWorkerProcessCommandLine extends AbstractJUnit4FileTestCase {
       new WorkerProcessCommandLine(grinderProperties,
                                    systemProperties,
                                    grinderProperties.getProperty("grinder.jvm.arguments"),
-                                   null);
+                                   new Directory());
 
     String commandLine = workerProcessCommandLine.toString();
 
@@ -136,6 +137,8 @@ public class TestWorkerProcessCommandLine extends AbstractJUnit4FileTestCase {
 
   @Test public void testFindAgentJarFile() throws Exception {
     assertNull(WorkerProcessCommandLine.findAgentJarFile("foo.jar"));
+
+    assertNull(WorkerProcessCommandLine.findAgentJarFile("/foo.jar"));
 
     assertNull(
      WorkerProcessCommandLine.findAgentJarFile(
