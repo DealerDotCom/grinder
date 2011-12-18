@@ -402,8 +402,6 @@ public class TestThreadContextImplementation {
                                       m_filenameFactory,
                                       null);
 
-    // TODO m_dispatchContextStubFactory.setIgnoreMethod("getStatisticsForTest");
-
     when(m_dispatchContext.getTest()).thenReturn(new StubTest(14, "test"));
 
     final Throwable t = new DispatchContext.DispatchStateException("foo");
