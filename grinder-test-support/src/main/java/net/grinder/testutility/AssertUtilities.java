@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
-import HTTPClient.NVPair;
+//import HTTPClient.NVPair;
 
 
 /**
@@ -84,35 +84,6 @@ public class AssertUtilities extends Assert {
 
         for (int i = 0; i < a.length; ++i) {
           assertEquals(message + "element " + i + " equal", a[i], b[i]);
-        }
-      }
-    }
-  }
-
-  public static void assertArraysEqual(NVPair[] a, NVPair[] b) {
-    assertArraysEqual("", a, b);
-  }
-
-  public static void assertArraysEqual(String message, NVPair[] a,
-                                       NVPair[] b) {
-
-    if (!message.equals("")) {
-      message = message + ": ";
-    }
-
-    if (a != null || b != null) {
-      assertNotNull(message + "first is not null", a);
-      assertNotNull(message + "second is not null", b);
-
-      // If statement is to shut up eclipse null warning.
-      if (a != null && b != null) {
-        assertEquals(message + "arrays of equal length", a.length, b.length);
-
-        for (int i=0; i<a.length; ++i) {
-          assertEquals(message + "NVPair " + i + " name matches",
-                       a[i].getName(), b[i].getName());
-          assertEquals(message + "NVPair " + i + " value matches",
-                       a[i].getValue(), b[i].getValue());
         }
       }
     }

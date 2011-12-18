@@ -16,13 +16,6 @@
   </parent>
 
   <dependencies>
-    <!-- TODO: Remove this dependency. -->
-    <dependency>
-      <groupId>net.grinder</groupId>
-      <artifactId>grinder-httpclient</artifactId>
-      <version>3.7-SNAPSHOT</version>
-    </dependency>
-
     <dependency>
       <groupId>net.grinder</groupId>
       <artifactId>grinder-dcr-agent</artifactId>
