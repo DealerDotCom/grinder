@@ -86,7 +86,9 @@ final class JythonScriptEngine implements ScriptEngine {
       final File jythonHome =
         jythonJar != null ? jythonJar.getParentFile() : grinderJarDirectory;
 
-      if (grinderJarDirectory.equals(jythonHome)) {
+      if (grinderJarDirectory == null && jythonJar == null ||
+          grinderJarDirectory != null &&
+          grinderJarDirectory.equals(jythonHome)) {
         final File cacheDir = new File(jythonHome, CACHEDIR_DEFAULT_NAME);
         System.setProperty("python.cachedir", cacheDir.getAbsolutePath());
       }
