@@ -12,7 +12,6 @@
   injector machines. Test scripts are written in Jython or Clojure. HTTP
   scripts can be recorded easily from a browser session. </description>
 
-<!-- TODO: don't depend on extra166y -->
   <parent>
     <groupId>net.grinder</groupId>
     <artifactId>grinder-parent</artifactId>

@@ -3,7 +3,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <!-- TODO: Licenses. -->
   <!-- TODO: Can go back to building for 1.5? -->
   <!-- TODO: Move AUTHORS to contributors. -->
   <!-- TODO: Public scm. -->
@@ -54,6 +53,14 @@
       <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=grinder-development</archive>
     </mailingList>
   </mailingLists>
+
+  <licenses>
+    <license>
+      <name>The Grinder License (modified BSD)</name>
+      <url>http://grinder.sourceforge.net/license.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <!-- Required so site:stage works. -->
   <distributionManagement>

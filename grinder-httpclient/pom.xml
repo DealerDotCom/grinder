@@ -16,6 +16,13 @@
     <version>3.7-SNAPSHOT</version>
   </parent>
 
+  <licenses>
+    <license>
+      <name>LGPL</name>
+      <url>http://grinder.sourceforge.net/license.html#LGPL</url>
+    </license>
+  </licenses>
+
   <build>
     <plugins>
       <plugin>
