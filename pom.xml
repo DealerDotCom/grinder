@@ -5,7 +5,6 @@
 
   <!-- TODO: Can go back to building for 1.5? -->
   <!-- TODO: Move AUTHORS to contributors. -->
-  <!-- TODO: Public scm. -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.grinder</groupId>
   <artifactId>grinder-parent</artifactId>
@@ -212,7 +211,42 @@
         <plugin>
           <artifactId>maven-site-plugin</artifactId>
           <version>3.0</version>
+          <configuration>
+            <reportPlugins>
+              <plugin>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <configuration>
+                  <linkOnly>true</linkOnly>
+                </configuration>
+                <reports>
+                  <report>index</report>
+                  <report>summary</report>
+                  <report>modules</report>
+                  <report>mailing-list</report>
+                  <report>issue-tracking</report>
+                  <report>license</report>
+                  <report>project-team</report>
+
+                  <!-- <report>cim</report> -->
+                  <!-- <report>dependencies</report> -->
+                  <!-- <report>dependency-convergence</report> -->
+                  <!-- <report>dependency-management</report> -->
+                  <!-- <report>distribution-management</report> -->
+                  <!-- <report>plugin-management</report> -->
+                  <!-- <report>scm</report> -->
+                </reports>
+              </plugin>
+
+              <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+              </plugin>
+              <plugin>
+                <artifactId>maven-jxr-plugin</artifactId>
+              </plugin>
+            </reportPlugins>
+          </configuration>
         </plugin>
+
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.11</version>
@@ -279,30 +313,5 @@
       </modules>
     </profile>
   </profiles>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.4</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>index</report>
-              <!-- <report>dependencies</report> -->
-              <report>dependency-convergence</report>
-              <report>dependency-management</report>
-              <report>project-team</report>
-              <report>mailing-list</report>
-              <report>issue-tracking</report>
-              <report>license</report>
-              <report>scm</report>
-              <report>summary</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
 
 </project>

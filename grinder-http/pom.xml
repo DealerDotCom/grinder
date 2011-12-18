@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder-http</artifactId>
@@ -65,7 +66,7 @@
               <goal>copy</goal>
             </goals>
             <configuration>
-            <!-- TODO How to update with version on release? -->
+              <!-- TODO How to update with version on release? -->
               <artifactItems>
                 <artifactItem>
                   <groupId>net.grinder</groupId>
@@ -90,7 +91,6 @@
         </configuration>
       </plugin>
 
-      <!-- TODO: Can push this up to parent? -->
       <plugin>
         <artifactId>maven-site-plugin</artifactId>
         <configuration>
@@ -98,6 +98,7 @@
             <plugin>
               <artifactId>maven-project-info-reports-plugin</artifactId>
             </plugin>
+
             <plugin>
               <artifactId>maven-checkstyle-plugin</artifactId>
               <reportSets>
@@ -112,14 +113,17 @@
                 <propertyExpansion>config_loc=${project.parent.basedir}/etc/</propertyExpansion>
               </configuration>
             </plugin>
+
+            <plugin>
+              <artifactId>maven-surefire-report-plugin</artifactId>
+            </plugin>
+
             <plugin>
               <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
+
             <plugin>
               <artifactId>maven-jxr-plugin</artifactId>
-            </plugin>
-            <plugin>
-              <artifactId>maven-surefire-report-plugin</artifactId>
             </plugin>
           </reportPlugins>
         </configuration>
