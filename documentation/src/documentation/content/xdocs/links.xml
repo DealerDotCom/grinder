@@ -15,6 +15,19 @@
   <table class="noborder">
     <tr>
       <td>
+        <a href="ext:ngrinder">nGrinder</a>
+      </td>
+
+      <td></td>
+
+      <td>
+     A web based testing framework built on top of The Grinder. The
+     demo video is particularly slick.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
         <a href="ext:grinder-webtest">Grinder Webtest</a>
       </td>
 
@@ -177,6 +190,15 @@
   <title>Articles</title>
 
   <table class="noborder">
+    <tr>
+      <td>
+        <a href="http://blackanvil.blogspot.com/2011/12/integrating-grinder-performance-data.html">Black Anvil: Visualizing Grinder Data With Other External Metrics</a>
+      </td>
+
+      <td>Using Graphite to visualise the test results.</td>
+    </tr>
+
+
     <tr>
       <td>
         <a href="http://vivin.net/tag/the-grinder/">Rough Book</a>

@@ -749,6 +749,10 @@ grinder.jvm.arguments: -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamp
  documentation.
   </p>
 
+  <p>
+  Please see <a href="site:g3/advice/gc">this article</a> for
+  more on Garbage Collection tuning.
+  </p>
     </answer>
    </faq>
 

@@ -98,6 +98,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <project-structure label="Setting up a project" href="setting-up-a-project.html"/>
       <tutorial label="Tutorial" href="tutorial-perks.html"/>
       <weight-distribution label="Weighted Distribution" href="tutorial-weight-distribution.html"/>
+      <gc label="Garbage Collection" href="garbage-collection.html"/>
     </advice>
     <manual href="manual.html" label="Complete User Guide" />
   </g3>
@@ -330,6 +331,8 @@ See http://forrest.apache.org/docs/linking.html for more info
       <ephemeral-ports href="ncftpd/doc/misc/ephemeral_ports.html"/>
     </ncftp>
 
+    <ngrinder href="http://www.nhnopensource.org/ngrinder"/>
+
     <oracle href="http://www.oracle.com/">
       <gc-tuning href="technetwork/java/javase/gc-tuning-6-140523.html"/>
       <java href="technetwork/java/">
@@ -389,6 +392,10 @@ See http://forrest.apache.org/docs/linking.html for more info
     <testpros href="http://www.TestPros.com/">
       <mail href="mailto:info@TestPros.com"/>
     </testpros>
+
+    <tldp href="http://tldp.org/LDP/abs/html/">
+      <io-redirection href="io-redirection.html"/>
+    </tldp>
 
     <winzip href="http://www.winzip.com/"/>
 
