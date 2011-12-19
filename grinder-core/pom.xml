@@ -2,7 +2,6 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-<!-- TODO: Why does surefire find 865 tests, but Eclipse JUnit launcher finds 879?  -->
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder-core</artifactId>
   <packaging>jar</packaging>
@@ -148,8 +147,9 @@
           </systemPropertyVariables>
 
           <excludes>
-            <!-- Skipping due to "Duplicated LocalVariableTable" issue that only
-              occurs when run by surefire, in a group of tests. -->
+            <!-- Skipping due to "Duplicated LocalVariableTable" issue
+            that only occurs when Jython 2.1 is classloaded through
+            surefire, in a group of tests. This ignores 14 tests. -->
             <exclude>**/TestTraditionalJythonInstrumenterWithJython21.java</exclude>
           </excludes>
         </configuration>
