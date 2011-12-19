@@ -4,7 +4,6 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- TODO: Can go back to building for 1.5? -->
-  <!-- TODO: Move AUTHORS to contributors. -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.grinder</groupId>
   <artifactId>grinder-parent</artifactId>
@@ -19,8 +18,175 @@
     <developer>
       <name>Philip Aston</name>
       <timezone>0</timezone>
+      <email>philipa at mail.com</email>
+    </developer>
+    <developer>
+      <name>Calum Fitzgerald</name>
+      <email>calum.fitzgerald at environment-agency.gov.uk</email>
+    </developer>
+    <developer>
+      <name>Venelin Mitov</name>
+      <email>vmitov at gmail.com</email>
     </developer>
   </developers>
+
+  <contributors>
+    <contributor>
+      <name>Paco Gomez</name>
+    </contributor>
+    <contributor>
+      <name>Phil Dawes</name>
+    </contributor>
+    <contributor>
+      <name>Paddy Spencer</name>
+      <email>paddy.spencer at physics.org</email>
+    </contributor>
+    <contributor>
+      <name>Richard Wallace</name>
+      <email>richard.wallace at bea.com</email>
+    </contributor>
+    <contributor>
+      <name>Stuart Tily</name>
+      <email>tily at sylo.org</email>
+    </contributor>
+    <contributor>
+      <name>Phillip Burgess</name>
+      <email>phillip_burgess at mail.com</email>
+    </contributor>
+    <contributor>
+      <name>Christian Nedregard</name>
+      <email>christian at laycan.com</email>
+    </contributor>
+    <contributor>
+      <name>Mikael Suokas</name>
+      <email>cms at suokas.org</email>
+    </contributor>
+    <contributor>
+      <name>David Freels</name>
+      <email>david.freels at peregrine.com</email>
+    </contributor>
+    <contributor>
+      <name>Kalle Burbeck</name>
+      <email>kalle.burbeck at idainfront.se</email>
+    </contributor>
+    <contributor>
+      <name>Dirk Feufel</name>
+      <email>Dirk.Feufel at abaXX.de</email>
+    </contributor>
+    <contributor>
+      <name>Kjetil JD</name>
+      <email>kjetiljd at usa.net</email>
+    </contributor>
+    <contributor>
+      <name>Todd Wasson</name>
+      <email>twasson at nks.net</email>
+    </contributor>
+    <contributor>
+      <name>Jose Antonio Zapata Rey</name>
+      <email>joseantonio.zapatarey at hp.com</email>
+    </contributor>
+    <contributor>
+      <name>Richard Perks</name>
+      <email>rperks at bea.com</email>
+    </contributor>
+    <contributor>
+      <name>Manuel Silva</name>
+      <email>manuel.silva at bea.com</email>
+    </contributor>
+    <contributor>
+      <name>Bill Schnellinger</name>
+      <email>bill at schnellinger.com</email>
+    </contributor>
+    <contributor>
+      <name>Bertrand Ave</name>
+      <email>avebertrand at yahoo.fr</email>
+    </contributor>
+    <contributor>
+      <name>Huibert Alblas</name>
+      <email>Huibert.Alblas at mgh.metro-ag.de</email>
+    </contributor>
+    <contributor>
+      <name>Kalyanaraman Venkatasubramaniy</name>
+      <email>venkatk1973 at yahoo.com
+      </email>
+    </contributor>
+    <contributor>
+      <name>John Stanford White</name>
+      <email>jswhite at ieee.org</email>
+    </contributor>
+    <contributor>
+      <name>Slavik Gnatenko</name>
+      <email>miracle9 at newmail.ru</email>
+    </contributor>
+    <contributor>
+      <name>Marc Born</name>
+      <email>marc.born at xtramind.com</email>
+    </contributor>
+    <contributor>
+      <name>Andreas Schmidt</name>
+      <email>andreas.schmidt at docstrange.de</email>
+    </contributor>
+    <contributor>
+      <name>Sebastiýn Fontana</name>
+      <email>sebastian.fontana at motorola.com</email>
+    </contributor>
+    <contributor>
+      <name>KArol Muszynski</name>
+      <email>karol.muszynski at hp.com</email>
+    </contributor>
+    <contributor>
+      <name>Meo Bogliolo</name>
+      <email>boglio07 at bogliolobartolomeo.191.it</email>
+    </contributor>
+    <contributor>
+      <name>Konstantin Ignatyev</name>
+      <email>kgignatyev at yahoo.com</email>
+    </contributor>
+    <contributor>
+      <name>Martin Wagner</name>
+      <email>martin.wagner at tngtech.com</email>
+    </contributor>
+    <contributor>
+      <name>Hugh Chen</name>
+      <email>hugh.jf.chen at gmail.com</email>
+    </contributor>
+    <contributor>
+      <name>Matthias Dillier</name>
+      <email>xmds at gmx.net</email>
+    </contributor>
+    <contributor>
+      <name>Pawel Lacinski</name>
+      <email>lacinski at gmail.com</email>
+    </contributor>
+    <contributor>
+      <name>Tagnon Soko</name>
+      <email>tagnon.soko at neoxia.com</email>
+    </contributor>
+    <contributor>
+      <name>Marc Van Giel</name>
+      <email>marc.vangiel at xplore.be</email>
+    </contributor>
+    <contributor>
+      <name>Walter Tuvell</name>
+      <email>Tuvell_Walter at emc.com</email>
+    </contributor>
+    <contributor>
+      <name>Antonio Manuel Muñiz Martín</name>
+      <email>http://amunizmartin.wordpress.com</email>
+    </contributor>
+    <contributor>
+      <name>Hitoshi Amano</name>
+      <email>seijro at gmail.com</email>
+    </contributor>
+    <contributor>
+      <name>Bryce Howard</name>
+      <email>bryce.howard at allstardirectories.com</email>
+    </contributor>
+    <contributor>
+      <name>Gary Mulder</name>
+      <email>gary.mulder at openbet.com</email>
+    </contributor>
+  </contributors>
 
   <issueManagement>
     <system>SourceForge Tracker</system>

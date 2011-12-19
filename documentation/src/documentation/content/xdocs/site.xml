@@ -249,6 +249,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 
       <mvn href="mvn-site/">
 	<index href="index.html"/>
+	<team href="team-list.html"/>
       </mvn>
     </grinder>
 

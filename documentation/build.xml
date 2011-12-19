@@ -225,7 +225,7 @@ for details of other targets.
     </javadoc>
   </target>
 
-  <target name="forrest" depends="init,mvn-site,project-xml,script-javadoc" 
+  <target name="forrest" depends="init" 
           description="Generates the documentation.">
 
     <delete quiet="true">
@@ -242,7 +242,7 @@ for details of other targets.
     </exec>
   </target>
 
-  <target name="all" depends="clean,forrest"/>
+  <target name="all" depends="clean,mvn-site,project-xml,script-javadoc,forrest"/>
 
   <!-- =================================================================== -->
   <!-- Clean targets                                                       -->
