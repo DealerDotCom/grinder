@@ -37,6 +37,13 @@
 
     <dependency>
       <groupId>net.grinder</groupId>
+      <artifactId>grinder-dcr-agent</artifactId>
+      <version>3.7-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>net.grinder</groupId>
       <artifactId>grinder-test-support</artifactId>
       <version>3.7-SNAPSHOT</version>
       <scope>test</scope>
@@ -66,12 +73,10 @@
               <goal>copy</goal>
             </goals>
             <configuration>
-              <!-- TODO How to update with version on release? -->
               <artifactItems>
                 <artifactItem>
                   <groupId>net.grinder</groupId>
                   <artifactId>grinder-dcr-agent</artifactId>
-                  <version>3.7-SNAPSHOT</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <destFileName>grinder-dcr-agent.jar</destFileName>
