@@ -47,6 +47,14 @@ imported document-to-html.xsl for details.
     </pre>
   </xsl:template>
 
+  <xsl:template match="source[@class='java']">
+    <xsl:apply-templates select="@id"/>
+    <pre class="brush: java">
+      <xsl:copy-of select="@id"/>
+      <xsl:apply-templates/>
+    </pre>
+  </xsl:template>
+
   <xsl:template match="source[@class='jython']">
     <xsl:apply-templates select="@id"/>
     <pre class="brush: python">
