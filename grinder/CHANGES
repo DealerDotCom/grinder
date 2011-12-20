@@ -21,6 +21,8 @@ The Grinder 3.7 (not yet released)
    different working directory when workers are launched with scripts
    distributed by the console. Thanks to Jared C for the report.
 
+   The Grinder is now built using Apache Maven.
+
 
 The Grinder 3.6
 ---------------
