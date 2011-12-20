@@ -41,8 +41,6 @@ public class StreamCopier {
    * Constructor.
    *
    * @param bufferSize The buffer size.
-   * @param closeStreams {@code true} => ensure the streams are
-   * closed after copying.
    */
   public StreamCopier(int bufferSize) {
     m_buffer = new byte[bufferSize];

@@ -35,7 +35,7 @@ import net.grinder.common.GrinderException;
  * listeners will not be created for existing threads. Typically a plugin will
  * want to initialise itself when a script imports one or more of its classes. A
  * static initialiser is a good way to achieve this - see the
- * {@link net.grinder.plugin.http.HTTPPlugin} implementation for an example.
+ * {@code net.grinder.plugin.http.HTTPPlugin} implementation for an example.
  * </p>
  *
  * @author Philip Aston

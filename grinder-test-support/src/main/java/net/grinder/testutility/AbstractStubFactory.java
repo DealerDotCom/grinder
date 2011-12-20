@@ -172,7 +172,7 @@ public abstract class AbstractStubFactory<T> extends CallRecorder {
 
   /**
    * Localise need for unchecked cast. I thought the compiler was meant
-   * to regarding {@link Object.getClass()} - seems the Eclipse compiler
+   * to regarding {@link Object#getClass()} - seems the Eclipse compiler
    * (at least) is not.
    *
    * @param <K> Parameter type.

@@ -28,7 +28,7 @@ package net.grinder.communication;
  * <p>Package scope</p>.
  *
  * @see ClientSender#blockingSend(Message)
- * @see MessageDispatchRegistry#set(Class, BlockingSender)
+ * @see MessageDispatchRegistry#set(Class, BlockingHandler)
  * @author Philip Aston
  */
 final class MessageRequiringResponse implements Message {
