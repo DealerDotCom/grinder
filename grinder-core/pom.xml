@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>grinder-core</artifactId>
@@ -91,8 +92,8 @@
       </plugin>
 
       <!-- Sigh, because of MDEP-259 we have to always install for this to work
-        when running from the parent project, even if we don't care. That is
-        "mvn install site", not "mvn site". -->
+        when running from the parent project, even if we don't care. That is "mvn
+        install site", not "mvn site". -->
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -138,9 +139,9 @@
           </systemPropertyVariables>
 
           <excludes>
-            <!-- Skipping due to "Duplicated LocalVariableTable" issue
-            that only occurs when Jython 2.1 is classloaded through
-            surefire, in a group of tests. This ignores 14 tests. -->
+            <!-- Skipping due to "Duplicated LocalVariableTable" issue that only
+              occurs when Jython 2.1 is classloaded through surefire, in a group of tests.
+              This ignores 14 tests. -->
             <exclude>**/TestTraditionalJythonInstrumenterWithJython21.java</exclude>
           </excludes>
         </configuration>
@@ -207,6 +208,17 @@
 
             <plugin>
               <artifactId>maven-jxr-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>findbugs-maven-plugin</artifactId>
+
+              <configuration>
+                <effort>Max</effort>
+                <threshold>Medium</threshold>
+                <excludeFilterFile>${project.parent.basedir}/etc/findbugs-exclude.xml</excludeFilterFile>
+              </configuration>
             </plugin>
           </reportPlugins>
         </configuration>
