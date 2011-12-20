@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.Properties;
 
 
-
 /**
  * Accessor for build version information.
  *
@@ -42,14 +41,19 @@ public final class GrinderBuild {
         GrinderBuild.class.getResourceAsStream(
           "resources/build.properties");
 
-      if (buildPropertiesStream == null) {
-        throw new IOException("Could not find build.properties");
+        if (buildPropertiesStream == null) {
+          throw new IOException("Could not find build.properties");
+        }
+
+      try {
+        final Properties properties = new Properties();
+        properties.load(buildPropertiesStream);
+
+        s_versionString = properties.getProperty("version");
       }
-
-      final Properties properties = new Properties();
-      properties.load(buildPropertiesStream);
-
-      s_versionString = properties.getProperty("version");
+      finally {
+        buildPropertiesStream.close();
+      }
     }
     catch (IOException e) {
       UncheckedInterruptedException.ioException(e);

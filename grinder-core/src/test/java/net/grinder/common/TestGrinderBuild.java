@@ -74,7 +74,7 @@ public class TestGrinderBuild {
       fail("Expected ExceptionInInitializerError");
     }
     catch (ExceptionInInitializerError e) {
-      assertTrue(e.getCause() instanceof IOException);
+      assertTrue(e.getCause().toString(), e.getCause() instanceof IOException);
     }
   }
 

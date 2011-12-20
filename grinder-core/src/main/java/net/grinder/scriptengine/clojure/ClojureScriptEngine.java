@@ -106,7 +106,7 @@ class ClojureScriptEngine implements ScriptEngine {
     // No-op, until we discover whether Clojure defines an exit hook mechanism.
   }
 
-  private final class ClojureWorkerRunnable implements WorkerRunnable {
+  private static final class ClojureWorkerRunnable implements WorkerRunnable {
     private final Callable<?> m_workerFn;
 
     private ClojureWorkerRunnable(Callable<?> result) {

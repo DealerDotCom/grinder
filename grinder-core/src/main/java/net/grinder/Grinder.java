@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
 //
@@ -100,7 +100,7 @@ public final class Grinder extends AbstractMainClass {
         daemonPeriod = 60000;
 
         try {
-          daemonPeriod = Integer.parseInt(args[i + 1]) * 1000;
+          daemonPeriod = Integer.parseInt(args[i + 1]) * 1000L;
           ++i;
         }
         catch (IndexOutOfBoundsException e) {

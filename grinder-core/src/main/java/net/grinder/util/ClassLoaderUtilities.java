@@ -72,16 +72,20 @@ public class ClassLoaderUtilities {
 
     final Enumeration<URL> resources = classLoader.getResources(resourceName);
 
-    final Set<URL> seenURLs = new HashSet<URL>();
+    // See http://findbugs.sourceforge.net/bugDescriptions.html
+    // #DMI_COLLECTION_OF_URLS.
+    final Set<String> seenURLs = new HashSet<String>();
 
     while (resources.hasMoreElements()) {
       final URL url = resources.nextElement();
 
-      if (seenURLs.contains(url)) {
+      final String urlString = url.toString();
+
+      if (seenURLs.contains(urlString)) {
         continue;
       }
 
-      seenURLs.add(url);
+      seenURLs.add(urlString);
 
       final InputStream in = url.openStream();
 

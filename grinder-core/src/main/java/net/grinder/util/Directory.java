@@ -315,9 +315,9 @@ public final class Directory implements Serializable {
    *           If a canonical path could not be calculated.
    */
   static File relativePath(File from, File to) throws IOException {
-    final String[] fromPaths = from.getCanonicalPath().split(File.separator);
+    final String[] fromPaths = splitPath(from.getCanonicalPath());
     final File canonicalTo = to.getCanonicalFile();
-    final String[] toPaths = canonicalTo.getPath().split(File.separator);
+    final String[] toPaths = splitPath(canonicalTo.getPath());
 
     int i = 0;
 
@@ -349,6 +349,10 @@ public final class Directory implements Serializable {
     }
 
     return new File(result.toString());
+  }
+
+  private static String[] splitPath(String path) {
+    return path.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
   }
 
   /**
