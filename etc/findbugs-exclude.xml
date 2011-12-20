@@ -135,6 +135,13 @@
     <Method name="&lt;init&gt;" />
   </Match>
 
+    <!-- findbugs fails to notice we close the streams. -->
+  <Match>
+    <Class name="net.grinder.plugin.http.HTTPRequest" />
+    <Bug pattern="OBL_UNSATISFIED_OBLIGATION" />
+    <Method name="setDataFromFile" />
+  </Match>
+
   <!-- The following are rules which I disagree with. -->
   <Match>
     <Bug pattern="IMA_INEFFICIENT_MEMBER_ACCESS" />
