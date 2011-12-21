@@ -55,6 +55,12 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 # To use a proxy server, uncomment the next line and set the host and port.
 # connectionDefaults.setProxyServer("localhost", 8001)
 
+def createRequest(test, url, headers):
+    """Create an instrumented HTTPRequest."""
+    request = HTTPRequest(url=url, headers=headers)
+    test.record(request, HTTPRequest.getHttpMethodFilter())
+    return request
+
 # These definitions at the top level of the file are evaluated once,
 # when the worker process is started.
 </xsl:text>
@@ -171,9 +177,14 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:value-of select="helper:newLineAndIndent()"/>
 
     <xsl:value-of select="$request-name"/>
-    <xsl:text> = HTTPRequest(url=</xsl:text>
+    <xsl:text> = createRequest(</xsl:text>
+    <xsl:text>Test(</xsl:text>
+    <xsl:value-of select="$request-number"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="helper:quoteForPython(g:description)"/>
+    <xsl:text>), </xsl:text>
     <xsl:value-of select="g:uri/@extends"/>
-    <xsl:text>, headers=</xsl:text>
+    <xsl:text>, </xsl:text>
     <xsl:value-of select="g:headers/@extends"/>
     <xsl:text>)</xsl:text>
 
@@ -184,16 +195,6 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
       <xsl:value-of select="g:body/g:file"/>
       <xsl:text>')</xsl:text>
     </xsl:if>
-
-    <xsl:value-of select="helper:newLine()"/>
-    <xsl:value-of select="$request-name"/>
-    <xsl:text> = Test(</xsl:text>
-    <xsl:value-of select="$request-number"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="helper:quoteForPython(g:description)"/>
-    <xsl:text>).wrap(</xsl:text>
-    <xsl:value-of select="$request-name"/>
-    <xsl:text>)</xsl:text>
 
     <xsl:value-of select="helper:newLine()"/>
   </xsl:template>
@@ -560,7 +561,7 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>request</xsl:text>
     <xsl:apply-templates select="../.." mode="generate-test-number"/>
-    <xsl:text>.__target__.data</xsl:text>
+    <xsl:text>.getData()</xsl:text>
     <xsl:value-of select="helper:changeIndent(-1)"/>
 
  </xsl:template>
