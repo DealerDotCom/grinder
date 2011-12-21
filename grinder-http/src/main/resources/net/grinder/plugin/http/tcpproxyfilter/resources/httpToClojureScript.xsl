@@ -249,7 +249,6 @@
   <xsl:template match="g:request" mode="page-function">
     <xsl:apply-templates select="g:sleep-time" mode="request"/>
 
-    <!-- Request token references. -->
     <xsl:apply-templates select=".//g:token-reference[not(../../g:response)]" mode="request"/>
 
     <xsl:apply-templates select="g:annotation" mode="request"/>
@@ -263,14 +262,14 @@
     <xsl:apply-templates select="." mode="generate-test-number"/>
 
     <xsl:choose>
-	    <xsl:when test="count(g:uri/*[not(g:unparsed)]/*) > 1">
-	      <xsl:value-of select="helper:changeIndent(1)"/>
-	      <xsl:value-of select="helper:newLineAndIndent()"/>
-	      <xsl:text>(str </xsl:text>
-	    </xsl:when>
-	    <xsl:otherwise>
-	      <xsl:text> </xsl:text>
-	    </xsl:otherwise>
+      <xsl:when test="count(g:uri/*[not(g:unparsed)]/*) > 1">
+        <xsl:value-of select="helper:changeIndent(1)"/>
+        <xsl:value-of select="helper:newLineAndIndent()"/>
+        <xsl:text>(str </xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text> </xsl:text>
+      </xsl:otherwise>
     </xsl:choose>
 
     <xsl:apply-templates select="g:uri/g:path" mode="request-uri"/>
@@ -444,7 +443,7 @@
         <xsl:choose>
           <xsl:when test="@source = 'RESPONSE_LOCATION_HEADER_PATH_PARAMETER' or
                           @source = 'RESPONSE_LOCATION_HEADER_QUERY_STRING'">
-            <xsl:text>(.valueFromLocationURI </xsl:text>
+            <xsl:text>(.valueFromLocationURI</xsl:text>
           </xsl:when>
           <xsl:when test="@source = 'RESPONSE_BODY_HIDDEN_INPUT'">
             <xsl:text>(. valueFromHiddenInput</xsl:text>
@@ -454,7 +453,7 @@
           </xsl:otherwise>
         </xsl:choose>
 
-        <xsl:text>httpUtilities </xsl:text>
+        <xsl:text> httpUtilities </xsl:text>
 
         <xsl:value-of select="helper:quoteForClojure($name)"/>
         <xsl:text>)</xsl:text>
