@@ -181,7 +181,10 @@ final class WorkerProcessCommandLine implements CommandLine {
       final File parentFile = f != null ? f : new File(".");
 
       for (File candidate : parentFile.listFiles()) {
-        if (candidate.getName().startsWith(AGENT_JAR_FILENAME_PREFIX)) {
+        final String name = candidate.getName();
+
+        if (name.startsWith(AGENT_JAR_FILENAME_PREFIX) &&
+            name.endsWith(".jar")) {
           return candidate;
         }
       }
