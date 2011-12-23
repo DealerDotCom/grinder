@@ -21,8 +21,6 @@
 
 package net.grinder.scriptengine.jython.instrumentation.dcr;
 
-import java.lang.reflect.Method;
-
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.scriptengine.DCRContext;
 import net.grinder.scriptengine.Recorder;
@@ -31,7 +29,6 @@ import net.grinder.util.weave.Weaver.TargetSource;
 import org.python.core.PyClass;
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
-import org.python.core.PyMethod;
 import org.python.core.PyObject;
 import org.python.core.PyProxy;
 
@@ -59,28 +56,6 @@ public final class Jython22Instrumenter extends AbstractJythonDCRInstrumenter {
     return "byte code transforming instrumenter for Jython 2.1/2.2";
   }
 
-  private void instrumentPublicMethodsByName(Object target,
-                                             String methodName,
-                                             TargetSource targetSource,
-                                             Recorder recorder,
-                                             boolean includeSuperClassMethods)
-    throws NonInstrumentableTypeException {
-
-    // getMethods() includes superclass methods.
-    for (Method method : target.getClass().getMethods()) {
-      if (!includeSuperClassMethods &&
-          target.getClass() != method.getDeclaringClass()) {
-        continue;
-      }
-
-      if (!method.getName().equals(methodName)) {
-        continue;
-      }
-
-      getContext().add(target, method, targetSource, recorder);
-    }
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -98,19 +73,6 @@ public final class Jython22Instrumenter extends AbstractJythonDCRInstrumenter {
    * {@inheritDoc}
    */
   @Override protected void transform(Recorder recorder, PyFunction target)
-    throws NonInstrumentableTypeException {
-
-    instrumentPublicMethodsByName(target,
-                                  "__call__",
-                                  TargetSource.FIRST_PARAMETER,
-                                  recorder,
-                                  false);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override protected void transform(Recorder recorder, PyMethod target)
     throws NonInstrumentableTypeException {
 
     instrumentPublicMethodsByName(target,

@@ -50,7 +50,6 @@ public final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
 
   private final Transformer<PyInstance> m_pyInstanceTransformer;
   private final Transformer<PyFunction> m_pyFunctionTransformer;
-  private final Transformer<PyMethod> m_pyMethodTransformer;
   private final Transformer<PyProxy> m_pyProxyTransformer;
   private final Transformer<PyClass> m_pyClassTransformer;
 
@@ -138,19 +137,6 @@ public final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
       }
 
       assertAtLeastOneMethod(methodsForPyMethod);
-
-      m_pyMethodTransformer = new Transformer<PyMethod>() {
-          public void transform(Recorder recorder, PyMethod target)
-            throws NonInstrumentableTypeException {
-
-            for (Method method : methodsForPyMethod) {
-              context.add(target,
-                          method,
-                          TargetSource.FIRST_PARAMETER,
-                          recorder);
-            }
-          }
-        };
 
       final Method pyReflectedFunctionCall =
         PyReflectedFunction.class.getDeclaredMethod("__call__",
@@ -247,14 +233,6 @@ public final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
   @Override protected void transform(Recorder recorder, PyFunction target)
     throws NonInstrumentableTypeException {
     m_pyFunctionTransformer.transform(recorder, target);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override protected void transform(Recorder recorder, PyMethod target)
-    throws NonInstrumentableTypeException {
-    m_pyMethodTransformer.transform(recorder, target);
   }
 
   /**

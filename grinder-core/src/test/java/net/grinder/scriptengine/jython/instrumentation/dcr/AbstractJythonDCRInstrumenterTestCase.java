@@ -443,4 +443,10 @@ public abstract class AbstractJythonDCRInstrumenterTestCase
     m_interpreter.exec("a.addOne(1)");
     m_recorderStubFactory.assertNoMoreCalls();
   }
+
+  // See bug 3464533.
+  @Test(expected = UnsupportedOperationException.class)
+  public void testCreateProxyWithBoundPyMethod() throws Exception {
+    super.testCreateProxyWithBoundPyMethod();
+  }
 }

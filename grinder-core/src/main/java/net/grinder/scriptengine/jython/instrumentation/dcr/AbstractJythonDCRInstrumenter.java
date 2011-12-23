@@ -191,18 +191,43 @@ abstract class AbstractJythonDCRInstrumenter extends AbstractDCRInstrumenter {
   protected abstract void transform(Recorder recorder, PyFunction target)
     throws NonInstrumentableTypeException;
 
-  protected abstract void transform(Recorder recorder, PyMethod target)
-    throws NonInstrumentableTypeException;
-
   protected abstract void transform(Recorder recorder, PyClass target)
     throws NonInstrumentableTypeException;
 
   protected abstract void transform(Recorder recorder, PyProxy target)
     throws NonInstrumentableTypeException;
 
-  protected void transform(Recorder recorder,
-                           PyReflectedFunction target,
-                           Object instance)
+  protected final void transform(Recorder recorder, PyMethod target)
+    throws NonInstrumentableTypeException {
+
+    if (target.im_self == null) {
+      // Unbound method.
+
+      // PyMethod is a wrapper around a callable. Sometimes Jython bypasses
+      // the PyMethod (e.g. dispatch of self.foo() calls). Sometimes there
+      // are multiple PyMethods that refer to the same callable.
+
+      // In the common case, the callable is a PyFunction wrapping some PyCode.
+      // Experimentation shows that there'll be  a single PyFunction. However,
+      // there's nothing that forces this to be true - some code path might
+      // create a different PyFunction referring to the same code. Also, we must
+      // cope with other types of callable. I guess I could identify
+      // PyFunction's and dispatch on their im_code should this become an issue.
+      instrumentPublicMethodsByName(target.im_func,
+                                    "__call__",
+                                    TargetSource.FIRST_PARAMETER,
+                                    recorder,
+                                    false);
+    }
+    else {
+      throw new UnsupportedOperationException(
+        "Instrumentation of bound methods is not supported - bug 3464533");
+    }
+  }
+
+  protected final void transform(Recorder recorder,
+                                 PyReflectedFunction target,
+                                 Object instance)
     throws NonInstrumentableTypeException {
 
     final List<Method> reflectedArguments = extractJavaMethods(target);
@@ -239,13 +264,37 @@ abstract class AbstractJythonDCRInstrumenter extends AbstractDCRInstrumenter {
     }
   }
 
-  protected void transform(Recorder recorder, PyReflectedConstructor target)
+  protected final void transform(Recorder recorder,
+                                 PyReflectedConstructor target)
     throws NonInstrumentableTypeException {
 
     final List<Constructor<?>> reflectedArguments = extractJavaMethods(target);
 
     for (Constructor<?> c : reflectedArguments) {
       getContext().add(c.getDeclaringClass(), c, recorder);
+    }
+  }
+
+  protected final void instrumentPublicMethodsByName(
+                                               Object target,
+                                               String methodName,
+                                               TargetSource targetSource,
+                                               Recorder recorder,
+                                               boolean includeSuperClassMethods)
+    throws NonInstrumentableTypeException {
+
+    // getMethods() includes superclass methods.
+    for (Method method : target.getClass().getMethods()) {
+      if (!includeSuperClassMethods &&
+          target.getClass() != method.getDeclaringClass()) {
+        continue;
+      }
+
+      if (!method.getName().equals(methodName)) {
+        continue;
+      }
+
+      getContext().add(target, method, targetSource, recorder);
     }
   }
 }

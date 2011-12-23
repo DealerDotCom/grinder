@@ -282,7 +282,7 @@ public abstract class AbstractJythonInstrumenterTestCase {
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
-  @Test public void testCreateProxyWithPyMethod() throws Exception {
+  @Test public void testCreateProxyWithUnboundPyMethod() throws Exception {
     m_interpreter.exec(
       "class Foo:\n" +
       " def two(self): return 2\n" +
@@ -327,16 +327,6 @@ public abstract class AbstractJythonInstrumenterTestCase {
     m_recorderStubFactory.assertSuccess("end", true);
     m_recorderStubFactory.assertNoMoreCalls();
 
-    m_interpreter.exec("y=x.two"); // Bound method.
-    final PyObject pyMethod4 = m_interpreter.get("y");
-    final PyObject pyMethodProxy4 = (PyObject)
-      createInstrumentedProxy(m_test, m_recorder, pyMethod4);
-    final PyObject result4 = pyMethodProxy4.invoke("__call__");
-    assertEquals(m_two, result4);
-    m_recorderStubFactory.assertSuccess("start");
-    m_recorderStubFactory.assertSuccess("end", true);
-    m_recorderStubFactory.assertNoMoreCalls();
-
     // From Jython.
     m_interpreter.set("proxy", pyMethodProxy);
 
@@ -345,6 +335,31 @@ public abstract class AbstractJythonInstrumenterTestCase {
     assertEquals(m_two, result5);
     m_recorderStubFactory.assertSuccess("start");
     m_recorderStubFactory.assertSuccess("end", true);
+    m_recorderStubFactory.assertNoMoreCalls();
+  }
+
+  @Test public void testCreateProxyWithBoundPyMethod() throws Exception {
+    m_interpreter.exec(
+      "class Foo:\n" +
+      " def two(self): return 2\n" +
+      "x=Foo()\n" +
+      "y=Foo()\n");
+
+    m_interpreter.exec("z=x.two");
+    final PyObject pyMethod = m_interpreter.get("z");
+    final PyObject pyMethodProxy = (PyObject)
+      createInstrumentedProxy(m_test, m_recorder, pyMethod);
+    final PyObject result = pyMethodProxy.invoke("__call__");
+    assertEquals(m_two, result);
+    m_recorderStubFactory.assertSuccess("start");
+    m_recorderStubFactory.assertSuccess("end", true);
+
+    // Other instance is not instrumented.
+    m_interpreter.exec("z=y.two");
+    final PyObject pyMethod2 = m_interpreter.get("z");
+    final PyObject result2 = pyMethod2.invoke("__call__");
+    assertEquals(m_two, result2);
+
     m_recorderStubFactory.assertNoMoreCalls();
   }
 
