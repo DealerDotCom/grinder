@@ -23,6 +23,9 @@ The Grinder 3.7 (not yet released)
 
    The Grinder is now built using Apache Maven.
 
+   Tentative fix for bug 3459637 - AWT-EventQueue
+   NullPointerException. Thanks to Richard Lynch for the report.
+
 
 The Grinder 3.6
 ---------------

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,10 @@
 
 package net.grinder.console.swingui;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,17 +35,19 @@ import javax.swing.SwingUtilities;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.testutility.RandomStubFactory;
 
+import org.junit.Test;
+
 
 /**
  * Unit tests for {@link SwingDispatcherFactoryImplementation}.
  *
  * @author Philip Aston
  */
-public class TestSwingDispatcherFactory extends TestCase {
+public class TestSwingDispatcherFactory {
 
   private Runnable m_voidRunnable = new Runnable() { public void run() {} };
 
-  public void testPropertyChangeListenerDispatch() throws Exception {
+  @Test public void testPropertyChangeListenerDispatch() throws Exception {
     final MyPropertyChangeListener listener = new MyPropertyChangeListener();
 
     final RandomStubFactory<ErrorHandler> errorHandlerStubFactory =
@@ -52,7 +57,7 @@ public class TestSwingDispatcherFactory extends TestCase {
         errorHandlerStubFactory.getStub());
 
     final PropertyChangeListener swingDispatchedListener =
-      (PropertyChangeListener)swingDispatcherFactory.create(listener);
+      swingDispatcherFactory.create(PropertyChangeListener.class, listener);
 
     final PropertyChangeEvent event =
       new PropertyChangeEvent(this, "my property", "before", "after");
@@ -78,29 +83,18 @@ public class TestSwingDispatcherFactory extends TestCase {
     errorHandlerStubFactory.assertNoMoreCalls();
   }
 
-  public void testDelegateWithMultipleInterfaces() throws Exception {
+  @Test public void testDelegateWithDuplicateInterfaces() throws Exception {
     final RandomStubFactory<ErrorHandler> errorHandlerStubFactory =
       RandomStubFactory.create(ErrorHandler.class);
     final SwingDispatcherFactory swingDispatcherFactory =
       new SwingDispatcherFactoryImplementation(
         errorHandlerStubFactory.getStub());
 
-    final Object proxy = swingDispatcherFactory.create(new FooImpl());
+    final Object proxy =
+      swingDispatcherFactory.create(PropertyChangeListener.class,
+                                    new FooFoo());
 
-    assertTrue(proxy instanceof Foo);
-    assertTrue(proxy instanceof Serializable);
-  }
-
-  public void testDelegateWithDuplicateInterfaces() throws Exception {
-    final RandomStubFactory<ErrorHandler> errorHandlerStubFactory =
-      RandomStubFactory.create(ErrorHandler.class);
-    final SwingDispatcherFactory swingDispatcherFactory =
-      new SwingDispatcherFactoryImplementation(
-        errorHandlerStubFactory.getStub());
-
-    final Object proxy = swingDispatcherFactory.create(new FooFoo());
-
-    assertTrue(proxy instanceof Foo);
+    assertFalse(proxy instanceof Foo);
     assertTrue(proxy instanceof PropertyChangeListener);
     assertFalse(proxy instanceof Bah);
   }

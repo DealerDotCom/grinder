@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -91,7 +91,8 @@ class ProcessStatusTableModel
     m_threadsString = resources.getString("processTable.threads.label");
 
     processControl.addProcessStatusListener(
-      (ProcessControl.Listener)swingDispatcherFactory.create(
+      swingDispatcherFactory.create(
+        ProcessControl.Listener.class,
         new ProcessControl.Listener() {
           public void update(ProcessControl.ProcessReports[] processReports) {
             final List<Row> rows = new ArrayList<Row>();

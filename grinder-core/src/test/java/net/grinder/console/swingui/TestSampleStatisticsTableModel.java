@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,10 @@
 
 package net.grinder.console.swingui;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+
 import java.io.File;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
@@ -29,7 +33,6 @@ import java.util.HashMap;
 import java.util.Timer;
 
 import net.grinder.common.StubTest;
-import net.grinder.common.Test;
 import net.grinder.console.common.StubResources;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.ModelTestIndex;
@@ -39,29 +42,32 @@ import net.grinder.console.model.SampleModelViews;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesTestFactory;
 import net.grinder.statistics.TestStatisticsQueries;
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.testutility.DelegatingStubFactory;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.StubTimer;
+
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link CumulativeStatisticsTableModel}.
  *
  * @author Philip Aston
  */
-public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
+public class TestSampleStatisticsTableModel extends AbstractJUnit4FileTestCase {
 
   private File m_file;
 
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before public void setUp() throws Exception {
     m_file = new File(getDirectory(), "properties");
   }
 
   public static class NullSwingDispatcherFactory
     implements SwingDispatcherFactory {
 
-    public Object create(Object delegate) {
+    @Override
+    public <T> T create(Class<T> clazz, T delegate) {
       return delegate;
     }
   }
@@ -114,17 +120,22 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
       m_statisticsServices.getStatisticsSetFactory().create());
   }
 
-  public void testConstruction() throws Exception {
+  @Test public void testConstruction() throws Exception {
     final SampleStatisticsTableModel model =
       new SampleStatisticsTableModel(m_sampleModel,
-                                         m_sampleModelViews,
-                                         m_resources,
-                                         m_swingDispatcherFactory);
+                                     m_sampleModelViews,
+                                     m_resources,
+                                     m_swingDispatcherFactory);
 
     // The dispatcher factory is used a couple of times to wrap
     // listeners.
-    m_swingDispatcherFactoryStubFactory.assertSuccess("create", Object.class);
-    m_swingDispatcherFactoryStubFactory.assertSuccess("create", Object.class);
+    m_swingDispatcherFactoryStubFactory.assertSuccess("create",
+                                                      Class.class,
+                                                      Object.class);
+
+    m_swingDispatcherFactoryStubFactory.assertSuccess("create",
+                                                      Class.class,
+                                                      Object.class);
     m_swingDispatcherFactoryStubFactory.assertNoMoreCalls();
 
     assertSame(m_sampleModel, model.getModel());
@@ -139,7 +150,7 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
     assertEquals("Errors", model.getColumnName(3));
   }
 
-  public void testDefaultWrite() throws Exception {
+  @Test public void testDefaultWrite() throws Exception {
     final SampleStatisticsTableModel model =
       new SampleStatisticsTableModel(m_sampleModel,
                                      m_sampleModelViews,
@@ -154,7 +165,7 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
                  writer.toString());
   }
 
-  public void testAddColumns() throws Exception {
+  @Test public void testAddColumns() throws Exception {
     final SampleStatisticsTableModel model =
       new SampleStatisticsTableModel(m_sampleModel,
                                      m_sampleModelViews,
@@ -182,7 +193,7 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
     assertEquals("meantime", model.getColumnName(5));
   }
 
-  public void testWithData() throws Exception {
+  @Test public void testWithData() throws Exception {
     final Timer timer = new StubTimer();
 
     final SampleModelImplementation sampleModelImplementation =
@@ -202,7 +213,7 @@ public class TestSampleStatisticsTableModel extends AbstractFileTestCase {
 
     assertEquals(0, model.getRowCount());
 
-    final Test[] tests = {
+    final net.grinder.common.Test[] tests = {
         new StubTest(1, "test 1"),
         new StubTest(2, "test 2"),
     };

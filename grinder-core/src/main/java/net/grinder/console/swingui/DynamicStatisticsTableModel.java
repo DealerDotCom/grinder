@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -84,8 +84,9 @@ abstract class DynamicStatisticsTableModel
       m_resources.getString("table.descriptionColumn.label");
 
     m_model.addModelListener(
-      (SampleModel.Listener) swingDispatcherFactory.create(this));
-    m_modelViews.addListener((Listener) swingDispatcherFactory.create(this));
+      swingDispatcherFactory.create(SampleModel.Listener.class, this));
+    m_modelViews.addListener(
+      swingDispatcherFactory.create(Listener.class, this));
 
     resetTests();
   }

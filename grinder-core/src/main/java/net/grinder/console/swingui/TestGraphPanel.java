@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -80,7 +80,7 @@ public class TestGraphPanel extends JPanel implements SampleModel.Listener {
     m_testLabel = m_resources.getString("graph.test.label") + " ";
 
     m_model.addModelListener(
-      (SampleModel.Listener) swingDispatcherFactory.create(this));
+      swingDispatcherFactory.create(SampleModel.Listener.class, this));
 
     m_model.addTotalSampleListener(
       new SampleListener() {
@@ -151,7 +151,8 @@ public class TestGraphPanel extends JPanel implements SampleModel.Listener {
 
       m_model.addSampleListener(
         test,
-        (SampleListener)m_swingDispatcherFactory.create(
+        m_swingDispatcherFactory.create(
+          SampleListener.class,
           new SampleListener() {
             public void update(final StatisticsSet intervalStatistics,
                                final StatisticsSet cumulativeStatistics) {

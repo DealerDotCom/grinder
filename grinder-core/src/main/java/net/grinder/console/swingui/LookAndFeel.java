@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -52,7 +52,8 @@ final class LookAndFeel {
 
     properties.addPropertyChangeListener(
       ConsoleProperties.LOOK_AND_FEEL_PROPERTY,
-      (PropertyChangeListener)swingDispatcherFactory.create(
+      swingDispatcherFactory.create(
+        PropertyChangeListener.class,
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent event) {
             setLookAndFeel((String)event.getNewValue());

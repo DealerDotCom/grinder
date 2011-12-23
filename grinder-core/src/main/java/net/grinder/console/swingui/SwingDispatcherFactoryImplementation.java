@@ -24,10 +24,7 @@ package net.grinder.console.swingui;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
@@ -48,7 +45,12 @@ final class SwingDispatcherFactoryImplementation
     m_errorHandler = errorHandler;
   }
 
-  public Object create(final Object delegate) {
+  /**
+   * {@inheritDoc}
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T create(Class<T> clazz, final T delegate) {
 
     final InvocationHandler invocationHandler =
       new InvocationHandler() {
@@ -80,27 +82,8 @@ final class SwingDispatcherFactoryImplementation
 
     final Class<?> delegateClass = delegate.getClass();
 
-    return Proxy.newProxyInstance(delegateClass.getClassLoader(),
-                                  getAllInterfaces(delegateClass),
-                                  invocationHandler);
-  }
-
-  private static Class<?>[] getAllInterfaces(Class<?> theClass) {
-    final Set<Class<?>> interfaces = new HashSet<Class<?>>();
-
-    Class<?> c = theClass;
-
-    do {
-      for (Class<?> anInterface : c.getInterfaces()) {
-        if (Modifier.isPublic(anInterface.getModifiers())) {
-          interfaces.add(anInterface);
-        }
-      }
-
-      c = c.getSuperclass();
-    }
-    while (c != null);
-
-    return interfaces.toArray(new Class[interfaces.size()]);
+    return (T)Proxy.newProxyInstance(delegateClass.getClassLoader(),
+                                     new Class<?>[] { clazz },
+                                     invocationHandler);
   }
 }

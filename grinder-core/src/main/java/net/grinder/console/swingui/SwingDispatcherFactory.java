@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,5 +28,13 @@ package net.grinder.console.swingui;
  * @author Philip Aston
  */
 interface SwingDispatcherFactory {
-  Object create(final Object delegate);
+  /**
+   * Create a Swing dispatched wrapper.
+   *
+   * @param <T>  The interface to implement.
+   * @param clazz  The interface to implement.
+   * @param delegate The delegate object.
+   * @return A wrapper that dispatches invocations in the Swing worker thread.
+   */
+  <T> T create(Class<T> clazz, final T delegate);
 }

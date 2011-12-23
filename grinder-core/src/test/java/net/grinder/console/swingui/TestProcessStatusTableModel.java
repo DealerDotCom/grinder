@@ -70,7 +70,7 @@ public class TestProcessStatusTableModel extends TestCase {
 
     final SwingDispatcherFactory swingDispatcherFactory =
       new SwingDispatcherFactory() {
-        public Object create(Object delegate) {
+        public <T> T create(Class<T> clazz, T delegate) {
           ++swingDispatcherCallCount[0];
           return delegate;
         }
@@ -102,7 +102,7 @@ public class TestProcessStatusTableModel extends TestCase {
   public void testWithData() throws Exception {
     final SwingDispatcherFactory swingDispatcherFactory =
       new SwingDispatcherFactory() {
-        public Object create(Object delegate) { return delegate; }
+        public <T> T create(Class<T> clazz, T delegate) { return delegate; }
       };
 
     final ProcessStatusTableModel processStatusTableModel =

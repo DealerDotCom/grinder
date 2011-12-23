@@ -91,6 +91,7 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.distribution.AgentCacheState;
+import net.grinder.console.distribution.FileChangeWatcher;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionHandler;
 import net.grinder.console.editor.Buffer;
@@ -183,8 +184,8 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
       new ErrorDialogHandler(m_frame, m_resources, logger);
 
     m_errorHandler =
-      (ErrorHandler)
-      new SwingDispatcherFactoryImplementation(null).create(errorDialogHandler);
+      new SwingDispatcherFactoryImplementation(null).create(ErrorHandler.class,
+                                                            errorDialogHandler);
 
     final SwingDispatcherFactory swingDispatcherFactory =
       new SwingDispatcherFactoryImplementation(m_errorHandler);
@@ -359,7 +360,9 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
       });
 
     m_fileDistribution.addFileChangedListener(
-      fileTreeModel.new RefreshChangedDirectoriesListener());
+      swingDispatcherFactory.create(
+        FileChangeWatcher.FileChangedListener.class,
+        fileTreeModel.new RefreshChangedDirectoriesListener()));
 
     final JPopupMenu fileTreePopupMenu = new JPopupMenu();
 
@@ -445,8 +448,8 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
     }
 
     m_model.addModelListener(
-      (SampleModel.Listener)
       swingDispatcherFactory.create(
+        SampleModel.Listener.class,
         new SampleModel.AbstractListener() {
           public void stateChanged() { ConsoleUI.this.stateChanged(); }
         }

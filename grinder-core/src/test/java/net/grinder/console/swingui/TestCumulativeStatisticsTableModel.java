@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2010 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -64,7 +64,8 @@ public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
   public static class NullSwingDispatcherFactory
     implements SwingDispatcherFactory {
 
-    public Object create(Object delegate) {
+    @Override
+    public <T> T create(Class<T> clazz, T delegate) {
       return delegate;
     }
   }
@@ -125,8 +126,14 @@ public class TestCumulativeStatisticsTableModel extends AbstractFileTestCase {
 
     // The dispatcher factory is used a couple of times to wrap
     // listeners.
-    m_swingDispatcherFactoryStubFactory.assertSuccess("create", Object.class);
-    m_swingDispatcherFactoryStubFactory.assertSuccess("create", Object.class);
+    m_swingDispatcherFactoryStubFactory.assertSuccess("create",
+                                                      Class.class,
+                                                      Object.class);
+
+    m_swingDispatcherFactoryStubFactory.assertSuccess("create",
+                                                      Class.class,
+                                                      Object.class);
+
     m_swingDispatcherFactoryStubFactory.assertNoMoreCalls();
 
     assertSame(m_sampleModel, model.getModel());
