@@ -250,4 +250,38 @@ public final class Jython25Instrumenter extends AbstractJythonDCRInstrumenter {
     throws NonInstrumentableTypeException {
     m_pyProxyTransformer.transform(recorder, target);
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override protected void transform(Recorder recorder, PyMethod target)
+    throws NonInstrumentableTypeException {
+
+    // PyMethod is a wrapper around a callable. Sometimes Jython bypasses
+    // the PyMethod (e.g. dispatch of self.foo() calls). Sometimes there
+    // are multiple PyMethods that refer to the same callable.
+
+    // In the common case, the callable is a PyFunction wrapping some PyCode.
+    // Experimentation shows that there'll be  a single PyFunction. However,
+    // there's nothing that forces this to be true - some code path might
+    // create a different PyFunction referring to the same code. Also, we must
+    // cope with other types of callable. I guess I could identify
+    // PyFunction's and dispatch on their im_code should this become an issue.
+
+    if (target.im_self == null) {
+      // Unbound method.
+      instrumentPublicMethodsByName(target.im_func,
+                                    "__call__",
+                                    recorder,
+                                    false);
+    }
+    else {
+      instrumentPublicMethodsByName(target.im_func.getClass(),
+                                    target.im_self,
+                                    "__call__",
+                                    TargetSource.THIRD_PARAMETER,
+                                    recorder,
+                                    false);
+    }
+  }
 }

@@ -28,7 +28,7 @@ The Grinder 3.7 (not yet released)
 
    Fix bug 3464547 - DCR instrumentation of unbound PyMethods doesn't work.
 
-   DCR instrumentation of bound PyMethods now fails hard (see bug 3464533).
+   Fix bug 3464533 - DCR instrumentation of bound PyMethods doesn't work.
 
 
 The Grinder 3.6

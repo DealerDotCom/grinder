@@ -29,6 +29,7 @@ import net.grinder.util.weave.Weaver.TargetSource;
 import org.python.core.PyClass;
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
+import org.python.core.PyMethod;
 import org.python.core.PyObject;
 import org.python.core.PyProxy;
 
@@ -64,7 +65,6 @@ public final class Jython22Instrumenter extends AbstractJythonDCRInstrumenter {
 
     instrumentPublicMethodsByName(target,
                                   "invoke",
-                                  TargetSource.FIRST_PARAMETER,
                                   recorder,
                                   true);
   }
@@ -77,7 +77,6 @@ public final class Jython22Instrumenter extends AbstractJythonDCRInstrumenter {
 
     instrumentPublicMethodsByName(target,
                                   "__call__",
-                                  TargetSource.FIRST_PARAMETER,
                                   recorder,
                                   false);
   }
@@ -90,7 +89,6 @@ public final class Jython22Instrumenter extends AbstractJythonDCRInstrumenter {
 
     instrumentPublicMethodsByName(target,
                                   "__call__",
-                                  TargetSource.FIRST_PARAMETER,
                                   recorder,
                                   false);
   }
@@ -105,8 +103,41 @@ public final class Jython22Instrumenter extends AbstractJythonDCRInstrumenter {
 
     instrumentPublicMethodsByName(pyInstance,
                                   "invoke",
-                                  TargetSource.FIRST_PARAMETER,
                                   recorder,
                                   true);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override protected void transform(Recorder recorder, PyMethod target)
+    throws NonInstrumentableTypeException {
+
+    // PyMethod is a wrapper around a callable. Sometimes Jython bypasses
+    // the PyMethod (e.g. dispatch of self.foo() calls). Sometimes there
+    // are multiple PyMethods that refer to the same callable.
+
+    // In the common case, the callable is a PyFunction wrapping some PyCode.
+    // Experimentation shows that there'll be  a single PyFunction. However,
+    // there's nothing that forces this to be true - some code path might
+    // create a different PyFunction referring to the same code. Also, we must
+    // cope with other types of callable. I guess I could identify
+    // PyFunction's and dispatch on their im_code should this become an issue.
+
+    if (target.im_self == null) {
+      // Unbound method.
+      instrumentPublicMethodsByName(target.im_func,
+                                    "__call__",
+                                    recorder,
+                                    false);
+    }
+    else {
+      instrumentPublicMethodsByName(target.im_func.getClass(),
+                                    target.im_self,
+                                    "__call__",
+                                    TargetSource.SECOND_PARAMETER,
+                                    recorder,
+                                    false);
+    }
   }
 }

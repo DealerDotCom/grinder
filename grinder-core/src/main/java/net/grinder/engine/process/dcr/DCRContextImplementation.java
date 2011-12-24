@@ -145,14 +145,21 @@ public final class DCRContextImplementation implements DCRContext {
 
     checkWrappable(method.getDeclaringClass());
 
-    final String location = m_weaver.weave(method, targetSource);
+    try {
+      final String location = m_weaver.weave(method, targetSource);
+
+      m_recorderRegistry.register(target, location, recorder);
+    }
+    catch (WeavingException e) {
+      throw new NonInstrumentableTypeException("Weaving failed", e);
+    }
 
 //    System.out.printf("add(%s, %s, %s, %s)%n",
 //                      target.hashCode(), location,
 //                      target,
 //                      method);
 
-    m_recorderRegistry.register(target, location, recorder);
+
   }
 
   private void checkWrappable(Class<?> theClass)
