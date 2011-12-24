@@ -103,7 +103,7 @@ tests.</p>
   href="ext:fowler/constructor-injection">constructor injection</a>),
   and for contracts to be specified in terms of Java interfaces. This
   makes unit testing easier, and forces the developer to think
-  primarily about the purpose and contract of each class.</p>
+  about the purpose and contract of each class.</p>
 
   <p>Please pay attention to the existing coding style of The Grinder.
   There is a <a href="ext:checkstyle">Checkstyle</a> configuration
@@ -112,9 +112,7 @@ tests.</p>
   <code>checkstyle:checkstyle</code> Maven goal. Checkstyle helps to
   make the code readable, catches quite a few silly errors, and makes
   applying patches a much nicer experience. Patches that do not pass
-  the Checkstyle rules will be rejected. Whilst we're considering
-  coding style, please note that Philip considers abbreviated variable
-  names to be evil.</p>
+  the Checkstyle rules will be rejected.</p>
 
   </section>
 
@@ -197,8 +195,8 @@ java -Duser.language="es" net.grinder.Console
 
       <p>Post your translation to the <a
       href="ext:mail/grinder-development">grinder-development
-      list</a>, stating the repository revision number on which it was based
-      (e.g. 3689). Please also include a statement that you are happy for
+      list</a>, stating the git hash of the revision upon which it was
+      based. Please also include a statement that you are happy for
       your work to be distributed under the terms of <a
       href="site:license">The Grinder license</a>.</p>
     </section>
