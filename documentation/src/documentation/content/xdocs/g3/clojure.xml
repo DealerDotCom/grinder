@@ -27,7 +27,6 @@
   <section>
     <title>Clojure scripting</title>
 
-
     <section>
       <title>Script structure</title>
 
@@ -94,6 +93,14 @@
       (do
         (.. grinder (getLogger) (output "Hello World"))))))
 </source>
+    </section>
+
+    <section>
+      <title>Recording an HTTP script</title>
+
+      <p>You can use the TCPProxy to <a
+      href="site:tcpproxy/clojure">record a Clojure script</a> from a
+      browser session.</p>
     </section>
 
   </section>

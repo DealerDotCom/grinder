@@ -61,6 +61,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <tcpproxy label="The TCPProxy" href="tcpproxy.html">
       <HTTPPluginTCPProxyFilter href="#HTTPPluginTCPProxyFilter"/>
+      <clojure href="#clojure-script"/>
     </tcpproxy>
 
     <scripts label="Scripts">

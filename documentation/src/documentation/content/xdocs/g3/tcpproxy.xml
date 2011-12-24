@@ -351,16 +351,45 @@ instrumentMethod(Test(200, 'Page 2'), 'page2')
 
   <p>The recorded script grinder.py can be edited by hand to suit your needs.</p>
 
+  <section id="dcr-script">
+    <title>Generating a Jython script that uses the new instrumentation</title>
+
+  <p>By default, the generated script uses the traditional
+  instrumentation. If you want to generate a script that uses the <a
+  href="site:scripts/script-instrumentation/new-instrumentation">new
+  DCR instrumentation</a>, specify <code>-http jython</code> on the
+  command line. For example:</p>
+
+<source class="sh">java net.grinder.TCPProxy -http jython -console</source>
+
+  </section>
+
+  <section id="clojure-script">
+    <title>Generating a Clojure script</title>
+
+  <p>You can generate a Clojure script using <code>-http
+  clojure</code> on the command line. For example:</p>
+
+<source class="sh">java net.grinder.TCPProxy -http clojure -console</source>
+
+  </section>
+
+
+
   <section id="Stylesheets">
     <title>Altering the output with custom stylesheet</title>
 
-  <p>The recommended TCPProxy HTTP filter, <em>-http</em>, modifies the output of its request
-  and response filters by way of an XLST stylesheet when producing the recorded script.</p>
+  <p>The TCPProxy HTTP filters installed with
+  <code>-http</code>, <code>-http jython</code>, and <code>-http
+  clojure</code>, each create their output by transforming an XML
+  model of the HTTP request/response stream using an XLST
+  stylesheet.</p>
 
-  <p>The standard/default stylesheet can be found in <code>etc/httpToJythonScript.xsl</code>.
-  Replacing the standard stylesheet with one of your own making allows you to
-  customise the output of the filter. You shuould pass the file name of your
-  custom stylesheet as a command line argument directly after <code>-http</code>.</p>
+  <p>These standard stylesheets can be found in <code>etc</code>. You
+  can use a stylesheet of of your own making to customise the output
+  of the filter. You should pass the file name of your custom
+  stylesheet as a command line argument directly after
+  <code>-http</code>.</p>
 
   <p>If you want to see the intermediate XML model you can use:</p>
 
@@ -534,10 +563,15 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
     <tr>
       <td><code>-http [stylesheet]</code></td>
 
-      <td>Adds the recommended request filter and a response filter to produce a
-      script for The Grinder suitable for use with the HTTP
-      plugin. The output can be customised by specifying the file name of an
-    alternative XSLT style sheet.</td>
+      <td>Adds a standard request filter and response filter to
+      produce a Jython script for The Grinder suitable for use with
+      the HTTP plugin. The default filter generates a Jython script
+      that uses the traditional instrumentation, and is equivalent to
+      <code>-http oldjython</code>. Alternatively, <code>jython</code>
+      can be specified to produce a Jython script that uses DCR
+      instrumentation; or <code>clojure</code> to produce a Clojure
+      script. Alternatively, the output can be customised completely
+      by providing the file name of an XSLT style sheet.</td>
     </tr>
 
     <tr>

@@ -30,12 +30,12 @@
   include any time spent in the function itself, for example calls to
   <code>grinder.sleep()</code>.</p>
 
-  <p>The original (or <em>traditional</em>) instrumentation in The Grinder 3
-  works by extending internal classes of the Jython implementation. This
-  approach has served The Grinder well for many years, but has some significant
-  limitations.
-  The Grinder 3.3 includes an alternative instrumentation engine, which
-  will become the default implementation in a future version of The Grinder.
+  <p>The original (or <em>traditional</em>) instrumentation in The
+  Grinder 3 works by extending internal classes of the Jython
+  implementation. This approach served The Grinder well for many
+  years, but has some significant limitations. The Grinder 3.3
+  includes an alternative instrumentation engine, which will become
+  the default implementation in a future version of The Grinder.
   </p>
   </section>
 

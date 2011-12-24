@@ -77,8 +77,8 @@ java -Dgrinder.jvm.arguments=-Dpython.home=/opt/jython/jython2.2.1 net.grinder.G
     <code>jython.jar</code> file that includes the standard library.</p>
 
     <p>
-    You can generate a standalone <code>jython.jar</code> and use it
-    to replace the file in The Grinder's <code>lib</code> directory.
+    You can generate a standalone <code>jython.jar</code> and drop it
+    over the file in The Grinder's <code>lib</code> directory.
     This is simple, and does not require you to set
     <code>python.home</code>.</p>
 
