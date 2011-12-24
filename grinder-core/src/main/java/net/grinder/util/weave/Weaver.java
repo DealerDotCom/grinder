@@ -54,9 +54,8 @@ public interface Weaver {
   String weave(Constructor<?> constructor);
 
   /**
-   * Queue the given {@code method} for weaving, and return a unique
-   * identifier that can be used by the advice to refer to the method
-   * pointcut.
+   * Queue the given {@code method} for weaving, and return a unique identifier
+   * that can be used by the advice to refer to the method pointcut.
    *
    * <p>
    * Once {@link #weave} has been called for a method, subsequent calls are
@@ -73,8 +72,12 @@ public interface Weaver {
    * @param targetSource
    *          Which object should be passed as the target to the advice.
    * @return String that uniquely identifies the pointcut.
+   * @throws WeavingException
+   *           If the {@code targetSource} is incompatible with the
+   *           {@code method}.
    */
-  String weave(Method method, TargetSource targetSource);
+  String weave(Method method, TargetSource targetSource)
+    throws WeavingException;
 
   /**
    * Apply pending weaving that has been requested with {@link #weave}.
@@ -90,24 +93,40 @@ public interface Weaver {
     /**
      * The class is the target object.
      */
-    CLASS,
+    CLASS(0),
 
     /**
      * The first parameter is the target object. For non-static methods,
      * the first parameter is {@code this}.
      */
-    FIRST_PARAMETER,
+    FIRST_PARAMETER(0),
 
     /**
      * The second parameter is the target object.  For non-static methods,
      * the first parameter is {@code this}.
      */
-    SECOND_PARAMETER,
+    SECOND_PARAMETER(1),
 
     /**
      * The third parameter is the target object.  For non-static methods,
      * the first parameter is {@code this}.
      */
-    THIRD_PARAMETER,
+    THIRD_PARAMETER(2);
+
+    private final int m_minimumParameters;
+
+    TargetSource(int minimumParameters) {
+      this.m_minimumParameters = minimumParameters;
+    }
+
+    /**
+     * Whether this target source can be used to instrument a given method.
+     *
+     * @param method The method to test.
+     * @return {@code true} if the source can be used.
+     */
+    public boolean canApply(Method method) {
+      return method.getParameterTypes().length >= m_minimumParameters;
+    }
   }
 }

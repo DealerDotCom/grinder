@@ -82,7 +82,13 @@ public final class DCRWeaver implements Weaver {
   /**
    * {@inheritDoc}
    */
-  @Override public String weave(Method method, TargetSource targetSource) {
+  @Override public String weave(Method method, TargetSource targetSource)
+    throws WeavingException {
+    if (!targetSource.canApply(method)) {
+      throw new WeavingException("Insufficient parameters for " +
+                                 targetSource + ": " + method.toString());
+    }
+
     return m_pointCutRegistry.add(method, targetSource);
   }
 

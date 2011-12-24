@@ -59,7 +59,6 @@ import org.mockito.MockitoAnnotations;
  * TestDCRWeaver.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class TestDCRWeaver {
 
@@ -246,5 +245,15 @@ public class TestDCRWeaver {
     catch (WeavingException e) {
       assertSame(e.getCause(), uce);
     }
+  }
+
+  @Test(expected=WeavingException.class)
+  public void testInsufficientParameters() throws Exception {
+    final Weaver weaver = new DCRWeaver(m_classFileTransformerFactory,
+                                        m_instrumentation);
+
+    final Method method = getClass().getDeclaredMethod("myMethod");
+
+    weaver.weave(method, TargetSource.SECOND_PARAMETER);
   }
 }
