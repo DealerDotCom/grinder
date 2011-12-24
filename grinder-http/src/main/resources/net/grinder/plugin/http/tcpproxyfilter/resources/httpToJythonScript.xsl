@@ -96,22 +96,6 @@ def createRequest(test, url, headers):
 
     <xsl:value-of select="helper:changeIndent(-2)"/>
     <xsl:value-of select="helper:newLine()"/>
-    <xsl:value-of select="helper:newLine()"/>
-
-    <xsl:text>def instrumentMethod(test, method_name, c=TestRunner):</xsl:text>
-    <xsl:value-of select="helper:changeIndent(1)"/>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>"""Instrument a method with the given Test."""</xsl:text>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>unadorned = getattr(c, method_name)</xsl:text>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>import new</xsl:text>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>method = new.instancemethod(test.wrap(unadorned), None, c)</xsl:text>
-    <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>setattr(c, method_name, method)</xsl:text>
-    <xsl:value-of select="helper:changeIndent(-1)"/>
-    <xsl:value-of select="helper:newLine()"/>
 
     <xsl:apply-templates select="*" mode="instrumentMethod"/>
     <xsl:value-of select="helper:newLine()"/>
@@ -347,22 +331,17 @@ def createRequest(test, url, headers):
 
     <xsl:if test="not(preceding::g:page)">
       <xsl:value-of select="helper:newLineAndIndent()"/>
-      <xsl:text># Replace each method with an instrumented version.</xsl:text>
-      <xsl:value-of select="helper:newLineAndIndent()"/>
-      <xsl:text># You can call the unadorned method using </xsl:text>
-      <xsl:text>self.</xsl:text>
-      <xsl:value-of select="$page-function-name"/>
-      <xsl:text>.__target__().</xsl:text>
+      <xsl:text># Instrument page methods.</xsl:text>
     </xsl:if>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
-    <xsl:text>instrumentMethod(Test(</xsl:text>
+    <xsl:text>Test(</xsl:text>
     <xsl:value-of select="$page-test-number"/>
     <xsl:text>, 'Page </xsl:text>
     <xsl:value-of select="$page-number"/>
-    <xsl:text>'), '</xsl:text>
+    <xsl:text>').record(TestRunner.</xsl:text>
     <xsl:value-of select="$page-function-name"/>
-    <xsl:text>')</xsl:text>
+    <xsl:text>)</xsl:text>
   </xsl:template>
 
 
