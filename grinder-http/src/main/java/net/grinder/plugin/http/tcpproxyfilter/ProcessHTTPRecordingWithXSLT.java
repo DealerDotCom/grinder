@@ -80,10 +80,7 @@ public class ProcessHTTPRecordingWithXSLT
    * @param logger Where to direct the output.
    */
   public ProcessHTTPRecordingWithXSLT(Logger logger) {
-    this(
-      ProcessHTTPRecordingWithXSLT.class.getResourceAsStream(
-        "resources/httpToJythonScript.xsl"),
-      logger);
+    this(BuiltInStyleSheet.TraditionalJython, logger);
   }
 
   /**
@@ -174,6 +171,9 @@ public class ProcessHTTPRecordingWithXSLT
    * Built in style sheets.
    */
   public enum BuiltInStyleSheet {
+    /** Generate a Jython script using the old (non-DCR) instrumentation. */
+    TraditionalJython("resources/httpToJythonScriptOldInstrumentation.xsl"),
+
     /** Generate a Jython script. */
     Jython("resources/httpToJythonScript.xsl"),
 

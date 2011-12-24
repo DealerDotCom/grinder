@@ -10,9 +10,6 @@ The Grinder 3.7 (not yet released)
    form data. Thanks to Edwin Clubb for the report, and to Ouray Viney
    for testing the fix.
 
-   The TCPProxy can be called with "-http clojure" to generate a
-   Clojure script.
-
    Fix bug 3431764 - DCR instrumentation fails with Java 7. Thanks to
    Gary Mulder for the report.
 
@@ -23,12 +20,20 @@ The Grinder 3.7 (not yet released)
 
    The Grinder is now built using Apache Maven.
 
-   Tentative fix for bug 3459637 - AWT-EventQueue
-   NullPointerException. Thanks to Richard Lynch for the report.
+   Tentative fix for bug 3459637 - AWT-EventQueue NullPointerException.
+   Thanks to Richard Lynch for the report.
 
    Fix bug 3464547 - DCR instrumentation of unbound PyMethods doesn't work.
 
    Fix bug 3464533 - DCR instrumentation of bound PyMethods doesn't work.
+
+   The TCPProxy can be called with "-http clojure" to generate a Clojure
+   script.
+
+   The TCPProxy can be called with "-http jython" to generate a Jython
+   script that uses the new (DCR) instrumentation. DCR instrumentation
+   will be enabled by default in the next release of The Grinder. This is
+   the final release of The Grinder that supports Java SE 5.
 
 
 The Grinder 3.6

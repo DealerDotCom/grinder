@@ -84,7 +84,7 @@ public final class TCPProxy extends AbstractMainClass {
     "\n  java " + TCPProxy.class.getName() + " <options>" +
     "\n\n" +
     "Commonly used options:" +
-    "\n  [-http [jython|clojure|<stylesheet>]]" +
+    "\n  [-http [oldjython|jython|clojure|<stylesheet>]]" +
     "\n                               See below." +
     "\n  [-console]                   Display the console." +
     "\n  [-requestfilter <filter>]    Add a request filter." +
@@ -121,9 +121,11 @@ public final class TCPProxy extends AbstractMainClass {
     "<remotehost:remoteport>. Specify -ssl for SSL support." +
     "\n\n" +
     "-http sets up request and response filters to produce a test script " +
-    "suitable for use with the HTTP plugin. The keywords 'jython' or " +
-    "'clojure' can be used to set the script language; or the file name of " +
-    "an alternative XSLT style sheet can be provided." +
+    "suitable for use with the HTTP plugin. The keywords 'oldjython', " +
+    "'jython', or 'clojure' can be used to set the script language; or the " +
+    "filename of an alternative XSLT style sheet can be provided. The " +
+    "default is 'oldjython' which creates a Jython script based on the " +
+    "traditional (non-DCR) instrumentation." +
     "\n\n" +
     "-timeout is how long the TCPProxy will wait for a request " +
     "before timing out and freeing the local port. The TCPProxy will " +
@@ -264,8 +266,11 @@ public final class TCPProxy extends AbstractMainClass {
           if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
             final String s = args[++i];
 
-            if ("jython".equals(s)) {
+            if ("oldjython".equals(s)) {
               // Default.
+            }
+            else if ("jython".equals(s)) {
+              m_filterContainer.addComponent(BuiltInStyleSheet.Jython);
             }
             else if ("clojure".equals(s)) {
               m_filterContainer.addComponent(BuiltInStyleSheet.Clojure);
