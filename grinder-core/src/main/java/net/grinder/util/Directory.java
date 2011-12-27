@@ -348,6 +348,10 @@ public final class Directory implements Serializable {
       }
     }
 
+    if (result.length() == 0) {
+      return new File(".");
+    }
+
     return new File(result.toString());
   }
 

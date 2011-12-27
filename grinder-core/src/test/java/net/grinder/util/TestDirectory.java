@@ -261,7 +261,6 @@ public class TestDirectory extends AbstractJUnit4FileTestCase {
 
   @Test public void testRebaseFile() throws Exception {
     final String[] files = {
-      ".",
       "path1",
       "some/other/path",
     };
@@ -278,22 +277,39 @@ public class TestDirectory extends AbstractJUnit4FileTestCase {
 
       final File relativeFile = new File(files[i]);
 
+      // If a relative path can be calculated (i.e. we're on the same
+      // file system as our temporary directory), it will be returned.
+      // Otherwise relativeFile will be returned.
+      // We cope with both cases by testing the operation is reflexive.
       final File result2 = directory.rebaseFile(relativeFile);
       assertFalse(result2.isAbsolute());
-      assertEquals(relativeFile, result2);
+      final File result3 = new Directory().rebaseFile(result2);
+      assertEquals(result3, result2);
     }
   }
 
-  @Test public void testRebaseFileWithExternalPath()
-    throws Exception {
+  @Test public void testRebaseFileDot() throws Exception {
+    final File result = new Directory().rebaseFile(new File("."));
+    assertEquals(new File("."), result);
+  }
 
-    // Absolute file outside of directory.
+  @Test public void testRebaseFileWithAbsoluteFile()
+    throws Exception {
 
     final Directory directory = new Directory(getDirectory());
 
     final File absoluteFile = new File("blah").getAbsoluteFile();
 
-    assertEquals(absoluteFile, directory.rebaseFile(absoluteFile));
+    final File result = directory.rebaseFile(absoluteFile);
+
+    if (result.isAbsolute()) {
+      assertEquals(absoluteFile, result);
+    }
+    else {
+      assertEquals(absoluteFile,
+                   new File(getDirectory(),
+                            result.getPath()).getCanonicalFile());
+    }
   }
 
   @Test public void testIsParentOf() throws Exception {
@@ -441,6 +457,6 @@ public class TestDirectory extends AbstractJUnit4FileTestCase {
 
     final File relativePath = Directory.relativePath(f1, f2);
 
-    assertEqualPaths("", relativePath.getPath());
+    assertEqualPaths(".", relativePath.getPath());
   }
 }
