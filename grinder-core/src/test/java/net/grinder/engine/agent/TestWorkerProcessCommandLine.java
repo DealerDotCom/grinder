@@ -31,6 +31,7 @@ import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.testutility.AbstractJUnit4FileTestCase;
+import static net.grinder.testutility.AssertUtilities.assertContainsPattern;
 import net.grinder.util.Directory;
 
 import org.junit.Test;
@@ -96,10 +97,11 @@ public class TestWorkerProcessCommandLine extends AbstractJUnit4FileTestCase {
                                    grinderProperties.getProperty("grinder.jvm.arguments"),
                                    new Directory());
 
-    assertEquals("java '-javaagent:" + agentFile.getAbsolutePath() +
-                 "' -classpath '" + someJar.getAbsolutePath() +
-                 "' net.grinder.engine.process.WorkerProcessEntryPoint",
-                 workerProcessCommandLine.toString());
+    assertContainsPattern(
+      workerProcessCommandLine.toString(),
+      "^java '-javaagent:[^\\s]*" + agentFile.getName() +
+      "' -classpath '[^\\s]*" + someJar.getName() +
+      "' net.grinder.engine.process.WorkerProcessEntryPoint$");
   }
 
   @Test public void testWithSystemProperties() throws Exception {
@@ -139,6 +141,8 @@ public class TestWorkerProcessCommandLine extends AbstractJUnit4FileTestCase {
     assertNull(WorkerProcessCommandLine.findAgentJarFile("foo.jar"));
 
     assertNull(WorkerProcessCommandLine.findAgentJarFile("/foo.jar"));
+
+    assertNull(WorkerProcessCommandLine.findAgentJarFile("/notthere/foo.jar"));
 
     assertNull(
      WorkerProcessCommandLine.findAgentJarFile(
