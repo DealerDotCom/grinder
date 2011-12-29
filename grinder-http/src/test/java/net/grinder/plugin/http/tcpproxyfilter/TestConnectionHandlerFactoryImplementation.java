@@ -24,7 +24,6 @@ package net.grinder.plugin.http.tcpproxyfilter;
 
 import static org.junit.Assert.assertNotSame;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import net.grinder.common.Logger;
 import net.grinder.tools.tcpproxy.CommentSource;
 import net.grinder.tools.tcpproxy.CommentSourceImplementation;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
@@ -36,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**

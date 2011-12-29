@@ -22,17 +22,16 @@
 
 package net.grinder;
 
-import java.io.PrintWriter;
-
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.console.ConsoleFoundation;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.swingui.ConsoleUI;
 import net.grinder.console.textui.TextUI;
 import net.grinder.util.AbstractMainClass;
-import net.grinder.util.SimpleLogger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -83,9 +82,7 @@ public final class Console extends AbstractMainClass {
       "net.grinder.console.common.resources.Console");
 
     final Logger logger =
-      new SimpleLogger(resources.getString("shortTitle"),
-                       new PrintWriter(System.out),
-                       new PrintWriter(System.err));
+      LoggerFactory.getLogger(resources.getString("shortTitle"));
 
     try {
       final Console console = new Console(args, resources, logger);
@@ -95,10 +92,7 @@ public final class Console extends AbstractMainClass {
       System.exit(1);
     }
     catch (GrinderException e) {
-      logger.error("Could not initialise:");
-      final PrintWriter errorWriter = logger.getErrorLogWriter();
-      e.printStackTrace(errorWriter);
-      errorWriter.flush();
+      logger.error("Could not initialise", e);
       System.exit(2);
     }
 

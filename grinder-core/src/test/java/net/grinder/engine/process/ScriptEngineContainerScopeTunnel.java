@@ -21,8 +21,9 @@
 
 package net.grinder.engine.process;
 
+import org.slf4j.Logger;
+
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.DCRContext;

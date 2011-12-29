@@ -25,7 +25,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.MessageDispatchRegistry;
@@ -130,7 +131,7 @@ final class FileStore {
         public void handle(ClearCacheMessage message)
           throws CommunicationException {
 
-          m_logger.output("Clearing file store");
+          m_logger.info("Clearing file store");
 
           try {
             synchronized (m_incomingDirectory) {
@@ -158,7 +159,7 @@ final class FileStore {
 
               final FileContents fileContents = message.getFileContents();
 
-              m_logger.output("Updating file store: " + fileContents);
+              m_logger.info("Updating file store: {}", fileContents);
               fileContents.create(m_incomingDirectory);
             }
           }

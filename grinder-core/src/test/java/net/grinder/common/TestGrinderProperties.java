@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,11 @@
 
 package net.grinder.common;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,23 +33,24 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Properties;
+import java.io.StringWriter;
 import java.util.Map.Entry;
+import java.util.Properties;
 
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.testutility.FileUtilities;
 import net.grinder.testutility.Serializer;
 
+import org.junit.Before;
+import org.junit.Test;
+
 
 /**
- *  Unit test case for <code>GrinderProperties</code>.
+ *  Unit test case for {@link GrinderProperties}.
  *
  * @author Philip Aston
  */
-public class TestGrinderProperties extends AbstractFileTestCase {
-
-  private final LoggerStubFactory m_loggerFactory = new LoggerStubFactory();
-  private final Logger m_logger = m_loggerFactory.getLogger();
+public class TestGrinderProperties extends AbstractJUnit4FileTestCase {
 
   private final static String s_prefix = "prefix.";
 
@@ -67,12 +73,13 @@ public class TestGrinderProperties extends AbstractFileTestCase {
   private final Properties m_fileSet = new Properties();
   private final Properties m_grinderSet = new Properties();
 
-  protected void setUp() throws Exception {
-    super.setUp();
+  private final StringWriter m_stringWriter = new StringWriter();
+  private final PrintWriter m_errorWriter = new PrintWriter(m_stringWriter);
 
+  @Before public void setUp() throws Exception {
     m_emptyGrinderProperties = new GrinderProperties();
 
-    m_emptyGrinderProperties.setErrorWriter(m_logger.getErrorLogWriter());
+    m_emptyGrinderProperties.setErrorWriter(m_errorWriter);
 
     m_prefixSet.put(s_prefix + "A string", "Some more text");
     m_prefixSet.put(s_prefix + "An int", "9");
@@ -153,10 +160,10 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     m_grinderProperties = new GrinderProperties();
     m_grinderProperties.putAll(m_allSet);
-    m_grinderProperties.setErrorWriter(m_logger.getErrorLogWriter());
+    m_grinderProperties.setErrorWriter(m_errorWriter);
   }
 
-  public void testGetPropertySubset() throws Exception {
+  @Test public void testGetPropertySubset() throws Exception {
     final GrinderProperties all =
       m_grinderProperties.getPropertySubset("");
 
@@ -181,7 +188,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     }
   }
 
-  public void testGetInt() throws Exception {
+  @Test public void testGetInt() throws Exception {
     assertEquals(1, m_grinderProperties.getInt("Not there", 1));
 
     (new IterateOverProperties(m_intSet) {
@@ -192,7 +199,20 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       }
      ).run();
 
-    m_loggerFactory.resetCallHistory();
+    assertEquals(0, countErrorLines());
+  }
+
+  private int countErrorLines() {
+    final String errorOutput = m_stringWriter.toString();
+
+    if (errorOutput.length() == 0) {
+      return 0;
+    }
+
+    return errorOutput.split("\n").length;
+  }
+
+  @Test public void testGetIntBroken() throws Exception {
 
     (new IterateOverProperties(m_brokenIntSet) {
         void match(String key, String value) {
@@ -201,11 +221,10 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       }
      ).run();
 
-    assertEquals(m_brokenIntSet.size(),
-                 m_loggerFactory.getErrorLogWriter().getLineCount());
+    assertEquals(m_brokenIntSet.size(), countErrorLines());
   }
 
-  public void testGetLong() throws Exception {
+  @Test public void testGetLong() throws Exception {
     assertEquals(1, m_grinderProperties.getLong("Not there", 1));
 
     (new IterateOverProperties(m_longSet) {
@@ -216,7 +235,10 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       }
      ).run();
 
-    m_loggerFactory.resetCallHistory();
+    assertEquals(0, countErrorLines());
+  }
+
+  @Test public void testGetLongBroken() throws Exception {
 
     (new IterateOverProperties(m_brokenLongSet) {
         void match(String key, String value) {
@@ -225,11 +247,10 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       }
      ).run();
 
-    assertEquals(m_brokenLongSet.size(),
-                 m_loggerFactory.getErrorLogWriter().getLineCount());
+    assertEquals(m_brokenLongSet.size(), countErrorLines());
   }
 
-  public void testGetShort() throws Exception {
+  @Test public void testGetShort() throws Exception {
     assertEquals((short)1, m_grinderProperties.getShort("Not there",
                                                         (short)1));
 
@@ -242,7 +263,10 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       }
      ).run();
 
-    m_loggerFactory.resetCallHistory();
+    assertEquals(0, countErrorLines());
+  }
+
+  @Test public void testGetShortBroken() throws Exception {
 
     (new IterateOverProperties(m_brokenShortSet) {
         void match(String key, String value) {
@@ -252,11 +276,10 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       }
      ).run();
 
-    assertEquals(m_brokenShortSet.size(),
-                 m_loggerFactory.getErrorLogWriter().getLineCount());
+    assertEquals(m_brokenShortSet.size(), countErrorLines());
   }
 
-  public void testGetDouble() throws Exception {
+  @Test public void testGetDouble() throws Exception {
     assertEquals(1.0, m_grinderProperties.getDouble("Not there", 1.0), 0);
 
     (new IterateOverProperties(m_doubleSet) {
@@ -267,7 +290,10 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       }
      ).run();
 
-    m_loggerFactory.resetCallHistory();
+    assertEquals(0, countErrorLines());
+  }
+
+  @Test public void testGetDoubleBroken() throws Exception {
 
     (new IterateOverProperties(m_brokenDoubleSet) {
         void match(String key, String value) {
@@ -278,11 +304,10 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       }
      ).run();
 
-    assertEquals(m_brokenDoubleSet.size(),
-                 m_loggerFactory.getErrorLogWriter().getLineCount());
+    assertEquals(m_brokenDoubleSet.size(), countErrorLines());
   }
 
-  public void testGetBoolean() throws Exception {
+  @Test public void testGetBoolean() throws Exception {
     assertTrue(m_grinderProperties.getBoolean("Not there", true));
     assertTrue(!m_grinderProperties.getBoolean("Not there", false));
 
@@ -304,7 +329,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testGetFile() throws Exception {
+  @Test public void testGetFile() throws Exception {
     final File f = new File("foo");
     assertEquals(f, m_grinderProperties.getFile("Not there", f));
 
@@ -317,7 +342,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testSetInt() throws Exception {
+  @Test public void testSetInt() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
 
     (new IterateOverProperties(m_intSet) {
@@ -329,7 +354,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testSetLong() throws Exception {
+  @Test public void testSetLong() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
 
     (new IterateOverProperties(m_longSet) {
@@ -341,7 +366,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testSetShort() throws Exception {
+  @Test public void testSetShort() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
 
     (new IterateOverProperties(m_shortSet) {
@@ -353,7 +378,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testSetDouble() throws Exception {
+  @Test public void testSetDouble() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
 
     (new IterateOverProperties(m_doubleSet) {
@@ -368,7 +393,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testSetBoolean() throws Exception {
+  @Test public void testSetBoolean() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
 
     (new IterateOverProperties(m_booleanSet) {
@@ -383,7 +408,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testSetFile() throws Exception {
+  @Test public void testSetFile() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
 
     (new IterateOverProperties(m_fileSet) {
@@ -397,7 +422,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testDefaultProperties() throws Exception {
+  @Test public void testDefaultProperties() throws Exception {
     setSystemProperties();
 
     try {
@@ -410,7 +435,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     }
   }
 
-  public void testPropertiesFileHanding() throws Exception {
+  @Test public void testPropertiesFileHanding() throws Exception {
     setSystemProperties();
 
     try {
@@ -469,7 +494,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     }
   }
 
-  public void testSave() throws Exception {
+  @Test public void testSave() throws Exception {
 
     try {
       assertNull(m_grinderProperties.getAssociatedFile());
@@ -505,7 +530,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testSaveSingleProperty() throws Exception {
+  @Test public void testSaveSingleProperty() throws Exception {
 
     try {
       assertNull(m_grinderProperties.getAssociatedFile());
@@ -556,7 +581,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
-  public void testFileHandingWithBadFiles() throws Exception {
+  @Test public void testFileHandingWithBadFiles() throws Exception {
     final File readOnlyFile =
       File.createTempFile("testing", "", getDirectory());
 
@@ -611,7 +636,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     abstract void match(String key, String value) throws Exception;
   }
 
-  public void testSerialisation() throws Exception {
+  @Test public void testSerialisation() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
     properties.setProperty("Hello", "World");
 
@@ -620,7 +645,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     assertEquals(properties, properties2);
   }
 
-  public void testResolveRelativeFile() throws Exception {
+  @Test public void testResolveRelativeFile() throws Exception {
     final File relativeDirectory = new File("d");
     final File absoluteDirectory = relativeDirectory.getCanonicalFile();
     final File absolute1 = new File(absoluteDirectory, "blah");

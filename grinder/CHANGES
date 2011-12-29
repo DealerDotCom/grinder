@@ -1,6 +1,14 @@
 The Grinder 3.7 (not yet released)
 ----------------------------------
 
+  Changes that may be incompatible with existing scripts:
+
+   Implement feature request 3418525 -  Switch to a standard logging
+   framework. The net.grinder.common.Logger/FilenameFactory API has been
+   removed in favor of SLF4J.
+
+  Other changes:
+
    The Java instrumenter supports selective instrumentation of a target
    object through an overloaded version of Test.record(). The full
    HTTPRequest interface can now be used with DCR instrumentation without
@@ -39,130 +47,130 @@ The Grinder 3.7 (not yet released)
 The Grinder 3.6
 ---------------
 
-   The script engine API has been improved so that adding support
-   for other languages is straightforward.
+  The script engine API has been improved so that adding support
+  for other languages is straightforward.
 
-   Clojure is supported as an alternative test script language.
+  Clojure is supported as an alternative test script language.
 
-   Fulfil feature request 1849150 - Synchronisation points.
-   Thanks to Aditya for the request.
+  Fulfil feature request 1849150 - Synchronisation points.
+  Thanks to Aditya for the request.
 
-   Fix bug 3406177 - DCR instrumented objects are not garbage
-   collected. Thanks to Gary Mulder for the report and diagnostics.
+  Fix bug 3406177 - DCR instrumented objects are not garbage
+  collected. Thanks to Gary Mulder for the report and diagnostics.
 
-   Fix bug 3413171 - TCPProxy broken in The Grinder 3.5. Thanks to
-   Lonnie Choset for the report.
+  Fix bug 3413171 - TCPProxy broken in The Grinder 3.5. Thanks to
+  Lonnie Choset for the report.
 
-   Fix bug 3411728 - helloworld.py doesn't work with DCR
-   instrumentation. Thanks to Jeff Vincent for the report.
+  Fix bug 3411728 - helloworld.py doesn't work with DCR
+  instrumentation. Thanks to Jeff Vincent for the report.
 
-   Fulfill feature request 3389028 - XSLTHelper API to control indent.
-   Thanks to Jean-Francois Poilpret for the request.
+  Fulfill feature request 3389028 - XSLTHelper API to control indent.
+  Thanks to Jean-Francois Poilpret for the request.
 
 
 The Grinder 3.5
 ---------------
 
-   Fix bug 3008924 - Jython 2.5, assertion error if script has __del__
-   method. Thank to Thomas Falkenberg for the report.
+  Fix bug 3008924 - Jython 2.5, assertion error if script has __del__
+  method. Thank to Thomas Falkenberg for the report.
 
-   Fix bug 2988755 - NPE in JythonScriptExecutionException
-   .tracebackToMessage(). Thanks to Brian Runck for the report.
+  Fix bug 2988755 - NPE in JythonScriptExecutionException
+  .tracebackToMessage(). Thanks to Brian Runck for the report.
 
-   Fix bug 2952023 - Cookie.parse should recognise "httponly" (lower
-   case). Thanks to amachang for the report and the patch.
+  Fix bug 2952023 - Cookie.parse should recognise "httponly" (lower
+  case). Thanks to amachang for the report and the patch.
 
-   Fix bug 3092275 - Incorrect TPS totals in output log. Thanks to
-   Travis Bear for the report.
+  Fix bug 3092275 - Incorrect TPS totals in output log. Thanks to
+  Travis Bear for the report.
 
-   Fix bug 3132643 - No statistics to report. This occurred if a clock
-   went backwards in time during a test, and prevented the test from
-   ever executing successfully again. Thanks to Wallander for the
-   report.
+  Fix bug 3132643 - No statistics to report. This occurred if a clock
+  went backwards in time during a test, and prevented the test from
+  ever executing successfully again. Thanks to Wallander for the
+  report.
 
-   Fix bug 3132940 - Incorrect connect/DNS times when connect timeout
-   set. This was due to an error in the fix for 3132940. Thanks to
-   Jagdish A for the report, and to Wallander for testing.
+  Fix bug 3132940 - Incorrect connect/DNS times when connect timeout
+  set. This was due to an error in the fix for 3132940. Thanks to
+  Jagdish A for the report, and to Wallander for testing.
 
-   Work around Jython issue 1894900. If the default Jython jar is used
-   and it looks like the Jython cachedir has not been configured, then
-   create a cache directory in lib.
+  Work around Jython issue 1894900. If the default Jython jar is used
+  and it looks like the Jython cachedir has not been configured, then
+  create a cache directory in lib.
 
-   Fulfil feature request 3324241 - Upgrade to PicoContainer 2.13.6.
-   Thanks to Alexis Bezverkhyy the request.
+  Fulfil feature request 3324241 - Upgrade to PicoContainer 2.13.6.
+  Thanks to Alexis Bezverkhyy the request.
 
-   Fix bug 3287570 - Memory leak in DCR instrumentation if same target
-   was recorded multiple times using the same Test. Thanks to John
-   (crystalstone) for the report.
+  Fix bug 3287570 - Memory leak in DCR instrumentation if same target
+  was recorded multiple times using the same Test. Thanks to John
+  (crystalstone) for the report.
 
-   Support Jython 2.5.2.
+  Support Jython 2.5.2.
 
-   Fix bug 2992248 - DCR instrumentation of Java methods.
-   Instrumentation of Java methods from Jython scripts has been
-   improved. Multiple references from a script to an instrumented
-   method now work as expected. Invoking a script instrumented method
-   from Java now works. Thanks to Kevin Connaughton for the report.
+  Fix bug 2992248 - DCR instrumentation of Java methods.
+  Instrumentation of Java methods from Jython scripts has been
+  improved. Multiple references from a script to an instrumented
+  method now work as expected. Invoking a script instrumented method
+  from Java now works. Thanks to Kevin Connaughton for the report.
 
-   Fix bug 2958145 - DCR instrumentation fails with
-   grinder.debug.singleprocess.
+  Fix bug 2958145 - DCR instrumentation fails with
+  grinder.debug.singleprocess.
 
 
 The Grinder 3.4
 ---------------
 
-   Fix bug 2913297 - Memory leak in SSLControlImplementation. Thanks to
-   Guido Serra for the report.
+  Fix bug 2913297 - Memory leak in SSLControlImplementation. Thanks to
+  Guido Serra for the report.
 
-   Fix bug 1619450 - HTTPClient.TestCookie.testParse unit test fails.
-   Thanks to amachang for re-opening this bug and providing a patch.
+  Fix bug 1619450 - HTTPClient.TestCookie.testParse unit test fails.
+  Thanks to amachang for re-opening this bug and providing a patch.
 
-   Fix bug 2911790 - HTTP filter generates invalid code for Jython 2.5+.
-   Thanks to the anonymous reporter.
+  Fix bug 2911790 - HTTP filter generates invalid code for Jython 2.5+.
+  Thanks to the anonymous reporter.
 
-   Fix bug 2921612 - DCR instrumentation did not work with
-   HTTPRequest. Thanks to Anil Jacob for the report.
+  Fix bug 2921612 - DCR instrumentation did not work with
+  HTTPRequest. Thanks to Anil Jacob for the report.
 
-   Fulfil feature request 2914703 - Multipart form data support. Thanks
-   to Hitoshi Amano for the request and the implementation.
+  Fulfil feature request 2914703 - Multipart form data support. Thanks
+  to Hitoshi Amano for the request and the implementation.
 
-   Fix bug 2919190 - setTimeout method does not effect read timeouts.
-   Thanks to Hitoshi Amano for the report and the fix.
+  Fix bug 2919190 - setTimeout method does not effect read timeouts.
+  Thanks to Hitoshi Amano for the report and the fix.
 
-   Fulfil feature request 2923975 - added valuesFromHiddenInput() and
-   valuesFromBodyURI() methods to HTTPUtilities. Thanks to Anil Jacob
-   for the request.
+  Fulfil feature request 2923975 - added valuesFromHiddenInput() and
+  valuesFromBodyURI() methods to HTTPUtilities. Thanks to Anil Jacob
+  for the request.
 
-   Fulfil feature request 2841789 - added valueFromBodyInput() and
-   valuesFromBodyInput() methods to HTTPUtilities. Thanks to Satheesh
-   Babu Vattekkat for the request.
+  Fulfil feature request 2841789 - added valueFromBodyInput() and
+  valuesFromBodyInput() methods to HTTPUtilities. Thanks to Satheesh
+  Babu Vattekkat for the request.
 
-   Fix bug 2816501 - Test numbers larger than 6 digits get truncated
-   in out file. Thanks to Vivin Paliath for the report.
+  Fix bug 2816501 - Test numbers larger than 6 digits get truncated
+  in out file. Thanks to Vivin Paliath for the report.
 
-   Fix bug 2501418 - Handle socket lingering properly. Thanks to Dawid
-   Weiss for the report and suggested fixes.
+  Fix bug 2501418 - Handle socket lingering properly. Thanks to Dawid
+  Weiss for the report and suggested fixes.
 
-   Fix bug 2837600 - Content-type header written instead of Content-Type.
-   Thanks to Guido Serra for the report.
+  Fix bug 2837600 - Content-type header written instead of Content-Type.
+  Thanks to Guido Serra for the report.
 
-   Implement feature request 887214 - the console now optionally includes
-   the totals line in saved results. Thanks to Karol Muszynski for
-   prompting me to implement this.
+  Implement feature request 887214 - the console now optionally includes
+  the totals line in saved results. Thanks to Karol Muszynski for
+  prompting me to implement this.
 
-   Fix bug 2945358 - Fail gracefully if the agent jar file can't be
-   found.
+  Fix bug 2945358 - Fail gracefully if the agent jar file can't be
+  found.
 
-   Fix bug 2947509 - Improve algorithm that finds agent jar.
+  Fix bug 2947509 - Improve algorithm that finds agent jar.
 
-   Fix bug 2936167 - Script execution hangs when using Jython 2.5.1 and
-   Windows. Thanks to Mark Cleveland, Dave Martin, and svalkanesko for
-   their reports and assistance with the diagnosis.
+  Fix bug 2936167 - Script execution hangs when using Jython 2.5.1 and
+  Windows. Thanks to Mark Cleveland, Dave Martin, and svalkanesko for
+  their reports and assistance with the diagnosis.
 
-   Fix bug 2980291 - "Resolve host" time incorrect. The HTTP plug-in time
-   To Resolve Host and Time To Establish Connection statistics no longer
-   include the time taken for automatic redirects. Time To First Byte is
-   still based on the time the HTTPRequest call was initiated. Thanks to
-   Travis Bear for the report, and to Bryce Howard for the patch.
+  Fix bug 2980291 - "Resolve host" time incorrect. The HTTP plug-in time
+  To Resolve Host and Time To Establish Connection statistics no longer
+  include the time taken for automatic redirects. Time To First Byte is
+  still based on the time the HTTPRequest call was initiated. Thanks to
+  Travis Bear for the report, and to Bryce Howard for the patch.
 
 
 The Grinder 3.3
@@ -1049,7 +1057,7 @@ Grinder 3.0-beta16
   IMPORTANT: The communication properties have changed. The following
   properties can be set in grinder.properties:
 
-    grinder.consoleHost	  (previously grinder.consoleAddress)
+    grinder.consoleHost   (previously grinder.consoleAddress)
     grinder.consolePort
     grinder.useConsole    (previously grinder.receiveConsoleSignals /
                      grinder.reportToConsole)
@@ -1524,9 +1532,9 @@ Grinder 2.8.1
    IMPORTANT: The communication properties have changed, you must set
    the following in grinder.properties:
 
-  grinder.consoleAddress	(Address of machine running Console)
+  grinder.consoleAddress  (Address of machine running Console)
   grinder.consolePort
-  grinder.grinderAddress	(Multicast address)
+  grinder.grinderAddress  (Multicast address)
   grinder.grinderPort
 
    [grinder.consoleAddress is a new property. grinder.multicastAddress
@@ -1988,17 +1996,17 @@ Grinder 0.9
   I've finally got rid of PropsLoader. This entails a few changes to
   properties:
 
-    grinder.jvm.path	-	Specifies the java executable used for
+    grinder.jvm.path  - Specifies the java executable used for
         the child JVMs. Defaults to "java" so
         you do not need to specify this if
         your path is sensible.
 
-    grinder.jvm.classpath -	Use to adjust the classpath used for
+    grinder.jvm.classpath - Use to adjust the classpath used for
         the child VMs. Anything specified here
         will be prepended to the classpath
         used to start the grinder itself.
 
-    grinder.jvm.arguments -	Additional arguments to child JVM's.
+    grinder.jvm.arguments - Additional arguments to child JVM's.
 
 
   Additionally, grinder.properties does not have to be in your

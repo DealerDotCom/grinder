@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,23 @@
 
 package net.grinder.engine.agent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Random;
 
-import net.grinder.common.Logger;
-import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchSender;
@@ -37,22 +47,25 @@ import net.grinder.messages.agent.ClearCacheMessage;
 import net.grinder.messages.agent.DistributeFileMessage;
 import net.grinder.messages.agent.DistributionCacheCheckpointMessage;
 import net.grinder.messages.agent.StubCacheHighWaterMark;
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.testutility.FileUtilities;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 
+import org.junit.Test;
+import org.slf4j.Logger;
+
 
 /**
- *  Unit tests for <code>FileStore</code>.
+ *  Unit tests for {@code FileStore}.
  *
  * @author Philip Aston
  */
-public class TestFileStore extends AbstractFileTestCase {
+public class TestFileStore extends AbstractJUnit4FileTestCase {
 
   private static final Random s_random = new Random();
 
-  public void testConstruction() throws Exception {
+  @Test public void testConstruction() throws Exception {
 
     File.createTempFile("file", "", getDirectory());
     assertEquals(1, getDirectory().list().length);
@@ -111,10 +124,9 @@ public class TestFileStore extends AbstractFileTestCase {
     new FileStore(notThere, null);
   }
 
-  public void testSender() throws Exception {
+  @Test public void testSender() throws Exception {
 
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
-    final Logger logger = loggerStubFactory.getLogger();
+    final Logger logger = mock(Logger.class);
 
     final FileStore fileStore = new FileStore(getDirectory(), logger);
 
@@ -124,11 +136,11 @@ public class TestFileStore extends AbstractFileTestCase {
     // Other Messages get ignored.
     final Message message0 = new SimpleMessage();
     messageDispatcher.send(message0);
-    loggerStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(logger);
 
     // Shutdown does nothing.
     messageDispatcher.shutdown();
-    loggerStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(logger);
 
     // Test with a good message.
     final File sourceDirectory = new File(getDirectory(), "source");
@@ -169,15 +181,13 @@ public class TestFileStore extends AbstractFileTestCase {
 
     FileUtilities.setCanAccess(getDirectory(), true);
 
-    //loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertSuccess("error", String.class);
-    loggerStubFactory.assertNoMoreCalls();
+    verify(logger).error(contains("Could not create directory"));
 
     assertFalse(incomingDirectoryFile.delete());
 
     messageDispatcher.send(message1);
-    loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertNoMoreCalls();
+    verify(logger).info(contains("Updating file store"),
+                        isA(FileContents.class));
 
     // Message has been sent, the incoming directory and the read me exist.
     assertTrue(readmeFile.exists());
@@ -220,9 +230,10 @@ public class TestFileStore extends AbstractFileTestCase {
     catch (CommunicationException e) {
     }
 
-    loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertSuccess("error", String.class);
-    loggerStubFactory.assertNoMoreCalls();
+    verify(logger, times(2)).info(contains("Updating file store"),
+                                  isA(FileContents.class));
+
+    verify(logger).error(contains("Failed to create file"));
 
     final Message message2 = new ClearCacheMessage();
 
@@ -240,20 +251,19 @@ public class TestFileStore extends AbstractFileTestCase {
     FileUtilities.setCanAccess(targetFile.getParentFile(), true);
     FileUtilities.setCanAccess(targetFile, true);
 
-    loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertSuccess("error", String.class);
-    loggerStubFactory.assertNoMoreCalls();
+    verify(logger).info(contains("Clearing file store"));
+    verify(logger).error(contains("Could not delete"));
 
     messageDispatcher.send(message2);
-    loggerStubFactory.assertSuccess("output", String.class);
-    loggerStubFactory.assertNoMoreCalls();
+    verify(logger, times(2)).info(contains("Clearing file store"));
+    verifyNoMoreInteractions(logger);
 
     assertTrue(!targetFile.canRead());
 
     assertEquals(currentDirectoryFile, fileStore.getDirectory().getFile());
   }
 
-  public void testFileStoreException() throws Exception {
+  @Test public void testFileStoreException() throws Exception {
     final Exception nested = new Exception("");
     final FileStore.FileStoreException e =
       new FileStore.FileStoreException("bite me", nested);
@@ -261,7 +271,7 @@ public class TestFileStore extends AbstractFileTestCase {
     assertEquals(nested, e.getCause());
   }
 
-  public void testDistributionCheckpointMessage() throws Exception {
+  @Test public void testDistributionCheckpointMessage() throws Exception {
     final FileStore fileStore = new FileStore(getDirectory(), null);
 
     final CacheHighWaterMark outOfDateCacheHighWaterMark =

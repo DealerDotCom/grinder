@@ -24,16 +24,15 @@
 package net.grinder;
 
 import java.io.File;
-import java.io.PrintWriter;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.engine.agent.Agent;
 import net.grinder.engine.agent.AgentDaemon;
 import net.grinder.engine.agent.AgentImplementation;
 import net.grinder.util.AbstractMainClass;
-import net.grinder.util.JVM;
-import net.grinder.util.SimpleLogger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -61,16 +60,9 @@ public final class Grinder extends AbstractMainClass {
    */
   public static void main(String[] args) {
 
-    final Logger logger =
-      new SimpleLogger("agent",
-                       new PrintWriter(System.out),
-                       new PrintWriter(System.err));
+    final Logger logger = LoggerFactory.getLogger("agent");
 
     try {
-      if (!JVM.getInstance().haveRequisites(logger)) {
-        System.exit(3);
-      }
-
       final Grinder grinder = new Grinder(args, logger);
       grinder.run();
     }
@@ -78,9 +70,7 @@ public final class Grinder extends AbstractMainClass {
       System.exit(1);
     }
     catch (Throwable e) {
-      final PrintWriter errorWriter = logger.getErrorLogWriter();
-      e.printStackTrace(errorWriter);
-      errorWriter.flush();
+      logger.error(e.getMessage(), e);
       System.exit(2);
     }
 

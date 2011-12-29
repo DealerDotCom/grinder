@@ -22,13 +22,13 @@
 
 package net.grinder.engine.process;
 
-import java.io.PrintWriter;
-
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.common.EngineException;
-import net.grinder.scriptengine.ScriptExecutionException;
 import net.grinder.scriptengine.ScriptEngineService.WorkerRunnable;
+import net.grinder.scriptengine.ScriptExecutionException;
 import net.grinder.util.Sleeper;
+
+import org.slf4j.Logger;
 
 
 /**
@@ -39,6 +39,7 @@ import net.grinder.util.Sleeper;
  */
 class GrinderThread implements Runnable {
 
+  private final Logger m_logger;
   private final WorkerThreadSynchronisation m_threadSynchronisation;
   private final ProcessLifeCycleListener m_processLifeCycle;
   private final GrinderProperties m_properties;
@@ -49,7 +50,8 @@ class GrinderThread implements Runnable {
   /**
    * The constructor.
    */
-  public GrinderThread(ThreadContext context,
+  public GrinderThread(Logger logger,
+                       ThreadContext context,
                        WorkerThreadSynchronisation threadSynchronisation,
                        ProcessLifeCycleListener processLifeCycle,
                        GrinderProperties properties,
@@ -57,6 +59,7 @@ class GrinderThread implements Runnable {
                        WorkerRunnableFactory workerRunnableFactory)
     throws EngineException {
 
+    m_logger = logger;
     m_context = context;
     m_threadSynchronisation = threadSynchronisation;
     m_processLifeCycle = processLifeCycle;
@@ -76,10 +79,7 @@ class GrinderThread implements Runnable {
   public void run() {
     m_processLifeCycle.threadStarted(m_context);
 
-    final ThreadLogger logger = m_context.getThreadLogger();
-    final PrintWriter errorWriter = logger.getErrorLogWriter();
-
-    logger.setCurrentRunNumber(-1);
+    m_context.setCurrentRunNumber(-1);
 
     // Fire begin thread event before creating the worker runnable to allow
     // plug-ins to do per-thread initialisation required by the script code.
@@ -91,11 +91,13 @@ class GrinderThread implements Runnable {
       final int numberOfRuns = m_properties.getInt("grinder.runs", 1);
 
       if (numberOfRuns == 0) {
-        logger.output("starting, will run forever");
+        m_logger.info(m_context.getMarker(), "starting, will run forever");
       }
       else {
-        logger.output("starting, will do " + numberOfRuns + " run" +
-                      (numberOfRuns == 1 ? "" : "s"));
+        m_logger.info(m_context.getMarker(),
+                      "starting, will do {} run{}",
+                      numberOfRuns,
+                      numberOfRuns == 1 ? "" : "s");
       }
 
       m_threadSynchronisation.awaitStart();
@@ -108,7 +110,7 @@ class GrinderThread implements Runnable {
            numberOfRuns == 0 || currentRun < numberOfRuns;
            currentRun++) {
 
-        logger.setCurrentRunNumber(currentRun);
+        m_context.setCurrentRunNumber(currentRun);
 
         m_context.fireBeginRunEvent();
 
@@ -120,24 +122,24 @@ class GrinderThread implements Runnable {
 
           if (cause instanceof ShutdownException ||
               cause instanceof Sleeper.ShutdownException) {
-            logger.output("shut down");
+            m_logger.info(m_context.getMarker(), "shut down");
             break;
           }
 
-          // Sadly PrintWriter only exposes its lock object to subclasses.
-          synchronized (errorWriter) {
-            logger.error("Aborted run: " + e.getShortMessage());
-            e.printStackTrace(errorWriter);
-          }
+          m_logger.error(m_context.getMarker(),
+                         "Aborted run: " + e.getShortMessage(),
+                         e);
         }
 
         m_context.fireEndRunEvent();
       }
 
-      logger.setCurrentRunNumber(-1);
+      m_context.setCurrentRunNumber(-1);
 
-      logger.output("finished " + currentRun +
-                    (currentRun == 1 ? " run" : " runs"));
+      m_logger.info(m_context.getMarker(),
+                    "finished {} {}",
+                    currentRun,
+                    currentRun == 1 ? " run" : " runs");
 
       m_context.fireBeginShutdownEvent();
 
@@ -145,30 +147,23 @@ class GrinderThread implements Runnable {
         workerRunnable.shutdown();
       }
       catch (ScriptExecutionException e) {
-        // Sadly PrintWriter only exposes its lock object to subclasses.
-        synchronized (errorWriter) {
-          logger.error(
-            "Aborted test runner shut down: " + e.getShortMessage());
-          e.printStackTrace(errorWriter);
-        }
+        m_logger.error(m_context.getMarker(),
+                       "Aborted test runner shut down: " + e.getShortMessage(),
+                       e);
       }
 
       m_context.fireEndThreadEvent();
     }
     catch (ScriptExecutionException e) {
-      synchronized (errorWriter) {
-        logger.error("Aborting thread: " + e.getShortMessage());
-        e.printStackTrace(errorWriter);
-      }
+      m_logger.error(m_context.getMarker(),
+                     "Aborting thread: {}" + e.getShortMessage(),
+                     e);
     }
     catch (Exception e) {
-      synchronized (errorWriter) {
-        logger.error("Aborting thread: " + e);
-        e.printStackTrace(errorWriter);
-      }
+      m_logger.error(m_context.getMarker(), "Aborting thread: " + e, e);
     }
     finally {
-      logger.setCurrentRunNumber(-1);
+      m_context.setCurrentRunNumber(-1);
 
       m_threadSynchronisation.threadFinished();
     }

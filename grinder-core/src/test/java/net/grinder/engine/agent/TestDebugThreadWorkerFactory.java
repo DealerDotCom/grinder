@@ -22,13 +22,11 @@
 package net.grinder.engine.agent;
 
 import static net.grinder.testutility.AssertUtilities.assertContains;
-import static net.grinder.testutility.FileUtilities.fileContents;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 
@@ -77,27 +75,21 @@ public class TestDebugThreadWorkerFactory extends AbstractJUnit4FileTestCase {
                                    new ScriptLocation(new File("missing.py")),
                                    m_properties);
 
-    new RedirectStandardStreams() {
+    final RedirectStandardStreams streams = new RedirectStandardStreams() {
       protected void runWithRedirectedStreams() throws Exception {
         final Worker worker = factory.create(null, null);
         worker.waitFor();
       }
-    }.run()
-     .assertNoStdout()
-     .assertNoStderr();
+    }.run();
 
-    // Should have output and error files.
-    assertEquals(2, getDirectory().list().length);
+    streams.assertNoStdout();
 
-    final File[] errorFiles = getDirectory().listFiles(new FileFilter() {
-      public boolean accept(File f) {
-        return f.getName().startsWith("error");
-      }});
+    assertContains(new String(streams.getStderrBytes()), "File not found");
 
-    assertEquals(1, errorFiles.length);
+    // Should have and output and a data file.
+    final File[] files = getDirectory().listFiles();
 
-    assertContains(fileContents(errorFiles[0]),
-                   "File not found"); // Script not found.
+    assertEquals(2, files.length);
   }
 
   @Test public void testWithBadIsolatedRunner() throws Exception {

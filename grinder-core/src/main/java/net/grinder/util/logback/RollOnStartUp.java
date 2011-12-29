@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,17 +19,37 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.util.logback;
+
+import java.io.File;
+
+import ch.qos.logback.core.rolling.TriggeringPolicyBase;
 
 
 /**
- * Factory for <code>Logger</code> stubs.
+ * Triggering policy that fires once on start up, but only if the supplied file
+ * exists and is not empty.
  *
+ *
+ * @param <E>
+ *          Event type.
  * @author Philip Aston
  */
-public class LoggerStubFactory extends AbstractLoggerStubFactory<Logger> {
+public class RollOnStartUp<E> extends TriggeringPolicyBase<E> {
 
-  public LoggerStubFactory() {
-    super(Logger.class);
+  private volatile boolean m_firstTime = true;
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isTriggeringEvent(File activeFile, E event) {
+    if (!m_firstTime) {
+      return false;
+    }
+
+    m_firstTime = false;
+
+    return activeFile.exists() && activeFile.length() > 0;
   }
 }

@@ -22,19 +22,12 @@
 package net.grinder.tools.tcpproxy;
 
 import static net.grinder.testutility.AssertUtilities.assertContains;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import net.grinder.common.Logger;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 
 /**
@@ -53,32 +46,24 @@ public class TestEchoFilter {
   private final ConnectionDetails m_connectionDetails =
       new ConnectionDetails(m_endPoint1, m_endPoint2, false);
 
-  private @Mock Logger m_logger;
-  private StringWriter m_out = new StringWriter();
-
-  @Before public void setUp() {
-    MockitoAnnotations.initMocks(this);
-
-    final PrintWriter out = new PrintWriter(m_out);
-    when(m_logger.getOutputLogWriter()).thenReturn(out);
-  }
+  private StringWriter m_outString = new StringWriter();
+  private PrintWriter m_out = new PrintWriter(m_outString);
 
   @Test public void testHandle() throws Exception {
-    final EchoFilter echoFilter = new EchoFilter(m_logger);
+    final EchoFilter echoFilter = new EchoFilter(m_out);
 
-    verify(m_logger).getOutputLogWriter();
-    verifyNoMoreInteractions(m_logger);
+    assertEquals(0, m_outString.toString().length());
 
     echoFilter.handle(m_connectionDetails, "This is a campaign.".getBytes(), 5);
 
-    final String output = m_out.toString();
+    final String output = m_outString.toString();
     assertContains(output, m_connectionDetails.toString());
     assertContains(output, "This " + LINE_SEPARATOR);
 
     final String lines = "Some\nlines\rblah";
     echoFilter.handle(m_connectionDetails, lines.getBytes(), lines.length());
 
-    final String output2 = m_out.toString().substring(output.length());
+    final String output2 = m_outString.toString().substring(output.length());
     assertContains(output2, m_connectionDetails.toString());
     assertContains(output2, "Some\nlines\rblah" + LINE_SEPARATOR);
 
@@ -86,34 +71,26 @@ public class TestEchoFilter {
                             'd', 'a', 'h', '\n', 'b', 'a', 'h' };
     echoFilter.handle(m_connectionDetails, binary, binary.length);
     final String output3 =
-      m_out.toString().substring(output.length() + output2.length());
+      m_outString.toString().substring(output.length() + output2.length());
     assertContains(output3, m_connectionDetails.toString());
     assertContains(output3, "[01E7]abc[89]dah\nbah" + LINE_SEPARATOR);
-
-    verifyNoMoreInteractions(m_logger);
   }
 
   @Test public void testConnectionOpened() throws Exception {
-    final EchoFilter echoFilter = new EchoFilter(m_logger);
-
-    verify(m_logger).getOutputLogWriter();
+    final EchoFilter echoFilter = new EchoFilter(m_out);
 
     echoFilter.connectionOpened(m_connectionDetails);
-    final String output = m_out.toString();
+    final String output = m_outString.toString();
     assertContains(output, m_connectionDetails.toString());
     assertContains(output, "opened");
-    verifyNoMoreInteractions(m_logger);
   }
 
   @Test public void testConnectionClosed() throws Exception {
-    final EchoFilter echoFilter = new EchoFilter(m_logger);
-
-    verify(m_logger).getOutputLogWriter();
+    final EchoFilter echoFilter = new EchoFilter(m_out);
 
     echoFilter.connectionClosed(m_connectionDetails);
-    final String output = m_out.toString();
+    final String output = m_outString.toString();
     assertContains(output, m_connectionDetails.toString());
     assertContains(output, "closed");
-    verifyNoMoreInteractions(m_logger);
   }
 }

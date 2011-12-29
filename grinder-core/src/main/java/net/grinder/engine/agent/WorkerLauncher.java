@@ -24,7 +24,8 @@ package net.grinder.engine.agent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.thread.Condition;
@@ -110,13 +111,13 @@ final class WorkerLauncher {
           new InterruptibleRunnableAdapter(new WaitForWorkerTask(workerIndex)));
       }
       catch (RejectedExecutionException e) {
-        m_logger.error("Failed to wait for " + worker.getIdentity().getName());
-        e.printStackTrace(m_logger.getErrorLogWriter());
+        m_logger.error("Failed to wait for " + worker.getIdentity().getName(),
+                       e);
         worker.destroy();
         return false;
       }
 
-      m_logger.output("worker " + worker.getIdentity().getName() + " started");
+      m_logger.info("worker " + worker.getIdentity().getName() + " started");
 
       ++m_nextWorkerIndex;
     }

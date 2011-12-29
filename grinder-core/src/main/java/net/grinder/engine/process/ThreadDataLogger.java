@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,35 +21,48 @@
 
 package net.grinder.engine.process;
 
-import java.io.PrintWriter;
-
+import static net.grinder.engine.process.DataLogArgument.RUN_INDEX;
+import static net.grinder.engine.process.DataLogArgument.START_TIME_INDEX;
+import static net.grinder.engine.process.DataLogArgument.STATISTICS_INDEX;
+import static net.grinder.engine.process.DataLogArgument.TEST_INDEX;
+import static net.grinder.engine.process.DataLogArgument.THREAD_INDEX;
 import net.grinder.common.Test;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsSet;
 
+import org.slf4j.Logger;
+
+
 /**
- * Writes lines to the data file on behalf of a particular thread.
+ * Writes lines to the data log on behalf of a particular thread.
  *
  * @author Philip Aston
  */
-class ThreadDataWriter {
-  private final PrintWriter m_out;
+class ThreadDataLogger {
+  private static final String SEPARATOR = ", ";
+
+  private final Logger m_dataLog;
   private final ExpressionView[] m_expressionViews;
+  private final Object[] m_arguments;
+
   private final StringBuilder m_buffer = new StringBuilder();
   private final int m_bufferAfterThreadIDIndex;
 
   private int m_bufferAfterRunNumberIndex = -1;
   private int m_lastRunNumber = -1;
 
-  public ThreadDataWriter(PrintWriter dataFilePrintWriter,
+  public ThreadDataLogger(Logger dataLog,
                           ExpressionView[] expressionViews,
                           int threadID) {
-    m_out = dataFilePrintWriter;
+    m_dataLog = dataLog;
     m_expressionViews = expressionViews;
 
+    m_arguments = DataLogArgument.createArray();
+    THREAD_INDEX.put(m_arguments, threadID);
+
     m_buffer.append(threadID);
-    m_buffer.append(", ");
+    m_buffer.append(SEPARATOR);
     m_bufferAfterThreadIDIndex = m_buffer.length();
   }
 
@@ -66,20 +79,19 @@ class ThreadDataWriter {
 
       m_buffer.setLength(m_bufferAfterThreadIDIndex);
       m_buffer.append(runNumber);
-      m_buffer.append(", ");
+      m_buffer.append(SEPARATOR);
       m_bufferAfterRunNumberIndex = m_buffer.length();
     }
 
     m_buffer.append(test.getNumber());
 
-    m_buffer.append(", ");
+    m_buffer.append(SEPARATOR);
     m_buffer.append(timeSinceExecutionStart);
 
-    for (int i = 0; i < m_expressionViews.length; ++i) {
-      m_buffer.append(", ");
+    for (ExpressionView expressionView : m_expressionViews) {
+      m_buffer.append(SEPARATOR);
 
-      final StatisticExpression expression =
-        m_expressionViews[i].getExpression();
+      final StatisticExpression expression = expressionView.getExpression();
 
       if (expression.isDouble()) {
         m_buffer.append(expression.getDoubleValue(statistics));
@@ -89,6 +101,13 @@ class ThreadDataWriter {
       }
     }
 
-    m_out.println(m_buffer);
+    // Pass the arguments for use by custom appenders.
+
+    RUN_INDEX.put(m_arguments, runNumber);
+    TEST_INDEX.put(m_arguments, test);
+    START_TIME_INDEX.put(m_arguments, timeSinceExecutionStart);
+    STATISTICS_INDEX.put(m_arguments, statistics);
+
+    m_dataLog.info(m_buffer.toString(), m_arguments);
   }
 }

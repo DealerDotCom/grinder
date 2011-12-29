@@ -24,8 +24,9 @@ package net.grinder.console.textui;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.slf4j.Logger;
+
 import net.grinder.common.GrinderBuild;
-import net.grinder.common.Logger;
 import net.grinder.common.processidentity.AgentProcessReport;
 import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerProcessReport;
@@ -68,7 +69,7 @@ public class TextUI implements UI {
                 Logger logger) {
 
     m_logger = logger;
-    m_logger.output(GrinderBuild.getName());
+    m_logger.info(GrinderBuild.getName());
 
     m_shutdownHook = new Thread(new ShutdownHook(resources));
     Runtime.getRuntime().addShutdownHook(m_shutdownHook);
@@ -81,7 +82,7 @@ public class TextUI implements UI {
     m_sampleModel.addModelListener(
       new SampleModel.AbstractListener() {
         public void stateChanged() {
-          m_logger.output(m_sampleModel.getState().getDescription());
+          m_logger.info(m_sampleModel.getState().getDescription());
         }
       });
   }
@@ -170,7 +171,7 @@ public class TextUI implements UI {
       }
 
       if (!reportString.equals(m_lastReport)) {
-        m_logger.output(reportString);
+        m_logger.info(reportString);
         m_lastReport = reportString;
       }
     }
@@ -186,19 +187,15 @@ public class TextUI implements UI {
     }
 
     public void handleException(Throwable throwable) {
-      m_logger.error(throwable.getMessage());
-      throwable.printStackTrace(m_logger.getErrorLogWriter());
-      m_logger.getErrorLogWriter().flush();
+      m_logger.error(throwable.getMessage(), throwable);
     }
 
     public void handleException(Throwable throwable, String title) {
-      m_logger.error(title);
-      throwable.printStackTrace(m_logger.getErrorLogWriter());
-      m_logger.getErrorLogWriter().flush();
+      m_logger.error(title, throwable);
     }
 
     public void handleInformationMessage(String informationMessage) {
-      m_logger.output(informationMessage);
+      m_logger.info(informationMessage);
     }
   }
 
@@ -213,7 +210,7 @@ public class TextUI implements UI {
     public synchronized void run() {
       if (!m_stopped) {
         m_stopped = true;
-        m_logger.output(m_shutdownMessage);
+        m_logger.info(m_shutdownMessage);
       }
     }
   }

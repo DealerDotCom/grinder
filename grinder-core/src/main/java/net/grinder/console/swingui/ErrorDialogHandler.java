@@ -1,4 +1,4 @@
-// Copyright (C)  2003 - 2009 Philip Aston
+// Copyright (C)  2003 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,7 +35,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -269,7 +270,7 @@ final class ErrorDialogHandler implements ErrorHandler {
    * @param informationMessage The information message.
    */
   public void handleInformationMessage(String informationMessage) {
-    m_logger.output(informationMessage);
+    m_logger.info(informationMessage);
   }
 
   private void showDialog(String title) {

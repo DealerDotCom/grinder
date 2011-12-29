@@ -32,7 +32,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Calendar;
 
-import net.grinder.common.Logger;
 import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.BuiltInStyleSheet;
 import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.StyleSheetFile;
 import net.grinder.plugin.http.xml.HTTPRecordingType;
@@ -46,6 +45,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -57,12 +57,11 @@ public class TestProcessHTTPRecordingWithXSLT
   extends AbstractJUnit4FileTestCase {
 
   @Mock private Logger m_logger;
-  private StringWriter m_out = new StringWriter();
+  private StringWriter m_stringOut = new StringWriter();
+  private PrintWriter m_out = new PrintWriter(m_stringOut);
 
   @Before public void setUp() {
     MockitoAnnotations.initMocks(this);
-
-    when (m_logger.getOutputLogWriter()).thenReturn(new PrintWriter(m_out));
   }
 
   @Test public void testWithIdentityTransform() throws Exception {
@@ -82,18 +81,16 @@ public class TestProcessHTTPRecordingWithXSLT
       new StyleSheetFile(identityStyleSheetFile);
 
     final ProcessHTTPRecordingWithXSLT processor =
-      new ProcessHTTPRecordingWithXSLT(styleSheetInputStream, m_logger);
+      new ProcessHTTPRecordingWithXSLT(styleSheetInputStream, m_out, m_logger);
 
     final HttpRecordingDocument emptyDocument =
       HttpRecordingDocument.Factory.newInstance();
 
     processor.process(emptyDocument);
 
-    final String output = m_out.toString();
+    final String output = m_stringOut.toString();
     AssertUtilities.assertContainsPattern(output,
       "^<\\?xml version=.*\\?>\\s*$");
-
-    verify(m_logger).getOutputLogWriter();
 
     try {
       styleSheetInputStream.open().read();
@@ -104,7 +101,7 @@ public class TestProcessHTTPRecordingWithXSLT
 
     final ProcessHTTPRecordingWithXSLT processor2 =
       new ProcessHTTPRecordingWithXSLT(
-        new StyleSheetFile(identityStyleSheetFile), m_logger);
+        new StyleSheetFile(identityStyleSheetFile), m_out, m_logger);
 
     final HttpRecordingDocument document2 =
       HttpRecordingDocument.Factory.newInstance();
@@ -113,7 +110,7 @@ public class TestProcessHTTPRecordingWithXSLT
 
     processor2.process(document2);
 
-    final String output2 = m_out.toString().substring(output.length());
+    final String output2 = m_stringOut.toString().substring(output.length());
     AssertUtilities.assertContainsPattern(output2,
       "^<\\?xml version=.*\\?>\\s*" +
       "<http-recording .*?>\\s*" +
@@ -122,13 +119,12 @@ public class TestProcessHTTPRecordingWithXSLT
       "</metadata>\\s*" +
       "</http-recording>\\s*$");
 
-    verify(m_logger, times(2)).getOutputLogWriter();
     verifyNoMoreInteractions(m_logger);
   }
 
   @Test public void testWithStandardTransform() throws Exception {
     final ProcessHTTPRecordingWithXSLT processor =
-      new ProcessHTTPRecordingWithXSLT(m_logger);
+      new ProcessHTTPRecordingWithXSLT(m_out, m_logger);
 
     final HttpRecordingDocument document =
       HttpRecordingDocument.Factory.newInstance();
@@ -138,27 +134,26 @@ public class TestProcessHTTPRecordingWithXSLT
     // Will fail with an un-parseable date TransformerException
     processor.process(document);
 
-    final String output = m_out.toString();
+    final String output = m_stringOut.toString();
     AssertUtilities.assertContains(output, "# blah");
 
-    verify(m_logger).getOutputLogWriter();
     verify(m_logger).error(contains("Unparseable date"));
 
     // This time it will work.
     recording.addNewMetadata().setTime(Calendar.getInstance());
 
     final ProcessHTTPRecordingWithXSLT processor2 =
-      new ProcessHTTPRecordingWithXSLT(m_logger);
+      new ProcessHTTPRecordingWithXSLT(m_out, m_logger);
 
     processor2.process(document);
 
-    verify(m_logger, times(2)).getOutputLogWriter();
     verifyNoMoreInteractions(m_logger);
   }
 
   @Test public void testWithClojureTransform() throws Exception {
     final ProcessHTTPRecordingWithXSLT processor =
       new ProcessHTTPRecordingWithXSLT(BuiltInStyleSheet.Clojure,
+                                       m_out,
                                        m_logger);
 
     final HttpRecordingDocument document =
@@ -169,10 +164,9 @@ public class TestProcessHTTPRecordingWithXSLT
     recording.addNewMetadata().setTime(Calendar.getInstance());
 
     processor.process(document);
-    verify(m_logger).getOutputLogWriter();
     verifyNoMoreInteractions(m_logger);
 
-    AssertUtilities.assertContains(m_out.toString(), ";; blah");
+    AssertUtilities.assertContains(m_stringOut.toString(), ";; blah");
   }
 
   @Test public void testWithBadTransform() throws Exception {
@@ -182,6 +176,7 @@ public class TestProcessHTTPRecordingWithXSLT
     final ProcessHTTPRecordingWithXSLT processor =
       new ProcessHTTPRecordingWithXSLT(
         new StyleSheetFile(badStyleSheetFile),
+        m_out,
         m_logger);
 
     final HttpRecordingDocument emptyDocument =

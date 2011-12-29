@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2011 Philip Aston
+// Copyright (C) 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,197 +21,131 @@
 
 package net.grinder.engine.process;
 
-import junit.framework.TestCase;
+import static java.lang.System.arraycopy;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
-import net.grinder.common.LoggerStubFactory;
-import net.grinder.common.Logger;
-import net.grinder.testutility.CallData;
-import net.grinder.testutility.RandomStubFactory;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.grinder.testutility.RandomObjectFactory;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.listeners.InvocationListener;
+import org.mockito.listeners.MethodInvocationReport;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
 
 
 /**
- * Unit test case for <code>ExternalLogger</code>.
+ * Unit tests for {@code ExternalLogger}.
  *
  * @author Philip Aston
  */
-public class TestExternalLogger extends TestCase {
+public class TestExternalLogger {
 
-  public void testProcessLogging() throws Exception {
-    final LoggerStubFactory processLoggerFactory = new LoggerStubFactory();
-    final Logger processLogger = processLoggerFactory.getLogger();
+  @Mock private Logger m_delegate;
+  @Mock private ThreadContextLocator m_threadContextLocator;
+  @Mock private ThreadContext m_threadContext;
+  @Mock private Marker m_marker;
 
-    final ThreadContextLocator threadContextLocator =
-      new StubThreadContextLocator();
-
-    final ExternalLogger externalLogger =
-      new ExternalLogger(processLogger, threadContextLocator);
-
-    externalLogger.output("Hello");
-
-    processLoggerFactory.assertSuccess("output", "Hello");
-    processLoggerFactory.assertNoMoreCalls();
-
-    externalLogger.error("Hello again", Logger.TERMINAL);
-
-    processLoggerFactory.assertSuccess("error", "Hello again",
-                                       new Integer(Logger.TERMINAL));
-
-    processLoggerFactory.assertNoMoreCalls();
-
-    final Object errorLogWriter = externalLogger.getErrorLogWriter();
-    final CallData callData1 =
-      processLoggerFactory.assertSuccess("getErrorLogWriter");
-    assertEquals(errorLogWriter, callData1.getResult());
-
-    final Object outputLogWriter = externalLogger.getOutputLogWriter();
-    final CallData callData2 =
-      processLoggerFactory.assertSuccess("getOutputLogWriter");
-    assertEquals(outputLogWriter, callData2.getResult());
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
   }
 
-  public void testSeveralLoggers() throws Exception {
-    final LoggerStubFactory processLoggerFactory = new LoggerStubFactory();
-    final Logger processLogger = processLoggerFactory.getLogger();
+  @Test public void testGetName() {
+    final Logger logger =
+      new ExternalLogger(m_delegate, m_threadContextLocator);
 
-    final ThreadLoggerStubFactory threadLoggerFactory1 =
-      new ThreadLoggerStubFactory();
-    final ThreadLogger threadLogger1 = threadLoggerFactory1.getLogger();
+    when(m_delegate.getName()).thenReturn("foo");
 
-    final ThreadLoggerStubFactory threadLoggerFactory2 =
-      new ThreadLoggerStubFactory();
-    final ThreadLogger threadLogger2 = threadLoggerFactory2.getLogger();
-
-    final ThreadContextStubFactory threadContextFactory1 =
-      new ThreadContextStubFactory(threadLogger1);
-    final ThreadContext threadContext1 =
-      threadContextFactory1.getStub();
-
-    final StubThreadContextLocator threadContextLocator =
-       new StubThreadContextLocator();
-
-    final ExternalLogger externalLogger =
-      new ExternalLogger(processLogger, threadContextLocator);
-
-    threadContextLocator.set(threadContext1);
-
-    externalLogger.output("Testing", Logger.LOG | Logger.TERMINAL);
-    threadLoggerFactory1.assertSuccess(
-      "output", "Testing", new Integer(Logger.LOG | Logger.TERMINAL));
-
-    processLoggerFactory.assertNoMoreCalls();
-    threadLoggerFactory1.assertNoMoreCalls();
-    threadLoggerFactory2.assertNoMoreCalls();
-
-    final Object errorLogWriter = externalLogger.getErrorLogWriter();
-    final CallData callData =
-      threadLoggerFactory1.assertSuccess("getErrorLogWriter");
-    assertEquals(errorLogWriter, callData.getResult());
-
-    processLoggerFactory.assertNoMoreCalls();
-    threadLoggerFactory1.assertNoMoreCalls();
-    threadLoggerFactory2.assertNoMoreCalls();
-
-    threadContextLocator.set(null);
-
-    externalLogger.error("Another test");
-    processLoggerFactory.assertSuccess("error", "Another test");
-
-    processLoggerFactory.assertNoMoreCalls();
-    threadLoggerFactory1.assertNoMoreCalls();
-    threadLoggerFactory2.assertNoMoreCalls();
-
-    threadLogger2.setCurrentRunNumber(10);
-    threadLoggerFactory1.assertNoMoreCalls();
+    assertEquals("foo", logger.getName());
   }
 
-  public void testMultithreaded() throws Exception {
+  @Test public void testDelegateMethodsTakingNoMarker() throws Exception {
 
-    final LoggerStubFactory processLoggerFactory = new LoggerStubFactory();
-    final Logger processLogger = processLoggerFactory.getLogger();
+    when(m_threadContextLocator.get()).thenReturn(m_threadContext);
+    when(m_threadContext.getMarker()).thenReturn(m_marker);
 
-    final StubThreadContextLocator threadContextLocator =
-      new StubThreadContextLocator();
+    final List<InvocationOnMock> invocations =
+      new ArrayList<InvocationOnMock>();
 
-    final ExternalLogger externalLogger =
-      new ExternalLogger(processLogger, threadContextLocator);
+    final InvocationListener listeners = new InvocationListener() {
+      public void reportInvocation(MethodInvocationReport report) {
+        invocations.add((InvocationOnMock) report.getInvocation());
+      }
+    };
 
-    final TestThread threads[] = new TestThread[10];
+    final Logger delegate =
+      mock(Logger.class, withSettings().invocationListeners(listeners));
 
-    for (int i=0; i<threads.length; ++i) {
-      threads[i] = new TestThread(externalLogger, threadContextLocator);
-      threads[i].start();
-    }
+    final ExternalLogger logger =
+      new ExternalLogger(delegate, m_threadContextLocator);
 
-    for (int i=0; i<threads.length; ++i) {
-      threads[i].join();
-      assertTrue(threads[i].getOK());
-    }
+    final Method[] allMethods = Logger.class.getDeclaredMethods();
 
-    processLoggerFactory.assertNoMoreCalls();
-  }
+    for (Method m : allMethods) {
+      final Class<?>[] parameterTypes = m.getParameterTypes();
 
-  private static class TestThread extends Thread {
-    private final ExternalLogger m_externalLogger;
-    private final StubThreadContextLocator m_threadContextLocator;
-    private volatile boolean m_ok = false;
-
-    public TestThread(ExternalLogger externalLogger,
-                      StubThreadContextLocator threadContextLocator) {
-
-      m_externalLogger = externalLogger;
-      m_threadContextLocator = threadContextLocator;
-    }
-
-    public void run() {
-      final ThreadLoggerStubFactory threadLoggerFactory =
-        new ThreadLoggerStubFactory();
-      final ThreadLogger threadLogger = threadLoggerFactory.getLogger();
-
-      final ThreadContextStubFactory threadContextFactory =
-        new ThreadContextStubFactory(threadLogger);
-      final ThreadContext threadContext =
-        threadContextFactory.getStub();
-
-      m_threadContextLocator.set(threadContext);
-
-      for (int i=0; i<100; ++i) {
-        m_externalLogger.output("Testing", Logger.TERMINAL);
-
-        threadLoggerFactory.assertSuccess(
-          "output", "Testing", new Integer(Logger.TERMINAL));
-
-        final Object outputLogWriter = m_externalLogger.getOutputLogWriter();
-        final CallData callData =
-          threadLoggerFactory.assertSuccess("getOutputLogWriter");
-        assertEquals(outputLogWriter, callData.getResult());
-
-        threadLoggerFactory.assertNoMoreCalls();
+      if (parameterTypes.length > 0 && parameterTypes[0].equals(Marker.class)) {
+        continue;
       }
 
-      m_ok = true;
+      final Class<?>[] delegateTypes = new Class<?>[parameterTypes.length + 1];
+
+      delegateTypes[0] = Marker.class;
+      arraycopy(parameterTypes, 0, delegateTypes, 1, parameterTypes.length);
+
+      final Method delegateMethod;
+      try {
+        delegateMethod = Logger.class.getMethod(m.getName(), delegateTypes);
+      }
+      catch (NoSuchMethodException e) {
+        continue;
+      }
+
+      final RandomObjectFactory randomObjectFactory = new RandomObjectFactory();
+
+      final List<Object> parameters = new ArrayList<Object>();
+
+      for (Class<?> type : parameterTypes) {
+        parameters.add(randomObjectFactory.generateParameter(type));
+      }
+
+      m.invoke(logger, parameters.toArray());
+
+      final InvocationOnMock invocation = invocations.remove(0);
+
+      assertEquals(delegateMethod, invocation.getMethod());
+
+      int i = 0;
+      final Object[] invokedArguments = invocation.getArguments();
+
+      assertSame(m_marker, invokedArguments[0]);
+
+      for (Object p : parameters) {
+        assertSame(p, invokedArguments[++i]);
+      }
     }
 
-    public boolean getOK() {
-      return m_ok;
-    }
+    assertEquals(0, invocations.size());
   }
 
-  /**
-   * Must be public so that override_ methods can be called
-   * externally.
-   */
-  public static class ThreadContextStubFactory
-    extends RandomStubFactory<ThreadContext> {
+  @Test public void testGetMarkerNullContext() {
+    final Logger logger =
+      new ExternalLogger(m_delegate, m_threadContextLocator);
 
-    private final ThreadLogger m_threadLogger;
+    logger.isTraceEnabled();
 
-    public ThreadContextStubFactory(ThreadLogger threadLogger) {
-      super(ThreadContext.class);
-      m_threadLogger = threadLogger;
-    }
-
-    public ThreadLogger override_getThreadLogger(Object proxy) {
-      return m_threadLogger;
-    }
+    verify(m_delegate).isTraceEnabled(null);
   }
 }

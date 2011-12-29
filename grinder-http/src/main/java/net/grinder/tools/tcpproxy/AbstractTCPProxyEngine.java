@@ -36,14 +36,14 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+
 import net.grinder.common.Closer;
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.TerminalColour;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.InterruptibleRunnableAdapter;
-
 
 /**
  * Base class for TCPProxyEngine implementations.
@@ -55,46 +55,62 @@ import net.grinder.util.thread.InterruptibleRunnableAdapter;
 public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
   private final TCPProxyFilter m_requestFilter;
+
   private final TCPProxyFilter m_responseFilter;
+
   private final TerminalColour m_requestColour;
+
   private final TerminalColour m_responseColour;
+
   private final Logger m_logger;
+
   private final PrintWriter m_outputWriter;
+
   private final TCPProxySocketFactory m_socketFactory;
+
   private final ServerSocket m_serverSocket;
+
   // Guarded by m_streamThreads.
-  private final List<StreamThread> m_streamThreads =
-    new LinkedList<StreamThread>();
+  private final List<StreamThread> m_streamThreads = new LinkedList<StreamThread>();
+
   private final ThreadGroup m_streamThreadGroup =
     new ThreadGroup("TCPProxy Stream Handler");
 
   /**
    * Constructor.
    *
-   * @param socketFactory Socket factory for creating our server and
-   * client sockets.
-   * @param requestFilter Request filter.
-   * @param responseFilter Response filter.
-   * @param logger Logger.
-   * @param localEndPoint Local host and port to listen on. If the
-   * <code>EndPoint</code>'s port is 0, an arbitrary port will be
-   * assigned.
-   * @param useColour Whether to use colour.
-   * @param timeout Timeout for server socket in milliseconds.
+   * @param socketFactory
+   *          Socket factory for creating our server and client sockets.
+   * @param requestFilter
+   *          Request filter.
+   * @param responseFilter
+   *          Response filter.
+   * @param output
+   *          Where to direct the output.
+   * @param logger
+   *          Logger.
+   * @param localEndPoint
+   *          Local host and port to listen on. If the <code>EndPoint</code>'s
+   *          port is 0, an arbitrary port will be assigned.
+   * @param useColour
+   *          Whether to use colour.
+   * @param timeout
+   *          Timeout for server socket in milliseconds.
    *
-   * @exception IOException If an I/O error occurs.
+   * @exception IOException
+   *              If an I/O error occurs.
    */
   public AbstractTCPProxyEngine(TCPProxySocketFactory socketFactory,
                                 TCPProxyFilter requestFilter,
                                 TCPProxyFilter responseFilter,
+                                PrintWriter output,
                                 Logger logger,
                                 EndPoint localEndPoint,
                                 boolean useColour,
-                                int timeout)
-    throws IOException {
+                                int timeout) throws IOException {
 
     m_logger = logger;
-    m_outputWriter = logger.getOutputLogWriter();
+    m_outputWriter = output;
 
     m_socketFactory = socketFactory;
     m_requestFilter = requestFilter;
@@ -109,8 +125,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       m_responseColour = TerminalColour.NONE;
     }
 
-    m_serverSocket =
-      m_socketFactory.createServerSocket(localEndPoint, timeout);
+    m_serverSocket = m_socketFactory.createServerSocket(localEndPoint, timeout);
   }
 
   /**
@@ -136,8 +151,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     final StreamThread[] threads;
 
     synchronized (m_streamThreads) {
-      threads =
-        m_streamThreads.toArray(new StreamThread[m_streamThreads.size()]);
+      threads = m_streamThreads
+          .toArray(new StreamThread[m_streamThreads.size()]);
     }
 
     for (int i = 0; i < threads.length; ++i) {
@@ -168,8 +183,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   public abstract void run();
 
   /**
-   * Allow unit tests to access the <code>ThreadGroup</code> to be
-   * used for stream handling threads.
+   * Allow unit tests to access the <code>ThreadGroup</code> to be used for
+   * stream handling threads.
    *
    * @return The thread group.
    */
@@ -178,21 +193,22 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   }
 
   /**
-   * <code>IOException</code> that indicates that an accept has timed
-   * out on our server socket, and we have no active threads handling
-   * connections.
+   * <code>IOException</code> that indicates that an accept has timed out on our
+   * server socket, and we have no active threads handling connections.
    */
   private static final class NoActivityTimeOutException extends IOException {
   }
 
   /**
-   * Accept a connection using our server socket. Blocks until a
-   * connection is accepted.
+   * Accept a connection using our server socket. Blocks until a connection is
+   * accepted.
    *
    * @return The client socket.
-   * @throws IOException If an I/O error occurred.
-   * @throws NoActivityTimeOutException If the accept timed out, and
-   * we have no active threads handling connections.
+   * @throws IOException
+   *           If an I/O error occurred.
+   * @throws NoActivityTimeOutException
+   *           If the accept timed out, and we have no active threads handling
+   *           connections.
    */
   protected Socket accept() throws NoActivityTimeOutException, IOException {
     while (true) {
@@ -247,8 +263,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   }
 
   /**
-   * Allow subclasses to access colour terminal control code for
-   * request streams.
+   * Allow subclasses to access colour terminal control code for request
+   * streams.
    *
    * @return The filter.
    */
@@ -257,8 +273,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   }
 
   /**
-   * Allow subclasses to access request terminal control code for
-   * response streams.
+   * Allow subclasses to access request terminal control code for response
+   * streams.
    *
    * @return The filter.
    */
@@ -273,22 +289,25 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    */
   protected class StreamThread {
     private final Thread m_thread;
+
     private final InputStream m_inputStream;
 
     /**
      * Constructor. Starts a Thread to run the Runnable.
      *
-     * @param runnable What to do.
-     * @param name Thread name.
-     * @param inputStream Stream to close when shutting down.
+     * @param runnable
+     *          What to do.
+     * @param name
+     *          Thread name.
+     * @param inputStream
+     *          Stream to close when shutting down.
      */
     public StreamThread(InterruptibleRunnable runnable,
                         String name,
                         InputStream inputStream) {
 
       m_thread = new Thread(getStreamThreadGroup(),
-                            new InterruptibleRunnableAdapter(runnable),
-                            name);
+                            new InterruptibleRunnableAdapter(runnable), name);
       m_inputStream = inputStream;
       synchronized (m_streamThreads) {
         m_streamThreads.add(this);
@@ -322,54 +341,55 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   }
 
   /**
-   * Launch a pair of threads to handle bi-directional stream
-   * communication.
+   * Launch a pair of threads to handle bi-directional stream communication.
    *
-   * @param localSocket Local socket.
-   * @param remoteEndPoint ConnectionDetails. The remote
-   * <code>EndPoint</code> to forward output to. This is also used in
-   * the logging and filter output.
-   * @param clientEndPoint The <code>EndPoint</code> to be used in the
-   * logging and filter output. This may well differ from the
-   * <code>localSocket</code> binding.
-   * @param isSecure Whether the connection is secure.
+   * @param localSocket
+   *          Local socket.
+   * @param remoteEndPoint
+   *          ConnectionDetails. The remote <code>EndPoint</code> to forward
+   *          output to. This is also used in the logging and filter output.
+   * @param clientEndPoint
+   *          The <code>EndPoint</code> to be used in the logging and filter
+   *          output. This may well differ from the <code>localSocket</code>
+   *          binding.
+   * @param isSecure
+   *          Whether the connection is secure.
    *
-   * @exception IOException If an I/O error occurs.
+   * @exception IOException
+   *              If an I/O error occurs.
    */
   protected final void launchThreadPair(Socket localSocket,
                                         EndPoint remoteEndPoint,
                                         EndPoint clientEndPoint,
-                                        boolean isSecure)
-    throws IOException {
+                                        boolean isSecure) throws IOException {
 
-
-    final Socket remoteSocket =
-      m_socketFactory.createClientSocket(remoteEndPoint);
+    final Socket remoteSocket = m_socketFactory
+        .createClientSocket(remoteEndPoint);
 
     final ConnectionDetails connectionDetails =
-      new ConnectionDetails(clientEndPoint, remoteEndPoint, isSecure);
+      new ConnectionDetails(clientEndPoint,
+                            remoteEndPoint,
+                            isSecure);
 
     new FilteredStreamThread(localSocket.getInputStream(),
-                             new OutputStreamFilterTee(
-                               connectionDetails,
-                               remoteSocket.getOutputStream(),
-                               m_requestFilter,
-                               m_requestColour));
+                             new OutputStreamFilterTee(connectionDetails,
+                                                       remoteSocket
+                                                           .getOutputStream(),
+                                                       m_requestFilter,
+                                                       m_requestColour));
 
     new FilteredStreamThread(remoteSocket.getInputStream(),
-                             new OutputStreamFilterTee(
-                               connectionDetails.getOtherEnd(),
-                               localSocket.getOutputStream(),
-                               m_responseFilter,
-                               m_responseColour));
+                             new OutputStreamFilterTee(connectionDetails
+                                 .getOtherEnd(), localSocket.getOutputStream(),
+                                                       m_responseFilter,
+                                                       m_responseColour));
   }
 
   /**
-   * <code>Runnable</code> which actively reads an input stream and
-   * writes to an output stream, passing the data through a filter.
+   * <code>Runnable</code> which actively reads an input stream and writes to an
+   * output stream, passing the data through a filter.
    */
-  protected final class FilteredStreamThread
-    implements InterruptibleRunnable {
+  protected final class FilteredStreamThread implements InterruptibleRunnable {
 
     // For simplicity, the filters take a buffer oriented approach.
     // This means that they all break at buffer boundaries. Our buffer
@@ -379,6 +399,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     private static final int BUFFER_SIZE = 65536;
 
     private final InputStream m_in;
+
     private final OutputStreamFilterTee m_outputStreamFilterTee;
 
     /**
@@ -390,10 +411,9 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       m_in = in;
       m_outputStreamFilterTee = outputStreamFilterTee;
 
-      new StreamThread(
-        this,
-        "Filter thread for " + outputStreamFilterTee.getConnectionDetails(),
-        m_in).start();
+      new StreamThread(this, "Filter thread for " +
+                             outputStreamFilterTee.getConnectionDetails(), m_in)
+          .start();
     }
 
     /**
@@ -435,7 +455,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   /**
    * Log IOExceptions.
    *
-   * @param e The exception.
+   * @param e
+   *          The exception.
    * @return A description of the exception.
    */
   protected final String logIOException(IOException e) {
@@ -461,7 +482,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       return "";
     }
     else {
-      e.printStackTrace(getLogger().getErrorLogWriter());
+      getLogger().error(message, e);
       return message;
     }
 
@@ -479,28 +500,36 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   }
 
   /**
-   * Filter like class that delegates to a user filter and tees the
-   * result to an output stream. It is constructed for a particular
-   * connection. Also controls output of colour codes to the terminal.
+   * Filter like class that delegates to a user filter and tees the result to an
+   * output stream. It is constructed for a particular connection. Also controls
+   * output of colour codes to the terminal.
    */
   protected final class OutputStreamFilterTee {
 
     private final ConnectionDetails m_connectionDetails;
+
     private final OutputStream m_out;
+
     private final TCPProxyFilter m_filter;
+
     private final TerminalColour m_colour;
 
     /**
      * Constructor.
      *
-     * @param connectionDetails Connection details.
-     * @param out The output stream.
-     * @param filter The user filter.
-     * @param colour Terminal control code which sets appropriate
-     * colours for this stream.
+     * @param connectionDetails
+     *          Connection details.
+     * @param out
+     *          The output stream.
+     * @param filter
+     *          The user filter.
+     * @param colour
+     *          Terminal control code which sets appropriate colours for this
+     *          stream.
      */
     public OutputStreamFilterTee(ConnectionDetails connectionDetails,
-                                 OutputStream out, TCPProxyFilter filter,
+                                 OutputStream out,
+                                 TCPProxyFilter filter,
                                  TerminalColour colour) {
 
       m_connectionDetails = connectionDetails;
@@ -520,7 +549,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         m_filter.connectionOpened(m_connectionDetails);
       }
       catch (GrinderException e) {
-        e.printStackTrace(getLogger().getErrorLogWriter());
+        getLogger().error(e.getMessage(), e);
       }
       finally {
         postOutput();
@@ -530,10 +559,12 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     /**
      * Handle a message fragment.
      *
-     * @param buffer Contains the data.
-     * @param bytesRead How many bytes of data in <code>buffer</code>.
-     * @exception IOException If an I/O error occurs writing to the
-     * output stream.
+     * @param buffer
+     *          Contains the data.
+     * @param bytesRead
+     *          How many bytes of data in <code>buffer</code>.
+     * @exception IOException
+     *              If an I/O error occurs writing to the output stream.
      */
     public void handle(byte[] buffer, int bytesRead) throws IOException {
 
@@ -545,7 +576,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         newBytes = m_filter.handle(m_connectionDetails, buffer, bytesRead);
       }
       catch (GrinderException e) {
-        e.printStackTrace(getLogger().getErrorLogWriter());
+        getLogger().error(e.getMessage(), e);
       }
       finally {
         postOutput();
@@ -570,7 +601,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         m_filter.connectionClosed(m_connectionDetails);
       }
       catch (GrinderException e) {
-        e.printStackTrace(getLogger().getErrorLogWriter());
+        getLogger().error(e.getMessage(), e);
       }
       finally {
         postOutput();
@@ -600,4 +631,3 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     }
   }
 }
-

@@ -31,14 +31,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
-import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.BasicAuthorizationHeaderType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.HTTPRecordingType;
@@ -58,6 +54,7 @@ import net.grinder.util.http.URIParser;
 import net.grinder.util.http.URIParserImplementation;
 
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import HTTPClient.NVPair;
 
@@ -82,8 +79,6 @@ public class TestHTTPRecordingImplementation {
 
   @Test public void testConstructorAndDispose() throws Exception {
     final Logger logger = mock(Logger.class);
-    when(logger.getErrorLogWriter()).thenReturn(
-      new PrintWriter(new StringWriter()));
 
     final HTTPRecordingImplementation httpRecording =
       new HTTPRecordingImplementation(m_resultProcessor,
@@ -131,8 +126,7 @@ public class TestHTTPRecordingImplementation {
       exception,
       HttpRecordingDocument.class);
 
-    verify(logger).error(exception.getMessage());
-    verify(logger).getErrorLogWriter();
+    verify(logger).error(exception.getMessage(), exception);
     verifyNoMoreInteractions(logger);
 
     m_resultProcessorStubFactory.assertNoMoreCalls();

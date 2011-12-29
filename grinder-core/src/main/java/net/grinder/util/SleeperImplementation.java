@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+
 import net.grinder.util.thread.Condition;
 
 
@@ -156,7 +157,7 @@ public final class SleeperImplementation implements Sleeper {
     final long factoredTime = (long)(time * m_factor);
 
     if (m_logger != null) {
-      m_logger.output("sleeping for " + factoredTime + " ms");
+      m_logger.info("sleeping for {} ms", factoredTime);
     }
 
     if (time > 0) {

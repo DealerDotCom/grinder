@@ -80,10 +80,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import org.slf4j.Logger;
+
 import net.grinder.common.Closer;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.console.ConsoleFoundation;
 import net.grinder.console.common.ConsoleException;

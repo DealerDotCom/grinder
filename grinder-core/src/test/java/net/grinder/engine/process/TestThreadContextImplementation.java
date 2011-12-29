@@ -22,21 +22,21 @@
 package net.grinder.engine.process;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.AdditionalMatchers.and;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.StubTest;
@@ -45,22 +45,27 @@ import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
-import net.grinder.testutility.AssertUtilities;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
 
 
+/**
+ * Unit tests for {@link ThreadContextImplementation}.
+ *
+ * @author Philip Aston
+ */
 public class TestThreadContextImplementation {
 
   @Mock private GrinderProperties m_properties;
-  @Mock private ThreadLogger m_threadLogger;
-  @Mock private FilenameFactory m_filenameFactory;
   @Mock private SSLContextFactory m_sslContextFactory;
   @Mock private DispatchContext m_dispatchContext;
   @Mock private StatisticsForTest m_statisticsForTest;
+  @Mock private Logger m_dataLogger;
 
   private final StatisticsServices m_statisticsServices =
     StatisticsServicesImplementation.getInstance();
@@ -70,20 +75,14 @@ public class TestThreadContextImplementation {
   }
 
   @Test public void testBasics() throws Exception {
-    when(m_threadLogger.getThreadNumber()).thenReturn(13);
-    when(m_threadLogger.getCurrentRunNumber()).thenReturn(2);
-
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
-                                      m_threadLogger,
-                                      m_filenameFactory,
+                                      13,
                                       null);
 
-    assertSame(m_threadLogger, threadContext.getThreadLogger());
-    assertSame(m_filenameFactory, threadContext.getFilenameFactory());
     assertEquals(13, threadContext.getThreadNumber());
-    assertEquals(2, threadContext.getRunNumber());
+    assertEquals(-1, threadContext.getRunNumber());
 
     assertNull(threadContext.getThreadSSLContextFactory());
     threadContext.setThreadSSLContextFactory(m_sslContextFactory);
@@ -92,14 +91,11 @@ public class TestThreadContextImplementation {
 
   @Test public void testDispatchResultReporter() throws Exception {
 
-    final StringWriter dataStringWriter = new StringWriter();
-
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
-                                      m_threadLogger,
-                                      m_filenameFactory,
-                                      new PrintWriter(dataStringWriter, true));
+                                      1,
+                                      m_dataLogger);
 
     final DispatchResultReporter dispatchResultReporter =
       threadContext.getDispatchResultReporter();
@@ -111,23 +107,20 @@ public class TestThreadContextImplementation {
 
     dispatchResultReporter.report(test, 123456, statistics);
 
-    final String output = dataStringWriter.toString();
-    AssertUtilities.assertContains(output, "22");
-    AssertUtilities.assertContains(output, "123456");
+    verify(m_dataLogger).info(and(contains("22"),
+                                  contains("123456")),
+                              isA(Object[].class));
   }
 
   @Test public void testNullDispatchResultReporter() throws Exception {
-
-    final StringWriter dataStringWriter = new StringWriter();
 
     when(m_properties.getProperty("grinder.logData")).thenReturn("false");
 
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
-                                      m_threadLogger,
-                                      m_filenameFactory,
-                                      new PrintWriter(dataStringWriter, true));
+                                      1,
+                                      m_dataLogger);
 
     final DispatchResultReporter dispatchResultReporter =
       threadContext.getDispatchResultReporter();
@@ -139,16 +132,14 @@ public class TestThreadContextImplementation {
 
     dispatchResultReporter.report(test, 123456, statistics);
 
-    verifyNoMoreInteractions(m_threadLogger);
-    assertEquals("", dataStringWriter.toString());
+    verifyNoMoreInteractions(m_dataLogger);
   }
 
   @Test public void testDispatchContext() throws Exception {
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
-                                      m_threadLogger,
-                                      m_filenameFactory,
+                                      1,
                                       null);
 
     assertNull(threadContext.getStatisticsForCurrentTest());
@@ -173,8 +164,6 @@ public class TestThreadContextImplementation {
     assertSame(m_statisticsForTest,
                threadContext.getStatisticsForCurrentTest());
     assertNull(threadContext.getStatisticsForLastTest());
-
-    verify(m_threadLogger).setCurrentTestNumber(14);
 
     verify(m_dispatchContext).getStatisticsForTest();
     verifyNoMoreInteractions(m_dispatchContext);
@@ -250,8 +239,7 @@ public class TestThreadContextImplementation {
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
-                                      m_threadLogger,
-                                      m_filenameFactory,
+                                      1,
                                       null);
 
     threadContext.registerThreadLifeCycleListener(threadLifeCycleListener);
@@ -287,8 +275,7 @@ public class TestThreadContextImplementation {
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
-                                      m_threadLogger,
-                                      m_filenameFactory,
+                                      1,
                                       null);
 
     when(m_dispatchContext.getTest()).thenReturn(new StubTest(14, "test"));
@@ -375,8 +362,7 @@ public class TestThreadContextImplementation {
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
-                                      m_threadLogger,
-                                      m_filenameFactory,
+                                      1,
                                       null);
     threadContext.shutdown();
 
@@ -398,8 +384,7 @@ public class TestThreadContextImplementation {
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
-                                      m_threadLogger,
-                                      m_filenameFactory,
+                                      1,
                                       null);
 
     when(m_dispatchContext.getTest()).thenReturn(new StubTest(14, "test"));
@@ -422,8 +407,7 @@ public class TestThreadContextImplementation {
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
-                                      m_threadLogger,
-                                      m_filenameFactory,
+                                      1,
                                       null);
 
     when(m_dispatchContext.getTest()).thenReturn(new StubTest(14, "test"));
@@ -443,5 +427,57 @@ public class TestThreadContextImplementation {
     catch (AssertionError e) {
       assertSame(t, e.getCause());
     }
+  }
+
+  @Test public void testGetMarker() throws Exception {
+    final ThreadContext threadContext =
+      new ThreadContextImplementation(m_properties,
+                                      m_statisticsServices,
+                                      2,
+                                      null);
+
+    final Marker marker = threadContext.getMarker();
+    assertEquals("thread-2", marker.getName());
+    assertFalse(marker.hasReferences());
+  }
+
+  @Test public void testGetMarkerWithRun() throws Exception {
+    final ThreadContext threadContext =
+      new ThreadContextImplementation(m_properties,
+                                      m_statisticsServices,
+                                      2,
+                                      null);
+
+    threadContext.setCurrentRunNumber(3);
+
+    final Marker marker = threadContext.getMarker();
+    assertEquals("thread-2", marker.getName());
+    assertTrue(marker.contains("run-3"));
+
+    threadContext.setCurrentRunNumber(4);
+    assertTrue(marker.contains("run-4"));
+
+    threadContext.setCurrentRunNumber(-1);
+    assertFalse(marker.hasReferences());
+  }
+
+  @Test public void testGetMarkerWithTest() throws Exception {
+    final ThreadContextImplementation threadContext =
+      new ThreadContextImplementation(m_properties,
+                                      m_statisticsServices,
+                                      2,
+                                      null);
+
+    threadContext.setTestNumber(3);
+
+    final Marker marker = threadContext.getMarker();
+    assertEquals("thread-2", marker.getName());
+    assertTrue(marker.contains("test-3"));
+
+    threadContext.setTestNumber(4);
+    assertTrue(marker.contains("test-4"));
+
+    threadContext.setTestNumber(-1);
+    assertFalse(marker.hasReferences());
   }
 }

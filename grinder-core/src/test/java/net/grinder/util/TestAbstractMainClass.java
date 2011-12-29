@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,14 +21,21 @@
 
 package net.grinder.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
-import net.grinder.common.LoggerStubFactory;
 import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.CallData;
 import net.grinder.util.AbstractMainClass.LoggedInitialisationException;
 import net.grinder.util.JVM.VersionException;
-import junit.framework.TestCase;
+
+import org.junit.Test;
+import org.slf4j.Logger;
 
 
 /**
@@ -36,19 +43,16 @@ import junit.framework.TestCase;
  *
  * @author Philip Aston
  */
-public class TestAbstractMainClass extends TestCase {
+public class TestAbstractMainClass {
 
-  public void testAbstractMainClass() throws Exception {
+  @Test public void testAbstractMainClass() throws Exception {
 
-    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
-    final Logger logger = loggerStubFactory.getLogger();
+    final Logger logger = mock(Logger.class);
     final String myUsage = "do some stuff";
 
     final MyMainClass mainClass = new MyMainClass(logger, myUsage);
 
     assertSame(logger, mainClass.getLogger());
-
-    loggerStubFactory.assertNoMoreCalls();
 
     final String javaVersion = System.getProperty("java.version");
 
@@ -61,8 +65,6 @@ public class TestAbstractMainClass extends TestCase {
       catch (VersionException e) {
       }
 
-      loggerStubFactory.assertNoMoreCalls();
-
       try {
         System.setProperty("java.version", "1.3");
         new MyMainClass(logger, myUsage);
@@ -70,30 +72,25 @@ public class TestAbstractMainClass extends TestCase {
       }
       catch (LoggedInitialisationException e) {
         AssertUtilities.assertContains(e.getMessage(), "Unsupported");
-        loggerStubFactory.assertSuccess("error", String.class);
+        verify(logger).error(contains("incompatible version"),
+                             isA(JVM.class),
+                             isA(String.class));
       }
     }
     finally {
       System.setProperty("java.version", javaVersion);
     }
 
-    loggerStubFactory.assertNoMoreCalls();
-
     final LoggedInitialisationException barfError = mainClass.barfError("foo");
     assertEquals("foo", barfError.getMessage());
-    final CallData errorCall =
-      loggerStubFactory.assertSuccess("error", String.class);
-    AssertUtilities.assertContains(
-      errorCall.getParameters()[0].toString(), "foo");
-    loggerStubFactory.assertNoMoreCalls();
+    verify(logger).error(contains("foo"));
 
     final LoggedInitialisationException barfUsage = mainClass.barfUsage();
     AssertUtilities.assertContains(barfUsage.getMessage(), myUsage);
-    final CallData errorCall2 =
-      loggerStubFactory.assertSuccess("error", String.class);
-    AssertUtilities.assertContains(
-      errorCall2.getParameters()[0].toString(), myUsage);
-    loggerStubFactory.assertNoMoreCalls();
+
+    verify(logger).error(contains(myUsage));
+    verifyNoMoreInteractions(logger);
+
   }
 
   private static class MyMainClass extends AbstractMainClass {

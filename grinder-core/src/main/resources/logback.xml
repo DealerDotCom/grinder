@@ -1,0 +1,34 @@
+<configuration>
+
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>WARN</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+
+    <encoder>
+      <pattern>%d %-5level %logger: %message%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="stderr" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>WARN</level>
+    </filter>
+
+    <target>System.err</target>
+
+    <encoder>
+      <pattern>%d %-5level %logger: %message%n</pattern>
+    </encoder>
+  </appender>
+
+  <root>
+    <appender-ref ref="stderr" />
+    <appender-ref ref="stdout" />
+  </root>
+</configuration>

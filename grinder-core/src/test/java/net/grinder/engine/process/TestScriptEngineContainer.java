@@ -39,7 +39,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.DCRContext;
@@ -54,6 +53,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**

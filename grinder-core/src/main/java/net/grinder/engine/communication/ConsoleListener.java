@@ -21,7 +21,8 @@
 
 package net.grinder.engine.communication;
 
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.Handler;
@@ -183,7 +184,7 @@ public final class ConsoleListener {
       StartGrinderMessage.class,
       new AbstractMessageHandler<StartGrinderMessage>() {
         public void handle(StartGrinderMessage message) {
-          m_logger.output("received a start message");
+          m_logger.info("received a start message");
           m_lastStartGrinderMessage = message;
           setReceived(START);
         }
@@ -193,7 +194,7 @@ public final class ConsoleListener {
       StopGrinderMessage.class,
       new AbstractMessageHandler<StopGrinderMessage>() {
         public void handle(StopGrinderMessage message) {
-          m_logger.output("received a stop message");
+          m_logger.info("received a stop message");
           setReceived(STOP);
         }
       });
@@ -202,7 +203,7 @@ public final class ConsoleListener {
       ResetGrinderMessage.class,
       new AbstractMessageHandler<ResetGrinderMessage>() {
         public void handle(ResetGrinderMessage message) {
-          m_logger.output("received a reset message");
+          m_logger.info("received a reset message");
           setReceived(RESET);
         }
       });
@@ -228,7 +229,7 @@ public final class ConsoleListener {
       }
 
       if (shutdown) {
-        m_logger.output("communication shut down", Logger.LOG);
+        m_logger.info("communication shut down");
         setReceived(SHUTDOWN);
       }
     }

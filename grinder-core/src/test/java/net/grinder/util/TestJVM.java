@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,18 @@
 
 package net.grinder.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import net.grinder.common.Logger;
-
-import net.grinder.testutility.RandomStubFactory;
+import org.junit.Test;
+import org.slf4j.Logger;
 
 
 /**
@@ -33,9 +40,9 @@ import net.grinder.testutility.RandomStubFactory;
  *
  * @author Philip Aston
  */
-public class TestJVM extends TestCase {
+public class TestJVM {
 
-  public void testIsAtLeastVersion() throws Exception {
+  @Test public void testIsAtLeastVersion() throws Exception {
     final JVM jvm = JVM.getInstance();
 
     assertTrue(jvm.isAtLeastVersion(1, 1));
@@ -70,29 +77,29 @@ public class TestJVM extends TestCase {
     }
   }
 
-  public void testHaveRequisites() throws Exception {
-    final RandomStubFactory<Logger> loggerFactory =
-      RandomStubFactory.create(Logger.class);
+  @Test public void testHaveRequisites() throws Exception {
+    final Logger logger = mock(Logger.class);
     final JVM jvm = JVM.getInstance();
 
-    assertTrue(jvm.haveRequisites(loggerFactory.getStub()));
-    loggerFactory.assertNoMoreCalls();
+    assertTrue(jvm.haveRequisites(logger));
+    verifyNoMoreInteractions(logger);
 
     final String oldVersion = System.getProperty("java.version");
 
     try {
       System.setProperty("java.version", "1.2");
 
-      assertFalse(jvm.haveRequisites(loggerFactory.getStub()));
-      loggerFactory.assertSuccess("error", String.class);
-      loggerFactory.assertNoMoreCalls();
+      assertFalse(jvm.haveRequisites(logger));
+      verify(logger).error(contains("incompatible version"),
+                           same(jvm),
+                           isA(String.class));
     }
     finally {
       System.setProperty("java.version", oldVersion);
     }
   }
 
-  public void testToString() throws Exception {
+  @Test public void testToString() throws Exception {
     final String result = JVM.getInstance().toString();
 
     assertTrue(result.indexOf(System.getProperty("java.vm.version")) > 0);

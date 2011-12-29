@@ -22,8 +22,15 @@
 package net.grinder.tools.tcpproxy;
 
 import static net.grinder.testutility.SocketUtilities.findFreePort;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,8 +42,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import net.grinder.common.Logger;
 import net.grinder.testutility.CallData;
+import net.grinder.tools.tcpproxy.TCPProxyFilter.FilterException;
 import net.grinder.util.StreamCopier;
 import net.grinder.util.TerminalColour;
 
@@ -44,6 +51,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -64,6 +72,7 @@ public class TestPortForwarderTCPProxyEngine {
     m_responseFilterStubFactory.getStub();
 
   @Mock private Logger m_logger;
+  private final PrintWriter m_out = new PrintWriter(new StringWriter());
 
   private int m_localPort;
 
@@ -77,12 +86,6 @@ public class TestPortForwarderTCPProxyEngine {
 
   private void resetLogger() {
     reset(m_logger);
-
-    when(m_logger.getOutputLogWriter())
-    .thenReturn(new PrintWriter(new StringWriter()));
-
-    when(m_logger.getErrorLogWriter())
-    .thenReturn(new PrintWriter(new StringWriter()));
   }
 
   @Test public void testBadLocalPort() throws Exception {
@@ -94,6 +97,7 @@ public class TestPortForwarderTCPProxyEngine {
     try {
       new PortForwarderTCPProxyEngine(m_requestFilter,
                                       m_responseFilter,
+                                      m_out,
                                       m_logger,
                                       badConnectionDetails,
                                       false,
@@ -114,6 +118,7 @@ public class TestPortForwarderTCPProxyEngine {
     final TCPProxyEngine engine =
       new PortForwarderTCPProxyEngine(m_requestFilter,
                                       m_responseFilter,
+                                      m_out,
                                       m_logger,
                                       connectionDetails,
                                       false,
@@ -242,6 +247,7 @@ public class TestPortForwarderTCPProxyEngine {
     final AbstractTCPProxyEngine engine =
       new PortForwarderTCPProxyEngine(m_requestFilter,
                                       m_responseFilter,
+                                      m_out,
                                       m_logger,
                                       connectionDetails,
                                       false,
@@ -283,6 +289,7 @@ public class TestPortForwarderTCPProxyEngine {
     final AbstractTCPProxyEngine engine =
       new PortForwarderTCPProxyEngine(m_requestFilter,
                                       m_responseFilter,
+                                      m_out,
                                       m_logger,
                                       connectionDetails,
                                       true,
@@ -317,6 +324,7 @@ public class TestPortForwarderTCPProxyEngine {
     final AbstractTCPProxyEngine engine =
       new PortForwarderTCPProxyEngine(m_requestFilter,
                                       m_responseFilter,
+                                      m_out,
                                       m_logger,
                                       connectionDetails,
                                       true,
@@ -331,10 +339,17 @@ public class TestPortForwarderTCPProxyEngine {
     resetLogger();
 
     filterTee.connectionOpened();
-    filterTee.connectionClosed();
-    filterTee.handle(new byte[0], 0);
+    verify(m_logger).error(contains("Problem"), isA(FilterException.class));
 
-    verify(m_logger, times(3)).getErrorLogWriter();
+    filterTee.connectionClosed();
+    verify(m_logger, times(2))
+      .error(contains("Problem"), isA(FilterException.class));
+
+    filterTee.handle(new byte[0], 0);
+    verify(m_logger, times(3))
+      .error(contains("Problem"), isA(FilterException.class));
+
+    verifyNoMoreInteractions(m_logger);
   }
 
   private static final class BadFilter implements TCPProxyFilter {

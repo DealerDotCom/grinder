@@ -39,7 +39,6 @@ import java.io.Writer;
 import java.util.Properties;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRequestFilter;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPResponseFilter;
 import net.grinder.testutility.TemporaryDirectory;
@@ -54,6 +53,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.picocontainer.PicoContainer;
+import org.slf4j.Logger;
 
 
 
@@ -89,7 +89,7 @@ public class TestTCPProxy {
     assertNotNull(filterContainer.getComponent(UpdatableCommentSource.class));
     assertNotNull(filterContainer.getComponent(Logger.class));
     assertEquals(2, filterContainer.getComponents(EchoFilter.class).size());
-    assertEquals(4, filterContainer.getComponents().size());
+    assertEquals(5, filterContainer.getComponents().size());
   }
 
   @Test public void testHTTP() throws Exception {

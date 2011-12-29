@@ -36,9 +36,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import net.grinder.common.Logger;
-import net.grinder.plugin.http.xml.HttpRecordingDocument;
+import org.slf4j.Logger;
 
+import net.grinder.plugin.http.xml.HttpRecordingDocument;
 
 /**
  * Output an {@link HTTPRecordingImplementation} result as a script using an
@@ -46,26 +46,30 @@ import net.grinder.plugin.http.xml.HttpRecordingDocument;
  *
  * @author Philip Aston
  */
-public class ProcessHTTPRecordingWithXSLT
-  implements HTTPRecordingResultProcessor {
+public class ProcessHTTPRecordingWithXSLT implements
+                                         HTTPRecordingResultProcessor {
 
   /**
    * Name of System property that specifies the style sheet resource to be
-   * loaded from classpath. If the property is set to the empty string, the
-   * raw XML will be output.
+   * loaded from classpath. If the property is set to the empty string, the raw
+   * XML will be output.
    */
-  public static final String STYLESHEET_NAME_PROPERTY =
-    "transformHTTPRecordingToScript";
+  public static final String STYLESHEET_NAME_PROPERTY = "transformHTTPRecordingToScript";
 
-  private final TransformerFactory m_transformerFactory =
-    TransformerFactory.newInstance();
+  private final TransformerFactory m_transformerFactory = TransformerFactory
+      .newInstance();
 
   private final InputStream m_styleSheetInputStream;
+
+  private final PrintWriter m_output;
+
   private final Logger m_logger;
 
   private ProcessHTTPRecordingWithXSLT(InputStream styleSheetInputStream,
-                                      Logger logger) {
+                                       PrintWriter output,
+                                       Logger logger) {
     m_styleSheetInputStream = styleSheetInputStream;
+    m_output = output;
     m_logger = logger;
 
     // We set our own ErrorListener because the behaviour (e.g. logging to
@@ -77,10 +81,13 @@ public class ProcessHTTPRecordingWithXSLT
   /**
    * Constructor.
    *
-   * @param logger Where to direct the output.
+   * @param output
+   *          Where to direct the output.
+   * @param logger
+   *          Where to log errors.
    */
-  public ProcessHTTPRecordingWithXSLT(Logger logger) {
-    this(BuiltInStyleSheet.TraditionalJython, logger);
+  public ProcessHTTPRecordingWithXSLT(PrintWriter output, Logger logger) {
+    this(BuiltInStyleSheet.TraditionalJython, output, logger);
   }
 
   /**
@@ -88,12 +95,15 @@ public class ProcessHTTPRecordingWithXSLT
    *
    * @param styleSheet
    *          Built in style sheet.
-   * @param logger
+   * @param output
    *          Where to direct the output.
+   * @param logger
+   *          Where to log errors.
    */
   public ProcessHTTPRecordingWithXSLT(BuiltInStyleSheet styleSheet,
+                                      PrintWriter output,
                                       Logger logger) {
-    this(styleSheet.open(), logger);
+    this(styleSheet.open(), output, logger);
   }
 
   /**
@@ -101,36 +111,38 @@ public class ProcessHTTPRecordingWithXSLT
    *
    * @param styleSheet
    *          File name of an alternative style sheet.
-   * @param logger
+   * @param output
    *          Where to direct the output.
+   * @param logger
+   *          Where to log errors.
    */
   public ProcessHTTPRecordingWithXSLT(StyleSheetFile styleSheet,
+                                      PrintWriter output,
                                       Logger logger) {
-    this(styleSheet.open(), logger);
+    this(styleSheet.open(), output, logger);
   }
 
   /**
    * Produce output.
    *
-   * @param result The result to process.
-   * @throws IOException If an output error occurred.
+   * @param result
+   *          The result to process.
+   * @throws IOException
+   *           If an output error occurred.
    */
   public void process(HttpRecordingDocument result) throws IOException {
 
     try {
-      final Transformer transformer =
-        m_transformerFactory.newTransformer(
-          new StreamSource(m_styleSheetInputStream));
+      final Transformer transformer = m_transformerFactory
+          .newTransformer(new StreamSource(m_styleSheetInputStream));
 
       // One might expect this to be the default, but it's not.
       transformer.setErrorListener(m_transformerFactory.getErrorListener());
 
-      final PrintWriter outputWriter = m_logger.getOutputLogWriter();
-
       transformer.transform(new DOMSource(result.getDomNode()),
-                            new StreamResult(outputWriter));
+                            new StreamResult(m_output));
 
-      outputWriter.println();
+      m_output.println();
     }
     catch (TransformerException e) {
       // ErrorListener will have logged.

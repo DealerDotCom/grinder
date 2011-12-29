@@ -25,7 +25,8 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+
 import net.grinder.script.NonInstrumentableTypeException;
 import net.grinder.scriptengine.DCRContext;
 import net.grinder.scriptengine.Recorder;
@@ -72,7 +73,7 @@ public final class DCRContextImplementation implements DCRContext {
         Instrumentation.class.getMethod("isRetransformClassesSupported");
 
       if (!(Boolean)m.invoke(instrumentation)) {
-        logger.output(
+        logger.info(
           "Java VM does not support class retransformation, DCR unavailable");
 
         return null;
@@ -80,8 +81,7 @@ public final class DCRContextImplementation implements DCRContext {
     }
     catch (Exception e1) {
       // Also catches case where instrumentation == null.
-      logger.output(
-        "Java VM does not support instrumentation, DCR unavailable");
+      logger.info("Java VM does not support instrumentation, DCR unavailable");
 
       return null;
     }

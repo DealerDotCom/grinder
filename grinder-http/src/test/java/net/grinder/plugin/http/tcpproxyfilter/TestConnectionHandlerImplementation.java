@@ -36,10 +36,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.FileNotFoundException;
 
-import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.ResponseTokenReferenceType;
@@ -66,6 +64,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -102,8 +101,6 @@ public class TestConnectionHandlerImplementation
 
   @Before public void setUp() {
     MockitoAnnotations.initMocks(this);
-    when(m_logger.getErrorLogWriter()).thenReturn(
-           new PrintWriter(new StringWriter()));
   }
 
   @After public void postConditions() {
@@ -916,8 +913,8 @@ public class TestConnectionHandlerImplementation
     assertFalse(request.getBody().isSetForm());
     assertFalse(request.getBody().isSetEscapedString());
 
-    verify(m_logger).error(contains("Failed to write body"));
-    verify(m_logger).getErrorLogWriter();
+    verify(m_logger).error(contains("Failed to write body"),
+                           isA(FileNotFoundException.class));
   }
 
   @Test public void testWithBadRequestMessages() throws Exception {

@@ -23,9 +23,11 @@ package net.grinder.engine.process;
 
 import java.io.InputStream;
 
-import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.communication.StreamReceiver;
+
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
 
 
 /**
@@ -67,35 +69,30 @@ public class WorkerProcessEntryPoint {
    * @return Process exit code.
    */
   public int run(InputStream agentCommunicationStream) {
+
+    final Logger logger = (Logger) LoggerFactory.getLogger("worker-bootstrap");
+
     final GrinderProcess grinderProcess;
 
     try {
       grinderProcess =
         new GrinderProcess(new StreamReceiver(agentCommunicationStream));
     }
-    catch (GrinderException e) {
-      System.err.println("Error initialising worker process (" +
-                         e.getMessage() + ")");
-      e.printStackTrace();
+    catch (Exception e) {
+      logger.error("Error initialising worker process", e);
       return -2;
     }
-
-    final Logger logger = grinderProcess.getLogger();
 
     try {
       grinderProcess.run();
       return 0;
     }
     catch (Exception e) {
-      logger.error("Error running worker process (" + e.getMessage() + ")",
-                   Logger.LOG | Logger.TERMINAL);
-      e.printStackTrace(logger.getErrorLogWriter());
+      logger.error("Error running worker process", e);
       return -3;
     }
     catch (Error t) {
-      logger.error("Error running worker process (" + t.getMessage() + ")",
-                   Logger.LOG | Logger.TERMINAL);
-      t.printStackTrace(logger.getErrorLogWriter());
+      logger.error("Error running worker process", t);
       throw t;
     }
     finally {

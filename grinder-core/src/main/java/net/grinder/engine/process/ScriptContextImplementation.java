@@ -21,10 +21,8 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.CommunicationException;
 import net.grinder.script.Barrier;
@@ -38,9 +36,11 @@ import net.grinder.synchronisation.BarrierImplementation;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 import net.grinder.util.Sleeper;
 
+import org.slf4j.Logger;
+
 
 /**
- * Implementation of <code>ScriptContext</code>.
+ * Implementation of {@link ScriptContext}.
  *
  * @author Philip Aston
  */
@@ -51,7 +51,6 @@ final class ScriptContextImplementation implements InternalScriptContext {
   private final ThreadContextLocator m_threadContextLocator;
   private final GrinderProperties m_properties;
   private final Logger m_logger;
-  private final FilenameFactory m_filenameFactory;
   private final Sleeper m_sleeper;
   private final SSLControl m_sslControl;
   private final Statistics m_scriptStatistics;
@@ -67,7 +66,6 @@ final class ScriptContextImplementation implements InternalScriptContext {
      ThreadContextLocator threadContextLocator,
      GrinderProperties properties,
      Logger logger,
-     FilenameFactory filenameFactory,
      Sleeper sleeper,
      SSLControl sslControl,
      Statistics scriptStatistics,
@@ -82,7 +80,6 @@ final class ScriptContextImplementation implements InternalScriptContext {
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
     m_logger = logger;
-    m_filenameFactory = filenameFactory;
     m_sleeper = sleeper;
     m_sslControl = sslControl;
     m_scriptStatistics = scriptStatistics;
@@ -162,10 +159,6 @@ final class ScriptContextImplementation implements InternalScriptContext {
 
   public boolean stopWorkerThread(int threadNumber) {
     return m_threadStopper.stopThread(threadNumber);
-  }
-
-  public FilenameFactory getFilenameFactory() {
-    return m_filenameFactory;
   }
 
   public GrinderProperties getProperties() {

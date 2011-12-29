@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,64 +21,253 @@
 
 package net.grinder.engine.process;
 
-import java.io.PrintWriter;
-
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
+import org.slf4j.helpers.MarkerIgnoringBase;
 
 
 /**
- * {@link Logger} implementation for external consumption. Delegates
- * to the appropriate {@link LoggerImplementation} depending on
- * whether it is called from the process thread or a worker thread.
- *
- * <p>This effectively makes <code>ExternalLogger</code> thread safe
- * unless the script creates its own threads.</p>
+ * {@link Logger} implementation for external consumption. Delegates to the
+ * another {@code Logger}, providing the appropriate context specific markers.
  *
  * @author Philip Aston
  */
-final class ExternalLogger implements Logger {
+final class ExternalLogger extends MarkerIgnoringBase {
 
-  private final Logger m_processLogger;
+  private final Logger m_delegate;
   private final ThreadContextLocator m_threadContextLocator;
 
   public ExternalLogger(Logger processLogger,
                         ThreadContextLocator threadContextLocator) {
 
-    m_processLogger = processLogger;
+    m_delegate = processLogger;
     m_threadContextLocator = threadContextLocator;
   }
 
-  public void output(String message, int where) {
-    getLogger().output(message, where);
-  }
-
-  public void output(String message) {
-    getLogger().output(message);
-  }
-
-  public void error(String message, int where) {
-    getLogger().error(message, where);
-  }
-
-  public void error(String message) {
-    getLogger().error(message);
-  }
-
-  public PrintWriter getOutputLogWriter() {
-    return getLogger().getOutputLogWriter();
-  }
-
-  public PrintWriter getErrorLogWriter() {
-    return getLogger().getErrorLogWriter();
-  }
-
-  private Logger getLogger() {
+  private Marker getMarker() {
     final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext != null) {
-      return threadContext.getThreadLogger();
+      return threadContext.getMarker();
     }
 
-    return m_processLogger;
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public String getName() {
+    return m_delegate.getName();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public boolean isTraceEnabled() {
+    return m_delegate.isTraceEnabled(getMarker());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void trace(String msg) {
+    m_delegate.trace(getMarker(), msg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void trace(String format, Object arg) {
+    m_delegate.trace(getMarker(), format, arg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void trace(String format, Object arg1, Object arg2) {
+    m_delegate.trace(getMarker(), format, arg1, arg2);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void trace(String format, Object[] argArray) {
+    m_delegate.trace(getMarker(), format, argArray);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void trace(String msg, Throwable t) {
+    m_delegate.trace(getMarker(), msg, t);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public boolean isDebugEnabled() {
+    return m_delegate.isDebugEnabled(getMarker());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void debug(String msg) {
+    m_delegate.debug(getMarker(), msg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void debug(String format, Object arg) {
+    m_delegate.debug(getMarker(), format, arg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void debug(String format, Object arg1, Object arg2) {
+    m_delegate.debug(getMarker(), format, arg1, arg2);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void debug(String format, Object[] argArray) {
+    m_delegate.debug(getMarker(), format, argArray);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void debug(String msg, Throwable t) {
+    m_delegate.debug(getMarker(), msg, t);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public boolean isInfoEnabled() {
+    return m_delegate.isInfoEnabled(getMarker());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void info(String msg) {
+    m_delegate.info(getMarker(), msg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void info(String format, Object arg) {
+    m_delegate.info(getMarker(), format, arg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void info(String format, Object arg1, Object arg2) {
+    m_delegate.info(getMarker(), format, arg1, arg2);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void info(String format, Object[] argArray) {
+    m_delegate.info(getMarker(), format, argArray);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void info(String msg, Throwable t) {
+    m_delegate.info(getMarker(), msg, t);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public boolean isWarnEnabled() {
+    return m_delegate.isWarnEnabled(getMarker());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void warn(String msg) {
+    m_delegate.warn(getMarker(), msg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void warn(String format, Object arg) {
+    m_delegate.warn(getMarker(), format, arg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void warn(String format, Object arg1, Object arg2) {
+    m_delegate.warn(getMarker(), format, arg1, arg2);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void warn(String format, Object[] argArray) {
+    m_delegate.warn(getMarker(), format, argArray);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void warn(String msg, Throwable t) {
+    m_delegate.warn(getMarker(), msg, t);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public boolean isErrorEnabled() {
+    return m_delegate.isErrorEnabled(getMarker());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void error(String msg) {
+    m_delegate.error(getMarker(), msg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void error(String format, Object arg) {
+    m_delegate.error(getMarker(), format, arg);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void error(String format, Object arg1, Object arg2) {
+    m_delegate.error(getMarker(), format, arg1, arg2);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void error(String format, Object[] argArray) {
+    m_delegate.error(getMarker(), format, argArray);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public void error(String msg, Throwable t) {
+    m_delegate.error(getMarker(), msg, t);
   }
 }

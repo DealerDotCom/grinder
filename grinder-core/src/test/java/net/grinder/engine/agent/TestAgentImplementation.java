@@ -22,14 +22,19 @@
 package net.grinder.engine.agent;
 
 import static net.grinder.testutility.SocketUtilities.findFreePort;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
-import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionIdentity;
@@ -43,7 +48,14 @@ import net.grinder.engine.agent.DebugThreadWorker.IsolateGrinderProcessRunner;
 import net.grinder.messages.agent.ResetGrinderMessage;
 import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -52,31 +64,30 @@ import net.grinder.testutility.AbstractFileTestCase;
  *
  * @author Philip Aston
  */
-public class TestAgentImplementation extends AbstractFileTestCase {
+public class TestAgentImplementation extends AbstractJUnit4FileTestCase {
 
-  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
-  private final Logger m_logger = m_loggerStubFactory.getLogger();
+  @Mock private Logger m_logger;
 
-  protected void setUp() throws Exception {
+  @Before public void setUp() throws Exception {
     DebugThreadWorkerFactory.setIsolatedRunnerClass(TestRunner.class.getName());
-    super.setUp();
+    MockitoAnnotations.initMocks(this);
   }
 
-  public void tearDown() throws Exception {
+  @After public void tearDown() throws Exception {
     super.tearDown();
     DebugThreadWorkerFactory.setIsolatedRunnerClass(null);
   }
 
-  public void testConstruction() throws Exception {
+  @Test public void testConstruction() throws Exception {
     final File propertyFile = new File(getDirectory(), "properties");
     final Agent agent = new AgentImplementation(m_logger, propertyFile, true);
     agent.shutdown();
 
-    m_loggerStubFactory.assertOutputMessageContains("finished");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info("finished");
+    verifyNoMoreInteractions(m_logger);
   }
 
-  public void testRunDefaultProperties() throws Exception {
+  @Test public void testRunDefaultProperties() throws Exception {
     // Files in cwd.
     final File propertyFile = new File("grinder.properties");
     propertyFile.deleteOnExit();
@@ -92,14 +103,16 @@ public class TestAgentImplementation extends AbstractFileTestCase {
 
       final Agent agent = new AgentImplementation(m_logger, null, true);
 
-      m_loggerStubFactory.assertNoMoreCalls();
+      verifyNoMoreInteractions(m_logger);
 
       agent.run();
 
-      m_loggerStubFactory.assertOutputMessageContains("The Grinder");
-      m_loggerStubFactory.assertErrorMessageContains("Failed to connect");
-      m_loggerStubFactory.assertErrorMessageContains("does not exist");
-      m_loggerStubFactory.assertNoMoreCalls();
+      verify(m_logger).info(contains("The Grinder"));
+      verify(m_logger).warn(contains("proceeding"),
+                            contains("Failed to connect"));
+      verify(m_logger).error(contains("does not exist"));
+      verifyNoMoreInteractions(m_logger);
+      reset(m_logger);
 
       properties.setBoolean("grinder.useConsole", false);
       properties.save();
@@ -110,9 +123,11 @@ public class TestAgentImplementation extends AbstractFileTestCase {
 
       agent.run();
 
-      m_loggerStubFactory.assertOutputMessageContains("The Grinder");
-      m_loggerStubFactory.assertOutputMessageContains("command line");
-      m_loggerStubFactory.assertNoMoreCalls();
+      verify(m_logger).info(contains("The Grinder"));
+      verify(m_logger).info(contains("command line"),
+                            isA(WorkerProcessCommandLine.class));
+      verifyNoMoreInteractions(m_logger);
+      reset(m_logger);
 
       properties.setFile("grinder.logDirectory",
                          getDirectory().getAbsoluteFile());
@@ -120,9 +135,10 @@ public class TestAgentImplementation extends AbstractFileTestCase {
 
       agent.run();
 
-      m_loggerStubFactory.assertOutputMessageContains("The Grinder");
-      m_loggerStubFactory.assertOutputMessageContains("command line");
-      m_loggerStubFactory.assertNoMoreCalls();
+      verify(m_logger).info(contains("The Grinder"));
+      verify(m_logger).info(contains("command line"),
+                            isA(WorkerProcessCommandLine.class));
+      reset(m_logger);
 
       agent.shutdown();
     }
@@ -133,29 +149,32 @@ public class TestAgentImplementation extends AbstractFileTestCase {
     }
   }
 
-  public void testRun() throws Exception {
+  @Test public void testRun() throws Exception {
     final File propertyFile = new File(getDirectory(), "properties");
     final GrinderProperties properties = new GrinderProperties(propertyFile);
 
     final Agent agent = new AgentImplementation(m_logger, propertyFile, true);
 
-    m_loggerStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_logger);
 
     agent.run();
 
-    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
-    m_loggerStubFactory.assertErrorMessageContains("Failed to connect");
-    m_loggerStubFactory.assertErrorMessageContains("does not exist");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info(contains("The Grinder"));
+    verify(m_logger).warn(contains("proceeding"),
+                          contains("Failed to connect"));
+    verify(m_logger).error(contains("does not exist"));
+    verifyNoMoreInteractions(m_logger);
+    reset(m_logger);
 
     properties.setBoolean("grinder.useConsole", false);
     properties.save();
 
     agent.run();
 
-    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
-    m_loggerStubFactory.assertErrorMessageContains("does not exist");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info(contains("The Grinder"));
+    verify(m_logger).error(contains("does not exist"));
+    verifyNoMoreInteractions(m_logger);
+    reset(m_logger);
 
     final File scriptFile = new File(getDirectory(), "script");
     assertTrue(scriptFile.createNewFile());
@@ -166,9 +185,10 @@ public class TestAgentImplementation extends AbstractFileTestCase {
 
     agent.run();
 
-    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
-    m_loggerStubFactory.assertErrorMessageContains("does not exist");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info(contains("The Grinder"));
+    verify(m_logger).error(contains("does not exist"));
+    verifyNoMoreInteractions(m_logger);
+    reset(m_logger);
 
     properties.setFile("grinder.script", scriptFile);
     properties.setInt("grinder.processes", 0);
@@ -176,102 +196,94 @@ public class TestAgentImplementation extends AbstractFileTestCase {
 
     agent.run();
 
-    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
-    m_loggerStubFactory.assertOutputMessageContains("command line");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info(contains("The Grinder"));
+    verify(m_logger).info(contains("command line"),
+                          isA(WorkerProcessCommandLine.class));
+    verifyNoMoreInteractions(m_logger);
+    reset(m_logger);
 
     properties.setBoolean("grinder.debug.singleprocess", true);
     properties.save();
 
     agent.run();
 
-    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
-    m_loggerStubFactory.assertOutputMessageContains(
-      "threads rather than processes");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info(contains("The Grinder"));
+    verify(m_logger).info(contains("threads rather than processes"));
+    verifyNoMoreInteractions(m_logger);
+    reset(m_logger);
 
     properties.setProperty("grinder.jvm.arguments", "-Dsome_stuff=blah");
     properties.save();
 
     agent.run();
 
-    m_loggerStubFactory.assertOutputMessageContains("The Grinder");
-    m_loggerStubFactory.assertOutputMessageContains(
-    "threads rather than processes");
-    m_loggerStubFactory.assertOutputMessageContains("grinder.jvm.arguments");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info(contains("The Grinder"));
+    verify(m_logger).info(contains("threads rather than processes"));
+    verify(m_logger).warn(contains("grinder.jvm.arguments"),
+                          contains("some_stuff"));
+    verifyNoMoreInteractions(m_logger);
+    reset(m_logger);
 
     agent.shutdown();
 
-    m_loggerStubFactory.assertOutputMessageContains("finished");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info(contains("finished"));
+    verifyNoMoreInteractions(m_logger);
   }
 
-  public void testWithConsole() throws Exception {
+  @Test public void testWithConsole() throws Exception {
     final ConsoleStub console = new ConsoleStub() {
       public void onConnect() throws Exception {
         // After we accept an agent connection...
-        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+        verify(m_logger).info(contains("The Grinder"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("connected");
-
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("waiting");
+        verify(m_logger, timeout(5000)).info(contains("connected"),
+                                             contains("localhost"));
+        verify(m_logger, timeout(5000)).info(contains("waiting"));
 
         // ...send a start message...
+        reset(m_logger);
         final GrinderProperties grinderProperties = new GrinderProperties();
         getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessage("received a start message");
+        verify(m_logger, timeout(5000)).info("received a start message");
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertErrorMessageContains("grinder.py");
+        verify(m_logger, timeout(5000)).error(contains("grinder.py"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("waiting");
+        verify(m_logger, timeout(5000)).info(contains("waiting"));
 
         // ...send another start message...
+        reset(m_logger);
         getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessage("received a start message");
+        verify(m_logger, timeout(5000)).info("received a start message");
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+        verify(m_logger, timeout(5000)).info(contains("The Grinder"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertErrorMessageContains("grinder.py");
+        verify(m_logger, timeout(5000)).error(contains("grinder.py"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("waiting");
+        verify(m_logger, timeout(5000)).info(contains("waiting"));
 
         // ...then a reset message...
+        reset(m_logger);
         getSender().send(new ResetGrinderMessage());
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessage("received a reset message");
+        verify(m_logger, timeout(5000)).info("received a reset message");
 
         // Version string.
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+        verify(m_logger, timeout(5000)).info(contains("The Grinder"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("waiting");
+        verify(m_logger, timeout(5000)).info(contains("waiting"));
 
         // ...now try specifying the script...
+        reset(m_logger);
         grinderProperties.setFile(GrinderProperties.SCRIPT, new File("foo.py"));
         getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessage("received a start message");
+        verify(m_logger, timeout(5000)).info("received a start message");
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertErrorMessageContains("foo.py");
+        verify(m_logger, timeout(5000)).error(contains("foo.py"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("waiting");
+        verify(m_logger, timeout(5000)).info(contains("waiting"));
 
         // ..then a stop message.
         getSender().send(new StopGrinderMessage());
@@ -290,76 +302,62 @@ public class TestAgentImplementation extends AbstractFileTestCase {
 
     console.shutdown();
 
-    m_loggerStubFactory.assertOutputMessage("received a stop message");
+    verify(m_logger).info("received a stop message");
 
-    // communication shutdown.
-    m_loggerStubFactory.waitUntilCalled(5000);
-    m_loggerStubFactory.assertSuccess("output", String.class, Integer.class);
-
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger, timeout(5000)).info("communication shut down");
 
     agent.shutdown();
-    m_loggerStubFactory.assertOutputMessage("finished");
-    m_loggerStubFactory.assertNoMoreCalls();
+
+    verify(m_logger).info("finished");
+
+    verifyNoMoreInteractions(m_logger);
   }
 
-  public void testRampUp() throws Exception {
+  @Test public void testRampUp() throws Exception {
     final ConsoleStub console = new ConsoleStub() {
       public void onConnect() throws Exception {
         // After we accept an agent connection...
-        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+        verify(m_logger).info(contains("The Grinder"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("connected");
+        verify(m_logger, timeout(5000)).info(contains("connected"),
+                                             contains("localhost"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("waiting");
+        verify(m_logger, timeout(5000)).info(contains("waiting"));
 
         // ...send a start message...
+        reset(m_logger);
         final GrinderProperties grinderProperties = new GrinderProperties();
         getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessage("received a start message");
+        verify(m_logger, timeout(5000)).info("received a start message");
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-
-        m_loggerStubFactory.assertOutputMessageContains("DEBUG MODE");
+        verify(m_logger, timeout(5000)).info(contains("DEBUG MODE"));
 
         // 10 workers started.
-        for (int i =  0; i < 10; ++i) {
-          m_loggerStubFactory.waitUntilCalled(5000);
-          m_loggerStubFactory.assertOutputMessageContains("started");
-        }
+        verify(m_logger, timeout(5000).times(10)).info(contains("started"));
 
         // Interrupt our workers.
+        reset(m_logger);
         getSender().send(new ResetGrinderMessage());
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("reset");
+        verify(m_logger, timeout(5000)).info(contains("reset"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("The Grinder");
+        verify(m_logger, timeout(5000)).info(contains("The Grinder"));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("waiting");
+        verify(m_logger, timeout(5000)).info(contains("waiting"));
 
         // Now try again, with no ramp up.
+        reset(m_logger);
         grinderProperties.setInt("grinder.initialProcesses", 10);
 
         getSender().send(new StartGrinderMessage(grinderProperties, 99));
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessage("received a start message");
+        verify(m_logger, timeout(5000)).info("received a start message");
 
-        m_loggerStubFactory.waitUntilCalled(5000);
-        m_loggerStubFactory.assertOutputMessageContains("DEBUG MODE");
+        verify(m_logger, timeout(5000)).info(contains("DEBUG MODE"));
 
         // 10 workers started.
-        for (int i = 0; i < 10; ++i) {
-          m_loggerStubFactory.waitUntilCalled(5000);
-          m_loggerStubFactory.assertOutputMessageContains("started");
-        }
+        verify(m_logger, timeout(5000).times(10)).info(contains("started"));
 
         // Shut down our workers.
         getSender().send(new StopGrinderMessage());
@@ -389,7 +387,7 @@ public class TestAgentImplementation extends AbstractFileTestCase {
     agent.shutdown();
   }
 
-  public void testReconnect() throws Exception {
+  @Test public void testReconnect() throws Exception {
     final File propertyFile = new File(getDirectory(), "properties");
     final GrinderProperties properties = new GrinderProperties(propertyFile);
 
@@ -465,7 +463,7 @@ public class TestAgentImplementation extends AbstractFileTestCase {
           try {
             onConnect();
           }
-          catch (Exception e) {
+          catch (Throwable e) {
             e.printStackTrace();
           }
         }

@@ -1,5 +1,5 @@
 // Copyright (C) 2008 Pawel Lacinski
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,17 +21,29 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.engine.agent;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.File;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
-import net.grinder.common.LoggerStubFactory;
 import net.grinder.engine.agent.TestAgentDaemon.ActionListSleeperStubFactory.SleepAction;
-import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.RandomStubFactory;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.util.Sleeper;
 import net.grinder.util.Sleeper.ShutdownException;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -41,26 +53,26 @@ import net.grinder.util.Sleeper.ShutdownException;
  * @author
  * @author Philip Aston
  */
-public class TestAgentDaemon extends AbstractFileTestCase {
+public class TestAgentDaemon extends AbstractJUnit4FileTestCase {
 
-  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
-  private final Logger m_logger = m_loggerStubFactory.getLogger();
+  @Mock private Logger m_logger;
+  @Mock private Agent m_agent;
 
-  private final RandomStubFactory<Agent> m_agentStubFactory =
-    RandomStubFactory.create(Agent.class);
-  private final Agent m_agent = m_agentStubFactory.getStub();
+  @Before public void setUp() throws Exception {
+    MockitoAnnotations.initMocks(this);
+  }
 
-  public void testConstruction() throws Exception {
+  @Test public void testConstruction() throws Exception {
     final File propertyFile = new File(getDirectory(), "properties");
     final Agent agent = new AgentImplementation(m_logger, propertyFile, false);
     final AgentDaemon daemon = new AgentDaemon(m_logger, 1000, agent);
     daemon.shutdown();
 
-    m_loggerStubFactory.assertOutputMessageContains("finished");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info(contains("finished"));
+    verifyNoMoreInteractions(m_logger);
   }
 
-  public void testRun() throws Exception {
+  @Test public void testRun() throws Exception {
     final ActionListSleeperStubFactory sleeperStubFactory =
       new ActionListSleeperStubFactory(
         new SleepAction[] {
@@ -85,18 +97,16 @@ public class TestAgentDaemon extends AbstractFileTestCase {
     sleeperStubFactory.assertFinished();
   }
 
-  public void testShutdownHook() throws Exception {
+  @Test public void testShutdownHook() throws Exception {
     final AgentDaemon agentDaemon = new AgentDaemon(m_logger, 0, m_agent);
-    m_loggerStubFactory.assertNoMoreCalls();
 
     final Thread shutdownHook = agentDaemon.getShutdownHook();
 
     assertFalse(Runtime.getRuntime().removeShutdownHook(shutdownHook));
-    m_loggerStubFactory.assertNoMoreCalls();
-    m_agentStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_agent);
 
     final GrinderException runException = new GrinderException("") {};
-    m_agentStubFactory.setThrows("run", runException);
+    doThrow(runException).when(m_agent).run();
 
     try {
       agentDaemon.run();
@@ -105,15 +115,11 @@ public class TestAgentDaemon extends AbstractFileTestCase {
     catch (GrinderException e) {
       assertSame(runException, e);
     }
-
-    m_agentStubFactory.assertException("run", runException);
-
     assertTrue(Runtime.getRuntime().removeShutdownHook(shutdownHook));
 
     shutdownHook.run();
-    m_loggerStubFactory.assertNoMoreCalls();
-    m_agentStubFactory.assertSuccess("shutdown");
-    m_agentStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_logger);
+    verify(m_agent).shutdown();
   }
 
   public static class ActionListSleeperStubFactory

@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,16 @@
 
 package net.grinder.engine.communication;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
+
 import java.io.Serializable;
 
-import junit.framework.TestCase;
-
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
-import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchSender;
@@ -36,30 +39,35 @@ import net.grinder.messages.agent.StartGrinderMessage;
 import net.grinder.messages.agent.StopGrinderMessage;
 import net.grinder.util.thread.Condition;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+
 
 /**
- * Unit test case for <code>ConsoleListener</code>.
+ * Unit tests for {@code ConsoleListener}.
  *
  * @author Philip Aston
  */
-public class TestConsoleListener extends TestCase {
+public class TestConsoleListener {
 
-  private final LoggerStubFactory m_loggerFactory = new LoggerStubFactory();
-  private final Logger m_logger = m_loggerFactory.getLogger();
+  @Mock private Logger m_logger;
 
-  protected void setUp() throws Exception {
-    m_loggerFactory.resetCallHistory();
+  @Before public void setUp() throws Exception {
+    MockitoAnnotations.initMocks(this);
   }
 
-  public void testConstruction() throws Exception {
+  @Test public void testConstruction() throws Exception {
     final Condition myCondition = new Condition();
 
     new ConsoleListener(myCondition, m_logger);
 
-    m_loggerFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_logger);
   }
 
-  public void testSendNotification() throws Exception {
+  @Test public void testSendNotification() throws Exception {
     final Condition myCondition = new Condition();
     final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
 
@@ -73,7 +81,7 @@ public class TestConsoleListener extends TestCase {
     assertTrue(notified.wasNotified());
   }
 
-  public void testCheckForMessageAndReceive() throws Exception {
+  @Test public void testCheckForMessageAndReceive() throws Exception {
 
     final Condition myCondition = new Condition();
     final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
@@ -91,9 +99,9 @@ public class TestConsoleListener extends TestCase {
     messageDispatcher.send(new MyMessage());
     messageDispatcher.send(new ResetGrinderMessage());
 
-    m_loggerFactory.assertSuccess("output", String.class);
-    m_loggerFactory.assertSuccess("output", String.class);
-    m_loggerFactory.assertNoMoreCalls();
+    verify(m_logger).info("received a start message");
+    verify(m_logger).info("received a reset message");
+    verifyNoMoreInteractions(m_logger);
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
                                          (ConsoleListener.START |
@@ -120,20 +128,23 @@ public class TestConsoleListener extends TestCase {
     assertFalse(listener.checkForMessage(ConsoleListener.RESET));
     assertFalse(listener.received(ConsoleListener.RESET));
 
+    reset(m_logger);
     messageDispatcher.send(
       new StartGrinderMessage(new GrinderProperties(), -1));
     messageDispatcher.send(new ResetGrinderMessage());
 
-    m_loggerFactory.assertSuccess("output", String.class);
-    m_loggerFactory.assertSuccess("output", String.class);
-    m_loggerFactory.assertNoMoreCalls();
+    verify(m_logger).info("received a start message");
+    verify(m_logger).info("received a reset message");
+    verifyNoMoreInteractions(m_logger);
 
     assertTrue(listener.checkForMessage(ConsoleListener.RESET |
                                         ConsoleListener.START));
+
+    reset(m_logger);
     messageDispatcher.send(new ResetGrinderMessage());
 
-    m_loggerFactory.assertSuccess("output", String.class);
-    m_loggerFactory.assertNoMoreCalls();
+    verify(m_logger).info("received a reset message");
+    verifyNoMoreInteractions(m_logger);
 
     assertTrue(listener.checkForMessage(ConsoleListener.RESET |
                                         ConsoleListener.START));
@@ -149,7 +160,7 @@ public class TestConsoleListener extends TestCase {
     assertTrue(listener.received(ConsoleListener.SHUTDOWN));
   }
 
-  public void testDiscardMessages() throws Exception {
+  @Test public void testDiscardMessages() throws Exception {
     final Condition myCondition = new Condition();
     final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
 
@@ -198,7 +209,7 @@ public class TestConsoleListener extends TestCase {
     assertFalse(listener.received(ConsoleListener.SHUTDOWN));
   }
 
-  public void testWaitForMessage() throws Exception {
+  @Test public void testWaitForMessage() throws Exception {
     final Condition myCondition = new Condition();
     final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
     final MessageDispatchSender messageDispatcher = new MessageDispatchSender();
@@ -231,7 +242,7 @@ public class TestConsoleListener extends TestCase {
   private static final class MyMessage implements Message, Serializable {
   }
 
-  public void testDispatcherShutdown() throws Exception {
+  @Test public void testDispatcherShutdown() throws Exception {
 
     final Condition myCondition = new Condition();
     final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
@@ -244,9 +255,8 @@ public class TestConsoleListener extends TestCase {
 
     assertTrue(notified.wasNotified());
 
-    m_loggerFactory.assertSuccess("output", String.class, Integer.class);
-
-    m_loggerFactory.assertNoMoreCalls();
+    verify(m_logger).info("communication shut down");
+    verifyNoMoreInteractions(m_logger);
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
                                           ConsoleListener.SHUTDOWN));
@@ -256,7 +266,7 @@ public class TestConsoleListener extends TestCase {
     assertFalse(listener.received(ConsoleListener.SHUTDOWN));
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
 
     final Condition myCondition = new Condition();
     final ConsoleListener listener = new ConsoleListener(myCondition, m_logger);
@@ -267,7 +277,7 @@ public class TestConsoleListener extends TestCase {
 
     assertTrue(notified.wasNotified());
 
-    m_loggerFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_logger);
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
                                           ConsoleListener.SHUTDOWN));
@@ -323,7 +333,7 @@ public class TestConsoleListener extends TestCase {
     }
   }
 
-  public void testGetLastStartGrinderMessage() throws Exception {
+  @Test public void testGetLastStartGrinderMessage() throws Exception {
 
     final ConsoleListener listener =
       new ConsoleListener(new Condition(), m_logger);

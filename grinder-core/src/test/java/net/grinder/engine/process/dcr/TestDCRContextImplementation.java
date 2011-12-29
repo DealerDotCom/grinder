@@ -32,7 +32,6 @@ import static org.mockito.Mockito.when;
 
 import java.lang.instrument.Instrumentation;
 
-import net.grinder.common.Logger;
 import net.grinder.engine.process.ExternalLoggerScopeTunnel;
 import net.grinder.scriptengine.DCRContext;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
@@ -42,6 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -74,7 +74,7 @@ public class TestDCRContextImplementation {
 
     assertNull(DCRContextImplementation.create(m_logger));
 
-    verify(m_logger).output(contains("does not support"));
+    verify(m_logger).info(contains("does not support"));
     verifyNoMoreInteractions(m_logger);
   }
 
@@ -85,7 +85,7 @@ public class TestDCRContextImplementation {
 
     assertNull(DCRContextImplementation.create(m_logger));
 
-    verify(m_logger).output(contains("does not support"));
+    verify(m_logger).info(contains("does not support"));
     verifyNoMoreInteractions(m_logger);
   }
 
@@ -97,7 +97,7 @@ public class TestDCRContextImplementation {
 
     assertNull(DCRContextImplementation.create(m_logger));
 
-    verify(m_logger).output(contains("does not support"));
+    verify(m_logger).info(contains("does not support"));
     verifyNoMoreInteractions(m_logger);
   }
 
@@ -116,7 +116,7 @@ public class TestDCRContextImplementation {
   @Test public void testExternalLoggerIsInstrumentable() throws Exception {
     final DCRContext context = DCRContextImplementation.create(m_logger);
 
-    final Class<? extends Logger> loggerClass =
+    final Class<?> loggerClass =
       ExternalLoggerScopeTunnel.getExternalLogger(m_logger).getClass();
 
     assertTrue(context.isInstrumentable(loggerClass));

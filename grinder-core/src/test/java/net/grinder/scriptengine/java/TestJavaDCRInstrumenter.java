@@ -41,7 +41,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
 
-import net.grinder.common.Logger;
 import net.grinder.engine.process.dcr.AnotherClass;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.engine.process.dcr.RecorderLocatorAccess;
@@ -56,6 +55,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 import test.MyClass;
 import test.MyExtendedClass;

@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2004 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,9 +24,10 @@ package net.grinder.util;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
+import org.slf4j.Logger;
+
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 
 
 /**
@@ -49,22 +50,25 @@ public final class JVM {
   }
 
   /**
-   * Check the JVM is the right version, has the right optional
-   * components installed, and so on. If there are problems, report
-   * them to the logger and return <code>false</code>.
+   * Check the JVM is the right version, has the right optional components
+   * installed, and so on. If there are problems, report them to the logger and
+   * return {@code false}.
    *
-   * @param logger Where to report any problems.
-   * @return <code>true</code> => we have everything.
-   * @exception VersionException If the JVM's version could not be
-   * parsed.
+   * @param logger
+   *          Where to report any problems.
+   * @return {@code true} => we have everything.
+   * @exception VersionException
+   *              If the JVM's version could not be parsed.
    */
   public boolean haveRequisites(Logger logger) throws VersionException {
 
     final String name = "The Grinder " + GrinderBuild.getVersionString();
 
     if (!isAtLeastVersion(1, 5)) {
-      logger.error("Fatal Error - incompatible version of Java (" + this +
-                   ")\n" + name + " requires at least Java 1.5.");
+      logger.error("Fatal Error - incompatible version of Java ({})%n" +
+                   "{} requires at least Java 1.5.",
+                   this,
+                   name);
       return false;
     }
 
@@ -74,12 +78,13 @@ public final class JVM {
   /**
    * Check whether the JVM is of given version or later.
    *
-   * @param minimumMajor Major version number.
-   * @param minimumMinor Minor version number.
-   * @return <code>true</code> => the JVM is at least the requested
-   * version.
-   * @exception VersionException If the JVM's version could not be
-   * parsed.
+   * @param minimumMajor
+   *          Major version number.
+   * @param minimumMinor
+   *          Minor version number.
+   * @return {@code true} => the JVM is at least the requested version.
+   * @exception VersionException
+   *              If the JVM's version could not be parsed.
    */
   public boolean isAtLeastVersion(int minimumMajor, int minimumMinor)
     throws VersionException {

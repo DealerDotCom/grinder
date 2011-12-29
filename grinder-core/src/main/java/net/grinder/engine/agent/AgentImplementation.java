@@ -33,7 +33,6 @@ import java.util.TimerTask;
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
 import net.grinder.common.GrinderProperties.PersistenceException;
 import net.grinder.communication.ClientReceiver;
 import net.grinder.communication.ClientSender;
@@ -54,6 +53,8 @@ import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.thread.Condition;
+
+import org.slf4j.Logger;
 
 
 /**
@@ -120,7 +121,7 @@ public final class AgentImplementation implements Agent {
 
     try {
       while (true) {
-        m_logger.output(GrinderBuild.getName());
+        m_logger.info(GrinderBuild.getName());
 
         ScriptLocation script = null;
         GrinderProperties properties;
@@ -149,14 +150,15 @@ public final class AgentImplementation implements Agent {
             try {
               consoleCommunication = new ConsoleCommunication(connector);
               consoleCommunication.start();
-              m_logger.output(
-                "connected to console at " + connector.getEndpointAsString());
+              m_logger.info(
+                "connected to console at {}", connector.getEndpointAsString());
             }
             catch (CommunicationException e) {
               if (m_proceedWithoutConsole) {
-                m_logger.error(
-                  e.getMessage() + ", proceeding without the console; set " +
-                  "grinder.useConsole=false to disable this warning.");
+                m_logger.warn(
+                  "{}, proceeding without the console; set " +
+                  "grinder.useConsole=false to disable this warning.",
+                  e.getMessage());
               }
               else {
                 m_logger.error(e.getMessage());
@@ -166,7 +168,7 @@ public final class AgentImplementation implements Agent {
           }
 
           if (consoleCommunication != null && startMessage == null) {
-            m_logger.output("waiting for console signal");
+            m_logger.info("waiting for console signal");
             m_consoleListener.waitForMessage();
 
             if (m_consoleListener.received(ConsoleListener.START)) {
@@ -239,8 +241,7 @@ public final class AgentImplementation implements Agent {
                                            jvmArguments,
                                            script.getDirectory());
 
-            m_logger.output(
-              "Worker process command line: " + workerCommandLine);
+            m_logger.info("Worker process command line: {}", workerCommandLine);
 
             workerFactory =
               new ProcessWorkerFactory(
@@ -248,12 +249,13 @@ public final class AgentImplementation implements Agent {
                 consoleCommunication != null, script, properties);
           }
           else {
-            m_logger.output(
+            m_logger.info(
               "DEBUG MODE: Spawning threads rather than processes");
 
             if (jvmArguments != null) {
-              m_logger.output("WARNING grinder.jvm.arguments (" + jvmArguments +
-                              ") ignored in single process mode");
+              m_logger.warn(
+                "grinder.jvm.arguments ({}) ignored in single process mode",
+                jvmArguments);
             }
 
             workerFactory =
@@ -308,7 +310,7 @@ public final class AgentImplementation implements Agent {
                   System.currentTimeMillis() - consoleSignalTime >
                   maximumShutdownTime) {
 
-                m_logger.output("forcibly terminating unresponsive processes");
+                m_logger.info("forcibly terminating unresponsive processes");
 
                 // destroyAllWorkers() prevents further workers from starting.
                 workerLauncher.destroyAllWorkers();
@@ -331,7 +333,7 @@ public final class AgentImplementation implements Agent {
 
           if (!m_consoleListener.received(ConsoleListener.ANY)) {
             // We've got here naturally, without a console signal.
-            m_logger.output("finished, waiting for console signal");
+            m_logger.info("finished, waiting for console signal");
             m_consoleListener.waitForMessage();
           }
 
@@ -399,7 +401,7 @@ public final class AgentImplementation implements Agent {
     m_fanOutStreamSender.shutdown();
     m_consoleListener.shutdown();
 
-    m_logger.output("finished");
+    m_logger.info("finished");
   }
 
   private static String getHostName() {

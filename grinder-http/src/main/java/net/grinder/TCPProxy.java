@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import net.grinder.common.Logger;
 import net.grinder.plugin.http.tcpproxyfilter.ConnectionCache;
 import net.grinder.plugin.http.tcpproxyfilter.ConnectionHandlerFactoryImplementation;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRecordingImplementation;
@@ -59,15 +58,15 @@ import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation;
 import net.grinder.tools.tcpproxy.UpdatableCommentSource;
 import net.grinder.util.AbstractMainClass;
 import net.grinder.util.AttributeStringParserImplementation;
-import net.grinder.util.FixedWidthFormatter;
-import net.grinder.util.SimpleLogger;
 import net.grinder.util.SimpleStringEscaper;
 import net.grinder.util.http.URIParserImplementation;
 
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.behaviors.Caching;
-import org.picocontainer.monitors.WriterComponentMonitor;
+import org.picocontainer.monitors.ConsoleComponentMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -150,14 +149,7 @@ public final class TCPProxy extends AbstractMainClass {
    * @param args Command line arguments.
    */
   public static void main(String[] args) {
-    final Logger logger =
-      new SimpleLogger("tcpproxy",
-                       new PrintWriter(System.out),
-                       new PrintWriter(System.err),
-                       new FixedWidthFormatter(
-                         FixedWidthFormatter.Align.LEFT,
-                         FixedWidthFormatter.Flow.WORD_WRAP,
-                         80));
+    final Logger logger = LoggerFactory.getLogger("tcpproxy");
 
     try {
       final TCPProxy tcpProxy = new TCPProxy(args, logger);
@@ -167,10 +159,7 @@ public final class TCPProxy extends AbstractMainClass {
       System.exit(1);
     }
     catch (Throwable e) {
-      logger.error("Could not initialise:");
-      final PrintWriter errorWriter = logger.getErrorLogWriter();
-      e.printStackTrace(errorWriter);
-      errorWriter.flush();
+      logger.error("Could not initialise", e);
       System.exit(2);
     }
 
@@ -187,6 +176,9 @@ public final class TCPProxy extends AbstractMainClass {
    */
   TCPProxy(String[] args, Logger logger) throws Exception {
     super(logger, USAGE);
+
+    final PrintWriter output = new PrintWriter(System.out);
+    m_filterContainer.addComponent(output);
 
     m_filterContainer.addComponent(logger);
 
@@ -332,7 +324,7 @@ public final class TCPProxy extends AbstractMainClass {
         }
         else if ("-debug".equalsIgnoreCase(args[i])) {
           m_filterContainer.changeMonitor(
-            new WriterComponentMonitor(logger.getErrorLogWriter()));
+            new ConsoleComponentMonitor(System.err));
         }
         else if ("-initialtest".equalsIgnoreCase(args[i])) {
           final String argument = i + 1 < args.length ? args[++i] : "123";
@@ -445,6 +437,7 @@ public final class TCPProxy extends AbstractMainClass {
         new HTTPProxyTCPProxyEngine(
           sslSocketFactory,
           requestFilter, responseFilter,
+          output,
           logger,
           localEndPoint,
           useColour,
@@ -457,6 +450,7 @@ public final class TCPProxy extends AbstractMainClass {
           new PortForwarderTCPProxyEngine(
             sslSocketFactory,
             requestFilter, responseFilter,
+            output,
             logger,
             new ConnectionDetails(localEndPoint, remoteEndPoint, true),
             useColour,
@@ -466,6 +460,7 @@ public final class TCPProxy extends AbstractMainClass {
         m_proxyEngine =
           new PortForwarderTCPProxyEngine(
             requestFilter, responseFilter,
+            output,
             logger,
             new ConnectionDetails(localEndPoint, remoteEndPoint, false),
             useColour,

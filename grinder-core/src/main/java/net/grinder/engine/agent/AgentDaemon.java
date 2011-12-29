@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
 //
@@ -23,11 +23,12 @@
 package net.grinder.engine.agent;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.util.Sleeper;
+import net.grinder.util.Sleeper.ShutdownException;
 import net.grinder.util.SleeperImplementation;
 import net.grinder.util.StandardTimeAuthority;
-import net.grinder.util.Sleeper.ShutdownException;
+
+import org.slf4j.Logger;
 
 
 /**
@@ -83,7 +84,7 @@ public final class AgentDaemon implements Agent {
       while (true) {
         m_delegateAgent.run();
 
-        m_logger.output("agent finished");
+        m_logger.info("agent finished");
 
         m_sleeper.sleepNormal(m_sleepTime);
       }

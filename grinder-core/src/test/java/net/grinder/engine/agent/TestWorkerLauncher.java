@@ -24,6 +24,7 @@ package net.grinder.engine.agent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -38,17 +39,17 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 
-import net.grinder.common.Logger;
-import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
-import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.CallData;
 import net.grinder.testutility.RedirectStandardStreams;
 import net.grinder.util.thread.Condition;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -62,8 +63,11 @@ public class TestWorkerLauncher {
     System.getProperty("java.class.path");
 
   private final MyCondition m_condition = new MyCondition();
-  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
-  private final Logger m_logger = m_loggerStubFactory.getLogger();
+  @Mock private Logger m_logger;
+
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
+  }
 
   @Test public void testConstructor() throws Exception {
     final WorkerLauncher workerLauncher1 =
@@ -102,23 +106,16 @@ public class TestWorkerLauncher {
     assertEquals(System.err, myProcessFactory.getLastErrorStream());
 
     assertEquals(1, myProcessFactory.getChildProcesses().size());
-    final Worker childProcess =
-      myProcessFactory.getChildProcesses().get(0);
 
-    final CallData call =
-      m_loggerStubFactory.assertSuccess("output", String.class);
-    final String s = (String)call.getParameters()[0];
-    AssertUtilities.assertContains(s, childProcess.getIdentity().getName());
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info("worker process-0 started");
 
     workerLauncher.startSomeWorkers(10);
     assertEquals(5, myProcessFactory.getNumberOfProcesses());
 
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    m_loggerStubFactory.assertSuccess("output", String.class);
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).info("worker process-1 started");
+    verify(m_logger).info("worker process-2 started");
+    verify(m_logger).info("worker process-3 started");
+    verify(m_logger).info("worker process-4 started");
 
     assertEquals(5, myProcessFactory.getChildProcesses().size());
 
@@ -301,9 +298,8 @@ public class TestWorkerLauncher {
     final boolean result = workerLauncher.startSomeWorkers(1);
     assertFalse(result);
 
-    m_loggerStubFactory.assertErrorMessage("Failed to wait for test-0");
-    m_loggerStubFactory.assertSuccess("getErrorLogWriter");
-    m_loggerStubFactory.assertNoMoreCalls();
+    verify(m_logger).error(eq("Failed to wait for test-0"),
+                           isA(Exception.class));
   }
 
   private static class MyCondition extends Condition {

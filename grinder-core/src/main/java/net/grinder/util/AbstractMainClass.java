@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,8 +21,9 @@
 
 package net.grinder.util;
 
+import org.slf4j.Logger;
+
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 
 
 /**

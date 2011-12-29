@@ -36,8 +36,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import org.slf4j.Logger;
+
 import net.grinder.common.Closer;
-import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.BasicAuthorizationHeaderType;
 import net.grinder.plugin.http.xml.BodyType;
 import net.grinder.plugin.http.xml.ConflictingTokenReferenceType;
@@ -502,8 +503,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
             body.setFile(file.getPath());
           }
           catch (IOException e) {
-            m_logger.error("Failed to write body data to '" + file + "'");
-            e.printStackTrace(m_logger.getErrorLogWriter());
+            m_logger.error("Failed to write body data to '" + file + "'", e);
           }
           finally {
             Closer.close(dataStream);

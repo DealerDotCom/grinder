@@ -22,11 +22,9 @@
 
 package net.grinder.engine.process;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.SkeletonThreadLifeCycleListener;
@@ -40,6 +38,10 @@ import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.ListenerSupport;
 import net.grinder.util.ListenerSupport.Informer;
+
+import org.slf4j.Logger;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 
 /**
@@ -57,8 +59,8 @@ final class ThreadContextImplementation
   private final DispatchContextStack m_dispatchContextStack =
     new DispatchContextStack();
 
-  private final ThreadLogger m_threadLogger;
-  private final FilenameFactory m_filenameFactory;
+  private final int m_threadNumber;
+  private final Marker m_threadMarker;
   private final DispatchResultReporter m_dispatchResultReporter;
 
   private SSLContextFactory m_sslContextFactory;
@@ -69,37 +71,40 @@ final class ThreadContextImplementation
 
   private StatisticsForTest m_statisticsForLastTest;
 
+  private Marker m_runMarker;
+  private int m_runNumber = -1;
+
+  private Marker m_testMarker;
+
   private volatile boolean m_shutdown;
   private boolean m_shutdownReported;
 
   public ThreadContextImplementation(GrinderProperties properties,
                                      StatisticsServices statisticsServices,
-                                     ThreadLogger threadLogger,
-                                     FilenameFactory filenameFactory,
-                                     PrintWriter dataWriter)
+                                     int threadNumber,
+                                     Logger dataLogger)
     throws EngineException {
 
-    m_threadLogger = threadLogger;
-    m_filenameFactory = filenameFactory;
+    m_threadNumber = threadNumber;
+    m_threadMarker = MarkerFactory.getMarker("thread-" + threadNumber);
 
     // Undocumented property. Added so Tom Barnes can investigate overhead
     // of data logging.
     if (properties.getBoolean("grinder.logData", true)) {
-      final ThreadDataWriter threadDataWriter =
-        new ThreadDataWriter(
-          dataWriter,
+      final ThreadDataLogger threadDataLogger =
+        new ThreadDataLogger(
+          dataLogger,
           statisticsServices.getDetailStatisticsView().getExpressionViews(),
-          m_threadLogger.getThreadNumber());
+          m_threadNumber);
 
       m_dispatchResultReporter = new DispatchResultReporter() {
         public void report(Test test,
                            long startTime,
                            StatisticsSet statistics) {
-          threadDataWriter.report(
-            getRunNumber(),
-            test,
-            startTime,
-            statistics);
+          threadDataLogger.report(getRunNumber(),
+                                  test,
+                                  startTime,
+                                  statistics);
         }
       };
     }
@@ -119,20 +124,38 @@ final class ThreadContextImplementation
       });
   }
 
-  public FilenameFactory getFilenameFactory() {
-    return m_filenameFactory;
-  }
-
   public int getThreadNumber() {
-    return m_threadLogger.getThreadNumber();
+    return m_threadNumber;
   }
 
   public int getRunNumber() {
-    return m_threadLogger.getCurrentRunNumber();
+    return m_runNumber;
   }
 
-  public ThreadLogger getThreadLogger() {
-    return m_threadLogger;
+  @Override
+  public void setCurrentRunNumber(int run) {
+    if (m_runMarker != null) {
+      m_threadMarker.remove(m_runMarker);
+    }
+
+    if (run != -1) {
+      m_runMarker = MarkerFactory.getMarker("run-" + run);
+      m_threadMarker.add(m_runMarker);
+    }
+
+    m_runNumber = run;
+  }
+
+  /** Package scope for unit tests. */
+  void setTestNumber(int test) {
+    if (m_testMarker != null) {
+      m_threadMarker.remove(m_testMarker);
+    }
+
+    if (test != -1) {
+      m_testMarker = MarkerFactory.getMarker("test-" + test);
+      m_threadMarker.add(m_testMarker);
+    }
   }
 
   public SSLContextFactory getThreadSSLContextFactory() {
@@ -203,8 +226,7 @@ final class ThreadContextImplementation
 
     reportPendingDispatchContext();
 
-    getThreadLogger().setCurrentTestNumber(
-      dispatchContext.getTest().getNumber());
+    setTestNumber(dispatchContext.getTest().getNumber());
 
     final DispatchContext existingContext = m_dispatchContextStack.peekTop();
 
@@ -334,5 +356,10 @@ final class ThreadContextImplementation
 
   public void shutdown() {
     m_shutdown = true;
+  }
+
+  @Override
+  public Marker getMarker() {
+    return m_threadMarker;
   }
 }

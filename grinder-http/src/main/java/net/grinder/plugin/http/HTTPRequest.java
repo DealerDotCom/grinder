@@ -45,8 +45,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
@@ -1293,13 +1294,13 @@ public class HTTPRequest {
       case 307:
         // It would be possible to perform the check automatically,
         // but for now just chuck out some information.
-        logger.output(message +
+        logger.info(message +
                       " [Redirect, ensure the next URL is " +
                       httpResponse.getHeader("Location") + "]");
         break;
 
       default:
-        logger.output(message);
+        logger.info(message);
         break;
       }
 

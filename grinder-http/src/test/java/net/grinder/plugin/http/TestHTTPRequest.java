@@ -39,7 +39,6 @@ import java.io.OutputStream;
 import java.util.Random;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.common.SSLContextFactory;
 import net.grinder.engine.process.dcr.DCRContextImplementation;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -69,6 +68,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 import HTTPClient.HTTPResponse;
 import HTTPClient.HttpURLConnection;
@@ -810,7 +810,7 @@ public class TestHTTPRequest {
     final HTTPRequest request = new HTTPRequest();
     request.GET(m_handler.getURL());
 
-    verify(m_logger).output(m_stringCaptor.capture());
+    verify(m_logger).info(m_stringCaptor.capture());
 
     final String message = m_stringCaptor.getValue();
     assertTrue(message.indexOf("200") >= 0);
@@ -850,7 +850,7 @@ public class TestHTTPRequest {
       final HTTPResponse response = request.GET(handler.getURL());
       assertNotNull(response);
 
-      verify(m_logger, atLeastOnce()).output(m_stringCaptor.capture());
+      verify(m_logger, atLeastOnce()).info(m_stringCaptor.capture());
       final String message = m_stringCaptor.getValue();
 
       assertTrue(message.indexOf(Integer.toString(redirectCode)) >= 0);
@@ -884,7 +884,7 @@ public class TestHTTPRequest {
     final HTTPResponse response = request.GET(handler.getURL());
     assertNotNull(response);
 
-    verify(m_logger).output(m_stringCaptor.capture());
+    verify(m_logger).info(m_stringCaptor.capture());
     final String message = m_stringCaptor.getValue();
     assertTrue(message.indexOf("400") >= 0);
 

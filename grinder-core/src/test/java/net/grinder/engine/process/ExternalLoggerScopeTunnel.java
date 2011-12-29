@@ -21,7 +21,8 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+
 
 /**
  * Allow unit tests in other packages to create an ExternalLogger.

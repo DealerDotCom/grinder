@@ -25,13 +25,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import net.grinder.common.Logger;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -47,6 +46,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -92,7 +92,8 @@ public class TestPluginRegistryImplementation {
     assertSame(m_scriptContext, registeredPlugin.getScriptContext());
     assertSame(m_timeAuthority, registeredPlugin.getTimeAuthority());
 
-    verify(m_logger).output(isA(String.class));
+    verify(m_logger).info(contains("registered plug-in"),
+                          contains("GrinderPlugin"));
 
     pluginRegistry.register(m_grinderPlugin);
 

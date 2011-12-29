@@ -24,7 +24,8 @@ package net.grinder.engine.process;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+
 import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -81,7 +82,7 @@ final class PluginRegistryImplementation
 
         final RegisteredPlugin registeredPlugin =
           new RegisteredPlugin(plugin, m_scriptContext, m_threadContextLocator,
-                               m_statisticsServices, m_timeAuthority);
+                               m_statisticsServices, m_timeAuthority, m_logger);
 
         try {
           plugin.initialize(registeredPlugin);
@@ -93,7 +94,7 @@ final class PluginRegistryImplementation
         }
 
         m_plugins.put(plugin, registeredPlugin);
-        m_logger.output("registered plug-in " + plugin.getClass().getName());
+        m_logger.info("registered plug-in {}", plugin.getClass().getName());
       }
     }
   }

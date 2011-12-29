@@ -37,7 +37,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.grinder.common.GrinderBuild;
-import net.grinder.common.Logger;
 import net.grinder.plugin.http.xml.BaseURIType;
 import net.grinder.plugin.http.xml.CommonHeadersType;
 import net.grinder.plugin.http.xml.HTTPRecordingType;
@@ -57,6 +56,7 @@ import net.grinder.util.http.URIParser;
 
 import org.apache.xmlbeans.XmlObject;
 import org.picocontainer.Disposable;
+import org.slf4j.Logger;
 
 import HTTPClient.ParseException;
 import HTTPClient.URI;
@@ -402,8 +402,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
       m_resultProcessor.process(result);
     }
     catch (IOException e) {
-      m_logger.error(e.getMessage());
-      e.printStackTrace(m_logger.getErrorLogWriter());
+      m_logger.error(e.getMessage(), e);
     }
   }
 

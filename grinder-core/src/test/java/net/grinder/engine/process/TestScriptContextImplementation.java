@@ -29,9 +29,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.script.Barrier;
@@ -51,10 +49,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
- * Unit test case for {@code ScriptContextImplementation}.
+ * Unit tests for {@code ScriptContextImplementation}.
  *
  * @author Philip Aston
  */
@@ -62,7 +61,6 @@ public class TestScriptContextImplementation {
 
   @Mock private ThreadContext m_threadContext;
   @Mock private Logger m_logger;
-  @Mock private FilenameFactory m_filenameFactory;
   @Mock private ThreadStarter m_threadStarter;
   @Mock private ThreadStopper m_threadStopper;
   @Mock private Statistics m_statistics;
@@ -108,7 +106,6 @@ public class TestScriptContextImplementation {
         threadContextLocator,
         properties,
         m_logger,
-        m_filenameFactory,
         sleeper,
         m_sslControl,
         m_statistics,
@@ -126,7 +123,6 @@ public class TestScriptContextImplementation {
     assertEquals(threadNumber, scriptContext.getThreadNumber());
     assertEquals(runNumber, scriptContext.getRunNumber());
     assertSame(m_logger, scriptContext.getLogger());
-    assertSame(m_filenameFactory, scriptContext.getFilenameFactory());
     assertSame(properties, scriptContext.getProperties());
     assertSame(m_statistics, scriptContext.getStatistics());
     assertSame(m_sslControl, scriptContext.getSSLControl());
@@ -169,7 +165,7 @@ public class TestScriptContextImplementation {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        null, null, null, null, null, null, sleeper, null, null, null, null,
+        null, null, null, null, null, sleeper, null, null, null, null,
         null, null, null);
 
     assertTrue(
@@ -190,7 +186,7 @@ public class TestScriptContextImplementation {
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         null, null, threadContextLocator, null, null, null, null, null, null,
-        null, null, null, null, null);
+        null, null, null, null);
 
     try {
       scriptContext.stopThisWorkerThread();
@@ -213,7 +209,7 @@ public class TestScriptContextImplementation {
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         null, null, null, null, null, null, null, null, null,
-        null, null, null, m_barrierGroups, m_identityGenerator);
+        null, null, m_barrierGroups, m_identityGenerator);
 
     final Barrier globalBarrier = scriptContext.barrier("MyBarrierGroup");
     assertEquals("MyBarrierGroup", globalBarrier.getName());

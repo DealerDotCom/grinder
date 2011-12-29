@@ -21,10 +21,10 @@
 
 package net.grinder.script;
 
-import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
+
+import org.slf4j.Logger;
 
 
 /**
@@ -119,9 +119,9 @@ public class Grinder {
     int getRunNumber();
 
     /**
-     * Get a {@link net.grinder.common.Logger}.
+     * Get a {@link org.slf4j.Logger}.
      *
-     * @return A <code>Logger</code>.
+     * @return A {@code Logger}.
      */
     Logger getLogger();
 
@@ -197,16 +197,6 @@ public class Grinder {
      * <code>threadNumber</code>, otherwise <code>false</code>.
      */
     boolean stopWorkerThread(int threadNumber);
-
-    /**
-     * Get a {@link net.grinder.common.FilenameFactory} that can be
-     * used to create unique filenames. The filenames depend upon the
-     * process name and the thread used to call the
-     * <code>FilenameFactory</code>.
-     *
-     * @return A <code>FilenameFactory</code>.
-     */
-    FilenameFactory getFilenameFactory();
 
     /**
      * Get the global properties for this agent/worker process set.

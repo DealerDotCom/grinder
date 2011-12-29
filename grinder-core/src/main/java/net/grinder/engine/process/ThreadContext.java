@@ -21,11 +21,12 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.FilenameFactory;
-import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.common.SSLContextFactory;
+import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics.StatisticsForTest;
+
+import org.slf4j.Marker;
 
 
 /**
@@ -34,10 +35,6 @@ import net.grinder.script.Statistics.StatisticsForTest;
  * @author Philip Aston
  */
 interface ThreadContext extends PluginThreadContext {
-
-  ThreadLogger getThreadLogger();
-
-  FilenameFactory getFilenameFactory();
 
   DispatchResultReporter getDispatchResultReporter();
 
@@ -73,5 +70,13 @@ interface ThreadContext extends PluginThreadContext {
   void reportPendingDispatchContext();
 
   void shutdown();
+
+  /**
+   * @param run The current run number. Pass -1 to indicate that there
+   * is no current run.
+   */
+  void setCurrentRunNumber(int run);
+
+  Marker getMarker();
 }
 

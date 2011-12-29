@@ -28,12 +28,12 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.StyleSheetFile;
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
 import net.grinder.util.AbstractMainClass;
-import net.grinder.util.FixedWidthFormatter;
-import net.grinder.util.SimpleLogger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -53,27 +53,18 @@ public final class ProcessRecording extends AbstractMainClass {
    * @param args Command line arguments.
    */
   public static void main(String[] args) {
-    final Logger logger =
-      new SimpleLogger("tcpproxy",
-                       new PrintWriter(System.out),
-                       new PrintWriter(System.err),
-                       new FixedWidthFormatter(
-                         FixedWidthFormatter.Align.LEFT,
-                         FixedWidthFormatter.Flow.WORD_WRAP,
-                         80));
+    final Logger logger = LoggerFactory.getLogger("ProcessRecording");
 
     try {
-      final ProcessRecording process = new ProcessRecording(args, logger);
+      final ProcessRecording process =
+        new ProcessRecording(args, new PrintWriter(System.out), logger);
       process.run();
     }
     catch (LoggedInitialisationException e) {
       System.exit(1);
     }
     catch (Throwable e) {
-      logger.error("Could not initialise:");
-      final PrintWriter errorWriter = logger.getErrorLogWriter();
-      e.printStackTrace(errorWriter);
-      errorWriter.flush();
+      logger.error("Could not initialise", e);
       System.exit(2);
     }
 
@@ -83,7 +74,7 @@ public final class ProcessRecording extends AbstractMainClass {
   private final ProcessHTTPRecordingWithXSLT m_processor;
   private final InputStream m_recordingStream;
 
-  private ProcessRecording(String[] arguments, Logger logger)
+  private ProcessRecording(String[] arguments, PrintWriter out, Logger logger)
     throws GrinderException {
 
     super(logger, USAGE);
@@ -91,12 +82,13 @@ public final class ProcessRecording extends AbstractMainClass {
     try {
       m_recordingStream = new FileInputStream(arguments[0]);
       if (arguments.length == 1) {
-        m_processor = new ProcessHTTPRecordingWithXSLT(logger);
+        m_processor = new ProcessHTTPRecordingWithXSLT(out, logger);
       }
       else if (arguments.length == 2) {
         m_processor =
           new ProcessHTTPRecordingWithXSLT(
             new StyleSheetFile(new File(arguments[1])),
+            out,
             getLogger());
       }
       else {

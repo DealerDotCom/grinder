@@ -29,7 +29,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,7 +46,6 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLSocket;
 
-import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.util.StreamCopier;
@@ -58,6 +56,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -80,6 +79,7 @@ public class TestHTTPProxyTCPProxyEngine {
     m_responseFilterStubFactory.getStub();
 
   @Mock private Logger m_logger;
+  private final PrintWriter m_out = new PrintWriter(new StringWriter());
 
   private EndPoint m_localEndPoint;
 
@@ -91,8 +91,6 @@ public class TestHTTPProxyTCPProxyEngine {
 
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    when(m_logger.getOutputLogWriter())
-      .thenReturn(new PrintWriter(new StringWriter()));
 
     m_localEndPoint = createFreeLocalEndPoint();
 
@@ -119,6 +117,7 @@ public class TestHTTPProxyTCPProxyEngine {
       new HTTPProxyTCPProxyEngine(null,
                                   m_requestFilter,
                                   m_responseFilter,
+                                  m_out,
                                   m_logger,
                                   new EndPoint("unknownhost", 222),
                                   false,
@@ -137,6 +136,7 @@ public class TestHTTPProxyTCPProxyEngine {
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
                                   m_requestFilter,
                                   m_responseFilter,
+                                  m_out,
                                   m_logger,
                                   m_localEndPoint,
                                   false,
@@ -527,6 +527,7 @@ public class TestHTTPProxyTCPProxyEngine {
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
                                   m_requestFilter,
                                   m_responseFilter,
+                                  m_out,
                                   m_logger,
                                   m_localEndPoint,
                                   false,
@@ -570,6 +571,7 @@ public class TestHTTPProxyTCPProxyEngine {
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
                                   m_requestFilter,
                                   m_responseFilter,
+                                  m_out,
                                   m_logger,
                                   m_localEndPoint,
                                   true,
@@ -615,6 +617,7 @@ public class TestHTTPProxyTCPProxyEngine {
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
                                   m_requestFilter,
                                   m_responseFilter,
+                                  m_out,
                                   m_logger,
                                   chainedProxyEndPoint,
                                   true,
@@ -630,6 +633,7 @@ public class TestHTTPProxyTCPProxyEngine {
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
                                   new NullFilter(),
                                   new NullFilter(),
+                                  m_out,
                                   m_logger,
                                   m_localEndPoint,
                                   true,
@@ -708,6 +712,7 @@ public class TestHTTPProxyTCPProxyEngine {
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
                                   m_requestFilter,
                                   m_responseFilter,
+                                  m_out,
                                   m_logger,
                                   chainedProxyEndPoint,
                                   true,
@@ -723,6 +728,7 @@ public class TestHTTPProxyTCPProxyEngine {
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
                                   new NullFilter(),
                                   new NullFilter(),
+                                  m_out,
                                   m_logger,
                                   m_localEndPoint,
                                   true,
@@ -836,6 +842,7 @@ public class TestHTTPProxyTCPProxyEngine {
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
                                   new HungFilter(),
                                   m_responseFilter,
+                                  m_out,
                                   m_logger,
                                   m_localEndPoint,
                                   false,

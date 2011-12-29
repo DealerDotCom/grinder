@@ -23,14 +23,15 @@ package net.grinder.util;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import net.grinder.common.Logger;
 import net.grinder.testutility.Time;
 
 import org.junit.Test;
+import org.slf4j.Logger;
 
 
 /**
@@ -161,7 +162,7 @@ public class TestSleeper {
       new SleeperImplementation(m_timeAuthority, logger, 1, 0);
     sleep3.sleepFlat(10);
 
-    verify(logger).output(isA(String.class));
+    verify(logger).info(contains("sleeping"), isA(Long.class));
     verifyNoMoreInteractions(logger);
   }
 

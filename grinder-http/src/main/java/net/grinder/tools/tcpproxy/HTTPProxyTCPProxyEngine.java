@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -40,8 +41,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.slf4j.Logger;
+
 import net.grinder.common.GrinderBuild;
-import net.grinder.common.Logger;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.StreamCopier;
 import net.grinder.util.html.HTMLElement;
@@ -105,6 +107,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   public HTTPProxyTCPProxyEngine(TCPProxySSLSocketFactory sslSocketFactory,
                                  TCPProxyFilter requestFilter,
                                  TCPProxyFilter responseFilter,
+                                 PrintWriter output,
                                  Logger logger,
                                  EndPoint localEndPoint,
                                  boolean useColour,
@@ -116,7 +119,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     // We set this engine up for handling plain connections. We
     // delegate HTTPS to a proxy engine.
     super(new TCPProxySocketFactoryImplementation(), requestFilter,
-          responseFilter, logger, localEndPoint, useColour, timeout);
+          responseFilter, output, logger, localEndPoint, useColour, timeout);
 
     m_proxyAddress = localEndPoint;
     m_chainedHTTPProxy = chainedHTTPProxy;
@@ -146,14 +149,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
       m_proxySSLEngine =
         new ProxySSLEngine(m_httpsProxySocketFactory, getRequestFilter(),
-                           getResponseFilter(), logger, useColour);
+                           getResponseFilter(), output, logger, useColour);
     }
     else {
       m_httpsProxySocketFactory = null;
 
       m_proxySSLEngine =
         new ProxySSLEngine(sslSocketFactory, getRequestFilter(),
-                           getResponseFilter(), logger, useColour);
+                           getResponseFilter(), output, logger, useColour);
     }
 
     m_proxySSLEngineThread =
@@ -583,10 +586,11 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     ProxySSLEngine(TCPProxySocketFactory socketFactory,
                    TCPProxyFilter requestFilter,
                    TCPProxyFilter responseFilter,
+                   PrintWriter output,
                    Logger logger,
                    boolean useColour)
     throws IOException {
-      super(socketFactory, requestFilter, responseFilter, logger,
+      super(socketFactory, requestFilter, responseFilter, output, logger,
             new EndPoint(InetAddress.getByName(null), 0), useColour, 0);
     }
 

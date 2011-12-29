@@ -57,19 +57,17 @@ public abstract class RedirectStandardStreams {
   }
 
   public final RedirectStandardStreams assertNoStdout() {
-    final byte[] stdout = getStdoutBytes();
+    final byte[] bytes = getStdoutBytes();
 
-    assertTrue("stdout = " + new String(stdout),
-               stdout.length == 0);
+    assertTrue("stdout = " + new String(bytes), bytes.length == 0);
 
     return this;
   }
 
   public final RedirectStandardStreams assertNoStderr() {
-    final byte[] stdout = getStdoutBytes();
+    final byte[] bytes = getStderrBytes();
 
-    assertTrue("stdout = " + new String(stdout),
-               stdout.length == 0);
+    assertTrue("stderr = " + new String(bytes), bytes.length == 0);
 
     return this;
   }

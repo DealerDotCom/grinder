@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,9 +21,8 @@
 
 package net.grinder.engine.process;
 
-import java.io.PrintWriter;
+import org.slf4j.Logger;
 
-import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
@@ -48,16 +47,18 @@ final class RegisteredPlugin implements PluginProcessContext {
   private final ThreadLocal<PluginThreadListener> m_threadListenerThreadLocal =
     new ThreadLocal<PluginThreadListener>();
   private final TimeAuthority m_timeAuthority;
+  private final Logger m_logger;
 
   public RegisteredPlugin(GrinderPlugin plugin, ScriptContext scriptContext,
                           ThreadContextLocator threadContextLocator,
                           StatisticsServices statisticsServices,
-                          TimeAuthority timeAuthority) {
+                          TimeAuthority timeAuthority, Logger logger) {
     m_plugin = plugin;
     m_scriptContext = scriptContext;
     m_threadContextLocator = threadContextLocator;
     m_statisticsServices = statisticsServices;
     m_timeAuthority = timeAuthority;
+    m_logger = logger;
   }
 
   public ScriptContext getScriptContext() {
@@ -92,14 +93,9 @@ final class RegisteredPlugin implements PluginProcessContext {
       newPluginThreadListener = m_plugin.createThreadListener(threadContext);
     }
     catch (PluginException e) {
-      final Logger logger = threadContext.getThreadLogger();
-
-      final PrintWriter errorLogWriter = logger.getErrorLogWriter();
-
-      synchronized (errorLogWriter) {
-        logger.error("Plugin could not create thread listener: " + e);
-        e.printStackTrace(errorLogWriter);
-      }
+      m_logger.error(threadContext.getMarker(),
+                     "Plugin could not create thread listener",
+                     e);
 
       throw new EngineException("Plugin could not create thread listener", e);
     }

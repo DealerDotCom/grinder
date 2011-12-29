@@ -26,7 +26,6 @@ import java.io.File;
 import java.util.Timer;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.AbstractHandler;
 import net.grinder.console.common.ErrorHandler;
@@ -56,6 +55,7 @@ import org.picocontainer.Parameter;
 import org.picocontainer.behaviors.Caching;
 import org.picocontainer.parameters.ComponentParameter;
 import org.picocontainer.parameters.ConstantParameter;
+import org.slf4j.Logger;
 
 
 /**

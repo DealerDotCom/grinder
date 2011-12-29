@@ -25,8 +25,6 @@ package net.grinder.tools.tcpproxy;
 
 import java.io.PrintWriter;
 
-import net.grinder.common.Logger;
-
 
 /**
  * Filter that echos to the output stream of a logger.
@@ -41,10 +39,10 @@ public class EchoFilter implements TCPProxyFilter {
   /**
    * Constructor.
    *
-   * @param logger Logger to use.
+   * @param output Where to direct output.
    */
-  public EchoFilter(Logger logger) {
-    m_out = logger.getOutputLogWriter();
+  public EchoFilter(PrintWriter output) {
+    m_out = output;
   }
 
   /**

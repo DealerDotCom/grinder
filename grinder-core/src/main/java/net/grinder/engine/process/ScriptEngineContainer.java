@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.DCRContext;
@@ -39,6 +38,7 @@ import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.Caching;
+import org.slf4j.Logger;
 
 
 /**

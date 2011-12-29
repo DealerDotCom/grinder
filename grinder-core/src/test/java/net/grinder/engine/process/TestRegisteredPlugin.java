@@ -21,8 +21,9 @@
 
 package net.grinder.engine.process;
 
-import junit.framework.TestCase;
-
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -34,18 +35,28 @@ import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.TimeAuthority;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+
 
 /**
- * Unit test case for <code>RegisteredPlugin</code>.
+ * Unit test case for {@code RegisteredPlugin}.
  *
  * @author Philip Aston
  */
-public class TestRegisteredPlugin extends TestCase {
-  public TestRegisteredPlugin(String name) {
-    super(name);
+public class TestRegisteredPlugin {
+
+  @Mock private Logger m_logger;
+  @Mock private ThreadContext m_threadContext;
+
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
   }
 
-  public void testConstructorAndSimpleAccessors() throws Exception {
+  @Test public void testConstructorAndSimpleAccessors() throws Exception {
 
     final RandomStubFactory<GrinderPlugin> pluginStubFactory =
       RandomStubFactory.create(GrinderPlugin.class);
@@ -69,7 +80,8 @@ public class TestRegisteredPlugin extends TestCase {
                            scriptContext,
                            threadContextLocator,
                            StatisticsServicesImplementation.getInstance(),
-                           timeAuthority);
+                           timeAuthority,
+                           m_logger);
 
     assertSame(scriptContext, registeredPlugin.getScriptContext());
     assertSame(StatisticsServicesImplementation.getInstance(),
@@ -77,7 +89,7 @@ public class TestRegisteredPlugin extends TestCase {
     assertSame(timeAuthority, registeredPlugin.getTimeAuthority());
   }
 
-  public void testGetPluginThreadListener() throws Exception {
+  @Test public void testGetPluginThreadListener() throws Exception {
 
     final GrinderPluginStubFactory grinderPluginStubFactory =
       new GrinderPluginStubFactory();
@@ -98,7 +110,8 @@ public class TestRegisteredPlugin extends TestCase {
                            scriptContextStubFactory.getStub(),
                            threadContextLocator,
                            StatisticsServicesImplementation.getInstance(),
-                           timeAuthorityStubFactory.getStub());
+                           timeAuthorityStubFactory.getStub(),
+                           m_logger);
 
     try {
       registeredPlugin.getPluginThreadListener();
@@ -107,15 +120,7 @@ public class TestRegisteredPlugin extends TestCase {
     catch (EngineException e) {
     }
 
-    final ThreadLoggerStubFactory threadLoggerStubFactory =
-      new ThreadLoggerStubFactory();
-    final ThreadLogger threadLogger = threadLoggerStubFactory.getLogger();
-
-    final ThreadContextStubFactory threadContextStubFactory =
-      new ThreadContextStubFactory(threadLogger);
-    final ThreadContext threadContext =
-      threadContextStubFactory.getStub();
-    threadContextLocator.set(threadContext);
+    threadContextLocator.set(m_threadContext);
 
     grinderPluginStubFactory.setThrowExceptionFromCreateThreadListener(true);
 
@@ -126,8 +131,7 @@ public class TestRegisteredPlugin extends TestCase {
     catch (EngineException e) {
     }
 
-    threadContextStubFactory.assertSuccess("getThreadLogger");
-    threadContextStubFactory.assertNoMoreCalls();
+    verify(m_threadContext).getMarker();
 
     grinderPluginStubFactory.assertException("createThreadListener",
                                              PluginException.class,
@@ -146,38 +150,19 @@ public class TestRegisteredPlugin extends TestCase {
     final PluginThreadListener pluginThreadListener2 =
       registeredPlugin.getPluginThreadListener();
 
-    threadContextStubFactory.assertSuccess(
-      "registerThreadLifeCycleListener", ThreadLifeCycleListener.class);
-    threadContextStubFactory.assertNoMoreCalls();
+    verify(m_threadContext)
+      .registerThreadLifeCycleListener(isA(ThreadLifeCycleListener.class));
+
     grinderPluginStubFactory.assertNoMoreCalls();
 
     assertSame(pluginThreadListener1, pluginThreadListener2);
 
     final PluginThreadListener pluginThreadListener3 =
-      registeredPlugin.createPluginThreadListener(threadContext);
+      registeredPlugin.createPluginThreadListener(m_threadContext);
 
     assertSame(pluginThreadListener1, pluginThreadListener3);
 
-    threadContextStubFactory.assertNoMoreCalls();
-  }
-
-  /**
-   * Must be public so that override_ methods can be called
-   * externally.
-   */
-  public static class ThreadContextStubFactory
-    extends RandomStubFactory<ThreadContext> {
-
-    private final ThreadLogger m_threadLogger;
-
-    public ThreadContextStubFactory(ThreadLogger threadLogger) {
-      super(ThreadContext.class);
-      m_threadLogger = threadLogger;
-    }
-
-    public ThreadLogger override_getThreadLogger(Object proxy) {
-      return m_threadLogger;
-    }
+    verifyNoMoreInteractions(m_threadContext);
   }
 
   public static class GrinderPluginStubFactory

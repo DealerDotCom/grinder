@@ -38,8 +38,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Timer;
 
-import net.grinder.common.Logger;
-import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessageDispatchRegistry;
 import net.grinder.communication.MessageDispatchRegistry.Handler;
@@ -73,6 +71,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 
 /**
@@ -90,6 +89,7 @@ public class TestConsoleFoundation extends AbstractJUnit4FileTestCase {
 
   @Mock private MessageDispatchRegistry m_messageDispatchRegistry;
   @Mock private ConsoleCommunication m_consoleCommunication;
+  @Mock private Logger m_logger;
 
   @Captor private ArgumentCaptor<Handler<Message>> m_handlerCaptor;
 
@@ -103,9 +103,6 @@ public class TestConsoleFoundation extends AbstractJUnit4FileTestCase {
   private final Resources m_resources =
     new StubResources<Object>(new HashMap<String, Object>() {{
     }});
-
-  private final LoggerStubFactory m_loggerStubFactory = new LoggerStubFactory();
-  private final Logger m_logger = m_loggerStubFactory.getLogger();
 
   @Test public void testConstruction() throws Exception {
 
@@ -132,7 +129,7 @@ public class TestConsoleFoundation extends AbstractJUnit4FileTestCase {
 
     foundation.shutdown();
 
-    m_loggerStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_logger);
   }
 
   @Test public void testSimpleRun() throws Exception {
@@ -156,7 +153,7 @@ public class TestConsoleFoundation extends AbstractJUnit4FileTestCase {
     final ConsoleFoundation foundation =
       new ConsoleFoundation(m_resources, m_logger, timer, consoleProperties);
 
-    m_loggerStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_logger);
 
     final Thread runConsole = new Thread(new Runnable() {
       public void run() { foundation.run(); }
@@ -170,16 +167,16 @@ public class TestConsoleFoundation extends AbstractJUnit4FileTestCase {
 
     for (int i = 0; i < retries; ++i) {
       try {
-    	final ConsoleConnection client = ccf.connect(hostName, port);
-    	assertEquals(0, client.getNumberOfAgents());
-    	client.close();
+      final ConsoleConnection client = ccf.connect(hostName, port);
+      assertEquals(0, client.getNumberOfAgents());
+      client.close();
       }
       catch (ConsoleConnectionException e) {
-    	if (i == retries - 1) {
-    	  throw e;
-    	}
+      if (i == retries - 1) {
+        throw e;
+      }
 
-    	Thread.sleep(50);
+      Thread.sleep(50);
       }
     }
 

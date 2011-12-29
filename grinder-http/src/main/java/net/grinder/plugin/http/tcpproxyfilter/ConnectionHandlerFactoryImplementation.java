@@ -22,7 +22,8 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
-import net.grinder.common.Logger;
+import org.slf4j.Logger;
+
 import net.grinder.tools.tcpproxy.CommentSource;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.util.AttributeStringParser;
