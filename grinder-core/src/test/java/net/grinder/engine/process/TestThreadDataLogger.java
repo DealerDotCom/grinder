@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,6 @@
 
 package net.grinder.engine.process;
 
-import static net.grinder.engine.process.DataLogArgument.RUN_INDEX;
-import static net.grinder.engine.process.DataLogArgument.START_TIME_INDEX;
-import static net.grinder.engine.process.DataLogArgument.STATISTICS_INDEX;
-import static net.grinder.engine.process.DataLogArgument.TEST_INDEX;
-import static net.grinder.engine.process.DataLogArgument.THREAD_INDEX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Matchers.eq;
@@ -53,7 +48,7 @@ import org.slf4j.Logger;
 public class TestThreadDataLogger {
 
   @Mock private Logger m_dataLogger;
-  @Captor private ArgumentCaptor<Object[]> m_argumentsCaptor;
+  @Captor private ArgumentCaptor<DataLogArguments> m_argumentCaptor;
 
   private final net.grinder.common.Test m_test1 = new StubTest(1, "T1");
   private final net.grinder.common.Test m_test3 = new StubTest(3, "T3");
@@ -92,24 +87,25 @@ public class TestThreadDataLogger {
     ThreadDataLogger.report(10, m_test1, 123L, statistics);
 
     verify(m_dataLogger).info(eq("33, 10, 1, 123, 99, 0"),
-                              m_argumentsCaptor.capture());
+                              m_argumentCaptor.capture());
 
-    final Object[] arguments = m_argumentsCaptor.getValue();
-    assertEquals(new Integer(33), THREAD_INDEX.get(arguments));
-    assertEquals(new Integer(10), RUN_INDEX.get(arguments));
-    assertSame(m_test1, TEST_INDEX.get(arguments));
-    assertEquals(new Long(123L), START_TIME_INDEX.get(arguments));
-    assertSame(statistics, STATISTICS_INDEX.get(arguments));
+    final DataLogArguments arguments = m_argumentCaptor.getValue();
+
+    assertEquals(33, arguments.getThreadNumber());
+    assertEquals(10, arguments.getRunNumber());
+    assertSame(m_test1, arguments.getTest());
+    assertEquals(123L, arguments.getTimeSinceExecutionStart());
+    assertSame(statistics, arguments.getStatistics());
 
     ThreadDataLogger.report(10, m_test1, 125L, statistics);
 
     verify(m_dataLogger).info(eq("33, 10, 1, 125, 99, 0"),
-                              m_argumentsCaptor.capture());
+                              m_argumentCaptor.capture());
 
     ThreadDataLogger.report(11, m_test3, 300L, statistics);
 
     verify(m_dataLogger).info(eq("33, 11, 3, 300, 99, 0"),
-                              m_argumentsCaptor.capture());
+                              m_argumentCaptor.capture());
 
     statistics.reset();
     statistics.setValue(s_errorsIndex, 1);
@@ -117,7 +113,7 @@ public class TestThreadDataLogger {
     ThreadDataLogger.report(11, m_test3, 301L, statistics);
 
     verify(m_dataLogger).info(eq("33, 11, 3, 301, 0, 1"),
-                              m_argumentsCaptor.capture());
+                              m_argumentCaptor.capture());
   }
 
   @Test public void testReportCustomViews() throws Exception {
@@ -141,6 +137,6 @@ public class TestThreadDataLogger {
     ThreadDataLogger2.report(11, m_test3, 530L, statistics);
 
     verify(m_dataLogger).info(eq("33, 11, 3, 530, 5, 0, 1.5"),
-                              m_argumentsCaptor.capture());
+                              m_argumentCaptor.capture());
   }
 }

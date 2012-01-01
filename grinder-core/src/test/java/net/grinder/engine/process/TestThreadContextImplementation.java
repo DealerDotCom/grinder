@@ -110,7 +110,7 @@ public class TestThreadContextImplementation {
 
     verify(m_dataLogger).info(and(contains("22"),
                                   contains("123456")),
-                              isA(Object[].class));
+                              isA(DataLogArguments.class));
   }
 
   @Test public void testNullDispatchResultReporter() throws Exception {

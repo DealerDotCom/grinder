@@ -21,11 +21,6 @@
 
 package net.grinder.engine.process;
 
-import static net.grinder.engine.process.DataLogArgument.RUN_INDEX;
-import static net.grinder.engine.process.DataLogArgument.START_TIME_INDEX;
-import static net.grinder.engine.process.DataLogArgument.STATISTICS_INDEX;
-import static net.grinder.engine.process.DataLogArgument.TEST_INDEX;
-import static net.grinder.engine.process.DataLogArgument.THREAD_INDEX;
 import net.grinder.common.Test;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
@@ -44,7 +39,7 @@ class ThreadDataLogger {
 
   private final Logger m_dataLog;
   private final ExpressionView[] m_expressionViews;
-  private final Object[] m_arguments;
+  private final int m_threadNumber;
 
   private final StringBuilder m_buffer = new StringBuilder();
   private final int m_bufferAfterThreadIDIndex;
@@ -54,14 +49,12 @@ class ThreadDataLogger {
 
   public ThreadDataLogger(Logger dataLog,
                           ExpressionView[] expressionViews,
-                          int threadID) {
+                          int threadNumber) {
     m_dataLog = dataLog;
     m_expressionViews = expressionViews;
+    m_threadNumber = threadNumber;
 
-    m_arguments = DataLogArgument.createArray();
-    THREAD_INDEX.put(m_arguments, threadID);
-
-    m_buffer.append(threadID);
+    m_buffer.append(threadNumber);
     m_buffer.append(SEPARATOR);
     m_bufferAfterThreadIDIndex = m_buffer.length();
   }
@@ -101,13 +94,11 @@ class ThreadDataLogger {
       }
     }
 
-    // Pass the arguments for use by custom appenders.
-
-    RUN_INDEX.put(m_arguments, runNumber);
-    TEST_INDEX.put(m_arguments, test);
-    START_TIME_INDEX.put(m_arguments, timeSinceExecutionStart);
-    STATISTICS_INDEX.put(m_arguments, statistics);
-
-    m_dataLog.info(m_buffer.toString(), m_arguments);
+    m_dataLog.info(m_buffer.toString(),
+                   new DataLogArguments(m_threadNumber,
+                                        runNumber,
+                                        test,
+                                        timeSinceExecutionStart,
+                                        statistics));
   }
 }
