@@ -24,9 +24,7 @@
     class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${PREFIX}-data.log</file>
 
-    <encoder>
-      <pattern>%message%n</pattern>
-    </encoder>
+    <encoder class="net.grinder.util.logback.BufferedEchoMessageEncoder"/>
 
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <fileNamePattern>${PREFIX}-data.log%i</fileNamePattern>
