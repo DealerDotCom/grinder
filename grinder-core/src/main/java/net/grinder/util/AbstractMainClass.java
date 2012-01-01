@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2011 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,7 +46,9 @@ public abstract class AbstractMainClass {
   protected AbstractMainClass(Logger logger, String usage)
     throws GrinderException {
 
-    m_usage = usage;
+    m_usage = new FixedWidthFormatter(FixedWidthFormatter.Align.LEFT,
+                                      FixedWidthFormatter.Flow.WORD_WRAP,
+                                      80).format(usage);
     m_logger = logger;
 
     if (!JVM.getInstance().haveRequisites(m_logger)) {
@@ -71,7 +73,7 @@ public abstract class AbstractMainClass {
    * @return An exception for the caller to throw.
    */
   protected final LoggedInitialisationException barfError(String message) {
-    m_logger.error("Error: " + message);
+    m_logger.error(message);
     return new LoggedInitialisationException(message);
   }
 
@@ -83,9 +85,9 @@ public abstract class AbstractMainClass {
    */
   protected final LoggedInitialisationException barfUsage() {
     return barfError(
-      "unrecognised or invalid option." +
+      "Unrecognised or invalid option." +
       "\n\n" +
-      "Usage: " +
+      "Usage:\n" +
       m_usage);
   }
 

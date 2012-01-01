@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public final class ProcessRecording extends AbstractMainClass {
 
   private static final String USAGE =
-    "\n  java " + ProcessRecording.class + " recording [stylesheet]" +
+    "  java " + ProcessRecording.class + " recording [stylesheet]" +
     "\n\n";
 
   /**

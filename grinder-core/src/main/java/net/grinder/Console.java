@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 public final class Console extends AbstractMainClass {
 
   private static final String USAGE =
-    "\n  java " + Console.class.getName() + " [-headless]" +
+    "  java " + Console.class.getName() + " [-headless]" +
     "\n" +
     "\n  -headless                    Don't use a graphical user interface.";
 

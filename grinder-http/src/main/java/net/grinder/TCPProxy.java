@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003, 2004, 2005 Bertrand Ave
 // Copyright (C) 2007 Venelin Mitov
@@ -80,7 +80,7 @@ import org.slf4j.LoggerFactory;
 public final class TCPProxy extends AbstractMainClass {
 
   private static final String USAGE =
-    "\n  java " + TCPProxy.class.getName() + " <options>" +
+    "  java " + TCPProxy.class.getName() + " <options>" +
     "\n\n" +
     "Commonly used options:" +
     "\n  [-http [oldjython|jython|clojure|<stylesheet>]]" +
@@ -236,7 +236,7 @@ public final class TCPProxy extends AbstractMainClass {
             componentClass = Class.forName(args[++i]);
           }
           catch (ClassNotFoundException e) {
-            throw barfError("class '" + args[i] + "' not found.");
+            throw barfError("Class '" + args[i] + "' not found.");
           }
           m_filterContainer.addComponent(componentClass);
         }
@@ -348,7 +348,7 @@ public final class TCPProxy extends AbstractMainClass {
     }
 
     if (timeout < 0) {
-      throw barfError("timeout must be non-negative.");
+      throw barfError("Timeout must be non-negative.");
     }
 
     final EndPoint localEndPoint = new EndPoint(localHost, localPort);
@@ -359,7 +359,7 @@ public final class TCPProxy extends AbstractMainClass {
     }
 
     if (chainedHTTPSProxy != null && !isHTTPProxy) {
-      throw barfError("routing through a HTTP/HTTPS proxy is not supported " +
+      throw barfError("Routing through a HTTP/HTTPS proxy is not supported " +
                       "in port forwarding mode.");
     }
 
@@ -530,11 +530,11 @@ public final class TCPProxy extends AbstractMainClass {
           filterClass = Class.forName(filterClassName);
         }
         catch (ClassNotFoundException e) {
-          throw barfError("class '" + filterClassName + "' not found.");
+          throw barfError("Class '" + filterClassName + "' not found.");
         }
 
         if (!TCPProxyFilter.class.isAssignableFrom(filterClass)) {
-          throw barfError("the class '" + filterClass.getName() +
+          throw barfError("The class '" + filterClass.getName() +
                           "' does not implement the interface: '" +
                           TCPProxyFilter.class.getName() + "'.");
         }

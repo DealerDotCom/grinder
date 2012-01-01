@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
 //
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public final class Grinder extends AbstractMainClass {
 
   private static final String USAGE =
-    "\n  java " + Grinder.class.getName() +
+    "  java " + Grinder.class.getName() +
     " <options> [alternatePropertiesFilename]" +
     "\n\n" +
     "Options:" +
