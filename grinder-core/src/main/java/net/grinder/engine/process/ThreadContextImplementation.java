@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -147,14 +147,15 @@ final class ThreadContextImplementation
   }
 
   /** Package scope for unit tests. */
-  void setTestNumber(int test) {
+  void setTestLogMarker(Marker marker) {
     if (m_testMarker != null) {
       m_threadMarker.remove(m_testMarker);
     }
 
-    if (test != -1) {
-      m_testMarker = MarkerFactory.getMarker("test-" + test);
-      m_threadMarker.add(m_testMarker);
+    m_testMarker = marker;
+
+    if (marker != null) {
+      m_threadMarker.add(marker);
     }
   }
 
@@ -226,7 +227,7 @@ final class ThreadContextImplementation
 
     reportPendingDispatchContext();
 
-    setTestNumber(dispatchContext.getTest().getNumber());
+    setTestLogMarker(dispatchContext.getLogMarker());
 
     final DispatchContext existingContext = m_dispatchContextStack.peekTop();
 
@@ -272,6 +273,8 @@ final class ThreadContextImplementation
         throw new AssertionError(e);
       }
     }
+
+    setTestLogMarker(null);
   }
 
   public StatisticsForTest getStatisticsForCurrentTest() {
@@ -359,7 +362,7 @@ final class ThreadContextImplementation
   }
 
   @Override
-  public Marker getMarker() {
+  public Marker getLogMarker() {
     return m_threadMarker;
   }
 }

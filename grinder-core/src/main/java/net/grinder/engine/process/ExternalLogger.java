@@ -48,7 +48,7 @@ final class ExternalLogger extends MarkerIgnoringBase {
     final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext != null) {
-      return threadContext.getMarker();
+      return threadContext.getLogMarker();
     }
 
     return null;

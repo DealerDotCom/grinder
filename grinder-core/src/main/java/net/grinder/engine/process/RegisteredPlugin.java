@@ -93,7 +93,7 @@ final class RegisteredPlugin implements PluginProcessContext {
       newPluginThreadListener = m_plugin.createThreadListener(threadContext);
     }
     catch (PluginException e) {
-      m_logger.error(threadContext.getMarker(),
+      m_logger.error(threadContext.getLogMarker(),
                      "Plugin could not create thread listener",
                      e);
 

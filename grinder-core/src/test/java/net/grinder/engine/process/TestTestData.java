@@ -84,16 +84,18 @@ public class TestTestData extends TestCase {
     new StandardTimeAuthority();
 
   public void testCreateProxy() throws Exception {
+    final Test test1 = new StubTest(1, "test1");
+
     final TestData testData =
       new TestData(null, m_statisticsSetFactory, null,
-                   m_timeAuthority, m_instrumenter, null);
+                   m_timeAuthority, m_instrumenter, test1);
 
     final Object original = new Object();
 
     testData.createProxy(original);
 
     m_instrumenterStubFactory.assertSuccess(
-      "createInstrumentedProxy", null, testData, original);
+      "createInstrumentedProxy", test1, testData, original);
     m_instrumenterStubFactory.assertNoMoreCalls();
   }
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +37,9 @@ import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.util.TimeAuthority;
 
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
+
 
 /**
  * Represents an individual test. Holds configuration information and
@@ -54,6 +57,7 @@ final class TestData implements RegisteredTest, Recorder {
   private final Instrumenter m_instrumenter;
   private final ThreadContextLocator m_threadContextLocator;
   private final Test m_test;
+  private final Marker m_logMarker;
 
   /**
    * Cumulative statistics for our test that haven't yet been set to
@@ -77,10 +81,16 @@ final class TestData implements RegisteredTest, Recorder {
     m_threadContextLocator = threadContextLocator;
     m_test = testDefinition;
     m_testStatistics = m_statisticsSetFactory.create();
+
+    m_logMarker = MarkerFactory.getMarker("test-" + testDefinition.getNumber());
   }
 
   Test getTest() {
     return m_test;
+  }
+
+  Marker getLogMarker() {
+    return m_logMarker;
   }
 
   StatisticsSet getTestStatistics() {
@@ -297,6 +307,10 @@ final class TestData implements RegisteredTest, Recorder {
 
     public Test getTest() {
       return TestData.this.getTest();
+    }
+
+    @Override public Marker getLogMarker() {
+      return TestData.this.getLogMarker();
     }
 
     public StopWatch getPauseTimer() {

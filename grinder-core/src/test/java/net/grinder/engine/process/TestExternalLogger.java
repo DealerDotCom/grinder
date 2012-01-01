@@ -74,7 +74,7 @@ public class TestExternalLogger {
   @Test public void testDelegateMethodsTakingNoMarker() throws Exception {
 
     when(m_threadContextLocator.get()).thenReturn(m_threadContext);
-    when(m_threadContext.getMarker()).thenReturn(m_marker);
+    when(m_threadContext.getLogMarker()).thenReturn(m_marker);
 
     final List<InvocationOnMock> invocations =
       new ArrayList<InvocationOnMock>();

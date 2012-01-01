@@ -131,7 +131,7 @@ public class TestRegisteredPlugin {
     catch (EngineException e) {
     }
 
-    verify(m_threadContext).getMarker();
+    verify(m_threadContext).getLogMarker();
 
     grinderPluginStubFactory.assertException("createThreadListener",
                                              PluginException.class,

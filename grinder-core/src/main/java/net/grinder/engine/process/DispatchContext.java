@@ -25,6 +25,8 @@ import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.Statistics.StatisticsForTest;
 
+import org.slf4j.Marker;
+
 
 /**
  * Access state related to a particular dispatch of a test by a worker thread.
@@ -39,6 +41,13 @@ interface DispatchContext {
    * @return The test that this dispatch is for.
    */
   Test getTest();
+
+  /**
+   * Return an SLF4J marker indicating the test.
+   *
+   * @return The marker.
+   */
+  Marker getLogMarker();
 
   /**
    * Creates a {@link net.grinder.script.Statistics.StatisticsForTest} through

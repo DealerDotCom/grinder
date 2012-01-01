@@ -77,6 +77,6 @@ interface ThreadContext extends PluginThreadContext {
    */
   void setCurrentRunNumber(int run);
 
-  Marker getMarker();
+  Marker getLogMarker();
 }
 

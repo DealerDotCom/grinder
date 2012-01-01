@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2011 Philip Aston
+// Copyright (C) 2006 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -52,6 +52,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 
 /**
@@ -159,7 +160,7 @@ public class TestThreadContextImplementation {
 
     threadContext.pushDispatchContext(m_dispatchContext);
 
-    verify(m_dispatchContext).getTest();
+    verify(m_dispatchContext).getLogMarker();
 
     assertSame(m_statisticsForTest,
                threadContext.getStatisticsForCurrentTest());
@@ -283,7 +284,7 @@ public class TestThreadContextImplementation {
     .thenReturn(m_statisticsForTest);
 
     threadContext.pushDispatchContext(m_dispatchContext);
-    verify(m_dispatchContext).getTest();
+    verify(m_dispatchContext).getLogMarker();
 
     threadContext.setDelayReports(false);
     threadContext.setDelayReports(true);
@@ -310,12 +311,12 @@ public class TestThreadContextImplementation {
 
     // Test flush at beginning of next test (same test)
     threadContext.pushDispatchContext(m_dispatchContext);
-    verify(m_dispatchContext, times(2)).getTest();
+    verify(m_dispatchContext, times(2)).getLogMarker();
     threadContext.popDispatchContext();
     verify(m_dispatchContext, times(3)).getStatisticsForTest();
     threadContext.pushDispatchContext(m_dispatchContext);
     verify(m_dispatchContext, times(2)).report();
-    verify(m_dispatchContext, times(3)).getTest();
+    verify(m_dispatchContext, times(3)).getLogMarker();
     threadContext.popDispatchContext();
     verify(m_dispatchContext, times(4)).getStatisticsForTest();
     threadContext.reportPendingDispatchContext();
@@ -323,7 +324,7 @@ public class TestThreadContextImplementation {
 
     // Test flush at beginning of next test (different test).
     threadContext.pushDispatchContext(m_dispatchContext);
-    verify(m_dispatchContext, times(4)).getTest();
+    verify(m_dispatchContext, times(4)).getLogMarker();
     threadContext.popDispatchContext();
 
     when(m_dispatchContext.getTest()).thenReturn(new StubTest(16, "abc"));
@@ -331,7 +332,7 @@ public class TestThreadContextImplementation {
     verify(m_dispatchContext, times(5)).getStatisticsForTest();
     threadContext.pushDispatchContext(m_dispatchContext);
     verify(m_dispatchContext, times(4)).report();
-    verify(m_dispatchContext, times(5)).getTest();
+    verify(m_dispatchContext, times(5)).getLogMarker();
     threadContext.popDispatchContext();
     verify(m_dispatchContext, times(6)).getStatisticsForTest();
     threadContext.reportPendingDispatchContext();
@@ -339,7 +340,7 @@ public class TestThreadContextImplementation {
 
     // Test flushed at end of run.
     threadContext.pushDispatchContext(m_dispatchContext);
-    verify(m_dispatchContext, times(6)).getTest();
+    verify(m_dispatchContext, times(6)).getLogMarker();
     threadContext.popDispatchContext();
     verify(m_dispatchContext, times(7)).getStatisticsForTest();
     threadContext.fireBeginRunEvent();
@@ -349,7 +350,7 @@ public class TestThreadContextImplementation {
 
     // Test flushed if delay reports is turned off.
     threadContext.pushDispatchContext(m_dispatchContext);
-    verify(m_dispatchContext, times(7)).getTest();
+    verify(m_dispatchContext, times(7)).getLogMarker();
     threadContext.popDispatchContext();
     verify(m_dispatchContext, times(8)).getStatisticsForTest();
     verifyNoMoreInteractions(m_dispatchContext);
@@ -429,19 +430,19 @@ public class TestThreadContextImplementation {
     }
   }
 
-  @Test public void testGetMarker() throws Exception {
+  @Test public void testGetLogMarker() throws Exception {
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
                                       2,
                                       null);
 
-    final Marker marker = threadContext.getMarker();
+    final Marker marker = threadContext.getLogMarker();
     assertEquals("thread-2", marker.getName());
     assertFalse(marker.hasReferences());
   }
 
-  @Test public void testGetMarkerWithRun() throws Exception {
+  @Test public void testGetLogMarkerWithRun() throws Exception {
     final ThreadContext threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
@@ -450,7 +451,7 @@ public class TestThreadContextImplementation {
 
     threadContext.setCurrentRunNumber(3);
 
-    final Marker marker = threadContext.getMarker();
+    final Marker marker = threadContext.getLogMarker();
     assertEquals("thread-2", marker.getName());
     assertTrue(marker.contains("run-3"));
 
@@ -461,23 +462,23 @@ public class TestThreadContextImplementation {
     assertFalse(marker.hasReferences());
   }
 
-  @Test public void testGetMarkerWithTest() throws Exception {
+  @Test public void testGetLogMarkerWithTest() throws Exception {
     final ThreadContextImplementation threadContext =
       new ThreadContextImplementation(m_properties,
                                       m_statisticsServices,
                                       2,
                                       null);
 
-    threadContext.setTestNumber(3);
+    threadContext.setTestLogMarker(MarkerFactory.getMarker("test-3"));
 
-    final Marker marker = threadContext.getMarker();
+    final Marker marker = threadContext.getLogMarker();
     assertEquals("thread-2", marker.getName());
     assertTrue(marker.contains("test-3"));
 
-    threadContext.setTestNumber(4);
+    threadContext.setTestLogMarker(MarkerFactory.getMarker("test-4"));
     assertTrue(marker.contains("test-4"));
 
-    threadContext.setTestNumber(-1);
+    threadContext.setTestLogMarker(null);
     assertFalse(marker.hasReferences());
   }
 }
