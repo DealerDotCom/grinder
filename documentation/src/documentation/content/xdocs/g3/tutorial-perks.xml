@@ -71,8 +71,7 @@ tests = {
     <title>Bread crumbs</title>
 
 <source class="jython">
-log = grinder.logger.output
-out = grinder.logger.TERMINAL
+log = grinder.logger.info
 
 # Server Properties
 SERVER     = "http://serverhost:7001"
@@ -82,13 +81,7 @@ URI        = "/myServlet"
     <p>We next define some variables such as Grinder helper methods
     and server properties. The <code>log</code> variable is used to
     hold a reference to The Grinder logging mechanism and is used
-    throughout the script. The <code>out</code> variable is also used
-    in conjunction with logging. The two possible values for this
-    variable are <code>TERMINAL</code> and <code>LOG</code>. We have
-    set the output to terminal for ease of debugging, which means that
-    any log output goes to the terminal window used to start The
-    Grinder test runs. The alternative is to switch this to logging
-    the output to The Grinder log files.</p>
+    throughout the script.</p>
   </section>
 
   <section>
@@ -115,7 +108,7 @@ class TestRunner:
 <source class="jython">
 for idx in range(len(tests)):
        testId = random.choice(tests.keys())
-       log("Reading XML file %s " % testId, out)
+       log("Reading XML file %s " % testId)
 </source>
 
     <p>As discussed earlier, the use of Python modules is encouraged
@@ -172,7 +165,7 @@ requestString = string.join(requestString.split(), "")
 grinder.statistics.delayReports = 1
 request = tests[testId].wrap(HTTPRequest())
 
-log("Sending request %s " % requestString, out)
+log("Sending request %s " % requestString)
 result = request.GET(requestString)
 </source>
 
@@ -214,8 +207,9 @@ if string.find(result.getText(), "SUCCESS") &lt; 1:
 
 <source class="jython">
 def writeToFile(text, testId):
-    filename = grinder.getFilenameFactory().createFilename(
-        testId + "-page", "-%d.html" % grinder.runNumber)
+    filename = "%s-%d-page-%d.html" % (grinder.processName,
+                                       testId,
+                                       grinder.runNumber)
 
     file = open(filename, "w")
     print >> file, text
@@ -246,7 +240,7 @@ tests = {
     "LifeStyle01" : Test(5, "LifeStyle 1 posting"),
 }
 
-log = grinder.logger.output
+log = grinder.logger.info
 out = grinder.logger.TERMINAL
 
 # Server Properties
@@ -261,7 +255,7 @@ class TestRunner:
 
            testId = random.choice(tests.keys())
 
-           log("Reading XML file %s " % testId, out)
+           log("Reading XML file %s " % testId)
 
            file = open("./CAAssets/"+testId+".xml", 'r')
            fileStr = URLEncoder.encode(String(file.read()))
@@ -274,7 +268,7 @@ class TestRunner:
            grinder.statistics.delayReports = 1
            request = tests[testId].wrap(HTTPRequest())
 
-           log("Sending request %s " % requestString, out)
+           log("Sending request %s " % requestString)
            result = request.GET(requestString)
 
            if string.find(result.getText(), "SUCCESS") &lt; 1:
@@ -284,9 +278,9 @@ class TestRunner:
 
 # Write the response
 def writeToFile(text, testId):
-    filename = grinder.getFilenameFactory().createFilename(
-        testId + "-page", "-%d.html" % grinder.runNumber)
-
+    filename = "%s-%d-page-%d.html" % (grinder.processName,
+                                       testId,
+                                       grinder.runNumber)
     file = open(filename, "w")
     print >> file, text
     file.close()

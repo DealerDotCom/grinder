@@ -26,8 +26,8 @@ class TestRunner:
         # There's an initialisationTime variable for each worker thread.
         self.initialisationTime = System.currentTimeMillis()
 
-        grinder.logger.output("New thread started at time %s" %
-                              self.initialisationTime)
+        grinder.logger.info("New thread started at time %s" %
+                            self.initialisationTime)
 
     # The __call__ method is called once for each test run performed by
     # a worker thread.
@@ -41,17 +41,17 @@ class TestRunner:
 
         self.runsForThread += 1
 
-        grinder.logger.output(
+        grinder.logger.info(
             "runsForThread=%d, totalNumberOfRuns=%d, initialisationTime=%d" %
             (self.runsForThread, totalNumberOfRuns, self.initialisationTime))
 
         # You can also vary behaviour based on thread ID.
         if grinder.threadNumber % 2 == 0:
-            grinder.logger.output("I have an even thread ID.")
+            grinder.logger.info("I have an even thread ID.")
 
     # Scripts can optionally define a __del__ method. The Grinder
     # guarantees this will be called at shutdown once for each thread
     # It is useful for closing resources (e.g. database connections)
     # that were created in __init__.
     def __del__(self):
-        grinder.logger.output("Thread shutting down")
+        grinder.logger.info("Thread shutting down")

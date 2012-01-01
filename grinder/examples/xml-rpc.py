@@ -4,7 +4,7 @@
 # example from
 # http://xmlrpc-c.sourceforge.net/xmlrpc-howto/xmlrpc-howto-java-server.html
 #
-# Copyright (C) 2004 Sebastián Fontana
+# Copyright (C) 2004 Sebastiï¿½n Fontana
 # Distributed under the terms of The Grinder license.
 
 from java.util import Vector
@@ -28,4 +28,4 @@ class TestRunner:
         result = serverWrapper.execute("sample.sumAndDifference", params)
         sum = result.get("sum")
 
-        grinder.logger.output("SUM %d" % sum)
+        grinder.logger.info("SUM %d" % sum)

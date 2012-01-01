@@ -5,7 +5,9 @@ The Grinder 3.7 (not yet released)
 
    Implement feature request 3418525 -  Switch to a standard logging
    framework. The net.grinder.common.Logger/FilenameFactory API has been
-   removed in favor of SLF4J.
+   removed in favor of SLF4J. Output and error messages are logged to
+   a single log file. The log file and the data log file are managed by
+   Logback.
 
   Other changes:
 

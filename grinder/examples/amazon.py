@@ -55,5 +55,5 @@ class TestRunner:
                 result[detailName] = details.getElementsByTagName(
                     detailName)[0].firstChild.nodeValue
 
-        grinder.logger.output(str(result))
+        grinder.logger.info(str(result))
 

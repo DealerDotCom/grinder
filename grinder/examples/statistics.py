@@ -16,8 +16,8 @@ class TestRunner:
         # Example 1. You can get the time of the last test as follows.
         result = request.GET("index.html")
 
-        grinder.logger.output("The last test took %d milliseconds" %
-                              grinder.statistics.forLastTest.time)
+        grinder.logger.info("The last test took %d milliseconds" %
+                            grinder.statistics.forLastTest.time)
 
 
         # Example 2. Normally test results are reported automatically
@@ -54,12 +54,12 @@ class TestRunner:
             resourceRequest.GET("index.html");
             resourceRequest.GET("foo.css");
 
-            grinder.logger.output("GET foo.css returned a %d byte body" %
-                                  grinder.statistics.forLastTest.getLong(
+            grinder.logger.info("GET foo.css returned a %d byte body" %
+                                grinder.statistics.forLastTest.getLong(
                                       "httpplugin.responseLength"))
 
-            grinder.logger.output("Page has taken %d ms so far" %
-                                  grinder.statistics.forCurrentTest.time)
+            grinder.logger.info("Page has taken %d ms so far" %
+                                grinder.statistics.forCurrentTest.time)
 
             if grinder.statistics.forLastTest.time > 10:
                 grinder.statistics.forCurrentTest.success = 0

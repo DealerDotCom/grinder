@@ -125,20 +125,18 @@
     <title>Output</title>
 
     <p>Each worker process writes logging information to a file called
-    <code>out-host-n.log</code>, where <code> host</code> is the
-    machine host name and <code>n</code> is the worker process number.
-    Errors are written to <code>error-host-n.log</code>. If no errors
-    occur, an error file will not be created.</p>
+    <code>host-n.log</code>, where <code> host</code> is the machine
+    host name and <code>n</code> is the worker process number.</p>
 
     <p>Data about individual test invocations is written into a file called
-    <code>data-host-n.log</code> that can be imported into a
+    <code>host-n-data.log</code> that can be imported into a
     spreadsheet tool such as Microsoft Excel<sup>TM</sup> for further
     analysis. The data file is the only place where information about
     individual tests is recorded; the console displays only aggregate
     information.</p>
 
-    <p>The final statistics summary (in the <code>out-*</code> files
-    of each process) looks something like this:</p>
+    <p>The final statistics summary (in the log file of each process)
+    looks something like this:</p>
 
 <source class="text">
 Final statistics for this process:

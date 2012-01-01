@@ -176,17 +176,6 @@
 
         <tr>
           <td>
-            <code>grinder.numberOfOldLogs</code>
-          </td>
-
-          <td>The number of archived logs from previous runs that
-          should be kept.</td>
-
-          <td>1</td>
-  </tr>
-
-        <tr>
-          <td>
             <code>grinder.hostID</code>
           </td>
 
@@ -233,9 +222,9 @@
             <code>grinder.reportToConsole.interval</code>
           </td>
 
-          <td>The period at which each process sends updates to the
-          console. This also controls the frequency at which the data
-          files are flushed.</td>
+          <td>For advanced use only. The period at which each process
+          sends updates to the console. This also controls the
+          frequency at which the data files are flushed.</td>
 
           <td>500 ms</td>
   </tr>
@@ -282,19 +271,6 @@
           1100 milliseconds.</td>
 
           <td>0.2</td>
-        </tr>
-
-        <tr>
-          <td>
-            <code>grinder.logProcessStreams</code>
-          </td>
-
-          <td>Set to <code>false</code> to disable the logging of
-          output and error steams for worker processes. You might want
-          to use this to reduce the overhead of running a client
-          thread.</td>
-
-          <td>true</td>
         </tr>
 
         <tr>

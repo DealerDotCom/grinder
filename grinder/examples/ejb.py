@@ -31,7 +31,7 @@ random = Random()
 
 class TestRunner:
     def __call__(self):
-        log = grinder.logger.output
+        log = grinder.logger.info
 
         trader = homeTest.create()
 

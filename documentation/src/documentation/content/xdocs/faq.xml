@@ -1543,7 +1543,7 @@ modify your script to remove duplicate requests.</p>
         tests, and once by the page test that wrapped the requests.</p>
 
         <p>Data from composite tests is also not included in the totals line
-        in the worker process output log files.</p>
+        in the worker process log files.</p>
       </answer>
     </faq>
    </faqsection>

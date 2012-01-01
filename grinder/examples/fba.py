@@ -37,7 +37,7 @@ def maybeAuthenticate(lastResult):
     if lastResult.statusCode == 401 \
     or lastResult.text.find("j_security_check") != -1:
 
-        grinder.logger.output("Challenged, authenticating")
+        grinder.logger.info("Challenged, authenticating")
 
         authenticationFormData = ( NVPair("j_username", "weblogic"),
                                    NVPair("j_password", "weblogic"),)

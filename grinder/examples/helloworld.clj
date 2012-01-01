@@ -10,4 +10,4 @@
     ; The factory function returns test runner function.
     (fn []	
       (do
-        (.. grinder (getLogger) (output "Hello World"))))))
+        (.. grinder (getLogger) (info "Hello World"))))))

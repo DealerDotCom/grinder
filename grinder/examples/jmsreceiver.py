@@ -65,7 +65,7 @@ class TestRunner(MessageListener):
         self.cv = Condition()           # Used to synchronise thread activity.
 
     def __call__(self):
-        log = grinder.logger.output
+        log = grinder.logger.info
 
         log("Creating queue session and a receiver")
         session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)

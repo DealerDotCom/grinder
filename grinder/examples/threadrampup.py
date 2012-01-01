@@ -4,11 +4,9 @@
 #
 
 from net.grinder.script.Grinder import grinder
-from net.grinder.common import Logger
 
 def log(message):
-    """Log to the console, the message will include the thread ID"""
-    grinder.logger.output(message, Logger.TERMINAL)
+    grinder.logger.info(message)
 
 class TestRunner:
     def __init__(self):

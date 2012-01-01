@@ -114,7 +114,7 @@
 
       <p>This is an example of a script that conforms to the rules
       above. It doesn't do very much - every run will log <em>Hello
-      World</em> to the output log.</p>
+      World</em> to the worker process log.</p>
 
 <source class="jython">
 from net.grinder.script.Grinder import grinder
@@ -124,7 +124,7 @@ class TestRunner:
     # This method is called for every run.
     def __call__(self):
         # Per thread scripting goes here.
-        grinder.logger.output("Hello World")
+        grinder.logger.info("Hello World")
 </source>
     </section>
   <section>
@@ -157,7 +157,7 @@ test1 = Test(1, "Log method")
 
 class TestRunner:
     def __call__(self):
-        grinder.logger.output("Hello World")
+        grinder.logger.info("Hello World")
 </source>
 
     <p>Here we have created a single <code>Test</code> with the test
@@ -168,13 +168,13 @@ class TestRunner:
 
     <p>Now the console knows about our <code>Test</code>, but we're
     still not using it to record anything. Let's record how long our
-    <code>grinder.logger.output</code> method takes. To instrument the
-    <code>grinder.logger.output</code> method we use our
+    <code>grinder.logger.info</code> method takes. To instrument the
+    <code>grinder.logger.info</code> method we use our
     <code>Test</code> to wrap it with a proxy <em>wrapper</em>. The
     wrapper object looks exactly like the
-    <code>grinder.logger.output</code> method and can be called in the
+    <code>grinder.logger.info</code> method and can be called in the
     same manner. If we call the wrapper the call will be delegated
-    through to the <code>grinder.logger.output</code> method but
+    through to the <code>grinder.logger.info</code> method but
     additionally the time taken to do the call and the number of calls
     will be recorded and reported to the console.</p>
 
@@ -184,8 +184,8 @@ from net.grinder.script.Grinder import grinder
 
 test1 = Test(1, "Log method")
 
-# Wrap the output() method with our Test and call the result logWrapper.
-logWrapper = test1.wrap(grinder.logger.output)
+# Wrap the info() method with our Test and call the result logWrapper.
+logWrapper = test1.wrap(grinder.logger.info)
 
 class TestRunner:
     def __call__(self):

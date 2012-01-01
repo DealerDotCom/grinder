@@ -58,8 +58,8 @@ from net.grinder.script.Grinder import grinder
 
 test1 = Test(1, "Log method")
 
-# Wrap the output() method with our Test and call the result logWrapper.
-logWrapper = test1.wrap(grinder.logger.output)
+# Wrap the info() method with our Test and call the result logWrapper.
+logWrapper = test1.wrap(grinder.logger.info)
 
 class TestRunner:
     def __call__(self):
@@ -141,7 +141,7 @@ class TestRunner:
 
       <p>When you start an agent process, you will normally see a line
       like this in the <a
-      href="site:getting-started/output">output</a> file.</p>
+      href="site:getting-started/output">worker process log file</a>.</p>
 
       <source class="text">
       16/11/09 07:49:40 (process paston01-0)  instrumentation agents: traditional Jython instrumenter</source>
@@ -149,7 +149,7 @@ class TestRunner:
       <p>The new instrumentation is enabled by setting the
       <a href="site:properties">grinder.dcrinstrumentation</a> property to
       <code>true</code>. If you start an agent with this property set, the
-      line in the output file changes.</p>
+      line in the log file changes.</p>
 
       <source class="text">
       16/11/09 08:02:18 (process paston01-0): instrumentation agents:
@@ -198,12 +198,12 @@ from net.grinder.script.Grinder import grinder
 
 test1 = Test(1, "Log method")
 
-# Instrument the output() method with our Test.
-test1.record(grinder.logger.output)
+# Instrument the info() method with our Test.
+test1.record(grinder.logger.info)
 
 class TestRunner:
     def __call__(self):
-        grinder.logger.output("Hello World")
+        grinder.logger.info("Hello World")
 </source>
 
       <p>The instrumented objects are changed in-place, so the new

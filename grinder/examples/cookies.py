@@ -21,7 +21,7 @@ from net.grinder.plugin.http import HTTPRequest, HTTPPluginControl
 from HTTPClient import Cookie, CookieModule, CookiePolicyHandler
 from java.util import Date
 
-log = grinder.logger.output
+log = grinder.logger.info
 
 # Set up a cookie handler to log all cookies that are sent and received.
 class MyCookiePolicyHandler(CookiePolicyHandler):

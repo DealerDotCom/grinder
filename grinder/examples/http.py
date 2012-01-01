@@ -20,11 +20,9 @@ class TestRunner:
         # using the getText() method.
         writeToFile(result.text)
 
-# Utility method that writes the given string to a uniquely named file
-# using a FilenameFactory.
+# Utility method that writes the given string to a uniquely named file.
 def writeToFile(text):
-    filename = grinder.getFilenameFactory().createFilename(
-        "page", "-%d.html" % grinder.runNumber)
+    filename = "%s-page-%d.html" % (grinder.processName, grinder.runNumber)
 
     file = open(filename, "w")
     print >> file, text
