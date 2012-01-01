@@ -93,5 +93,13 @@ LICENSE-PicoContainer for license and copyright details.
 The Grinder includes ASM (http://asm.objectweb.org/). See the file
 LICENSE-ASM for license and copyright details.
 
-The Grinder includes components from the extra166y package. This package
-is in the public domain. See http://g.oswego.edu/dl/concurrency-interest/.
+The Grinder includes components from the extra166y package. This
+package is in the public domain. See
+http://g.oswego.edu/dl/concurrency-interest/.
+
+The Grinder includes SLF4J (http://www.slf4j.org/). See the file
+LICENSE-SLF4J for license and copyright details.
+
+The Grinder includes Logback (http://logback.qos.ch/), under the GNU
+Lesser Public License. See the file LICENSE-Logback for license and
+copyright details.
