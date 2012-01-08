@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2010 Philip Aston
+// Copyright (C) 2002 - 2012 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
@@ -44,9 +44,9 @@ public interface HTTPPluginConnection {
    *
    * <p>This enables the HTTPClient Redirection module.</p>
    *
-   * <p>Default: <code>false</code></p>
+   * <p>Default: {@code false}</p>
    *
-   * @param followRedirects <code>true</code> => follow redirects.
+   * @param followRedirects {@code true} => follow redirects.
    */
   void setFollowRedirects(boolean followRedirects);
 
@@ -55,9 +55,9 @@ public interface HTTPPluginConnection {
    *
    * <p>This enables the HTTPClient Cookie module.</p>
    *
-   * <p>Default: <code>true</code></p>
+   * <p>Default: {@code true}</p>
    *
-   * @param useCookies <code>true</code> => use cookies.
+   * @param useCookies {@code true} => use cookies.
    */
   void setUseCookies(boolean useCookies);
 
@@ -66,9 +66,9 @@ public interface HTTPPluginConnection {
    *
    * <p>This enables the HTTPClient Content Encoding module.</p>
    *
-   * <p>Default: <code>false</code></p>
+   * <p>Default: {@code false}</p>
    *
-   * @param useContentEncoding <code>true</code> => use content encoding.
+   * @param useContentEncoding {@code true} => use content encoding.
    */
   void setUseContentEncoding(boolean useContentEncoding);
 
@@ -77,9 +77,9 @@ public interface HTTPPluginConnection {
    *
    * <p>This enables the HTTPClient Transfer Encoding module.</p>
    *
-   * <p>Default: <code>false</code></p>
+   * <p>Default: {@code false}</p>
    *
-   * @param useTransferEncoding <code>true</code> => use transfer encoding.
+   * @param useTransferEncoding {@code true} => use transfer encoding.
    */
   void setUseTransferEncoding(boolean useTransferEncoding);
 
@@ -87,11 +87,11 @@ public interface HTTPPluginConnection {
    * Set whether the HTTPClient Authorization Module is enabled.
    *
    * <p>
-   * Default: <code>false</code>
+   * Default: {@code false}
    * </p>
    *
    * @param useAuthorizationModule
-   *          <code>true</code> => use the HTTPClient Authorization module.
+   *          {@code true} => use the HTTPClient Authorization module.
    */
   void setUseAuthorizationModule(boolean useAuthorizationModule);
 
@@ -129,12 +129,12 @@ public interface HTTPPluginConnection {
    * Sets the timeout to be used for creating connections and
    * reading responses.
    *
-   * <p>Setting the timeout to anything other than <code>0</code>
+   * <p>Setting the timeout to anything other than {@code 0}
    * will cause additional threads to be spawned for each HTTP
    * request made.</p>
    *
-   * <p>When a timeout expires the operation will throw an
-   * <code>InterruptedIOException</code>.</p>
+   * <p>When a timeout expires the operation will throw a
+   * {@link TimeoutException}.</p>
    *
    * <P>When creating new sockets the timeout will limit the time spent
    * doing the host name translation and establishing the connection with
@@ -165,13 +165,13 @@ public interface HTTPPluginConnection {
    * distinguished name of the server's certificate doesn't match
    * the host name when establishing an HTTPS connection.
    *
-   * @param b a <code>boolean</code> value
+   * @param b a {@code boolean} value
    */
   void setVerifyServerDistinguishedName(boolean b);
 
   /**
    * Set the proxy server to use. A null or empty string
-   * <code>host</code> parameter disables the proxy.
+   * {@code host} parameter disables the proxy.
    *
    * <P>Note that if you set a proxy for the connection using this
    * method, and a request made over this connection is redirected
@@ -179,7 +179,7 @@ public interface HTTPPluginConnection {
    * will <em>not</em> pick this proxy setting, but instead will use
    * the default proxy settings. The default proxy setting can be
    * set using
-   * <code>HTTPPluginControl.getConnectionDefaults().setProxyServer()</code>.
+   * {@code HTTPPluginControl.getConnectionDefaults().setProxyServer()}.
    *
    * @param  host    The host on which the proxy server resides.
    * @param  port    The port the proxy server is listening on.
@@ -195,15 +195,15 @@ public interface HTTPPluginConnection {
    * different network interface to be specified that will be used for
    * connections that are subsequently created. It does not affect
    * existing socket connections that may have already been created
-   * for this <code>HTTPPluginConnection</code>.</p>
+   * for this {@code HTTPPluginConnection}.</p>
    *
-   * <p><code>localAddress</code> should correspond to a local network
-   * interface.If it doesn't a <code>java.net.BindException</code>
+   * <p>{@code localAddress} should correspond to a local network
+   * interface.If it doesn't a {@code java.net.BindException}
    * will be thrown when the connection is first used.</p>
    *
    * @param localAddress The local host name or IP address to bind to.
-   * Pass <code>null</code> to set the default local interface.
-   * @exception URLException If <code>localAddress</code> could not be
+   * Pass {@code null} to set the default local interface.
+   * @exception URLException If {@code localAddress} could not be
    * resolved.
    */
   void setLocalAddress(String localAddress) throws URLException;
@@ -213,7 +213,7 @@ public interface HTTPPluginConnection {
    *
    * <p>
    * Only bytes in the HTTP message bodies are taken into account when
-   * interpreting <code>targetBPS</code>. No account is taken of the network
+   * interpreting {@code targetBPS}. No account is taken of the network
    * efficiency (e.g. it might take 10 bits on the wire to transmit one byte of
    * application data), or of the HTTP headers.
    * </p>
@@ -226,7 +226,7 @@ public interface HTTPPluginConnection {
    * will be correspondingly longer.</p>.
    *
    * @param targetBPS
-   *          Target bandwidth in bits per second. Set to <code>0</code> to
+   *          Target bandwidth in bits per second. Set to {@code 0} to
    *          disable bandwidth limiting.
    */
   void setBandwidthLimit(int targetBPS);
