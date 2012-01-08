@@ -9,6 +9,9 @@ The Grinder 3.7 (not yet released)
    a single log file. The log file and the data log file are managed by
    Logback.
 
+   The Grinder now requires Java SE 6 ("Java 6") or later. Java SE 5
+   is no longer supported.
+
   Other changes:
 
    The Java instrumenter supports selective instrumentation of a target
@@ -42,8 +45,7 @@ The Grinder 3.7 (not yet released)
 
    The TCPProxy can be called with "-http jython" to generate a Jython
    script that uses the new (DCR) instrumentation. DCR instrumentation
-   will be enabled by default in the next release of The Grinder. This is
-   the final release of The Grinder that supports Java SE 5.
+   will be enabled by default in the next release of The Grinder.
 
 
 The Grinder 3.6

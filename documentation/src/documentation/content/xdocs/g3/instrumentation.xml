@@ -311,14 +311,10 @@ class TestRunner:
     <section>
       <title>The future</title>
 
-      <p>The new instrumentation engine will become the default implementation
-      in a future version of The Grinder, and the <code>wrap</code> method will
-      be deprecated and eventually removed. This change not been made
-      immediately because it requires Java 6, necessitates a change to script
-      API, and further testing to ensure the instrumentation is stable.</p>
+      <p>The new instrumentation engine will become the default
+      implementation in The Grinder 3.8, and the <code>wrap</code>
+      method will be deprecated and eventually removed.</p>
 
-      <p>The new instrumentation opens up the possibility for The
-      Grinder to support scripting languages other than Jython.</p>
     </section>
   </section>
 </body>

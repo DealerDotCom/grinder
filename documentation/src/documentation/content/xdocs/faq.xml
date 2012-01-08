@@ -907,9 +907,8 @@ C:\> java net.grinder.Grinder > output.txt
         </li>
       </ul>
 
-      <p>Alternatively, you can run a recent version of the Sun JVM (J2SE 5 for
-      Linux or Solaris, J2SE 6 for Windows) and use the <code>jstack</code>
-      command line. The alternative to <code>jstack</code> for the BEA
+      <p>Alternatively, you can use the JVM's <code>jstack</code>
+      command. The alternative to <code>jstack</code> for the Oracle
       JRockit JVM is the powerful <code>jrcmd</code> command.</p>
 
       </answer>

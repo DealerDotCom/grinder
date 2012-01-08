@@ -14,14 +14,6 @@ against it too :-).
 - Philip Aston
 
 
-* Java 5 upgrade
-
-** Opportunities
-
-*** System.nanoTime() - can move to microsecond based time?
-
-
-
 * Enhancements
 
 ** Console API
@@ -122,11 +114,8 @@ its license terms are acceptable. Apparently now available.
 
 ** Engine
 
-There should be an ExternalFilenameFactory, cf ExternalLogger.
-
-
-Support for some sort of "Surrogate task" that is run in a pool of threads and
-has its own statistics context would be good.
+Support for some sort of "Surrogate task" that is run in a pool of
+threads and has its own statistics context would be good.
 
 
 *** Instrumentation API
@@ -321,21 +310,6 @@ Add reset console action.
 ** TCPProxy
 Should listen on all interfaces if -localhost is not specified.
 
-* Build and tooling
-
-How to build clover reports during full build?
- - currently "with.clover" only works if clover is first thing on
- path, we need to do two "compile", "test" runs with different
- classes.dir.
- - could have with ant-call, modify compile, compile-tests, test
- - better to ant ourself?
-
-Include Clover history?
-
-Upgrade to JUnit 4
-
-Introduce Mockito.
-
 * Documentation
 
 ** Examples
@@ -359,6 +333,5 @@ Create back links from javadoc. This isn't trivial, e.g. this:
 
 only works for top level javadoc.
 
-Create menu links to the javadoc.
 
 How to include arbitrary HTML (e.g. for poll forms?)
