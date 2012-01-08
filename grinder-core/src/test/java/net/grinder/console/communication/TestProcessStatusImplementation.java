@@ -29,7 +29,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import junit.framework.TestCase;
-import net.grinder.common.processidentity.AgentProcessReport;
 import net.grinder.common.processidentity.ProcessIdentity;
 import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerIdentity;
@@ -104,7 +103,7 @@ public class TestProcessStatusImplementation extends TestCase {
 
     final WorkerProcessReport workerProcessReport =
       new StubWorkerProcessReport(workerIdentity,
-                                  WorkerProcessReport.STATE_RUNNING,
+                                  ProcessReport.STATE_RUNNING,
                                   3,
                                   5);
 
@@ -168,17 +167,17 @@ public class TestProcessStatusImplementation extends TestCase {
 
     final WorkerProcessReport[] workerProcessReportArray = {
       new StubWorkerProcessReport(
-        workerIdentityA3, WorkerProcessReport.STATE_STARTED, 1, 1),
+        workerIdentityA3, ProcessReport.STATE_STARTED, 1, 1),
       new StubWorkerProcessReport(
-        workerIdentityA4, WorkerProcessReport.STATE_STARTED, 1, 1),
+        workerIdentityA4, ProcessReport.STATE_STARTED, 1, 1),
       new StubWorkerProcessReport(
-        workerIdentityA3, WorkerProcessReport.STATE_RUNNING, 5, 10),
+        workerIdentityA3, ProcessReport.STATE_RUNNING, 5, 10),
       new StubWorkerProcessReport(
-        workerIdentityB1, WorkerProcessReport.STATE_RUNNING, 1, 1),
+        workerIdentityB1, ProcessReport.STATE_RUNNING, 1, 1),
       new StubWorkerProcessReport(
-        workerIdentityA2, WorkerProcessReport.STATE_FINISHED, 1, 1),
+        workerIdentityA2, ProcessReport.STATE_FINISHED, 1, 1),
       new StubWorkerProcessReport(
-        workerIdentityA1, WorkerProcessReport.STATE_FINISHED, 3, 10),
+        workerIdentityA1, ProcessReport.STATE_FINISHED, 3, 10),
     };
 
     for (int i = 0; i < workerProcessReportArray.length; ++i) {
@@ -209,13 +208,13 @@ public class TestProcessStatusImplementation extends TestCase {
 
     final WorkerProcessReport[] expectedAgent1WorkerProcessReports = {
       new StubWorkerProcessReport(
-        workerIdentityA4, WorkerProcessReport.STATE_STARTED, 1, 1),
+        workerIdentityA4, ProcessReport.STATE_STARTED, 1, 1),
       new StubWorkerProcessReport(
-        workerIdentityA3, WorkerProcessReport.STATE_RUNNING, 5, 10),
+        workerIdentityA3, ProcessReport.STATE_RUNNING, 5, 10),
       new StubWorkerProcessReport(
-        workerIdentityA1, WorkerProcessReport.STATE_FINISHED, 3, 10),
+        workerIdentityA1, ProcessReport.STATE_FINISHED, 3, 10),
       new StubWorkerProcessReport(
-        workerIdentityA2, WorkerProcessReport.STATE_FINISHED, 1, 1),
+        workerIdentityA2, ProcessReport.STATE_FINISHED, 1, 1),
     };
 
     AssertUtilities.assertArraysEqual(expectedAgent1WorkerProcessReports,
@@ -227,7 +226,7 @@ public class TestProcessStatusImplementation extends TestCase {
 
     final WorkerProcessReport[] expectedAgent2WorkerProcessReports = {
         new StubWorkerProcessReport(
-          workerIdentityB1, WorkerProcessReport.STATE_RUNNING, 1, 1),
+          workerIdentityB1, ProcessReport.STATE_RUNNING, 1, 1),
       };
 
     AssertUtilities.assertArraysEqual(expectedAgent2WorkerProcessReports,
@@ -249,11 +248,11 @@ public class TestProcessStatusImplementation extends TestCase {
 
     final WorkerProcessReport[] processStatusArray2 = {
       new StubWorkerProcessReport(
-        workerIdentityB1, WorkerProcessReport.STATE_RUNNING, 1, 1),
+        workerIdentityB1, ProcessReport.STATE_RUNNING, 1, 1),
       new StubWorkerProcessReport(
-        workerIdentityA1, WorkerProcessReport.STATE_RUNNING, 5, 10),
+        workerIdentityA1, ProcessReport.STATE_RUNNING, 5, 10),
       new StubWorkerProcessReport(
-        workerIdentityC1, WorkerProcessReport.STATE_FINISHED, 1, 1),
+        workerIdentityC1, ProcessReport.STATE_FINISHED, 1, 1),
     };
 
     for (int i = 0; i < processStatusArray2.length; ++i) {
@@ -266,10 +265,10 @@ public class TestProcessStatusImplementation extends TestCase {
 
     processStatus.addAgentStatusReport(
       new StubAgentProcessReport(agentIdentityA,
-                                 AgentProcessReport.STATE_RUNNING));
+                                 ProcessReport.STATE_RUNNING));
     processStatus.addAgentStatusReport(
       new StubAgentProcessReport(agentIdentityB,
-                                 AgentProcessReport.STATE_RUNNING));
+                                 ProcessReport.STATE_RUNNING));
 
     assertEquals(3, processStatus.getNumberOfLiveAgents());
     m_allocateLowestNumberStubFactory.assertNoMoreCalls();
@@ -294,7 +293,7 @@ public class TestProcessStatusImplementation extends TestCase {
 
     final WorkerProcessReport[] expectedAgent1WorkerProcessReports2 = {
       new StubWorkerProcessReport(
-        workerIdentityA1, WorkerProcessReport.STATE_RUNNING, 5, 10),
+        workerIdentityA1, ProcessReport.STATE_RUNNING, 5, 10),
     };
 
     AssertUtilities.assertArraysEqual(
@@ -303,7 +302,7 @@ public class TestProcessStatusImplementation extends TestCase {
 
     final WorkerProcessReport[] expectedAgent2WorkerProcessReports2 = {
       new StubWorkerProcessReport(
-        workerIdentityB1, WorkerProcessReport.STATE_RUNNING, 1, 1),
+        workerIdentityB1, ProcessReport.STATE_RUNNING, 1, 1),
     };
 
     AssertUtilities.assertArraysEqual(
@@ -312,7 +311,7 @@ public class TestProcessStatusImplementation extends TestCase {
 
     final WorkerProcessReport[] expectedAgent3WorkerProcessReports2 = {
       new StubWorkerProcessReport(
-        workerIdentityC1, WorkerProcessReport.STATE_FINISHED, 1, 1),
+        workerIdentityC1, ProcessReport.STATE_FINISHED, 1, 1),
     };
 
     AssertUtilities.assertArraysEqual(

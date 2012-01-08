@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -64,6 +64,7 @@ public class StreamSender extends AbstractSender {
    * @param message The message.
    * @throws IOException If an error occurs.
    */
+  @Override
   protected final void writeMessage(Message message) throws IOException {
     synchronized (m_streamLock) {
       writeMessageToStream(message, m_outputStream);
@@ -74,7 +75,7 @@ public class StreamSender extends AbstractSender {
    * Cleanly shutdown the <code>Sender</code>. Ignore most errors,
    * connection has probably been reset by peer.
    */
-  public void shutdown() {
+  @Override public void shutdown() {
 
     super.shutdown();
 

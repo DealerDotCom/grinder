@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -46,14 +46,14 @@ public class TestProcessReport extends TestCase {
 
     final AgentProcessReport agentProcessReport1 =
       new StubAgentProcessReport(agentIdentity1,
-                                 AgentProcessReport.STATE_RUNNING);
+                                 ProcessReport.STATE_RUNNING);
 
     assertEquals(0,
       comparator.compare(agentProcessReport1, agentProcessReport1));
 
     final AgentProcessReport agentProcessReport2 =
       new StubAgentProcessReport(agentIdentity1,
-                                 AgentProcessReport.STATE_FINISHED);
+                                 ProcessReport.STATE_FINISHED);
 
     assertTrue(
       comparator.compare(agentProcessReport1, agentProcessReport2) < 0);
@@ -66,7 +66,7 @@ public class TestProcessReport extends TestCase {
 
     final AgentProcessReport agentProcessReport3 =
       new StubAgentProcessReport(agentIdentity2,
-                                 AgentProcessReport.STATE_FINISHED);
+                                 ProcessReport.STATE_FINISHED);
 
     assertTrue(
       comparator.compare(agentProcessReport3, agentProcessReport2) > 0);

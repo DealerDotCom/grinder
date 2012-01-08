@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,11 +33,10 @@ public interface AgentIdentity extends ProcessIdentity {
    * Get the console allocated agent number.
    *
    * <p>
-   * This is initially <code>-1</code> until the console has allocated a
-   * number. It does not influence <code>AgentIdentity</code> equality
-   * semantics.
+   * This is initially {@code -1} until the console has allocated a number. It
+   * does not influence {@code AgentIdentity} equality semantics.
    *
    * @return The agent number.
    */
-  int getNumber();
+  @Override int getNumber();
 }

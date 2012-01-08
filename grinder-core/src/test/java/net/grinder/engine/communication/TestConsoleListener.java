@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2011 Philip Aston
+// Copyright (C) 2001 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,11 +25,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
-
-
-import java.io.Serializable;
-
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
@@ -239,7 +237,7 @@ public class TestConsoleListener {
     assertTrue(listener.received(ConsoleListener.START));
   }
 
-  private static final class MyMessage implements Message, Serializable {
+  private static final class MyMessage implements Message {
   }
 
   @Test public void testDispatcherShutdown() throws Exception {

@@ -72,8 +72,8 @@ public interface ProcessReport {
   final class StateThenNameThenNumberComparator
     implements Comparator<ProcessReport> {
 
-    public int compare(ProcessReport processReport1,
-                       ProcessReport processReport2) {
+    @Override public int compare(ProcessReport processReport1,
+                                 ProcessReport processReport2) {
 
       final int stateComparison =
         processReport1.getState() - processReport2.getState();

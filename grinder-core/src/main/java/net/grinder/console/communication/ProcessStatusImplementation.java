@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2012 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -256,7 +256,7 @@ final class ProcessStatusImplementation {
       return m_agentProcessReport;
     }
 
-    public boolean shouldPurge() {
+    @Override public boolean shouldPurge() {
       final boolean purge = super.shouldPurge();
 
       if (purge) {

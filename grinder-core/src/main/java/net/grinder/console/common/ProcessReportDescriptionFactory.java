@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,7 @@ package net.grinder.console.common;
 
 import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerProcessReport;
 
 
@@ -75,16 +76,16 @@ public final class ProcessReportDescriptionFactory {
     final String state;
 
     switch (agentProcessReport.getState()) {
-      case AgentProcessReport.STATE_STARTED:
-      case AgentProcessReport.STATE_RUNNING:
+      case ProcessReport.STATE_STARTED:
+      case ProcessReport.STATE_RUNNING:
         state = m_stateConnectedString;
         break;
 
-      case AgentProcessReport.STATE_FINISHED:
+      case ProcessReport.STATE_FINISHED:
         state = m_stateDisconnectedString;
         break;
 
-      case AgentProcessReport.STATE_UNKNOWN:
+      case ProcessReport.STATE_UNKNOWN:
       default:
         state = m_stateUnknownString;
         break;
@@ -116,18 +117,18 @@ public final class ProcessReportDescriptionFactory {
     final String state;
 
     switch (workerProcessReport.getState()) {
-      case WorkerProcessReport.STATE_STARTED:
+      case ProcessReport.STATE_STARTED:
         state = m_stateStartedString;
         break;
 
-      case WorkerProcessReport.STATE_RUNNING:
+      case ProcessReport.STATE_RUNNING:
         state = m_stateRunningString + " (" +
                 workerProcessReport.getNumberOfRunningThreads() + "/" +
                 workerProcessReport.getMaximumNumberOfThreads() + " " +
                 m_threadsString + ")";
         break;
 
-      case WorkerProcessReport.STATE_FINISHED:
+      case ProcessReport.STATE_FINISHED:
         state = m_stateFinishedString;
         break;
 
@@ -190,7 +191,7 @@ public final class ProcessReportDescriptionFactory {
      *
      * @return The descriptions.
      */
-    public String toString() {
+    @Override public String toString() {
       return getProcessType() + " " + getName() + " [" + getState() + "]";
     }
   }

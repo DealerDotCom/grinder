@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,12 +39,11 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.CallRecorder;
 import net.grinder.testutility.RandomStubFactory;
-import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.Weaver.TargetSource;
+import net.grinder.util.weave.WeavingException;
 import net.grinder.util.weave.agent.ExposeInstrumentation;
 import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
 
@@ -53,7 +52,6 @@ import net.grinder.util.weave.j2se6.DCRWeaver.ClassFileTransformerFactory;
  * Unit tests for {@link ASMTransformerFactory}.
  *
  * @author Philip Aston
- * @version $Revision:$
  */
 public class TestASMTransformerFactory extends TestCase {
 
@@ -412,7 +410,7 @@ public class TestASMTransformerFactory extends TestCase {
     s_callRecorder.assertSuccess("exit", A5.class, "loc1", true);
     s_callRecorder.assertNoMoreCalls();
 
-    AssertUtilities.assertEquals(-11d, a.m1(1), 0.01d);
+    assertEquals(-11d, a.m1(1), 0.01d);
 
     s_callRecorder.assertSuccess("enter", a, "loc3");
     s_callRecorder.assertSuccess("enter", a, "loc4");
@@ -547,7 +545,7 @@ public class TestASMTransformerFactory extends TestCase {
           break;
         default:
           m_y = -x;
-      };
+      }
     }
 
     public double m1(int a) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +26,7 @@ import java.util.Comparator;
 import junit.framework.TestCase;
 import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.console.common.processidentity.StubAgentProcessReport;
 import net.grinder.console.communication.ProcessControl.ProcessReports;
 import net.grinder.engine.agent.StubAgentIdentity;
@@ -47,7 +48,7 @@ public class TestProcessControlImplementation extends TestCase {
 
     final AgentProcessReport agentProcessReport1 =
       new StubAgentProcessReport(agentIdentity1,
-                                 AgentProcessReport.STATE_RUNNING);
+                                 ProcessReport.STATE_RUNNING);
 
     final RandomStubFactory<ProcessReports> processReportsStubFactory1 =
       RandomStubFactory.create(ProcessReports.class);
@@ -60,7 +61,7 @@ public class TestProcessControlImplementation extends TestCase {
 
     final AgentProcessReport agentProcessReport2 =
       new StubAgentProcessReport(agentIdentity1,
-                                 AgentProcessReport.STATE_FINISHED);
+                                 ProcessReport.STATE_FINISHED);
 
     final RandomStubFactory<ProcessReports> processReportsStubFactory2 =
       RandomStubFactory.create(ProcessReports.class);

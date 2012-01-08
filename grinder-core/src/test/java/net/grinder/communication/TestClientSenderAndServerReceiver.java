@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -73,12 +73,12 @@ public class TestClientSenderAndServerReceiver
   private class SenderThread extends Thread {
     public void run() {
       try {
-        final Sender m_sender = createSender();
+        final Sender sender = createSender();
 
         final int n = s_random.nextInt(10);
 
         for (int i=0; i<n; ++i) {
-          m_sender.send(new SimpleMessage(1));
+          sender.send(new SimpleMessage(1));
           sleep(s_random.nextInt(30));
         }
 
@@ -86,7 +86,7 @@ public class TestClientSenderAndServerReceiver
           s_numberOfMessages += n;
         }
 
-        m_sender.shutdown();
+        sender.shutdown();
       }
       catch (Exception e) {
         e.printStackTrace();

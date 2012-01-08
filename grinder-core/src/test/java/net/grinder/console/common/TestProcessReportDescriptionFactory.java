@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,7 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 import net.grinder.common.processidentity.AgentProcessReport;
+import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
@@ -64,7 +65,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
       agentProcessReportStubFactory.getStub();
     agentProcessReportStubFactory.setResult("getAgentIdentity", agentIdentity);
     agentProcessReportStubFactory.setResult(
-      "getState", new Short(AgentProcessReport.STATE_UNKNOWN));
+      "getState", new Short(ProcessReport.STATE_UNKNOWN));
 
     final ProcessReportDescriptionFactory processReportDescriptionFactory =
       new ProcessReportDescriptionFactory(m_resources);
@@ -78,7 +79,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("AG my agent [huh]", description1.toString());
 
     agentProcessReportStubFactory.setResult(
-      "getState", new Short(AgentProcessReport.STATE_RUNNING));
+      "getState", new Short(ProcessReport.STATE_RUNNING));
 
     final ProcessDescription description2 =
       processReportDescriptionFactory.create(agentProcessReport);
@@ -87,7 +88,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
 
     // Both started and running report "connected".
     agentProcessReportStubFactory.setResult(
-      "getState", new Short(AgentProcessReport.STATE_STARTED));
+      "getState", new Short(ProcessReport.STATE_STARTED));
 
     final ProcessDescription description3 =
       processReportDescriptionFactory.create(agentProcessReport);
@@ -95,7 +96,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("plugged in", description3.getState());
 
     agentProcessReportStubFactory.setResult(
-      "getState", new Short(AgentProcessReport.STATE_FINISHED));
+      "getState", new Short(ProcessReport.STATE_FINISHED));
 
     final ProcessDescription description4 =
       processReportDescriptionFactory.create(agentProcessReport);
@@ -131,7 +132,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     workerProcessReportStubFactory.setResult("getWorkerIdentity",
                                              workerIdentity);
     workerProcessReportStubFactory.setResult(
-      "getState", new Short(WorkerProcessReport.STATE_UNKNOWN));
+      "getState", new Short(ProcessReport.STATE_UNKNOWN));
 
     final ProcessReportDescriptionFactory processReportDescriptionFactory =
       new ProcessReportDescriptionFactory(m_resources);
@@ -145,7 +146,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("WK agent-0 [huh]", description1.toString());
 
     workerProcessReportStubFactory.setResult(
-      "getState", new Short(WorkerProcessReport.STATE_RUNNING));
+      "getState", new Short(ProcessReport.STATE_RUNNING));
     workerProcessReportStubFactory.setResult(
       "getNumberOfRunningThreads", new Short((short) 10));
     workerProcessReportStubFactory.setResult(
@@ -157,7 +158,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("rolling (10/21 strings)", description2.getState());
 
     workerProcessReportStubFactory.setResult(
-      "getState", new Short(WorkerProcessReport.STATE_STARTED));
+      "getState", new Short(ProcessReport.STATE_STARTED));
 
     final ProcessDescription description3 =
       processReportDescriptionFactory.create(workerProcessReport);
@@ -165,7 +166,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("hot to trot", description3.getState());
 
     workerProcessReportStubFactory.setResult(
-      "getState", new Short(WorkerProcessReport.STATE_FINISHED));
+      "getState", new Short(ProcessReport.STATE_FINISHED));
 
     final ProcessDescription description4 =
       processReportDescriptionFactory.create(workerProcessReport);

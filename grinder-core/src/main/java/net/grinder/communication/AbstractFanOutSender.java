@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2011 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -61,7 +61,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
    * @param message The message.
    * @exception IOException If an error occurs.
    */
-  protected final void writeMessage(final Message message)
+  @Override protected final void writeMessage(final Message message)
     throws CommunicationException {
     writeAddressedMessage(new SendToEveryoneAddress(), message);
   }
@@ -131,7 +131,7 @@ abstract class AbstractFanOutSender extends AbstractSender {
   /**
    * Shut down this sender.
    */
-  public void shutdown() {
+  @Override public void shutdown() {
     super.shutdown();
 
     m_executor.shutdown();

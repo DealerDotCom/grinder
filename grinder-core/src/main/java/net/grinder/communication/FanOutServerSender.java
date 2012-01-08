@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2011 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -92,7 +92,7 @@ public final class FanOutServerSender extends AbstractFanOutSender {
    * @throws CommunicationException If the output stream could not be
    * obtained from the socket.
    */
-  protected OutputStream resourceToOutputStream(
+  @Override protected OutputStream resourceToOutputStream(
     ResourcePool.Resource resource) throws CommunicationException {
 
     // We don't need to synchronise access to the SocketWrapper;
@@ -107,7 +107,7 @@ public final class FanOutServerSender extends AbstractFanOutSender {
    * @param resource The resource.
    * @return The address, or <code>null</code> if the socket has no address.
    */
-  protected Address getAddress(Resource resource) {
+  @Override protected Address getAddress(Resource resource) {
 
     // We don't need to synchronise access to the SocketWrapper;
     // access is protected through the socket set and only we hold

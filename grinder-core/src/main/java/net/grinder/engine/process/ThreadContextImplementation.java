@@ -32,7 +32,6 @@ import net.grinder.common.Test;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.DispatchContext.DispatchStateException;
-import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics.StatisticsForTest;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
@@ -49,8 +48,7 @@ import org.slf4j.MarkerFactory;
  *
  * @author Philip Aston
  */
-final class ThreadContextImplementation
-  implements ThreadContext, PluginThreadContext {
+final class ThreadContextImplementation implements ThreadContext {
 
   private final ListenerSupport<ThreadLifeCycleListener>
     m_threadLifeCycleListeners =

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2011 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -59,7 +59,7 @@ public abstract class ProcessAddress<T extends ProcessIdentity>
    *            The address to check.
    * @return <code>true</code> if and only if we include <code>address</code>.
    */
-  public boolean includes(Address address) {
+  @Override public boolean includes(Address address) {
     return equals(address);
   }
 
@@ -73,21 +73,16 @@ public abstract class ProcessAddress<T extends ProcessIdentity>
   }
 
   /**
-   * Hash code.
-   *
-   * @return The hash code.
+   * {@inheritDoc}
    */
-  public int hashCode() {
+  @Override public int hashCode() {
     return m_processIdentity.hashCode();
   }
 
   /**
-   * Equality.
-   *
-   * @param o Object to compare.
-   * @return <code>true</code> if and only if the given object is equal.
+   * {@inheritDoc}
    */
-  public boolean equals(Object o) {
+  @Override public boolean equals(Object o) {
     if (o == this) {
       return true;
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -305,7 +305,7 @@ public final class FileDistributionImplementation implements FileDistribution {
       m_pattern = pattern;
     }
 
-    protected Pattern getFileFilterPattern() {
+    @Override protected Pattern getFileFilterPattern() {
       return m_pattern;
     }
   }
@@ -320,7 +320,7 @@ public final class FileDistributionImplementation implements FileDistribution {
    */
   public FileFilter getDistributionFileFilter() {
     return new AbstractFileFilter(-1) {
-      protected Pattern getFileFilterPattern() {
+      @Override protected Pattern getFileFilterPattern() {
         return m_cacheState.getCacheParameters().getFileFilterPattern();
       }
     };

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2011 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -167,7 +167,7 @@ public class TestCloser {
     Closer.close((Socket)null);
 
     final Socket socket = new Socket() {
-      public void close() throws IOException {
+      public synchronized void close() throws IOException {
         TestCloser.this.close();
       }
     };

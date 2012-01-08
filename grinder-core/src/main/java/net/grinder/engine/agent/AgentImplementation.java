@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // Copyright (C) 2008 Pawel Lacinski
 // All rights reserved.
@@ -34,6 +34,7 @@ import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.GrinderProperties.PersistenceException;
+import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.communication.ClientReceiver;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationException;
@@ -464,7 +465,7 @@ public final class AgentImplementation implements Agent {
       }
 
       m_sender.send(
-        new AgentProcessReportMessage(AgentProcessReportMessage.STATE_STARTED,
+        new AgentProcessReportMessage(ProcessReport.STATE_STARTED,
                                       m_fileStore.getCacheHighWaterMark()));
 
       final MessageDispatchSender fileStoreMessageDispatcher =
@@ -489,7 +490,7 @@ public final class AgentImplementation implements Agent {
           try {
             m_sender.send(
               new AgentProcessReportMessage(
-                AgentProcessReportMessage.STATE_RUNNING,
+                ProcessReport.STATE_RUNNING,
                 m_fileStore.getCacheHighWaterMark()));
           }
           catch (CommunicationException e) {
@@ -515,7 +516,7 @@ public final class AgentImplementation implements Agent {
       try {
         m_sender.send(
           new AgentProcessReportMessage(
-            AgentProcessReportMessage.STATE_FINISHED,
+            ProcessReport.STATE_FINISHED,
             m_fileStore.getCacheHighWaterMark()));
       }
       catch (CommunicationException e) {

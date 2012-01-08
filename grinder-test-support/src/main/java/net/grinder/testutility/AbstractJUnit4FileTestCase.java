@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2011 Philip Aston
+// Copyright (C) 2004 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
 import org.junit.After;
 
@@ -36,8 +35,6 @@ import org.junit.After;
  * @author Philip Aston
  */
 public abstract class AbstractJUnit4FileTestCase {
-
-  protected static Random s_random  = new Random();
 
   private File m_directory;
 

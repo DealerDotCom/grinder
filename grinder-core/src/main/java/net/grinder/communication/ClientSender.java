@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -80,7 +80,7 @@ public final class ClientSender extends StreamSender implements BlockingSender {
   /**
    * Cleanly shutdown the <code>Sender</code>.
    */
-  public void shutdown() {
+  @Override public void shutdown() {
     // Close the socket wrapper first as that needs to use the socket.
     m_socketWrapper.close();
 

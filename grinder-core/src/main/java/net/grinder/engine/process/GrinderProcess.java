@@ -40,8 +40,8 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.common.Test;
+import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerIdentity;
-import net.grinder.common.processidentity.WorkerProcessReport;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
@@ -402,7 +402,7 @@ final class GrinderProcess {
 
     m_dataLogger.info(dataLogHeader.toString());
 
-    sendStatusMessage(WorkerProcessReport.STATE_STARTED,
+    sendStatusMessage(ProcessReport.STATE_STARTED,
                       (short)0,
                       numberOfThreads);
 
@@ -506,7 +506,7 @@ final class GrinderProcess {
     reportTimerTask.run();
 
     if (!m_communicationShutdown) {
-      sendStatusMessage(WorkerProcessReport.STATE_FINISHED,
+      sendStatusMessage(ProcessReport.STATE_FINISHED,
                         (short)0,
                         (short)0);
     }
@@ -574,7 +574,7 @@ final class GrinderProcess {
             m_consoleSender.send(new ReportStatisticsMessage(sample));
           }
 
-          sendStatusMessage(WorkerProcessReport.STATE_RUNNING,
+          sendStatusMessage(ProcessReport.STATE_RUNNING,
                             m_threads.getNumberOfRunningThreads(),
                             m_threads.getTotalNumberOfThreads());
         }

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2011 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -67,7 +67,7 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
   /**
    * Shut down this sender.
    */
-  public void shutdown() {
+  @Override public void shutdown() {
     super.shutdown();
     getResourcePool().closeCurrentResources();
   }
@@ -78,7 +78,7 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
    * @param resource The resource.
    * @return The output stream.
    */
-  protected OutputStream resourceToOutputStream(
+  @Override protected OutputStream resourceToOutputStream(
     ResourcePool.Resource resource) {
 
     return ((OutputStreamResource)resource).getOutputStream();
@@ -90,7 +90,7 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
    * @param resource The resource.
    * @return The address, or <code>null</code> if the resource has no address.
    */
-  protected Address getAddress(Resource resource) {
+  @Override protected Address getAddress(Resource resource) {
     return null;
   }
 

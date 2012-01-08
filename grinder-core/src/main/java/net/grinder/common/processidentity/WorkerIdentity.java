@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2008 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,5 +42,5 @@ public interface WorkerIdentity extends ProcessIdentity {
    * @return The worker process number.
    * @see net.grinder.script.Grinder.ScriptContext#getProcessNumber()
    */
-  int getNumber();
+  @Override int getNumber();
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip Aston
+// Copyright (C) 2006 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,8 +47,8 @@ public class BlockingSenderWrapper implements BlockingSender {
     final Sender captureResponse =
       new Sender() {
 
-        public void send(Message message) throws CommunicationException {
-          response[0] = message;
+        public void send(Message theMessage) throws CommunicationException {
+          response[0] = theMessage;
         }
 
         public void shutdown() {

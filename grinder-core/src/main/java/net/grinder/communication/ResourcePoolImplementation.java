@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2009 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -68,7 +68,7 @@ final class ResourcePoolImplementation implements ResourcePool {
    * @return Allows the client to notify the resource pool if the
    * resource has been closed.
    */
-  public Closeable add(final Resource resource) {
+  @Override public Closeable add(final Resource resource) {
     final ResourceWrapper resourceWrapper = new ResourceWrapper(resource);
 
     synchronized (m_reservablesMutex) {

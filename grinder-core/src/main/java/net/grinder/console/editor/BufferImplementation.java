@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2009 Philip Aston
+// Copyright (C) 2004 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -321,7 +321,7 @@ final class BufferImplementation implements Buffer {
      *
      * @return Description of the Buffer.
      */
-  public String toString() {
+  @Override public String toString() {
     return "<Buffer " + hashCode() + " '" + getDisplayName() + "'>";
   }
 

@@ -614,7 +614,7 @@ public class TestConsoleProperties extends AbstractJUnit4FileTestCase {
       p2.getDistributionDirectory());
     AssertUtilities.assertNotEquals(p1.getDistributionFileFilterPattern(),
       p2.getDistributionFileFilterPattern());
-    AssertUtilities.assertTrue(p1.getScanDistributionFilesPeriod() !=
+    assertTrue(p1.getScanDistributionFilesPeriod() !=
       p2.getScanDistributionFilesPeriod());
     AssertUtilities.assertNotEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
     AssertUtilities.assertNotEquals(p1.getExternalEditorCommand(),

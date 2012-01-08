@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -103,22 +103,16 @@ public final class Connector {
   }
 
   /**
-   * Equality.
-   *
-   * @return Hash code.
+   * {@inheritDoc}
    */
-  public int hashCode() {
+  @Override public int hashCode() {
     return m_hostString.hashCode() ^ m_port ^ m_connectionType.hashCode();
   }
 
   /**
-   * Equality.
-   *
-   * @param o Object to compare.
-   * @return <code>true</code> => its equal to this
-   * <code>Connector</code>.
+   * {@inheritDoc}
    */
-  public boolean equals(Object o) {
+  @Override public boolean equals(Object o) {
     if (o == this) {
       return true;
     }

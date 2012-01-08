@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2009 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -517,19 +517,5 @@ public class GrinderProperties extends Properties {
     throws IOException, ClassNotFoundException {
     in.defaultReadObject();
     setErrorWriter(new PrintWriter(System.err, true));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override public boolean equals(Object o) {
-    return super.equals(o);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override public int hashCode() {
-    return super.hashCode();
   }
 }

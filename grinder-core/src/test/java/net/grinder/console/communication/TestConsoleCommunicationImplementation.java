@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2011 Philip Aston
+// Copyright (C) 2004 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,7 +34,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -45,14 +44,15 @@ import java.util.concurrent.TimeUnit;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.processidentity.AgentIdentity;
+import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.communication.Address;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
+import net.grinder.communication.MessageDispatchRegistry.Handler;
 import net.grinder.communication.SendToEveryoneAddress;
 import net.grinder.communication.StreamSender;
 import net.grinder.communication.StubConnector;
-import net.grinder.communication.MessageDispatchRegistry.Handler;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -233,7 +233,7 @@ public class TestConsoleCommunicationImplementation
     m_processMessagesThread.start();
 
     final AgentProcessReportMessage message =
-      new AgentProcessReportMessage(AgentProcessReportMessage.STATE_RUNNING,
+      new AgentProcessReportMessage(ProcessReport.STATE_RUNNING,
                                     cacheHighWaterMark);
 
     message.setAddress(new AgentAddress(agentIdentity));
@@ -567,7 +567,7 @@ public class TestConsoleCommunicationImplementation
     verifyNoMoreInteractions(m_errorHandler);
   }
 
-  private static final class MyMessage implements Message, Serializable {
+  private static final class MyMessage implements Message {
     private static final long serialVersionUID = 1L;
   }
 

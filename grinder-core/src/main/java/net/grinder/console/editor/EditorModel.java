@@ -319,8 +319,8 @@ public final class EditorModel {
 
     buffer.addListener(
       new BufferImplementation.Listener() {
-        public void bufferSaved(Buffer buffer, File oldFile) {
-          final File newFile = buffer.getFile();
+        public void bufferSaved(Buffer savedBuffer, File oldFile) {
+          final File newFile = savedBuffer.getFile();
 
           m_agentCacheState.setNewFileTime(newFile.lastModified());
 
@@ -329,11 +329,11 @@ public final class EditorModel {
               m_fileBuffers.remove(oldFile);
             }
 
-            m_fileBuffers.put(newFile, buffer);
+            m_fileBuffers.put(newFile, savedBuffer);
 
             // Fire that bufferChanged because it is associated with a new
             // file.
-            fireBufferStateChanged(buffer);
+            fireBufferStateChanged(savedBuffer);
           }
 
           parseSelectedProperties(newFile);

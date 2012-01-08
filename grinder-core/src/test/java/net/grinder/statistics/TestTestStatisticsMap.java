@@ -276,9 +276,9 @@ public class TestTestStatisticsMap extends TestCase {
           }
 
           try {
-            for (int i=0; i<100; ++i) {
+            for (int j=0; j<100; ++j) {
               map.reset();
-              map.put(new StubTest(n*100 + i, ""), m_statistics0);
+              map.put(new StubTest(n*100 + j, ""), m_statistics0);
             }
           }
           catch (Exception e) {

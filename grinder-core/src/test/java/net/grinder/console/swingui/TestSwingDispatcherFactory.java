@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -144,7 +144,7 @@ public class TestSwingDispatcherFactory {
 
   public static abstract class Foo2 implements Foo { }
 
-  public static class FooFoo extends Foo2 implements Foo, Bah {
+  public static class FooFoo extends Foo2 implements Bah {
     public void propertyChange(PropertyChangeEvent e) { }
   }
 }

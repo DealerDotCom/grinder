@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2011 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,7 +37,7 @@ public abstract class AbstractTestSemantics implements Test {
    * @return <code>-1</code> if <code>o</code> is less, <code>0</code>
    * if its equal, <code>1</code> if its greater.
    */
-  public final int compareTo(Test o) {
+  @Override public final int compareTo(Test o) {
     final int ours = getNumber();
     final int others = ((AbstractTestSemantics)o).getNumber();
     return ours < others ? -1 : (ours == others ? 0 : 1);
@@ -52,17 +52,14 @@ public abstract class AbstractTestSemantics implements Test {
    *
    * @return The hash code.
    */
-  public final int hashCode() {
+  @Override public final int hashCode() {
     return getNumber();
   }
 
   /**
-   * Define equality.
-   *
-   * @param o <code>Object</code> to compare.
-   * @return <code>true</code> if and only if its equal to this object.
+   * {@inheritDoc}
    */
-  public final boolean equals(Object o) {
+  @Override public final boolean equals(Object o) {
 
     if (o == this) {
       return true;
@@ -78,11 +75,9 @@ public abstract class AbstractTestSemantics implements Test {
   }
 
   /**
-   * Define a useful string representation.
-   *
-   * @return A description of the test.
+   * {@inheritDoc}
    */
-  public final String toString() {
+  @Override public final String toString() {
 
     final String description = getDescription();
 

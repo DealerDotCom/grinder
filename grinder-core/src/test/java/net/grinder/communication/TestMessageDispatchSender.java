@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -135,7 +135,7 @@ public class TestMessageDispatchSender {
     messageDispatchSender.set(
       SimpleMessage.class,
       new MessageDispatchRegistry.AbstractBlockingHandler<SimpleMessage>() {
-        public Message blockingSend(SimpleMessage message)  {
+        public Message blockingSend(SimpleMessage someMessage)  {
           return responseMessage;
         }
       });
@@ -152,10 +152,10 @@ public class TestMessageDispatchSender {
 
     messageDispatchSender.addFallback(
       new AbstractHandler<Message>() {
-        public void handle(Message message) throws CommunicationException {
-          if (message instanceof MessageRequiringResponse) {
+        public void handle(Message theMessage) throws CommunicationException {
+          if (theMessage instanceof MessageRequiringResponse) {
             final MessageRequiringResponse m =
-              (MessageRequiringResponse) message;
+              (MessageRequiringResponse) theMessage;
             m.sendResponse(responseMessage2);
           }
         }
