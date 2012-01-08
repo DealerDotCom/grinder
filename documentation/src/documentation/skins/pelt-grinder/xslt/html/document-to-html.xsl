@@ -71,6 +71,14 @@ imported document-to-html.xsl for details.
     </pre>
   </xsl:template>
 
+  <xsl:template match="source[@class='xml']">
+    <xsl:apply-templates select="@id"/>
+    <pre class="brush: xml">
+      <xsl:copy-of select="@id"/>
+      <xsl:apply-templates/>
+    </pre>
+  </xsl:template>
+
   <xsl:template match="source">
     <H1>FIXME</H1>
   </xsl:template>

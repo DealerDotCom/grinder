@@ -52,6 +52,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <properties label="Properties" href="properties.html">
         <commandline href="#Specifying+properties+on+the+command+line"/>
       </properties>
+      <logging label="Logging" href="logging.html"/>
     </agents-and-workers>
 
     <console label="The Console" href="console.html">
@@ -310,6 +311,10 @@ See http://forrest.apache.org/docs/linking.html for more info
       <package-scanning href="jython/PackageScanning"/>
     </jython-wiki>
 
+    <logback href="http://logback.qos.ch/">
+      <manual href="manual/index.html"/>
+    </logback>
+
     <mail>
       <grinder-announce href="mailto:grinder-announce@lists.sourceforge.net"/>
       <grinder-development href="mailto:grinder-development@lists.sourceforge.net"/>
@@ -358,6 +363,8 @@ See http://forrest.apache.org/docs/linking.html for more info
     <zephyrfalcon href="http://zephyrfalcon.org/">
        <pythonpitfalls href="labs/python_pitfalls.html"/>
     </zephyrfalcon>
+
+    <slf4j href="http://www.slf4j.org/"/>
 
     <sourceforge href="http://www.sourceforge.net/">
       <bug2314157 href="tracker/?func=detail&amp;aid=2314157&amp;group_id=18598&amp;atid=118598"/>
