@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Philip Aston
+// Copyright (C) 2011 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -340,7 +340,7 @@ public class TestTCPProxy {
     catch (GrinderException e) {
     }
 
-    verify(m_logger).error(contains("class '***abc' not found"));
+    verify(m_logger).error(contains("Class '***abc' not found"));
   }
 
   public static class TestClass { }
