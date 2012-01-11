@@ -145,21 +145,20 @@
           </execution>
         </executions>
         <dependencies>
-        <!-- TODO: How to update these versions with the release plugin? -->
           <dependency>
             <groupId>net.grinder</groupId>
             <artifactId>grinder-http</artifactId>
-            <version>3.7-SNAPSHOT</version>
+            <version>${project.version}</version>
           </dependency>
           <dependency>
             <groupId>net.grinder</groupId>
             <artifactId>grinder-httpclient</artifactId>
-            <version>3.7-SNAPSHOT</version>
+            <version>${project.version}</version>
           </dependency>
           <dependency>
             <groupId>net.grinder</groupId>
             <artifactId>grinder-xmlbeans</artifactId>
-            <version>3.7-SNAPSHOT</version>
+            <version>${project.version}</version>
           </dependency>
         </dependencies>
       </plugin>
