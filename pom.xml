@@ -334,6 +334,7 @@
         <configuration>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <tagNameFormat>release_@{project.version}</tagNameFormat>
+          <goals>package</goals>
         </configuration>
       </plugin>
     </plugins>
