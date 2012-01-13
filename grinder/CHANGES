@@ -1,23 +1,24 @@
-The Grinder 3.7 (not yet released)
-----------------------------------
+The Grinder 3.7
+---------------
 
   Changes that may be incompatible with existing scripts:
 
-   Implement feature request 3418525 -  Switch to a standard logging
-   framework. The net.grinder.common.Logger/FilenameFactory API has been
-   removed in favor of SLF4J. Output and error messages are logged to
-   a single log file. The log file and the data log file are managed by
-   Logback.
+   Implement feature request 3418525 - Switch to a standard logging
+   framework. The net.grinder.common.Logger/FilenameFactory API has
+   been removed in favor of SLF4J. Output and error messages are
+   logged to a single log file. The log file and the data log file are
+   managed by Logback.
 
-   The Grinder now requires Java SE 6 ("Java 6") or later. Java SE 5
-   is no longer supported.
+   The Grinder requires Java SE 6 ("Java 6") or later. Java SE 5 is no
+   longer supported.
 
   Other changes:
 
-   The Java instrumenter supports selective instrumentation of a target
-   object through an overloaded version of Test.record(). The full
-   HTTPRequest interface can now be used with DCR instrumentation without
-   requiring a replacement for the traditional instrumenter's __target__.
+   The Java instrumenter supports selective instrumentation of a
+   target object through an overloaded version of Test.record(). The
+   full HTTPRequest interface can be used with DCR instrumentation
+   without requiring a replacement for the traditional instrumenter's
+   __target__.
 
    Fix bug 3006631 - Null pointer exception when posting multipart
    form data. Thanks to Edwin Clubb for the report, and to Ouray Viney
@@ -26,22 +27,24 @@ The Grinder 3.7 (not yet released)
    Fix bug 3431764 - DCR instrumentation fails with Java 7. Thanks to
    Gary Mulder for the report.
 
-   Fix bug 3133650 - Relative classpath issues when using the console. The
-   agent process now translates relative paths in the classpath to the
+   Fix bug 3133650 - Relative classpath issues when using the console.
+   The agent process translates relative paths in the classpath to the
    different working directory when workers are launched with scripts
    distributed by the console. Thanks to Jared C for the report.
 
-   The Grinder is now built using Apache Maven.
+   The Grinder is built using Apache Maven.
 
    Tentative fix for bug 3459637 - AWT-EventQueue NullPointerException.
    Thanks to Richard Lynch for the report.
 
-   Fix bug 3464547 - DCR instrumentation of unbound PyMethods doesn't work.
+   Fix bug 3464547 - DCR instrumentation of unbound PyMethods doesn't
+   work.
 
-   Fix bug 3464533 - DCR instrumentation of bound PyMethods doesn't work.
+   Fix bug 3464533 - DCR instrumentation of bound PyMethods doesn't
+   work.
 
-   The TCPProxy can be called with "-http clojure" to generate a Clojure
-   script.
+   The TCPProxy can be called with "-http clojure" to generate a
+   Clojure script.
 
    The TCPProxy can be called with "-http jython" to generate a Jython
    script that uses the new (DCR) instrumentation. DCR instrumentation
@@ -112,8 +115,8 @@ The Grinder 3.5
   Fix bug 2992248 - DCR instrumentation of Java methods.
   Instrumentation of Java methods from Jython scripts has been
   improved. Multiple references from a script to an instrumented
-  method now work as expected. Invoking a script instrumented method
-  from Java now works. Thanks to Kevin Connaughton for the report.
+  method work as expected. Invoking a script instrumented method from
+  Java works. Thanks to Kevin Connaughton for the report.
 
   Fix bug 2958145 - DCR instrumentation fails with
   grinder.debug.singleprocess.
