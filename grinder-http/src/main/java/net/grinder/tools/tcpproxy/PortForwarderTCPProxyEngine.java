@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,10 +30,9 @@ import org.slf4j.Logger;
 
 import net.grinder.common.UncheckedInterruptedException;
 
-
 /**
- * Simple implementation of TCPProxyEngine that connects to a single
- * remote server.
+ * Simple implementation of TCPProxyEngine that connects to a single remote
+ * server.
  *
  * @author Phil Dawes
  * @author Philip Aston
@@ -49,6 +48,8 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
    *          Request filter.
    * @param responseFilter
    *          Response filter.
+   * @param output
+   *          Output stream.
    * @param logger
    *          Logger.
    * @param connectionDetails
@@ -76,16 +77,25 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
   /**
    * Constructor that allows socket factory to be specified.
    *
-   * @param socketFactory Socket factory.
-   * @param requestFilter Request filter.
-   * @param responseFilter Response filter.
-   * @param output Where to send the output.
-   * @param logger Logger.
-   * @param connectionDetails Connection details.
-   * @param useColour Whether to use colour.
-   * @param timeout Timeout for server socket in milliseconds.
+   * @param socketFactory
+   *          Socket factory.
+   * @param requestFilter
+   *          Request filter.
+   * @param responseFilter
+   *          Response filter.
+   * @param output
+   *          Where to send the output.
+   * @param logger
+   *          Logger.
+   * @param connectionDetails
+   *          Connection details.
+   * @param useColour
+   *          Whether to use colour.
+   * @param timeout
+   *          Timeout for server socket in milliseconds.
    *
-   * @exception IOException If an I/O error occurs.
+   * @exception IOException
+   *              If an I/O error occurs.
    */
   public PortForwarderTCPProxyEngine(TCPProxySocketFactory socketFactory,
                                      TCPProxyFilter requestFilter,
@@ -94,8 +104,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
                                      Logger logger,
                                      ConnectionDetails connectionDetails,
                                      boolean useColour,
-                                     int timeout)
-    throws IOException {
+                                     int timeout) throws IOException {
 
     super(socketFactory, requestFilter, responseFilter, output, logger,
           connectionDetails.getLocalEndPoint(), useColour, timeout);

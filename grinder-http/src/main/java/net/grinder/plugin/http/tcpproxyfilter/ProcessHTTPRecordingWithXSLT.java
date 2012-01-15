@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,7 +54,8 @@ public class ProcessHTTPRecordingWithXSLT implements
    * loaded from classpath. If the property is set to the empty string, the raw
    * XML will be output.
    */
-  public static final String STYLESHEET_NAME_PROPERTY = "transformHTTPRecordingToScript";
+  public static final String STYLESHEET_NAME_PROPERTY =
+      "transformHTTPRecordingToScript";
 
   private final TransformerFactory m_transformerFactory = TransformerFactory
       .newInstance();

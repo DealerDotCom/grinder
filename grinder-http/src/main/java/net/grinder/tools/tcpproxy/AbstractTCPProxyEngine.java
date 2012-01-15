@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -71,7 +71,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   private final ServerSocket m_serverSocket;
 
   // Guarded by m_streamThreads.
-  private final List<StreamThread> m_streamThreads = new LinkedList<StreamThread>();
+  private final List<StreamThread> m_streamThreads =
+      new LinkedList<StreamThread>();
 
   private final ThreadGroup m_streamThreadGroup =
     new ThreadGroup("TCPProxy Stream Handler");

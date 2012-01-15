@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003 Bertrand Ave
@@ -91,14 +91,15 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    * @param sslSocketFactory Factory for SSL sockets.
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
+   * @param output Output stream.
    * @param logger Logger.
    * @param localEndPoint Local host and port.
    * @param useColour Whether to use colour.
    * @param timeout Timeout for server socket in milliseconds.
    * @param chainedHTTPProxy HTTP proxy which output should be routed
-   * through, or <code>null</code> for no proxy.
+   * through, or {@code null} for no proxy.
    * @param chainedHTTPSProxy HTTP proxy which output should be routed
-   * through, or <code>null</code> for no proxy.
+   * through, or {@code null} for no proxy.
    *
    * @exception IOException If an I/O error occurs
    * @exception PatternSyntaxException If a regular expression

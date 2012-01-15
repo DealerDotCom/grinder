@@ -29,5 +29,6 @@
 -->
 
   <!-- Requires a large number of parameters. -->
-  <suppress checks="ParameterNumber" files="ScriptContextImplementation.java"/>
+  <suppress checks="ParameterNumber"
+            files="ScriptContextImplementation.java|HTTPProxyTCPProxyEngine.java"/>
 </suppressions>
