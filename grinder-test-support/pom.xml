@@ -12,14 +12,14 @@
   <parent>
     <groupId>net.grinder</groupId>
     <artifactId>grinder-parent</artifactId>
-    <version>3.7</version>
+    <version>3.8-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>net.grinder</groupId>
       <artifactId>grinder-dcr-agent</artifactId>
-      <version>3.7</version>
+      <version>3.8-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
