@@ -421,7 +421,7 @@ public final class TCPProxy extends AbstractMainClass {
       }
     }
 
-    logger.error(startMessage.toString());
+    logger.info(startMessage.toString());
 
     final TCPProxySSLSocketFactory sslSocketFactory =
       keyStoreFile != null ?
@@ -472,7 +472,7 @@ public final class TCPProxy extends AbstractMainClass {
       new TCPProxyConsole(m_proxyEngine, commentSource);
     }
 
-    logger.error("Engine initialised, listening on port " + localPort);
+    logger.info("Engine initialised, listening on port " + localPort);
   }
 
   private void run() {
@@ -494,8 +494,7 @@ public final class TCPProxy extends AbstractMainClass {
     m_proxyEngine.run();
     shutdown.run();
 
-    // Write to stderr - only filter output should go to stdout.
-    getLogger().error("Engine exited");
+    getLogger().info("Engine exited");
   }
 
   private final class FilterChain {

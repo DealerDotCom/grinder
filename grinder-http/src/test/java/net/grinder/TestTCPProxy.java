@@ -75,7 +75,7 @@ public class TestTCPProxy {
 
     final TCPProxy tcpProxy = new TCPProxy(new String[0], m_logger);
 
-    verify(m_logger, times(2)).error(m_stringCaptor.capture());
+    verify(m_logger, times(2)).info(m_stringCaptor.capture());
     final String message = m_stringCaptor.getAllValues().get(0);
 
     assertContains(message, "HTTP/HTTPS proxy");
@@ -102,7 +102,7 @@ public class TestTCPProxy {
 
     final TCPProxy tcpProxy = new TCPProxy(arguments, m_logger);
 
-    verify(m_logger, times(2)).error(m_stringCaptor.capture());
+    verify(m_logger, times(2)).info(m_stringCaptor.capture());
     final String message = m_stringCaptor.getAllValues().get(0);
 
     assertContains(message, "HTTP/HTTPS proxy");
@@ -158,7 +158,7 @@ public class TestTCPProxy {
     final TCPProxy tcpProxy = new TCPProxy(arguments, m_logger);
     assertNotNull(tcpProxy.getFilterContainer().getComponent(TestFilter.class));
 
-    verify(m_logger).error(containsRegex("Request filters:\\s+TestFilter\\s*\n"));
+    verify(m_logger).info(containsRegex("Request filters:\\s+TestFilter\\s*\n"));
   }
 
   @Test public void testNoneFilter() throws Exception {
@@ -172,7 +172,7 @@ public class TestTCPProxy {
     assertNotNull(tcpProxy.getFilterContainer().getComponent(NullFilter.class));
 
     verify(m_logger)
-      .error(containsRegex("Response filters:\\s+NullFilter\\s*\n"));
+      .info(containsRegex("Response filters:\\s+NullFilter\\s*\n"));
   }
 
   @Test public void testEchoFilter() throws Exception {
@@ -187,7 +187,7 @@ public class TestTCPProxy {
     assertEquals(2, filterContainer.getComponents(EchoFilter.class).size());
 
     verify(m_logger)
-      .error(containsRegex("Request filters:\\s+EchoFilter\\s*\n"));
+      .info(containsRegex("Request filters:\\s+EchoFilter\\s*\n"));
   }
 
   @Test public void testChainedFilter() throws Exception {
@@ -202,9 +202,9 @@ public class TestTCPProxy {
     assertNotNull(tcpProxy.getFilterContainer().getComponent(TestFilter.class));
 
     verify(m_logger)
-      .error(containsRegex("Request filters:\\s+TestFilter" +
-                           "\\s*,\\s*EchoFilter" +
-                            "\\s*\n"));
+      .info(containsRegex("Request filters:\\s+TestFilter" +
+                          "\\s*,\\s*EchoFilter" +
+                          "\\s*\n"));
   }
 
   @Test public void testProperties() throws Exception {
@@ -323,9 +323,9 @@ public class TestTCPProxy {
 
     new TCPProxy(arguments, m_logger);
 
-    verify(m_logger).error(containsRegex("Remote address:\\s+r:1234"));
+    verify(m_logger).info(containsRegex("Remote address:\\s+r:1234"));
 
-    verify(m_logger).error(contains("listening on port " + port));
+    verify(m_logger).info(contains("listening on port " + port));
   }
 
   @Test public void testBadComponent() throws Exception {
