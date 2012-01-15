@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2011 Philip Aston
+// Copyright (C) 2004 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -270,7 +270,7 @@ public class TestWorkerLauncher {
 
     verify(worker).getIdentity();
     verify(worker, timeout(1000)).waitFor();
-    verify(worker).destroy();
+    verify(worker, timeout(1000)).destroy();
 
     verifyNoMoreInteractions(worker);
   }
