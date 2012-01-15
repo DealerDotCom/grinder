@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2011 Philip Aston
+// Copyright (C) 2004 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -64,9 +64,9 @@ public final class JVM {
 
     final String name = "The Grinder " + GrinderBuild.getVersionString();
 
-    if (!isAtLeastVersion(1, 5)) {
+    if (!isAtLeastVersion(1, 6)) {
       logger.error("Fatal Error - incompatible version of Java ({})%n" +
-                   "{} requires at least Java 1.5.",
+                   "{} requires at least Java SE 6.",
                    this,
                    name);
       return false;
