@@ -129,9 +129,17 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
         return;
       }
 
+      final EndPoint sourceEndPoint = EndPoint.clientEndPoint(localSocket);
+      final EndPoint targetEndPoint = m_connectionDetails.getRemoteEndPoint();
+
       try {
-        launchThreadPair(localSocket, m_connectionDetails.getRemoteEndPoint(),
-                         EndPoint.clientEndPoint(localSocket),
+        final Socket remoteSocket =
+            getSocketFactory().createClientSocket(targetEndPoint);
+
+        launchThreadPair(localSocket,
+                         remoteSocket,
+                         sourceEndPoint,
+                         targetEndPoint,
                          m_connectionDetails.isSecure());
       }
       catch (IOException e) {

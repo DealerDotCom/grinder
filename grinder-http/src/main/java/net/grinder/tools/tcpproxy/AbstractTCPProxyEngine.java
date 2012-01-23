@@ -346,13 +346,16 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    *
    * @param localSocket
    *          Local socket.
-   * @param remoteEndPoint
-   *          ConnectionDetails. The remote <code>EndPoint</code> to forward
-   *          output to. This is also used in the logging and filter output.
-   * @param clientEndPoint
-   *          The <code>EndPoint</code> to be used in the logging and filter
-   *          output. This may well differ from the <code>localSocket</code>
+   * @param remoteSocket
+   *          Remote socket.
+   * @param sourceEndPoint
+   *          The local {@code EndPoint} to be used in the logging and filter
+   *          output. This may differ from the {@code localSocket}
    *          binding.
+   * @param targetEndPoint
+   *          The remote {@code EndPoint} to be used in the logging and filter
+   *          output. This may differ from the {@code remoteSocket}
+   *          binding.   *
    * @param isSecure
    *          Whether the connection is secure.
    *
@@ -360,30 +363,27 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    *              If an I/O error occurs.
    */
   protected final void launchThreadPair(Socket localSocket,
-                                        EndPoint remoteEndPoint,
-                                        EndPoint clientEndPoint,
+                                        Socket remoteSocket,
+                                        EndPoint sourceEndPoint,
+                                        EndPoint targetEndPoint,
                                         boolean isSecure) throws IOException {
 
-    final Socket remoteSocket = m_socketFactory
-        .createClientSocket(remoteEndPoint);
-
     final ConnectionDetails connectionDetails =
-      new ConnectionDetails(clientEndPoint,
-                            remoteEndPoint,
-                            isSecure);
+      new ConnectionDetails(sourceEndPoint, targetEndPoint, isSecure);
 
     new FilteredStreamThread(localSocket.getInputStream(),
-                             new OutputStreamFilterTee(connectionDetails,
-                                                       remoteSocket
-                                                           .getOutputStream(),
-                                                       m_requestFilter,
-                                                       m_requestColour));
+                             new OutputStreamFilterTee(
+                                 connectionDetails,
+                                 remoteSocket.getOutputStream(),
+                                 m_requestFilter,
+                                 m_requestColour));
 
     new FilteredStreamThread(remoteSocket.getInputStream(),
-                             new OutputStreamFilterTee(connectionDetails
-                                 .getOtherEnd(), localSocket.getOutputStream(),
-                                                       m_responseFilter,
-                                                       m_responseColour));
+                             new OutputStreamFilterTee(
+                                 connectionDetails.getOtherEnd(),
+                                 localSocket.getOutputStream(),
+                                 m_responseFilter,
+                                 m_responseColour));
   }
 
   /**
