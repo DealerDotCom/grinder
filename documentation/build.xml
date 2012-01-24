@@ -47,6 +47,7 @@ for details of other targets.
   <property name="src.dir" value="src"/>
   <property name="grinder.dir" value="../grinder"/>
   <property name="grinder-core.dir" value="../grinder-core"/>
+  <property name="grinder-http.dir" value="../grinder-http"/>
   <property name="grinder-httpclient.dir" value="../grinder-httpclient"/>
   <property name="etc.dir" value="etc"/>
   <property name="generated.dir" value="generated"/>
@@ -183,13 +184,17 @@ for details of other targets.
         <include name="net/grinder/common/Logger.java"/>
         <include name="net/grinder/common/SSLContextFactory.java"/>
         <include name="net/grinder/common/Test.java"/>
+        <include name="net/grinder/script/*.java"/>
+        <exclude name="net/grinder/script/InternalScriptContext.java"/>
+        <exclude name="net/grinder/script/TestRegistry.java"/>
+        <include name="**/*.html"/>
+      </fileset>
+
+      <fileset dir="${grinder-http.dir}/src/main/java">
         <include name="net/grinder/plugin/http/*.java"/>
         <exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
         <exclude name="net/grinder/plugin/http/HTTPPluginThreadState.java"/>
         <exclude name="net/grinder/plugin/http/HTTPPluginTCPProxy*.java"/>
-        <include name="net/grinder/script/*.java"/>
-        <exclude name="net/grinder/script/InternalScriptContext.java"/>
-        <exclude name="net/grinder/script/TestRegistry.java"/>
         <include name="**/*.html"/>
       </fileset>
 
