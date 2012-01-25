@@ -65,15 +65,15 @@ public final class BufferedEchoMessageEncoder
    * {@inheritDoc}
    */
   @Override
-  public void stop() {
+  public void close() throws IOException {
+    super.close();
+
     try {
       outputStream.flush();
     }
     catch (IOException e) {
       addStatus(new ErrorStatus("Failed to flush buffer", this, e));
     }
-
-    super.stop();
   }
 
   /**

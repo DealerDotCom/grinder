@@ -89,6 +89,7 @@ import net.grinder.util.thread.Condition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -541,6 +542,10 @@ final class GrinderProcess {
       // deal.
       m_messagePump.shutdown();
     }
+
+    // Logback doesn't stop its loggers on exit (see LBCORE-202). We do
+    // so explicitly to flush our BufferedEchoMessageEncoder.
+    ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
   }
 
   private class ReportToConsoleTimerTask extends TimerTask {

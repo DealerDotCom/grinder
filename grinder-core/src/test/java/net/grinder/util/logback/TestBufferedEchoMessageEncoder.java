@@ -85,13 +85,13 @@ public class TestBufferedEchoMessageEncoder {
     m_encoder.doEncode(m_event);
     when(m_event.getMessage()).thenReturn("world");
     m_encoder.doEncode(m_event);
-    m_encoder.stop();
+    m_encoder.close();
 
     assertEquals("hello" + CoreConstants.LINE_SEPARATOR +
                  "world" + CoreConstants.LINE_SEPARATOR, baos.toString());
   }
 
-  @Test public void testBadStop() throws Exception {
+  @Test public void testBadClose() throws Exception {
     final Context context = mock(Context.class);
     final StatusManager statusManager = mock(StatusManager.class);
 
@@ -104,7 +104,7 @@ public class TestBufferedEchoMessageEncoder {
     m_encoder.setContext(context);
     m_encoder.init(os);
     m_encoder.start();
-    m_encoder.stop();
+    m_encoder.close();
 
     verify(statusManager).add(isA(ErrorStatus.class));
   }
