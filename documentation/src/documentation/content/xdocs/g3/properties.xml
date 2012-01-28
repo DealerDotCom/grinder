@@ -223,8 +223,7 @@
           </td>
 
           <td>For advanced use only. The period at which each process
-          sends updates to the console. This also controls the
-          frequency at which the data files are flushed.</td>
+          sends updates to the console.</td>
 
           <td>500 ms</td>
   </tr>
