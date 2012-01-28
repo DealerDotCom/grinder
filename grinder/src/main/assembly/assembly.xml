@@ -5,17 +5,19 @@
   <formats>
     <format>zip</format>
   </formats>
-  <includeBaseDirectory>true</includeBaseDirectory>
   <fileSets>
     <fileSet>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0644</fileMode>
       <includes>
         <include>AUTHORS</include>
         <include>CHANGES</include>
-        <include>LICENSE*</include>
         <include>README</include>
       </includes>
     </fileSet>
     <fileSet>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0644</fileMode>
       <directory>examples</directory>
       <includes>
         <include>**</include>
@@ -27,15 +29,26 @@
       </excludes>
     </fileSet>
     <fileSet>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0644</fileMode>
       <directory>${project.build.directory}/unpacked</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0644</fileMode>
       <directory>contrib</directory>
+    </fileSet>
+    <fileSet>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0644</fileMode>
+      <directory>lib</directory>
     </fileSet>
   </fileSets>
   <dependencySets>
     <dependencySet>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0644</fileMode>
       <outputDirectory>/lib</outputDirectory>
       <unpack>false</unpack>
       <scope>runtime</scope>
@@ -46,6 +59,8 @@
       </includes>
     </dependencySet>
     <dependencySet>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0644</fileMode>
       <outputDirectory>/lib</outputDirectory>
       <unpack>false</unpack>
       <scope>runtime</scope>
