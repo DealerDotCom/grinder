@@ -10,14 +10,14 @@
   <description>Common test classes used by The Grinder unit tests.</description>
 
   <parent>
-    <groupId>net.grinder</groupId>
+    <groupId>net.sf.grinder</groupId>
     <artifactId>grinder-parent</artifactId>
     <version>3.8-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
-      <groupId>net.grinder</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>grinder-dcr-agent</artifactId>
       <version>3.8-SNAPSHOT</version>
       <scope>provided</scope>

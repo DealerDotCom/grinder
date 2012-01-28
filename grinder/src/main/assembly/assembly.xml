@@ -55,7 +55,7 @@
       <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}
       </outputFileNameMapping>
       <includes>
-        <include>net.grinder:grinder</include>
+        <include>net.sf.grinder:grinder</include>
       </includes>
     </dependencySet>
     <dependencySet>
@@ -65,7 +65,7 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
       <excludes>
-        <exclude>net.grinder:grinder</exclude>
+        <exclude>net.sf.grinder:grinder</exclude>
         <exclude>org.clojure:clojure</exclude>
       </excludes>
     </dependencySet>

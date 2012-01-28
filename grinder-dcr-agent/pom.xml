@@ -10,7 +10,7 @@
   <description>A Java agent that exposes the byte code instrumentation API.</description>
 
   <parent>
-    <groupId>net.grinder</groupId>
+    <groupId>net.sf.grinder</groupId>
     <artifactId>grinder-parent</artifactId>
     <version>3.8-SNAPSHOT</version>
   </parent>

@@ -13,20 +13,20 @@
   scripts can be recorded easily from a browser session. </description>
 
   <parent>
-    <groupId>net.grinder</groupId>
+    <groupId>net.sf.grinder</groupId>
     <artifactId>grinder-parent</artifactId>
     <version>3.8-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
-      <groupId>net.grinder</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>grinder-dcr-agent</artifactId>
       <version>3.8-SNAPSHOT</version>
     </dependency>
 
     <dependency>
-      <groupId>net.grinder</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>grinder-http</artifactId>
       <version>3.8-SNAPSHOT</version>
     </dependency>
@@ -90,7 +90,7 @@
             <phase>prepare-package</phase>
             <configuration>
               <unpack>
-                <artifact>net.grinder:grinder-http:jar</artifact>
+                <artifact>${project.groupId}:grinder-http:jar</artifact>
                 <overwrite>true</overwrite>
                 <resources>
                   <resource>
@@ -110,7 +110,7 @@
             <phase>prepare-package</phase>
             <configuration>
               <unpack>
-                <artifact>net.grinder:grinder-xmlbeans:jar</artifact>
+                <artifact>${project.groupId}:grinder-xmlbeans:jar</artifact>
                 <overwrite>true</overwrite>
                 <resources>
                   <resource>
@@ -130,7 +130,7 @@
             <phase>prepare-package</phase>
             <configuration>
               <unpack>
-                <artifact>net.grinder:grinder-httpclient:jar</artifact>
+                <artifact>${project.groupId}:grinder-httpclient:jar</artifact>
                 <overwrite>true</overwrite>
                 <resources>
                   <resource>
@@ -146,17 +146,17 @@
         </executions>
         <dependencies>
           <dependency>
-            <groupId>net.grinder</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>grinder-http</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>
-            <groupId>net.grinder</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>grinder-httpclient</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>
-            <groupId>net.grinder</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>grinder-xmlbeans</artifactId>
             <version>${project.version}</version>
           </dependency>

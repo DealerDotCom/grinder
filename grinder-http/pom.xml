@@ -10,39 +10,39 @@
   <description>The Grinder HTTP plugin.</description>
 
   <parent>
-    <groupId>net.grinder</groupId>
+    <groupId>net.sf.grinder</groupId>
     <artifactId>grinder-parent</artifactId>
     <version>3.8-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
-      <groupId>net.grinder</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>grinder-core</artifactId>
       <version>3.8-SNAPSHOT</version>
     </dependency>
 
     <dependency>
-      <groupId>net.grinder</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>grinder-httpclient</artifactId>
       <version>3.8-SNAPSHOT</version>
     </dependency>
 
     <dependency>
-      <groupId>net.grinder</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>grinder-xmlbeans</artifactId>
       <version>3.8-SNAPSHOT</version>
     </dependency>
 
     <dependency>
-      <groupId>net.grinder</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>grinder-dcr-agent</artifactId>
       <version>3.8-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>net.grinder</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>grinder-test-support</artifactId>
       <version>3.8-SNAPSHOT</version>
       <scope>test</scope>
@@ -74,7 +74,7 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>net.grinder</groupId>
+                  <groupId>${project.groupId}</groupId>
                   <artifactId>grinder-dcr-agent</artifactId>
                   <type>jar</type>
                   <overWrite>true</overWrite>
