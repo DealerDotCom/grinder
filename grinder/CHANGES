@@ -1,5 +1,5 @@
-The Grinder 3.8 (not yet released)
-----------------------------------
+The Grinder 3.7.1
+-----------------
 
   Fix bug 3479712 - Data log is not flushed on exit. Thanks to Andreas
   for the report.
