@@ -12,6 +12,12 @@
   <description>Parent Maven project for The Grinder load testing framework.</description>
   <inceptionYear>2000</inceptionYear>
 
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
   <developers>
     <developer>
       <name>Philip Aston</name>
@@ -224,14 +230,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-
-  <!-- Required so site:stage works. -->
-  <distributionManagement>
-    <site>
-      <id>blah</id>
-      <url>file:///tmp/bah</url>
-    </site>
-  </distributionManagement>
 
   <scm>
     <url>http://sourceforge.net/scm/?type=git&amp;group_id=18598</url>
