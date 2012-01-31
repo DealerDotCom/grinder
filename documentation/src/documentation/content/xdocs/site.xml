@@ -332,7 +332,9 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <mozilla href="http://www.mozilla.com/"/>
 
-    <mvn href="http://maven.apache.org/"/>
+    <mvn href="http://maven.apache.org/">
+      <central href="http://search.maven.org"/>
+    </mvn>
 
     <ncftp href="http://www.ncftp.com/">
       <ephemeral-ports href="ncftpd/doc/misc/ephemeral_ports.html"/>
@@ -365,6 +367,10 @@ See http://forrest.apache.org/docs/linking.html for more info
     </zephyrfalcon>
 
     <slf4j href="http://www.slf4j.org/"/>
+
+    <sonatype href="http://www.sonatype.org/">
+      <oss href="http://oss.sonatype.org/"/>
+    </sonatype>
 
     <sourceforge href="http://www.sourceforge.net/">
       <bug2314157 href="tracker/?func=detail&amp;aid=2314157&amp;group_id=18598&amp;atid=118598"/>

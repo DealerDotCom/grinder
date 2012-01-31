@@ -210,6 +210,11 @@ java -Duser.language="es" net.grinder.Console
     the <a href="site:links">links page</a>.
     </p>
 
+    <p>On release, The Grinder jar files are deployed to the <a
+    href="ext:sonatype/oss">Sonatype</a> OSS Nexus repository, and
+    will be synchronised to <a href="ext:mvn/central">Maven
+    Central</a> soon afterwards.</p>
+
   </section>
 </body>
 </document>
