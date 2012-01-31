@@ -1,3 +1,11 @@
+The Grinder 3.8 (Not yet released)
+----------------------------------
+
+  Fix bug 3471476 - Null Pointer Exception in the TCPProxy when making
+  multiple connections through a chained HTTPS proxy. Thanks to Tadge
+  for the report and testing.
+
+
 The Grinder 3.7.1
 -----------------
 
