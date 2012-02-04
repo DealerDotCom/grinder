@@ -113,7 +113,6 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
   private final ConnectionDetails m_connectionDetails;
 
-  // Parse data.
   private Request m_request;
 
   public ConnectionHandlerImplementation(
@@ -173,6 +172,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
     if (m_request == null) {
       m_logger.error("UNEXPECTED - No current request");
+      System.err.println(asciiString);
     }
     else if (m_request.getBody() != null) {
       m_request.getBody().write(buffer, 0, length);
@@ -333,8 +333,6 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     if (m_request != null) {
       m_request.end();
     }
-
-    m_request = null;
   }
 
   private final class Request {
@@ -396,9 +394,15 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     }
 
     public boolean expectingResponseBody() {
-      // RFC 2616, 4.3.
-      if (m_requestXML.getMethod().equals(RequestType.Method.HEAD)) {
-        return false;
+      try {
+        // RFC 2616, 4.3.
+        if (m_requestXML.getMethod().equals(RequestType.Method.HEAD)) {
+          return false;
+        }
+      }
+      catch (NullPointerException e) {
+        System.err.println("m_requestXML=" + m_requestXML.xmlText());
+        throw e;
       }
 
       final int status = m_requestXML.getResponse().getStatusCode();
