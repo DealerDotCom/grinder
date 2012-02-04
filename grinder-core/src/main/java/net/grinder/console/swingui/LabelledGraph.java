@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,20 +26,21 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.SystemColor;
 import java.text.NumberFormat;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
 import net.grinder.console.common.Resources;
-import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.TestStatisticsQueries;
 
 
@@ -144,7 +145,7 @@ class LabelledGraph extends JPanel {
         setFont(s_boldFont);
       }
       else {
-        setForeground(UIManager.getColor("Label.foreground"));
+        setForeground(SystemColor.controlText);
         setFont(s_plainFont);
       }
     }
@@ -217,7 +218,7 @@ class LabelledGraph extends JPanel {
 
     final JLabel titleLabel = new JLabel();
     titleLabel.setText(title);
-    titleLabel.setForeground(Colours.BLACK);
+    titleLabel.setForeground(SystemColor.textText);
     titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 
     labelPanel.add(m_averageTimeLabel);

@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Philip Aston
+// Copyright (C) 2007 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.console.swingui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.SystemColor;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -72,7 +73,7 @@ class EditorControls {
 
     final JLabel label = new JLabel();
 
-    label.setForeground(Colours.HIGHLIGHT_TEXT);
+    label.setForeground(SystemColor.textHighlight);
 
     editorModel.addListener(new EditorModel.AbstractListener() {
       public void bufferStateChanged(Buffer buffer) {
@@ -106,7 +107,6 @@ class EditorControls {
     m_panel.add(editorToolBar);
     m_panel.add(Box.createHorizontalGlue());
     m_panel.add(label);
-    //m_panel.setBorder(BorderFactory.createLineBorder(Colours.RED));
     m_panel.setBorder(BorderFactory.createEmptyBorder());
   }
 

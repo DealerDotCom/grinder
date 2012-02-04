@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ContainerAdapter;
 import java.awt.event.ContainerEvent;
@@ -73,14 +74,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
-
-import org.slf4j.Logger;
 
 import net.grinder.common.Closer;
 import net.grinder.common.GrinderException;
@@ -105,6 +103,8 @@ import net.grinder.statistics.StatisticsSet;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 import net.grinder.util.thread.Condition;
+
+import org.slf4j.Logger;
 
 
 /**
@@ -473,7 +473,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
         m_resources.getString(titleResource));
 
     border.setTitleFont(m_titleLabelFont);
-    border.setTitleColor(Colours.HIGHLIGHT_TEXT);
+    border.setTitleColor(SystemColor.textInactiveText);
     border.setTitleJustification(TitledBorder.RIGHT);
 
     return border;
@@ -482,13 +482,12 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
   private JPanel createControlAndTotalPanel() {
     final LabelledGraph totalGraph =
       new LabelledGraph(m_resources.getString("totalGraph.title"),
-                        m_resources, Colours.DARK_GREY,
+                        m_resources, SystemColor.window,
                         m_model.getTPSExpression(),
                         m_model.getPeakTPSExpression(),
                         m_sampleModelViews.getTestStatisticsQueries());
 
     final JLabel tpsLabel = new JLabel();
-    tpsLabel.setForeground(Colours.BLACK);
     tpsLabel.setFont(new Font("helvetica", Font.ITALIC | Font.BOLD, 40));
     tpsLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
@@ -774,7 +773,7 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
       m_stopAction.stopped();
     }
     else {
-      m_stateLabel.setForeground(UIManager.getColor("Label.foreground"));
+      m_stateLabel.setForeground(SystemColor.controlText);
     }
   }
 

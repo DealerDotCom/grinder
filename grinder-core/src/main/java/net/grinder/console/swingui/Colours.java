@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,27 +22,22 @@
 package net.grinder.console.swingui;
 
 import java.awt.Color;
-import java.awt.SystemColor;
 
 
 /**
  * Some standard colours.
+ *
+ * <p>
+ * To be most compatible with all L&Fs, we prefer the logical colours defined by
+ * {@code SystemColor}.
+ * </p>
  *
  * @author Philip Aston
  */
 final class Colours {
 
   /** Colour constant. */
-  public static final Color BLACK = Color.black;
-
-  /** Colour constant. */
-  public static final Color BLUE = Color.blue;
-
-  /** Colour constant. */
   public static final Color DARK_GREEN = new Color(0, 0x80, 0);
-
-  /** Colour constant. */
-  public static final Color DARK_GREY = Color.darkGray;
 
   /** Colour constant. */
   public static final Color DARK_RED = new Color(0xE0, 0, 0);
@@ -51,20 +46,11 @@ final class Colours {
   public static final Color FAINT_YELLOW = new Color(0xFF, 0xFF, 0xD0);
 
   /** Colour constant. */
-  public static final Color GREY = Color.gray;
+//public static final Color GREY = Color.gray;
 
   /** Colour constant. */
   public static final Color LIGHT_GREY = Color.lightGray;
 
   /** Colour constant. */
-  public static final Color HIGHLIGHT_BLUE = SystemColor.textHighlight;
-
-  /** Colour constant. */
   public static final Color RED = Color.red;
-
-  /** Colour constant. */
-  public static final Color HIGHLIGHT_TEXT = SystemColor.textHighlight;
-
-  /** Colour constant. */
-  public static final Color INACTIVE_TEXT = SystemColor.textInactiveText;
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +26,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -566,7 +567,8 @@ final class FileTree {
         // See note in paint().
         setTextNonSelectionColor(
           buffer == null && m_editorModel.isBoringFile(file) ?
-          Colours.INACTIVE_TEXT : m_defaultRenderer.getTextNonSelectionColor());
+          SystemColor.textInactiveText :
+          m_defaultRenderer.getTextNonSelectionColor());
 
         if (buffer != null) {
           // File has an open buffer.
@@ -608,8 +610,8 @@ final class FileTree {
       // in getTreeCellRendererComponent().
       if (m_active) {
         backgroundColour = Colours.FAINT_YELLOW;
-        setTextSelectionColor(Colours.BLACK);
-        setTextNonSelectionColor(Colours.BLACK);
+        setTextSelectionColor(SystemColor.textText);
+        setTextNonSelectionColor(SystemColor.textText);
       }
       else if (selected) {
         backgroundColour = m_defaultRenderer.getBackgroundSelectionColor();

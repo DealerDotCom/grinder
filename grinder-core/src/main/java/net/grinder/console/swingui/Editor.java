@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -79,17 +79,17 @@ final class Editor {
 
     // Override ugly default colours.
     final SyntaxStyle[] styles = textAreaDefaults.styles;
-    styles[Token.KEYWORD1] = new SyntaxStyle(Colours.RED, false, false);
+    styles[Token.KEYWORD1] = new SyntaxStyle(Color.RED, false, false);
     styles[Token.KEYWORD2] = styles[Token.KEYWORD1];
     styles[Token.KEYWORD3] = styles[Token.KEYWORD1];
     styles[Token.COMMENT1] = new SyntaxStyle(Colours.DARK_GREEN, true, false);
-    styles[Token.LITERAL1] = new SyntaxStyle(Colours.BLUE, false, false);
+    styles[Token.LITERAL1] = new SyntaxStyle(Color.BLUE, false, false);
     styles[Token.LITERAL2] = styles[Token.LITERAL1];
 
     textAreaDefaults.caretColor = Colours.DARK_RED;
     textAreaDefaults.lineHighlightColor = Colours.FAINT_YELLOW;
-    textAreaDefaults.bracketHighlightColor = Colours.GREY;
-    textAreaDefaults.selectionColor = Colours.GREY;
+    textAreaDefaults.bracketHighlightColor = Color.GRAY;
+    textAreaDefaults.selectionColor = Color.GRAY;
     textAreaDefaults.cols = 1;
     textAreaDefaults.inputHandler.addKeyBinding("C+S", saveFileAsAction);
 
@@ -259,8 +259,8 @@ final class Editor {
       // We can't use setCaretVisible(false) to make the caret
       // invisible as it is set true by the JEditTextArea focus
       // handler. Paint it invisibly instead.
-      thePainter.setCaretColor(b ? m_enabledCaretColour : Colours.GREY);
-      thePainter.setBackground(b ? m_enabledBackground : Colours.GREY);
+      thePainter.setCaretColor(b ? m_enabledCaretColour : Color.GRAY);
+      thePainter.setBackground(b ? m_enabledBackground : Color.GRAY);
       thePainter.setLineHighlightEnabled(b);
 
       if (!b) {
