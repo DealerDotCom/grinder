@@ -133,32 +133,30 @@ final class Editor {
   }
 
   private TokenMarker getTokenMarker(Buffer.Type bufferType) {
-    if (bufferType == Buffer.HTML_BUFFER) {
-      return new HTMLTokenMarker();
-    }
-    else if (bufferType == Buffer.JAVA_BUFFER) {
-      return new JavaTokenMarker();
-    }
-    else if (bufferType == Buffer.MSDOS_BATCH_BUFFER) {
-      return new BatchFileTokenMarker();
-    }
-    else if (bufferType == Buffer.PROPERTIES_BUFFER) {
-      return new PropsTokenMarker();
-    }
-    else if (bufferType == Buffer.PYTHON_BUFFER) {
-      return new PythonTokenMarker();
-    }
-    else if (bufferType == Buffer.SHELL_BUFFER) {
-      return new ShellScriptTokenMarker();
-    }
-    else if (bufferType == Buffer.TEXT_BUFFER) {
-      return null;
-    }
-    else if (bufferType == Buffer.XML_BUFFER) {
-      return new XMLTokenMarker();
-    }
-    else {
-      return null;
+    switch (bufferType) {
+      case HTML_BUFFER:
+        return new HTMLTokenMarker();
+
+      case JAVA_BUFFER:
+        return new JavaTokenMarker();
+
+      case MSDOS_BATCH_BUFFER:
+        return new BatchFileTokenMarker();
+
+      case PROPERTIES_BUFFER:
+        return new PropsTokenMarker();
+
+      case PYTHON_BUFFER:
+        return new PythonTokenMarker();
+
+      case SHELL_BUFFER:
+        return new ShellScriptTokenMarker();
+
+      case XML_BUFFER:
+        return new XMLTokenMarker();
+
+      default:
+        return null;
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2008 Philip Aston
+// Copyright (C) 2004 - 2012 Philip Aston
 // Copyright (C) 2005 Martin Wagner
 // All rights reserved.
 //
@@ -22,8 +22,8 @@
 
 package net.grinder.console.editor;
 
-import java.io.File;
 import java.io.EOFException;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -32,7 +32,6 @@ import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.AssertUtilities;
 
 
 /**
@@ -81,7 +80,7 @@ public class TestBuffer extends AbstractFileTestCase {
     assertNull(buffer.getFile());
     assertEquals(textSource, buffer.getTextSource());
 
-    assertEquals(Buffer.UNKNOWN_BUFFER, buffer.getType());
+    assertEquals(Buffer.Type.TEXT_BUFFER, buffer.getType());
 
     assertTrue(!buffer.isDirty());
     assertTrue(buffer.isUpToDate());
@@ -111,24 +110,24 @@ public class TestBuffer extends AbstractFileTestCase {
     final StringTextSource textSource = new StringTextSource("");
 
     final Expectation[] wordsOfExpectation = {
-      new Expectation(Buffer.HTML_BUFFER, "somefile/blah.htm"),
-      new Expectation(Buffer.HTML_BUFFER, "foo.html"),
-      new Expectation(Buffer.JAVA_BUFFER, "eieio.java"),
-      new Expectation(Buffer.MSDOS_BATCH_BUFFER, "eat/my.shorts.bat"),
-      new Expectation(Buffer.MSDOS_BATCH_BUFFER, "alpha.cmd"),
-      new Expectation(Buffer.PROPERTIES_BUFFER, "essential.properties"),
-      new Expectation(Buffer.PYTHON_BUFFER, "why/oh.py"),
-      new Expectation(Buffer.SHELL_BUFFER, "bishbosh.bash"),
-      new Expectation(Buffer.SHELL_BUFFER, "clishclosh.csh"),
-      new Expectation(Buffer.SHELL_BUFFER, "kkkkrassh.ksh"),
-      new Expectation(Buffer.SHELL_BUFFER, "be/quiet.sh"),
-      new Expectation(Buffer.TEXT_BUFFER, "tick.txt"),
-      new Expectation(Buffer.TEXT_BUFFER, "tech.text"),
-      new Expectation(Buffer.XML_BUFFER, "xplicitly.xml"),
-      new Expectation(Buffer.UNKNOWN_BUFFER, "blurb/blah"),
-      new Expectation(Buffer.UNKNOWN_BUFFER, "fidledly.foo"),
-      new Expectation(Buffer.UNKNOWN_BUFFER, "bah/bah"),
-      new Expectation(Buffer.UNKNOWN_BUFFER, "...."),
+      new Expectation(Buffer.Type.HTML_BUFFER, "somefile/blah.htm"),
+      new Expectation(Buffer.Type.HTML_BUFFER, "foo.html"),
+      new Expectation(Buffer.Type.JAVA_BUFFER, "eieio.java"),
+      new Expectation(Buffer.Type.MSDOS_BATCH_BUFFER, "eat/my.shorts.bat"),
+      new Expectation(Buffer.Type.MSDOS_BATCH_BUFFER, "alpha.cmd"),
+      new Expectation(Buffer.Type.PROPERTIES_BUFFER, "essential.properties"),
+      new Expectation(Buffer.Type.PYTHON_BUFFER, "why/oh.py"),
+      new Expectation(Buffer.Type.SHELL_BUFFER, "bishbosh.bash"),
+      new Expectation(Buffer.Type.SHELL_BUFFER, "clishclosh.csh"),
+      new Expectation(Buffer.Type.SHELL_BUFFER, "kkkkrassh.ksh"),
+      new Expectation(Buffer.Type.SHELL_BUFFER, "be/quiet.sh"),
+      new Expectation(Buffer.Type.TEXT_BUFFER, "tick.txt"),
+      new Expectation(Buffer.Type.TEXT_BUFFER, "tech.text"),
+      new Expectation(Buffer.Type.XML_BUFFER, "xplicitly.xml"),
+      new Expectation(Buffer.Type.TEXT_BUFFER, "blurb/blah"),
+      new Expectation(Buffer.Type.TEXT_BUFFER, "fidledly.foo"),
+      new Expectation(Buffer.Type.TEXT_BUFFER, "bah/bah"),
+      new Expectation(Buffer.Type.TEXT_BUFFER, "...."),
     };
 
     for (int i=0; i<wordsOfExpectation.length; ++i) {
@@ -140,13 +139,6 @@ public class TestBuffer extends AbstractFileTestCase {
       assertEquals(expectation.getType(), buffer.getType());
       assertEquals(textSource, buffer.getTextSource());
     }
-
-    assertEquals(Buffer.HTML_BUFFER, Buffer.HTML_BUFFER);
-    AssertUtilities.assertNotEquals(Buffer.HTML_BUFFER, Buffer.TEXT_BUFFER);
-    AssertUtilities.assertNotEquals(Buffer.TEXT_BUFFER, Buffer.HTML_BUFFER);
-    AssertUtilities.assertNotEquals(Buffer.PROPERTIES_BUFFER,
-                                    Buffer.UNKNOWN_BUFFER);
-    assertEquals(Buffer.PYTHON_BUFFER, Buffer.PYTHON_BUFFER);
   }
 
   public void testBufferWithAssociatedFile() throws Exception {
@@ -166,7 +158,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     final Buffer buffer = new BufferImplementation(s_resources, textSource, file);
 
-    assertEquals(Buffer.TEXT_BUFFER, buffer.getType());
+    assertEquals(Buffer.Type.TEXT_BUFFER, buffer.getType());
     assertTrue(!buffer.isDirty());
     assertTrue(!buffer.isUpToDate());
     assertEquals(file, buffer.getFile());
@@ -225,7 +217,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     final Buffer buffer = new BufferImplementation(s_resources, textSource, file);
 
-    assertEquals(Buffer.TEXT_BUFFER, buffer.getType());
+    assertEquals(Buffer.Type.TEXT_BUFFER, buffer.getType());
     assertTrue(!buffer.isDirty());
     assertTrue(!buffer.isUpToDate());
     assertEquals(file, buffer.getFile());

@@ -31,8 +31,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.EventListener;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.grinder.common.Closer;
 import net.grinder.common.UncheckedInterruptedException;
@@ -47,28 +45,6 @@ import net.grinder.util.ListenerSupport;
  * @author Philip Aston
  */
 final class BufferImplementation implements Buffer {
-
-  // Common file types we're likely to work with. Definition must come
-  // after type constants are initialised.
-  private static final Map<String, Type>
-    s_extensionMap =
-      new HashMap<String, Type>() { {
-        put("bash", SHELL_BUFFER);
-        put("bat", MSDOS_BATCH_BUFFER);
-        put("cmd", MSDOS_BATCH_BUFFER);
-        put("csh", SHELL_BUFFER);
-        put("htm", HTML_BUFFER);
-        put("html", HTML_BUFFER);
-        put("java", JAVA_BUFFER);
-        put("ksh", SHELL_BUFFER);
-        put("properties", PROPERTIES_BUFFER);
-        put("py", PYTHON_BUFFER);
-        put("sh", SHELL_BUFFER);
-        put("text", TEXT_BUFFER);
-        put("txt", TEXT_BUFFER);
-        put("xml", XML_BUFFER);
-      }
-    };
 
   private final Resources m_resources;
   private final TextSource m_textSource;
@@ -198,7 +174,6 @@ final class BufferImplementation implements Buffer {
    * be written to.
    */
   public void save(File file) throws DisplayMessageConsoleException {
-
     final File oldFile = getFile();
 
     Writer fileWriter = null;
@@ -296,15 +271,11 @@ final class BufferImplementation implements Buffer {
 
       if (lastDot >= 0) {
         final String extension = name.substring(lastDot + 1);
-        final Type type = s_extensionMap.get(extension);
-
-        if (type != null) {
-          return type;
-        }
+        return Type.forExtension(extension);
       }
     }
 
-    return UNKNOWN_BUFFER;
+    return Type.TEXT_BUFFER;
   }
 
   /**
@@ -346,26 +317,6 @@ final class BufferImplementation implements Buffer {
      * @param oldFile The File the buffer was previously associated with.
      */
     void bufferSaved(Buffer buffer, File oldFile);
-  }
-
-  /**
-   * Buffer type enumeration. Uses default (identity) equality semantics.
-   */
-  public static final class TypeImplementation implements Buffer.Type {
-    private final String m_name;
-
-    TypeImplementation(String name) {
-      m_name = name;
-    }
-
-    /**
-     * Useful for debugging.
-     *
-     * @return Description of the Type.
-     */
-    public String toString() {
-      return m_name;
-    }
   }
 
   /**

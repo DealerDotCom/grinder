@@ -1,4 +1,4 @@
-// Copyright (C) 2004 - 2011 Philip Aston
+// Copyright (C) 2004 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -601,27 +601,23 @@ public final class EditorModel {
   public abstract static class AbstractListener implements Listener {
 
     /**
-     * @see EditorModel.Listener#bufferAdded
-     * @param buffer The buffer.
+     * {@inheritDoc}
      */
-    public void bufferAdded(Buffer buffer) { }
+    @Override public void bufferAdded(Buffer buffer) { }
 
     /**
-     * @see EditorModel.Listener#bufferStateChanged
-     * @param buffer The buffer.
+     * {@inheritDoc}
      */
-    public void bufferStateChanged(Buffer buffer) { }
+    @Override public void bufferStateChanged(Buffer buffer) { }
 
     /**
-     * @see EditorModel.Listener#bufferNotUpToDate
-     * @param buffer The buffer.
+     * {@inheritDoc}
      */
-    public void bufferNotUpToDate(Buffer buffer) { }
+    @Override public void bufferNotUpToDate(Buffer buffer) { }
 
     /**
-     * @see EditorModel.Listener#bufferRemoved
-     * @param buffer The buffer.
+     * {@inheritDoc}
      */
-    public void bufferRemoved(Buffer buffer) { }
+    @Override public void bufferRemoved(Buffer buffer) { }
   }
 }

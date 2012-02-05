@@ -1,4 +1,4 @@
-// Copyright (C) 2005 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,11 @@
 
 package net.grinder.console.editor;
 
+import static java.util.Arrays.asList;
+
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.editor.BufferImplementation.Listener;
@@ -34,34 +38,67 @@ import net.grinder.console.editor.BufferImplementation.Listener;
  */
 public interface Buffer {
 
-  /** Buffer type constant. */
-  Type HTML_BUFFER = new BufferImplementation.TypeImplementation("HTML");
+  /**
+   * Buffer type.
+   */
+  enum Type {
 
-  /** Buffer type constant. */
-  Type JAVA_BUFFER = new BufferImplementation.TypeImplementation("Java");
+    /** Buffer type constant. */
+    JAVA_BUFFER("Java", "text/java", "java"),
 
-  /** Buffer type constant. */
-  Type MSDOS_BATCH_BUFFER =
-    new BufferImplementation.TypeImplementation("MSDOS batch");
+    /** Buffer type constant. */
+    CLOJURE_BUFFER("Clojure", "text/clojure", "clj"),
 
-  /** Buffer type constant. */
-  Type PROPERTIES_BUFFER =
-    new BufferImplementation.TypeImplementation("Properties");
+    /** Buffer type constant. */
+    PYTHON_BUFFER("Python", "text/python", "py"),
 
-  /** Buffer type constant. */
-  Type PYTHON_BUFFER = new BufferImplementation.TypeImplementation("Python");
+    /** Buffer type constant. */
+    SHELL_BUFFER("Shell", "text/bash", "sh", "bash", "csh", "ksh"),
 
-  /** Buffer type constant. */
-  Type SHELL_BUFFER = new BufferImplementation.TypeImplementation("Shell");
+    /** Buffer type constant. */
+    HTML_BUFFER("HTML", "text/html", "html", "htm"),
 
-  /** Buffer type constant. */
-  Type TEXT_BUFFER = new BufferImplementation.TypeImplementation("Text");
+    /** Buffer type constant. */
+    MSDOS_BATCH_BUFFER("MSDOS Batch", "text/dosbatch", "bat", "cmd"),
 
-  /** Buffer type constant. */
-  Type XML_BUFFER = new BufferImplementation.TypeImplementation("XML");
+    /** Buffer type constant. */
+    XML_BUFFER("XML", "text/xml", "xml"),
 
-  /** Buffer type constant. */
-  Type UNKNOWN_BUFFER = new BufferImplementation.TypeImplementation("Unknown");
+    /** Buffer type constant. */
+    PROPERTIES_BUFFER("Unknown", "text/properties", "properties"),
+
+    /** Buffer type constant. */
+    TEXT_BUFFER("Unknown", "text/text", "text", "txt");
+
+    private final String m_name;
+    private final String m_contentType;
+    private Set<String> m_extensions;
+
+    private Type(String name, String contentType, String... extensions) {
+      m_name = name;
+      m_contentType = contentType;
+      m_extensions = new HashSet<String>(asList(extensions));
+    }
+
+    public String getName() {
+      return m_name;
+    }
+
+    public String getContentType() {
+      return m_contentType;
+    }
+
+    public static Type forExtension(String extension) {
+      for (Type t : Type.values()) {
+        if (t.m_extensions.contains(extension)) {
+          return t;
+        }
+      }
+
+      return TEXT_BUFFER;
+    }
+  }
+
 
   /**
    * Return the buffer's {@link TextSource}.
@@ -149,11 +186,4 @@ public interface Buffer {
    * @param listener The listener.
    */
   void addListener(Listener listener);
-
-  /**
-   * Instances of this opaque class represent a buffer's type.
-   *
-   */
-  interface Type {
-  }
 }
