@@ -91,7 +91,7 @@ class HTTPMethodAbsoluteURIFilterDecorator extends AbstractFilterDecorator {
 
       // We use ISO 8859_1 instead of US ASCII. The correct char set to
       // use for URL's is not well defined by RFC 2616. This way we are
-      // at least non-lossy (US-ASCII maps characters above 0xFF to
+      // at least non-lossy (US-ASCII maps characters above 0x7F to
       // '?').
       if (delegateResult != null) {
         original = new String(delegateResult, "ISO8859_1");

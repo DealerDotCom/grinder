@@ -140,7 +140,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     // String used to parse headers - header names are US-ASCII encoded and
     // anchored to start of line. The correct character set to use for URL's
     // is not well defined by RFC 2616, so we use ISO8859_1. This way we are
-    // at least non-lossy (US-ASCII maps characters above 0xFF to '?').
+    // at least non-lossy (US-ASCII maps characters above 0x7F to '?').
     final String asciiString;
     try {
       asciiString = new String(buffer, 0, length, "ISO8859_1");
