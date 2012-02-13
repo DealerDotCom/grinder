@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2011 Philip Aston
+// Copyright (C) 2006 - 2012 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
 // Copyright (C) 2009 Hitoshi Amano
 // All rights reserved.
@@ -29,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -113,6 +115,12 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
 
   private final ConnectionDetails m_connectionDetails;
 
+  // Buffer should be at least as large as the HTTPProxyTCPProxyEngine buffer.
+  // We've introduced buffers at this level to solve a specific issue
+  // (bug 3484390). Later, we may push this up the API, and perhaps copy
+  // directly from a socket channel into the buffer.
+  private final ByteBuffer m_requestBuffer = ByteBuffer.allocate(40960);
+
   private Request m_request;
 
   public ConnectionHandlerImplementation(
@@ -135,7 +143,21 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     m_connectionDetails = connectionDetails;
   }
 
-  public synchronized void handleRequest(byte[] buffer, int length) {
+  /**
+   * {@inheritDoc}
+   */
+  @Override public synchronized void handleRequest(byte[] buffer, int length) {
+
+    try {
+      m_requestBuffer.put(buffer,  0, length);
+    }
+    catch (BufferOverflowException e) {
+      m_logger.error("Filled buffer without matching request line", e);
+      m_requestBuffer.clear();
+      return;
+    }
+
+    m_requestBuffer.flip();
 
     // String used to parse headers - header names are US-ASCII encoded and
     // anchored to start of line. The correct character set to use for URL's
@@ -143,7 +165,10 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     // at least non-lossy (US-ASCII maps characters above 0x7F to '?').
     final String asciiString;
     try {
-      asciiString = new String(buffer, 0, length, "ISO8859_1");
+      asciiString = new String(m_requestBuffer.array(),
+                               0,
+                               m_requestBuffer.remaining(),
+                               "ISO8859_1");
     }
     catch (UnsupportedEncodingException e) {
       throw new AssertionError(e);
@@ -159,23 +184,32 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     if (matcher.find()) {
       // Packet is start of new request message.
 
-      requestFinished();
-
       final String method = matcher.group(1);
       final String relativeURI = matcher.group(2);
 
-      m_request = new Request(method, relativeURI,
-          m_commentSource.getComments());
+      if (RequestType.Method.Enum.forString(method) != null) {
+        requestFinished();
+
+        m_request = new Request(method,
+                                relativeURI,
+                                m_commentSource.getComments());
+      }
     }
 
     // Stuff we do whatever.
 
     if (m_request == null) {
-      m_logger.error("UNEXPECTED - No current request");
-      System.err.println(asciiString);
+      // We haven't received enough bytes to match the request line.
+      m_requestBuffer
+        .position(m_requestBuffer.limit())
+        .limit(m_requestBuffer.capacity());
+
+      return;
     }
     else if (m_request.getBody() != null) {
-      m_request.getBody().write(buffer, 0, length);
+      m_request.getBody().write(m_requestBuffer.array(),
+                                0,
+                                m_requestBuffer.remaining());
     }
     else {
       // Still parsing headers.
@@ -226,9 +260,13 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       // processing of the current request.
       if (bodyStart > -1) {
         m_request.new RequestBody().write(
-          buffer, bodyStart, length - bodyStart);
+          m_requestBuffer.array(),
+          bodyStart,
+          m_requestBuffer.remaining() - bodyStart);
       }
     }
+
+    m_requestBuffer.clear();
   }
 
   public synchronized void handleResponse(byte[] buffer, int length) {
@@ -394,15 +432,9 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     }
 
     public boolean expectingResponseBody() {
-      try {
-        // RFC 2616, 4.3.
-        if (m_requestXML.getMethod().equals(RequestType.Method.HEAD)) {
-          return false;
-        }
-      }
-      catch (NullPointerException e) {
-        System.err.println("m_requestXML=" + m_requestXML.xmlText());
-        throw e;
+      // RFC 2616, 4.3.
+      if (m_requestXML.getMethod().equals(RequestType.Method.HEAD)) {
+        return false;
       }
 
       final int status = m_requestXML.getResponse().getStatusCode();

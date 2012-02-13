@@ -5,6 +5,10 @@ The Grinder 3.8 (Not yet released)
   multiple connections through a chained HTTPS proxy. Thanks to Tadge
   for the report and testing.
 
+  Fix bug 3484390 - FireFox 10 and HTTPS triggers a
+  NullPointerException. Thanks to Ouray Viney for the report and
+  testing.
+
 
 The Grinder 3.7.1
 -----------------

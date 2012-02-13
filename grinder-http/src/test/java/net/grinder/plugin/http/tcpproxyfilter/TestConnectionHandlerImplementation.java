@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
 // Copyright (C) 2009 Hitoshi Amano
 // All rights reserved.
@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.BufferOverflowException;
 
 import net.grinder.plugin.http.xml.FormFieldType;
 import net.grinder.plugin.http.xml.RequestType;
@@ -850,7 +851,7 @@ public class TestConnectionHandlerImplementation
     final byte[] buffer = message.getBytes();
     handler.handleRequest(buffer, buffer.length);
 
-    final byte[] buffer2 = new byte[0x10000];
+    final byte[] buffer2 = new byte[0x8000];
 
     for (int i = 0; i < buffer2.length; i++) {
       buffer2[i] = (byte) i;
@@ -863,7 +864,7 @@ public class TestConnectionHandlerImplementation
     assertEquals(file.getPath(), request.getBody().getFile());
     assertTrue(file.exists());
     assertTrue(file.canRead());
-    assertEquals(0x10000, file.length());
+    assertEquals(0x8000, file.length());
     assertFalse(request.getBody().isSetBinary());
     assertFalse(request.getBody().isSetForm());
     assertFalse(request.getBody().isSetEscapedString());
@@ -898,7 +899,7 @@ public class TestConnectionHandlerImplementation
     final byte[] buffer = message.getBytes();
     handler.handleRequest(buffer, buffer.length);
 
-    final byte[] buffer2 = new byte[0x10000];
+    final byte[] buffer2 = new byte[0x8000];
 
     for (int i = 0; i < buffer2.length; i++) {
       buffer2[i] = (byte) i;
@@ -917,23 +918,53 @@ public class TestConnectionHandlerImplementation
                            isA(FileNotFoundException.class));
   }
 
-  @Test public void testWithBadRequestMessages() throws Exception {
+  @Test public void testPartitionedRequest() throws Exception {
     final ConnectionHandler handler =
       new ConnectionHandlerImplementation(
         m_httpRecording, m_logger, m_regularExpressions,
         m_uriParser, m_attributeStringParser, null,
         m_commentSource, m_connectionDetails);
 
-    handler.handleRequest(new byte[0], 0);
-    verify(m_logger).error(contains("No current request"));
+    final byte[] message1Bytes = new String("G").getBytes("US-ASCII");
+    handler.handleRequest(message1Bytes, message1Bytes.length);
 
-    final String message = "   GET blah HTTP/1.1";
-    final byte[] buffer = message.getBytes();
+    final byte[] message2Bytes =
+        new String("ET blah HTTP/1.1\n").getBytes("US-ASCII");
+
+    final RequestType request = RequestType.Factory.newInstance();
+    request.addNewHeaders();
+    request.setMethod(RequestType.Method.Enum.forString("GET"));
+
+    when(m_httpRecording.addRequest(m_connectionDetails,
+                                    "GET",
+                                    "blah"))
+      .thenReturn(request);
+
+    handler.handleRequest(message2Bytes, message2Bytes.length);
+
+    verify(m_httpRecording).addRequest(m_connectionDetails, "GET", "blah");
+  }
+
+  @Test public void testOverflowBuffer() {
+    final ConnectionHandler handler =
+        new ConnectionHandlerImplementation(
+          m_httpRecording, m_logger, m_regularExpressions,
+          m_uriParser, m_attributeStringParser, null,
+          m_commentSource, m_connectionDetails);
+
+    final byte[] buffer = new byte[0x10000];
+
+    for (int i = 0; i < buffer.length; i++) {
+      buffer[i] = (byte) i;
+    }
 
     handler.handleRequest(buffer, buffer.length);
-    verify(m_logger, times(2)).error(contains("No current request"));
 
-    verifyNoMoreInteractions(m_logger);
+    verify(m_logger).error(contains("Filled buffer without matching"),
+                           isA(BufferOverflowException.class));
+
+    // Buffer has been cleared, so we can send more stuff.
+    handler.handleRequest(buffer, 10);
   }
 
   @Test public void testWithBadResponseMessages() throws Exception {
