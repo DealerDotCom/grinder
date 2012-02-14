@@ -70,9 +70,11 @@
             </manifest>
 
             <manifest-entries>
-              <!-- Add jython.jar up front, so uses cane continue to override by
-                dropping a new version into the lib directory. -->
-              <Class-Path>jython.jar</Class-Path>
+	      <!-- Provide an easy way to provide temporary patches without
+	           modifying the classpath. -->
+              <!-- Add jython.jar up front, so users can continue to override
+                   by dropping a new version into the lib directory. -->
+	      <Class-Path>grinder-patch.jar jython.jar</Class-Path> 
             </manifest-entries>
           </archive>
         </configuration>
