@@ -9,6 +9,9 @@ The Grinder 3.8 (Not yet released)
   NullPointerException. Thanks to Ouray Viney for the report and
   testing.
 
+  Fix bug 3489034 - Ignore HttpOnly attributes in the middle of cookies.
+  Thanks to Alex Crane for the report.
+
 
 The Grinder 3.7.1
 -----------------

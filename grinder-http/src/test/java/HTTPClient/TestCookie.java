@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2010 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // Copyright (C) 2005 - 2010 Hitoshi Amano
 // All rights reserved.
 //
@@ -109,6 +109,8 @@ public class TestCookie extends TestCase {
       m_roRequest);
     Cookie.parse(".ASPXANONYMOUS=AcbBC8KU9yE3MmQyMDA1Ni0wZDlmLTQ0MjktYWI2NS0zMTUwOGQwZmZhNTk1; expires=Wed, 16-Aug-2006 04:12:47 GMT; path=/;httponly, language=en-US; path=/;httponly",
       m_roRequest);
+    Cookie.parse(".ASPXANONYMOUS=AcbBC8KU9yE3MmQyMDA1Ni0wZDlmLTQ0MjktYWI2NS0zMTUwOGQwZmZhNTk1; httponly; expires=Wed, 16-Aug-2006 04:12:47 GMT; path=/;httponly, language=en-US; path=/",
+                 m_roRequest);
   }
 
   public void testFixForBug1576609() throws Exception {
