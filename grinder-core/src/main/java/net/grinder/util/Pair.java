@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Philip Aston
+// Copyright (C) 2009 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,12 +35,25 @@ public class Pair<F, S> {
   private final S m_second;
 
   /**
+   * Type safe factory method.
+   *
+   * @param first The first item.
+   * @param second The second item.
+   * @return A pair.
+   * @param <F> The type of the first item.
+   * @param <S> The type of the first item.
+   */
+  public static <F, S> Pair<F, S> of(F first, S second) {
+    return new Pair<F, S>(first, second);
+  }
+
+  /**
    * Constructor for Pair.
    *
    * @param first The first item.
    * @param second The second item.
    */
-  public Pair(F first, S second) {
+  protected Pair(F first, S second) {
     m_first = first;
     m_second = second;
   }

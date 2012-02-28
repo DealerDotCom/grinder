@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2011 Philip Aston
+// Copyright (C) 2009 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -181,7 +181,7 @@ public final class DCRWeaver implements Weaver {
       Map<String, Map<T, List<WeavingDetails>>> classNameToMemberToLocation) {
 
       final Pair<Member, TargetSource> locationKey =
-        new Pair<Member, TargetSource>(member, targetSource);
+          Pair.of((Member) member, targetSource);
 
       synchronized (this) {
         final String alreadyWoven = m_wovenMembers.get(locationKey);

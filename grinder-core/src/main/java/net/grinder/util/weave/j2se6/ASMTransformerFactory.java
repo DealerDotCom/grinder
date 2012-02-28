@@ -1,4 +1,4 @@
-// // Copyright (C) 2009 Philip Aston
+// // Copyright (C) 2009 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -189,8 +189,7 @@ public final class ASMTransformerFactory
 
           // The key will be unique, so we can set the value directly.
           nameAndDescriptionToWeavingDetails.put(
-                  new Pair<String, String>("<init>",
-                                           Type.getConstructorDescriptor(c)),
+                  Pair.of("<init>", Type.getConstructorDescriptor(c)),
                   entry.getValue());
         }
       }
@@ -203,8 +202,7 @@ public final class ASMTransformerFactory
 
           // The key will be unique, so we can set the value directly.
           nameAndDescriptionToWeavingDetails.put(
-                  new Pair<String, String>(m.getName(),
-                                           Type.getMethodDescriptor(m)),
+                  Pair.of(m.getName(), Type.getMethodDescriptor(m)),
                   entry.getValue());
         }
       }
@@ -278,7 +276,7 @@ public final class ASMTransformerFactory
         cv.visitMethod(access, name, desc, signature, exceptions);
 
       final List<WeavingDetails> weavingDetails =
-        m_weavingDetails.get(new Pair<String, String>(name, desc));
+        m_weavingDetails.get(Pair.of(name, desc));
 
       if (weavingDetails != null) {
         assert defaultVisitor != null;
