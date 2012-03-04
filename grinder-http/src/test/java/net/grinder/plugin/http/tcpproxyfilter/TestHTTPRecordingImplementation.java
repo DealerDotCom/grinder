@@ -212,8 +212,7 @@ public class TestHTTPRecordingImplementation {
     m_resultProcessorStubFactory.assertNoMoreCalls();
 
     final HTTPRecordingType result = recording.getHttpRecording();
-    assertEquals(1, result.getCommonHeadersArray().length);
-    assertEquals(0, result.getCommonHeadersArray(0).getHeaderArray().length);
+    assertEquals(0, result.getCommonHeadersArray().length);
 
     assertEquals(2, result.getBaseUriArray().length);
     assertEquals("hostb", result.getBaseUriArray(0).getHost());
@@ -338,6 +337,51 @@ public class TestHTTPRecordingImplementation {
     basicAuthorizationHeaderType.setPassword("abracaduh");
     request4.addNewResponse();
 
+    // The next two requests trigger the case where there is
+    // common header set that matches the default headers.
+    final RequestType request5 =
+        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+
+    request5.setHeaders(createHeaders(new NVPair[] {
+          new NVPair("User-Agent", "blah"),
+      }));
+    request5.addNewResponse();
+
+    final RequestType request6 =
+        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+
+    request6.setHeaders(createHeaders(new NVPair[] {
+          new NVPair("User-Agent", "blah"),
+      }));
+    request6.addNewResponse();
+
+    // Request with no response.
+    final RequestType request7 =
+        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+
+    request7.setHeaders(createHeaders(new NVPair[] {
+          new NVPair("User-Agent", "blah"),
+          new NVPair("Accept", "z"),
+      }));
+
+    final RequestType request8 =
+        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+
+    request8.setHeaders(createHeaders(new NVPair[] {
+          new NVPair("User-Agent", "blah"),
+          new NVPair("Accept", "zz"),
+      }));
+    request8.addNewResponse();
+
+    final RequestType request9 =
+        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+
+    request9.setHeaders(createHeaders(new NVPair[] {
+          new NVPair("User-Agent", "blah"),
+          new NVPair("Accept", "zz"),
+      }));
+    request9.addNewResponse();
+
     httpRecording.dispose();
 
     final HTTPRecordingType recording =
@@ -356,16 +400,16 @@ public class TestHTTPRecordingImplementation {
     final CommonHeadersType commonHeaders1 = recording.getCommonHeadersArray(1);
     assertEquals(defaultHeaders.getHeadersId(), commonHeaders1.getExtends());
     assertEquals(1, commonHeaders1.getHeaderArray().length);
-    assertEquals("x", commonHeaders1.getHeaderArray(0).getValue());
     assertEquals(0, commonHeaders1.getAuthorizationArray().length);
+
     assertEquals(
-      commonHeaders1.getHeadersId(),
+      "defaultHeaders",
       recording.getPageArray(0).getRequestArray(0).getHeaders().getExtends());
 
     final CommonHeadersType commonHeaders2 = recording.getCommonHeadersArray(2);
     assertEquals(defaultHeaders.getHeadersId(), commonHeaders2.getExtends());
     assertEquals(1, commonHeaders2.getHeaderArray().length);
-    assertEquals("y", commonHeaders2.getHeaderArray(0).getValue());
+    assertEquals("z", commonHeaders2.getHeaderArray(0).getValue());
     assertEquals(0, commonHeaders2.getAuthorizationArray().length);
 
     final HeadersType headers = recording.getPageArray(3).getRequestArray(0).getHeaders();
