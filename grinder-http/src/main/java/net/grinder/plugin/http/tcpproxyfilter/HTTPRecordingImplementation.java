@@ -87,6 +87,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         }
       ));
 
+  private final HTTPRecordingParameters m_parameters;
   private final HttpRecordingDocument m_recordingDocument =
     HttpRecordingDocument.Factory.newInstance();
   private final Logger m_logger;
@@ -104,6 +105,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   /**
    * Constructor.
    *
+   * @param parameters
+   *          Recording parameters.
    * @param resultProcessor
    *          Component which handles result.
    * @param logger
@@ -114,11 +117,13 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
    *          A URI parser.
    */
   public HTTPRecordingImplementation(
+    HTTPRecordingParameters parameters,
     HTTPRecordingResultProcessor resultProcessor,
     Logger logger,
     RegularExpressions regularExpressions,
     URIParser uriParser) {
 
+    m_parameters = parameters;
     m_resultProcessor = resultProcessor;
     m_logger = logger;
     m_regularExpressions = regularExpressions;
@@ -129,6 +134,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
     httpRecording.setVersion("The Grinder " + GrinderBuild.getVersionString());
     httpRecording.setTime(Calendar.getInstance());
+    httpRecording.setTestNumberOffset(m_parameters.getTestNumberOffset());
   }
 
   /**

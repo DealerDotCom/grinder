@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // Copyright (C) 2007 Venelin Mitov
 // All rights reserved.
 //
@@ -28,7 +28,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -46,14 +49,18 @@ import net.grinder.plugin.http.xml.PageType;
 import net.grinder.plugin.http.xml.RequestType;
 import net.grinder.plugin.http.xml.TokenReferenceType;
 import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.XMLBeansUtilities;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EndPoint;
 import net.grinder.util.http.URIParser;
 import net.grinder.util.http.URIParserImplementation;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
 import HTTPClient.NVPair;
@@ -66,44 +73,42 @@ import HTTPClient.NVPair;
  */
 public class TestHTTPRecordingImplementation {
 
-  private final RandomStubFactory<HTTPRecordingResultProcessor>
-    m_resultProcessorStubFactory =
-      RandomStubFactory.create(HTTPRecordingResultProcessor.class);
-  private final HTTPRecordingResultProcessor m_resultProcessor =
-    m_resultProcessorStubFactory.getStub();
+  @Mock private HTTPRecordingParameters m_parameters;
+  @Mock private HTTPRecordingResultProcessor m_resultProcessor;
+  @Captor private ArgumentCaptor<HttpRecordingDocument> m_recordingCaptor;
 
   private final RegularExpressions m_regularExpressions =
     new RegularExpressionsImplementation();
 
   private final URIParser m_uriParser = new URIParserImplementation();
 
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
+  }
+
   @Test public void testConstructorAndDispose() throws Exception {
     final Logger logger = mock(Logger.class);
 
     final HTTPRecordingImplementation httpRecording =
-      new HTTPRecordingImplementation(m_resultProcessor,
+      new HTTPRecordingImplementation(m_parameters,
+                                      m_resultProcessor,
                                       logger,
                                       m_regularExpressions,
                                       m_uriParser);
 
-    m_resultProcessorStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_resultProcessor);
 
     httpRecording.dispose();
+    httpRecording.dispose();
+
+    verify(m_resultProcessor, times(2)).process(m_recordingCaptor.capture());
 
     final HttpRecordingDocument recording =
-      (HttpRecordingDocument)
-      m_resultProcessorStubFactory.assertSuccess("process",
-      HttpRecordingDocument.class).getParameters()[0];
+        m_recordingCaptor.getAllValues().get(0);
+    final HttpRecordingDocument recording2 =
+        m_recordingCaptor.getAllValues().get(1);
 
     XMLBeansUtilities.validate(recording);
-
-    httpRecording.dispose();
-
-    final HttpRecordingDocument recording2 =
-      (HttpRecordingDocument)
-      m_resultProcessorStubFactory.assertSuccess("process",
-      HttpRecordingDocument.class).getParameters()[0];
-
     XMLBeansUtilities.validate(recording2);
 
     assertNotSame("We get a copy", recording, recording2);
@@ -114,28 +119,25 @@ public class TestHTTPRecordingImplementation {
     assertEquals(0, recording.getHttpRecording().getCommonHeadersArray().length);
     assertEquals(0, recording.getHttpRecording().getBaseUriArray().length);
     assertEquals(0, recording.getHttpRecording().getPageArray().length);
-    m_resultProcessorStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_resultProcessor);
 
     final IOException exception = new IOException("Eat me");
-    m_resultProcessorStubFactory.setThrows("process", exception);
+    doThrow(exception)
+    .when(m_resultProcessor).process(isA(HttpRecordingDocument.class));
 
     httpRecording.dispose();
 
-    m_resultProcessorStubFactory.assertException(
-      "process",
-      exception,
-      HttpRecordingDocument.class);
-
     verify(logger).error(exception.getMessage(), exception);
     verifyNoMoreInteractions(logger);
-
-    m_resultProcessorStubFactory.assertNoMoreCalls();
   }
 
   @Test public void testAddRequest() throws Exception {
     final HTTPRecordingImplementation httpRecording =
-      new HTTPRecordingImplementation(
-        m_resultProcessor, null, m_regularExpressions, m_uriParser);
+      new HTTPRecordingImplementation(m_parameters,
+                                      m_resultProcessor,
+                                      null,
+                                      m_regularExpressions,
+                                      m_uriParser);
 
     final EndPoint endPoint1 = new EndPoint("hostA", 80);
     final EndPoint endPoint2 = new EndPoint("hostB", 80);
@@ -202,14 +204,13 @@ public class TestHTTPRecordingImplementation {
 
     httpRecording.dispose();
 
-    final HttpRecordingDocument recording =
-      (HttpRecordingDocument)
-      m_resultProcessorStubFactory.assertSuccess("process",
-      HttpRecordingDocument.class).getParameters()[0];
+    verify(m_resultProcessor).process(m_recordingCaptor.capture());
+
+    final HttpRecordingDocument recording = m_recordingCaptor.getValue();
 
     XMLBeansUtilities.validate(recording);
 
-    m_resultProcessorStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_resultProcessor);
 
     final HTTPRecordingType result = recording.getHttpRecording();
     assertEquals(0, result.getCommonHeadersArray().length);
@@ -237,8 +238,11 @@ public class TestHTTPRecordingImplementation {
 
   @Test public void testAddRequestWithComplexPaths() throws Exception {
     final HTTPRecording httpRecording =
-      new HTTPRecordingImplementation(
-        m_resultProcessor, null, m_regularExpressions, m_uriParser);
+      new HTTPRecordingImplementation(m_parameters,
+                                      m_resultProcessor,
+                                      null,
+                                      m_regularExpressions,
+                                      m_uriParser);
 
     final EndPoint endPoint1 = new EndPoint("hostA", 80);
     final EndPoint endPoint2 = new EndPoint("hostB", 80);
@@ -286,8 +290,11 @@ public class TestHTTPRecordingImplementation {
 
   @Test public void testAddRequestWithHeaders() throws Exception {
     final HTTPRecordingImplementation httpRecording =
-      new HTTPRecordingImplementation(
-        m_resultProcessor, null, m_regularExpressions, m_uriParser);
+        new HTTPRecordingImplementation(m_parameters,
+                                        m_resultProcessor,
+                                        null,
+                                        m_regularExpressions,
+                                        m_uriParser);
 
     final EndPoint endPoint1 = new EndPoint("hostA", 80);
     final EndPoint endPoint2 = new EndPoint("hostB", 80);
@@ -384,10 +391,10 @@ public class TestHTTPRecordingImplementation {
 
     httpRecording.dispose();
 
+    verify(m_resultProcessor).process(m_recordingCaptor.capture());
+
     final HTTPRecordingType recording =
-      ((HttpRecordingDocument)
-      m_resultProcessorStubFactory.assertSuccess("process",
-      HttpRecordingDocument.class).getParameters()[0]).getHttpRecording();
+      m_recordingCaptor.getValue().getHttpRecording();
 
     // Default, plus 3 sets.
     assertEquals(4, recording.getCommonHeadersArray().length);
@@ -432,8 +439,11 @@ public class TestHTTPRecordingImplementation {
 
   @Test public void testCreateBodyDataFileName() throws Exception {
     final HTTPRecording httpRecording =
-      new HTTPRecordingImplementation(
-        m_resultProcessor, null, m_regularExpressions, m_uriParser);
+        new HTTPRecordingImplementation(m_parameters,
+                                        m_resultProcessor,
+                                        null,
+                                        m_regularExpressions,
+                                        m_uriParser);
 
     final File file1 = httpRecording.createBodyDataFileName();
     final File file2 = httpRecording.createBodyDataFileName();
@@ -443,8 +453,11 @@ public class TestHTTPRecordingImplementation {
 
   @Test public void testTokenReferenceMethods() throws Exception {
     final HTTPRecording httpRecording =
-      new HTTPRecordingImplementation(
-        m_resultProcessor, null, m_regularExpressions, m_uriParser);
+        new HTTPRecordingImplementation(m_parameters,
+                                        m_resultProcessor,
+                                        null,
+                                        m_regularExpressions,
+                                        m_uriParser);
 
     assertFalse(httpRecording.tokenReferenceExists("foo", null));
     assertFalse(httpRecording.tokenReferenceExists("foo", "somewhere"));

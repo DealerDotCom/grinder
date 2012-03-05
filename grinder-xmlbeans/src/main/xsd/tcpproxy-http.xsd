@@ -49,6 +49,7 @@
           <xs:sequence>
             <xs:element name="version" type="xs:normalizedString" />
             <xs:element name="time" type="xs:dateTime" />
+            <xs:element name="test-number-offset" type="xs:int"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

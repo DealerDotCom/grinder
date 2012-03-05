@@ -38,6 +38,7 @@ import net.grinder.plugin.http.tcpproxyfilter.ConnectionHandlerFactoryImplementa
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRecordingImplementation;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPRequestFilter;
 import net.grinder.plugin.http.tcpproxyfilter.HTTPResponseFilter;
+import net.grinder.plugin.http.tcpproxyfilter.ParametersFromProperties;
 import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT;
 import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.BuiltInStyleSheet;
 import net.grinder.plugin.http.tcpproxyfilter.ProcessHTTPRecordingWithXSLT.StyleSheetFile;
@@ -248,6 +249,7 @@ public final class TCPProxy extends AbstractMainClass {
           m_filterContainer.addComponent(ConnectionCache.class);
           m_filterContainer.addComponent(
             ConnectionHandlerFactoryImplementation.class);
+          m_filterContainer.addComponent(ParametersFromProperties.class);
           m_filterContainer.addComponent(HTTPRecordingImplementation.class);
           m_filterContainer.addComponent(ProcessHTTPRecordingWithXSLT.class);
           m_filterContainer.addComponent(
@@ -325,12 +327,6 @@ public final class TCPProxy extends AbstractMainClass {
         else if ("-debug".equalsIgnoreCase(args[i])) {
           m_filterContainer.changeMonitor(
             new ConsoleComponentMonitor(System.err));
-        }
-        else if ("-initialtest".equalsIgnoreCase(args[i])) {
-          final String argument = i + 1 < args.length ? args[++i] : "123";
-          throw barfError("-initialTest is no longer supported. " +
-                          "Use -DHTTPPlugin.initialTest=" + argument +
-                          " or the -properties option instead.");
         }
         else {
           throw barfUsage();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
- Copyright (C) 2011 Philip Aston
+ Copyright (C) 2011 - 2012 Philip Aston
  All rights reserved.
 
  This file is part of The Grinder software distribution. Refer to
@@ -30,6 +30,9 @@
 
   <xsl:output method="text"/>
   <xsl:strip-space elements="*"/>
+
+  <xsl:param name="testNumberOffset"
+             select="/g:http-recording/g:metadata/g:test-number-offset"/>
 
 
   <xsl:template match="g:http-recording">
@@ -173,7 +176,7 @@
     <!--  Numbers sequentially follow the requests' page test number. -->
 
     <xsl:variable name="request-number"
-                  select="count(preceding-sibling::g:request) + 1"/>
+                  select="count(preceding-sibling::g:request) + 1 + $testNumberOffset"/>
 
     <xsl:variable name="page-test-number">
       <xsl:apply-templates select=".." mode="generate-test-number"/>
