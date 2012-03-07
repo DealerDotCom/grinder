@@ -17,6 +17,8 @@ The Grinder 3.8 (Not yet released)
 
   Re-implement TCPProxy support for the HTTPPlugin.initialTest property.
 
+  The TCPProxy supports the recording of additional HTTP headers.
+
 
 The Grinder 3.7.1
 -----------------

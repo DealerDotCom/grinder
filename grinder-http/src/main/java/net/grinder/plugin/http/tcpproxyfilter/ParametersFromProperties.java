@@ -23,6 +23,7 @@ package net.grinder.plugin.http.tcpproxyfilter;
 
 import static java.util.Arrays.asList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -33,27 +34,47 @@ import java.util.Set;
  */
 public class ParametersFromProperties implements HTTPRecordingParameters {
 
-  private static final Set<String> COMMON_HEADERS =
-    new HashSet<String>(asList(
-          "Accept",
-          "Accept-Charset",
-          "Accept-Encoding",
-          "Accept-Language",
-          "Cache-Control",
-          "Referer", // Deliberate misspelling to match specification.
-          "User-Agent"
-      ));
+  private static final String COMMON_HEADERS =
+      "Accept," +
+      "Accept-Charset," +
+      "Accept-Encoding," +
+      "Accept-Language," +
+      "Cache-Control," +
+      "Referer," + // Deliberate misspelling to match specification.
+      "User-Agent";
 
-  private static final Set<String> MIRRORED_HEADERS =
-    new HashSet<String>(asList(
-          "Content-Type",
-          "Content-type", // Common misspelling.
-          "If-Modified-Since",
-          "If-None-Match"
-      ));
+  private static final String MIRRORED_HEADERS =
+      "Content-Type," +
+      "Content-type," + // Common misspelling.
+      "If-Modified-Since," +
+      "If-None-Match";
 
-  static {
-    MIRRORED_HEADERS.addAll(COMMON_HEADERS);
+  private final Set<String> m_commonHeaders = new HashSet<String>();
+
+  private final Set<String> m_mirroredHeaders = new HashSet<String>();
+
+  private static List<String> parseHeaders(String s) {
+    return asList(s.split("\\s*,\\s*"));
+  }
+
+  /**
+   * Constructor.
+   */
+  public ParametersFromProperties() {
+    final String commonHeaders =
+        System.getProperty("HTTPPlugin.commonHeaders", COMMON_HEADERS);
+
+    final String mirroredHeaders =
+        System.getProperty("HTTPPlugin.mirroredHeaders", MIRRORED_HEADERS);
+
+    final String additionalHeaders =
+        System.getProperty("HTTPPlugin.additionalHeaders", "");
+
+    m_commonHeaders.addAll(parseHeaders(commonHeaders));
+    m_commonHeaders.addAll(parseHeaders(additionalHeaders));
+
+    m_mirroredHeaders.addAll(m_commonHeaders);
+    m_mirroredHeaders.addAll(parseHeaders(mirroredHeaders));
   }
 
   /**
@@ -76,7 +97,7 @@ public class ParametersFromProperties implements HTTPRecordingParameters {
    */
   @Override
   public boolean isCommonHeader(String headerName) {
-    return COMMON_HEADERS.contains(headerName);
+    return m_commonHeaders.contains(headerName);
   }
 
   /**
@@ -84,6 +105,6 @@ public class ParametersFromProperties implements HTTPRecordingParameters {
    */
   @Override
   public boolean isMirroredHeader(String headerName) {
-    return MIRRORED_HEADERS.contains(headerName);
+    return m_mirroredHeaders.contains(headerName);
   }
 }

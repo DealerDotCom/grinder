@@ -13,7 +13,7 @@
   <title>What's it for?</title>
   <p>The HTTPPlugin is a mature plug-in for testing HTTP services.
   It has a number of utilities useful for HTTP scripts as well as a
-  tool,the  <a href="site:g3/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a>,
+  tool, the  <a href="site:g3/tcpproxy/HTTPPluginTCPProxyFilter">TCPProxy</a>,
   which allows HTTP scripts to be automatically recorded. Recorded scripts
   are often customised, for example to simulate multiple users. This requires
   you to know a little about writing  <a

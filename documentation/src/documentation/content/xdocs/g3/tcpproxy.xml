@@ -436,6 +436,36 @@ identifiers used for headers, URLs, pages, tokens, and so on.</p>
 
   </section>
 
+
+  <section id="additional-headers">
+    <title>How to record additional headers</title>
+
+    <p>By default, the following HTTP headers are recorded from the
+    HTTP stream.
+
+    <ul>
+      <li>Accept</li>
+      <li>Accept-Charset</li>
+      <li>Accept-Encoding</li>
+      <li>Accept-Language</li>
+      <li>Cache-Control</li>
+      <li>Referer</li>
+      <li>User-Agent</li>
+      <li>Content-Type</li>
+      <li>If-Modified-Since</li>
+      <li>If-None-Match</li>
+    </ul>
+
+    </p>
+
+    <p>Additional headers can be specified with the
+    <code>HTTPPlugin.additionalHeaders</code> system property. The
+    value is a comma-separated list of header names. For example:</p>
+
+<source class="sh">java net.grinder.TCPProxy -DHTTPPlugin.additionalHeaders=MyHeader,AnotherHeaderName -http</source>
+
+  </section>
+
   </section>
 
   <section id="ssl">
