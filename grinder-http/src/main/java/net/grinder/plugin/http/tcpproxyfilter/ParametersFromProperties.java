@@ -21,12 +21,40 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import static java.util.Arrays.asList;
+import java.util.HashSet;
+import java.util.Set;
+
+
 /**
  * Obtain recording parameters from system properties.
  *
  * @author Philip Aston
  */
 public class ParametersFromProperties implements HTTPRecordingParameters {
+
+  private static final Set<String> COMMON_HEADERS =
+    new HashSet<String>(asList(
+          "Accept",
+          "Accept-Charset",
+          "Accept-Encoding",
+          "Accept-Language",
+          "Cache-Control",
+          "Referer", // Deliberate misspelling to match specification.
+          "User-Agent"
+      ));
+
+  private static final Set<String> MIRRORED_HEADERS =
+    new HashSet<String>(asList(
+          "Content-Type",
+          "Content-type", // Common misspelling.
+          "If-Modified-Since",
+          "If-None-Match"
+      ));
+
+  static {
+    MIRRORED_HEADERS.addAll(COMMON_HEADERS);
+  }
 
   /**
    * {@inheritDoc}
@@ -41,5 +69,21 @@ public class ParametersFromProperties implements HTTPRecordingParameters {
     }
 
     return 0;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isCommonHeader(String headerName) {
+    return COMMON_HEADERS.contains(headerName);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isMirroredHeader(String headerName) {
+    return MIRRORED_HEADERS.contains(headerName);
   }
 }

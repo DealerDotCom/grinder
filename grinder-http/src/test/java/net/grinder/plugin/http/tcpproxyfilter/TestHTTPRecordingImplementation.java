@@ -289,8 +289,9 @@ public class TestHTTPRecordingImplementation {
   }
 
   @Test public void testAddRequestWithHeaders() throws Exception {
+
     final HTTPRecordingImplementation httpRecording =
-        new HTTPRecordingImplementation(m_parameters,
+        new HTTPRecordingImplementation(new ParametersFromProperties(),
                                         m_resultProcessor,
                                         null,
                                         m_regularExpressions,

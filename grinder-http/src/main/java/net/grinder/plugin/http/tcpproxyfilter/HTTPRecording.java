@@ -1,4 +1,4 @@
-// Copyright (C) 2005, 2006 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,13 @@ import net.grinder.tools.tcpproxy.ConnectionDetails;
  * @author Philip Aston
  */
 public interface HTTPRecording {
+
+  /**
+   * Return the parameters to use for the recording.
+   *
+   * @return The parameters.
+   */
+  HTTPRecordingParameters getParameters();
 
   /**
    * Add a new request to the recording.

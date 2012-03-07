@@ -71,22 +71,6 @@ import HTTPClient.URI;
  */
 public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
-  /**
-   * Headers which are likely to have common values.
-   */
-  private static final Set<String> COMMON_HEADERS =
-    new HashSet<String>(Arrays.asList(
-        new String[] {
-          "Accept",
-          "Accept-Charset",
-          "Accept-Encoding",
-          "Accept-Language",
-          "Cache-Control",
-          "Referer", // Deliberate misspelling to match specification.
-          "User-Agent",
-        }
-      ));
-
   private final HTTPRecordingParameters m_parameters;
   private final HttpRecordingDocument m_recordingDocument =
     HttpRecordingDocument.Factory.newInstance();
@@ -138,21 +122,17 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   /**
-   * Add a new request to the recording.
-   *
-   * <p>
-   * The request is returned to allow the caller to add things it doesn't know
-   * yet, e.g. headers, body, response.
-   * </p>
-   *
-   * @param connectionDetails
-   *          The connection used to make the request.
-   * @param method
-   *          The HTTP method.
-   * @param relativeURI
-   *          The URI.
-   * @return The request.
+   * {@inheritDoc}
    */
+  @Override
+  public HTTPRecordingParameters getParameters() {
+    return m_parameters;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public RequestType addRequest(
     ConnectionDetails connectionDetails, String method, String relativeURI) {
 
@@ -266,70 +246,47 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   }
 
   /**
-   * Called when a response message starts. Because the test script represents a
-   * single thread of control we need to calculate the sleep deltas using the
-   * last time any response was received on any connection.
+   * {@inheritDoc}
    */
+  @Override
   public void markLastResponseTime() {
     synchronized (this) {
       m_lastResponseTime = System.currentTimeMillis();
     }
   }
 
+
   /**
-   * Fill in token reference details, creating the token if necessary.
-   *
-   * <p>
-   * The reference source is cached for use by
-   * {@link #tokenReferenceExists(String, String)}, so it should be set before
-   * this method is called.
-   * </p>
-   *
-   * @param name
-   *          The name.
-   * @param value
-   *          The value.
-   * @param tokenReference
-   *          This reference is set with the appropriate token ID, and the new
-   *          value is set if appropriate.
+   * {@inheritDoc}
    */
+  @Override
   public void setTokenReference(
     String name, String value, TokenReferenceType tokenReference) {
     m_tokenMap.add(name, value, tokenReference);
   }
 
   /**
-   * Return the last value recorded for the given token.
-   *
-   * @param name The token name.
-   * @return The last value, or <code>null</code> if no token reference
-   * for this token has been seen.
+   * {@inheritDoc}
    */
+  @Override
   public String getLastValueForToken(String name) {
     return m_tokenMap.getLastValue(name);
   }
 
+
   /**
-   * Check for existence of token. The token must have at least one previous
-   * reference with a source type of <code>source</code>.
-   *
-   * @param name
-   *          Token name.
-   * @param source
-   *          Token source.
-   * @return <code>true</code> if a token with name <code>name</code>
-   *         exists, and has at least one reference with a source type of
-   *         <code>source</code>.
+   * {@inheritDoc}
    */
+  @Override
   public boolean tokenReferenceExists(String name, String source) {
     return m_tokenMap.exists(name, source);
   }
 
+
   /**
-   * Create a new file name for body data.
-   *
-   * @return The file name.
+   * {@inheritDoc}
    */
+  @Override
   public File createBodyDataFileName() {
     return new File("http-data-" + m_bodyFileIDGenerator.next() + ".dat");
   }
@@ -511,9 +468,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     }
   }
 
-  private static void extractCommonHeaders(Set<String> commonHeaderNames,
-                                           List<RequestType> requests,
-                                           HTTPRecordingType httpRecording) {
+  private void extractCommonHeaders(List<RequestType> requests,
+                                    HTTPRecordingType httpRecording) {
 
     // Build identity map of Request to (Common, Uncommon) and map containing
     // the number of times each set of common headers is referenced.
@@ -539,7 +495,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         if (children[i] instanceof HeaderType) {
           final HeaderType header = (HeaderType)children[i];
 
-          if (commonHeaderNames.contains(header.getName())) {
+          if (m_parameters.isCommonHeader(header.getName())) {
             commonHeaders.addNewHeader().set(header);
           }
           else {
@@ -620,7 +576,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
     public void record(HTTPRecordingType httpRecording) {
       synchronized (m_requests) {
-        extractCommonHeaders(COMMON_HEADERS, m_requests, httpRecording);
+        extractCommonHeaders(m_requests, httpRecording);
 
         String lastBaseURI = null;
         boolean lastResponseWasRedirect = false;

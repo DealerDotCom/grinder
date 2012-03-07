@@ -73,26 +73,6 @@ import HTTPClient.ParseException;
  */
 final class ConnectionHandlerImplementation implements ConnectionHandler {
 
-  /**
-   * Headers which we record.
-   */
-  private static final Set<String> MIRRORED_HEADERS = new HashSet<String>(
-      Arrays.asList(
-        new String[] {
-          "Accept",
-          "Accept-Charset",
-          "Accept-Encoding",
-          "Accept-Language",
-          "Cache-Control",
-          "Content-Type",
-          "Content-type", // Common misspelling.
-          "If-Modified-Since",
-          "If-None-Match",
-          "Referer", // Deliberate misspelling to match specification.
-          "User-Agent",
-        }
-      ));
-
   private static final Set<Enum> HTTP_METHODS_WITH_BODY =
     new HashSet<Enum>(Arrays.asList(
         new RequestType.Method.Enum[] {
@@ -234,7 +214,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
         final String name = headerMatcher.group(1);
         final String value = headerMatcher.group(2);
 
-        if (MIRRORED_HEADERS.contains(name)) {
+        if (m_httpRecording.getParameters().isMirroredHeader(name)) {
           m_request.addHeader(name, value);
         }
 

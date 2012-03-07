@@ -21,6 +21,7 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+
 /**
  * Parameters that control the HTTP recording.
  *
@@ -34,4 +35,22 @@ public interface HTTPRecordingParameters {
    * @return The offset.
    */
   int getTestNumberOffset();
+
+  /**
+   * Return whether a header is likely to have common values, so is a candidate
+   * for extraction to commonly used sets.
+   *
+   * @param headerName The header name.
+   * @return {@code true} if the header is common.
+   */
+  boolean isCommonHeader(String headerName);
+
+  /**
+   * Return whether a header should be copied from the HTTP stream to the
+   * recording.
+   *
+   * @param headerName The header name.
+   * @return {@code true} if the header should be copied.
+   */
+  boolean isMirroredHeader(String headerName);
 }

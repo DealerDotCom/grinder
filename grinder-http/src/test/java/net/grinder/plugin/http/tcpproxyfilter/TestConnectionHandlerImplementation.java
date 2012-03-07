@@ -102,6 +102,11 @@ public class TestConnectionHandlerImplementation
 
   @Before public void setUp() {
     MockitoAnnotations.initMocks(this);
+
+    final HTTPRecordingParameters parametersFromProperties =
+        new ParametersFromProperties();
+
+    when(m_httpRecording.getParameters()).thenReturn(parametersFromProperties);
   }
 
   @After public void postConditions() {
