@@ -19,6 +19,9 @@ The Grinder 3.8 (Not yet released)
 
   The TCPProxy supports the recording of additional HTTP headers.
 
+  Fix bug 3475516 - the TCPProxy now records Faces-Request header for
+  JSF 2.0 AJAX requests. Thanks to Diego Vicentini for the report.
+
 
 The Grinder 3.7.1
 -----------------

@@ -40,6 +40,8 @@ public class ParametersFromProperties implements HTTPRecordingParameters {
       "Accept-Encoding," +
       "Accept-Language," +
       "Cache-Control," +
+      "Faces-Request," +
+      "faces-request," +
       "Referer," + // Deliberate misspelling to match specification.
       "User-Agent";
 

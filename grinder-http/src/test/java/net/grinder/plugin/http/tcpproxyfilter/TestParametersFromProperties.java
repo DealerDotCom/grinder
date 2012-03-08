@@ -40,6 +40,7 @@ public class TestParametersFromProperties {
 
     assertTrue(parameters.isCommonHeader("Accept"));
     assertTrue(parameters.isCommonHeader("User-Agent"));
+    assertTrue(parameters.isCommonHeader("faces-request"));
 
     assertFalse(parameters.isCommonHeader("If-None-Match"));
     assertFalse(parameters.isCommonHeader("Content-Type"));
