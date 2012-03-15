@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,20 @@
 
 package net.grinder.statistics;
 
+import static java.util.Arrays.asList;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsIndexMap.LongIndex;
+import net.grinder.statistics.StatisticsIndexMap.LongSampleIndex;
 import net.grinder.statistics.StatisticsSet;
 
 /**
- * Unit test case for <code>StatisticsIndexMap</code>.
+ * Unit test case for {@link StatisticsIndexMap}.
  *
  * @author Philip Aston
  * @see StatisticsSet
@@ -83,5 +90,62 @@ public class TestStatisticsIndexMap extends TestCase {
       assertEquals(doubleResults[i].getValue(), m_indexMap.getDoubleIndex(
           data[i]).getValue());
     }
+  }
+
+  private static class ExpectedIndices  {
+    private final Set<Integer> expected;
+
+    public ExpectedIndices(Integer... indices) {
+      expected = new HashSet<Integer>(asList(indices));
+    }
+
+    public void remove(int index) {
+      assertTrue(expected + " contains " + index, expected.remove(index));
+    }
+
+    public void assertEmpty() {
+      assertTrue(expected + " is empty", expected.size() == 0);
+    }
+  }
+
+  public void testSlotsAreUnique() throws Exception {
+    final StatisticsIndexMap map =
+        new StatisticsIndexMap(asList("l1", "l2"),
+                               asList("d1", "d2"),
+                               asList("t1", "t2"),
+                               asList("ls1", "ls2"));
+
+    assertEquals(6, map.getNumberOfLongs());
+    assertEquals(4, map.getNumberOfDoubles());
+    assertEquals(2, map.getNumberOfTransientLongs());
+    assertEquals(0, map.getDoubleSampleIndicies().size());
+
+    final ExpectedIndices expectedLongs =
+        new ExpectedIndices(0, 1, 2, 3, 4, 5);
+    final ExpectedIndices expectedDoubles = new ExpectedIndices(0, 1, 2, 3);
+    final ExpectedIndices expectedTransientLongs = new ExpectedIndices(0, 1);
+
+
+    expectedLongs.remove(map.getLongIndex("l1").getValue());
+    expectedLongs.remove(map.getLongIndex("l2").getValue());
+
+    final LongSampleIndex ls1 = map.getLongSampleIndex("ls1");
+    expectedLongs.remove(ls1.getCountIndex().getValue());
+    expectedLongs.remove(ls1.getSumIndex().getValue());
+    expectedDoubles.remove(ls1.getVarianceIndex().getValue());
+
+    final LongSampleIndex ls2 = map.getLongSampleIndex("ls2");
+    expectedLongs.remove(ls2.getCountIndex().getValue());
+    expectedLongs.remove(ls2.getSumIndex().getValue());
+    expectedDoubles.remove(ls2.getVarianceIndex().getValue());
+
+    expectedTransientLongs.remove(map.getLongIndex("t1").getValue());
+    expectedTransientLongs.remove(map.getLongIndex("t2").getValue());
+    expectedDoubles.remove(map.getDoubleIndex("d1").getValue());
+    expectedDoubles.remove(map.getDoubleIndex("d2").getValue());
+
+    expectedLongs.assertEmpty();
+    expectedDoubles.assertEmpty();
+    expectedTransientLongs.assertEmpty();
   }
 }

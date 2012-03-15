@@ -22,6 +22,9 @@ The Grinder 3.8 (Not yet released)
   Fix bug 3475516 - the TCPProxy now records Faces-Request header for
   JSF 2.0 AJAX requests. Thanks to Diego Vicentini for the report.
 
+  Fix bug 3505114 - userLong4 custom statistic value was overridden
+  by the test time. Thanks to Fei for the report.
+
 
 The Grinder 3.7.1
 -----------------

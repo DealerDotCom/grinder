@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // Copyright (C) 2004 John Stanford White
 // Copyright (C) 2004 Calum Fitzgerald
 // All rights reserved.
@@ -148,7 +148,8 @@ public final class StatisticsIndexMap implements Serializable {
                 "userDouble2",
                 "userDouble3",
                 "userDouble4"),
-         asList("period"));
+         asList("period"),
+         asList("timedTests"));
   }
 
   /**
@@ -160,27 +161,32 @@ public final class StatisticsIndexMap implements Serializable {
    *          Names of double statistics.
    * @param transientLongNames
    *          Names of transient long statistics.
+   * @param longSampleNames
+   *          Names of long sample statistics.
    */
   StatisticsIndexMap(List<String> longNames,
                      List<String> doubleNames,
-                     List<String> transientLongNames) {
+                     List<String> transientLongNames,
+                     List<String> longSampleNames) {
     int nextLongIndex = 0;
     int nextTransientLongIndex = 0;
 
     for (String longName : longNames) {
-      m_longMap.put(longName, new LongIndex(++nextLongIndex));
+      m_longMap.put(longName, new LongIndex(nextLongIndex++));
     }
 
     int nextDoubleIndex = 0;
 
     for (String doubleName : doubleNames) {
-      m_doubleMap.put(doubleName, new DoubleIndex(++nextDoubleIndex));
+      m_doubleMap.put(doubleName, new DoubleIndex(nextDoubleIndex++));
     }
 
-    createLongSampleIndex("timedTests",
-                          new LongIndex(nextLongIndex++),
-                          new LongIndex(nextLongIndex++),
-                          new DoubleIndex(nextDoubleIndex++));
+    for (String longSampleName : longSampleNames) {
+      createLongSampleIndex(longSampleName,
+                            new LongIndex(nextLongIndex++),
+                            new LongIndex(nextLongIndex++),
+                            new DoubleIndex(nextDoubleIndex++));
+    }
 
     for (String transientLongName : transientLongNames) {
       m_transientLongMap.put(transientLongName,

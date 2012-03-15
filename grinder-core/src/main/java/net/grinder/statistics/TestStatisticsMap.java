@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -47,7 +47,7 @@ public final class TestStatisticsMap implements java.io.Externalizable {
   // The serialVersionUID should be incremented whenever the default
   // statistic indices are changed in StatisticsIndexMap, or
   // when the StatisticsSet externalisation methods are changed.
-  private static final long serialVersionUID = 3L;
+  private static final long serialVersionUID = 4L;
 
   private final transient StatisticsSetFactory m_statisticsSetFactory;
 

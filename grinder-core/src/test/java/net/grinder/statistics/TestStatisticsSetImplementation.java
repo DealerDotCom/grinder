@@ -510,7 +510,8 @@ public class TestStatisticsSetImplementation {
     final StatisticsIndexMap statisticsIndexMap2 =
       new StatisticsIndexMap(asList("a"),
                              asList("b"),
-                             asList("c", "d"));
+                             asList("c", "d"),
+                             asList("timedTests"));
 
     final StatisticsSet rawStatistics =
       new StatisticsSetImplementation(statisticsIndexMap2);
