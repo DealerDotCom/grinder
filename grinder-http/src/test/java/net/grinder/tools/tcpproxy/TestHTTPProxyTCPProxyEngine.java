@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,8 +27,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -836,7 +839,7 @@ public class TestHTTPProxyTCPProxyEngine {
     // timeout in a single JVM; I thought it could be done by connected to a
     // socket that never accepted but the client side of the connection was
     // established just fine. Instead, we use an evil filter that blocks
-    // when it recevies the connection opened event.
+    // when it receives the connection opened event.
 
     final AbstractTCPProxyEngine engine =
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,

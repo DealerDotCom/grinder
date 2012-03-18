@@ -25,6 +25,9 @@ The Grinder 3.8 (Not yet released)
   Fix bug 3505114 - userLong4 custom statistic value was overridden
   by the test time. Thanks to Fei for the report.
 
+  Fix bug 3505060 - TCPProxy fails to handle concurrent HTTPS requests.
+  Thanks to Anders Storsveen for the report.
+
 
 The Grinder 3.7.1
 -----------------

@@ -35,15 +35,21 @@
     </encoder>
   </appender>
 
-  <root>
+  <root level="${grinder.logLevel:-trace}">
     <appender-ref ref="filtered_stderr" />
     <appender-ref ref="filtered_stdout" />
   </root>
 
   <!-- All tcpproxy log output is sent to stderr so that filters can generate
        scripts to stdout. -->
-  <logger name="tcpproxy" additivity="false">
-    <appender-ref ref="stderr" />
+  <logger name="tcpproxy" level="${tcpproxy.logLevel:-info}" additivity="false">
+    <appender class="ch.qos.logback.core.ConsoleAppender">
+      <target>System.err</target>
+
+	    <encoder>
+	      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level: %message%n</pattern>
+	    </encoder>
+	  </appender>
   </logger>
 
 </configuration>

@@ -29,6 +29,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ConnectException;
@@ -36,6 +37,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -63,7 +66,7 @@ import org.slf4j.Logger;
  * stripes midstream. (In fact, if the JSSE support was stream
  * oriented rather than socket oriented, a lot of problems would go
  * away). To hack around this, we accept the CONNECT then blindly
- * proxy the rest of the stream through a special
+ * proxy the rest of the stream through a special delegate
  * TCPProxyEngineImplementation which instantiated to handle SSL.</p>
  *
  * @author Paddy Spencer
@@ -77,8 +80,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
   private final Pattern m_httpConnectPattern;
   private final Pattern m_httpsConnectPattern;
-  private final ProxySSLEngine m_proxySSLEngine;
-  private final Thread m_proxySSLEngineThread;
+  private final DelegateSSLEngine m_delegateSSLEngine;
+  private final Thread m_delegateSSLEngineThread;
   private final EndPoint m_chainedHTTPProxy;
   private final EndPoint m_proxyAddress;
 
@@ -130,13 +133,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       Pattern.compile("^CONNECT[ \\t]+([^:]+):(\\d+).*\r\n\r\n",
                       Pattern.DOTALL);
 
-    m_proxySSLEngine =
-      new ProxySSLEngine(sslSocketFactory, getRequestFilter(),
+    m_delegateSSLEngine =
+      new DelegateSSLEngine(sslSocketFactory, getRequestFilter(),
                          getResponseFilter(), output, logger, useColour,
                          chainedHTTPSProxy);
 
-    m_proxySSLEngineThread =
-      new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine");
+    m_delegateSSLEngineThread =
+      new Thread(m_delegateSSLEngine, "Delegate HTTPS engine");
   }
 
   /**
@@ -144,7 +147,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    */
   public void run() {
 
-    m_proxySSLEngineThread.start();
+    m_delegateSSLEngineThread.start();
 
     // I've seen pathological messages with huge tracking cookies that are
     // bigger than 4K. Let's super-size this.
@@ -268,22 +271,18 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
             final OutputStream out = localSocket.getOutputStream();
 
-            final Socket sslProxySocket;
+            m_delegateSSLEngine.prepareNewConnection(
+              in,
+              out,
+              EndPoint.clientEndPoint(localSocket),
+              remoteEndPoint);
 
-            synchronized (m_proxySSLEngine) {
-              m_proxySSLEngine.prepareNewConnection(
-                in,
-                out,
-                EndPoint.clientEndPoint(localSocket),
-                remoteEndPoint);
-
-              // Create a new proxy connection to the proxy engine.
-              // ProxySSLEngine.run() will accept() the other end of the
-              // connection.
-              sslProxySocket =
-                getSocketFactory().createClientSocket(
-                  m_proxySSLEngine.getListenEndPoint());
-            }
+            // Create a new proxy connection to the proxy engine.
+            // DelegateSSLEngine.run() will accept() the other end of the
+            // connection.
+            final Socket sslProxySocket =
+              getSocketFactory().createClientSocket(
+                m_delegateSSLEngine.getListenEndPoint());
 
             // Set up a couple of threads to punt everything we receive
             // over localSocket to sslProxySocket, and vice versa.
@@ -335,14 +334,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   }
 
   /**
-   * Override to also stop our proxy SSL engine.
+   * Override to also stop our delegate SSL engine.
    */
   public void stop() {
     super.stop();
-    m_proxySSLEngine.stop();
+    m_delegateSSLEngine.stop();
 
     try {
-      m_proxySSLEngineThread.join();
+      m_delegateSSLEngineThread.join();
     }
     catch (InterruptedException e) {
       throw new UncheckedInterruptedException(e);
@@ -550,23 +549,47 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                             OutputStream out) throws IOException;
   }
 
-  private static final class ProxySSLEngine extends AbstractTCPProxyEngine {
+  private static class ConnectionState {
+    private final EndPoint m_clientEndPoint;
+    private final EndPoint m_remoteEndPoint;
+    private final ProxySSLContext m_proxySSLContext;
+
+    public ConnectionState(EndPoint clientEndPoint, EndPoint remoteEndPoint,
+                           ProxySSLContext proxySSLContext) {
+       m_clientEndPoint = clientEndPoint;
+       m_remoteEndPoint = remoteEndPoint;
+       m_proxySSLContext = proxySSLContext;
+    }
+
+    public EndPoint getClientEndPoint() {
+      return m_clientEndPoint;
+    }
+
+    public EndPoint getRemoteEndPoint() {
+      return m_remoteEndPoint;
+    }
+
+    public ProxySSLContext getProxySSLContext() {
+      return m_proxySSLContext;
+    }
+  }
+
+  private static final class DelegateSSLEngine extends AbstractTCPProxyEngine {
 
     private final TCPProxySSLSocketFactory m_sslSocketFactory;
     private final Pattern m_httpsProxyResponsePattern;
     private final ProxySSLContextFactory m_proxySSLContextFactory;
 
-    private EndPoint m_clientEndPoint;
-    private EndPoint m_remoteEndPoint;
-    private ProxySSLContext m_proxySSLContext;
+    private BlockingQueue<ConnectionState> m_nextConnection =
+        new SynchronousQueue<ConnectionState>();
 
-    ProxySSLEngine(TCPProxySSLSocketFactory sslSocketFactory,
-                   TCPProxyFilter requestFilter,
-                   TCPProxyFilter responseFilter,
-                   PrintWriter output,
-                   Logger logger,
-                   boolean useColour,
-                   EndPoint chainedHTTPSProxy)
+    DelegateSSLEngine(TCPProxySSLSocketFactory sslSocketFactory,
+                      TCPProxyFilter requestFilter,
+                      TCPProxyFilter responseFilter,
+                      PrintWriter output,
+                      Logger logger,
+                      boolean useColour,
+                      EndPoint chainedHTTPSProxy)
     throws IOException {
       super(sslSocketFactory, requestFilter, responseFilter, output, logger,
             new EndPoint(InetAddress.getByName(null), 0), useColour, 0);
@@ -586,10 +609,16 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     }
 
     /**
-     * Set the ProxySSLEngine up with the context required to establish a
-     * delegate connection. The caller should synchronise on this
-     * {@code ProxySSLEngine} until it has established its own connection
-     * to the engine.
+     * Set the DelegateSSLEngine up with the context required to establish a
+     * delegate connection.
+     *
+     * <p>
+     * We block here until we are ready to accept a new connection. This is
+     * necessary because there is no context associated with our TCP connection
+     * attempt that can be used to identify the appropriate connection
+     * information. If we ever wish to support more parallelism, consider having
+     * multiple delegate engines.
+     * </p>
      */
     public void prepareNewConnection(BufferedInputStream in,
                                      OutputStream out,
@@ -597,15 +626,35 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                                      EndPoint remoteEndPoint)
       throws IOException {
 
+      getLogger().debug("prepareNewConnection for {} -> {}",
+                        clientEndPoint,
+                        remoteEndPoint);
 
-      m_clientEndPoint = clientEndPoint;
-      m_remoteEndPoint = remoteEndPoint;
-      m_proxySSLContext = m_proxySSLContextFactory.prepareConnection(in, out);
+      final ProxySSLContext proxySSLContext =
+          m_proxySSLContextFactory.prepareConnection(in, out);
+
+      try {
+        m_nextConnection.put(new ConnectionState(clientEndPoint,
+                                                 remoteEndPoint,
+                                                 proxySSLContext));
+      }
+      catch (InterruptedException e) {
+        throw new InterruptedIOException(e.getMessage());
+      }
     }
 
     public void run() {
 
       while (true) {
+        final ConnectionState connection;
+
+        try {
+          connection = m_nextConnection.take();
+        }
+        catch (InterruptedException e1) {
+          throw new UncheckedInterruptedException(e1);
+        }
+
         final Socket localSocket;
 
         try {
@@ -623,16 +672,26 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           continue;
         }
 
+        final EndPoint clientEndPoint = connection.getClientEndPoint();
+        final EndPoint remoteEndPoint = connection.getRemoteEndPoint();
+        final ProxySSLContext proxySSLContext = connection.getProxySSLContext();
+
+        getLogger().debug("Creating connection threads for {} -> {}",
+                          clientEndPoint,
+                          remoteEndPoint);
+
         try {
           launchThreadPair(localSocket,
-                           m_proxySSLContext
-                             .createProxyClientSocket(m_remoteEndPoint),
-                           m_remoteEndPoint,
-                           m_clientEndPoint,
+                           proxySSLContext
+                             .createProxyClientSocket(remoteEndPoint),
+                           remoteEndPoint,
+                           clientEndPoint,
                            true);
 
           // Send a response back to the browser.
-          m_proxySSLContext.sendResponse();
+          proxySSLContext.sendResponse();
+
+          getLogger().debug("Flushed response to {}", clientEndPoint);
         }
         catch (IOException e) {
           UncheckedInterruptedException.ioException(e);
@@ -651,6 +710,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           }
         }
       }
+    }
+
+    /**
+     * Override to interrupt our queue.
+     */
+    @Override public void stop() {
+      super.stop();
+      m_nextConnection.offer(new ConnectionState(null, null, null));
     }
 
     private final class SimpleContextFactory implements ProxySSLContextFactory {
@@ -680,7 +747,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           @Override
           public Socket createProxyClientSocket(EndPoint remoteEndPoint)
               throws IOException {
-            return getSocketFactory().createClientSocket(m_remoteEndPoint);
+            return getSocketFactory().createClientSocket(remoteEndPoint);
           }
         };
       }
@@ -734,7 +801,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                                                final OutputStream out)
         throws IOException {
 
-        // Rewind input stream to start of CONNNECT header.
+        // Rewind input stream to start of CONNECT header.
         in.reset();
 
         final Socket socket;
