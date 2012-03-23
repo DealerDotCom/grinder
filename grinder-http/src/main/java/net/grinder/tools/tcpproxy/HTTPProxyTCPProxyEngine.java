@@ -145,7 +145,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   /**
    * Main event loop.
    */
-  public void run() {
+  @Override
+public void run() {
 
     m_delegateSSLEngineThread.start();
 
@@ -336,7 +337,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   /**
    * Override to also stop our delegate SSL engine.
    */
-  public void stop() {
+  @Override
+public void stop() {
     super.stop();
     m_delegateSSLEngine.stop();
 
@@ -391,6 +393,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       m_clientEndPoint = clientEndPoint;
     }
 
+    @Override
     public void interruptibleRun() {
 
       // Needs to hold the largest reasonable set of HTTP headers - see
@@ -580,7 +583,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     private final Pattern m_httpsProxyResponsePattern;
     private final ProxySSLContextFactory m_proxySSLContextFactory;
 
-    private BlockingQueue<ConnectionState> m_nextConnection =
+    private final BlockingQueue<ConnectionState> m_nextConnection =
         new SynchronousQueue<ConnectionState>();
 
     DelegateSSLEngine(TCPProxySSLSocketFactory sslSocketFactory,
@@ -643,6 +646,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       }
     }
 
+    @Override
     public void run() {
 
       while (true) {
@@ -684,8 +688,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           launchThreadPair(localSocket,
                            proxySSLContext
                              .createProxyClientSocket(remoteEndPoint),
+                        clientEndPoint,
                            remoteEndPoint,
-                           clientEndPoint,
                            true);
 
           // Send a response back to the browser.
