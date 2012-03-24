@@ -2,6 +2,7 @@
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003 Bertrand Ave
+// Copyright (C) 2012 Anders Storsveen
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -146,7 +147,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    * Main event loop.
    */
   @Override
-public void run() {
+  public void run() {
 
     m_delegateSSLEngineThread.start();
 
@@ -338,7 +339,7 @@ public void run() {
    * Override to also stop our delegate SSL engine.
    */
   @Override
-public void stop() {
+  public void stop() {
     super.stop();
     m_delegateSSLEngine.stop();
 
@@ -688,7 +689,7 @@ public void stop() {
           launchThreadPair(localSocket,
                            proxySSLContext
                              .createProxyClientSocket(remoteEndPoint),
-                        clientEndPoint,
+                           clientEndPoint,
                            remoteEndPoint,
                            true);
 
