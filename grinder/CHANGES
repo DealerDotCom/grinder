@@ -26,7 +26,8 @@ The Grinder 3.8 (Not yet released)
   by the test time. Thanks to Fei for the report.
 
   Fix bug 3505060 - TCPProxy fails to handle concurrent HTTPS requests.
-  Thanks to Anders Storsveen for the report.
+  Thanks to Anders Storsveen for the report, and contributing part of
+  the fix.
 
 
 The Grinder 3.7.1

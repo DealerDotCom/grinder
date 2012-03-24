@@ -24,14 +24,15 @@ package net.grinder.tools.tcpproxy;
 import static net.grinder.testutility.SocketUtilities.findFreePort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -57,6 +58,8 @@ import net.grinder.util.TerminalColour;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
@@ -71,15 +74,9 @@ public class TestHTTPProxyTCPProxyEngine {
 
   private final List<AcceptAndEcho> m_echoers = new java.util.LinkedList<AcceptAndEcho>();
 
-  private final MyFilterStubFactory m_requestFilterStubFactory =
-    new MyFilterStubFactory();
-  private final TCPProxyFilter m_requestFilter =
-    m_requestFilterStubFactory.getStub();
-
-  private final MyFilterStubFactory m_responseFilterStubFactory =
-    new MyFilterStubFactory();
-  private final TCPProxyFilter m_responseFilter =
-    m_responseFilterStubFactory.getStub();
+  @Mock private TCPProxyFilter m_requestFilter;
+  @Mock private TCPProxyFilter m_responseFilter;
+  @Captor private ArgumentCaptor<ConnectionDetails> m_connectionDetailsCaptor;
 
   @Mock private Logger m_logger;
   private final PrintWriter m_out = new PrintWriter(new StringWriter());
@@ -98,10 +95,6 @@ public class TestHTTPProxyTCPProxyEngine {
     m_localEndPoint = createFreeLocalEndPoint();
 
     m_sslSocketFactory = new TCPProxySSLSocketFactoryImplementation();
-
-    // Set the filters not to generate random output.
-    m_requestFilterStubFactory.setResult(null);
-    m_responseFilterStubFactory.setResult(null);
 
     // Speed things up.
     System.setProperty("tcpproxy.connecttimeout", "500");
@@ -258,9 +251,6 @@ public class TestHTTPProxyTCPProxyEngine {
 
     clientSocket.close();
 
-    m_requestFilterStubFactory.assertNoMoreCalls();
-    m_responseFilterStubFactory.assertNoMoreCalls();
-
     verify(m_logger).error(contains("Failed to determine proxy destination"));
 
     final Socket clientSocket2 =
@@ -301,8 +291,7 @@ public class TestHTTPProxyTCPProxyEngine {
     verify(m_logger, timeout(10000))
       .error(contains("failed to match HTTP message"));
 
-    m_requestFilterStubFactory.assertNoMoreCalls();
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_requestFilter, m_responseFilter);
   }
 
   private void httpProxyEngineGoodRequestTests(AbstractTCPProxyEngine engine)
@@ -332,21 +321,29 @@ public class TestHTTPProxyTCPProxyEngine {
     AssertUtilities.assertContainsPattern(response0,
                                           "\r\n\r\nA \u00e0 message$");
 
-    m_requestFilterStubFactory.assertSuccess("connectionOpened",
-                                             ConnectionDetails.class);
-    m_requestFilterStubFactory.assertSuccess("handle",
-                                             ConnectionDetails.class,
-                                             new byte[0].getClass(),
-                                             Integer.class);
-    m_requestFilterStubFactory.assertNoMoreCalls();
+    verify(m_requestFilter)
+      .connectionOpened(m_connectionDetailsCaptor.capture());
 
-    m_responseFilterStubFactory.assertSuccess("connectionOpened",
-                                              ConnectionDetails.class);
-    m_responseFilterStubFactory.assertSuccess("handle",
-                                              ConnectionDetails.class,
-                                              new byte[0].getClass(),
-                                              Integer.class);
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    final ConnectionDetails requestConnectionDetails =
+        m_connectionDetailsCaptor.getValue();
+    assertEquals(echoer.getEndPoint(),
+                 requestConnectionDetails.getRemoteEndPoint());
+
+    verify(m_requestFilter).handle(same(requestConnectionDetails),
+                                   isA(new byte[0].getClass()),
+                                   isA(Integer.class));
+
+    verify(m_responseFilter)
+      .connectionOpened(m_connectionDetailsCaptor.capture());
+
+    final ConnectionDetails responseConnectionDetails =
+        m_connectionDetailsCaptor.getValue();
+    assertEquals(requestConnectionDetails.getOtherEnd(),
+                 responseConnectionDetails);
+
+    verify(m_responseFilter).handle(same(responseConnectionDetails),
+                                    isA(new byte[0].getClass()),
+                                    isA(Integer.class));
 
     final String message1Headers =
       "POST http://" + echoer.getEndPoint() + "/blah?x=123&y=99 HTTP/1.0\r\n" +
@@ -386,64 +383,20 @@ public class TestHTTPProxyTCPProxyEngine {
 
     waitUntilAllStreamThreadsStopped(engine);
 
-    assertTrue(m_requestFilterStubFactory.getCallHistory().indexOf(
-               "connectionClosed") != -1 &&
-               m_responseFilterStubFactory.getCallHistory().indexOf(
-               "connectionClosed") != -1);
+    // handle() must have been called at least 3 further times, but can be
+    // called more.
+    verify(m_requestFilter, atLeast(4)).handle(same(requestConnectionDetails),
+                                               isA(new byte[0].getClass()),
+                                               isA(Integer.class));
 
-    m_requestFilterStubFactory.assertSuccess("handle",
-                                             ConnectionDetails.class,
-                                             new byte[0].getClass(),
-                                             Integer.class);
-    m_requestFilterStubFactory.assertSuccess("handle",
-                                             ConnectionDetails.class,
-                                             new byte[0].getClass(),
-                                             Integer.class);
-    m_requestFilterStubFactory.assertSuccess("handle",
-                                             ConnectionDetails.class,
-                                             new byte[0].getClass(),
-                                             Integer.class);
+    verify(m_responseFilter, atLeast(4)).handle(same(responseConnectionDetails),
+                                                isA(new byte[0].getClass()),
+                                                isA(Integer.class));
 
-    // handle() must have been called at least 3 times, but can be called
-    // more.
-    while (m_requestFilterStubFactory.peekFirst() != null &&
-           m_requestFilterStubFactory.peekFirst().getMethod().getName()
-           .equals("handle")) {
-      m_requestFilterStubFactory.assertSuccess("handle",
-                                               ConnectionDetails.class,
-                                               new byte[0].getClass(),
-                                               Integer.class);
-    }
+    verify(m_requestFilter).connectionClosed(requestConnectionDetails);
+    verify(m_responseFilter).connectionClosed(responseConnectionDetails);
 
-    m_responseFilterStubFactory.assertSuccess("handle",
-                                              ConnectionDetails.class,
-                                              new byte[0].getClass(),
-                                              Integer.class);
-    m_responseFilterStubFactory.assertSuccess("handle",
-                                              ConnectionDetails.class,
-                                              new byte[0].getClass(),
-                                              Integer.class);
-    m_responseFilterStubFactory.assertSuccess("handle",
-                                              ConnectionDetails.class,
-                                              new byte[0].getClass(),
-                                              Integer.class);
-
-    while (m_responseFilterStubFactory.peekFirst() != null &&
-           m_responseFilterStubFactory.peekFirst().getMethod().getName()
-           .equals("handle")) {
-      m_responseFilterStubFactory.assertSuccess("handle",
-                                                ConnectionDetails.class,
-                                                new byte[0].getClass(),
-                                                Integer.class);
-    }
-
-    m_requestFilterStubFactory.assertSuccess("connectionClosed",
-                                             ConnectionDetails.class);
-    m_requestFilterStubFactory.assertNoMoreCalls();
-
-    m_responseFilterStubFactory.assertSuccess("connectionClosed",
-                                              ConnectionDetails.class);
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_requestFilter, m_responseFilter);
   }
 
   private void httpsProxyEngineGoodRequestTest(AbstractTCPProxyEngine engine)
@@ -492,37 +445,46 @@ public class TestHTTPProxyTCPProxyEngine {
     AssertUtilities.assertContainsPattern(response0,
                                           "\r\n\r\nA \u00e0 message$");
 
-    m_requestFilterStubFactory.assertSuccess("connectionOpened",
-                                             ConnectionDetails.class);
-    m_requestFilterStubFactory.assertSuccess("handle",
-                                             ConnectionDetails.class,
-                                             new byte[0].getClass(),
-                                             Integer.class);
-    m_requestFilterStubFactory.assertNoMoreCalls();
+    verify(m_requestFilter)
+      .connectionOpened(m_connectionDetailsCaptor.capture());
 
-    m_responseFilterStubFactory.assertSuccess("connectionOpened",
-                                              ConnectionDetails.class);
-    m_responseFilterStubFactory.assertSuccess("handle",
-                                              ConnectionDetails.class,
-                                              new byte[0].getClass(),
-                                              Integer.class);
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    final ConnectionDetails requestConnectionDetails =
+      m_connectionDetailsCaptor.getValue();
+    assertEquals(echoer.getEndPoint(),
+                 requestConnectionDetails.getRemoteEndPoint());
+
+    verify(m_requestFilter).handle(same(requestConnectionDetails),
+                                   isA(new byte[0].getClass()),
+                                   isA(Integer.class));
+
+    verifyNoMoreInteractions(m_requestFilter);
+
+
+    verify(m_responseFilter)
+      .connectionOpened(m_connectionDetailsCaptor.capture());
+
+    final ConnectionDetails responseConnectionDetails =
+      m_connectionDetailsCaptor.getValue();
+    assertEquals(requestConnectionDetails.getOtherEnd(),
+                 responseConnectionDetails);
+
+    verify(m_responseFilter).handle(same(responseConnectionDetails),
+                                   isA(new byte[0].getClass()),
+                                   isA(Integer.class));
+
+    verifyNoMoreInteractions(m_responseFilter);
 
     clientSSLSocket.close();
 
     waitUntilAllStreamThreadsStopped(engine);
 
-    m_requestFilterStubFactory.waitUntilCalled(5000);
+    verify(m_requestFilter, timeout(5000))
+      .connectionClosed(requestConnectionDetails);
 
-    m_requestFilterStubFactory.assertSuccess("connectionClosed",
-                                             ConnectionDetails.class);
-    m_requestFilterStubFactory.assertNoMoreCalls();
+    verify(m_responseFilter, timeout(5000))
+    .connectionClosed(responseConnectionDetails);
 
-    m_responseFilterStubFactory.waitUntilCalled(5000);
-
-    m_responseFilterStubFactory.assertSuccess("connectionClosed",
-                                              ConnectionDetails.class);
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_requestFilter, m_responseFilter);
   }
 
   @Test public void testHTTPProxyEngine() throws Exception {
@@ -541,21 +503,17 @@ public class TestHTTPProxyTCPProxyEngine {
     final Thread engineThread = new Thread(engine, "Run engine");
     engineThread.start();
 
-    m_responseFilterStubFactory.assertNoMoreCalls();
-    m_requestFilterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_requestFilter, m_responseFilter);
 
     assertEquals(m_localEndPoint, engine.getListenEndPoint());
     assertNotNull(engine.getSocketFactory());
-    m_requestFilterStubFactory.assertIsWrappedBy(engine.getRequestFilter());
-    m_responseFilterStubFactory.assertIsWrappedBy(engine.getResponseFilter());
     assertEquals(TerminalColour.NONE, engine.getRequestColour());
     assertEquals(TerminalColour.NONE, engine.getResponseColour());
 
-    m_requestFilterStubFactory.resetCallHistory();
-    m_responseFilterStubFactory.resetCallHistory();
-
     httpProxyEngineBadRequestTests(engine);
+    reset(m_requestFilter, m_responseFilter);
     httpProxyEngineGoodRequestTests(engine);
+    reset(m_requestFilter, m_responseFilter);
     httpsProxyEngineGoodRequestTest(engine);
 
     engine.stop();
@@ -564,8 +522,7 @@ public class TestHTTPProxyTCPProxyEngine {
     // Stopping engine again doesn't do anything.
     engine.stop();
 
-    m_requestFilterStubFactory.assertNoMoreCalls();
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_requestFilter, m_responseFilter);
   }
 
   @Test public void testColourHTTPProxyEngine() throws Exception {
@@ -585,20 +542,15 @@ public class TestHTTPProxyTCPProxyEngine {
     final Thread engineThread = new Thread(engine, "Run engine");
     engineThread.start();
 
-    m_responseFilterStubFactory.assertNoMoreCalls();
-    m_requestFilterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_requestFilter, m_responseFilter);
 
     assertEquals(m_localEndPoint, engine.getListenEndPoint());
     assertNotNull(engine.getSocketFactory());
-    m_requestFilterStubFactory.assertIsWrappedBy(engine.getRequestFilter());
-    m_responseFilterStubFactory.assertIsWrappedBy(engine.getResponseFilter());
     assertEquals(TerminalColour.RED, engine.getRequestColour());
     assertEquals(TerminalColour.BLUE, engine.getResponseColour());
 
-    m_requestFilterStubFactory.resetCallHistory();
-    m_responseFilterStubFactory.resetCallHistory();
-
     httpProxyEngineBadRequestTests(engine);
+    reset(m_requestFilter, m_responseFilter);
     httpProxyEngineGoodRequestTests(engine);
 
     engine.stop();
@@ -607,8 +559,7 @@ public class TestHTTPProxyTCPProxyEngine {
     // Stopping engine again doesn't do anything.
     engine.stop();
 
-    m_requestFilterStubFactory.assertNoMoreCalls();
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_requestFilter, m_responseFilter);
   }
 
   @Test public void testWithChainedHTTPProxy() throws Exception {
@@ -646,9 +597,6 @@ public class TestHTTPProxyTCPProxyEngine {
     final Thread engineThread = new Thread(engine, "Run engine");
     engineThread.start();
 
-    m_requestFilterStubFactory.resetCallHistory();
-    m_responseFilterStubFactory.resetCallHistory();
-
     final Socket clientSocket =
       new Socket(engine.getListenEndPoint().getHost(),
                  engine.getListenEndPoint().getPort());
@@ -670,21 +618,27 @@ public class TestHTTPProxyTCPProxyEngine {
     AssertUtilities.assertContainsHeader(response0, "foo", "bah");
     AssertUtilities.assertContainsPattern(response0, "\r\n\r\nProxy me$");
 
-    m_requestFilterStubFactory.assertSuccess("connectionOpened",
-                                             ConnectionDetails.class);
-    m_requestFilterStubFactory.assertSuccess("handle",
-                                             ConnectionDetails.class,
-                                             new byte[0].getClass(),
-                                             Integer.class);
-    m_requestFilterStubFactory.assertNoMoreCalls();
+    verify(m_requestFilter)
+      .connectionOpened(m_connectionDetailsCaptor.capture());
 
-    m_responseFilterStubFactory.assertSuccess("connectionOpened",
-                                              ConnectionDetails.class);
-    m_responseFilterStubFactory.assertSuccess("handle",
-                                              ConnectionDetails.class,
-                                              new byte[0].getClass(),
-                                              Integer.class);
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    final ConnectionDetails requestConnectionDetails =
+        m_connectionDetailsCaptor.getValue();
+
+    verify(m_requestFilter).handle(same(requestConnectionDetails),
+                                   isA(new byte[0].getClass()),
+                                   isA(Integer.class));
+    verifyNoMoreInteractions(m_requestFilter);
+
+    verify(m_responseFilter)
+    .connectionOpened(m_connectionDetailsCaptor.capture());
+
+    final ConnectionDetails responseConnectionDetails =
+        m_connectionDetailsCaptor.getValue();
+
+    verify(m_responseFilter).handle(same(responseConnectionDetails),
+                                   isA(new byte[0].getClass()),
+                                   isA(Integer.class));
+    verifyNoMoreInteractions(m_responseFilter);
 
     chainedProxy.stop();
     chainedProxyThread.join();
@@ -694,16 +648,13 @@ public class TestHTTPProxyTCPProxyEngine {
 
     waitUntilAllStreamThreadsStopped(engine);
 
-    m_requestFilterStubFactory.assertSuccess(
-      "connectionClosed", ConnectionDetails.class);
-    m_responseFilterStubFactory.assertSuccess(
-      "connectionClosed", ConnectionDetails.class);
+    verify(m_requestFilter).connectionClosed(requestConnectionDetails);
+    verify(m_responseFilter).connectionClosed(responseConnectionDetails);
 
     // Stopping engine again doesn't do anything.
     engine.stop();
 
-    m_requestFilterStubFactory.assertNoMoreCalls();
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_requestFilter, m_responseFilter);
   }
 
   @Test public void testWithChainedHTTPSProxy() throws Exception {
@@ -741,10 +692,6 @@ public class TestHTTPProxyTCPProxyEngine {
 
     final Thread engineThread = new Thread(engine, "Run engine");
     engineThread.start();
-
-    m_requestFilterStubFactory.resetCallHistory();
-    m_responseFilterStubFactory.resetCallHistory();
-
 
     final Socket clientPlainSocket =
       new Socket(engine.getListenEndPoint().getHost(),
@@ -787,21 +734,27 @@ public class TestHTTPProxyTCPProxyEngine {
     AssertUtilities.assertContainsPattern(response0,
                                           "\r\n\r\nA \u00e0 message$");
 
-    m_requestFilterStubFactory.assertSuccess("connectionOpened",
-                                             ConnectionDetails.class);
-    m_requestFilterStubFactory.assertSuccess("handle",
-                                             ConnectionDetails.class,
-                                             new byte[0].getClass(),
-                                             Integer.class);
-    m_requestFilterStubFactory.assertNoMoreCalls();
+    verify(m_requestFilter)
+      .connectionOpened(m_connectionDetailsCaptor.capture());
 
-    m_responseFilterStubFactory.assertSuccess("connectionOpened",
-                                              ConnectionDetails.class);
-    m_responseFilterStubFactory.assertSuccess("handle",
-                                              ConnectionDetails.class,
-                                              new byte[0].getClass(),
-                                              Integer.class);
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    final ConnectionDetails requestConnectionDetails =
+        m_connectionDetailsCaptor.getValue();
+
+    verify(m_requestFilter).handle(same(requestConnectionDetails),
+                                   isA(new byte[0].getClass()),
+                                   isA(Integer.class));
+    verifyNoMoreInteractions(m_requestFilter);
+
+    verify(m_responseFilter)
+      .connectionOpened(m_connectionDetailsCaptor.capture());
+
+    final ConnectionDetails responseConnectionDetails =
+        m_connectionDetailsCaptor.getValue();
+
+    verify(m_responseFilter).handle(same(responseConnectionDetails),
+                                   isA(new byte[0].getClass()),
+                                   isA(Integer.class));
+    verifyNoMoreInteractions(m_responseFilter);
 
     engine.stop();
     engineThread.join();
@@ -811,13 +764,8 @@ public class TestHTTPProxyTCPProxyEngine {
 
     waitUntilAllStreamThreadsStopped(engine);
 
-    m_requestFilterStubFactory.setIgnoreCallOrder(true);
-    m_responseFilterStubFactory.setIgnoreCallOrder(true);
-
-    m_requestFilterStubFactory.assertSuccess(
-      "connectionClosed", ConnectionDetails.class);
-    m_responseFilterStubFactory.assertSuccess(
-      "connectionClosed", ConnectionDetails.class);
+    verify(m_requestFilter).connectionClosed(requestConnectionDetails);
+    verify(m_responseFilter).connectionClosed(responseConnectionDetails);
 
     // Sometimes log an SSL exception when shutting down.
     // m_loggerStubFactory.assertNoMoreCalls();
@@ -825,8 +773,7 @@ public class TestHTTPProxyTCPProxyEngine {
     // Stopping engine or filter again doesn't do anything.
     engine.stop();
 
-    m_requestFilterStubFactory.assertNoMoreCalls();
-    m_responseFilterStubFactory.assertNoMoreCalls();
+    verifyNoMoreInteractions(m_requestFilter, m_responseFilter);
   }
 
 
