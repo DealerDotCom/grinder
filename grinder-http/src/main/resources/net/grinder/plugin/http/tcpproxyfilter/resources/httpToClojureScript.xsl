@@ -434,7 +434,7 @@
     <xsl:apply-templates select=".//g:conflicting-value" mode="request"/>
 
     <xsl:variable name="token-id" select="@token-id"/>
-    <xsl:variable name="name" select="'//g:token[@token-id=$token-id]/g:name'"/>
+    <xsl:variable name="name" select="//g:token[@token-id=$token-id]/g:name"/>
 
     <xsl:value-of select="helper:newLineAndIndent()"/>
     <xsl:text>(set-token :</xsl:text>
@@ -449,10 +449,10 @@
             <xsl:text>(.valueFromLocationURI</xsl:text>
           </xsl:when>
           <xsl:when test="@source = 'RESPONSE_BODY_HIDDEN_INPUT'">
-            <xsl:text>(. valueFromHiddenInput</xsl:text>
+            <xsl:text>(.valueFromHiddenInput</xsl:text>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>(. valueFromBodyURI</xsl:text>
+            <xsl:text>(.valueFromBodyURI</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
 
@@ -463,6 +463,8 @@
 
         <xsl:text> ; </xsl:text>
         <xsl:value-of select="helper:quoteForClojure(helper:summariseAsLine(g:new-value, 40))"/>
+	<xsl:text>
+	</xsl:text>
       </xsl:when>
 
       <xsl:otherwise>
