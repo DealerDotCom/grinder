@@ -239,6 +239,14 @@
     </license>
   </licenses>
 
+  <!-- Required so site:stage works. -->
+  <distributionManagement>
+    <site>
+      <id>blah</id>
+      <url>file:///tmp/bah</url>
+    </site>
+  </distributionManagement>
+
   <scm>
     <url>http://sourceforge.net/scm/?type=git&amp;group_id=18598</url>
     <connection>git://grinder.git.sourceforge.net/gitroot/grinder/grinder</connection>
