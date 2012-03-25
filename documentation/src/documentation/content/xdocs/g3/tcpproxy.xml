@@ -441,7 +441,7 @@ identifiers used for headers, URLs, pages, tokens, and so on.</p>
     <title>How to record additional headers</title>
 
     <p>By default, the following HTTP headers are recorded from the
-    HTTP stream.
+    HTTP stream.</p>
 
     <ul>
       <li>Accept</li>
@@ -455,8 +455,6 @@ identifiers used for headers, URLs, pages, tokens, and so on.</p>
       <li>If-Modified-Since</li>
       <li>If-None-Match</li>
     </ul>
-
-    </p>
 
     <p>Additional headers can be specified with the
     <code>HTTPPlugin.additionalHeaders</code> system property. The
