@@ -29,6 +29,10 @@ The Grinder 3.8 (Not yet released)
   Thanks to Anders Storsveen for the report, and contributing part of
   the fix.
 
+  Three fixes to the Clojure script generation from Bill Smith. Fixes:
+  quoting of tokens; call to httpUtilities methods; single line
+  comments.
+
 
 The Grinder 3.7.1
 -----------------
