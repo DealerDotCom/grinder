@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,7 +41,7 @@ import HTTPClient.Codecs;
  * This class has static methods for consistent behaviour between JDK versions.
  * With instance methods the XSLTC implementation in Java 5.0 needs the instance
  * to be passed as the first argument, whereas the Xalan implementation in Java
- * 1.5 does not.
+ * 1.4 does not.
  * </p>
  *
  * @author Philip Aston

@@ -1,4 +1,4 @@
-// Copyright (C) 2006 Philip AstonP
+// Copyright (C) 2006 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -155,8 +155,8 @@ public final class URIParserImplementation implements URIParser {
   }
 
   /**
-   * Unescape escaped characters in an authority element. If a ParseException
-   * would be thrown then just return the original string.
+   * Unescape escaped characters. If a ParseException would be thrown then just
+   * return the original string.
    *
    * @param text
    *          The string to unescape.
