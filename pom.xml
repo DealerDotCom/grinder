@@ -341,8 +341,7 @@
         <configuration>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <tagNameFormat>release_@{project.version}</tagNameFormat>
-         <useReleaseProfile>true</useReleaseProfile>
-          <goals>package</goals>
+          <localCheckout>true</localCheckout>
         </configuration>
       </plugin>
     </plugins>
