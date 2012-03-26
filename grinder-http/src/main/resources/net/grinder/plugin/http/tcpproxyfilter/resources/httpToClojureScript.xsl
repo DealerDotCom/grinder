@@ -89,9 +89,9 @@
 
 <xsl:text>
 ; Offline debug
-(use '[clojure.string :only (join)])
-(defmacro .GET [&amp; k] `(.. grinder (getLogger) (output (str "GET " (join ", " `(~~@k))))))
-(defmacro .POST [&amp; k] `(.. grinder (getLogger) (output (str "POST " (join ", " `(~~@k))))))
+; (use '[clojure.string :only (join)])
+; (defmacro .GET [&amp; k] `(.. grinder (getLogger) (debug (str "GET " (join ", " `(~~@k))))))
+; (defmacro .POST [&amp; k] `(.. grinder (getLogger) (debug (str "POST " (join ", " `(~~@k))))))
 
 </xsl:text>
 
