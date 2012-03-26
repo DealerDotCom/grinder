@@ -30,20 +30,6 @@
       <artifactId>grinder-http</artifactId>
       <version>3.9-SNAPSHOT</version>
     </dependency>
-
-    <!-- grinder-xmlbeans only exports these at compile time, we change their
-      scope to make them available at runtime and to set our manifest classpath
-      correctly. -->
-    <dependency>
-      <groupId>javax.xml</groupId>
-      <artifactId>jsr173</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>xmlbeans</groupId>
-      <artifactId>xbean</artifactId>
-      <version>2.1.0</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -74,7 +60,7 @@
 	           modifying the classpath. -->
               <!-- Add jython.jar up front, so users can continue to override
                    by dropping a new version into the lib directory. -->
-	      <Class-Path>grinder-patch.jar jython.jar</Class-Path> 
+	      <Class-Path>grinder-patch.jar jython.jar</Class-Path>
             </manifest-entries>
           </archive>
         </configuration>
