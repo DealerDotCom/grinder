@@ -109,8 +109,8 @@ final class ScriptEngineContainer {
       }
     }
 
-    throw new EngineException("No suitable script engine installed for " +
-                              script);
+    throw new EngineException("No suitable script engine installed for '" +
+                              script + "'");
   }
 
   public Instrumenter createInstrumenter() throws EngineException {
