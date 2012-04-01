@@ -30,7 +30,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -75,6 +74,7 @@ public class TestHTTPRecordingImplementation {
 
   @Mock private HTTPRecordingParameters m_parameters;
   @Mock private HTTPRecordingResultProcessor m_resultProcessor;
+  @Mock private Logger m_logger;
   @Captor private ArgumentCaptor<HttpRecordingDocument> m_recordingCaptor;
 
   private final RegularExpressions m_regularExpressions =
@@ -87,12 +87,10 @@ public class TestHTTPRecordingImplementation {
   }
 
   @Test public void testConstructorAndDispose() throws Exception {
-    final Logger logger = mock(Logger.class);
-
     final HTTPRecordingImplementation httpRecording =
       new HTTPRecordingImplementation(m_parameters,
                                       m_resultProcessor,
-                                      logger,
+                                      m_logger,
                                       m_regularExpressions,
                                       m_uriParser);
 
@@ -127,15 +125,14 @@ public class TestHTTPRecordingImplementation {
 
     httpRecording.dispose();
 
-    verify(logger).error(exception.getMessage(), exception);
-    verifyNoMoreInteractions(logger);
+    verify(m_logger).error(exception.getMessage(), exception);
   }
 
   @Test public void testAddRequest() throws Exception {
     final HTTPRecordingImplementation httpRecording =
       new HTTPRecordingImplementation(m_parameters,
                                       m_resultProcessor,
-                                      null,
+                                      m_logger,
                                       m_regularExpressions,
                                       m_uriParser);
 
@@ -293,7 +290,7 @@ public class TestHTTPRecordingImplementation {
     final HTTPRecordingImplementation httpRecording =
         new HTTPRecordingImplementation(new ParametersFromProperties(),
                                         m_resultProcessor,
-                                        null,
+                                        m_logger,
                                         m_regularExpressions,
                                         m_uriParser);
 
@@ -397,8 +394,8 @@ public class TestHTTPRecordingImplementation {
     final HTTPRecordingType recording =
       m_recordingCaptor.getValue().getHttpRecording();
 
-    // Default, plus 3 sets.
-    assertEquals(4, recording.getCommonHeadersArray().length);
+    // Default, plus 2 sets.
+    assertEquals(3, recording.getCommonHeadersArray().length);
 
     final CommonHeadersType defaultHeaders = recording.getCommonHeadersArray(0);
     assertEquals(0, defaultHeaders.getAuthorizationArray().length);
@@ -417,13 +414,15 @@ public class TestHTTPRecordingImplementation {
     final CommonHeadersType commonHeaders2 = recording.getCommonHeadersArray(2);
     assertEquals(defaultHeaders.getHeadersId(), commonHeaders2.getExtends());
     assertEquals(1, commonHeaders2.getHeaderArray().length);
-    assertEquals("z", commonHeaders2.getHeaderArray(0).getValue());
+    assertEquals("zz", commonHeaders2.getHeaderArray(0).getValue());
     assertEquals(0, commonHeaders2.getAuthorizationArray().length);
 
-    final HeadersType headers = recording.getPageArray(3).getRequestArray(0).getHeaders();
-    assertEquals(0, headers.getHeaderArray().length);
+    final HeadersType headers =
+        recording.getPageArray(3).getRequestArray(0).getHeaders();
+    assertEquals(1, headers.getHeaderArray().length);
     assertEquals(1, headers.getAuthorizationArray().length);
-    assertEquals("phil", headers.getAuthorizationArray(0).getBasic().getUserid());
+    assertEquals("phil",
+                 headers.getAuthorizationArray(0).getBasic().getUserid());
   }
 
   private HeadersType createHeaders(NVPair[] nvPairs) {

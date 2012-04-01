@@ -21,6 +21,8 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
+import static java.util.Collections.emptySet;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -32,7 +34,6 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -304,34 +305,67 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     final HTTPRecordingType httpRecording = result.getHttpRecording();
     m_requestList.record(httpRecording);
 
-    // Extract default headers that are present in all common headers.
+    final XmlObject[] requestXmlObjects = httpRecording.selectPath(
+        "declare namespace ns=" +
+        "'http://grinder.sourceforge.net/tcpproxy/http/1.0';" +
+        "$this//ns:request");
+
+    final List<RequestType> requests =
+        new ArrayList<RequestType>(requestXmlObjects.length);
+
+    for (XmlObject o : requestXmlObjects) {
+      requests.add((RequestType) o);
+    }
+
+    extractCommonHeaders(requests, httpRecording);
+
+    // Find default headers that are present in all common headers, or
+    // request headers that don't extend common headers.
+
     final CommonHeadersType[] commonHeaders =
         httpRecording.getCommonHeadersArray();
 
-    final Map<String, String> sharedCommonHeaders =
-        findSharedHeaders(commonHeaders);
+    final List<HeadersType> defaultHeaderSources =
+        new ArrayList<HeadersType>(commonHeaders.length);
 
-    if (sharedCommonHeaders.size() > 0) {
+    for (HeadersType header : commonHeaders) {
+      defaultHeaderSources.add(header);
+    }
+
+    for (RequestType request : requests) {
+      final HeadersType headers = request.getHeaders();
+
+      if (!headers.isSetExtends()) {
+        defaultHeaderSources.add(headers);
+      }
+    }
+
+    final Set<Pair<String, String>> defaultHeaders =
+        findSharedHeaders(defaultHeaderSources);
+
+    if (defaultHeaders.size() > 0) {
       final List<CommonHeadersType> newCommonHeaders =
         new ArrayList<CommonHeadersType>(commonHeaders.length + 1);
 
-      final CommonHeadersType defaultHeaders =
+      final CommonHeadersType defaultHeadersXML =
           CommonHeadersType.Factory.newInstance();
-      defaultHeaders.setHeadersId("defaultHeaders");
-      newCommonHeaders.add(defaultHeaders);
+      defaultHeadersXML.setHeadersId("defaultHeaders");
+      newCommonHeaders.add(defaultHeadersXML);
 
-      for (Entry<String, String> entry : sharedCommonHeaders.entrySet()) {
-        final HeaderType header = defaultHeaders.addNewHeader();
-        header.setName(entry.getKey());
-        header.setValue(entry.getValue());
+      for (Pair<String, String> defaultHeader : defaultHeaders) {
+        final HeaderType header = defaultHeadersXML.addNewHeader();
+        header.setName(defaultHeader.getFirst());
+        header.setValue(defaultHeader.getSecond());
       }
 
-      // There can be at most one CommonHeaders that is the same as the default
-      // headers. If we find it, we remove it.
+      // There can be at most one CommonHeaders that is the same as the
+      // default headers. If we find it, we remove it.
       String emptyCommonHeadersID = null;
 
       for (CommonHeadersType headers : commonHeaders) {
-        removeDefaultHeaders(sharedCommonHeaders, defaultHeaders, headers);
+        removeDefaultHeaders(defaultHeaders,
+                             defaultHeadersXML.getHeadersId(),
+                             headers);
 
         if (headers.sizeOfHeaderArray() == 0) {
           assert emptyCommonHeadersID == null;
@@ -346,24 +380,19 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
         newCommonHeaders.toArray(
           new CommonHeadersType[newCommonHeaders.size()]));
 
-      final XmlObject[] requests = httpRecording.selectPath(
-          "declare namespace ns=" +
-          "'http://grinder.sourceforge.net/tcpproxy/http/1.0';" +
-          "$this//ns:request");
-
-      for (XmlObject o : requests) {
-        final RequestType request = (RequestType)o;
-
+      for (RequestType request : requests) {
         final HeadersType headers = request.getHeaders();
 
         if (!headers.isSetExtends()) {
-          removeDefaultHeaders(sharedCommonHeaders, defaultHeaders, headers);
+          removeDefaultHeaders(defaultHeaders,
+                               defaultHeadersXML.getHeadersId(),
+                               headers);
         }
         else {
           // Fix up any references to the CommonHeaders that duplicated the
           // defaultHeaders.
           if (headers.getExtends().equals(emptyCommonHeadersID)) {
-            headers.setExtends(defaultHeaders.getHeadersId());
+            headers.setExtends(defaultHeadersXML.getHeadersId());
           }
         }
       }
@@ -374,97 +403,6 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     }
     catch (IOException e) {
       m_logger.error(e.getMessage(), e);
-    }
-  }
-
-  private static Map<String, String> findSharedHeaders(HeadersType[] headers) {
-
-    final Map<String, String> sharedHeaders = new HashMap<String, String>();
-    final Set<String> notSharedHeaders = new HashSet<String>();
-
-    for (int i = 0; i < headers.length; ++i) {
-      final HeaderType[] h = headers[i].getHeaderArray();
-
-      for (int j = 0; j < h.length; ++j) {
-        final String name = h[j].getName();
-        final String value = h[j].getValue();
-
-        if (notSharedHeaders.contains(name)) {
-          continue;
-        }
-
-        final String existing = sharedHeaders.put(name, value);
-
-        if (existing != null && !value.equals(existing) ||
-            existing == null && i > 0) {
-          sharedHeaders.remove(name);
-          notSharedHeaders.add(name);
-        }
-      }
-    }
-
-    return sharedHeaders;
-  }
-
-  private static void removeDefaultHeaders(Map<String, String> defaultHeaderMap,
-                                           CommonHeadersType defaultHeaders,
-                                           HeadersType headers) {
-    final HeaderType[] headersArray = headers.getHeaderArray();
-
-    final List<Integer> defaultHeaderIndexes =
-        new ArrayList<Integer>(defaultHeaderMap.size());
-
-    for (int i = headersArray.length - 1; i >= 0; --i) {
-      final String defaultHeaderValue =
-          defaultHeaderMap.get(headersArray[i].getName());
-
-      if (headersArray[i].getValue().equals(defaultHeaderValue)) {
-        defaultHeaderIndexes.add(i);
-      }
-    }
-
-    if (defaultHeaderIndexes.size() == defaultHeaderMap.size()) {
-      for (int index : defaultHeaderIndexes) {
-        headers.removeHeader(index);
-      }
-
-      headers.setExtends(defaultHeaders.getHeadersId());
-    }
-  }
-
-  private final class BaseURLMap {
-    private final Map<String, BaseURIType> m_map =
-      new HashMap<String, BaseURIType>();
-
-    private final IntGenerator m_idGenerator = new IntGenerator();
-
-    public BaseURIType getBaseURL(
-      BaseURIType.Scheme.Enum scheme, EndPoint endPoint) {
-
-      final String key = scheme.toString() + "://" + endPoint;
-
-      synchronized (m_map) {
-        final BaseURIType existing = m_map.get(key);
-
-        if (existing != null) {
-          return existing;
-        }
-
-        final BaseURIType result;
-
-        synchronized (m_recordingDocument) {
-          result = m_recordingDocument.getHttpRecording().addNewBaseUri();
-        }
-
-        result.setUriId("url" + m_idGenerator.next());
-        result.setScheme(scheme);
-        result.setHost(endPoint.getHost());
-        result.setPort(endPoint.getPort());
-
-        m_map.put(key, result);
-
-        return result;
-      }
     }
   }
 
@@ -558,6 +496,118 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
     }
   }
 
+  /**
+   * Find the intersection of (matching name and value) from a set of headers.
+   *
+   * @param headersList
+   *          Headers to search.
+   * @return Shared headers.
+   */
+  private static Set<Pair<String, String>>
+    findSharedHeaders(List<HeadersType> headersList) {
+
+    if (headersList.size() == 0) {
+      return emptySet();
+    }
+
+    final HeaderType[] oneHeaders =
+        headersList.remove(headersList.size() - 1).getHeaderArray();
+
+    final Set<Pair<String, String>> sharedHeaders =
+        new HashSet<Pair<String, String>>(oneHeaders.length);
+
+    for (HeaderType header : oneHeaders) {
+      sharedHeaders.add(Pair.of(header.getName(), header.getValue()));
+    }
+
+    for (HeadersType headers : headersList) {
+      final HeaderType[] h = headers.getHeaderArray();
+
+      final Set<Pair<String, String>> sharedHeadersCopy =
+          new HashSet<Pair<String, String>>(sharedHeaders);
+
+      for (int j = 0; j < h.length; ++j) {
+        final String name = h[j].getName();
+        final String value = h[j].getValue();
+
+        sharedHeadersCopy.remove(Pair.of(name, value));
+      }
+
+      sharedHeaders.removeAll(sharedHeadersCopy);
+    }
+
+    return sharedHeaders;
+  }
+
+  /**
+   * Remove default headers.
+   *
+   * @param defaultHeaders Headers to remove.
+   * @param defaultHeadersID
+   * @param headers The headers. Mutated in place.
+   */
+  private static void removeDefaultHeaders(
+        Set<Pair<String, String>> defaultHeaders,
+        String defaultHeadersID,
+        HeadersType headers) {
+
+    final HeaderType[] headersArray = headers.getHeaderArray();
+
+    final List<Integer> defaultHeaderIndexes =
+        new ArrayList<Integer>(defaultHeaders.size());
+
+    for (int i = headersArray.length - 1; i >= 0; --i) {
+      if (defaultHeaders.contains(Pair.of(headersArray[i].getName(),
+                                          headersArray[i].getValue()))) {
+        defaultHeaderIndexes.add(i);
+      }
+    }
+
+    assert defaultHeaderIndexes.size() == defaultHeaders.size();
+
+    for (int index : defaultHeaderIndexes) {
+      headers.removeHeader(index);
+    }
+
+    headers.setExtends(defaultHeadersID);
+  }
+
+  private final class BaseURLMap {
+    private final Map<String, BaseURIType> m_map =
+      new HashMap<String, BaseURIType>();
+
+    private final IntGenerator m_idGenerator = new IntGenerator();
+
+    public BaseURIType getBaseURL(
+      BaseURIType.Scheme.Enum scheme, EndPoint endPoint) {
+
+      final String key = scheme.toString() + "://" + endPoint;
+
+      synchronized (m_map) {
+        final BaseURIType existing = m_map.get(key);
+
+        if (existing != null) {
+          return existing;
+        }
+
+        final BaseURIType result;
+
+        synchronized (m_recordingDocument) {
+          result = m_recordingDocument.getHttpRecording().addNewBaseUri();
+        }
+
+        result.setUriId("url" + m_idGenerator.next());
+        result.setScheme(scheme);
+        result.setHost(endPoint.getHost());
+        result.setPort(endPoint.getPort());
+
+        m_map.put(key, result);
+
+        return result;
+      }
+    }
+  }
+
   private final class RequestList {
     private final List<RequestType> m_requests = new ArrayList<RequestType>();
     private final Pattern m_resourcePathPattern = Pattern.compile(
@@ -576,7 +626,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
     public void record(HTTPRecordingType httpRecording) {
       synchronized (m_requests) {
-        extractCommonHeaders(m_requests, httpRecording);
+        m_logger.debug("Recording {} requests", m_requests.size());
 
         String lastBaseURI = null;
         boolean lastResponseWasRedirect = false;
@@ -587,6 +637,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
           final ResponseType response = request.getResponse();
 
           if (response == null) {
+            m_logger.debug("Skipping due to no response: {}", request);
             continue;
           }
 
