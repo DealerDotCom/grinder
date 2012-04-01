@@ -207,8 +207,12 @@
     <xsl:value-of select="helper:quoteForClojure(g:description)"/>
     <xsl:text>) </xsl:text>
     <xsl:value-of select="g:uri/@extends"/>
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="g:headers/@extends"/>
+
+    <xsl:if test="g:headers/@extends[. != 'defaultHeaders']">
+      <xsl:text> </xsl:text>
+      <xsl:value-of select="g:headers/@extends"/>
+    </xsl:if>
+
     <xsl:text>)</xsl:text>
 
     <xsl:if test="g:body/g:file">

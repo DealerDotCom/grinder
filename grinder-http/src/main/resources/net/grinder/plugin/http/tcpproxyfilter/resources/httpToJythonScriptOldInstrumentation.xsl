@@ -185,7 +185,13 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
     <xsl:value-of select="$request-name"/>
 
     <xsl:value-of select="concat(' = HTTPRequest(url=', g:uri/@extends)"/>
-    <xsl:value-of select="concat(', headers=', g:headers/@extends, ')')"/>
+
+    <xsl:if test="g:headers/@extends[. != 'defaultHeaders']">
+      <xsl:text>, headers=</xsl:text>
+      <xsl:value-of select="g:headers/@extends"/>
+    </xsl:if>
+
+    <xsl:text>)</xsl:text>
 
     <xsl:if test="g:body/g:file">
       <xsl:value-of select="helper:newLineAndIndent()"/>
