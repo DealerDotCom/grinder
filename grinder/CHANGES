@@ -10,6 +10,9 @@ The Grinder 3.9 (Not yet released)
   Thanks to Chris Bolton for the report. I also disabled the "offline
   debug" macros by default.
 
+  Fix bug 3512095 - proxy-generated XML gives each attribute a new
+  namespace. Thanks to Bill Smith for the report.
+
 
 The Grinder 3.8
 ---------------

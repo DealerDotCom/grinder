@@ -21,12 +21,14 @@
 
 package net.grinder.plugin.http.tcpproxyfilter;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -77,40 +79,18 @@ public class TestProcessHTTPRecordingWithXSLT
     streamCopier.copy(identityStyleSheetStream,
                       new FileOutputStream(identityStyleSheetFile));
 
-    final StyleSheetFile styleSheetInputStream =
-      new StyleSheetFile(identityStyleSheetFile);
-
     final ProcessHTTPRecordingWithXSLT processor =
-      new ProcessHTTPRecordingWithXSLT(styleSheetInputStream, m_out, m_logger);
-
-    final HttpRecordingDocument emptyDocument =
-      HttpRecordingDocument.Factory.newInstance();
-
-    processor.process(emptyDocument);
-
-    final String output = m_stringOut.toString();
-    AssertUtilities.assertContainsPattern(output,
-      "^<\\?xml version=.*\\?>\\s*$");
-
-    try {
-      styleSheetInputStream.open().read();
-      fail("Input stream not closed");
-    }
-    catch (IOException e) {
-    }
-
-    final ProcessHTTPRecordingWithXSLT processor2 =
       new ProcessHTTPRecordingWithXSLT(
         new StyleSheetFile(identityStyleSheetFile), m_out, m_logger);
 
-    final HttpRecordingDocument document2 =
+    final HttpRecordingDocument document =
       HttpRecordingDocument.Factory.newInstance();
-    final HTTPRecordingType recording = document2.addNewHttpRecording();
+    final HTTPRecordingType recording = document.addNewHttpRecording();
     recording.addNewMetadata().setVersion("blah");
 
-    processor2.process(document2);
+    processor.process(document);
 
-    final String output2 = m_stringOut.toString().substring(output.length());
+    final String output2 = m_stringOut.toString();
     AssertUtilities.assertContainsPattern(output2,
       "^<\\?xml version=.*\\?>\\s*" +
       "<http-recording .*?>\\s*" +

@@ -32,13 +32,13 @@ import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.slf4j.Logger;
-
 import net.grinder.plugin.http.xml.HttpRecordingDocument;
+
+import org.slf4j.Logger;
 
 /**
  * Output an {@link HTTPRecordingImplementation} result as a script using an
@@ -140,7 +140,7 @@ public class ProcessHTTPRecordingWithXSLT implements
       // One might expect this to be the default, but it's not.
       transformer.setErrorListener(m_transformerFactory.getErrorListener());
 
-      transformer.transform(new DOMSource(result.getDomNode()),
+      transformer.transform(new StAXSource(result.newXMLStreamReader()),
                             new StreamResult(m_output));
 
       m_output.println();
