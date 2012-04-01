@@ -27,11 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
-
-import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.statistics.StatisticsIndexMap.LongSampleIndex;
-import net.grinder.statistics.StatisticsSet;
 
 /**
  * Unit test case for {@link StatisticsIndexMap}.
