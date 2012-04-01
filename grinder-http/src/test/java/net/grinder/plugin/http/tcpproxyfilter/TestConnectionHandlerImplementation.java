@@ -58,7 +58,6 @@ import net.grinder.util.StringEscaper;
 import net.grinder.util.http.URIParser;
 import net.grinder.util.http.URIParserImplementation;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -107,10 +106,6 @@ public class TestConnectionHandlerImplementation
         new ParametersFromProperties();
 
     when(m_httpRecording.getParameters()).thenReturn(parametersFromProperties);
-  }
-
-  @After public void postConditions() {
-    verifyNoMoreInteractions(m_logger);
   }
 
   @Test public void testRequestWithGet() throws Exception {

@@ -154,7 +154,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       throw new AssertionError(e);
     }
 
-    if (m_request != null && m_request.isContentLengthReached()) {
+    if (m_request != null && m_request.isComplete()) {
       requestFinished();
     }
 
@@ -190,59 +190,73 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       m_request.getBody().write(m_requestBuffer.array(),
                                 0,
                                 m_requestBuffer.remaining());
+      m_requestBuffer.clear();
+
+      return;
+    }
+
+    // Still parsing headers.
+
+    String headers = asciiString;
+    final int bodyStart;
+
+    final Matcher messageBodyMatcher =
+      m_regularExpressions.getMessageBodyPattern().matcher(asciiString);
+
+    if (messageBodyMatcher.find()) {
+      bodyStart = messageBodyMatcher.start(1);
+      headers = asciiString.substring(0, bodyStart);
     }
     else {
-      // Still parsing headers.
+      bodyStart = -1;
+    }
 
-      String headers = asciiString;
-      int bodyStart = -1;
+    final Matcher headerMatcher =
+      m_regularExpressions.getHeaderPattern().matcher(headers);
+
+    while (headerMatcher.find()) {
+      final String name = headerMatcher.group(1);
+      final String value = headerMatcher.group(2);
+
+      if (m_httpRecording.getParameters().isMirroredHeader(name)) {
+        m_request.addHeader(name, value);
+      }
+
+      if ("Content-Type".equalsIgnoreCase(name)) {
+        m_request.setContentType(value);
+      }
+
+      if ("Content-Length".equalsIgnoreCase(name)) {
+        m_request.setContentLength(Integer.parseInt(value));
+      }
+    }
+
+    final Matcher authorizationMatcher =
+      m_regularExpressions.getBasicAuthorizationHeaderPattern().matcher(
+        headers);
+
+    if (authorizationMatcher.find()) {
+      m_request.addBasicAuthorization(authorizationMatcher.group(1));
+    }
+
+    // Write out the body after parsing the headers as we need to
+    // know the content length.
+
+    if (bodyStart > -1) {
+      final int bodyLength = m_requestBuffer.remaining() - bodyStart;
 
       if (m_request.expectingBody()) {
-        final Matcher messageBodyMatcher =
-          m_regularExpressions.getMessageBodyPattern().matcher(asciiString);
-
-        if (messageBodyMatcher.find()) {
-          bodyStart = messageBodyMatcher.start(1);
-          headers = asciiString.substring(0, bodyStart);
-        }
+        m_request.new RequestBody().write(m_requestBuffer.array(),
+                                          bodyStart,
+                                          bodyLength);
       }
-
-      final Matcher headerMatcher =
-        m_regularExpressions.getHeaderPattern().matcher(headers);
-
-      while (headerMatcher.find()) {
-        final String name = headerMatcher.group(1);
-        final String value = headerMatcher.group(2);
-
-        if (m_httpRecording.getParameters().isMirroredHeader(name)) {
-          m_request.addHeader(name, value);
+      else {
+        if (bodyLength != 0) {
+          m_logger.warn("Not expecting body, found {} bytes for {}",
+                        bodyLength, m_request);
         }
 
-        if ("Content-Type".equalsIgnoreCase(name)) {
-          m_request.setContentType(value);
-        }
-
-        if ("Content-Length".equalsIgnoreCase(name)) {
-          m_request.setContentLength(Integer.parseInt(value));
-        }
-      }
-
-      final Matcher authorizationMatcher =
-        m_regularExpressions.getBasicAuthorizationHeaderPattern().matcher(
-          headers);
-
-      if (authorizationMatcher.find()) {
-        m_request.addBasicAuthorization(authorizationMatcher.group(1));
-      }
-
-      // Write out the body after parsing the headers as we need to
-      // know the content length, and writing the body can end the
-      // processing of the current request.
-      if (bodyStart > -1) {
-        m_request.new RequestBody().write(
-          m_requestBuffer.array(),
-          bodyStart,
-          m_requestBuffer.remaining() - bodyStart);
+        m_request.setComplete();
       }
     }
 
@@ -350,6 +364,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
   public synchronized void requestFinished() {
     if (m_request != null) {
       m_request.end();
+      m_request = null;
     }
   }
 
@@ -359,7 +374,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
     private int m_contentLength = -1;
     private String m_contentType = null;
     private RequestBody m_body;
-    private boolean m_contentLengthReached;
+    private boolean m_complete;
 
     private Response m_response = null;
 
@@ -367,12 +382,13 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       m_requestXML =
         m_httpRecording.addRequest(m_connectionDetails, method, relativeURI);
 
+      m_logger.debug("Request started {}", m_requestXML);
+
       //add the user comments to the request element
       for (int i = 0; i < userComments.length; i++) {
         m_requestXML.addComment(userComments[i]);
       }
     }
-
 
     public void addNewResponse(int statusCode, String reasonPhrase) {
       final ResponseType responseXML = m_requestXML.addNewResponse();
@@ -446,6 +462,8 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       if (getResponse() != null) {
         getResponse().end();
       }
+
+      m_logger.debug("Request finished {}", m_requestXML);
     }
 
     private class RequestBody extends AbstractBody {
@@ -480,7 +498,7 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
           if (m_contentLength != -1 &&
               getSize() >= m_contentLength) {
 
-            m_request.setContentLengthReached();
+            m_request.setComplete();
           }
         }
       }
@@ -603,12 +621,12 @@ final class ConnectionHandlerImplementation implements ConnectionHandler {
       }
     }
 
-    public void setContentLengthReached() {
-      m_contentLengthReached = true;
+    public void setComplete() {
+      m_complete = true;
     }
 
-    public boolean isContentLengthReached() {
-      return m_contentLengthReached;
+    public boolean isComplete() {
+      return m_complete;
     }
   }
 
