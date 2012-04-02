@@ -1,4 +1,4 @@
-// Copyright (C) 2002 - 2009 Philip Aston
+// Copyright (C) 2002 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,8 +37,10 @@ import net.grinder.plugininterface.PluginProcessContext;
  **/
 public final class HTTPPluginControl {
 
+  ///CLOVER:OFF
   private HTTPPluginControl() {
   }
+  ///CLOVER:ON
 
   /**
    * Returns a {@link HTTPPluginConnection} that can be used to set
