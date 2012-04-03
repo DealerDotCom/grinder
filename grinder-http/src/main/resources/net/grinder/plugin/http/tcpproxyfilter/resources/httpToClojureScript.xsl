@@ -63,10 +63,10 @@
 (defn set-token [k v] (set! *tokens* (assoc *tokens* k v)))
 (defn token [k] (*tokens* k))
 
-(defn nvpairs [c] (into-array
+(defn nvpairs [c] (into-array NVPair
   (map (fn [[k v]] (NVPair. k v)) (partition 2 c))))
 
-(defn httprequest [url headers]
+(defn httprequest [url & [headers]]
   (doto (HTTPRequest.) (.setUrl url) (.setHeaders (nvpairs headers))))
 
 (defn basic-authorization [u p]
