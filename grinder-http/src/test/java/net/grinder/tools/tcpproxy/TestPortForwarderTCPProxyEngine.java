@@ -90,7 +90,7 @@ public class TestPortForwarderTCPProxyEngine {
 
   @Test public void testBadLocalPort() throws Exception {
     final ConnectionDetails badConnectionDetails =
-      new ConnectionDetails(new EndPoint("unknownhost", 111),
+      new ConnectionDetails(new EndPoint("fictitious-host", 111),
                             new EndPoint("to", 222),
                             false);
 

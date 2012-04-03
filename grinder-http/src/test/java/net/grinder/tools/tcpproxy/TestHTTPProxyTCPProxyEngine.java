@@ -115,7 +115,7 @@ public class TestHTTPProxyTCPProxyEngine {
                                   m_responseFilter,
                                   m_out,
                                   m_logger,
-                                  new EndPoint("unknownhost", 222),
+                                  new EndPoint("fictitious-host", 222),
                                   false,
                                   1000,
                                   null,
