@@ -2,7 +2,9 @@ The Grinder 3.9 (Not yet released)
 ----------------------------------
 
   Fix bug 3511553 - TCP proxy recorded scripts do not extract headers
-  correctly, leaving a syntactically incorrect script.
+  correctly, leaving a syntactically incorrect script. Thanks to Bill
+  Smith for testing the fix, and correcting the Clojure scirpt
+  generation.
 
   Fix bug 3511035 - 3.8 bundles additional, older version of xmlbeans.
 
