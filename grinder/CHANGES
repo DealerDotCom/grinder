@@ -1,5 +1,5 @@
-The Grinder 3.9 (Not yet released)
-----------------------------------
+The Grinder 3.9
+---------------
 
   Fix bug 3511553 - TCP proxy recorded scripts do not extract headers
   correctly, leaving a syntactically incorrect script. Thanks to Bill
