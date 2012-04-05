@@ -498,6 +498,8 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
 
   /**
    * Find the intersection of (matching name and value) from a set of headers.
+   * If there are less than two sets of headers in headersList, the result
+   * is empty.
    *
    * @param headersList
    *          Headers to search.
@@ -506,7 +508,7 @@ public class HTTPRecordingImplementation implements HTTPRecording, Disposable {
   private static Set<Pair<String, String>>
     findSharedHeaders(List<HeadersType> headersList) {
 
-    if (headersList.size() == 0) {
+    if (headersList.size() < 2) {
       return emptySet();
     }
 

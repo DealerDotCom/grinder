@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doThrow;
@@ -72,7 +73,9 @@ import HTTPClient.NVPair;
  */
 public class TestHTTPRecordingImplementation {
 
-  @Mock private HTTPRecordingParameters m_parameters;
+  private static final EndPoint endPoint1 = new EndPoint("hostA", 80);
+  private static final EndPoint endPoint2 = new EndPoint("hostB", 80);
+
   @Mock private HTTPRecordingResultProcessor m_resultProcessor;
   @Mock private Logger m_logger;
   @Captor private ArgumentCaptor<HttpRecordingDocument> m_recordingCaptor;
@@ -82,22 +85,31 @@ public class TestHTTPRecordingImplementation {
 
   private final URIParser m_uriParser = new URIParserImplementation();
 
+  private final ConnectionDetails m_connectionDetails1 =
+      new ConnectionDetails(endPoint1, endPoint2, false);
+
+  private HTTPRecordingImplementation m_httpRecording;
+
   @Before public void setUp() {
     MockitoAnnotations.initMocks(this);
+
+    m_httpRecording =
+        new HTTPRecordingImplementation(new ParametersFromProperties(),
+                                        m_resultProcessor,
+                                        m_logger,
+                                        m_regularExpressions,
+                                        m_uriParser);
   }
 
   @Test public void testConstructorAndDispose() throws Exception {
-    final HTTPRecordingImplementation httpRecording =
-      new HTTPRecordingImplementation(m_parameters,
-                                      m_resultProcessor,
-                                      m_logger,
-                                      m_regularExpressions,
-                                      m_uriParser);
-
     verifyNoMoreInteractions(m_resultProcessor);
 
-    httpRecording.dispose();
-    httpRecording.dispose();
+    assertNotNull(m_httpRecording.getParameters());
+    assertSame(m_httpRecording.getParameters(),
+               m_httpRecording.getParameters());
+
+    m_httpRecording.dispose();
+    m_httpRecording.dispose();
 
     verify(m_resultProcessor, times(2)).process(m_recordingCaptor.capture());
 
@@ -123,21 +135,12 @@ public class TestHTTPRecordingImplementation {
     doThrow(exception)
     .when(m_resultProcessor).process(isA(HttpRecordingDocument.class));
 
-    httpRecording.dispose();
+    m_httpRecording.dispose();
 
     verify(m_logger).error(exception.getMessage(), exception);
   }
 
   @Test public void testAddRequest() throws Exception {
-    final HTTPRecordingImplementation httpRecording =
-      new HTTPRecordingImplementation(m_parameters,
-                                      m_resultProcessor,
-                                      m_logger,
-                                      m_regularExpressions,
-                                      m_uriParser);
-
-    final EndPoint endPoint1 = new EndPoint("hostA", 80);
-    final EndPoint endPoint2 = new EndPoint("hostB", 80);
     final EndPoint endPoint3 = new EndPoint("hostC", 80);
     final String[] userComments = new String[]{
         "BEGIN ENTER gmail homepage",
@@ -147,11 +150,8 @@ public class TestHTTPRecordingImplementation {
     };
 
     // Request 1
-    final ConnectionDetails connectionDetails1 =
-      new ConnectionDetails(endPoint1, endPoint2, false);
-
     final RequestType request1 =
-      httpRecording.addRequest(connectionDetails1, "GET", "/");
+      m_httpRecording.addRequest(m_connectionDetails1, "GET", "/");
     for (int i = 0; i < userComments.length; i++) {
       request1.addComment(userComments[i]);
     }
@@ -162,17 +162,17 @@ public class TestHTTPRecordingImplementation {
     assertEquals("END CLICK Sign In", request1.getCommentArray(3));
     assertFalse(request1.isSetSleepTime());
     request1.addNewResponse();
-    httpRecording.markLastResponseTime();
+    m_httpRecording.markLastResponseTime();
 
     // Request 2
     final ConnectionDetails connectionDetails2 =
       new ConnectionDetails(endPoint1, endPoint2, false);
 
     final RequestType request2 =
-      httpRecording.addRequest(connectionDetails2, "GET", "/foo.gif");
+      m_httpRecording.addRequest(connectionDetails2, "GET", "/foo.gif");
     assertFalse(request2.isSetSleepTime());
     request2.addNewResponse();
-    httpRecording.markLastResponseTime();
+    m_httpRecording.markLastResponseTime();
     Thread.sleep(20);
 
     // Request 3
@@ -180,26 +180,26 @@ public class TestHTTPRecordingImplementation {
       new ConnectionDetails(endPoint3, endPoint2, true);
 
     final RequestType request3 =
-      httpRecording.addRequest(connectionDetails3, "GET", "bah.gif");
+      m_httpRecording.addRequest(connectionDetails3, "GET", "bah.gif");
     assertEquals("bah.gif", request3.getUri().getUnparsed());
     assertTrue(request3.isSetSleepTime());
     request3.addNewResponse().setStatusCode(302);
     assertFalse(request3.isSetAnnotation());
 
     final RequestType request4 =
-      httpRecording.addRequest(connectionDetails3, "GET", "bah.gif");
+      m_httpRecording.addRequest(connectionDetails3, "GET", "bah.gif");
     request4.addNewResponse().setStatusCode(301);
     assertFalse(request4.isSetAnnotation());
 
     final RequestType request5 =
-      httpRecording.addRequest(connectionDetails3, "GET", "bah.gif");
+      m_httpRecording.addRequest(connectionDetails3, "GET", "bah.gif");
     request5.addNewResponse().setStatusCode(307);
     assertFalse(request5.isSetAnnotation());
 
     // Ignored because it doesn't have a response.
-    httpRecording.addRequest(connectionDetails3, "GET", "bah.gif");
+    m_httpRecording.addRequest(connectionDetails3, "GET", "bah.gif");
 
-    httpRecording.dispose();
+    m_httpRecording.dispose();
 
     verify(m_resultProcessor).process(m_recordingCaptor.capture());
 
@@ -234,23 +234,10 @@ public class TestHTTPRecordingImplementation {
   }
 
   @Test public void testAddRequestWithComplexPaths() throws Exception {
-    final HTTPRecording httpRecording =
-      new HTTPRecordingImplementation(m_parameters,
-                                      m_resultProcessor,
-                                      null,
-                                      m_regularExpressions,
-                                      m_uriParser);
-
-    final EndPoint endPoint1 = new EndPoint("hostA", 80);
-    final EndPoint endPoint2 = new EndPoint("hostB", 80);
-
     // Request 1
-    final ConnectionDetails connectionDetails1 =
-      new ConnectionDetails(endPoint1, endPoint2, false);
-
     final RequestType request1 =
-      httpRecording.addRequest(
-        connectionDetails1,
+      m_httpRecording.addRequest(
+        m_connectionDetails1,
         "GET",
         "/path;name=value/blah;dah/foo?foo=y"
       );
@@ -265,7 +252,7 @@ public class TestHTTPRecordingImplementation {
     assertFalse(request1.getUri().isSetFragment());
 
     final RequestType request2 =
-      httpRecording.addRequest(connectionDetails1, "POST", "/?x=y&fo--o=bah#lah?;blah");
+      m_httpRecording.addRequest(m_connectionDetails1, "POST", "/?x=y&fo--o=bah#lah?;blah");
 
     assertEquals("POST", request2.getMethod().toString());
     assertEquals("POST /", request2.getDescription());
@@ -277,7 +264,7 @@ public class TestHTTPRecordingImplementation {
     assertEquals("lah?;blah", request2.getUri().getFragment());
 
     final RequestType request3 =
-      httpRecording.addRequest(connectionDetails1, "POST", "/?x=y&fo--o=bah#lah?;blah");
+      m_httpRecording.addRequest(m_connectionDetails1, "POST", "/?x=y&fo--o=bah#lah?;blah");
 
     AssertUtilities.assertArraysEqual(new String[] {"&"}, request3.getUri().getQueryString().getTextArray());
     assertEquals("token_foo2", request3.getUri().getQueryString().getTokenReferenceArray(1).getTokenId());
@@ -287,55 +274,36 @@ public class TestHTTPRecordingImplementation {
 
   @Test public void testAddRequestWithHeaders() throws Exception {
 
-    final HTTPRecordingImplementation httpRecording =
-        new HTTPRecordingImplementation(new ParametersFromProperties(),
-                                        m_resultProcessor,
-                                        m_logger,
-                                        m_regularExpressions,
-                                        m_uriParser);
-
-    final EndPoint endPoint1 = new EndPoint("hostA", 80);
-    final EndPoint endPoint2 = new EndPoint("hostB", 80);
-    final ConnectionDetails connectionDetails1 =
-      new ConnectionDetails(endPoint1, endPoint2, false);
-
     final RequestType request1 =
-      httpRecording.addRequest(connectionDetails1, "GET", "/path");
+      m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
 
-    request1.setHeaders(createHeaders(new NVPair[] {
-        new NVPair("foo", "bah"),
-        new NVPair("User-Agent", "blah"),
-        new NVPair("Accept", "x"),
-    }));
+    request1.setHeaders(createHeaders(new NVPair("foo", "bah"),
+                                      new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "x")));
     request1.addNewResponse();
 
     final RequestType request2 =
-      httpRecording.addRequest(connectionDetails1, "GET", "/path");
+      m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
 
-    request2.setHeaders(createHeaders(new NVPair[] {
-        new NVPair("fu", "bar"),
-        new NVPair("User-Agent", "blah"),
-        new NVPair("Accept", "y"),
-    }));
+    request2.setHeaders(createHeaders(new NVPair("fu", "bar"),
+                                      new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "y")));
     request2.addNewResponse();
 
     final RequestType request3 =
-      httpRecording.addRequest(connectionDetails1, "GET", "/path");
+      m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
 
-    request3.setHeaders(createHeaders(new NVPair[] {
-        new NVPair("fu", "bar"),
-        new NVPair("User-Agent", "blah"),
-        new NVPair("Accept", "y"),
-    }));
+    request3.setHeaders(createHeaders(new NVPair("fu", "bar"),
+                                      new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "y")));
     request3.addNewResponse();
 
     final RequestType request4 =
-      httpRecording.addRequest(connectionDetails1, "GET", "/path");
+      m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
 
-    request4.setHeaders(createHeaders(new NVPair[] {
-        new NVPair("User-Agent", "blah"),
-        new NVPair("Accept", "z"),
-    }));
+    request4.setHeaders(createHeaders(new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "z")));
+
     final BasicAuthorizationHeaderType basicAuthorizationHeaderType =
       request4.getHeaders().addNewAuthorization().addNewBasic();
     basicAuthorizationHeaderType.setUserid("phil");
@@ -345,49 +313,39 @@ public class TestHTTPRecordingImplementation {
     // The next two requests trigger the case where there is
     // common header set that matches the default headers.
     final RequestType request5 =
-        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+        m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
 
-    request5.setHeaders(createHeaders(new NVPair[] {
-          new NVPair("User-Agent", "blah"),
-      }));
+    request5.setHeaders(createHeaders(new NVPair("User-Agent", "blah")));
     request5.addNewResponse();
 
     final RequestType request6 =
-        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+        m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
 
-    request6.setHeaders(createHeaders(new NVPair[] {
-          new NVPair("User-Agent", "blah"),
-      }));
+    request6.setHeaders(createHeaders(new NVPair("User-Agent", "blah")));
     request6.addNewResponse();
 
     // Request with no response.
     final RequestType request7 =
-        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+        m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
 
-    request7.setHeaders(createHeaders(new NVPair[] {
-          new NVPair("User-Agent", "blah"),
-          new NVPair("Accept", "z"),
-      }));
+    request7.setHeaders(createHeaders(new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "z")));
 
     final RequestType request8 =
-        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+        m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
 
-    request8.setHeaders(createHeaders(new NVPair[] {
-          new NVPair("User-Agent", "blah"),
-          new NVPair("Accept", "zz"),
-      }));
+    request8.setHeaders(createHeaders(new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "zz")));
     request8.addNewResponse();
 
     final RequestType request9 =
-        httpRecording.addRequest(connectionDetails1, "GET", "/path");
+        m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
 
-    request9.setHeaders(createHeaders(new NVPair[] {
-          new NVPair("User-Agent", "blah"),
-          new NVPair("Accept", "zz"),
-      }));
+    request9.setHeaders(createHeaders(new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "zz")));
     request9.addNewResponse();
 
-    httpRecording.dispose();
+    m_httpRecording.dispose();
 
     verify(m_resultProcessor).process(m_recordingCaptor.capture());
 
@@ -425,7 +383,7 @@ public class TestHTTPRecordingImplementation {
                  headers.getAuthorizationArray(0).getBasic().getUserid());
   }
 
-  private HeadersType createHeaders(NVPair[] nvPairs) {
+  private HeadersType createHeaders(NVPair... nvPairs) {
     final HeadersType result = HeadersType.Factory.newInstance();
 
     for (int i = 0; i < nvPairs.length; ++i) {
@@ -437,48 +395,124 @@ public class TestHTTPRecordingImplementation {
     return result;
   }
 
-  @Test public void testCreateBodyDataFileName() throws Exception {
-    final HTTPRecording httpRecording =
-        new HTTPRecordingImplementation(m_parameters,
-                                        m_resultProcessor,
-                                        null,
-                                        m_regularExpressions,
-                                        m_uriParser);
+  @Test public void testExtractHeadersOneRequest() throws Exception {
 
-    final File file1 = httpRecording.createBodyDataFileName();
-    final File file2 = httpRecording.createBodyDataFileName();
+    final RequestType request1 =
+      m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
+
+    request1.setHeaders(createHeaders(new NVPair("foo", "bah"),
+                                      new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "x")));
+    request1.addNewResponse();
+
+    final String originalRequestXML = request1.xmlText();
+
+    m_httpRecording.dispose();
+
+    verify(m_resultProcessor).process(m_recordingCaptor.capture());
+
+    final HTTPRecordingType recording =
+      m_recordingCaptor.getValue().getHttpRecording();
+
+    assertEquals(0, recording.getCommonHeadersArray().length);
+
+    final RequestType request = recording.getPageArray(0).getRequestArray(0);
+    final HeadersType headers = request.getHeaders();
+    assertNull(headers.getExtends());
+    assertEquals(originalRequestXML, request.xmlText());
+  }
+
+  @Test public void testExtractHeadersNoCommonHeaders() throws Exception {
+
+    final RequestType request1 =
+      m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
+
+    request1.setHeaders(createHeaders(new NVPair("foo", "bah"),
+                                      new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "x")));
+    request1.addNewResponse();
+
+    final RequestType request2 =
+        m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
+
+    request2.setHeaders(createHeaders(new NVPair("fu", "bah"),
+                                      new NVPair("User-Agent", "blur"),
+                                      new NVPair("Accept", "y")));
+    request2.addNewResponse();
+
+    m_httpRecording.dispose();
+
+    verify(m_resultProcessor).process(m_recordingCaptor.capture());
+
+    final HTTPRecordingType recording =
+      m_recordingCaptor.getValue().getHttpRecording();
+
+    assertEquals(0, recording.getCommonHeadersArray().length);
+  }
+
+  @Test public void testExtractHeadersAllCommonHeaders() throws Exception {
+
+    final RequestType request1 =
+      m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
+
+    request1.setHeaders(createHeaders(new NVPair("foo", "bah"),
+                                      new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "x")));
+    request1.addNewResponse();
+
+    final RequestType request2 =
+        m_httpRecording.addRequest(m_connectionDetails1, "GET", "/path");
+
+    request2.setHeaders(createHeaders(new NVPair("foo", "bah"),
+                                      new NVPair("User-Agent", "blah"),
+                                      new NVPair("Accept", "x")));
+    request2.addNewResponse();
+
+    m_httpRecording.dispose();
+
+    verify(m_resultProcessor).process(m_recordingCaptor.capture());
+
+    final HTTPRecordingType recording =
+      m_recordingCaptor.getValue().getHttpRecording();
+
+    assertEquals(1, recording.getCommonHeadersArray().length);
+
+    final RequestType request = recording.getPageArray(0).getRequestArray(0);
+    final HeadersType headers = request.getHeaders();
+    assertEquals("headers0", headers.getExtends());
+    assertEquals(1, headers.sizeOfHeaderArray());
+  }
+
+  @Test public void testCreateBodyDataFileName() throws Exception {
+
+    final File file1 = m_httpRecording.createBodyDataFileName();
+    final File file2 = m_httpRecording.createBodyDataFileName();
 
     assertTrue(!file1.equals(file2));
   }
 
   @Test public void testTokenReferenceMethods() throws Exception {
-    final HTTPRecording httpRecording =
-        new HTTPRecordingImplementation(m_parameters,
-                                        m_resultProcessor,
-                                        null,
-                                        m_regularExpressions,
-                                        m_uriParser);
 
-    assertFalse(httpRecording.tokenReferenceExists("foo", null));
-    assertFalse(httpRecording.tokenReferenceExists("foo", "somewhere"));
-    assertNull(httpRecording.getLastValueForToken("foo"));
+    assertFalse(m_httpRecording.tokenReferenceExists("foo", null));
+    assertFalse(m_httpRecording.tokenReferenceExists("foo", "somewhere"));
+    assertNull(m_httpRecording.getLastValueForToken("foo"));
 
     final TokenReferenceType tokenReference = TokenReferenceType.Factory.newInstance();
     tokenReference.setSource("somewhere");
-    httpRecording.setTokenReference("foo", "bah", tokenReference);
+    m_httpRecording.setTokenReference("foo", "bah", tokenReference);
 
-    assertFalse(httpRecording.tokenReferenceExists("foo", null));
-    assertTrue(httpRecording.tokenReferenceExists("foo", "somewhere"));
-    assertEquals("bah", httpRecording.getLastValueForToken("foo"));
+    assertFalse(m_httpRecording.tokenReferenceExists("foo", null));
+    assertTrue(m_httpRecording.tokenReferenceExists("foo", "somewhere"));
+    assertEquals("bah", m_httpRecording.getLastValueForToken("foo"));
 
     tokenReference.unsetSource();
-    httpRecording.setTokenReference("foo", "bah", tokenReference);
+    m_httpRecording.setTokenReference("foo", "bah", tokenReference);
 
-    assertTrue(httpRecording.tokenReferenceExists("foo", null));
-    assertTrue(httpRecording.tokenReferenceExists("foo", "somewhere"));
-    assertEquals("bah", httpRecording.getLastValueForToken("foo"));
+    assertTrue(m_httpRecording.tokenReferenceExists("foo", null));
+    assertTrue(m_httpRecording.tokenReferenceExists("foo", "somewhere"));
+    assertEquals("bah", m_httpRecording.getLastValueForToken("foo"));
 
-    httpRecording.setTokenReference("foo", "blah", tokenReference);
-    assertEquals("blah", httpRecording.getLastValueForToken("foo"));
+    m_httpRecording.setTokenReference("foo", "blah", tokenReference);
+    assertEquals("blah", m_httpRecording.getLastValueForToken("foo"));
   }
 }
