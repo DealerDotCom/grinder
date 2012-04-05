@@ -66,7 +66,7 @@
 (defn nvpairs [c] (into-array NVPair
   (map (fn [[k v]] (NVPair. k v)) (partition 2 c))))
 
-(defn httprequest [url & [headers]]
+(defn httprequest [url &amp; [headers]]
   (doto (HTTPRequest.) (.setUrl url) (.setHeaders (nvpairs headers))))
 
 (defn basic-authorization [u p]
