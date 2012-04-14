@@ -58,9 +58,10 @@ httpUtilities = HTTPPluginControl.getHTTPUtilities()
 # To use a proxy server, uncomment the next line and set the host and port.
 # connectionDefaults.setProxyServer("localhost", 8001)
 
-def createRequest(test, url, headers):
+def createRequest(test, url, headers=None):
     """Create an instrumented HTTPRequest."""
-    request = HTTPRequest(url=url, headers=headers)
+    request = HTTPRequest(url=url)
+    if headers: request.headers=headers
     test.record(request, HTTPRequest.getHttpMethodFilter())
     return request
 

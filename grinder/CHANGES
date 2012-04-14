@@ -1,3 +1,11 @@
+The Grinder 3.9.1
+-----------------
+
+  Fix bug 3517593 - Recording Jython script with 3.9 produced an
+  invalid script. Thanks to greghmerrill and John Felten for the beta
+  testing and report.
+
+
 The Grinder 3.9
 ---------------
 
