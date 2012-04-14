@@ -895,6 +895,10 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
             }
           }
 
+          getLogger().debug("Non-200 response from delegate HTTPS proxy, " +
+              "returning to browser\n{}",
+              bufferAsString);
+
           // Not a 200, flush directly back to the browser.
           out.write(bytesRead);
           out.flush();
