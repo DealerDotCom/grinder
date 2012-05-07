@@ -54,11 +54,11 @@ public final class ClientSender extends StreamSender implements BlockingSender {
   }
 
   /**
-   * Factory method that makes <code>Sender</code> around the existing TCP
-   * connection owned by the supplied <code>ClientReceiver</code>.
+   * Factory method that makes a {@code Sender} around the existing TCP
+   * connection owned by the supplied {@code ClientReceiver}.
    *
-   * @param clientReceiver We create a paired <code>Sender</code> for this
-   * <code>Receiver</code>.
+   * @param clientReceiver We create a paired {@code Sender} for this
+   * {@code Receiver}.
    * @return The ClientSender.
    * @throws CommunicationException If failed to connect.
    */
@@ -78,7 +78,7 @@ public final class ClientSender extends StreamSender implements BlockingSender {
   }
 
   /**
-   * Cleanly shutdown the <code>Sender</code>.
+   * {@inheritDoc}
    */
   @Override public void shutdown() {
     // Close the socket wrapper first as that needs to use the socket.

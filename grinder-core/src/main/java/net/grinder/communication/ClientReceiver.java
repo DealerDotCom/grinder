@@ -56,7 +56,7 @@ public final class ClientReceiver extends StreamReceiver {
   }
 
   /**
-   * Cleanly shut down the <code>Receiver</code>.
+   * {@inheritDoc}
    */
   @Override public void shutdown() {
     // Close the socket wrapper first as that needs to use the socket.

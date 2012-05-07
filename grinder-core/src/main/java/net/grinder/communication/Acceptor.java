@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2011 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -205,9 +205,6 @@ public final class Acceptor {
    * @return The number of accepted connections.
    */
   public int getNumberOfConnections() {
-    // We use a clone the m_socketSets and don't hold m_socketSets whilst
-    // closing the ResourcePools to reduce opportunity for dead lock with
-    // events triggered by closing resources.
     final ResourcePool[] socketSets = cloneListOfSocketSets();
 
     int result = 0;
