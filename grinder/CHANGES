@@ -8,6 +8,10 @@ The Grinder 3.9.1
   Fix bug 3525156 - Better exception handling of invalid header arrays
   passed to HTTPRequest. Thanks to Ouray Viney for the report.
 
+  Fix bug 3521073 - CLOSE_WAIT sockets on agent kill. Dead connections
+  should now be cleaned up after 30 seconds. Thanks to Tumri for the
+  report.
+
 
 The Grinder 3.9
 ---------------
