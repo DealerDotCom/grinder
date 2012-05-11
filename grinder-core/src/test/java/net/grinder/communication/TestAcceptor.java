@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2011 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -69,13 +69,13 @@ public class TestAcceptor {
     final int port = findFreePort();
 
     for (int i=0; i<testAddresses.length; ++i) {
-      final Acceptor acceptor = new Acceptor(testAddresses[i], port, 2);
+      final Acceptor acceptor = new Acceptor(testAddresses[i], port, 2, null);
       assertEquals(port, acceptor.getPort());
       assertNull(acceptor.peekPendingException());
       acceptor.shutdown();
 
       // Should also be able to use a OS allocated port.
-      final Acceptor acceptor2 = new Acceptor(testAddresses[i], 0, 2);
+      final Acceptor acceptor2 = new Acceptor(testAddresses[i], 0, 2, null);
       assertEquals(port, acceptor.getPort());
       assertNull(acceptor2.peekPendingException());
       acceptor2.shutdown();
@@ -86,7 +86,7 @@ public class TestAcceptor {
 
     for (int i=0; i<testAddresses.length; ++i) {
       try {
-        new Acceptor(testAddresses[i], usedPort, 1);
+        new Acceptor(testAddresses[i], usedPort, 1, null);
         fail("Expected CommunicationException");
       }
       catch (CommunicationException e) {
@@ -179,7 +179,7 @@ public class TestAcceptor {
     final int port = serverSocket.getLocalPort();
     serverSocket.close();
 
-    return new Acceptor("", port, numberOfThreads);
+    return new Acceptor("", port, numberOfThreads, null);
   }
 
   @Test public void testShutdown() throws Exception {

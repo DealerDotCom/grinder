@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2011 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,6 +33,8 @@ import java.net.Socket;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.IsolatedObjectFactory;
+import net.grinder.util.StandardTimeAuthority;
+import net.grinder.util.TimeAuthority;
 
 import org.junit.Test;
 
@@ -44,17 +46,19 @@ import org.junit.Test;
  */
 public class TestServerReceiver {
 
+  private final TimeAuthority m_timeAuthority = new StandardTimeAuthority();
+
   @Test public void testConstructor() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
 
     // No op.
-    serverReceiver.receiveFrom(acceptor, new ConnectionType[0], 1, 2);
+    serverReceiver.receiveFrom(acceptor, new ConnectionType[0], 1, 2, 3);
 
     serverReceiver.receiveFrom(
-      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
+      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10, 1000);
 
     serverReceiver.shutdown();
     acceptor.shutdown();
@@ -62,11 +66,11 @@ public class TestServerReceiver {
 
   @Test public void testWaitForMessage() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
     serverReceiver.receiveFrom(
-      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
+      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10, 99);
 
     final Socket[] socket = new Socket[5];
 
@@ -142,11 +146,11 @@ public class TestServerReceiver {
 
   @Test public void testWaitForBadMessage() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
     serverReceiver.receiveFrom(
-      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
+      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10, 123);
 
     final Socket socket =
       new Connector(InetAddress.getByName(null).getHostName(),
@@ -184,11 +188,11 @@ public class TestServerReceiver {
 
   @Test public void testShutdown() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
     serverReceiver.receiveFrom(
-      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
+      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10, 100);
 
     final Socket socket =
       new Connector(InetAddress.getByName(null).getHostName(),
@@ -219,7 +223,7 @@ public class TestServerReceiver {
 
     try {
       serverReceiver.receiveFrom(
-        acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
+        acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10, 100);
       fail("Expected a CommunicationException");
     }
     catch (CommunicationException e) {
@@ -232,11 +236,11 @@ public class TestServerReceiver {
 
   @Test public void testCloseCommunicationMessage() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
     serverReceiver.receiveFrom(
-      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 5, 10);
+      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 5, 10, 100);
 
     final Socket socket =
       new Connector(InetAddress.getByName(null).getHostName(),
@@ -286,11 +290,11 @@ public class TestServerReceiver {
   }
 
   @Test public void testWithResponseSender() throws Exception {
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final ServerReceiver serverReceiver = new ServerReceiver();
     serverReceiver.receiveFrom(
-      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10);
+      acceptor, new ConnectionType[] { ConnectionType.AGENT }, 3, 10, 100);
 
     final Socket socket =
       new Connector(InetAddress.getByName(null).getHostName(),

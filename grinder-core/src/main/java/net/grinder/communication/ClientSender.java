@@ -127,5 +127,15 @@ public final class ClientSender extends StreamSender implements BlockingSender {
 
     return result;
   }
+
+  /**
+   * Send a no-op message that keeps this connection alive.
+   *
+   * @throws CommunicationException
+   *           If the connection has been terminated.
+   */
+  public void sendKeepAlive() throws CommunicationException {
+    send(new KeepAliveMessage());
+  }
 }
 

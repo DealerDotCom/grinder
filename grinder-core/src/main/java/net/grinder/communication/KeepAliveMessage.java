@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2012 Philip Aston
+// Copyright (C) 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,26 +21,12 @@
 
 package net.grinder.communication;
 
-import org.junit.Before;
-
 
 /**
- * Unit tests for {@link FanOutServerSender} and {@link ClientReceiver}.
+ * No-op message used to keep a connection alive.
  *
  * @author Philip Aston
  */
-public class TestFanOutServerSenderAndClientReceiver
-  extends AbstractSenderAndReceiverSocketTests {
-
-  @Before public void setUp() throws Exception {
-    initialise(ClientReceiver.connect(getConnector(), new StubAddress()),
-          new FanOutServerSender(getAcceptor(), getConnectionType(), 3));
-
-    final ResourcePool socketSet =
-      getAcceptor().getSocketSet(getConnectionType());
-
-    while (socketSet.countActive() != 1) {
-      Thread.sleep(10);
-    }
-  }
+public final class KeepAliveMessage implements Message {
+  private static final long serialVersionUID = 1;
 }

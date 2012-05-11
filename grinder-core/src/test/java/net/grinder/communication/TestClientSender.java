@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,31 +21,34 @@
 
 package net.grinder.communication;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import junit.framework.TestCase;
 import net.grinder.communication.BlockingSender.NoResponseException;
 import net.grinder.util.StreamCopier;
 
+import org.junit.Test;
+
 
 /**
- *  Unit test case for <code>ClientSender</code>.
+ *  Unit test case for {@code ClientSender}.
  *
  * @author Philip Aston
  */
-public class TestClientSender extends TestCase {
+public class TestClientSender {
 
-  public TestClientSender(String name) {
-    super(name);
-  }
+  @Test public void testSend() throws Exception {
 
-  public void testSend() throws Exception {
-
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
@@ -90,9 +93,9 @@ public class TestClientSender extends TestCase {
     }
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
@@ -133,8 +136,8 @@ public class TestClientSender extends TestCase {
     socketAcceptor.close();
   }
 
-  public void testShutdownPeerDifferently() throws Exception {
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+  @Test public void testShutdownPeerDifferently() throws Exception {
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
@@ -157,8 +160,8 @@ public class TestClientSender extends TestCase {
     socketAcceptor.close();
   }
 
-  public void testWithPairedClientReceiver() throws Exception {
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+  @Test public void testWithPairedClientReceiver() throws Exception {
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
@@ -190,8 +193,8 @@ public class TestClientSender extends TestCase {
     clientReceiver.shutdown();
   }
 
-  public void testWithBadPairedClientReceiver() throws Exception {
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+  @Test public void testWithBadPairedClientReceiver() throws Exception {
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
@@ -212,9 +215,9 @@ public class TestClientSender extends TestCase {
     }
   }
 
-  public void testBlockingSend() throws Exception {
+  @Test public void testBlockingSend() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),

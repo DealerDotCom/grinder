@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2008 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +37,7 @@ import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
+import net.grinder.util.TimeAuthority;
 import net.grinder.util.thread.BooleanCondition;
 
 
@@ -48,10 +49,12 @@ import net.grinder.util.thread.BooleanCondition;
 public final class ConsoleCommunicationImplementation
   implements ConsoleCommunication {
 
-  private final int m_idlePollDelay;
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
   private final ErrorHandler m_errorHandler;
+  private final TimeAuthority m_timeAuthority;
+  private final long m_idlePollDelay;
+  private final long m_inactiveClientTimeOut;
 
   private final MessageDispatchSender m_messageDispatcher =
     new MessageDispatchSender();
@@ -72,14 +75,17 @@ public final class ConsoleCommunicationImplementation
    *          Console properties.
    * @param errorHandler
    *          Error handler.
+   * @param timeAuthority
+   *          Knows the time
    * @throws DisplayMessageConsoleException
    *           If properties are invalid.
    */
   public ConsoleCommunicationImplementation(Resources resources,
                                             ConsoleProperties properties,
-                                            ErrorHandler errorHandler)
+                                            ErrorHandler errorHandler,
+                                            TimeAuthority timeAuthority)
     throws DisplayMessageConsoleException {
-    this(resources, properties, errorHandler, 500);
+    this(resources, properties, errorHandler, timeAuthority, 500, 30000);
   }
 
   /**
@@ -91,22 +97,31 @@ public final class ConsoleCommunicationImplementation
    *          Console properties.
    * @param errorHandler
    *          Error handler.
+   * @param timeAuthority
+   *          Knows the time
    * @param idlePollDelay
    *          Time in milliseconds that our ServerReceiver threads should sleep
    *          for if there's no incoming messages.
+   * @param inactiveClientTimeOut
+   *          How long before we consider a client connection that presents no
+   *          data to be inactive.
    * @throws DisplayMessageConsoleException
    *           If properties are invalid.
    */
   public ConsoleCommunicationImplementation(Resources resources,
                                             ConsoleProperties properties,
                                             ErrorHandler errorHandler,
-                                            int idlePollDelay)
+                                            TimeAuthority timeAuthority,
+                                            long idlePollDelay,
+                                            long inactiveClientTimeOut)
     throws DisplayMessageConsoleException {
 
     m_resources = resources;
     m_properties = properties;
-    m_idlePollDelay = idlePollDelay;
     m_errorHandler = errorHandler;
+    m_timeAuthority = timeAuthority;
+    m_idlePollDelay = idlePollDelay;
+    m_inactiveClientTimeOut = inactiveClientTimeOut;
 
     properties.addPropertyChangeListener(
       new PropertyChangeListener() {
@@ -155,7 +170,8 @@ public final class ConsoleCommunicationImplementation
     try {
       m_acceptor = new Acceptor(m_properties.getConsoleHost(),
                                 m_properties.getConsolePort(),
-                                1);
+                                1,
+                                m_timeAuthority);
     }
     catch (CommunicationException e) {
       m_errorHandler.handleException(
@@ -197,7 +213,8 @@ public final class ConsoleCommunicationImplementation
                               ConnectionType.WORKER,
                              },
                              5,
-                             m_idlePollDelay);
+                             m_idlePollDelay,
+                             m_inactiveClientTimeOut);
     }
     catch (CommunicationException e) {
       throw new AssertionError(e);

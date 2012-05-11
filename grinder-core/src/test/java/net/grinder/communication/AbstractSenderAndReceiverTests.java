@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,77 +21,50 @@
 
 package net.grinder.communication;
 
-import static net.grinder.testutility.SocketUtilities.findFreePort;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
- *  Abstract unit test cases for <code>Sender</code> and
- *  <code>Receiver</code> implementations..
+ *  Abstract unit test cases for {@link Sender} and
+ *  {@link Receiver} implementations.
  *
  * @author Philip Aston
  */
-public abstract class AbstractSenderAndReceiverTests extends TestCase {
+public abstract class AbstractSenderAndReceiverTests {
 
-  private ConnectionType m_connectionType;
-  private Acceptor m_acceptor;
-  private Connector m_connector;
-
-  protected Receiver m_receiver;
+  protected volatile Receiver m_receiver;
   protected Sender m_sender;
 
   private ExecuteThread m_executeThread;
 
-  public AbstractSenderAndReceiverTests(String name)
-    throws Exception {
-    super(name);
+  protected void initialise(Receiver receiver, Sender sender) {
+    m_receiver = receiver;
+    m_sender = sender;
   }
 
-  private final void initialiseSockets() throws Exception {
-
-    if (m_connector == null) {
-      final int port = findFreePort();
-
-      m_connectionType = ConnectionType.AGENT;
-      m_connector = new Connector("localhost", port, m_connectionType);
-      m_acceptor = new Acceptor("localhost", port, 1);
-    }
-  }
-
-  protected final Acceptor getAcceptor() throws Exception {
-    initialiseSockets();
-    return m_acceptor;
-  }
-
-  protected final ConnectionType getConnectionType() throws Exception {
-    initialiseSockets();
-    return m_connectionType;
-  }
-
-  protected final Connector getConnector() throws Exception {
-    initialiseSockets();
-    return m_connector;
-  }
-
-  protected void setUp() throws Exception {
+  @Before public void startExecuteThread() throws Exception {
     m_executeThread = new ExecuteThread();
+    m_executeThread.start();
   }
 
-  protected void tearDown() throws Exception {
+  @After public void stopThreads() throws Exception {
     m_executeThread.shutdown();
 
-    if (m_acceptor != null) {
-      m_acceptor.shutdown();
-    }
+    m_receiver.shutdown();
+    m_sender.shutdown();
   }
 
-
-  public void testSendSimpleMessage() throws Exception {
+  @Test public void testSendSimpleMessage() throws Exception {
 
     final SimpleMessage sentMessage = new SimpleMessage();
     m_sender.send(sentMessage);
@@ -101,7 +74,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
     assertTrue(sentMessage != receivedMessage);
   }
 
-  public void testSendManyMessages() throws Exception {
+  @Test public void testSendManyMessages() throws Exception {
 
     for (int i=1; i<=10; ++i) {
       final SimpleMessage[] sentMessages = new SimpleMessage[i];
@@ -121,7 +94,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
     }
   }
 
-  public void testSendLargeMessage() throws Exception {
+  @Test public void testSendLargeMessage() throws Exception {
     // This causes a message size of about 38K. Should be limited by
     // the buffer size in Receiver.
     final SimpleMessage sentMessage = new SimpleMessage(8000);
@@ -134,12 +107,12 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
     assertTrue(sentMessage != receivedMessage);
   }
 
-  public void testShutdownReceiver() throws Exception {
+  @Test public void testShutdownReceiver() throws Exception {
     m_receiver.shutdown();
     assertNull(m_executeThread.waitForMessage());
   }
 
-  public void testQueueAndFlush() throws Exception {
+  @Test public void testQueueAndFlush() throws Exception {
 
     final QueuedSender sender = new QueuedSenderDecorator(m_sender);
 
@@ -160,7 +133,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
     }
   }
 
-  public void testQueueAndSend() throws Exception {
+  @Test public void testQueueAndSend() throws Exception {
 
     final QueuedSender sender = new QueuedSenderDecorator(m_sender);
 
@@ -198,7 +171,6 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
     public ExecuteThread() {
       super("ExecuteThread");
-      start();
     }
 
     public synchronized void run() {

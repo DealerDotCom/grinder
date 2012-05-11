@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Philip Aston
+// Copyright (C) 2011 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -58,6 +58,7 @@ import net.grinder.synchronisation.BarrierImplementation;
 import net.grinder.synchronisation.ClientBarrierGroups;
 import net.grinder.synchronisation.messages.BarrierIdentity;
 import net.grinder.synchronisation.messages.BarrierIdentity.Factory;
+import net.grinder.util.StandardTimeAuthority;
 
 import org.junit.After;
 import org.junit.Before;
@@ -99,7 +100,8 @@ public class TestDistributedBarriers {
     m_communication =
       new ConsoleCommunicationImplementation(m_resources,
                                              properties,
-                                             m_errorHandler);
+                                             m_errorHandler,
+                                             new StandardTimeAuthority());
 
     new WireDistributedBarriers(m_communication, m_processControl);
 

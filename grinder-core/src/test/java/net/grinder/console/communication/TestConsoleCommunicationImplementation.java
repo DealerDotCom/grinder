@@ -23,6 +23,8 @@ package net.grinder.console.communication;
 
 import static net.grinder.testutility.FileUtilities.createRandomFile;
 import static net.grinder.testutility.SocketUtilities.findFreePort;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -72,10 +74,14 @@ import net.grinder.messages.console.AgentAddress;
 import net.grinder.messages.console.AgentProcessReportMessage;
 import net.grinder.messages.console.WorkerAddress;
 import net.grinder.messages.console.WorkerProcessReportMessage;
-import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.testutility.StubTimer;
 import net.grinder.util.FileContents;
+import net.grinder.util.StandardTimeAuthority;
+import net.grinder.util.TimeAuthority;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -90,7 +96,7 @@ import org.mockito.stubbing.Answer;
  * @author Philip Aston
  */
 public class TestConsoleCommunicationImplementation
-  extends AbstractFileTestCase {
+  extends AbstractJUnit4FileTestCase {
 
   private static final Resources s_resources =
       new ResourcesImplementation(
@@ -98,6 +104,7 @@ public class TestConsoleCommunicationImplementation
 
   private @Mock ErrorHandler m_errorHandler;
   private @Mock Handler<Message> m_messageHandler;
+  private final TimeAuthority m_timeAuthority = new StandardTimeAuthority();
 
   private ConsoleCommunicationImplementation m_consoleCommunication;
   private ConsoleProperties m_properties;
@@ -106,9 +113,7 @@ public class TestConsoleCommunicationImplementation
     new ProcessMessagesThread();
   private StubTimer m_timer;
 
-  protected void setUp() throws Exception {
-    super.setUp();
-
+  @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
     m_timer = new StubTimer();
@@ -124,7 +129,9 @@ public class TestConsoleCommunicationImplementation
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
                                              m_errorHandler,
-                                             10);
+                                             m_timeAuthority,
+                                             10,
+                                             10000);
   }
 
   public void tearDown() throws Exception {
@@ -142,7 +149,7 @@ public class TestConsoleCommunicationImplementation
     waitForNumberOfConnections(0);
   }
 
-  public void testConstruction() throws Exception {
+  @Test public void testConstruction() throws Exception {
     // Need a thread to be attempting to process messages or
     // ConsoleCommunicationImplementation.reset() will not complete.
     m_processMessagesThread.start();
@@ -154,19 +161,22 @@ public class TestConsoleCommunicationImplementation
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
                                              m_errorHandler,
-                                             500);
+                                             m_timeAuthority,
+                                             500,
+                                             10000);
 
     assertEquals(0, consoleCommunication.getNumberOfConnections());
 
     final ConsoleCommunicationImplementation consoleCommunication2 =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             m_errorHandler);
+                                             m_errorHandler,
+                                             m_timeAuthority);
 
     assertEquals(0, consoleCommunication2.getNumberOfConnections());
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
 
     m_processMessagesThread.start();
 
@@ -197,7 +207,7 @@ public class TestConsoleCommunicationImplementation
     objectStream.flush();
   }
 
-  public void testWithProcessControl() throws Exception {
+  @Test public void testWithProcessControl() throws Exception {
     // We need to associate the agent id with the connection or we'll never
     // get a start message.
     final AgentIdentity agentIdentity = new StubAgentIdentity("foo");
@@ -297,7 +307,7 @@ public class TestConsoleCommunicationImplementation
     assertTrue(readMessage(socket2) instanceof ResetGrinderMessage);
   }
 
-  public void testDistributionControl() throws Exception {
+  @Test public void testDistributionControl() throws Exception {
     final Socket socket =
       new StubConnector(InetAddress.getByName(null).getHostName(),
                         m_properties.getConsolePort(),
@@ -390,7 +400,7 @@ public class TestConsoleCommunicationImplementation
     assertEquals(n, m_consoleCommunication.getNumberOfConnections());
   }
 
-  public void testProcessOneMessage() throws Exception {
+  @Test public void testProcessOneMessage() throws Exception {
     m_consoleCommunication.getMessageDispatchRegistry()
       .addFallback(m_messageHandler);
 
@@ -447,7 +457,7 @@ public class TestConsoleCommunicationImplementation
     verifyNoMoreInteractions(m_messageHandler);
   }
 
-  public void testSendExceptions() throws Exception {
+  @Test public void testSendExceptions() throws Exception {
     // Need a thread to be attempting to process messages or
     // ConsoleCommunicationImplementation.reset() will not complete.
     m_processMessagesThread.start();
@@ -474,7 +484,9 @@ public class TestConsoleCommunicationImplementation
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
                                              m_errorHandler,
-                                             100);
+                                             m_timeAuthority,
+                                             100,
+                                             10000);
 
     verify(m_errorHandler, times(4))
       .handleException(isA(DisplayMessageConsoleException.class));
@@ -490,7 +502,7 @@ public class TestConsoleCommunicationImplementation
     verifyNoMoreInteractions(m_errorHandler);
   }
 
-  public void testErrorHandling() throws Exception {
+  @Test public void testErrorHandling() throws Exception {
     // Need a thread to be attempting to process messages or the
     // receiver will never be shutdown correctly.
     m_processMessagesThread.start();
@@ -517,7 +529,9 @@ public class TestConsoleCommunicationImplementation
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
                                              errorHandler2,
-                                             100);
+                                             m_timeAuthority,
+                                             100,
+                                             10000);
 
     verify(errorHandler2)
       .handleException(isA(DisplayMessageConsoleException.class));
@@ -529,7 +543,7 @@ public class TestConsoleCommunicationImplementation
     verifyNoMoreInteractions(errorHandler2);
   }
 
-  public void testErrorHandlingWithFurtherCommunicationProblems()
+  @Test public void testErrorHandlingWithFurtherCommunicationProblems()
     throws Exception {
 
     final ServerSocket freeServerSocket = new ServerSocket(0);

@@ -23,49 +23,28 @@ package net.grinder.communication;
 
 import java.util.Random;
 
+import org.junit.Before;
+
 
 /**
- *  Unit tests for <code>ClientSender</code> and
- *  <code>ServerReceiver</code>.
+ * Unit tests for {link ClientSender} and {@link ServerReceiver}.
  *
  * @author Philip Aston
  */
 public class TestClientSenderAndServerReceiver
-  extends AbstractSenderAndReceiverTests {
+  extends AbstractSenderAndReceiverSocketTests {
 
   private final static Random s_random = new Random();
 
-  public TestClientSenderAndServerReceiver(String name) throws Exception {
-    super(name);
-  }
-
-  private Receiver createReceiver() throws Exception {
+  @Before public void setUp() throws Exception {
     final ServerReceiver receiver = new ServerReceiver();
+
     receiver.receiveFrom(
-      getAcceptor(), new ConnectionType[] { getConnectionType() }, 3, 10);
-    return receiver;
-  }
+      getAcceptor(),
+      new ConnectionType[] { getConnectionType() },
+      3, 10, 10000);
 
-  private Sender createSender() throws Exception {
-    return ClientSender.connect(getConnector(), null);
-  }
-
-  /**
-   * Sigh, JUnit treats setUp and tearDown as non-virtual methods -
-   * must define in concrete test case class.
-   */
-  protected void setUp() throws Exception {
-    super.setUp();
-
-    m_receiver = createReceiver();
-    m_sender = createSender();
-  }
-
-  protected void tearDown() throws Exception {
-    super.tearDown();
-
-    m_receiver.shutdown();
-    m_sender.shutdown();
+    initialise(receiver, ClientSender.connect(getConnector(), null));
   }
 
   static int s_numberOfMessages = 0;
@@ -73,7 +52,7 @@ public class TestClientSenderAndServerReceiver
   private class SenderThread extends Thread {
     public void run() {
       try {
-        final Sender sender = createSender();
+        final Sender sender = ClientSender.connect(getConnector(), null);
 
         final int n = s_random.nextInt(10);
 

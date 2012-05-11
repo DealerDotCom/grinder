@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.communication;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.concurrent.ExecutorService;
 
@@ -51,9 +50,9 @@ public final class ServerReceiver implements Receiver {
    * {@link #waitForMessage()}.
    *
    * <p>
-   * A single <code>ServerReceiver</code> can listen to messages from multiple
+   * A single {@code ServerReceiver} can listen to messages from multiple
    * {@link Acceptor}s. You can register the same {@link Acceptor} with
-   * multiple <code>ServerReceiver</code>s, but then there is no way of
+   * multiple {@code ServerReceiver}s, but then there is no way of
    * controlling which receiver will receive messages from a given
    * {@link Acceptor}.
    * </p>
@@ -65,19 +64,23 @@ public final class ServerReceiver implements Receiver {
    * @param numberOfThreads
    *          How many threads to dedicate to processing the Acceptor. The
    *          threads this method spawns just read, deserialise, and queue. Set
-   *          <code>numberOfThreads</code> to the number of concurrent streams
+   *          {@code numberOfThreads} to the number of concurrent streams
    *          you expect to be able to read.
    * @param idleThreadPollDelay
    *          Time in milliseconds that an idle thread should sleep if there are
    *          no sockets to process.
+   * @param inactiveClientTimeOut
+   *          How long before we consider a client connection that presents no
+   *          data to be inactive.
    *
    * @exception CommunicationException
-   *              If this <code>ServerReceiver</code> has been shutdown.
+   *              If this {@code ServerReceiver} has been shutdown.
    */
   public void receiveFrom(Acceptor acceptor,
                           ConnectionType[] connectionTypes,
                           int numberOfThreads,
-                          final int idleThreadPollDelay)
+                          final long idleThreadPollDelay,
+                          final long inactiveClientTimeOut)
     throws CommunicationException {
 
     if (connectionTypes.length == 0) {
@@ -100,7 +103,8 @@ public final class ServerReceiver implements Receiver {
           new InterruptibleRunnableAdapter(
             new ServerReceiverRunnable(
               new CombinedResourcePool(acceptedSocketSets),
-              idleThreadPollDelay)));
+              idleThreadPollDelay,
+              inactiveClientTimeOut)));
       }
     }
   }
@@ -112,7 +116,7 @@ public final class ServerReceiver implements Receiver {
    * <p>Multiple threads can call this method, but only one thread
    * will receive a given message.</p>
    *
-   * @return The message or <code>null</code> if shut down.
+   * @return The message or {@code null} if shut down.
    * @throws CommunicationException If an error occurred receiving a message.
    */
   public Message waitForMessage() throws CommunicationException {
@@ -178,11 +182,15 @@ public final class ServerReceiver implements Receiver {
     implements InterruptibleRunnable {
 
     private final CombinedResourcePool m_sockets;
-    private final int m_delay;
+    private final long m_delay;
+    private final long m_inactiveClientTimeOut;
 
-    private ServerReceiverRunnable(CombinedResourcePool sockets, int delay) {
+    private ServerReceiverRunnable(CombinedResourcePool sockets,
+                                   long delay,
+                                   long inactiveClientTimeOut) {
       m_sockets = sockets;
       m_delay = delay;
+      m_inactiveClientTimeOut = inactiveClientTimeOut;
     }
 
     public void interruptibleRun() {
@@ -203,20 +211,18 @@ public final class ServerReceiver implements Receiver {
               idle = true;
             }
             else {
-              final SocketWrapper socketWrapper =
-                (SocketWrapper)reservation.getResource();
+              final IdleAwareSocketWrapper socketWrapper =
+                (IdleAwareSocketWrapper)reservation.getResource();
 
               // We don't need to synchronise access to the SocketWrapper
               // stream; access is protected through the socket set and only we
               // hold the reservation.
-              final InputStream inputStream = socketWrapper.getInputStream();
 
-              if (inputStream.available() > 0) {
-
+              if (socketWrapper.hasData(m_inactiveClientTimeOut)) {
                 idle = false;
 
                 final ObjectInputStream objectStream =
-                  new ObjectInputStream(inputStream);
+                  new ObjectInputStream(socketWrapper.getInputStream());
 
                 final Message message = (Message)objectStream.readObject();
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,11 @@
 
 package net.grinder.communication;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -28,7 +33,7 @@ import java.net.Socket;
 
 import net.grinder.communication.Connector.ConnectDetails;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 
 /**
@@ -36,11 +41,11 @@ import junit.framework.TestCase;
  *
  * @author Philip Aston
  */
-public class TestClientReceiver extends TestCase {
+public class TestClientReceiver {
 
-  public void testReceive() throws Exception {
+  @Test public void testReceive() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
@@ -97,9 +102,9 @@ public class TestClientReceiver extends TestCase {
     assertEquals(address, details.getAddress());
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
@@ -134,9 +139,9 @@ public class TestClientReceiver extends TestCase {
     socketAcceptor.close();
   }
 
-  public void testCloseCommunicationMessage() throws Exception {
+  @Test public void testCloseCommunicationMessage() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),

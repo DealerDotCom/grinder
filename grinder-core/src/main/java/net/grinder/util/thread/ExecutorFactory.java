@@ -23,6 +23,7 @@ package net.grinder.util.thread;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,6 +34,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Philip Aston
  */
 public class ExecutorFactory {
+
+  private static ScheduledExecutorService s_scheduler;
 
   private static class NamedThreadFactory implements ThreadFactory {
 
@@ -76,5 +79,22 @@ public class ExecutorFactory {
    */
   public static ExecutorService createCachedThreadPool(String name) {
     return Executors.newCachedThreadPool(new NamedThreadFactory(name));
+  }
+
+  /**
+   * Return a a shared scheduled executor for general timer tasks.
+   *
+   * @return The scheduled executor.
+   */
+  public static synchronized ScheduledExecutorService
+    getUtilityScheduledExecutor() {
+
+    if (s_scheduler == null) {
+      s_scheduler =
+       Executors.newScheduledThreadPool(1,
+                                        new NamedThreadFactory("scheduler"));
+    }
+
+    return s_scheduler;
   }
 }

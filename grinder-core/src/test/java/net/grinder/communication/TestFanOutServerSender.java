@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,29 +21,35 @@
 
 package net.grinder.communication;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import junit.framework.TestCase;
+import net.grinder.util.StandardTimeAuthority;
+import net.grinder.util.TimeAuthority;
+
+import org.junit.Test;
 
 
 /**
- *  Unit tests for <code>FanOutServerSender</code>.
+ *  Unit tests for {@link FanOutServerSender}.
  *
  * @author Philip Aston
  */
-public class TestFanOutServerSender extends TestCase {
+public class TestFanOutServerSender {
 
-  public TestFanOutServerSender(String name) {
-    super(name);
-  }
+  private final TimeAuthority m_timeAuthority = new StandardTimeAuthority();
 
-  public void testConstructor() throws Exception {
+  @Test public void testConstructor() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final FanOutServerSender serverSender =
       new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
@@ -52,9 +58,9 @@ public class TestFanOutServerSender extends TestCase {
     acceptor.shutdown();
   }
 
-  public void testSend() throws Exception {
+  @Test public void testSend() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final FanOutServerSender serverSender =
       new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
@@ -113,9 +119,9 @@ public class TestFanOutServerSender extends TestCase {
     return (Message)new ObjectInputStream(socketInput).readObject();
   }
 
-  public void testSendAddressedMessage() throws Exception {
+  @Test public void testSendAddressedMessage() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final FanOutServerSender serverSender =
       new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
@@ -176,9 +182,9 @@ public class TestFanOutServerSender extends TestCase {
     acceptor.shutdown();
   }
 
-  public void testShutdown() throws Exception {
+  @Test public void testShutdown() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1, m_timeAuthority);
 
     final FanOutServerSender serverSender =
       new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);

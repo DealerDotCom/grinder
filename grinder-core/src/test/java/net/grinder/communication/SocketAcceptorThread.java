@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2007 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,14 +37,15 @@ public final class SocketAcceptorThread extends Thread {
   private Exception m_exception;
   private Socket m_acceptedSocket;
 
-  public SocketAcceptorThread() throws Exception {
-    this(1);
+  public static SocketAcceptorThread create() throws Exception {
+    final SocketAcceptorThread acceptor = new SocketAcceptorThread(1);
+    acceptor.start();
+    return acceptor;
   }
 
-  public SocketAcceptorThread(int numberOfAccepts) throws Exception {
+  private SocketAcceptorThread(int numberOfAccepts) throws Exception {
     m_serverSocket = new ServerSocket(0);
     m_numberOfAccepts = numberOfAccepts;
-    start();
   }
 
   public void run() {

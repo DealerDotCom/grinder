@@ -48,6 +48,7 @@ import net.grinder.messages.console.RegisterExpressionViewMessage;
 import net.grinder.messages.console.RegisterTestsMessage;
 import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.statistics.StatisticsServicesImplementation;
+import net.grinder.util.StandardTimeAuthority;
 
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
@@ -116,6 +117,7 @@ public final class ConsoleFoundation {
     m_container.addComponent(properties);
     m_container.addComponent(timer);
     m_container.addComponent(StatisticsServicesImplementation.getInstance());
+    m_container.addComponent(new StandardTimeAuthority());
 
     m_container.addComponent(SampleModelImplementation.class);
     m_container.addComponent(SampleModelViewsImplementation.class);

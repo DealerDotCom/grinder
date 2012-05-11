@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,27 +21,31 @@
 
 package net.grinder.communication;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
+import static net.grinder.testutility.AssertUtilities.assertContains;
+import static net.grinder.testutility.AssertUtilities.assertNotEquals;
+
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.Socket;
 
-import junit.framework.TestCase;
-
-import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.IsolatedObjectFactory;
+
+import org.junit.Test;
 
 
 /**
- *  Unit test case for <code>Connector</code>.
+ *  Unit test case for {@code Connector}.
  *
  * @author Philip Aston
  */
-public class TestConnector extends TestCase {
+public class TestConnector {
 
-  public void testConnnect() throws Exception {
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+  @Test public void testConnnect() throws Exception {
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
@@ -86,7 +90,7 @@ public class TestConnector extends TestCase {
     }
   }
 
-  public void testBadRead() throws Exception {
+  @Test public void testBadRead() throws Exception {
     final PipedOutputStream out = new PipedOutputStream();
     final PipedInputStream in = new PipedInputStream(out);
 
@@ -128,14 +132,14 @@ public class TestConnector extends TestCase {
     }
   }
 
-  public void testEquality() throws Exception {
+  @Test public void testEquality() throws Exception {
     final Connector connector =
       new Connector("a", 1234, ConnectionType.WORKER);
 
     assertEquals(connector.hashCode(), connector.hashCode());
     assertEquals(connector, connector);
-    AssertUtilities.assertNotEquals(connector, null);
-    AssertUtilities.assertNotEquals(connector, this);
+    assertNotEquals(connector, null);
+    assertNotEquals(connector, this);
 
     final Connector[] equal = {
       new Connector("a", 1234, ConnectionType.WORKER),
@@ -153,11 +157,11 @@ public class TestConnector extends TestCase {
     }
 
     for (int i = 0; i < notEqual.length; ++i) {
-      AssertUtilities.assertNotEquals(connector, notEqual[i]);
+      assertNotEquals(connector, notEqual[i]);
     }
   }
 
-  public void testGetEndpointAsString() throws Exception {
+  @Test public void testGetEndpointAsString() throws Exception {
     assertEquals(
       "a:1234",
       new Connector("a", 1234, ConnectionType.WORKER).getEndpointAsString());
@@ -165,8 +169,7 @@ public class TestConnector extends TestCase {
     final String description =
       new Connector("", 1234, ConnectionType.WORKER).getEndpointAsString();
 
-    AssertUtilities.assertContains(description, "localhost");
-    AssertUtilities.assertContains(description, "1234");
-
+    assertContains(description, "localhost");
+    assertContains(description, "1234");
   }
 }

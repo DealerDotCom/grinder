@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2012 Philip Aston
+// Copyright (C) 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,26 +21,35 @@
 
 package net.grinder.communication;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
 import net.grinder.util.StandardTimeAuthority;
+import net.grinder.util.TimeAuthority;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**
- *  Unit tests for {@link SocketWrapper}.
+ *  Unit tests for {@link IdleAwareSocketWrapper}.
  *
  * @author Philip Aston
  */
-public class TestSocketWrapper {
+public class TestIdleAwareSocketWrapper {
 
   private static Acceptor s_acceptor;
   private Socket m_socket;
+  @Mock private TimeAuthority m_timeAuthority;
 
   @BeforeClass public static void setUpAcceptor() throws Exception {
     s_acceptor = new Acceptor("localhost", 0, 1, new StandardTimeAuthority());
@@ -51,12 +60,47 @@ public class TestSocketWrapper {
   }
 
   @Before public void createSocket() throws Exception {
+    MockitoAnnotations.initMocks(this);
+
     m_socket = new Socket(InetAddress.getByName(null), s_acceptor.getPort());
   }
 
   @Test(expected=CommunicationException.class)
   public void testConstructionWithBadSocket() throws Exception {
     m_socket.close();
-    new SocketWrapper(m_socket);
+    new IdleAwareSocketWrapper(m_socket, m_timeAuthority);
+  }
+
+  @Test public void testHasDataNoData() throws Exception {
+    final IdleAwareSocketWrapper socketWrapper =
+        new IdleAwareSocketWrapper(m_socket, m_timeAuthority);
+
+    assertFalse(socketWrapper.hasData(99));
+  }
+
+  @Test(expected = IOException.class)
+  public void testHasDataSocketClosed() throws Exception {
+    final IdleAwareSocketWrapper socketWrapper =
+        new IdleAwareSocketWrapper(m_socket, m_timeAuthority);
+    socketWrapper.close();
+
+    socketWrapper.hasData(99);
+  }
+
+  @Test public void testHasDataTimeOut() throws Exception {
+
+    final IdleAwareSocketWrapper socketWrapper =
+        new IdleAwareSocketWrapper(m_socket,
+                                   m_timeAuthority);
+
+    when(m_timeAuthority.getTimeInMilliseconds())
+      .thenReturn(1000L)
+      .thenReturn(2000L);
+
+    assertFalse(socketWrapper.hasData(123));
+    assertFalse(m_socket.isClosed());
+
+    assertFalse(socketWrapper.hasData(123));
+    assertTrue(m_socket.isClosed());
   }
 }

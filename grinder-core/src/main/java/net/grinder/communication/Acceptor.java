@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutorService;
 
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.util.ListenerSupport;
+import net.grinder.util.TimeAuthority;
 import net.grinder.util.thread.ExecutorFactory;
 import net.grinder.util.thread.InterruptibleRunnable;
 import net.grinder.util.thread.InterruptibleRunnableAdapter;
@@ -66,6 +67,7 @@ public final class Acceptor {
 
   /** Guarded by m_socketSets. */
   private boolean m_isShutdown = false;
+  private final TimeAuthority m_timeAuthority;
 
   /**
    * Constructor.
@@ -74,11 +76,17 @@ public final class Acceptor {
    * string => listen on all interfaces.
    * @param port The TCP port to listen to. 0 => use any free port.
    * @param numberOfThreads Number of acceptor threads.
+   * @param timeAuthority Knows the time.
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  public Acceptor(String addressString, int port, int numberOfThreads)
+  public Acceptor(String addressString,
+                  int port,
+                  int numberOfThreads,
+                  TimeAuthority timeAuthority)
     throws CommunicationException {
+
+    m_timeAuthority = timeAuthority;
 
     if (addressString.length() > 0) {
       try {
@@ -252,11 +260,12 @@ public final class Acceptor {
   /**
    * Get a set of accepted connections.
    *
-   * @param connectionType Identifies the set of connections to
-   * return.
-   * @return A set of sockets, each wrapped in a {@link
-   * SocketWrapper}.
-   * @throws ShutdownException If the acceptor is shutdown.
+   * @param connectionType
+   *          Identifies the set of connections to return.
+   * @return A set of sockets, each wrapped in an {@link IdleAwareSocketWrapper}
+   *         .
+   * @throws ShutdownException
+   *           If the acceptor is shutdown.
    */
   ResourcePool getSocketSet(final ConnectionType connectionType)
     throws ShutdownException {
@@ -339,7 +348,8 @@ public final class Acceptor {
       final Connector.ConnectDetails connectDetails =
         Connector.read(localSocket.getInputStream());
 
-      final SocketWrapper socketWrapper = new SocketWrapper(localSocket);
+      final SocketWrapper socketWrapper =
+          new IdleAwareSocketWrapper(localSocket, m_timeAuthority);
       socketWrapper.setAddress(connectDetails.getAddress());
 
       // Possible minor race if the socket is closed between here...

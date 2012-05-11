@@ -1,4 +1,4 @@
-// Copyright (C) 2007 - 2011 Philip Aston
+// Copyright (C) 2007 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,15 +24,27 @@ package net.grinder.console.client;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.verify;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
+import net.grinder.communication.KeepAliveMessage;
 import net.grinder.communication.SocketAcceptorThread;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**
@@ -42,19 +54,23 @@ import org.junit.Test;
  */
 public class TestConsoleConnectionFactory {
 
-  @Test public void testConnection() throws Exception {
-    final ConsoleConnectionFactory consoleConnectionFactory =
-      new ConsoleConnectionFactory();
+  @Mock private ScheduledExecutorService m_scheduler;
+  @Captor private ArgumentCaptor<Runnable> m_runnableCaptor;
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+  @Before public void setUp() {
+    MockitoAnnotations.initMocks(this);
+  }
+
+  @Test public void testConnect() throws Exception {
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
     final ConsoleConnection consoleConnection =
-      consoleConnectionFactory.connect(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
+      new ConsoleConnectionFactory().connect(socketAcceptor.getHostName(),
+                                             socketAcceptor.getPort());
 
     assertNotNull(consoleConnection);
 
-    socketAcceptor.join();
+    socketAcceptor.close();
 
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
@@ -63,20 +79,72 @@ public class TestConsoleConnectionFactory {
       new ObjectInputStream(socketInput);
 
     assertEquals(ConnectionType.CONSOLE_CLIENT, objectInputStream.readObject());
+  }
 
-    assertNull(objectInputStream.readObject());
+  @Test(expected = ConsoleConnectionException.class)
+  public void testConnectBadAcceptor() throws Exception {
 
-    assertEquals(0, socketInput.available());
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
 
-    socketAcceptor.close();
+    final ConsoleConnectionFactory consoleConnectionFactory =
+        new ConsoleConnectionFactory();
 
-    try {
+    final ConsoleConnection consoleConnection =
       consoleConnectionFactory.connect(
         socketAcceptor.getHostName(), socketAcceptor.getPort());
 
-      fail("Expected ConsoleConnectionException");
+    assertNotNull(consoleConnection);
+
+    socketAcceptor.close();
+
+    consoleConnectionFactory.connect(socketAcceptor.getHostName(),
+                                     socketAcceptor.getPort());
+  }
+
+  @Test public void testKeepAlive() throws Exception {
+    final ConsoleConnectionFactory consoleConnection =
+        new ConsoleConnectionFactory(m_scheduler);
+
+    final SocketAcceptorThread socketAcceptor = SocketAcceptorThread.create();
+
+    consoleConnection.connect(socketAcceptor.getHostName(),
+                              socketAcceptor.getPort());
+    socketAcceptor.close();
+
+    verify(m_scheduler).scheduleWithFixedDelay(m_runnableCaptor.capture(),
+                                               isA(Long.class),
+                                               isA(Long.class),
+                                               isA(TimeUnit.class));
+
+    final InputStream socketInput =
+      socketAcceptor.getAcceptedSocket().getInputStream();
+
+    final ObjectInputStream objectInputStream =
+      new ObjectInputStream(socketInput);
+
+    assertEquals(ConnectionType.CONSOLE_CLIENT, objectInputStream.readObject());
+    assertNull(objectInputStream.readObject());
+    assertEquals(0, socketInput.available());
+
+    final Runnable keepAlive = m_runnableCaptor.getValue();
+
+    keepAlive.run();
+
+    final ObjectInputStream objectInputStream2 =
+        new ObjectInputStream(socketInput);
+
+    assertTrue(objectInputStream2.readObject() instanceof KeepAliveMessage);
+
+    socketAcceptor.getAcceptedSocket().close();
+
+    try {
+      // Not sure why, but we don't find out until the second message we send.
+      keepAlive.run();
+      keepAlive.run();
+      fail("Expected RuntimeException");
     }
-    catch (ConsoleConnectionException e) {
+    catch (RuntimeException e) {
+      assertTrue(e.getCause() instanceof CommunicationException);
     }
   }
 }

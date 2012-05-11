@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,38 +24,23 @@ package net.grinder.communication;
 import java.io.InputStream;
 import java.io.PipedOutputStream;
 
+import org.junit.Before;
+
 
 /**
- *  Unit tests for <code>StreamSender</code> and
- *  <code>StreamReceiver</code>.
+ * Unit tests for {@link StreamSender} and {@link StreamReceiver}.
  *
  * @author Philip Aston
  */
 public class TestStreamSenderAndStreamReceiver
   extends AbstractSenderAndReceiverTests {
 
-  public TestStreamSenderAndStreamReceiver(String name) throws Exception {
-    super(name);
-  }
-
-  /**
-   * Sigh, JUnit treats setUp and tearDown as non-virtual methods -
-   * must define in concrete test case class.
-   */
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before public void setUp() throws Exception {
 
     final PipedOutputStream outputStream = new PipedOutputStream();
     final InputStream inputStream = new BigBufferPipedInputStream(outputStream);
 
-    m_receiver = new StreamReceiver(inputStream);
-    m_sender = new StreamSender(outputStream);
-  }
-
-  protected void tearDown() throws Exception {
-    super.tearDown();
-
-    m_receiver.shutdown();
-    m_sender.shutdown();
+    initialise(new StreamReceiver(inputStream),
+               new StreamSender(outputStream));
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2009 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,7 @@ import net.grinder.util.ListenerSupport;
 
 
 /**
- * Wrapper for a {@link Socket} that is {ResourcePool.ResourcePool} and
+ * Wrapper for a {@link Socket} that is a {@link ResourcePool.Resource} and
  * understands our connection close protocol.
  *
  * <p>
@@ -43,7 +43,7 @@ import net.grinder.util.ListenerSupport;
  *
  * @author Philip Aston
  */
-final class SocketWrapper implements ResourcePool.Resource {
+class SocketWrapper implements ResourcePool.Resource {
 
   private final Socket m_socket;
   private final ConnectionIdentity m_connectionIdentity;
@@ -112,13 +112,22 @@ final class SocketWrapper implements ResourcePool.Resource {
     }
   }
 
+  /**
+   * Return whether the socket is closed.
+   *
+   * @return {@code true} If the socket is closed.
+   */
+  public boolean isClosed() {
+    return m_socket.isClosed();
+  }
+
   public ConnectionIdentity getConnectionIdentity() {
     return m_connectionIdentity;
   }
 
   /**
    * See note in {@link SocketWrapper} class documentation about the need
-   * to synchronise around any usage of the returned <code>InputStream</code>.
+   * to synchronise around any usage of the returned {@code InputStream}.
    *
    * @return The input stream.
    */
@@ -128,7 +137,7 @@ final class SocketWrapper implements ResourcePool.Resource {
 
   /**
    * See note in {@link SocketWrapper} class documentation about the need
-   * to synchronise around any usage of the returned <code>OutputStream</code>.
+   * to synchronise around any usage of the returned {@code OutputStream}.
    *
    * @return The output stream.
    */
@@ -162,7 +171,7 @@ final class SocketWrapper implements ResourcePool.Resource {
   /**
    * Return the address for this socket.
    *
-   * @return The address, or <code>null</code> if no address has been set.
+   * @return The address, or {@code null} if no address has been set.
    */
   public Address getAddress() {
     return m_address;

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2011 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,14 @@
 package net.grinder.communication;
 
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.InputStream;
 import java.io.PipedOutputStream;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -33,21 +39,11 @@ import java.io.PipedOutputStream;
  */
 public class TestMessagePump extends AbstractSenderAndReceiverTests {
 
-  public TestMessagePump(String name) throws Exception {
-    super(name);
-  }
-
   private MessagePump m_messagePump;
   private Sender m_intermediateSender;
   private Receiver m_intermediateReceiver;
 
-
-  /**
-   * Sigh, JUnit treats setUp and tearDown as non-virtual methods -
-   * must define in concrete test case class.
-   */
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before public void setUp() throws Exception {
 
     // m_sender -> m_intermediateReceiver -> messagePump
     // -> m_intermediateSender -> m_receiver
@@ -58,10 +54,11 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
 
     final InputStream receiverInputStream =
       new BigBufferPipedInputStream(intermediateSenderOutputStream);
-    m_receiver = new StreamReceiver(receiverInputStream);
 
     final PipedOutputStream senderOutputStream = new PipedOutputStream();
-    m_sender = new StreamSender(senderOutputStream);
+
+    initialise(new StreamReceiver(receiverInputStream),
+               new StreamSender(senderOutputStream));
 
     final InputStream intermediateReceiverInputStream =
       new BigBufferPipedInputStream(senderOutputStream);
@@ -74,21 +71,16 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
     m_messagePump.start();
   }
 
-  protected void tearDown() throws Exception {
-    super.tearDown();
-
+  @After public void tearDown() throws Exception {
     m_messagePump.shutdown();
-
-    m_receiver.shutdown();
-    m_sender.shutdown();
   }
 
-  public void testShutdownOnNullMessage() throws Exception {
+  @Test public void testShutdownOnNullMessage() throws Exception {
     m_sender.send(null);
     assertEquals(null, m_receiver.waitForMessage());
   }
 
-  public void testShutdownIfReceiverShutdown() throws Exception {
+  @Test public void testShutdownIfReceiverShutdown() throws Exception {
     m_sender.shutdown();
     assertEquals(null, m_intermediateReceiver.waitForMessage());
     assertEquals(null, m_receiver.waitForMessage());

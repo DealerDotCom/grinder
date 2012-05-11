@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2012 Philip Aston
+// Copyright (C) 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,42 +21,51 @@
 
 package net.grinder.communication;
 
-import java.net.InetAddress;
-import java.net.Socket;
+import static net.grinder.testutility.SocketUtilities.findFreePort;
 
 import net.grinder.util.StandardTimeAuthority;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 
 /**
- *  Unit tests for {@link SocketWrapper}.
+ * Abstract unit test cases for socket based {@link Sender} and {@link Receiver}
+ * implementations.
  *
  * @author Philip Aston
  */
-public class TestSocketWrapper {
+public abstract class AbstractSenderAndReceiverSocketTests
+  extends AbstractSenderAndReceiverTests {
 
-  private static Acceptor s_acceptor;
-  private Socket m_socket;
+  private ConnectionType m_connectionType;
+  private Acceptor m_acceptor;
+  private Connector m_connector;
 
-  @BeforeClass public static void setUpAcceptor() throws Exception {
-    s_acceptor = new Acceptor("localhost", 0, 1, new StandardTimeAuthority());
+  @Before public final void initialiseSockets() throws Exception {
+
+    final int port = findFreePort();
+
+    m_connectionType = ConnectionType.AGENT;
+    m_connector = new Connector("localhost", port, m_connectionType);
+    m_acceptor =
+        new Acceptor("localhost", port, 1, new StandardTimeAuthority());
   }
 
-  @AfterClass public static void shutDownAcceptor() throws Exception {
-    s_acceptor.shutdown();
+  @After public void stopAcceptor() throws Exception {
+    if (m_acceptor != null) {
+      m_acceptor.shutdown();
+    }
   }
 
-  @Before public void createSocket() throws Exception {
-    m_socket = new Socket(InetAddress.getByName(null), s_acceptor.getPort());
+  protected final Acceptor getAcceptor() throws Exception {
+    return m_acceptor;
   }
 
-  @Test(expected=CommunicationException.class)
-  public void testConstructionWithBadSocket() throws Exception {
-    m_socket.close();
-    new SocketWrapper(m_socket);
+  protected final ConnectionType getConnectionType() throws Exception {
+    return m_connectionType;
+  }
+
+  protected final Connector getConnector() throws Exception {
+    return m_connector;
   }
 }

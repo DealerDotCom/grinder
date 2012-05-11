@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -451,10 +451,10 @@ public class TestAgentImplementation extends AbstractJUnit4FileTestCase {
     public ConsoleStub() throws CommunicationException, IOException {
       final int port = findFreePort();
 
-      m_acceptor = new Acceptor("", port, 1);
+      m_acceptor = new Acceptor("", port, 1, null);
       m_receiver = new ServerReceiver();
       m_receiver.receiveFrom(
-        m_acceptor, new ConnectionType[] { ConnectionType.AGENT }, 1, 10);
+        m_acceptor, new ConnectionType[] { ConnectionType.AGENT }, 1, 10, 1000);
       m_sender = new FanOutServerSender(m_acceptor, ConnectionType.AGENT, 3);
 
       m_acceptor.addListener(ConnectionType.AGENT, new Acceptor.Listener() {
