@@ -6,7 +6,7 @@
   <groupId>net.sf.grinder</groupId>
   <artifactId>grinder-parent</artifactId>
   <packaging>pom</packaging>
-  <version>3.9.1</version>
+  <version>3.10-SNAPSHOT</version>
   <name>${project.artifactId}</name>
   <url>http://grinder.sourceforge.net</url>
   <description>Parent Maven project for The Grinder load testing framework.</description>

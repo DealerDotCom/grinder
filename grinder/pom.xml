@@ -15,20 +15,20 @@
   <parent>
     <groupId>net.sf.grinder</groupId>
     <artifactId>grinder-parent</artifactId>
-    <version>3.9.1</version>
+    <version>3.10-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>grinder-dcr-agent</artifactId>
-      <version>3.9.1</version>
+      <version>3.10-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>grinder-http</artifactId>
-      <version>3.9.1</version>
+      <version>3.10-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
