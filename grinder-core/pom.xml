@@ -101,9 +101,10 @@
         </configuration>
       </plugin>
 
-      <!-- Sigh, because of MDEP-259 we have to always install for this to work
-        when running from the parent project, even if we don't care. That is "mvn
-        install site", not "mvn site". -->
+      <!-- Sigh, because of MDEP-259 we have to always have 'install'
+      as a goal for this to work when running from the parent project,
+      even if we don't care. E.g. "mvn install site", not "mvn site".
+      -->
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
