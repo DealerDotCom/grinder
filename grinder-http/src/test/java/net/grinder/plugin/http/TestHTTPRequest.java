@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,7 +55,7 @@ import net.grinder.scriptengine.Recorder;
 import net.grinder.scriptengine.java.JavaScriptEngineService;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
-import net.grinder.testutility.AssertUtilities;
+import static net.grinder.testutility.AssertUtilities.*;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.StandardTimeAuthority;
@@ -233,7 +233,7 @@ public class TestHTTPRequest {
     };
 
     httpRequest.setHeaders(newHeaders);
-    AssertUtilities.assertArraysEqual(newHeaders, httpRequest.getHeaders());
+    assertArraysEqual(newHeaders, httpRequest.getHeaders());
   }
 
   @Test public void testDELETE() throws Exception {
@@ -473,7 +473,7 @@ public class TestHTTPRequest {
     final HTTPResponse response4 = request.OPTIONS("/blah", data4);
     assertEquals(200, response4.getStatusCode());
     assertEquals("OPTIONS /blah HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data4, m_handler.getLastRequestBody());
+    assertArraysEqual(data4, m_handler.getLastRequestBody());
 
     final byte[] data5 = randomBytes(100);
 
@@ -482,7 +482,7 @@ public class TestHTTPRequest {
     final HTTPResponse response5 = request.OPTIONS("/blah");
     assertEquals(200, response5.getStatusCode());
     assertEquals("OPTIONS /blah HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data5, m_handler.getLastRequestBody());
+    assertArraysEqual(data5, m_handler.getLastRequestBody());
 
     final NVPair[] headers6 = {
       new NVPair("key", "value"),
@@ -500,7 +500,7 @@ public class TestHTTPRequest {
       request.OPTIONS("/blah", new ByteArrayInputStream(data6));
     assertEquals(200, response7.getStatusCode());
     assertEquals("OPTIONS /blah HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data6, m_handler.getLastRequestBody());
+    assertArraysEqual(data6, m_handler.getLastRequestBody());
 
     final byte[] data7 = randomBytes(10000);
 
@@ -508,7 +508,7 @@ public class TestHTTPRequest {
       request.OPTIONS("/blah", new ByteArrayInputStream(data7), headers6);
     assertEquals(200, response8.getStatusCode());
     assertEquals("OPTIONS /blah HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
+    assertArraysEqual(data7, m_handler.getLastRequestBody());
     m_handler.assertRequestContainsHeader("key: value");
   }
 
@@ -547,7 +547,7 @@ public class TestHTTPRequest {
     final HTTPResponse response4 = request.POST("/blah", data4);
     assertEquals(200, response4.getStatusCode());
     assertEquals("POST /blah HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data4, m_handler.getLastRequestBody());
+    assertArraysEqual(data4, m_handler.getLastRequestBody());
 
     final byte[] data5 = randomBytes(100);
 
@@ -556,7 +556,7 @@ public class TestHTTPRequest {
     final HTTPResponse response5 = request.POST("/blah");
     assertEquals(200, response5.getStatusCode());
     assertEquals("POST /blah HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data5, m_handler.getLastRequestBody());
+    assertArraysEqual(data5, m_handler.getLastRequestBody());
 
     final NVPair[] headers6 = {
       new NVPair("key", "value"),
@@ -591,7 +591,7 @@ public class TestHTTPRequest {
     assertEquals(200, response8.getStatusCode());
     assertEquals("POST /lah/ HTTP/1.1", m_handler.getRequestFirstHeader());
     m_handler.assertRequestContainsHeader("key: value");
-    AssertUtilities.assertArraysEqual(data5, m_handler.getLastRequestBody());
+    assertArraysEqual(data5, m_handler.getLastRequestBody());
 
     request.setData(null);
 
@@ -614,7 +614,7 @@ public class TestHTTPRequest {
                                                  new ByteArrayInputStream(data6));
     assertEquals(200, response11.getStatusCode());
     assertEquals("POST /bhxhh HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data6, m_handler.getLastRequestBody());
+    assertArraysEqual(data6, m_handler.getLastRequestBody());
 
     final byte[] data7 = randomBytes(10000);
 
@@ -622,7 +622,7 @@ public class TestHTTPRequest {
       request.POST("/bhxhh", new ByteArrayInputStream(data7), headers6);
     assertEquals(200, response12.getStatusCode());
     assertEquals("POST /bhxhh HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
+    assertArraysEqual(data7, m_handler.getLastRequestBody());
     m_handler.assertRequestContainsHeader("key: value");
 
     headers6[0] = new NVPair("Content-Length", Integer.toString(data7.length));
@@ -631,7 +631,7 @@ public class TestHTTPRequest {
       request.POST("/bhxhh", new ByteArrayInputStream(data7), headers6);
     assertEquals(200, response13.getStatusCode());
     assertEquals("POST /bhxhh HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
+    assertArraysEqual(data7, m_handler.getLastRequestBody());
     m_handler.assertRequestContainsHeader("Content-length: " + data7.length);
   }
 
@@ -696,7 +696,7 @@ public class TestHTTPRequest {
     final HTTPResponse response4 = request.PUT("/blah", data4);
     assertEquals(200, response4.getStatusCode());
     assertEquals("PUT /blah HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data4, m_handler.getLastRequestBody());
+    assertArraysEqual(data4, m_handler.getLastRequestBody());
 
     final byte[] data5 = randomBytes(100);
 
@@ -705,7 +705,7 @@ public class TestHTTPRequest {
     final HTTPResponse response5 = request.PUT("/blah");
     assertEquals(200, response5.getStatusCode());
     assertEquals("PUT /blah HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data5, m_handler.getLastRequestBody());
+    assertArraysEqual(data5, m_handler.getLastRequestBody());
 
     final NVPair[] headers6 = {
       new NVPair("key", "value"),
@@ -723,7 +723,7 @@ public class TestHTTPRequest {
                                                new ByteArrayInputStream(data7));
     assertEquals(200, response7.getStatusCode());
     assertEquals("PUT /bhhh HTTP/1.1", m_handler.getRequestFirstHeader());
-    AssertUtilities.assertArraysEqual(data7, m_handler.getLastRequestBody());
+    assertArraysEqual(data7, m_handler.getLastRequestBody());
   }
 
   @Test public void testTRACE() throws Exception {
@@ -800,7 +800,7 @@ public class TestHTTPRequest {
     final HTTPRequest request = new HTTPRequest();
     request.setDataFromFile(file.getPath());
 
-    AssertUtilities.assertArraysEqual(data5, request.getData());
+    assertArraysEqual(data5, request.getData());
 
   }
 
@@ -1306,6 +1306,41 @@ public class TestHTTPRequest {
     }
     finally {
       connectionDefaults.setTimeout(originalTimeout);
+    }
+  }
+
+  @Test public void testNullHeaders() throws Exception {
+    try {
+      new HTTPRequest().GET(m_handler.getURL(), null, null);
+    }
+    catch (NullPointerException e) {
+      assertContains(e.getMessage(), "headers");
+    }
+  }
+
+  @Test public void testNullHeader() throws Exception {
+
+    final NVPair[] headers = { new NVPair("a", "b"),
+                               null };
+
+    try {
+      new HTTPRequest().GET(m_handler.getURL(), null, headers);
+    }
+    catch (NullPointerException e) {
+      assertContains(e.getMessage(), "headers[1]");
+    }
+  }
+
+  @Test public void testNullHeaderName() throws Exception {
+
+    final NVPair[] headers = { new NVPair("a", "b"),
+                               new NVPair(null, "123") };
+
+    try {
+      new HTTPRequest().GET(m_handler.getURL(), null, headers);
+    }
+    catch (NullPointerException e) {
+      assertContains(e.getMessage(), "headers[1].getName()");
     }
   }
 

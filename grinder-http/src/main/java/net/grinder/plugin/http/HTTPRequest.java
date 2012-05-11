@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2011 Philip Aston
+// Copyright (C) 2001 - 2012 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
@@ -191,10 +191,6 @@ public class HTTPRequest {
     }
 
     return result.toArray(new NVPair[result.size()]);
-  }
-
-  private NVPair[] mergeHeaders(NVPair[] headers) {
-    return mergeArrays(getHeaders(), headers);
   }
 
   /**
@@ -850,6 +846,8 @@ public class HTTPRequest {
       return POST(uri, formData, headers);
     }
 
+    checkArray(headers, "POST - headers");
+
     final NVPair[] contentHeader = new NVPair[1];
     final byte[] data = Codecs.mpFormDataEncode(formData, null, contentHeader);
 
@@ -862,6 +860,24 @@ public class HTTPRequest {
         }
       }
       .getHTTPResponse();
+  }
+
+  private static void checkArray(NVPair[] headers, String context) {
+
+    if (headers == null) {
+      throw new NullPointerException(context + " is null");
+    }
+
+    for (int i = 0; i < headers.length; ++i) {
+      if (headers[i] == null) {
+        throw new NullPointerException(context + "[" + i + "] is null");
+      }
+
+      if (headers[i].getName() == null) {
+        throw new NullPointerException(
+          context + "[" + i + "].getName() is null");
+      }
+    }
   }
 
   /**
@@ -1178,7 +1194,16 @@ public class HTTPRequest {
     public AbstractRequest(String uri, NVPair[] headers)
       throws ParseException, URLException {
 
-      m_mergedHeaders = mergeHeaders(headers);
+      final NVPair[] defaultHeaders = getHeaders();
+      checkArray(defaultHeaders, "Default headers");
+
+      if (defaultHeaders == headers) {
+        m_mergedHeaders = defaultHeaders;
+      }
+      else {
+        checkArray(headers, "headers");
+        m_mergedHeaders = mergeArrays(getHeaders(), headers);
+      }
 
       final URI defaultURL = m_defaultURL;
 

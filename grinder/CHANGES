@@ -5,13 +5,16 @@ The Grinder 3.9.1
   invalid script. Thanks to greghmerrill and John Felten for the beta
   testing and report.
 
+  Fix bug 3525156 - Better exception handling of invalid header arrays
+  passed to HTTPRequest. Thanks to Ouray Viney for the report.
+
 
 The Grinder 3.9
 ---------------
 
   Fix bug 3511553 - TCP proxy recorded scripts do not extract headers
   correctly, leaving a syntactically incorrect script. Thanks to Bill
-  Smith for testing the fix, and correcting the Clojure scirpt
+  Smith for testing the fix, and correcting the Clojure script
   generation.
 
   Fix bug 3511035 - 3.8 bundles additional, older version of xmlbeans.
