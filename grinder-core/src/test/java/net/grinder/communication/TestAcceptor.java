@@ -38,6 +38,8 @@ import java.util.List;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
+import net.grinder.util.StandardTimeAuthority;
+import net.grinder.util.TimeAuthority;
 
 import org.junit.Test;
 
@@ -48,6 +50,8 @@ import org.junit.Test;
  * @author Philip Aston
  */
 public class TestAcceptor {
+
+  private TimeAuthority m_timeAuthority = new StandardTimeAuthority();
 
   @Test public void testConstructor() throws Exception {
 
@@ -69,13 +73,15 @@ public class TestAcceptor {
     final int port = findFreePort();
 
     for (int i=0; i<testAddresses.length; ++i) {
-      final Acceptor acceptor = new Acceptor(testAddresses[i], port, 2, null);
+      final Acceptor acceptor =
+          new Acceptor(testAddresses[i], port, 2, m_timeAuthority);
       assertEquals(port, acceptor.getPort());
       assertNull(acceptor.peekPendingException());
       acceptor.shutdown();
 
       // Should also be able to use a OS allocated port.
-      final Acceptor acceptor2 = new Acceptor(testAddresses[i], 0, 2, null);
+      final Acceptor acceptor2 =
+          new Acceptor(testAddresses[i], 0, 2, m_timeAuthority);
       assertEquals(port, acceptor.getPort());
       assertNull(acceptor2.peekPendingException());
       acceptor2.shutdown();
@@ -86,7 +92,7 @@ public class TestAcceptor {
 
     for (int i=0; i<testAddresses.length; ++i) {
       try {
-        new Acceptor(testAddresses[i], usedPort, 1, null);
+        new Acceptor(testAddresses[i], usedPort, 1, m_timeAuthority);
         fail("Expected CommunicationException");
       }
       catch (CommunicationException e) {
@@ -179,7 +185,7 @@ public class TestAcceptor {
     final int port = serverSocket.getLocalPort();
     serverSocket.close();
 
-    return new Acceptor("", port, numberOfThreads, null);
+    return new Acceptor("", port, numberOfThreads, m_timeAuthority);
   }
 
   @Test public void testShutdown() throws Exception {
