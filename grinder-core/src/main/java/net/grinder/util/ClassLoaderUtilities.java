@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Philip Aston
+// Copyright (C) 2011 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,6 +31,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import net.grinder.engine.common.EngineException;
 
 
 /**
@@ -117,6 +119,65 @@ public class ClassLoaderUtilities {
       }
       finally {
         in.close();
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Simple mechanism for dynamically specified implementations.
+   *
+   * <p>
+   * The classpath is searched for all resources called {@code resourceName}.
+   * Matching resources are then parsed with {@link #allResourceLines} to obtain
+   * a list of implementation class names. These classes are dynamically loaded,
+   * and returned.
+   * </p>
+   *
+   * @param resourceName
+   *          The name of the resources to find.
+   * @param cls
+   *          Implementation classes must be assignable to this class.
+   * @return The implementation classes.
+   * @throws EngineException
+   *           If a class could not be loaded.
+   * @param <T>
+   *          Constrains type of {@code cls}.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> List<Class<? extends T>>
+    dynamicallyLoadImplementations(String resourceName,
+                                   Class<T> cls) throws EngineException {
+
+    final List<String> implementationNames;
+
+    try {
+      implementationNames =
+        allResourceLines(cls.getClassLoader(), resourceName);
+    }
+    catch (IOException e) {
+      throw new EngineException("Failed to load implementation", e);
+    }
+
+    final List<Class<? extends T>> result = new ArrayList<Class<? extends T>>();
+
+    for (String implementationName : implementationNames) {
+      try {
+        final Class<?> implementationClass = Class.forName(implementationName);
+
+        if (cls.isAssignableFrom(implementationClass)) {
+          result.add((Class<? extends T>) implementationClass);
+        }
+        else {
+          throw new EngineException(implementationName +
+                                    " does not implement " +
+                                    cls.getName());
+        }
+      }
+      catch (ClassNotFoundException e) {
+        throw new EngineException("Could not load '" + implementationName + "'",
+                                  e);
       }
     }
 

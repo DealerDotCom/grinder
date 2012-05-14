@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Philip Aston
+// Copyright (C) 2011 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -80,7 +80,8 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
          Collections.<String>emptySet(),
          new HashSet<String>(
              asList(ScriptEngineContainer.class.getName(),
-                    ScriptEngineContainerScopeTunnel.class.getName())),
+                    ScriptEngineContainerScopeTunnel.class.getName(),
+                    ScriptEngineService.class.getName())),
          Collections.<String>emptySet(),
          false) {
         @Override public Enumeration<URL> getResources(String name)
@@ -132,6 +133,7 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
          new HashSet<String>(
              asList(ScriptEngineContainer.class.getName(),
                     ScriptEngineContainerScopeTunnel.class.getName(),
+                    ScriptEngineService.class.getName(),
                     ScriptEngineService.RESOURCE_NAME)),
          Collections.<String>emptySet(),
          true);
@@ -163,6 +165,7 @@ public class TestScriptEngineContainer extends AbstractJUnit4FileTestCase {
          new HashSet<String>(
            asList(ScriptEngineContainer.class.getName(),
                   ScriptEngineContainerScopeTunnel.class.getName(),
+                  ScriptEngineService.class.getName(),
                   ScriptEngineService.RESOURCE_NAME)),
          Collections.<String>emptySet(),
          true);

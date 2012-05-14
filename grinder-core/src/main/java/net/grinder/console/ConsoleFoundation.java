@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,8 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.console;
+
+import static net.grinder.util.ClassLoaderUtilities.dynamicallyLoadImplementations;
 
 import java.io.File;
 import java.util.Timer;
@@ -53,6 +55,7 @@ import net.grinder.util.StandardTimeAuthority;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.Parameter;
+import org.picocontainer.Startable;
 import org.picocontainer.behaviors.Caching;
 import org.picocontainer.parameters.ComponentParameter;
 import org.picocontainer.parameters.ConstantParameter;
@@ -66,6 +69,9 @@ import org.slf4j.Logger;
  * @author Philip Aston
  **/
 public final class ConsoleFoundation {
+
+  private static final String DYNAMIC_COMPONENT_RESOURCE_NAME =
+      "META-INF/net.grinder.console";
 
   private final MutablePicoContainer m_container;
   private final Timer m_timer;
@@ -144,6 +150,16 @@ public final class ConsoleFoundation {
     m_container.addComponent(ErrorQueue.class);
 
     m_container.addComponent(WireDistributedBarriers.class);
+
+    // Dynamically load other component implementations found from
+    // META-INF/net.grinder.console property files. We require that they
+    // implement Startable so that Pico automatically instantiates them.
+    for (Class<?> implementation :
+      dynamicallyLoadImplementations(DYNAMIC_COMPONENT_RESOURCE_NAME,
+                                     Startable.class)) {
+
+      m_container.addComponent(implementation);
+    }
   }
 
   /**
@@ -179,6 +195,8 @@ public final class ConsoleFoundation {
     communication.shutdown();
 
     m_timer.cancel();
+
+    m_container.stop();
   }
 
   /**

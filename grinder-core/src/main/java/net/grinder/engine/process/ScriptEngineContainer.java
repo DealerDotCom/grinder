@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Philip Aston
+// Copyright (C) 2011 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,9 +21,8 @@
 
 package net.grinder.engine.process;
 
-import static net.grinder.util.ClassLoaderUtilities.allResourceLines;
+import static net.grinder.util.ClassLoaderUtilities.dynamicallyLoadImplementations;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,34 +64,11 @@ final class ScriptEngineContainer {
       m_container.addComponent(dcrContext);
     }
 
-    final List<String> implementationNames;
+    for (Class<? extends ScriptEngineService> implementation :
+      dynamicallyLoadImplementations(ScriptEngineService.RESOURCE_NAME,
+                                     ScriptEngineService.class)) {
 
-    try {
-      implementationNames =
-        allResourceLines(getClass().getClassLoader(),
-                         ScriptEngineService.RESOURCE_NAME);
-    }
-    catch (IOException e) {
-      throw new EngineException("Failed to load script engine", e);
-    }
-
-    for (String implementationName : implementationNames) {
-      try {
-        final Class<?> implementationClass = Class.forName(implementationName);
-
-        if (ScriptEngineService.class.isAssignableFrom(implementationClass)) {
-          m_container.addComponent(implementationClass);
-        }
-        else {
-          throw new EngineException(implementationName +
-                                    " does not implement " +
-                                    ScriptEngineService.class.getName());
-        }
-      }
-      catch (ClassNotFoundException e) {
-        throw new EngineException("Could not load '" + implementationName + "'",
-                                  e);
-      }
+      m_container.addComponent(implementation);
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2011 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -127,6 +127,8 @@ public class TestConsoleFoundation extends AbstractJUnit4FileTestCase {
 
     runConsole.start();
 
+    connectToConsole("localhost", 6372);
+
     foundation.shutdown();
 
     verifyNoMoreInteractions(m_logger);
@@ -161,28 +163,36 @@ public class TestConsoleFoundation extends AbstractJUnit4FileTestCase {
 
     runConsole.start();
 
+    connectToConsole(hostName, port);
+
+    foundation.shutdown();
+
+    runConsole.join();
+
+    verifyNoMoreInteractions(m_logger);
+  }
+
+  private static void connectToConsole(String hostName, int port)
+      throws Exception {
+
     final ConsoleConnectionFactory ccf = new ConsoleConnectionFactory();
 
     final int retries = 3;
 
     for (int i = 0; i < retries; ++i) {
       try {
-      final ConsoleConnection client = ccf.connect(hostName, port);
-      assertEquals(0, client.getNumberOfAgents());
-      client.close();
+        final ConsoleConnection client = ccf.connect(hostName, port);
+        assertEquals(0, client.getNumberOfAgents());
+        client.close();
       }
       catch (ConsoleConnectionException e) {
-      if (i == retries - 1) {
-        throw e;
-      }
+        if (i == retries - 1) {
+          throw e;
+        }
 
-      Thread.sleep(50);
+        Thread.sleep(50);
       }
     }
-
-    foundation.shutdown();
-
-    runConsole.join();
   }
 
   @Test public void testWireMessageDispatch() throws Exception {
