@@ -22,7 +22,7 @@
 
 package net.grinder.console;
 
-import static net.grinder.util.ClassLoaderUtilities.dynamicallyLoadImplementations;
+import static net.grinder.util.ClassLoaderUtilities.loadRegisteredImplementations;
 
 import java.io.File;
 import java.util.Timer;
@@ -153,10 +153,11 @@ public final class ConsoleFoundation {
 
     // Dynamically load other component implementations found from
     // META-INF/net.grinder.console property files. We require that they
-    // implement Startable so that Pico automatically instantiates them.
+    // implement Startable so that they are automatically instantiated by
+    // Pico.
     for (Class<?> implementation :
-      dynamicallyLoadImplementations(DYNAMIC_COMPONENT_RESOURCE_NAME,
-                                     Startable.class)) {
+      loadRegisteredImplementations(DYNAMIC_COMPONENT_RESOURCE_NAME,
+                                    Startable.class)) {
 
       m_container.addComponent(implementation);
     }

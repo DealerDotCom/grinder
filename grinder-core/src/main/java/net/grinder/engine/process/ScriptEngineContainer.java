@@ -21,7 +21,7 @@
 
 package net.grinder.engine.process;
 
-import static net.grinder.util.ClassLoaderUtilities.dynamicallyLoadImplementations;
+import static net.grinder.util.ClassLoaderUtilities.loadRegisteredImplementations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,8 +65,8 @@ final class ScriptEngineContainer {
     }
 
     for (Class<? extends ScriptEngineService> implementation :
-      dynamicallyLoadImplementations(ScriptEngineService.RESOURCE_NAME,
-                                     ScriptEngineService.class)) {
+      loadRegisteredImplementations(ScriptEngineService.RESOURCE_NAME,
+                                    ScriptEngineService.class)) {
 
       m_container.addComponent(implementation);
     }

@@ -126,6 +126,32 @@ public class ClassLoaderUtilities {
   }
 
   /**
+   * <p>
+   * Equivalent to {@class loadRegisteredImplementations(resourceName,
+   * cls, cls.getClassLoader())}.
+   * </p>
+   *
+   * @param resourceName
+   *          The name of the resources to find.
+   * @param cls
+   *          Implementation classes must be assignable to this class.
+   * @return The implementation classes.
+   * @throws EngineException
+   *           If a class could not be loaded.
+   * @param <T>
+   *          Constrains type of {@code cls}.
+   * @see #loadRegisteredImplementations(String, Class, ClassLoader)
+   */
+  public static <T> List<Class<? extends T>>
+    loadRegisteredImplementations(String resourceName,
+                                  Class<T> cls) throws EngineException {
+
+    return loadRegisteredImplementations(resourceName,
+                                         cls,
+                                         cls.getClassLoader());
+  }
+
+  /**
    * Simple mechanism for dynamically specified implementations.
    *
    * <p>
@@ -139,7 +165,12 @@ public class ClassLoaderUtilities {
    *          The name of the resources to find.
    * @param cls
    *          Implementation classes must be assignable to this class.
-   * @return The implementation classes.
+   * @param classLoader
+   *          Classloader to use to load implementations.
+   * @return The implementation classes. The order of the classes depends on the
+   *         classpath and the order of entries in individual resource files. We
+   *         maintain the order because the caller might want to load more
+   *         fundamental implementations first.
    * @throws EngineException
    *           If a class could not be loaded.
    * @param <T>
@@ -147,22 +178,31 @@ public class ClassLoaderUtilities {
    */
   @SuppressWarnings("unchecked")
   public static <T> List<Class<? extends T>>
-    dynamicallyLoadImplementations(String resourceName,
-                                   Class<T> cls) throws EngineException {
+    loadRegisteredImplementations(String resourceName,
+                                  Class<T> cls,
+                                  ClassLoader classLoader)
+                                      throws EngineException {
 
-    final List<String> implementationNames;
+    final List<String> names;
 
     try {
-      implementationNames =
-        allResourceLines(cls.getClassLoader(), resourceName);
+      names = allResourceLines(classLoader, resourceName);
     }
     catch (IOException e) {
       throw new EngineException("Failed to load implementation", e);
     }
 
-    final List<Class<? extends T>> result = new ArrayList<Class<? extends T>>();
+    final Set<String> seen = new HashSet<String>(names.size());
 
-    for (String implementationName : implementationNames) {
+    final List<Class<? extends T>> result =
+        new ArrayList<Class<? extends T>>(names.size());
+
+    for (String implementationName : names) {
+
+      if (!seen.add(implementationName)) {
+        continue;
+      }
+
       try {
         final Class<?> implementationClass = Class.forName(implementationName);
 

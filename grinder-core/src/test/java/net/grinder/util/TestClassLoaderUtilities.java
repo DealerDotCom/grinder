@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Philip Aston
+// Copyright (C) 2011 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,13 +24,20 @@ package net.grinder.util;
 import static java.util.Arrays.asList;
 import static net.grinder.testutility.FileUtilities.createFile;
 import static net.grinder.util.ClassLoaderUtilities.allResourceLines;
+import static net.grinder.util.ClassLoaderUtilities.loadRegisteredImplementations;
+import static net.grinder.testutility.AssertUtilities.assertContains;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
+import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.AbstractJUnit4FileTestCase;
 
 import org.junit.Test;
@@ -86,5 +93,102 @@ public class TestClassLoaderUtilities extends AbstractJUnit4FileTestCase {
     final URLClassLoader cl2 = new URLClassLoader(cl1.getURLs(), cl1);
 
     assertEquals(asList("a"), allResourceLines(cl2, "test/foo"));
+  }
+
+  @Test public void testUnknownImplementation() throws Exception {
+
+    final File path = new File(getDirectory(), "cp");
+
+    final String RESOURCE_NAME = "my.resource";
+
+    createFile(new File(path, RESOURCE_NAME), "bobbins");
+
+    final List<URL> additionalClasspath =
+      asList(new File(getDirectory(), "cp").toURI().toURL());
+
+    final ClassLoader blockingLoader =
+      new BlockingClassLoader(
+         additionalClasspath,
+         Collections.<String>emptySet(),
+         new HashSet<String>(
+             asList(RESOURCE_NAME)),
+         Collections.<String>emptySet(),
+         true);
+
+    try {
+      loadRegisteredImplementations(RESOURCE_NAME,
+                                    Object.class,
+                                    blockingLoader);
+      fail("Expected EngineException");
+    }
+    catch (EngineException e) {
+      assertTrue(e.getCause() instanceof ClassNotFoundException);
+    }
+  }
+
+  @Test public void testBadImplementation() throws Exception {
+
+    final File path = new File(getDirectory(), "cp");
+
+    final String RESOURCE_NAME = "my.resource";
+
+    createFile(new File(path, RESOURCE_NAME), "java.lang.Object");
+
+    final List<URL> additionalClasspath =
+      asList(new File(getDirectory(), "cp").toURI().toURL());
+
+    final ClassLoader blockingLoader =
+      new BlockingClassLoader(
+         additionalClasspath,
+         Collections.<String>emptySet(),
+         new HashSet<String>(
+             asList(RESOURCE_NAME)),
+         Collections.<String>emptySet(),
+         true);
+
+    try {
+      loadRegisteredImplementations(RESOURCE_NAME,
+                                    Integer.class,
+                                    blockingLoader);
+      fail("Expected EngineException");
+    }
+    catch (EngineException e) {
+      assertContains(e.getMessage(), "does not implement");
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test public void testGoodImplementations() throws Exception {
+
+    final File path = new File(getDirectory(), "cp");
+
+    final String RESOURCE_NAME = "my.resource";
+
+    createFile(new File(path, RESOURCE_NAME),
+               "java.lang.Integer",
+               "# hello",
+               "java.lang.Long",
+               "java.lang.Long",
+               "java.lang.Integer");
+
+    final List<URL> additionalClasspath =
+      asList(new File(getDirectory(), "cp").toURI().toURL());
+
+    final ClassLoader blockingLoader =
+      new BlockingClassLoader(
+         additionalClasspath,
+         Collections.<String>emptySet(),
+         new HashSet<String>(
+             asList(RESOURCE_NAME)),
+         Collections.<String>emptySet(),
+         true);
+
+    final List<Class<? extends Number>> classes =
+        loadRegisteredImplementations(RESOURCE_NAME,
+                                      Number.class,
+                                      blockingLoader);
+
+    // Order unchanged, duplicates and comments filtered.
+    assertEquals(asList(Integer.class, Long.class), classes);
   }
 }
