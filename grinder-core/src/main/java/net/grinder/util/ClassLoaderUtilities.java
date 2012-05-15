@@ -127,7 +127,32 @@ public class ClassLoaderUtilities {
 
   /**
    * <p>
-   * Equivalent to {@class loadRegisteredImplementations(resourceName,
+   * Equivalent to {@code loadRegisteredImplementations(resourceName,
+   * Object.class, classLoader)}.
+   * </p>
+   *
+   * @param resourceName
+   *          The name of the resources to find.
+   * @param classLoader
+   *          Classloader to use to load implementations.
+   * @return The implementation classes.
+   * @throws EngineException
+   *           If a class could not be loaded.
+   * @see #loadRegisteredImplementations(String, Class, ClassLoader)
+   */
+  public static List<Class<?>>
+    loadRegisteredImplementations(String resourceName,
+                                  ClassLoader classLoader)
+                                      throws EngineException {
+
+    return loadRegisteredImplementations(resourceName,
+                                         Object.class,
+                                         classLoader);
+  }
+
+  /**
+   * <p>
+   * Equivalent to {@code loadRegisteredImplementations(resourceName,
    * cls, cls.getClassLoader())}.
    * </p>
    *

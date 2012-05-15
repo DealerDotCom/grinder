@@ -25,6 +25,7 @@ package net.grinder.console;
 import static net.grinder.util.ClassLoaderUtilities.loadRegisteredImplementations;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.Timer;
 
 import net.grinder.common.GrinderException;
@@ -52,11 +53,17 @@ import net.grinder.messages.console.ReportStatisticsMessage;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.util.StandardTimeAuthority;
 
+import org.picocontainer.ComponentMonitor;
 import org.picocontainer.DefaultPicoContainer;
+import org.picocontainer.LifecycleStrategy;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.Parameter;
-import org.picocontainer.Startable;
 import org.picocontainer.behaviors.Caching;
+import org.picocontainer.lifecycle.CompositeLifecycleStrategy;
+import org.picocontainer.lifecycle.JavaEE5LifecycleStrategy;
+import org.picocontainer.lifecycle.StartableLifecycleStrategy;
+import org.picocontainer.monitors.NullComponentMonitor;
+import org.picocontainer.monitors.WriterComponentMonitor;
 import org.picocontainer.parameters.ComponentParameter;
 import org.picocontainer.parameters.ConstantParameter;
 import org.slf4j.Logger;
@@ -117,7 +124,19 @@ public final class ConsoleFoundation {
 
     m_timer = timer;
 
-    m_container = new DefaultPicoContainer(new Caching());
+    final ComponentMonitor monitor = new NullComponentMonitor();
+
+    // Allow components to use Disposable/Startable interfaces or
+    // JEE annotations.
+    final LifecycleStrategy lifecycleStrategy =
+        new CompositeLifecycleStrategy(
+            new StartableLifecycleStrategy(monitor),
+            new JavaEE5LifecycleStrategy(
+                new WriterComponentMonitor(new PrintWriter(System.err, true))));
+
+    m_container =
+        new DefaultPicoContainer(new Caching(), lifecycleStrategy, null);
+
     m_container.addComponent(logger);
     m_container.addComponent(resources);
     m_container.addComponent(properties);
@@ -152,13 +171,16 @@ public final class ConsoleFoundation {
     m_container.addComponent(WireDistributedBarriers.class);
 
     // Dynamically load other component implementations found from
-    // META-INF/net.grinder.console property files. We require that they
-    // implement Startable so that they are automatically instantiated by
-    // Pico.
+    // META-INF/net.grinder.console property files.
+    final ClassLoader classLoader = getClass().getClassLoader();
+
     for (Class<?> implementation :
       loadRegisteredImplementations(DYNAMIC_COMPONENT_RESOURCE_NAME,
-                                    Startable.class)) {
+                                    classLoader)) {
 
+      // Implementations will only be instantiated here if they are startable
+      // - see http://picocontainer.org/lifecycle.html. Otherwise, they
+      // are lazily created as other components require them.
       m_container.addComponent(implementation);
     }
   }
@@ -186,38 +208,36 @@ public final class ConsoleFoundation {
   }
 
   /**
-   * Shut down the console.
-   *
-   */
-  public void shutdown() {
-    final ConsoleCommunication communication =
-      m_container.getComponent(ConsoleCommunication.class);
-
-    communication.shutdown();
-
-    m_timer.cancel();
-
-    m_container.stop();
-  }
-
-  /**
    * Console message event loop. Dispatches communication messages
    * appropriately. Blocks until we are {@link #shutdown()}.
    */
   public void run() {
     m_container.start();
 
-    final ConsoleCommunication communication =
-      m_container.getComponent(ConsoleCommunication.class);
-
-    // Need to request components, or they won't be instantiated.
+    // Request components, or they won't be instantiated.
     m_container.getComponent(WireMessageDispatch.class);
     m_container.getComponent(WireFileDistribution.class);
     m_container.getComponent(WireDistributedBarriers.class);
 
+    final ConsoleCommunication communication =
+      m_container.getComponent(ConsoleCommunication.class);
+
     while (communication.processOneMessage()) {
       // Process until communication is shut down.
     }
+  }
+
+
+  /**
+   * Shut down the console.
+   *
+   * <p>Once stopped, the instance cannot be restarted.</p>
+   */
+  public void shutdown() {
+
+    m_timer.cancel();
+
+    m_container.dispose();
   }
 
   /**
