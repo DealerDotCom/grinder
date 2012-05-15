@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2011 Philip Aston
+// Copyright (C) 2001 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -72,6 +72,14 @@ public final class ConsoleProperties {
   /** Property name. */
   public static final String CONSOLE_PORT_PROPERTY =
     "grinder.console.consolePort";
+
+  /** Property name. */
+  public static final String HTTP_HOST_PROPERTY =
+    "grinder.console.httpHost";
+
+  /** Property name. */
+  public static final String HTTP_PORT_PROPERTY =
+    "grinder.console.httpPort";
 
   /** Property name. */
   public static final String RESET_CONSOLE_WITH_PROCESSES_PROPERTY =
@@ -210,6 +218,13 @@ public final class ConsoleProperties {
   private final IntProperty m_consolePort =
     new IntProperty(CONSOLE_PORT_PROPERTY, CommunicationDefaults.CONSOLE_PORT);
 
+  private final StringProperty m_httpHost =
+      new StringProperty(HTTP_HOST_PROPERTY,
+                         CommunicationDefaults.CONSOLE_HOST);
+
+  private final IntProperty m_httpPort =
+      new IntProperty(HTTP_PORT_PROPERTY, 8080);
+
   private final BooleanProperty m_saveTotalsWithResults =
     new BooleanProperty(SAVE_TOTALS_WITH_RESULTS_PROPERTY, false);
 
@@ -272,6 +287,8 @@ public final class ConsoleProperties {
     m_significantFigures.set(properties.getSignificantFigures());
     m_consoleHost.set(properties.getConsoleHost());
     m_consolePort.set(properties.getConsolePort());
+    m_httpHost.set(properties.getHttpHost());
+    m_httpPort.set(properties.getHttpPort());
     m_resetConsoleWithProcesses.set(properties.getResetConsoleWithProcesses());
     m_propertiesFile.set(properties.getPropertiesFile());
     m_distributionDirectory.set(properties.getDistributionDirectory());
@@ -439,22 +456,23 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Set the console host.
+   * Validate a unicast IP address.
    *
-   * @param s Either a machine name or the IP address.
-   * @throws ConsoleException If the address is not
-   * valid.
+   * <p>
+   * We treat any address that we can look up as valid. I guess we could also
+   * try binding to it to discover whether it is local, but that could take an
+   * indeterminate amount of time.
+   * </p>
+   *
+   * @param address The address, as a string.
+   * @throws ConsoleException If the address is invalid.
    */
-  public void setConsoleHost(String s) throws ConsoleException {
-    // We treat any address that we can look up as valid. I guess we
-    // could also try binding to it to discover whether it is local,
-    // but that could take an indeterminate amount of time.
-
-    if (s.length() > 0) {    // Empty string => all local hosts.
+  private void checkAddress(String address) throws ConsoleException {
+    if (address.length() > 0) {    // Empty string => all local hosts.
       final InetAddress newAddress;
 
       try {
-        newAddress = InetAddress.getByName(s);
+        newAddress = InetAddress.getByName(address);
       }
       catch (UnknownHostException e) {
         throw new DisplayMessageConsoleException(
@@ -463,10 +481,40 @@ public final class ConsoleProperties {
 
       if (newAddress.isMulticastAddress()) {
         throw new DisplayMessageConsoleException(
-          m_resources, "invalidConsoleHostError.text");
+          m_resources, "invalidHostAddressError.text");
       }
     }
+  }
 
+  /**
+   * Validate a TCP port.
+   *
+   ** @param port The port.
+   * @throws ConsoleException If the port is invalid.
+   */
+  private void checkPort(int port) throws ConsoleException {
+
+    if (port < CommunicationDefaults.MIN_PORT ||
+        port > CommunicationDefaults.MAX_PORT) {
+      throw new DisplayMessageConsoleException(
+        m_resources,
+        "invalidPortNumberError.text",
+        new Object[] {
+          CommunicationDefaults.MIN_PORT,
+          CommunicationDefaults.MAX_PORT, }
+        );
+    }
+  }
+
+  /**
+   * Set the console host.
+   *
+   * @param s Either a machine name or the IP address.
+   * @throws ConsoleException If the address is not
+   * valid.
+   */
+  public void setConsoleHost(String s) throws ConsoleException {
+    checkAddress(s);
     m_consoleHost.set(s);
   }
 
@@ -486,18 +534,49 @@ public final class ConsoleProperties {
    * @throws ConsoleException If the port number is not sensible.
    */
   public void setConsolePort(int i) throws ConsoleException {
-    if (i < CommunicationDefaults.MIN_PORT ||
-        i > CommunicationDefaults.MAX_PORT) {
-      throw new DisplayMessageConsoleException(
-        m_resources,
-        "invalidPortNumberError.text",
-        new Object[] {
-          CommunicationDefaults.MIN_PORT,
-          CommunicationDefaults.MAX_PORT, }
-        );
-    }
-
+    checkPort(i);
     m_consolePort.set(i);
+  }
+
+  /**
+   * Get the HTTP host as a string.
+   *
+   * @return The address.
+   */
+  public String getHttpHost() {
+    return m_httpHost.get();
+  }
+
+  /**
+   * Set the HTTP host.
+   *
+   * @param s Either a machine name or the IP address.
+   * @throws ConsoleException If the address is not
+   * valid.
+   */
+  public void setHttpHost(String s) throws ConsoleException {
+    checkAddress(s);
+    m_httpHost.set(s);
+  }
+
+  /**
+   * Get the HTTP port.
+   *
+   * @return The port.
+   */
+  public int getHttpPort() {
+    return m_httpPort.get();
+  }
+
+  /**
+   * Set the HTTP port.
+   *
+   * @param i The port number.
+   * @throws ConsoleException If the port number is not sensible.
+   */
+  public void setHttpPort(int i) throws ConsoleException {
+    checkPort(i);
+    m_httpPort.set(i);
   }
 
   /**

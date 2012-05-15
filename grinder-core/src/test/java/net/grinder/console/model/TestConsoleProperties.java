@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -206,6 +206,80 @@ public class TestConsoleProperties extends AbstractJUnit4FileTestCase {
       protected void set(ConsoleProperties properties, int i)
         throws ConsoleException {
         properties.setConsolePort(i);
+      }
+    }.doTest();
+  }
+  @Test public void testHttpHost() throws Exception {
+
+    final String propertyName = ConsoleProperties.HTTP_HOST_PROPERTY;
+
+    final String s1 = "123.1.2.3";
+
+    writePropertyToFile(propertyName, s1);
+
+    final ConsoleProperties properties = new ConsoleProperties(s_resources,
+      m_file);
+
+    assertEquals(s1, properties.getHttpHost());
+
+    final String s2 = "123.99.33.11";
+
+    properties.setHttpHost(s2);
+    assertEquals(s2, properties.getHttpHost());
+
+    properties.save();
+
+    final ConsoleProperties properties2 = new ConsoleProperties(s_resources,
+      m_file);
+
+    assertEquals(s2, properties2.getHttpHost());
+
+    final String s3 = "1.46.68.80";
+
+    final PropertyChangeEvent expected = new PropertyChangeEvent(properties2,
+      propertyName, s2, s3);
+
+    final ChangeListener listener = new ChangeListener(expected);
+    final ChangeListener listener2 = new ChangeListener(expected);
+
+    properties2.addPropertyChangeListener(listener);
+    properties2.addPropertyChangeListener(propertyName, listener2);
+
+    properties2.setHttpHost(s3);
+
+    listener.assertCalledOnce();
+    listener2.assertCalledOnce();
+
+    try {
+      properties.setHttpHost("234.12.23.2");
+      fail("Expected a DisplayMessageConsoleException for multicast address");
+    }
+    catch (DisplayMessageConsoleException e) {
+    }
+
+    try {
+      properties.setHttpHost("not a host");
+      fail("Expected a DisplayMessageConsoleException for unknown host");
+    }
+    catch (DisplayMessageConsoleException e) {
+    }
+
+    properties.setHttpHost("");
+    assertEquals("", properties.getHttpHost());
+  }
+
+  @Test public void testHttpPort() throws Exception {
+
+    new TestIntTemplate(ConsoleProperties.HTTP_PORT_PROPERTY,
+      CommunicationDefaults.MIN_PORT, CommunicationDefaults.MAX_PORT) {
+
+      protected int get(ConsoleProperties properties) {
+        return properties.getHttpPort();
+      }
+
+      protected void set(ConsoleProperties properties, int i)
+        throws ConsoleException {
+        properties.setHttpPort(i);
       }
     }.doTest();
   }
