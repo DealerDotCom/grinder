@@ -52,4 +52,9 @@
 	  </appender>
   </logger>
 
+  <logger name="org.eclipse.jetty" level="${jetty.logLevel:-info}" additivity="false">
+    <appender-ref ref="filtered_stderr" />
+    <appender-ref ref="filtered_stdout" />
+  </logger>
+
 </configuration>
