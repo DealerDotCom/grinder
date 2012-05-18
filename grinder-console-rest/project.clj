@@ -6,8 +6,7 @@
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [ring/ring-core "1.1.0"]
                  [ring/ring-jetty-adapter "1.1.0"]
-                 [org.mortbay.jetty/jetty "6.1.25"]
-                 [compojure "1.0.1"]
+                 [compojure "1.0.4"]
                  [clj-json "0.5.0"]
                  [net.sf.grinder/grinder-core "3.10-SNAPSHOT"]]
   :profiles {:dev {:dependencies

@@ -100,6 +100,22 @@ http://g.oswego.edu/dl/concurrency-interest/.
 The Grinder includes SLF4J (http://www.slf4j.org/). See the file
 LICENSE-SLF4J for license and copyright details.
 
-The Grinder includes Logback (http://logback.qos.ch/), under the GNU
-Lesser Public License. See the file LICENSE-Logback for license and
-copyright details.
+The Grinder includes Logback (http://logback.qos.ch/), under the terms
+of the Eclipse Public License, Version 1.0.
+
+The Grinder includes Clojure (http://clojure.org) under the terms of
+the Eclipse Public License, Version 1.0.
+
+The Grinder includes clj-json (https://github.com/mmcgrana/clj-json).
+See the file LICENSE-clj-json for license and copyright details.
+
+The Grinder includes Ring (https://github.com/mmcgrana/ring). See the
+file LICENSE-Ring for license and copyright details.
+
+The Grinder includes Compojure
+(https://github.com/weavejester/compojure) under the terms of the
+Eclipse Public License, Version 1.0.
+
+The Grinder includes Jetty (http://www.eclipse.org/jetty/) under the
+terms of the Eclipse Public License, Version 2.0, with exceptions
+listed in the file LICENSE-Jetty.
