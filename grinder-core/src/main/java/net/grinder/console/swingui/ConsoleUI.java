@@ -765,15 +765,18 @@ public final class ConsoleUI implements ConsoleFoundation.UI {
 
     m_stateLabel.setText(state.getDescription());
 
-    if (state.isCapturing()) {
-      m_stateLabel.setForeground(Colours.DARK_GREEN);
-    }
-    else if (state.isStopped()) {
-      m_stateLabel.setForeground(Colours.DARK_RED);
-      m_stopAction.stopped();
-    }
-    else {
-      m_stateLabel.setForeground(SystemColor.controlText);
+    switch (state.getValue()) {
+      case Recording:
+        m_stateLabel.setForeground(Colours.DARK_GREEN);
+        break;
+
+      case Stopped:
+        m_stateLabel.setForeground(Colours.DARK_RED);
+        m_stopAction.stopped();
+        break;
+
+      default:
+        m_stateLabel.setForeground(SystemColor.controlText);
     }
   }
 

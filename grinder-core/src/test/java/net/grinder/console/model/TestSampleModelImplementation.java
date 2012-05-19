@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,11 @@
 
 package net.grinder.console.model;
 
+import static net.grinder.console.model.SampleModel.State.Value.Recording;
+import static net.grinder.console.model.SampleModel.State.Value.Stopped;
+import static net.grinder.console.model.SampleModel.State.Value.IgnoringInitialSamples;
+import static net.grinder.console.model.SampleModel.State.Value.WaitingForFirstReport;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,11 +44,11 @@ import net.grinder.console.model.SampleModel.AbstractListener;
 import net.grinder.console.model.SampleModel.Listener;
 import net.grinder.console.model.SampleModel.State;
 import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.statistics.StatisticsIndexMap.LongIndex;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.StubTimer;
@@ -121,8 +126,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
                sampleModelImplementation.getTotalCumulativeStatistics());
 
     final State state = sampleModelImplementation.getState();
-    assertFalse(state.isStopped());
-    assertFalse(state.isCapturing());
+    assertEquals(WaitingForFirstReport, state.getValue());
     assertEquals("waiting, waiting, waiting", state.getDescription());
     assertNull(m_timer.getLastScheduledTimerTask());
   }
@@ -211,8 +215,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     sampleModelImplementation.addModelListener(m_listener);
 
     final State state = sampleModelImplementation.getState();
-    assertFalse(state.isStopped());
-    assertFalse(state.isCapturing());
+    assertEquals(WaitingForFirstReport, state.getValue());
     assertEquals("waiting, waiting, waiting", state.getDescription());
 
     m_listenerStubFactory.assertNoMoreCalls();
@@ -223,16 +226,14 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     m_listenerStubFactory.assertSuccess("stateChanged");
 
     final State stoppedState = sampleModelImplementation.getState();
-    assertTrue(stoppedState.isStopped());
-    assertFalse(stoppedState.isCapturing());
+    assertEquals(Stopped, stoppedState.getValue());
     assertEquals("done", stoppedState.getDescription());
 
 
     sampleModelImplementation.addTestReport(new TestStatisticsMap());
 
     final State stoppedState2 = sampleModelImplementation.getState();
-    assertTrue(stoppedState2.isStopped());
-    assertFalse(stoppedState2.isCapturing());
+    assertEquals(Stopped, stoppedState2.getValue());
     assertEquals("done", stoppedState2.getDescription());
 
 
@@ -253,8 +254,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     sampleModelImplementation.addModelListener(m_listener);
 
     final State waitingState = sampleModelImplementation.getState();
-    assertFalse(waitingState.isStopped());
-    assertFalse(waitingState.isCapturing());
+    assertEquals(WaitingForFirstReport, waitingState.getValue());
     assertEquals("waiting, waiting, waiting", waitingState.getDescription());
 
     m_listenerStubFactory.assertNoMoreCalls();
@@ -265,8 +265,7 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
     sampleModelImplementation.addTestReport(testStatisticsMap);
 
     final State triggeredState = sampleModelImplementation.getState();
-    assertFalse(triggeredState.isStopped());
-    assertFalse(triggeredState.isCapturing());
+    assertEquals(IgnoringInitialSamples, triggeredState.getValue());
     assertEquals("whatever 1", triggeredState.getDescription());
 
 
@@ -297,17 +296,16 @@ public class TestSampleModelImplementation extends AbstractFileTestCase {
 
     assertEquals("whatever 8",
       sampleModelImplementation.getState().getDescription());
-    assertFalse(sampleModelImplementation.getState().isCapturing());
+    assertEquals(IgnoringInitialSamples, sampleModelImplementation.getState().getValue());
 
     for (int i = 0; i < 3; ++i) {
       sampleModelImplementation.addTestReport(testStatisticsMap);
       triggeredSampleTask.run();
     }
 
-    final State capturingStart = sampleModelImplementation.getState();
-    assertFalse(capturingStart.isStopped());
-    assertTrue(capturingStart.isCapturing());
-    assertEquals("running 1", capturingStart.getDescription());
+    final State capturingState = sampleModelImplementation.getState();
+    assertEquals(Recording, capturingState.getValue());
+    assertEquals("running 1", capturingState.getDescription());
 
 
     sampleModelImplementation.addTestReport(testStatisticsMap);

@@ -1,4 +1,4 @@
-// Copyright (C) 2006 - 2008 Philip Aston
+// Copyright (C) 2006 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -66,6 +66,24 @@ public interface SampleModel {
    * @see SampleModel#getState()
    */
   interface State {
+    /**
+     * The primary state.
+     */
+    enum Value {
+      /** Stopped - all test reports are ignored. */
+      Stopped,
+
+      /** Waiting for the first test report to start the sampling. */
+      WaitingForFirstReport,
+
+      /** Waiting until the configured number of samples have been ignored. */
+      IgnoringInitialSamples,
+
+      /** Capturing samples. */
+      Recording;
+    }
+
+    Value getValue();
 
     /**
      * A presentable description of the state.
@@ -75,18 +93,11 @@ public interface SampleModel {
     String getDescription();
 
     /**
-     * Whether the model is capturing samples.
+     * Return the sample count.
      *
-     * @return <code>true</code> if and only if the model is capturing samples.
+     * @return The sample count.
      */
-    boolean isCapturing();
-
-    /**
-     * Whether the model is stopped.
-     *
-     * @return <code>true</code> if and only if the model is stopped.
-     */
-    boolean isStopped();
+    long getSampleCount();
   }
 
   /**

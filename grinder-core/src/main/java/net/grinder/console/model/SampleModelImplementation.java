@@ -1,4 +1,4 @@
-// Copyright (C) 2001 - 2009 Philip Aston
+// Copyright (C) 2001 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -149,6 +149,7 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @return The TPS expression for this model.
    */
+  @Override
   public StatisticExpression getTPSExpression() {
     return m_tpsExpression;
   }
@@ -158,6 +159,7 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @return The peak TPS expression for this model.
    */
+  @Override
   public StatisticExpression getPeakTPSExpression() {
     return m_peakTPSExpression;
   }
@@ -167,6 +169,7 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @param tests The new tests.
    */
+  @Override
   public void registerTests(Collection<Test> tests) {
     // Need to copy collection, might be immutable.
     final Set<Test> newTests = new HashSet<Test>(tests);
@@ -218,6 +221,7 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @return The cumulative statistics.
    */
+  @Override
   public StatisticsSet getTotalCumulativeStatistics() {
     return m_totalSampleAccumulator.getCumulativeStatistics();
   }
@@ -227,6 +231,7 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @param listener The listener.
    */
+  @Override
   public void addModelListener(Listener listener) {
     m_listeners.add(listener);
   }
@@ -237,6 +242,7 @@ public final class SampleModelImplementation implements SampleModel {
    * @param test The test to add the sample listener for.
    * @param listener The sample listener.
    */
+  @Override
   public void addSampleListener(Test test, SampleListener listener) {
     final SampleAccumulator sampleAccumulator = m_accumulators.get(test);
 
@@ -250,6 +256,7 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @param listener The sample listener.
    */
+  @Override
   public void addTotalSampleListener(SampleListener listener) {
     m_totalSampleAccumulator.addSampleListener(listener);
   }
@@ -278,6 +285,7 @@ public final class SampleModelImplementation implements SampleModel {
   /**
    * Start the model.
    */
+  @Override
   public void start() {
     getInternalState().start();
   }
@@ -285,6 +293,7 @@ public final class SampleModelImplementation implements SampleModel {
   /**
    * Stop the model.
    */
+  @Override
   public void stop() {
     getInternalState().stop();
   }
@@ -294,6 +303,7 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @param testStatisticsMap The new test statistics.
    */
+  @Override
   public void addTestReport(TestStatisticsMap testStatisticsMap) {
     getInternalState().newTestReport(testStatisticsMap);
   }
@@ -303,6 +313,7 @@ public final class SampleModelImplementation implements SampleModel {
    *
    * @return The model state.
    */
+  @Override
   public State getState() {
     return getInternalState().toExternalState();
   }
@@ -351,27 +362,27 @@ public final class SampleModelImplementation implements SampleModel {
       return getInternalState() == this;
     }
 
-    public State toExternalState() {
+    @Override
+    public final State toExternalState() {
       // We don't bother cloning the state, only the description varies.
       return this;
     }
 
-    public void start() {
+    @Override
+    public final void start() {
       // Valid transition for all states.
       setInternalState(new WaitingForTriggerState());
     }
 
-    public void stop() {
+    @Override
+    public final void stop() {
       // Valid transition for all states.
       setInternalState(new StoppedState());
     }
 
-    public boolean isCapturing() {
-      return false;
-    }
-
-    public boolean isStopped() {
-      return false;
+    @Override
+    public long getSampleCount() {
+      return -1;
     }
   }
 
@@ -380,6 +391,7 @@ public final class SampleModelImplementation implements SampleModel {
       zero();
     }
 
+    @Override
     public void newTestReport(TestStatisticsMap testStatisticsMap) {
       if (m_properties.getIgnoreSampleCount() == 0) {
         setInternalState(new CapturingState());
@@ -392,8 +404,14 @@ public final class SampleModelImplementation implements SampleModel {
       getInternalState().newTestReport(testStatisticsMap);
     }
 
+    @Override
     public String getDescription() {
       return m_stateWaitingString;
+    }
+
+    @Override
+    public Value getValue() {
+      return Value.WaitingForFirstReport;
     }
   }
 
@@ -401,12 +419,14 @@ public final class SampleModelImplementation implements SampleModel {
     public void newTestReport(TestStatisticsMap testStatisticsMap) {
     }
 
+    @Override
     public String getDescription() {
       return m_stateStoppedString;
     }
 
-    public boolean isStopped() {
-      return true;
+    @Override
+    public Value getValue() {
+      return Value.Stopped;
     }
   }
 
@@ -416,7 +436,7 @@ public final class SampleModelImplementation implements SampleModel {
 
     private volatile long m_sampleCount = 1;
 
-    public void newTestReport(TestStatisticsMap testStatisticsMap) {
+    public final void newTestReport(TestStatisticsMap testStatisticsMap) {
       testStatisticsMap.new ForEach() {
         public void next(Test test, StatisticsSet statistics) {
           final SampleAccumulator sampleAccumulator = m_accumulators.get(test);
@@ -445,7 +465,7 @@ public final class SampleModelImplementation implements SampleModel {
       .iterate();
     }
 
-    protected void schedule() {
+    protected final void schedule() {
       synchronized (this) {
         if (m_lastTime == 0) {
           m_lastTime = System.currentTimeMillis();
@@ -503,6 +523,7 @@ public final class SampleModelImplementation implements SampleModel {
       }
     }
 
+    @Override
     public final long getSampleCount() {
       return m_sampleCount;
     }
@@ -517,10 +538,12 @@ public final class SampleModelImplementation implements SampleModel {
       schedule();
     }
 
+    @Override
     protected boolean shouldAccumulateSamples() {
       return false;
     }
 
+    @Override
     protected InternalState nextState() {
       if (getSampleCount() > m_properties.getIgnoreSampleCount()) {
         return new CapturingState();
@@ -529,8 +552,14 @@ public final class SampleModelImplementation implements SampleModel {
       return this;
     }
 
+    @Override
     public String getDescription() {
       return m_stateIgnoringString + getSampleCount();
+    }
+
+    @Override
+    public Value getValue() {
+      return Value.IgnoringInitialSamples;
     }
   }
 
@@ -540,10 +569,12 @@ public final class SampleModelImplementation implements SampleModel {
       schedule();
     }
 
+    @Override
     protected boolean shouldAccumulateSamples() {
       return true;
     }
 
+    @Override
     protected InternalState nextState() {
       final int collectSampleCount = m_properties.getCollectSampleCount();
 
@@ -554,12 +585,14 @@ public final class SampleModelImplementation implements SampleModel {
       return this;
     }
 
+    @Override
     public String getDescription() {
       return m_stateCapturingString + getSampleCount();
     }
 
-    public boolean isCapturing() {
-      return true;
+    @Override
+    public Value getValue() {
+      return Value.Recording;
     }
   }
 }

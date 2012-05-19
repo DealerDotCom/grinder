@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -216,12 +216,14 @@ public class TestTextUI {
             return "no pressure son";
           }
 
-          public boolean isCapturing() {
-            return false;
+          @Override
+          public Value getValue() {
+            return Value.Stopped;
           }
 
-          public boolean isStopped() {
-            return false;
+          @Override
+          public long getSampleCount() {
+            return -1;
           }
         } );
 
