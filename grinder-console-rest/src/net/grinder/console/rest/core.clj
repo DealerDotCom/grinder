@@ -22,7 +22,8 @@
 (ns net.grinder.console.rest.core
   (:use [compojure handler
                    [core :only [GET POST context defroutes routes]]
-                   route])
+                   route]
+        ring.middleware.json-params)
   (:require
     [clj-json [core :as json]]
     [net.grinder.console.rest.recording :as recording])
@@ -47,6 +48,7 @@
 (defn- into-grinder-properties
   [source]
   (let [p (GrinderProperties.)]
+    (doseq [[k v] source] (.setProperty p k v))
     p
     ))
 
@@ -67,8 +69,7 @@
 
 (defn- workers-routes [pc]
   (routes
-; // Parse properties
-    (POST "/start" [] (json-response (workers-start pc {})))
+    (POST "/start" [properties] (json-response (workers-start pc properties)))
     (POST "/reset" [] (json-response (workers-reset pc)))
     ))
 
@@ -92,13 +93,26 @@
     ))
 
 
+(defn wrap-request-logging [handler]
+  (fn [{:keys [request-method uri] :as req}]
+    (let [start  (System/nanoTime)
+          resp   (handler req)
+          finish (System/nanoTime)
+          total  (- finish start)]
+      (println
+        (format "request %s %s (%.2f ms)" request-method uri (/ total 1e6)))
+      resp)))
+
 (defn create-app
   [state]
   (let [process-control (:processControl state)
         sample-model (:model state)
         sample-model-views (:sampleModelViews state)]
-    (compojure.handler/api
-      (app-routes process-control sample-model sample-model-views))))
+    (->
+      (app-routes process-control sample-model sample-model-views)
+      wrap-json-params
+      compojure.handler/api
+      wrap-request-logging)))
 
 
 ; Support reloading.

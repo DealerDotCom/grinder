@@ -112,6 +112,10 @@ See the file LICENSE-clj-json for license and copyright details.
 The Grinder includes Ring (https://github.com/mmcgrana/ring). See the
 file LICENSE-Ring for license and copyright details.
 
+The Grinder includes ring-json-params
+(https://github.com/mmcgrana/ring-json-params). See the file
+LICENSE-ring-json-params for license and copyright details.
+
 The Grinder includes Compojure
 (https://github.com/weavejester/compojure) under the terms of the
 Eclipse Public License, Version 1.0.

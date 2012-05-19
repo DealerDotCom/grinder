@@ -20,7 +20,10 @@
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (ns net.grinder.console.rest.recording
-  (:import [net.grinder.console.model SampleModel$Listener SampleModel$State$Value ModelTestIndex SampleModelViews]
+  (:import [net.grinder.console.model
+            SampleModel$Listener
+            SampleModel$State$Value
+            ModelTestIndex SampleModelViews]
            [net.grinder.statistics ExpressionView]))
 
 (defonce test-index(atom (ModelTestIndex.)))
