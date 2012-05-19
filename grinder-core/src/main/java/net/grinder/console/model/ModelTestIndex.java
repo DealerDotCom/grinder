@@ -1,4 +1,4 @@
-// Copyright (C) 2003 - 2008 Philip Aston
+// Copyright (C) 2003 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,12 +26,14 @@ import net.grinder.statistics.StatisticsSet;
 
 
 /**
- * Immutable snapshot of current test structure that is valid at time
- * of notification. The test indicies used are numbered between 0 and
- * getNumberOfTests() - 1 and are not related to the test numbers
- * apart from sharing the same ordering.
+ * Snapshot of current test structure that is valid at time of notification. The
+ * test indicies used are numbered between 0 and getNumberOfTests() - 1 and are
+ * not related to the test numbers apart from sharing the same ordering.
  *
- * <p>Package scope.</p>
+ * <p>
+ * The test array is immutable, but the statistics may change as new samples are
+ * received.
+ * </p>
  *
  * @author Philip Aston
  * @see SampleModel.Listener#newTests
