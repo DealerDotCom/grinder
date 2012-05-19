@@ -1,16 +1,13 @@
 (ns net.grinder.console.rest.core
   (:use [compojure handler
-                   [core :only [GET POST context defroutes]]
+                   [core :only [GET POST context defroutes routes]]
                    route])
   (:require
-    [ring.adapter.jetty :as jetty]
-    [clj-json [core :as json]])
+    [clj-json [core :as json]]
+    [net.grinder.console.rest.recording :as recording])
   (:import
-    [net.grinder.common GrinderBuild])
+    [net.grinder.common GrinderBuild GrinderProperties])
   )
-
-; Sigh - global state.
-(defonce state (atom nil))
 
 ; Could do content negotiation?
 
@@ -19,69 +16,77 @@
     :headers {"Content-Type" "application/json"}
     :body (json/generate-string data) })
 
-(defn version []
-  (json-response (GrinderBuild/getName)))
+(defn- agents-count [pc]
+  (.getNumberOfLiveAgents pc))
 
-(defn number-of-agents []
-  (json-response (.getNumberOfLiveAgents (:processControl @state))))
+(defn- agents-stop [pc]
+  (.stopAgentAndWorkerProcesses pc)
+  "success")
 
-(defn agents-stop []
-  (.stopAgentAndWorkerProcesses (:processControl @state))
-  (json-response "success"))
+(defn- into-grinder-properties
+  [source]
+  (let [p (GrinderProperties.)]
+    p
+    ))
 
-(defn workers-start []
-  (.startWorkerProcesses (:processControl @state))
-  (json-response "success"))
+(defn- workers-start [pc properties]
+  (.startWorkerProcesses pc (into-grinder-properties properties))
+  "success")
 
-(defn workers-reset []
-  (.resetWorkerProcesses (:processControl @state))
-  (json-response "success"))
-
-
-(defn sm-start [m]
-  (.start m)
-  (json-response "success"))
-
-(defn sm-stop [m]
-  (.stop m)
-  (json-response "success"))
-
-(defn sm-reset [m]
-  (.reset m)
-  (json-response "success"))
-
-(defn sm-status [m]
-  (let [s (.getState m)]
-    (json-response {:description (.getDescription s)
-                    :capturing   (.isCapturing s)
-                    :stopped     (.isStopped s)})))
-
-(defn sample-model-handler []
-  (let [sm (:model @state)]
-    (defroutes _
-      (GET "/start" [] (sm-start sm))
-      (GET "/stop" [] (sm-stop sm))
-      (GET "/reset" [] (sm-reset sm))
-      (GET "/status" [] (sm-status sm)))))
+(defn- workers-reset [pc]
+  (.resetWorkerProcesses pc)
+  "success")
 
 
-(defroutes app*
-  (GET "/version" [] (version))
-  (GET "/agents/numberOfAgents" [] (number-of-agents))
-  (GET "/agents/stop" [] (agents-stop))
-  ; // Parse properties (POST "/workers/start" request (workers-start))
-  (GET "/workers/reset" [] (workers-reset))
-  (context "/recording" [] (sample-model-handler))
-  (not-found "Unknown request")
-  )
+(defn- agents-routes [pc]
+  (routes
+    (GET "/count" [] (json-response (agents-count pc)))
+    (GET "/stop" [] (json-response (agents-stop pc)))
+    ))
 
-(def app (compojure.handler/api app*))
+(defn- workers-routes [pc]
+  (routes
+; // Parse properties
+    (POST "/start" [] (json-response (workers-start pc {})))
+    (GET "/reset" [] (json-response (workers-reset pc)))
+    ))
+
+(defn- recording-routes [sm]
+  (routes
+    (GET "/start" [] (json-response (recording/start sm)))
+    (GET "/stop" [] (json-response (recording/stop sm)))
+    (GET "/reset" [] (json-response (recording/reset sm)))
+    (GET "/status" [] (json-response (recording/status sm)))
+    (GET "/data" [] (json-response  (recording/data)))
+    ))
+
+(defn- app-routes
+  [process-control sample-model]
+  (routes
+    (GET "/version" [] (json-response (GrinderBuild/getName)))
+    (context "/agents" [] (agents-routes process-control))
+    (context "/workers" [] (workers-routes process-control))
+    (context "/recording" [] (recording-routes sample-model))
+    (not-found "Unknown request")
+    ))
 
 
-(defn start-jetty [ c ]
-  (let [port (.getHttpPort (:properties c))]
-    (reset! state c)
-    (jetty/run-jetty #'app {:port port :join? false})))
+(defn create-app
+  [state]
+  (let [process-control (:processControl state)
+        sample-model (:model state)]
+    (compojure.handler/api (app-routes process-control sample-model))))
 
-(defn stop-jetty [ server]
-  (.stop server))
+
+; Support reloading.
+(defonce state (atom nil))
+
+(if-let [s @state]
+  (def app (create-app s)))
+
+(defn init-app
+  [s]
+  (recording/register-listener (:model s))
+  (reset! state s)
+  (def app (create-app s))
+  #'app)

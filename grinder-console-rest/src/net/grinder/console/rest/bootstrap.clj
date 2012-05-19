@@ -1,6 +1,8 @@
 (ns net.grinder.console.rest.bootstrap
   (:use
-    [net.grinder.console.rest.core])
+    [net.grinder.console.rest.core :only [init-app]])
+  (:require
+    [ring.adapter.jetty :as jetty])
   (:import
     [net.grinder.console.model ConsoleProperties])
   (:gen-class
@@ -28,8 +30,11 @@
         :server (atom nil)} ])
 
 (defn bootstrap-start [this]
-  (let [server (start-jetty (:context (.state this)))]
-    (reset! (:server (.state this)) server)))
+  (let [context (:context (.state this))
+        port (.getHttpPort (:properties context))
+        app (init-app context)]
+    (reset! (:server (.state this))
+            (jetty/run-jetty app {:port port :join? false}))))
 
 (defn bootstrap-stop [this]
-  (stop-jetty @(:server (.state this))))
+  (.stop @(:server (.state this))))
