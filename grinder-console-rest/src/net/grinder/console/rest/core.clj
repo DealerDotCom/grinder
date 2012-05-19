@@ -28,15 +28,11 @@
     [clj-json [core :as json]]
     [net.grinder.console.rest.recording :as recording])
   (:import
+    org.codehaus.jackson.JsonParseException
     [net.grinder.common GrinderBuild GrinderProperties])
   )
 
 ; Could do content negotiation?
-
-(defn json-response [data & [status]]
-  { :status (or status 200)
-    :headers {"Content-Type" "application/json"}
-    :body (json/generate-string data) })
 
 (defn- agents-count [pc]
   (.getNumberOfLiveAgents pc))
@@ -63,37 +59,37 @@
 
 (defn- agents-routes [pc]
   (routes
-    (GET "/count" [] (json-response (agents-count pc)))
-    (POST "/stop" [] (json-response (agents-stop pc)))
+    (GET "/count" [] (agents-count pc))
+    (POST "/stop" [] (agents-stop pc))
     ))
 
 (defn- workers-routes [pc]
   (routes
-    (POST "/start" [properties] (json-response (workers-start pc properties)))
-    (POST "/reset" [] (json-response (workers-reset pc)))
+    (POST "/start" [properties] (workers-start pc properties))
+    (POST "/reset" [] (workers-reset pc))
     ))
 
 (defn- recording-routes [sm smv]
   (routes
-    (GET "/status" [] (json-response (recording/status sm)))
-    (GET "/data" [] (json-response  (recording/data sm smv)))
-    (POST "/start" [] (json-response (recording/start sm)))
-    (POST "/stop" [] (json-response (recording/stop sm)))
-    (POST "/reset" [] (json-response (recording/reset sm)))
+    (GET "/status" [] (recording/status sm))
+    (GET "/data" [] (recording/data sm smv))
+    (POST "/start" [] (recording/start sm))
+    (POST "/stop" [] (recording/stop sm))
+    (POST "/reset" [] (recording/reset sm))
     ))
 
 (defn- app-routes
   [process-control sample-model sample-model-views]
   (routes
-    (GET "/version" [] (json-response (GrinderBuild/getName)))
+    (GET "/version" [] (GrinderBuild/getName))
     (context "/agents" [] (agents-routes process-control))
     (context "/workers" [] (workers-routes process-control))
     (context "/recording" [] (recording-routes sample-model sample-model-views))
-    (not-found "Unknown request")
+;    (not-found "Unknown request")
     ))
 
 
-(defn wrap-request-logging [handler]
+(defn- wrap-request-logging [handler]
   (fn [{:keys [request-method uri] :as req}]
     (let [start  (System/nanoTime)
           resp   (handler req)
@@ -103,7 +99,26 @@
         (format "request %s %s (%.2f ms)" request-method uri (/ total 1e6)))
       resp)))
 
-(defn create-app
+(defn- json-response [data & [status]]
+  { :status (or status 200)
+    :headers {"Content-Type" "application/json"}
+    :body (json/generate-string data) })
+
+(defn- wrap-json-response [handler]
+  (fn [req]
+    (try
+      (or (json-response (handler req))
+          (json-response {"error" "resource not found"} 404))
+      (catch JsonParseException e
+        (json-response
+          {"error" (format "malformed json: %s" (.getMessage e))} 400))
+      #_(catch Exception e
+        (json-response
+          {"error" (.getMessage e)} 400))
+      )))
+
+
+(defn- create-app
   [state]
   (let [process-control (:processControl state)
         sample-model (:model state)
@@ -111,8 +126,10 @@
     (->
       (app-routes process-control sample-model sample-model-views)
       wrap-json-params
+      wrap-json-response
       compojure.handler/api
-      wrap-request-logging)))
+      wrap-request-logging
+      )))
 
 
 ; Support reloading.
