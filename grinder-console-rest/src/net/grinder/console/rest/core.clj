@@ -59,6 +59,7 @@
     (GET "/data" [] (json-response (recording/data sm smv)))
     (POST "/start" [] (json-response (recording/start sm)))
     (POST "/stop" [] (json-response (recording/stop sm)))
+    (POST "/zero" [] (json-response (recording/zero sm)))
     (POST "/reset" [] (json-response (recording/reset sm)))
     ))
 

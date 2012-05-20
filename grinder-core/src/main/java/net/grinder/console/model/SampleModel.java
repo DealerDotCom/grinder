@@ -39,9 +39,18 @@ import net.grinder.statistics.TestStatisticsMap;
 public interface SampleModel {
 
   /**
-   * Reset the model.
+   * Discard all of the information held by the model.
+   *
+   * <p>This doesn't change the model state.</p>
    */
   void reset();
+
+  /**
+   * Zero the statistics.
+   *
+   * @since 3.10
+   */
+  void zeroStatistics();
 
   /**
    * Start the model.
@@ -152,6 +161,7 @@ public interface SampleModel {
 
   /**
    * Add a new test report.
+   *
    * @param statisticsDelta The new test statistics.
    */
   void addTestReport(TestStatisticsMap statisticsDelta);

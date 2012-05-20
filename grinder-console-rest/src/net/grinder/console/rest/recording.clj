@@ -33,16 +33,24 @@
     (.addModelListener model
       (reify SampleModel$Listener
 
-          (stateChanged [this] nil)
+          (stateChanged
+            [this]
+            (println "stateChanged")
+            nil)
 
-          (newSample [this] nil)
+          (newSample
+            [this]
+            (println "newSample")
+            nil)
 
           (newTests
             [this tests index]
+            (println "newTests")
             (reset! test-index index))
 
           (resetTests
             [this]
+            (println "resetTests")
             (reset! test-index (ModelTestIndex.))))))
 
 (defn status
@@ -66,7 +74,15 @@
   (.stop model)
   (status model))
 
+(defn zero
+  [model]
+  (.zeroStatistics model)
+  (status model))
+
 (defn reset
+  "After a reset, the model loses all knowledge of Tests; this can be
+   useful when swapping between scripts. It makes sense to reset with
+   the worker processes stopped."
   [model]
   (.reset model)
   (status model))

@@ -145,9 +145,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Get the expression for TPS.
-   *
-   * @return The TPS expression for this model.
+   * {@inheritDoc}
    */
   @Override
   public StatisticExpression getTPSExpression() {
@@ -155,9 +153,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Get the expression for peak TPS.
-   *
-   * @return The peak TPS expression for this model.
+   * {@inheritDoc}
    */
   @Override
   public StatisticExpression getPeakTPSExpression() {
@@ -165,9 +161,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Register new tests.
-   *
-   * @param tests The new tests.
+   * {@inheritDoc}
    */
   @Override
   public void registerTests(Collection<Test> tests) {
@@ -217,9 +211,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Get the cumulative statistics for this model.
-   *
-   * @return The cumulative statistics.
+   * {@inheritDoc}
    */
   @Override
   public StatisticsSet getTotalCumulativeStatistics() {
@@ -227,9 +219,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Add a new model listener.
-   *
-   * @param listener The listener.
+   * {@inheritDoc}
    */
   @Override
   public void addModelListener(Listener listener) {
@@ -237,10 +227,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Add a new sample listener for the specific test.
-   *
-   * @param test The test to add the sample listener for.
-   * @param listener The sample listener.
+   * {@inheritDoc}
    */
   @Override
   public void addSampleListener(Test test, SampleListener listener) {
@@ -252,9 +239,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Add a new total sample listener.
-   *
-   * @param listener The sample listener.
+   * {@inheritDoc}
    */
   @Override
   public void addTotalSampleListener(SampleListener listener) {
@@ -262,11 +247,9 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Reset the model.
-   *
-   * <p>This doesn't affect our internal state, just the statistics and
-   * the listeners.</p>
+   * {@inheritDoc}
    */
+  @Override
   public void reset() {
 
     synchronized (m_tests) {
@@ -283,7 +266,15 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Start the model.
+   * {@inheritDoc}
+   */
+  @Override
+  public void zeroStatistics() {
+    zero();
+  }
+
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void start() {
@@ -291,7 +282,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Stop the model.
+   * {@inheritDoc}
    */
   @Override
   public void stop() {
@@ -299,9 +290,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Add a new test report.
-   *
-   * @param testStatisticsMap The new test statistics.
+   * {@inheritDoc}
    */
   @Override
   public void addTestReport(TestStatisticsMap testStatisticsMap) {
@@ -309,9 +298,7 @@ public final class SampleModelImplementation implements SampleModel {
   }
 
   /**
-   * Get the current model state.
-   *
-   * @return The model state.
+   * {@inheritDoc}
    */
   @Override
   public State getState() {
