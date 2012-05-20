@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,25 +31,20 @@ import java.util.Comparator;
  */
 public interface ProcessReport {
 
-  /**
-   * Constant representing the "started" state.
-   */
-  short STATE_STARTED = 1;
+  /** Process state. */
+  enum State {
+    /** Process is started. */
+    STARTED,
 
-  /**
-   * Constant representing the "running" state.
-   */
-  short STATE_RUNNING = 2;
+    /** Process is running. */
+    RUNNING,
 
-  /**
-   * Constant representing the "finished" state.
-   */
-  short STATE_FINISHED = 3;
+    /** Process is finished. */
+    FINISHED,
 
-  /**
-   * Constant representing the "unknown" state.
-   */
-  short STATE_UNKNOWN = 4;
+    /** Process status is unknown. */
+    UNKNOWN;
+  }
 
   /**
    * Return the unique process address.
@@ -61,10 +56,9 @@ public interface ProcessReport {
   /**
    * Return the process status.
    *
-   * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
-   * {@link #STATE_FINISHED}.
+   * @return The state.
    */
-  short getState();
+  State getState();
 
   /**
    * Comparator that compares ProcessReports by state, then by name.
@@ -76,7 +70,7 @@ public interface ProcessReport {
                                  ProcessReport processReport2) {
 
       final int stateComparison =
-        processReport1.getState() - processReport2.getState();
+        processReport1.getState().compareTo(processReport2.getState());
 
       if (stateComparison == 0) {
         final ProcessIdentity identity1 =

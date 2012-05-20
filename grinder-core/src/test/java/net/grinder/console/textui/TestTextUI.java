@@ -143,15 +143,15 @@ public class TestTextUI {
 
     final StubAgentIdentity agentIdentity1 = new StubAgentIdentity("agent1");
     final StubAgentProcessReport agentReport1 =
-      new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
+      new StubAgentProcessReport(agentIdentity1, ProcessReport.State.RUNNING);
 
     final WorkerProcessReport workerProcessReport1 =
       new StubWorkerProcessReport(agentIdentity1.createWorkerIdentity(),
-                                  ProcessReport.STATE_RUNNING, 3, 6);
+                                  ProcessReport.State.RUNNING, 3, 6);
 
     final WorkerProcessReport workerProcessReport2 =
       new StubWorkerProcessReport(agentIdentity1.createWorkerIdentity(),
-                                  ProcessReport.STATE_FINISHED, 0, 6);
+                                  ProcessReport.State.FINISHED, 0, 6);
 
     processListener.update(
       new ProcessReports[] {
@@ -177,7 +177,7 @@ public class TestTextUI {
 
     final StubAgentIdentity agentIdentity2 = new StubAgentIdentity("agent2");
     final StubAgentProcessReport agentReport2 =
-      new StubAgentProcessReport(agentIdentity2, ProcessReport.STATE_FINISHED);
+      new StubAgentProcessReport(agentIdentity2, ProcessReport.State.FINISHED);
 
     processListener.update(
       new ProcessReports[] {

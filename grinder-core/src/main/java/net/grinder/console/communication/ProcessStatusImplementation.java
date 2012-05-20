@@ -299,8 +299,8 @@ final class ProcessStatusImplementation {
       return m_address.getIdentity();
     }
 
-    public short getState() {
-      return STATE_UNKNOWN;
+    public State getState() {
+      return State.UNKNOWN;
     }
 
     public CacheHighWaterMark getCacheHighWaterMark() {

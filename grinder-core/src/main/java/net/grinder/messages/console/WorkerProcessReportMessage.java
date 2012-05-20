@@ -1,5 +1,5 @@
 // Copyright (C) 2001, 2002 Dirk Feufel
-// Copyright (C) 2001 - 2011 Philip Aston
+// Copyright (C) 2001 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,9 +38,9 @@ import net.grinder.communication.CommunicationException;
 public final class WorkerProcessReportMessage
   implements AddressAwareMessage, WorkerProcessReport {
 
-  private static final long serialVersionUID = 2L;
+  private static final long serialVersionUID = 3L;
 
-  private final short m_state;
+  private final State m_state;
   private final short m_totalNumberOfThreads;
   private final short m_numberOfRunningThreads;
 
@@ -49,7 +49,7 @@ public final class WorkerProcessReportMessage
   /**
    * Creates a new <code>WorkerProcessReportMessage</code> instance.
    *
-   * @param state
+   * @param finished
    *          The process state. See
    *          {@link net.grinder.common.processidentity.ProcessReport}.
    * @param totalThreads
@@ -57,10 +57,10 @@ public final class WorkerProcessReportMessage
    * @param runningThreads
    *          The number of threads that are still running.
    */
-  public WorkerProcessReportMessage(short state,
+  public WorkerProcessReportMessage(State finished,
                                     short runningThreads,
                                     short totalThreads) {
-    m_state = state;
+    m_state = finished;
     m_numberOfRunningThreads = runningThreads;
     m_totalNumberOfThreads = totalThreads;
   }
@@ -102,7 +102,7 @@ public final class WorkerProcessReportMessage
    *
    * @return The process state.
    */
-  public short getState() {
+  public State getState() {
     return m_state;
   }
 

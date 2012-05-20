@@ -465,7 +465,7 @@ public final class AgentImplementation implements Agent {
       }
 
       m_sender.send(
-        new AgentProcessReportMessage(ProcessReport.STATE_STARTED,
+        new AgentProcessReportMessage(ProcessReport.State.STARTED,
                                       m_fileStore.getCacheHighWaterMark()));
 
       final MessageDispatchSender fileStoreMessageDispatcher =
@@ -490,7 +490,7 @@ public final class AgentImplementation implements Agent {
           try {
             m_sender.send(
               new AgentProcessReportMessage(
-                ProcessReport.STATE_RUNNING,
+                ProcessReport.State.RUNNING,
                 m_fileStore.getCacheHighWaterMark()));
           }
           catch (CommunicationException e) {
@@ -516,7 +516,7 @@ public final class AgentImplementation implements Agent {
       try {
         m_sender.send(
           new AgentProcessReportMessage(
-            ProcessReport.STATE_FINISHED,
+            ProcessReport.State.FINISHED,
             m_fileStore.getCacheHighWaterMark()));
       }
       catch (CommunicationException e) {

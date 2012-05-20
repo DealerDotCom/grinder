@@ -48,7 +48,7 @@ public class TestProcessControlImplementation extends TestCase {
 
     final AgentProcessReport agentProcessReport1 =
       new StubAgentProcessReport(agentIdentity1,
-                                 ProcessReport.STATE_RUNNING);
+                                 ProcessReport.State.RUNNING);
 
     final RandomStubFactory<ProcessReports> processReportsStubFactory1 =
       RandomStubFactory.create(ProcessReports.class);
@@ -61,7 +61,7 @@ public class TestProcessControlImplementation extends TestCase {
 
     final AgentProcessReport agentProcessReport2 =
       new StubAgentProcessReport(agentIdentity1,
-                                 ProcessReport.STATE_FINISHED);
+                                 ProcessReport.State.FINISHED);
 
     final RandomStubFactory<ProcessReports> processReportsStubFactory2 =
       RandomStubFactory.create(ProcessReports.class);

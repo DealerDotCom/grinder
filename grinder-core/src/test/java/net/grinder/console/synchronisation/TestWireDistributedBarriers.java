@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2011 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -187,7 +187,7 @@ public class TestWireDistributedBarriers {
       new StubProcessReports(null,
         new WorkerProcessReport[] {
           new StubWorkerProcessReport(worker2,
-                                      ProcessReport.STATE_RUNNING, 1, 1)
+                                      ProcessReport.State.RUNNING, 1, 1)
         }),
     });
 

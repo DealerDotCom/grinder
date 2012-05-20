@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,17 +34,17 @@ import net.grinder.messages.agent.CacheHighWaterMark;
  * @author Philip Aston
  */
 public final class AgentProcessReportMessage
-  implements AddressAwareMessage,  AgentAndCacheReport {
+  implements AddressAwareMessage, AgentAndCacheReport {
 
-  private static final long serialVersionUID = 4L;
+  private static final long serialVersionUID = 5L;
 
-  private final short m_state;
+  private final State m_state;
   private final CacheHighWaterMark m_cacheHighWaterMark;
 
   private transient AgentAddress m_processAddress;
 
   /**
-   * Creates a new <code>AgentProcessReportMessage</code> instance.
+   * Creates a new {@code AgentProcessReportMessage} instance.
    *
    * @param state
    *          The process state. See
@@ -52,7 +52,7 @@ public final class AgentProcessReportMessage
    * @param cacheHighWaterMark
    *          The current cache status.
    */
-  public AgentProcessReportMessage(short state,
+  public AgentProcessReportMessage(State state,
                                    CacheHighWaterMark cacheHighWaterMark) {
     m_state = state;
     m_cacheHighWaterMark = cacheHighWaterMark;
@@ -95,7 +95,7 @@ public final class AgentProcessReportMessage
    *
    * @return The process state.
    */
-  public short getState() {
+  public State getState() {
     return m_state;
   }
 

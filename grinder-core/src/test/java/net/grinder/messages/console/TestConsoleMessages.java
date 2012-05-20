@@ -1,4 +1,4 @@
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import net.grinder.common.processidentity.WorkerIdentity;
+import net.grinder.common.processidentity.ProcessReport.State;
 import net.grinder.communication.Address;
 import net.grinder.communication.CommunicationException;
 import net.grinder.engine.agent.StubAgentIdentity;
@@ -143,14 +144,14 @@ public class TestConsoleMessages {
     final WorkerIdentity workerIdentity = agentIdentity.createWorkerIdentity();
 
     final WorkerProcessReportMessage original =
-      new WorkerProcessReportMessage((short)1, (short)2, (short)3);
+      new WorkerProcessReportMessage(State.RUNNING, (short)2, (short)3);
 
     final WorkerAddress address = new WorkerAddress(workerIdentity);
     original.setAddress(address);
 
     assertEquals(workerIdentity, original.getWorkerIdentity());
     assertEquals(address, original.getProcessAddress());
-    assertEquals(1, original.getState());
+    assertEquals(State.RUNNING, original.getState());
     assertEquals(2, original.getNumberOfRunningThreads());
     assertEquals(3, original.getMaximumNumberOfThreads());
 
@@ -158,7 +159,7 @@ public class TestConsoleMessages {
 
     assertEquals(workerIdentity, original.getWorkerIdentity());
     assertEquals(address, original.getProcessAddress());
-    assertEquals(1, received.getState());
+    assertEquals(State.RUNNING, received.getState());
     assertEquals(2, received.getNumberOfRunningThreads());
     assertEquals(3, received.getMaximumNumberOfThreads());
   }
@@ -166,7 +167,7 @@ public class TestConsoleMessages {
   @Test public void testWorkerReportMessageBadAddress() throws Exception {
 
     final WorkerProcessReportMessage message =
-      new WorkerProcessReportMessage((short)1, (short)2, (short)3);
+      new WorkerProcessReportMessage(State.RUNNING, (short)2, (short)3);
 
     final Address badAddress =
       new AgentAddress(new StubAgentIdentity("Agent"));
@@ -188,7 +189,7 @@ public class TestConsoleMessages {
       new StubCacheHighWaterMark("", 100);
 
     final AgentProcessReportMessage original =
-      new AgentProcessReportMessage((short)1, cacheHighWaterMark);
+      new AgentProcessReportMessage(State.RUNNING, cacheHighWaterMark);
 
     final AgentAddress address = new AgentAddress(agentIdentity);
     original.setAddress(address);
@@ -196,20 +197,20 @@ public class TestConsoleMessages {
     assertEquals(agentIdentity, original.getAgentIdentity());
     assertEquals(address, original.getProcessAddress());
     assertEquals(cacheHighWaterMark, original.getCacheHighWaterMark());
-    assertEquals(1, original.getState());
+    assertEquals(State.RUNNING, original.getState());
 
     final AgentProcessReportMessage received = Serializer.serialize(original);
 
     assertEquals(agentIdentity, original.getAgentIdentity());
     assertEquals(address, original.getProcessAddress());
-    assertEquals(1, received.getState());
+    assertEquals(State.RUNNING, received.getState());
     assertEquals(cacheHighWaterMark, received.getCacheHighWaterMark());
   }
 
   @Test public void testAgentReportMessageBadAddress() throws Exception {
 
     final AgentProcessReportMessage message =
-      new AgentProcessReportMessage((short)1, null);
+      new AgentProcessReportMessage(State.RUNNING, null);
 
     final Address badAddress =
       new WorkerAddress(new StubAgentIdentity("Agent").createWorkerIdentity());

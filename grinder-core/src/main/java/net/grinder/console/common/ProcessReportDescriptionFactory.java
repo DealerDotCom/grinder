@@ -23,7 +23,6 @@ package net.grinder.console.common;
 
 import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.common.processidentity.AgentProcessReport;
-import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerProcessReport;
 
 
@@ -76,16 +75,16 @@ public final class ProcessReportDescriptionFactory {
     final String state;
 
     switch (agentProcessReport.getState()) {
-      case ProcessReport.STATE_STARTED:
-      case ProcessReport.STATE_RUNNING:
+      case STARTED:
+      case RUNNING:
         state = m_stateConnectedString;
         break;
 
-      case ProcessReport.STATE_FINISHED:
+      case FINISHED:
         state = m_stateDisconnectedString;
         break;
 
-      case ProcessReport.STATE_UNKNOWN:
+      case UNKNOWN:
       default:
         state = m_stateUnknownString;
         break;
@@ -117,18 +116,18 @@ public final class ProcessReportDescriptionFactory {
     final String state;
 
     switch (workerProcessReport.getState()) {
-      case ProcessReport.STATE_STARTED:
+      case STARTED:
         state = m_stateStartedString;
         break;
 
-      case ProcessReport.STATE_RUNNING:
+      case RUNNING:
         state = m_stateRunningString + " (" +
                 workerProcessReport.getNumberOfRunningThreads() + "/" +
                 workerProcessReport.getMaximumNumberOfThreads() + " " +
                 m_threadsString + ")";
         break;
 
-      case ProcessReport.STATE_FINISHED:
+      case FINISHED:
         state = m_stateFinishedString;
         break;
 

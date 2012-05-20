@@ -1,4 +1,4 @@
-// Copyright (C) 2008 - 2009 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -130,15 +130,15 @@ public class TestProcessStatusTableModel extends TestCase {
 
     final StubAgentIdentity agentIdentity1 = new StubAgentIdentity("agent1");
     final StubAgentProcessReport agentReport1 =
-      new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
+      new StubAgentProcessReport(agentIdentity1, ProcessReport.State.RUNNING);
 
     final WorkerProcessReport workerProcessReport1 =
       new StubWorkerProcessReport(agentIdentity1.createWorkerIdentity(),
-                                  ProcessReport.STATE_RUNNING, 3, 6);
+                                  ProcessReport.State.RUNNING, 3, 6);
 
     final WorkerProcessReport workerProcessReport2 =
       new StubWorkerProcessReport(agentIdentity1.createWorkerIdentity(),
-                                  ProcessReport.STATE_FINISHED, 0, 6);
+                                  ProcessReport.State.FINISHED, 0, 6);
 
     final ProcessReports[] someData = new ProcessReports[] {
         new StubProcessReports(agentReport1,

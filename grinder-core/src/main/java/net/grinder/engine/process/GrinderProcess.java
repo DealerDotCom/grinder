@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000 - 2011 Philip Aston
+// Copyright (C) 2000 - 2012 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // Copyright (C) 2004 Slavik Gnatenko
 // All rights reserved.
@@ -41,6 +41,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.SkeletonThreadLifeCycleListener;
 import net.grinder.common.Test;
 import net.grinder.common.processidentity.ProcessReport;
+import net.grinder.common.processidentity.ProcessReport.State;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationException;
@@ -403,7 +404,7 @@ final class GrinderProcess {
 
     m_dataLogger.info(dataLogHeader.toString());
 
-    sendStatusMessage(ProcessReport.STATE_STARTED,
+    sendStatusMessage(ProcessReport.State.STARTED,
                       (short)0,
                       numberOfThreads);
 
@@ -507,7 +508,7 @@ final class GrinderProcess {
     reportTimerTask.run();
 
     if (!m_communicationShutdown) {
-      sendStatusMessage(ProcessReport.STATE_FINISHED,
+      sendStatusMessage(ProcessReport.State.FINISHED,
                         (short)0,
                         (short)0);
     }
@@ -579,7 +580,7 @@ final class GrinderProcess {
             m_consoleSender.send(new ReportStatisticsMessage(sample));
           }
 
-          sendStatusMessage(ProcessReport.STATE_RUNNING,
+          sendStatusMessage(ProcessReport.State.RUNNING,
                             m_threads.getNumberOfRunningThreads(),
                             m_threads.getTotalNumberOfThreads());
         }
@@ -592,13 +593,13 @@ final class GrinderProcess {
     }
   }
 
-  private void sendStatusMessage(short state,
+  private void sendStatusMessage(State finished,
                                  short numberOfThreads,
                                  short totalNumberOfThreads)
     throws CommunicationException {
 
     m_consoleSender.send(new WorkerProcessReportMessage(
-                           state,
+                           finished,
                            numberOfThreads,
                            totalNumberOfThreads));
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,17 +29,17 @@ import net.grinder.messages.console.WorkerAddress;
 public final class StubWorkerProcessReport
   implements WorkerProcessReport {
 
-  private final short m_state;
+  private final State m_state;
   private final short m_totalNumberOfThreads;
   private final short m_numberOfRunningThreads;
   private final WorkerAddress m_workerAddress;
 
   public StubWorkerProcessReport(WorkerIdentity workerIdentity,
-                                 short state,
+                                 State finished,
                                  int runningThreads,
                                  int totalThreads) {
     m_workerAddress = new WorkerAddress(workerIdentity);
-    m_state = state;
+    m_state = finished;
     m_numberOfRunningThreads = (short)runningThreads;
     m_totalNumberOfThreads = (short)totalThreads;
   }
@@ -52,7 +52,7 @@ public final class StubWorkerProcessReport
     return m_workerAddress.getIdentity();
   }
 
-  public short getState() {
+  public State getState() {
     return m_state;
   }
 

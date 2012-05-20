@@ -28,6 +28,7 @@ import net.grinder.common.processidentity.AgentProcessReport;
 import net.grinder.common.processidentity.ProcessReport;
 import net.grinder.common.processidentity.WorkerIdentity;
 import net.grinder.common.processidentity.WorkerProcessReport;
+import net.grinder.common.processidentity.ProcessReport.State;
 import net.grinder.console.common.ProcessReportDescriptionFactory.ProcessDescription;
 import net.grinder.engine.agent.StubAgentIdentity;
 import net.grinder.testutility.RandomStubFactory;
@@ -65,7 +66,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
       agentProcessReportStubFactory.getStub();
     agentProcessReportStubFactory.setResult("getAgentIdentity", agentIdentity);
     agentProcessReportStubFactory.setResult(
-      "getState", new Short(ProcessReport.STATE_UNKNOWN));
+      "getState", ProcessReport.State.UNKNOWN);
 
     final ProcessReportDescriptionFactory processReportDescriptionFactory =
       new ProcessReportDescriptionFactory(m_resources);
@@ -79,7 +80,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("AG my agent [huh]", description1.toString());
 
     agentProcessReportStubFactory.setResult(
-      "getState", new Short(ProcessReport.STATE_RUNNING));
+      "getState", ProcessReport.State.RUNNING);
 
     final ProcessDescription description2 =
       processReportDescriptionFactory.create(agentProcessReport);
@@ -88,7 +89,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
 
     // Both started and running report "connected".
     agentProcessReportStubFactory.setResult(
-      "getState", new Short(ProcessReport.STATE_STARTED));
+      "getState", ProcessReport.State.STARTED);
 
     final ProcessDescription description3 =
       processReportDescriptionFactory.create(agentProcessReport);
@@ -96,14 +97,14 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("plugged in", description3.getState());
 
     agentProcessReportStubFactory.setResult(
-      "getState", new Short(ProcessReport.STATE_FINISHED));
+      "getState", ProcessReport.State.FINISHED);
 
     final ProcessDescription description4 =
       processReportDescriptionFactory.create(agentProcessReport);
 
     assertEquals("that's all folks", description4.getState());
 
-    agentProcessReportStubFactory.setResult("getState", new Short((short) 999));
+    agentProcessReportStubFactory.setResult("getState", State.UNKNOWN);
 
     final ProcessDescription description5 =
       processReportDescriptionFactory.create(agentProcessReport);
@@ -132,7 +133,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     workerProcessReportStubFactory.setResult("getWorkerIdentity",
                                              workerIdentity);
     workerProcessReportStubFactory.setResult(
-      "getState", new Short(ProcessReport.STATE_UNKNOWN));
+      "getState", ProcessReport.State.UNKNOWN);
 
     final ProcessReportDescriptionFactory processReportDescriptionFactory =
       new ProcessReportDescriptionFactory(m_resources);
@@ -146,7 +147,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("WK agent-0 [huh]", description1.toString());
 
     workerProcessReportStubFactory.setResult(
-      "getState", new Short(ProcessReport.STATE_RUNNING));
+      "getState", ProcessReport.State.RUNNING);
     workerProcessReportStubFactory.setResult(
       "getNumberOfRunningThreads", new Short((short) 10));
     workerProcessReportStubFactory.setResult(
@@ -158,7 +159,7 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("rolling (10/21 strings)", description2.getState());
 
     workerProcessReportStubFactory.setResult(
-      "getState", new Short(ProcessReport.STATE_STARTED));
+      "getState", ProcessReport.State.STARTED);
 
     final ProcessDescription description3 =
       processReportDescriptionFactory.create(workerProcessReport);
@@ -166,14 +167,14 @@ public class TestProcessReportDescriptionFactory extends TestCase {
     assertEquals("hot to trot", description3.getState());
 
     workerProcessReportStubFactory.setResult(
-      "getState", new Short(ProcessReport.STATE_FINISHED));
+      "getState", ProcessReport.State.FINISHED);
 
     final ProcessDescription description4 =
       processReportDescriptionFactory.create(workerProcessReport);
 
     assertEquals("fini", description4.getState());
 
-    workerProcessReportStubFactory.setResult("getState", new Short((short) 99));
+    workerProcessReportStubFactory.setResult("getState", State.UNKNOWN);
 
     final ProcessDescription description5 =
       processReportDescriptionFactory.create(workerProcessReport);

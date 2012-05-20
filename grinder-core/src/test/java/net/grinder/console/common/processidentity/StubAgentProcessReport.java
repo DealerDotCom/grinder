@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Philip Aston
+// Copyright (C) 2008 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,12 +30,12 @@ import net.grinder.messages.console.AgentAndCacheReport;
 public final class StubAgentProcessReport implements AgentAndCacheReport {
 
   private final AgentAddress m_agentAddress;
-  private final short m_state;
+  private final State m_state;
   private CacheHighWaterMark m_cacheHighWaterMark = null;
 
-  public StubAgentProcessReport(AgentIdentity agentIdentity, short state) {
+  public StubAgentProcessReport(AgentIdentity agentIdentity, State running) {
     m_agentAddress = new AgentAddress(agentIdentity);
-    m_state = state;
+    m_state = running;
   }
 
   public AgentIdentity getAgentIdentity() {
@@ -46,7 +46,7 @@ public final class StubAgentProcessReport implements AgentAndCacheReport {
     return m_agentAddress;
   }
 
-  public short getState() {
+  public State getState() {
     return m_state;
   }
 

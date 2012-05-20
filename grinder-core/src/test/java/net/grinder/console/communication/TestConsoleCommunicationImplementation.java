@@ -47,6 +47,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.UncheckedInterruptedException;
 import net.grinder.common.processidentity.AgentIdentity;
 import net.grinder.common.processidentity.ProcessReport;
+import net.grinder.common.processidentity.ProcessReport.State;
 import net.grinder.communication.Address;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
@@ -243,7 +244,7 @@ public class TestConsoleCommunicationImplementation
     m_processMessagesThread.start();
 
     final AgentProcessReportMessage message =
-      new AgentProcessReportMessage(ProcessReport.STATE_RUNNING,
+      new AgentProcessReportMessage(ProcessReport.State.RUNNING,
                                     cacheHighWaterMark);
 
     message.setAddress(new AgentAddress(agentIdentity));
@@ -420,12 +421,12 @@ public class TestConsoleCommunicationImplementation
       .connect(new AgentAddress(agentIdentity));
 
     final AgentProcessReportMessage agentMessage =
-      new AgentProcessReportMessage((short)0, null);
+      new AgentProcessReportMessage(State.STARTED, null);
 
     sendMessage(agentSocket, agentMessage);
 
     final WorkerProcessReportMessage message =
-      new WorkerProcessReportMessage((short)0,
+      new WorkerProcessReportMessage(State.STARTED,
                                      (short)0,
                                      (short)0);
 

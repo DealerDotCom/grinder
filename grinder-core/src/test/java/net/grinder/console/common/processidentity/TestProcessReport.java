@@ -46,14 +46,14 @@ public class TestProcessReport extends TestCase {
 
     final AgentProcessReport agentProcessReport1 =
       new StubAgentProcessReport(agentIdentity1,
-                                 ProcessReport.STATE_RUNNING);
+                                 ProcessReport.State.RUNNING);
 
     assertEquals(0,
       comparator.compare(agentProcessReport1, agentProcessReport1));
 
     final AgentProcessReport agentProcessReport2 =
       new StubAgentProcessReport(agentIdentity1,
-                                 ProcessReport.STATE_FINISHED);
+                                 ProcessReport.State.FINISHED);
 
     assertTrue(
       comparator.compare(agentProcessReport1, agentProcessReport2) < 0);
@@ -66,7 +66,7 @@ public class TestProcessReport extends TestCase {
 
     final AgentProcessReport agentProcessReport3 =
       new StubAgentProcessReport(agentIdentity2,
-                                 ProcessReport.STATE_FINISHED);
+                                 ProcessReport.State.FINISHED);
 
     assertTrue(
       comparator.compare(agentProcessReport3, agentProcessReport2) > 0);

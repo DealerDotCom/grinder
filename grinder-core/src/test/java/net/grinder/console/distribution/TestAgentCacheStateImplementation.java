@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2011 Philip Aston
+// Copyright (C) 2005 - 2012 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -107,7 +107,7 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
     final StubAgentIdentity agentIdentity1 = new StubAgentIdentity("agent1");
     final StubAgentProcessReport agentReport1 =
-      new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
+      new StubAgentProcessReport(agentIdentity1, ProcessReport.State.RUNNING);
 
     processListener.update(new ProcessReports[] {
         new StubProcessReports(agentReport1, null),
@@ -223,7 +223,7 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
     final StubAgentIdentity agentIdentity1 = new StubAgentIdentity("agent1");
     final StubAgentProcessReport agentReport1 =
-      new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
+      new StubAgentProcessReport(agentIdentity1, ProcessReport.State.RUNNING);
 
     assertFalse(cacheState.getAgentSet().getAddressOfAllAgents().includes(
       new AgentAddress(agentIdentity1)));
@@ -248,7 +248,7 @@ public class TestAgentCacheStateImplementation extends AbstractFileTestCase {
 
     final StubAgentIdentity agentIdentity1 = new StubAgentIdentity("agent1");
     final StubAgentProcessReport agentReport1 =
-      new StubAgentProcessReport(agentIdentity1, ProcessReport.STATE_RUNNING);
+      new StubAgentProcessReport(agentIdentity1, ProcessReport.State.RUNNING);
 
     assertFalse(
       cacheState.getAgentSet().getAddressOfOutOfDateAgents(100).includes(
