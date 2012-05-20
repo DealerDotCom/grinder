@@ -31,7 +31,8 @@
    :constructors { [net.grinder.console.model.ConsoleProperties
                     net.grinder.console.model.SampleModel
                     net.grinder.console.model.SampleModelViews
-                    net.grinder.console.communication.ProcessControl]
+                    net.grinder.console.communication.ProcessControl
+                    net.grinder.console.common.ErrorQueue]
                    [] }
    :init init
    :main true
@@ -43,11 +44,13 @@
 
 ; Should listen to port property change and restart - how to handle exceptions?
 
-(defn bootstrap-init [ properties model sampleModelViews processControl]
+(defn bootstrap-init
+  [properties model sampleModelViews processControl errorQueue]
   [ [] {:context {:properties properties
                   :model model
                   :sampleModelViews sampleModelViews
-                  :processControl processControl}
+                  :processControl processControl
+                  :errorQueue errorQueue}
         :server (atom nil)} ])
 
 (defn bootstrap-start [this]

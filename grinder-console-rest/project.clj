@@ -4,6 +4,7 @@
   :license {:name "The Grinder License (modified BSD)"
             :url "http://grinder.sourceforge.net/license.html"}
   :dependencies [[org.clojure/clojure "1.3.0"]
+                 [org.clojure/tools.logging "0.2.3"]
                  [ring/ring-core "1.1.0"]
                  [ring/ring-jetty-adapter "1.1.0"]
                  [ring-json-params "0.1.3"]

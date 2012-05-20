@@ -123,3 +123,7 @@ Eclipse Public License, Version 1.0.
 The Grinder includes Jetty (http://www.eclipse.org/jetty/) under the
 terms of the Eclipse Public License, Version 2.0, with exceptions
 listed in the file LICENSE-Jetty.
+
+The Grinder includes Clojure tools.logging
+(https://github.com/clojure/tools.logging) under the terms of the
+Eclipse Public License, Version 1.0.

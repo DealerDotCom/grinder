@@ -23,11 +23,13 @@
   (:use [compojure handler
                    [core :only [GET POST context defroutes routes]]
                    route]
-        ring.middleware.json-params)
+        ring.middleware.json-params
+        )
   (:require
     [clj-json [core :as json]]
     [net.grinder.console.rest.processes :as processes]
-    [net.grinder.console.rest.recording :as recording])
+    [net.grinder.console.rest.recording :as recording]
+    [clojure.tools [logging :as log]])
   (:import
     org.codehaus.jackson.JsonParseException
     net.grinder.common.GrinderBuild
@@ -80,8 +82,7 @@
           resp   (handler req)
           finish (System/nanoTime)
           total  (- finish start)]
-      (println
-        (format "request %s %s (%.2f ms)" request-method uri (/ total 1e6)))
+      (log/debugf "request %s %s (%.2f ms)" request-method uri (/ total 1e6))
       resp)))
 
 
