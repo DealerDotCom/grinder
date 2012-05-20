@@ -23,8 +23,7 @@
   (:use [compojure handler
                    [core :only [GET POST context defroutes routes]]
                    route]
-        ring.middleware.json-params
-        )
+        ring.middleware.json-params)
   (:require
     [clj-json [core :as json]]
     [net.grinder.console.rest.processes :as processes]

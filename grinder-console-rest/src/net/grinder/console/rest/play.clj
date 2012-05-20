@@ -21,14 +21,17 @@
 
 (ns net.grinder.console.rest.play
   (:import
-    [net.grinder.common GrinderBuild]
-    [org.slf4j LoggerFactory]))
+    net.grinder.common.GrinderBuild
+    org.slf4j.LoggerFactory
+    net.grinder.console.textui.TextUI))
 
 
 (let [resources (net.grinder.console.common.ResourcesImplementation.
                   "net.grinder.console.common.resources.Console")
       logger (LoggerFactory/getLogger "test")]
-  (def cf(net.grinder.console.ConsoleFoundation. resources logger)))
+  (def cf(net.grinder.console.ConsoleFoundation. resources logger))
+  (.createUI cf TextUI)
+  )
 
 (defn start []
   (.start (Thread. #(.run cf))))

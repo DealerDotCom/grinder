@@ -35,22 +35,18 @@
 
           (stateChanged
             [this]
-            (println "stateChanged")
             nil)
 
           (newSample
             [this]
-            (println "newSample")
             nil)
 
           (newTests
             [this tests index]
-            (println "newTests")
             (reset! test-index index))
 
           (resetTests
             [this]
-            (println "resetTests")
             (reset! test-index (ModelTestIndex.))))))
 
 (defn status
