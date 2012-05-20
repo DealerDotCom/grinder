@@ -48,4 +48,12 @@ public interface ProcessIdentity extends Serializable {
    * @return The number.
    */
   int getNumber();
+
+  /**
+   * Return an external identity that is unique for this process.
+   *
+   * @return The unique ID.
+   * @since 3.10
+   */
+  String getUniqueID();
 }

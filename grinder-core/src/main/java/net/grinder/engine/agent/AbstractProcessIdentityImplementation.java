@@ -62,6 +62,10 @@ abstract class AbstractProcessIdentityImplementation implements Serializable {
     m_name = name;
   }
 
+  public String getUniqueID() {
+    return m_identity;
+  }
+
   /**
    * Implement equality semantics. We compare equal to all copies of
    * ourself, but nothing else.

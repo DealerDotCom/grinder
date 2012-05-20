@@ -28,7 +28,7 @@
 
 (defonce test-index(atom (ModelTestIndex.)))
 
-(defn register-listener
+(defn initialise
   [model]
     (.addModelListener model
       (reify SampleModel$Listener

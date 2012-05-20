@@ -26,66 +26,50 @@
         ring.middleware.json-params)
   (:require
     [clj-json [core :as json]]
+    [net.grinder.console.rest.processes :as processes]
     [net.grinder.console.rest.recording :as recording])
   (:import
     org.codehaus.jackson.JsonParseException
-    [net.grinder.common GrinderBuild GrinderProperties])
-  )
+    net.grinder.common.GrinderBuild
+  ))
 
 ; Could do content negotiation?
 
-(defn- agents-count [pc]
-  (.getNumberOfLiveAgents pc))
-
-(defn- agents-stop [pc]
-  (.stopAgentAndWorkerProcesses pc)
-  "success")
-
-(defn- into-grinder-properties
-  [source]
-  (let [p (GrinderProperties.)]
-    (doseq [[k v] source] (.setProperty p k v))
-    p
-    ))
-
-(defn- workers-start [pc properties]
-  (.startWorkerProcesses pc (into-grinder-properties properties))
-  "success")
-
-(defn- workers-reset [pc]
-  (.resetWorkerProcesses pc)
-  "success")
-
+(defn- json-response [data & [status]]
+  { :status (or status 200)
+    :headers {"Content-Type" "application/json"}
+    :body (json/generate-string data) })
 
 (defn- agents-routes [pc]
   (routes
-    (GET "/count" [] (agents-count pc))
-    (POST "/stop" [] (agents-stop pc))
+    (GET "/status" [] (json-response (processes/status pc)))
+    (POST "/stop" [] (json-response (processes/agents-stop pc)))
     ))
 
 (defn- workers-routes [pc]
   (routes
-    (POST "/start" [properties] (workers-start pc properties))
-    (POST "/reset" [] (workers-reset pc))
+    (POST "/start" [properties]
+          (json-response (processes/workers-start pc properties)))
+    (POST "/reset" [] (json-response (processes/workers-reset pc)))
     ))
 
 (defn- recording-routes [sm smv]
   (routes
-    (GET "/status" [] (recording/status sm))
-    (GET "/data" [] (recording/data sm smv))
-    (POST "/start" [] (recording/start sm))
-    (POST "/stop" [] (recording/stop sm))
-    (POST "/reset" [] (recording/reset sm))
+    (GET "/status" [] (json-response (recording/status sm)))
+    (GET "/data" [] (json-response (recording/data sm smv)))
+    (POST "/start" [] (json-response (recording/start sm)))
+    (POST "/stop" [] (json-response (recording/stop sm)))
+    (POST "/reset" [] (json-response (recording/reset sm)))
     ))
 
 (defn- app-routes
   [process-control sample-model sample-model-views]
   (routes
-    (GET "/version" [] (GrinderBuild/getName))
+    (GET "/version" [] (json-response (GrinderBuild/getName)))
     (context "/agents" [] (agents-routes process-control))
     (context "/workers" [] (workers-routes process-control))
     (context "/recording" [] (recording-routes sample-model sample-model-views))
-;    (not-found "Unknown request")
+    ;(not-found "Unknown request")
     ))
 
 
@@ -99,15 +83,11 @@
         (format "request %s %s (%.2f ms)" request-method uri (/ total 1e6)))
       resp)))
 
-(defn- json-response [data & [status]]
-  { :status (or status 200)
-    :headers {"Content-Type" "application/json"}
-    :body (json/generate-string data) })
 
 (defn- wrap-json-response [handler]
   (fn [req]
     (try
-      (or (json-response (handler req))
+      (or (handler req)
           (json-response {"error" "resource not found"} 404))
       (catch JsonParseException e
         (json-response
@@ -140,7 +120,8 @@
 
 (defn init-app
   [s]
-  (recording/register-listener (:model s))
+  (recording/initialise (:model s))
+  (processes/initialise (:processControl s))
   (reset! state s)
   (def app (create-app s))
   #'app)
