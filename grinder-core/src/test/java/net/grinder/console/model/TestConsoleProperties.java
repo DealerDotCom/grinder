@@ -21,6 +21,7 @@
 
 package net.grinder.console.model;
 
+import static org.mockito.Mockito.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -209,6 +210,7 @@ public class TestConsoleProperties extends AbstractJUnit4FileTestCase {
       }
     }.doTest();
   }
+
   @Test public void testHttpHost() throws Exception {
 
     final String propertyName = ConsoleProperties.HTTP_HOST_PROPERTY;
@@ -513,6 +515,22 @@ public class TestConsoleProperties extends AbstractJUnit4FileTestCase {
         properties.setLookAndFeel(name);
       }
     }.doTest();
+  }
+
+
+  @Test public void testNullLookAndFeel() throws Exception {
+
+    final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
+
+    assertNull(properties.getLookAndFeel());
+
+    final PropertyChangeListener listener = mock(PropertyChangeListener.class);
+    properties.addPropertyChangeListener(listener);
+
+    properties.setLookAndFeel(null);
+    assertNull(properties.getLookAndFeel());
+    verifyNoMoreInteractions(listener);
   }
 
   @Test public void testExternalEditorCommand() throws Exception {

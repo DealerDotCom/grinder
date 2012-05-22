@@ -964,6 +964,14 @@ public final class ConsoleProperties {
     protected final void setValue(Object value) {
       final Object old = m_value;
       m_value = value;
+
+      // For some reason, firePropertyChange only suppresses same value
+      // updates when the value is not null. The default L&F is null,
+      // so this prevents UI flicker on each property change.
+      if (m_value == null && value == null) {
+        return;
+      }
+
       m_changeSupport.firePropertyChange(getPropertyName(), old, m_value);
     }
   }
