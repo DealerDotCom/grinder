@@ -20,10 +20,9 @@
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (ns net.grinder.console.rest.bootstrap
-  (:use
-    [net.grinder.console.rest.core :only [init-app]])
   (:require
-    [ring.adapter.jetty :as jetty])
+    [ring.adapter.jetty :as jetty]
+    [net.grinder.console.rest.core :as core])
   (:import
     [net.grinder.console.model ConsoleProperties])
   (:gen-class
@@ -35,7 +34,6 @@
                     net.grinder.console.common.ErrorQueue]
                    [] }
    :init init
-   :main true
    :implements [org.picocontainer.Startable]
    :state state
    :prefix bootstrap-
@@ -56,7 +54,8 @@
 (defn bootstrap-start [this]
   (let [context (:context (.state this))
         port (.getHttpPort (:properties context))
-        app (init-app context)]
+        app (core/init-app context)
+        ]
     (reset! (:server (.state this))
             (jetty/run-jetty app {:port port :join? false}))))
 
