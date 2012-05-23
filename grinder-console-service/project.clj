@@ -1,4 +1,4 @@
-(defproject net.sf.grinder/grinder-console-rest "3.10-SNAPSHOT"
+(defproject net.sf.grinder/grinder-console-service "3.10-SNAPSHOT"
   :parent [net.sf.grinder/grinder-parent "3.10-SNAPSHOT"]
   :description "REST API to The Grinder console."
   :url "http://grinder.sourceforge.net"

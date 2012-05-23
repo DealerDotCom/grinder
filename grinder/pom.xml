@@ -33,7 +33,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>grinder-console-rest</artifactId>
+      <artifactId>grinder-console-service</artifactId>
       <version>3.10-SNAPSHOT</version>
     </dependency>
   </dependencies>
