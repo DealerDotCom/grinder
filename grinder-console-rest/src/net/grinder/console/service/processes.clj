@@ -19,7 +19,7 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(ns net.grinder.console.rest.processes
+(ns net.grinder.console.service.processes
   (:import [net.grinder.console.communication
             ProcessControl$Listener
             ProcessControl$ProcessReports

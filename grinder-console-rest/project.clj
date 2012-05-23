@@ -13,9 +13,6 @@
   :profiles {:dev {:dependencies
                  [[ring/ring-devel "1.1.0"]]}}
 
-  ; This currently compiles too much into our jar file, including many
-  ; of our direct dependencies. Need to work out how to make Bootstrap
-  ; require a smaller set of linked classes.
-  :aot [ net.grinder.console.rest.bootstrap ]
+  :aot [ net.grinder.console.service.bootstrap ]
 
   :min-lein-version "2.0.0")

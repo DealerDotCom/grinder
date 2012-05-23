@@ -19,7 +19,8 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(ns net.grinder.console.rest.play
+(ns net.grinder.console.service.play
+  "Start and stop the console from the REPL."
   (:import
     net.grinder.common.GrinderBuild
     org.slf4j.LoggerFactory

@@ -19,30 +19,19 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(ns net.grinder.console.rest.bootstrap
+(ns net.grinder.console.service.bootstrap_impl
+  "Bootstrap class implementation. A seperate namespace is used to work
+   around http://dev.clojure.org/jira/browse/CLJ-322. See
+   https://groups.google.com/forum/?fromgroups#!topic/clojure/k2_o80sgayk"
   (:require
     [ring.adapter.jetty :as jetty]
-    [net.grinder.console.rest.core :as core])
+    [net.grinder.console.service.rest :as rest])
   (:import
     net.grinder.console.model.ConsoleProperties
-    java.beans.PropertyChangeListener)
-  (:gen-class
-   :name net.grinder.console.rest.Bootstrap
-   :constructors { [net.grinder.console.model.ConsoleProperties
-                    net.grinder.console.model.SampleModel
-                    net.grinder.console.model.SampleModelViews
-                    net.grinder.console.communication.ProcessControl
-                    net.grinder.console.common.ErrorQueue]
-                   [] }
-   :init init
-   :implements [org.picocontainer.Startable]
-   :state state
-   :prefix bootstrap-
-  ))
+    java.beans.PropertyChangeListener))
 
 
-; Should listen to port property change and restart.
-; Support different listen host.
+; Should support specific listen host.
 
 (defn- stop-jetty
   [server error-handler]
@@ -73,13 +62,14 @@
   (let [context (:context state)
         server (:server state)
         port (.getHttpPort (:properties context))
-        app (core/init-app context)
+        app (rest/init-app context)
         error-handler (:errorQueue context)
         ]
     (reset! server (start-jetty @server port error-handler app))))
 
 
 (defn bootstrap-init
+  "Bootstrap construction."
   [properties model sampleModelViews processControl errorQueue]
   (let [state
         {:context {:properties properties
@@ -104,10 +94,12 @@
     [ [] state ]))
 
 (defn bootstrap-start [this]
+  "Called by PicoContainer when the Bootstrap component is started."
   (let [state (.state this)]
     (restart state)))
 
 (defn bootstrap-stop [this]
+  "Called by PicoContainer when the Bootstrap component is stopped."
   (let [state (.state this)
         context (:context state)
         server (:server state)

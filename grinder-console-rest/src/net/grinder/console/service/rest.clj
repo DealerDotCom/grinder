@@ -19,15 +19,16 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(ns net.grinder.console.rest.core
+(ns net.grinder.console.service.rest
+  "Compojure application that provides the console REST API."
   (:use [compojure handler
                    [core :only [GET POST context defroutes routes]]
                    route]
         ring.middleware.json-params)
   (:require
     [clj-json [core :as json]]
-    [net.grinder.console.rest.processes :as processes]
-    [net.grinder.console.rest.recording :as recording]
+    [net.grinder.console.service.processes :as processes]
+    [net.grinder.console.service.recording :as recording]
     [clojure.tools [logging :as log]])
   (:import
     org.codehaus.jackson.JsonParseException

@@ -19,7 +19,7 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(ns net.grinder.console.rest.recording
+(ns net.grinder.console.service.recording
   (:import [net.grinder.console.model
             SampleModel$Listener
             SampleModel$State$Value
