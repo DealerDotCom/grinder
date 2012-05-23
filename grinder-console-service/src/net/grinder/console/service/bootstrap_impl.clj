@@ -44,10 +44,10 @@
   )
 
 (defn- start-jetty
-  [server port error-handler app]
+  [server host port error-handler app]
   (or (stop-jetty server error-handler)
       (try
-        (jetty/run-jetty app {:port port :join? false})
+        (jetty/run-jetty app {:host host :port port :join? false})
         (catch Exception e
           (.handleException
             error-handler
@@ -61,11 +61,12 @@
   [state]
   (let [context (:context state)
         server (:server state)
+        host (.getHttpHost (:properties context))
         port (.getHttpPort (:properties context))
         app (rest/init-app context)
         error-handler (:errorQueue context)
         ]
-    (reset! server (start-jetty @server port error-handler app))))
+    (reset! server (start-jetty @server host port error-handler app))))
 
 
 (defn bootstrap-init
@@ -85,7 +86,6 @@
         (propertyChange
           [this event]
           (let [n (.getPropertyName event)]
-            (println n)
             (if (#{ConsoleProperties/HTTP_HOST_PROPERTY
                    ConsoleProperties/HTTP_PORT_PROPERTY
                    } n)

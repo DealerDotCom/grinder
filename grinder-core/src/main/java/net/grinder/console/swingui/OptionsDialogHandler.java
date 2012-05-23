@@ -72,6 +72,10 @@ abstract class OptionsDialogHandler {
   private final IntegerField m_consolePort =
     new IntegerField(CommunicationDefaults.MIN_PORT,
                      CommunicationDefaults.MAX_PORT);
+  private final JTextField m_httpHost = new JTextField();
+  private final IntegerField m_httpPort =
+    new IntegerField(CommunicationDefaults.MIN_PORT,
+                     CommunicationDefaults.MAX_PORT);
   private final SamplingControlPanel m_samplingControlPanel;
   private final JSlider m_sfSlider = new JSlider(1, 6, 1);
   private final JCheckBox m_resetConsoleWithProcessesCheckBox;
@@ -106,10 +110,16 @@ abstract class OptionsDialogHandler {
       new JLabel(m_resources.getString("consoleHost.label")));
     addressLabelPanel.add(
       new JLabel(m_resources.getString("consolePort.label")));
+    addressLabelPanel.add(
+      new JLabel(m_resources.getString("httpHost.label")));
+    addressLabelPanel.add(
+      new JLabel(m_resources.getString("httpPort.label")));
 
     final JPanel addressFieldPanel = new JPanel(new GridLayout(0, 1, 0, 1));
     addressFieldPanel.add(m_consoleHost);
     addressFieldPanel.add(m_consolePort);
+    addressFieldPanel.add(m_httpHost);
+    addressFieldPanel.add(m_httpPort);
 
     final JPanel addressPanel = new JPanel();
     addressPanel.setLayout(new BoxLayout(addressPanel, BoxLayout.X_AXIS));
@@ -290,6 +300,8 @@ abstract class OptionsDialogHandler {
 
     properties.setConsoleHost(m_consoleHost.getText());
     properties.setConsolePort(m_consolePort.getValue());
+    properties.setHttpHost(m_httpHost.getText());
+    properties.setHttpPort(m_httpPort.getValue());
     properties.setExternalEditorCommand(
       new File(m_externalEditorCommand.getText()));
     properties.setExternalEditorArguments(m_externalEditorArguments.getText());
@@ -317,6 +329,8 @@ abstract class OptionsDialogHandler {
     // Initialise input values.
     m_consoleHost.setText(m_properties.getConsoleHost());
     m_consolePort.setValue(m_properties.getConsolePort());
+    m_httpHost.setText(m_properties.getHttpHost());
+    m_httpPort.setValue(m_properties.getHttpPort());
 
     final File externalEditor = m_properties.getExternalEditorCommand();
     m_externalEditorCommand.setText(
