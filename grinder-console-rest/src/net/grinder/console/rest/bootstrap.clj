@@ -24,7 +24,8 @@
     [ring.adapter.jetty :as jetty]
     [net.grinder.console.rest.core :as core])
   (:import
-    [net.grinder.console.model ConsoleProperties])
+    net.grinder.console.model.ConsoleProperties
+    java.beans.PropertyChangeListener)
   (:gen-class
    :name net.grinder.console.rest.Bootstrap
    :constructors { [net.grinder.console.model.ConsoleProperties
@@ -40,24 +41,75 @@
   ))
 
 
-; Should listen to port property change and restart - how to handle exceptions?
+; Should listen to port property change and restart.
+; Support different listen host.
+
+(defn- stop-jetty
+  [server error-handler]
+  (when server
+    (try
+      (.stop server)
+      (catch Exception e
+       (.handleException error-handler e)
+       server)))
+  )
+
+(defn- start-jetty
+  [server port error-handler app]
+  (or (stop-jetty server error-handler)
+      (try
+        (jetty/run-jetty app {:port port :join? false})
+        (catch Exception e
+          (.handleException
+            error-handler
+            e
+            "Failed to start HTTP server")
+          server)))
+  )
+
+
+(defn- restart
+  [state]
+  (let [context (:context state)
+        server (:server state)
+        port (.getHttpPort (:properties context))
+        app (core/init-app context)
+        error-handler (:errorQueue context)
+        ]
+    (reset! server (start-jetty @server port error-handler app))))
+
 
 (defn bootstrap-init
   [properties model sampleModelViews processControl errorQueue]
-  [ [] {:context {:properties properties
+  (let [state
+        {:context {:properties properties
                   :model model
                   :sampleModelViews sampleModelViews
                   :processControl processControl
                   :errorQueue errorQueue}
-        :server (atom nil)} ])
+        :server (atom nil)}]
+
+    (.addPropertyChangeListener
+      properties
+      (reify PropertyChangeListener
+        (propertyChange
+          [this event]
+          (let [n (.getPropertyName event)]
+            (println n)
+            (if (#{ConsoleProperties/HTTP_HOST_PROPERTY
+                   ConsoleProperties/HTTP_PORT_PROPERTY
+                   } n)
+              (restart state))))))
+
+    [ [] state ]))
 
 (defn bootstrap-start [this]
-  (let [context (:context (.state this))
-        port (.getHttpPort (:properties context))
-        app (core/init-app context)
-        ]
-    (reset! (:server (.state this))
-            (jetty/run-jetty app {:port port :join? false}))))
+  (let [state (.state this)]
+    (restart state)))
 
 (defn bootstrap-stop [this]
-  (.stop @(:server (.state this))))
+  (let [state (.state this)
+        context (:context state)
+        server (:server state)
+        error-handler (:errorQueue context)]
+    (reset! server (stop-jetty @server error-handler))))
