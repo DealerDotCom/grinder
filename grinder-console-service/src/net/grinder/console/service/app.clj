@@ -44,8 +44,8 @@
         html-app (html/create-app state)]
     (->
       (fn
-        [{ct :content-type, :as req}]
-        (case ct
+        [req]
+        (case (:content-type req)
           "application/json" (rest-app req)
           (html-app req)))
        wrap-request-logging)))
@@ -58,7 +58,7 @@
   (def app (create-app s)))
 
 (defn init-app
-  [{m :model, pc :processControl, :as s}]
+  [{m :sample-model, pc :process-control, :as s}]
   (recording/initialise m)
   (processes/initialise pc)
   (reset! state s)

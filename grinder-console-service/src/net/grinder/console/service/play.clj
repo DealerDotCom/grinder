@@ -34,8 +34,10 @@
   (.createUI cf TextUI)
   )
 
-(defn start []
+(defn start
+  []
   (future (repeatedly (.run cf))))
 
-(defn stop []
+(defn stop
+  []
   (.shutdown cf))

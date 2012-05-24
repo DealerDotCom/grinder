@@ -40,8 +40,7 @@
       (.stop server)
       (catch Exception e
        (.handleException error-handler e)
-       server)))
-  )
+       server))))
 
 (defn- start-jetty
   [server host port error-handler app]
@@ -53,16 +52,14 @@
             error-handler
             e
             "Failed to start HTTP server")
-          server)))
-  )
+          server))))
 
 
 (defn- restart
-  [state]
-  (let [context (:context state)
-        server (:server state)
-        host (.getHttpHost (:properties context))
-        port (.getHttpPort (:properties context))
+  [{:keys [context server]}]
+  (let [{:keys [properties error-handler]} context
+        host (.getHttpHost properties)
+        port (.getHttpPort properties)
         app (app/init-app context)
         error-handler (:errorQueue context)
         ]
@@ -71,13 +68,13 @@
 
 (defn bootstrap-init
   "Bootstrap construction."
-  [properties model sampleModelViews processControl errorQueue]
+  [properties sampleModel sampleModelViews processControl errorQueue]
   (let [state
         {:context {:properties properties
-                  :model model
-                  :sampleModelViews sampleModelViews
-                  :processControl processControl
-                  :errorQueue errorQueue}
+                   :sample-model sampleModel
+                   :sample-model-views sampleModelViews
+                   :process-control processControl
+                   :error-handler errorQueue}
         :server (atom nil)}]
 
     (.addPropertyChangeListener
@@ -95,13 +92,10 @@
 
 (defn bootstrap-start [this]
   "Called by PicoContainer when the Bootstrap component is started."
-  (let [state (.state this)]
-    (restart state)))
+  (restart (.state this)))
 
-(defn bootstrap-stop [this]
+(defn bootstrap-stop
+  [this]
   "Called by PicoContainer when the Bootstrap component is stopped."
-  (let [state (.state this)
-        context (:context state)
-        server (:server state)
-        error-handler (:errorQueue context)]
+  (let [{:keys [context server error-handler]} (.state this)]
     (reset! server (stop-jetty @server error-handler))))

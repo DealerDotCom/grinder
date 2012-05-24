@@ -31,7 +31,8 @@
     net.grinder.common.GrinderBuild
   ))
 
-(defn- html-response [data & [status]]
+(defn- html-response
+  [data & [status]]
   { :status (or status 200)
     :headers {"Content-Type" "text/html"}
     :body (str data) })
@@ -70,10 +71,7 @@
     ))
 
 (defn create-app
-  [state]
-  (let [process-control (:processControl state)
-        sample-model (:model state)
-        sample-model-views (:sampleModelViews state)]
-    (->
-      (app-routes process-control sample-model sample-model-views)
-      compojure.handler/site)))
+  [{:keys [process-control sample-model sample-model-views]}]
+  (->
+    (app-routes process-control sample-model sample-model-views)
+    compojure.handler/site))

@@ -34,11 +34,11 @@
 
 (defn initialise
   [pc]
-    (.addProcessStatusListener pc
-      (reify ProcessControl$Listener
-          (update
-            [this reports]
-            (reset! last-reports reports)))))
+  (.addProcessStatusListener pc
+    (reify ProcessControl$Listener
+      (update
+        [this reports]
+        (reset! last-reports reports)))))
 
 (defn agents-stop
   [pc]

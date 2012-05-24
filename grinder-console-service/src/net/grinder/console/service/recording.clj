@@ -30,24 +30,24 @@
 
 (defn initialise
   [model]
-    (.addModelListener model
-      (reify SampleModel$Listener
+  (.addModelListener model
+    (reify SampleModel$Listener
 
-          (stateChanged
-            [this]
-            nil)
+      (stateChanged
+        [this]
+        nil)
 
-          (newSample
-            [this]
-            nil)
+      (newSample
+        [this]
+        nil)
 
-          (newTests
-            [this tests index]
-            (reset! test-index index))
+      (newTests
+        [this tests index]
+        (reset! test-index index))
 
-          (resetTests
-            [this]
-            (reset! test-index (ModelTestIndex.))))))
+      (resetTests
+        [this]
+        (reset! test-index (ModelTestIndex.))))))
 
 (defn status
   [model]
@@ -56,7 +56,7 @@
         m {:state (str v)
            :description (.getDescription s)}]
     (if (#{ SampleModel$State$Value/IgnoringInitialSamples
-            SampleModel$State$Value/Recording } v)
+           SampleModel$State$Value/Recording } v)
       (assoc m :sample-count (.getSampleCount s))
       m)))
 

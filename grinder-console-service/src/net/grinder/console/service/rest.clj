@@ -34,7 +34,8 @@
     net.grinder.common.GrinderBuild
   ))
 
-(defn- json-response [data & [status]]
+(defn- json-response
+  [data & [status]]
   { :status (or status 200)
     :headers {"Content-Type" "application/json"}
     :body (json/generate-string data) })
@@ -86,12 +87,9 @@
       )))
 
 (defn create-app
-  [state]
-  (let [process-control (:processControl state)
-        sample-model (:model state)
-        sample-model-views (:sampleModelViews state)]
-    (->
-      (app-routes process-control sample-model sample-model-views)
-      wrap-json-params
-      wrap-json-response
-      compojure.handler/api)))
+  [{:keys [process-control sample-model sample-model-views]}]
+  (->
+    (app-routes process-control sample-model sample-model-views)
+    wrap-json-params
+    wrap-json-response
+    compojure.handler/api))
