@@ -35,7 +35,7 @@
   )
 
 (defn start []
-  (.start (Thread. #(.run cf))))
+  (future (repeatedly (.run cf))))
 
 (defn stop []
   (.shutdown cf))

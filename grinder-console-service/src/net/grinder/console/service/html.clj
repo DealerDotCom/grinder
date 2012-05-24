@@ -19,71 +19,55 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(ns net.grinder.console.service.rest
-  "Compojure application that provides the console REST API."
+(ns net.grinder.console.service.html
+  "Compojure routes that generate plain HTML pages."
   (:use [compojure handler
                    [core :only [GET POST context defroutes routes]]
-                   route]
-        ring.middleware.json-params)
+                   route])
   (:require
-    [clj-json [core :as json]]
     [net.grinder.console.service.processes :as processes]
     [net.grinder.console.service.recording :as recording])
   (:import
-    org.codehaus.jackson.JsonParseException
     net.grinder.common.GrinderBuild
   ))
 
-(defn- json-response [data & [status]]
+(defn- html-response [data & [status]]
   { :status (or status 200)
-    :headers {"Content-Type" "application/json"}
-    :body (json/generate-string data) })
+    :headers {"Content-Type" "text/html"}
+    :body (str data) })
 
 (defn- agents-routes [pc]
   (routes
-    (GET "/status" [] (json-response (processes/status pc)))
-    (POST "/stop" [] (json-response (processes/agents-stop pc)))
+    (GET "/status" [] (html-response (processes/status pc)))
+    (POST "/stop" [] (html-response (processes/agents-stop pc)))
     ))
 
 (defn- workers-routes [pc]
   (routes
     (POST "/start" [properties]
-          (json-response (processes/workers-start pc properties)))
-    (POST "/reset" [] (json-response (processes/workers-reset pc)))
+          (html-response (processes/workers-start pc properties)))
+    (POST "/reset" [] (html-response (processes/workers-reset pc)))
     ))
 
 (defn- recording-routes [sm smv]
   (routes
-    (GET "/status" [] (json-response (recording/status sm)))
-    (GET "/data" [] (json-response (recording/data sm smv)))
-    (POST "/start" [] (json-response (recording/start sm)))
-    (POST "/stop" [] (json-response (recording/stop sm)))
-    (POST "/zero" [] (json-response (recording/zero sm)))
-    (POST "/reset" [] (json-response (recording/reset sm)))
+    (GET "/status" [] (html-response (recording/status sm)))
+    (GET "/data" [] (html-response (recording/data sm smv)))
+    (POST "/start" [] (html-response (recording/start sm)))
+    (POST "/stop" [] (html-response (recording/stop sm)))
+    (POST "/zero" [] (html-response (recording/zero sm)))
+    (POST "/reset" [] (html-response (recording/reset sm)))
     ))
 
 (defn- app-routes
   [process-control sample-model sample-model-views]
   (routes
-    (GET "/version" [] (json-response (GrinderBuild/getName)))
+    (GET "/version" [] (html-response (GrinderBuild/getName)))
     (context "/agents" [] (agents-routes process-control))
     (context "/workers" [] (workers-routes process-control))
     (context "/recording" [] (recording-routes sample-model sample-model-views))
     ;(not-found "Unknown request")
     ))
-
-(defn- wrap-json-response [handler]
-  (fn [req]
-    (try
-      (or (handler req)
-          (json-response {"error" "resource not found"} 404))
-      (catch JsonParseException e
-        (json-response
-          {"error" (format "malformed json: %s" (.getMessage e))} 400))
-      #_(catch Exception e
-        (json-response
-          {"error" (.getMessage e)} 400))
-      )))
 
 (defn create-app
   [state]
@@ -92,6 +76,4 @@
         sample-model-views (:sampleModelViews state)]
     (->
       (app-routes process-control sample-model sample-model-views)
-      wrap-json-params
-      wrap-json-response
-      compojure.handler/api)))
+      compojure.handler/site)))

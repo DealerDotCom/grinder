@@ -25,7 +25,7 @@
    https://groups.google.com/forum/?fromgroups#!topic/clojure/k2_o80sgayk"
   (:require
     [ring.adapter.jetty :as jetty]
-    [net.grinder.console.service.rest :as rest])
+    [net.grinder.console.service.app :as app])
   (:import
     net.grinder.console.model.ConsoleProperties
     java.beans.PropertyChangeListener))
@@ -63,7 +63,7 @@
         server (:server state)
         host (.getHttpHost (:properties context))
         port (.getHttpPort (:properties context))
-        app (rest/init-app context)
+        app (app/init-app context)
         error-handler (:errorQueue context)
         ]
     (reset! server (start-jetty @server host port error-handler app))))
