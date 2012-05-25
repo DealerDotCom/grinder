@@ -22,8 +22,8 @@
 (ns net.grinder.console.service.app
   "Main Ring application."
   (:require
-    [net.grinder.console.service.processes :as processes]
-    [net.grinder.console.service.recording :as recording]
+    [net.grinder.console.model.processes :as processes]
+    [net.grinder.console.model.recording :as recording]
     [net.grinder.console.service.html :as html]
     [net.grinder.console.service.rest :as rest]
     [clojure.tools [logging :as log]]))
@@ -52,7 +52,7 @@
 
 
 ; Support reloading.
-(defonce state (atom nil))
+(defonce ^:private state (atom nil))
 
 (if-let [s @state]
   (def app (create-app s)))

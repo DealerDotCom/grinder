@@ -25,8 +25,8 @@
                    [core :only [GET POST context defroutes routes]]
                    route])
   (:require
-    [net.grinder.console.service.processes :as processes]
-    [net.grinder.console.service.recording :as recording])
+    [net.grinder.console.model.processes :as processes]
+    [net.grinder.console.model.recording :as recording])
   (:import
     net.grinder.common.GrinderBuild
   ))

@@ -27,8 +27,9 @@
         ring.middleware.json-params)
   (:require
     [clj-json [core :as json]]
-    [net.grinder.console.service.processes :as processes]
-    [net.grinder.console.service.recording :as recording])
+    [net.grinder.console.model.processes :as processes]
+    [net.grinder.console.model.properties :as properties]
+    [net.grinder.console.model.recording :as recording])
   (:import
     org.codehaus.jackson.JsonParseException
     net.grinder.common.GrinderBuild
@@ -40,20 +41,23 @@
     :headers {"Content-Type" "application/json"}
     :body (json/generate-string data) })
 
-(defn- agents-routes [pc]
+(defn- agents-routes
+  [pc]
   (routes
     (GET "/status" [] (json-response (processes/status pc)))
     (POST "/stop" [] (json-response (processes/agents-stop pc)))
     ))
 
-(defn- workers-routes [pc]
+(defn- workers-routes
+  [pc]
   (routes
     (POST "/start" [properties]
           (json-response (processes/workers-start pc properties)))
     (POST "/reset" [] (json-response (processes/workers-reset pc)))
     ))
 
-(defn- recording-routes [sm smv]
+(defn- recording-routes
+  [sm smv]
   (routes
     (GET "/status" [] (json-response (recording/status sm)))
     (GET "/data" [] (json-response (recording/data sm smv)))
@@ -63,11 +67,21 @@
     (POST "/reset" [] (json-response (recording/reset sm)))
     ))
 
+(defn- properties-routes
+  [p]
+  (routes
+    (GET "/" [] (json-response (properties/get-properties p)))
+    ))
+
 (defn- app-routes
-  [process-control sample-model sample-model-views]
+  [process-control
+   sample-model
+   sample-model-views
+   properties]
   (routes
     (GET "/version" [] (json-response (GrinderBuild/getName)))
     (context "/agents" [] (agents-routes process-control))
+    (context "/properties" [] (properties-routes properties))
     (context "/workers" [] (workers-routes process-control))
     (context "/recording" [] (recording-routes sample-model sample-model-views))
     ;(not-found "Unknown request")
@@ -87,9 +101,15 @@
       )))
 
 (defn create-app
-  [{:keys [process-control sample-model sample-model-views]}]
+  [{:keys [process-control
+           sample-model
+           sample-model-views
+           properties]}]
   (->
-    (app-routes process-control sample-model sample-model-views)
+    (app-routes process-control
+                sample-model
+                sample-model-views
+                properties)
     wrap-json-params
     wrap-json-response
     compojure.handler/api))
