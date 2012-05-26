@@ -47,7 +47,13 @@ table caption {
     color: black;
     background-color: #f0f0ff;
 }
-.ForrestTable th { text-align: center; }
+
+.ForrestTable th { 
+    text-align: left;
+    color: #303030;
+    font-variant: small-caps;
+}
+
 /**
  * Page Header
  */

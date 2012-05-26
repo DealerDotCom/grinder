@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN"
+    "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+  <header>
+    <title>The Console Service</title>
+  </header>
+  <body>
+
+    <section id="intro">
+      <title>Overview</title>
+      
+      <p>The console service is an interface for automating The
+    Grinder. It allows The Grinder to be controlled by a scheduler or
+    a Continuous Integration framework such as Hudson/Jenkins; remote
+    monitoring using a web browser; and creative possibilities, such
+    as a test script that monitors and influences the test execution,
+    perhaps by starting additional worker processes.</p>
+
+      <p>You can use the console service to start and stop worker
+    processes; change the console options; contol when recordings
+    start and stop; and to obtain the aggregated test results.</p>
+
+      <p>The first version of the console service was released as part
+    of The Grinder 3.10, and provides REST web services. Future
+    releases will provide other flavours of interace, such as a
+    browser-based user interface, and event-driven publication of
+    data.</p>
+    </section>
+
+    <section id="configuration">
+      <title>Configuration</title>
+      
+      <p>The console hosts an HTTP server that runs the console
+    service. When the console is started, the server listens for HTTP
+    requests on port 6373.</p>
+
+      <p>For most users, this should work out of the box, with no
+    further configuration. If port 6373 is unavailable, an error
+    message will be presented. This is usually because the port has
+    been claimed by another service. You can change the HTTP port
+    using the console options, and also set the HTTP host to your
+    publicly accessible host name or IP address. Unless you do this,
+    the HTTP server will listen on localhost, and you will only be
+    able to connect to the console from local processes.</p>
+
+      <p>You can check that the console service has started correctly
+    by pointing your browser at <a
+    href="http://locahost:6372/version">http://locahost:6372/version</a>.
+    If the service is running, the browser will display the version of
+    The Grinder.</p>
+
+      <p>If you don't use the graphical <a href="site:console/ui">user
+    interface</a>, you can start the console in in a terminal mode by
+    passing a <code>-headless</code> option as follows.</p>
+    
+      <source class="sh">
+	java -classpath lib/grinder.jar net.grinder.Console -headless
+      </source>
+
+    </section>
+
+    <section id="rest">
+      <title>The REST interface</title>
+
+      <p>The REST interface accepts HTTP <code>GET</code> and
+	<code>POST</code> requests and returns JSON formatted results.</p>
+
+      <table>
+
+	<tr>
+	  <th>Method</th>
+	  <th>URL</th>
+	  <th>Description</th>
+	</tr>
+
+	<tr>
+	  <td><code>GET</code></td>
+	  <td><code>/agents/status</code></td>
+	  <td>Returns the status of the agent and worker processes.</td>
+	</tr>
+
+	<tr>
+	  <td><code>POST</code></td>
+	  <td><code>/agents/stop</code></td>
+	  <td>Terminates all agents and their worker processes. You
+    will usually want <code>/workers/reset</code> instead.</td>
+	</tr>
+
+	<tr>
+	  <td><code>GET</code></td>
+	  <td><code>/properties</code></td>
+	  <td>Return the current values of the console options.</td>
+	</tr>
+
+	<tr>
+	  <td><code>GET</code></td>
+	  <td><code>/recording/data</code></td>
+	  <td>Return the current recorded data. Equivalent to the data
+    in the <a href="site:console/ui/results">results tab</a>.</td>
+	</tr>
+
+	<tr>
+	  <td><code>POST</code></td>
+	  <td><code>/recording/start</code></td>
+	  <td>Start capturing data. Initial number of samples may be
+    ignored, depending on the configured console options.</td>
+	</tr>
+
+	<tr>
+	  <td><code>POST</code></td>
+	  <td><code>/recording/stop</code></td>
+	  <td>Stop the current data capture.</td>
+	</tr>
+
+	<tr>
+	  <td><code>GET</code></td>
+	  <td><code>/recording/status</code></td>
+	  <td>Return the current recording status.</td>
+	</tr>
+
+	<tr>
+	  <td><code>POST</code></td>
+	  <td><code>/recording/reset.</code></td>
+	  <td>Discard all recorded data. After a reset, the model
+	    loses all knowledge of Tests; this can be useful when swapping
+	    between scripts. It makes sense to reset with
+	    the worker processes stopped.</td>
+	</tr>
+
+	<tr>
+	  <td><code>POST</code></td>
+	  <td><code>/recording/zero</code></td>
+	  <td>Reset the recorded data values.</td>
+	</tr>
+
+	<tr>
+	  <td><code>GET</code></td>
+	  <td><code>/version</code></td>
+	  <td>Returns the version of The Grinder.</td>
+	</tr>
+
+	<tr>
+	  <td><code>POST</code></td>
+	  <td><code>/workers/start</code></td>
+	  <td>Send a start signal to all the worker processes.
+    Equivalent to the <a href="site:console/ui/process-controls">Start
+    processes</a> button.</td>
+	</tr>
+
+	<tr>
+	  <td><code>POST</code></td>
+	  <td><code>/workers/reset</code></td>
+	  <td>Send a reset signal to all the worker processes.
+    Equivalent to the <a href="site:console/ui/process-controls">Reset
+    processes</a> button.</td>
+	</tr>
+
+      </table>
+
+      <section id="reset-example">
+	<title>Example</title>
+
+	<p>Here's an example terminal sesssion using some of the
+    features of the REST interface.</p>
+
+<ul>
+<li>How to test with curl</li>
+<li>Content-type</li>
+<li>image</li>
+</ul>
+
+      </section>
+      
+    </section>
+    
+  </body>
+</document>

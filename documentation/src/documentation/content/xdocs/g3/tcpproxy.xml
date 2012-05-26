@@ -339,11 +339,11 @@ instrumentMethod(Test(200, 'Page 2'), 'page2')
     Your properties file should at least set <code>grinder.script</code> to
     <code>grinder.py</code>.</li>
 
-  <li>Alternately you can use the console
-  to <a href="site:g3/console/script-tab">distribute your script to an agent
-  and set it as the script to run</a>.
-  Each agent will still need a simple
-  <a href="site:properties"><code>grinder.properties</code></a> file
+  <li>Alternately you can use the console to <a
+  href="site:g3/console/ui/script-tab">distribute your script to an
+  agent and set it as the script to run</a>. Each agent will still
+  need a simple <a
+  href="site:properties"><code>grinder.properties</code></a> file
   containing the console address, though you will not need to set the
   <code>grinder.script</code> property.</li>
 
@@ -574,7 +574,7 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
     </tr>
 
     <tr>
-      <td><strong>Common</strong></td>
+      <td><strong>Commonly used options</strong></td>
 
       <td></td>
     </tr>
@@ -666,7 +666,7 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
     </tr>
 
     <tr>
-      <td><strong>Additional</strong></td>
+      <td><strong>Less frequently used options</strong></td>
 
       <td></td>
     </tr>

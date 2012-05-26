@@ -55,9 +55,13 @@ See http://forrest.apache.org/docs/linking.html for more info
       <logging label="Logging" href="logging.html"/>
     </agents-and-workers>
 
-    <console label="The Console" href="console.html">
-      <process-controls href="#process-controls"/>
-      <script-tab href="#Script+tab"/>
+    <console label="The Console">
+      <ui label="User Interface" href="console.html">
+	<process-controls href="#process-controls"/>
+	<results href="#Results"/>
+	<script-tab href="#Script+tab"/>
+      </ui>
+      <service label="Console Service" href="console-service.html"/>
     </console>
 
     <tcpproxy label="The TCPProxy" href="tcpproxy.html">

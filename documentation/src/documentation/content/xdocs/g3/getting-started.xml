@@ -226,14 +226,15 @@ java net.grinder.Grinder myproperties
     <em>File/Options</em> menu option) which you should use to set the
     communication addresses and ports to match those in the
     <code>grinder.properties</code> files. The console <a
-    href="site:console/process-controls">process controls</a> can be
-    used to trigger The Grinder test scenario. Each agent process then
-    creates child worker processes to do the work.</p>
+    href="site:console/ui/process-controls">process controls</a> can
+    be used to trigger The Grinder test scenario. Each agent process
+    then creates child worker processes to do the work.</p>
 
     <note>
     When you know a little more about the console, you can use it to
-    <a href="site:console/script-tab">edit and distribute properties files and
-    scripts</a> instead of copying them to each agent machine.
+    <a href="site:console/ui/script-tab">edit and distribute
+    properties files and scripts</a> instead of copying them to each
+    agent machine.
     </note>
 
     <p>As the worker processes execute, they dynamically inform the
