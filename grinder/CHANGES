@@ -23,9 +23,9 @@ The Grinder 3.9
 
   Fix bug 3511035 - 3.8 bundles additional, older version of xmlbeans.
 
-  Fix bug 3511536 - Generated Clojure script uses logger API incorrectly.
-  Thanks to Chris Bolton for the report. I also disabled the "offline
-  debug" macros by default.
+  Fix bug 3511536 - Generated Clojure script uses logger API
+  incorrectly. Thanks to Chris Bolton for the report. I also disabled
+  the "offline debug" macros by default.
 
   Fix bug 3512095 - proxy-generated XML gives each attribute a new
   namespace. Thanks to Bill Smith for the report.
