@@ -2,7 +2,7 @@
   :parent [net.sf.grinder/grinder-parent "3.10-SNAPSHOT"]
   :description "REST API to The Grinder console."
   :url "http://grinder.sourceforge.net"
-  :dependencies [[org.clojure/clojure "1.3.0"]
+  :dependencies [[org.clojure/clojure "1.4.0"]
                  [org.clojure/tools.logging "0.2.3"]
                  [ring/ring-core "1.1.0"]
                  [ring/ring-jetty-adapter "1.1.0"]
