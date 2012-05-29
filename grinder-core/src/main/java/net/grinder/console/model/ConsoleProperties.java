@@ -311,7 +311,7 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Add a <code>PropertyChangeListener</code>.
+   * Add a {@code PropertyChangeListener}.
    *
    * @param listener The listener.
    */
@@ -320,11 +320,13 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Add a <code>PropertyChangeListener</code> which listens to a
-   * particular property.
+   * Add a {@code PropertyChangeListener} which listens to a particular
+   * property.
    *
-   * @param property The property.
-   * @param listener The listener.
+   * @param property
+   *          The property.
+   * @param listener
+   *          The listener.
    */
   public void addPropertyChangeListener(
     String property, PropertyChangeListener listener) {
@@ -583,7 +585,7 @@ public final class ConsoleProperties {
    * Get whether the console should be reset with the worker
    * processes.
    *
-   * @return <code>true</code> => the console should be reset with the
+   * @return {@code true} => the console should be reset with the
    * worker processes.
    */
   public boolean getResetConsoleWithProcesses() {
@@ -594,7 +596,7 @@ public final class ConsoleProperties {
    * Set whether the console should be reset with the worker
    * processes.
    *
-   * @param b <code>true</code> => the console should be reset with
+   * @param b {@code true} => the console should be reset with
    * the worker processes.
    */
   public void setResetConsoleWithProcesses(boolean b) {
@@ -605,7 +607,7 @@ public final class ConsoleProperties {
    * Get whether the user wants to be asked if console should be reset
    * with the worker processes.
    *
-   * @return <code>true</code> => the user wants to be asked.
+   * @return {@code true} => the user wants to be asked.
    */
   public boolean getResetConsoleWithProcessesAsk() {
     return m_resetConsoleWithProcessesAsk.get();
@@ -616,7 +618,7 @@ public final class ConsoleProperties {
    * with the worker processes.
    *
    * @param value
-   *          <code>true</code> => the user wants to be asked.
+   *          {@code true} => the user wants to be asked.
    * @throws ConsoleException
    *            If the property couldn't be persisted
    */
@@ -630,7 +632,7 @@ public final class ConsoleProperties {
    * Get whether the user wants to be asked if console should be reset
    * with the worker processes.
    *
-   * @return <code>true</code> => the user wants to be asked.
+   * @return {@code true} => the user wants to be asked.
    */
   public boolean getPropertiesNotSetAsk() {
     return m_propertiesNotSetAsk.get();
@@ -641,7 +643,7 @@ public final class ConsoleProperties {
    * with the worker processes.
    *
    * @param value
-   *          <code>true</code> => the user wants to be asked.
+   *          {@code true} => the user wants to be asked.
    * @throws ConsoleException
    *           If the property couldn't be persisted.
    */
@@ -652,10 +654,10 @@ public final class ConsoleProperties {
 
 
   /**
-   * Get whether the user wants to be warned when starting processes
-   * with unsaved buffers.
+   * Get whether the user wants to be warned when starting processes with
+   * unsaved buffers.
    *
-   * @return <code>true</code> => the user wants to be warned.
+   * @return {@code true} => the user wants to be warned.
    */
   public boolean getStartWithUnsavedBuffersAsk() {
     return m_startWithUnsavedBuffersAsk.get();
@@ -666,7 +668,7 @@ public final class ConsoleProperties {
    * with unsaved buffers.
    *
    * @param value
-   *          <code>true</code> => the user wants to be warned.
+   *          {@code true} => the user wants to be warned.
    * @throws ConsoleException
    *           If the property couldn't be persisted.
    */
@@ -680,7 +682,7 @@ public final class ConsoleProperties {
    * Get whether the user wants to be asked to confirm that processes
    * should be stopped.
    *
-   * @return <code>true</code> => the user wants to be asked.
+   * @return {@code true} => the user wants to be asked.
    */
   public boolean getStopProcessesAsk() {
     return m_stopProcessesAsk.get();
@@ -691,7 +693,7 @@ public final class ConsoleProperties {
    * should be stopped.
    *
    * @param value
-   *          <code>true</code> => the user wants to be asked.
+   *          {@code true} => the user wants to be asked.
    * @throws ConsoleException If the property couldn't be persisted.
    */
   public void setStopProcessesAsk(boolean value)
@@ -704,7 +706,7 @@ public final class ConsoleProperties {
    * Get whether the user wants to distribute files automatically when starting
    * processes.
    *
-   * @return <code>true</code> => the user wants automatic distribution.
+   * @return {@code true} => the user wants automatic distribution.
    */
   public boolean getDistributeOnStartAsk() {
     return m_distributeOnStartAsk.get();
@@ -715,7 +717,7 @@ public final class ConsoleProperties {
    * starting processes.
    *
    * @param value
-   *          <code>true</code> => the user wants automatic distribution.
+   *          {@code true} => the user wants automatic distribution.
    * @throws ConsoleException If the property couldn't be persisted.
    */
   public void setDistributeOnStartAsk(boolean value)
@@ -727,23 +729,34 @@ public final class ConsoleProperties {
   /**
    * Get the properties file.
    *
-   * @return The properties file. <code>null</code> => No file set.
+   * @return The properties file. {@code null} => No file set.
    */
   public File getPropertiesFile() {
     return m_propertiesFile.get();
   }
 
+
   /**
    * Set and save the properties file.
    *
-   * @param propertiesFile The properties file. <code>null</code> => No file
+   * @param propertiesFile
+   *          The properties file. {@code null} => No file set.
+   */
+  public void setPropertiesFile(File propertiesFile) {
+    m_propertiesFile.set(propertiesFile);
+  }
+
+  /**
+   * Set and save the properties file.
+   *
+   * @param propertiesFile The properties file. {@code null} => No file
    * set.
    * @throws ConsoleException
    * @throws ConsoleException If the property could not be saved.
    */
   public void setAndSavePropertiesFile(File propertiesFile)
     throws ConsoleException {
-    m_propertiesFile.set(propertiesFile);
+    setPropertiesFile(propertiesFile);
     m_propertiesFile.save();
   }
 
@@ -760,11 +773,21 @@ public final class ConsoleProperties {
    * Set and save the script distribution directory.
    *
    * @param distributionDirectory The directory.
+   */
+  public void setDistributionDirectory(Directory distributionDirectory) {
+    m_distributionDirectory.set(distributionDirectory);
+  }
+
+
+  /**
+   * Set and save the script distribution directory.
+   *
+   * @param distributionDirectory The directory.
    * @throws ConsoleException If the property could not be saved.
    */
   public void setAndSaveDistributionDirectory(Directory distributionDirectory)
     throws ConsoleException {
-    m_distributionDirectory.set(distributionDirectory);
+    setDistributionDirectory(distributionDirectory);
     m_distributionDirectory.save();
   }
 
@@ -772,13 +795,26 @@ public final class ConsoleProperties {
    * Get the distribution file filter pattern.
    *
    * <p>The original regular expression can be obtained with
-   * <code>getDistributionFileFilterPattern().getPattern</code>.</p>
+   * {@link #getDistributionFileFilterPattern()}.</p>
    *
    * @return The pattern.
    * @see #setDistributionFileFilterExpression
    */
   public Pattern getDistributionFileFilterPattern() {
     return m_distributionFileFilterPattern.get();
+  }
+
+  /**
+   * Get the distribution file filter pattern.
+   *
+   * <p>The original regular expression can be obtained with
+   * {@code getDistributionFileFilterPattern().getPattern()}.</p>
+   *
+   * @return The pattern.
+   * @see #setDistributionFileFilterExpression
+   */
+  public String getDistributionFileFilterExpression() {
+    return getDistributionFileFilterPattern().pattern();
   }
 
   /**
@@ -789,7 +825,7 @@ public final class ConsoleProperties {
    * distinguished by a trailing '/'. The expression is in Perl 5
    * format.</p>
    *
-   * @param expression A Perl 5 format expression. <code>null</code>
+   * @param expression A Perl 5 format expression. {@code null}
    * => use default pattern.
    * @throws ConsoleException If the pattern is not valid.
    */
@@ -826,7 +862,7 @@ public final class ConsoleProperties {
    * Get the name of the Look and Feel. It is up to the UI
    * implementation how this is interpreted.
    *
-   * @return The Look and Feel name. <code>null</code> => use default.
+   * @return The Look and Feel name. {@code null} => use default.
    */
   public String getLookAndFeel() {
     return m_lookAndFeel.get();
@@ -835,7 +871,7 @@ public final class ConsoleProperties {
   /**
    * Set the name of the Look and Feel.
    *
-   * @param lookAndFeel The Look and Feel name. <code>null</code> =>
+   * @param lookAndFeel The Look and Feel name. {@code null} =>
    * use default.
    */
   public void setLookAndFeel(String lookAndFeel) {
@@ -846,7 +882,7 @@ public final class ConsoleProperties {
    * Get the external editor command.
    *
    * @return The path to the process to be used for external editing.
-   * <code>null</code> => no external editor set.
+   * {@code null} => no external editor set.
    */
   public File getExternalEditorCommand() {
     return m_externalEditorCommand.get();
@@ -856,7 +892,7 @@ public final class ConsoleProperties {
    * Set the external editor command.
    *
    * @param command The path to the process to be used for external editing.
-   * <code>null</code> => no external editor set.
+   * {@code null} => no external editor set.
    */
   public void setExternalEditorCommand(File command) {
     m_externalEditorCommand.set(command);
@@ -893,10 +929,19 @@ public final class ConsoleProperties {
    * Set and save the location and size of the console frame.
    *
    * @param bounds The console frame bounds.
+   */
+  public void setFrameBounds(Rectangle bounds) {
+    m_frameBounds.set(bounds);
+  }
+
+  /**
+   * Set and save the location and size of the console frame.
+   *
+   * @param bounds The console frame bounds.
    * @throws ConsoleException If the property couldn't be persisted.
    */
   public void setAndSaveFrameBounds(Rectangle bounds) throws ConsoleException {
-    m_frameBounds.set(bounds);
+    setFrameBounds(bounds);
     m_frameBounds.save();
   }
 

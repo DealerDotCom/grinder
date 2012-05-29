@@ -71,6 +71,7 @@
   [p]
   (routes
     (GET "/" [] (json-response (properties/get-properties p)))
+    (POST "/" [properties] (do (println properties) json-response (properties/set-properties p properties)))
     ))
 
 (defn- app-routes

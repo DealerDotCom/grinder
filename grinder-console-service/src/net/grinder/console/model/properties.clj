@@ -19,28 +19,88 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(ns net.grinder.console.model.properties)
+(ns net.grinder.console.model.properties
+  (:import
+    java.awt.Rectangle
+    java.beans.Introspector
+    java.io.File
+    net.grinder.console.model.ConsoleProperties
+    net.grinder.util.Directory
+    ))
 
 (defmulti coerce-value class)
 
-(defmethod coerce-value net.grinder.util.Directory [d]
+(defmethod coerce-value Directory [d]
   (coerce-value (.getFile d)))
 
-(defmethod coerce-value java.io.File [f]
+(defmethod coerce-value File [f]
   (.getPath f))
 
-(defmethod coerce-value java.awt.Rectangle [r]
-  [(.x r) (.y r)])
+(defmethod coerce-value Rectangle [r]
+  [(.x r) (.y r) (.width r) (.height r)])
 
-(defmethod coerce-value java.util.regex.Pattern [p]
-  (.pattern p))
-
-(defmethod coerce-value java.lang.Object [v] v)
-
-(defmethod coerce-value nil [_] nil)
-
+(defmethod coerce-value :default [v] v)
 
 (defn get-properties
+  "Return a map representing a ConsoleProperties."
   [properties]
-  (let [p (dissoc (bean properties) :class)]
+  (let [p (dissoc (bean properties) :class :distributionFileFilterPattern)]
     (into {} (for [[k,v] p] [k (coerce-value v)]))))
+
+
+
+(def ^:private property-descriptors
+  (into
+    {}
+    (for [p (.getPropertyDescriptors
+              (Introspector/getBeanInfo ConsoleProperties))]
+      [(.getName p) p])))
+
+(defmulti box (fn [t v] [t (type v)]))
+
+(defmethod box [File String]
+  [_ v]
+  (File. v))
+
+(defmethod box [Directory String]
+  [_ v]
+  (Directory. (File. v)))
+
+(defmethod box [Rectangle java.util.List]
+  [_ [x y w h]]
+  (Rectangle. x y w h))
+
+(defmethod box :default
+  [w v]
+  v)
+
+(defmacro illegal
+  [fs & args]
+  `(throw (IllegalArgumentException. (format ~fs ~@args))))
+
+(defn- set-property
+  [properties pd k v]
+  (if-let [wm (.getWriteMethod pd)]
+    (let [pt (.getPropertyType pd)
+          bv (box pt v)
+          rm (.getReadMethod pd)]
+      (.invoke wm properties (into-array Object [bv]))
+      [k (coerce-value
+           (.invoke rm properties (into-array [])))])
+    (illegal "No write method for property '%s'" k)))
+
+(defn set-properties
+  "Update a ConsoleProperties with values from the given map. Returns the
+   a map containing the changed keys and their new values."
+  [^ConsoleProperties properties m]
+  (into {}
+    (for [[k v] m]
+      (if-let [pd (property-descriptors (if (keyword? k) (name k) k))]
+        (try
+          (set-property properties pd k v)
+          (catch Exception e
+            (throw (IllegalArgumentException.
+                     (format "Cannot set '%s' to '%s'" k v)
+                     e))))
+        (illegal "No property '%s'" k)))))
+
