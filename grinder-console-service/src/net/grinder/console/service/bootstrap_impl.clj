@@ -38,9 +38,9 @@
   (when server
     (try
       (.stop server)
+      server
       (catch Exception e
-       (.handleException error-handler e)
-       server))))
+        (.handleException error-handler e)))))
 
 (defn- start-jetty
   [server host port error-handler app]
@@ -61,7 +61,7 @@
         host (.getHttpHost properties)
         port (.getHttpPort properties)
         app (app/init-app context)
-        error-handler (:errorQueue context)
+        error-handler (:error-handler context)
         ]
     (reset! server (start-jetty @server host port error-handler app))))
 
@@ -75,7 +75,7 @@
                    :sample-model-views sampleModelViews
                    :process-control processControl
                    :error-handler errorQueue}
-        :server (atom nil)}]
+         :server (atom nil)}]
 
     (.addPropertyChangeListener
       properties
@@ -97,5 +97,5 @@
 (defn bootstrap-stop
   [this]
   "Called by PicoContainer when the Bootstrap component is stopped."
-  (let [{:keys [context server error-handler]} (.state this)]
-    (reset! server (stop-jetty @server error-handler))))
+  (let [{:keys [context server]} (.state this)]
+    (reset! server (stop-jetty @server (:error-handler context)))))
