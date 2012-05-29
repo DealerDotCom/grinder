@@ -51,7 +51,7 @@
 (defn- workers-routes
   [pc]
   (routes
-    (POST "/start" [properties]
+    (POST "/start" {properties :params}
           (json-response (processes/workers-start pc properties)))
     (POST "/reset" [] (json-response (processes/workers-reset pc)))
     ))
@@ -71,7 +71,8 @@
   [p]
   (routes
     (GET "/" [] (json-response (properties/get-properties p)))
-    (POST "/" [properties] (do (println properties) json-response (properties/set-properties p properties)))
+    (POST "/" {properties :params}
+          (json-response (properties/set-properties p properties)))
     ))
 
 (defn- app-routes
