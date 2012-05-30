@@ -13,6 +13,12 @@
   :profiles {:dev {:dependencies
                  [[ring/ring-devel "1.1.0"]]}}
 
+  ; Sonatype discouarages repository information in POMs.
+  ;:repositories {"sonatype-nexus-snapshots" "https://oss.sonatype.org/content/repositories/snapshots/"
+  ;               "sonatype-nexus-staging" "https://oss.sonatype.org/service/local/staging/deploy/maven2/"}
+
   :aot [ net.grinder.console.service.bootstrap ]
 
   :min-lein-version "2.0.0")
+
+
