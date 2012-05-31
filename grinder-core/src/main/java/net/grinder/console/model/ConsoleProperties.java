@@ -223,7 +223,7 @@ public final class ConsoleProperties {
                          CommunicationDefaults.CONSOLE_HOST);
 
   private final IntProperty m_httpPort =
-      new IntProperty(HTTP_PORT_PROPERTY, 8080);
+      new IntProperty(HTTP_PORT_PROPERTY, 6373);
 
   private final BooleanProperty m_saveTotalsWithResults =
     new BooleanProperty(SAVE_TOTALS_WITH_RESULTS_PROPERTY, false);
