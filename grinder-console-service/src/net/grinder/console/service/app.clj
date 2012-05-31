@@ -45,9 +45,8 @@
     (->
       (fn
         [req]
-        (case (:content-type req)
-          "application/json" (rest-app req)
-          (html-app req)))
+        ; For now, we dispatch everything to the REST handlers.
+        (rest-app req))
        wrap-request-logging)))
 
 

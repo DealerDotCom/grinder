@@ -156,16 +156,6 @@
   </section>
 
   <section>
-    <title>clj-json</title>
-
-    <p>The Grinder includes clj-json (<a
-    href="https://github.com/mmcgrana/clj-json">https://github.com/mmcgrana/clj-json</a>),
-    under the terms of the <a
-    href="https://github.com/mmcgrana/clj-json/blob/master/LICENSE">clj-json 
-   license</a>.</p>
-  </section>
-
-  <section>
     <title>Ring</title>
 
     <p>The Grinder includes Ring (<a
@@ -176,21 +166,22 @@
   </section>
 
   <section>
-    <title>ring-json-params</title>
-
-    <p>The Grinder includes ring-json-params (<a
-    href="https://github.com/mmcgrana/ring-json-params">https://github.com/mmcgrana/ring-json-params</a>),
-    under the terms of the <a
-    href="https://github.com/mmcgrana/ring-json-params/blob/master/LICENSE">ring-json-params
-    license</a>.</p>
-  </section>
-
-  <section>
     <title>Compojure</title>
 
     <p>The Grinder includes Compojure (<a
     href="https://github.com/weavejester/compojure">https://github.com/weavejester/compojure</a>),
     under the terms of the <a
+    href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public
+    License, Version 1.0</a>.</p>
+  </section>
+
+  <section>
+    <title>ring-middleware-format</title>
+
+    <p>The Grinder includes ring-middleware-format (<a
+    href="https://github.com/ngrunwald/ring-middleware-format">
+    https://github.com/ngrunwald/ring-middleware-format</a>), under
+    the terms of the <a
     href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public
     License, Version 1.0</a>.</p>
   </section>

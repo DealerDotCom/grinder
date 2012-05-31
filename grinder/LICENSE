@@ -106,19 +106,16 @@ of the Eclipse Public License, Version 1.0.
 The Grinder includes Clojure (http://clojure.org) under the terms of
 the Eclipse Public License, Version 1.0.
 
-The Grinder includes clj-json (https://github.com/mmcgrana/clj-json).
-See the file LICENSE-clj-json for license and copyright details.
-
 The Grinder includes Ring (https://github.com/mmcgrana/ring). See the
 file LICENSE-Ring for license and copyright details.
-
-The Grinder includes ring-json-params
-(https://github.com/mmcgrana/ring-json-params). See the file
-LICENSE-ring-json-params for license and copyright details.
 
 The Grinder includes Compojure
 (https://github.com/weavejester/compojure) under the terms of the
 Eclipse Public License, Version 1.0.
+
+The Grinder includes ring-middleware-format
+(https://github.com/ngrunwald/ring-middleware-format) under the terms
+of the Eclipse Public License, Version 1.0.
 
 The Grinder includes Jetty (http://www.eclipse.org/jetty/) under the
 terms of the Eclipse Public License, Version 2.0, with exceptions

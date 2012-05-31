@@ -22,57 +22,60 @@
 (ns net.grinder.console.service.rest
   "Compojure application that provides the console REST API."
   (:use [compojure handler
-                   [core :only [GET POST context defroutes routes]]
+                   [core :only [GET POST PUT context defroutes routes]]
                    route]
-        ring.middleware.json-params)
+        [ring.middleware.format-params :only [wrap-restful-params]]
+        [ring.middleware.format-response :only [wrap-restful-response]])
   (:require
-    [clj-json [core :as json]]
     [net.grinder.console.model.processes :as processes]
     [net.grinder.console.model.properties :as properties]
     [net.grinder.console.model.recording :as recording])
   (:import
-    org.codehaus.jackson.JsonParseException
     net.grinder.common.GrinderBuild
   ))
 
-(defn- json-response
+
+(defn- to-body
+  "The model functions return raw clojure structures (strings, maps,
+   vectors, ...,  which Compojure would handle in various ways.
+   Intercept and pass them to the format-response middleware as :body."
   [data & [status]]
   { :status (or status 200)
-    :headers {"Content-Type" "application/json"}
-    :body (json/generate-string data) })
+    :body data })
+
 
 (defn- agents-routes
   [pc]
   (routes
-    (GET "/status" [] (json-response (processes/status pc)))
-    (POST "/stop" [] (json-response (processes/agents-stop pc)))
+    (GET "/status" [] (to-body (processes/status pc)))
+    (POST "/stop" [] (to-body (processes/agents-stop pc)))
     ))
 
 (defn- workers-routes
   [pc]
   (routes
     (POST "/start" {properties :params}
-          (json-response (processes/workers-start pc properties)))
-    (POST "/reset" [] (json-response (processes/workers-reset pc)))
+          (to-body (processes/workers-start pc properties)))
+    (POST "/reset" [] (to-body (processes/workers-reset pc)))
     ))
 
 (defn- recording-routes
   [sm smv]
   (routes
-    (GET "/status" [] (json-response (recording/status sm)))
-    (GET "/data" [] (json-response (recording/data sm smv)))
-    (POST "/start" [] (json-response (recording/start sm)))
-    (POST "/stop" [] (json-response (recording/stop sm)))
-    (POST "/zero" [] (json-response (recording/zero sm)))
-    (POST "/reset" [] (json-response (recording/reset sm)))
+    (GET "/status" [] (to-body (recording/status sm)))
+    (GET "/data" [] (to-body (recording/data sm smv)))
+    (POST "/start" [] (to-body (recording/start sm)))
+    (POST "/stop" [] (to-body (recording/stop sm)))
+    (POST "/zero" [] (to-body (recording/zero sm)))
+    (POST "/reset" [] (to-body (recording/reset sm)))
     ))
 
 (defn- properties-routes
   [p]
   (routes
-    (GET "/" [] (json-response (properties/get-properties p)))
+    (GET "/" [] (to-body (properties/get-properties p)))
     (POST "/" {properties :params}
-          (json-response (properties/set-properties p properties)))
+          (to-body (properties/set-properties p properties)))
     ))
 
 (defn- app-routes
@@ -81,26 +84,14 @@
    sample-model-views
    properties]
   (routes
-    (GET "/version" [] (json-response (GrinderBuild/getName)))
+    (GET "/version" [] (to-body (GrinderBuild/getName)))
     (context "/agents" [] (agents-routes process-control))
     (context "/properties" [] (properties-routes properties))
     (context "/workers" [] (workers-routes process-control))
     (context "/recording" [] (recording-routes sample-model sample-model-views))
-    ;(not-found "Unknown request")
+    (not-found "Resource not found")
     ))
 
-(defn- wrap-json-response [handler]
-  (fn [req]
-    (try
-      (or (handler req)
-          (json-response {"error" "resource not found"} 404))
-      (catch JsonParseException e
-        (json-response
-          {"error" (format "malformed json: %s" (.getMessage e))} 400))
-      #_(catch Exception e
-        (json-response
-          {"error" (.getMessage e)} 400))
-      )))
 
 (defn create-app
   [{:keys [process-control
@@ -112,6 +103,6 @@
                 sample-model
                 sample-model-views
                 properties)
-    wrap-json-params
-    wrap-json-response
-    compojure.handler/api))
+    compojure.handler/api
+    wrap-restful-params
+    wrap-restful-response))
