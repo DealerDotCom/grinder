@@ -19,27 +19,12 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(ns net.grinder.console.service.bootstrap
-  "A Bootstrap Java class that is registered as a dynamic console
-   component in META-INF/net.grinder.console. At runtime, PicoContainer
-   will supply the constructor with implementations of the declared
-   parameters."
+(ns net.grinder.console.model.files)
 
-  (:import
-    net.grinder.console.model.ConsoleProperties)
-  (:gen-class
-   :name net.grinder.console.service.Bootstrap
-   :constructors { [net.grinder.console.model.ConsoleProperties
-                    net.grinder.console.model.SampleModel
-                    net.grinder.console.model.SampleModelViews
-                    net.grinder.console.communication.ProcessControl
-                    net.grinder.console.common.ErrorQueue
-                    net.grinder.console.distribution.FileDistribution]
-                   [] }
-   :init init
-   :implements [org.picocontainer.Startable]
-   :state state
-   :prefix bootstrap-
-   :impl-ns net.grinder.console.service.bootstrap_impl
-  ))
 
+
+(defn status
+  [fd]
+  (let [state (.getAgentCacheState fd)
+        stale (.getOutOfDate state)]
+    { :stale stale }))

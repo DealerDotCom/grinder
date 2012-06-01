@@ -21,15 +21,16 @@
 
 (ns net.grinder.console.service.rest
   "Compojure application that provides the console REST API."
-  (:use [compojure handler
-                   [core :only [GET POST PUT context defroutes routes]]
-                   route]
+  (:use [compojure [core :only [GET POST PUT context defroutes routes]]
+                   [route :only [not-found]]]
         [ring.middleware.format-params :only [wrap-restful-params]]
         [ring.middleware.format-response :only [wrap-restful-response]])
   (:require
-    [net.grinder.console.model.processes :as processes]
-    [net.grinder.console.model.properties :as properties]
-    [net.grinder.console.model.recording :as recording])
+    [compojure.handler]
+    [net.grinder.console.model [files :as files]
+                               [processes :as processes]
+                               [properties :as properties]
+                               [recording :as recording]])
   (:import
     net.grinder.common.GrinderBuild
   ))
@@ -40,15 +41,22 @@
    vectors, ...,  which Compojure would handle in various ways.
    Intercept and pass them to the format-response middleware as :body."
   [data & [status]]
+  (println data)
   { :status (or status 200)
     :body data })
 
+(defn- files-routes
+  [fd]
+  (routes
+    (GET "/status" [] (to-body (files/status fd)))
+    ))
 
 (defn- agents-routes
-  [pc]
+  [pc fd]
   (routes
     (GET "/status" [] (to-body (processes/status pc)))
     (POST "/stop" [] (to-body (processes/agents-stop pc)))
+    (context "/files" [] (files-routes fd))
     ))
 
 (defn- workers-routes
@@ -82,10 +90,11 @@
   [process-control
    sample-model
    sample-model-views
-   properties]
+   properties
+   file-distribution]
   (routes
     (GET "/version" [] (to-body (GrinderBuild/getName)))
-    (context "/agents" [] (agents-routes process-control))
+    (context "/agents" [] (agents-routes process-control file-distribution))
     (context "/properties" [] (properties-routes properties))
     (context "/workers" [] (workers-routes process-control))
     (context "/recording" [] (recording-routes sample-model sample-model-views))
@@ -97,12 +106,17 @@
   [{:keys [process-control
            sample-model
            sample-model-views
-           properties]}]
+           properties
+           file-distribution]}]
   (->
-    (app-routes process-control
-                sample-model
-                sample-model-views
-                properties)
+    (routes
+      (GET "/version" [] (to-body (GrinderBuild/getName)))
+      (context "/agents" [] (agents-routes process-control file-distribution))
+      (context "/properties" [] (properties-routes properties))
+      (context "/workers" [] (workers-routes process-control))
+      (context "/recording" [] (recording-routes sample-model sample-model-views))
+      (not-found "Resource not found")
+      )
     compojure.handler/api
     wrap-restful-params
     wrap-restful-response))

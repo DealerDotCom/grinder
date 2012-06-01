@@ -68,13 +68,20 @@
 
 (defn bootstrap-init
   "Bootstrap construction."
-  [properties sampleModel sampleModelViews processControl errorQueue]
+  [ properties
+    sampleModel
+    sampleModelViews
+    processControl
+    errorQueue
+    fileDistribution ]
+
   (let [state
         {:context {:properties properties
                    :sample-model sampleModel
                    :sample-model-views sampleModelViews
                    :process-control processControl
-                   :error-handler errorQueue}
+                   :error-handler errorQueue
+                   :file-distribution fileDistribution}
          :server (atom nil)}]
 
     (.addPropertyChangeListener
