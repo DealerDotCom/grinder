@@ -82,10 +82,10 @@
 (defn- properties-routes
   [p]
   (routes
-    ; TODO save
     (GET "/" [] (to-body (properties/get-properties p)))
-    (POST "/" {properties :params}
-          (to-body (properties/set-properties p properties)))
+    (PUT "/" {properties :params}
+         (to-body (properties/set-properties p properties)))
+    (POST "/save" [] (to-body (properties/save-properties p)))
     ))
 
 (defn- app-routes

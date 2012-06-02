@@ -104,3 +104,8 @@
                      e))))
         (illegal "No property '%s'" k)))))
 
+(defn save-properties
+  "Save the properties to disk."
+  [properties]
+  (.save properties)
+  "success")
