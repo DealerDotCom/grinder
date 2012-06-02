@@ -48,6 +48,7 @@
 (defn- files-routes
   [fd]
   (routes
+    (POST "/distribute" [] (to-body (files/start-distribution fd)))
     (GET "/status" [] (to-body (files/status fd)))
     ))
 
@@ -81,6 +82,7 @@
 (defn- properties-routes
   [p]
   (routes
+    ; TODO save
     (GET "/" [] (to-body (properties/get-properties p)))
     (POST "/" {properties :params}
           (to-body (properties/set-properties p properties)))

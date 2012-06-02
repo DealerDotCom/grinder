@@ -22,9 +22,58 @@
 (ns net.grinder.console.model.files)
 
 
+(def ^:private next-id (atom 0))
+(def ^:private distribution-result (atom nil))
+(def ^:private handler (agent nil))
 
 (defn status
   [fd]
-  (let [state (.getAgentCacheState fd)
-        stale (.getOutOfDate state)]
-    { :stale stale }))
+  (let [cache-state (.getAgentCacheState fd)
+        stale (.getOutOfDate cache-state)]
+    { :stale stale
+      :last-distribution @distribution-result}))
+
+
+(defn- add-file
+  [{:keys [files] :as last-result} result]
+  (assoc last-result
+    :state :sending
+    :per-cent-complete (.getProgressInCents result)
+    :files (conj files (.getFileName result))))
+
+(defn- finished
+  [last-result]
+  (assoc last-result
+    :state :finished))
+
+(defn- error
+  [last-result e]
+  (assoc last-result
+    :state :error
+    :exception e))
+
+(defn- process
+  [handler]
+  (if-let
+    [result (.sendNextFile handler)]
+    (do
+      (swap! distribution-result add-file result)
+      (recur handler))
+    (swap! distribution-result finished)))
+
+(defn start-distribution
+  [fd]
+  (let [n (swap! next-id inc)]
+    (letfn [(start-process
+              [_]
+              (reset! distribution-result {:id n, :state :started, :files []})
+              (try
+                 (process (.getHandler fd))
+                 (catch Exception e
+                   (swap! distribution-result error e)))
+               n)]
+           (send handler start-process)
+           [:distribution-started n])))
+
+
+
