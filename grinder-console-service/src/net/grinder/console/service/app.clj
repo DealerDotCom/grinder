@@ -21,12 +21,15 @@
 
 (ns net.grinder.console.service.app
   "Main Ring application."
+  (:use
+    [clj-stacktrace.repl :only [pst-str]])
   (:require
-    [net.grinder.console.model.processes :as processes]
-    [net.grinder.console.model.recording :as recording]
-    [net.grinder.console.service.html :as html]
-    [net.grinder.console.service.rest :as rest]
-    [clojure.tools [logging :as log]]))
+    [net.grinder.console.model [processes :as processes]
+                               [recording :as recording]]
+    [net.grinder.console.service [html :as html]
+                                 [rest :as rest]]
+    [clojure.tools [logging :as log]]
+    ))
 
 
 (defn- wrap-request-logging [handler]
@@ -35,8 +38,23 @@
           resp   (handler req)
           finish (System/nanoTime)
           total  (- finish start)]
-      (log/debugf "request %s %s (%.2f ms)" request-method uri (/ total 1e6))
+      (log/debugf "request %s %s -> %s (%.2f ms)"
+                  request-method
+                  uri
+                  (:status resp)
+                  (/ total 1e6))
       resp)))
+
+
+(defn wrap-stacktrace
+  [handler]
+  (fn [request]
+    (try
+      (handler request)
+      (catch Exception ex
+        (log/errorf ex "unhandled exception")
+          {:status 500
+           :body (pst-str ex) }))))
 
 (defn- create-app
   [state]
@@ -47,6 +65,7 @@
         [req]
         ; For now, we dispatch everything to the REST handlers.
         (rest-app req))
+       wrap-stacktrace
        wrap-request-logging)))
 
 
