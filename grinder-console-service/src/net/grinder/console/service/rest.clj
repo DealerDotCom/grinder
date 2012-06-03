@@ -45,19 +45,11 @@
   { :status (or status 200)
     :body data })
 
-(defn- files-routes
-  [fd]
-  (routes
-    (POST "/distribute" [] (to-body (files/start-distribution fd)))
-    (GET "/status" [] (to-body (files/status fd)))
-    ))
-
 (defn- agents-routes
-  [pc fd]
+  [pc]
   (routes
     (GET "/status" [] (to-body (processes/status pc)))
     (POST "/stop" [] (to-body (processes/agents-stop pc)))
-    (context "/files" [] (files-routes fd))
     ))
 
 (defn- workers-routes
@@ -66,6 +58,13 @@
     (POST "/start" {properties :params}
           (to-body (processes/workers-start pc properties)))
     (POST "/reset" [] (to-body (processes/workers-reset pc)))
+    ))
+
+(defn- files-routes
+  [fd]
+  (routes
+    (POST "/distribute" [] (to-body (files/start-distribution fd)))
+    (GET "/status" [] (to-body (files/status fd)))
     ))
 
 (defn- recording-routes
@@ -88,21 +87,6 @@
     (POST "/save" [] (to-body (properties/save-properties p)))
     ))
 
-(defn- app-routes
-  [process-control
-   sample-model
-   sample-model-views
-   properties
-   file-distribution]
-  (routes
-    (GET "/version" [] (to-body (GrinderBuild/getName)))
-    (context "/agents" [] (agents-routes process-control file-distribution))
-    (context "/properties" [] (properties-routes properties))
-    (context "/workers" [] (workers-routes process-control))
-    (context "/recording" [] (recording-routes sample-model sample-model-views))
-    (not-found "Resource not found")
-    ))
-
 
 (defn create-app
   [{:keys [process-control
@@ -113,7 +97,8 @@
   (->
     (routes
       (GET "/version" [] (to-body (GrinderBuild/getName)))
-      (context "/agents" [] (agents-routes process-control file-distribution))
+      (context "/agents" [] (agents-routes process-control))
+      (context "/files" [] (files-routes file-distribution))
       (context "/properties" [] (properties-routes properties))
       (context "/workers" [] (workers-routes process-control))
       (context "/recording" [] (recording-routes sample-model sample-model-views))

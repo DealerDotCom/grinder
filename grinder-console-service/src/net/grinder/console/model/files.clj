@@ -63,17 +63,18 @@
 
 (defn start-distribution
   [fd]
-  (let [n (swap! next-id inc)]
+  (let [n (swap! next-id inc)
+        initial-state {:id n, :state :started :files []}]
     (letfn [(start-process
               [_]
-              (reset! distribution-result {:id n, :state :started, :files []})
+              (reset! distribution-result initial-state)
               (try
                  (process (.getHandler fd))
                  (catch Exception e
                    (swap! distribution-result error e)))
                n)]
            (send handler start-process)
-           [:distribution-started n])))
+           initial-state)))
 
 
 
