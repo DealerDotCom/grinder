@@ -53,8 +53,8 @@
       (handler request)
       (catch Exception ex
         (log/errorf ex "unhandled exception")
-          {:status 500
-           :body (pst-str ex) }))))
+        {:status 500
+         :body (pst-str ex) }))))
 
 (defn- create-app
   [state]

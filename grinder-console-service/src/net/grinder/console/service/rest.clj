@@ -23,7 +23,7 @@
   "Compojure application that provides the console REST API."
   (:use [compojure [core :only [GET POST PUT context defroutes routes]]
                    [route :only [not-found]]]
-        [ring.middleware.format-params :only [wrap-restful-params]]
+        [net.grinder.console.service.format-params :only [wrap-restful-params]]
         [ring.middleware.format-response :only [wrap-restful-response]])
   (:require
     [compojure.handler]
@@ -41,7 +41,6 @@
    vectors, ...,  which Compojure would handle in various ways.
    Intercept and pass them to the format-response middleware as :body."
   [data & [status]]
-  (println data)
   { :status (or status 200)
     :body data })
 
@@ -105,5 +104,5 @@
       (not-found "Resource not found")
       )
     compojure.handler/api
-    wrap-restful-params
-    wrap-restful-response))
+    (wrap-restful-params)
+    (wrap-restful-response)))
