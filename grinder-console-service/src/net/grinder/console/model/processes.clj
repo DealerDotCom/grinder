@@ -68,14 +68,14 @@
     (agent-and-workers r)))
 
 (defn- into-grinder-properties
-  [source]
-  (let [p (GrinderProperties.)]
-    (doseq [[k v] source] (.setProperty p k v))
-    p
-    ))
+  [p source]
+  (doseq [[k v] source] (.setProperty p k (str v)))
+    p)
 
-(defn workers-start [pc properties]
-  (.startWorkerProcesses pc (into-grinder-properties properties))
+(defn workers-start [pc cp supplied-properties]
+  (let [f (.getPropertiesFile cp)
+        p (if f (GrinderProperties. f) (GrinderProperties.))]
+    (.startWorkerProcesses pc (into-grinder-properties p supplied-properties)))
   "success")
 
 (defn workers-reset [pc]

@@ -52,10 +52,10 @@
     ))
 
 (defn- workers-routes
-  [pc]
+  [pc properties]
   (routes
-    (POST "/start" {properties :params}
-          (to-body (processes/workers-start pc properties)))
+    (POST "/start" {supplied-properties :params}
+          (to-body (processes/workers-start pc properties supplied-properties)))
     (POST "/reset" [] (to-body (processes/workers-reset pc)))
     ))
 
@@ -99,7 +99,7 @@
       (context "/agents" [] (agents-routes process-control))
       (context "/files" [] (files-routes file-distribution))
       (context "/properties" [] (properties-routes properties))
-      (context "/workers" [] (workers-routes process-control))
+      (context "/workers" [] (workers-routes process-control properties))
       (context "/recording" [] (recording-routes sample-model sample-model-views))
       (not-found "Resource not found")
       )
