@@ -86,6 +86,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <coordination label="Coordination" href="coordination.html"/>
       <script-gallery label="Script Gallery" href="script-gallery.html">
         <digestauthentication href="#digestauthentication.py"/>
+        <helloworld.py href="#helloworld.py"/>
         <helloworldfunctions href="#helloworldfunctions.py"/>
         <parallel href="#parallel.py"/>
         <sequence href="#sequence.py"/>
@@ -178,6 +179,8 @@ See http://forrest.apache.org/docs/linking.html for more info
     </cia>
 -->
     <clojure href="http://clojure.org/"/>
+
+    <curl href="http://curl.haxx.se/"/>
 
     <cygwin href="http://cygwin.com/"/>
 
