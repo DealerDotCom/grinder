@@ -186,22 +186,26 @@ public final class AgentImplementation implements Agent {
               startMessage.getProperties();
             final Directory fileStoreDirectory = m_fileStore.getDirectory();
 
-            // Convert relative path to absolute path.
-            messageProperties.setAssociatedFile(
-              fileStoreDirectory.getFile(
-                messageProperties.getAssociatedFile()));
+            if (messageProperties.getAssociatedFile() != null) {
+              // If the properties is associated with a file in the file store.
 
-            final File consoleScript =
-              messageProperties.resolveRelativeFile(
-                messageProperties.getFile(GrinderProperties.SCRIPT,
-                                          GrinderProperties.DEFAULT_SCRIPT));
+              messageProperties.setAssociatedFile(
+                fileStoreDirectory.getFile(
+                  messageProperties.getAssociatedFile()));
 
-            // We only fall back to the agent properties if the start message
-            // doesn't specify a script and there is no default script.
-            if (messageProperties.containsKey(GrinderProperties.SCRIPT) ||
-                consoleScript.canRead()) {
-              // The script directory may not be the file's direct parent.
-              script = new ScriptLocation(fileStoreDirectory, consoleScript);
+              final File consoleScript =
+                  messageProperties.resolveRelativeFile(
+                    messageProperties.getFile(
+                      GrinderProperties.SCRIPT,
+                      GrinderProperties.DEFAULT_SCRIPT));
+
+              // We fall back to the agent properties if the start message
+              // doesn't specify a script and there is no default script.
+              if (messageProperties.containsKey(GrinderProperties.SCRIPT) ||
+                  consoleScript.canRead()) {
+                // The script directory may not be the file's direct parent.
+                script = new ScriptLocation(fileStoreDirectory, consoleScript);
+              }
             }
 
             m_agentIdentity.setNumber(startMessage.getAgentNumber());
