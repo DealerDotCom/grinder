@@ -6,13 +6,13 @@
                  [org.clojure/tools.logging "0.2.3"]
                  [ring/ring-core "1.1.0"]
                  [ring/ring-jetty-adapter "1.1.0"]
-;                 [ring-json-params "0.1.3"]
                  [ring-middleware-format "0.2.0-SNAPSHOT"]
                  [compojure "1.0.4"]
-;                 [clj-json "0.5.0"]
+                 [clj-stacktrace "0.2.4"]
                  [net.sf.grinder/grinder-core "3.10-SNAPSHOT" :scope "provided"]]
   :profiles {:dev {:dependencies
-                 [[ring/ring-devel "1.1.0"]]}}
+                 [[ring/ring-devel "1.1.0"]
+                  [org.clojure/tools.trace "0.7.3"]]}}
 
   ; Sonatype discouarages repository information in POMs.
   ;:repositories {"sonatype-nexus-snapshots" "https://oss.sonatype.org/content/repositories/snapshots/"
