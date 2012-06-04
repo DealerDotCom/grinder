@@ -44,7 +44,9 @@
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <archive>
-            <index>true</index>
+            <!-- Indexing doesn't allow for our grinder-patch.jar, and fails to
+                 index ring-middleware-format.jar for some reason. -->
+            <index>false</index>
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 
