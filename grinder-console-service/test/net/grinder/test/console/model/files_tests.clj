@@ -19,10 +19,9 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(ns net.grinder.test.console.model.files
+(ns net.grinder.test.console.model.files-tests
   "Unit tests for net.grinder.console.model.files."
-  (:use [clojure.test]
-        [net.grinder.console.model.files])
+  (:use [clojure.test])
   (:require [net.grinder.console.model.files :as files])
   (:import [net.grinder.console.distribution
             AgentCacheState
@@ -53,7 +52,7 @@
     [files/distribution-result (atom :bah)]
 
     (are [b] (= {:stale b :last-distribution :bah}
-                (status
+                (files/status
                   (reify FileDistribution
                     (getAgentCacheState
                       [this]
@@ -75,7 +74,7 @@
                                 (MockResult. 100 "b")])]
 
     (let [fd (reify FileDistribution (getHandler [this] (MockHandler.)))
-          initial (start-distribution fd)]
+          initial (files/start-distribution fd)]
       (await-for 1000 @#'files/distribution-agent)
       (is (= {:id 23 :state :started :files []} initial))
       (is (= [initial
@@ -89,11 +88,12 @@
 (deftest test-start-distribution-bad-handler
 
   (with-redefs [files/next-id (atom 0)
-                history (atom [])]
+                history (atom [])
+                ]
 
     (let [e (RuntimeException.)
           fd (reify FileDistribution (getHandler [this] (throw e)))
-          initial (start-distribution fd)]
+          initial (files/start-distribution fd)]
       (await-for 1000 @#'files/distribution-agent)
       (is (= {:id 1 :state :started :files []} initial))
       (is (= [initial
