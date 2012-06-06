@@ -56,7 +56,7 @@
   (routes
     (POST "/start" {supplied-properties :params}
           (to-body (processes/workers-start pc properties supplied-properties)))
-    (POST "/reset" [] (to-body (processes/workers-reset pc)))
+    (POST "/stop" [] (to-body (processes/workers-stop pc)))
     ))
 
 (defn- files-routes

@@ -20,6 +20,7 @@
 ; OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (ns net.grinder.console.model.processes
+  "Wrap net.grinder.console.communication.ProcessControl."
   (:import [net.grinder.console.communication
             ProcessControl$Listener
             ProcessControl$ProcessReports
@@ -41,6 +42,7 @@
         (reset! last-reports reports)))))
 
 (defn agents-stop
+  "Stop the agents, and their workers."
   [pc]
   (.stopAgentAndWorkerProcesses pc)
   "success")
@@ -78,6 +80,7 @@
     (.startWorkerProcesses pc (into-grinder-properties p supplied-properties)))
   "success")
 
-(defn workers-reset [pc]
+(defn workers-stop [pc]
+  "Stop all worker processes."
   (.resetWorkerProcesses pc)
   "success")

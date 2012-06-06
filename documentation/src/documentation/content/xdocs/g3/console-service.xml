@@ -181,7 +181,7 @@
 	  <td><code>POST</code></td>
 	  <td><code>/agents/stop</code></td>
 	  <td>Terminates all agents and their worker processes. You
-	  will usually want <code>/workers/reset</code> instead.</td>
+	  will usually want <code>/workers/stop</code> instead.</td>
 	</tr>
 
 	<tr>
@@ -291,8 +291,8 @@
 
 	<tr>
 	  <td><code>POST</code></td>
-	  <td><code>/workers/reset</code></td>
-	  <td>Send a reset signal to all the worker processes.
+	  <td><code>/workers/stop</code></td>
+	  <td>Send a stop signal to all the worker processes.
 	  Equivalent to the <a
 	  href="site:console/ui/process-controls">reset processes</a>
 	  button.</td>
@@ -304,7 +304,7 @@
 
     </section>
 
-    <section id="reset-example">
+    <section id="rest-example">
       <title>Example session</title>
 
       <p>Let's have a look at an example terminal sesssion that
