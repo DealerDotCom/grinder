@@ -27,8 +27,6 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -44,6 +42,11 @@ import net.grinder.util.Directory;
 
 /**
  * Class encapsulating the console options.
+ *
+ * <p>Adds fixed interface and listener mechanism, but delegates to
+ * {@link GrinderProperties} for storage.</p>
+ *
+ * <p>Implements the read-only part of {@code Map<String, Object>}.</p>
  *
  * @author Philip Aston
  */
@@ -153,8 +156,6 @@ public final class ConsoleProperties {
   private final PropertyChangeSupport m_changeSupport =
     new PropertyChangeSupport(this);
 
-  private final List<Property> m_propertyList = new ArrayList<Property>();
-
   private final IntProperty m_collectSampleCount =
     new IntProperty(COLLECT_SAMPLES_PROPERTY, 0);
 
@@ -231,10 +232,9 @@ public final class ConsoleProperties {
   private final Resources m_resources;
 
   /**
-   * Use to save and load properties, and to keep track of the
-   * associated file.
+   * We delegate to GrinderProperties for storage and the backing file.
    */
-  private final GrinderProperties m_properties;
+  private final GrinderProperties m_backingProperties;
 
   /**
    * Construct a ConsoleProperties backed by the given file.
@@ -251,15 +251,11 @@ public final class ConsoleProperties {
     m_resources = resources;
 
     try {
-      m_properties = new GrinderProperties(file);
+      m_backingProperties = new GrinderProperties(file);
     }
     catch (GrinderProperties.PersistenceException e) {
       throw new DisplayMessageConsoleException(
         m_resources, "couldNotLoadOptionsError.text", e);
-    }
-
-    for (Property property : m_propertyList) {
-      property.setFromProperties();
     }
   }
 
@@ -270,7 +266,7 @@ public final class ConsoleProperties {
    */
   public ConsoleProperties(ConsoleProperties properties) {
     m_resources = properties.m_resources;
-    m_properties = properties.m_properties;
+    m_backingProperties = properties.m_backingProperties;
     set(properties);
   }
 
@@ -281,33 +277,8 @@ public final class ConsoleProperties {
    * @param properties The properties to copy.
    */
   public void set(ConsoleProperties properties) {
-    m_collectSampleCount.set(properties.getCollectSampleCount());
-    m_ignoreSampleCount.set(properties.getIgnoreSampleCount());
-    m_sampleInterval.set(properties.getSampleInterval());
-    m_significantFigures.set(properties.getSignificantFigures());
-    m_consoleHost.set(properties.getConsoleHost());
-    m_consolePort.set(properties.getConsolePort());
-    m_httpHost.set(properties.getHttpHost());
-    m_httpPort.set(properties.getHttpPort());
-    m_resetConsoleWithProcesses.set(properties.getResetConsoleWithProcesses());
-    m_propertiesFile.set(properties.getPropertiesFile());
-    m_distributionDirectory.set(properties.getDistributionDirectory());
-    m_distributionFileFilterPattern.set(
-      properties.getDistributionFileFilterPattern());
-    m_scanDistributionFilesPeriod.set(
-      properties.getScanDistributionFilesPeriod());
-    m_lookAndFeel.set(properties.getLookAndFeel());
-    m_externalEditorCommand.set(properties.getExternalEditorCommand());
-    m_externalEditorArguments.set(properties.getExternalEditorArguments());
-    m_frameBounds.set(properties.getFrameBounds());
-    m_resetConsoleWithProcessesAsk.set(
-      properties.getResetConsoleWithProcessesAsk());
-    m_propertiesNotSetAsk.set(properties.getPropertiesNotSetAsk());
-    m_startWithUnsavedBuffersAsk.set(
-      properties.getStartWithUnsavedBuffersAsk());
-    m_stopProcessesAsk.set(properties.getStopProcessesAsk());
-    m_distributeOnStartAsk.set(properties.getDistributeOnStartAsk());
-    m_saveTotalsWithResults.set(properties.getSaveTotalsWithResults());
+    m_backingProperties.clear();
+    m_backingProperties.putAll(properties.m_backingProperties);
   }
 
   /**
@@ -339,12 +310,8 @@ public final class ConsoleProperties {
    * @throws ConsoleException If an error occurs.
    */
   public void save() throws ConsoleException {
-    for (Property property : m_propertyList) {
-      property.setToProperties();
-    }
-
     try {
-      m_properties.save();
+      m_backingProperties.save();
     }
     catch (GrinderProperties.PersistenceException e) {
       throw new DisplayMessageConsoleException(
@@ -827,11 +794,11 @@ public final class ConsoleProperties {
    *
    * @param expression A Perl 5 format expression. {@code null}
    * => use default pattern.
-   * @throws ConsoleException If the pattern is not valid.
+   * @throws ConsoleException If the pattern is invalid.
    */
   public void setDistributionFileFilterExpression(String expression)
     throws ConsoleException {
-    m_distributionFileFilterPattern.set(expression);
+    m_distributionFileFilterPattern.setExpression(expression);
   }
 
   /**
@@ -844,10 +811,10 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Set the console port.
+   * Set the period at which the distribution files should be scanned.
    *
    * @param i The port number.
-   * @throws ConsoleException If the port number is not sensible.
+   * @throws ConsoleException If the period is negative.
    */
   public void setScanDistributionFilesPeriod(int i) throws ConsoleException {
     if (i < 0) {
@@ -965,28 +932,18 @@ public final class ConsoleProperties {
     m_saveTotalsWithResults.save();
   }
 
-
-  private abstract class Property {
+  private abstract class Property<T> {
     private final String m_propertyName;
-    private final Object m_defaultValue;
-    private Object m_value;
+    private final T m_defaultValue;
 
-    Property(String propertyName, Object defaultValue) {
+    Property(String propertyName, T defaultValue) {
       m_propertyName = propertyName;
       m_defaultValue = defaultValue;
-      m_value = defaultValue;
-      m_propertyList.add(this);
     }
 
-    abstract void setFromProperties() throws ConsoleException;
-
-    abstract void setToProperties();
-
     public final void save() throws ConsoleException {
-      setToProperties();
-
       try {
-        m_properties.saveSingleProperty(m_propertyName);
+        m_backingProperties.saveSingleProperty(m_propertyName);
       }
       catch (GrinderProperties.PersistenceException e) {
         throw new DisplayMessageConsoleException(
@@ -998,82 +955,85 @@ public final class ConsoleProperties {
       return m_propertyName;
     }
 
-    protected final Object getDefaultValue() {
+    protected final T getDefaultValue() {
       return m_defaultValue;
     }
 
-    protected final Object getValue() {
-      return m_value;
-    }
+    protected abstract T get();
 
-    protected final void setValue(Object value) {
-      final Object old = m_value;
-      m_value = value;
+    protected abstract void setToStorage(T value);
+
+    public final void set(T value) {
+      final T old = get();
+
+      final T defaultValue = getDefaultValue();
+
+      if (defaultValue == null && value == null ||
+          defaultValue != null && defaultValue.equals(value)) {
+        m_backingProperties.remove(m_propertyName);
+      }
+      else {
+        setToStorage(value);
+      }
 
       // For some reason, firePropertyChange only suppresses same value
       // updates when the value is not null. The default L&F is null,
       // so this prevents UI flicker on each property change.
-      if (m_value == null && value == null) {
+      if (old == null && value == null) {
         return;
       }
 
-      m_changeSupport.firePropertyChange(getPropertyName(), old, m_value);
+      m_changeSupport.firePropertyChange(getPropertyName(), old, value);
     }
   }
 
-  private final class StringProperty extends Property {
+  private final class StringProperty extends Property<String> {
     public StringProperty(String propertyName, String defaultValue) {
       super(propertyName, defaultValue);
     }
 
-    public void setFromProperties() {
-      set(m_properties.getProperty(getPropertyName(),
-                                   (String) getDefaultValue()));
+    @Override
+    protected String get() {
+      return m_backingProperties.getProperty(getPropertyName(),
+                                             getDefaultValue());
     }
 
-    public void setToProperties() {
-      if (get() != getDefaultValue()) {
-        m_properties.setProperty(getPropertyName(), get());
-      }
-      else {
-        m_properties.remove(getPropertyName());
-      }
-    }
-
-    public String get() {
-      return (String) getValue();
-    }
-
-    public void set(String s) {
-      setValue(s);
+    @Override
+    protected void setToStorage(String value) {
+      m_backingProperties.setProperty(getPropertyName(), value);
     }
   }
 
-  private final class PatternProperty extends Property {
+  private final class PatternProperty extends Property<Pattern> {
     public PatternProperty(String propertyName, String defaultExpression) {
       super(propertyName, Pattern.compile(defaultExpression));
     }
 
-    public void setFromProperties() throws ConsoleException {
-      set(m_properties.getProperty(getPropertyName(), null));
-    }
+    @Override
+    protected Pattern get() {
+      final String expression =
+        m_backingProperties.getProperty(getPropertyName());
 
-    public void setToProperties() {
-      if (get() != getDefaultValue()) {
-        m_properties.setProperty(getPropertyName(), get().pattern());
+      if (expression != null) {
+        try {
+          return Pattern.compile(expression);
+        }
+        catch (PatternSyntaxException e) {
+          // Fall through.
+        }
       }
-      else {
-        m_properties.remove(getPropertyName());
-      }
+
+      return getDefaultValue();
     }
 
-    public Pattern get() {
-      return (Pattern) getValue();
+    @Override
+    protected void setToStorage(Pattern value) {
+      m_backingProperties.put(getPropertyName(), value.pattern());
     }
 
-    public void set(String expression) throws ConsoleException {
+    public void setExpression(String expression) throws ConsoleException {
       if (expression == null) {
-        set((Pattern) getDefaultValue());
+        m_backingProperties.remove(getPropertyName());
       }
       else {
         try {
@@ -1081,178 +1041,125 @@ public final class ConsoleProperties {
         }
         catch (PatternSyntaxException e) {
           throw new DisplayMessageConsoleException(
-            m_resources,
-            "regularExpressionError.text",
-            new Object[] { getPropertyName(), },
-            e);
+              m_resources,
+              "regularExpressionError.text",
+              new Object[] { getPropertyName(), },
+              e);
         }
       }
     }
-
-    public void set(Pattern pattern) {
-      setValue(pattern);
-    }
   }
 
-  private final class IntProperty extends Property {
+  private final class IntProperty extends Property<Integer> {
     public IntProperty(String propertyName, int defaultValue) {
       super(propertyName, defaultValue);
     }
 
-    public void setFromProperties() {
-      set(m_properties.getInt(getPropertyName(),
-                              ((Integer)getDefaultValue()).intValue()));
+
+    @Override
+    protected Integer get() {
+      return m_backingProperties.getInt(getPropertyName(), getDefaultValue());
     }
 
-    public void setToProperties() {
-      m_properties.setInt(getPropertyName(), get());
-    }
-
-    public int get() {
-      return ((Integer)getValue()).intValue();
-    }
-
-    public void set(int i) {
-      setValue(i);
+    @Override
+    protected void setToStorage(Integer value) {
+      m_backingProperties.setInt(getPropertyName(), value);
     }
   }
 
-  private final class FileProperty extends Property {
+  private final class FileProperty extends Property<File> {
     public FileProperty(String propertyName) {
       super(propertyName, null);
     }
 
-    public void setFromProperties() {
-      set(m_properties.getFile(getPropertyName(), null));
+    @Override
+    protected File get() {
+      return m_backingProperties.getFile(getPropertyName(), getDefaultValue());
     }
 
-    public void setToProperties() {
-      if (get() != getDefaultValue()) {
-        m_properties.setFile(getPropertyName(), get());
-      }
-      else {
-        m_properties.remove(getPropertyName());
-      }
-    }
-
-    public File get() {
-      return (File) getValue();
-    }
-
-    public void set(File file) {
-      setValue(file);
+    @Override
+    protected void setToStorage(File value) {
+      m_backingProperties.setFile(getPropertyName(), value);
     }
   }
 
-  private final class DirectoryProperty extends Property {
+  private final class DirectoryProperty extends Property<Directory> {
     public DirectoryProperty(String propertyName) {
       super(propertyName, new Directory());
     }
 
-    public void setFromProperties() {
-      set(m_properties.getFile(getPropertyName(), null));
-    }
+    @Override
+    protected Directory get() {
+      final File f = m_backingProperties.getFile(getPropertyName(), null);
 
-    public void setToProperties() {
-      m_properties.setFile(getPropertyName(), get().getFile());
-    }
-
-    public Directory get() {
-      return (Directory) getValue();
-    }
-
-    public void set(File file) {
-      if (file == null) {
-        set(new Directory());
-      }
-      else {
+      if (f != null) {
         try {
-          set(new Directory(file));
+          return new Directory(f);
         }
         catch (Directory.DirectoryException e) {
-          set(new Directory());
+          // fall through.
         }
       }
+
+      return new Directory();
     }
 
-    public void set(Directory file) {
-      setValue(file);
+    @Override
+    protected void setToStorage(Directory value) {
+      m_backingProperties.setFile(getPropertyName(), value.getFile());
     }
   }
 
-  private final class BooleanProperty extends Property {
+  private final class BooleanProperty extends Property<Boolean> {
     public BooleanProperty(String propertyName, boolean defaultValue) {
       super(propertyName, defaultValue);
     }
 
-    public void setFromProperties() {
-      set(m_properties.getBoolean(getPropertyName(),
-                                  ((Boolean)getDefaultValue()).booleanValue()));
+    @Override
+    protected Boolean get() {
+      return m_backingProperties.getBoolean(getPropertyName(),
+                                            getDefaultValue());
     }
 
-    public void setToProperties() {
-      m_properties.setBoolean(getPropertyName(), get());
-    }
-
-    public boolean get() {
-      return ((Boolean)getValue()).booleanValue();
-    }
-
-    public void set(boolean b) {
-      setValue(b);
+    @Override
+    protected void setToStorage(Boolean value) {
+      m_backingProperties.setBoolean(getPropertyName(), value);
     }
   }
 
-  private final class RectangleProperty extends Property {
+  private final class RectangleProperty extends Property<Rectangle> {
     public RectangleProperty(String propertyName) {
       super(propertyName, null);
     }
 
-    public void setFromProperties() {
+    public Rectangle get() {
       final String property =
-        m_properties.getProperty(getPropertyName(), null);
+        m_backingProperties.getProperty(getPropertyName(), null);
 
-      if (property == null) {
-        set(null);
-      }
-      else {
+      if (property != null) {
         final StringTokenizer tokenizer = new StringTokenizer(property, ",");
 
         try {
-          set(new Rectangle(
-            Integer.parseInt(tokenizer.nextToken()),
-            Integer.parseInt(tokenizer.nextToken()),
-            Integer.parseInt(tokenizer.nextToken()),
-            Integer.parseInt(tokenizer.nextToken())));
+          return new Rectangle(Integer.parseInt(tokenizer.nextToken()),
+                               Integer.parseInt(tokenizer.nextToken()),
+                               Integer.parseInt(tokenizer.nextToken()),
+                               Integer.parseInt(tokenizer.nextToken()));
         }
         catch (NoSuchElementException e) {
-          set(null);
+          // Ignore.
         }
         catch (NumberFormatException e) {
-          set(null);
+          // Ignore.
         }
       }
+
+      return getDefaultValue();
     }
 
-    public void setToProperties() {
-      final Rectangle value = get();
-
-      if (value != getDefaultValue()) {
-        m_properties.setProperty(
-          getPropertyName(),
-          value.x + "," + value.y + "," + value.width + "," + value.height);
-      }
-      else {
-        m_properties.remove(getPropertyName());
-      }
-    }
-
-    public Rectangle get() {
-      return (Rectangle) getValue();
-    }
-
-    public void set(Rectangle rectangle) {
-      setValue(rectangle);
+    public void setToStorage(Rectangle value) {
+      m_backingProperties.setProperty(
+        getPropertyName(),
+        value.x + "," + value.y + "," + value.width + "," + value.height);
     }
   }
 }

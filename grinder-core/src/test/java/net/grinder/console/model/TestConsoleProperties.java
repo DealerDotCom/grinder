@@ -658,8 +658,8 @@ public class TestConsoleProperties extends AbstractJUnit4FileTestCase {
     assertEquals(p1.getDistributeOnStartAsk(), p2.getDistributeOnStartAsk());
     assertEquals(p1.getPropertiesFile(), p2.getPropertiesFile());
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
-    assertEquals(p1.getDistributionFileFilterPattern(),
-      p2.getDistributionFileFilterPattern());
+    assertEquals(p1.getDistributionFileFilterPattern().pattern(),
+      p2.getDistributionFileFilterPattern().pattern());
     assertEquals(p1.getScanDistributionFilesPeriod(),
       p2.getScanDistributionFilesPeriod());
     assertEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
@@ -738,8 +738,8 @@ public class TestConsoleProperties extends AbstractJUnit4FileTestCase {
     assertTrue(p1.getDistributeOnStartAsk() == p2.getDistributeOnStartAsk());
     assertEquals(p1.getPropertiesFile(), p2.getPropertiesFile());
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
-    assertEquals(p1.getDistributionFileFilterPattern(),
-                 p2.getDistributionFileFilterPattern());
+    assertEquals(p1.getDistributionFileFilterPattern().pattern(),
+                 p2.getDistributionFileFilterPattern().pattern());
     assertEquals(p1.getScanDistributionFilesPeriod(),
                  p2.getScanDistributionFilesPeriod());
     assertEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
