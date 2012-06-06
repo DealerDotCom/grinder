@@ -31,11 +31,6 @@
             FileDistributionHandler$Result]))
 
 
-(defrecord MockCacheState
-  [out-of-date]
-  AgentCacheState
-  (getOutOfDate [this] out-of-date))
-
 (defrecord MockResult
   [progress file]
   FileDistributionHandler$Result
@@ -52,21 +47,20 @@
                   (reset! results r)
                   f)))
 
-(defrecord MockFD
-  [cache-state]
-  FileDistribution
-  (getAgentCacheState [this] cache-state)
-  (getHandler [this] (MockHandler.)))
-
 
 (deftest test-status
   (with-redefs
     [files/distribution-result (atom :bah)]
 
-    (let [fd (MockFD. (MockCacheState. true))
-          s (status fd)]
-      (is (= {:stale true :last-distribution :bah} s))
-      )))
+    (are [b] (= {:stale b :last-distribution :bah}
+                (status
+                  (reify FileDistribution
+                    (getAgentCacheState
+                      [this]
+                      (reify AgentCacheState
+                        (getOutOfDate [this] b))))))
+         true
+         false)))
 
 (def history (atom []))
 
@@ -80,7 +74,8 @@
                 results  (atom [(MockResult. 50 "a")
                                 (MockResult. 100 "b")])]
 
-    (let [initial (start-distribution (MockFD. nil))]
+    (let [fd (reify FileDistribution (getHandler [this] (MockHandler.)))
+          initial (start-distribution fd)]
       (await-for 1000 @#'files/distribution-agent)
       (is (= {:id 23 :state :started :files []} initial))
       (is (= [initial
