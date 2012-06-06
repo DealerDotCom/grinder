@@ -60,11 +60,13 @@
 
 
 (deftest test-status
-  (reset! @#'files/distribution-result :foo)
-  (let [fd (MockFD. (MockCacheState. true))
-        s (status fd)]
-    (is (= {:stale true :last-distribution :foo} s))
-  ))
+  (with-redefs
+    [files/distribution-result (atom :bah)]
+
+    (let [fd (MockFD. (MockCacheState. true))
+          s (status fd)]
+      (is (= {:stale true :last-distribution :bah} s))
+      )))
 
 (def history (atom []))
 
@@ -72,34 +74,35 @@
            (fn [k r o n] (swap! history conj n)))
 
 (deftest test-start-distribution
-  (reset! results
-           [(MockResult. 50 "a")
-            (MockResult. 100 "b")])
-  (reset! @#'files/next-id 22)
-  (reset! history [])
 
-  (let [initial (start-distribution (MockFD. nil))]
-    (await-for 1000 @#'files/distribution-agent)
-    (is (= {:id 23 :state :started :files []} initial))
-    (is (= [initial
-            {:id 23 :state :sending :files ["a"] :per-cent-complete 50}
-            {:id 23 :state :sending :files ["a" "b"] :per-cent-complete 100}
-            {:id 23 :state :finished :files ["a" "b"] :per-cent-complete 100}
-            ]
-           @history))))
+  (with-redefs [files/next-id (atom 22)
+                history (atom [])
+                results  (atom [(MockResult. 50 "a")
+                                (MockResult. 100 "b")])]
+
+    (let [initial (start-distribution (MockFD. nil))]
+      (await-for 1000 @#'files/distribution-agent)
+      (is (= {:id 23 :state :started :files []} initial))
+      (is (= [initial
+              {:id 23 :state :sending :files ["a"] :per-cent-complete 50}
+              {:id 23 :state :sending :files ["a" "b"] :per-cent-complete 100}
+              {:id 23 :state :finished :files ["a" "b"] :per-cent-complete 100}
+              ]
+             @history)))))
 
 
 (deftest test-start-distribution-bad-handler
-  (reset! @#'files/next-id 0)
-  (reset! history [])
 
-  (let [e (RuntimeException.)
-        fd (reify FileDistribution (getHandler [this] (throw e)))
-        initial (start-distribution fd)]
-    (await-for 1000 @#'files/distribution-agent)
-    (is (= {:id 1 :state :started :files []} initial))
-    (is (= [initial
-            {:id 1 :state :error :exception e :files []}
-            ]
-           @history))))
+  (with-redefs [files/next-id (atom 0)
+                history (atom [])]
+
+    (let [e (RuntimeException.)
+          fd (reify FileDistribution (getHandler [this] (throw e)))
+          initial (start-distribution fd)]
+      (await-for 1000 @#'files/distribution-agent)
+      (is (= {:id 1 :state :started :files []} initial))
+      (is (= [initial
+              {:id 1 :state :error :exception e :files []}
+              ]
+             @history)))))
 
