@@ -20,12 +20,6 @@ against it too :-).
 
 *** Functional
 
-**** Options
-
-put
-
-**** Script Distribution
-
 **** Event channel?
 
 **** Process control
@@ -33,28 +27,12 @@ Start/Stop worker by ID
 
 *** Packaging
 
-Clojure 1.4
-
 How to publish lein module to sonatype OSS?
-
-
-*** Documentation
-
-- Manual
-- Reference
-- Video :-)
-
 
 *** Deprecate Console API
 
 Looks like I can remove:
  BlockingSender
-
-
-
-** Console API
-
-*** API
 
 
 
