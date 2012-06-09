@@ -26,8 +26,7 @@
   (:require
     [net.grinder.console.model [processes :as processes]
                                [recording :as recording]]
-    [net.grinder.console.service [html :as html]
-                                 [rest :as rest]]
+    [net.grinder.console.service [rest :as rest]]
     [clojure.tools [logging :as log]]
     ))
 
@@ -58,8 +57,7 @@
 
 (defn- create-app
   [state]
-  (let [rest-app (rest/create-app state)
-        html-app (html/create-app state)]
+  (let [rest-app (rest/create-app state)]
     (->
       (fn
         [req]

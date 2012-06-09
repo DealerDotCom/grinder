@@ -172,6 +172,15 @@
 	</tr>
 
 	<tr>
+	  <td><code>POST</code></td>
+	  <td><code>/agents/start-workers</code></td>
+	  <td>Send a start signal to the agents to start worker processes.
+	  Equivalent to the <a
+	  href="site:console/ui/process-controls">start processes</a>
+	  button.</td>
+	</tr>
+
+	<tr>
 	  <td><code>GET</code></td>
 	  <td><code>/agents/status</code></td>
 	  <td>Returns the status of the agent and worker processes.</td>
@@ -181,7 +190,16 @@
 	  <td><code>POST</code></td>
 	  <td><code>/agents/stop</code></td>
 	  <td>Terminates all agents and their worker processes. You
-	  will usually want <code>/workers/stop</code> instead.</td>
+	  will usually want <code>/agents/stop-workers</code> instead.</td>
+	</tr>
+
+	<tr>
+	  <td><code>POST</code></td>
+	  <td><code>/agents/stop-workers</code></td>
+	  <td>Send a stop signal to connected worker processes.
+	  Equivalent to the <a
+	  href="site:console/ui/process-controls">reset processes</a>
+	  button.</td>
 	</tr>
 
 	<tr>
@@ -278,24 +296,6 @@
 	  <td><code>GET</code></td>
 	  <td><code>/version</code></td>
 	  <td>Returns the version of The Grinder.</td>
-	</tr>
-
-	<tr>
-	  <td><code>POST</code></td>
-	  <td><code>/workers/start</code></td>
-	  <td>Send a start signal to all the worker processes.
-	  Equivalent to the <a
-	  href="site:console/ui/process-controls">start processes</a>
-	  button.</td>
-	</tr>
-
-	<tr>
-	  <td><code>POST</code></td>
-	  <td><code>/workers/stop</code></td>
-	  <td>Send a stop signal to all the worker processes.
-	  Equivalent to the <a
-	  href="site:console/ui/process-controls">reset processes</a>
-	  button.</td>
 	</tr>
 
       </table>
@@ -484,7 +484,7 @@ The Grinder 3.10-SNAPSHOT
 	each.</p>
 
 	<source class="text">
-% curl -H "Content-Type: application/json" -X POST  http://localhost:6373/workers/start
+% curl -H "Content-Type: application/json" -X POST  http://localhost:6373/agent/start-workers
  -d '{"grinder.processes" : "2", "grinder.threads" : "5", "grinder.runs" : "3",
  "grinder.script" : "helloworld.py" }'
 

@@ -45,18 +45,13 @@
     :body data })
 
 (defn- agents-routes
-  [pc]
+  [pc properties]
   (routes
     (GET "/status" [] (to-body (processes/status pc)))
     (POST "/stop" [] (to-body (processes/agents-stop pc)))
-    ))
-
-(defn- workers-routes
-  [pc properties]
-  (routes
-    (POST "/start" {supplied-properties :params}
+    (POST "/start-workers" {supplied-properties :params}
           (to-body (processes/workers-start pc properties supplied-properties)))
-    (POST "/stop" [] (to-body (processes/workers-stop pc)))
+    (POST "/stop-workers" [] (to-body (processes/workers-stop pc)))
     ))
 
 (defn- files-routes
@@ -96,10 +91,9 @@
   (->
     (routes
       (GET "/version" [] (to-body (GrinderBuild/getName)))
-      (context "/agents" [] (agents-routes process-control))
+      (context "/agents" [] (agents-routes process-control properties))
       (context "/files" [] (files-routes file-distribution))
       (context "/properties" [] (properties-routes properties))
-      (context "/workers" [] (workers-routes process-control properties))
       (context "/recording" [] (recording-routes sample-model sample-model-views))
       (not-found "Resource not found")
       )

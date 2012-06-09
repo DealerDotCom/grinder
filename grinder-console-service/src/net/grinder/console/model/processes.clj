@@ -87,7 +87,7 @@
     p)
 
 (defn workers-start
-  "Send a start signal to the agent to start worker processes.
+  "Send a start signal to the agents to start worker processes.
 
    This will only take effect if the agent is waiting for the start signal.
    The agent will ignore start signals received while the workers are running.
