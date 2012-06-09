@@ -31,7 +31,8 @@
            [net.grinder.common.processidentity
             ProcessAddress
             ProcessIdentity
-            ProcessReport]
+            ProcessReport
+            WorkerProcessReport]
            ))
 
 (defonce ^:private last-reports (atom nil))
@@ -57,17 +58,23 @@
 (defn- report
   [^ProcessReport r]
   (let [i (-> r .getProcessAddress .getIdentity)]
-    {
-     :id (.getUniqueID i)
+    {:id (.getUniqueID i)
      :name (.getName i)
      :number (.getNumber i)
      :state (str (.getState r))
      }))
 
+(defn- worker-report
+  [^WorkerProcessReport r]
+  (assoc (report r)
+         :running-threads (int (.getNumberOfRunningThreads r))
+          :maximum-threads (int (.getMaximumNumberOfThreads r))))
+
 (defn- agent-and-workers
   [^ProcessControl$ProcessReports r]
   (let [agent (report (.getAgentProcessReport r))]
-    (into agent {:workers (for [w (.getWorkerProcessReports r)] (report w)) })))
+    (into agent {:workers
+                 (for [w (.getWorkerProcessReports r)] (worker-report w)) })))
 
 (defn status
   "Return a vector containing the known status of all connected agents and

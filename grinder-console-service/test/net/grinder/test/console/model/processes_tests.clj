@@ -123,14 +123,17 @@
   AgentAndCacheReport
   (getAgentIdentity [this] agent-identity)
   (getProcessAddress [this] (AgentAddress. agent-identity))
-  (getState [this] (make-state state)))
+  (getState [this] (make-state state))
+  )
 
 (defrecord MockWorkerReport
-  [worker-identity state]
+  [worker-identity state running-threads maximum-threads]
   WorkerProcessReport
   (getWorkerIdentity [this] worker-identity)
   (getProcessAddress [this] (WorkerAddress. worker-identity))
-  (getState [this] (make-state state)))
+  (getState [this] (make-state state))
+  (getNumberOfRunningThreads [this] running-threads)
+  (getMaximumNumberOfThreads [this] maximum-threads))
 
 (defrecord MockReports
   [agent-report worker-reports]
@@ -152,10 +155,13 @@
                  :RUNNING)
                [(MockWorkerReport.
                   (MockWorkerIdentity. "13" "bah" 9)
-                  :STARTED)])]
+                  :STARTED
+                  2
+                  22)])]
       (.update l (into-array ProcessControl$ProcessReports [r1]))
       (is (= [{:id "1" :name "foo" :number 10 :state "RUNNING" :workers
-               [{:id "13" :name "bah" :number 9 :state "STARTED"}]}]
+               [{:id "13" :name "bah" :number 9 :state "STARTED"
+                 :running-threads 2 :maximum-threads 22}]}]
              (processes/status pc))))))
 
 

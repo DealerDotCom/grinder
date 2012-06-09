@@ -16,50 +16,47 @@ against it too :-).
 
 * Enhancements
 
+** Console Services
+
+*** Functional
+
+**** Options
+
+put
+
+**** Script Distribution
+
+**** Event channel?
+
+**** Process control
+Start/Stop worker by ID
+
+*** Packaging
+
+Clojure 1.4
+
+How to publish lein module to sonatype OSS?
+
+
+*** Documentation
+
+- Manual
+- Reference
+- Video :-)
+
+
+*** Deprecate Console API
+
+Looks like I can remove:
+ BlockingSender
+
+
+
 ** Console API
 
 *** API
 
-- Move Identity and Report interfaces to a separate, common package
-- Add way to query the latest process reports through the console API
 
-
-Process control
-
- void startWorkerProcess(some id)
- void stopWorkerProcess(some id)
- List<ProcessStatus> getProcessStatus() - NB return value
- void addProcessEventListener(ProcessEventListener)
-
- void setScript(...?)
-
-Recording control (done).
-
- void startRecording()
- void stopRecording()
- void resetRecording()
-
-
-*** what about access from grinder scripts?
-
-*** sample log file
-
-*** feedback from travis
-Comments on the API: -
-
- * For sure there will need to be an ability to retrieve stats, as you
-mentioned.
-
- * A file transfer API, or some other configuration management API will
-be needed so that a centrally managed config, such as might be included
-in grinder.properties, can be pushed out to the agents.
-
- * Right now I'm using scripted ssh calls to start the agents on the
-remote machines.  It would be better if there was a good, generic,
-cross-platform way the controller/console could initiate a connection to
-a given agent.  This might mean having the agent process running as a
-server/service on the agent machine, so that it would always be
-available.
 
 ** Script Distribution
 
