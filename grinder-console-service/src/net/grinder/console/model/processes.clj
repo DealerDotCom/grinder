@@ -22,42 +22,47 @@
 (ns net.grinder.console.model.processes
   "Wrap net.grinder.console.communication.ProcessControl."
   (:import [net.grinder.console.communication
+            ProcessControl
             ProcessControl$Listener
-            ProcessControl$ProcessReports
-            ]
+            ProcessControl$ProcessReports]
+           [net.grinder.console.model
+            ConsoleProperties]
            net.grinder.common.GrinderProperties
            [net.grinder.common.processidentity
+            ProcessAddress
             ProcessIdentity
-            ProcessAddress]
+            ProcessReport]
            ))
 
-(defonce last-reports(atom nil))
+(defonce ^:private last-reports (atom nil))
+(defonce ^:private initialised (atom false))
 
 (defn initialise
+  "Should be called once before status will work."
   [pc]
   (.addProcessStatusListener pc
     (reify ProcessControl$Listener
       (update
         [this reports]
-        (reset! last-reports reports)))))
+        (reset! last-reports reports))))
+  (reset! initialised pc))
 
 (defn agents-stop
   "Stop the agents, and their workers."
-  [pc]
+  [^ProcessControl pc]
   (.stopAgentAndWorkerProcesses pc)
-  "success")
+  :success)
 
 
 (defn- report
-  [r]
-  (let [^ProcessIdentity i (.getIdentity (.getProcessAddress r))]
+  [^ProcessReport r]
+  (let [i (-> r .getProcessAddress .getIdentity)]
     {
      :id (.getUniqueID i)
      :name (.getName i)
      :number (.getNumber i)
      :state (str (.getState r))
-     }
-   ))
+     }))
 
 (defn- agent-and-workers
   [^ProcessControl$ProcessReports r]
@@ -65,22 +70,43 @@
     (into agent {:workers (for [w (.getWorkerProcessReports r)] (report w)) })))
 
 (defn status
-  [pc]
+  "Return a vector containing the known status of all connected agents and
+   worker processes.
+   pc is an instance of net.grinder.console.communication.ProcessControl.
+   (initialise) must have been called previously with the same ProcessControl,
+   otherwise this function will throw an IllegalStateException."
+  [^ProcessControl pc]
+  (when (not= pc @initialised)
+    (throw (IllegalStateException. "Not initialised.")))
   (for [r @last-reports]
     (agent-and-workers r)))
 
 (defn- into-grinder-properties
-  [p source]
-  (doseq [[k v] source] (.setProperty p k (str v)))
+  [^GrinderProperties p source]
+  (doseq [[k v] source] (.setProperty p (name k) (str v)))
     p)
 
-(defn workers-start [pc cp supplied-properties]
+(defn workers-start
+  "Send a start signal to the agent to start worker processes.
+
+   This will only take effect if the agent is waiting for the start signal.
+   The agent will ignore start signals received while the workers are running.
+   We should revisit this in the future to allow process ramp up and ramp
+   down to be scripted.
+
+   The supplied-properties contain additional properties to pass on to the
+   agent. These take precedence over any specified by the console properties
+   \"propertiesFile\" attribute."
+  [^ProcessControl pc
+   ^ConsoleProperties cp
+   supplied-properties]
   (let [f (.getPropertiesFile cp)
         p (if f (GrinderProperties. f) (GrinderProperties.))]
     (.startWorkerProcesses pc (into-grinder-properties p supplied-properties)))
-  "success")
+  :success)
 
-(defn workers-stop [pc]
-  "Stop all worker processes."
+(defn workers-stop
+  "Send a stop signal to connected worker processes."
+  [^ProcessControl pc]
   (.resetWorkerProcesses pc)
-  "success")
+  :success)

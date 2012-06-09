@@ -47,7 +47,6 @@
   (routes
     (POST "/start" [properties]
           (html-response (processes/workers-start pc properties)))
-    (POST "/reset" [] (html-response (processes/workers-reset pc)))
     ))
 
 (defn- recording-routes [sm smv]
