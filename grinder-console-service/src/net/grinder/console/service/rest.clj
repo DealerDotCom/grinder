@@ -78,7 +78,7 @@
     (GET "/" [] (to-body (properties/get-properties p)))
     (PUT "/" {properties :params}
          (to-body (properties/set-properties p properties)))
-    (POST "/save" [] (to-body (properties/save-properties p)))
+    (POST "/save" [] (to-body (properties/save p)))
     ))
 
 

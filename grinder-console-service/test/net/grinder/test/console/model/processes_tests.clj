@@ -39,7 +39,6 @@
             WorkerIdentity
             WorkerProcessReport]
            [java.io
-            File
             FileWriter]))
 
 (declare called)
