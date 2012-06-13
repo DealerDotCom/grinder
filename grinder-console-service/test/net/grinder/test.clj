@@ -22,7 +22,14 @@
 (ns net.grinder.test
   "Unit tests utilities."
   (:import [java.io
-            File]))
+            File]
+           [java.util
+            Timer
+            TimerTask]
+           [net.grinder.common
+            AbstractTestSemantics]
+           [net.grinder.console.model
+            ConsoleProperties]))
 
 
 (defmacro with-temporary-files
@@ -39,3 +46,26 @@
     `(do ~@body)))
 
 
+(defmacro with-console-properties
+  "Create a temporary ConsoleProperties and bind it to the name given as cp,
+   then execute the body."
+  [cp & body]
+  `(with-temporary-files [f#]
+    (let [~cp (ConsoleProperties. nil f#)]
+          (do ~@body))))
+
+(defn make-test
+  [n d]
+  (proxy
+    [AbstractTestSemantics] []
+    (getNumber [] n)
+    (getDescription [] d)
+    ))
+
+(defn make-null-timer
+  []
+  (let [result (proxy
+                 [Timer] []
+                 (schedule [^TimerTask t d p]))]
+    (.cancel result)
+    result))

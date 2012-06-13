@@ -28,15 +28,9 @@
   (:import [net.grinder.console.model
             ConsoleProperties]))
 
-(defmacro with-cp
-  [cp & body]
-  `(with-temporary-files [f#]
-    (let [~cp (ConsoleProperties. nil f#)]
-          (do ~@body))))
-
 (defn- roundtrip
   [properties]
-  (with-cp cp
+  (with-console-properties cp
     (let [r (properties/set-properties cp properties)]
       (is (= properties r))
       (diff properties (properties/get-properties cp)))))
@@ -59,26 +53,26 @@
     (is (= properties both))))
 
 (deftest test-set-with-string-key-and-modified-value
-  (with-cp cp
+  (with-console-properties cp
     (let [properties  {"distributionFileFilterExpression" nil}
           r (properties/set-properties cp properties)
           v (:distributionFileFilterExpression r)]
       (is (not (nil? v))))))
 
 (deftest test-set-with-bad-key
-  (with-cp cp
+  (with-console-properties cp
     (let [properties  {"foo" nil}]
       (is (thrown? IllegalArgumentException
                    (properties/set-properties cp properties))))))
 
 (deftest test-set-with-bad-key2
-  (with-cp cp
+  (with-console-properties cp
     (let [properties  {"class" nil}]
       (is (thrown? IllegalArgumentException
                    (properties/set-properties cp properties))))))
 
 (deftest test-set-with-bad-value
-  (with-cp cp
+  (with-console-properties cp
     (let [properties  {:collectSampleCount "foo"}]
       (is (thrown? IllegalArgumentException
                    (properties/set-properties cp properties))))))

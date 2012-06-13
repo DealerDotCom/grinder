@@ -21,15 +21,27 @@
 
 (ns net.grinder.console.model.recording
   (:import [net.grinder.console.model
+            ModelTestIndex
+            SampleModel
             SampleModel$Listener
             SampleModel$State$Value
-            ModelTestIndex SampleModelViews]
+            SampleModelViews]
            [net.grinder.statistics ExpressionView]))
 
-(defonce test-index(atom (ModelTestIndex.)))
+(defonce latest-test-index(atom [nil nil]))
+
+(defn- get-test-index
+  [expected-sm]
+  (let [[initialised-sm ^ModelTestIndex result] @latest-test-index]
+    (if (= initialised-sm expected-sm)
+      result
+      (throw (IllegalStateException. "Not initialised.")))))
 
 (defn initialise
-  [model]
+  "Should be called once before 'data' will return test data."
+  [^SampleModel model]
+  (reset! latest-test-index [model (ModelTestIndex.)])
+
   (.addModelListener model
     (reify SampleModel$Listener
 
@@ -43,71 +55,100 @@
 
       (newTests
         [this tests index]
-        (reset! test-index index))
+        (swap! latest-test-index #(assoc % 1 %2) index))
 
       (resetTests
         [this]
-        (reset! test-index (ModelTestIndex.))))))
+        (.newTests this nil (ModelTestIndex.))))))
 
 (defn status
-  [model]
+  "Return a map summarising the state of the provided SampleModel.
+
+   The map has the following keys:
+     :state        One of { :Stopped, :WaitingForFirstReport,
+                   :IgnoringInitialSamples, :Recording }.
+     :description  A text description of the state.
+     :sample-count The sample count. Only present if :state is
+                   :IgnoringInitialSamples or :Recording."
+  [^SampleModel model]
   (let [s (.getState model)
         v (.getValue s)
-        m {:state (str v)
+        m {:state (keyword (str v))
            :description (.getDescription s)}]
-    (if (#{ SampleModel$State$Value/IgnoringInitialSamples
+    (if (#{SampleModel$State$Value/IgnoringInitialSamples
            SampleModel$State$Value/Recording } v)
       (assoc m :sample-count (.getSampleCount s))
       m)))
 
 (defn start
-  [model]
+  "Start the sample model. Returns the current status, as per 'status'."
+  [^SampleModel model]
   (.start model)
   (status model))
 
 (defn stop
-  [model]
+  "Start the sample model. Returns the current status, as per 'status'."
+  [^SampleModel model]
   (.stop model)
   (status model))
 
 (defn zero
-  [model]
+  "Zero the sample model statistics. Returns the current status, as per
+   'status'."
+  [^SampleModel model]
   (.zeroStatistics model)
   (status model))
 
 (defn reset
   "After a reset, the model loses all knowledge of Tests; this can be
    useful when swapping between scripts. It makes sense to reset with
-   the worker processes stopped."
-  [model]
+   the worker processes stopped.  Returns the current status, as per
+   'status'."
+  [^SampleModel model]
   (.reset model)
   (status model))
 
 (defn- process-statistics
   [views statistics]
-  (for [^ExpressionView v views]
-    (let [e (.getExpression v)]
-      (if (.isDouble e)
-        (.getDoubleValue e statistics)
-        (.getLongValue e statistics)))))
+  (vec
+    (for [^ExpressionView v views]
+      (let [e (.getExpression v)]
+        (if (.isDouble e)
+          (.getDoubleValue e statistics)
+          (.getLongValue e statistics))))))
 
 (defn data
-  [sample-model ^SampleModelViews statistics-view]
-  (let [^ModelTestIndex model @test-index
+  "Return a map containing the current recording data.
+
+   The map has the following keys:
+     :status The sample model status as a map, see 'status'.
+     :columns Vector of column names, in same order as statistics vectors.
+     :tests Vector of test data maps, one per test.
+     :totals Vector of total statistics.
+
+   Each test data map has the following keys:
+     :test The test number.
+     :description The test description.
+     :statistics Vector of statistics.
+"
+  [^SampleModel sample-model
+   ^SampleModelViews statistics-view]
+  (let [^ModelTestIndex test-index (get-test-index sample-model)
         views (.getExpressionViews
                 (.getCumulativeStatisticsView statistics-view))]
+
     {:status (status sample-model)
-     :columns (for [^ExpressionView v views] (.getDisplayName v))
+     :columns (vec (for [^ExpressionView v views] (.getDisplayName v)))
      :tests
-     (for [i (range (.getNumberOfTests model))]
-       (let [test (.getTest model i)]
-         {
-          :test (.getNumber test)
-          :description (.getDescription test)
-          :statistics
-          (process-statistics views
-                              (.getCumulativeStatistics model i)) }))
+     (vec
+       (for [i (range (.getNumberOfTests test-index))]
+         (let [test (.getTest test-index i)]
+           {
+            :test (.getNumber test)
+            :description (.getDescription test)
+            :statistics
+            (process-statistics views
+                                (.getCumulativeStatistics test-index i)) })))
      :totals (process-statistics views
-                                 (.getTotalCumulativeStatistics sample-model))
-     }
+                                 (.getTotalCumulativeStatistics sample-model))}
     ))

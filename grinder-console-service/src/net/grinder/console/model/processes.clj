@@ -39,7 +39,7 @@
 (defonce ^:private initialised (atom false))
 
 (defn initialise
-  "Should be called once before status will work."
+  "Should be called once before 'status' will work."
   [pc]
   (.addProcessStatusListener pc
     (reify ProcessControl$Listener
