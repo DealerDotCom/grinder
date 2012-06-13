@@ -41,6 +41,7 @@ public final class StubTimer extends Timer {
 
   public StubTimer() {
     super(false);
+    super.cancel();
   }
 
   public void schedule(TimerTask timerTask, long delay, long period) {
