@@ -45,6 +45,7 @@
     :body data })
 
 (defn- agents-routes
+  "Routes related to agent and worker process control."
   [pc properties]
   (routes
     (GET "/status" [] (to-body (processes/status pc)))
@@ -55,6 +56,7 @@
     ))
 
 (defn- files-routes
+  "Routes related to file distribution."
   [fd]
   (routes
     (POST "/distribute" [] (to-body (files/start-distribution fd)))
@@ -62,6 +64,7 @@
     ))
 
 (defn- recording-routes
+  "Routes related to recording control."
   [sm smv]
   (routes
     (GET "/status" [] (to-body (recording/status sm)))
@@ -73,6 +76,7 @@
     ))
 
 (defn- properties-routes
+  "Routes related to the console properties."
   [p]
   (routes
     (GET "/" [] (to-body (properties/get-properties p)))
@@ -81,8 +85,8 @@
     (POST "/save" [] (to-body (properties/save p)))
     ))
 
-
 (defn create-app
+  "Create the Ring routes, given a map of the various console components."
   [{:keys [process-control
            sample-model
            sample-model-views
