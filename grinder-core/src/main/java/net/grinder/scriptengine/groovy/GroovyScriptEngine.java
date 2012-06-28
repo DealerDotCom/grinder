@@ -1,12 +1,15 @@
 package net.grinder.scriptengine.groovy;
 
+import groovy.lang.GroovyCallable;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
+import groovy.lang.GroovySystem;
 import groovy.lang.MissingPropertyException;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.ScriptEngineService;
 import net.grinder.scriptengine.ScriptEngineService.ScriptEngine;
+import net.grinder.scriptengine.ScriptExecutionException;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,12 +27,10 @@ public class GroovyScriptEngine implements ScriptEngine {
 
     public GroovyScriptEngine(ScriptLocation script) throws EngineException {
        // Get groovy to compile the script and access the callable closure
-
         ClassLoader parent = getClass().getClassLoader();
         GroovyClassLoader loader = new GroovyClassLoader(parent);
         try {
             Class testRunnerClass = loader.parseClass(script.getFile());
-
             GroovyObject groovyObject = (GroovyObject) testRunnerClass.newInstance();
             Callable<?> closure = (Callable<?>) groovyObject.getProperty(TEST_RUNNER_CLOSURE_NAME);
             m_runnerFactory = closure;
@@ -46,8 +47,6 @@ public class GroovyScriptEngine implements ScriptEngine {
         } catch (IllegalAccessException e) {
             throw new EngineException("Unable to access class from script at: " + script.getFile().getAbsolutePath(), e);
         }
-
-
     }
 
     /**
@@ -61,9 +60,37 @@ public class GroovyScriptEngine implements ScriptEngine {
      */
     @Override
     public ScriptEngineService.WorkerRunnable createWorkerRunnable() throws EngineException {
-        throw new UnsupportedOperationException("createWorkerRunnable is not implemented in net.grinder.scriptengine.groovy.GroovyScriptEngine");
+        return new GroovyWorkerRunnable(m_runnerFactory);
     }
 
+
+    /**
+     * Wrapper for groovy's testRunner closure.
+     */
+    private final class GroovyWorkerRunnable
+      implements ScriptEngineService.WorkerRunnable {
+
+        private final Callable<?> closure;
+
+        private GroovyWorkerRunnable(Callable<?> closure) {
+            this.closure = closure;
+        }
+
+        @Override
+        public void run() throws ScriptExecutionException {
+            try {
+                closure.call();
+            }
+            catch (Exception e) {
+                throw new GroovyScriptExecutionException("Exception raised by worker thread", e);
+            }
+        }
+
+        @Override
+        public void shutdown() throws ScriptExecutionException {
+            // nothing to do here
+        }
+    }
     /**
      * Create a {@link net.grinder.scriptengine.ScriptEngineService.WorkerRunnable} that will be used to run the work
      * for one worker thread. The {@link net.grinder.scriptengine.ScriptEngineService.WorkerRunnable} will forward to
@@ -76,7 +103,11 @@ public class GroovyScriptEngine implements ScriptEngine {
      */
     @Override
     public ScriptEngineService.WorkerRunnable createWorkerRunnable(Object testRunner) throws EngineException {
-        throw new UnsupportedOperationException("createWorkerRunnable is not implemented in net.grinder.scriptengine.groovy.GroovyScriptEngine");
+        if (testRunner instanceof Callable<?>) {
+           return new GroovyWorkerRunnable((Callable<?>) testRunner);
+        }
+
+        throw new GroovyScriptExecutionException("supplied testRunner object is not callable");
     }
 
     /**
@@ -87,7 +118,7 @@ public class GroovyScriptEngine implements ScriptEngine {
      */
     @Override
     public void shutdown() throws EngineException {
-        throw new UnsupportedOperationException("shutdown is not implemented in net.grinder.scriptengine.groovy.GroovyScriptEngine");
+        // nothing is necessary
     }
 
     /**
@@ -97,6 +128,18 @@ public class GroovyScriptEngine implements ScriptEngine {
      */
     @Override
     public String getDescription() {
-        throw new UnsupportedOperationException("getDescription is not implemented in net.grinder.scriptengine.groovy.GroovyScriptEngine");
+        return String.format("GroovyScriptEngine running with groovy version: %s", GroovySystem.getVersion());
+    }
+
+    protected static final class GroovyScriptExecutionException
+      extends ScriptExecutionException {
+
+      public GroovyScriptExecutionException(String s) {
+        super(s);
+      }
+
+      public GroovyScriptExecutionException(String s, Throwable t) {
+        super(s, t);
+      }
     }
 }

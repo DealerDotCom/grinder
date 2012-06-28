@@ -1,16 +1,25 @@
 package net.grinder.scriptengine.groovy;
 
+import clojure.lang.Obj;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
+import net.grinder.scriptengine.ScriptEngineService;
+import net.grinder.scriptengine.ScriptExecutionException;
+import net.grinder.scriptengine.clojure.ClojureScriptEngineService;
 import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.util.Directory;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
+import static junit.framework.Assert.assertEquals;
 import static net.grinder.testutility.AssertUtilities.assertContains;
+import static net.grinder.testutility.AssertUtilities.assertStartsWith;
 import static net.grinder.testutility.FileUtilities.createFile;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -38,13 +47,12 @@ public class TestGroovyScriptEngine extends AbstractJUnit4FileTestCase {
         final ScriptLocation script =
                 new ScriptLocation(new Directory(getDirectory()), new File("testNoWrappingClass.groovy"));
 
-        createFile(script.getFile(),"def testRunner = { println \"called runner\"}");
+        createFile(script.getFile(), "def testRunner = { println \"called runner\"}");
         try {
             new GroovyScriptEngineService().createScriptEngine(script);
             fail("Expected ScriptExecutionException because there is no class wrapping the closure");
-        }
-        catch (EngineException e) {
-            assertContains(e.getMessage(),"Unable to locate the closure named");
+        } catch (EngineException e) {
+            assertContains(e.getMessage(), "Unable to locate the closure named");
         }
     }
 
@@ -53,14 +61,87 @@ public class TestGroovyScriptEngine extends AbstractJUnit4FileTestCase {
         final ScriptLocation script =
                 new ScriptLocation(new Directory(getDirectory()), new File("testNoClosure.groovy"));
 
-        createFile(script.getFile(),"class foo {  }");
+        createFile(script.getFile(), "class foo {  }");
         try {
             new GroovyScriptEngineService().createScriptEngine(script);
             fail("Expected ScriptExecutionException because there is no class wrapping the closure");
+        } catch (EngineException e) {
+            assertContains(e.getMessage(), "Unable to locate the closure named");
         }
-        catch (EngineException e) {
-            assertContains(e.getMessage(),"Unable to locate the closure named");
+    }
+
+    @Test
+    public void testGroovyClosureExceptionsCaught() throws Exception {
+
+        final ScriptLocation script =
+                new ScriptLocation(new Directory(getDirectory()), new File("exception.groovy"));
+
+        createFile(script.getFile(),
+                "class foo { def testRunner = { throw new UnsupportedOperationException('exception from thread') } }");
+
+        final ScriptEngineService.ScriptEngine scriptEngine =
+                new GroovyScriptEngineService().createScriptEngine(script);
+
+        try {
+            scriptEngine.createWorkerRunnable().run();
+            fail("Expected ScriptExecutionException");
+        } catch (ScriptExecutionException e) {
+            assertTrue(e.getCause() instanceof UnsupportedOperationException);
         }
+    }
+
+    @Test
+    public void testGroovyDescription() throws Exception {
+        final ScriptLocation script =
+                new ScriptLocation(new Directory(getDirectory()), new File("bogus.groovy"));
+
+        createFile(script.getFile(),
+                "class foo { def testRunner = { throw new UnsupportedOperationException('exception from thread') } }");
+
+
+        String description = new GroovyScriptEngineService().createScriptEngine(script).getDescription();
+        assertStartsWith(description, "GroovyScriptEngine running with groovy version: ");
+    }
+
+    @Test
+    public void testGroovyRunnerFromObject() throws Exception {
+        Callable callable = new Callable() {
+            @Override
+            public Object call() throws Exception {
+                throw new UnsupportedOperationException();
+            }
+        };
+
+
+        final ScriptLocation script =
+                new ScriptLocation(new Directory(getDirectory()), new File("notused.groovy"));
+
+        createFile(script.getFile(),
+                "class groovyClass { def testRunner = { } }");
+
+        ScriptEngineService.WorkerRunnable runnable = new GroovyScriptEngine(script).createWorkerRunnable(callable);
+        assertNotNull(runnable);
+    }
+
+    @Test(expected = GroovyScriptEngine.GroovyScriptExecutionException.class)
+    public void exceptionThrownWhenCreatedWithNonCallableObject() throws Exception {
+        String foo = "this string is obviously not a callable";
+        final ScriptLocation script =
+                new ScriptLocation(new Directory(getDirectory()), new File("notused.groovy"));
+
+        createFile(script.getFile(),
+                "class groovyClass { def testRunner = { } }");
+
+        ScriptEngineService.WorkerRunnable runnable = new GroovyScriptEngine(script).createWorkerRunnable(foo);
+
+    }
+
+    @Test(expected = EngineException.class)
+    public void testIoException() throws Exception {
+        final ScriptLocation script =
+                new ScriptLocation(new Directory(getDirectory()), new File("bogus.groovy"));
+
+        new GroovyScriptEngineService().createScriptEngine(script);
     }
 
 }

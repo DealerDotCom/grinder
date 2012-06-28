@@ -6,7 +6,10 @@ import net.grinder.scriptengine.Instrumenter;
 import net.grinder.scriptengine.ScriptEngineService;
 import net.grinder.util.FileExtensionMatcher;
 
+import javax.swing.*;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 /**
  * Groovy implementation of the {@link ScriptEngineService}
@@ -64,6 +67,6 @@ public class GroovyScriptEngineService implements ScriptEngineService {
      */
     @Override
     public List<? extends Instrumenter> createInstrumenters() throws EngineException {
-        throw new UnsupportedOperationException("createInstrumenters is not implemented in net.grinder.scriptengine.groovy.GroovyScriptEngineService");
+        return emptyList();
     }
 }

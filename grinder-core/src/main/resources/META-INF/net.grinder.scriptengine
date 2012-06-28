@@ -4,4 +4,5 @@
 
 net.grinder.scriptengine.jython.JythonScriptEngineService
 net.grinder.scriptengine.clojure.ClojureScriptEngineService
+net.grinder.scriptengine.groovy.GroovyScriptEngineService
 net.grinder.scriptengine.java.JavaScriptEngineService
