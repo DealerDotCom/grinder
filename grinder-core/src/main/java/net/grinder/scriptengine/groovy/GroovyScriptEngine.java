@@ -23,7 +23,7 @@ import java.util.concurrent.Callable;
 public class GroovyScriptEngine implements ScriptEngine {
     private static final String TEST_RUNNER_CLOSURE_NAME = "testRunner";
 
-    private final Callable<?> m_runnerFactory;
+    private final GroovyObject m_groovyObject;
 
     public GroovyScriptEngine(ScriptLocation script) throws EngineException {
        // Get groovy to compile the script and access the callable closure
@@ -32,8 +32,10 @@ public class GroovyScriptEngine implements ScriptEngine {
         try {
             Class testRunnerClass = loader.parseClass(script.getFile());
             GroovyObject groovyObject = (GroovyObject) testRunnerClass.newInstance();
+            // test that the method exists - fail fast otherwise
             Callable<?> closure = (Callable<?>) groovyObject.getProperty(TEST_RUNNER_CLOSURE_NAME);
-            m_runnerFactory = closure;
+
+            m_groovyObject = groovyObject;
         }
         catch (IOException io) {
             throw new EngineException("Unable to parse groovy script at: " + script.getFile().getAbsolutePath(), io);
@@ -60,7 +62,7 @@ public class GroovyScriptEngine implements ScriptEngine {
      */
     @Override
     public ScriptEngineService.WorkerRunnable createWorkerRunnable() throws EngineException {
-        return new GroovyWorkerRunnable(m_runnerFactory);
+        return new GroovyWorkerRunnable(m_groovyObject);
     }
 
 
@@ -70,16 +72,16 @@ public class GroovyScriptEngine implements ScriptEngine {
     private final class GroovyWorkerRunnable
       implements ScriptEngineService.WorkerRunnable {
 
-        private final Callable<?> closure;
+        private final GroovyObject groovyObject;
 
-        private GroovyWorkerRunnable(Callable<?> closure) {
-            this.closure = closure;
+        private GroovyWorkerRunnable(GroovyObject groovyObject) {
+            this.groovyObject = groovyObject;
         }
 
         @Override
         public void run() throws ScriptExecutionException {
             try {
-                closure.call();
+                groovyObject.invokeMethod(TEST_RUNNER_CLOSURE_NAME, new Object[]{});
             }
             catch (Exception e) {
                 throw new GroovyScriptExecutionException("Exception raised by worker thread", e);
@@ -103,11 +105,11 @@ public class GroovyScriptEngine implements ScriptEngine {
      */
     @Override
     public ScriptEngineService.WorkerRunnable createWorkerRunnable(Object testRunner) throws EngineException {
-        if (testRunner instanceof Callable<?>) {
-           return new GroovyWorkerRunnable((Callable<?>) testRunner);
+        if (testRunner instanceof GroovyObject) {
+           return new GroovyWorkerRunnable((GroovyObject)testRunner);
         }
 
-        throw new GroovyScriptExecutionException("supplied testRunner object is not callable");
+        throw new GroovyScriptExecutionException("supplied testRunner object is not a groovy object");
     }
 
     /**

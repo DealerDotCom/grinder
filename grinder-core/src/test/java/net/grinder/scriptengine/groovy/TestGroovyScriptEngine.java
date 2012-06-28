@@ -1,6 +1,7 @@
 package net.grinder.scriptengine.groovy;
 
 import clojure.lang.Obj;
+import groovy.lang.GroovyObject;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.common.ScriptLocation;
 import net.grinder.scriptengine.ScriptEngineService;
@@ -9,6 +10,7 @@ import net.grinder.scriptengine.clojure.ClojureScriptEngineService;
 import net.grinder.testutility.AbstractJUnit4FileTestCase;
 import net.grinder.util.Directory;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,12 +107,7 @@ public class TestGroovyScriptEngine extends AbstractJUnit4FileTestCase {
 
     @Test
     public void testGroovyRunnerFromObject() throws Exception {
-        Callable callable = new Callable() {
-            @Override
-            public Object call() throws Exception {
-                throw new UnsupportedOperationException();
-            }
-        };
+        GroovyObject obj = Mockito.mock(GroovyObject.class);
 
 
         final ScriptLocation script =
@@ -119,7 +116,7 @@ public class TestGroovyScriptEngine extends AbstractJUnit4FileTestCase {
         createFile(script.getFile(),
                 "class groovyClass { def testRunner = { } }");
 
-        ScriptEngineService.WorkerRunnable runnable = new GroovyScriptEngine(script).createWorkerRunnable(callable);
+        ScriptEngineService.WorkerRunnable runnable = new GroovyScriptEngine(script).createWorkerRunnable(obj);
         assertNotNull(runnable);
     }
 
